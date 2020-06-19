@@ -3,7 +3,7 @@ package com.dtstack.engine.master.impl;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
-import com.dtstack.engine.master.BaseTest;
+import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.enums.EComponentScheduleType;
 import com.dtstack.engine.master.enums.EComponentType;
 import org.junit.Assert;
@@ -20,7 +20,7 @@ import java.util.Optional;
  * @author yuebai
  * @date 2020-06-04
  */
-public class ClusterServiceTest extends BaseTest {
+public class ClusterServiceTest extends AbstractTest {
 
     @Autowired
     private ClusterService clusterService;

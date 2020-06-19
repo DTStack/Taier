@@ -3,7 +3,7 @@ package com.dtstack.engine.master.impl;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.master.BaseTest;
+import com.dtstack.engine.master.AbstractTest;
 import org.apache.commons.math3.util.Pair;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import java.util.List;
  * @author xiuzhu
  */
 
-public class StreamTaskServiceTest extends BaseTest {
+public class StreamTaskServiceTest extends AbstractTest {
 
 	@Autowired
 	StreamTaskService streamTaskService;

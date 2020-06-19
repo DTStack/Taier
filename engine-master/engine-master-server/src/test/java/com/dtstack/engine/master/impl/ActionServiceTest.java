@@ -2,12 +2,10 @@ package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.EngineJobRetry;
 import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.master.BaseTest;
-import com.dtstack.engine.master.data.DataCollection;
+import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.jobdealer.JobDealer;
-import com.dtstack.engine.master.utils.PublicUtil;
+import com.dtstack.engine.master.utils.EngineUtil;
 import io.vertx.core.json.JsonObject;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +20,8 @@ import java.util.*;
 
 import static junit.framework.TestCase.fail;
 
-public class ActionServiceTest extends BaseTest {
+
+public class ActionServiceTest extends AbstractTest {
 
     @Mock
     private JobDealer jobDealer;
@@ -61,6 +60,7 @@ public class ActionServiceTest extends BaseTest {
 
         try {
             Integer status = actionService.status(jobId, computeType);
+            Boolean a = EngineUtil.isRequiredComponent(1);
             Assert.assertTrue(status != null && status.equals(statusResult));
         } catch (Exception e) {
             fail("Unexpect have a Exception: " + e.getMessage());

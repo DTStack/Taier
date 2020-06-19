@@ -34,7 +34,7 @@ public class DataCollection {
         sj.setTenantId(15L);
         sj.setProjectId(-1L);
         sj.setJobKey(ValueUtils.changedStrForDiffMethod("jobKey"));
-        sj.setExecStartTime(new Timestamp(System.currentTimeMillis()));
+        sj.setExecStartTime(new Timestamp(1592559742000L));
         sj.setExecEndTime(new Timestamp(System.currentTimeMillis()));
         sj.setTaskId(-1L);
         sj.setJobName("Python");

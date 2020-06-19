@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 
 public interface TestScheduleJobDao {
-    @Insert({ "REPLACE INTO schedule_job\n" +
+    @Insert({ "INSERT INTO schedule_job\n" +
             "    (id, gmt_create, gmt_modified, tenant_id, project_id, dtuic_tenant_id, app_type, job_id, job_key, job_name, task_id,\n" +
             "    create_user_id, is_deleted, `type`, is_restart, business_date, cyc_time, dependency_type, flow_job_id,\n" +
             "    status, task_type, max_retry_num, node_address, version_id, source_type, compute_type, exec_start_time, exec_end_time, log_info, engine_log)\n" +

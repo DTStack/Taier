@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 
 public interface TestEngineJobRetryDao {
-    @Insert({"replace into schedule_engine_job_retry(id, gmt_create,gmt_modified,job_id," +
+    @Insert({"insert into schedule_engine_job_retry(id, gmt_create,gmt_modified,job_id," +
             "engine_job_id,status,engine_log,log_info,application_id,retry_num,retry_task_params)\n" +
             "\t   values(#{engineJobRetry.id}, now(), now()," +
             "#{engineJobRetry.jobId},#{engineJobRetry.engineJobId}," +

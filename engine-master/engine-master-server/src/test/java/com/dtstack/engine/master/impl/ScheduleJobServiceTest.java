@@ -23,7 +23,7 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.JobTopErrorVO;
 import com.dtstack.engine.api.vo.JobTopOrderVO;
-import com.dtstack.engine.master.BaseTest;
+import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.data.DataCollection;
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,7 +39,7 @@ import java.util.Objects;
  * Company: www.dtstack.com
  * @author maqi
  */
-public class ScheduleJobServiceTest extends BaseTest {
+public class ScheduleJobServiceTest extends AbstractTest {
     @Autowired
     ScheduleJobService sheduleJobService;
 
