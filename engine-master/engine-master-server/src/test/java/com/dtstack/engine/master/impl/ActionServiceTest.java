@@ -2,16 +2,25 @@ package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.EngineJobRetry;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.akka.config.AkkaConfig;
+import com.dtstack.engine.common.client.ClientOperator;
+import com.dtstack.engine.dao.EngineUniqueSignDao;
+import com.dtstack.engine.dao.TestEngineUniqueSignDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.utils.EngineUtil;
+import com.google.common.collect.Lists;
 import io.vertx.core.json.JsonObject;
+import org.apache.commons.math3.analysis.function.Pow;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.mockito.Mockito.*;
 
@@ -20,26 +29,40 @@ import java.util.*;
 
 import static junit.framework.TestCase.fail;
 
-
+@PrepareForTest({AkkaConfig.class, ClientOperator.class})
 public class ActionServiceTest extends AbstractTest {
+
+    private final static List<String> mockInfos = Lists.newArrayList("Mock Info");
+
+    @Mock
+    private ClientOperator clientOperator;
 
     @Mock
     private JobDealer jobDealer;
 
     @Autowired
     @InjectMocks
-    ActionService actionService;
+    private ActionService actionService;
+
+    @Autowired
+    private TestEngineUniqueSignDao testEngineUniqueSignDao;
+
 
     @Before
-    public void setup() {
+    public void setup() throws Exception{
         MockitoAnnotations.initMocks(this);
+        PowerMockito.mockStatic(AkkaConfig.class);
+        when(AkkaConfig.isLocalMode()).thenReturn(true);
+        PowerMockito.mockStatic(ClientOperator.class);
+        when(ClientOperator.getInstance()).thenReturn(clientOperator);
+        when(clientOperator.containerInfos(any())).thenReturn(mockInfos);
     }
 
 
     @Test
     public void testStart() {
         try {
-            Map<String, Object> params = getParams(getJsonString());
+            Map<String, Object> params = getParams(getJsonString(getRandomStr()));
             Boolean result = actionService.start(params);
             Assert.assertTrue(result);
         } catch (Exception e) {
@@ -199,16 +222,63 @@ public class ActionServiceTest extends AbstractTest {
         }
     }
 
+    @Test
+    public void testEntitys() {
+        ScheduleJob scheduleJob = dataCollection.getScheduleJobThird();
+        String jobId = scheduleJob.getJobId();
+        Integer computeType = scheduleJob.getComputeType();
+        try {
+            actionService.entitys(new ArrayList<>(Arrays.asList(jobId)), null);
+            fail("Expect have a Exception");
+        } catch (Exception e) {}
+
+        try {
+            List<Map<String,Object>> result = actionService.entitys(new ArrayList<>(Arrays.asList(jobId)), computeType);
+            Map<String, Object> map = result.get(0);
+            Assert.assertEquals(map.get("jobId"), scheduleJob.getJobId());
+            Assert.assertEquals(map.get("status"), scheduleJob.getStatus());
+            Assert.assertEquals(map.get("execStartTime"), scheduleJob.getExecStartTime());
+            Assert.assertEquals(map.get("logInfo"), scheduleJob.getLogInfo());
+            Assert.assertEquals(map.get("engineLog"), scheduleJob.getEngineLog());
+            Assert.assertEquals(map.get("engineJobId"), scheduleJob.getEngineJobId());
+            Assert.assertEquals(map.get("applicationId"), scheduleJob.getApplicationId());
+        } catch (Exception e) {
+            fail("Unexpect have a Exception: " + e.getMessage());
+        }
+    }
+
+
+    @Test
+    public void testContainerInfos() {
+        ScheduleJob scheduleJob = dataCollection.getScheduleJobThird();
+        try {
+            List<String> result = actionService.containerInfos(getParams(getJsonString(scheduleJob.getJobId())));
+            Assert.assertEquals(result, mockInfos);
+        } catch (Exception e) {
+            fail("Unexpect have a Exception: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGenerateUniqueSign() {
+        String sign = actionService.generateUniqueSign();
+        Assert.assertEquals(testEngineUniqueSignDao.getIdByUniqueSign(sign).size(),1);
+    }
+
 
     private Map<String, Object> getParams(String json) {
         return new JsonObject(json).getMap();
+    }
+
+    private String getRandomStr() {
+        return String.valueOf(System.currentTimeMillis());
     }
 
     /**
      * 其中利用系统时间创建不同的任务ID
      * @return
      */
-    private String getJsonString() {
+    private String getJsonString(String taskId) {
         String spark_json = "{\"isFailRetry\":false,\"sqlText\":\"ADD JAR WITH hdfs://ns1/dtInsight/batch/pyspark_13_49_bb_1590461304653.py AS " +
                 ";\",\"computeType\":1,\"exeArgs\":\"\",\"pluginInfo\":{\"sparkSqlProxyPath\":\"hdfs://ns1/dtInsight/spark/client/spark-sql-proxy.jar" +
                 "\",\"spark.yarn.appMasterEnv.PYSPARK_PYTHON\":\"/data/anaconda3/bin/python3\",\"cluster\":\"test4_beta\",\"spark.yarn.appMasterEnv." +
@@ -228,7 +298,7 @@ public class ActionServiceTest extends AbstractTest {
                 "01.227:2181\",\"yarn.resourcemanager.admin.address.rm1\":\"172.16.100.216:8033\",\"yarn.resourcemanager.webapp.address.rm2\":\"172.16.101.136:8088\",\"yarn.log.s" +
                 "erver.url\":\"http://172.16.101.136:19888/jobhistory/logs/\",\"yarn.resourcemanager.admin.address.rm2\":\"172.16.101.136:8033\",\"yarn.resourcemanager.webapp.add" +
                 "ress.rm1\":\"172.16.100.216:8088\",\"yarn.resourcemanager.ha.rm-ids\":\"rm1,rm2\",\"yarn.resourcemanager.ha.automatic-failover.zk-base-path\":\"/yarn-leader-electi" +
-                "on\",\"yarn.client.failover-proxy-provider\":\"org.apache.hadoop.yarn.client.ConfiguredRMFailoverProxyProvider\",\"yarn.resourcemanager.scheduler.address.rm1\":\"172.16.100.216:8030\",\"yarn.resourcemanager.scheduler.address.rm2\":\"172.16.101.136:8030\",\"yarn.nodemanager.delete.debug-delay-sec\":\"600\",\"yarn.resourcemanager.address.rm1\":\"172.16.100.216:8032\",\"yarn.log-aggregation.retain-seconds\":\"2592000\",\"yarn.nodemanager.resource.memory-mb\":\"6144\",\"yarn.resourcemanager.ha.enabled\":\"true\",\"yarn.resourcemanager.address.rm2\":\"172.16.101.136:8032\",\"yarn.resourcemanager.cluster-id\":\"yarn-rm-cluster\",\"yarn.scheduler.minimum-allocation-mb\":\"512\",\"yarn.nodemanager.aux-services\":\"mapreduce_shuffle\",\"yarn.resourcemanager.resource-tracker.address.rm1\":\"172.16.100.216:8031\",\"yarn.nodemanager.resource.cpu-vcores\":\"8\",\"yarn.resourcemanager.resource-tracker.address.rm2\":\"172.16.101.136:8031\",\"yarn.nodemanager.pmem-check-enabled\":\"true\",\"yarn.nodemanager.remote-app-log-dir\":\"/tmp/logs\",\"yarn.scheduler.maximum-allocation-mb\":\"6144\",\"yarn.resourcemanager.ha.automatic-failover.enabled\":\"true\",\"yarn.nodemanager.vmem-check-enabled\":\"false\",\"yarn.log-aggregation.retain-check-interval-seconds\":\"604800\",\"yarn.nodemanager.webapp.address\":\"0.0.0.0:8042\",\"yarn.nodemanager.aux-services.mapreduce_shuffle.class\":\"org.apache.hadoop.mapred.ShuffleHandler\",\"yarn.resourcemanager.recovery.enabled\":\"true\",\"yarn.log-aggregation-enable\":\"true\",\"yarn.resourcemanager.store.class\":\"org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore\",\"yarn.nodemanager.vmem-pmem-ratio\":\"4\",\"yarn.resourcemanager.zk-state-store.address\":\"172.16.100.216:2181,172.16.101.136:2181,172.16.101.227:2181\",\"ha.zookeeper.quorum\":\"172.16.100.216:2181,172.16.101.136:2181,172.16.101.227:2181\"},\"sftpConf\":{\"path\":\"/data/beta4\",\"password\":\"abc123\",\"post\":\"22\",\"auth\":\"1\",\"host\":\"172.16.100.216\",\"username\":\"root\"},\"sparkPythonExtLibPath\":\"/dtInsight/pythons/pyspark.zip,hdfs://ns1/dtInsight/pythons/py4j-0.10.7-src.zip\",\"addColumnSupport\":\"true\",\"spark.eventLog.compress\":\"true\",\"sparkYarnArchive\":\"hdfs://ns1/dtInsight/sparkjars/jars\",\"spark.eventLog.enabled\":\"true\",\"spark.eventLog.dir\":\"hdfs://ns1/tmp/spark-yarn-logs\",\"md5zip\":\"\",\"tenantId\":13,\"queue\":\"default\"},\"engineType\":\"spark\",\"taskParams\":\"executor.instances=1\\nexecutor.cores=1\\njob.priority=10\",\"maxRetryNum\":0,\"taskType\":3,\"groupName\":\"test4_beta_default\",\"sourceType\":2,\"clusterName\":\"test4_beta\",\"name\":\"run_pyspark_task_1590461304653\",\"tenantId\":15,\"taskId\":\"662c"+ System.currentTimeMillis() +"\"}";
+                "on\",\"yarn.client.failover-proxy-provider\":\"org.apache.hadoop.yarn.client.ConfiguredRMFailoverProxyProvider\",\"yarn.resourcemanager.scheduler.address.rm1\":\"172.16.100.216:8030\",\"yarn.resourcemanager.scheduler.address.rm2\":\"172.16.101.136:8030\",\"yarn.nodemanager.delete.debug-delay-sec\":\"600\",\"yarn.resourcemanager.address.rm1\":\"172.16.100.216:8032\",\"yarn.log-aggregation.retain-seconds\":\"2592000\",\"yarn.nodemanager.resource.memory-mb\":\"6144\",\"yarn.resourcemanager.ha.enabled\":\"true\",\"yarn.resourcemanager.address.rm2\":\"172.16.101.136:8032\",\"yarn.resourcemanager.cluster-id\":\"yarn-rm-cluster\",\"yarn.scheduler.minimum-allocation-mb\":\"512\",\"yarn.nodemanager.aux-services\":\"mapreduce_shuffle\",\"yarn.resourcemanager.resource-tracker.address.rm1\":\"172.16.100.216:8031\",\"yarn.nodemanager.resource.cpu-vcores\":\"8\",\"yarn.resourcemanager.resource-tracker.address.rm2\":\"172.16.101.136:8031\",\"yarn.nodemanager.pmem-check-enabled\":\"true\",\"yarn.nodemanager.remote-app-log-dir\":\"/tmp/logs\",\"yarn.scheduler.maximum-allocation-mb\":\"6144\",\"yarn.resourcemanager.ha.automatic-failover.enabled\":\"true\",\"yarn.nodemanager.vmem-check-enabled\":\"false\",\"yarn.log-aggregation.retain-check-interval-seconds\":\"604800\",\"yarn.nodemanager.webapp.address\":\"0.0.0.0:8042\",\"yarn.nodemanager.aux-services.mapreduce_shuffle.class\":\"org.apache.hadoop.mapred.ShuffleHandler\",\"yarn.resourcemanager.recovery.enabled\":\"true\",\"yarn.log-aggregation-enable\":\"true\",\"yarn.resourcemanager.store.class\":\"org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore\",\"yarn.nodemanager.vmem-pmem-ratio\":\"4\",\"yarn.resourcemanager.zk-state-store.address\":\"172.16.100.216:2181,172.16.101.136:2181,172.16.101.227:2181\",\"ha.zookeeper.quorum\":\"172.16.100.216:2181,172.16.101.136:2181,172.16.101.227:2181\"},\"sftpConf\":{\"path\":\"/data/beta4\",\"password\":\"abc123\",\"post\":\"22\",\"auth\":\"1\",\"host\":\"172.16.100.216\",\"username\":\"root\"},\"sparkPythonExtLibPath\":\"/dtInsight/pythons/pyspark.zip,hdfs://ns1/dtInsight/pythons/py4j-0.10.7-src.zip\",\"addColumnSupport\":\"true\",\"spark.eventLog.compress\":\"true\",\"sparkYarnArchive\":\"hdfs://ns1/dtInsight/sparkjars/jars\",\"spark.eventLog.enabled\":\"true\",\"spark.eventLog.dir\":\"hdfs://ns1/tmp/spark-yarn-logs\",\"md5zip\":\"\",\"tenantId\":13,\"queue\":\"default\"},\"engineType\":\"spark\",\"taskParams\":\"executor.instances=1\\nexecutor.cores=1\\njob.priority=10\",\"maxRetryNum\":0,\"taskType\":3,\"groupName\":\"test4_beta_default\",\"sourceType\":2,\"clusterName\":\"test4_beta\",\"name\":\"run_pyspark_task_1590461304653\",\"tenantId\":15,\"taskId\":\""+ taskId +"\"}";
         return spark_json;
     }
 

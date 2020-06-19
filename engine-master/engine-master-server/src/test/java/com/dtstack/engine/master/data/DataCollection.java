@@ -92,6 +92,39 @@ public class DataCollection {
 
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class, method = "insert")
     @DatabaseDeleteOperation(dao = TestScheduleJobDao.class, method = "deleteById", field = "id")
+    public ScheduleJob getScheduleJobThird() {
+        ScheduleJob sj = new ScheduleJob();
+        sj.setId(ValueUtils.changedIdForDiffMethod());
+        sj.setStatus(5);
+        sj.setJobId(ValueUtils.changedStrForDiffMethod("jobId"));
+        sj.setTenantId(15L);
+        sj.setProjectId(-1L);
+        sj.setJobKey(ValueUtils.changedStrForDiffMethod("jobKey"));
+        sj.setExecStartTime(new Timestamp(1592559742000L));
+        sj.setExecEndTime(new Timestamp(System.currentTimeMillis()));
+        sj.setTaskId(-1L);
+        sj.setJobName("Python");
+        sj.setCreateUserId(0L);
+        sj.setIsDeleted(0);
+        sj.setBusinessDate("20200608234500");
+        sj.setCycTime(DateUtil.getUnStandardFormattedDate(System.currentTimeMillis()));
+        sj.setTaskType(0);
+        sj.setAppType(0);
+        sj.setType(0);
+        sj.setIsRestart(0);
+        sj.setDependencyType(0);
+        sj.setFlowJobId("0");
+        sj.setPeriodType(0);
+        sj.setMaxRetryNum(0);
+        sj.setRetryNum(0);
+        sj.setComputeType(1);
+        sj.setLogInfo("{err: test_log_info}");
+        sj.setEngineLog("");
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class, method = "insert")
+    @DatabaseDeleteOperation(dao = TestScheduleJobDao.class, method = "deleteById", field = "id")
     public ScheduleJob getScheduleJobStream() {
         ScheduleJob sj = new ScheduleJob();
         sj.setId(ValueUtils.changedIdForDiffMethod());
