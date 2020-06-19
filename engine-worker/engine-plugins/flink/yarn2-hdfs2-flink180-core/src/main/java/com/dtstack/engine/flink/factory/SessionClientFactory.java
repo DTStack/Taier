@@ -292,7 +292,9 @@ public class SessionClientFactory extends AbstractClientFactory {
             String flinkPluginRoot = flinkConfig.getFlinkPluginRoot();
             if (StringUtils.isNotBlank(flinkPluginRoot)) {
                 String syncPluginDir = flinkPluginRoot + SyncPluginInfo.FILE_SP + SyncPluginInfo.SYNC_PLUGIN_DIR_NAME;
-                List<File> pluginPaths = Arrays.stream(new File(syncPluginDir).listFiles()).collect(Collectors.toList());
+                List<File> pluginPaths = Arrays.stream(new File(syncPluginDir).listFiles())
+                        .filter(file -> file.getName().contains(".jar"))
+                        .collect(Collectors.toList());
                 clusterDescriptor.addShipFiles(pluginPaths);
             }
         }
