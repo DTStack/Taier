@@ -217,7 +217,7 @@ public class JobGraphBuilder {
      * @return
      * @see  JobGraphBuilder#doSetFlowJobIdForSubTasks(java.util.List, java.util.Map)
      */
-    private String buildFlowReplaceId(Long taskId, String cycTime, Integer appType) {
+    public String buildFlowReplaceId(Long taskId, String cycTime, Integer appType) {
         return taskId + "_" + cycTime + "_" + appType ;
     }
 
@@ -341,6 +341,7 @@ public class JobGraphBuilder {
         //正常调度生成job需要判断--任务有效时间范围
         if (scheduleType.equals(EScheduleType.NORMAL_SCHEDULE) &&
                 (scheduleCron.getBeginDate().after(jobBuildTime) || scheduleCron.getEndDate().before(jobBuildTime))) {
+            logger.error("appType {} task {} out of normal schedule time " ,task.getTaskId(), task.getAppType());
             return jobList;
         }
 
@@ -608,7 +609,7 @@ public class JobGraphBuilder {
      */
     private List<String> getExternalJobKeys(List<Long> taskShadeIds, ScheduleJob scheduleJob, ScheduleCron scheduleCron, String keyPreStr) {
         List<String> jobKeyList = Lists.newArrayList();
-        List<ScheduleTaskShade> pTaskList = batchTaskShadeService.getTaskByIds(taskShadeIds, null);
+        List<ScheduleTaskShade> pTaskList = batchTaskShadeService.getTaskByIds(taskShadeIds, scheduleJob.getAppType());
         for (ScheduleTaskShade pTask : pTaskList) {
             try {
                 ScheduleCron pScheduleCron = ScheduleFactory.parseFromJson(pTask.getScheduleConf());
