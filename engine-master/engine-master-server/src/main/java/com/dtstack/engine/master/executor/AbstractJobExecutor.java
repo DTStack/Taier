@@ -7,6 +7,7 @@ import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.JobCheckStatus;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.enums.SentinelType;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
@@ -192,6 +193,9 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                             batchJobService.startJob(scheduleBatchJob.getScheduleJob());
                             logger.info("---scheduleType:{} send job:{} to engine.", getScheduleType(), scheduleBatchJob.getJobId());
                         }
+                        if (!batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getJobId(),scheduleBatchJob.getAppType())) {
+                            jopPriorityQueue.putSurvivor(batchJobElement);
+                        }
                     } else {
                         batchJobService.startJob(scheduleBatchJob.getScheduleJob());
                     }
@@ -233,8 +237,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.NOT_UNSUBMIT) {
                     //当前任务状态为未提交状态--直接移除
                 } else {
+                    jopPriorityQueue.putSurvivor(batchJobElement);
                     //其他情况跳过,等待下次执行
-                    jopPriorityQueue.checkBlock();
                 }
             } catch (Exception e) {
                 logger.error("happens error:", e);
@@ -266,6 +270,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             outLoop:
             while (true) {
                 if (jopPriorityQueue.isBlocked()) {
+                    jopPriorityQueue.checkBlock();
                     if (logger.isInfoEnabled()) {
                         logger.info("scheduleType:{} nodeAddress:{} Queue Blocked!!!", getScheduleType(), nodeAddress);
                     }
@@ -273,6 +278,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 }
                 List<ScheduleBatchJob> listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight());
                 if (CollectionUtils.isEmpty(listExecJobs)) {
+                    //遍历数据库结束的哨兵
+                    jopPriorityQueue.putSentinel(SentinelType.END_DB);
                     if (logger.isInfoEnabled()) {
                         logger.info("scheduleType:{} nodeAddress:{} add END_DB Sentinel!!!", getScheduleType(), nodeAddress);
                     }
@@ -282,6 +289,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     boolean put = jopPriorityQueue.putJob(scheduleBatchJob);
                     if (!put) {
                         //阻塞时的哨兵
+                        jopPriorityQueue.putSentinel(SentinelType.END_QUEUE);
                         if (logger.isInfoEnabled()) {
                             logger.info("scheduleType:{} nodeAddress:{} add END_QUEUE Sentinel!!!", getScheduleType(), nodeAddress);
                         }

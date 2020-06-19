@@ -2,37 +2,17 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
-import com.dtstack.engine.api.domain.ScheduleEngineJob;
-import com.dtstack.engine.api.domain.ScheduleFillDataJob;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleJobJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.api.dto.ScheduleJobDTO;
 import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.ChartDataVO;
-import com.dtstack.engine.api.vo.JobTopErrorVO;
-import com.dtstack.engine.api.vo.JobTopOrderVO;
-import com.dtstack.engine.api.vo.KillJobVO;
-import com.dtstack.engine.api.vo.RestartJobVO;
-import com.dtstack.engine.api.vo.ScheduleFillDataJobDetailVO;
-import com.dtstack.engine.api.vo.ScheduleFillDataJobPreViewVO;
-import com.dtstack.engine.api.vo.ScheduleJobChartVO;
-import com.dtstack.engine.api.vo.SchedulePeriodInfoVO;
-import com.dtstack.engine.api.vo.ScheduleRunDetailVO;
-import com.dtstack.engine.api.vo.ScheduleServerLogVO;
-import com.dtstack.engine.api.annotation.Forbidden;
+import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.constrant.TaskConstant;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.enums.LearningFrameType;
-import com.dtstack.engine.common.enums.QueryWorkFlowModel;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.enums.TaskOperateType;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;
@@ -44,9 +24,9 @@ import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.EDeployMode;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.jobdealer.JobStopDealer;
-import com.dtstack.engine.master.job.factory.MultiEngineFactory;
 import com.dtstack.engine.master.job.JobStartTriggerBase;
+import com.dtstack.engine.master.job.factory.MultiEngineFactory;
+import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
@@ -57,11 +37,7 @@ import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
-import com.dtstack.schedule.common.enums.AppType;
-import com.dtstack.schedule.common.enums.Deleted;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
-import com.dtstack.schedule.common.enums.ScheduleEngineType;
-import com.dtstack.schedule.common.enums.Sort;
+import com.dtstack.schedule.common.enums.*;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -78,30 +54,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import scala.Int;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -2737,7 +2696,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJob);
         List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByJobKey(scheduleJob.getJobKey());
         scheduleBatchJob.setJobJobList(scheduleJobJobs);
-        ScheduleTaskShade batchTaskById = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), 1);
+        ScheduleTaskShade batchTaskById = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), scheduleJob.getAppType());
         Map<Long, ScheduleTaskShade> taskShadeMap = new HashMap<>();
         taskShadeMap.put(scheduleJob.getTaskId(), batchTaskById);
         try {
@@ -2759,23 +2718,51 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         try {
             //如果appType为空的话则为离线
             if (Objects.isNull(appType)) {
-                appType = 1;
+                appType = AppType.RDOS.getType();
             }
-            ScheduleTaskShade task = batchTaskShadeService.getBatchTaskById(taskId, appType);
-            Map<String, String> flowJobId = new ConcurrentHashMap<>();
-            List<ScheduleBatchJob> cronTrigger = jobGraphBuilder.buildJobRunBean(task, "cronTrigger", EScheduleType.NORMAL_SCHEDULE,
-                    true, true, new DateTime().toString("yyyy-MM-dd"), "cronJob" + "_" + task.getName(), null, task.getProjectId(), task.getTenantId());
-            if (JobGraphBuilder.SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
-                for (ScheduleBatchJob jobRunBean : cronTrigger) {
-                    flowJobId.put(jobRunBean.getTaskId() + "_" + jobRunBean.getCycTime(), jobRunBean.getJobId());
+            ScheduleTaskShade testTask = batchTaskShadeService.getBatchTaskById(taskId, appType);
+            if (Objects.isNull(testTask)) {
+                throw new RdosDefineException("任务不存在");
+            }
+            List<ScheduleTaskShade> taskShades = new ArrayList<>();
+            taskShades.add(testTask);
+            if (SPECIAL_TASK_TYPES.contains(testTask.getTaskType())) {
+                //工作流算法实验 需要将子节点查询出来运行
+                List<ScheduleTaskShade> flowWorkSubTasks = batchTaskShadeService.getFlowWorkSubTasks(testTask.getTaskId(), testTask.getAppType(),
+                        null, null);
+                if (CollectionUtils.isNotEmpty(flowWorkSubTasks)) {
+                    taskShades.addAll(flowWorkSubTasks);
                 }
             }
-            for (ScheduleBatchJob job : cronTrigger) {
+            Map<String, String> flowJobId = new ConcurrentHashMap<>();
+            List<ScheduleBatchJob> allJobs = new ArrayList<>();
+
+            for (ScheduleTaskShade task : taskShades) {
+                try {
+                    List<ScheduleBatchJob> cronTrigger = jobGraphBuilder.buildJobRunBean(task, "cronTrigger", EScheduleType.NORMAL_SCHEDULE,
+                            true, true, new DateTime().toString("yyyy-MM-dd"), "cronJob" + "_" + task.getName(),
+                            null, task.getProjectId(), task.getTenantId());
+
+                    synchronized (allJobs) {
+                        allJobs.addAll(cronTrigger);
+                    }
+
+                    if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
+                        for (ScheduleBatchJob jobRunBean : cronTrigger) {
+                            flowJobId.put(jobGraphBuilder.buildFlowReplaceId(task.getTaskId(),jobRunBean.getCycTime(),task.getAppType()),jobRunBean.getJobId());
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error("", e);
+                }
+            }
+
+            for (ScheduleBatchJob job : allJobs) {
                 String flowIdKey = job.getScheduleJob().getFlowJobId();
                 job.getScheduleJob().setFlowJobId(flowJobId.getOrDefault(flowIdKey, "0"));
             }
 
-            cronTrigger.sort((ebj1, ebj2) -> {
+            allJobs.sort((ebj1, ebj2) -> {
                 Long date1 = Long.valueOf(ebj1.getCycTime());
                 Long date2 = Long.valueOf(ebj2.getCycTime());
                 if (date1 < date2) {
@@ -2787,19 +2774,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             });
 
             //需要保存BatchJob, BatchJobJob
-            this.insertJobList(cronTrigger, EScheduleType.NORMAL_SCHEDULE.getType());
-            //添加到告警监控表里面
+            this.insertJobList(allJobs, EScheduleType.NORMAL_SCHEDULE.getType());
 
-            if (CollectionUtils.isNotEmpty(cronTrigger)) {
-                for (ScheduleBatchJob job : cronTrigger) {
-                    logger.info("create job task shade for test {}", job.getJobKey());
-                    if (CollectionUtils.isNotEmpty(job.getBatchJobJobList())) {
-                        for (ScheduleJobJob scheduleJobJob : job.getBatchJobJobList()) {
-                            logger.info("create job task shade job {} parent job for test {}", scheduleJobJob.getJobKey(), scheduleJobJob.getParentJobKey());
-                        }
-                    }
-                }
-            }
         } catch (Exception e) {
             logger.error("createTodayTaskShadeForTest", e);
             throw new RdosDefineException("任务创建失败");
