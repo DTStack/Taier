@@ -63,7 +63,7 @@ public class FlinkClientBuilder {
                 }
             }
             return null;
-        },KerberosUtils.convertMapConfToConfiguration(flinkConfig.getYarnConf()));
+        },yarnConf);
 
         return builder;
     }
@@ -167,7 +167,7 @@ public class FlinkClientBuilder {
                 yarnClient1.start();
                 yarnClient = yarnClient1;
                 return yarnClient;
-            },KerberosUtils.convertMapConfToConfiguration(flinkConfig.getYarnConf()));
+            },yarnConf);
         } catch (Exception e) {
             throw new RdosDefineException("build yarn client error", e);
         }

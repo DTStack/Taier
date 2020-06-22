@@ -1,20 +1,18 @@
 package com.dtstack.engine.common.client;
 
+import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.common.pojo.ClusterResource;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,7 +45,7 @@ public abstract class AbstractClient implements IClient {
 
     private void loadConfig() {
         try {
-            String configYaml = findPluginCofig(this.getClass(), PLUGIN_DEFAULT_CONFIG_NAME);
+            String configYaml = findPluginConfig(this.getClass(), PLUGIN_DEFAULT_CONFIG_NAME);
             InputStream resourceAsStream = !StringUtils.isEmpty(configYaml) ? new FileInputStream(configYaml) :
                     this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
             if (Objects.isNull(resourceAsStream)) {
@@ -134,17 +132,17 @@ public abstract class AbstractClient implements IClient {
     }
 
     @Override
-    public List<List<Object>> executeQuery(String pluginInfo, String sql, String database) {
+    public List<List<Object>> executeQuery(String sql, String database) {
         return null;
     }
 
     @Override
-    public String uploadStringToHdfs(String pluginInfo, String bytes, String hdfsPath) {
+    public String uploadStringToHdfs(String bytes, String hdfsPath) {
         return null;
     }
 
     @Override
-    public ClusterResource getClusterResource(String pluginInfo) {
+    public ClusterResource getClusterResource() {
         return null;
     }
 
@@ -303,7 +301,7 @@ public abstract class AbstractClient implements IClient {
         return templateVo;
     }
 
-    protected String findPluginCofig(Class<?> clazz, String fileName) {
+    protected String findPluginConfig(Class<?> clazz, String fileName) {
         URL[] urLs = ((URLClassLoader) clazz.getClassLoader()).getURLs();
         if (urLs.length > 0) {
             String jarPath = urLs[0].getPath();

@@ -92,7 +92,7 @@ public class FlinkClusterClientManager {
                 clusterClient = sessionClientFactory.getClusterClient();
             }
             return null;
-        },KerberosUtils.convertMapConfToConfiguration(flinkConfig.getYarnConf()));
+        },flinkClientBuilder.getYarnConf());
     }
 
     /**

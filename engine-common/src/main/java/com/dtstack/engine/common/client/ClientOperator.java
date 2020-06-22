@@ -152,18 +152,18 @@ public class ClientOperator {
         return clusterClient.testConnect(pluginInfo);
     }
 
-    public List<List<Object>> executeQuery(String engineType, String pluginInfo,String sql,String database){
-        IClient clusterClient = clientCache.getDefaultPlugin(engineType);
-        return clusterClient.executeQuery(pluginInfo,sql,database);
+    public List<List<Object>> executeQuery(String engineType, String pluginInfo,String sql,String database) throws Exception{
+        IClient client = clientCache.getClient(engineType, pluginInfo);
+        return client.executeQuery(sql,database);
     }
 
-    public String uploadStringToHdfs(String engineType,String pluginInfo,String bytes, String hdfsPath){
-        IClient client = clientCache.getDefaultPlugin(engineType);
-        return client.uploadStringToHdfs(pluginInfo,bytes,hdfsPath);
+    public String uploadStringToHdfs(String engineType,String pluginInfo,String bytes, String hdfsPath) throws Exception{
+        IClient client = clientCache.getClient(engineType,pluginInfo);
+        return client.uploadStringToHdfs(bytes,hdfsPath);
     }
 
     public ClusterResource getClusterResource(String engineType, String pluginInfo) throws ClientAccessException{
         IClient client = clientCache.getClient(engineType,pluginInfo);
-        return client.getClusterResource(pluginInfo);
+        return client.getClusterResource();
     }
 }

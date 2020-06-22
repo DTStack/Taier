@@ -12,7 +12,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -43,6 +42,10 @@ public abstract class AbstractConnFactory {
 
     protected String testSql = null;
 
+    protected Configuration yarnConf = null;
+
+    protected BaseConfig baseConfig = null;
+
     public void init(Properties properties) throws ClassNotFoundException {
         synchronized (AbstractConnFactory.class) {
             if (isFirstLoaded.get()) {
@@ -57,24 +60,16 @@ public abstract class AbstractConnFactory {
 
         Preconditions.checkNotNull(dbUrl, "db url can't be null");
         Map config = (Map) properties.get("config");
-        BaseConfig baseConfig = null;
-        Configuration yarnConf = null;
 
         try {
             if (Objects.nonNull(config)) {
                 baseConfig = PublicUtil.mapToObject(config, BaseConfig.class);
                 if (Objects.nonNull(config.get("yarnConf"))) {
                     Map<String, Object> yarnMap = (Map<String, Object>) config.get("yarnConf");
-                    yarnConf = new Configuration();
-                    for (String key : yarnMap.keySet()) {
-                        yarnConf.set(key, String.valueOf(yarnMap.get(key)));
-                    }
+                    yarnConf = KerberosUtils.convertMapConfToConfiguration(yarnMap);
                 }
             }
-            KerberosUtils.login(baseConfig, () -> {
-                testConn();
-                return null;
-            }, yarnConf);
+            testConn();
         } catch (Exception e) {
             throw new RdosDefineException("get conn exception:" + e.toString());
         }
@@ -113,19 +108,23 @@ public abstract class AbstractConnFactory {
 
     }
 
-    public Connection getConn() throws ClassNotFoundException, SQLException, IOException {
-
-        Connection conn;
-
-        if (userName == null) {
-            conn = DriverManager.getConnection(dbUrl);
-        } else {
-            conn = DriverManager.getConnection(dbUrl, userName, pwd);
-        }
-        return conn;
+    public Connection getConn() throws Exception {
+        return KerberosUtils.login(baseConfig, () -> {
+            Connection conn = null;
+            try {
+                if (userName == null) {
+                    conn = DriverManager.getConnection(dbUrl);
+                } else {
+                    conn = DriverManager.getConnection(dbUrl, userName, pwd);
+                }
+            } catch (SQLException e) {
+                throw new RdosDefineException("get conn exception:" + e.toString());
+            }
+            return conn;
+        }, yarnConf);
     }
 
-    public Connection getConnByTaskParams(String taskParams, String jobName) throws ClassNotFoundException, SQLException, IOException {
+    public Connection getConnByTaskParams(String taskParams, String jobName) throws Exception {
         return getConn();
     }
 
