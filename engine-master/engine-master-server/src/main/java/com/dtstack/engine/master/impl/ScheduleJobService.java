@@ -130,8 +130,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
     private static final int TOTAL_HOUR_DAY = 24;
 
-    private static final String ADD_JAR_WITH = "ADD JAR WITH %s AS ;";
-
     private static final String DOWNLOAD_LOG = "/api/rdos/download/batch/batchDownload/downloadJobLog?jobId=%s&taskType=%s";
 
     private static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EScheduleJobType.WORK_FLOW.getVal(), EScheduleJobType.ALGORITHM_LAB.getVal());
@@ -156,9 +154,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
     @Autowired
     private ScheduleJobJobService batchJobJobService;
-
-    @Autowired
-    private EnvironmentContext env;
 
     @Autowired
     private ZkService zkService;
@@ -384,14 +379,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return scheduleJobDao.countScienceJobStatus(runStatus, projectIds, type, convertStringToList(taskType), tenantId,cycStartTime,cycEndTime);
     }
 
-
-    private Long objCastLong(Object obj) {
-        if (Objects.isNull(obj)) {
-            return 0L;
-        }
-        return Long.valueOf(obj.toString());
-    }
-
     @Forbidden
     private List<Object> finishData(List<Map<String, Object>> metadata) {
         Map<String, Long> dataMap = new HashMap<>();
@@ -590,23 +577,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return vos;
     }
 
-    private void dealFlowWorkJobs(List<ScheduleJobVO> vos, Map<Long, ScheduleTaskShade> batchTaskShadeMap) throws Exception {
-        for (ScheduleJobVO vo : vos) {
-            Integer type = batchTaskShadeMap.get(vo.getTaskId()).getTaskType();
-            if (EScheduleJobType.WORK_FLOW.getVal().intValue() == type) {
-                String jobId = vo.getJobId();
-                List<ScheduleJob> subJobs = scheduleJobDao.getSubJobsByFlowIds(Lists.newArrayList(jobId));
-                List<ScheduleTaskForFillDataDTO> batchTaskShadeList = Lists.newArrayList();
-                Map<Long, ScheduleTaskForFillDataDTO> shadeMap = this.prepare(subJobs);
-                List<ScheduleJobVO> subJobVOs = this.transfer(subJobs, shadeMap);
-
-                List<com.dtstack.engine.api.vo.ScheduleJobVO> relatedJobVOs= new ArrayList<>(subJobVOs.size());
-                subJobVOs.forEach(subJobVO -> relatedJobVOs.add(subJobVO));
-                vo.setRelatedJobs(relatedJobVOs);
-            }
-        }
-    }
-
     /**
      * 获取工作流节点的父节点和子节点关联信息
      *
@@ -803,30 +773,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return statusMap;
     }
 
-    private ScheduleJobDTO createKillQuery(KillJobVO vo) {
-        ScheduleJobDTO batchJobDTO = new ScheduleJobDTO();
-        batchJobDTO.setTenantId(vo.getTenantId());
-        batchJobDTO.setProjectId(vo.getProjectId());
-        batchJobDTO.setType(EScheduleType.NORMAL_SCHEDULE.getType());
-        batchJobDTO.setTaskPeriodId(convertStringToList(vo.getTaskPeriodId()));
-
-        setBizDay(batchJobDTO, vo.getBizStartDay(), vo.getBizEndDay(), vo.getTenantId(), vo.getProjectId());
-        //任务状态
-        if (StringUtils.isNotBlank(vo.getJobStatuses())) {
-            List<Integer> statues = new ArrayList<>();
-            String[] statuses = vo.getJobStatuses().split(",");
-            // 根据失败状态拆分标记来确定具体是哪一个状态map
-            Map<Integer, List<Integer>> statusMap = getStatusMap(false);
-            for (String status : statuses) {
-                List<Integer> statusList = statusMap.get(new Integer(status));
-                if (CollectionUtils.isNotEmpty(statusList)) {
-                    statues.addAll(statusList);
-                }
-            }
-            batchJobDTO.setJobStatuses(statues);
-        }
-        return batchJobDTO;
-    }
 
     private ScheduleJobDTO createQuery(QueryJobDTO vo) {
 
@@ -1171,89 +1117,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return EDeployMode.SESSION;
     }
 
-    private void addUserNameToImpalaOrHive(JSONObject pluginInfoJson, String userName, String password, String dbName, String engineType) {
-        if (pluginInfoJson == null || org.apache.commons.lang3.StringUtils.isBlank(userName) || (!ScheduleEngineType.IMPALA.getEngineName().equals(engineType) && !ScheduleEngineType.HIVE.getEngineName().equals(engineType))) {
-            return;
-        }
-
-        pluginInfoJson.put("userName", userName);
-        pluginInfoJson.put("pwd", password);
-        pluginInfoJson.put("dbUrl", String.format(pluginInfoJson.getString("dbUrl"), dbName));
-    }
-
-    public String getTableName(String table) {
-        String simpleTableName = table;
-        if (StringUtils.isNotEmpty(table)) {
-            String[] tablePart = table.split("\\.");
-            if (tablePart.length == 1) {
-                simpleTableName = tablePart[0];
-            } else if (tablePart.length == 2) {
-                simpleTableName = tablePart[1];
-            }
-        }
-
-        return simpleTableName;
-    }
-
-
-    private void treatInputAndOutput(JSONObject exeArgsJson) {
-        if (!exeArgsJson.containsKey("--app-type")) {
-            return;
-        }
-        String appType = exeArgsJson.getString("--app-type");
-        if (appType.equals(LearningFrameType.MXNet.getName()) || appType.equals(LearningFrameType.TensorFlow.getName())) {
-            String input = exeArgsJson.getString("--input");
-            String output = exeArgsJson.getString("--output");
-            if (StringUtils.isBlank(input)) {
-                exeArgsJson.remove("--input");
-            } else if (appType.equals(LearningFrameType.MXNet.getName())) {
-                exeArgsJson.put("--cacheFile", exeArgsJson.getString("--input"));
-                exeArgsJson.remove("--input");
-            }
-            if (StringUtils.isBlank(output)) {
-                exeArgsJson.remove("--output");
-            }
-        }
-    }
-
-    /**
-     * 1.兼容之前配置
-     * like：
-     * --app-type python --python-version 2
-     * 2.转换深度学习pythonVersion为 2.x\3.x
-     */
-    private void setPythonVersion(JSONObject exeArgsJson) {
-        if (!exeArgsJson.containsKey("--app-type")) {
-            return;
-        }
-        String appType = exeArgsJson.getString("--app-type");
-        if ("python".equals(appType)) {
-            int pyVersion = exeArgsJson.getIntValue("--python-version");
-            if (pyVersion == 0) {
-                exeArgsJson.put("--app-type", ScheduleEngineType.Python3.getVal());
-            } else {
-                exeArgsJson.put("--app-type", ScheduleEngineType.getByPythonVersion(pyVersion).getEngineName());
-            }
-        } else if (appType.equals(LearningFrameType.TensorFlow.getName()) ||
-                appType.equals(LearningFrameType.MXNet.getName())) {
-            int pyVersion = exeArgsJson.getIntValue("--python-version");
-            exeArgsJson.put("--python-version", convertPYVersion(pyVersion));
-        }
-    }
-
-    /**
-     * 将 --python-version 的2或3 转换为 2.x AND 3.x
-     *
-     * @param version
-     * @return
-     */
-    private String convertPYVersion(int version) {
-        String ver = PY_VERSION_MAP.get(version);
-        if (ver != null) {
-            return ver;
-        }
-        throw new RdosDefineException("python不支持2.x和3.x之外的版本类型");
-    }
 
     public String stopJob(@Param("jobId") long jobId, @Param("userId") Long userId, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId,
                           @Param("isRoot") Boolean isRoot, @Param("appType") Integer appType) throws Exception {
@@ -1342,13 +1205,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
         int stopCount = jobStopDealer.addStopJobs(jobs);
         return stopCount;
-    }
-
-    @Forbidden
-    public String stopUnsubmitJob(ScheduleJob scheduleJob) {
-        //还未提交的只需要将本地的任务设置为取消状态即可
-        updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.CANCELED.getStatus());
-        return "success";
     }
 
     /**
@@ -2586,8 +2442,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param time
      * @return
      */
-    public ScheduleJob getLastSuccessJob(@Param("taskId") Long taskId, @Param("time") Timestamp time) {
-        return scheduleJobDao.getByTaskIdAndStatusOrderByIdLimit(taskId, RdosTaskStatus.FINISHED.getStatus(), time);
+    public ScheduleJob getLastSuccessJob(@Param("taskId") Long taskId, @Param("time") Timestamp time,@Param("appType") Integer appType) {
+        return scheduleJobDao.getByTaskIdAndStatusOrderByIdLimit(taskId, RdosTaskStatus.FINISHED.getStatus(),time, appType);
     }
 
 

@@ -345,6 +345,6 @@ public class EnvironmentContext {
     }
 
     public int getTestConnectTimeout() {
-        return Integer.parseInt(environment.getProperty("testConnectTimeout", "1000"));
+        return Integer.parseInt(environment.getProperty("testConnectTimeout", "100"));
     }
 }

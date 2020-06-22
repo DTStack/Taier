@@ -280,7 +280,7 @@ public interface ScheduleJobService {
      * @param time
      * @return
      */
-    public ScheduleJob getLastSuccessJob(@Param("taskId") Long taskId, @Param("time") Timestamp time);
+    public ScheduleJob getLastSuccessJob(@Param("taskId") Long taskId, @Param("time") Timestamp time,@Param("appType") Integer appType);
 
 
     /**

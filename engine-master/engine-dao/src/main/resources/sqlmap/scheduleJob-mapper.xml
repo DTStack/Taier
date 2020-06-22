@@ -1340,6 +1340,7 @@
         WHERE job.task_id = #{taskId} and  #{time} > STR_TO_DATE(job.cyc_time,"%Y%m%d%H%i%s")
           and job.status = #{status}
           and job.is_deleted = 0
+          and job.app_type = #{appType}
         order by job.cyc_time desc limit 1
     </select>
 

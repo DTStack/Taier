@@ -206,7 +206,7 @@ public class JobCheckpointDealer implements InitializingBean {
             checkpointJobMap.computeIfAbsent(engineJobId, (info) -> {
                 try {
                     String pluginInfo = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(),
-                            jobIdentifier.getEngineJobId(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode()).toJSONString();
+                            jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode()).toJSONString();
                     int retainedNum = getRetainedNumFromPluginInfo(pluginInfo);
                     taskEngineIdAndRetainedNum.put(engineJobId, retainedNum);
 

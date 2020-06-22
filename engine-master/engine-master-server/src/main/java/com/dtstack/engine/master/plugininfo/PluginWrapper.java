@@ -97,15 +97,13 @@ public class PluginWrapper{
         }
 
         String jobId = (String)actionParam.get("taskId");
-        String appType = (String)actionParam.getOrDefault("appType", AppType.RDOS.getType());
+        Integer appType = MapUtils.getInteger(actionParam, "appType");
         ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus());
-        if(Objects.isNull(scheduleJob)){
+        if(Objects.isNull(scheduleJob) || Objects.isNull(appType)){
+            logger.info("dbUrl {} jobId {} appType or scheduleJob is null",dbUrl,jobId);
             return;
         }
-        if(Objects.isNull(appType)){
-            appType = AppType.RDOS.getType() + "";
-        }
-        JSONObject info = JSONObject.parseObject(scheduleTaskShadeDao.getExtInfoByTaskId(scheduleJob.getTaskId(), Integer.valueOf(appType)));
+        JSONObject info = JSONObject.parseObject(scheduleTaskShadeDao.getExtInfoByTaskId(scheduleJob.getTaskId(), appType));
         if(Objects.isNull(info)){
             return;
         }
@@ -130,7 +128,7 @@ public class PluginWrapper{
         }
 
         if (MultiEngineType.GREENPLUM.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
-            pluginInfoJson.put("dbUrl", dbUrl);
+            pluginInfoJson.put("jdbcUrl", dbUrl);
             return;
         }
 
@@ -149,7 +147,7 @@ public class PluginWrapper{
 
         pluginInfoJson.put("userName", userName);
         pluginInfoJson.put("pwd", password);
-        pluginInfoJson.put("dbUrl", String.format(pluginInfoJson.getString("dbUrl"), dbName));
+        pluginInfoJson.put("jdbcUrl", String.format(pluginInfoJson.getString("jdbcUrl"), dbName));
     }
 
 
