@@ -148,6 +148,9 @@ public class SyncPluginInfo {
         programArgList.add("-pluginRoot");
         programArgList.add(localSyncFileDir);
 
+        programArgList.add("-remotePluginPath");
+        programArgList.add(flinkRemoteSyncPluginRoot);
+
         String job = programArgList.get(i + 1);
 
         try {
