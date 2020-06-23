@@ -35,7 +35,7 @@ public class LoginVerticle {
 
     private ApplicationContext context;
 
-    private static List<String> needLoginPathList = Lists.newArrayList("getStatusCount","getJobGraph","runTimeTopOrder","errorTopOrder",
+    private static List<String> needLoginPathList = Lists.newArrayList("getJobGraph","runTimeTopOrder","errorTopOrder",
             "frozenTask","getFillDataJobInfoPreview","stopFillDataJobs");
 
     private static List<Pattern> freeLoginRegex = Lists.newArrayList(Pattern.compile("node/streamTask/.+"),Pattern.compile("node/action/.+"));
