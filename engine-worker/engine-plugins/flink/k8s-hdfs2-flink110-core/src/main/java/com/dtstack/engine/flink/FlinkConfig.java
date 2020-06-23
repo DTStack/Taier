@@ -60,7 +60,7 @@ public class FlinkConfig {
 
     private int flinkSessionSlotCount;
 
-    private String flinkSessionName = "FlinkSession";
+    private String flinkSessionName = "flinksession";
 
     private boolean sessionStartAuto = true;
 
