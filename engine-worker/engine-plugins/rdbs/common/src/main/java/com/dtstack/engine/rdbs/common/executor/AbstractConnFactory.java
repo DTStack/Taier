@@ -32,7 +32,7 @@ public abstract class AbstractConnFactory {
 
     private AtomicBoolean isFirstLoaded = new AtomicBoolean(true);
 
-    protected String dbUrl;
+    protected String jdbcUrl;
 
     private String userName;
 
@@ -54,11 +54,11 @@ public abstract class AbstractConnFactory {
             }
 
         }
-        dbUrl = MathUtil.getString(properties.get(ConfigConstant.DB_URL));
-        userName = MathUtil.getString(properties.get(ConfigConstant.USER_NAME));
-        pwd = MathUtil.getString(properties.get(ConfigConstant.PWD));
+        jdbcUrl = MathUtil.getString(properties.get(ConfigConstant.JDBCURL));
+        userName = MathUtil.getString(properties.get(ConfigConstant.USERNAME));
+        pwd = MathUtil.getString(properties.get(ConfigConstant.PASSWORD));
 
-        Preconditions.checkNotNull(dbUrl, "db url can't be null");
+        Preconditions.checkNotNull(jdbcUrl, "db url can't be null");
         Map config = (Map) properties.get("config");
 
         try {
@@ -113,9 +113,9 @@ public abstract class AbstractConnFactory {
             Connection conn = null;
             try {
                 if (userName == null) {
-                    conn = DriverManager.getConnection(dbUrl);
+                    conn = DriverManager.getConnection(jdbcUrl);
                 } else {
-                    conn = DriverManager.getConnection(dbUrl, userName, pwd);
+                    conn = DriverManager.getConnection(jdbcUrl, userName, pwd);
                 }
             } catch (SQLException e) {
                 throw new RdosDefineException("get conn exception:" + e.toString());

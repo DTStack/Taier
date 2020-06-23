@@ -38,4 +38,8 @@ public class ConfigConstant {
     public static final String AKKA_WORKER_LOGSTORE_USERNAME = "akka.worker.logstore.username";
     public static final String AKKA_WORKER_LOGSTORE_PASSWORD = "akka.worker.logstore.password";
 
+    public static final String JDBCURL = "jdbcUrl";
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
+
 }

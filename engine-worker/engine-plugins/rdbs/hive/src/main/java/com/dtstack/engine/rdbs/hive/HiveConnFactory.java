@@ -12,7 +12,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -45,10 +44,10 @@ public class HiveConnFactory extends AbstractConnFactory {
         hiveSubType = props.getProperty(HIVE_SUB_TYPE);
         queue = MathUtil.getString(props.get(ConfigConstant.QUEUE));
         if (StringUtils.isNotBlank(queue)) {
-            if (super.dbUrl.contains(PARAMS_BEGIN)) {
-                super.dbUrl += (PARAMS_AND + MAPREDUCE_JOB_QUEUENAME + queue);
+            if (super.jdbcUrl.contains(PARAMS_BEGIN)) {
+                super.jdbcUrl += (PARAMS_AND + MAPREDUCE_JOB_QUEUENAME + queue);
             } else {
-                super.dbUrl += (PARAMS_BEGIN + MAPREDUCE_JOB_QUEUENAME + queue);
+                super.jdbcUrl += (PARAMS_BEGIN + MAPREDUCE_JOB_QUEUENAME + queue);
             }
         }
     }
@@ -69,11 +68,11 @@ public class HiveConnFactory extends AbstractConnFactory {
         }
 
         if (getUserName() == null) {
-            conn = DriverManager.getConnection(dbUrl, properties);
+            conn = DriverManager.getConnection(jdbcUrl, properties);
         } else {
             properties.setProperty(ConfigConstant.JDBC_USER_NAME_KEY, getUserName());
             properties.setProperty(ConfigConstant.JDBC_PASSWORD_KEY, getPwd());
-            conn = DriverManager.getConnection(dbUrl, properties);
+            conn = DriverManager.getConnection(jdbcUrl, properties);
         }
         return conn;
     }
