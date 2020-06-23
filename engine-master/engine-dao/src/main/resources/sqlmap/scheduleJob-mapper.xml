@@ -1519,11 +1519,11 @@
 	   INSERT INTO schedule_job
         (gmt_create, gmt_modified, tenant_id, project_id, dtuic_tenant_id, app_type, job_id, job_key, job_name, task_id,
         create_user_id, is_deleted, `type`, is_restart, business_date, cyc_time, dependency_type, flow_job_id,
-        status, task_type, max_retry_num, node_address, version_id, source_type, compute_type)
+        status, task_type, max_retry_num, node_address, version_id, compute_type)
 	   VALUES
 	   (now(), now(), #{tenantId}, #{projectId}, #{dtuicTenantId}, #{appType}, #{jobId}, #{jobKey}, #{jobName}, #{taskId},
 	   #{createUserId}, #{isDeleted}, #{type}, #{isRestart}, #{businessDate}, #{cycTime}, #{dependencyType}, #{flowJobId},
-	   #{status}, #{taskType}, #{maxRetryNum}, #{nodeAddress}, #{versionId}, #{sourceType}, #{computeType})
+	   #{status}, #{taskType}, #{maxRetryNum}, #{nodeAddress}, #{versionId}, #{computeType})
     </insert>
 
 
@@ -1566,7 +1566,7 @@
    </select>
 
     <select id="getRdosJobByJobIds" resultType="ScheduleJob">
-        select job_id, engine_job_id,application_id,plugin_info_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,retry_num,retry_task_params,gmt_create,gmt_modified,is_deleted,source_type,compute_type,dtuic_tenant_id from schedule_job
+        select job_id, engine_job_id,application_id,plugin_info_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,retry_num,retry_task_params,gmt_create,gmt_modified,is_deleted,compute_type,dtuic_tenant_id from schedule_job
         where job_id IN
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
             #{jobId}

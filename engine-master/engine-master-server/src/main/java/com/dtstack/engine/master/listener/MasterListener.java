@@ -4,6 +4,7 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.master.failover.FailoverStrategy;
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.master.scheduler.ScheduleJobBack;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +32,12 @@ public class MasterListener implements Listener {
     private final ScheduledExecutorService scheduledService;
     private ZkService zkService;
     private FailoverStrategy failoverStrategy;
+    private ScheduleJobBack scheduleJobBack;
 
-    public MasterListener(FailoverStrategy failoverStrategy, ZkService zkService) {
+    public MasterListener(FailoverStrategy failoverStrategy, ZkService zkService,ScheduleJobBack scheduleJobBack) {
         this.failoverStrategy = failoverStrategy;
         this.zkService = zkService;
+        this.scheduleJobBack = scheduleJobBack;
 
         scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
@@ -50,6 +53,7 @@ public class MasterListener implements Listener {
             logOutput++;
             isMaster.getAndSet(zkService.setMaster());
             failoverStrategy.setIsMaster(isMaster.get());
+            scheduleJobBack.setIsMaster(isMaster.get());
 
             if (LogCountUtil.count(logOutput, MULTIPLES)) {
                 logger.info("MasterListener start again...");

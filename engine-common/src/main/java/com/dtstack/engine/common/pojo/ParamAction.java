@@ -224,13 +224,6 @@ public class ParamAction {
         this.groupName = groupName;
     }
 
-	public Integer getSourceType() {
-		return sourceType;
-	}
-
-	public void setSourceType(Integer sourceType) {
-		this.sourceType = sourceType;
-	}
 
 	public long getGenerateTime() {
 		return generateTime;

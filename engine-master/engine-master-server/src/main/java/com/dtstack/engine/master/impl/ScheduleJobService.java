@@ -47,7 +47,6 @@ import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.job.factory.MultiEngineFactory;
 import com.dtstack.engine.master.job.JobStartTriggerBase;
-import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
@@ -78,7 +77,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import scala.Int;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -100,6 +98,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -2741,6 +2740,16 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     @Override
     public List<ScheduleJob> listJobsByTaskIdsAndApptype(@Param("taskIds") List<Long> taskIds,@Param("appType") Integer appType){
         return scheduleJobDao.listJobsByTaskIdAndApptype(taskIds,appType);
+    }
+
+
+    /**
+     * 生成指定日期的周期实例(需要数据库无对应记录)
+     *
+     * @param triggerDay
+     */
+    public void buildTaskJobGraphTest(@Param("triggerDay") String triggerDay) {
+        CompletableFuture.runAsync(() -> jobGraphBuilder.buildTaskJobGraph(triggerDay));
     }
 
 }

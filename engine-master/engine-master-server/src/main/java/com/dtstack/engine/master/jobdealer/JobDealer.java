@@ -208,7 +208,6 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         String engineLog = null;
         try {
             EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
-            Integer deployMode = null;
             if(Objects.isNull(engineJobCache)){
                 return "";
             }

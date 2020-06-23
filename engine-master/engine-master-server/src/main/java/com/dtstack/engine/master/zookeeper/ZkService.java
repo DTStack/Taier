@@ -11,6 +11,7 @@ import com.dtstack.engine.master.listener.HeartBeatListener;
 import com.dtstack.engine.master.listener.Listener;
 import com.dtstack.engine.master.listener.MasterListener;
 import com.dtstack.engine.master.failover.FailoverStrategy;
+import com.dtstack.engine.master.scheduler.ScheduleJobBack;
 import com.google.common.collect.Lists;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
@@ -64,6 +65,9 @@ public class ZkService implements InitializingBean, DisposableBean {
 
     @Autowired
     private FailoverStrategy failoverStrategy;
+
+    @Autowired
+    private ScheduleJobBack scheduleJobBack;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -129,7 +133,7 @@ public class ZkService implements InitializingBean, DisposableBean {
 
     private void initScheduledExecutorService() {
         listeners.add(new HeartBeatListener(this));
-        MasterListener masterListener = new MasterListener(failoverStrategy, this);
+        MasterListener masterListener = new MasterListener(failoverStrategy, this,scheduleJobBack);
         listeners.add(masterListener);
         listeners.add(new HeartBeatCheckListener(masterListener, failoverStrategy, this));
     }

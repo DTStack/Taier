@@ -73,8 +73,6 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
 
     private static int length = 8;
 
-    private static int TASK_STOP_LIMIT = 1000;
-
     private Random random = new Random();
 
     private static ThreadPoolExecutor logTimoutPool =  new ThreadPoolExecutor(5, 5,
@@ -224,7 +222,6 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setJobId(paramActionExt.getTaskId());
         scheduleJob.setJobName(getOrDefault(paramActionExt.getName(),""));
-        scheduleJob.setSourceType(getOrDefault(paramActionExt.getSourceType(),-1));
         scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
         scheduleJob.setComputeType(paramActionExt.getComputeType());
 
