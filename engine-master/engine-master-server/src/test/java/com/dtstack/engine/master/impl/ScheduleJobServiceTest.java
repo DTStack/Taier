@@ -20,18 +20,25 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.ChartDataVO;
+import com.dtstack.engine.api.vo.ChartMetaDataVO;
 import com.dtstack.engine.api.vo.JobTopErrorVO;
 import com.dtstack.engine.api.vo.JobTopOrderVO;
+import com.dtstack.engine.api.vo.ScheduleJobChartVO;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.data.DataCollection;
+import com.google.common.base.Function;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -145,6 +152,69 @@ public class ScheduleJobServiceTest extends AbstractTest {
                 Assert.assertTrue(pre >= last);
             }
         }
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testGetJobGraph() {
+        ScheduleJob todayJob = dataCollection.getScheduleJobTodayData();
+        ScheduleJob yesterdayJob = dataCollection.getScheduleJobYesterdayData();
+
+        Long projectId = todayJob.getProjectId();
+        Long tenantId = todayJob.getTenantId();
+        Integer appType = todayJob.getAppType();
+        Long dtuicTenantId = todayJob.getDtuicTenantId();
+
+        ScheduleJobChartVO jobGraph = sheduleJobService.getJobGraph(projectId, tenantId, appType, dtuicTenantId);
+        List<ChartMetaDataVO> y = jobGraph.getY();
+        ChartMetaDataVO today = y.get(0);
+        ChartMetaDataVO yesterday = y.get(1);
+
+        long todaySum = today.getData().stream().mapToLong((Object i) -> (Long) i).filter(i -> i > 0).count();
+        long yesSum = yesterday.getData().stream().mapToLong((Object i) -> (Long) i).filter(i -> i > 0).count();
+
+        Assert.assertTrue(todaySum == yesSum && todaySum == 1);
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testGetScienceJobGraph() {
+        ScheduleJob todayJob = dataCollection.getScheduleJobTodayData();
+        ScheduleTaskShade scheduleTaskShadeForSheduleJob = dataCollection.getScheduleTaskShadeForSheduleJob();
+        Long projectId = todayJob.getProjectId();
+        Long tenantId = todayJob.getTenantId();
+        String taskType = todayJob.getTaskType().toString();
+
+        ChartDataVO scienceJobGraph = sheduleJobService.getScienceJobGraph(projectId, tenantId, taskType);
+        ChartMetaDataVO totalCnt = scienceJobGraph.getY().get(0);
+        ChartMetaDataVO successCnt = scienceJobGraph.getY().get(1);
+
+        long totalCntNum = totalCnt.getData().stream().mapToLong((Object i) -> (Long) i).filter(i -> i > 0).count();
+        long successCntNum = successCnt.getData().stream().mapToLong((Object i) -> (Long) i).filter(i -> i > 0).count();
+
+        Assert.assertTrue(successCntNum == totalCntNum && totalCntNum == 1);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testCountScienceJobStatus() {
+        ScheduleJob job = dataCollection.getScheduleJobTodayData();
+        ScheduleTaskShade scheduleTaskShadeForSheduleJob = dataCollection.getScheduleTaskShadeForSheduleJob();
+
+        List<Long> projectId = Arrays.asList(job.getProjectId());
+        Long tenantId = job.getTenantId();
+        Integer status = job.getStatus();
+        Integer type = job.getType();
+        String taskType = job.getTaskType().toString();
+        String cycTime = job.getCycTime();
+
+        Map<String, Object> stringObjectMap = sheduleJobService.countScienceJobStatus(projectId, tenantId, status, type, taskType, cycTime, cycTime);
+        Integer total = Integer.valueOf(stringObjectMap.get("total").toString());
+        Assert.assertTrue(total == 1);
     }
 
 
