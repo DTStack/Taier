@@ -2608,7 +2608,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         try {
             //如果appType为空的话则为离线
             if (Objects.isNull(appType)) {
-                appType = 1;
+                throw new RdosDefineException("appType不能为空");
             }
             ScheduleTaskShade task = batchTaskShadeService.getBatchTaskById(taskId, appType);
             Map<String, String> flowJobId = new ConcurrentHashMap<>();
