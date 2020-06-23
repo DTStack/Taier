@@ -33,6 +33,9 @@ public class HiveConnFactory extends AbstractConnFactory {
 
     private static final String SUB_TYPE_INCEPTOR = "INCEPTOR";
 
+    public static final String HIVE_USER = "user";
+    public static final String HIVE_PASSWORD = "password";
+
     public HiveConnFactory() {
         driverName = "org.apache.hive.jdbc.HiveDriver";
         testSql = "show tables";
@@ -67,11 +70,11 @@ public class HiveConnFactory extends AbstractConnFactory {
             }
         }
 
-        if (getUserName() == null) {
+        if (getUsername() == null) {
             conn = DriverManager.getConnection(jdbcUrl, properties);
         } else {
-            properties.setProperty(ConfigConstant.JDBC_USER_NAME_KEY, getUserName());
-            properties.setProperty(ConfigConstant.JDBC_PASSWORD_KEY, getPwd());
+            properties.setProperty(HIVE_USER, getUsername());
+            properties.setProperty(HIVE_PASSWORD, getPassword());
             conn = DriverManager.getConnection(jdbcUrl, properties);
         }
         return conn;

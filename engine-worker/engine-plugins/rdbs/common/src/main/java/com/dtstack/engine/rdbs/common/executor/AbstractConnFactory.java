@@ -34,9 +34,9 @@ public abstract class AbstractConnFactory {
 
     protected String jdbcUrl;
 
-    private String userName;
+    private String username;
 
-    private String pwd;
+    private String password;
 
     protected String driverName = null;
 
@@ -55,8 +55,8 @@ public abstract class AbstractConnFactory {
 
         }
         jdbcUrl = MathUtil.getString(properties.get(ConfigConstant.JDBCURL));
-        userName = MathUtil.getString(properties.get(ConfigConstant.USERNAME));
-        pwd = MathUtil.getString(properties.get(ConfigConstant.PASSWORD));
+        username = MathUtil.getString(properties.get(ConfigConstant.USERNAME));
+        password = MathUtil.getString(properties.get(ConfigConstant.PASSWORD));
 
         Preconditions.checkNotNull(jdbcUrl, "db url can't be null");
         Map config = (Map) properties.get("config");
@@ -112,10 +112,10 @@ public abstract class AbstractConnFactory {
         return KerberosUtils.login(baseConfig, () -> {
             Connection conn = null;
             try {
-                if (userName == null) {
+                if (username == null) {
                     conn = DriverManager.getConnection(jdbcUrl);
                 } else {
-                    conn = DriverManager.getConnection(jdbcUrl, userName, pwd);
+                    conn = DriverManager.getConnection(jdbcUrl, username, password);
                 }
             } catch (SQLException e) {
                 throw new RdosDefineException("get conn exception:" + e.toString());
@@ -168,20 +168,19 @@ public abstract class AbstractConnFactory {
         return String.format("DROP PROCEDURE \"%s\"", procName);
     }
 
-
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public String getPwd() {
-        return pwd;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPwd(String pwd) {
-        this.pwd = pwd;
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
