@@ -928,7 +928,8 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
     /**
      * 测试单个组件联通性
      */
-    private ComponentTestResult testConnect(Integer componentType, String componentConfig, String clusterName,
+    @Forbidden
+    public ComponentTestResult testConnect(Integer componentType, String componentConfig, String clusterName,
                                             String hadoopVersion, Long engineId, KerberosConfig kerberosConfig, Map<String, String> sftpConfig) {
         if (EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))) {
             ComponentTestResult componentTestResult = new ComponentTestResult();

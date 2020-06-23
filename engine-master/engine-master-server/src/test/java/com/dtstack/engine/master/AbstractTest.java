@@ -13,6 +13,9 @@ import com.dtstack.engine.master.listener.RunnerListener;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -30,10 +33,12 @@ import java.util.stream.Collectors;
 import static junit.framework.TestCase.fail;
 
 @Component
-@RunWith(DtCenterSpringJUnit4ClassRunner.class)
+@RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(DtCenterSpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {EnvironmentContext.class, MasterServerBeanConfig.class, CacheConfig.class, ThreadPoolConfig.class,
         MybatisConfig.class})
-public abstract class BaseTest implements RunnerListener {
+@PowerMockIgnore({"javax.management.*", "javax.security.*", "javax.net.ssl.*", "javax.crypto.*"})
+public abstract class AbstractTest implements RunnerListener {
 
     @Autowired
     public ApplicationContext context;
