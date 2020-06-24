@@ -1,0 +1,1 @@
+ALTER TABLE `schedule_job` DROP COLUMN `source_type`;

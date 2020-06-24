@@ -371,7 +371,6 @@ CREATE TABLE `schedule_job`
   `application_id`  varchar(256) DEFAULT NULL COMMENT '独立运行的任务需要记录额外的id',
   `engine_log`      longtext                  COMMENT '引擎错误信息',
   `plugin_info_id`  int(11)      DEFAULT NULL COMMENT '插件信息',
-  `source_type`     tinyint(2)   DEFAULT NULL COMMENT '任务来源',
   `retry_task_params` text       DEFAULT NULL COMMENT '重试任务参数',
   `compute_type`    tinyint(1)   NOT NULL DEFAULT '1' COMMENT '计算类型STREAM(0), BATCH(1)',
   PRIMARY KEY (`id`),
