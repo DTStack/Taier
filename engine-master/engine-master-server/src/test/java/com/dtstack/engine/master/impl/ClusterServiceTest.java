@@ -3,34 +3,48 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.Engine;
+import com.dtstack.engine.api.domain.Queue;
+import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.*;
-import com.dtstack.engine.dao.ComponentDao;
-import com.dtstack.engine.dao.EngineDao;
+import com.dtstack.engine.common.akka.config.AkkaConfig;
+import com.dtstack.engine.common.client.ClientOperator;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.enums.EComponentScheduleType;
 import com.dtstack.engine.master.enums.EComponentType;
-import org.apache.commons.collections.CollectionUtils;
+import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.master.router.cache.ConsoleCache;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+
 /**
  * @author yuebai
  * @date 2020-06-04
  */
+@PrepareForTest({AkkaConfig.class, ClientOperator.class})
 public class ClusterServiceTest extends AbstractTest {
 
     @Autowired
@@ -45,7 +59,51 @@ public class ClusterServiceTest extends AbstractTest {
     @Autowired
     private ComponentDao componentDao;
 
+    @Mock
+    private ClientOperator clientOperator;
+
+    @Autowired
+    private TenantDao tenantDao;
+
+    @Autowired
+    private QueueDao queueDao;
+
+    @Spy
+    private TenantService tenantService;
+
+    @Autowired
+    private ClusterDao clusterDao;
+
+    @Autowired
+    private EngineTenantDao engineTenantDao;
+
+    @Mock
+    private ConsoleCache consoleCache;
+
     private String testClusterName = "testcase";
+
+    @Before
+    public void setup() throws Exception{
+        MockitoAnnotations.initMocks(this);
+        PowerMockito.mockStatic(AkkaConfig.class);
+        when(AkkaConfig.isLocalMode()).thenReturn(true);
+        PowerMockito.mockStatic(ClientOperator.class);
+
+        ComponentTestResult componentTestResult = new ComponentTestResult();
+        componentTestResult.setResult(true);
+        when(ClientOperator.getInstance()).thenReturn(clientOperator);
+
+        when(clientOperator.testConnect(any(),any())).thenReturn(componentTestResult);
+
+        ReflectionTestUtils.setField(tenantService,"clusterDao", clusterDao);
+        ReflectionTestUtils.setField(tenantService,"queueDao", queueDao);
+        ReflectionTestUtils.setField(tenantService,"tenantDao", tenantDao);
+        ReflectionTestUtils.setField(tenantService,"engineTenantDao", engineTenantDao);
+        ReflectionTestUtils.setField(tenantService,"engineDao", engineDao);
+        ReflectionTestUtils.setField(tenantService,"consoleCache", consoleCache);
+        doNothing().when(tenantService).checkClusterCanUse(any());
+
+    }
 
     public void testCreateCluster() {
         componentService.addOrCheckClusterWithName(testClusterName);
@@ -67,11 +125,14 @@ public class ClusterServiceTest extends AbstractTest {
      * @see ComponentService#delete(java.util.List)
      * @see ComponentService#testConnects(java.lang.String)
      * @see ClusterService#deleteCluster(java.lang.Long)
+     * @see TenantService#bindingTenant(java.lang.Long, java.lang.Long, java.lang.Long, java.lang.String)
+     * @see TenantService#bindingQueue(java.lang.Long, java.lang.Long)
+     * @see TenantService#pageQuery(java.lang.Long, java.lang.Integer, java.lang.String, int, int)
      */
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
-    public void testGetCluster() {
+    public void testGetCluster() throws Exception{
         //创建集群
         testCreateCluster();
         ClusterVO clusterVO = testGetClusterByName();
@@ -98,10 +159,51 @@ public class ClusterServiceTest extends AbstractTest {
         ComponentTestResult componentTestResult = componentService.testConnect(yarn.getComponentTypeCode(), yarn.getComponentConfig(), testClusterName, yarn.getHadoopVersion(), engineId, null, sftpMap);
         Assert.assertNotNull(componentTestResult);
         Assert.assertTrue(componentTestResult.getResult());
-
+        //添加测试组件对应yarn的队列
+        Queue queue = new Queue();
+        queue.setEngineId(engineId);
+        queue.setQueueName("default.a");
+        queue.setMaxCapacity("1.0");
+        queue.setCapacity("0.3");
+        queue.setQueueState("RUNNING");
+        queue.setParentQueueId(-1L);
+        queue.setQueuePath("default");
+        queueDao.insert(queue);
+        //添加测试租户
+        Tenant tenant = dataCollection.getTenant();
+        tenant = tenantDao.getByDtUicTenantId(tenant.getDtUicTenantId());
+        Assert.assertNotNull(tenant);
+        Assert.assertNotNull(tenant.getId());
+        //绑定租户
+        tenantService.bindingTenant(tenant.getDtUicTenantId(),clusterVO.getClusterId(),queue.getId(),"");
+        //切换队列
+        Queue queueb = new Queue();
+        queueb.setEngineId(engineId);
+        queueb.setQueueName("default.b");
+        queueb.setMaxCapacity("1.0");
+        queueb.setCapacity("0.3");
+        queueb.setQueueState("RUNNING");
+        queueb.setParentQueueId(-1L);
+        queueb.setQueuePath("default");
+        queueDao.insert(queueb);
+        tenantService.bindingQueue(queueb.getId(),tenant.getDtUicTenantId());
+        //查询集群信息
+        PageResult<List<EngineTenantVO>> engineTenants = tenantService.pageQuery(clusterVO.getClusterId(), MultiEngineType.HADOOP.getType(), tenant.getTenantName(), 10, 1);
+        Assert.assertNotNull(engineTenants);
+        Assert.assertNotNull(engineTenants.getData());
         //删除集群
-        clusterService.deleteCluster(clusterVO.getClusterId());
-
+        try {
+            clusterService.deleteCluster(clusterVO.getClusterId());
+        } catch (Exception e) {
+            if (e instanceof RdosDefineException) {
+                RdosDefineException rdosDefineException = (RdosDefineException) e;
+                if (!rdosDefineException.getErrorMessage().contains("有租户")) {
+                    throw e;
+                }
+            } else {
+                throw e;
+            }
+        }
     }
 
     private void testPageQuery() {

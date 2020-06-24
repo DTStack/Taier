@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.data;
 
 import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.anno.DatabaseDeleteOperation;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
@@ -403,5 +403,15 @@ public class DataCollection {
         return scheduleTaskShade;
     }
 
+
+    @DatabaseInsertOperation(dao = TestConsoleDtuicTenantDao.class, method = "insert")
+    @DatabaseDeleteOperation(dao = TestConsoleDtuicTenantDao.class, method = "deleteById", field = "dtUicTenantId")
+    public Tenant getTenant(){
+        Tenant tenant = new Tenant();
+        tenant.setDtUicTenantId(ValueUtils.changedIdForDiffMethod());
+        tenant.setTenantName("testCase");
+        tenant.setTenantDesc("");
+        return tenant;
+    }
 
 }
