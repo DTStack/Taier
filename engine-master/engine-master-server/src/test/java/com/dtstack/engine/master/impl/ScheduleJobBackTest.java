@@ -8,10 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author yuebai
@@ -35,20 +32,28 @@ public class ScheduleJobBackTest extends BaseTest {
         ExecutorService taskStatusPool = new ThreadPoolExecutor(5, 5, 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<>(true), new CustomThreadFactory("testDealJob"));
 
+        Semaphore buildSemaphore = new Semaphore(5);
+        CountDownLatch ctl = new CountDownLatch(10000);
         for (int i = 0; i < 10000; i++) {
             try {
+                buildSemaphore.acquire();
                 taskStatusPool.submit(() -> {
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(100);
                         logger.info("--------------:");
                     } catch (InterruptedException e) {
                         e.printStackTrace();
+                    }finally {
+                        buildSemaphore.release();
+                        ctl.countDown();
                     }
                 });
             } catch (Throwable e) {
                 logger.error("[emergency] error:", e);
             }
         }
-        Thread.sleep(1000);
+        ctl.await();
+        System.out.println("-----------");
+        taskStatusPool.shutdownNow();
     }
 }

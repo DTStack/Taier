@@ -366,4 +366,8 @@ public class EnvironmentContext {
     public String getScheduleJobCron() {
         return environment.getProperty("job.back.cron", "23:00:00");
     }
+
+    public boolean openScheduleJobCron(){
+        return Boolean.parseBoolean(environment.getProperty("job.back.cron.open", "false"));
+    }
 }

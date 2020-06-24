@@ -118,6 +118,8 @@ public class JobStatusDealer implements Runnable {
                     });
                 } catch (Throwable e) {
                     logger.error("jobId:{} [emergency] error:",job.getKey(), e);
+                } finally {
+                    buildSemaphore.release();
                     ctl.countDown();
                 }
             }
@@ -232,7 +234,7 @@ public class JobStatusDealer implements Runnable {
 
         this.taskStatusDealerPoolSize = environmentContext.getTaskStatusDealerPoolSize();
         this.taskStatusPool = new ThreadPoolExecutor(taskStatusDealerPoolSize, taskStatusDealerPoolSize, 60L, TimeUnit.SECONDS,
-                new SynchronousQueue<>(true), new CustomThreadFactory(jobResource + this.getClass().getSimpleName() + "DealJob"));
+                new LinkedBlockingQueue<>(taskStatusDealerPoolSize), new CustomThreadFactory(jobResource + this.getClass().getSimpleName() + "DealJob"));
     }
 
     private void setBean() {

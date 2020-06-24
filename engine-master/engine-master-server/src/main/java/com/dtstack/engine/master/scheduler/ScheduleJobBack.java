@@ -54,7 +54,7 @@ public class ScheduleJobBack {
     }
 
     public void setIsMaster(boolean isMaster) {
-        if (isMaster) {
+        if (isMaster && environment.openScheduleJobCron()) {
             String cron = environment.getScheduleJobCron();
             long mill = getTimeMillis(cron);
             long delay = mill - System.currentTimeMillis();
