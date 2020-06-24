@@ -58,7 +58,7 @@ public class ScheduleJobBack {
             String cron = environment.getScheduleJobCron();
             long mill = getTimeMillis(cron);
             long delay = mill - System.currentTimeMillis();
-            if(delay >=0 && delay <= 1000 * 60 ){
+            if (delay >= 0 && delay <= 1000) {
                 process();
             }
         }
@@ -76,7 +76,7 @@ public class ScheduleJobBack {
         return 0;
     }
 
-    public void process() {
+    public synchronized void process() {
         try (Connection connection = dataSource.getConnection()) {
             if (Objects.isNull(connection)) {
                 log.error("back up get connect error");

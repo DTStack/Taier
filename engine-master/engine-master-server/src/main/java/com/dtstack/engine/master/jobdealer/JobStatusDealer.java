@@ -117,7 +117,7 @@ public class JobStatusDealer implements Runnable {
                         }
                     });
                 } catch (Throwable e) {
-                    logger.error("[emergency] error:", e);
+                    logger.error("jobId:{} [emergency] error:",job.getKey(), e);
                     ctl.countDown();
                 }
             }
