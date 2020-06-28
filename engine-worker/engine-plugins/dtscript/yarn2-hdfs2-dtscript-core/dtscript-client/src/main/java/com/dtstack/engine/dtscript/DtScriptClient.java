@@ -52,7 +52,7 @@ public class DtScriptClient extends AbstractClient {
 
     private BaseConfig configMap;
 
-    private List<String> removeConf = Lists.newArrayList("sftpConf");
+    private List<String> removeConf = Lists.newArrayList("sftpConf", "hiveConf");
 
 
     @Override
