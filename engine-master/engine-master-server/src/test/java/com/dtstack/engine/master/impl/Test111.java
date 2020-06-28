@@ -13,7 +13,7 @@ public class Test111 {
 
     public static void main(String[] args) throws Exception{
             ExecutorService taskStatusPool = new ThreadPoolExecutor(5, 5, 60L, TimeUnit.SECONDS,
-                    new ArrayBlockingQueue<>(5), new CustomThreadFactory("testDealJob"));
+                    new ArrayBlockingQueue<>(1), new CustomThreadFactory("testDealJob"));
 
             Semaphore buildSemaphore = new Semaphore(8);
             CountDownLatch ctl = new CountDownLatch(10000);

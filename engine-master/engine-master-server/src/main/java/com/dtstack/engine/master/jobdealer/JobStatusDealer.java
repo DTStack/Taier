@@ -234,7 +234,7 @@ public class JobStatusDealer implements Runnable {
 
         this.taskStatusDealerPoolSize = environmentContext.getTaskStatusDealerPoolSize();
         this.taskStatusPool = new ThreadPoolExecutor(taskStatusDealerPoolSize, taskStatusDealerPoolSize, 60L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(taskStatusDealerPoolSize), new CustomThreadFactory(jobResource + this.getClass().getSimpleName() + "DealJob"));
+                new LinkedBlockingQueue<>(1000), new CustomThreadFactory(jobResource + this.getClass().getSimpleName() + "DealJob"));
     }
 
     private void setBean() {
