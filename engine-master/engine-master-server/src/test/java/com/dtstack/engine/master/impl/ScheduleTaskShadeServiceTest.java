@@ -9,6 +9,9 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Date: 2020/6/21
  * Company: www.dtstack.com
@@ -65,5 +68,43 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
 		Assert.isTrue(sts.getName().equals(taskShade.getName()));
 	}
 
+	@Test
+	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
+	@Rollback
+	public void testGetTaskByIds(){
+		ScheduleTaskShade sts = dataCollection.getScheduleTaskShade();
+		List taskIds = new ArrayList();
+		taskIds.add(sts.getTaskId());
+		List scheduleTaskShades = scheduleTaskShadeService.getTaskByIds(taskIds, sts.getAppType());
+		Assert.notNull(scheduleTaskShades);
+		Assert.isTrue(scheduleTaskShades.size() == 1);
+
+	}
+
+	@Test
+	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
+	@Rollback
+	public void testGetTasksByName() {
+		ScheduleTaskShade sts = dataCollection.getScheduleTaskShade();
+		List<ScheduleTaskShade> ScheduleTaskShades = scheduleTaskShadeService.getTasksByName(sts.getProjectId(), sts.getName(), sts.getAppType());
+		Assert.notEmpty(ScheduleTaskShades);
+		Assert.isTrue(sts.getName().equals(ScheduleTaskShades.get(0).getName()));
+	}
+
+	@Test
+	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
+	@Rollback
+	public void testUpdateTaskName() {
+		ScheduleTaskShade sts = dataCollection.getScheduleTaskShade();
+
+		String taskNameNew = "engine_new_name";
+		scheduleTaskShadeService.updateTaskName(sts.getTaskId(), taskNameNew, sts.getAppType());
+		List<Long> taskIds = new ArrayList<>();
+		taskIds.add(sts.getTaskId());
+		List<ScheduleTaskShade> usts = scheduleTaskShadeService.getTaskByIds(taskIds, sts.getAppType());
+		Assert.notEmpty(usts);
+		Assert.isTrue(taskNameNew.equals(usts.get(0).getName()));
+
+	}
 
 }
