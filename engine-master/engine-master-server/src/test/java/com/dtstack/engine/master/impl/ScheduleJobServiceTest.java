@@ -21,12 +21,16 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ChartDataVO;
 import com.dtstack.engine.api.vo.ChartMetaDataVO;
 import com.dtstack.engine.api.vo.JobTopErrorVO;
 import com.dtstack.engine.api.vo.JobTopOrderVO;
 import com.dtstack.engine.api.vo.ScheduleJobChartVO;
+import com.dtstack.engine.api.vo.ScheduleJobVO;
+import com.dtstack.engine.api.vo.SchedulePeriodInfoVO;
+import com.dtstack.engine.api.vo.ScheduleRunDetailVO;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.data.DataCollection;
 import com.google.common.base.Function;
@@ -124,8 +128,8 @@ public class ScheduleJobServiceTest extends AbstractTest {
         int size = jobTopOrderVOS.size();
         if (size > 1) {
             for (int i = 1; i < jobTopOrderVOS.size(); i++) {
-                String first = jobTopOrderVOS.get(i - 1).getRunTime().replace("秒", "").trim();
-                String second = jobTopOrderVOS.get(i).getRunTime().replace("秒", "").trim();
+                String first = jobTopOrderVOS.get(i - 1).getRunTime().replaceAll("秒", "").replaceAll("小时", "").replaceAll("分钟", "").trim();
+                String second = jobTopOrderVOS.get(i).getRunTime().replaceAll("秒", "").replaceAll("小时", "").replaceAll("分钟", "").trim();
                 Assert.assertTrue(Long.valueOf(first) >= Long.valueOf(second));
             }
         }
@@ -215,6 +219,53 @@ public class ScheduleJobServiceTest extends AbstractTest {
         Map<String, Object> stringObjectMap = sheduleJobService.countScienceJobStatus(projectId, tenantId, status, type, taskType, cycTime, cycTime);
         Integer total = Integer.valueOf(stringObjectMap.get("total").toString());
         Assert.assertTrue(total == 1);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testQueryJobs() {
+        ScheduleJob job = dataCollection.getScheduleJobTodayData();
+        QueryJobDTO queryJobDTO = new QueryJobDTO();
+        queryJobDTO.setAppType(job.getAppType());
+        queryJobDTO.setProjectId(job.getProjectId());
+        queryJobDTO.setTenantId(job.getTenantId());
+        queryJobDTO.setTaskId(job.getTaskId());
+        queryJobDTO.setBizStartDay(job.getExecStartTime().getTime());
+        queryJobDTO.setBizEndDay(job.getExecEndTime().getTime());
+
+        try {
+            PageResult<List<ScheduleJobVO>> listPageResult = sheduleJobService.queryJobs(queryJobDTO);
+            int totalCount = listPageResult.getTotalCount();
+            Assert.assertTrue(totalCount == 1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testDisplayPeriods() {
+        ScheduleJob job = dataCollection.getScheduleJobTodayData();
+        long jobId = Long.valueOf(job.getId());
+
+        try {
+            List<SchedulePeriodInfoVO> schedulePeriodInfoVOS = sheduleJobService.displayPeriods(false, jobId, job.getProjectId(), 10);
+            Assert.assertTrue(schedulePeriodInfoVOS.size() == 1 && schedulePeriodInfoVOS.get(0).getTaskId().equals(job.getTaskId()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testJobDetail() {
+        ScheduleTaskShade taskShade = dataCollection.getScheduleTaskShadeDefiniteTaskId();
+        List<ScheduleRunDetailVO> scheduleRunDetailVOS = sheduleJobService.jobDetail(taskShade.getTaskId(), taskShade.getAppType());
+        ScheduleRunDetailVO scheduleRunDetailVO = scheduleRunDetailVOS.get(0);
+        Assert.assertEquals(scheduleRunDetailVO.getTaskName(), taskShade.getName());
     }
 
 

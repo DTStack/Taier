@@ -952,8 +952,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         if (CollectionUtils.isNotEmpty(jobs)) {
             details = new ArrayList<>(jobs.size());
             for (Map<String, String> job : jobs) {
-                Object execStartTimeObj = MathUtil.getString(job.get("execStartTime"));
-                Object ExecEndTimeObj = MathUtil.getString(job.get("execEndTime"));
+                String execStartTimeObj = MathUtil.getString(job.get("execStartTime"));
+                String ExecEndTimeObj = MathUtil.getString(job.get("execEndTime"));
                 Long execTime = MathUtil.getLongVal(job.get("execTime"));
 
                 ScheduleRunDetailVO runDetail = new ScheduleRunDetailVO();
@@ -962,8 +962,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 }
 
                 runDetail.setExecTime(execTime);
-                runDetail.setStartTime(DateUtil.getStandardFormattedDate(((Timestamp) execStartTimeObj).getTime()));
-                runDetail.setEndTime(DateUtil.getStandardFormattedDate(((Timestamp) ExecEndTimeObj).getTime()));
+                runDetail.setStartTime(execStartTimeObj);
+                runDetail.setEndTime(ExecEndTimeObj);
 
                 ScheduleTaskShade jobTask = batchTaskShadeService.getBatchTaskById(taskId, appType);
                 runDetail.setTaskName(jobTask.getName());
