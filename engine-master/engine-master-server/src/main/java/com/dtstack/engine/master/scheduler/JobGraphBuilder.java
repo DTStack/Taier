@@ -72,12 +72,7 @@ public class JobGraphBuilder {
 
     private static final int TASK_BATCH_SIZE = 50;
     private static final int JOB_BATCH_SIZE = 50;
-    private static final int MAX_TASK_BUILD_THREAD = 10;
-    private static final int MAX_JOB_CLEAN_THREAD = 10;
-
-//    private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-//
-//    private static DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyyMMddHHmmss");
+    private static final int MAX_TASK_BUILD_THREAD = 20;
 
     private static String dtfFormatString = "yyyyMMddHHmmss";
 
@@ -181,7 +176,9 @@ public class JobGraphBuilder {
                         }
                         logger.info("batch-number:{} done!!! allJobs size:{}", batchIdx, allJobs.size());
                     } catch (Throwable e) {
-                        logger.error("{}", e);
+                        logger.error("build job error", e);
+                        buildSemaphore.release();
+                        ctl.countDown();
                     } finally {
                         buildSemaphore.release();
                         ctl.countDown();
@@ -189,6 +186,7 @@ public class JobGraphBuilder {
                 });
             }
             ctl.await();
+            logger.info("batch-number:all done!!! allJobs size:{}", allJobs.size());
             jobGraphBuildPool.shutdown();
 
             doSetFlowJobIdForSubTasks(allJobs, flowJobId);

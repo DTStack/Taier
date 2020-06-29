@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -33,9 +32,7 @@ public class JobGraphBuilderTrigger implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(JobGraphBuilderTrigger.class);
 
 
-    private static final long UN_NORMAL_PERIOD_DAY = 60 * 10 * 1000;
-
-    private static final long PERIOD_DAY = 24 * 3600 * 1000;
+    private static final long PERIOD_DAY = 60 * 10 * 1000;
 
     private static final AtomicBoolean RUNNING = new AtomicBoolean(false);
 
@@ -77,40 +74,13 @@ public class JobGraphBuilderTrigger implements Runnable {
         }
         scheduledService.scheduleAtFixedRate(
                 this,
-                getDelayTime(),
+                500,
                 PERIOD_DAY,
                 TimeUnit.MILLISECONDS);
         RUNNING.compareAndSet(false, true);
         logger.info("start job graph trigger...");
     }
 
-    private void stopJobGraph() {
-        if (scheduledService != null) {
-            scheduledService.shutdownNow();
-        }
-        RUNNING.compareAndSet(true, false);
-        logger.info("stop job graph trigger...");
-    }
-
-    public long getDelayTime() {
-        SimpleDateFormat sdfDay = new SimpleDateFormat("yyyy-MM-dd");
-        String currDayStr = sdfDay.format(Calendar.getInstance().getTime());
-        String triggerTimeStr = currDayStr + " 00:00:00";
-        Timestamp triggerTime = Timestamp.valueOf(triggerTimeStr);
-        boolean hasBuild = jobGraphTriggerService.checkHasBuildJobGraph(triggerTime);
-        //如果生成周期实例正常 延时一天
-        if (!hasBuild) {
-            //如果生成不正常 10分钟check一次 直到正常
-            logger.info("getDelayTime delay is {} ",UN_NORMAL_PERIOD_DAY);
-            return UN_NORMAL_PERIOD_DAY;
-        }
-        String cron = environmentContext.getJobGraphBuildCron();
-        long mill = getTimeMillis(cron);
-        long delay = mill - System.currentTimeMillis();
-        delay = delay > 0 ? delay : delay + PERIOD_DAY;
-        logger.info("getDelayTime delay is {} ",delay);
-        return delay;
-    }
 
     private long getTimeMillis(String time) {
         try {
@@ -124,15 +94,29 @@ public class JobGraphBuilderTrigger implements Runnable {
         return 0;
     }
 
+    private void stopJobGraph() {
+        if (scheduledService != null) {
+            scheduledService.shutdownNow();
+        }
+        RUNNING.compareAndSet(true, false);
+        logger.info("stop job graph trigger...");
+    }
+
     @Override
     public void run() {
         if (RUNNING.get()) {
-            logger.warn("---trigger to build job graph start---");
-
             DateTime dateTime = DateTime.now();
             dateTime = dateTime.plusDays(1);
-
             String triggerDay = dateTime.toString(dateTimeFormatter);
+
+            Timestamp triggerTime = Timestamp.valueOf(triggerDay);
+            //是否生成过 时间是否到期
+            if (!jobGraphTriggerService.checkHasBuildJobGraph(triggerTime) &&
+                    this.getTimeMillis(environmentContext.getJobGraphBuildCron()) >= System.currentTimeMillis()) {
+                return;
+            }
+
+            logger.warn("---trigger to build job graph start---");
             try {
                 jobGraphBuilder.buildTaskJobGraph(triggerDay);
             } catch (Exception e) {

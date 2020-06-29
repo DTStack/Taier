@@ -452,7 +452,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         pageQuery.setModel(batchJobDTO);
 
         if (StringUtils.isNotBlank(vo.getTaskName()) || Objects.nonNull(vo.getOwnerId())) {
-            List<ScheduleTaskShade> batchTaskShades = scheduleTaskShadeDao.listByNameLike(vo.getProjectId(), vo.getTaskName(), vo.getAppType(), vo.getOwnerId(),vo.getProjectIds());
+            List<ScheduleTaskShade> batchTaskShades = scheduleTaskShadeDao.listByNameLikeWithSearchType(vo.getProjectId(), vo.getTaskName(),
+                    vo.getAppType(), vo.getOwnerId(), vo.getProjectIds(), batchJobDTO.getSearchType());
             if (CollectionUtils.isNotEmpty(batchTaskShades)) {
                 batchJobDTO.setTaskIds(batchTaskShades.stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList()));
             }
@@ -878,6 +879,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             String bizEnd = dayFormatterAll.print(getTime(bizEndDay * 1000, -1).getTime());
             batchJobDTO.setBizStartDay(bizStart);
             batchJobDTO.setBizEndDay(bizEnd);
+
+            batchJobDTO.setCycStartDay(dayFormatterAll.print(getTime(bizStartDay * 1000, -1).getTime()));
+            batchJobDTO.setCycEndDay(dayFormatterAll.print(getTime(bizEndDay * 1000, -2).getTime()));
         }
     }
 
@@ -1458,14 +1462,11 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                                                                               @Param("currentPage") Integer currentPage, @Param("pageSize") Integer pageSize, @Param("tenantId") Long tenantId) {
         final List<ScheduleTaskShade> taskList;
         ScheduleJobDTO batchJobDTO = new ScheduleJobDTO();
-        //是否需要关联task表查询
-        boolean needQueryTask = false;
         if (!Strings.isNullOrEmpty(jobName)) {
             taskList = batchTaskShadeService.getTasksByName(projectId, jobName, appType);
             if (taskList.size() == 0) {
                 return PageResult.EMPTY_PAGE_RESULT;
             } else {
-                needQueryTask = true;
                 batchJobDTO.setTaskIds(taskList.stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList()));
             }
         }
@@ -1490,25 +1491,15 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         PageQuery pageQuery = new PageQuery(currentPage, pageSize, "gmt_create", Sort.DESC.name());
         pageQuery.setModel(batchJobDTO);
 
-        if (Objects.nonNull(userId) || Objects.nonNull(dutyUserId)) {
-            needQueryTask = true;
+        List<Long> fillIdList = scheduleJobDao.listFillIdListWithOutTask(pageQuery);
+
+        if(CollectionUtils.isEmpty(fillIdList)){
+            return new PageResult(null, 0, pageQuery);
         }
 
+        //根据补数据名称查询出记录
+        List<ScheduleFillDataJob> fillJobList = scheduleFillDataJobDao.getFillJobList(fillIdList, projectId, tenantId);
 
-        List<Long> fillIdList = null;
-        if (needQueryTask) {
-            fillIdList = scheduleJobDao.listFillIdList(pageQuery);
-        } else {
-            fillIdList = scheduleJobDao.listFillIdListWithOutTask(pageQuery);
-        }
-
-        List<ScheduleFillDataJob> fillJobList = null;
-        if (CollectionUtils.isNotEmpty(fillIdList)) {
-            //根据补数据名称查询出记录
-            fillJobList = scheduleFillDataJobDao.getFillJobList(fillIdList, projectId, tenantId);
-        } else {
-            fillJobList = new ArrayList<>();
-        }
         //内存中按照时间排序
         if (CollectionUtils.isNotEmpty(fillJobList)) {
             fillJobList = fillJobList.stream().sorted((j1, j2) -> {
@@ -1536,12 +1527,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             resultContent.add(preViewVO);
         }
 
-        int totalCount = 0;
-        if (needQueryTask) {
-            totalCount = scheduleJobDao.countFillJobNameDistinct(batchJobDTO);
-        } else {
-            totalCount = scheduleJobDao.countFillJobNameDistinctWithOutTask(batchJobDTO);
-        }
+        int totalCount = scheduleJobDao.countFillJobNameDistinctWithOutTask(batchJobDTO);
 
         return new PageResult(resultContent, totalCount, pageQuery);
     }
