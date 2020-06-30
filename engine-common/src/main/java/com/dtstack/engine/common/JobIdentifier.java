@@ -25,7 +25,9 @@ public class JobIdentifier implements Serializable {
 
     private Long userId;
 
-    public JobIdentifier(String engineJobId, String applicationId, String taskId, Long tenantId, String engineType, Integer deployMode, Long userId) {
+    private String pluginInfo;
+
+    public JobIdentifier(String engineJobId, String applicationId, String taskId, Long tenantId, String engineType, Integer deployMode, Long userId,String pluginInfo) {
         this.engineJobId = engineJobId;
         this.applicationId = applicationId;
         this.taskId = taskId;
@@ -33,6 +35,7 @@ public class JobIdentifier implements Serializable {
         this.engineType = engineType;
         this.deployMode = deployMode;
         this.userId = userId;
+        this.pluginInfo = pluginInfo;
     }
 
     public JobIdentifier(String engineJobId, String applicationId, String taskId){
@@ -43,6 +46,14 @@ public class JobIdentifier implements Serializable {
 
     public static JobIdentifier createInstance(String jobId, String applicationId, String taskId){
         return new JobIdentifier(jobId, applicationId, taskId);
+    }
+
+    public String getPluginInfo() {
+        return pluginInfo;
+    }
+
+    public void setPluginInfo(String pluginInfo) {
+        this.pluginInfo = pluginInfo;
     }
 
     public String getEngineJobId() {

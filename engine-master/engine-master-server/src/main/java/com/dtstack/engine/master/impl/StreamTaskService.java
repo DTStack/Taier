@@ -146,7 +146,7 @@ public class StreamTaskService implements com.dtstack.engine.api.service.StreamT
 
             jobIdentifier = JobIdentifier.createInstance(scheduleJob.getEngineJobId(), applicationId, taskId);
             jobIdentifier = new JobIdentifier(scheduleJob.getEngineJobId(), applicationId, taskId,scheduleJob.getDtuicTenantId(),engineJobCache.getEngineType(),
-                    EDeployMode.PERJOB.getType(),paramAction.getUserId());
+                    EDeployMode.PERJOB.getType(),paramAction.getUserId(),null);
             jobClient = new JobClient(paramAction);
             String jobMaster = workerOperator.getJobMaster(jobIdentifier);
             String rootUrl = UrlUtil.getHttpRootUrl(jobMaster);

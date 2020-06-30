@@ -60,6 +60,9 @@ public class WorkerOperator {
     }
 
     private String getPluginInfo(JobIdentifier jobIdentifier){
+        if(Objects.nonNull(jobIdentifier) && StringUtils.isNotBlank(jobIdentifier.getPluginInfo())){
+            return jobIdentifier.getPluginInfo();
+        }
         if (Objects.isNull(jobIdentifier) || Objects.isNull(jobIdentifier.getEngineType()) || Objects.isNull(jobIdentifier.getTenantId())) {
             logger.error("pluginInfo params lost {}", jobIdentifier);
             throw new RdosDefineException("pluginInfo params lost");
