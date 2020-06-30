@@ -4,7 +4,6 @@ package com.dtstack.engine.dtscript.client;
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.am.ApplicationMaster;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
@@ -56,7 +55,6 @@ public class Client {
     private static final Logger LOG = LoggerFactory.getLogger(Client.class);
 
     private final AtomicBoolean REFRESH_APP_MASTER_JAR = new AtomicBoolean(true);
-    private static final String BASH_LOGIN_CMD = "bash --login -c ";
 
     private DtYarnConfiguration conf;
     private FileSystem dfs;
@@ -159,8 +157,6 @@ public class Client {
         LOG.info("Building app launch command");
         String launchCmd = new LaunchCommandBuilder(clientArguments, conf).buildCmd();
         if (StringUtils.isNotBlank(launchCmd)) {
-            // use  login shell
-            launchCmd = BASH_LOGIN_CMD + "'" + launchCmd + "'";
             appMasterEnv.put(DtYarnConstants.Environment.DT_EXEC_CMD.toString(), launchCmd);
         } else {
             throw new IllegalArgumentException("Invalid launch cmd for the application");
