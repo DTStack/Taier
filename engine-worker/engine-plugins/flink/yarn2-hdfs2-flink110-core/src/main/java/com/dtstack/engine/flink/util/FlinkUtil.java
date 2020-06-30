@@ -122,12 +122,12 @@ public class FlinkUtil {
         try {
             handler = SFTPHandler.getInstance(sftpConf);
             int files = handler.downloadDir(fromPath, toPath);
-            logger.info("download file from SFTP, fileSize: " + files);
+            logger.info("download file from SFTP, fromPath:{} toPath:{} fileSize:{}", fromPath, toPath, files);
             if (files > 0) {
                 return true;
             }
-        } catch (Exception e) {
-            logger.error("", e);
+        } catch (Throwable e) {
+            logger.error("download file from SFTP error, fromPath:{} toPath:{} ", e);
         } finally {
             if (handler != null) {
                 handler.close();
