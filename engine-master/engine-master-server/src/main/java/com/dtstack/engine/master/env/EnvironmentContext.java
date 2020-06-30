@@ -250,10 +250,6 @@ public class EnvironmentContext {
         return Boolean.parseBoolean(environment.getProperty("isDebug", "false"));
     }
 
-    public int getShardSize() {
-        return Integer.parseInt(environment.getProperty("shardSize", "200"));
-    }
-
     public int getQueueSize() {
         return Integer.parseInt(environment.getProperty("queueSize", "500"));
     }
