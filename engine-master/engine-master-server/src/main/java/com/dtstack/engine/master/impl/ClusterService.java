@@ -298,7 +298,8 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
         return null;
     }
 
-    private Queue getQueue(Long tenantId, Long clusterId) {
+    @Forbidden
+    public Queue getQueue(Long tenantId, Long clusterId) {
         Long queueId = engineTenantDao.getQueueIdByTenantId(tenantId);
         Queue queue = queueDao.getOne(queueId);
         if (queue != null) {

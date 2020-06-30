@@ -44,6 +44,8 @@ public class ParamAction {
 
 	private String groupName = ConfigConstant.DEFAULT_GROUP_NAME;
 
+	//选填参数,如果请求指定集群信息的话需要填写
+	private Map<String, Object> pluginInfo;
 
 	/**
 	 * 0 是从web端发起，1是有内部节点发起，如果是1就会直接执行不会再判断node运行的task任务在进行路由选择
@@ -224,6 +226,13 @@ public class ParamAction {
         this.groupName = groupName;
     }
 
+	public Map<String, Object> getPluginInfo() {
+		return pluginInfo;
+	}
+
+	public void setPluginInfo(Map<String, Object> pluginInfo) {
+		this.pluginInfo = pluginInfo;
+	}
 
 	public long getGenerateTime() {
 		return generateTime;

@@ -9,6 +9,7 @@ import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.queue.OrderObject;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -120,7 +121,9 @@ public class JobClient extends OrderObject{
         } else {
             this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 3 : paramAction.getMaxRetryNum();
         }
-
+        if(paramAction.getPluginInfo() != null){
+            this.pluginInfo = PublicUtil.objToString(paramAction.getPluginInfo());
+        }
         if(taskParams != null){
             this.confProperties = PublicUtil.stringToProperties(taskParams);
         }
@@ -162,6 +165,14 @@ public class JobClient extends OrderObject{
         action.setTenantId(tenantId);
         action.setUserId(userId);
         action.setAppType(appType);
+        if(!Strings.isNullOrEmpty(pluginInfo)){
+            try{
+                action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
+            }catch (Exception e){
+                //不应该走到这个异常,这个数据本身是由map转换过来的
+                logger.error("", e);
+            }
+        }
         return action;
     }
 

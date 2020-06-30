@@ -48,6 +48,10 @@ public class WorkerOperator {
     private void buildPluginInfo(JobClient jobClient){
         //补充插件配置信息
         try {
+            //jobClient中如果有pluginInfo(数据质量)以jobClient自带优先
+            if(StringUtils.isNotBlank(jobClient.getPluginInfo())){
+                return;
+            }
             jobClient.setPluginWrapperInfo(pluginWrapper.wrapperPluginInfo(jobClient.getParamAction()));
         } catch (Exception e) {
             logger.error("buildPluginInfo failed!", e);

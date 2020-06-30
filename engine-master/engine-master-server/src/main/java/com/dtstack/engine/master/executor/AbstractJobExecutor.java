@@ -2,16 +2,13 @@ package com.dtstack.engine.master.executor;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.engine.api.domain.ScheduleJobJob;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.JobCheckStatus;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.schedule.common.enums.Restarted;
-import com.dtstack.engine.common.enums.SentinelType;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
-import com.dtstack.engine.api.domain.ScheduleJobJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.BatchFlowWorkJobService;
@@ -23,6 +20,8 @@ import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobErrorInfo;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.zookeeper.ZkService;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.schedule.common.enums.Restarted;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -36,7 +35,10 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -229,13 +231,15 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                         || checkRunInfo.getStatus() == JobCheckStatus.DEPENDENCY_JOB_FROZEN) {
                     String errMsg = checkRunInfo.getErrMsg();
                     batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.FROZEN.getStatus(), errMsg);
-                } else if (checkRunInfo.getStatus() == JobCheckStatus.DEPENDENCY_JOB_CANCELED
-                        //过期任务置为取消
-                        || checkRunInfo.getStatus() == JobCheckStatus.TIME_OVER_EXPIRE) {
+                } else if (checkRunInfo.getStatus() == JobCheckStatus.DEPENDENCY_JOB_CANCELED){
                     String errMsg = checkRunInfo.getErrMsg();
                     batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.KILLED.getStatus(), errMsg);
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.NOT_UNSUBMIT) {
                     //当前任务状态为未提交状态--直接移除
+                } else if (checkRunInfo.getStatus() == JobCheckStatus.TIME_OVER_EXPIRE || JobCheckStatus.DEPENDENCY_JOB_EXPIRE.equals(checkRunInfo.getStatus())) {
+                    String errMsg = checkRunInfo.getErrMsg();
+                    //更新为自动取消
+                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.EXPIRE.getStatus(), errMsg);
                 } else {
                     jopPriorityQueue.putSurvivor(batchJobElement);
                     //其他情况跳过,等待下次执行
@@ -340,18 +344,5 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             cycTime = new ImmutablePair<>(null, null);
         }
         return cycTime;
-    }
-
-    protected boolean checkLoadedDay() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-
-        long today = calendar.getTime().getTime();
-        boolean loaded = lastCheckLoadedDay < today;
-        lastCheckLoadedDay = today;
-        return loaded;
     }
 }

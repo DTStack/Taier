@@ -1,18 +1,14 @@
 package com.dtstack.engine.master.plugininfo;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONPath;
 import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
-import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
-import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.ScheduleEngineType;
 import org.apache.commons.collections.MapUtils;
@@ -34,15 +30,12 @@ public class PluginWrapper{
 
     private static final String PARAMS_DELIM = "&";
     private static final String URI_PARAMS_DELIM = "?";
-    private static final String DEFAULT_GROUP_NAME = "default_default";
     private static final String LADP_USER_NAME = "ldapUserName";
     private static final String LADP_PASSWORD = "ldapPassword";
     private static final String DB_NAME = "dbName";
     private static final String CLUSTER = "cluster";
-    private static final String PLUGIN_INFO = "pluginInfo";
     private static final String DEPLOY_MODEL = "deployMode";
     private static final String QUEUE = "queue";
-    private static final String GROUP_NAME = "groupName";
 
     @Autowired
     private ClusterService clusterService;
@@ -75,7 +68,7 @@ public class PluginWrapper{
             deployMode = scheduleJobService.parseDeployTypeByTaskParams(action.getTaskParams()).getType();
         }
         JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode);
-        action.setGroupName(DEFAULT_GROUP_NAME);
+        action.setGroupName(ConfigConstant.DEFAULT_GROUP_NAME);
         if (Objects.nonNull(pluginInfoJson) && !pluginInfoJson.isEmpty()) {
             addParamsToJdbcUrl(actionParam, pluginInfoJson);
             addUserNameToHadoop(pluginInfoJson, ldapUserName);
@@ -145,8 +138,8 @@ public class PluginWrapper{
             return;
         }
 
-        pluginInfoJson.put("userName", userName);
-        pluginInfoJson.put("pwd", password);
+        pluginInfoJson.put("username", userName);
+        pluginInfoJson.put("password", password);
         pluginInfoJson.put("jdbcUrl", String.format(pluginInfoJson.getString("jdbcUrl"), dbName));
     }
 

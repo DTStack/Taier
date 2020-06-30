@@ -30,7 +30,9 @@ public enum JobCheckStatus {
     FATHER_NO_CREATED(10, "父任务未生成"),
     DEPENDENCY_JOB_CANCELED(11, "依赖任务链路存在任务处于停止状态"),
     DEPENDENCY_JOB_FROZEN(12, "依赖任务链路存在任务处于冻结状态"),
-    CHILD_PRE_NOT_FINISHED(13, "下游任务的上一个周期未结束");
+    CHILD_PRE_NOT_FINISHED(13, "下游任务的上一个周期未结束"),
+    DEPENDENCY_JOB_EXPIRE(14, "依赖任务链路存在任务处于过期状态"),
+    CHILD_PRE_NOT_SUCCESS(15, "下游任务的上一个周期失败");
 
     private int status;
 
