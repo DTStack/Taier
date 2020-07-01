@@ -401,7 +401,8 @@ CREATE TABLE `schedule_job_job`
   `gmt_modified`    datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted`      tinyint(1)   NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
   PRIMARY KEY (`id`),
-  KEY `idx_job_parentJobKey` (`job_key`(255), `parent_job_key`(255))
+  KEY `idx_job_parentJobKey` (`job_key`(255), `parent_job_key`(255)),
+  KEY `idx_job_jobKey`(`parent_job_key`(128)) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
