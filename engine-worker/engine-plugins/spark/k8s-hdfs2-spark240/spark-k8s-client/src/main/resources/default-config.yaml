@@ -1,0 +1,26 @@
+deploymode:
+  controls: checkbox
+  values: [perjob]
+
+perjob:
+  dependencyKey: deploymode
+  dependencyValue: perjob
+  controls: group
+  required:
+    nameSpace:
+    kubernetesConfigName:
+    sparkSqlProxyPath: /opt/dtstack/spark/spark-sql-proxy.jar
+    spark.kubernetes.container.image:
+    spark.executor.memory: 512m
+    spark.driver.memory: 512m
+    spark.cores.max: 1
+    spark.executor.instances: 1
+    spark.executor.cores: 1
+    spark.submit.deployMode: cluster
+    spark.speculation: true
+    spark.kubernetes.authenticate.driver.serviceAccountName: spark
+  optional:
+    addColumnSupport: true
+    sparkPythonExtLibPath:
+
+
