@@ -80,7 +80,7 @@ public class ClientOperator {
 
         String logInfo;
         try {
-            LOG.warn("get engineLog pluginInfo {} jobIdentifier {} ",pluginInfo ,jobIdentifier);
+            LOG.info("get engineLog pluginInfo {} jobIdentifier {} ",pluginInfo ,jobIdentifier);
             IClient client = clientCache.getClient(engineType, pluginInfo);
             logInfo = client.getJobLog(jobIdentifier);
         } catch (Exception e) {
@@ -116,7 +116,7 @@ public class ClientOperator {
         }
         JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getTaskId());
         checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
-        LOG.warn("stop job jobClient {} ",jobClient);
+        LOG.info("stop job jobClient {} ",jobClient);
         IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return client.cancelJob(jobIdentifier);
     }
@@ -140,7 +140,7 @@ public class ClientOperator {
     }
 
     public JobResult submitJob(JobClient jobClient) throws ClientAccessException {
-        LOG.warn("submit job jobClient {} ",jobClient);
+        LOG.info("submit job jobClient {} ",jobClient);
         IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return clusterClient.submitJob(jobClient);
     }
@@ -151,18 +151,21 @@ public class ClientOperator {
     }
 
     public ComponentTestResult testConnect(String engineType, String pluginInfo){
+        LOG.info("test connect {} ",pluginInfo);
         IClient clusterClient = clientCache.getDefaultPlugin(engineType);
         return clusterClient.testConnect(pluginInfo);
     }
 
-    public List<List<Object>> executeQuery(String engineType, String pluginInfo,String sql,String database) throws Exception{
+    public List<List<Object>> executeQuery(String engineType, String pluginInfo, String sql, String database) throws Exception {
+        LOG.info("execute query engineType {}  pluginInfo {} sql {} database {}", engineType, pluginInfo, sql, database);
         IClient client = clientCache.getClient(engineType, pluginInfo);
-        return client.executeQuery(sql,database);
+        return client.executeQuery(sql, database);
     }
 
-    public String uploadStringToHdfs(String engineType,String pluginInfo,String bytes, String hdfsPath) throws Exception{
-        IClient client = clientCache.getClient(engineType,pluginInfo);
-        return client.uploadStringToHdfs(bytes,hdfsPath);
+    public String uploadStringToHdfs(String engineType, String pluginInfo, String bytes, String hdfsPath) throws Exception {
+        LOG.info("upload to hdfs engineType {}  pluginInfo {} hdfs Path {}", engineType, pluginInfo, hdfsPath);
+        IClient client = clientCache.getClient(engineType, pluginInfo);
+        return client.uploadStringToHdfs(bytes, hdfsPath);
     }
 
     public ClusterResource getClusterResource(String engineType, String pluginInfo) throws ClientAccessException{

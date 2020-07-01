@@ -120,7 +120,7 @@ public class WorkerOperator {
 
             return (RdosTaskStatus) result;
         } catch (Exception e) {
-            logger.error("getStatus happens error：{}", e);
+            logger.error("getStatus happens error：{}",jobId, e);
             return RdosTaskStatus.NOTFOUND;
         }
     }
