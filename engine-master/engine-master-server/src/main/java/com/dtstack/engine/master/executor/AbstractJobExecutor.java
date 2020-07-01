@@ -349,8 +349,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     private ConcurrentHashMap<String, ExecutorService> executorServiceMap = new ConcurrentHashMap<>();
 
     public void start(ScheduleTaskShade batchTask, ScheduleBatchJob scheduleBatchJob) {
-        //提交代码里面会将jobStatus设置为submitting
-        batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.SUBMITTING.getStatus(), "");
         ScheduleEngineType scheduleEngineType = ScheduleEngineType.getEngineType(batchTask.getEngineType());
         String engineType = "default";
         if (Objects.nonNull(scheduleEngineType)) {
@@ -369,6 +367,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         executorService.submit(() -> {
             try {
                 batchJobService.startJob(scheduleBatchJob.getScheduleJob());
+                //提交代码里面会将jobStatus设置为submitting
+                batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.SUBMITTING.getStatus(), "");
                 logger.info("---scheduleType:{} send job:{} to engine.", getScheduleType(), scheduleBatchJob.getJobId());
             } catch (Exception e) {
                 logger.info("--- send job:{} to engine error", scheduleBatchJob.getJobId(), e);
