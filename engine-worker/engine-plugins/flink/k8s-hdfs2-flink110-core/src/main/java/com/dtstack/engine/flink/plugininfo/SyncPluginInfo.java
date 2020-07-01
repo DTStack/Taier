@@ -82,7 +82,7 @@ public class SyncPluginInfo {
 
         programArgList.add("-pluginLoadMode");
         programArgList.add(pluginLoadMode);
-
+        // FIXME  k8s mod
         programArgList.add("-mode");
         if (FlinkMode.isPerJob(taskRunMode)){
             programArgList.add("yarnPer");
