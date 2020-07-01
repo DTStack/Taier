@@ -40,6 +40,7 @@ import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.cache.DistributedCache;
 import org.apache.flink.client.ClientUtils;
+import org.apache.flink.client.deployment.ClusterDeploymentException;
 import org.apache.flink.client.deployment.ClusterDescriptor;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
@@ -173,45 +174,40 @@ public class FlinkClient extends AbstractClient {
             return JobResult.createErrorResult("can not submit a job without jar path, please check it");
         }
 
-        String args = jobParam.getClassArgs();
-        if (StringUtils.isNotBlank(args)) {
-            programArgList.addAll(Arrays.asList(args.split("\\s+")));
-        }
-
-        //如果jar包里面未指定mainclass,需要设置该参数
-        String entryPointClass = jobParam.getMainClass();
-
         FlinkMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(), jobClient.getComputeType());
-        SavepointRestoreSettings spSettings = buildSavepointSetting(jobClient);
+        Configuration tmpConfiguration = new Configuration(flinkClientBuilder.getFlinkConfiguration());
+        ClusterClient clusterClient = null;
+        String monitorUrl = "";
+
+        try {
+            if (FlinkMode.isPerJob(taskRunMode)) {
+                ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(tmpConfiguration, jobClient.getJobPriority(), jobClient.getConfProperties());
+                clusterClient = createClusterClientForPerJob(clusterSpecification, jobClient);
+            } else {
+                clusterClient = flinkClusterClientManager.getClusterClient(null);
+            }
+
+            Preconditions.checkNotNull(clusterClient, "clusterClient is null");
+            monitorUrl = clusterClient.getWebInterfaceURL();
+        } catch (Exception e) {
+            logger.error("create clusterClient or getSession clusterClient error", e);
+            throw new RdosDefineException(e);
+        }
 
         PackagedProgram packagedProgram = null;
         JobGraph jobGraph = null;
-        String[] programArgs = programArgList.toArray(new String[programArgList.size()]);
+        SavepointRestoreSettings spSettings = buildSavepointSetting(jobClient);
+        String entryPointClass = jobParam.getMainClass();
+        String[] programArgs = addMonitorUrlParamForSync(programArgList, jobParam, monitorUrl);
 
-        Configuration tmpConfiguration = new Configuration(flinkClientBuilder.getFlinkConfiguration());
         try {
             Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
             packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, jobClient.getJobType(), entryPointClass, programArgs, spSettings, hadoopConf, tmpConfiguration);
             jobGraph = PackagedProgramUtils.createJobGraph(packagedProgram, tmpConfiguration, runParallelism, false);
 
             fillJobGraphClassPath(jobGraph);
-        } catch (Throwable e) {
-            return JobResult.createErrorResult(e);
-        }
 
-        try {
-            Pair<String, String> runResult;
-            if (FlinkMode.isPerJob(taskRunMode)) {
-                ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(tmpConfiguration, jobClient.getJobPriority(), jobClient.getConfProperties());
-                logger.info("--------job:{} run by PerJob mode-----.", jobClient.getTaskId());
-                runResult = runJobByPerJobPseudo(jobGraph, clusterSpecification, jobClient);
-            } else {
-                //只有当程序本身没有指定并行度的时候该参数才生效
-                clearClassPathShipfileLoadMode(packagedProgram);
-                logger.info("--------job:{} run by session mode-----.", jobClient.getTaskId());
-                runResult = runJobByKubernetesSession(jobGraph);
-            }
-
+            Pair<String, String> runResult = submitFlinkJob(clusterClient, jobGraph);
             return JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond());
         } catch (Exception e) {
             return JobResult.createErrorResult(e);
@@ -223,22 +219,39 @@ public class FlinkClient extends AbstractClient {
     }
 
     /**
-     * perjob模式提交任务
+     *
+     *  sync job rely on monitorUrl parameters to transmit metric information
+     * @param programArgList
+     * @param jobParam
+     * @param monitorUrl
+     * @return
      */
-    private Pair<String, String> runJobByPerJobPseudo(JobGraph jobGraph, ClusterSpecification clusterSpecification, JobClient jobClient) throws Exception {
-        String applicationId = null;
+    private String[] addMonitorUrlParamForSync(List<String> programArgList, JobParam jobParam, String monitorUrl) {
+        String args = jobParam.getClassArgs();
+        if (StringUtils.isNotBlank(args)) {
+            programArgList.addAll(Arrays.asList(args.split("\\s+")));
+        }
+
+        String[] programArgs = programArgList.toArray(new String[programArgList.size()]);
+        for (int i = 0; i < args.length(); i++) {
+            if ("-monitor".equals(programArgs[i])) {
+                programArgs[i + 1] = monitorUrl;
+                break;
+            }
+        }
+        return programArgs;
+    }
+
+
+    private ClusterClient createClusterClientForPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws ClusterDeploymentException {
         ClusterDescriptor<String> clusterDescriptor = null;
         ClusterClient<String> clusterClient = null;
         try {
             clusterDescriptor = PerJobClientFactory.getPerJobClientFactory().createPerjobClusterDescriptor(jobClient);
-
             clusterClient = clusterDescriptor.deploySessionCluster(clusterSpecification).getClusterClient();
-            applicationId = clusterClient.getClusterId();
 
-            JobExecutionResult jobExecutionResult = ClientUtils.submitJob(clusterClient, jobGraph, flinkConfig.getSubmitTimeout(), TimeUnit.MINUTES);
-            flinkClusterClientManager.addClient(applicationId, clusterClient);
-
-            return Pair.create(jobExecutionResult.getJobID().toString(), applicationId);
+            flinkClusterClientManager.addClient(clusterClient.getClusterId(), clusterClient);
+            return clusterClient;
         } catch (Exception e) {
             try {
                 if (clusterClient != null) {
@@ -250,25 +263,16 @@ public class FlinkClient extends AbstractClient {
             } catch (Exception e1) {
                 logger.info("Could not properly close the kubernetes cluster descriptor.", e1);
             }
-            throw e;
-        } finally {
-            if (StringUtils.isNotBlank(applicationId)) {
-                delFilesFromDir(tmpdir, applicationId);
-            }
+            throw new RdosDefineException(e);
         }
     }
 
-    /**
-     * kubernetesSession模式运行任务
-     */
-    private Pair<String, String> runJobByKubernetesSession(JobGraph jobGraph) throws Exception {
-        try {
-            ClusterClient clusterClient = flinkClusterClientManager.getClusterClient(null);
-            JobExecutionResult jobExecutionResult = ClientUtils.submitJob(clusterClient, jobGraph, flinkConfig.getSubmitTimeout(), TimeUnit.MINUTES);
 
+    private Pair<String, String> submitFlinkJob(ClusterClient clusterClient, JobGraph jobGraph) throws Exception {
+        try {
+            JobExecutionResult jobExecutionResult = ClientUtils.submitJob(clusterClient, jobGraph, flinkConfig.getSubmitTimeout(), TimeUnit.MINUTES);
             logger.info("Program execution finished");
             logger.info("Job with JobID " + jobExecutionResult.getJobID() + " has finished.");
-
             return Pair.create(jobExecutionResult.getJobID().toString(), clusterClient.getClusterId().toString());
         } catch (Exception e) {
             if (e.getMessage() != null && e.getMessage().contains(ExceptionInfoConstrant.FLINK_UNALE_TO_GET_CLUSTERCLIENT_STATUS_EXCEPTION)) {
@@ -676,17 +680,6 @@ public class FlinkClient extends AbstractClient {
 
         jobGraph.getUserArtifacts().clear();
         jobGraph.setClasspaths(classPath);
-    }
-
-    /**
-     * shipfile模式下，插件包在flinksession启动时,已经全部上传
-     *
-     * @param packagedProgram
-     */
-    private void clearClassPathShipfileLoadMode(PackagedProgram packagedProgram) {
-        if (ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(flinkConfig.getPluginLoadMode())) {
-            packagedProgram.getClasspaths().clear();
-        }
     }
 
     private String getJobHistoryURL() {
