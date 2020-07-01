@@ -215,7 +215,8 @@ public class TenantService implements com.dtstack.engine.api.service.TenantServi
         }
     }
 
-    private void checkClusterCanUse(Long clusterId) throws Exception {
+
+    public void checkClusterCanUse(Long clusterId) throws Exception {
         ClusterVO clusterVO = clusterService.getCluster(clusterId, true, true);
         List<ComponentTestResult> testConnectionVO = componentService.testConnects(clusterVO.getClusterName());
         boolean canUse = true;

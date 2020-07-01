@@ -54,6 +54,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import scala.Int;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -61,6 +62,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -952,8 +954,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         if (CollectionUtils.isNotEmpty(jobs)) {
             details = new ArrayList<>(jobs.size());
             for (Map<String, String> job : jobs) {
-                Object execStartTimeObj = MathUtil.getString(job.get("execStartTime"));
-                Object ExecEndTimeObj = MathUtil.getString(job.get("execEndTime"));
+                String execStartTimeObj = MathUtil.getString(job.get("execStartTime"));
+                String ExecEndTimeObj = MathUtil.getString(job.get("execEndTime"));
                 Long execTime = MathUtil.getLongVal(job.get("execTime"));
 
                 ScheduleRunDetailVO runDetail = new ScheduleRunDetailVO();
@@ -962,8 +964,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 }
 
                 runDetail.setExecTime(execTime);
-                runDetail.setStartTime(DateUtil.getStandardFormattedDate(((Timestamp) execStartTimeObj).getTime()));
-                runDetail.setEndTime(DateUtil.getStandardFormattedDate(((Timestamp) ExecEndTimeObj).getTime()));
+                runDetail.setStartTime(execStartTimeObj);
+                runDetail.setEndTime(ExecEndTimeObj);
 
                 ScheduleTaskShade jobTask = batchTaskShadeService.getBatchTaskById(taskId, appType);
                 runDetail.setTaskName(jobTask.getName());

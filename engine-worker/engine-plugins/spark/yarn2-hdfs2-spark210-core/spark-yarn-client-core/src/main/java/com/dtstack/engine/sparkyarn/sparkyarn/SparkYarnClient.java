@@ -16,9 +16,9 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.sparkyarn.sparkyarn.parser.AddJarOperator;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExt;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExtFactory;
-import com.dtstack.engine.sparkyarn.sparkyarn.parser.AddJarOperator;
 import com.dtstack.engine.sparkyarn.sparkyarn.util.HadoopConf;
 import com.dtstack.engine.sparkyarn.sparkyarn.util.KerberosUtils;
 import com.google.common.base.Charsets;
@@ -371,7 +371,6 @@ public class SparkYarnClient extends AbstractClient {
         sparkConf.remove("spark.files");
         sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
         sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
-        //sparkConf.set(SPARK_JAVA_OPTS_KEY, sparkYarnConfig.getJvmOptions());
         sparkConf.set("security", "false");
 
         if (sparkYarnConfig.isOpenKerberos()){
@@ -388,7 +387,6 @@ public class SparkYarnClient extends AbstractClient {
                 }
             });
         }
-        SparkConfig.initDefautlConf(sparkConf);
         return sparkConf;
     }
 

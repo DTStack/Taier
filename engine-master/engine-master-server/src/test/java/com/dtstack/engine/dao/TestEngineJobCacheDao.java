@@ -13,7 +13,7 @@ import org.apache.ibatis.annotations.Param;
 
 public interface TestEngineJobCacheDao {
 
-	@Insert({"insert into schedule_engine_job_cache( job_id, engine_type, compute_type, stage, job_info, node_address, job_name, job_priority, job_resource)\n" +
+	@Insert({"replace into schedule_engine_job_cache( job_id, engine_type, compute_type, stage, job_info, node_address, job_name, job_priority, job_resource)\n" +
 		"        values(#{engineJobCache.jobId}, #{engineJobCache.engineType}, #{engineJobCache.computeType}, #{engineJobCache.stage}, #{engineJobCache.jobInfo}, #{engineJobCache.nodeAddress},#{engineJobCache.jobName},#{engineJobCache.jobPriority},#{engineJobCache.jobResource})"})
 	void insert(@Param("engineJobCache") EngineJobCache engineJobCache);
 
