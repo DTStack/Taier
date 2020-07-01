@@ -554,7 +554,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 fileName = String.format("tensorflow_%s_%s_%s_%s.py", tenantId, projectId,
                         taskName, System.currentTimeMillis());
             } else if (taskType.equals(EScheduleJobType.KERAS.getVal())){
-                fileName = String.format("Keras%s_%s_%s_%s.py", tenantId, projectId,
+                fileName = String.format("keras%s_%s_%s_%s.py", tenantId, projectId,
                         taskName, System.currentTimeMillis());
             }
 
