@@ -35,6 +35,13 @@
             <scope>provided</scope>
         </dependency>
 
+
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>plugins.base</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
@@ -103,19 +110,6 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20140107</version>
-        </dependency>
-
-        <!-- kerberos -->
-        <dependency>
-            <groupId>org.apache.kerby</groupId>
-            <artifactId>kerb-core</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.kerby</groupId>
-            <artifactId>kerb-util</artifactId>
-            <version>1.0.0</version>
         </dependency>
 
         <dependency>

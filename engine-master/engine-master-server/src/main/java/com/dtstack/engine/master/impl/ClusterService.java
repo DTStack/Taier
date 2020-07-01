@@ -10,6 +10,7 @@ import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -22,6 +23,8 @@ import com.dtstack.schedule.common.enums.Sort;
 import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
 import com.dtstack.schedule.common.util.Base64Util;
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -37,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.dtstack.engine.master.impl.ComponentService.TYPE_NAME;
@@ -58,6 +62,11 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
 
     private final static List<String> BASE_CONFIG = Lists.newArrayList(EComponentType.HDFS.getConfName(),
             EComponentType.YARN.getConfName(), EComponentType.SPARK_THRIFT.getConfName(), EComponentType.SFTP.getConfName(),EComponentType.KUBERNETES.getConfName());
+
+    private Cache<String, JSONObject> pluginInfoCache = CacheBuilder.newBuilder()
+            .maximumSize(1000)
+            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .build();
 
     @Autowired
     private ClusterDao clusterDao;
@@ -212,6 +221,18 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
      * 对外接口
      */
     public JSONObject pluginInfoJSON(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr, @Param("dtUicUserId")Long dtUicUserId,@Param("deployMode")Integer deployMode) {
+        //缓存是否存在
+        String keyFormat = String.format("%s.%s.%s.%s", dtUicTenantId, engineTypeStr, dtUicTenantId, deployMode);
+        JSONObject cacheInfo = pluginInfoCache.getIfPresent(keyFormat);
+        if (Objects.nonNull(cacheInfo)) {
+            return cacheInfo;
+        }
+
+        if (EngineType.Dummy.name().equalsIgnoreCase(engineTypeStr)) {
+            JSONObject dummy = new JSONObject();
+            dummy.put(TYPE_NAME, EngineType.Dummy.name().toLowerCase());
+            return dummy;
+        }
         EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineTypeStr);
         if (type == null) {
             return null;
@@ -238,11 +259,12 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
         pluginJson.put(CLUSTER, cluster.getClusterName());
         pluginJson.put(TENANT_ID, tenantId);
         setComponentSftpDir(cluster.getClusterId(), clusterConfigJson, pluginJson,type);
+        pluginInfoCache.put(keyFormat,pluginJson);
         return pluginJson;
     }
 
     public String pluginInfo(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr,@Param("userId") Long dtUicUserId,@Param("deployMode")Integer deployMode) {
-        return pluginInfoJSON(dtUicTenantId, engineTypeStr, dtUicUserId,deployMode).toJSONString();
+        return "{}";
     }
 
     /**
@@ -292,7 +314,8 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
         return null;
     }
 
-    private Queue getQueue(Long tenantId, Long clusterId) {
+    @Forbidden
+    public Queue getQueue(Long tenantId, Long clusterId) {
         Long queueId = engineTenantDao.getQueueIdByTenantId(tenantId);
         Queue queue = queueDao.getOne(queueId);
         if (queue != null) {
@@ -492,7 +515,6 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
             LOGGER.error("accordToKerberosFile error {}", dataMap, e);
             throw new RdosDefineException("下载kerberos文件失败");
         }
-        return;
     }
 
     @Forbidden
@@ -569,7 +591,8 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
                 //默认为session
                 EDeployMode deploy = EComponentType.FLINK.equals(type.getComponentType()) ? EDeployMode.SESSION : EDeployMode.PERJOB;
-                if (Objects.nonNull(deployMode)) {
+                //spark 暂时全部为perjob
+                if (Objects.nonNull(deployMode) && !EComponentType.SPARK.equals(type.getComponentType())) {
                     deploy = EDeployMode.getByType(deployMode);
                 }
                 JSONObject flinkConf = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
@@ -819,6 +842,14 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
         }
 
         return result;
+    }
+
+    /**
+     * 清除缓存
+     */
+    public void clearPluginInfoCache(){
+        pluginInfoCache.cleanUp();
+        LOGGER.info("-------clear plugin info cache success-----");
     }
 }
 

@@ -263,6 +263,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
                 consoleCache.publishRemoveMessage(uicTenantId.toString());
             }
         }
+        clusterService.clearPluginInfoCache();
     }
 
     @Forbidden

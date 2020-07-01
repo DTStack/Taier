@@ -168,7 +168,7 @@ public class DtContainer {
 
         command = appType.cmdContainerExtra(command, conf, containerInfo);
 
-        String[] cmd = {"bash", "-c", command};
+        String[] cmd = {"bash", "--login", "-c", command};
 
         LOG.info("Executing command:" + command);
         Runtime rt = Runtime.getRuntime();

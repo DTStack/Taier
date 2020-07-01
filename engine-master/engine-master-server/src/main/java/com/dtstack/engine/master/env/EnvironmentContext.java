@@ -250,10 +250,6 @@ public class EnvironmentContext {
         return Boolean.parseBoolean(environment.getProperty("isDebug", "false"));
     }
 
-    public int getShardSize() {
-        return Integer.parseInt(environment.getProperty("shardSize", "200"));
-    }
-
     public int getQueueSize() {
         return Integer.parseInt(environment.getProperty("queueSize", "500"));
     }
@@ -345,6 +341,29 @@ public class EnvironmentContext {
     }
 
     public int getTestConnectTimeout() {
-        return Integer.parseInt(environment.getProperty("testConnectTimeout", "1000"));
+        return Integer.parseInt(environment.getProperty("testConnectTimeout", "100"));
+    }
+
+    /**
+     * 日志数据定时删除
+     */
+    public Integer getHourMax() {
+        return Integer.valueOf(environment.getProperty("hourMax", "15"));
+    }
+
+    public Integer getDayMax() {
+        return Integer.valueOf(environment.getProperty("dayMax", "30"));
+    }
+
+    public Integer getMonthMax() {
+        return Integer.valueOf(environment.getProperty("monthMax", "60"));
+    }
+
+    public String getScheduleJobCron() {
+        return environment.getProperty("job.back.cron", "23:00:00");
+    }
+
+    public boolean openScheduleJobCron(){
+        return Boolean.parseBoolean(environment.getProperty("job.back.cron.open", "false"));
     }
 }

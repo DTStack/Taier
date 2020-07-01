@@ -1,8 +1,15 @@
 package com.dtstack.engine.master.plugininfo;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.ScheduleEngineType;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -23,23 +30,25 @@ public class PluginWrapper{
 
     private static final String PARAMS_DELIM = "&";
     private static final String URI_PARAMS_DELIM = "?";
-    private static final String TENANT_ID = "tenantId";
-    private static final String ENGINE_TYPE = "engineType";
-    private static final String DEFAULT_GROUP_NAME = "default_default";
     private static final String LADP_USER_NAME = "ldapUserName";
     private static final String LADP_PASSWORD = "ldapPassword";
     private static final String DB_NAME = "dbName";
     private static final String CLUSTER = "cluster";
-    private static final String PLUGIN_INFO = "pluginInfo";
-    public static final String DEPLOY_MODEL = "deployMode";
+    private static final String DEPLOY_MODEL = "deployMode";
     private static final String QUEUE = "queue";
-    private static final String GROUP_NAME = "groupName";
-    private static final String USER_ID = "userId";
 
     @Autowired
     private ClusterService clusterService;
 
-    public Map<String, Object> wrapperPluginInfo(Map<String, Object> actionParam){
+    @Autowired
+    private ScheduleJobService scheduleJobService;
+
+    @Autowired
+    private ScheduleTaskShadeDao scheduleTaskShadeDao;
+
+    public Map<String, Object> wrapperPluginInfo(ParamAction action) throws Exception{
+
+        Map actionParam = PublicUtil.objectToMap(action);
 
         String ldapUserName = MapUtils.getString(actionParam, LADP_USER_NAME);
         String ldapPassword = MapUtils.getString(actionParam, LADP_PASSWORD);
@@ -52,20 +61,22 @@ public class PluginWrapper{
             actionParam.remove(DB_NAME);
         }
 
-        Long tenantId = MapUtils.getLong(actionParam, TENANT_ID);
-        String engineType = MapUtils.getString(actionParam, ENGINE_TYPE);
-        JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, MapUtils.getLong(actionParam,USER_ID),deployMode);
-        String groupName = DEFAULT_GROUP_NAME;
+        Long tenantId = action.getTenantId();
+        String engineType = action.getEngineType();
+        if(Objects.isNull(deployMode) && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)){
+            //解析参数
+            deployMode = scheduleJobService.parseDeployTypeByTaskParams(action.getTaskParams()).getType();
+        }
+        JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode);
+        action.setGroupName(ConfigConstant.DEFAULT_GROUP_NAME);
         if (Objects.nonNull(pluginInfoJson) && !pluginInfoJson.isEmpty()) {
             addParamsToJdbcUrl(actionParam, pluginInfoJson);
             addUserNameToHadoop(pluginInfoJson, ldapUserName);
             addUserNameToImpalaOrHive(pluginInfoJson, ldapUserName, ldapPassword, dbName, engineType);
-            actionParam.put(PLUGIN_INFO, pluginInfoJson);
-            groupName = pluginInfoJson.getString(CLUSTER) + "_" + pluginInfoJson.getString(QUEUE);
+            action.setGroupName(pluginInfoJson.getString(CLUSTER) + "_" + pluginInfoJson.getString(QUEUE));
         }
-        actionParam.put(GROUP_NAME, groupName);
 
-        return actionParam;
+        return pluginInfoJson;
     }
 
     private void addParamsToJdbcUrl(Map<String, Object> actionParam, JSONObject pluginInfoJson){
@@ -78,7 +89,19 @@ public class PluginWrapper{
             return;
         }
 
-        Map paramsJson = MapUtils.getMap(actionParam, "jdbcUrlParams");
+        String jobId = (String)actionParam.get("taskId");
+        Integer appType = MapUtils.getInteger(actionParam, "appType");
+        ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus());
+        if(Objects.isNull(scheduleJob) || Objects.isNull(appType)){
+            logger.info("dbUrl {} jobId {} appType or scheduleJob is null",dbUrl,jobId);
+            return;
+        }
+        JSONObject info = JSONObject.parseObject(scheduleTaskShadeDao.getExtInfoByTaskId(scheduleJob.getTaskId(), appType));
+        if(Objects.isNull(info)){
+            return;
+        }
+
+        JSONObject paramsJson = info.getJSONObject("info").getJSONObject("jdbcUrlParams");
         if(paramsJson == null || paramsJson.isEmpty()){
             return;
         }
@@ -93,12 +116,12 @@ public class PluginWrapper{
 
         if(MultiEngineType.TIDB.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
             //TiDB 没有currentSchema
-            pluginInfoJson.put("jdbcUrl", dbUrl  + paramsJson.get("currentSchema"));
+            pluginInfoJson.put("jdbcUrl", dbUrl  + paramsJson.getString("currentSchema"));
             return;
         }
 
         if (MultiEngineType.GREENPLUM.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
-            pluginInfoJson.put("dbUrl", dbUrl);
+            pluginInfoJson.put("jdbcUrl", dbUrl);
             return;
         }
 
@@ -115,9 +138,9 @@ public class PluginWrapper{
             return;
         }
 
-        pluginInfoJson.put("userName", userName);
-        pluginInfoJson.put("pwd", password);
-        pluginInfoJson.put("dbUrl", String.format(pluginInfoJson.getString("dbUrl"), dbName));
+        pluginInfoJson.put("username", userName);
+        pluginInfoJson.put("password", password);
+        pluginInfoJson.put("jdbcUrl", String.format(pluginInfoJson.getString("jdbcUrl"), dbName));
     }
 
 

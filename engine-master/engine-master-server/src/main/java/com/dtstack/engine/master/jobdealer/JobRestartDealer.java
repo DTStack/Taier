@@ -100,11 +100,9 @@ public class JobRestartDealer {
      * @param status
      * @param jobId
      * @param engineJobId
-     * @param engineType
-     * @param pluginInfo
      * @return
      */
-    public boolean checkAndRestart(Integer status, String jobId, String engineJobId, String appId, String engineType, String pluginInfo){
+    public boolean checkAndRestart(Integer status, String jobId, String engineJobId, String appId){
         Pair<Boolean, JobClient> checkResult = checkJobInfo(jobId, engineJobId, status);
         if(!checkResult.getKey()){
             return false;
@@ -224,7 +222,7 @@ public class JobRestartDealer {
 
             ScheduleJob batchJob = scheduleJobDao.getRdosJobByJobId(jobClient.getTaskId());
             if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
-                jobDealer.getAndUpdateEngineLog(jobId, jobClient.getEngineTaskId(), jobClient.getApplicationId(), batchJob.getPluginInfoId());
+                jobDealer.getAndUpdateEngineLog(jobId, jobClient.getEngineTaskId(), jobClient.getApplicationId(),batchJob.getDtuicTenantId());
             }
 
             //重试的任务不置为失败，waitengine

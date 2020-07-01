@@ -2,6 +2,7 @@ package com.dtstack.engine.common.logstore.mysql;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +27,9 @@ public class MysqlDataConnPool {
 
     private static Map<String, String> dbConfig;
 
-    private String dbUrl;
-
-    private String dbUserName;
-
-    private String dbPwd;
+    private String jdbcUrl;
+    private String username;
+    private String password;
 
     /**
      * sql执行超时时间-单位秒
@@ -102,20 +101,20 @@ public class MysqlDataConnPool {
             LOG.error("dbConfig can not be null");
             throw new RuntimeException("dbConfig can not be null");
         }
-        dbUrl = dbConfig.get("url");
-        dbUserName = dbConfig.get("userName");
-        dbPwd = dbConfig.get("pwd");
+        jdbcUrl = dbConfig.get(ConfigConstant.JDBCURL);
+        username = dbConfig.get(ConfigConstant.USERNAME);
+        password = dbConfig.get(ConfigConstant.PASSWORD);
 
         dataSource.setDriverClassName(DRIVER_NAME);
-        dataSource.setUrl(dbUrl);
+        dataSource.setUrl(jdbcUrl);
 
-        if (!Strings.isNullOrEmpty(dbUserName)) {
-            dataSource.setUsername(dbUserName);
+        if (!Strings.isNullOrEmpty(username)) {
+            dataSource.setUsername(username);
 
         }
 
-        if (!Strings.isNullOrEmpty(dbPwd)) {
-            dataSource.setPassword(dbPwd);
+        if (!Strings.isNullOrEmpty(password)) {
+            dataSource.setPassword(password);
         }
 
         dataSource.setInitialSize(initialSize);

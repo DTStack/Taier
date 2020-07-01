@@ -292,7 +292,11 @@ public class SessionClientFactory extends AbstractClientFactory {
             String flinkPluginRoot = flinkConfig.getFlinkPluginRoot();
             if (StringUtils.isNotBlank(flinkPluginRoot)) {
                 String syncPluginDir = flinkPluginRoot + SyncPluginInfo.FILE_SP + SyncPluginInfo.SYNC_PLUGIN_DIR_NAME;
-                List<File> pluginPaths = Arrays.stream(new File(syncPluginDir).listFiles())
+                File syncFile = new File(syncPluginDir);
+                if (!syncFile.exists()) {
+                    throw new RdosDefineException("syncPlugin path is null");
+                }
+                List<File> pluginPaths = Arrays.stream(syncFile.listFiles())
                         .filter(file -> !file.getName().endsWith("zip"))
                         .collect(Collectors.toList());
                 clusterDescriptor.addShipFiles(pluginPaths);

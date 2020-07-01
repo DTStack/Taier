@@ -147,6 +147,7 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
             List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet).stream().
                     filter(report -> report.getQueue().endsWith(queueName)).collect(Collectors.toList());
             if (acceptedApps.size() > yarnAccepterTaskNumber) {
+                logger.info("queueName {} acceptedApps {} >= yarnAccepterTaskNumber {}", queueName, acceptedApps.size(), yarnAccepterTaskNumber);
                 return;
             }
 

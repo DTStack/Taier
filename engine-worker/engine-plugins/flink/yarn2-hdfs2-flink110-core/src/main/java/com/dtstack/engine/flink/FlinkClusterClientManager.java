@@ -1,5 +1,6 @@
 package com.dtstack.engine.flink;
 
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -7,7 +8,6 @@ import com.dtstack.engine.flink.enums.Deploy;
 import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.factory.SessionClientFactory;
 import com.dtstack.engine.flink.factory.StandaloneClientFactory;
-import com.dtstack.engine.flink.util.KerberosUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
@@ -91,7 +91,7 @@ public class FlinkClusterClientManager {
                 clusterClient = sessionClientFactory.getClusterClient();
             }
             return null;
-        });
+        },flinkClientBuilder.getYarnConf());
     }
 
     /**

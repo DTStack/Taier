@@ -20,6 +20,7 @@ public enum ComputeResourceType {
     Kylin,
     Impala,
     TiDB,
-    GreenPlum;
+    GreenPlum,
+    Dummy;
 
 }

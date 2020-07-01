@@ -291,6 +291,40 @@
         </if>
     </select>
 
+
+    <select id="listByNameLikeWithSearchType" resultType="ScheduleTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_shade
+        WHERE project_id = #{projectId}  and is_deleted = 0 and app_type = #{appType}
+        <if test="ownerId!=null">
+            AND owner_user_id = #{ownerId}
+        </if>
+        <choose>
+            <when test="name != null and  searchType==1">
+                AND name LIKE '%${name}%'
+            </when>
+            <when test="name != null and  searchType==2">
+                AND name =#{name}
+            </when>
+            <when test="name != null and  searchType==3">
+                AND name LIKE '${name}%'
+            </when>
+            <when test="name != null and  searchType==4">
+                AND name LIKE '%${name}'
+            </when>
+        </choose>
+        <if test="projectId != null">
+            and  project_id = #{projectId}
+        </if>
+        <if test="projectIds != null and projectIds.size() > 0">
+            and   project_id in
+            <foreach collection="projectIds" open="(" separator="," close=")" item="projectId">
+                #{projectId}
+            </foreach>
+        </if>
+    </select>
+
     <select id="listByName" resultType="ScheduleTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
@@ -601,8 +635,6 @@
             and ts.is_deleted = 0
             limit 1
     </select>
-
-
 
     <select id="listSimpleByTaskIds" resultType="ScheduleTaskShade">
         SELECT

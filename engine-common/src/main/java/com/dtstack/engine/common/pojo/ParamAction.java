@@ -68,8 +68,67 @@ public class ParamAction {
 
     private Long dtuicTenantId;
 
+    private Long userId;
 
-	public Integer getRequestStart() {
+    private String ldapUserName;
+
+    private String ldapPassword;
+
+    private String deployMode;
+
+    private String dbName;
+
+    private Integer appType;
+
+    public Integer getAppType() {
+        return appType;
+    }
+
+    public void setAppType(Integer appType) {
+        this.appType = appType;
+    }
+
+    public String getLdapUserName() {
+        return ldapUserName;
+    }
+
+    public void setLdapUserName(String ldapUserName) {
+        this.ldapUserName = ldapUserName;
+    }
+
+    public String getLdapPassword() {
+        return ldapPassword;
+    }
+
+    public void setLdapPassword(String ldapPassword) {
+        this.ldapPassword = ldapPassword;
+    }
+
+    public String getDeployMode() {
+        return deployMode;
+    }
+
+    public void setDeployMode(String deployMode) {
+        this.deployMode = deployMode;
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
+
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Integer getRequestStart() {
 		return requestStart;
 	}
 
@@ -173,14 +232,6 @@ public class ParamAction {
 
 	public void setPluginInfo(Map<String, Object> pluginInfo) {
 		this.pluginInfo = pluginInfo;
-	}
-
-	public Integer getSourceType() {
-		return sourceType;
-	}
-
-	public void setSourceType(Integer sourceType) {
-		this.sourceType = sourceType;
 	}
 
 	public long getGenerateTime() {
