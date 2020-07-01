@@ -5,6 +5,7 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.CustomThreadRunsPolicy;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.JobCheckStatus;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -146,7 +147,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 //元素全部放到survivor中 重新全量加载
                 if (jopPriorityQueue.getQueueSize() == 0) {
                     logger.info("========= scheduleType:{} queue is empty , blocked:{}  tail:{}  survivor size {}=========", getScheduleType(), jopPriorityQueue.getQueueSize(),
-                            jopPriorityQueue.isBlocked(),jopPriorityQueue.getSurvivorSize());
+                            jopPriorityQueue.isBlocked(), jopPriorityQueue.getSurvivorSize());
                     notStartCache.clear();
                     errorJobCache.clear();
                     taskCache.clear();
@@ -160,7 +161,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 }
 
                 ScheduleBatchJob scheduleBatchJob = batchJobElement.getScheduleBatchJob();
-                if(Objects.isNull(scheduleBatchJob)){
+                if (Objects.isNull(scheduleBatchJob)) {
                     continue;
                 }
                 scheduleJob = scheduleBatchJob.getScheduleJob();
@@ -192,13 +193,13 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 if (checkRunInfo.getStatus() == JobCheckStatus.CAN_EXE) {
                     if (type.intValue() == EScheduleJobType.WORK_FLOW.getVal() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
                         if (status.intValue() == RdosTaskStatus.UNSUBMIT.getStatus()) {
-                            this.start(batchTask,scheduleBatchJob);
+                            this.start(batchTask, scheduleBatchJob);
                         }
-                        if (!batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getJobId(),scheduleBatchJob.getAppType())) {
+                        if (!batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType())) {
                             jopPriorityQueue.putSurvivor(batchJobElement);
                         }
                     } else {
-                        this.start(batchTask,scheduleBatchJob);
+                        this.start(batchTask, scheduleBatchJob);
                     }
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.TIME_NOT_REACH) {
                     notStartCache.clear();
@@ -230,7 +231,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                         || checkRunInfo.getStatus() == JobCheckStatus.DEPENDENCY_JOB_FROZEN) {
                     String errMsg = checkRunInfo.getErrMsg();
                     batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.FROZEN.getStatus(), errMsg);
-                } else if (checkRunInfo.getStatus() == JobCheckStatus.DEPENDENCY_JOB_CANCELED){
+                } else if (checkRunInfo.getStatus() == JobCheckStatus.DEPENDENCY_JOB_CANCELED) {
                     String errMsg = checkRunInfo.getErrMsg();
                     batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.KILLED.getStatus(), errMsg);
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.NOT_UNSUBMIT) {
@@ -345,7 +346,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         return cycTime;
     }
 
-    private ConcurrentHashMap<String,ExecutorService> executorServiceMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ExecutorService> executorServiceMap = new ConcurrentHashMap<>();
 
     public void start(ScheduleTaskShade batchTask, ScheduleBatchJob scheduleBatchJob) {
         //提交代码里面会将jobStatus设置为submitting
@@ -357,8 +358,12 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         }
         ExecutorService executorService = executorServiceMap.get(engineType);
         if (Objects.isNull(executorService)) {
+            String threadName = this.getClass().getSimpleName() + "_" + engineType + "_startJobProcessor";
             executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<>(1000), new CustomThreadFactory(this.getClass().getSimpleName() + "_" + engineType + "_startJobProcessor"));
+                    new LinkedBlockingQueue<>(1000),
+                    new CustomThreadFactory(threadName),
+                    new CustomThreadRunsPolicy(threadName, engineType)
+            );
             executorServiceMap.put(engineType, executorService);
         }
         executorService.submit(() -> {
