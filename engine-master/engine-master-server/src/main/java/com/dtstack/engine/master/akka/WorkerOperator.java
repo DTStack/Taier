@@ -54,7 +54,7 @@ public class WorkerOperator {
             }
             jobClient.setPluginWrapperInfo(pluginWrapper.wrapperPluginInfo(jobClient.getParamAction()));
         } catch (Exception e) {
-            logger.error("buildPluginInfo failed!", e);
+            logger.error("{} buildPluginInfo failed!",jobClient.getTaskId(), e);
             throw new RdosDefineException("buildPluginInfo error",e);
         }
     }

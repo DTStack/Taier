@@ -929,7 +929,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
     @Forbidden
     public Long startJob(ScheduleJob scheduleJob) throws Exception {
-        updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus());
         sendTaskStartTrigger(scheduleJob);
         return scheduleJob.getId();
     }

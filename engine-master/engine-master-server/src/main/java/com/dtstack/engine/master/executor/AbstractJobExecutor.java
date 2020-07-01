@@ -4,9 +4,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.JobCheckStatus;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
@@ -22,6 +24,7 @@ import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.Restarted;
+import com.dtstack.schedule.common.enums.ScheduleEngineType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -35,10 +38,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Timestamp;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -191,15 +192,13 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 if (checkRunInfo.getStatus() == JobCheckStatus.CAN_EXE) {
                     if (type.intValue() == EScheduleJobType.WORK_FLOW.getVal() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
                         if (status.intValue() == RdosTaskStatus.UNSUBMIT.getStatus()) {
-                            //提交代码里面会将jobstatus设置为submitting
-                            batchJobService.startJob(scheduleBatchJob.getScheduleJob());
-                            logger.info("---scheduleType:{} send job:{} to engine.", getScheduleType(), scheduleBatchJob.getJobId());
+                            this.start(batchTask,scheduleBatchJob);
                         }
                         if (!batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getJobId(),scheduleBatchJob.getAppType())) {
                             jopPriorityQueue.putSurvivor(batchJobElement);
                         }
                     } else {
-                        batchJobService.startJob(scheduleBatchJob.getScheduleJob());
+                        this.start(batchTask,scheduleBatchJob);
                     }
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.TIME_NOT_REACH) {
                     notStartCache.clear();
@@ -344,5 +343,32 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             cycTime = new ImmutablePair<>(null, null);
         }
         return cycTime;
+    }
+
+    private ConcurrentHashMap<String,ExecutorService> executorServiceMap = new ConcurrentHashMap<>();
+
+    public void start(ScheduleTaskShade batchTask, ScheduleBatchJob scheduleBatchJob) {
+        //提交代码里面会将jobStatus设置为submitting
+        batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.SUBMITTING.getStatus(), "");
+        ScheduleEngineType scheduleEngineType = ScheduleEngineType.getEngineType(batchTask.getTaskType());
+        String engineType = "default";
+        if (Objects.nonNull(scheduleEngineType)) {
+            engineType = scheduleEngineType.getEngineName();
+        }
+        ExecutorService executorService = executorServiceMap.get(engineType);
+        if (Objects.isNull(executorService)) {
+            executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(1000), new CustomThreadFactory(this.getClass().getSimpleName() + "_" + engineType + "_startJobProcessor"));
+            executorServiceMap.put(engineType, executorService);
+        }
+        executorService.submit(() -> {
+            try {
+                batchJobService.startJob(scheduleBatchJob.getScheduleJob());
+                logger.info("---scheduleType:{} send job:{} to engine.", getScheduleType(), scheduleBatchJob.getJobId());
+            } catch (Exception e) {
+                logger.info("--- send job:{} to engine error", scheduleBatchJob.getJobId(), e);
+                batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.FAILED.getStatus(), ExceptionUtil.getErrorMessage(e));
+            }
+        });
     }
 }

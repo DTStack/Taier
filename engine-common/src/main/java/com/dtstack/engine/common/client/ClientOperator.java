@@ -57,7 +57,7 @@ public class ClientOperator {
 
             return (RdosTaskStatus) result;
         } catch (Exception e) {
-            LOG.error("getStatus happens error：{}", e);
+            LOG.error("getStatus happens error：{}",jobId, e);
             return RdosTaskStatus.NOTFOUND;
         }
     }
@@ -80,6 +80,7 @@ public class ClientOperator {
 
         String logInfo;
         try {
+            LOG.warn("get engineLog pluginInfo {} jobIdentifier {} ",pluginInfo ,jobIdentifier);
             IClient client = clientCache.getClient(engineType, pluginInfo);
             logInfo = client.getJobLog(jobIdentifier);
         } catch (Exception e) {
@@ -115,6 +116,7 @@ public class ClientOperator {
         }
         JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getTaskId());
         checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
+        LOG.warn("stop job jobClient {} ",jobClient);
         IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return client.cancelJob(jobIdentifier);
     }
@@ -138,6 +140,7 @@ public class ClientOperator {
     }
 
     public JobResult submitJob(JobClient jobClient) throws ClientAccessException {
+        LOG.warn("submit job jobClient {} ",jobClient);
         IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return clusterClient.submitJob(jobClient);
     }
