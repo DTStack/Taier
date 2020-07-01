@@ -255,7 +255,7 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
         Queue queue = getQueue(tenantId, cluster.getClusterId());
 
-        pluginJson.put(QUEUE, queue == null ? null : queue.getQueueName());
+        pluginJson.put(QUEUE, queue == null ? "" : queue.getQueueName());
         pluginJson.put(CLUSTER, cluster.getClusterName());
         pluginJson.put(TENANT_ID, tenantId);
         setComponentSftpDir(cluster.getClusterId(), clusterConfigJson, pluginJson,type);

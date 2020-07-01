@@ -82,7 +82,7 @@ public class SyncPluginInfo {
 
         programArgList.add("-pluginLoadMode");
         programArgList.add(pluginLoadMode);
-
+        // FIXME  k8s mod
         programArgList.add("-mode");
         if (FlinkMode.isPerJob(taskRunMode)){
             programArgList.add("yarnPer");
@@ -147,6 +147,9 @@ public class SyncPluginInfo {
 
         programArgList.add("-pluginRoot");
         programArgList.add(localSyncFileDir);
+
+        programArgList.add("-remotePluginPath");
+        programArgList.add(flinkRemoteSyncPluginRoot);
 
         String job = programArgList.get(i + 1);
 

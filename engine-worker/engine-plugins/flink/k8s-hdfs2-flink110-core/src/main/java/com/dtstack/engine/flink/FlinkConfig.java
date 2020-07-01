@@ -60,7 +60,7 @@ public class FlinkConfig {
 
     private int flinkSessionSlotCount;
 
-    private String flinkSessionName = "FlinkSession";
+    private String flinkSessionName = "flinksession";
 
     private boolean sessionStartAuto = true;
 
@@ -215,8 +215,9 @@ public class FlinkConfig {
     }
 
     public String getPluginLoadMode() {
+        // k8s default classpath mode
         if (Strings.isNullOrEmpty(pluginLoadMode)) {
-            return ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD;
+            return ConfigConstrant.FLINK_PLUGIN_CLASSPATH_LOAD;
         }
         return pluginLoadMode;
     }

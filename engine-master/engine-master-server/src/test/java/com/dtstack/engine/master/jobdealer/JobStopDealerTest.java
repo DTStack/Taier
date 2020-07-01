@@ -2,16 +2,14 @@ package com.dtstack.engine.master.jobdealer;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.master.BaseTest;
-import com.dtstack.engine.master.jobdealer.JobStopDealer;
+import com.dtstack.engine.master.AbstractTest;
 import org.junit.Test;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class JobStopDealerTest extends BaseTest {
+public class JobStopDealerTest extends AbstractTest {
 
     @Autowired
     private JobStopDealer jobStopDealer;

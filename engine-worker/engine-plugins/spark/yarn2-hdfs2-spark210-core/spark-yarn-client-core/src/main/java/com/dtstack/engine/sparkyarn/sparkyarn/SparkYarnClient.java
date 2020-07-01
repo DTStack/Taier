@@ -17,9 +17,9 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.sparkyarn.sparkyarn.parser.AddJarOperator;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExt;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExtFactory;
-import com.dtstack.engine.sparkyarn.sparkyarn.parser.AddJarOperator;
 import com.dtstack.engine.sparkyarn.sparkyarn.util.HadoopConf;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
@@ -387,7 +387,6 @@ public class SparkYarnClient extends AbstractClient {
                 }
             });
         }
-        SparkConfig.initDefautlConf(sparkConf);
         return sparkConf;
     }
 

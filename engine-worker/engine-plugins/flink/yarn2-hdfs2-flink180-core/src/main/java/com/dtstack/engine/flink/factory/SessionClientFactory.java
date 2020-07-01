@@ -296,7 +296,9 @@ public class SessionClientFactory extends AbstractClientFactory {
                 if (!syncFile.exists()) {
                     throw new RdosDefineException("syncPlugin path is null");
                 }
-                List<File> pluginPaths = Arrays.stream(syncFile.listFiles()).collect(Collectors.toList());
+                List<File> pluginPaths = Arrays.stream(syncFile.listFiles())
+                        .filter(file -> !file.getName().endsWith("zip"))
+                        .collect(Collectors.toList());
                 clusterDescriptor.addShipFiles(pluginPaths);
             }
         }

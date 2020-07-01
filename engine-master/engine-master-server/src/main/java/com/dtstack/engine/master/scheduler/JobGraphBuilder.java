@@ -39,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
@@ -167,7 +166,7 @@ public class JobGraphBuilder {
 
                                 if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
                                     for (ScheduleBatchJob jobRunBean : jobRunBeans) {
-                                        flowJobId.put(task.getTaskId() + "_" + jobRunBean.getCycTime(), jobRunBean.getJobId());
+                                        flowJobId.put(this.buildFlowReplaceId(task.getTaskId(),jobRunBean.getCycTime(),task.getAppType()),jobRunBean.getJobId());
                                     }
                                 }
                             } catch (Exception e) {
@@ -209,6 +208,19 @@ public class JobGraphBuilder {
         } finally {
             lock.unlock();
         }
+    }
+
+
+    /**
+     * 使用taskID cycTime appType 生成展位Id
+     * @param taskId
+     * @param cycTime
+     * @param appType
+     * @return
+     * @see  JobGraphBuilder#doSetFlowJobIdForSubTasks(java.util.List, java.util.Map)
+     */
+    public String buildFlowReplaceId(Long taskId, String cycTime, Integer appType) {
+        return taskId + "_" + cycTime + "_" + appType ;
     }
 
     /**
@@ -331,6 +343,7 @@ public class JobGraphBuilder {
         //正常调度生成job需要判断--任务有效时间范围
         if (scheduleType.equals(EScheduleType.NORMAL_SCHEDULE) &&
                 (scheduleCron.getBeginDate().after(jobBuildTime) || scheduleCron.getEndDate().before(jobBuildTime))) {
+            logger.error("appType {} task {} out of normal schedule time " ,task.getTaskId(), task.getAppType());
             return jobList;
         }
 
@@ -388,7 +401,7 @@ public class JobGraphBuilder {
                 if (Objects.isNull(flowTaskShade)) {
                     scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
                 } else {
-                    scheduleJob.setFlowJobId(flowTaskShade.getTaskId() + "_" + flowJobTime);
+                    scheduleJob.setFlowJobId(this.buildFlowReplaceId(flowTaskShade.getTaskId(),flowJobTime,flowTaskShade.getAppType()));
                 }
             }
 
@@ -598,7 +611,7 @@ public class JobGraphBuilder {
      */
     private List<String> getExternalJobKeys(List<Long> taskShadeIds, ScheduleJob scheduleJob, ScheduleCron scheduleCron, String keyPreStr) {
         List<String> jobKeyList = Lists.newArrayList();
-        List<ScheduleTaskShade> pTaskList = batchTaskShadeService.getTaskByIds(taskShadeIds, null);
+        List<ScheduleTaskShade> pTaskList = batchTaskShadeService.getTaskByIds(taskShadeIds, scheduleJob.getAppType());
         for (ScheduleTaskShade pTask : pTaskList) {
             try {
                 ScheduleCron pScheduleCron = ScheduleFactory.parseFromJson(pTask.getScheduleConf());
@@ -646,7 +659,7 @@ public class JobGraphBuilder {
 
     private List<String> getJobKeys(List<Long> taskShadeIds, ScheduleJob scheduleJob, ScheduleCron scheduleCron, String keyPreStr) {
         List<String> jobKeyList = Lists.newArrayList();
-        List<ScheduleTaskShade> pTaskList = batchTaskShadeService.getTaskByIds(taskShadeIds, null);
+        List<ScheduleTaskShade> pTaskList = batchTaskShadeService.getTaskByIds(taskShadeIds, scheduleJob.getAppType());
         for (ScheduleTaskShade pTask : pTaskList) {
             try {
                 ScheduleCron pScheduleCron = ScheduleFactory.parseFromJson(pTask.getScheduleConf());
