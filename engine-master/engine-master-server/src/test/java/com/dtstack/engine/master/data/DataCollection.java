@@ -54,6 +54,42 @@ public class DataCollection {
         return sj;
     }
 
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class, method = "insert")
+    @DatabaseDeleteOperation(dao = TestScheduleJobDao.class, method = "deleteById", field = "id")
+    public ScheduleJob getScheduleJobDefiniteTashId() {
+        ScheduleJob sj = new ScheduleJob();
+        sj.setId(ValueUtils.changedIdForDiffMethod());
+        sj.setStatus(5);
+        sj.setJobId(ValueUtils.changedStrForDiffMethod("jobId"));
+        sj.setTenantId(15L);
+        sj.setProjectId(-1L);
+        sj.setJobKey(ValueUtils.changedStrForDiffMethod("jobKey"));
+        sj.setExecStartTime(new Timestamp(System.currentTimeMillis()));
+        sj.setExecEndTime(new Timestamp(System.currentTimeMillis()));
+        sj.setExecTime(2000L);
+        sj.setTaskId(-2021L);
+        sj.setJobName("Python");
+        sj.setCreateUserId(0L);
+        sj.setIsDeleted(0);
+        sj.setBusinessDate("20200608234500");
+        sj.setCycTime(DateUtil.getUnStandardFormattedDate(System.currentTimeMillis()));
+        sj.setTaskType(0);
+        sj.setAppType(0);
+        sj.setType(0);
+        sj.setIsRestart(0);
+        sj.setDependencyType(0);
+        sj.setFlowJobId("0");
+        sj.setPeriodType(0);
+        sj.setMaxRetryNum(0);
+        sj.setRetryNum(0);
+        sj.setComputeType(1);
+        sj.setLogInfo("{err: test_log_info}");
+        sj.setEngineLog("{err: test_engine_log}");
+        return sj;
+    }
+
+
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class, method = "insert")
     @DatabaseDeleteOperation(dao = TestScheduleJobDao.class, method = "deleteById", field = "id")
     public ScheduleJob getScheduleJobSecond() {
@@ -291,6 +327,7 @@ public class DataCollection {
     public ScheduleTaskShade getScheduleTaskShadeDelete(){
 
         ScheduleTaskShade scheduleTaskShade = new ScheduleTaskShade();
+        scheduleTaskShade.setId(ValueUtils.changedIdForDiffMethod());
         scheduleTaskShade.setTaskId(ValueUtils.changedIdForDiffMethod());
         scheduleTaskShade.setExtraInfo("test");
         scheduleTaskShade.setTenantId(ValueUtils.changedIdForDiffMethod());
@@ -330,6 +367,7 @@ public class DataCollection {
     public ScheduleTaskShade getScheduleTaskShade(){
 
         ScheduleTaskShade scheduleTaskShade = new ScheduleTaskShade();
+        scheduleTaskShade.setId(ValueUtils.changedIdForDiffMethod());
         scheduleTaskShade.setTaskId(ValueUtils.changedIdForDiffMethod());
         scheduleTaskShade.setExtraInfo("test");
         scheduleTaskShade.setTenantId(ValueUtils.changedIdForDiffMethod());
@@ -366,9 +404,50 @@ public class DataCollection {
 
     @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class, method = "insert")
     @DatabaseDeleteOperation(dao = TestScheduleTaskShadeDao.class, method = "deleteById", field = "taskId")
+    public ScheduleTaskShade getScheduleTaskShadeDefiniteTaskId(){
+
+        ScheduleTaskShade scheduleTaskShade = new ScheduleTaskShade();
+        scheduleTaskShade.setId(-2021L);
+        scheduleTaskShade.setTaskId(-2020L);
+        scheduleTaskShade.setExtraInfo("test");
+        scheduleTaskShade.setTenantId(ValueUtils.changedIdForDiffMethod());
+        scheduleTaskShade.setProjectId(ValueUtils.changedIdForDiffMethod());
+        scheduleTaskShade.setNodePid(ValueUtils.changedIdForDiffMethod());
+        scheduleTaskShade.setName("testJob");
+        scheduleTaskShade.setTaskType(1);
+        scheduleTaskShade.setEngineType(2);
+        scheduleTaskShade.setComputeType(1);
+        scheduleTaskShade.setSqlText("select");
+        scheduleTaskShade.setTaskParams("null");
+        scheduleTaskShade.setScheduleConf("null");
+        scheduleTaskShade.setPeriodType(1);
+        scheduleTaskShade.setScheduleStatus(5);
+        scheduleTaskShade.setSubmitStatus(1);
+        scheduleTaskShade.setGmtCreate(new Timestamp(1592559742000L));
+        scheduleTaskShade.setGmtModified(new Timestamp(1592559742000L));
+        scheduleTaskShade.setModifyUserId(1L);
+        scheduleTaskShade.setCreateUserId(1L);
+        scheduleTaskShade.setOwnerUserId(1L);
+        scheduleTaskShade.setVersionId(1);
+        scheduleTaskShade.setTaskDesc("null");
+        scheduleTaskShade.setAppType(1);
+        scheduleTaskShade.setIsDeleted(0);
+        scheduleTaskShade.setMainClass("com.dtstack.engine.master.data.DataCollection");
+        scheduleTaskShade.setExeArgs("null");
+        scheduleTaskShade.setFlowId(1L);
+        scheduleTaskShade.setDtuicTenantId(1L);
+        scheduleTaskShade.setIsExpire(1);
+        scheduleTaskShade.setProjectScheduleStatus(1);
+
+        return scheduleTaskShade;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class, method = "insert")
+    @DatabaseDeleteOperation(dao = TestScheduleTaskShadeDao.class, method = "deleteById", field = "taskId")
     public ScheduleTaskShade getScheduleTaskShadeForSheduleJob(){
 
         ScheduleTaskShade scheduleTaskShade = new ScheduleTaskShade();
+        scheduleTaskShade.setId(ValueUtils.changedIdForDiffMethod());
         scheduleTaskShade.setTaskId(-2001L);
         scheduleTaskShade.setExtraInfo("test");
         scheduleTaskShade.setTenantId(ValueUtils.changedIdForDiffMethod());

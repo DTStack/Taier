@@ -70,8 +70,6 @@ public class JopPriorityQueue {
 
     private OrderLinkedBlockingQueue<BatchJobElement> queue = new OrderLinkedBlockingQueue<>();
 
-    private List<BatchJobElement> survivor = new ArrayList<>(queueSizeLimited);
-
     private AcquireGroupQueueJob acquireGroupQueueJob = new AcquireGroupQueueJob();
 
     private AtomicBoolean clearQueue = new AtomicBoolean(false);
@@ -105,10 +103,6 @@ public class JopPriorityQueue {
         return this.queue.size();
     }
 
-    public int getSurvivorSize() {
-        return this.survivor.size();
-    }
-
     public BatchJobElement takeJob() throws InterruptedException {
         return queue.take();
     }
@@ -129,17 +123,6 @@ public class JopPriorityQueue {
         return false;
     }
 
-    public void putSurvivor(BatchJobElement element) throws InterruptedException {
-        survivor.add(element);
-    }
-
-    public void putSentinel(SentinelType sentinelType) throws InterruptedException {
-        if (sentinelType.isSentinel() && tail.compareAndSet(false, true)) {
-            BatchJobElement element = new BatchJobElement(sentinelType);
-            putElement(element);
-        }
-    }
-
     private boolean putElement(BatchJobElement element) throws InterruptedException {
         if (element == null) {
             throw new RuntimeException("element is null");
@@ -152,6 +135,13 @@ public class JopPriorityQueue {
         return true;
     }
 
+    public void checkBlock() {
+        //队列大小小于限制 更新堵塞状态
+        if (this.queue.size() < queueSizeLimited && this.blocked.get()) {
+            this.blocked.compareAndSet(true, false);
+        }
+    }
+
     public boolean resetTail() {
         return tail.compareAndSet(true, false);
     }
@@ -161,9 +151,9 @@ public class JopPriorityQueue {
         blocked.set(false);
         clearQueue.set(false);
         queue.clear();
-        this.survivor.clear();
         this.acquireGroupQueueJob.allIngestion();
     }
+
 
     public boolean isBlocked() {
         return blocked.get();
