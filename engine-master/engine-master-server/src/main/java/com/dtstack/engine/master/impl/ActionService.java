@@ -3,6 +3,7 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.CustomThreadRunsPolicy;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -75,9 +76,10 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
 
     private Random random = new Random();
 
-    private static ThreadPoolExecutor logTimoutPool =  new ThreadPoolExecutor(5, 5,
+    private ThreadPoolExecutor logTimeOutPool =  new ThreadPoolExecutor(5, 5,
                                           60L,TimeUnit.SECONDS, new LinkedBlockingQueue<>(10),
-                new CustomThreadFactory("logTimoutPool"));
+                new CustomThreadFactory("logTimeOutPool"),
+                new CustomThreadRunsPolicy("logTimeOutPool", "log"));
 
     /**
      * 接受来自客户端的请求, 并判断节点队列长度。
@@ -96,7 +98,7 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
             boolean canAccepted = receiveStartJob(paramActionExt);
             //会对重复数据做校验
             if(canAccepted){
-                
+
                 JobClient jobClient = new JobClient(paramActionExt);
                 jobDealer.addSubmitJob(jobClient, true);
                 return true;
@@ -324,8 +326,11 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
         	log.put("logInfo", scheduleJob.getLogInfo());
         	String engineLog = scheduleJob.getEngineLog();
             if (StringUtils.isBlank(engineLog)) {
-                engineLog = CompletableFuture.supplyAsync(() -> jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(),
-                        scheduleJob.getDtuicTenantId()), logTimoutPool).get(environmentContext.getLogTimeout(), TimeUnit.SECONDS);
+                engineLog = CompletableFuture.supplyAsync(
+                        () ->
+                        jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(), scheduleJob.getDtuicTenantId()),
+                        logTimeOutPool
+                ).get(environmentContext.getLogTimeout(), TimeUnit.SECONDS);
                 if (engineLog == null) {
                     engineLog = "";
                 }

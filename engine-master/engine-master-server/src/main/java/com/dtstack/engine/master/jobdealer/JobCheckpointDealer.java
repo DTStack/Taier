@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -110,7 +110,7 @@ public class JobCheckpointDealer implements InitializingBean {
     private DelayBlockingQueue<JobCheckpointInfo> delayBlockingQueue = new DelayBlockingQueue<>(1000);
 
     private ExecutorService checkpointPool = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS,
-            new SynchronousQueue<>(true), new CustomThreadFactory(this.getClass().getSimpleName()));
+            new LinkedBlockingQueue<>(1), new CustomThreadFactory(this.getClass().getSimpleName()));
 
 
     @Override
