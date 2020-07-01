@@ -350,7 +350,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     public void start(ScheduleTaskShade batchTask, ScheduleBatchJob scheduleBatchJob) {
         //提交代码里面会将jobStatus设置为submitting
         batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.SUBMITTING.getStatus(), "");
-        ScheduleEngineType scheduleEngineType = ScheduleEngineType.getEngineType(batchTask.getTaskType());
+        ScheduleEngineType scheduleEngineType = ScheduleEngineType.getEngineType(batchTask.getEngineType());
         String engineType = "default";
         if (Objects.nonNull(scheduleEngineType)) {
             engineType = scheduleEngineType.getEngineName();
