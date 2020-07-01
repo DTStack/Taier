@@ -40,7 +40,7 @@ perjob:
   optional:
     jarTmpDir: ./tmp110
     queue: default
-    pluginLoadMode: shipfile
+    pluginLoadMode: classpath
     submitTimeout: 5
     flinkInterval: 5 SECONDS
     classloader.resolve-order: parent-first
@@ -99,7 +99,7 @@ session:
   optional:
     jarTmpDir: ./tmp110
     queue: default
-    pluginLoadMode: shipfile
+    pluginLoadMode: classpath
     submitTimeout: 5
     flinkInterval: 5 SECONDS
     classloader.resolve-order: parent-first
