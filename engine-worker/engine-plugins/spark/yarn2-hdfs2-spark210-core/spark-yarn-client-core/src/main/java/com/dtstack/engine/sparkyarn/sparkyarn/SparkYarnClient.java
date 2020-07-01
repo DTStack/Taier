@@ -371,7 +371,6 @@ public class SparkYarnClient extends AbstractClient {
         sparkConf.remove("spark.files");
         sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
         sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
-        //sparkConf.set(SPARK_JAVA_OPTS_KEY, sparkYarnConfig.getJvmOptions());
         sparkConf.set("security", "false");
 
         if (sparkYarnConfig.isOpenKerberos()){
@@ -388,7 +387,6 @@ public class SparkYarnClient extends AbstractClient {
                 }
             });
         }
-        SparkConfig.initDefautlConf(sparkConf);
         return sparkConf;
     }
 
