@@ -223,7 +223,9 @@ public class JobRestartDealer {
             shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.RESTARTING.getStatus());
 
             ScheduleJob batchJob = scheduleJobDao.getRdosJobByJobId(jobClient.getTaskId());
-            jobDealer.getAndUpdateEngineLog(jobId, jobClient.getEngineTaskId(), jobClient.getApplicationId(), batchJob.getPluginInfoId());
+            if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
+                jobDealer.getAndUpdateEngineLog(jobId, jobClient.getEngineTaskId(), jobClient.getApplicationId(), batchJob.getPluginInfoId());
+            }
 
             //重试的任务不置为失败，waitengine
             jobRetryRecord(jobClient);

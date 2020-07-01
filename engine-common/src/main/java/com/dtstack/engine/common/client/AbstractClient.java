@@ -56,9 +56,10 @@ public abstract class AbstractClient implements IClient {
             }
             Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
             defaultPlugins = this.convertMapTemplateToConfig(config);
+            defaultPlugins = this.sortByKey(defaultPlugins);
             logger.info("======= plugin client============{}", defaultPlugins);
         } catch (Exception e) {
-            logger.error("plugin client init default config error {}", e);
+            logger.error("plugin client init default config error ", e);
         }
     }
 
@@ -302,7 +303,7 @@ public abstract class AbstractClient implements IClient {
         return templateVo;
     }
 
-    private String findPluginCofig(Class<?> clazz, String fileName) {
+    protected String findPluginCofig(Class<?> clazz, String fileName) {
         URL[] urLs = ((URLClassLoader) clazz.getClassLoader()).getURLs();
         if (urLs.length > 0) {
             String jarPath = urLs[0].getPath();
@@ -311,5 +312,21 @@ public abstract class AbstractClient implements IClient {
             return new File(filePath).exists() ? filePath : null;
         }
         return null;
+    }
+
+    /**
+     * 根据key值来排序
+     * @param clientTemplates
+     * @return
+     */
+    protected List<ClientTemplate> sortByKey(List<ClientTemplate> clientTemplates) {
+        if (CollectionUtils.isEmpty(clientTemplates)) {
+            return clientTemplates;
+        }
+        clientTemplates.sort(Comparator.comparing(ClientTemplate::getKey, String.CASE_INSENSITIVE_ORDER));
+        for (ClientTemplate clientTemplate : clientTemplates) {
+            this.sortByKey(clientTemplate.getValues());
+        }
+        return clientTemplates;
     }
 }

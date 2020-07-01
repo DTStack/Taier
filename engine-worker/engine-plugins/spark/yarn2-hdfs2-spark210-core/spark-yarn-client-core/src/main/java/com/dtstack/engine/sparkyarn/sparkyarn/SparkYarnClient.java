@@ -16,9 +16,9 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.sparkyarn.sparkyarn.parser.AddJarOperator;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExt;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExtFactory;
-import com.dtstack.engine.sparkyarn.sparkyarn.parser.AddJarOperator;
 import com.dtstack.engine.sparkyarn.sparkyarn.util.HadoopConf;
 import com.dtstack.engine.sparkyarn.sparkyarn.util.KerberosUtils;
 import com.google.common.base.Charsets;
@@ -136,10 +136,10 @@ public class SparkYarnClient extends AbstractClient {
                 }
                 return jobResult;
             });
-        } catch (IOException e) {
-
+        } catch (Exception e) {
+            logger.info("", e);
+            return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
         }
-        return null;
     }
 
     private JobResult submitJobWithJar(JobClient jobClient){
@@ -609,7 +609,7 @@ public class SparkYarnClient extends AbstractClient {
                     return false;
                 }
             });
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("judgeSlots error", e);
         }
         return false;

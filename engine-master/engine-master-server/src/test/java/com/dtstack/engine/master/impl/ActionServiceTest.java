@@ -1,77 +1,204 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.annotation.Param;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.api.domain.EngineJobRetry;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.master.BaseTest;
-import com.dtstack.engine.master.impl.ActionService;
-import com.dtstack.engine.master.utils.AopTargetUtils;
+import com.dtstack.engine.master.data.DataCollection;
+import com.dtstack.engine.master.jobdealer.JobDealer;
+import com.dtstack.engine.master.utils.PublicUtil;
 import io.vertx.core.json.JsonObject;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import static org.mockito.Mockito.*;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.Map;
+
+import java.util.*;
 
 import static junit.framework.TestCase.fail;
 
 public class ActionServiceTest extends BaseTest {
-    public final static String METHOD_VALUE = "start";
+
+    @Mock
+    private JobDealer jobDealer;
+
+    @Autowired
+    @InjectMocks
+    ActionService actionService;
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+    }
+
 
     @Test
-    public void testOperation() {
+    public void testStart() {
         try {
-            Object obj = context.getBean(ActionService.class);
-            Object targetObj = AopTargetUtils.getTarget(obj);
-            Method targetMethod = getMethod(targetObj.getClass());
-            Method proxyMethod = getMethod(obj.getClass());
             Map<String, Object> params = getParams(getJsonString());
-            Object result = proxyMethod.invoke(obj, mapToParamObjects(params, targetMethod.getParameters(), targetMethod.getParameterTypes()));
-            if ((Boolean) result.equals(false)) {
-                fail("Return false");
-            }
+            Boolean result = actionService.start(params);
+            Assert.assertTrue(result);
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
         }
     }
 
+    @Test
+    public void testStatus() {
+        ScheduleJob scheduleJob= dataCollection.getScheduleJobFirst();
+        String jobId = scheduleJob.getJobId();
+        Integer statusResult = scheduleJob.getStatus();
+        Integer computeType = scheduleJob.getComputeType();
+        try {
+            actionService.status(jobId, null);
+            fail("Expect have a Exception");
+        } catch (Exception e) {}
 
-    private Method getMethod(Class<?> clazz) {
-        Method[] methods = clazz.getMethods();
-        Method mm = null;
-        for (Method med : methods) {
-            if (med.getName().equals(METHOD_VALUE)) {
-                mm = med;
-                break;
-            }
+        try {
+            Integer status = actionService.status(jobId, computeType);
+            Assert.assertTrue(status != null && status.equals(statusResult));
+        } catch (Exception e) {
+            fail("Unexpect have a Exception: " + e.getMessage());
         }
-        return mm;
     }
 
-    private Object[] mapToParamObjects(Map<String, Object> params,
-                                       Parameter[] parameters, Class<?>[] parameterTypes) throws Exception {
-        if (parameters == null || parameters.length == 0) {
-            return new Object[]{};
+    @Test
+    public void testStatusByJobIds() {
+        ScheduleJob scheduleJobFirst = dataCollection.getScheduleJobFirst();
+        ScheduleJob scheduleJobSecond = dataCollection.getScheduleJobSecond();
+        Map<String, Integer> jobIdsAndStatus = new HashMap<>();
+        jobIdsAndStatus.put(scheduleJobFirst.getJobId(), scheduleJobFirst.getStatus());
+        jobIdsAndStatus.put(scheduleJobSecond.getJobId(), scheduleJobSecond.getStatus());
+        List<String> jobIds = new ArrayList<>(jobIdsAndStatus.keySet());
+        Integer computeType = scheduleJobFirst.getComputeType();
+
+        try {
+            actionService.statusByJobIds(jobIds, null);
+            fail("Expect have a Exception");
+        } catch (Exception e) {}
+
+        try {
+            Map<String, Integer> status = actionService.statusByJobIds(jobIds, computeType);
+            long result = jobIds.stream().filter(val -> jobIdsAndStatus.get(val).equals(status.get(val))).count();
+            Assert.assertEquals(result, jobIds.size());
+        } catch (Exception e) {
+            fail("Unexpect have a Exception: " + e.getMessage());
         }
-        Object[] args = new Object[parameters.length];
-        for (int i = 0; i < parameters.length; i++) {
-            Parameter pa = parameters[i];
-            Class<?> paramterType = parameterTypes[i];
-            Param param = pa.getAnnotation(Param.class);
-            Object obj = null;
-            if (param != null) {
-                obj = params.get(param.value());
-                if (obj != null && !obj.getClass().equals(paramterType)) {
-                    obj = com.dtstack.engine.common.util.PublicUtil.classConvter(paramterType, obj);
-                }
-            } else if (Map.class.equals(paramterType)) {
-                obj = params;
-            } else {
-                obj = PublicUtil.mapToObject(params, paramterType);
-            }
-            args[i] = obj;
-        }
-        return args;
+
     }
+
+    @Test
+    public void testStartTime() {
+        ScheduleJob scheduleJob= dataCollection.getScheduleJobFirst();
+        String jobId = scheduleJob.getJobId();
+        Long startTimeResult = scheduleJob.getExecStartTime().getTime();
+        Integer computeType = scheduleJob.getComputeType();
+        try {
+            actionService.startTime(jobId, null);
+            fail("Expect have a Exception");
+        } catch (Exception e) {}
+
+        try {
+            Long startTime = actionService.startTime(jobId, computeType);
+            Assert.assertTrue(startTime != null && startTime.equals(startTimeResult));
+        } catch (Exception e) {
+            fail("Unexpect have a Exception: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testLog() {
+        ScheduleJob scheduleJob = dataCollection.getScheduleJobFirst();
+        String jobId = scheduleJob.getJobId();
+        Integer computeType = scheduleJob.getComputeType();
+
+        try {
+            actionService.log(jobId, null);
+            fail("Expect have a Exception");
+        } catch (Exception e) {}
+
+        try {
+            String engineLog = "\"engineLog\":\"" + scheduleJob.getEngineLog() + "\"" ;
+            String logInfo = "\"logInfo\":\"" + scheduleJob.getLogInfo() + "\"";
+            String result = actionService.log(jobId, computeType);
+            Assert.assertTrue(result.contains(engineLog) && result.contains(logInfo) && result.length() == engineLog.length() + logInfo.length() + 3);
+        } catch (Exception e) {
+            fail("Unexpect have a Exception: " + e.getMessage());
+        }
+
+        scheduleJob = dataCollection.getScheduleJobSecond();
+        jobId = scheduleJob.getJobId();
+        computeType = scheduleJob.getComputeType();
+        String mock_engine_log = "{err: test_mock_engine_log}";
+        when(jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(),
+                scheduleJob.getApplicationId(), scheduleJob.getPluginInfoId())).thenReturn(mock_engine_log);
+        try {
+            String engineLog = "\"engineLog\":\"" + mock_engine_log + "\"" ;
+            String logInfo = "\"logInfo\":\"" + scheduleJob.getLogInfo() + "\"";
+            String result = actionService.log(jobId, computeType);
+            Assert.assertTrue(result.contains(engineLog) && result.contains(logInfo) && result.length() == engineLog.length() + logInfo.length() + 3);
+        } catch (Exception e) {
+            fail("Unexpect have a Exception: " + e.getMessage());
+        }
+    }
+
+
+    @Test
+    public void testRetryLog() {
+        ScheduleJob scheduleJob = dataCollection.getScheduleJobFirst();
+        String jobId = scheduleJob.getJobId();
+        Integer computeType = scheduleJob.getComputeType();
+        EngineJobRetry engineJobRetry = dataCollection.getEngineJobRetry();
+        try {
+            actionService.retryLog(jobId, null);
+            fail("Expect have a Exception");
+        } catch (Exception e) {}
+
+        try {
+            String result = actionService.retryLog(jobId, computeType);
+            String retryNum = "\"retryNum\":\"" + engineJobRetry.getRetryNum() + "\"" ;
+            String retryTaskParams = "\"retryTaskParams\":\"" + engineJobRetry.getRetryTaskParams() + "\"";
+            String logInfo = "\"logInfo\":\"" + engineJobRetry.getLogInfo() + "\"";
+            int length = retryNum.length() + retryTaskParams.length() + logInfo.length() + 6;
+            Assert.assertTrue(result.contains(retryNum) && result.contains(retryTaskParams) && result.contains(logInfo) && result.length() == length);
+        } catch (Exception e) {
+            fail("Unexpect have a Exception: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testRetryLogDetail() {
+        ScheduleJob scheduleJob = dataCollection.getScheduleJobSecond();
+        String jobId = scheduleJob.getJobId();
+        Integer computeType = scheduleJob.getComputeType();
+
+        EngineJobRetry engineJobRetry = dataCollection.getEngineJobRetryNoEngineLog();
+        try {
+            actionService.retryLogDetail(jobId, null, engineJobRetry.getRetryNum() + 1);
+            fail("Expect have a Exception");
+        } catch (Exception e) {}
+
+        String mock_engine_log = "{err: test_mock_engine_log}";
+        when(jobDealer.getAndUpdateEngineLog(jobId, engineJobRetry.getEngineJobId(), engineJobRetry.getApplicationId(), scheduleJob.getPluginInfoId())).thenReturn(mock_engine_log);
+
+        try {
+            String result = actionService.retryLogDetail(jobId, computeType, engineJobRetry.getRetryNum() + 1);
+            String retryNum = "\"retryNum\":\"" + engineJobRetry.getRetryNum() + "\"" ;
+            String retryTaskParams = "\"retryTaskParams\":\"" + engineJobRetry.getRetryTaskParams() + "\"";
+            String logInfo = "\"logInfo\":\"" + engineJobRetry.getLogInfo() + "\"";
+            String engineLog = "\"engineLog\":\"" + mock_engine_log + "\"";
+            int length = retryNum.length() + retryTaskParams.length() + logInfo.length() + engineLog.length() + 5;
+            Assert.assertTrue(result.contains(retryNum) && result.contains(retryTaskParams) && result.contains(logInfo) && result.contains(engineLog) && result.length() == length);
+        } catch (Exception e) {
+            fail("Unexpect have a Exception: " + e.getMessage());
+        }
+    }
+
 
     private Map<String, Object> getParams(String json) {
         return new JsonObject(json).getMap();

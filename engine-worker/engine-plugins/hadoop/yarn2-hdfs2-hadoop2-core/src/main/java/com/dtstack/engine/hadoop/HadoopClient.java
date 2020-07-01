@@ -249,7 +249,7 @@ public class HadoopClient extends AbstractClient {
         try {
             LOG.info("start init security!");
             KerberosUtils.login(config,supplier);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.error("initSecurity happens error", e);
             throw new IOException("InitSecurity happens error", e);
         }
@@ -463,6 +463,7 @@ public class HadoopClient extends AbstractClient {
                     FSDataOutputStream os = fs.create(destP);
                     IOUtils.copyBytes(is, os, 4096, true);
                 } catch (IOException e) {
+                    LOG.error("submit file {} to hdfs error", hdfsPath,e);
                     throw new RdosDefineException("上传文件失败", e);
                 } finally {
                     if (Objects.nonNull(fs)) {
@@ -502,14 +503,16 @@ public class HadoopClient extends AbstractClient {
                     componentTestResult.setResult(false);
                     componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
                     return componentTestResult;
-                }
-                if (Objects.nonNull(fs)) {
-                    try {
-                        fs.close();
-                    } catch (IOException e) {
-                        LOG.error("close file system error ", e);
+                } finally {
+                    if (Objects.nonNull(fs)) {
+                        try {
+                            fs.close();
+                        } catch (IOException e) {
+                            LOG.error("close file system error ", e);
+                        }
                     }
                 }
+
                 componentTestResult.setResult(true);
                 return componentTestResult;
             });
@@ -549,14 +552,16 @@ public class HadoopClient extends AbstractClient {
                     clusterResource.setFlink(this.initTaskManagerResource(yarnClient));
                 } catch (Exception e) {
                     LOG.error("close reource error ", e);
-                }
-                if (Objects.nonNull(resourceClient)) {
-                    try {
-                        resourceClient.close();
-                    } catch (IOException e) {
-                        LOG.error("close reource error ", e);
+                } finally {
+                    if (Objects.nonNull(resourceClient)) {
+                        try {
+                            resourceClient.close();
+                        } catch (IOException e) {
+                            LOG.error("close reource error ", e);
+                        }
                     }
                 }
+
                 return clusterResource;
             });
 

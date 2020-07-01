@@ -164,14 +164,12 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             String exeArgs = (String) actionParam.get("exeArgs");
             String uploadPath = this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
                     taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
-            String fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/"));
+            String fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/") + 1);
             exeArgs = exeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
-            String launchCmd = (String) actionParam.get("launchCmd");
-            if (StringUtils.isNotBlank(launchCmd)) {
-                //替换参数 base64 生成launchCmd
-                String launchString = Base64Util.baseEncode(launchCmd.replace(TaskConstant.FILE_NAME, fileName));
-                taskExeArgs = exeArgs.replace(TaskConstant.LAUNCH, launchString);
-            }
+            String launchCmd = (String) actionParam.getOrDefault("launchCmd","python ${file}");
+            //替换参数 base64 生成launchCmd
+            String launchString = Base64Util.baseEncode(launchCmd.replace(TaskConstant.FILE_NAME, fileName));
+            taskExeArgs = exeArgs.replace(TaskConstant.LAUNCH, launchString);
             LOG.info(" TensorFlow job {} fileName {} exeArgs {} ", scheduleJob.getJobId(), fileName, taskExeArgs);
 
         } else if (taskShade.getEngineType().equals(ScheduleEngineType.Learning.getVal())
@@ -539,6 +537,9 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                         taskName, System.currentTimeMillis());
             } else if (taskType.equals(EScheduleJobType.SPARK_PYTHON.getVal())) {
                 fileName = String.format("pyspark_%s_%s_%s_%s.py", tenantId, projectId,
+                        taskName, System.currentTimeMillis());
+            } else if (taskType.equals(EScheduleJobType.TENSORFLOW_1_X.getVal())) {
+                fileName = String.format("tensorflow_%s_%s_%s_%s.py", tenantId, projectId,
                         taskName, System.currentTimeMillis());
             }
 

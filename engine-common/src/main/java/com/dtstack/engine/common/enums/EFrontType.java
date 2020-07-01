@@ -8,7 +8,8 @@ public enum EFrontType {
     INPUT(0, "input"),
     RADIO(1, "radio"),
     GROUP(2, "group"),
-    SELECT(3, "select");
+    SELECT(3, "select"),
+    CHECKBOX(4,"checkbox");
 
     private int code;
     private String name;

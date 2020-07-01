@@ -23,7 +23,7 @@ public class KerberosUtils {
 
     private static final String USER_DIR = System.getProperty("user.dir") + File.separator + "kerberosPath";
 
-    public static <T> T login(SparkYarnConfig config, Supplier<T> supplier) throws IOException {
+    public static <T> T login(SparkYarnConfig config, Supplier<T> supplier) throws Exception {
 
         if (!config.isOpenKerberos()) {
             return supplier.get();

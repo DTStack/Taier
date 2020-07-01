@@ -59,6 +59,8 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
     private static final String DIR = "/keytab/";
 
+    private static final String LOG_LEVEL_KEY = "logLevel";
+
     private static final String USER_DIR = System.getProperty("user.dir");
 
     private FlinkConfig flinkConfig;
@@ -99,7 +101,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
         if (properties != null) {
             properties.stringPropertyNames()
                     .stream()
-                    .filter(key -> key.toString().contains("."))
+                    .filter(key -> key.toString().contains(".") || key.toString().equalsIgnoreCase(LOG_LEVEL_KEY))
                     .forEach(key -> configuration.setString(key.toString(), properties.getProperty(key)));
         }
 

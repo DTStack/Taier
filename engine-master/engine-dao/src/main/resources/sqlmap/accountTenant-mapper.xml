@@ -110,10 +110,12 @@
     </select>
 
     <select id="getTenantUser" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="com.dtstack.engine.api.dto.AccountDTO">
-        SELECT *,(SELECT dtuic_user_id FROM console_user WHERE id = console_account_tenant.user_id) AS dtuicUserId
-        FROM console_account_tenant
-        WHERE tenant_id = #{tenantId}
-        AND is_deleted = 0
+        select cat.*,cu.dtuic_user_id as dtuicUserId from console_account_tenant cat
+                                                              left join console_user cu on cat.user_id = cu.id
+                                                              join console_account ca on ca.id=cat.account_id
+        WHERE cat.tenant_id = #{tenantId}
+          AND ca.type = #{type}
+          AND cat.is_deleted = 0
     </select>
 
     <select id="getById" resultType="AccountTenant">

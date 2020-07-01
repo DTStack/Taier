@@ -41,6 +41,8 @@ public class DtUicUserConnect {
 
     private static final String GET_ALL_UIC_USER_TEMPLATE = "%s/api/user/find-all-users?tenantId=%s&productCode=%s&dtToken=%s";
 
+    private static final String GET_TENANT_BY_ID = "%s/api/tenant/get-by-tenant-id?tenantId=%s";
+
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static void getInfo(String token, String url, Consumer<DtUicUser> resultHandler) {
@@ -162,4 +164,29 @@ public class DtUicUserConnect {
         return Lists.newArrayList();
     }
 
+
+    public static UserTenant getTenantByTenantId(String url,Long dtUicTenantId,String token){
+        Map<String, Object> cookies = Maps.newHashMap();
+        cookies.put("dt_token", token);
+
+        try {
+            String result = PoolHttpClient.get(String.format(GET_TENANT_BY_ID, url, dtUicTenantId), cookies);
+            if (StringUtils.isBlank(result)) {
+                LOGGER.warn("uic api returns null.");
+                return null;
+            }
+            Map<String, Object> mResult = OBJECT_MAPPER.readValue(result, Map.class);
+            if ((Boolean) mResult.get("success")) {
+                UserTenant data = JSON.parseObject(JSON.toJSONString(mResult.get("data")), UserTenant.class);
+                if (data != null){
+                    return data;
+                }
+            }
+        } catch (RdosDefineException e) {
+            throw e;
+        } catch (Throwable tr) {
+            LOGGER.error("{}", tr);
+        }
+        return null;
+    }
 }

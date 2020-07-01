@@ -49,8 +49,6 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
     @Autowired
     private ScheduleTaskTaskShadeService taskTaskShadeService;
 
-    private DateTimeFormatter timeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-
     /**
      * web 接口
      * 例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息

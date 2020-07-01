@@ -30,18 +30,24 @@ public class LearningUtil {
         argList.addAll(Arrays.asList(args));
         String taskParams = jobClient.getTaskParams();
 
-        if(StringUtils.isNotBlank(taskParams)) {
+        if (StringUtils.isNotBlank(taskParams)) {
             taskParams = taskParams.trim();
-            String[] taskParam = taskParams.split("\\s+");
-            for(int i = 0; i < taskParam.length; ++i) {
-                String[] pair = taskParam[i].split("=");
+            String[] split = taskParams.split("\n");
+            for (String s : split) {
+                if (s.startsWith("#")) {
+                    continue;
+                }
+                String[] pair = s.trim().split("=");
                 pair[0] = pair[0].replaceAll("\\.", "-");
-                if (pair[0].contains("priority")){
+                if (pair[0].contains("priority")) {
                     pair[0] = "priority";
                     pair[1] = String.valueOf(jobClient.getPriority());
                 }
-                argList.add("--" + pair[0]);
-                argList.add(pair[1]);
+                if (pair.length > 1) {
+                    argList.add("--" + pair[0]);
+                    argList.add(pair[1]);
+                }
+
             }
         }
 

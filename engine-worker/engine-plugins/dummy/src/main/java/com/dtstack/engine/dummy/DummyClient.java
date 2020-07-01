@@ -1,14 +1,14 @@
 package com.dtstack.engine.dummy;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.api.pojo.ClientTemplate;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.SFTPHandler;
@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -53,9 +54,12 @@ public class DummyClient extends AbstractClient {
     public DummyClient() {
         for (String componentType : commonConfigFiles.keySet()) {
             try {
-                InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(commonConfigFiles.get(componentType));
+                String configYaml = findPluginCofig(this.getClass(), commonConfigFiles.get(componentType));
+                InputStream resourceAsStream = !StringUtils.isEmpty(configYaml) ? new FileInputStream(configYaml) :
+                        this.getClass().getClassLoader().getResourceAsStream(commonConfigFiles.get(componentType));
                 Map<String, Object> config = YamlConfigParser.INSTANCE.parse(resourceAsStream);
                 defaultPlugins = super.convertMapTemplateToConfig(config);
+                defaultPlugins = super.sortByKey(defaultPlugins);
                 logger.info("=======DummyClient============{}", defaultPlugins);
                 defaultConfigs.put(componentType,defaultPlugins);
             } catch (Exception e) {

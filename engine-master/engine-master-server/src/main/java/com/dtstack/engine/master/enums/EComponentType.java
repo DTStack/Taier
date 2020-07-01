@@ -25,7 +25,8 @@ public enum EComponentType {
     IMPALA_SQL(11, "Impala SQL", "impalaSqlConf"),
     TIDB_SQL(12, "TiDB SQL", "tidbConf"),
     ORACLE_SQL(13, "Oracle SQL", "oracleConf"),
-    KUBERNETES(14, "Kubernetes", "kubernetesConf");
+    GREENPLUM_SQL(14, "Greenplum SQL", "greenplumConf"),
+    KUBERNETES(15, "Kubernetes", "kubernetesConf");
 
     private int typeCode;
 
@@ -91,7 +92,7 @@ public enum EComponentType {
     // 计算组件
     public static List<EComponentType> ComputeScheduling = Lists.newArrayList(EComponentType.SPARK, EComponentType.SPARK_THRIFT,
             EComponentType.FLINK, EComponentType.HIVE_SERVER, EComponentType.IMPALA_SQL, EComponentType.DT_SCRIPT,
-            EComponentType.LEARNING, EComponentType.TIDB_SQL, EComponentType.LIBRA_SQL, EComponentType.ORACLE_SQL,EComponentType.CARBON_DATA);
+            EComponentType.LEARNING, EComponentType.TIDB_SQL, EComponentType.LIBRA_SQL, EComponentType.ORACLE_SQL,EComponentType.CARBON_DATA,EComponentType.GREENPLUM_SQL);
 
     public static List<EComponentType> CommonScheduling = Lists.newArrayList(EComponentType.SFTP);
 
@@ -110,6 +111,8 @@ public enum EComponentType {
     // Oracle引擎组件
     public static List<EComponentType> OracleComponents = Lists.newArrayList(EComponentType.ORACLE_SQL);
 
+    public static List<EComponentType> GreenplumComponents = Lists.newArrayList(EComponentType.GREENPLUM_SQL);
+
 
     public static MultiEngineType getEngineTypeByComponent(EComponentType componentType) {
         if (HadoopComponents.contains(componentType)) {
@@ -124,22 +127,25 @@ public enum EComponentType {
         if (TiDBComponents.contains(componentType)) {
             return MultiEngineType.TIDB;
         }
+        if (GreenplumComponents.contains(componentType)) {
+            return MultiEngineType.GREENPLUM;
+        }
         throw new RdosDefineException("不支持的引擎组件");
     }
 
     public static EComponentScheduleType getScheduleTypeByComponent(Integer componentCode) {
         EComponentType code = getByCode(componentCode);
         if (ComputeScheduling.contains(code)) {
-            return EComponentScheduleType.computeScheduling;
+            return EComponentScheduleType.COMPUTE;
         }
         if (ResourceScheduling.contains(code)) {
-            return EComponentScheduleType.resourceScheduling;
+            return EComponentScheduleType.RESOURCE;
         }
         if (StorageScheduling.contains(code)) {
-            return EComponentScheduleType.storageScheduling;
+            return EComponentScheduleType.STORAGE;
         }
         if (CommonScheduling.contains(code)) {
-            return EComponentScheduleType.commonScheduling;
+            return EComponentScheduleType.COMMON;
         }
         throw new RdosDefineException("不支持的组件");
     }
@@ -160,6 +166,8 @@ public enum EComponentType {
                 return "postgresql";
             case IMPALA_SQL:
                 return "impala";
+            case GREENPLUM_SQL:
+                return "greenplum";
 
         }
         return "";
@@ -173,7 +181,11 @@ public enum EComponentType {
 
     //SQL组件
     public static List<EComponentType> sqlComponent = Lists.newArrayList(EComponentType.SPARK_THRIFT,EComponentType.HIVE_SERVER,EComponentType.TIDB_SQL,EComponentType.ORACLE_SQL,
-            EComponentType.LIBRA_SQL,EComponentType.IMPALA_SQL);
+            EComponentType.LIBRA_SQL,EComponentType.IMPALA_SQL,EComponentType.GREENPLUM_SQL);
+
+    //对应引擎的组件不能删除
+    public static List<EComponentType> requireComponent = Lists.newArrayList(EComponentType.ORACLE_SQL,EComponentType.HDFS,EComponentType.TIDB_SQL,EComponentType.ORACLE_SQL,
+            EComponentType.LIBRA_SQL,EComponentType.GREENPLUM_SQL);
 
 
 }

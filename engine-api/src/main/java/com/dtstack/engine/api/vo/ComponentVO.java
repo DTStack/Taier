@@ -2,6 +2,7 @@ package com.dtstack.engine.api.vo;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Component;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
@@ -21,6 +22,9 @@ public class ComponentVO extends Component {
 
     public static List<ComponentVO> toVOS(List<Component> components, boolean removeTypeName) {
         List<ComponentVO> vos = new ArrayList<>();
+        if(CollectionUtils.isEmpty(components)){
+            return vos;
+        }
         for (Component component : components) {
             vos.add(toVO(component,removeTypeName));
         }
@@ -34,6 +38,7 @@ public class ComponentVO extends Component {
         JSONObject jsonObject = JSONObject.parseObject(component.getComponentConfig());
         if(removeTypeName){
             jsonObject.remove("typeName");
+            jsonObject.remove("md5zip");
         }
         vo.setComponentConfig(jsonObject.toJSONString());
         return vo;

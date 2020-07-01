@@ -21,7 +21,7 @@ public class KerberosUtils {
 
     private static final String USER_DIR = System.getProperty("user.dir");
 
-    public static void login(FlinkConfig config) throws IOException {
+    public static void login(FlinkConfig config) throws Exception {
 
         String fileName = config.getPrincipalFile();
 
