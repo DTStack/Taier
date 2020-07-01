@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.master.BaseTest;
+import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.scheduler.ScheduleJobBack;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -14,7 +14,7 @@ import java.util.concurrent.*;
  * @author yuebai
  * @date 2020-06-23
  */
-public class ScheduleJobBackTest extends BaseTest {
+public class ScheduleJobBackTest extends AbstractTest {
 
 
     private static Logger logger = LoggerFactory.getLogger(ScheduleJobBackTest.class);

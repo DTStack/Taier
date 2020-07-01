@@ -48,7 +48,7 @@ public class StreamTaskServiceTest extends AbstractTest {
 	public void setup() throws Exception{
 		MockitoAnnotations.initMocks(this);
 		PowerMockito.mockStatic(WorkerOperator.class);
-		when(workerOperator.getJobMaster(any(),any(),any())).thenReturn("http://dtstack01:8088/");
+		when(workerOperator.getJobMaster(any())).thenReturn("http://dtstack01:8088/");
 
 		PowerMockito.mockStatic(PoolHttpClient.class);
 		when(PoolHttpClient.get(any())).thenReturn("{\"app\":{\"amContainerLogs\":\"http://dtstack01:8088/ws/v1/cluster/apps/application_9527\"}}");

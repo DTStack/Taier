@@ -2576,6 +2576,10 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             if (Objects.isNull(appType)) {
                 throw new RdosDefineException("appType不能为空");
             }
+            ScheduleTaskShade testTask = batchTaskShadeService.getBatchTaskById(taskId, appType);
+            if (Objects.isNull(testTask)) {
+                throw new RdosDefineException("任务不存在");
+            }
             List<ScheduleTaskShade> taskShades = new ArrayList<>();
             taskShades.add(testTask);
             if (SPECIAL_TASK_TYPES.contains(testTask.getTaskType())) {
