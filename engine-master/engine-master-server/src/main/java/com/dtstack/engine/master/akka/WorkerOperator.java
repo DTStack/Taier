@@ -49,7 +49,8 @@ public class WorkerOperator {
         //补充插件配置信息
         try {
             //jobClient中如果有pluginInfo(数据质量)以jobClient自带优先
-            if(StringUtils.isNotBlank(jobClient.getPluginInfo())){
+            JSONObject info = JSONObject.parseObject(jobClient.getPluginInfo());
+            if (Objects.nonNull(info) && !info.isEmpty()) {
                 return;
             }
             jobClient.setPluginWrapperInfo(pluginWrapper.wrapperPluginInfo(jobClient.getParamAction()));
@@ -60,9 +61,13 @@ public class WorkerOperator {
     }
 
     private String getPluginInfo(JobIdentifier jobIdentifier){
-        if(Objects.nonNull(jobIdentifier) && StringUtils.isNotBlank(jobIdentifier.getPluginInfo())){
-            return jobIdentifier.getPluginInfo();
+        if (Objects.nonNull(jobIdentifier)) {
+            JSONObject info = JSONObject.parseObject(jobIdentifier.getPluginInfo());
+            if (Objects.nonNull(info) && !info.isEmpty()) {
+                return jobIdentifier.getPluginInfo();
+            }
         }
+
         if (Objects.isNull(jobIdentifier) || Objects.isNull(jobIdentifier.getEngineType()) || Objects.isNull(jobIdentifier.getTenantId())) {
             logger.error("pluginInfo params lost {}", jobIdentifier);
             throw new RdosDefineException("pluginInfo params lost");
