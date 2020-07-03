@@ -1,23 +1,22 @@
 package com.dtstack.engine.rdbs.common.executor;
 
+import com.dtstack.engine.base.BaseConfig;
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
-import com.dtstack.engine.rdbs.common.utils.KerberosUtils;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -33,34 +32,44 @@ public abstract class AbstractConnFactory {
 
     private AtomicBoolean isFirstLoaded = new AtomicBoolean(true);
 
-    protected String dbUrl;
+    protected String jdbcUrl;
 
-    private String userName;
+    private String username;
 
-    private String pwd;
+    private String password;
 
     protected String driverName = null;
 
     protected String testSql = null;
 
+    protected Configuration yarnConf = null;
+
+    protected BaseConfig baseConfig = null;
+
     public void init(Properties properties) throws ClassNotFoundException {
-        synchronized (AbstractConnFactory.class){
-            if(isFirstLoaded.get()){
+        synchronized (AbstractConnFactory.class) {
+            if (isFirstLoaded.get()) {
                 Class.forName(driverName);
                 isFirstLoaded.set(false);
             }
 
         }
-        dbUrl = MathUtil.getString(properties.get(ConfigConstant.DB_URL));
-        userName = MathUtil.getString(properties.get(ConfigConstant.USER_NAME));
-        pwd = MathUtil.getString(properties.get(ConfigConstant.PWD));
+        jdbcUrl = MathUtil.getString(properties.get(ConfigConstant.JDBCURL));
+        username = MathUtil.getString(properties.get(ConfigConstant.USERNAME));
+        password = MathUtil.getString(properties.get(ConfigConstant.PASSWORD));
 
-        Preconditions.checkNotNull(dbUrl, "db url can't be null");
+        Preconditions.checkNotNull(jdbcUrl, "db url can't be null");
+        Map config = (Map) properties.get("config");
+
         try {
-            KerberosUtils.login(properties,()->{
-                testConn();
-                return null;
-            });
+            if (Objects.nonNull(config)) {
+                baseConfig = PublicUtil.mapToObject(config, BaseConfig.class);
+                if (Objects.nonNull(config.get("yarnConf"))) {
+                    Map<String, Object> yarnMap = (Map<String, Object>) config.get("yarnConf");
+                    yarnConf = KerberosUtils.convertMapConfToConfiguration(yarnMap);
+                }
+            }
+            testConn();
         } catch (Exception e) {
             throw new RdosDefineException("get conn exception:" + e.toString());
         }
@@ -99,19 +108,23 @@ public abstract class AbstractConnFactory {
 
     }
 
-    public Connection getConn() throws ClassNotFoundException, SQLException, IOException {
-
-        Connection conn;
-
-        if (userName == null) {
-            conn = DriverManager.getConnection(dbUrl);
-        } else {
-            conn = DriverManager.getConnection(dbUrl, userName, pwd);
-        }
-        return conn;
+    public Connection getConn() throws Exception {
+        return KerberosUtils.login(baseConfig, () -> {
+            Connection conn = null;
+            try {
+                if (username == null) {
+                    conn = DriverManager.getConnection(jdbcUrl);
+                } else {
+                    conn = DriverManager.getConnection(jdbcUrl, username, password);
+                }
+            } catch (SQLException e) {
+                throw new RdosDefineException("get conn exception:" + e.toString());
+            }
+            return conn;
+        }, yarnConf);
     }
 
-    public Connection getConnByTaskParams(String taskParams, String jobName) throws ClassNotFoundException, SQLException, IOException {
+    public Connection getConnByTaskParams(String taskParams, String jobName) throws Exception {
         return getConn();
     }
 
@@ -155,20 +168,19 @@ public abstract class AbstractConnFactory {
         return String.format("DROP PROCEDURE \"%s\"", procName);
     }
 
-
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public String getPwd() {
-        return pwd;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPwd(String pwd) {
-        this.pwd = pwd;
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

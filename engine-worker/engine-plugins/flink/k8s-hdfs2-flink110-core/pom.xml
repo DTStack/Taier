@@ -194,18 +194,6 @@
             <version>1.8.2</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.kerby</groupId>
-            <artifactId>kerb-core</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.kerby</groupId>
-            <artifactId>kerb-util</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
         <!-- test dependencies -->
         <dependency>
             <groupId>io.fabric8</groupId>

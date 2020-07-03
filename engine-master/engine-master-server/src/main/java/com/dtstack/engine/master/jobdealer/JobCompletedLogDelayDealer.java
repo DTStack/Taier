@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -29,8 +29,8 @@ public class JobCompletedLogDelayDealer implements Runnable {
     private WorkerOperator workerOperator;
 
     private DelayBlockingQueue<JobCompletedInfo> delayBlockingQueue = new DelayBlockingQueue<JobCompletedInfo>(1000);
-    private ExecutorService taskStatusPool = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
-            new SynchronousQueue<>(true), new CustomThreadFactory(this.getClass().getSimpleName()));
+    private ExecutorService taskStatusPool = new ThreadPoolExecutor(1, 1, 60L, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(1), new CustomThreadFactory(this.getClass().getSimpleName()));
 
     public  JobCompletedLogDelayDealer(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -43,7 +43,7 @@ public class JobCompletedLogDelayDealer implements Runnable {
         while (true) {
             try {
                 JobCompletedInfo taskInfo = delayBlockingQueue.take();
-                updateJobEngineLog(taskInfo.getJobId(), taskInfo.getJobIdentifier(), taskInfo.getEngineType(), taskInfo.getPluginInfo());
+                updateJobEngineLog(taskInfo.getJobId(), taskInfo.getJobIdentifier());
             } catch (Exception e) {
                 logger.error("", e);
             }
@@ -58,9 +58,9 @@ public class JobCompletedLogDelayDealer implements Runnable {
         }
     }
 
-    private void updateJobEngineLog(String jobId, JobIdentifier jobIdentifier, String engineType, String pluginInfo) {
+    private void updateJobEngineLog(String jobId, JobIdentifier jobIdentifier) {
         try {
-            String jobLog = workerOperator.getEngineLog(engineType, pluginInfo, jobIdentifier);
+            String jobLog = workerOperator.getEngineLog(jobIdentifier);
             if (jobLog != null) {
                 scheduleJobDao.updateEngineLog(jobId, jobLog);
             }

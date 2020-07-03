@@ -1,29 +1,25 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.common.constrant.ConfigConstant;
-import com.dtstack.engine.common.enums.EPluginType;
-import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.util.MD5Util;
-import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.cache.ShardCache;
+import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
-import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.PluginInfoDao;
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.PluginInfo;
-import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.resource.JobComputeResourcePlain;
-import com.dtstack.engine.master.cache.ShardCache;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -70,9 +66,6 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     private ScheduleJobDao scheduleJobDao;
 
     @Autowired
-    private PluginInfoDao pluginInfoDao;
-
-    @Autowired
     private EnvironmentContext environmentContext;
 
     @Autowired
@@ -80,6 +73,9 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
 
     @Autowired
     private WorkerOperator workerOperator;
+
+    @Autowired
+    private ScheduleJobService scheduleJobService;
 
     /**
      * key: jobResource, 计算引擎类型
@@ -141,9 +137,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
      */
     public void addSubmitJob(JobClient jobClient, boolean insert) {
         String jobResource = jobComputeResourcePlain.getJobResource(jobClient);
-        if (jobClient.getPluginInfo() != null) {
-            updateJobClientPluginInfo(jobClient.getTaskId(), jobClient.getPluginInfo());
-        }
+
         jobClient.setCallBack((jobStatus) -> {
             updateJobStatus(jobClient.getTaskId(), jobStatus);
         });
@@ -159,9 +153,6 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
      * 容灾时对已经提交到执行组件的任务，进行恢复
      */
     public void afterSubmitJob(JobClient jobClient) {
-        if (jobClient.getPluginInfo() != null) {
-            updateJobClientPluginInfo(jobClient.getTaskId(), jobClient.getPluginInfo());
-        }
         updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
         shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus());
     }
@@ -211,46 +202,21 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
     }
 
-    private void updateJobClientPluginInfo(String jobId, String pluginInfoStr) {
-        Long refPluginInfoId = -1L;
+    public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId,Long dtuicTenantId) {
 
-        //请求不带插件的连接信息的话则默认为使用本地默认的集群配置---pluginInfoId = -1;
-        if (!Strings.isNullOrEmpty(pluginInfoStr)) {
-            String pluginKey = MD5Util.getMd5String(pluginInfoStr);
-            PluginInfo pluginInfo = pluginInfoDao.getByKey(pluginKey);
-            if (pluginInfo == null) {
-                pluginInfo = new PluginInfo();
-                pluginInfo.setPluginInfo(pluginInfoStr);
-                pluginInfo.setPluginKey(pluginKey);
-                pluginInfo.setType(EPluginType.DYNAMIC.getType());
 
-                pluginInfoDao.replaceInto(pluginInfo);
-                PluginInfo insertInfo = pluginInfoDao.getByKey(pluginKey);
-                if(Objects.nonNull(insertInfo)){
-                    refPluginInfoId = insertInfo.getId();
-                }
-            } else {
-                refPluginInfoId = pluginInfo.getId();
-            }
-        }
-        //更新任务ref的pluginInfo
-        scheduleJobDao.updateJobPluginId(jobId, refPluginInfoId);
-
-    }
-
-    public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId, long pluginId) {
         String engineLog = null;
         try {
-            String pluginInfoStr = pluginInfoDao.getPluginInfo(pluginId);
-            if (StringUtils.isBlank(pluginInfoStr)) {
-                LOG.error("getAndUpdateEngineLog is null jobId:{} pluginId:{}.", jobId, pluginId);
-                return engineLog;
+            EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
+            if(Objects.isNull(engineJobCache)){
+                return "";
             }
-            Map<String, Object> params = PublicUtil.jsonStrToObject(pluginInfoStr, Map.class);
-            String engineType = MathUtil.getString(params.get(ConfigConstant.TYPE_NAME_KEY));
-            JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobId, appId, jobId);
+            String engineType = engineJobCache.getEngineType();
+            JSONObject info = JSONObject.parseObject(engineJobCache.getJobInfo());
+            JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId,dtuicTenantId,engineType,
+                    scheduleJobService.parseDeployTypeByTaskParams(info.getString("taskParams")).getType(),info.getLong("userId"),info.getString("pluginInfo"));
             //从engine获取log
-            engineLog = workerOperator.getEngineLog(engineType, pluginInfoStr, jobIdentifier);
+             engineLog = workerOperator.getEngineLog(jobIdentifier);
             if (engineLog != null) {
                 scheduleJobDao.updateEngineLog(jobId, engineLog);
             }

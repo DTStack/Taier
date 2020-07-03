@@ -1,6 +1,7 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
 import com.dtstack.engine.base.util.HadoopConfTool;
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -20,7 +21,6 @@ import com.dtstack.engine.sparkyarn.sparkyarn.parser.AddJarOperator;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExt;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExtFactory;
 import com.dtstack.engine.sparkyarn.sparkyarn.util.HadoopConf;
-import com.dtstack.engine.sparkyarn.sparkyarn.util.KerberosUtils;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -105,7 +105,7 @@ public class SparkYarnClient extends AbstractClient {
         System.setProperty(SPARK_YARN_MODE, "true");
         parseWebAppAddr();
         logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
-        yarnClient = KerberosUtils.login(sparkYarnConfig, this::getYarnClient);
+        yarnClient = KerberosUtils.login(sparkYarnConfig,this::getYarnClient,yarnConf);
 
     }
 
@@ -124,18 +124,18 @@ public class SparkYarnClient extends AbstractClient {
     @Override
     protected JobResult processSubmitJobWithType(JobClient jobClient) {
         try {
-           return KerberosUtils.login(sparkYarnConfig,()->{
+            return KerberosUtils.login(sparkYarnConfig, () -> {
                 EJobType jobType = jobClient.getJobType();
                 JobResult jobResult = null;
-                if(EJobType.MR.equals(jobType)){
+                if (EJobType.MR.equals(jobType)) {
                     jobResult = submitJobWithJar(jobClient);
-                }else if(EJobType.SQL.equals(jobType)){
+                } else if (EJobType.SQL.equals(jobType)) {
                     jobResult = submitSqlJob(jobClient);
-                }else if(EJobType.PYTHON.equals(jobType)){
+                } else if (EJobType.PYTHON.equals(jobType)) {
                     jobResult = submitPythonJob(jobClient);
                 }
                 return jobResult;
-            });
+            }, yarnConf);
         } catch (Exception e) {
             logger.info("", e);
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
@@ -374,7 +374,7 @@ public class SparkYarnClient extends AbstractClient {
         sparkConf.set("security", "false");
 
         if (sparkYarnConfig.isOpenKerberos()){
-            String keytab = KerberosUtils.localPath(sparkYarnConfig);
+            String keytab = KerberosUtils.getKeytabPath(sparkYarnConfig);
             String principal = KerberosUtils.getPrincipal(keytab);
             sparkConf.set("spark.yarn.keytab", keytab);
             sparkConf.set("spark.yarn.principal", principal);
@@ -606,7 +606,7 @@ public class SparkYarnClient extends AbstractClient {
                     logger.error("", e);
                     return false;
                 }
-            });
+            }, yarnConf);
         } catch (Exception e) {
             logger.error("judgeSlots error", e);
         }

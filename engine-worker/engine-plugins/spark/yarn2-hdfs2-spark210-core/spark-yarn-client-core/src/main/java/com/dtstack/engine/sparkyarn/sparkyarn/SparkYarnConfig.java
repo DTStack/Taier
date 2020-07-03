@@ -1,6 +1,7 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
 
+import com.dtstack.engine.base.BaseConfig;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -10,7 +11,7 @@ import java.util.Map;
 /**
  * Created by softfly on 17/8/10.
  */
-public class SparkYarnConfig {
+public class SparkYarnConfig extends BaseConfig {
 
     private static final String DEFAULT_SPARK_YARN_ARCHIVE = "%s/sparkjars/jars";
 
@@ -61,35 +62,10 @@ public class SparkYarnConfig {
 
     private String carbonStorePath;
 
-    private String remoteDir;
-
-    private String principalFile;
-
     private Map<String, String> sftpConf;
 
     private Map<String, String> kerberosConfig;
 
-    /**
-     * krb5conf名称
-     * @return
-     */
-    private String krbName;
-
-    public String getKrbName() {
-        return krbName;
-    }
-
-    public void setKrbName(String krbName) {
-        this.krbName = krbName;
-    }
-
-    public boolean isOpenKerberos() {
-        return openKerberos;
-    }
-
-    public void setOpenKerberos(boolean openKerberos) {
-        this.openKerberos = openKerberos;
-    }
 
     public String getTypeName() {
         return typeName;
@@ -259,22 +235,6 @@ public class SparkYarnConfig {
         this.jvmOptions = jvmOptions;
     }
 
-    public String getRemoteDir() {
-        return remoteDir;
-    }
-
-    public void setRemoteDir(String remoteDir) {
-        this.remoteDir = remoteDir;
-    }
-
-    public Map<String, String> getSftpConf() {
-        return sftpConf;
-    }
-
-    public void setSftpConf(Map<String, String> sftpConf) {
-        this.sftpConf = sftpConf;
-    }
-
     public Map<String, String> getKerberosConfig() {
         return kerberosConfig;
     }
@@ -283,11 +243,4 @@ public class SparkYarnConfig {
         this.kerberosConfig = kerberosConfig;
     }
 
-    public String getPrincipalFile() {
-        return principalFile;
-    }
-
-    public void setPrincipalFile(String principalFile) {
-        this.principalFile = principalFile;
-    }
 }

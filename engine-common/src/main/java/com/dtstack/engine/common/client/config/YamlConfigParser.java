@@ -29,10 +29,10 @@ import java.util.Map;
  * Company: www.dtstack.com
  * @author maqi
  */
-public enum YamlConfigParser implements IPluginConfigParser<InputStream, Map<String, Object>> {
-    INSTANCE;
+public class YamlConfigParser extends AbstractConfigParser{
+
     @Override
-    public Map<String, Object> parse(InputStream file) throws Exception {
+    public Map<String, Object> loadFile(InputStream file) {
         return new Yaml().loadAs(file, Map.class);
     }
 }

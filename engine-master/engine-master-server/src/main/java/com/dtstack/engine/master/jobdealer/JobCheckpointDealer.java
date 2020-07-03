@@ -14,6 +14,7 @@ import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
+import com.dtstack.engine.master.impl.ClusterService;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -32,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -97,6 +98,9 @@ public class JobCheckpointDealer implements InitializingBean {
     @Autowired
     private WorkerOperator workerOperator;
 
+    @Autowired
+    private ClusterService clusterService;
+
     private Map<String, JobCheckpointInfo> checkpointJobMap = Maps.newHashMap();
 
     private Cache<String, String> checkpointInsertedCache = CacheBuilder.newBuilder().maximumSize(CHECKPOINT_INSERTED_RECORD).build();
@@ -106,7 +110,7 @@ public class JobCheckpointDealer implements InitializingBean {
     private DelayBlockingQueue<JobCheckpointInfo> delayBlockingQueue = new DelayBlockingQueue<>(1000);
 
     private ExecutorService checkpointPool = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS,
-            new SynchronousQueue<>(true), new CustomThreadFactory(this.getClass().getSimpleName()));
+            new LinkedBlockingQueue<>(1), new CustomThreadFactory(this.getClass().getSimpleName()));
 
 
     @Override
@@ -136,7 +140,7 @@ public class JobCheckpointDealer implements InitializingBean {
     public void updateCheckpointImmediately(JobCheckpointInfo taskInfo, String engineJobId, int status) throws ExecutionException, InterruptedException {
         String taskId = taskInfo.getJobIdentifier().getTaskId();
         if (getCheckpointInterval(taskId) > 0) {
-            updateJobCheckpoints(taskInfo.getJobIdentifier(), taskInfo.getEngineTypeName(), taskInfo.getPluginInfo());
+            updateJobCheckpoints(taskInfo.getJobIdentifier());
             subtractionCheckpointRecord(engineJobId);
 
             if (RdosTaskStatus.RUNNING.getStatus().equals(status)) {
@@ -155,8 +159,8 @@ public class JobCheckpointDealer implements InitializingBean {
         }
     }
 
-    public void updateJobCheckpoints(JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo) {
-        String checkpointJsonStr = workerOperator.getCheckpoints(engineTypeName, pluginInfo, jobIdentifier);
+    public void updateJobCheckpoints(JobIdentifier jobIdentifier) {
+        String checkpointJsonStr = workerOperator.getCheckpoints(jobIdentifier);
         String engineTaskId = jobIdentifier.getEngineJobId();
         String taskId = jobIdentifier.getTaskId();
 
@@ -195,16 +199,18 @@ public class JobCheckpointDealer implements InitializingBean {
     }
 
 
-    public void addCheckpointTaskForQueue(Integer computeType, String taskId, JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo) throws ExecutionException {
+    public void addCheckpointTaskForQueue(Integer computeType, String taskId, JobIdentifier jobIdentifier, String engineTypeName) throws ExecutionException {
         long checkpointInterval = getCheckpointInterval(taskId);
         if (checkpointInterval > 0) {
             String engineJobId = jobIdentifier.getEngineJobId();
             checkpointJobMap.computeIfAbsent(engineJobId, (info) -> {
                 try {
+                    String pluginInfo = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(),
+                            jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode()).toJSONString();
                     int retainedNum = getRetainedNumFromPluginInfo(pluginInfo);
                     taskEngineIdAndRetainedNum.put(engineJobId, retainedNum);
 
-                    JobCheckpointInfo taskInfo = new JobCheckpointInfo(computeType, taskId, jobIdentifier, engineTypeName, pluginInfo, checkpointInterval);
+                    JobCheckpointInfo taskInfo = new JobCheckpointInfo(computeType, taskId, jobIdentifier, engineTypeName, checkpointInterval);
 
                     delayBlockingQueue.put(taskInfo);
                     logger.info("add task to checkpoint delay queue,{}", taskInfo);

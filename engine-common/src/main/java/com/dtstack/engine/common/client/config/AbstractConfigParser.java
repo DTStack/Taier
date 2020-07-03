@@ -1,32 +1,35 @@
-package com.dtstack.engine.entrance;
+package com.dtstack.engine.common.client.config;
 
-import com.dtstack.engine.common.client.config.YamlConfigParser;
-import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.common.enums.EFrontType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
 
 import java.io.InputStream;
 import java.util.*;
 
 /**
  * @author yuebai
- * @date 2020-05-20
+ * @date 2020-06-23
  */
-public class YmlParseTest extends BaseTest {
+public abstract class AbstractConfigParser implements IPluginConfigParser<InputStream, List<ClientTemplate>> {
 
-    @Test
-    public void testYml() throws Exception {
-        InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("flink-template.yml");
-        List<ClientTemplate> defaultPlugins = new YamlConfigParser().parse(resourceAsStream);
-        Assert.assertNotNull(defaultPlugins);
+
+    @Override
+    public List<ClientTemplate> parse(InputStream file) throws Exception {
+        Map<String, Object> config = loadFile(file);
+        //解析
+        List<ClientTemplate> defaultPlugins = this.convertMapTemplateToConfig(config);
+        //排序
+        return this.sortByKey(defaultPlugins);
     }
+
+    public abstract Map<String, Object> loadFile(InputStream file);
 
     /**
      * 加载各个组件的默认值
      * 解析yml文件转换为前端渲染格式
+     * controls 用以区分控件格式
      *
      * @return
      */
@@ -78,6 +81,12 @@ public class YmlParseTest extends BaseTest {
         return new ArrayList<>(0);
     }
 
+    /**
+     * 解析自定义控件格式中的values
+     *
+     * @param controlsValues
+     * @return
+     */
     private List<ClientTemplate> getControlsClientTemplates(List<String> controlsValues) {
         List<String> controlsVals = controlsValues;
         List<ClientTemplate> templates = new ArrayList<>();
@@ -90,6 +99,12 @@ public class YmlParseTest extends BaseTest {
         return templates;
     }
 
+    /**
+     * 解析必填和非必填
+     *
+     * @param configMap
+     * @return
+     */
     private List<ClientTemplate> getClientTemplates(Map<String, Object> configMap) {
         List<ClientTemplate> templateVos = new ArrayList<>();
         for (String key : configMap.keySet()) {
@@ -164,5 +179,21 @@ public class YmlParseTest extends BaseTest {
             }
         }
         return templateVo;
+    }
+
+    /**
+     * 根据key值来排序
+     * @param clientTemplates
+     * @return
+     */
+    protected List<ClientTemplate> sortByKey(List<ClientTemplate> clientTemplates) {
+        if (CollectionUtils.isEmpty(clientTemplates)) {
+            return clientTemplates;
+        }
+        clientTemplates.sort(Comparator.comparing(ClientTemplate::getKey, String.CASE_INSENSITIVE_ORDER));
+        for (ClientTemplate clientTemplate : clientTemplates) {
+            this.sortByKey(clientTemplate.getValues());
+        }
+        return clientTemplates;
     }
 }

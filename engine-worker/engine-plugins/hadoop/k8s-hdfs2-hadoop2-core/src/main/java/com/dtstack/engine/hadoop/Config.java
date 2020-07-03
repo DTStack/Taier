@@ -1,5 +1,7 @@
 package com.dtstack.engine.hadoop;
 
+import com.dtstack.engine.base.BaseConfig;
+
 import java.util.Map;
 
 /**
@@ -9,7 +11,7 @@ import java.util.Map;
  * @author xuchao
  */
 
-public class Config {
+public class Config extends BaseConfig {
 
     private String md5sum;
 
@@ -19,27 +21,10 @@ public class Config {
 
     private Map<String, Object> yarnConf;
 
-    private boolean openKerberos;
-
-    private String remoteDir;
-
-    /**
-     * 认证文件名称
-     */
-    private String principalFile;
-
-    private Map<String, String> sftpConf;
-
     /**
      * 组件名称
      */
     private String componentName;
-
-    /**
-     * krb5conf名称
-     * @return
-     */
-    private String krbName;
 
     private Map<String,Object> kubernetesConf;
 
@@ -49,14 +34,6 @@ public class Config {
 
     public void setKubernetesConf(Map<String, Object> kubernetesConf) {
         this.kubernetesConf = kubernetesConf;
-    }
-
-    public String getKrbName() {
-        return krbName;
-    }
-
-    public void setKrbName(String krbName) {
-        this.krbName = krbName;
     }
 
     public String getComponentName() {
@@ -97,37 +74,5 @@ public class Config {
 
     public void setHadoopUserName(String hadoopUserName) {
         this.hadoopUserName = hadoopUserName;
-    }
-
-    public String getRemoteDir() {
-        return remoteDir;
-    }
-
-    public void setRemoteDir(String remoteDir) {
-        this.remoteDir = remoteDir;
-    }
-
-    public String getPrincipalFile() {
-        return principalFile;
-    }
-
-    public void setPrincipalFile(String principalFile) {
-        this.principalFile = principalFile;
-    }
-
-    public Map<String, String> getSftpConf() {
-        return sftpConf;
-    }
-
-    public void setSftpConf(Map<String, String> sftpConf) {
-        this.sftpConf = sftpConf;
-    }
-
-    public boolean isOpenKerberos() {
-        return openKerberos;
-    }
-
-    public void setOpenKerberos(boolean openKerberos) {
-        this.openKerberos = openKerberos;
     }
 }

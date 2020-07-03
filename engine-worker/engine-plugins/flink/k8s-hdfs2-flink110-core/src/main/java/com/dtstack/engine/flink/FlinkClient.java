@@ -207,7 +207,7 @@ public class FlinkClient extends AbstractClient {
 
             fillJobGraphClassPath(jobGraph);
 
-            Pair<String, String> runResult = submitFlinkJob(clusterClient, jobGraph);
+            Pair<String, String> runResult = submitFlinkJob(clusterClient, jobGraph, taskRunMode);
             return JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond());
         } catch (Exception e) {
             return JobResult.createErrorResult(e);
@@ -268,17 +268,17 @@ public class FlinkClient extends AbstractClient {
     }
 
 
-    private Pair<String, String> submitFlinkJob(ClusterClient clusterClient, JobGraph jobGraph) throws Exception {
+    private Pair<String, String> submitFlinkJob(ClusterClient clusterClient, JobGraph jobGraph, FlinkMode taskRunMode) throws Exception {
         try {
             JobExecutionResult jobExecutionResult = ClientUtils.submitJob(clusterClient, jobGraph, flinkConfig.getSubmitTimeout(), TimeUnit.MINUTES);
             logger.info("Program execution finished");
             logger.info("Job with JobID " + jobExecutionResult.getJobID() + " has finished.");
             return Pair.create(jobExecutionResult.getJobID().toString(), clusterClient.getClusterId().toString());
         } catch (Exception e) {
-            if (e.getMessage() != null && e.getMessage().contains(ExceptionInfoConstrant.FLINK_UNALE_TO_GET_CLUSTERCLIENT_STATUS_EXCEPTION)) {
-                if (flinkClusterClientManager.getIsClientOn()) {
-                    flinkClusterClientManager.setIsClientOn(false);
-                }
+            if (!FlinkMode.isPerJob(taskRunMode) && flinkClusterClientManager.getIsClientOn()) {
+                logger.info("submit job error,flink session init ..");
+                flinkClusterClientManager.setIsClientOn(false);
+                flinkClusterClientManager.initClusterClient();
             }
             throw e;
         } finally {

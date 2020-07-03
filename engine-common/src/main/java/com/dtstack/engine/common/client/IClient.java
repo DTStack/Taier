@@ -43,9 +43,9 @@ public interface IClient {
 
     ComponentTestResult testConnect(String pluginInfo);
 
-    List<List<Object>> executeQuery(String pluginInfo, String sql,String database);
+    List<List<Object>> executeQuery(String sql,String database);
 
-	String uploadStringToHdfs(String pluginInfo,String bytes, String hdfsPath);
+	String uploadStringToHdfs(String bytes, String hdfsPath);
 
-	ClusterResource getClusterResource(String pluginInfo);
+	ClusterResource getClusterResource();
 }

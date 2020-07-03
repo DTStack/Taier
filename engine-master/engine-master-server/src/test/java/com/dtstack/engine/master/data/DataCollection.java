@@ -86,6 +86,7 @@ public class DataCollection {
         sj.setComputeType(1);
         sj.setLogInfo("{err: test_log_info}");
         sj.setEngineLog("{err: test_engine_log}");
+        sj.setSourceType(-1);
         return sj;
     }
 
@@ -255,6 +256,7 @@ public class DataCollection {
         sj.setComputeType(1);
         sj.setLogInfo("{err: test_log_info}");
         sj.setEngineLog("");
+        sj.setSourceType(-1);
         sj.setApplicationId("application_9527");
         return sj;
     }

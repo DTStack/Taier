@@ -145,12 +145,12 @@ public class ClientExt extends DtCDHClient {
         try {
             handler = SFTPHandler.getInstance(sftpConf);
             int files = handler.downloadDir(sftpPath, confFileDirName);
-            LOG.info("download file from SFTP, fileSize: " + files);
+            LOG.info("download file from SFTP, fromPath:{} toPath:{} fileSize:{}", sftpPath, confFileDirName, files);
             if (files > 0) {
                 return true;
             }
-        } catch (Exception e) {
-            LOG.error("", e);
+        } catch (Throwable e) {
+            LOG.error("download file from SFTP error, fromPath:{} toPath:{}", sftpPath, confFileDirName, e);
             try {
                 //下载失败后文件可能没有成功下载或下载不全，直接删除该目录
                 FileUtil.deleteFile(confFileDirName);

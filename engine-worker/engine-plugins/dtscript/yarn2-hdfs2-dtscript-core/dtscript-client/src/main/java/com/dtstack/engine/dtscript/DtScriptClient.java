@@ -1,5 +1,7 @@
 package com.dtstack.engine.dtscript;
 
+import com.dtstack.engine.base.BaseConfig;
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.AbstractClient;
@@ -8,9 +10,9 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dtscript.client.Client;
-import com.dtstack.engine.dtscript.util.KerberosUtils;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -25,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -49,6 +50,11 @@ public class DtScriptClient extends AbstractClient {
 
     private DtYarnConfiguration conf = new DtYarnConfiguration();
 
+    private BaseConfig configMap;
+
+    private List<String> removeConf = Lists.newArrayList("sftpConf", "hiveConf");
+
+
     @Override
     public void init(Properties prop) throws Exception {
 
@@ -56,44 +62,42 @@ public class DtScriptClient extends AbstractClient {
 
         conf.set("fs.hdfs.impl.disable.cache", "true");
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
-        Boolean useLocalEnv = MathUtil.getBoolean(prop.get("use.local.env"), false);
-
-        if(useLocalEnv){
-            //从本地环境变量读取
-            String hadoopConfDir = System.getenv("HADOOP_CONF_DIR");
-            conf.addResource(new URL("file://" + hadoopConfDir + "/" + "core-site.xml"));
-            conf.addResource(new URL("file://" + hadoopConfDir + "/" + "hdfs-site.xml"));
-            conf.addResource(new URL("file://" + hadoopConfDir + "/" + "yarn-site.xml"));
-        }
+        String propStr = PublicUtil.objToString(prop);
+        configMap = PublicUtil.jsonStrToObject(propStr, BaseConfig.class);
+        //其中有sftp 的配置 和hadoop yarn hdfs配置
 
         Enumeration enumeration =  prop.propertyNames();
-        while(enumeration.hasMoreElements()) {
+        while (enumeration.hasMoreElements()) {
             String key = (String) enumeration.nextElement();
+            if (removeConf.contains(key)) {
+                continue;
+            }
             Object value = prop.get(key);
-            if(value instanceof String) {
-                conf.set(key, (String)value);
-            } else if(value instanceof  Integer) {
-                conf.setInt(key, (Integer)value);
-            } else if(value instanceof  Float) {
-                conf.setFloat(key, (Float)value);
-            } else if(value instanceof Double) {
-                conf.setDouble(key, (Double)value);
-            } else if(value instanceof Map) {
-                Map<String,Object> map = (Map<String, Object>) value;
-                for(Map.Entry<String,Object> entry : map.entrySet()) {
-                    conf.set(entry.getKey(), MapUtils.getString(map,entry.getKey()));
+            if (value instanceof String) {
+                conf.set(key, (String) value);
+            } else if (value instanceof Integer) {
+                conf.setInt(key, (Integer) value);
+            } else if (value instanceof Float) {
+                conf.setFloat(key, (Float) value);
+            } else if (value instanceof Double) {
+                conf.setDouble(key, (Double) value);
+            } else if (value instanceof Map) {
+                Map<String, Object> map = (Map<String, Object>) value;
+                for (Map.Entry<String, Object> entry : map.entrySet()) {
+                    conf.set(entry.getKey(), MapUtils.getString(map, entry.getKey()));
                 }
             } else {
                 conf.set(key, value.toString());
             }
         }
+
         String queue = prop.getProperty(DtYarnConfiguration.DT_APP_QUEUE);
-        if (StringUtils.isNotBlank(queue)){
+        if (StringUtils.isNotBlank(queue)) {
             LOG.warn("curr queue is {}", queue);
             conf.set(DtYarnConfiguration.DT_APP_QUEUE, queue);
         }
 
-        client = new Client(conf);
+        client = new Client(conf, configMap);
     }
 
     @Override
@@ -212,17 +216,22 @@ public class DtScriptClient extends AbstractClient {
     }
 
     private JobResult submitPythonJob(JobClient jobClient) {
-        return KerberosUtils.login(conf, () -> {
-            try {
-                String[] args = DtScriptUtil.buildPythonArgs(jobClient);
-                System.out.println(Arrays.asList(args));
-                String jobId = client.submit(args);
-                return JobResult.createSuccessResult(jobId);
-            } catch (Exception e) {
-                LOG.info("", e);
-                return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
-            }
-        });
+        try {
+            return KerberosUtils.login(configMap, () -> {
+                try {
+                    String[] args = DtScriptUtil.buildPythonArgs(jobClient);
+                    System.out.println(Arrays.asList(args));
+                    String jobId = client.submit(args);
+                    return JobResult.createSuccessResult(jobId);
+                } catch (Exception e) {
+                    LOG.info("", e);
+                    return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
+                }
+            },conf);
+        } catch (Exception e) {
+            LOG.info("", e);
+            return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
+        }
     }
 
     @Override

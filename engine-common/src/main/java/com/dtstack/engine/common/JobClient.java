@@ -1,22 +1,24 @@
 package com.dtstack.engine.common;
 
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.common.queue.OrderObject;
+import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dtstack.engine.common.queue.OrderObject;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EJobType;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -87,6 +89,11 @@ public class JobClient extends OrderObject{
     /** uic租户信息**/
     private long tenantId;
 
+    private Long userId;
+
+    private Integer appType;
+
+
     public JobClient() {
 
     }
@@ -106,6 +113,8 @@ public class JobClient extends OrderObject{
         this.generateTime = paramAction.getGenerateTime();
         this.lackingCount = paramAction.getLackingCount();
         this.tenantId = paramAction.getTenantId();
+        this.userId = paramAction.getUserId();
+        this.appType = paramAction.getAppType();
 
         if (paramAction.getComputeType().equals(ComputeType.STREAM.getType())){
             this.maxRetryNum = 0;
@@ -154,7 +163,8 @@ public class JobClient extends OrderObject{
         action.setMaxRetryNum(maxRetryNum);
         action.setLackingCount(lackingCount);
         action.setTenantId(tenantId);
-
+        action.setUserId(userId);
+        action.setAppType(appType);
         if(!Strings.isNullOrEmpty(pluginInfo)){
             try{
                 action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
@@ -164,6 +174,33 @@ public class JobClient extends OrderObject{
             }
         }
         return action;
+    }
+
+
+    public void setPluginWrapperInfo(Map pluginInfoMap) {
+        if (Objects.nonNull(pluginInfoMap)) {
+            try {
+                this.pluginInfo = PublicUtil.objToString(pluginInfoMap);
+            } catch (IOException e) {
+                logger.error("", e);
+            }
+        }
+    }
+
+    public long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getTaskId() {

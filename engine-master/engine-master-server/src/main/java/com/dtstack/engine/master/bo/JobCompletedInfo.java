@@ -11,15 +11,13 @@ public class JobCompletedInfo implements Delayed {
     private JobIdentifier jobIdentifier;
     private String engineType;
     private int computeType;
-    private String pluginInfo;
     private long expired;
 
-    public JobCompletedInfo(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo, long delay){
+    public JobCompletedInfo(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, long delay){
         this.jobId = jobId;
         this.jobIdentifier = jobIdentifier;
         this.engineType = engineType;
         this.computeType = computeType;
-        this.pluginInfo = pluginInfo;
         this.expired = System.currentTimeMillis() + delay;
     }
 
@@ -45,14 +43,6 @@ public class JobCompletedInfo implements Delayed {
 
     public void setComputeType(int computeType) {
         this.computeType = computeType;
-    }
-
-    public String getPluginInfo() {
-        return pluginInfo;
-    }
-
-    public void setPluginInfo(String pluginInfo) {
-        this.pluginInfo = pluginInfo;
     }
 
     public JobIdentifier getJobIdentifier() {

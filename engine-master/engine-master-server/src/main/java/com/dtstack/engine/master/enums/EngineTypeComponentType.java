@@ -84,6 +84,7 @@ public enum EngineTypeComponentType {
             case "maxcompute":
             case "sqlserver":
             case "kylin":
+            case "dummy":
                 return null;
             case "impala":
                 return EngineTypeComponentType.IMPALA_SQL;
