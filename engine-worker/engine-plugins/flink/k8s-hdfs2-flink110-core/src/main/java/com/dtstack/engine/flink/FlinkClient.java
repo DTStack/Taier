@@ -189,6 +189,7 @@ public class FlinkClient extends AbstractClient {
 
             Preconditions.checkNotNull(clusterClient, "clusterClient is null");
             monitorUrl = clusterClient.getWebInterfaceURL();
+            logger.info("clusterClient monitorUrl is {},run mode is {}", monitorUrl, taskRunMode.name());
         } catch (Exception e) {
             logger.error("create clusterClient or getSession clusterClient error", e);
             throw new RdosDefineException(e);
