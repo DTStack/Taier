@@ -1,5 +1,7 @@
 package com.dtstack.engine.api.domain;
 
+import com.dtstack.engine.api.annotation.Unique;
+
 /**
  * RDOS 插件信息
  * Date: 2018/2/6
@@ -9,6 +11,7 @@ package com.dtstack.engine.api.domain;
 
 public class PluginInfo extends DataObject{
 
+    @Unique
     private String pluginKey;
 
     private String pluginInfo;

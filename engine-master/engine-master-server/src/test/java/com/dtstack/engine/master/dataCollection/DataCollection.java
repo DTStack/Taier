@@ -1,36 +1,50 @@
-package com.dtstack.engine.master.data;
+package com.dtstack.engine.master.dataCollection;
 
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.anno.DatabaseDeleteOperation;
+import com.dtstack.engine.master.anno.DataSource;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
+import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
+import com.dtstack.engine.master.utils.DataCollectionProxy;
 import com.dtstack.engine.master.utils.ValueUtils;
 import org.joda.time.DateTime;
-import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Proxy;
 import java.sql.Timestamp;
 
 /**
- * 每个方法只能返回具体类型的类 方法不含有任何参数 方法禁止重名
- * 设置Id 在方法内务必用 ValueUtils.changedIdForDiffMethod()  只能设置一次
- * 设置Unique Key 或者需要别的地方引用的字符串 在方法内 用 ValueUtils.changedStrForDiffMethod(identifier) 指定identifier能设置多次 不重名
- * 利用ValueUtils.getId 和 ValueUtils.getStr可以获得别的方法的相关参数 方便关联
+ * 使用方法：
+ * 对象类中标注@Unique的值自动加上变化值 防止因为Unique产生相同插表失败 如果想自己设置加上@IgnoreUniqueRandomSet注解
+ * 对象类中的ID自动回传 自定义写的测试Dao务必增加Optional注解设置key
+ * 获取其他对象的属性利用getData().get... 依赖非常方便
+ * 设置每个方法不同的值使用ValueUtils.getChangedStr() 和 ValueUtils.getChangedLong()
+ * 测试文件中访问对象使用DataCollection.getData()
  */
-@Component
-public class DataCollection {
+public interface DataCollection {
+    static DataCollection getDataCollectionProxy() {
+        return (DataCollection) Proxy.newProxyInstance(DataCollectionProxy.class.getClassLoader(),
+                new Class<?>[]{DataCollection.class}, DataCollectionProxy.instance);
+    }
 
-    @DatabaseInsertOperation(dao = TestScheduleJobDao.class, method = "insert")
-    @DatabaseDeleteOperation(dao = TestScheduleJobDao.class, method = "deleteById", field = "id")
-    public ScheduleJob getScheduleJobFirst() {
+    class SingletonHolder {
+        private static final DataCollection INSTANCE = getDataCollectionProxy();
+    }
+
+    @DataSource
+    static DataCollection getData() {
+        return SingletonHolder.INSTANCE;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobFirst() {
         ScheduleJob sj = new ScheduleJob();
-        sj.setId(ValueUtils.changedIdForDiffMethod());
         sj.setStatus(5);
-        sj.setJobId(ValueUtils.changedStrForDiffMethod("jobId"));
+        sj.setJobId("testJobId");
         sj.setTenantId(15L);
         sj.setProjectId(-1L);
-        sj.setJobKey(ValueUtils.changedStrForDiffMethod("jobKey"));
+        sj.setJobKey("testJobKey");
         sj.setExecStartTime(new Timestamp(1592559742000L));
         sj.setExecEndTime(new Timestamp(System.currentTimeMillis()));
         sj.setTaskId(-1L);
@@ -55,16 +69,14 @@ public class DataCollection {
     }
 
 
-    @DatabaseInsertOperation(dao = TestScheduleJobDao.class, method = "insert")
-    @DatabaseDeleteOperation(dao = TestScheduleJobDao.class, method = "deleteById", field = "id")
-    public ScheduleJob getScheduleJobDefiniteTashId() {
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobDefiniteTashId() {
         ScheduleJob sj = new ScheduleJob();
-        sj.setId(ValueUtils.changedIdForDiffMethod());
         sj.setStatus(5);
-        sj.setJobId(ValueUtils.changedStrForDiffMethod("jobId"));
+        sj.setJobId("testJobId");
         sj.setTenantId(15L);
         sj.setProjectId(-1L);
-        sj.setJobKey(ValueUtils.changedStrForDiffMethod("jobKey"));
+        sj.setJobKey("testJobKey");
         sj.setExecStartTime(new Timestamp(System.currentTimeMillis()));
         sj.setExecEndTime(new Timestamp(System.currentTimeMillis()));
         sj.setExecTime(2000L);
@@ -91,16 +103,14 @@ public class DataCollection {
     }
 
 
-    @DatabaseInsertOperation(dao = TestScheduleJobDao.class, method = "insert")
-    @DatabaseDeleteOperation(dao = TestScheduleJobDao.class, method = "deleteById", field = "id")
-    public ScheduleJob getScheduleJobSecond() {
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobSecond() {
         ScheduleJob sj = new ScheduleJob();
-        sj.setId(ValueUtils.changedIdForDiffMethod());
         sj.setStatus(5);
-        sj.setJobId(ValueUtils.changedStrForDiffMethod("jobId"));
+        sj.setJobId("testJobId");
         sj.setTenantId(15L);
         sj.setProjectId(-1L);
-        sj.setJobKey(ValueUtils.changedStrForDiffMethod("jobKey"));
+        sj.setJobKey("testJobKey");
         sj.setExecStartTime(new Timestamp(System.currentTimeMillis()));
         sj.setExecEndTime(new Timestamp(System.currentTimeMillis()));
         sj.setTaskId(-1L);
@@ -125,16 +135,14 @@ public class DataCollection {
     }
 
 
-    @DatabaseInsertOperation(dao = TestScheduleJobDao.class, method = "insert")
-    @DatabaseDeleteOperation(dao = TestScheduleJobDao.class, method = "deleteById", field = "id")
-    public ScheduleJob getScheduleJobTodayData() {
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobTodayData() {
         ScheduleJob sj = new ScheduleJob();
-        sj.setId(ValueUtils.changedIdForDiffMethod());
         sj.setStatus(5);
-        sj.setJobId(ValueUtils.changedStrForDiffMethod("jobId"));
+        sj.setJobId("testJobId");
         sj.setTenantId(15L);
         sj.setProjectId(-101L);
-        sj.setJobKey(ValueUtils.changedStrForDiffMethod("jobKey"));
+        sj.setJobKey("testJobKey");
         sj.setExecStartTime(new Timestamp(new DateTime().plusDays(-1).getMillis()));
         sj.setExecEndTime(new Timestamp(System.currentTimeMillis()));
         sj.setTaskId(-2001L);
@@ -159,16 +167,14 @@ public class DataCollection {
     }
 
 
-    @DatabaseInsertOperation(dao = TestScheduleJobDao.class, method = "insert")
-    @DatabaseDeleteOperation(dao = TestScheduleJobDao.class, method = "deleteById", field = "id")
-    public ScheduleJob getScheduleJobYesterdayData() {
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobYesterdayData() {
         ScheduleJob sj = new ScheduleJob();
-        sj.setId(ValueUtils.changedIdForDiffMethod());
         sj.setStatus(5);
-        sj.setJobId(ValueUtils.changedStrForDiffMethod("jobId"));
+        sj.setJobId("testJobId");
         sj.setTenantId(15L);
         sj.setProjectId(-1L);
-        sj.setJobKey(ValueUtils.changedStrForDiffMethod("jobKey"));
+        sj.setJobKey("testJobKey");
         sj.setExecStartTime(new Timestamp(new DateTime().plusDays(-1).getMillis()));
         sj.setExecEndTime(new Timestamp(System.currentTimeMillis()));
         sj.setTaskId(-1L);
@@ -193,16 +199,14 @@ public class DataCollection {
     }
 
 
-    @DatabaseInsertOperation(dao = TestScheduleJobDao.class, method = "insert")
-    @DatabaseDeleteOperation(dao = TestScheduleJobDao.class, method = "deleteById", field = "id")
-    public ScheduleJob getScheduleJobThird() {
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobThird() {
         ScheduleJob sj = new ScheduleJob();
-        sj.setId(ValueUtils.changedIdForDiffMethod());
         sj.setStatus(5);
-        sj.setJobId(ValueUtils.changedStrForDiffMethod("jobId"));
+        sj.setJobId("testJobId");
         sj.setTenantId(15L);
         sj.setProjectId(-1L);
-        sj.setJobKey(ValueUtils.changedStrForDiffMethod("jobKey"));
+        sj.setJobKey("testJobKey");
         sj.setExecStartTime(new Timestamp(1592559742000L));
         sj.setExecEndTime(new Timestamp(System.currentTimeMillis()));
         sj.setTaskId(-1L);
@@ -226,16 +230,14 @@ public class DataCollection {
         return sj;
     }
 
-    @DatabaseInsertOperation(dao = TestScheduleJobDao.class, method = "insert")
-    @DatabaseDeleteOperation(dao = TestScheduleJobDao.class, method = "deleteById", field = "id")
-    public ScheduleJob getScheduleJobStream() {
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobStream() {
         ScheduleJob sj = new ScheduleJob();
-        sj.setId(ValueUtils.changedIdForDiffMethod());
         sj.setStatus(4);
-        sj.setJobId(ValueUtils.changedStrForDiffMethod("jobId"));
+        sj.setJobId("testJobId");
         sj.setTenantId(15L);
         sj.setProjectId(-1L);
-        sj.setJobKey(ValueUtils.changedStrForDiffMethod("jobKey"));
+        sj.setJobKey("testJobKey");
         sj.setExecStartTime(new Timestamp(1591805197000L));
         sj.setExecEndTime(new Timestamp(1591805197100L));
         sj.setTaskId(-1L);
@@ -261,57 +263,51 @@ public class DataCollection {
         return sj;
     }
 
-    @DatabaseInsertOperation(dao = TestEngineJobRetryDao.class, method = "insert")
-    @DatabaseDeleteOperation(dao = TestEngineJobRetryDao.class, method = "deleteById", field = "id")
-    public EngineJobRetry getEngineJobRetry() {
+    @DatabaseInsertOperation(dao = TestEngineJobRetryDao.class)
+    default EngineJobRetry getEngineJobRetry() {
         EngineJobRetry ej = new EngineJobRetry();
-        ej.setId(ValueUtils.changedIdForDiffMethod());
-        ej.setEngineJobId(ValueUtils.changedStrForDiffMethod("engineJobId"));
-        ej.setJobId(ValueUtils.getStr("getScheduleJobFirst", "jobId"));
+        ej.setEngineJobId(ValueUtils.getChangedStr());
+        ej.setJobId(getData().getScheduleJobFirst().getJobId());
         ej.setStatus(0);
         ej.setEngineLog("{err: test_engine_log}");
         ej.setLogInfo("{err: test_log_info}");
-        ej.setApplicationId(ValueUtils.changedStrForDiffMethod("applicationId"));
+        ej.setApplicationId(ValueUtils.getChangedStr());
         ej.setRetryNum(2);
         ej.setRetryTaskParams("{err: test_retry_task_params}");
         return ej;
     }
 
-    @DatabaseInsertOperation(dao = TestEngineJobRetryDao.class, method = "insert")
-    @DatabaseDeleteOperation(dao = TestEngineJobRetryDao.class, method = "deleteById", field = "id")
-    public EngineJobRetry getEngineJobRetryNoEngineLog() {
+    @DatabaseInsertOperation(dao = TestEngineJobRetryDao.class)
+    default EngineJobRetry getEngineJobRetryNoEngineLog() {
         EngineJobRetry ej = new EngineJobRetry();
-        ej.setId(ValueUtils.changedIdForDiffMethod());
-        ej.setEngineJobId(ValueUtils.changedStrForDiffMethod("engineJobId"));
-        ej.setJobId(ValueUtils.getStr("getScheduleJobSecond", "jobId"));
+        ej.setEngineJobId(ValueUtils.getChangedStr());
+        ej.setJobId(getData().getScheduleJobSecond().getJobId());
         ej.setStatus(0);
         ej.setEngineLog("");
         ej.setLogInfo("{err: test_log_info}");
-        ej.setApplicationId(ValueUtils.changedStrForDiffMethod("applicationId"));
+        ej.setApplicationId(ValueUtils.getChangedStr());
         ej.setRetryNum(2);
         ej.setRetryTaskParams("{err: test_retry_task_params}");
         return ej;
     }
 
-    @DatabaseInsertOperation(dao = TestEngineJobCheckpointDao.class, method = "insert")
-    @DatabaseDeleteOperation(dao = TestEngineJobCheckpointDao.class, method = "deleteById", field = "id")
-    public EngineJobCheckpoint getEngineJobCheckpoint() {
+    @DatabaseInsertOperation(dao = TestEngineJobCheckpointDao.class)
+    default EngineJobCheckpoint getEngineJobCheckpoint() {
         EngineJobCheckpoint jc = new EngineJobCheckpoint();
-        jc.setId(ValueUtils.changedIdForDiffMethod());
-        jc.setTaskId(ValueUtils.changedStrForDiffMethod("taskId"));
+        jc.setTaskId("taskId");
         jc.setTaskEngineId("te-999");
-        jc.setCheckpointId(ValueUtils.changedStrForDiffMethod("checkpointId"));
+        jc.setCheckpointId("checkpointId");
         jc.setCheckpointTrigger(Timestamp.valueOf("2020-06-14 12:12:12"));
         jc.setCheckpointSavepath("hdfs://tmp/flink/checkpoint/test");
         jc.setCheckpointCounts("2");
         return jc;
     }
 
-    @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class, method = "insert")
-    @DatabaseDeleteOperation(dao = TestEngineJobCacheDao.class, method = "deleteById", field = "jobId")
-    public EngineJobCache getEngineJobCache() {
+    @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
+    @IgnoreUniqueRandomSet
+    default EngineJobCache getEngineJobCache() {
         EngineJobCache engineJobCache = new EngineJobCache();
-        engineJobCache.setJobId(ValueUtils.getStr("getScheduleJobStream", "jobId"));
+        engineJobCache.setJobId(getData().getScheduleJobStream().getJobId());
         engineJobCache.setJobName("test");
         engineJobCache.setEngineType("1");
         engineJobCache.setJobPriority(10L);
@@ -324,17 +320,14 @@ public class DataCollection {
         return engineJobCache;
     }
 
-    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class, method = "insert")
-    @DatabaseDeleteOperation(dao = TestScheduleTaskShadeDao.class, method = "deleteById", field = "taskId")
-    public ScheduleTaskShade getScheduleTaskShadeDelete(){
-
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    default ScheduleTaskShade getScheduleTaskShadeDelete(){
         ScheduleTaskShade scheduleTaskShade = new ScheduleTaskShade();
-        scheduleTaskShade.setId(ValueUtils.changedIdForDiffMethod());
-        scheduleTaskShade.setTaskId(ValueUtils.changedIdForDiffMethod());
+        scheduleTaskShade.setTaskId(0L);
         scheduleTaskShade.setExtraInfo("test");
-        scheduleTaskShade.setTenantId(ValueUtils.changedIdForDiffMethod());
-        scheduleTaskShade.setProjectId(ValueUtils.changedIdForDiffMethod());
-        scheduleTaskShade.setNodePid(ValueUtils.changedIdForDiffMethod());
+        scheduleTaskShade.setTenantId(ValueUtils.getChangedLong());
+        scheduleTaskShade.setProjectId(ValueUtils.getChangedLong());
+        scheduleTaskShade.setNodePid(ValueUtils.getChangedLong());
         scheduleTaskShade.setName("testJob");
         scheduleTaskShade.setTaskType(1);
         scheduleTaskShade.setEngineType(2);
@@ -354,7 +347,7 @@ public class DataCollection {
         scheduleTaskShade.setTaskDesc("null");
         scheduleTaskShade.setAppType(1);
         scheduleTaskShade.setIsDeleted(1);
-        scheduleTaskShade.setMainClass("com.dtstack.engine.master.data.DataCollection");
+        scheduleTaskShade.setMainClass("DataCollection");
         scheduleTaskShade.setExeArgs("null");
         scheduleTaskShade.setFlowId(1L);
         scheduleTaskShade.setDtuicTenantId(1L);
@@ -364,17 +357,14 @@ public class DataCollection {
         return scheduleTaskShade;
     }
 
-    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class, method = "insert")
-    @DatabaseDeleteOperation(dao = TestScheduleTaskShadeDao.class, method = "deleteById", field = "taskId")
-    public ScheduleTaskShade getScheduleTaskShade(){
-
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    default ScheduleTaskShade getScheduleTaskShade(){
         ScheduleTaskShade scheduleTaskShade = new ScheduleTaskShade();
-        scheduleTaskShade.setId(ValueUtils.changedIdForDiffMethod());
-        scheduleTaskShade.setTaskId(ValueUtils.changedIdForDiffMethod());
+        scheduleTaskShade.setTaskId(0L);
         scheduleTaskShade.setExtraInfo("test");
-        scheduleTaskShade.setTenantId(ValueUtils.changedIdForDiffMethod());
-        scheduleTaskShade.setProjectId(ValueUtils.changedIdForDiffMethod());
-        scheduleTaskShade.setNodePid(ValueUtils.changedIdForDiffMethod());
+        scheduleTaskShade.setTenantId(ValueUtils.getChangedLong());
+        scheduleTaskShade.setProjectId(ValueUtils.getChangedLong());
+        scheduleTaskShade.setNodePid(ValueUtils.getChangedLong());
         scheduleTaskShade.setName("testJob");
         scheduleTaskShade.setTaskType(1);
         scheduleTaskShade.setEngineType(2);
@@ -394,7 +384,7 @@ public class DataCollection {
         scheduleTaskShade.setTaskDesc("null");
         scheduleTaskShade.setAppType(1);
         scheduleTaskShade.setIsDeleted(0);
-        scheduleTaskShade.setMainClass("com.dtstack.engine.master.data.DataCollection");
+        scheduleTaskShade.setMainClass("DataCollection");
         scheduleTaskShade.setExeArgs("null");
         scheduleTaskShade.setFlowId(1L);
         scheduleTaskShade.setDtuicTenantId(1L);
@@ -404,17 +394,14 @@ public class DataCollection {
         return scheduleTaskShade;
     }
 
-    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class, method = "insert")
-    @DatabaseDeleteOperation(dao = TestScheduleTaskShadeDao.class, method = "deleteById", field = "taskId")
-    public ScheduleTaskShade getScheduleTaskShadeDefiniteTaskId(){
-
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    default ScheduleTaskShade getScheduleTaskShadeDefiniteTaskId(){
         ScheduleTaskShade scheduleTaskShade = new ScheduleTaskShade();
-        scheduleTaskShade.setId(-2021L);
-        scheduleTaskShade.setTaskId(-2020L);
+        scheduleTaskShade.setTaskId(0L);
         scheduleTaskShade.setExtraInfo("test");
-        scheduleTaskShade.setTenantId(ValueUtils.changedIdForDiffMethod());
-        scheduleTaskShade.setProjectId(ValueUtils.changedIdForDiffMethod());
-        scheduleTaskShade.setNodePid(ValueUtils.changedIdForDiffMethod());
+        scheduleTaskShade.setTenantId(ValueUtils.getChangedLong());
+        scheduleTaskShade.setProjectId(ValueUtils.getChangedLong());
+        scheduleTaskShade.setNodePid(ValueUtils.getChangedLong());
         scheduleTaskShade.setName("testJob");
         scheduleTaskShade.setTaskType(1);
         scheduleTaskShade.setEngineType(2);
@@ -434,7 +421,7 @@ public class DataCollection {
         scheduleTaskShade.setTaskDesc("null");
         scheduleTaskShade.setAppType(1);
         scheduleTaskShade.setIsDeleted(0);
-        scheduleTaskShade.setMainClass("com.dtstack.engine.master.data.DataCollection");
+        scheduleTaskShade.setMainClass("DataCollection");
         scheduleTaskShade.setExeArgs("null");
         scheduleTaskShade.setFlowId(1L);
         scheduleTaskShade.setDtuicTenantId(1L);
@@ -444,17 +431,14 @@ public class DataCollection {
         return scheduleTaskShade;
     }
 
-    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class, method = "insert")
-    @DatabaseDeleteOperation(dao = TestScheduleTaskShadeDao.class, method = "deleteById", field = "taskId")
-    public ScheduleTaskShade getScheduleTaskShadeForSheduleJob(){
-
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    default ScheduleTaskShade getScheduleTaskShadeForSheduleJob(){
         ScheduleTaskShade scheduleTaskShade = new ScheduleTaskShade();
-        scheduleTaskShade.setId(ValueUtils.changedIdForDiffMethod());
-        scheduleTaskShade.setTaskId(-2001L);
+        scheduleTaskShade.setTaskId(0L);
         scheduleTaskShade.setExtraInfo("test");
-        scheduleTaskShade.setTenantId(ValueUtils.changedIdForDiffMethod());
-        scheduleTaskShade.setProjectId(ValueUtils.changedIdForDiffMethod());
-        scheduleTaskShade.setNodePid(ValueUtils.changedIdForDiffMethod());
+        scheduleTaskShade.setTenantId(ValueUtils.getChangedLong());
+        scheduleTaskShade.setProjectId(ValueUtils.getChangedLong());
+        scheduleTaskShade.setNodePid(ValueUtils.getChangedLong());
         scheduleTaskShade.setName("testJob");
         scheduleTaskShade.setTaskType(0);
         scheduleTaskShade.setEngineType(2);
@@ -474,7 +458,7 @@ public class DataCollection {
         scheduleTaskShade.setTaskDesc("null");
         scheduleTaskShade.setAppType(1);
         scheduleTaskShade.setIsDeleted(0);
-        scheduleTaskShade.setMainClass("com.dtstack.engine.master.data.DataCollection");
+        scheduleTaskShade.setMainClass("DataCollection");
         scheduleTaskShade.setExeArgs("null");
         scheduleTaskShade.setFlowId(1L);
         scheduleTaskShade.setDtuicTenantId(1L);
@@ -485,11 +469,10 @@ public class DataCollection {
     }
 
 
-    @DatabaseInsertOperation(dao = TestConsoleDtuicTenantDao.class, method = "insert")
-    @DatabaseDeleteOperation(dao = TestConsoleDtuicTenantDao.class, method = "deleteById", field = "dtUicTenantId")
-    public Tenant getTenant(){
+    @DatabaseInsertOperation(dao = TestConsoleDtuicTenantDao.class)
+    default Tenant getTenant(){
         Tenant tenant = new Tenant();
-        tenant.setDtUicTenantId(ValueUtils.changedIdForDiffMethod());
+        tenant.setDtUicTenantId(ValueUtils.getChangedLong());
         tenant.setTenantName("testCase");
         tenant.setTenantDesc("");
         return tenant;

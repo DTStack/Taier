@@ -1,5 +1,7 @@
 package com.dtstack.engine.api.domain;
 
+import com.dtstack.engine.api.annotation.Unique;
+
 import java.sql.Timestamp;
 
 /**
@@ -11,6 +13,7 @@ import java.sql.Timestamp;
 
 public class EngineJobCheckpoint extends DataObject {
 
+    @Unique
     private String taskId;
 
     private String taskEngineId;

@@ -1,81 +1,82 @@
 package com.dtstack.engine.master.utils;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
+import com.dtstack.engine.dao.TestCommonDao;
+import com.dtstack.engine.master.anno.DataSource;
+import com.dtstack.engine.master.anno.DatabaseInsertOperation;
+import com.dtstack.engine.master.dataCollection.DataCollection;
+import org.apache.ibatis.io.ResolverUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Set;
+
+@Component
 public class ValueUtils {
-    private static AtomicLong id = new AtomicLong(-1080L);
-    private static final String strValue = "test__engine2020__";
-    private static AtomicInteger incrementedValue = new AtomicInteger(100);
-    private static Map<String, Long> ids = new ConcurrentHashMap<>();
-    private static Map<String, Map<String, String>> strs = new ConcurrentHashMap<>();
-    private static Map<String, Map<String, Object>> objs = new ConcurrentHashMap<>();
 
-    public static Long changedIdForDiffMethod() {
-        return getId(getMethodName());
+    private static final String packages = DataCollection.class.getPackage().getName();
+    private static final String strValue = "test__";
+
+    @Autowired
+    private TestCommonDao testCommonDao;
+
+    @Autowired
+    private ApplicationContext context;
+
+    private static TestCommonDao runTestCommonDao;
+    public static ApplicationContext runContext;
+
+    @PostConstruct
+    public void runSetBean() {
+        runTestCommonDao = testCommonDao;
+        runContext = context;
     }
 
-    public static String changedStrForDiffMethod(String identifier) {
-        return getStr(getMethodName(), identifier);
-    }
-
-    public static Object customObject(String identifier, Object object) {
-        return getObject(getMethodName(), identifier, object);
-    }
-
-    public static Long getId(String methodName) {
-        if (ids.containsKey(methodName)) {
-            return ids.get(methodName);
-        } else {
-            ids.put(methodName, id.get());
-            return id.getAndDecrement();
-        }
-    }
-
-    public static String getStr(String methodName, String identifier) {
-        if (strs.containsKey(methodName)) {
-            Map<String, String> map = strs.get(methodName);
-            if (map.containsKey(identifier)) {
-                return map.get(identifier);
-            } else {
-                String result = strValue + incrementedValue.get();
-                map.put(identifier, result);
-                incrementedValue.getAndIncrement();
-                return result;
+    public static void initData() throws Exception {
+        runTestCommonDao.truncate();
+        Set<Class<? extends Class<?>>> classes = find(packages);
+        for (Class<? extends Class<?>> clazz : classes) {
+            if (!Modifier.isPublic(clazz.getModifiers()) || clazz.isMemberClass()) {
+                continue;
             }
-        } else {
-            strs.put(methodName, new ConcurrentHashMap<>());
-            String result = strValue + incrementedValue.get();
-            strs.get(methodName).put(identifier, result);
-            incrementedValue.getAndIncrement();
-            return result;
-        }
-    }
-
-    public static Object getObject(String methodName, String identifier, Object object) {
-        if (objs.containsKey(methodName)) {
-            Map<String, Object> map = objs.get(methodName);
-            if (map.containsKey(identifier)) {
-                return map.get(identifier);
-            } else {
-                map.put(identifier, object);
-                return object;
+            Object ins = null;
+            for (Method method : clazz.getDeclaredMethods()) {
+                method.setAccessible(true);
+                if (method.isAnnotationPresent(DataSource.class)) {
+                    ins = method.invoke(clazz);
+                    break;
+                }
             }
-        } else {
-            objs.put(methodName, new ConcurrentHashMap<>());
-            objs.get(methodName).put(identifier, object);
-            return object;
+            if (ins == null) {
+                throw new RuntimeException("init Data error, Data Singleton miss.");
+            }
+            for (Method method : clazz.getDeclaredMethods()) {
+                method.setAccessible(true);
+                DatabaseInsertOperation databaseOperation = method.getAnnotation(DatabaseInsertOperation.class);
+                if (databaseOperation != null) {
+                    if (method.getParameterCount() == 0) {
+                        method.invoke(ins);
+                    }
+                }
+            }
         }
     }
 
-    private static String getMethodName() {
-        StackTraceElement[] stack =Thread.currentThread().getStackTrace();
-        StackTraceElement method = stack[3];
-        return method.getMethodName();
+    private static Set<Class<? extends Class<?>>> find(String packageName) {
+        ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<Class<?>>();
+        resolverUtil.find(new ResolverUtil.IsA(Object.class), packageName);
+        Set<Class<? extends Class<?>>> typeSet = resolverUtil.getClasses();
+        return typeSet;
     }
 
-    private ValueUtils() {}
+
+    public static String getChangedStr() {
+        return strValue + AutoChangedNumbers.INCR.getAndIncrement();
+    }
+
+    public static Long getChangedLong() {return (long)AutoChangedNumbers.INCR.getAndIncrement();}
+
 }

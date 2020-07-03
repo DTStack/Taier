@@ -2,17 +2,15 @@ package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.EngineJobRetry;
 import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.common.client.ClientOperator;
-import com.dtstack.engine.dao.EngineUniqueSignDao;
 import com.dtstack.engine.dao.TestEngineUniqueSignDao;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.utils.EngineUtil;
 import com.google.common.collect.Lists;
 import io.vertx.core.json.JsonObject;
-import org.apache.commons.math3.analysis.function.Pow;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,7 +70,7 @@ public class ActionServiceTest extends AbstractTest {
 
     @Test
     public void testStatus() {
-        ScheduleJob scheduleJob= dataCollection.getScheduleJobFirst();
+        ScheduleJob scheduleJob= DataCollection.getData().getScheduleJobFirst();
         String jobId = scheduleJob.getJobId();
         Integer statusResult = scheduleJob.getStatus();
         Integer computeType = scheduleJob.getComputeType();
@@ -92,8 +90,8 @@ public class ActionServiceTest extends AbstractTest {
 
     @Test
     public void testStatusByJobIds() {
-        ScheduleJob scheduleJobFirst = dataCollection.getScheduleJobFirst();
-        ScheduleJob scheduleJobSecond = dataCollection.getScheduleJobSecond();
+        ScheduleJob scheduleJobFirst = DataCollection.getData().getScheduleJobFirst();
+        ScheduleJob scheduleJobSecond = DataCollection.getData().getScheduleJobSecond();
         Map<String, Integer> jobIdsAndStatus = new HashMap<>();
         jobIdsAndStatus.put(scheduleJobFirst.getJobId(), scheduleJobFirst.getStatus());
         jobIdsAndStatus.put(scheduleJobSecond.getJobId(), scheduleJobSecond.getStatus());
@@ -117,7 +115,7 @@ public class ActionServiceTest extends AbstractTest {
 
     @Test
     public void testStartTime() {
-        ScheduleJob scheduleJob= dataCollection.getScheduleJobFirst();
+        ScheduleJob scheduleJob= DataCollection.getData().getScheduleJobFirst();
         String jobId = scheduleJob.getJobId();
         Long startTimeResult = scheduleJob.getExecStartTime().getTime();
         Integer computeType = scheduleJob.getComputeType();
@@ -136,7 +134,7 @@ public class ActionServiceTest extends AbstractTest {
 
     @Test
     public void testLog() {
-        ScheduleJob scheduleJob = dataCollection.getScheduleJobFirst();
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobFirst();
         String jobId = scheduleJob.getJobId();
         Integer computeType = scheduleJob.getComputeType();
 
@@ -154,7 +152,7 @@ public class ActionServiceTest extends AbstractTest {
             fail("Unexpect have a Exception: " + e.getMessage());
         }
 
-        scheduleJob = dataCollection.getScheduleJobSecond();
+        scheduleJob = DataCollection.getData().getScheduleJobSecond();
         jobId = scheduleJob.getJobId();
         computeType = scheduleJob.getComputeType();
         String mock_engine_log = "{err: test_mock_engine_log}";
@@ -173,10 +171,10 @@ public class ActionServiceTest extends AbstractTest {
 
     @Test
     public void testRetryLog() {
-        ScheduleJob scheduleJob = dataCollection.getScheduleJobFirst();
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobFirst();
         String jobId = scheduleJob.getJobId();
         Integer computeType = scheduleJob.getComputeType();
-        EngineJobRetry engineJobRetry = dataCollection.getEngineJobRetry();
+        EngineJobRetry engineJobRetry = DataCollection.getData().getEngineJobRetry();
         try {
             actionService.retryLog(jobId, null);
             fail("Expect have a Exception");
@@ -196,11 +194,11 @@ public class ActionServiceTest extends AbstractTest {
 
     @Test
     public void testRetryLogDetail() {
-        ScheduleJob scheduleJob = dataCollection.getScheduleJobSecond();
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobSecond();
         String jobId = scheduleJob.getJobId();
         Integer computeType = scheduleJob.getComputeType();
 
-        EngineJobRetry engineJobRetry = dataCollection.getEngineJobRetryNoEngineLog();
+        EngineJobRetry engineJobRetry = DataCollection.getData().getEngineJobRetryNoEngineLog();
         try {
             actionService.retryLogDetail(jobId, null, engineJobRetry.getRetryNum() + 1);
             fail("Expect have a Exception");
@@ -224,7 +222,7 @@ public class ActionServiceTest extends AbstractTest {
 
     @Test
     public void testEntitys() {
-        ScheduleJob scheduleJob = dataCollection.getScheduleJobThird();
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobThird();
         String jobId = scheduleJob.getJobId();
         Integer computeType = scheduleJob.getComputeType();
         try {
@@ -250,7 +248,7 @@ public class ActionServiceTest extends AbstractTest {
 
     @Test
     public void testContainerInfos() {
-        ScheduleJob scheduleJob = dataCollection.getScheduleJobThird();
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobThird();
         try {
             List<String> result = actionService.containerInfos(getParams(getJsonString(scheduleJob.getJobId())));
             Assert.assertEquals(result, mockInfos);
