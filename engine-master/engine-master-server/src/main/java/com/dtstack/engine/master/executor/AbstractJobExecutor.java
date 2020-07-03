@@ -206,6 +206,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     notStartCache.clear();
                     errorJobCache.clear();
                     taskCache.clear();
+                    startCache.clear();
                     jopPriorityQueue.clearAndAllIngestion();
                     long rebackId = batchJobElement.getScheduleBatchJob().getId();
                     if (logger.isInfoEnabled()) {
@@ -352,7 +353,14 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
     private ConcurrentHashMap<String, ExecutorService> executorServiceMap = new ConcurrentHashMap<>();
 
+    private CopyOnWriteArrayList<String> startCache = new CopyOnWriteArrayList<>();
+
     public void start(ScheduleTaskShade batchTask, ScheduleBatchJob scheduleBatchJob) {
+        if (startCache.contains(scheduleBatchJob.getJobId())) {
+            logger.info("--- scheduleType:{} start cache contains jobId {} ", getScheduleType(), scheduleBatchJob.getJobId());
+            return;
+        }
+
         ScheduleEngineType scheduleEngineType = ScheduleEngineType.getEngineType(batchTask.getEngineType());
         String engineType = "default";
         if (Objects.nonNull(scheduleEngineType)) {
@@ -370,14 +378,16 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         }
         executorService.submit(() -> {
             try {
-                batchJobService.startJob(scheduleBatchJob.getScheduleJob());
                 //提交代码里面会将jobStatus设置为submitting
-                batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.SUBMITTING.getStatus(), "");
+                batchJobService.startJob(scheduleBatchJob.getScheduleJob());
                 logger.info("---scheduleType:{} send job:{} to engine.", getScheduleType(), scheduleBatchJob.getJobId());
             } catch (Exception e) {
                 logger.info("--- send job:{} to engine error", scheduleBatchJob.getJobId(), e);
                 batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.FAILED.getStatus(), ExceptionUtil.getErrorMessage(e));
+            } finally {
+                startCache.remove(scheduleBatchJob.getJobId());
             }
         });
+        startCache.add(scheduleBatchJob.getJobId());
     }
 }
