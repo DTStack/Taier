@@ -2,6 +2,7 @@ package com.dtstack.engine.common.jobdealer;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.logstore.AbstractLogStore;
 import com.dtstack.engine.common.logstore.LogStoreFactory;
 import org.slf4j.Logger;
@@ -33,9 +34,9 @@ public class TaskLogStoreDealer implements Runnable {
     }
 
     public TaskLogStoreDealer() {
-        dbConfig.put("url", AkkaConfig.getWorkerLogstoreJdbcUrl());
-        dbConfig.put("userName", AkkaConfig.getWorkerLogstoreUsername());
-        dbConfig.put("pwd", AkkaConfig.getWorkerLogstorePassword());
+        dbConfig.put(ConfigConstant.JDBCURL, AkkaConfig.getWorkerLogstoreJdbcUrl());
+        dbConfig.put(ConfigConstant.USERNAME, AkkaConfig.getWorkerLogstoreUsername());
+        dbConfig.put(ConfigConstant.PASSWORD, AkkaConfig.getWorkerLogstorePassword());
         logStore = LogStoreFactory.getLogStore(dbConfig);
 
         this.scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));

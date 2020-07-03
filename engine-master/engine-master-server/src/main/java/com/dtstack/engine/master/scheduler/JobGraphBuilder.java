@@ -39,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
@@ -72,7 +71,7 @@ public class JobGraphBuilder {
 
     private static final int TASK_BATCH_SIZE = 50;
     private static final int JOB_BATCH_SIZE = 50;
-    private static final int MAX_TASK_BUILD_THREAD = 10;
+    private static final int MAX_TASK_BUILD_THREAD = 20;
 
     private static String dtfFormatString = "yyyyMMddHHmmss";
 
@@ -124,8 +123,8 @@ public class JobGraphBuilder {
                 return;
             }
 
-            ExecutorService jobGraphBuildPool = new ThreadPoolExecutor(0, MAX_TASK_BUILD_THREAD, 10L, TimeUnit.SECONDS,
-                    new ArrayBlockingQueue<Runnable>(1), new CustomThreadFactory("JobGraphBuilder"));
+            ExecutorService jobGraphBuildPool = new ThreadPoolExecutor(MAX_TASK_BUILD_THREAD, MAX_TASK_BUILD_THREAD, 10L, TimeUnit.SECONDS,
+                    new LinkedBlockingQueue<>(MAX_TASK_BUILD_THREAD), new CustomThreadFactory("JobGraphBuilder"));
 
             List<ScheduleBatchJob> allJobs = new ArrayList<>(totalTask);
             Map<String, String> flowJobId = new ConcurrentHashMap<>(totalTask);
@@ -176,7 +175,9 @@ public class JobGraphBuilder {
                         }
                         logger.info("batch-number:{} done!!! allJobs size:{}", batchIdx, allJobs.size());
                     } catch (Throwable e) {
-                        logger.error("{}", e);
+                        logger.error("build job error", e);
+                        buildSemaphore.release();
+                        ctl.countDown();
                     } finally {
                         buildSemaphore.release();
                         ctl.countDown();
@@ -184,6 +185,7 @@ public class JobGraphBuilder {
                 });
             }
             ctl.await();
+            logger.info("batch-number:all done!!! allJobs size:{}", allJobs.size());
             jobGraphBuildPool.shutdown();
 
             doSetFlowJobIdForSubTasks(allJobs, flowJobId);

@@ -38,22 +38,19 @@ public class JobCheckpointInfo implements Delayed {
 
     private String engineTypeName;
 
-    private String pluginInfo;
-
     private long expired;
 
     private long checkpointInterval;
 
-    public JobCheckpointInfo(JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo) {
-        this(null, null, jobIdentifier, engineTypeName, pluginInfo, 0);
+    public JobCheckpointInfo(JobIdentifier jobIdentifier, String engineTypeName) {
+        this(null, null, jobIdentifier, engineTypeName, 0);
     }
 
-    public JobCheckpointInfo(Integer computeType, String taskId, JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo, long checkpointInterval) {
+    public JobCheckpointInfo(Integer computeType, String taskId, JobIdentifier jobIdentifier, String engineTypeName,long checkpointInterval) {
         this.computeType = computeType;
         this.taskId = taskId;
         this.jobIdentifier = jobIdentifier;
         this.engineTypeName = engineTypeName;
-        this.pluginInfo = pluginInfo;
         this.checkpointInterval = checkpointInterval;
 
         refreshExpired();
@@ -79,10 +76,6 @@ public class JobCheckpointInfo implements Delayed {
         return engineTypeName;
     }
 
-    public String getPluginInfo() {
-        return pluginInfo;
-    }
-
     @Override
     public long getDelay(TimeUnit unit) {
         return unit.convert(this.expired - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
@@ -100,7 +93,6 @@ public class JobCheckpointInfo implements Delayed {
                 ", taskId='" + taskId + '\'' +
                 ", jobIdentifier=" + jobIdentifier +
                 ", engineTypeName='" + engineTypeName + '\'' +
-                ", pluginInfo='" + pluginInfo + '\'' +
                 ", expired=" + expired +
                 '}';
     }

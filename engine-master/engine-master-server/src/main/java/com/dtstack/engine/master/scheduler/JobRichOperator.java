@@ -24,6 +24,7 @@ import com.dtstack.engine.master.parser.ScheduleCron;
 import com.dtstack.engine.master.parser.ScheduleFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -73,9 +74,8 @@ public class JobRichOperator {
 
     /**
      * 判断任务是否可以执行
-     *
      * @param scheduleBatchJob
-     * @param status           当前任务状态
+     * @param status 当前任务状态
      * @param scheduleType
      * @param notStartCache
      * @param errorJobCache
@@ -87,9 +87,71 @@ public class JobRichOperator {
                                           Set<String> notStartCache, Map<String, JobErrorInfo> errorJobCache,
                                           Map<Long, ScheduleTaskShade> taskCache) throws ParseException {
 
-        ScheduleTaskShade batchTaskShade = getTaskShadeFromCache(taskCache, scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
+        ScheduleTaskShade batchTaskShade = getTaskShadeFromCache(taskCache,scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
 
-        if (batchTaskShade == null || batchTaskShade.getIsDeleted() == Deleted.DELETED.getStatus()) {
+        if (notStartCache == null) {
+            notStartCache = Sets.newHashSet();
+        }
+
+        if (errorJobCache == null) {
+            errorJobCache = Maps.newHashMap();
+        }
+
+        // 根据taskShade 的信息 校验出 未提交 冻结 过期这些状态
+        JobCheckRunInfo checkRunInfo = this.checkStatusByTaskShade(scheduleBatchJob, status, scheduleType,batchTaskShade);
+
+        if (Objects.nonNull(checkRunInfo)) {
+            return checkRunInfo;
+        }
+
+        //重置为可以执行
+        checkRunInfo = new JobCheckRunInfo();
+        checkRunInfo.setStatus(JobCheckStatus.CAN_EXE);
+
+        Integer dependencyType = scheduleBatchJob.getScheduleJob().getDependencyType();
+
+        boolean hasFatherJobNotFinish = false;
+
+        // 校验任务jobjob 中依赖条件是否满足
+        for (ScheduleJobJob jobjob : scheduleBatchJob.getBatchJobJobList()) {
+            checkRunInfo = checkJobJob(scheduleBatchJob, scheduleType, jobjob, notStartCache, errorJobCache, taskCache, dependencyType);
+            //多个任务依赖的时候 如果有依赖任务还未运行完 需要check其他的依赖任务 以最后为准
+            if(JobCheckStatus.FATHER_JOB_NOT_FINISHED.equals(checkRunInfo.getStatus())){
+                hasFatherJobNotFinish = true;
+                continue;
+            }
+            if (!JobCheckStatus.CAN_EXE.equals(checkRunInfo.getStatus())) {
+                return checkRunInfo;
+            }
+        }
+
+        if(hasFatherJobNotFinish){
+            checkRunInfo.setStatus(JobCheckStatus.FATHER_JOB_NOT_FINISHED);
+            return checkRunInfo;
+        }
+
+        boolean dependencyChildPrePeriod = DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_SUCCESS.getType().equals(dependencyType)
+                || DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_END.getType().equals(dependencyType);
+
+        // 校验任务依赖下游的上一周期 条件
+        if (JobCheckStatus.CAN_EXE.equals(checkRunInfo.getStatus()) && dependencyChildPrePeriod) {//检测下游任务的上一个周期是否结束
+            return checkChildTaskShadeStatus(scheduleBatchJob, batchTaskShade, dependencyType);
+        }
+
+        return checkRunInfo;
+    }
+
+    /**
+     * 校验当前任务本身是否满足执行条件
+     *
+     * @param scheduleBatchJob
+     * @param status
+     * @param scheduleType
+     * @param batchTaskShade
+     * @return
+     */
+    private JobCheckRunInfo checkStatusByTaskShade(ScheduleBatchJob scheduleBatchJob, Integer status, Integer scheduleType,ScheduleTaskShade batchTaskShade) {
+        if (batchTaskShade == null || batchTaskShade.getIsDeleted().equals(Deleted.DELETED.getStatus())) {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TASK_DELETE);
         }
 
@@ -99,14 +161,15 @@ public class JobRichOperator {
 
         //正常调度---判断当前任务是不是处于暂停状态--暂停状态直接返回冻结
         if (scheduleType == EScheduleType.NORMAL_SCHEDULE.getType()
-                && batchTaskShade.getScheduleStatus().equals(EScheduleStatus.PAUSE.getVal())) {//查询缓存
+                && batchTaskShade.getScheduleStatus().equals(EScheduleStatus.PAUSE.getVal())) {
+            //查询缓存
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TASK_PAUSE);
         }
 
         //判断执行时间是否到达
         String currStr = sdf.format(new Date());
-        long currVal = Long.valueOf(currStr);
-        long triggerVal = Long.valueOf(scheduleBatchJob.getCycTime());
+        long currVal = Long.parseLong(currStr);
+        long triggerVal = Long.parseLong(scheduleBatchJob.getCycTime());
 
         if (currVal < triggerVal) {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TIME_NOT_REACH);
@@ -116,167 +179,211 @@ public class JobRichOperator {
         if (Expired.EXPIRE.getVal() == batchTaskShade.getIsExpire() && this.checkExpire(scheduleBatchJob, scheduleType, batchTaskShade)) {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TIME_OVER_EXPIRE);
         }
+        return null;
+    }
 
-        //判断依赖是否满足
-        JobCheckStatus flag = JobCheckStatus.CAN_EXE;
-        String extInfo = "";
 
-        Integer dependencyType = scheduleBatchJob.getScheduleJob().getDependencyType();
+    /**
+     * 根据jobjob 表中的依赖关系 校验任务是否可以执行
+     *
+     * @param scheduleBatchJob
+     * @param scheduleType
+     * @param jobjob
+     * @param notStartCache
+     * @param errorJobCache
+     * @param taskCache
+     * @param dependencyType
+     * @return
+     */
+    private JobCheckRunInfo checkJobJob(ScheduleBatchJob scheduleBatchJob, Integer scheduleType, ScheduleJobJob jobjob,
+                                        Set<String> notStartCache, Map<String, JobErrorInfo> errorJobCache,
+                                        Map<Long, ScheduleTaskShade> taskCache, Integer dependencyType) {
+        JobCheckRunInfo checkRunInfo = new JobCheckRunInfo();
+        checkRunInfo.setStatus(JobCheckStatus.CAN_EXE);
+        checkRunInfo.setExtInfo("");
+        if (notStartCache.contains(jobjob.getParentJobKey())) {
+            notStartCache.add(jobjob.getJobKey());
+            checkRunInfo.setStatus(JobCheckStatus.FATHER_JOB_NOT_FINISHED);
+            checkRunInfo.setExtInfo("(父任务名称为:" + jobjob.getParentJobKey() + ")");
+            return checkRunInfo;
+        }
 
-        for (ScheduleJobJob jobjob : scheduleBatchJob.getBatchJobJobList()) {
+        Long dependencyTaskId = getJobTaskIdFromJobKey(jobjob.getParentJobKey());
+        Boolean isSelfDependency = scheduleBatchJob.getTaskId().equals(dependencyTaskId);
 
-            if (notStartCache.contains(jobjob.getParentJobKey())) {
-                notStartCache.add(jobjob.getJobKey());
-                flag = JobCheckStatus.FATHER_JOB_NOT_FINISHED;
-                break;
-            }
-
-            Long dependencyTaskId = getJobTaskIdFromJobKey(jobjob.getParentJobKey());
-            Boolean isSelfDependency = scheduleBatchJob.getTaskId().equals(dependencyTaskId);
-
-            if (errorJobCache.containsKey(jobjob.getParentJobKey())) {
-                if (checkDependEndStatus(dependencyType, isSelfDependency)) continue;
-
-                errorJobCache.put(scheduleBatchJob.getJobKey(), createErrJobCacheInfo(scheduleBatchJob.getScheduleJob(), taskCache));
-                if (isSelfDependency) {
-                    flag = JobCheckStatus.SELF_PRE_PERIOD_EXCEPTION;
-                    logger.error("job:{} 自依赖异常 job:{} error cache self_pre_period_exception", jobjob.getJobKey(), jobjob.getParentJobKey());
-                } else {
-                    flag = JobCheckStatus.FATHER_JOB_EXCEPTION;
-                    JobErrorInfo fatherJobErrIfo = errorJobCache.get(jobjob.getParentJobKey());
-                    extInfo = "(父任务名称为:" + fatherJobErrIfo.getTaskName() + ")";
-                    logger.error("job:{} 父任务异常 job:{} error cache father_job_exception", jobjob.getJobKey(), jobjob.getParentJobKey());
-                }
-                break;
-            }
-
-            ScheduleJob dependencyJob = batchJobService.getJobByJobKeyAndType(jobjob.getParentJobKey(), scheduleType);
-            if (dependencyJob == null) {//有可能任务已经失效.或者配置错误-->只有正常调度才可能存在
-                if (scheduleType == EScheduleType.FILL_DATA.getType()) {
-                    continue;
-                }
-
-                logger.error("job:{} dependency job:{} not exists.", jobjob.getJobKey(), jobjob.getParentJobKey());
-                flag = JobCheckStatus.FATHER_NO_CREATED;
-                String parentJobKey = jobjob.getParentJobKey();
-                String parentTaskName = batchTaskShadeService.getTaskNameByJobKey(parentJobKey, scheduleBatchJob.getScheduleJob().getAppType());
-                extInfo = "(父任务名称为:" + parentTaskName + ")";
-                errorJobCache.put(scheduleBatchJob.getJobKey(), createErrJobCacheInfo(scheduleBatchJob.getScheduleJob(), taskCache));
-                break;
-            }
-
-            Integer dependencyJobStatus = batchJobService.getStatusById(dependencyJob.getId());
-
-            //工作中的起始子节点
-            if (!StringUtils.equals("0", scheduleBatchJob.getScheduleJob().getFlowJobId())) {
-                ScheduleTaskShade taskShade = getTaskShadeFromCache(taskCache, dependencyJob.getAppType(), dependencyJob.getTaskId());
-                if (taskShade != null && (taskShade.getTaskType().intValue() == EScheduleJobType.WORK_FLOW.getVal() || taskShade.getTaskType().intValue() == EScheduleJobType.ALGORITHM_LAB.getVal())) {
-                    if (RdosTaskStatus.RUNNING.getStatus().equals(dependencyJobStatus)) {
-                        continue;
-                    }
-                }
-            }
-
-            //自依赖还需要判断二种情况
-            //如果是依赖父任务成功 要判断父任务状态 走自依赖上一个周期异常
-            //如果是依赖父任务结束 只要是满足结束条件的 这一周期可以执行
+        if (errorJobCache.containsKey(jobjob.getParentJobKey())) {
             if (checkDependEndStatus(dependencyType, isSelfDependency)) {
-                if (isEndStatus(dependencyJobStatus)) {
-                    continue;
-                } else {
-                    flag = JobCheckStatus.FATHER_JOB_NOT_FINISHED;
-                    break;
-                }
+                return checkRunInfo;
             }
 
-            if (RdosTaskStatus.FAILED.getStatus().equals(dependencyJobStatus)
-                    || RdosTaskStatus.SUBMITFAILD.getStatus().equals(dependencyJobStatus)
-                    || RdosTaskStatus.PARENTFAILED.getStatus().equals(dependencyJobStatus)) {
-                flag = JobCheckStatus.FATHER_JOB_EXCEPTION;
-                if (isSelfDependency) {
-                    flag = JobCheckStatus.SELF_PRE_PERIOD_EXCEPTION;
-                    logger.error("job:{} 自依赖异常 job:{} self_pre_period_exception", jobjob.getJobKey(), jobjob.getParentJobKey());
-                } else {//记录失败的父任务的名称
-                    JobErrorInfo errorInfo = createErrJobCacheInfo(dependencyJob, taskCache);
-                    extInfo = "(父任务名称为:" + errorInfo.getTaskName() + ")";
-                    errorJobCache.put(dependencyJob.getJobKey(), errorInfo);
-                    logger.error("job:{} 父任务异常 taskname:{} error cache father_job_exception", dependencyJob.getJobKey(), errorInfo.getTaskName());
-                }
+            errorJobCache.put(scheduleBatchJob.getJobKey(), createErrJobCacheInfo(scheduleBatchJob.getScheduleJob(), taskCache));
+            if (isSelfDependency) {
+                checkRunInfo.setStatus(JobCheckStatus.SELF_PRE_PERIOD_EXCEPTION);
+                logger.error("job:{} 自依赖异常 job:{} error cache self_pre_period_exception", jobjob.getJobKey(), jobjob.getParentJobKey());
+            } else {
+                checkRunInfo.setStatus(JobCheckStatus.FATHER_JOB_EXCEPTION);
+                JobErrorInfo fatherJobErrIfo = errorJobCache.get(jobjob.getParentJobKey());
+                checkRunInfo.setExtInfo("(父任务名称为:" + fatherJobErrIfo.getTaskName() + ")");
+                logger.error("job:{} 父任务异常 job:{} error cache father_job_exception", jobjob.getJobKey(), jobjob.getParentJobKey());
+            }
+            return checkRunInfo;
+        }
 
-                errorJobCache.put(scheduleBatchJob.getJobKey(), createErrJobCacheInfo(scheduleBatchJob.getScheduleJob(), taskCache));
-                break;
-            } else if (RdosTaskStatus.FROZEN.getStatus().equals(dependencyJobStatus)) {
-                if (!isSelfDependency) {
-                    flag = JobCheckStatus.DEPENDENCY_JOB_FROZEN;
-                    break;
-                } else {//自依赖的上游任务冻结不会影响当前任务的执行
-                    continue;
-                }
+        ScheduleJob dependencyJob = batchJobService.getJobByJobKeyAndType(jobjob.getParentJobKey(), scheduleType);
+        if (dependencyJob == null) {//有可能任务已经失效.或者配置错误-->只有正常调度才可能存在
+            if (scheduleType == EScheduleType.FILL_DATA.getType()) {
+                return checkRunInfo;
+            }
 
-            } else if (RdosTaskStatus.CANCELED.getStatus().equals(dependencyJobStatus)
-                    || RdosTaskStatus.KILLED.getStatus().equals(dependencyJobStatus)) {
-                flag = JobCheckStatus.DEPENDENCY_JOB_CANCELED;
-                extInfo = "(父任务名称为:" + getTaskNameFromJobName(dependencyJob.getJobName(), dependencyJob.getType()) + ")";
-                break;
-            } else if (!RdosTaskStatus.FINISHED.getStatus().equals(dependencyJobStatus) &&
-                    !RdosTaskStatus.MANUALSUCCESS.getStatus().equals(dependencyJobStatus)) {//系统设置完成或者手动设置为完成
-                flag = JobCheckStatus.FATHER_JOB_NOT_FINISHED;
-                notStartCache.add(jobjob.getJobKey());
-                break;
+            logger.error("job:{} dependency job:{} not exists.", jobjob.getJobKey(), jobjob.getParentJobKey());
+            String parentJobKey = jobjob.getParentJobKey();
+            String parentTaskName = batchTaskShadeService.getTaskNameByJobKey(parentJobKey,scheduleBatchJob.getAppType());
+            errorJobCache.put(scheduleBatchJob.getJobKey(), createErrJobCacheInfo(scheduleBatchJob.getScheduleJob(), taskCache));
+            checkRunInfo.setStatus(JobCheckStatus.FATHER_NO_CREATED);
+            checkRunInfo.setExtInfo("(父任务名称为:" + parentTaskName + ")");
+            return checkRunInfo;
+        }
+
+        Integer dependencyJobStatus = batchJobService.getJobStatus(dependencyJob.getJobId());
+
+        //工作中的起始子节点
+        if (!StringUtils.equals("0", scheduleBatchJob.getScheduleJob().getFlowJobId())) {
+            ScheduleTaskShade taskShade = getTaskShadeFromCache(taskCache,dependencyJob.getAppType(), dependencyJob.getTaskId());
+            if (taskShade != null &&
+                    (taskShade.getTaskType().intValue() == EScheduleJobType.WORK_FLOW.getVal() || taskShade.getTaskType().intValue() == EScheduleJobType.ALGORITHM_LAB.getVal())) {
+                if (RdosTaskStatus.RUNNING.getStatus().equals(dependencyJobStatus)) {
+                    return checkRunInfo;
+                }
             }
         }
 
-        Boolean dependencyChildPrePeriod = DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_SUCCESS.getType().equals(dependencyType)
-                || DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_END.getType().equals(dependencyType);
-
-        if (JobCheckStatus.CAN_EXE.equals(flag) && dependencyChildPrePeriod) {//检测下游任务的上一个周期是否结束
-            List<ScheduleJob> childPrePeriodList = scheduleBatchJob.getDependencyChildPrePeriodList();
-            String jobKey = scheduleBatchJob.getScheduleJob().getJobKey();
-            if (childPrePeriodList == null) {//获取子任务的上一个周期
-                List<ScheduleJobJob> childJobJobList = scheduleJobJobDao.listByParentJobKey(jobKey);
-                childPrePeriodList = getFirstChildPrePeriodBatchJobJob(childJobJobList);
-                scheduleBatchJob.setDependencyChildPrePeriodList(childPrePeriodList);
+        //自依赖还需要判断二种情况
+        //如果是依赖父任务成功 要判断父任务状态 走自依赖上一个周期异常
+        //如果是依赖父任务结束 只要是满足结束条件的 这一周期可以执行
+        if (checkDependEndStatus(dependencyType, isSelfDependency)) {
+            if (isEndStatus(dependencyJobStatus)) {
+                return checkRunInfo;
+            } else {
+                checkRunInfo.setStatus(JobCheckStatus.FATHER_JOB_NOT_FINISHED);
+                return checkRunInfo;
             }
-            String cycTime = JobGraphBuilder.parseCycTimeFromJobKey(jobKey);
-            //如果没有下游任务 需要往前找到有下游任务周期
-            if (CollectionUtils.isEmpty(childPrePeriodList)) {
-                ScheduleCron scheduleCron = null;
-                try {
-                    scheduleCron = ScheduleFactory.parseFromJson(batchTaskShade.getScheduleConf());
-                } catch (IOException e) {
-                    logger.error("get {} parent pre pre error", scheduleBatchJob.getTaskId(), e);
-                }
+        }
 
-                List<ScheduleJob> parentPrePreJob = this.getParentPrePreJob(jobKey, scheduleCron, cycTime);
-                if (CollectionUtils.isNotEmpty(parentPrePreJob)) {
-                    if (null == scheduleBatchJob.getDependencyChildPrePeriodList()) {
-                        scheduleBatchJob.setDependencyChildPrePeriodList(new ArrayList<>());
-                    }
-                    scheduleBatchJob.getDependencyChildPrePeriodList().addAll(parentPrePreJob);
-                }
+        if (RdosTaskStatus.FAILED.getStatus().equals(dependencyJobStatus)
+                || RdosTaskStatus.SUBMITFAILD.getStatus().equals(dependencyJobStatus)
+                || RdosTaskStatus.PARENTFAILED.getStatus().equals(dependencyJobStatus)) {
+            checkRunInfo.setStatus(JobCheckStatus.FATHER_JOB_EXCEPTION);
+            if (isSelfDependency) {
+                checkRunInfo.setStatus(JobCheckStatus.SELF_PRE_PERIOD_EXCEPTION);
+                checkRunInfo.setExtInfo("(父任务名称为:" + jobjob.getParentJobKey() + ")");
+                logger.error("job:{} 自依赖异常 job:{} self_pre_period_exception", jobjob.getJobKey(), jobjob.getParentJobKey());
+            } else {//记录失败的父任务的名称
+                JobErrorInfo errorInfo = createErrJobCacheInfo(dependencyJob, taskCache);
+                errorJobCache.put(dependencyJob.getJobKey(), errorInfo);
+                checkRunInfo.setExtInfo("(父任务名称为:" + errorInfo.getTaskName() + ")");
+                logger.error("job:{} 父任务异常 taskName:{} error cache father_job_exception", dependencyJob.getJobKey(), errorInfo.getTaskName());
             }
 
-            for (ScheduleJob childJobPreJob : childPrePeriodList) {
-                //子实例和 当前任务一致 直接运行
-                if (jobKey.equals(childJobPreJob.getJobKey())) {
-                    continue;
-                }
-                Integer childJobStatus = batchJobService.getStatusById(childJobPreJob.getId());
-                boolean check;
-                if (DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_SUCCESS.getType().equals(dependencyType)) {
-                    check = isSuccessStatus(childJobStatus);
-                } else {
-                    check = isEndStatus(childJobStatus);
-                }
+            errorJobCache.put(scheduleBatchJob.getJobKey(), createErrJobCacheInfo(scheduleBatchJob.getScheduleJob(), taskCache));
+            return checkRunInfo;
+        } else if (RdosTaskStatus.FROZEN.getStatus().equals(dependencyJobStatus)) {
+            if (!isSelfDependency) {
+                checkRunInfo.setStatus(JobCheckStatus.DEPENDENCY_JOB_FROZEN);
+                return checkRunInfo;
+            } else {//自依赖的上游任务冻结不会影响当前任务的执行
+                return checkRunInfo;
+            }
 
+        } else if (RdosTaskStatus.CANCELED.getStatus().equals(dependencyJobStatus)
+                || RdosTaskStatus.KILLED.getStatus().equals(dependencyJobStatus)
+                || RdosTaskStatus.AUTOCANCELED.getStatus().equals(dependencyJobStatus) ) {
+            checkRunInfo.setStatus(JobCheckStatus.DEPENDENCY_JOB_CANCELED);
+            checkRunInfo.setExtInfo("(父任务名称为:" + getTaskNameFromJobName(dependencyJob.getJobName(), dependencyJob.getType()) + ")");
+            logger.error("job:{} dependency_job_canceled job:{} ", jobjob.getParentJobKey(), jobjob.getJobKey());
+            return checkRunInfo;
+        } else if (RdosTaskStatus.EXPIRE.getStatus().equals(dependencyJobStatus)) {
+            checkRunInfo.setExtInfo("(父任务名称为:" + getTaskNameFromJobName(dependencyJob.getJobName(), dependencyJob.getType()) + ")");
+            checkRunInfo.setStatus(JobCheckStatus.DEPENDENCY_JOB_EXPIRE);
+            return checkRunInfo;
+        } else if (!RdosTaskStatus.FINISHED.getStatus().equals(dependencyJobStatus) &&
+                !RdosTaskStatus.MANUALSUCCESS.getStatus().equals(dependencyJobStatus)) {//系统设置完成或者手动设置为完成
+            checkRunInfo.setStatus(JobCheckStatus.FATHER_JOB_NOT_FINISHED);
+            notStartCache.add(jobjob.getJobKey());
+            return checkRunInfo;
+        }
+        return checkRunInfo;
+    }
+
+
+
+    /**
+     * 如果任务配置了依赖下游任务的上一周期
+     * 去根据依赖关系 查询 是否满足执行条件
+     *
+     * @param scheduleBatchJob
+     * @param batchTaskShade
+     * @param dependencyType
+     * @return
+     * @throws ParseException
+     */
+    private JobCheckRunInfo checkChildTaskShadeStatus(ScheduleBatchJob scheduleBatchJob, ScheduleTaskShade batchTaskShade, Integer dependencyType) throws ParseException {
+        JobCheckRunInfo jobCheckRunInfo = new JobCheckRunInfo();
+        jobCheckRunInfo.setStatus(JobCheckStatus.CAN_EXE);
+        jobCheckRunInfo.setExtInfo("");
+        List<ScheduleJob> childPrePeriodList = scheduleBatchJob.getDependencyChildPrePeriodList();
+        String jobKey = scheduleBatchJob.getScheduleJob().getJobKey();
+        if (childPrePeriodList == null) {//获取子任务的上一个周期
+            List<ScheduleJobJob> childJobJobList = scheduleJobJobDao.listByParentJobKey(jobKey);
+            childPrePeriodList = getFirstChildPrePeriodBatchJobJob(childJobJobList);
+            scheduleBatchJob.setDependencyChildPrePeriodList(childPrePeriodList);
+        }
+        String cycTime = JobGraphBuilder.parseCycTimeFromJobKey(jobKey);
+        //如果没有下游任务 需要往前找到有下游任务周期
+        if (CollectionUtils.isEmpty(childPrePeriodList)) {
+            ScheduleCron scheduleCron = null;
+            try {
+                scheduleCron = ScheduleFactory.parseFromJson(batchTaskShade.getScheduleConf());
+            } catch (IOException e) {
+                logger.error("get {} parent pre pre error", scheduleBatchJob.getTaskId(), e);
+            }
+
+            List<ScheduleJob> parentPrePreJob = this.getParentPrePreJob(jobKey, scheduleCron, cycTime);
+            if (CollectionUtils.isNotEmpty(parentPrePreJob)) {
+                if (null == scheduleBatchJob.getDependencyChildPrePeriodList()) {
+                    scheduleBatchJob.setDependencyChildPrePeriodList(new ArrayList<>());
+                }
+                scheduleBatchJob.getDependencyChildPrePeriodList().addAll(parentPrePreJob);
+            }
+        }
+        for (ScheduleJob childJobPreJob : childPrePeriodList) {
+            //子实例和 当前任务一致 直接运行
+            if (jobKey.equals(childJobPreJob.getJobKey())) {
+                continue;
+            }
+            Integer childJobStatus = batchJobService.getJobStatus(childJobPreJob.getJobId());
+            boolean check;
+            if (DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_SUCCESS.getType().equals(dependencyType)) {
+                check = isSuccessStatus(childJobStatus);
                 if (!check) {
-                    flag = JobCheckStatus.CHILD_PRE_NOT_FINISHED;
-                    break;
+                    //下游任务的上一周期已经结束(未成功状态 如手动取消 过期 kill等) 但是 配置条件的是依赖任务成功 需要跳出check 否则任务会一直是等待运行
+                    if (isEndStatus(childJobStatus)) {
+                        jobCheckRunInfo.setStatus(JobCheckStatus.CHILD_PRE_NOT_SUCCESS);
+                        ScheduleTaskShade childPreTask = batchTaskShadeService.getBatchTaskById(childJobPreJob.getTaskId(),childJobPreJob.getAppType());
+                        jobCheckRunInfo.setExtInfo(String.format("(依赖下游任务的上一周期(%s)",Objects.nonNull(childPreTask) ? childPreTask.getName() : ""));
+                        logger.info("get JobKey {} child job {} prePeriod status is {}  but not success", jobKey, childJobPreJob.getJobId(), childJobStatus);
+                        return jobCheckRunInfo;
+                    }
                 }
+            } else {
+                check = isEndStatus(childJobStatus);
+            }
+
+            if (!check) {
+                jobCheckRunInfo.setStatus(JobCheckStatus.CHILD_PRE_NOT_FINISHED);
+                return jobCheckRunInfo;
             }
         }
-
-        return JobCheckRunInfo.createCheckInfo(flag, extInfo);
+        return jobCheckRunInfo;
     }
 
     /**
@@ -291,15 +398,15 @@ public class JobRichOperator {
             String prePeriodJobTriggerDateStr = JobGraphBuilder.getPrePeriodJobTriggerDateStr(cycTime, scheduleCron);
             String prePeriodJobKey = jobKey.substring(0, jobKey.lastIndexOf("_") + 1) + prePeriodJobTriggerDateStr;
             EScheduleType scheduleType = JobGraphBuilder.parseScheduleTypeFromJobKey(jobKey);
-            ScheduleJob dbScheduleJob = batchJobService.getJobByJobKeyAndType(prePeriodJobKey, scheduleType.getType());
+            ScheduleJob dbBatchJob = batchJobService.getJobByJobKeyAndType(prePeriodJobKey, scheduleType.getType());
             //上一个周期任务为空 直接返回
-            if (Objects.isNull(dbScheduleJob)) {
+            if (Objects.isNull(dbBatchJob)) {
                 return null;
             }
-            List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByParentJobKey(dbScheduleJob.getJobKey());
-            if (!CollectionUtils.isEmpty(scheduleJobJobs)) {
+            List<ScheduleJobJob> batchJobJobs = scheduleJobJobDao.listByParentJobKey(dbBatchJob.getJobKey());
+            if (!CollectionUtils.isEmpty(batchJobJobs)) {
                 //上一轮周期任务的下游任务不为空 判断下游任务的状态
-                return scheduleJobDao.listJobByJobKeys(scheduleJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList()));
+                return scheduleJobDao.listJobByJobKeys(batchJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList()));
             }
             cycTime = JobGraphBuilder.parseCycTimeFromJobKey(prePeriodJobKey);
             //如果上一轮周期也没下游任务 继续找
@@ -308,7 +415,6 @@ public class JobRichOperator {
         return null;
 
     }
-
 
     /**
      * 只要是结束状态 都可以运行

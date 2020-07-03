@@ -288,11 +288,11 @@ public class ClientProxy implements IClient {
     }
 
     @Override
-    public List<List<Object>> executeQuery(String pluginInfo, String sql, String database) {
+    public List<List<Object>> executeQuery(String sql, String database) {
         try {
             return CompletableFuture.supplyAsync(() -> {
                 try {
-                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.executeQuery(pluginInfo,sql,database),
+                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.executeQuery(sql,database),
                             targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
                     throw new RdosDefineException(e);
@@ -304,11 +304,11 @@ public class ClientProxy implements IClient {
     }
 
     @Override
-    public String uploadStringToHdfs(String pluginInfo, String bytes, String hdfsPath) {
+    public String uploadStringToHdfs(String bytes, String hdfsPath) {
         try {
             return CompletableFuture.supplyAsync(() -> {
                 try {
-                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.uploadStringToHdfs(pluginInfo,bytes,hdfsPath),
+                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.uploadStringToHdfs(bytes,hdfsPath),
                             targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
                     throw new RdosDefineException(e);
@@ -320,11 +320,11 @@ public class ClientProxy implements IClient {
     }
 
     @Override
-    public ClusterResource getClusterResource(String pluginInfo) {
+    public ClusterResource getClusterResource() {
         try {
             return CompletableFuture.supplyAsync(() -> {
                 try {
-                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getClusterResource(pluginInfo),
+                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getClusterResource(),
                             targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
                     throw new RdosDefineException(e);

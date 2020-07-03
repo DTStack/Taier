@@ -16,7 +16,7 @@
             <if test="model.tenantId != null">
                 AND bj.tenant_id = #{model.tenantId}
             </if>
-            <if test="model.projectId != null">
+            <if test="model.projectId != null and model.projectId != -1">
                 AND bj.project_id = #{model.projectId}
             </if>
             <if test="model.jobId != null">
@@ -74,35 +74,19 @@
             <if test="model.execTime != null">
                 AND bj.exec_time &gt;= #{model.execTime}
             </if>
-            <choose>
-                <when test="model.taskNameLike != null and  model.searchType==1">
-                    AND ts.name LIKE '%${model.taskNameLike}%'
-                </when>
-                <when test="model.taskNameLike != null and  model.searchType==2">
-                    AND ts.name =#{model.taskNameLike}
-                </when>
-                <when test="model.taskNameLike != null and  model.searchType==3">
-                    AND ts.name LIKE '${model.taskNameLike}%'
-                </when>
-                <when test="model.taskNameLike != null and  model.searchType==4">
-                    AND ts.name LIKE '%${model.taskNameLike}'
-                </when>
-            </choose>
 
-            <if test="model.taskCreateId != null">
-                AND ts.create_user_id = #{model.taskCreateId}
-            </if>
             <if test="model.taskTypes != null and model.taskTypes.size() > 0">
-                AND ts.task_type IN
+                AND bj.task_type IN
                 <foreach item="item" index="index" collection="model.taskTypes" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>
+            <if test="model.cycStartDay != null and model.cycEndDay != null">
+                AND bj.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} limit 1)
+                AND bj.id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<=]]> #{model.cycEndDay} ORDER BY id desc limit 1)
+            </if>
             <if test="model.jobNameRightLike != null">
                 AND bj.job_name LIKE '${model.jobNameRightLike}%'
-            </if>
-            <if test="model.bizStartDay != null and model.bizEndDay != null">
-                AND bj.business_date &gt;= ${model.bizStartDay} and bj.business_date &lt; ${model.bizEndDay}
             </if>
 
             <if test="model.startGmtCreate != null">
@@ -114,21 +98,15 @@
                     ${item}
                 </foreach>
             </if>
-            <if test="model.cycStartDay != null and model.cycEndDay != null">
-                AND bj.cyc_time &gt;= ${model.cycStartDay} and bj.cyc_time &lt;= ${model.cycEndDay}
-            </if>
 
             <if test="model.flowJobId != null">
                 AND bj.flow_job_id = #{model.flowJobId}
             </if>
-            <if test="model.needQuerySonNode == false">
-                AND ts.flow_id =0
+            <if test="model.needQuerySonNode == false and model.flowJobId == null">
+                AND bj.flow_job_id = 0
             </if>
             <if test="model.appType != null">
                 AND bj.app_type = #{model.appType} and ts.app_type = #{model.appType}
-            </if>
-            <if test="model.ownerUserId != null">
-                AND ts.owner_user_id = #{model.ownerUserId}
             </if>
         </trim>
     </sql>
@@ -316,8 +294,10 @@
                     ${item}
                 </foreach>
             </if>
+
             <if test="model.cycStartDay != null and model.cycEndDay != null">
-                AND cyc_time &gt;= ${model.cycStartDay} and cyc_time &lt;= ${model.cycEndDay}
+                AND id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} limit 1)
+                AND id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<=]]> #{model.cycEndDay} ORDER BY id desc limit 1)
             </if>
 
             <if test="model.flowJobId != null">
@@ -508,10 +488,10 @@
         AND ts.app_type = #{appType}
         AND ts.task_type != 10
         <if test="startTime != null and startTime != ''">
-            AND ts.cyc_time <![CDATA[>=]]> #{startTime}
+            AND ts.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{startTime} limit 1)
         </if>
         <if test="endTime != null and endTime != ''">
-            AND ts.cyc_time <![CDATA[<]]> #{endTime}
+            AND ts.id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<=]]> #{endTime} ORDER BY id desc limit 1)
         </if>
         <if test="statuses != null">
             AND ts.status in
@@ -859,7 +839,6 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
-        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
         <include refid="queryWorkFlow"/>
         <if test="model.jobIds != null and model.jobIds.size > 0">
@@ -868,9 +847,9 @@
                 #{jobId}
             </foreach>
         </if>
-        <if test="model.ownerUserId != null">
+        <!--<if test="model.ownerUserId != null">
             AND ts.owner_user_id = #{model.ownerUserId}
-        </if>
+        </if>-->
         <if test="model.pageQuery == true">
             <include refid="page_condition"/>
         </if>
@@ -923,7 +902,6 @@
     <select id="generalCount" resultType="java.lang.Integer">
         SELECT COUNT(1)
         FROM schedule_job bj
-        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
         <include refid="queryWorkFlow"/>
         <if test="model.jobIds != null and model.jobIds.size > 0">
@@ -932,11 +910,7 @@
                 #{jobId}
             </foreach>
         </if>
-        <if test="model.ownerUserId != null">
-            AND ts.owner_user_id = #{model.ownerUserId}
-        </if>
         limit 1
-
     </select>
 
     <select id="generalCountWithMinAndHour" resultType="java.lang.Integer">
@@ -1198,7 +1172,6 @@
         SELECT DISTINCT
         bj.fill_id
         FROM schedule_job bj
-        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
         <include refid="select_where_fragment"/>
         <include refid="page_condition"/>
     </select>
@@ -1209,6 +1182,7 @@
         bj.fill_id
         FROM schedule_job bj
         <include refid="select_where_batch_job"/>
+        and fill_id is NOT null
         <include refid="page_condition"/>
     </select>
 
@@ -1340,6 +1314,7 @@
         WHERE job.task_id = #{taskId} and  #{time} > STR_TO_DATE(job.cyc_time,"%Y%m%d%H%i%s")
           and job.status = #{status}
           and job.is_deleted = 0
+          and job.app_type = #{appType}
         order by job.cyc_time desc limit 1
     </select>
 
@@ -1518,11 +1493,11 @@
 	   INSERT INTO schedule_job
         (gmt_create, gmt_modified, tenant_id, project_id, dtuic_tenant_id, app_type, job_id, job_key, job_name, task_id,
         create_user_id, is_deleted, `type`, is_restart, business_date, cyc_time, dependency_type, flow_job_id,
-        status, task_type, max_retry_num, node_address, version_id, source_type, compute_type)
+        status, task_type, max_retry_num, node_address, version_id, compute_type)
 	   VALUES
 	   (now(), now(), #{tenantId}, #{projectId}, #{dtuicTenantId}, #{appType}, #{jobId}, #{jobKey}, #{jobName}, #{taskId},
 	   #{createUserId}, #{isDeleted}, #{type}, #{isRestart}, #{businessDate}, #{cycTime}, #{dependencyType}, #{flowJobId},
-	   #{status}, #{taskType}, #{maxRetryNum}, #{nodeAddress}, #{versionId}, #{sourceType}, #{computeType})
+	   #{status}, #{taskType}, #{maxRetryNum}, #{nodeAddress}, #{versionId}, #{computeType})
     </insert>
 
 
@@ -1565,7 +1540,7 @@
    </select>
 
     <select id="getRdosJobByJobIds" resultType="ScheduleJob">
-        select job_id, engine_job_id,application_id,plugin_info_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,retry_num,retry_task_params,gmt_create,gmt_modified,is_deleted,source_type,compute_type,dtuic_tenant_id from schedule_job
+        select job_id, engine_job_id,application_id,plugin_info_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,retry_num,retry_task_params,gmt_create,gmt_modified,is_deleted,compute_type,dtuic_tenant_id from schedule_job
         where job_id IN
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
             #{jobId}

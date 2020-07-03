@@ -324,7 +324,6 @@ public class JobStopDealer implements InitializingBean {
                 logger.info("jobId:{} stopped success, because of [difference engineJobId].", paramAction.getTaskId());
                 return StoppedStatus.STOPPED;
             }
-
             JobResult jobResult = workerOperator.stopJob(jobClient);
             if (jobResult.getCheckRetry()) {
                 logger.info("jobId:{} is retry.", paramAction.getTaskId());

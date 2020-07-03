@@ -1,5 +1,6 @@
 package com.dtstack.engine.flink;
 
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -156,7 +157,7 @@ public class FlinkClient extends AbstractClient {
                      jobResult = submitSyncJob(jobClient);
                  }
                  return jobResult;
-             });
+             },hadoopConf.getYarnConfiguration());
         } catch (Exception e) {
             logger.error("can not submit a job process SubmitJobWithType error," ,e);
             return JobResult.createErrorResult(e);
@@ -276,10 +277,10 @@ public class FlinkClient extends AbstractClient {
 
             return Pair.create(result.getJobID().toString(), null);
         } catch (Exception e) {
-            if (e.getMessage().contains(ExceptionInfoConstrant.FLINK_UNALE_TO_GET_CLUSTERCLIENT_STATUS_EXCEPTION)) {
-                if (flinkClusterClientManager.getIsClientOn()) {
-                    flinkClusterClientManager.setIsClientOn(false);
-                }
+            if (flinkClusterClientManager.getIsClientOn()) {
+                logger.info("submit job error,flink session init ..");
+                flinkClusterClientManager.setIsClientOn(false);
+                flinkClusterClientManager.initClusterClient();
             }
             throw e;
         } finally {
