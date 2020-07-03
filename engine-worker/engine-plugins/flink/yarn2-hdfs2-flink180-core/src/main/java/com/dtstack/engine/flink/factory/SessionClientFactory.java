@@ -230,6 +230,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
 
             for (ApplicationReport report : reportList) {
+                LOG.info("filter flink session application,current report name is {},queue is {},status is {}", report.getName(), report.getQueue(), report.getYarnApplicationState());
                 if (!report.getName().startsWith(flinkConfig.getFlinkSessionName())) {
                     continue;
                 }
@@ -244,6 +245,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
                 int thisMemory = report.getApplicationResourceUsageReport().getNeededResources().getMemory();
                 int thisCores = report.getApplicationResourceUsageReport().getNeededResources().getVirtualCores();
+                LOG.info("current flink session memory {},Cores{}", thisMemory, thisCores);
                 if (thisMemory > maxMemory || thisMemory == maxMemory && thisCores > maxCores) {
                     maxMemory = thisMemory;
                     maxCores = thisCores;

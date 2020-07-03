@@ -68,7 +68,7 @@ public class FlinkConfig {
 
     private String pluginLoadMode = "shipfile";
 
-    private long submitTimeout = 5;
+    private long submitTimeout = 3;
 
     private String md5sum;
 
