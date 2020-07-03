@@ -13,6 +13,7 @@ import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.enums.EComponentScheduleType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
@@ -170,7 +171,7 @@ public class ClusterServiceTest extends AbstractTest {
         queue.setQueuePath("default");
         queueDao.insert(queue);
         //添加测试租户
-        Tenant tenant = dataCollection.getTenant();
+        Tenant tenant = DataCollection.getData().getTenant();
         tenant = tenantDao.getByDtUicTenantId(tenant.getDtUicTenantId());
         Assert.assertNotNull(tenant);
         Assert.assertNotNull(tenant.getId());

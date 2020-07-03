@@ -16,7 +16,7 @@ public class DtCenterSpringJUnit4ClassRunner extends SpringJUnit4ClassRunner {
         //获得项目文件的根目录
         String s_pre = System.getProperty("user.dir");
         int index = s_pre.indexOf(DICTIONARY_NAME);
-        System.setProperty("user.dir", s_pre.substring(0, index + DICTIONARY_NAME.length()));
+        System.setProperty("user.dir", s_pre.substring(0, index + DICTIONARY_NAME.length()) + "/test_conf");
     }
 
 

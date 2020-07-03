@@ -1,11 +1,14 @@
 package com.dtstack.engine.api.domain;
 
 
+import com.dtstack.engine.api.annotation.Unique;
+
 /**
  * @author sishu.yss
  */
 public class ScheduleTaskTaskShade extends AppTenantEntity {
 
+    @Unique
     private Long taskId;
 
     private Long parentTaskId;

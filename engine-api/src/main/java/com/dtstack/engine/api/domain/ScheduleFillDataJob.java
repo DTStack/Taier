@@ -1,6 +1,8 @@
 package com.dtstack.engine.api.domain;
 
 
+import com.dtstack.engine.api.annotation.Unique;
+
 /**
  * company: www.dtstack.com
  * author: toutian
@@ -8,6 +10,7 @@ package com.dtstack.engine.api.domain;
  */
 public class ScheduleFillDataJob extends AppTenantEntity {
 
+    @Unique
     private String jobName;
 
     private String runDay;

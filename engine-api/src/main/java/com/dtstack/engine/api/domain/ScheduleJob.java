@@ -1,6 +1,8 @@
 package com.dtstack.engine.api.domain;
 
 
+import com.dtstack.engine.api.annotation.Unique;
+
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
@@ -15,8 +17,10 @@ public class ScheduleJob extends AppTenantEntity {
     /**
      * 工作任务id
      */
+    @Unique
     private String jobId;
 
+    @Unique
     private String jobKey;
 
     private String jobName;
