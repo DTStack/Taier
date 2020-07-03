@@ -376,18 +376,23 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             );
             executorServiceMap.put(engineType, executorService);
         }
-        executorService.submit(() -> {
-            try {
-                //提交代码里面会将jobStatus设置为submitting
-                batchJobService.startJob(scheduleBatchJob.getScheduleJob());
-                logger.info("---scheduleType:{} send job:{} to engine.", getScheduleType(), scheduleBatchJob.getJobId());
-            } catch (Exception e) {
-                logger.info("--- send job:{} to engine error", scheduleBatchJob.getJobId(), e);
-                batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.FAILED.getStatus(), ExceptionUtil.getErrorMessage(e));
-            } finally {
-                startCache.remove(scheduleBatchJob.getJobId());
-            }
-        });
         startCache.add(scheduleBatchJob.getJobId());
+        try {
+            executorService.submit(() -> {
+                try {
+                    //提交代码里面会将jobStatus设置为submitting
+                    batchJobService.startJob(scheduleBatchJob.getScheduleJob());
+                    logger.info("---scheduleType:{} send job:{} to engine.", getScheduleType(), scheduleBatchJob.getJobId());
+                } catch (Exception e) {
+                    logger.info("--- send job:{} to engine error", scheduleBatchJob.getJobId(), e);
+                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.FAILED.getStatus(), ExceptionUtil.getErrorMessage(e));
+                } finally {
+                    startCache.remove(scheduleBatchJob.getJobId());
+                }
+            });
+        } catch (Exception e) {
+            logger.info("--- submit job:{} to engine error", scheduleBatchJob.getJobId(), e);
+            startCache.remove(scheduleBatchJob.getJobId());
+        }
     }
 }
