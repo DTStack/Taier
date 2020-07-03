@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -8,6 +7,7 @@ import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.util.ApplicationWSParser;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.dataCollection.DataCollection;
 import org.apache.commons.math3.util.Pair;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,7 +65,7 @@ public class StreamTaskServiceTest extends AbstractTest {
 	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	@Rollback
 	public void testGetCheckPoint() {
-		EngineJobCheckpoint engineJobCheckpoint = dataCollection.getEngineJobCheckpoint();
+		EngineJobCheckpoint engineJobCheckpoint = DataCollection.getData().getEngineJobCheckpoint();
 
 		Long triggerStart = engineJobCheckpoint.getCheckpointTrigger().getTime() - 1;
 		Long triggerEnd = engineJobCheckpoint.getCheckpointTrigger().getTime() + 1;
@@ -79,7 +79,7 @@ public class StreamTaskServiceTest extends AbstractTest {
 	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	@Rollback
 	public void testGetByTaskIdAndEngineTaskId() {
-		EngineJobCheckpoint engineJobCheckpoint = dataCollection.getEngineJobCheckpoint();
+		EngineJobCheckpoint engineJobCheckpoint = DataCollection.getData().getEngineJobCheckpoint();
 
 		EngineJobCheckpoint resJobCheckpoint = streamTaskService.getByTaskIdAndEngineTaskId(
 			engineJobCheckpoint.getTaskId(), engineJobCheckpoint.getCheckpointId());
@@ -90,7 +90,7 @@ public class StreamTaskServiceTest extends AbstractTest {
 	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	@Rollback
 	public void testGetEngineStreamJob() {
-		ScheduleJob streamJob = dataCollection.getScheduleJobStream();
+		ScheduleJob streamJob = DataCollection.getData().getScheduleJobStream();
 
 		List<String> taskIds = Arrays.asList(new String[]{streamJob.getJobId()});
 		List<ScheduleJob> jobs = streamTaskService.getEngineStreamJob(taskIds);
@@ -102,7 +102,7 @@ public class StreamTaskServiceTest extends AbstractTest {
 	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	@Rollback
 	public void testGetTaskIdsByStatus() {
-		ScheduleJob streamJob = dataCollection.getScheduleJobStream();
+		ScheduleJob streamJob = DataCollection.getData().getScheduleJobStream();
 
 		List<String> taskIds = streamTaskService.getTaskIdsByStatus(streamJob.getStatus());
 		Assert.notNull(taskIds);
@@ -113,7 +113,7 @@ public class StreamTaskServiceTest extends AbstractTest {
 	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	@Rollback
 	public void testGetTaskStatus() {
-		ScheduleJob streamJob = dataCollection.getScheduleJobStream();
+		ScheduleJob streamJob = DataCollection.getData().getScheduleJobStream();
 
 		Integer taskStatus = streamTaskService.getTaskStatus(streamJob.getJobId());
 		Assert.notNull(taskStatus);
@@ -125,8 +125,8 @@ public class StreamTaskServiceTest extends AbstractTest {
 	@Rollback
 	public void testGetRunningTaskLogUrl() throws Exception {
 
-		ScheduleJob streamJob = dataCollection.getScheduleJobStream();
-		dataCollection.getEngineJobCache();
+		ScheduleJob streamJob = DataCollection.getData().getScheduleJobStream();
+		DataCollection.getData().getEngineJobCache();
 
 		Integer taskStatus = streamTaskService.getTaskStatus(streamJob.getJobId());
 		Assert.isTrue(RdosTaskStatus.RUNNING.getStatus().equals(taskStatus));

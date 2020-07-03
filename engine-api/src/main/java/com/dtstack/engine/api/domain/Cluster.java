@@ -1,7 +1,10 @@
 package com.dtstack.engine.api.domain;
 
+import com.dtstack.engine.api.annotation.Unique;
+
 public class Cluster extends BaseEntity {
 
+    @Unique
     private String clusterName;
 
     private String hadoopVersion;

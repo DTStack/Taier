@@ -1,5 +1,7 @@
 package com.dtstack.engine.api.domain;
 
+import com.dtstack.engine.api.annotation.Unique;
+
 /**
  * Reason:
  * Date: 2017/11/6
@@ -9,6 +11,7 @@ package com.dtstack.engine.api.domain;
 
 public class EngineJobCache extends DataObject{
 
+    @Unique
     private String jobId;
 
     private String jobInfo;
