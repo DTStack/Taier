@@ -64,7 +64,7 @@ public class DataCollectionProxy implements InvocationHandler, DataCollection {
                     }
                 }
                 if (ins instanceof DataObject) {
-                    ((DataObject) ins).setId(AutoChangedNumbers.ID.getAndDecrement());
+                    ((DataObject) ins).setId(AutoChangedNumbers.ID.getAndIncrement());
                 }
                 Class<?> daoType = databaseOperation.dao();
                 Method daoMethod = daoType.getDeclaredMethod(databaseOperation.method(), method.getReturnType());

@@ -1,0 +1,20 @@
+package com.dtstack.engine.rdbs.tidb;
+import com.dtstack.engine.rdbs.common.AbstractRdbsClient;
+import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
+
+/**
+ *
+ * @author dtstack
+ * @date
+ */
+public class TiDbClient extends AbstractRdbsClient {
+
+    public TiDbClient() {
+        this.dbType = "tidb";
+    }
+
+    @Override
+    protected AbstractConnFactory getConnFactory() {
+        return new TiDbConnFactory();
+    }
+}

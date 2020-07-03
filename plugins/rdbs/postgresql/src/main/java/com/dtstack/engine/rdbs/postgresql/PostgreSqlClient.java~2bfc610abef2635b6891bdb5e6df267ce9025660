@@ -1,0 +1,21 @@
+package com.dtstack.engine.rdbs.postgresql;
+
+import com.dtstack.engine.rdbs.common.AbstractRdbsClient;
+import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
+
+/**
+ *
+ * @author dtstack
+ * @date
+ */
+public class PostgreSqlClient extends AbstractRdbsClient {
+
+    public PostgreSqlClient() {
+        this.dbType = "postgresql";
+    }
+
+    @Override
+    protected AbstractConnFactory getConnFactory() {
+        return new PostgreSqlConnFactory();
+    }
+}
