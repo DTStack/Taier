@@ -1053,6 +1053,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                     EDeployMode eDeployMode = this.parseDeployTypeByTaskParams(batchTask.getTaskParams());
                     actionParam.put("deployMode", eDeployMode.getType());
                 }
+                this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus());
                 actionService.start(actionParam);
                 return;
             }
