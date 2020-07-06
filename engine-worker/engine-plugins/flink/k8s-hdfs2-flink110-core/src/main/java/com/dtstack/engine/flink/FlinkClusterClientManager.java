@@ -80,7 +80,7 @@ public class FlinkClusterClientManager {
     }
 
     public ClusterClient getClusterClient(JobIdentifier jobIdentifier) {
-        if (jobIdentifier == null || StringUtils.isBlank(jobIdentifier.getApplicationId())) {
+        if (jobIdentifier == null || StringUtils.isBlank(jobIdentifier.getApplicationId()) || jobIdentifier.getApplicationId().contains("flinksession")) {
             if (!isClientOn.get()) {
                 throw new RdosDefineException("No flink session found cluster on Kubernetes. getClusterClient failed...");
             }
