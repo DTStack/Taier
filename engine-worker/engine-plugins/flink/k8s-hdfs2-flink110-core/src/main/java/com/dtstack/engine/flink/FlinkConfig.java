@@ -18,6 +18,8 @@ public class FlinkConfig {
 
     private static final String DEFAULT_FLINK_PLUGIN_ROOT = "/opt/dtstack/flinkplugin";
 
+    public static final String FLINK_SESSION_PREFIX = "flinksession";
+
     private static final String DEFAULT_JAR_TMP_DIR = "../tmp1100";
 
     private static List<String> ENGINE_FLINK_CONFIGS = null;
@@ -60,7 +62,7 @@ public class FlinkConfig {
 
     private int flinkSessionSlotCount;
 
-    private String flinkSessionName = "flinksession";
+    private String flinkSessionName = FLINK_SESSION_PREFIX;
 
     private boolean sessionStartAuto = true;
 

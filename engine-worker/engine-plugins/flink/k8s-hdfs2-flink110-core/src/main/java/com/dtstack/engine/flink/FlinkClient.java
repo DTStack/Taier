@@ -430,7 +430,7 @@ public class FlinkClient extends AbstractClient {
                     String state = (String) stateObj;
                     state = StringUtils.upperCase(state);
                     RdosTaskStatus rdosTaskStatus =  RdosTaskStatus.getTaskStatus(state);
-                    Boolean isFlinkSessionTask = applicationId.startsWith("FlinkSession-");
+                    Boolean isFlinkSessionTask = applicationId.startsWith(FlinkConfig.FLINK_SESSION_PREFIX);
                     if (RdosTaskStatus.isStopped(rdosTaskStatus.getStatus()) && !isFlinkSessionTask) {
                         clusterClient.shutDownCluster();
                     }
