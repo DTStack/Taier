@@ -1,11 +1,11 @@
 package com.dtstack.engine.master.router.cache;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.utils.PublicUtil;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -54,13 +54,13 @@ public class ConsoleCache implements InitializingBean {
     /**
      * libra-jdbc 缓存
      */
-    private static volatile Map<Long, ComboPooledDataSource> libraComboPooledDataSourceMap = Maps.newConcurrentMap();
+    private static volatile Map<Long, DruidDataSource> libraComboPooledDataSourceMap = Maps.newConcurrentMap();
 
 
     /**
      * tidb-jdbc 缓存
      */
-    private static volatile Map<String, ComboPooledDataSource> tidbComboPooledDataSourceMap = Maps.newConcurrentMap();
+    private static volatile Map<String, DruidDataSource> tidbComboPooledDataSourceMap = Maps.newConcurrentMap();
 
     private static volatile Map<String, String> tidbCacheKey = Maps.newConcurrentMap();
 
@@ -126,12 +126,12 @@ public class ConsoleCache implements InitializingBean {
                 yarnConfigurationMap.remove(Long.valueOf(tenantId));
                 comboPooledDataSourceMap.remove(Long.valueOf(tenantId));
 
-                ComboPooledDataSource comboPooledDataSource = (ComboPooledDataSource) comboPooledDataSourceMap.remove(Long.valueOf(tenantId));
-                if (comboPooledDataSource != null) {
-                    comboPooledDataSource.close();
+                DruidDataSource dataSource = (DruidDataSource) comboPooledDataSourceMap.remove(Long.valueOf(tenantId));
+                if (dataSource != null) {
+                    dataSource.close();
                 }
 
-                ComboPooledDataSource libraComboPooledDataSource = libraComboPooledDataSourceMap.remove(Long.valueOf(tenantId));
+                DruidDataSource libraComboPooledDataSource = libraComboPooledDataSourceMap.remove(Long.valueOf(tenantId));
                 if (libraComboPooledDataSource != null) {
                     libraComboPooledDataSource.close();
                 }
@@ -141,7 +141,7 @@ public class ConsoleCache implements InitializingBean {
                 if (key.startsWith(tenantId)) {
                     uaCache.asMap().remove(tidbCacheKey.get(key));
                     redisTemplate.delete(tidbCacheKey.get(key));
-                    ComboPooledDataSource tiDBPoolDataSource = tidbComboPooledDataSourceMap.remove(tidbCacheKey.get(key));
+                    DruidDataSource tiDBPoolDataSource = tidbComboPooledDataSourceMap.remove(tidbCacheKey.get(key));
                     if(Objects.nonNull(tiDBPoolDataSource)){
                         tiDBPoolDataSource.close();
                     }
@@ -182,11 +182,11 @@ public class ConsoleCache implements InitializingBean {
         return comboPooledDataSourceMap;
     }
 
-    public static Map<Long, ComboPooledDataSource> getLibraComboPooledDataSourceMap() {
+    public static Map<Long, DruidDataSource> getLibraComboPooledDataSourceMap() {
         return libraComboPooledDataSourceMap;
     }
 
-    public static Map<String, ComboPooledDataSource> getTidbComboPooledDataSourceMap() {
+    public static Map<String, DruidDataSource> getTidbComboPooledDataSourceMap() {
         return tidbComboPooledDataSourceMap;
     }
 
