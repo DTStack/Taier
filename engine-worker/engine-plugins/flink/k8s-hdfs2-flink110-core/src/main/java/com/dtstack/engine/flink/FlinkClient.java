@@ -415,7 +415,7 @@ public class FlinkClient extends AbstractClient {
         try {
             FlinkKubeClient flinkKubeClient = flinkClientBuilder.getFlinkKubeClient();
             if (flinkKubeClient.getInternalService(applicationId) == null) {
-                return RdosTaskStatus.CANCELED;
+                return RdosTaskStatus.NOTFOUND;
             }
 
             ClusterClient clusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
