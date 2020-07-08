@@ -2,7 +2,7 @@ package com.dtstack.engine.entrance;
 
 import com.dtstack.engine.common.security.NoExitSecurityManager;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
-import com.dtstack.engine.master.MasterMain;
+import com.dtstack.engine.master.EngineApplication;
 import com.dtstack.engine.worker.WorkerMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ public class EngineMain {
     public static void main(String[] args){
         try {
 
-            MasterMain.main(null);
+            EngineApplication.main(args);
             WorkerMain.main(null);
             // add hook
             ShutdownHookUtil.addShutdownHook(EngineMain::shutdown, EngineMain.class.getSimpleName(), logger);
