@@ -66,20 +66,24 @@ public class EnvironmentContext {
         return environment.getProperty("jdbc.username");
     }
 
-    public int getmMaxPoolSize() {
-        return Integer.parseInt(environment.getProperty("max.pool.size", "50"));
+    public int getMaxPoolSize() {
+        return Integer.parseInt(environment.getProperty("max.pool.size", "100"));
     }
 
     public int getMinPoolSize() {
-        return Integer.parseInt(environment.getProperty("min.pool.size", "10"));
+        return Integer.parseInt(environment.getProperty("min.pool.size", "50"));
     }
 
     public int getInitialPoolSize() {
-        return Integer.parseInt(environment.getProperty("initial.pool.size", "10"));
+        return Integer.parseInt(environment.getProperty("initial.pool.size", "15"));
     }
 
     public int getCheckTimeout() {
-        return Integer.parseInt(environment.getProperty("check.timeout", "10000"));
+        return Integer.parseInt(environment.getProperty("check.timeout", "30000"));
+    }
+
+    public int getMaxWait() {
+        return Integer.parseInt(environment.getProperty("max.wait", "10000"));
     }
 
     /**

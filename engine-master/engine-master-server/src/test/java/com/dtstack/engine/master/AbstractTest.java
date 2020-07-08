@@ -3,7 +3,6 @@ package com.dtstack.engine.master;
 import com.dtstack.engine.master.config.CacheConfig;
 import com.dtstack.engine.master.config.MasterServerBeanConfig;
 import com.dtstack.engine.master.config.MybatisConfig;
-import com.dtstack.engine.master.config.ThreadPoolConfig;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.listener.RunnerListener;
 import com.dtstack.engine.master.utils.ValueUtils;
@@ -19,8 +18,7 @@ import org.springframework.test.context.ContextConfiguration;
 @Component
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(DtCenterSpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {EnvironmentContext.class, MasterServerBeanConfig.class, CacheConfig.class, ThreadPoolConfig.class,
-        MybatisConfig.class})
+@ContextConfiguration(classes = {EnvironmentContext.class, MasterServerBeanConfig.class, CacheConfig.class, MybatisConfig.class})
 @PowerMockIgnore({"javax.management.*", "javax.security.*", "javax.net.ssl.*", "javax.crypto.*"})
 public abstract class AbstractTest implements RunnerListener {
 

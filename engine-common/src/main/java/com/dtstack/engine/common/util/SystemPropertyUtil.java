@@ -10,8 +10,6 @@ import java.io.File;
  *
  */
 public class SystemPropertyUtil {
-    public SystemPropertyUtil() {
-    }
 
     public static void setSystemUserDir() {
         String dir = System.getProperty("user.dir");

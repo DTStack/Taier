@@ -2,7 +2,6 @@ package com.dtstack.engine.master.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -11,6 +10,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
@@ -90,6 +90,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     @Override
     public void afterPropertiesSet() throws Exception {
         LOG.info("Initializing " + this.getClass().getName());
+        SystemPropertyUtil.setHadoopUserName(environmentContext.getHadoopUserName());
 
         executors.execute(jobSubmittedDealer);
 

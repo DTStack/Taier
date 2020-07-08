@@ -24,8 +24,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,7 +45,7 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
 
     @Autowired
-    private ScheduleTaskTaskShadeService taskTaskShadeService;
+    private ScheduleTaskTaskShadeService scheduleTaskTaskShadeService;
 
     /**
      * web 接口
@@ -76,7 +74,7 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      */
     public void deleteTask(@Param("taskId") Long taskId, @Param("modifyUserId") long modifyUserId,@Param("appType") Integer appType) {
         scheduleTaskShadeDao.delete(taskId, modifyUserId,appType);
-        taskTaskShadeService.clearDataByTaskId(taskId,appType);
+        scheduleTaskTaskShadeService.clearDataByTaskId(taskId,appType);
     }
 
     @Forbidden

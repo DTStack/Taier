@@ -18,7 +18,6 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
-import java.beans.PropertyVetoException;
 
 /**
  * company: www.dtstack.com
@@ -26,7 +25,7 @@ import java.beans.PropertyVetoException;
  * create: 2017/8/14
  */
 @Configuration
-@EnableTransactionManagement(proxyTargetClass = true)
+@EnableTransactionManagement
 @ComponentScan(basePackages = {"com.dtstack.engine.*"})
 @MapperScan(basePackages = {"com.dtstack.engine.dao"}, sqlSessionTemplateRef = "sqlSessionTemplate")
 public class MybatisConfig {
@@ -35,22 +34,25 @@ public class MybatisConfig {
     private EnvironmentContext environmentContext;
 
     @Primary
-    @Bean(name = "dataSource")
-    public DataSource dataSource() throws PropertyVetoException {
+    @Bean(name = "dataSource", destroyMethod = "close", initMethod = "init")
+    public DataSource dataSource() {
         DruidDataSource dataSource = new DruidDataSource();
         dataSource.setDriverClassName(environmentContext.getJdbcDriverClassName());
         dataSource.setUrl(environmentContext.getJdbcUrl());
         dataSource.setUsername(environmentContext.getJdbcUser());
         dataSource.setPassword(environmentContext.getJdbcPassword());
-        dataSource.setMaxActive(environmentContext.getmMaxPoolSize());
+        dataSource.setMaxActive(environmentContext.getMaxPoolSize());
         dataSource.setMinIdle(environmentContext.getMinPoolSize());
         dataSource.setInitialSize(environmentContext.getInitialPoolSize());
-        dataSource.setTimeBetweenConnectErrorMillis(environmentContext.getCheckTimeout());
+        dataSource.setTimeBetweenEvictionRunsMillis(environmentContext.getCheckTimeout());
+        dataSource.setMaxWait(environmentContext.getMaxWait());
         dataSource.setTestOnBorrow(true);
         dataSource.setTestOnReturn(true);
+        dataSource.setTestWhileIdle(true);
         return dataSource;
     }
 
+    @Primary
     @Bean(name = "sqlSessionFactory")
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
@@ -70,11 +72,13 @@ public class MybatisConfig {
      * 配置事务管理器
      */
     @Bean(name = "transactionManager")
+    @Primary
     public DataSourceTransactionManager transactionManager() throws Exception {
         return new DataSourceTransactionManager(dataSource());
     }
 
     @Bean(name = "sqlSessionTemplate")
+    @Primary
     public SqlSessionTemplate sqlSessionTemplate() throws Exception {
         return new SqlSessionTemplate(sqlSessionFactory());
     }
