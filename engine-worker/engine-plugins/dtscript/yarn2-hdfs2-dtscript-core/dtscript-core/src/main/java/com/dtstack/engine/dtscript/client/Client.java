@@ -81,11 +81,6 @@ public class Client {
                 if (REFRESH_APP_MASTER_JAR.get()) {
                     synchronized (REFRESH_APP_MASTER_JAR) {
                         if (REFRESH_APP_MASTER_JAR.get()) {
-                            if (getFileSystem().exists(appMasterJar)) {
-                                if (getFileSystem().delete(appMasterJar)) {
-                                    LOG.warn("Could not delete remote path " + appMasterJar.toString());
-                                }
-                            }
                             Path appJarSrc = new Path(JobConf.findContainingJar(ApplicationMaster.class));
                             LOG.info("Copying " + appJarSrc + " to remote path " + appMasterJar.toString());
                             getFileSystem().copyFromLocalFile(false, true, appJarSrc, appMasterJar);
