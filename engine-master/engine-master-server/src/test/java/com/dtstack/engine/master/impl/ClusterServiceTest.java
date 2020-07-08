@@ -1,10 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.Engine;
-import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.domain.Tenant;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.*;
@@ -18,6 +15,7 @@ import com.dtstack.engine.master.enums.EComponentScheduleType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
+import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -129,6 +127,9 @@ public class ClusterServiceTest extends AbstractTest {
      * @see TenantService#bindingTenant(java.lang.Long, java.lang.Long, java.lang.Long, java.lang.String)
      * @see TenantService#bindingQueue(java.lang.Long, java.lang.Long)
      * @see TenantService#pageQuery(java.lang.Long, java.lang.Integer, java.lang.String, int, int)
+     * @see ComponentService#listConfigOfComponents(java.lang.Long, java.lang.Integer)
+     * @see ComponentService#getKerberosConfig(java.lang.Long, java.lang.Integer)
+     * @see ComponentService#convertComponentTypeToClient(java.lang.String, java.lang.Integer, java.lang.String)
      */
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
@@ -142,7 +143,7 @@ public class ClusterServiceTest extends AbstractTest {
         ComponentVO yarnComponent = testAddYarn(clusterVO);
         Assert.assertNotNull(yarnComponent.getId());
         Component yarn = componentService.getOne(yarnComponent.getId());
-        testAddHdfs(clusterVO);
+        ComponentVO hdfsComponent = testAddHdfs(clusterVO);
         testAddSpark(clusterVO);
         Assert.assertNotNull(yarn);
         //校验查询接口
@@ -160,16 +161,9 @@ public class ClusterServiceTest extends AbstractTest {
         ComponentTestResult componentTestResult = componentService.testConnect(yarn.getComponentTypeCode(), yarn.getComponentConfig(), testClusterName, yarn.getHadoopVersion(), engineId, null, sftpMap);
         Assert.assertNotNull(componentTestResult);
         Assert.assertTrue(componentTestResult.getResult());
+
         //添加测试组件对应yarn的队列
-        Queue queue = new Queue();
-        queue.setEngineId(engineId);
-        queue.setQueueName("default.a");
-        queue.setMaxCapacity("1.0");
-        queue.setCapacity("0.3");
-        queue.setQueueState("RUNNING");
-        queue.setParentQueueId(-1L);
-        queue.setQueuePath("default");
-        queueDao.insert(queue);
+        Queue queue = this.testInsertQueue(engineId);
         //添加测试租户
         Tenant tenant = DataCollection.getData().getTenant();
         tenant = tenantDao.getByDtUicTenantId(tenant.getDtUicTenantId());
@@ -178,20 +172,41 @@ public class ClusterServiceTest extends AbstractTest {
         //绑定租户
         tenantService.bindingTenant(tenant.getDtUicTenantId(),clusterVO.getClusterId(),queue.getId(),"");
         //切换队列
-        Queue queueb = new Queue();
-        queueb.setEngineId(engineId);
-        queueb.setQueueName("default.b");
-        queueb.setMaxCapacity("1.0");
-        queueb.setCapacity("0.3");
-        queueb.setQueueState("RUNNING");
-        queueb.setParentQueueId(-1L);
-        queueb.setQueuePath("default");
-        queueDao.insert(queueb);
-        tenantService.bindingQueue(queueb.getId(),tenant.getDtUicTenantId());
+        this.testUpdateQueue(engineId, tenant);
+
         //查询集群信息
         PageResult<List<EngineTenantVO>> engineTenants = tenantService.pageQuery(clusterVO.getClusterId(), MultiEngineType.HADOOP.getType(), tenant.getTenantName(), 10, 1);
         Assert.assertNotNull(engineTenants);
         Assert.assertNotNull(engineTenants.getData());
+        //查询集群组件信息
+        JSONObject componentsJson = JSONObject.parseObject(componentService.listConfigOfComponents(tenant.getDtUicTenantId(), MultiEngineType.HADOOP.getType()));
+        Assert.assertNotNull(componentsJson);
+
+        Assert.assertNotNull(componentsJson.getJSONObject(String.valueOf(EComponentType.YARN.getTypeCode())));
+
+        //查询kerberos配置信息
+        KerberosConfig kerberosConfig = componentService.getKerberosConfig(clusterVO.getId(), EComponentType.YARN.getTypeCode());
+        Assert.assertNull(kerberosConfig);
+
+        //loadTemplate
+
+        String typeName = componentService.convertComponentTypeToClient(testClusterName, EComponentType.SPARK.getTypeCode(),"210");
+        Assert.assertEquals(typeName,"yarn2-hdfs2-spark210");
+
+        //删除组件
+        try {
+            componentService.delete(Lists.newArrayList(hdfsComponent.getId().intValue()));
+        } catch (Exception e) {
+            if (e instanceof RdosDefineException) {
+                RdosDefineException rdosDefineException = (RdosDefineException) e;
+                if (!rdosDefineException.getErrorMessage().contains("是必选组件")) {
+                    throw e;
+                }
+            } else {
+                throw e;
+            }
+        }
+
         //删除集群
         try {
             clusterService.deleteCluster(clusterVO.getClusterId());
@@ -205,6 +220,32 @@ public class ClusterServiceTest extends AbstractTest {
                 throw e;
             }
         }
+    }
+
+    private void testUpdateQueue(Long engineId, Tenant tenant) {
+        Queue queueb = new Queue();
+        queueb.setEngineId(engineId);
+        queueb.setQueueName("default.b");
+        queueb.setMaxCapacity("1.0");
+        queueb.setCapacity("0.3");
+        queueb.setQueueState("RUNNING");
+        queueb.setParentQueueId(-1L);
+        queueb.setQueuePath("default");
+        queueDao.insert(queueb);
+        tenantService.bindingQueue(queueb.getId(),tenant.getDtUicTenantId());
+    }
+
+    private Queue testInsertQueue(Long engineId) {
+        Queue queue = new Queue();
+        queue.setEngineId(engineId);
+        queue.setQueueName("default.a");
+        queue.setMaxCapacity("1.0");
+        queue.setCapacity("0.3");
+        queue.setQueueState("RUNNING");
+        queue.setParentQueueId(-1L);
+        queue.setQueuePath("default");
+        queueDao.insert(queue);
+        return queue;
     }
 
     private void testPageQuery() {

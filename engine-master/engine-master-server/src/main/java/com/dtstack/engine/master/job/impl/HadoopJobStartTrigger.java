@@ -282,9 +282,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     JSONObject jdbcInfoObject = JSONObject.parseObject(jdbcInfo);
                     JSONObject pluginInfo = new JSONObject();
                     pluginInfo.put("jdbcUrl", jdbcInfoObject.getString("jdbcUrl"));
-                    pluginInfo.put("userName", jdbcInfoObject.getString("username"));
-                    pluginInfo.put("pwd", jdbcInfoObject.getString("password"));
-                    pluginInfo.put("driverClassName", DataBaseType.Impala.getDriverClassName());
+                    pluginInfo.put("username", jdbcInfoObject.getString("username"));
+                    pluginInfo.put("password", jdbcInfoObject.getString("password"));
                     workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, tableName, String.format("DESCRIBE formatted %s", tableName));
                 } else if (ETableType.HIVE.getType() == tableType) {
@@ -292,9 +291,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     JSONObject jdbcInfoObject = JSONObject.parseObject(jdbcInfo);
                     JSONObject pluginInfo = new JSONObject();
                     pluginInfo.put("jdbcUrl", jdbcInfoObject.getString("jdbcUrl"));
-                    pluginInfo.put("userName", jdbcInfoObject.getString("username"));
-                    pluginInfo.put("pwd", jdbcInfoObject.getString("password"));
-                    pluginInfo.put("driverClassName", DataBaseType.HIVE.getDriverClassName());
+                    pluginInfo.put("username", jdbcInfoObject.getString("username"));
+                    pluginInfo.put("password", jdbcInfoObject.getString("password"));
                     workerOperator.executeQuery(DataBaseType.HIVE.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, tableName, String.format("desc formatted %s", tableName));
                 }
