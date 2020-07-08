@@ -122,6 +122,7 @@ public class FlinkClusterClientManager {
             clusterClient = perJobClientCache.get(applicationId, () -> {
                 JobClient jobClient = new JobClient();
                 jobClient.setTaskId(taskId);
+                jobClient.setJobName("taskId-" + taskId);
                 YarnClusterDescriptor perJobYarnClusterDescriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
                 return perJobYarnClusterDescriptor.retrieve(ConverterUtils.toApplicationId(applicationId)).getClusterClient();
             });
