@@ -31,6 +31,8 @@ import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.sparkk8s.config.SparkK8sConfig;
+import com.dtstack.engine.sparkk8s.executor.MrSubmiter;
+import com.dtstack.engine.sparkk8s.executor.SqlSubmiter;
 import com.dtstack.engine.sparkk8s.resourceinfo.SparkK8sResourceInfo;
 import com.dtstack.engine.sparkk8s.utils.SparkConfigUtil;
 import com.google.common.base.Charsets;
@@ -64,8 +66,6 @@ import java.util.Properties;
 public class SparkK8sClient extends AbstractClient {
     private static final Logger LOG = LoggerFactory.getLogger(SparkK8sClient.class);
 
-    private static final String LOG_LEVEL_KEY = "logLevel";
-
     private String hdfsConfPath = "";
 
     private Properties sparkDefaultProp;
@@ -90,7 +90,9 @@ public class SparkK8sClient extends AbstractClient {
     protected JobResult processSubmitJobWithType(JobClient jobClient) {
         EJobType jobType = jobClient.getJobType();
         JobResult jobResult = null;
-        if (EJobType.SQL.equals(jobType)) {
+        if (EJobType.MR.equals(jobType)) {
+            jobResult = new MrSubmiter(jobClient, sparkK8sConfig, sparkDefaultProp, hdfsConfPath).submit();
+        } else if (EJobType.SQL.equals(jobType)) {
             jobResult = submitSqlJob(jobClient);
         }
         return jobResult;
@@ -101,71 +103,16 @@ public class SparkK8sClient extends AbstractClient {
         if (computeType == null) {
             throw new RdosDefineException("need to set compute type.");
         }
-
         switch (computeType) {
             case BATCH:
-                return submitSparkSqlJobForBatch(jobClient);
+                return new SqlSubmiter(jobClient, sparkK8sConfig, sparkDefaultProp, hdfsConfPath).submit();
             default:
                 //do nothing
         }
         throw new RdosDefineException("not support for compute type :" + computeType);
     }
 
-    private JobResult submitSparkSqlJobForBatch(JobClient jobClient) {
-        String sqlJobArgs = buildSparkSqlJobParams(jobClient);
 
-        List<String> argList = new ArrayList<>();
-        argList.add("--primary-java-resource");
-        argList.add(sparkK8sConfig.getSparkSqlProxyPath());
-        argList.add("--main-class");
-        argList.add(sparkK8sConfig.getSparkSqlProxyMainClass());
-        argList.add("--arg");
-        argList.add(sqlJobArgs);
-
-        DtKubernetesClientApplication k8sClientApp = new DtKubernetesClientApplication();
-        ClientArguments clientArguments = ClientArguments.fromCommandLineArgs(argList.toArray(new String[argList.size()]));
-
-        Properties confProp = jobClient.getConfProperties();
-        SparkConf sparkConf = SparkConfigUtil.buildBasicSparkConf(sparkDefaultProp);
-        SparkConfigUtil.replaceBasicSparkConf(sparkConf, confProp);
-        SparkConfigUtil.buildHadoopSparkConf(sparkConf, hdfsConfPath);
-        // operator hdfs
-        SparkConfigUtil.setHadoopUserName(sparkK8sConfig, sparkConf);
-
-        sparkConf.setAppName(jobClient.getJobName());
-
-        try {
-            String appId = k8sClientApp.run(clientArguments, sparkConf);
-            return JobResult.createSuccessResult(appId.toString());
-        } catch (Exception ex) {
-            return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
-        }
-    }
-
-    private String buildSparkSqlJobParams(JobClient jobClient) {
-        Properties confProp = jobClient.getConfProperties();
-        String zipSql = DtStringUtil.zip(jobClient.getSql());
-        String logLevel = MathUtil.getString(confProp.get(LOG_LEVEL_KEY));
-
-        Map<String, Object> paramsMap = new HashMap<>();
-        paramsMap.put("sql", zipSql);
-        paramsMap.put("appName", jobClient.getJobName());
-        paramsMap.put("sparkSessionConf", SparkConfigUtil.getSparkSessionConf(confProp));
-
-        if (StringUtils.isNotEmpty(logLevel)) {
-            paramsMap.put("logLevel", logLevel);
-        }
-
-        String sqlExeJson = null;
-        try {
-            sqlExeJson = PublicUtil.objToString(paramsMap);
-            sqlExeJson = URLEncoder.encode(sqlExeJson, Charsets.UTF_8.name());
-        } catch (Exception e) {
-            LOG.error("", e);
-            throw new RdosDefineException("get unexpected exception:" + e.getMessage());
-        }
-        return sqlExeJson;
-    }
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
