@@ -5,7 +5,6 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.hash.ShardData;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
@@ -85,12 +84,7 @@ public class JobStatusDealer implements Runnable {
                 logger.info("jobResource:{} start again gap:[{} ms]...", jobResource, INTERVAL * MULTIPLES);
             }
 
-            Map<String, ShardData> shards = shardManager.getShards();
-            List<Map.Entry<String, Integer>> jobs = new ArrayList<>(shardManager.getShardDataSize());
-            for (Map.Entry<String, ShardData> shardEntry : shards.entrySet()) {
-                jobs.addAll(shardEntry.getValue().getView().entrySet());
-            }
-
+            List<Map.Entry<String, Integer>> jobs = new ArrayList<>(shardManager.getShard().entrySet());
             if (jobs.isEmpty()){
                 return;
             }
@@ -114,7 +108,10 @@ public class JobStatusDealer implements Runnable {
                         }
                     });
                 } catch (Throwable e) {
-                    logger.error("[emergency] error:", e);
+                    logger.error("jobId:{} [emergency] error:",job.getKey(), e);
+                } finally {
+                    buildSemaphore.release();
+                    ctl.countDown();
                 }
             }
             ctl.await();
@@ -226,7 +223,7 @@ public class JobStatusDealer implements Runnable {
 
         this.taskStatusDealerPoolSize = environmentContext.getTaskStatusDealerPoolSize();
         this.taskStatusPool = new ThreadPoolExecutor(taskStatusDealerPoolSize, taskStatusDealerPoolSize, 60L, TimeUnit.SECONDS,
-                new SynchronousQueue<>(true), new CustomThreadFactory(jobResource + this.getClass().getSimpleName() + "DealJob"));
+                new LinkedBlockingQueue<>(1000), new CustomThreadFactory(jobResource + this.getClass().getSimpleName() + "DealJob"));
     }
 
     private void setBean() {
