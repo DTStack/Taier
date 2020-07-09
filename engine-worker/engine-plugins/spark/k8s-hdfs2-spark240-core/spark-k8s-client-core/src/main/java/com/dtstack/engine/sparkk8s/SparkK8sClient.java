@@ -22,7 +22,6 @@ import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.AbstractClient;
-import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -31,6 +30,7 @@ import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.sparkk8s.config.SparkK8sConfig;
 import com.dtstack.engine.sparkk8s.executor.MrSubmiter;
+import com.dtstack.engine.sparkk8s.executor.PythonSubmiter;
 import com.dtstack.engine.sparkk8s.executor.SqlSubmiter;
 import com.dtstack.engine.sparkk8s.parser.AddJarOperator;
 import com.dtstack.engine.sparkk8s.resourceinfo.SparkK8sResourceInfo;
@@ -86,26 +86,12 @@ public class SparkK8sClient extends AbstractClient {
         if (EJobType.MR.equals(jobType)) {
             jobResult = new MrSubmiter(jobClient, sparkK8sConfig, sparkDefaultProp).submit();
         } else if (EJobType.SQL.equals(jobType)) {
-            jobResult = submitSqlJob(jobClient);
+            jobResult = new SqlSubmiter(jobClient, sparkK8sConfig, sparkDefaultProp, hdfsConfPath).submit();
+        } else if (EJobType.PYTHON.equals(jobType)) {
+            jobResult = new PythonSubmiter(jobClient, sparkK8sConfig, sparkDefaultProp).submit();
         }
         return jobResult;
     }
-
-    private JobResult submitSqlJob(JobClient jobClient) {
-        ComputeType computeType = jobClient.getComputeType();
-        if (computeType == null) {
-            throw new RdosDefineException("need to set compute type.");
-        }
-        switch (computeType) {
-            case BATCH:
-                return new SqlSubmiter(jobClient, sparkK8sConfig, sparkDefaultProp, hdfsConfPath).submit();
-            default:
-                //do nothing
-        }
-        throw new RdosDefineException("not support for compute type :" + computeType);
-    }
-
-
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
@@ -143,7 +129,7 @@ public class SparkK8sClient extends AbstractClient {
                     throw new RdosDefineException("Unsupported application state");
             }
         }
-        return RdosTaskStatus.NOTFOUND;
+        return RdosTaskStatus.CANCELED;
     }
 
     private Optional<Pod> getJobPod(String selectorId) {

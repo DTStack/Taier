@@ -19,7 +19,6 @@
 package com.dtstack.engine.sparkk8s.executor;
 
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.DtStringUtil;
@@ -30,8 +29,6 @@ import com.dtstack.engine.sparkk8s.utils.SparkConfigUtil;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.SparkConf;
-import org.apache.spark.deploy.k8s.submit.ClientArguments;
-import org.apache.spark.deploy.k8s.submit.DtKubernetesClientApplication;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -48,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * Company: www.dtstack.com
  * @author maqi
  */
-public class SqlSubmiter implements SparkSubmit {
+public class SqlSubmiter extends AbstractSparkSubmiter {
     private static final Logger LOG = LoggerFactory.getLogger(SqlSubmiter.class);
 
     private final JobClient jobClient;
@@ -75,9 +72,6 @@ public class SqlSubmiter implements SparkSubmit {
         argList.add("--arg");
         argList.add(sqlJobArgs);
 
-        DtKubernetesClientApplication k8sClientApp = new DtKubernetesClientApplication();
-        ClientArguments clientArguments = ClientArguments.fromCommandLineArgs(argList.toArray(new String[argList.size()]));
-
         Properties confProp = jobClient.getConfProperties();
         SparkConf sparkConf = SparkConfigUtil.buildBasicSparkConf(sparkDefaultProp);
         SparkConfigUtil.replaceBasicSparkConf(sparkConf, confProp);
@@ -87,12 +81,7 @@ public class SqlSubmiter implements SparkSubmit {
 
         sparkConf.setAppName(jobClient.getJobName());
 
-        try {
-            String appId = k8sClientApp.run(clientArguments, sparkConf);
-            return JobResult.createSuccessResult(appId.toString());
-        } catch (Exception ex) {
-            return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
-        }
+        return runJobReturnResult(argList,sparkConf);
     }
 
     @Override
