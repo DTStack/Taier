@@ -72,20 +72,23 @@ public class MrSubmiter implements SparkSubmit {
         String mainClass = jobParam.getMainClass();
         String jarPath = jobParam.getJarPath();
         String jarImagePath = getJarImagePath(jarPath);
-        String sftpDir = StringUtils.substringBetween(jarPath, SFTP_PREFIX, jarImagePath);
+        String jarName = StringUtils.substring(jarPath, jarPath.lastIndexOf("/"));
+        String sftpDir = StringUtils.substringBetween(jarPath, SFTP_PREFIX, jarName);
 
         if (Strings.isNullOrEmpty(appName)) {
             throw new RdosDefineException("spark jar must set app name!");
         }
 
-        String jobArgs = buildJobParams();
         List<String> argList = new ArrayList<>();
         argList.add("--primary-java-resource");
         argList.add(jarImagePath);
         argList.add("--main-class");
         argList.add(mainClass);
-        argList.add("--arg");
-        argList.add(jobArgs);
+
+        String jobArgs = buildJobParams();
+        if (!StringUtils.isEmpty(jobArgs)) {
+            argList.add(jobArgs);
+        }
 
         LOG.info("jarPath:{}, jarImagePath:{}, sftpDir:{}, jobArgs:{}", jarPath, jarImagePath, sftpDir, jobArgs);
 
@@ -142,10 +145,19 @@ public class MrSubmiter implements SparkSubmit {
     public String buildJobParams() {
         JobParam jobParam = new JobParam(jobClient);
         String exeArgsStr = jobParam.getClassArgs();
-        String args = "";
+        String[] appArgs = new String[]{};
+
         if (StringUtils.isNotBlank(exeArgsStr)) {
-            args = Arrays.stream(exeArgsStr.split("\\s+")).collect(Collectors.joining("--arg"));
+            appArgs = exeArgsStr.split("\\s+");
         }
-        return args;
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String appArg : appArgs) {
+            if (StringUtils.isBlank(appArg) || StringUtils.equalsIgnoreCase(appArg, "null")) {
+                continue;
+            }
+            stringBuilder.append(" --arg ");
+            stringBuilder.append(appArg);
+        }
+        return stringBuilder.toString();
     }
 }
