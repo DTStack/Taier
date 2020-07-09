@@ -18,42 +18,35 @@
 
 package com.dtstack.engine.sparkk8s;
 
+import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.DtStringUtil;
-import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.sparkk8s.config.SparkK8sConfig;
 import com.dtstack.engine.sparkk8s.executor.MrSubmiter;
 import com.dtstack.engine.sparkk8s.executor.SqlSubmiter;
+import com.dtstack.engine.sparkk8s.parser.AddJarOperator;
 import com.dtstack.engine.sparkk8s.resourceinfo.SparkK8sResourceInfo;
 import com.dtstack.engine.sparkk8s.utils.SparkConfigUtil;
-import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.k8s.ExtendConfig;
-import org.apache.spark.deploy.k8s.submit.ClientArguments;
-import org.apache.spark.deploy.k8s.submit.DtKubernetesClientApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
@@ -91,7 +84,7 @@ public class SparkK8sClient extends AbstractClient {
         EJobType jobType = jobClient.getJobType();
         JobResult jobResult = null;
         if (EJobType.MR.equals(jobType)) {
-            jobResult = new MrSubmiter(jobClient, sparkK8sConfig, sparkDefaultProp, hdfsConfPath).submit();
+            jobResult = new MrSubmiter(jobClient, sparkK8sConfig, sparkDefaultProp).submit();
         } else if (EJobType.SQL.equals(jobType)) {
             jobResult = submitSqlJob(jobClient);
         }
@@ -175,6 +168,32 @@ public class SparkK8sClient extends AbstractClient {
         } catch (IOException e) {
             throw new RuntimeException("k8s config file download fail");
         }
+
+        String sql = jobClient.getSql();
+        List<String> sqlArr = DtStringUtil.splitIgnoreQuota(sql, ';');
+        if(sqlArr.size() == 0){
+            return;
+        }
+
+        List<String> sqlList = Lists.newArrayList(sqlArr);
+        Iterator<String> sqlItera = sqlList.iterator();
+
+        while (sqlItera.hasNext()){
+            String tmpSql = sqlItera.next();
+            if(AddJarOperator.verific(tmpSql)){
+                sqlItera.remove();
+                JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
+
+                if(jobClient.getJobType() == EJobType.SQL){
+                    //SQL当前不允许提交jar包,自定义函数已经在web端处理了。
+                }else{
+                    //非sql任务只允许提交一个附件包
+                    jobClient.setCoreJarInfo(jarFileInfo);
+                    break;
+                }
+            }
+        }
+        jobClient.setSql(String.join(";", sqlList));
     }
 
     @Override

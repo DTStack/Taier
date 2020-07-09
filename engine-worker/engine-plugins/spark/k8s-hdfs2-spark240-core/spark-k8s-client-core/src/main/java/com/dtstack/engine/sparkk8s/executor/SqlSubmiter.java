@@ -27,6 +27,8 @@ import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.sparkk8s.config.SparkK8sConfig;
 import com.dtstack.engine.sparkk8s.utils.SparkConfigUtil;
+import org.apache.commons.io.Charsets;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.k8s.submit.ClientArguments;
 import org.apache.spark.deploy.k8s.submit.DtKubernetesClientApplication;
@@ -37,6 +39,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
