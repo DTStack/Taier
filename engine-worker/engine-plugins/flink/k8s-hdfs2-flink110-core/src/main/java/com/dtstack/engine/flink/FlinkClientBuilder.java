@@ -77,6 +77,9 @@ public class FlinkClientBuilder {
         String hadoopUserName = config.getString(ConfigConstrant.HADOOP_USER_NAME, "");
         if (StringUtils.isBlank(hadoopUserName)) {
             hadoopUserName = System.getenv(ConfigConstrant.HADOOP_USER_NAME);
+            if (StringUtils.isBlank(hadoopUserName)) {
+                hadoopUserName = System.getProperty(ConfigConstrant.HADOOP_USER_NAME);
+            }
         }
         config.setString(ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.HADOOP_USER_NAME, hadoopUserName);
         config.setString(ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + ConfigConstrant.HADOOP_USER_NAME, hadoopUserName);
