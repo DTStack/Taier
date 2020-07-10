@@ -62,6 +62,20 @@
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.9.2</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>2.9.2</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <distributionManagement>

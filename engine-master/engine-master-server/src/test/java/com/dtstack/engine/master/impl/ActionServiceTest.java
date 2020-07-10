@@ -2,8 +2,11 @@ package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.EngineJobRetry;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.common.client.ClientOperator;
+import com.dtstack.engine.api.pojo.ParamActionExt;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.TestEngineUniqueSignDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
@@ -61,7 +64,8 @@ public class ActionServiceTest extends AbstractTest {
     public void testStart() {
         try {
             Map<String, Object> params = getParams(getJsonString(getRandomStr()));
-            Boolean result = actionService.start(params);
+            ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(params, ParamActionExt.class);
+            Boolean result = actionService.start(paramActionExt);
             Assert.assertTrue(result);
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
@@ -250,7 +254,8 @@ public class ActionServiceTest extends AbstractTest {
     public void testContainerInfos() {
         ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobThird();
         try {
-            List<String> result = actionService.containerInfos(getParams(getJsonString(scheduleJob.getJobId())));
+            ParamAction paramAction = PublicUtil.mapToObject(getParams(getJsonString(scheduleJob.getJobId())), ParamAction.class);
+            List<String> result = actionService.containerInfos(paramAction);
             Assert.assertEquals(result, mockInfos);
         } catch (Exception e) {
             fail("Unexpect have a Exception: " + e.getMessage());

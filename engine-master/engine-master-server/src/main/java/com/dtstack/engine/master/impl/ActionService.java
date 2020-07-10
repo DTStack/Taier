@@ -2,20 +2,20 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.CustomThreadRunsPolicy;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.annotation.Param;
-import com.dtstack.engine.common.pojo.ParamActionExt;
+import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -41,7 +41,7 @@ import java.util.concurrent.*;
  * @author sishu.yss
  */
 @Service
-public class ActionService implements com.dtstack.engine.api.service.ActionService {
+public class ActionService {
 
     private static final Logger logger = LoggerFactory.getLogger(ActionService.class);
 
@@ -85,14 +85,11 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
      * 接受来自客户端的请求, 并判断节点队列长度。
      * 如在当前节点,则直接处理任务
      */
-    public Boolean start(Map<String, Object> params){
+    public Boolean start(ParamActionExt paramActionExt){
 
+        logger.info("start  actionParam: {}", JSONObject.toJSONString(paramActionExt));
 
-        logger.info("start  actionParam: {}", JSONObject.toJSONString(params));
-
-        ParamActionExt paramActionExt = null;
         try{
-            paramActionExt = PublicUtil.mapToObject(params, ParamActionExt.class);
             checkParam(paramActionExt);
             //taskId唯一去重，并发请求时以数据库taskId主键去重返回false
             boolean canAccepted = receiveStartJob(paramActionExt);
@@ -107,7 +104,7 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
         }catch (Exception e){
             logger.error("", e);
             //任务提交出错 需要将状态从提交中 更新为失败 否则一直在提交中
-            String taskId = (String) params.get("taskId");
+            String taskId = paramActionExt.getTaskId();
             try {
                 if (StringUtils.isNotBlank(taskId)) {
                     logger.error("Job taskId：" + taskId + " submit error ", e);
@@ -138,17 +135,17 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
      * @param params
      * @throws Exception
      */
-    public void stop(Map<String, Object> params) throws Exception {
+    public Boolean stop(Map<String, Object> params) throws Exception {
 
         if(!params.containsKey("jobs")){
             logger.info("invalid param:" + params);
-            return ;
+            return false;
         }
 
         Object paramsObj = params.get("jobs");
         if(!(paramsObj instanceof List)){
             logger.info("invalid param:" + params);
-            return;
+            return false;
         }
 
         List<Map<String, Object>> paramList = (List<Map<String, Object>>) paramsObj;
@@ -158,6 +155,7 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
         }
         List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.getRdosJobByJobIds(jobIds));
         jobStopDealer.addStopJobs(jobs);
+        return true;
     }
 
     private void checkParam(ParamAction paramAction) throws Exception{
@@ -430,8 +428,7 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
     /**
      * 根据jobid 和 计算类型，查询container 信息
      */
-    public List<String> containerInfos(Map<String, Object> param) throws Exception {
-        ParamAction paramAction = PublicUtil.mapToObject(param, ParamAction.class);
+    public List<String> containerInfos(ParamAction paramAction) throws Exception {
         checkParam(paramAction);
         //从数据库补齐数据
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(paramAction.getTaskId());

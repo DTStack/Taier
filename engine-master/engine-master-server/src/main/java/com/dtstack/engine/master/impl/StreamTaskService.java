@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.enums.EDeployType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -12,7 +13,6 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.EngineJobCheckpointDao;

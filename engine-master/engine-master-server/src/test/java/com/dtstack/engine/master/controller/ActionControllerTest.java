@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static junit.framework.TestCase.fail;
+
 
 public class ActionControllerTest extends AbstractTest {
 
@@ -19,9 +21,11 @@ public class ActionControllerTest extends AbstractTest {
     @Test
     public void testGetListJobStatusByJobIds() {
         List<String> jobIds = Lists.newArrayList(DataCollection.getData().getScheduleJobFirst().getJobId());
-        Map<String, Object> map = new HashMap<>();
-        map.put("jobIds", jobIds);
-        String result = actionController.getListJobStatusByJobIds(map);
-        System.out.println(result);
+        try {
+            List<Map<String, Object>> result = actionController.listJobStatusByJobIds(jobIds);
+            System.out.println(result);
+        } catch (Exception e) {
+            fail();
+        }
     }
 }

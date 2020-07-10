@@ -2,6 +2,7 @@ package com.dtstack.engine.master.jobdealer;
 
 
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -9,7 +10,6 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.StoppedJob;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;

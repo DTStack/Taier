@@ -1,5 +1,7 @@
-package com.dtstack.engine.common.pojo;
+package com.dtstack.engine.api.pojo;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,6 +10,7 @@ import org.slf4j.LoggerFactory;
  * @company www.dtstack.com
  * @Date 2020-04-15
  */
+@ApiModel
 public class ParamActionExt extends ParamAction {
     private static final Logger logger = LoggerFactory.getLogger(ParamActionExt.class);
 
@@ -22,6 +25,7 @@ public class ParamActionExt extends ParamAction {
     /**
      * RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8)
      */
+    @ApiModelProperty(notes = "RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8)")
     private Integer appType;
 
     private String jobKey;
@@ -42,11 +46,13 @@ public class ParamActionExt extends ParamAction {
     /**
      * 发起操作的用户
      */
+    @ApiModelProperty(notes = "发起操作的用户")
     private Long createUserId;
 
     /**
      * 0正常调度 1补数据 2临时运行
      */
+    @ApiModelProperty(notes = "0正常调度 1补数据 2临时运行")
     private Integer type;
 
     private Integer isRestart;
@@ -54,11 +60,13 @@ public class ParamActionExt extends ParamAction {
     /**
      * 业务日期 yyyymmddhhmmss,调度时间-1d
      */
+    @ApiModelProperty(notes = "业务日期 yyyymmddhhmmss,调度时间-1d")
     private String businessDate;
 
     /***
      * 任务调度时间 yyyymmddhhmmss
      */
+    @ApiModelProperty(notes = "任务调度时间 yyyymmddhhmmss")
     private String cycTime;
 
     private Integer dependencyType;

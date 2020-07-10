@@ -15,6 +15,7 @@ import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.dao.ScheduleFillDataJobDao;
@@ -24,12 +25,8 @@ import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.EDeployMode;
 import com.dtstack.engine.master.job.JobStartTriggerBase;
-import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.job.JobStartTriggerBase;
 import com.dtstack.engine.master.job.factory.MultiEngineFactory;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
-import com.dtstack.engine.master.jobdealer.JobStopDealer;
-import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
@@ -1054,7 +1051,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                     actionParam.put("deployMode", eDeployMode.getType());
                 }
                 this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus());
-                actionService.start(actionParam);
+                ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(actionParam, ParamActionExt.class);
+                actionService.start(paramActionExt);
                 return;
             }
         }

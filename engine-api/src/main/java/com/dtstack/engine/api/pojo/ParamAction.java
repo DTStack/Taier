@@ -1,7 +1,6 @@
-package com.dtstack.engine.common.pojo;
+package com.dtstack.engine.api.pojo;
 
-import com.dtstack.engine.common.constrant.ConfigConstant;
-import com.dtstack.engine.common.util.PublicUtil;
+import io.swagger.annotations.ApiModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +14,7 @@ import java.util.Map;
  * @author sishu.yss
  *
  */
+@ApiModel
 public class ParamAction {
 
     private static final Logger logger = LoggerFactory.getLogger(ParamAction.class);
@@ -42,7 +42,7 @@ public class ParamAction {
 
 	private String exeArgs;
 
-	private String groupName = ConfigConstant.DEFAULT_GROUP_NAME;
+	private String groupName;
 
 	//选填参数,如果请求指定集群信息的话需要填写
 	private Map<String, Object> pluginInfo;
@@ -298,16 +298,4 @@ public class ParamAction {
         this.dtuicTenantId = dtuicTenantId;
     }
 
-	@Override
-    public String toString() {
-	    String jsonStr = "";
-	    try{
-            jsonStr = PublicUtil.objToString(this);
-        }catch (Exception e){
-	        //不应该发生
-            logger.error("", e);
-        }
-
-        return jsonStr;
-    }
 }

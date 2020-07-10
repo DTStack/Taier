@@ -1,134 +1,148 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.master.callback.ApiResult;
+import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.master.impl.ActionService;
-import org.apache.commons.collections.MapUtils;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
 
-@Controller
+@RestController
 @RequestMapping("/node/action")
-@SuppressWarnings("unchecked")
+@Api(value = "/node/action", tags = {"任务动作接口"})
 public class ActionController {
 
     @Autowired
-    ActionService actionService;
+    private ActionService actionService;
 
-    @RequestMapping("/listJobStatusByJobIds")
-    @ResponseBody
-    public String getListJobStatusByJobIds(@RequestBody Map<String, Object> paramMap) {
-        List<String> jobIds = (List<String>)MapUtils.getObject(paramMap, "jobIds");
-        return ApiResult.getApiResultString(() -> actionService.listJobStatusByJobIds(jobIds),
-                "/listJobStatusByJobIds", paramMap);
+    @RequestMapping(value="/listJobStatusByJobIds", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询多个Job的状态、执行时间等信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="jobIds",value="查询的所有job的jobId值",required=true, dataType = "String", allowMultiple = true)
+    })
+    public List<Map<String, Object>> listJobStatusByJobIds(@RequestParam(value = "jobIds") List<String> jobIds) throws Exception {
+        return actionService.listJobStatusByJobIds(jobIds);
     }
 
-    @RequestMapping("/start")
-    @ResponseBody
-    public String start(@RequestBody Map<String, Object> paramMap) {
-        return ApiResult.getApiResultString(() -> actionService.start(paramMap),
-                "/start", paramMap);
+    @RequestMapping(value="/start", method = {RequestMethod.POST})
+    @ApiOperation(value = "开始任务")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="paramActionExt",value="请求开始的任务的相关信息及集群信息",required=true, paramType="body", dataType = "ParamActionExt")
+    })
+    public Boolean start(@RequestBody ParamActionExt paramActionExt) {
+        return actionService.start(paramActionExt);
     }
 
-    @RequestMapping("/stop")
-    @ResponseBody
-    public String stop(@RequestBody Map<String, Object> paramMap) {
-        return ApiResult.getApiResultString(() -> {actionService.stop(paramMap); return null;},
-                "/stop", paramMap);
+    @RequestMapping(value="/stop", method = {RequestMethod.POST})
+    @ApiOperation(value = "停止任务")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="paramMap",value="请求停止任务的相关信息",required=true, paramType="body")
+    })
+    public Boolean stop(@RequestBody Map<String, Object> paramMap) throws Exception {
+        return actionService.stop(paramMap);
     }
 
-    @RequestMapping("/status")
-    @ResponseBody
-    public String status(@RequestBody Map<String, Object> paramMap) {
-        String jobId = MapUtils.getString(paramMap, "jobId");
-        Integer computeType = MapUtils.getInteger(paramMap, "computeType");
-        return ApiResult.getApiResultString(() -> actionService.status(jobId, computeType),
-                "/status", paramMap);
+    @RequestMapping(value="/status", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询单个Job的状态")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="jobId",value="查询的job的jobId值",required=true, dataType = "String"),
+            @ApiImplicitParam(name="computeType",value="查询的job的computeType值",required=true, dataType = "int")
+    })
+    public Integer status(@RequestParam("jobId") String jobId, @RequestParam("computeType") Integer computeType) throws Exception{
+        return actionService.status(jobId, computeType);
     }
 
-    @RequestMapping("/statusByJobIds")
-    @ResponseBody
-    public String statusByJobIds(@RequestBody Map<String, Object> paramMap) {
-        List<String> jobIds = (List<String>)MapUtils.getObject(paramMap, "jobIds");
-        Integer computeType = MapUtils.getInteger(paramMap, "computeType");
-        return ApiResult.getApiResultString(() -> actionService.statusByJobIds(jobIds, computeType),
-                "/statusByJobIds", paramMap);
+    @RequestMapping(value="/statusByJobIds", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询多个Job的状态")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="jobIds",value="查询的所有job的jobId值",required=true, dataType = "String", allowMultiple = true),
+            @ApiImplicitParam(name="computeType",value="查询的job的computeType值",required=true, dataType = "int")
+    })
+    public Map<String, Integer> statusByJobIds(@RequestParam(value = "jobIds") List<String> jobIds, @RequestParam("computeType") Integer computeType) throws Exception {
+        return actionService.statusByJobIds(jobIds, computeType);
     }
 
-    @RequestMapping("/startTime")
-    @ResponseBody
-    public String startTime(@RequestBody Map<String, Object> paramMap) {
-        String jobId = MapUtils.getString(paramMap, "jobId");
-        Integer computeType = MapUtils.getInteger(paramMap, "computeType");
-        return ApiResult.getApiResultString(() -> actionService.startTime(jobId, computeType),
-                "/startTime", paramMap);
+    @RequestMapping(value="/startTime", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询单个Job开始运行的时间", notes = "返回值为毫秒级时间戳")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="jobId",value="查询的job的jobId值",required=true, dataType = "String"),
+            @ApiImplicitParam(name="computeType",value="查询的job的computeType值",required=true, dataType = "int")
+    })
+    public Long startTime(@RequestParam("jobId") String jobId, @RequestParam("computeType") Integer computeType) throws Exception {
+        return actionService.startTime(jobId, computeType);
     }
 
-    @RequestMapping("/log")
-    @ResponseBody
-    public String log(@RequestBody Map<String, Object> paramMap) {
-        String jobId = MapUtils.getString(paramMap, "jobId");
-        Integer computeType = MapUtils.getInteger(paramMap, "computeType");
-        return ApiResult.getApiResultString(() -> actionService.log(jobId, computeType),
-                "/log", paramMap);
+    @RequestMapping(value="/log", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询单个Job的log日志")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="jobId",value="查询的job的jobId值",required=true, dataType = "String"),
+            @ApiImplicitParam(name="computeType",value="查询的job的computeType值",required=true, dataType = "int")
+    })
+    public String log(@RequestParam("jobId") String jobId, @RequestParam("computeType") Integer computeType) throws Exception {
+        return actionService.log(jobId, computeType);
     }
 
-    @RequestMapping("/retryLog")
-    @ResponseBody
-    public String retryLog(@RequestBody Map<String, Object> paramMap) {
-        String jobId = MapUtils.getString(paramMap, "jobId");
-        Integer computeType = MapUtils.getInteger(paramMap, "computeType");
-        return ApiResult.getApiResultString(() -> actionService.retryLog(jobId, computeType),
-                "/retryLog", paramMap);
+    @RequestMapping(value="/retryLog", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询单个Job的重试log日志")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="jobId",value="查询的job的jobId值",required=true, dataType = "String"),
+            @ApiImplicitParam(name="computeType",value="查询的job的computeType值",required=true, dataType = "int")
+    })
+    public String retryLog(@RequestParam("jobId") String jobId, @RequestParam("computeType") Integer computeType) throws Exception {
+        return actionService.retryLog(jobId, computeType);
     }
 
-    @RequestMapping("/retryLogDetail")
-    @ResponseBody
-    public String retryLogDetail(@RequestBody Map<String, Object> paramMap) {
-        String jobId = MapUtils.getString(paramMap, "jobId");
-        Integer computeType = MapUtils.getInteger(paramMap, "computeType");
-        Integer retryNum = MapUtils.getInteger(paramMap, "retryNum");
-        return ApiResult.getApiResultString(() -> actionService.retryLogDetail(jobId, computeType, retryNum),
-                "/retryLogDetail", paramMap);
+    @RequestMapping(value="/retryLogDetail", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询单个Job的详细重试log日志")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="jobId",value="查询的job的jobId值",required=true, dataType = "String"),
+            @ApiImplicitParam(name="computeType",value="查询的job的computeType值",required=true, dataType = "int"),
+            @ApiImplicitParam(name="retryNum",value="查询的job的retryNum值",required=true, dataType = "int")
+    })
+    public String retryLogDetail(@RequestParam("jobId") String jobId, @RequestParam("computeType") Integer computeType, @RequestParam("retryNum") Integer retryNum) throws Exception {
+        return actionService.retryLogDetail(jobId, computeType, retryNum);
     }
 
-    @RequestMapping("/entitys")
-    @ResponseBody
-    public String entitys(@RequestBody Map<String, Object> paramMap) {
-        List<String> jobIds = (List<String>)MapUtils.getObject(paramMap, "jobIds");
-        Integer computeType = MapUtils.getInteger(paramMap, "computeType");
-        return ApiResult.getApiResultString(() -> actionService.entitys(jobIds, computeType),
-                "/entitys", paramMap);
+    @RequestMapping(value="/entitys", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询多个Job的状态、相关日志等信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="jobIds",value="查询的所有job的jobId值",required=true, dataType = "String", allowMultiple = true),
+            @ApiImplicitParam(name="computeType",value="查询的job的computeType值",required=true, dataType = "int")
+    })
+    public List<Map<String,Object>> entitys(@RequestParam(value = "jobIds") List<String> jobIds, @RequestParam("computeType")  Integer computeType) throws Exception {
+        return actionService.entitys(jobIds, computeType);
     }
 
-    @RequestMapping("/containerInfos")
-    @ResponseBody
-    public String containerInfos(@RequestBody Map<String, Object> paramMap) {
-        return ApiResult.getApiResultString(() -> actionService.containerInfos(paramMap),
-                "/containerInfos", paramMap);
+    @RequestMapping(value="/containerInfos", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询容器信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="paramAction",value="jobId、计算类型等信息",required=true, paramType="body", dataType = "ParamAction")
+    })
+    public List<String> containerInfos(@RequestBody ParamAction paramAction) throws Exception {
+        return actionService.containerInfos(paramAction);
     }
 
-    @RequestMapping("/resetTaskStatus")
-    @ResponseBody
-    public String resetTaskStatus(@RequestBody Map<String, Object> paramMap) {
-        String jobId = MapUtils.getString(paramMap, "jobId");
-        Integer computeType = MapUtils.getInteger(paramMap, "computeType");
-        return ApiResult.getApiResultString(() -> actionService.resetTaskStatus(jobId, computeType),
-                "/resetTaskStatus", paramMap);
+    @RequestMapping(value="/resetTaskStatus", method = {RequestMethod.POST})
+    @ApiOperation(value = "重置任务状态为未提交")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="jobId",value="重置的job的jobId值",required=true, dataType = "String"),
+            @ApiImplicitParam(name="computeType",value="重置的job的computeType值",required=true, dataType = "int")
+    })
+    public String resetTaskStatus(@RequestParam("jobId") String jobId, @RequestParam("computeType") Integer computeType) {
+        return actionService.resetTaskStatus(jobId, computeType);
     }
 
-    @RequestMapping("/listJobStatus")
-    @ResponseBody
-    public String listJobStatus(@RequestBody Map<String, Object> paramMap) {
-        Long time = MapUtils.getLong(paramMap, "time");
-        return ApiResult.getApiResultString(() -> actionService.listJobStatus(time),
-                "/listJobStatus", paramMap);
+    @RequestMapping(value="/listJobStatus", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询某个时间开始的Job的状态、执行时间等信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="time",value="查询的job的调整的时间点",required=true, dataType = "long")
+    })
+    public List<Map<String, Object>> listJobStatus(@RequestParam("time") Long time) {
+        return actionService.listJobStatus(time);
     }
 
 }
