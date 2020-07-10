@@ -53,12 +53,14 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
-    default ScheduleJob getScheduleJobDefiniteTashId() {
+    default ScheduleJob getScheduleJobDefiniteTaskId() {
         ScheduleJob sj = Template.getScheduleJobTemplate();
         sj.setExecTime(2000L);
         sj.setTaskId(-2021L);
         sj.setSourceType(-1);
         sj.setEngineLog("");
+        sj.setDtuicTenantId(-1008L);
+        sj.setStatus(4);
         return sj;
     }
 
@@ -149,9 +151,15 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    @IgnoreUniqueRandomSet
     default ScheduleTaskShade getScheduleTaskShadeDefiniteTaskId(){
         ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
         scheduleTaskShade.setScheduleStatus(5);
+        scheduleTaskShade.setTaskId(-2021L);
+        scheduleTaskShade.setTenantId(15L);
+        scheduleTaskShade.setProjectId(-1L);
+        scheduleTaskShade.setDtuicTenantId(-1008L);
+        scheduleTaskShade.setAppType(0);
         return scheduleTaskShade;
     }
 
