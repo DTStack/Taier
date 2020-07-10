@@ -17,6 +17,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.ScheduleFillDataJobDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
@@ -152,6 +153,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
     @Autowired
     private JobStopDealer jobStopDealer;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
 
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.CANCELLING.getStatus(), RdosTaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus(), RdosTaskStatus.KILLED.getStatus());
@@ -947,6 +951,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     }
 
     @Forbidden
+    @Transactional(rollbackFor = Exception.class)
     public Long startJob(ScheduleJob scheduleJob) throws Exception {
         sendTaskStartTrigger(scheduleJob);
         return scheduleJob.getId();
@@ -1298,13 +1303,20 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     }
 
     private void persisteJobs(List<ScheduleJob> jobWaitForSave, List<ScheduleJobJob> jobJobWaitForSave) {
-        if (jobWaitForSave.size() > 0) {
-            scheduleJobDao.batchInsert(jobWaitForSave);
-            jobWaitForSave.clear();
-        }
-        if (jobJobWaitForSave.size() > 0) {
-            batchJobJobService.batchInsert(jobJobWaitForSave);
-            jobJobWaitForSave.clear();
+        try {
+            RetryUtil.executeWithRetry(() -> {
+                if (jobWaitForSave.size() > 0) {
+                    scheduleJobDao.batchInsert(jobWaitForSave);
+                    jobWaitForSave.clear();
+                }
+                if (jobJobWaitForSave.size() > 0) {
+                    batchJobJobService.batchInsert(jobJobWaitForSave);
+                    jobJobWaitForSave.clear();
+                }
+                return null;
+            }, environmentContext.getBuildJobErrorRetry(), 200, false);
+        } catch (Exception e) {
+            logger.error("!!!!! persisteJobs job error !!!! job {} jobjob {}", jobWaitForSave, jobJobWaitForSave, e);
         }
     }
 

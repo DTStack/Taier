@@ -126,7 +126,7 @@ public interface ComponentService {
      *
      * @param componentIds
      */
-    public void delete(@Param("componentIds") List<Integer> componentIds);
+    public void delete(@Param("componentIds") List<Long> componentIds);
 
     /***
      * 获取对应的组件版本信息

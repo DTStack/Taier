@@ -175,6 +175,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             String fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/") + 1);
             exeArgs = exeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
             String launchCmd = (String) actionParam.getOrDefault("launchCmd","python ${file}");
+            launchCmd = jobParamReplace.paramReplace(launchCmd,taskParamsToReplace,scheduleJob.getCycTime());
             //替换参数 base64 生成launchCmd
             String launchString = Base64Util.baseEncode(launchCmd.replace(TaskConstant.FILE_NAME, fileName));
             taskExeArgs = exeArgs.replace(TaskConstant.LAUNCH, launchString);

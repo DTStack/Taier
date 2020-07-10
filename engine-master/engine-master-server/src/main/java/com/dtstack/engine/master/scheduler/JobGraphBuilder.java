@@ -10,7 +10,9 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.*;
 import com.dtstack.engine.master.parser.*;
 import com.dtstack.schedule.common.enums.Deleted;
@@ -90,6 +92,9 @@ public class JobGraphBuilder {
     @Autowired
     private ActionService actionService;
 
+    @Autowired
+    private EnvironmentContext environmentContext;
+
     private Lock lock = new ReentrantLock();
 
     /**
@@ -155,22 +160,24 @@ public class JobGraphBuilder {
                 jobGraphBuildPool.execute(() -> {
                     try {
                         for (ScheduleTaskShade task : batchTaskShades) {
+                            List<ScheduleBatchJob> jobRunBeans = new ArrayList<>();
                             try {
-                                String cronJobName = CRON_JOB_NAME + "_" + task.getName();
-                                List<ScheduleBatchJob> jobRunBeans = buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
-                                        true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId());
-
-                                synchronized (allJobs) {
-                                    allJobs.addAll(jobRunBeans);
-                                }
-
-                                if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
-                                    for (ScheduleBatchJob jobRunBean : jobRunBeans) {
-                                        flowJobId.put(this.buildFlowReplaceId(task.getTaskId(),jobRunBean.getCycTime(),task.getAppType()),jobRunBean.getJobId());
-                                    }
-                                }
+                                jobRunBeans = RetryUtil.executeWithRetry(() -> {
+                                    String cronJobName = CRON_JOB_NAME + "_" + task.getName();
+                                    return buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
+                                            true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId());
+                                }, environmentContext.getBuildJobErrorRetry(), 200, false);
                             } catch (Exception e) {
-                                logger.error("", e);
+                                logger.error("!!!!! task {}  appType {} build job error !!!! ", task.getTaskId(), task.getAppType(), e);
+                            }
+                            synchronized (allJobs) {
+                                allJobs.addAll(jobRunBeans);
+                            }
+
+                            if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
+                                for (ScheduleBatchJob jobRunBean : jobRunBeans) {
+                                    flowJobId.put(this.buildFlowReplaceId(task.getTaskId(), jobRunBean.getCycTime(), task.getAppType()), jobRunBean.getJobId());
+                                }
                             }
                         }
                         logger.info("batch-number:{} done!!! allJobs size:{}", batchIdx, allJobs.size());
@@ -185,7 +192,7 @@ public class JobGraphBuilder {
                 });
             }
             ctl.await();
-            logger.info("batch-number:all done!!! allJobs size:{}", allJobs.size());
+            logger.info("buildTaskJobGraph all done!!! allJobs size:{}", allJobs.size());
             jobGraphBuildPool.shutdown();
 
             doSetFlowJobIdForSubTasks(allJobs, flowJobId);
@@ -204,7 +211,7 @@ public class JobGraphBuilder {
             //存储生成的jobRunBean
             saveJobGraph(allJobs, triggerDay);
         } catch (Exception e) {
-            logger.error("", e);
+            logger.error("buildTaskJobGraph ！！！", e);
         } finally {
             lock.unlock();
         }
@@ -294,12 +301,18 @@ public class JobGraphBuilder {
         //需要保存BatchJob, BatchJobJob
         batchJobService.insertJobList(jobList, EScheduleType.NORMAL_SCHEDULE.getType());
 
-        //添加到告警监控表里面
-
         //记录当天job已经生成
         String triggerTimeStr = triggerDay + " 00:00:00";
         Timestamp timestamp = Timestamp.valueOf(triggerTimeStr);
-        jobGraphTriggerService.addJobTrigger(timestamp);
+        try {
+            RetryUtil.executeWithRetry(() -> {
+                jobGraphTriggerService.addJobTrigger(timestamp);
+                return null;
+            }, environmentContext.getBuildJobErrorRetry(), 200, false);
+        } catch (Exception e) {
+            logger.info("addJobTrigger triggerTimeStr {} error ", triggerTimeStr);
+            throw new RdosDefineException(e);
+        }
 
         return true;
     }
