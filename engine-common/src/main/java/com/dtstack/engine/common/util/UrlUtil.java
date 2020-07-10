@@ -42,4 +42,27 @@ public class UrlUtil {
 		}
 	}
 
+
+	/**
+	 *  将url host使用占位符替换
+	 * @param url
+	 * @return
+	 */
+	public static String formatUrlHost(String url) {
+		Matcher matcher = URLPattern.matcher(url);
+		if (!matcher.find()) {
+			throw new RuntimeException(String.format("url:%s is not regular HTTP_URL", url));
+		}
+
+		String protocol = matcher.group(1) == null ? "http" : matcher.group(1);
+		String hostNamePlaceholder = "%s";
+		String port = matcher.group(3);
+
+		if (port == null) {
+			return protocol + "://" + hostNamePlaceholder;
+		} else {
+			return protocol + "://" + hostNamePlaceholder + ":" + port;
+		}
+	}
+
 }

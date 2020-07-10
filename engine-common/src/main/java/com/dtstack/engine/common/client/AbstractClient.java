@@ -79,6 +79,11 @@ public abstract class AbstractClient implements IClient {
         return jobResult;
     }
 
+    @Override
+    public List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier) {
+        return null;
+    }
+
     /**
      * job 处理具体实现的抽象
      *
