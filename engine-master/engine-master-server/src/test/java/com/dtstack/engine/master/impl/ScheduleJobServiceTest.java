@@ -33,6 +33,7 @@ import com.dtstack.engine.api.vo.SchedulePeriodInfoVO;
 import com.dtstack.engine.api.vo.ScheduleRunDetailVO;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
+import com.dtstack.engine.master.enums.EDeployMode;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -262,6 +263,27 @@ public class ScheduleJobServiceTest extends AbstractTest {
         List<ScheduleRunDetailVO> scheduleRunDetailVOS = sheduleJobService.jobDetail(taskShade.getTaskId(), taskShade.getAppType());
         ScheduleRunDetailVO scheduleRunDetailVO = scheduleRunDetailVOS.get(0);
         Assert.assertEquals(scheduleRunDetailVO.getTaskName(), taskShade.getName());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testParseDeployTypeByTaskParams() {
+        EDeployMode eDeployMode = sheduleJobService.parseDeployTypeByTaskParams("flinktaskrunmode=per_job");
+        Assert.assertEquals(eDeployMode,EDeployMode.PERJOB);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testStopJob() throws Exception {
+        ScheduleJob runningJob = DataCollection.getData().getScheduleJobDefiniteTaskId();
+        ScheduleTaskShade taskShade = DataCollection.getData().getScheduleTaskShadeDefiniteTaskId();
+
+        String result = sheduleJobService.stopJob(runningJob.getId(), runningJob.getCreateUserId(), runningJob.getProjectId(), runningJob.getTenantId(),
+                runningJob.getDtuicTenantId(), true, runningJob.getAppType());
+
+        Assert.assertEquals(result, "");
     }
 
 
