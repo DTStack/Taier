@@ -905,7 +905,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
 		final Set<File> userJarFiles = (jobGraph == null)
 				// not per-job submission
-				? Collections.emptySet()
+				? Sets.newHashSet()
 				// add user code jars from the provided JobGraph
 				: jobGraph.getUserJars().stream().map(f -> f.toUri()).map(File::new).collect(Collectors.toSet());
 		if (!this.providedUserJarFiles.isEmpty()) {
