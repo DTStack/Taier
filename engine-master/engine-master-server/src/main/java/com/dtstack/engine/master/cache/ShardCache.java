@@ -72,9 +72,9 @@ public class ShardCache implements ApplicationContextAware {
     }
 
     public boolean removeWithForeach(String jobId) {
+        logger.warn("jobId:{} stackTrace:{}", jobId, ExceptionUtil.stackTrack());
         for (ShardManager shardManager : jobResourceShardManager.values()) {
             if (shardManager.getShard().remove(jobId) != null) {
-                logger.warn("jobId:{} stackTrace:{}", jobId, ExceptionUtil.stackTrack());
                 return true;
             }
         }
