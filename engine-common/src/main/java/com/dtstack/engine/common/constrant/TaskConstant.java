@@ -11,7 +11,6 @@ public class TaskConstant {
      * -----extraInfo中json key------
      **/
     public static final String INFO = "info";
-    public static final String ALARM_USERS = "alarmUser";
 
 
     /**
@@ -21,4 +20,5 @@ public class TaskConstant {
     public static final String UPLOADPATH = "${uploadPath}";
     public static final String LAUNCH = "${launch}";
     public static final String FILE_NAME = "${file}";
+    public static final String CMD = "${cmd}";
 }
