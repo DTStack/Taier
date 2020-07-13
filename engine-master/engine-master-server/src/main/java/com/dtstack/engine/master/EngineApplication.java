@@ -18,12 +18,13 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * author: toutian
  * create: 2020/07/08
  */
-@SpringBootApplication(exclude={
-        RedisAutoConfiguration.class,
-        RedisRepositoriesAutoConfiguration.class
+@SpringBootApplication(exclude = {
+    RedisAutoConfiguration.class,
+    RedisRepositoriesAutoConfiguration.class
 })
 @EnableAspectJAutoProxy
 public class EngineApplication {
+
     private static Logger LOGGER = LoggerFactory.getLogger(EngineApplication.class);
 
     public static void main(String[] args) {
@@ -36,6 +37,8 @@ public class EngineApplication {
         } catch (Throwable t) {
             LOGGER.error("start error:", t);
             System.exit(-1);
+        } finally {
+            LOGGER.info("engine-master start end...");
         }
     }
 }
