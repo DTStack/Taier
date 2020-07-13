@@ -8,6 +8,8 @@ import com.dtstack.engine.common.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.client.ClientOperator;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -100,6 +102,13 @@ public class JobService extends AbstractActor {
                         resource = new ClusterResource();
                     }
                     sender().tell(resource, getSelf());
+                })
+                .match(MessageRollingLogBaseInfo.class, msg -> {
+                    List<String> rollingLogBaseInfo = ClientOperator.getInstance().getRollingLogBaseInfo(msg.getEngineType(), msg.getPluginInfo(), msg.getJobIdentifier());
+                    if (null == rollingLogBaseInfo && rollingLogBaseInfo.size() == 0) {
+                        rollingLogBaseInfo = new ArrayList<>();
+                    }
+                    sender().tell(rollingLogBaseInfo, getSelf());
                 })
                 .build();
     }

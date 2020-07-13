@@ -41,8 +41,7 @@ public class ScheduleJobBack {
     private static String backTableSuffix = "_back";
     private static String job_where_sql = "where period_type in #{periodType} AND cyc_time < #{limitDate}";
     private static String fill_data_where_sql = "where id not in (select fill_id from schedule_job)";
-    private static String job_job_getId_sql = "select id from schedule_job_job where gmt_create >= #{limitDate} ORDER BY id limit 1";
-    private static String job_job_where_sql = "where id <= #{lastId}";
+    private static String job_job_where_sql = "where job_key in (select job_key from schedule_job_back where id > #{lastId})";
     private List<Pair<Integer, String>> timePeriodTypeMapping = null;
 
     @PostConstruct
@@ -57,8 +56,7 @@ public class ScheduleJobBack {
         if (isMaster && environment.openScheduleJobCron()) {
             String cron = environment.getScheduleJobCron();
             long mill = getTimeMillis(cron);
-            long delay = mill - System.currentTimeMillis();
-            if (delay >= 0 && delay <= 1000) {
+            if (mill < System.currentTimeMillis()) {
                 process();
             }
         }
@@ -93,6 +91,8 @@ public class ScheduleJobBack {
                     }
                 }
             }
+            //保存schedule_job_back的上一次id
+            Long lastJobBackId = this.getLastId(connection, "SELECT id from schedule_job ORDER BY id desc limit 1;");
             //schedule_job表
             for (Pair<Integer, String> pair : timePeriodTypeMapping) {
                 this.backUpTables("schedule_job", pair.getKey(), pair.getValue(), connection, job_where_sql);
@@ -101,12 +101,8 @@ public class ScheduleJobBack {
             //schedule_fill_data_job 直接删除fill_id没有的数据
             this.backUpTables("schedule_fill_data_job", null, null, connection, fill_data_where_sql);
 
-            //schedule_job_job 中调度数据 createTime 比cyc_time 小一天
-            int maxDay = Integer.max(Integer.max(environment.getHourMax(), environment.getDayMax()), environment.getMonthMax());
-            String maxTimeStr = new DateTime().plusMonths(1 - maxDay).toString("yyyy-MM-dd HH:mm:ss");
-            Long lastId = this.getLastId(connection, job_job_getId_sql.replace("#{limitDate}", String.format("'%s'", maxTimeStr)));
-            if (lastId > 0L) {
-                this.backUpTables("schedule_job_job", null, null, connection, job_job_where_sql.replace("#{lastId}", String.valueOf(lastId)));
+            if (lastJobBackId > 0L) {
+                this.backUpTables("schedule_job_job", null, null, connection, job_job_where_sql.replace("#{lastId}", String.valueOf(lastJobBackId)));
             }
             log.info("back up schedule job end");
         } catch (Exception e) {

@@ -56,10 +56,6 @@ public class StreamTaskService implements com.dtstack.engine.api.service.StreamT
 
     @Autowired
     private ScheduleJobService scheduleJobService;
-
-    private static final String APPLICATION_REST_API_TMP = "%s/ws/v1/cluster/apps/%s";
-
-
     /**
      * 查询checkPoint
      */
@@ -111,7 +107,7 @@ public class StreamTaskService implements com.dtstack.engine.api.service.StreamT
      * @return
      */
     @Override
-    public Pair<String, String> getRunningTaskLogUrl(@Param("taskId") String taskId) {
+    public List<String> getRunningTaskLogUrl(@Param("taskId") String taskId) {
 
         Preconditions.checkState(StringUtils.isNotEmpty(taskId), "taskId can't be empty");
 
@@ -144,20 +140,12 @@ public class StreamTaskService implements com.dtstack.engine.api.service.StreamT
             String jobInfo = engineJobCache.getJobInfo();
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
 
-            jobIdentifier = JobIdentifier.createInstance(scheduleJob.getEngineJobId(), applicationId, taskId);
             jobIdentifier = new JobIdentifier(scheduleJob.getEngineJobId(), applicationId, taskId,scheduleJob.getDtuicTenantId(),engineJobCache.getEngineType(),
                     EDeployMode.PERJOB.getType(),paramAction.getUserId(),null);
             jobClient = new JobClient(paramAction);
-            String jobMaster = workerOperator.getJobMaster(jobIdentifier);
-            String rootUrl = UrlUtil.getHttpRootUrl(jobMaster);
-            String requestUrl = String.format(APPLICATION_REST_API_TMP, rootUrl, applicationId);
 
-            String response = PoolHttpClient.get(requestUrl);
-            String amContainerLogsUrl = ApplicationWSParser.getAmContainerLogsUrl(response);
-
-            String logPreUrl = UrlUtil.getHttpRootUrl(amContainerLogsUrl);
-            String amContainerPreViewHttp = PoolHttpClient.get(amContainerLogsUrl);
-            return ApplicationWSParser.parserAmContainerPreViewHttp(amContainerPreViewHttp, logPreUrl);
+            List<String> rollingLogBaseInfo = workerOperator.getRollingLogBaseInfo(jobIdentifier);
+            return rollingLogBaseInfo;
 
         }catch (Exception e){
             if (jobClient != null) {

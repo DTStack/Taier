@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.sparkk8s.executor;
+package com.dtstack.engine.sparkk8s.submit;
 
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -36,8 +36,8 @@ import java.util.Map;
  * Company: www.dtstack.com
  * @author maqi
  */
-public abstract class AbstractSparkSubmiter implements SparkSubmiter {
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractSparkSubmiter.class);
+public abstract class AbstractSparkSubmit implements SparkSubmit {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractSparkSubmit.class);
 
     // 用户jar存储到镜像中的默认文件夹
     public static final String DEFAULT_USERJAR_LOCATION = "/opt/dtstack/userjar";

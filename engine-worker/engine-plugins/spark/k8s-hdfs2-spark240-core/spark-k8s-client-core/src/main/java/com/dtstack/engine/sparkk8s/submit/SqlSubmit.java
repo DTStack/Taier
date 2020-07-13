@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.sparkk8s.executor;
+package com.dtstack.engine.sparkk8s.submit;
 
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -45,15 +45,15 @@ import org.slf4j.LoggerFactory;
  * Company: www.dtstack.com
  * @author maqi
  */
-public class SqlSubmiter extends AbstractSparkSubmiter {
-    private static final Logger LOG = LoggerFactory.getLogger(SqlSubmiter.class);
+public class SqlSubmit extends AbstractSparkSubmit {
+    private static final Logger LOG = LoggerFactory.getLogger(SqlSubmit.class);
 
     private final JobClient jobClient;
     private Properties sparkDefaultProp;
     private String hdfsConfPath;
     private SparkK8sConfig sparkK8sConfig;
 
-    public SqlSubmiter(JobClient jobClient, SparkK8sConfig sparkK8sConfig, Properties sparkDefaultProp, String hdfsConfPath) {
+    public SqlSubmit(JobClient jobClient, SparkK8sConfig sparkK8sConfig, Properties sparkDefaultProp, String hdfsConfPath) {
         this.jobClient = jobClient;
         this.sparkDefaultProp = sparkDefaultProp;
         this.hdfsConfPath = hdfsConfPath;

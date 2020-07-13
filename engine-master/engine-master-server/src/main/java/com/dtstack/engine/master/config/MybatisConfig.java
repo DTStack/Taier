@@ -42,7 +42,7 @@ public class MybatisConfig {
         dataSource.setJdbcUrl(environmentContext.getJdbcUrl());
         dataSource.setUser(environmentContext.getJdbcUser());
         dataSource.setPassword(environmentContext.getJdbcPassword());
-        dataSource.setMaxPoolSize(environmentContext.getmMaxPoolSize());
+        dataSource.setMaxPoolSize(environmentContext.getMaxPoolSize());
         dataSource.setMinPoolSize(environmentContext.getMinPoolSize());
         dataSource.setInitialPoolSize(environmentContext.getInitialPoolSize());
         dataSource.setCheckoutTimeout(environmentContext.getCheckTimeout());
