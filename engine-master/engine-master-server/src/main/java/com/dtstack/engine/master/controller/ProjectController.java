@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.master.impl.ProjectService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;

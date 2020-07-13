@@ -1,8 +1,5 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.annotation.Forbidden;
-import com.dtstack.engine.api.annotation.Param;
-import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.master.impl.TenantService;

@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.vo.QueueVO;
 import com.dtstack.engine.master.impl.EngineService;
 import io.swagger.annotations.Api;

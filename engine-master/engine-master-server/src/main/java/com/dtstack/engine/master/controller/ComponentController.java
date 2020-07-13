@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.KerberosConfig;
 import com.dtstack.engine.api.dto.Resource;

@@ -1,7 +1,6 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.master.impl.ComponentService;
-import com.dtstack.engine.master.router.vertx.ResourceVerticle;
 import io.swagger.annotations.Api;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;

@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import io.swagger.annotations.Api;
