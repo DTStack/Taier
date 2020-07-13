@@ -903,8 +903,7 @@ public class ComponentService {
             if (Objects.isNull(autoDelete) || true == autoDelete) {
                 for (Resource resource : resources) {
                     try {
-                        FileUtils.forceDelete(new File(System.getProperty("user.dir") + File.separator +
-                                resource.getUploadedFileName()));
+                        FileUtils.forceDelete(new File(resource.getUploadedFileName()));
                     } catch (IOException e) {
                         LOGGER.debug("delete config resource error {} ", resource.getUploadedFileName());
                     }
