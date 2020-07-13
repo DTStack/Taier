@@ -11,6 +11,6 @@ public class StatusController {
 
     @GetMapping(value = "/status")
     public Object status() {
-        return "Subbb";
+        return "SUCCESS";
     }
 }
