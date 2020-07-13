@@ -184,8 +184,10 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             taskExeArgs = taskExeArgs.replace(TaskConstant.JOB_ID, scheduleJob.getJobId());
 
             //替换组件的exeArgs中的cmd参数
-            if(taskExeArgs.contains(TaskConstant.CMD)){
-                taskExeArgs = taskExeArgs.replace(TaskConstant.CMD,Base64Util.baseEncode(sql));
+            if(taskExeArgs.contains(TaskConstant.LAUNCH)){
+                String launchCmd = jobParamReplace.paramReplace((String) actionParam.get("launch-cmd"),taskParamsToReplace,scheduleJob.getCycTime());
+                //替换参数 base64 生成launchCmd
+                taskExeArgs = taskExeArgs.replace(TaskConstant.LAUNCH,Base64Util.baseEncode(launchCmd));
             }
             actionParam.put("exeArgs", taskExeArgs);
         }
