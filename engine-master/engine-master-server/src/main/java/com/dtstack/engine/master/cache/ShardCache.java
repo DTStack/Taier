@@ -1,8 +1,11 @@
 package com.dtstack.engine.master.cache;
 
 import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.master.jobdealer.JobStatusDealer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -19,6 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Component
 public class ShardCache implements ApplicationContextAware {
+
+    private static Logger logger = LoggerFactory.getLogger(ShardCache.class);
 
     private ApplicationContext applicationContext;
 
@@ -44,14 +49,16 @@ public class ShardCache implements ApplicationContextAware {
         });
     }
 
-    public void updateLocalMemTaskStatus(String jobId, Integer status) {
+    public boolean updateLocalMemTaskStatus(String jobId, Integer status) {
         if (jobId == null || status == null) {
             throw new IllegalArgumentException("jobId or status must not null.");
         }
         ShardManager shardManager = getShardManager(jobId);
         if (shardManager != null) {
             shardManager.putJob(jobId, status);
+            return true;
         }
+        return removeWithForeach(jobId);
     }
 
     public void removeIfPresent(String jobId) {
@@ -62,6 +69,16 @@ public class ShardCache implements ApplicationContextAware {
         if (shardManager != null) {
             shardManager.removeJob(jobId);
         }
+    }
+
+    public boolean removeWithForeach(String jobId) {
+        for (ShardManager shardManager : jobResourceShardManager.values()) {
+            if (shardManager.getShard().remove(jobId) != null) {
+                logger.warn("jobId:{} stackTrace:{}", jobId, ExceptionUtil.stackTrack());
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
