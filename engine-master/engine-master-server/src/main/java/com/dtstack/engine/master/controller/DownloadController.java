@@ -23,7 +23,7 @@ import java.util.Objects;
 @RequestMapping("/node/download")
 @Api(value = "/node/download", tags = {"下载接口"})
 public class DownloadController {
-    private static final Logger logger = LoggerFactory.getLogger(ResourceVerticle.class);
+    private static final Logger logger = LoggerFactory.getLogger(DownloadController.class);
 
     @Autowired
     private ComponentService componentService;

@@ -27,7 +27,7 @@ public class UploadController {
     @Autowired
     private ComponentService componentService;
 
-    private static final Logger logger = LoggerFactory.getLogger(ResourceVerticle.class);
+    private static final Logger logger = LoggerFactory.getLogger(UploadController.class);
 
     private static String uploadsDir = System.getProperty("user.dir") + File.separator + "file-uploads";
 
