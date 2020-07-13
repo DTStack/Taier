@@ -335,4 +335,12 @@ public class ClientProxy implements IClient {
         }
     }
 
+    @Override
+    public List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier) {
+        try {
+            return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getRollingLogBaseInfo(jobIdentifier), targetClient.getClass().getClassLoader(), true);
+        } catch (Exception e) {
+            throw new RdosDefineException(e.getMessage());
+        }
+    }
 }

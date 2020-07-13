@@ -358,7 +358,7 @@ public class ApplicationMaster extends CompositeService {
         URI defaultUri = new Path(conf.get("fs.defaultFS")).toUri();
         Map<String, LocalResource> containerLocalResource = new HashMap<>();
         try {
-            containerLocalResource.put(DtYarnConstants.APP_MASTER_JAR,
+            containerLocalResource.put(DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH,
                     Utilities.createApplicationResource(appArguments.appJarRemoteLocation.getFileSystem(conf),
                             appArguments.appJarRemoteLocation,
                             LocalResourceType.FILE));
