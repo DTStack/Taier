@@ -1,6 +1,9 @@
 package com.dtstack.engine.api.vo;
 
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +12,7 @@ import java.util.List;
  * author: toutian
  * create: 2019/10/25
  */
+@ApiModel
 public class ScheduleFillDataJobDetailVO {
 
     private String fillDataJobName;
@@ -44,6 +48,7 @@ public class ScheduleFillDataJobDetailVO {
         /**
          * task名称不是实例名称
          */
+        @ApiModelProperty(notes = "task名称不是实例名称")
         private String jobName;
 
         private Integer taskType;

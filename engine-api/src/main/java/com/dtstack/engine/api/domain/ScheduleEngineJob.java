@@ -1,5 +1,8 @@
 package com.dtstack.engine.api.domain;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.sql.Timestamp;
 import java.util.Objects;
 
@@ -9,6 +12,7 @@ import java.util.Objects;
  * author: toutian
  * create: 2019/10/22
  */
+@ApiModel
 public class ScheduleEngineJob extends AppTenantEntity {
 
     private Integer status;
@@ -28,6 +32,7 @@ public class ScheduleEngineJob extends AppTenantEntity {
     /**
      * 当前执行时间单位为s
      */
+    @ApiModelProperty(notes = "当前执行时间单位为s")
     private Long execTime;
 
     private Integer retryNum = 0;

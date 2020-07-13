@@ -1,6 +1,7 @@
 package com.dtstack.engine.api.pojo;
 
 import com.alibaba.fastjson.JSONObject;
+import io.swagger.annotations.ApiModel;
 
 import java.util.List;
 
@@ -8,6 +9,7 @@ import java.util.List;
  * @author yuebai
  * @date 2020-05-15
  */
+@ApiModel
 public class ComponentTestResult {
     private int componentTypeCode;
 

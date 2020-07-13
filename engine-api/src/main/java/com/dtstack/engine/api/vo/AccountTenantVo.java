@@ -2,11 +2,13 @@ package com.dtstack.engine.api.vo;
 
 
 import com.dtstack.engine.api.domain.BaseEntity;
+import io.swagger.annotations.ApiModel;
 
 /**
  * @author yuebai
  * @date 2020-02-17
  */
+@ApiModel
 public class AccountTenantVo extends BaseEntity {
 
     private String name;

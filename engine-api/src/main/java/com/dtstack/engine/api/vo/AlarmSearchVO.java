@@ -1,12 +1,14 @@
 package com.dtstack.engine.api.vo;
 
 import com.dtstack.engine.api.domain.AppTenantEntity;
+import io.swagger.annotations.ApiModel;
 
 import java.util.List;
 
 /**
  * Created by jiangbo on 2017/5/5 0005.
  */
+@ApiModel
 public class AlarmSearchVO extends AppTenantEntity {
 
     private int pageSize = 10;

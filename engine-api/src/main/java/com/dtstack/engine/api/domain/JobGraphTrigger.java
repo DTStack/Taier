@@ -1,5 +1,8 @@
 package com.dtstack.engine.api.domain;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.sql.Timestamp;
 
 /**
@@ -9,11 +12,13 @@ import java.sql.Timestamp;
  *
  * @ahthor xuchao
  */
+@ApiModel
 public class JobGraphTrigger extends BaseEntity {
 
     /**
      * 触发创建jobGraph的时间
      */
+    @ApiModelProperty(notes = "触发创建jobGraph的时间")
     private Timestamp triggerTime;
 
     private Integer triggerType;

@@ -15,7 +15,7 @@ import java.sql.Timestamp;
  * create: 2019/10/22
  */
 @Component
-public class JobGraphTriggerService implements com.dtstack.engine.api.service.JobGraphTriggerService {
+public class JobGraphTriggerService{
 
     @Autowired
     private JobGraphTriggerDao jobGraphTriggerDao;

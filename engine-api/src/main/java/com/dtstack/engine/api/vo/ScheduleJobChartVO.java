@@ -1,5 +1,7 @@
 package com.dtstack.engine.api.vo;
 
+import io.swagger.annotations.ApiModel;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.List;
  * author: toutian
  * create: 2019/10/25
  */
+@ApiModel
 public class ScheduleJobChartVO extends ChartDataVO{
     public ScheduleJobChartVO() {
     }

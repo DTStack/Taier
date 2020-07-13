@@ -2,6 +2,8 @@ package com.dtstack.engine.api.vo;
 
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.UserDTO;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +13,7 @@ import java.util.Map;
  * author: toutian
  * create: 2019/10/22
  */
+@ApiModel
 public class ScheduleTaskVO extends ScheduleTaskShade {
 
     private UserDTO createUser;
@@ -37,36 +40,43 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
     /**
      * 0-向导模式，1-脚本模式
      */
+    @ApiModelProperty(notes = "0-向导模式，1-脚本模式")
     private int createModel;
 
     /**
      * 操作模式 0-资源模式，1-编辑模式
      */
+    @ApiModelProperty(notes = "操作模式 0-资源模式，1-编辑模式")
     private int operateModel;
 
     /**
      * 2-python2.x,3-python3.x
      */
+    @ApiModelProperty(notes = "2-python2.x,3-python3.x")
     private int pythonVersion;
 
     /**
      * 0-TensorFlow,1-MXNet
      */
+    @ApiModelProperty(notes = "0-TensorFlow,1-MXNet")
     private int learningType;
 
     /**
      * 输入数据文件的路径
      */
+    @ApiModelProperty(notes = "输入数据文件的路径")
     private String input;
 
     /**
      * 输出模型的路径
      */
+    @ApiModelProperty(notes = "输出模型的路径")
     private String output;
 
     /**
      * 脚本的命令行参数
      */
+    @ApiModelProperty(notes = "脚本的命令行参数")
     private String options;
 
     private String flowName;
@@ -74,6 +84,7 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
     /**
      * 同步模式
      */
+    @ApiModelProperty(notes = "同步模式")
     private int syncModel;
 
     private String increColumn;
@@ -81,6 +92,7 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
     /**
      * 是否是当前项目
      */
+    @ApiModelProperty(notes = "是否是当前项目")
     private boolean currentProject;
 
     private List<ScheduleTaskVO> taskVOS;

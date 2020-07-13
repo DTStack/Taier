@@ -1,6 +1,7 @@
 package com.dtstack.engine.api.domain;
 
 import com.dtstack.engine.api.annotation.Unique;
+import io.swagger.annotations.ApiModel;
 
 /**
  * RDOS 插件信息
@@ -8,7 +9,7 @@ import com.dtstack.engine.api.annotation.Unique;
  * Company: www.dtstack.com
  * @author xuchao
  */
-
+@ApiModel
 public class PluginInfo extends DataObject{
 
     @Unique

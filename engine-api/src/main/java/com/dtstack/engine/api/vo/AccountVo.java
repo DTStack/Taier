@@ -3,6 +3,8 @@ package com.dtstack.engine.api.vo;
 
 import com.dtstack.engine.api.domain.BaseEntity;
 import com.dtstack.engine.api.dto.AccountDTO;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Objects;
 
@@ -10,6 +12,7 @@ import java.util.Objects;
  * @author yuebai
  * @date 2020-02-14
  */
+@ApiModel
 public class AccountVo  extends BaseEntity {
 
     private Long bindTenantId;
@@ -17,16 +20,19 @@ public class AccountVo  extends BaseEntity {
     /**
      * 操作用户ID
      */
+    @ApiModelProperty(notes = "操作用户ID")
     private Long userId;
 
     /**
      * 数栈用户名
      */
+    @ApiModelProperty(notes = "数栈用户名")
     private String username;
 
     /**
      * 数据库用户名
      */
+    @ApiModelProperty(notes = "数据库用户名")
     private String name;
 
     private String phone;
@@ -85,6 +91,7 @@ public class AccountVo  extends BaseEntity {
     /**
      *  绑定用户ID
      */
+    @ApiModelProperty(notes = "绑定用户ID")
     private Long bindUserId;
 
     public Long getBindUserId() {

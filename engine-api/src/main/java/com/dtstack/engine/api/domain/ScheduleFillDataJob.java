@@ -2,12 +2,15 @@ package com.dtstack.engine.api.domain;
 
 
 import com.dtstack.engine.api.annotation.Unique;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * company: www.dtstack.com
  * author: toutian
  * create: 2019/10/22
  */
+@ApiModel
 public class ScheduleFillDataJob extends AppTenantEntity {
 
     @Unique
@@ -22,6 +25,7 @@ public class ScheduleFillDataJob extends AppTenantEntity {
     /**
      * 发起操作的用户
      */
+    @ApiModelProperty(notes = "发起操作的用户")
     private long createUserId;
 
     public String getJobName() {

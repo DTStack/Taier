@@ -1,10 +1,14 @@
 package com.dtstack.engine.api.vo;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * company: www.dtstack.com
  * author: toutian
  * create: 2019/10/22
  */
+@ApiModel
 public class KillJobVO {
 
     private Long tenantId;
@@ -13,26 +17,31 @@ public class KillJobVO {
     /**
      *  业务日期
      */
+    @ApiModelProperty(notes = "业务日期")
     private Long bizStartDay;
 
     /**
      * 业务日期
      */
+    @ApiModelProperty(notes = "业务日期")
     private Long bizEndDay;
 
     /**
      * 0周期任务；1补数据实例。
      */
+    @ApiModelProperty(notes = "0周期任务；1补数据实例。")
     private Integer type;
 
     /**
      * 调度周期,用逗号分割
      */
+    @ApiModelProperty(notes = "调度周期,用逗号分割")
     private String taskPeriodId;
 
     /**
      * 任务状态，不能是成功状态。用逗号分割
      */
+    @ApiModelProperty(notes = "任务状态，不能是成功状态。用逗号分割")
     private String jobStatuses;
 
     public Long getTenantId() {

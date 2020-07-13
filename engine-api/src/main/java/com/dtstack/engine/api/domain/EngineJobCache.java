@@ -1,6 +1,7 @@
 package com.dtstack.engine.api.domain;
 
 import com.dtstack.engine.api.annotation.Unique;
+import io.swagger.annotations.ApiModel;
 
 /**
  * Reason:
@@ -9,6 +10,7 @@ import com.dtstack.engine.api.annotation.Unique;
  * @author xuchao
  */
 
+@ApiModel
 public class EngineJobCache extends DataObject{
 
     @Unique

@@ -2,11 +2,13 @@ package com.dtstack.engine.api.vo;
 
 import com.dtstack.engine.api.domain.Engine;
 import com.alibaba.fastjson.JSONObject;
+import io.swagger.annotations.ApiModel;
 import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@ApiModel
 public class EngineVO extends Engine {
 
     private Long engineId;

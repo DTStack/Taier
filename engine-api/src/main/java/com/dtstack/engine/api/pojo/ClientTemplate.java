@@ -1,5 +1,8 @@
 package com.dtstack.engine.api.pojo;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -7,26 +10,32 @@ import java.util.List;
  * @author yuebai
  * @date 2020-05-14
  */
+@ApiModel
 public class ClientTemplate implements Serializable {
     /**
      * 前端界面展示 名称
      */
+    @ApiModelProperty(notes = "前端界面展示 名称")
     private String key;
     /**
      * 前端界面展示 多选值
      */
+    @ApiModelProperty(notes = "前端界面展示 多选值")
     private List<ClientTemplate> values;
     /**
      * 前端界面展示类型  0: 输入框 1:单选:
      */
+    @ApiModelProperty(notes = "前端界面展示类型  0: 输入框 1:单选:")
     private String type;
     /**
      * 默认值
      */
+    @ApiModelProperty(notes = "默认值")
     private String value;
     /**
      * 是否必填 默认必须
      */
+    @ApiModelProperty(notes = "是否必填 默认必须")
     private Boolean required = true;
 
     private String dependencyKey;

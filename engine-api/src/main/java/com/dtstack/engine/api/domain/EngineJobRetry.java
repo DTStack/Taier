@@ -1,27 +1,34 @@
 package com.dtstack.engine.api.domain;
 
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.Date;
 
 /**
  * @author toutian
  */
+@ApiModel
 public class EngineJobRetry extends DataObject {
 
     /**
      * 工作任务id
      */
+    @ApiModelProperty(notes = "工作任务id")
     private String jobId;
 
     /**
      * 执行引擎任务id
      */
+    @ApiModelProperty(notes = "执行引擎任务id")
     private String engineJobId;
 
     /**
      * 任务状态
      * UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)
      */
+    @ApiModelProperty(notes = "任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)")
     private Integer status;
 
     private Date execStartTime;

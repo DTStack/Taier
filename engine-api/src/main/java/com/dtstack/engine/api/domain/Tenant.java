@@ -1,5 +1,8 @@
 package com.dtstack.engine.api.domain;
 
+import io.swagger.annotations.ApiModel;
+
+@ApiModel
 public class Tenant extends BaseEntity {
 
     private Long dtUicTenantId;

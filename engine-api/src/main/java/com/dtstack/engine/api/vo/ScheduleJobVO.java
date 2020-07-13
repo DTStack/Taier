@@ -2,6 +2,7 @@ package com.dtstack.engine.api.vo;
 
 import com.dtstack.engine.api.domain.ScheduleEngineJob;
 import com.dtstack.engine.api.domain.TenantProjectEntity;
+import io.swagger.annotations.ApiModel;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
  * author: toutian
  * create: 2017/6/6
  */
+@ApiModel
 public class ScheduleJobVO extends TenantProjectEntity {
 
     protected ScheduleTaskVO batchTask;

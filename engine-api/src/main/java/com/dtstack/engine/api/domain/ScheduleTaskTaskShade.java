@@ -2,10 +2,12 @@ package com.dtstack.engine.api.domain;
 
 
 import com.dtstack.engine.api.annotation.Unique;
+import io.swagger.annotations.ApiModel;
 
 /**
  * @author sishu.yss
  */
+@ApiModel
 public class ScheduleTaskTaskShade extends AppTenantEntity {
 
     @Unique

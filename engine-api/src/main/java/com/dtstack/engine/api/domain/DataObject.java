@@ -1,5 +1,8 @@
 package com.dtstack.engine.api.domain;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.Date;
 
 /**
@@ -10,6 +13,7 @@ import java.util.Date;
  * @author sishu.yss
  *
  */
+@ApiModel
 public class DataObject {
 	
 	
@@ -18,16 +22,19 @@ public class DataObject {
 	/**
 	 * 创建时间
 	 */
+	@ApiModelProperty(notes = "创建时间")
 	private Date gmtCreate;
 
 	/**
 	 * 修改时间
 	 */
+	@ApiModelProperty(notes = "修改时间")
 	private Date gmtModified;
 	
 	/**
 	 * 是否逻辑删除
 	 */
+	@ApiModelProperty(notes = "是否逻辑删除")
 	private Integer isDeleted;
 	
 	

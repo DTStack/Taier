@@ -2,12 +2,14 @@ package com.dtstack.engine.api.vo;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Component;
+import io.swagger.annotations.ApiModel;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@ApiModel
 public class ComponentVO extends Component {
 
     private String clusterName;

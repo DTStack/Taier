@@ -1,6 +1,7 @@
 package com.dtstack.engine.api.domain;
 
 import com.dtstack.engine.api.annotation.Unique;
+import io.swagger.annotations.ApiModel;
 
 import java.sql.Timestamp;
 
@@ -11,6 +12,7 @@ import java.sql.Timestamp;
  * @author xuchao
  */
 
+@ApiModel
 public class EngineJobCheckpoint extends DataObject {
 
     @Unique

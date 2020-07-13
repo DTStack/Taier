@@ -47,7 +47,7 @@ import static com.dtstack.engine.master.impl.ComponentService.TYPE_NAME;
 import static java.lang.String.format;
 
 @Service
-public class ClusterService implements InitializingBean, com.dtstack.engine.api.service.ClusterService {
+public class ClusterService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterService.class);
 
@@ -105,7 +105,6 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
     private AccountDao accountDao;
 
 
-    @Override
     public void afterPropertiesSet() throws Exception {
         if (isDefaultClusterExist()) {
             return;
@@ -717,12 +716,10 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
 
     }
 
-    @Override
     public String tiDBInfo(@Param("tenantId") Long dtUicTenantId, @Param("userId") Long dtUicUserId){
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.TiDB);
     }
 
-    @Override
     public String oracleInfo(@Param("tenantId") Long dtUicTenantId,@Param("userId") Long dtUicUserId){
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.Oracle);
     }

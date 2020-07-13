@@ -144,5 +144,4 @@ public class ActionController {
     public List<Map<String, Object>> listJobStatus(@RequestParam("time") Long time) {
         return actionService.listJobStatus(time);
     }
-
 }

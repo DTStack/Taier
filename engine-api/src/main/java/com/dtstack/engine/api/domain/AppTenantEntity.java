@@ -1,10 +1,14 @@
 package com.dtstack.engine.api.domain;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * company: www.dtstack.com
  * author: toutian
  * create: 2019/10/22
  */
+@ApiModel
 public class AppTenantEntity extends TenantProjectEntity {
 
     private Long dtuicTenantId = 0L;
@@ -13,6 +17,7 @@ public class AppTenantEntity extends TenantProjectEntity {
     /**
      * RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8)
      */
+    @ApiModelProperty(notes = "RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8)")
     private Integer appType;
 
     public Long getDtuicTenantId() {

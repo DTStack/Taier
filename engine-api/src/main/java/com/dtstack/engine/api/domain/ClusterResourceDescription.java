@@ -18,8 +18,11 @@
 
 package com.dtstack.engine.api.domain;
 
+import io.swagger.annotations.ApiModel;
+
 import java.util.List;
 
+@ApiModel
 public class ClusterResourceDescription {
     private final int totalNode;
     private final int totalMemory;

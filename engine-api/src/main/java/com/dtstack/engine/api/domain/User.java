@@ -1,10 +1,12 @@
 package com.dtstack.engine.api.domain;
 
 import com.dtstack.engine.api.annotation.Unique;
+import io.swagger.annotations.ApiModel;
 
 /**
  * @author: toutian
  */
+@ApiModel
 public class User extends BaseEntity {
 
     private String userName;

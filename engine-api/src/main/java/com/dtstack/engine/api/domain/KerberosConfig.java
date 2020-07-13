@@ -1,5 +1,9 @@
 package com.dtstack.engine.api.domain;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+@ApiModel
 public class KerberosConfig extends BaseEntity {
 
     private Long clusterId;
@@ -11,6 +15,7 @@ public class KerberosConfig extends BaseEntity {
     /**
      * 集群文件夹的sftp路径
      */
+    @ApiModelProperty(notes = "集群文件夹的sftp路径")
     private String remotePath;
 
     private String principal;
@@ -20,6 +25,7 @@ public class KerberosConfig extends BaseEntity {
     /**
      * krb5 的文件名称
      */
+    @ApiModelProperty(notes = "krb5 的文件名称")
     private String krbName;
 
     public String getKrbName() {

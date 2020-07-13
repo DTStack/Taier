@@ -2,6 +2,8 @@ package com.dtstack.engine.api.domain;
 
 
 import com.dtstack.engine.api.annotation.Unique;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -12,12 +14,14 @@ import java.util.List;
  * author: toutian
  * create: 2019/10/22
  */
+@ApiModel
 public class ScheduleJob extends AppTenantEntity {
 
     /**
      * 工作任务id
      */
     @Unique
+    @ApiModelProperty(notes = "工作任务id")
     private String jobId;
 
     @Unique
@@ -28,26 +32,31 @@ public class ScheduleJob extends AppTenantEntity {
     /**
      * 任务id
      */
+    @ApiModelProperty(notes = "任务id")
     private Long taskId;
 
     /**
      * 发起操作的用户
      */
+    @ApiModelProperty(notes = "发起操作的用户")
     private Long createUserId;
 
     /**
      * 0正常调度 1补数据 2临时运行
      */
+    @ApiModelProperty(notes = "0正常调度 1补数据 2临时运行")
     private Integer type;
 
     /**
      * 业务日期 yyyymmddhhmmss,调度时间-1d
      */
+    @ApiModelProperty(notes = "业务日期 yyyymmddhhmmss,调度时间-1d")
     private String businessDate;
 
     /***
      * 任务调度时间 yyyymmddhhmmss
      */
+    @ApiModelProperty(notes = "任务调度时间 yyyymmddhhmmss")
     private String cycTime;
 
     private Integer isRestart;
@@ -81,6 +90,7 @@ public class ScheduleJob extends AppTenantEntity {
     /**
      * 执行引擎任务id
      */
+    @ApiModelProperty(notes = "执行引擎任务id")
     private String engineJobId;
 
     private String applicationId;

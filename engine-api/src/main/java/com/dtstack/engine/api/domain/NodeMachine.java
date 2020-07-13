@@ -1,5 +1,8 @@
 package com.dtstack.engine.api.domain;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * 
  *
@@ -8,26 +11,31 @@ package com.dtstack.engine.api.domain;
  * @author sishu.yss
  *
  */
+@ApiModel
 public class NodeMachine extends DataObject{
 	
 	/**
 	 * node 主机ip
 	 */
+	@ApiModelProperty(notes = "主机ip")
 	private String ip;
 	
 	/**
 	 * node 端口
 	 */
+	@ApiModelProperty(notes = "端口")
 	private Long port;
 	
 	/**
 	 * 0 master 1 slave
 	 */
+	@ApiModelProperty(notes = "0 master 1 slave")
 	private Integer machineType;
 
 	/**
 	 * web(web应用),engine(执行引擎应用)
 	 */
+	@ApiModelProperty(notes = "web(web应用),engine(执行引擎应用)")
 	private String appType;
 
 	private String deployInfo;

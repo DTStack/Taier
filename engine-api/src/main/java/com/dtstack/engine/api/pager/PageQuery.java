@@ -1,10 +1,13 @@
 package com.dtstack.engine.api.pager;
 
+import io.swagger.annotations.ApiModel;
+
 /**
  * company: www.dtstack.com
  * author: toutian
  * create: 2017/12/29
  */
+@ApiModel
 public class PageQuery<T> {
 
     private T model;

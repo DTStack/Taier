@@ -1,11 +1,14 @@
 package com.dtstack.engine.api.dto;
 
+import io.swagger.annotations.ApiModel;
+
 import java.util.List;
 
 /**
  * @author jiangbo
  * @date 2018/7/19 9:44
  */
+@ApiModel
 public class ScheduleJobJobDTO {
 
     private String jobKey;

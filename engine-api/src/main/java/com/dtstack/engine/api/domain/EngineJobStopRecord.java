@@ -1,5 +1,6 @@
 package com.dtstack.engine.api.domain;
 
+import io.swagger.annotations.ApiModel;
 import org.apache.commons.collections.MapUtils;
 
 import java.util.Date;
@@ -8,6 +9,7 @@ import java.util.Map;
 /**
  * @author toutian
  */
+@ApiModel
 public class EngineJobStopRecord extends DataObject {
 
     private String taskId;

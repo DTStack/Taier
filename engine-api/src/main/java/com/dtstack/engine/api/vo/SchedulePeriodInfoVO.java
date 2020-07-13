@@ -1,10 +1,13 @@
 package com.dtstack.engine.api.vo;
 
+import io.swagger.annotations.ApiModel;
+
 /**
  * company: www.dtstack.com
  * author: toutian
  * create: 2019/10/22
  */
+@ApiModel
 public class SchedulePeriodInfoVO {
     private Long jobId;
     private String cycTime;

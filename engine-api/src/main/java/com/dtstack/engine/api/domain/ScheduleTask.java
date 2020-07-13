@@ -1,63 +1,76 @@
 package com.dtstack.engine.api.domain;
 
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * company: www.dtstack.com
  * author: toutian
  * create: 2019/10/22
  */
+@ApiModel
 public class ScheduleTask extends AppTenantEntity {
 
     /**
      * '任务名称'
      */
+    @ApiModelProperty(notes = "任务名称")
     private String name;
 
     /**
      * '任务类型 0 sql，1 mr，2 sync ，3 python
      */
+    @ApiModelProperty(notes = "任务类型 0 sql，1 mr，2 sync ，3 python")
     private Integer taskType;
 
     /**
      * '计算类型 0实时，1 离线'
      */
+    @ApiModelProperty(notes = "计算类型 0实时，1 离线")
     private Integer computeType;
 
     /**
      * '执行引擎类型 0 flink, 1 spark'
      */
+    @ApiModelProperty(notes = "执行引擎类型 0 flink, 1 spark")
     private Integer engineType;
 
     /**
      * 'sql 文本'
      */
+    @ApiModelProperty(notes = "sql 文本")
     private String sqlText;
 
     /**
      * '任务参数'
      */
+    @ApiModelProperty(notes = "任务参数")
     private String taskParams;
 
     /**
      * 调度配置
      */
+    @ApiModelProperty(notes = "调度配置")
     private String scheduleConf;
 
     /**
      * 周期类型
      */
+    @ApiModelProperty(notes = "周期类型")
     private Integer periodType;
 
     /**
      * 调度状态
      */
+    @ApiModelProperty(notes = "调度状态")
     private Integer scheduleStatus;
 
     /**
      * 启动:0
      * 停止:1
      */
+    @ApiModelProperty(notes = "启动:0 停止:1")
     private Integer projectScheduleStatus;
 
     private Integer submitStatus;
@@ -65,16 +78,19 @@ public class ScheduleTask extends AppTenantEntity {
     /**
      * 最后修改task的用户
      */
+    @ApiModelProperty(notes = "最后修改task的用户")
     private Long modifyUserId;
 
     /**
      * 新建task的用户
      */
+    @ApiModelProperty(notes = "新建task的用户")
     private Long createUserId;
 
     /**
      * 负责人id
      */
+    @ApiModelProperty(notes = "负责人id")
     private Long ownerUserId;
 
 
@@ -83,11 +99,13 @@ public class ScheduleTask extends AppTenantEntity {
     /**
      * 任务描述
      */
+    @ApiModelProperty(notes = "任务描述")
     private String taskDesc;
 
     /**
      * 入口类
      */
+    @ApiModelProperty(notes = "入口类")
     private String mainClass;
 
     private String exeArgs;
@@ -95,6 +113,7 @@ public class ScheduleTask extends AppTenantEntity {
     /**
      * 所属工作流id
      */
+    @ApiModelProperty(notes = "所属工作流id")
     private Long flowId = 0L;
 
 

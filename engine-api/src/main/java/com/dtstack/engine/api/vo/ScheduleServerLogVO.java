@@ -1,11 +1,15 @@
 package com.dtstack.engine.api.vo;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.sql.Timestamp;
 import java.util.Map;
 
 /**
  * @author jiangbo
  */
+@ApiModel
 public class ScheduleServerLogVO {
 
     private String name;

@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  * create: 2018/9/18
  */
 @Service
-public class ConsoleService implements com.dtstack.engine.api.service.ConsoleService {
+public class ConsoleService {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsoleService.class);
 

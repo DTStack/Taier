@@ -1,6 +1,7 @@
 package com.dtstack.engine.api.vo;
 
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import io.swagger.annotations.ApiModel;
 
 import java.sql.Timestamp;
 
@@ -9,6 +10,7 @@ import java.sql.Timestamp;
  * author: toutian
  * create: 2019/10/25
  */
+@ApiModel
 public class ScheduleTaskShadeVO extends ScheduleTaskShade {
 
     private Long tenantId;

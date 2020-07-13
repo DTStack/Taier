@@ -1,5 +1,8 @@
 package com.dtstack.engine.api.dto;
 
+import io.swagger.annotations.ApiModel;
+
+@ApiModel
 public class Resource {
 
     public Resource() {

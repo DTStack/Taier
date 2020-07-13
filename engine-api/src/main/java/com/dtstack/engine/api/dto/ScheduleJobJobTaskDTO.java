@@ -1,6 +1,7 @@
 package com.dtstack.engine.api.dto;
 
 import com.dtstack.engine.api.domain.ScheduleJobJob;
+import io.swagger.annotations.ApiModel;
 import org.springframework.beans.BeanUtils;
 
 /**
@@ -8,6 +9,7 @@ import org.springframework.beans.BeanUtils;
  * author: toutian
  * create: 2019/10/22
  */
+@ApiModel
 public class ScheduleJobJobTaskDTO extends ScheduleJobJob {
 
     private Long taskId;

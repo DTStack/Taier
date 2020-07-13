@@ -1,11 +1,14 @@
 package com.dtstack.engine.api.vo;
 
+import io.swagger.annotations.ApiModel;
+
 import java.util.List;
 
 /**
  * @author yuebai
  * @date 2020-05-11
  */
+@ApiModel
 public class SchedulingVo {
     private int schedulingCode;
 

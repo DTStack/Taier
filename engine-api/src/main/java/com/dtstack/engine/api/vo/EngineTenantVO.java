@@ -18,6 +18,9 @@
 
 package com.dtstack.engine.api.vo;
 
+import io.swagger.annotations.ApiModel;
+
+@ApiModel
 public class EngineTenantVO {
 
     private Long tenantId;

@@ -19,7 +19,7 @@ import java.util.List;
  * create: 2019/10/22
  */
 @Service
-public class ScheduleFillDataJobService implements com.dtstack.engine.api.service.ScheduleFillDataJobService {
+public class ScheduleFillDataJobService  {
 
     @Autowired
     private ScheduleFillDataJobDao scheduleFillDataJobDao;

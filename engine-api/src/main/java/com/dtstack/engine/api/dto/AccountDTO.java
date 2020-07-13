@@ -1,11 +1,13 @@
 package com.dtstack.engine.api.dto;
 
 import com.dtstack.engine.api.domain.Account;
+import io.swagger.annotations.ApiModel;
 
 /**
  * @author yuebai
  * @date 2020-02-17
  */
+@ApiModel
 public class AccountDTO extends Account {
 
     private Long tenantId;

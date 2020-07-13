@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class EngineService implements com.dtstack.engine.api.service.EngineService {
+public class EngineService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EngineService.class);
 

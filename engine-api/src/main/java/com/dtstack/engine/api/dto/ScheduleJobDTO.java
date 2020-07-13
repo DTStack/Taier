@@ -2,6 +2,7 @@ package com.dtstack.engine.api.dto;
 
 
 import com.dtstack.engine.api.domain.ScheduleJob;
+import io.swagger.annotations.ApiModel;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -12,6 +13,7 @@ import java.util.List;
  * author: toutian
  * create: 2018/1/1
  */
+@ApiModel
 public class ScheduleJobDTO extends ScheduleJob {
 
     private List<Integer> jobStatuses;

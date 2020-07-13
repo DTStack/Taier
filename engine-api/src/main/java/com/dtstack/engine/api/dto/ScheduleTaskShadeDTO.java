@@ -1,10 +1,12 @@
 package com.dtstack.engine.api.dto;
 
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import io.swagger.annotations.ApiModel;
 
 import java.sql.Timestamp;
 import java.util.List;
 
+@ApiModel
 public class ScheduleTaskShadeDTO extends ScheduleTaskShade {
 
 

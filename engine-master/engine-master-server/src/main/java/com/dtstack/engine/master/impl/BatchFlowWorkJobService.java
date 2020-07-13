@@ -17,7 +17,7 @@ import java.util.List;
  * create: 2019/10/22
  */
 @Service
-public class BatchFlowWorkJobService implements com.dtstack.engine.api.service.BatchFlowWorkJobService {
+public class BatchFlowWorkJobService {
 
     /**
      * 任务状态从低到高排序

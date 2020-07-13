@@ -1,10 +1,13 @@
 package com.dtstack.engine.api.vo;
 
+import io.swagger.annotations.ApiModel;
+
 /**
  * company: www.dtstack.com
  * author: toutian
  * create: 2019/10/25
  */
+@ApiModel
 public class JobTopErrorVO {
 
     private String createUser;

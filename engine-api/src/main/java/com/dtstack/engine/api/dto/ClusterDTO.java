@@ -1,9 +1,11 @@
 package com.dtstack.engine.api.dto;
 
 import com.dtstack.engine.api.domain.Cluster;
+import io.swagger.annotations.ApiModel;
 
 import java.util.List;
 
+@ApiModel
 public class ClusterDTO extends Cluster {
 
     private List<EngineDTO> engineList;

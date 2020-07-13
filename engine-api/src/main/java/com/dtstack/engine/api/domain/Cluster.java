@@ -1,7 +1,9 @@
 package com.dtstack.engine.api.domain;
 
 import com.dtstack.engine.api.annotation.Unique;
+import io.swagger.annotations.ApiModel;
 
+@ApiModel
 public class Cluster extends BaseEntity {
 
     @Unique

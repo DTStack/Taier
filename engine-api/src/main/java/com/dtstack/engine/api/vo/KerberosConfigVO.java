@@ -1,10 +1,12 @@
 package com.dtstack.engine.api.vo;
 
 import com.dtstack.engine.api.domain.KerberosConfig;
+import io.swagger.annotations.ApiModel;
 import org.springframework.beans.BeanUtils;
 
 import java.util.Map;
 
+@ApiModel
 public class KerberosConfigVO extends KerberosConfig {
     private String keytabPath;
 

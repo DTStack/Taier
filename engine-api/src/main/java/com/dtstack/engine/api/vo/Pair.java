@@ -1,12 +1,15 @@
 
 package com.dtstack.engine.api.vo;
 
+import io.swagger.annotations.ApiModel;
+
 import java.io.Serializable;
 
  /**
   * <p>A convenience class to represent name-value pairs.</p>
   * @since JavaFX 2.0
   */
+ @ApiModel
 public class Pair<K,V> implements Serializable{
 
     /**

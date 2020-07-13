@@ -1,11 +1,14 @@
 package com.dtstack.engine.api.vo;
 
+import io.swagger.annotations.ApiModel;
+
 import java.sql.Timestamp;
 import java.util.List;
 
 /**
  * Created by jiangbo on 2017/5/19 0019.
  */
+@ApiModel
 public class AlarmVO {
     private Long alarmId;
     private String alarmName;

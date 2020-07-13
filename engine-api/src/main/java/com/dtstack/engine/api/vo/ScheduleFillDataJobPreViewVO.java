@@ -1,10 +1,14 @@
 package com.dtstack.engine.api.vo;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * company: www.dtstack.com
  * author: toutian
  * create: 2019/10/22
  */
+@ApiModel
 public class ScheduleFillDataJobPreViewVO {
 
     private Long id;
@@ -22,23 +26,26 @@ public class ScheduleFillDataJobPreViewVO {
     /**
      * 成功job数量
      */
+    @ApiModelProperty(notes = "成功job数量")
     private Long finishedJobSum;
 
     /**
      * 所有job数量
      */
+    @ApiModelProperty(notes = "所有job数量")
     private Long allJobSum;
 
     /**
      * 完成的job数量
      */
+    @ApiModelProperty(notes = "完成的job数量")
     private Long doneJobSum;
 
     /**
      * 责任人
      * @return
      */
-
+    @ApiModelProperty(notes = "责任人")
     private Long dutyUserId;
 
     public Long getDutyUserId() {

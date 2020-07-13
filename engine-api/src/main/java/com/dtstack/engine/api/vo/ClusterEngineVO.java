@@ -1,11 +1,13 @@
 package com.dtstack.engine.api.vo;
 
 import com.dtstack.engine.api.domain.Cluster;
+import io.swagger.annotations.ApiModel;
 import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@ApiModel
 public class ClusterEngineVO extends Cluster {
 
     private Long clusterId;

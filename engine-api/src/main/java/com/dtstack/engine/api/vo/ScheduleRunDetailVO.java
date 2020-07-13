@@ -1,5 +1,7 @@
 package com.dtstack.engine.api.vo;
 
+import io.swagger.annotations.ApiModel;
+
 import java.io.Serializable;
 
 /**
@@ -7,6 +9,7 @@ import java.io.Serializable;
  * author: toutian
  * create: 2017/7/5
  */
+@ApiModel
 public class ScheduleRunDetailVO implements Serializable {
 
     private String taskName;

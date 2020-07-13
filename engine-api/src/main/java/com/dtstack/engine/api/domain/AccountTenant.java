@@ -1,9 +1,12 @@
 package com.dtstack.engine.api.domain;
 
+import io.swagger.annotations.ApiModel;
+
 /**
  * @author yuebai
  * @date 2020-02-14
  */
+@ApiModel
 public class AccountTenant extends BaseEntity{
 
 

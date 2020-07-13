@@ -1,7 +1,10 @@
 package com.dtstack.engine.api.domain;
 
 import com.dtstack.engine.api.annotation.Unique;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
+@ApiModel
 public class Component extends BaseEntity {
 
     @Unique
@@ -20,6 +23,7 @@ public class Component extends BaseEntity {
     /**
      * 上传配置文件名称
      */
+    @ApiModelProperty(notes = "上传配置文件名称")
     private String uploadFileName;
 
     private String componentTemplate;
@@ -27,6 +31,7 @@ public class Component extends BaseEntity {
     /**
      * kerberos文件名称
      */
+    @ApiModelProperty(notes = "kerberos文件名称")
     private String kerberosFileName;
 
     public String getKerberosFileName() {

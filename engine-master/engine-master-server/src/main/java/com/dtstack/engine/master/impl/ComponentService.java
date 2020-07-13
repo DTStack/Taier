@@ -62,7 +62,7 @@ import java.util.stream.Collectors;
 import static com.dtstack.engine.common.constrant.ConfigConstant.MD5_SUM_KEY;
 
 @Service
-public class ComponentService implements com.dtstack.engine.api.service.ComponentService {
+public class ComponentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComponentService.class);
 

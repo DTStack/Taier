@@ -1,9 +1,12 @@
 package com.dtstack.engine.api.domain.po;
 
+import io.swagger.annotations.ApiModel;
+
 /**
  * @author jiangbo
  * @time 2018/1/2
  */
+@ApiModel
 public class StorageSizePO {
 
     private Long projectId;

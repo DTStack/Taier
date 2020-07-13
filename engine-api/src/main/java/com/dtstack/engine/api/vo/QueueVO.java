@@ -2,11 +2,12 @@ package com.dtstack.engine.api.vo;
 
 
 import com.dtstack.engine.api.domain.Queue;
+import io.swagger.annotations.ApiModel;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@ApiModel
 public class QueueVO {
 
     public static QueueVO toVO(Queue queue) {

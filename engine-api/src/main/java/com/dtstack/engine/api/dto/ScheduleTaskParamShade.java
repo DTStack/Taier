@@ -1,12 +1,14 @@
 package com.dtstack.engine.api.dto;
 
 import com.dtstack.engine.api.domain.AppTenantEntity;
+import io.swagger.annotations.ApiModel;
 
 /**
  * company: www.dtstack.com
  * author: toutian
  * create: 2019/10/22
  */
+@ApiModel
 public class ScheduleTaskParamShade extends AppTenantEntity {
 
     private Long taskId;

@@ -1,11 +1,14 @@
 package com.dtstack.engine.api.vo;
 
 import com.dtstack.engine.api.domain.Cluster;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@ApiModel
 public class ClusterVO extends Cluster {
 
     private Long clusterId;
@@ -18,6 +21,7 @@ public class ClusterVO extends Cluster {
     /**
      * 组件类型
      */
+    @ApiModelProperty(notes = "组件类型")
     private List<SchedulingVo> scheduling;
 
     public List<SchedulingVo> getScheduling() {

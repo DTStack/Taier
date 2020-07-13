@@ -2,9 +2,11 @@ package com.dtstack.engine.api.dto;
 
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.Engine;
+import io.swagger.annotations.ApiModel;
 
 import java.util.List;
 
+@ApiModel
 public class EngineDTO extends Engine {
 
     private List<Component> componentList;

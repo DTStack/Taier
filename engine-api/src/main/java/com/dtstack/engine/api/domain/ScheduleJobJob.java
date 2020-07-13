@@ -1,11 +1,14 @@
 package com.dtstack.engine.api.domain;
 
 
+import io.swagger.annotations.ApiModel;
+
 /**
  * company: www.dtstack.com
  * author: toutian
  * create: 2019/10/22
  */
+@ApiModel
 public class ScheduleJobJob extends AppTenantEntity {
 
     private String jobKey;

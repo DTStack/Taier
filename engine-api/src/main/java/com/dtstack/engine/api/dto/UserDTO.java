@@ -2,10 +2,12 @@ package com.dtstack.engine.api.dto;
 
 
 import com.dtstack.engine.api.domain.AppTenantEntity;
+import io.swagger.annotations.ApiModel;
 
 /**
  * @author sishu.yss
  */
+@ApiModel
 public class UserDTO extends AppTenantEntity {
 
     private String userName;

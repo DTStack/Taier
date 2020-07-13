@@ -1,5 +1,7 @@
 package com.dtstack.engine.api.dto;
 
+import io.swagger.annotations.ApiModel;
+
 import java.util.List;
 
 /**
@@ -7,6 +9,7 @@ import java.util.List;
  * author: toutian
  * create: 2019/10/22
  */
+@ApiModel
 public class QueryJobDTO {
     private Long projectId;
     private Long tenantId;

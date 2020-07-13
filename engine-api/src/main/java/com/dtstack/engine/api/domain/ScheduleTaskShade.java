@@ -2,12 +2,16 @@ package com.dtstack.engine.api.domain;
 
 
 import com.dtstack.engine.api.annotation.Unique;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
+@ApiModel
 public class ScheduleTaskShade extends ScheduleTask {
 
     /**
      * 是否发布到了生产环境
      */
+    @ApiModelProperty(notes = "是否发布到了生产环境")
     private Long isPublishToProduce;
 
     private String extraInfo;
@@ -18,6 +22,7 @@ public class ScheduleTaskShade extends ScheduleTask {
     /**
      * batchJob执行的时候的vesion版本
      */
+    @ApiModelProperty(notes = "batchJob执行的时候的vesion版本")
     private Integer versionId;
 
     public Integer getVersionId() {

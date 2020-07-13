@@ -48,7 +48,7 @@ import java.util.Map;
  * create: 2018/7/16
  */
 @Service
-public class TenantService implements com.dtstack.engine.api.service.TenantService {
+public class TenantService {
 
     private static Logger LOGGER = LoggerFactory.getLogger(TenantService.class);
 

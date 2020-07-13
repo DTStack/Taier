@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  * @date 2020-02-14
  */
 @Service
-public class AccountService implements com.dtstack.engine.api.service.AccountService {
+public class AccountService {
 
     private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 
@@ -243,7 +243,7 @@ public class AccountService implements com.dtstack.engine.api.service.AccountSer
 
 
     /**
-     * 解绑数据库账号
+     * 更改数据库账号
      */
     @Transactional
     public void updateBindAccount(AccountTenantVo accountTenantVo, @Param("userId") Long userId) throws Exception {

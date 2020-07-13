@@ -2,9 +2,10 @@ package com.dtstack.engine.api.vo;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ClusterResourceDescription;
+import io.swagger.annotations.ApiModel;
 
 import java.util.List;
-
+@ApiModel
 public class TestConnectionVO {
 
     private ClusterResourceDescription description;

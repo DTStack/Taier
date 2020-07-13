@@ -1,6 +1,7 @@
 package com.dtstack.engine.api.dto;
 
 import com.dtstack.engine.api.domain.TenantProjectEntity;
+import io.swagger.annotations.ApiModel;
 
 /**
  * 补数据任务所需的任务参数
@@ -9,6 +10,7 @@ import com.dtstack.engine.api.domain.TenantProjectEntity;
  * @author sanyue
  * @date 2019/1/18
  */
+@ApiModel
 public class ScheduleTaskForFillDataDTO extends TenantProjectEntity {
 
     private String name;
