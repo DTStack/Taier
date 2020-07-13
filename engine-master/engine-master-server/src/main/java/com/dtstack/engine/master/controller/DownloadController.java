@@ -20,15 +20,15 @@ import java.util.Objects;
 
 
 @Controller
-@RequestMapping("/node/download/component")
-@Api(value = "/node/download/component", tags = {"下载接口"})
+@RequestMapping("/node/download")
+@Api(value = "/node/download", tags = {"下载接口"})
 public class DownloadController {
     private static final Logger logger = LoggerFactory.getLogger(ResourceVerticle.class);
 
     @Autowired
     private ComponentService componentService;
 
-    @RequestMapping(value="/downloadFile", method = {RequestMethod.GET})
+    @RequestMapping(value="/component/downloadFile", method = {RequestMethod.GET})
     public void handleDownload(@RequestParam("componentId") Long componentId, @RequestParam("type") Integer downloadType, @RequestParam("componentType") Integer componentType,
                                @RequestParam("hadoopVersion") String hadoopVersion, @RequestParam("clusterName") String clusterName, HttpServletResponse response) {
         response.setHeader("content-type", "application/octet-stream;charset=UTF-8");
