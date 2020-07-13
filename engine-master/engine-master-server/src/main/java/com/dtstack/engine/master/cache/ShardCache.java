@@ -61,17 +61,19 @@ public class ShardCache implements ApplicationContextAware {
         return removeWithForeach(jobId);
     }
 
-    public void removeIfPresent(String jobId) {
+    public boolean removeIfPresent(String jobId) {
         if (jobId == null) {
             throw new IllegalArgumentException("jobId must not null.");
         }
         ShardManager shardManager = getShardManager(jobId);
         if (shardManager != null) {
             shardManager.removeJob(jobId);
+            return true;
         }
+        return removeWithForeach(jobId);
     }
 
-    public boolean removeWithForeach(String jobId) {
+    private boolean removeWithForeach(String jobId) {
         logger.warn("jobId:{} stackTrace:{}", jobId, ExceptionUtil.stackTrack());
         for (ShardManager shardManager : jobResourceShardManager.values()) {
             if (shardManager.getShard().remove(jobId) != null) {
