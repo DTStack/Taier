@@ -300,23 +300,29 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
             ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobElement.jobId);
             if (jobCache == null) {
                 if (scheduleJob != null && RdosTaskStatus.isStopped(scheduleJob.getStatus())) {
-                    logger.info("jobId:{} stopped success, task status is STOPPED.", jobElement.jobId);
+                    logger.info("jobId:{} stopped success, set job is STOPPED.", jobElement.jobId);
                     return StoppedStatus.STOPPED;
                 } else {
                     this.removeMemStatusAndJobCache(jobElement.jobId);
-                    logger.info("jobId:{} jobCache is missed, set engineJob is STOPPED.", jobElement.jobId);
+                    logger.info("jobId:{} jobCache is null, set job is MISSED.", jobElement.jobId);
                     return StoppedStatus.MISSED;
                 }
             } else if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
                 this.removeMemStatusAndJobCache(jobCache.getJobId());
-                logger.info("jobId:{} stopped success, task status is STOPPED.", jobElement.jobId);
+                logger.info("jobId:{} is unsubmitted, set job is STOPPED.", jobElement.jobId);
                 return StoppedStatus.STOPPED;
             } else {
                 if (scheduleJob == null) {
                     this.removeMemStatusAndJobCache(jobElement.jobId);
-                    logger.info("jobId:{} scheduleJob is missed, delete jobCache record.", jobElement.jobId);
+                    logger.info("jobId:{} scheduleJob is null, set job is MISSED.", jobElement.jobId);
                     return StoppedStatus.MISSED;
+                } else if (RdosTaskStatus.getStoppedAndNotFound().contains(scheduleJob.getStatus())) {
+                    this.removeMemStatusAndJobCache(jobElement.jobId);
+                    logger.info("jobId:{} and status:{} is StoppedAndNotFound, set job is STOPPED.", jobElement.jobId);
+                    return StoppedStatus.STOPPED;
                 }
+
+
                 ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                 paramAction.setEngineTaskId(scheduleJob.getEngineJobId());
                 paramAction.setApplicationId(scheduleJob.getApplicationId());
