@@ -305,17 +305,17 @@ public class JobStopDealer implements InitializingBean {
                 logger.info("jobId:{} stopped success, task status is STOPPED.", jobElement.jobId);
                 return StoppedStatus.STOPPED;
             } else {
-                removeMemStatusAndJobCache(jobElement.jobId);
+                this.removeMemStatusAndJobCache(jobElement.jobId);
                 logger.info("jobId:{} jobCache is missed, set engineJob is STOPPED.", jobElement.jobId);
                 return StoppedStatus.MISSED;
             }
         } else if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
-            removeMemStatusAndJobCache(jobCache.getJobId());
+            this.removeMemStatusAndJobCache(jobCache.getJobId());
             logger.info("jobId:{} stopped success, task status is STOPPED.", jobElement.jobId);
             return StoppedStatus.STOPPED;
         } else {
             if (scheduleJob == null) {
-                removeMemStatusAndJobCache(jobElement.jobId);
+                this.removeMemStatusAndJobCache(jobElement.jobId);
                 logger.info("jobId:{} scheduleJob is missed, delete jobCache record.", jobElement.jobId);
                 return StoppedStatus.MISSED;
             }
@@ -325,6 +325,7 @@ public class JobStopDealer implements InitializingBean {
             JobClient jobClient = new JobClient(paramAction);
 
             if (StringUtils.isNotBlank(scheduleJob.getEngineJobId()) && !jobClient.getEngineTaskId().equals(scheduleJob.getEngineJobId())) {
+                this.removeMemStatusAndJobCache(jobElement.jobId);
                 logger.info("jobId:{} stopped success, because of [difference engineJobId].", paramAction.getTaskId());
                 return StoppedStatus.STOPPED;
             }
