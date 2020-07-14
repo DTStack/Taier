@@ -5,17 +5,17 @@ import com.dtstack.engine.common.exception.ExceptionEnums;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.router.callback.ApiResult;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
-@Order(5)
 public class ApiResponseAdvice {
 
     private final static Logger logger = LoggerFactory.getLogger(ApiResponseAdvice.class);
@@ -27,8 +27,8 @@ public class ApiResponseAdvice {
     public void apiResponse() {
     }
 
-    @Around("apiResponse()")
-    public ApiResult<Object> handlerController(ProceedingJoinPoint proceedingJoinPoint) {
+    @Around(value = "apiResponse()")
+    public ApiResult<Object> controller(ProceedingJoinPoint proceedingJoinPoint) {
         ApiResult<Object> apiResult = new ApiResult<>();
         try {
             //获取方法的执行结果
@@ -47,6 +47,22 @@ public class ApiResponseAdvice {
         return apiResult;
     }
 
+    @AfterReturning(value = "apiResponse()", returning = "result")
+    public ApiResult<Object> handlerController(Object result) {
+        ApiResult<Object> apiResult = new ApiResult<>();
+        //获取方法的执行结果
+        Object proceed = result;
+        //如果方法的执行结果是ApiResult，则将该对象直接返回
+        if (proceed instanceof ApiResult) {
+            apiResult = (ApiResult) proceed;
+        } else {
+            apiResult.setData(proceed);
+        }
+        apiResult.setCode(ErrorCode.SUCCESS.getCode());
+        return apiResult;
+    }
+
+    @AfterThrowing(value = "apiResponse()", throwing = "e")
     public ApiResult<Object> handle(Throwable e) {
         ExceptionEnums errorCode = ErrorCode.UNKNOWN_ERROR;
         String errorMsg = null;
