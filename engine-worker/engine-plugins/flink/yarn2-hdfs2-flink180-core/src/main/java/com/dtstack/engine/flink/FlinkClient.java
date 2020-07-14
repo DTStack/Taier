@@ -402,15 +402,32 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
+        String appId = jobIdentifier.getApplicationId();
         try {
             ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
-            JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
+            JobID jobId = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
 
-            // savepoint dir default use state.savepoints.dir
-            targetClusterClient.cancelWithSavepoint(jobID, null);
+            if (StringUtils.isEmpty(appId)) {
+                // yarn session job cancel
+                targetClusterClient.cancel(jobId);
+            } else {
+                // per job cancel
+                String savepoint = targetClusterClient.cancelWithSavepoint(jobId, null);
+                logger.info("flink job savepoint path {}", savepoint);
+            }
         } catch (Exception e) {
-            logger.error("", e);
-            return JobResult.createErrorResult(e);
+            logger.error("cancelWithSavepoint error,will use yarn kill applicaiton", e);
+
+            if (StringUtils.isEmpty(appId)) {
+                return JobResult.createErrorResult(e);
+            }
+
+            try {
+                ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
+                flinkClientBuilder.getYarnClient().killApplication(applicationId);
+            } catch (Exception killExecption) {
+                return JobResult.createErrorResult(e);
+            }
         }
 
         JobResult jobResult = JobResult.newInstance(false);

@@ -10,6 +10,7 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.k8s.Config;
 import org.apache.spark.deploy.k8s.ExtendConfig;
@@ -48,6 +49,7 @@ public class SparkConfigUtil {
     private final static String tmpK8sConfigDir = "tmpK8sConf";
 
     private final static String tmpHadoopFilePath = "/tmpHadoopConf";
+    private final static String EXECUTOR_HADOOP_USER_NAME = "spark.executorEnv.HADOOP_USER_NAME";
 
     public static SparkConf buildBasicSparkConf(Properties sparkDefaultProp) {
         SparkConf sparkConf = new SparkConf();
@@ -194,12 +196,12 @@ public class SparkConfigUtil {
     private static boolean downloadFileFromSftp(SparkK8sConfig sparkK8sConfig, String confFileDirName) {
         //从Sftp下载文件到目录下
         Map<String, String> sftpConf = sparkK8sConfig.getSftpConf();
-        String hdfhsSftpPath = sparkK8sConfig.getConfHdfsPath();
+        String hdfsSftpPath = sparkK8sConfig.getConfHdfsPath();
 
         SFTPHandler handler = null;
         try {
             handler = SFTPHandler.getInstance(sftpConf);
-            int files = handler.downloadDir(hdfhsSftpPath, confFileDirName);
+            int files = handler.downloadDir(hdfsSftpPath, confFileDirName);
             LOG.info("download file from SFTP, fileSize: " + files);
             if (files > 0) {
                 return true;
@@ -293,12 +295,18 @@ public class SparkConfigUtil {
 
 
     public static void setHadoopUserName(SparkK8sConfig sparkK8sConfig, SparkConf sparkConf) {
-        if (!Strings.isNullOrEmpty(sparkK8sConfig.getHadoopUserName())) {
-            // driver use
-            sparkConf.set(ExtendConfig.HADOOP_USER_NAME_KEY(), sparkK8sConfig.getHadoopUserName());
-            // executor use
-            sparkConf.set("spark.executorEnv.HADOOP_USER_NAME", sparkK8sConfig.getHadoopUserName());
+        String hadoopUserName = sparkK8sConfig.getHadoopUserName();
+        if (Strings.isNullOrEmpty(hadoopUserName)) {
+            hadoopUserName = System.getenv(ExtendConfig.HADOOP_USER_NAME_KEY());
+            if (StringUtils.isBlank(hadoopUserName)) {
+                hadoopUserName = System.getProperty(ExtendConfig.HADOOP_USER_NAME_KEY());
+            }
         }
+
+        // driver use
+        sparkConf.set(ExtendConfig.HADOOP_USER_NAME_KEY(), hadoopUserName);
+        // executor use
+        sparkConf.set(EXECUTOR_HADOOP_USER_NAME, hadoopUserName);
     }
 
 
