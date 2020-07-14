@@ -22,8 +22,10 @@ public class ShardManager implements Runnable {
     private static final long DATA_CLEAN_INTERVAL = 1000;
     private ScheduledExecutorService scheduledService = null;
     private Map<String, Integer> shard;
+    private String jobResource;
 
     public ShardManager(String jobResource) {
+        this.jobResource = jobResource;
         this.shard = new ConcurrentHashMap<>();
         scheduledService = new ScheduledThreadPoolExecutor(ComputeResourceType.values().length,
                 new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
@@ -44,6 +46,10 @@ public class ShardManager implements Runnable {
 
     public Map<String, Integer> getShard() {
         return shard;
+    }
+
+    public String getJobResource() {
+        return jobResource;
     }
 
     @Override
