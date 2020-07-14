@@ -189,6 +189,7 @@ public class FlinkClient extends AbstractClient {
 
             Preconditions.checkNotNull(clusterClient, "clusterClient is null");
             monitorUrl = clusterClient.getWebInterfaceURL();
+            logger.info("clusterClient monitorUrl is {},run mode is {}", monitorUrl, taskRunMode.name());
         } catch (Exception e) {
             logger.error("create clusterClient or getSession clusterClient error", e);
             throw new RdosDefineException(e);
@@ -521,22 +522,11 @@ public class FlinkClient extends AbstractClient {
      */
     private String getExceptionInfo(String exceptPath, String reqURL) {
         String exceptionInfo = "";
-        int i = 0;
-        while (i < 10) {
-            try {
-                Thread.sleep(500);
-                exceptionInfo = getMessageByHttp(exceptPath, reqURL);
-                return exceptionInfo;
-            } catch (RdosDefineException e) {
-                if (!e.getErrorMessage().contains("404")) {
-                    throw e;
-                }
-            } catch (Exception ignore) {
-
-            } finally {
-                i++;
-            }
-
+        try {
+            exceptionInfo = getMessageByHttp(exceptPath, reqURL);
+            return exceptionInfo;
+        } catch (Exception e) {
+            logger.error("", e);
         }
 
         return exceptionInfo;

@@ -109,48 +109,20 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         //info信息中数据
         String sql = (String) actionParam.get("sqlText");
         sql = sql == null ? "" : sql;
+
         String taskParams = taskShade.getTaskParams();
 
         List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String) actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
+        //统一替换下sql
+        sql = jobParamReplace.paramReplace(sql, taskParamsToReplace, scheduleJob.getCycTime());
 
         String taskExeArgs = null;
 
         if (EScheduleJobType.SPARK_SQL.getVal().equals(taskShade.getTaskType()) || EScheduleJobType.HIVE_SQL.getVal().equals(taskShade.getTaskType())
                 || EScheduleJobType.CARBON_SQL.getVal().equals(taskShade.getTaskType())) {
-            sql = jobParamReplace.paramReplace(sql, taskParamsToReplace, scheduleJob.getCycTime());
         } else if (EScheduleJobType.SYNC.getVal().equals(taskShade.getTaskType())) {
             String job = (String) actionParam.get("job");
-            if (StringUtils.isBlank(job)) {
-                throw new RdosDefineException("数据同步信息不能为空");
-            }
-
-            //替换系统参数
-            job = jobParamReplace.paramReplace(job, taskParamsToReplace, scheduleJob.getCycTime());
-
-            Integer sourceType = (Integer) actionParam.getOrDefault("dataSourceType", DataSourceType.HIVE.getVal());
-            String engineIdentity = (String) actionParam.get("engineIdentity");
-            // 获取脏数据存储路径
-            try {
-                job = this.replaceTablePath(true, job, taskShade.getName(), sourceType, engineIdentity,taskShade.getDtuicTenantId());
-            } catch (Exception e) {
-                LOG.error("create dirty table  partition error {}", scheduleJob.getJobId(), e);
-            }
-
-            try {
-                // 创建数据同步目标表分区
-                job = this.createPartition(taskShade.getDtuicTenantId(), job, sourceType, actionParam);
-            } catch (Exception e) {
-                LOG.error("create partition error {}", scheduleJob.getJobId(), e);
-                throw e;
-            }
-
-
-            // 查找上一次同步位置
-            if (scheduleJob.getType() == EScheduleType.NORMAL_SCHEDULE.getType()) {
-                job = getLastSyncLocation(taskShade.getTaskId(), job, scheduleJob.getCycTime(),taskShade.getDtuicTenantId(),taskShade.getAppType(),taskShade.getTaskParams());
-            } else {
-                job = removeIncreConf(job);
-            }
+            job = this.replaceSyncJobString(actionParam, taskShade, scheduleJob, taskParamsToReplace, job);
 
             // 构造savepoint参数
             String savepointArgs = null;
@@ -170,12 +142,16 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             //tensorflow 参数
             //--files ${uploadPath} --python-version 3 --launch-cmd ${launch} --app-type tensorflow --app-name dddd
             String exeArgs = (String) actionParam.get("exeArgs");
-            String uploadPath = this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
-                    taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
-            String fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/") + 1);
-            exeArgs = exeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
-            String launchCmd = (String) actionParam.getOrDefault("launchCmd","python ${file}");
-            launchCmd = jobParamReplace.paramReplace(launchCmd,taskParamsToReplace,scheduleJob.getCycTime());
+            String launchCmd = (String) actionParam.getOrDefault("launch-cmd", "python ${file}");
+            //分为资源上传 和 hdfs上传
+            String fileName = "";
+            if (launchCmd.contains(TaskConstant.FILE_NAME) || launchCmd.contains(TaskConstant.UPLOADPATH)) {
+                String uploadPath = this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
+                        taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
+                fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/") + 1);
+                exeArgs = exeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
+            }
+            launchCmd = jobParamReplace.paramReplace(launchCmd, taskParamsToReplace, scheduleJob.getCycTime());
             //替换参数 base64 生成launchCmd
             String launchString = Base64Util.baseEncode(launchCmd.replace(TaskConstant.FILE_NAME, fileName));
             taskExeArgs = exeArgs.replace(TaskConstant.LAUNCH, launchString);
@@ -210,15 +186,64 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         if (taskExeArgs != null) {
             //替换jobId
             taskExeArgs = taskExeArgs.replace(TaskConstant.JOB_ID, scheduleJob.getJobId());
+
+            //替换组件的exeArgs中的cmd参数
+            if(taskExeArgs.contains(TaskConstant.LAUNCH)){
+                String launchCmd = jobParamReplace.paramReplace((String) actionParam.get("launch-cmd"),taskParamsToReplace,scheduleJob.getCycTime());
+                //替换参数 base64 生成launchCmd
+                taskExeArgs = taskExeArgs.replace(TaskConstant.LAUNCH,Base64Util.baseEncode(launchCmd));
+            }
             actionParam.put("exeArgs", taskExeArgs);
         }
-        //统一替换下sql
-        sql = jobParamReplace.paramReplace(sql, taskParamsToReplace, scheduleJob.getCycTime());
 
         actionParam.put("sqlText", sql);
         actionParam.put("taskParams", taskParams);
         //engine 不需要用到的参数 去除
         actionParam.remove("taskParamsToReplace");
+    }
+
+    /**
+     * 替换数据同步中部分信息
+     * @param actionParam
+     * @param taskShade
+     * @param scheduleJob
+     * @param taskParamsToReplace
+     * @param job
+     * @return
+     */
+    private String replaceSyncJobString(Map<String, Object> actionParam, ScheduleTaskShade taskShade, ScheduleJob scheduleJob, List<ScheduleTaskParamShade> taskParamsToReplace, String job) {
+        if (StringUtils.isBlank(job)) {
+            throw new RdosDefineException("数据同步信息不能为空");
+        }
+
+        //替换系统参数
+        job = jobParamReplace.paramReplace(job, taskParamsToReplace, scheduleJob.getCycTime());
+
+        Integer sourceType = (Integer) actionParam.getOrDefault("dataSourceType", DataSourceType.HIVE.getVal());
+        String engineIdentity = (String) actionParam.get("engineIdentity");
+        // 获取脏数据存储路径
+        try {
+            job = this.replaceTablePath(true, job, taskShade.getName(), sourceType, engineIdentity,taskShade.getDtuicTenantId());
+        } catch (Exception e) {
+            LOG.error("create dirty table  partition error {}", scheduleJob.getJobId(), e);
+        }
+
+        try {
+            // 创建数据同步目标表分区
+            job = this.createPartition(taskShade.getDtuicTenantId(), job, sourceType, actionParam);
+        } catch (Exception e) {
+            LOG.error("create partition error {}", scheduleJob.getJobId(), e);
+            throw e;
+        }
+
+
+        // 查找上一次同步位置
+        if (scheduleJob.getType() == EScheduleType.NORMAL_SCHEDULE.getType()) {
+            job = getLastSyncLocation(taskShade.getTaskId(), job, scheduleJob.getCycTime(),taskShade.getDtuicTenantId(),taskShade.getAppType(),taskShade.getTaskParams());
+        } else {
+            job = removeIncreConf(job);
+        }
+        return job;
     }
 
 
@@ -264,9 +289,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     JSONObject jdbcInfoObject = JSONObject.parseObject(jdbcInfo);
                     JSONObject pluginInfo = new JSONObject();
                     pluginInfo.put("jdbcUrl", jdbcInfoObject.getString("jdbcUrl"));
-                    pluginInfo.put("userName", jdbcInfoObject.getString("username"));
-                    pluginInfo.put("pwd", jdbcInfoObject.getString("password"));
-                    pluginInfo.put("driverClassName", DataBaseType.Impala.getDriverClassName());
+                    pluginInfo.put("username", jdbcInfoObject.getString("username"));
+                    pluginInfo.put("password", jdbcInfoObject.getString("password"));
                     workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, tableName, String.format("DESCRIBE formatted %s", tableName));
                 } else if (ETableType.HIVE.getType() == tableType) {
@@ -274,9 +298,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     JSONObject jdbcInfoObject = JSONObject.parseObject(jdbcInfo);
                     JSONObject pluginInfo = new JSONObject();
                     pluginInfo.put("jdbcUrl", jdbcInfoObject.getString("jdbcUrl"));
-                    pluginInfo.put("userName", jdbcInfoObject.getString("username"));
-                    pluginInfo.put("pwd", jdbcInfoObject.getString("password"));
-                    pluginInfo.put("driverClassName", DataBaseType.HIVE.getDriverClassName());
+                    pluginInfo.put("username", jdbcInfoObject.getString("username"));
+                    pluginInfo.put("password", jdbcInfoObject.getString("password"));
                     workerOperator.executeQuery(DataBaseType.HIVE.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, tableName, String.format("desc formatted %s", tableName));
                 }

@@ -101,7 +101,7 @@ public class JobStatusDealer implements Runnable {
                     buildSemaphore.acquire();
                     taskStatusPool.submit(() -> {
                         try {
-                            logger.info("jobId:{} status:{}", job.getKey(), job.getValue());
+                            logger.info("jobId:{} before dealJob status:{}", job.getKey(), job.getValue());
                             dealJob(job.getKey());
                         } catch (Throwable e) {
                             logger.error("{}", e);
@@ -128,7 +128,27 @@ public class JobStatusDealer implements Runnable {
     private void dealJob(String jobId) throws Exception {
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
-        if (scheduleJob != null && engineJobCache != null) {
+        if (scheduleJob == null || engineJobCache == null || StringUtils.isBlank(scheduleJob.getEngineJobId())) {
+            shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
+
+            Integer status = RdosTaskStatus.CANCELED.getStatus();
+            String engineJobId = null;
+            if (scheduleJob != null) {
+                engineJobId = scheduleJob.getEngineJobId();
+
+                if (RdosTaskStatus.getStoppedStatus().contains(scheduleJob.getStatus())) {
+                    status = scheduleJob.getStatus();
+                } else {
+                    scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+                }
+            } else {
+                scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+            }
+
+            engineJobCacheDao.delete(jobId);
+            logger.info("jobId:{} set job finished, status:{}, scheduleJob is {} null, engineJobCache is {} null, engineJobId is {} blank.",
+                    jobId, status, scheduleJob == null ? "" : "not", engineJobCache == null ? "" : "not", engineJobId == null ? "" : "not");
+        } else {
             String engineTaskId = scheduleJob.getEngineJobId();
             String appId = scheduleJob.getApplicationId();
             String engineType = engineJobCache.getEngineType();
@@ -137,41 +157,39 @@ public class JobStatusDealer implements Runnable {
                     scheduleJobService.parseDeployTypeByTaskParams(info.getString("taskParams")).getType(),info.getLong("userId"),
                     info.getString("pluginInfo"));
 
-            if (StringUtils.isNotBlank(engineTaskId)) {
-                RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
-                if (rdosTaskStatus != null) {
+            RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
 
-                    rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, jobId);
-                    Integer status = rdosTaskStatus.getStatus();
-                    // 重试状态 先不更新状态
-                    boolean isRestart = jobRestartDealer.checkAndRestart(status, jobId, engineTaskId, appId);
-                    if (isRestart) {
-                        return;
-                    }
+            logger.info("jobId:{} dealJob status:{}", jobId, rdosTaskStatus);
 
-                    shardCache.updateLocalMemTaskStatus(jobId, status);
-                    scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
-                    logger.info("jobId:{} update job status:{}.", jobId, status);
+            if (rdosTaskStatus != null) {
 
-                    //数据的更新顺序，先更新job_cache，再更新engine_batch_job
-                    if (RdosTaskStatus.getStoppedStatus().contains(status)) {
-                        jobCheckpointDealer.updateCheckpointImmediately(new JobCheckpointInfo(jobIdentifier, engineType), jobId, status);
-
-                        jobLogDelayDealer(jobId, jobIdentifier, engineType, engineJobCache.getComputeType(),scheduleJob.getType());
-                        jobStatusFrequency.remove(jobId);
-                        engineJobCacheDao.delete(jobId);
-                    }
-
-                    if (RdosTaskStatus.RUNNING.getStatus().equals(status)) {
-                        jobCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineType);
-                    }
+                rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, jobId);
+                Integer status = rdosTaskStatus.getStatus();
+                // 重试状态 先不更新状态
+                boolean isRestart = jobRestartDealer.checkAndRestart(status, jobId, engineTaskId, appId);
+                if (isRestart) {
+                    logger.info("jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
+                    return;
                 }
+
+                shardCache.updateLocalMemTaskStatus(jobId, status);
+                scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+
+                //数据的更新顺序，先更新job_cache，再更新engine_batch_job
+                if (RdosTaskStatus.getStoppedStatus().contains(status)) {
+                    jobCheckpointDealer.updateCheckpointImmediately(new JobCheckpointInfo(jobIdentifier, engineType), jobId, status);
+
+                    jobLogDelayDealer(jobId, jobIdentifier, engineType, engineJobCache.getComputeType(),scheduleJob.getType());
+                    jobStatusFrequency.remove(jobId);
+                    engineJobCacheDao.delete(jobId);
+                }
+
+                if (RdosTaskStatus.RUNNING.getStatus().equals(status)) {
+                    jobCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineType);
+                }
+
+                logger.info("jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
             }
-        } else {
-            shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
-            scheduleJobDao.updateJobStatusAndExecTime(jobId, RdosTaskStatus.CANCELED.getStatus());
-            logger.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.CANCELED.getStatus());
-            engineJobCacheDao.delete(jobId);
         }
     }
 

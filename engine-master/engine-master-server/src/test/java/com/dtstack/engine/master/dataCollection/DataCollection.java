@@ -254,4 +254,10 @@ public interface DataCollection {
         Tenant tenant = Template.getTenantTemplate();
         return tenant;
     }
+
+    @DatabaseInsertOperation(dao = TestConsoleUserDao.class)
+    default User getUser(){
+        User user = Template.getUserTemplate();
+        return user;
+    }
 }

@@ -951,7 +951,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     }
 
     @Forbidden
-    @Transactional(rollbackFor = Exception.class)
     public Long startJob(ScheduleJob scheduleJob) throws Exception {
         sendTaskStartTrigger(scheduleJob);
         return scheduleJob.getId();
