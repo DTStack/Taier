@@ -84,17 +84,17 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
     private int asyncDealStopJobPoolSize = 10;
 
 
-    private DelayBlockingQueue<StoppedJob<JobElement>> stopJobQueue = new DelayBlockingQueue<StoppedJob<JobElement>>(asyncDealStopJobQueueSize);
+    private DelayBlockingQueue<StoppedJob<JobElement>> stopJobQueue = new DelayBlockingQueue<StoppedJob<JobElement>>(1000);
 
-    private ExecutorService stopProcessorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(), new CustomThreadFactory("stopProcessor"));
+    private ExecutorService delayStopProcessorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(), new CustomThreadFactory("delayStopProcessor"));
 
     private ExecutorService asyncDealStopJobService = new ThreadPoolExecutor(asyncDealStopJobPoolSize, asyncDealStopJobPoolSize, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(asyncDealStopJobQueueSize), new CustomThreadFactory("asyncDealStopJob"), new CustomThreadRunsPolicy("asyncDealStopJob", "stop", 180));
 
     private ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
 
-    private StopProcessor stopProcessor = new StopProcessor();
+    private DelayStopProcessor delayStopProcessor = new DelayStopProcessor();
     private AcquireStopJob acquireStopJob = new AcquireStopJob();
 
     private static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EScheduleJobType.WORK_FLOW.getVal(), EScheduleJobType.ALGORITHM_LAB.getVal());
@@ -160,7 +160,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         jobStoppedRetry = environmentContext.getJobStoppedRetry();
         jobStoppedDelay = environmentContext.getJobStoppedDelay();
 
-        stopProcessorService.submit(stopProcessor);
+        delayStopProcessorService.submit(delayStopProcessor);
         scheduledService.scheduleWithFixedDelay(
                 acquireStopJob,
                 WAIT_INTERVAL,
@@ -168,14 +168,9 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 TimeUnit.MILLISECONDS);
     }
 
-    public boolean tryPutStopJobQueue(ParamAction paramAction) {
-        JobElement jobElement = new JobElement(paramAction.getTaskId(), paramAction.getStopJobId());
-        return stopJobQueue.tryPut(new StoppedJob<JobElement>(jobElement, jobStoppedRetry, jobStoppedDelay));
-    }
-
     @Override
     public void destroy() throws Exception {
-        stopProcessorService.shutdownNow();
+        delayStopProcessorService.shutdownNow();
         scheduledService.shutdownNow();
         asyncDealStopJobService.shutdownNow();
         logger.info("job stop process thread is shutdown...");
@@ -228,7 +223,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                             }
 
                             JobElement jobElement = new JobElement(jobCache.getJobId(), jobStopRecord.getId());
-                            stopJobQueue.put(new StoppedJob<JobElement>(jobElement, jobStoppedRetry, jobStoppedDelay));
+                            asyncDealStopJobService.submit(() -> asyncDealStopJob(new StoppedJob<JobElement>(jobElement, jobStoppedRetry, jobStoppedDelay)));
                         } else {
                             //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
                             scheduleJobDao.updateTaskStatusNotStopped(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());
@@ -246,13 +241,10 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         }
     }
 
-    private class StopProcessor implements Runnable {
-
+    private class DelayStopProcessor implements Runnable {
         @Override
         public void run() {
-
-            logger.info("job stop process thread is start...");
-
+            logger.info("DelayStopProcessor thread is start...");
             while (true) {
                 try {
                     StoppedJob<JobElement> stoppedJob = stopJobQueue.take();
@@ -262,105 +254,105 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 }
             }
         }
+    }
 
-        private void asyncDealStopJob(StoppedJob<JobElement> stoppedJob) {
-            try {
-                if (!checkExpired(stoppedJob.getJob())) {
-                    StoppedStatus stoppedStatus = this.stopJob(stoppedJob.getJob());
-                    switch (stoppedStatus) {
-                        case STOPPED:
-                        case MISSED:
-                            engineJobStopRecordDao.delete(stoppedJob.getJob().stopJobId);
-                            break;
-                        case STOPPING:
-                        case RETRY:
-                            if (stoppedJob.isRetry()) {
-                                if (StoppedStatus.STOPPING == stoppedStatus) {
-                                    stoppedJob.resetDelay(jobStoppedDelay * 20);
-                                } else if (StoppedStatus.RETRY == stoppedStatus) {
-                                    stoppedJob.resetDelay(jobStoppedDelay);
-                                }
-                                stoppedJob.incrCount();
-                                stopJobQueue.put(stoppedJob);
-                            } else {
-                                removeMemStatusAndJobCache(stoppedJob.getJob().jobId);
-                                logger.warn("jobId:{} retry limited!", stoppedJob.getJob().jobId);
+    private void asyncDealStopJob(StoppedJob<JobElement> stoppedJob) {
+        try {
+            if (!checkExpired(stoppedJob.getJob())) {
+                StoppedStatus stoppedStatus = this.stopJob(stoppedJob.getJob());
+                switch (stoppedStatus) {
+                    case STOPPED:
+                    case MISSED:
+                        engineJobStopRecordDao.delete(stoppedJob.getJob().stopJobId);
+                        break;
+                    case STOPPING:
+                    case RETRY:
+                        if (stoppedJob.isRetry()) {
+                            if (StoppedStatus.STOPPING == stoppedStatus) {
+                                stoppedJob.resetDelay(jobStoppedDelay * 20);
+                            } else if (StoppedStatus.RETRY == stoppedStatus) {
+                                stoppedJob.resetDelay(jobStoppedDelay);
                             }
-                        default:
-                    }
+                            stoppedJob.incrCount();
+                            stopJobQueue.put(stoppedJob);
+                        } else {
+                            removeMemStatusAndJobCache(stoppedJob.getJob().jobId);
+                            logger.warn("jobId:{} retry limited!", stoppedJob.getJob().jobId);
+                        }
+                    default:
                 }
-                engineJobStopRecordDao.delete(stoppedJob.getJob().stopJobId);
-            } catch (Exception e) {
-                logger.error("", e);
             }
+            engineJobStopRecordDao.delete(stoppedJob.getJob().stopJobId);
+        } catch (Exception e) {
+            logger.error("", e);
         }
+    }
 
-        private StoppedStatus stopJob(JobElement jobElement) throws Exception {
-            EngineJobCache jobCache = engineJobCacheDao.getOne(jobElement.jobId);
-            ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobElement.jobId);
-            if (jobCache == null) {
-                if (scheduleJob != null && RdosTaskStatus.isStopped(scheduleJob.getStatus())) {
-                    logger.info("jobId:{} stopped success, set job is STOPPED.", jobElement.jobId);
-                    return StoppedStatus.STOPPED;
-                } else {
-                    this.removeMemStatusAndJobCache(jobElement.jobId);
-                    logger.info("jobId:{} jobCache is null, set job is MISSED.", jobElement.jobId);
-                    return StoppedStatus.MISSED;
-                }
-            } else if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
-                this.removeMemStatusAndJobCache(jobCache.getJobId());
-                logger.info("jobId:{} is unsubmitted, set job is STOPPED.", jobElement.jobId);
+    private StoppedStatus stopJob(JobElement jobElement) throws Exception {
+        EngineJobCache jobCache = engineJobCacheDao.getOne(jobElement.jobId);
+        ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobElement.jobId);
+        if (jobCache == null) {
+            if (scheduleJob != null && RdosTaskStatus.isStopped(scheduleJob.getStatus())) {
+                logger.info("jobId:{} stopped success, set job is STOPPED.", jobElement.jobId);
                 return StoppedStatus.STOPPED;
             } else {
-                if (scheduleJob == null) {
-                    this.removeMemStatusAndJobCache(jobElement.jobId);
-                    logger.info("jobId:{} scheduleJob is null, set job is MISSED.", jobElement.jobId);
-                    return StoppedStatus.MISSED;
-                } else if (RdosTaskStatus.getStoppedAndNotFound().contains(scheduleJob.getStatus())) {
-                    this.removeMemStatusAndJobCache(jobElement.jobId);
-                    logger.info("jobId:{} and status:{} is StoppedAndNotFound, set job is STOPPED.", jobElement.jobId);
-                    return StoppedStatus.STOPPED;
-                }
-
-
-                ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
-                paramAction.setEngineTaskId(scheduleJob.getEngineJobId());
-                paramAction.setApplicationId(scheduleJob.getApplicationId());
-                JobClient jobClient = new JobClient(paramAction);
-
-                if (StringUtils.isNotBlank(scheduleJob.getEngineJobId()) && !jobClient.getEngineTaskId().equals(scheduleJob.getEngineJobId())) {
-                    this.removeMemStatusAndJobCache(jobElement.jobId);
-                    logger.info("jobId:{} stopped success, because of [difference engineJobId].", paramAction.getTaskId());
-                    return StoppedStatus.STOPPED;
-                }
-                JobResult jobResult = workerOperator.stopJob(jobClient);
-                if (jobResult.getCheckRetry()) {
-                    logger.info("jobId:{} is retry.", paramAction.getTaskId());
-                    return StoppedStatus.RETRY;
-                } else {
-                    logger.info("jobId:{} is stopping.", paramAction.getTaskId());
-                    return StoppedStatus.STOPPING;
-                }
+                this.removeMemStatusAndJobCache(jobElement.jobId);
+                logger.info("jobId:{} jobCache is null, set job is MISSED.", jobElement.jobId);
+                return StoppedStatus.MISSED;
+            }
+        } else if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
+            this.removeMemStatusAndJobCache(jobCache.getJobId());
+            logger.info("jobId:{} is unsubmitted, set job is STOPPED.", jobElement.jobId);
+            return StoppedStatus.STOPPED;
+        } else {
+            if (scheduleJob == null) {
+                this.removeMemStatusAndJobCache(jobElement.jobId);
+                logger.info("jobId:{} scheduleJob is null, set job is MISSED.", jobElement.jobId);
+                return StoppedStatus.MISSED;
+            } else if (RdosTaskStatus.getStoppedAndNotFound().contains(scheduleJob.getStatus())) {
+                this.removeMemStatusAndJobCache(jobElement.jobId);
+                logger.info("jobId:{} and status:{} is StoppedAndNotFound, set job is STOPPED.", jobElement.jobId);
+                return StoppedStatus.STOPPED;
             }
 
-        }
 
-        private void removeMemStatusAndJobCache(String jobId) {
-            shardCache.removeIfPresent(jobId);
-            engineJobCacheDao.delete(jobId);
-            //修改任务状态
-            scheduleJobDao.updateJobStatusAndExecTime(jobId, RdosTaskStatus.CANCELED.getStatus());
-            logger.info("jobId:{} delete jobCache and update job status:{}, job set finished.", jobId, RdosTaskStatus.CANCELED.getStatus());
-        }
+            ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
+            paramAction.setEngineTaskId(scheduleJob.getEngineJobId());
+            paramAction.setApplicationId(scheduleJob.getApplicationId());
+            JobClient jobClient = new JobClient(paramAction);
 
-        private boolean checkExpired(JobElement jobElement) {
-            EngineJobCache jobCache = engineJobCacheDao.getOne(jobElement.jobId);
-            Timestamp getGmtCreate = engineJobStopRecordDao.getJobCreateTimeById(jobElement.stopJobId);
-            if (jobCache != null && getGmtCreate != null) {
-                return jobCache.getGmtCreate().after(getGmtCreate);
+            if (StringUtils.isNotBlank(scheduleJob.getEngineJobId()) && !jobClient.getEngineTaskId().equals(scheduleJob.getEngineJobId())) {
+                this.removeMemStatusAndJobCache(jobElement.jobId);
+                logger.info("jobId:{} stopped success, because of [difference engineJobId].", paramAction.getTaskId());
+                return StoppedStatus.STOPPED;
+            }
+            JobResult jobResult = workerOperator.stopJob(jobClient);
+            if (jobResult.getCheckRetry()) {
+                logger.info("jobId:{} is retry.", paramAction.getTaskId());
+                return StoppedStatus.RETRY;
             } else {
-                return true;
+                logger.info("jobId:{} is stopping.", paramAction.getTaskId());
+                return StoppedStatus.STOPPING;
             }
+        }
+
+    }
+
+    private void removeMemStatusAndJobCache(String jobId) {
+        shardCache.removeIfPresent(jobId);
+        engineJobCacheDao.delete(jobId);
+        //修改任务状态
+        scheduleJobDao.updateJobStatusAndExecTime(jobId, RdosTaskStatus.CANCELED.getStatus());
+        logger.info("jobId:{} delete jobCache and update job status:{}, job set finished.", jobId, RdosTaskStatus.CANCELED.getStatus());
+    }
+
+    private boolean checkExpired(JobElement jobElement) {
+        EngineJobCache jobCache = engineJobCacheDao.getOne(jobElement.jobId);
+        Timestamp getGmtCreate = engineJobStopRecordDao.getJobCreateTimeById(jobElement.stopJobId);
+        if (jobCache != null && getGmtCreate != null) {
+            return jobCache.getGmtCreate().after(getGmtCreate);
+        } else {
+            return true;
         }
     }
 
