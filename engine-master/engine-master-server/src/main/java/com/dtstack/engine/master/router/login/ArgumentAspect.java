@@ -12,20 +12,21 @@ import org.springframework.stereotype.Component;
  * author: toutian
  * create: 2017/9/22
  */
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class ArgumentAspect {
 
-    @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping)")
-    public void requestAnnotation() {
-    }
-
-    @Pointcut("execution(* com.dtstack.engine.master.controller.*.*(..))")
-    public void executeController() {
-    }
-
-    @Around(value = "requestAnnotation()&&executeController()")
-    public Object ArgumentResolve(ProceedingJoinPoint joinPoint) {
-        return null;
-    }
+//    @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping)")
+//    public void requestAnnotation() {
+//    }
+//
+//    @Pointcut("execution(* com.dtstack.engine.master.controller.*.*(..))")
+//    public void executeController() {
+//    }
+//
+//    @Around(value = "requestAnnotation()&&executeController()")
+//    public Object ArgumentResolve(ProceedingJoinPoint joinPoint) {
+//
+//        return null;
+//    }
 }
