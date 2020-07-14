@@ -45,9 +45,9 @@ public class ScheduleJobController {
 
     @RequestMapping(value="/runTimeTopOrder", method = {RequestMethod.POST})
     @ApiOperation(value = "运行时长top排序")
-    public List<JobTopOrderVO> runTimeTopOrder(@RequestParam("projectId") Long projectId,
-                                               @RequestParam("startTime") Long startTime,
-                                               @RequestParam("endTime") Long endTime, @RequestParam("appType") Integer appType, @RequestParam("dtuicTenantId") Long dtuicTenantId) {
+    public List<JobTopOrderVO> runTimeTopOrder(@RequestParam(value = "projectId", required = false) Long projectId,
+                                               @RequestParam(value = "startTime") Long startTime,
+                                               @RequestParam("endTime") Long endTime, @RequestParam(value = "appType", required = false) Integer appType, @RequestParam(value = "dtuicTenantId", required = false) Long dtuicTenantId) {
         return scheduleJobService.runTimeTopOrder(projectId, startTime, endTime, appType, dtuicTenantId);
     }
 

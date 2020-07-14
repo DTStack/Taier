@@ -44,8 +44,8 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loginInterceptor()).addPathPatterns(Lists.newArrayList("getJobGraph","runTimeTopOrder","errorTopOrder",
-                "frozenTask","getFillDataJobInfoPreview","stopFillDataJobs"));
+        registry.addInterceptor(loginInterceptor()).addPathPatterns(Lists.newArrayList("/**/getJobGraph","/**/runTimeTopOrder","/**/errorTopOrder",
+                "/**/frozenTask","/**/getFillDataJobInfoPreview","/**/stopFillDataJobs"));
         super.addInterceptors(registry);
     }
 
