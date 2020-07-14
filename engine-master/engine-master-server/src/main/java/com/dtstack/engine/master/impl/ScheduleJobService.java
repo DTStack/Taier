@@ -1317,6 +1317,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             }, environmentContext.getBuildJobErrorRetry(), 200, false);
         } catch (Exception e) {
             logger.error("!!!!! persisteJobs job error !!!! job {} jobjob {}", jobWaitForSave, jobJobWaitForSave, e);
+        } finally {
+            jobWaitForSave.clear();
+            jobJobWaitForSave.clear();
         }
     }
 

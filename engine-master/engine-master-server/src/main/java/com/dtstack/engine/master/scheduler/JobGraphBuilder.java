@@ -12,6 +12,7 @@ import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.master.data.SortedArrayList;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.*;
 import com.dtstack.engine.master.parser.*;
@@ -131,7 +132,16 @@ public class JobGraphBuilder {
             ExecutorService jobGraphBuildPool = new ThreadPoolExecutor(MAX_TASK_BUILD_THREAD, MAX_TASK_BUILD_THREAD, 10L, TimeUnit.SECONDS,
                     new LinkedBlockingQueue<>(MAX_TASK_BUILD_THREAD), new CustomThreadFactory("JobGraphBuilder"));
 
-            List<ScheduleBatchJob> allJobs = new ArrayList<>(totalTask);
+            SortedArrayList<ScheduleBatchJob> allJobs = new SortedArrayList<>((ebj1, ebj2) -> {
+                Long date1 = Long.valueOf(ebj1.getCycTime());
+                Long date2 = Long.valueOf(ebj2.getCycTime());
+                if (date1 < date2) {
+                    return -1;
+                } else if (date1 > date2) {
+                    return 1;
+                }
+                return 0;
+            });
             Map<String, String> flowJobId = new ConcurrentHashMap<>(totalTask);
             //限制 thread 并发
             int totalBatch = totalTask / TASK_BATCH_SIZE;
@@ -197,7 +207,7 @@ public class JobGraphBuilder {
 
             doSetFlowJobIdForSubTasks(allJobs, flowJobId);
 
-            allJobs.sort((ebj1, ebj2) -> {
+           /* allJobs.sort((ebj1, ebj2) -> {
                 Long date1 = Long.valueOf(ebj1.getCycTime());
                 Long date2 = Long.valueOf(ebj2.getCycTime());
                 if (date1 < date2) {
@@ -206,7 +216,7 @@ public class JobGraphBuilder {
                     return 1;
                 }
                 return 0;
-            });
+            });*/
 
             //存储生成的jobRunBean
             saveJobGraph(allJobs, triggerDay);
@@ -297,7 +307,8 @@ public class JobGraphBuilder {
      * @return
      */
     @Transactional
-    public boolean saveJobGraph(List<ScheduleBatchJob> jobList, String triggerDay) {
+    public boolean saveJobGraph(SortedArrayList<ScheduleBatchJob> jobList, String triggerDay) {
+        logger.error("start saveJobGraph to db {} error ", triggerDay);
         //需要保存BatchJob, BatchJobJob
         batchJobService.insertJobList(jobList, EScheduleType.NORMAL_SCHEDULE.getType());
 
@@ -310,7 +321,7 @@ public class JobGraphBuilder {
                 return null;
             }, environmentContext.getBuildJobErrorRetry(), 200, false);
         } catch (Exception e) {
-            logger.info("addJobTrigger triggerTimeStr {} error ", triggerTimeStr);
+            logger.error("addJobTrigger triggerTimeStr {} error ", triggerTimeStr);
             throw new RdosDefineException(e);
         }
 
@@ -458,7 +469,9 @@ public class JobGraphBuilder {
             if (needAddFather) {
                 List<String> fatherDependency = getDependencyJobKeys(scheduleType, scheduleJob, scheduleCron, keyPreStr);
                 for (String dependencyJobKey : fatherDependency) {
-                    logger.info("get Job {} Job key  {} cron {} cycTime {}", jobKey, dependencyJobKey, JSONObject.toJSONString(scheduleCron), scheduleJob.getCycTime());
+                    if(logger.isDebugEnabled()){
+                        logger.debug("get Job {} Job key  {} cron {} cycTime {}", jobKey, dependencyJobKey, JSONObject.toJSONString(scheduleCron), scheduleJob.getCycTime());
+                    }
                     scheduleBatchJob.addBatchJobJob(createNewJobJob(scheduleJob, jobKey, dependencyJobKey, timestampNow));
                 }
             }
@@ -555,15 +568,6 @@ public class JobGraphBuilder {
         }
     }
 
-    public ScheduleEngineJob newInstance(Integer status, String jobId) {
-        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-        ScheduleEngineJob job = new ScheduleEngineJob();
-        job.setStatus(status);
-        job.setJobId(jobId);
-        job.setGmtCreate(timestamp);
-        job.setGmtModified(timestamp);
-        return job;
-    }
 
     public ScheduleJobJob createNewJobJob(ScheduleJob scheduleJob, String jobKey, String parentKey, Timestamp timestamp) {
         ScheduleJobJob jobJobJob = new ScheduleJobJob();

@@ -356,4 +356,8 @@ public class EnvironmentContext {
     public boolean openScheduleJobCron(){
         return Boolean.parseBoolean(environment.getProperty("job.back.cron.open", "false"));
     }
+
+    public Integer getScheduleJobScope() {
+        return Integer.valueOf(environment.getProperty("job.back.scope", "1000*60"));
+    }
 }
