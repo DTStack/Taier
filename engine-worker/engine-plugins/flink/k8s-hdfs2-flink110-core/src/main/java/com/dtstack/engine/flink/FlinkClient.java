@@ -395,7 +395,7 @@ public class FlinkClient extends AbstractClient {
                 cancel = targetClusterClient.cancelWithSavepoint(jobID, null);
             }
 
-            Object ack = cancel.get(3, TimeUnit.MINUTES);
+            Object ack = cancel.get(2, TimeUnit.MINUTES);
             if (ack instanceof String) {
                 logger.info("cancelWithSavepoint success savepoint path is : {} ", ack.toString());
             }

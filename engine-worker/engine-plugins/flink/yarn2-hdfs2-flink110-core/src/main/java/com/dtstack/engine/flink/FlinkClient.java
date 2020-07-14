@@ -412,8 +412,10 @@ public class FlinkClient extends AbstractClient {
             } else {
                 // per job cancel
                 CompletableFuture completableFuture = targetClusterClient.cancelWithSavepoint(jobId, null);
-                logger.info("flink job savepoint path {}", completableFuture.get(2, TimeUnit.MINUTES));
+                Object ask = completableFuture.get(2, TimeUnit.MINUTES);
+                logger.info("flink job savepoint path {}", ask.toString());
             }
+
         } catch (Exception e) {
             logger.error("cancelWithSavepoint error,will use yarn kill applicaiton", e);
 
