@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.sparkk8s.executor;
+package com.dtstack.engine.sparkk8s.submit;
 
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobParam;
@@ -39,14 +39,14 @@ import java.util.Properties;
  * Company: www.dtstack.com
  * @author maqi
  */
-public class MrSubmiter extends AbstractSparkSubmiter {
-    private static final Logger LOG = LoggerFactory.getLogger(MrSubmiter.class);
+public class MrSubmit extends AbstractSparkSubmit {
+    private static final Logger LOG = LoggerFactory.getLogger(MrSubmit.class);
 
     private final JobClient jobClient;
     private Properties sparkDefaultProp;
     private SparkK8sConfig sparkK8sConfig;
 
-    public MrSubmiter(JobClient jobClient, SparkK8sConfig sparkK8sConfig, Properties sparkDefaultProp) {
+    public MrSubmit(JobClient jobClient, SparkK8sConfig sparkK8sConfig, Properties sparkDefaultProp) {
         this.jobClient = jobClient;
         this.sparkDefaultProp = sparkDefaultProp;
         this.sparkK8sConfig = sparkK8sConfig;
@@ -57,6 +57,7 @@ public class MrSubmiter extends AbstractSparkSubmiter {
         JobParam jobParam = new JobParam(jobClient);
         String appName = jobParam.getJobName();
         String mainClass = jobParam.getMainClass();
+
         String jarPath = jobParam.getJarPath();
         String jarImagePath = getJarImagePath(jarPath);
         String jarName = StringUtils.substring(jarPath, jarPath.lastIndexOf("/"));
@@ -85,6 +86,7 @@ public class MrSubmiter extends AbstractSparkSubmiter {
         // operator hdfs
         SparkConfigUtil.setHadoopUserName(sparkK8sConfig, sparkConf);
         sparkConf.setAppName(appName);
+
         // sftp config
         fillSftpConfig(sftpDir, sparkConf, sparkK8sConfig.getSftpConf());
 

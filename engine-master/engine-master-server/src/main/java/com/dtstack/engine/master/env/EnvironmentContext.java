@@ -17,7 +17,6 @@ public class EnvironmentContext {
 
     @Autowired
     private Environment environment;
-    private int taskStatusDealerPoolSize;
 
     /**
      * =========base=======
@@ -66,16 +65,16 @@ public class EnvironmentContext {
         return environment.getProperty("jdbc.username");
     }
 
-    public int getmMaxPoolSize() {
-        return Integer.parseInt(environment.getProperty("max.pool.size", "50"));
+    public int getMaxPoolSize() {
+        return Integer.parseInt(environment.getProperty("max.pool.size", "1000"));
     }
 
     public int getMinPoolSize() {
-        return Integer.parseInt(environment.getProperty("min.pool.size", "10"));
+        return Integer.parseInt(environment.getProperty("min.pool.size", "50"));
     }
 
     public int getInitialPoolSize() {
-        return Integer.parseInt(environment.getProperty("initial.pool.size", "10"));
+        return Integer.parseInt(environment.getProperty("initial.pool.size", "50"));
     }
 
     public int getCheckTimeout() {
@@ -203,23 +202,9 @@ public class EnvironmentContext {
         return environment.getProperty("batch.job.graph.build.cron", "22:00:00");
     }
 
-
-    public String getEngineNode() {
-        return environment.getProperty("engine.node");
-    }
-
     public String getMasterLock() {
         return environment.getProperty("master.lock", "master_lock");
     }
-
-    public String getConsoleNode() {
-        return environment.getProperty("console.node");
-    }
-
-    public String getSdkToken() {
-        return environment.getProperty("sdk.token");
-    }
-
 
     public String getHdfsTaskPath() {
         return environment.getProperty("hdfs.task.path", "/dtInsight/task/");
@@ -255,7 +240,7 @@ public class EnvironmentContext {
     }
 
     public int getJobStoppedRetry() {
-        return Integer.parseInt(environment.getProperty("jobStoppedRetry", "10"));
+        return Integer.parseInt(environment.getProperty("jobStoppedRetry", "1"));
     }
 
     public long getJobStoppedDelay() {
@@ -342,6 +327,11 @@ public class EnvironmentContext {
 
     public int getTestConnectTimeout() {
         return Integer.parseInt(environment.getProperty("testConnectTimeout", "100"));
+    }
+
+
+    public int getBuildJobErrorRetry(){
+        return Integer.parseInt(environment.getProperty("build.job.retry", "3"));
     }
 
     /**

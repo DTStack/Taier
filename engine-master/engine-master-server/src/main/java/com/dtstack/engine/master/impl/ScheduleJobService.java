@@ -17,6 +17,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.ScheduleFillDataJobDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
@@ -152,6 +153,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
     @Autowired
     private JobStopDealer jobStopDealer;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
 
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.CANCELLING.getStatus(), RdosTaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus(), RdosTaskStatus.KILLED.getStatus());
@@ -906,7 +910,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         ScheduleTaskShade task = batchTaskShadeService.getBatchTaskById(taskId, appType);
 
         PageQuery pageQuery = new PageQuery(1, 20, "business_date", Sort.DESC.name());
-        List<Map<String, String>> jobs = scheduleJobDao.listTaskExeTimeInfo(task.getId(), FINISH_STATUS, pageQuery);
+        List<Map<String, String>> jobs = scheduleJobDao.listTaskExeTimeInfo(task.getTaskId(), FINISH_STATUS, pageQuery);
         List<ScheduleRunDetailVO> details = null;
         if (CollectionUtils.isNotEmpty(jobs)) {
             details = new ArrayList<>(jobs.size());
@@ -1298,13 +1302,20 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     }
 
     private void persisteJobs(List<ScheduleJob> jobWaitForSave, List<ScheduleJobJob> jobJobWaitForSave) {
-        if (jobWaitForSave.size() > 0) {
-            scheduleJobDao.batchInsert(jobWaitForSave);
-            jobWaitForSave.clear();
-        }
-        if (jobJobWaitForSave.size() > 0) {
-            batchJobJobService.batchInsert(jobJobWaitForSave);
-            jobJobWaitForSave.clear();
+        try {
+            RetryUtil.executeWithRetry(() -> {
+                if (jobWaitForSave.size() > 0) {
+                    scheduleJobDao.batchInsert(jobWaitForSave);
+                    jobWaitForSave.clear();
+                }
+                if (jobJobWaitForSave.size() > 0) {
+                    batchJobJobService.batchInsert(jobJobWaitForSave);
+                    jobJobWaitForSave.clear();
+                }
+                return null;
+            }, environmentContext.getBuildJobErrorRetry(), 200, false);
+        } catch (Exception e) {
+            logger.error("!!!!! persisteJobs job error !!!! job {} jobjob {}", jobWaitForSave, jobJobWaitForSave, e);
         }
     }
 
@@ -2206,7 +2217,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     public List<String> listJobIdByTaskNameAndStatusList(@Param("taskName") String taskName, @Param("statusList") List<Integer> statusList, @Param("projectId") Long projectId,@Param("appType") Integer appType) {
         ScheduleTaskShade task = batchTaskShadeService.getByName(projectId, taskName,appType,null);
         if (task != null) {
-            List<String> jobIdList = scheduleJobDao.listJobIdByTaskIdAndStatus(task.getId(), statusList);
+            List<String> jobIdList = scheduleJobDao.listJobIdByTaskIdAndStatus(task.getTaskId(), task.getAppType() ,statusList);
             return jobIdList;
         }
         return new ArrayList<>();

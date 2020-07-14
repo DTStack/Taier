@@ -29,9 +29,9 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.sparkk8s.config.SparkK8sConfig;
-import com.dtstack.engine.sparkk8s.executor.MrSubmiter;
-import com.dtstack.engine.sparkk8s.executor.PythonSubmiter;
-import com.dtstack.engine.sparkk8s.executor.SqlSubmiter;
+import com.dtstack.engine.sparkk8s.submit.MrSubmit;
+import com.dtstack.engine.sparkk8s.submit.PythonSubmit;
+import com.dtstack.engine.sparkk8s.submit.SqlSubmit;
 import com.dtstack.engine.sparkk8s.parser.AddJarOperator;
 import com.dtstack.engine.sparkk8s.resourceinfo.SparkK8sResourceInfo;
 import com.dtstack.engine.sparkk8s.utils.SparkConfigUtil;
@@ -84,11 +84,11 @@ public class SparkK8sClient extends AbstractClient {
         EJobType jobType = jobClient.getJobType();
         JobResult jobResult = null;
         if (EJobType.MR.equals(jobType)) {
-            jobResult = new MrSubmiter(jobClient, sparkK8sConfig, sparkDefaultProp).submit();
+            jobResult = new MrSubmit(jobClient, sparkK8sConfig, sparkDefaultProp).submit();
         } else if (EJobType.SQL.equals(jobType)) {
-            jobResult = new SqlSubmiter(jobClient, sparkK8sConfig, sparkDefaultProp, hdfsConfPath).submit();
+            jobResult = new SqlSubmit(jobClient, sparkK8sConfig, sparkDefaultProp, hdfsConfPath).submit();
         } else if (EJobType.PYTHON.equals(jobType)) {
-            jobResult = new PythonSubmiter(jobClient, sparkK8sConfig, sparkDefaultProp).submit();
+            jobResult = new PythonSubmit(jobClient, sparkK8sConfig, sparkDefaultProp).submit();
         }
         return jobResult;
     }
