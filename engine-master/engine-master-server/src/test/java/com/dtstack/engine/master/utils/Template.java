@@ -118,4 +118,14 @@ public class Template {
         tenant.setTenantDesc("");
         return tenant;
     }
+
+    public static User getUserTemplate() {
+        User user = new User();
+        user.setDtuicUserId(-1L);
+        user.setUserName("test@dtstack.com");
+        user.setEmail("test@dtstack.com");
+        user.setStatus(0);
+        user.setPhoneNumber("");
+        return user;
+    }
 }

@@ -611,24 +611,13 @@ public class FlinkClient extends AbstractClient {
     /**
      *  perjob模式下任务完成后进入jobHistory会有一定的时间
      */
-    private String getExceptionInfo(String exceptPath,String reqURL){
+    private String getExceptionInfo(String exceptPath, String reqURL) {
         String exceptionInfo = "";
-        int i = 0;
-        while (i < 10){
-            try {
-                Thread.sleep(500);
-                exceptionInfo = getMessageByHttp(exceptPath, reqURL);
-                return exceptionInfo;
-            } catch (RdosDefineException e){
-                if (!e.getErrorMessage().contains("404")){
-                    throw e;
-                }
-            } catch (Exception ignore){
-
-            }finally {
-                i++;
-            }
-
+        try {
+            exceptionInfo = getMessageByHttp(exceptPath, reqURL);
+            return exceptionInfo;
+        } catch (Exception e) {
+            logger.error("", e);
         }
 
         return exceptionInfo;

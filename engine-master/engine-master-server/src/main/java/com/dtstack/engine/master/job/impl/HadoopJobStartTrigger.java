@@ -142,12 +142,16 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             //tensorflow 参数
             //--files ${uploadPath} --python-version 3 --launch-cmd ${launch} --app-type tensorflow --app-name dddd
             String exeArgs = (String) actionParam.get("exeArgs");
-            String uploadPath = this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
-                    taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
-            String fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/") + 1);
-            exeArgs = exeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
-            String launchCmd = (String) actionParam.getOrDefault("launchCmd","python ${file}");
-            launchCmd = jobParamReplace.paramReplace(launchCmd,taskParamsToReplace,scheduleJob.getCycTime());
+            String launchCmd = (String) actionParam.getOrDefault("launch-cmd", "python ${file}");
+            //分为资源上传 和 hdfs上传
+            String fileName = "";
+            if (launchCmd.contains(TaskConstant.FILE_NAME) || launchCmd.contains(TaskConstant.UPLOADPATH)) {
+                String uploadPath = this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
+                        taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
+                fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/") + 1);
+                exeArgs = exeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
+            }
+            launchCmd = jobParamReplace.paramReplace(launchCmd, taskParamsToReplace, scheduleJob.getCycTime());
             //替换参数 base64 生成launchCmd
             String launchString = Base64Util.baseEncode(launchCmd.replace(TaskConstant.FILE_NAME, fileName));
             taskExeArgs = exeArgs.replace(TaskConstant.LAUNCH, launchString);
@@ -285,9 +289,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     JSONObject jdbcInfoObject = JSONObject.parseObject(jdbcInfo);
                     JSONObject pluginInfo = new JSONObject();
                     pluginInfo.put("jdbcUrl", jdbcInfoObject.getString("jdbcUrl"));
-                    pluginInfo.put("userName", jdbcInfoObject.getString("username"));
-                    pluginInfo.put("pwd", jdbcInfoObject.getString("password"));
-                    pluginInfo.put("driverClassName", DataBaseType.Impala.getDriverClassName());
+                    pluginInfo.put("username", jdbcInfoObject.getString("username"));
+                    pluginInfo.put("password", jdbcInfoObject.getString("password"));
                     workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, tableName, String.format("DESCRIBE formatted %s", tableName));
                 } else if (ETableType.HIVE.getType() == tableType) {
@@ -295,9 +298,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     JSONObject jdbcInfoObject = JSONObject.parseObject(jdbcInfo);
                     JSONObject pluginInfo = new JSONObject();
                     pluginInfo.put("jdbcUrl", jdbcInfoObject.getString("jdbcUrl"));
-                    pluginInfo.put("userName", jdbcInfoObject.getString("username"));
-                    pluginInfo.put("pwd", jdbcInfoObject.getString("password"));
-                    pluginInfo.put("driverClassName", DataBaseType.HIVE.getDriverClassName());
+                    pluginInfo.put("username", jdbcInfoObject.getString("username"));
+                    pluginInfo.put("password", jdbcInfoObject.getString("password"));
                     workerOperator.executeQuery(DataBaseType.HIVE.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, tableName, String.format("desc formatted %s", tableName));
                 }
