@@ -186,6 +186,8 @@ public class JobStatusDealer implements Runnable {
                 if (RdosTaskStatus.RUNNING.getStatus().equals(status)) {
                     jobCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineType);
                 }
+
+                logger.info("jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
             }
         }
     }
