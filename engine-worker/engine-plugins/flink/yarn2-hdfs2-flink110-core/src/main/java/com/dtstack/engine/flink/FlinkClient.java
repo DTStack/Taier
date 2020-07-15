@@ -403,19 +403,22 @@ public class FlinkClient extends AbstractClient {
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
         String appId = jobIdentifier.getApplicationId();
         try {
-            ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
-            JobID jobId = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
+            RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+            //NOTFOUND 视为已经job已经结束
+            if (RdosTaskStatus.NOTFOUND != rdosTaskStatus && !RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
+                ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+                JobID jobId = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
 
-            if (StringUtils.isEmpty(appId)) {
-                // yarn session job cancel
-                targetClusterClient.cancel(jobId);
-            } else {
-                // per job cancel
-                CompletableFuture completableFuture = targetClusterClient.cancelWithSavepoint(jobId, null);
-                Object ask = completableFuture.get(2, TimeUnit.MINUTES);
-                logger.info("flink job savepoint path {}", ask.toString());
+                if (StringUtils.isEmpty(appId)) {
+                    // yarn session job cancel
+                    targetClusterClient.cancel(jobId);
+                } else {
+                    // per job cancel
+                    CompletableFuture completableFuture = targetClusterClient.cancelWithSavepoint(jobId, null);
+                    Object ask = completableFuture.get(2, TimeUnit.MINUTES);
+                    logger.info("flink job savepoint path {}", ask.toString());
+                }
             }
-
         } catch (Exception e) {
             logger.error("cancelWithSavepoint error,will use yarn kill applicaiton", e);
 

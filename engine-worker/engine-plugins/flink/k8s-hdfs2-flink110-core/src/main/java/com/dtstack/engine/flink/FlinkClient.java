@@ -387,24 +387,26 @@ public class FlinkClient extends AbstractClient {
 
         ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
         try {
-            JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
-            CompletableFuture cancel = null;
+            RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+            if (!RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
+                JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
+                CompletableFuture cancel = null;
 
-            if (isFlinkSessionTask) {
-                cancel = targetClusterClient.cancel(jobID);
-            } else {
-                cancel = targetClusterClient.cancelWithSavepoint(jobID, null);
+                if (isFlinkSessionTask) {
+                    cancel = targetClusterClient.cancel(jobID);
+                } else {
+                    cancel = targetClusterClient.cancelWithSavepoint(jobID, null);
+                }
+
+                Object ack = cancel.get(2, TimeUnit.MINUTES);
+                if (ack instanceof String) {
+                    logger.info("cancelWithSavepoint success savepoint path is : {} ", ack.toString());
+                }
+
+                if (targetClusterClient != flinkClusterClientManager.getClusterClient()) {
+                    targetClusterClient.shutDownCluster();
+                }
             }
-
-            Object ack = cancel.get(2, TimeUnit.MINUTES);
-            if (ack instanceof String) {
-                logger.info("cancelWithSavepoint success savepoint path is : {} ", ack.toString());
-            }
-
-            if (targetClusterClient != flinkClusterClientManager.getClusterClient()) {
-                targetClusterClient.shutDownCluster();
-            }
-
         } catch (Exception e) {
             // session mode
             if (targetClusterClient == flinkClusterClientManager.getClusterClient()) {
