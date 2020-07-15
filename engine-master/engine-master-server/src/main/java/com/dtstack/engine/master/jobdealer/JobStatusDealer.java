@@ -168,6 +168,7 @@ public class JobStatusDealer implements Runnable {
                 // 重试状态 先不更新状态
                 boolean isRestart = jobRestartDealer.checkAndRestart(status, jobId, engineTaskId, appId);
                 if (isRestart) {
+                    logger.info("jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
                     return;
                 }
 
@@ -186,6 +187,8 @@ public class JobStatusDealer implements Runnable {
                 if (RdosTaskStatus.RUNNING.getStatus().equals(status)) {
                     jobCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineType);
                 }
+
+                logger.info("jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
             }
         }
     }
