@@ -75,7 +75,7 @@ public class PythonSubmit extends AbstractSparkSubmit {
         argList.add("--primary-py-file");
         argList.add(pyFilePathImagePath);
 
-        argList.add("--class");
+        argList.add("--main-class");
         argList.add(PYTHON_RUNNER_CLASS);
 
         String[] appArgs = new String[]{};
@@ -86,6 +86,10 @@ public class PythonSubmit extends AbstractSparkSubmit {
         String dependencyResource = "";
         boolean nextIsDependencyVal = false;
         for (String appArg : appArgs) {
+            if (StringUtils.equalsIgnoreCase(appArg, "null") || StringUtils.isBlank(appArg)) {
+                continue;
+            }
+
             if (nextIsDependencyVal) {
                 dependencyResource = appArg;
                 continue;
@@ -118,6 +122,7 @@ public class PythonSubmit extends AbstractSparkSubmit {
         SparkConf sparkConf = SparkConfigUtil.buildBasicSparkConf(sparkDefaultProp);
         SparkConfigUtil.replaceBasicSparkConf(sparkConf, confProp);
 
+        SparkConfigUtil.setHadoopUserName(sparkK8sConfig, sparkConf);
         sparkConf.setAppName(appName);
         // sftp config
         fillSftpConfig(sftpDir, sparkConf, sparkK8sConfig.getSftpConf());

@@ -41,6 +41,7 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.spark.deploy.k8s.ExtendConfig;
+import org.mortbay.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -195,11 +196,13 @@ public class SparkK8sClient extends AbstractClient {
 
     @Override
     public String getJobMaster(JobIdentifier jobIdentifier) {
+        String masterUrl = "";
         KubernetesClient k8sClient = getK8sClient();
         if (!Objects.isNull(k8sClient)) {
-            return k8sClient.getMasterUrl().toString();
+            masterUrl = k8sClient.getMasterUrl().toString();
         }
-        return "";
+        LOG.info("spark k8s client master url is:{}", masterUrl);
+        return masterUrl;
     }
 
     public KubernetesClient getK8sClient() {

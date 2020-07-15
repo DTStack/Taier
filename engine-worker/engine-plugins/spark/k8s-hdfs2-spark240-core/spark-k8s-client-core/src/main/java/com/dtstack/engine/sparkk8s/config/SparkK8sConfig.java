@@ -13,7 +13,7 @@ public class SparkK8sConfig {
 
     private static final String DEFAULT_SPARK_SQL_PROXY_MAINCLASS = "com.dtstack.sql.main.SqlProxy";
     // 镜像中的存储位置
-    private static final String DEFAULT_SPARK_PYTHON_EXTLIBPATH = "local:///pythons/pyspark.zip,local:///pythons/py4j-0.10.4-src.zip";
+    private static final String DEFAULT_SPARK_PYTHON_EXTLIBPATH = "local:///opt/spark/python/lib/pyspark.zip,local:///opt/spark/python/lib/py4j-0.10.7-src.zip";
 
     private static final String LOCAL_FLAG = "local://";
 
@@ -89,6 +89,11 @@ public class SparkK8sConfig {
     public String getSparkPythonExtLibPath() {
         if (Strings.isNullOrEmpty(sparkPythonExtLibPath)) {
             return DEFAULT_SPARK_PYTHON_EXTLIBPATH;
+        }
+
+        if(!sparkPythonExtLibPath.startsWith(LOCAL_FLAG)){
+            sparkPythonExtLibPath = sparkPythonExtLibPath.trim();
+            sparkPythonExtLibPath = LOCAL_FLAG + sparkPythonExtLibPath;
         }
 
         return sparkPythonExtLibPath;
