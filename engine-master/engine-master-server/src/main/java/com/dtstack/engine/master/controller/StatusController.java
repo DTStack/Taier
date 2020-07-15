@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/")
+@RequestMapping(value = "/node")
 public class StatusController {
 
     @RequestMapping(value = "/status")

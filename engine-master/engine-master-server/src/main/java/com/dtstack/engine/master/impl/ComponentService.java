@@ -200,18 +200,6 @@ public class ComponentService {
         return AppType.CONSOLE.name() + "_" + one.getClusterName();
     }
 
-    private Map<String, String> parseKerberosConfig(Resource resource, String localKerberosConf) throws Exception {
-        Map<String, Map<String, String>> confMap = KerberosConfigVerify.parseKerberosFromUpload(resource.getUploadedFileName(), localKerberosConf);
-        if (MapUtils.isNotEmpty(confMap)) {
-            Map<String, String> map = new HashMap<>();
-            for (String key : confMap.keySet()) {
-                map.putAll(confMap.get(key));
-            }
-            return map;
-        }
-        throw new RdosDefineException("缺少xml配置文件");
-    }
-
     @Forbidden
     public Map<String, Object> fillKerberosConfig(String allConfString, Long clusterId) {
         JSONObject allConf = JSONObject.parseObject(allConfString);
@@ -1337,20 +1325,20 @@ public class ComponentService {
      * @param componentIds
      */
     @Transactional(rollbackFor = Exception.class)
-    public void delete(@Param("componentIds") List<Integer> componentIds) {
+    public void delete(@Param("componentIds") List<Long> componentIds) {
         if (CollectionUtils.isEmpty(componentIds)) {
             return;
         }
-        for (Integer componentId : componentIds) {
-            Component component = componentDao.getOne(componentId.longValue());
+        for (Long componentId : componentIds) {
+            Component component = componentDao.getOne(componentId);
             EngineAssert.assertTrue(component != null, ErrorCode.DATA_NOT_FIND.getDescription());
 
             if (EComponentType.requireComponent.contains(EComponentType.getByCode(component.getComponentTypeCode()))){
                 throw new RdosDefineException(component.getComponentName() + " 是必选组件，不可删除");
             }
             component.setIsDeleted(Deleted.DELETED.getStatus());
-            componentDao.deleteById(componentId.longValue());
-            kerberosDao.deleteByComponentId(componentId.longValue());
+            componentDao.deleteById(componentId);
+            kerberosDao.deleteByComponentId(componentId);
         }
     }
 

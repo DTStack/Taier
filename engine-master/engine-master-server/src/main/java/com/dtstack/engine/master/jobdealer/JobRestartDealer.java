@@ -220,10 +220,11 @@ public class JobRestartDealer {
             //重试任务更改在zk的状态，统一做状态清理
             shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.RESTARTING.getStatus());
 
-            ScheduleJob batchJob = scheduleJobDao.getRdosJobByJobId(jobClient.getTaskId());
-            if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
-                jobDealer.getAndUpdateEngineLog(jobId, jobClient.getEngineTaskId(), jobClient.getApplicationId(),batchJob.getDtuicTenantId());
-            }
+            //去掉重试日志的同步处理
+//            ScheduleJob batchJob = scheduleJobDao.getRdosJobByJobId(jobClient.getTaskId());
+//            if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
+//                jobDealer.getAndUpdateEngineLog(jobId, jobClient.getEngineTaskId(), jobClient.getApplicationId(),batchJob.getDtuicTenantId());
+//            }
 
             //重试的任务不置为失败，waitengine
             jobRetryRecord(jobClient);

@@ -1,14 +1,10 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.common.enums.EDeployType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.annotation.Param;
-import com.dtstack.engine.common.http.PoolHttpClient;
-import com.dtstack.engine.common.util.ApplicationWSParser;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.util.UrlUtil;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.ComputeType;
@@ -23,7 +19,6 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.EDeployMode;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,10 +51,6 @@ public class StreamTaskService {
 
     @Autowired
     private ScheduleJobService scheduleJobService;
-
-    private static final String APPLICATION_REST_API_TMP = "%s/ws/v1/cluster/apps/%s";
-
-
     /**
      * 查询checkPoint
      */
@@ -105,7 +96,7 @@ public class StreamTaskService {
      * @param taskId
      * @return
      */
-    public Pair<String, String> getRunningTaskLogUrl(@Param("taskId") String taskId) {
+    public List<String> getRunningTaskLogUrl(@Param("taskId") String taskId) {
 
         Preconditions.checkState(StringUtils.isNotEmpty(taskId), "taskId can't be empty");
 
@@ -138,20 +129,12 @@ public class StreamTaskService {
             String jobInfo = engineJobCache.getJobInfo();
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
 
-            jobIdentifier = JobIdentifier.createInstance(scheduleJob.getEngineJobId(), applicationId, taskId);
             jobIdentifier = new JobIdentifier(scheduleJob.getEngineJobId(), applicationId, taskId,scheduleJob.getDtuicTenantId(),engineJobCache.getEngineType(),
                     EDeployMode.PERJOB.getType(),paramAction.getUserId(),null);
             jobClient = new JobClient(paramAction);
-            String jobMaster = workerOperator.getJobMaster(jobIdentifier);
-            String rootUrl = UrlUtil.getHttpRootUrl(jobMaster);
-            String requestUrl = String.format(APPLICATION_REST_API_TMP, rootUrl, applicationId);
 
-            String response = PoolHttpClient.get(requestUrl);
-            String amContainerLogsUrl = ApplicationWSParser.getAmContainerLogsUrl(response);
-
-            String logPreUrl = UrlUtil.getHttpRootUrl(amContainerLogsUrl);
-            String amContainerPreViewHttp = PoolHttpClient.get(amContainerLogsUrl);
-            return ApplicationWSParser.parserAmContainerPreViewHttp(amContainerPreViewHttp, logPreUrl);
+            List<String> rollingLogBaseInfo = workerOperator.getRollingLogBaseInfo(jobIdentifier);
+            return rollingLogBaseInfo;
 
         }catch (Exception e){
             if (jobClient != null) {

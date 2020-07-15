@@ -18,6 +18,7 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -179,6 +180,23 @@ public class WorkerOperator {
             logger.error("getCheckpoints failed!", e);
         }
         return checkpoints;
+    }
+
+    public List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier) {
+        if (AkkaConfig.isLocalMode()) {
+            List<String> rollingLogBaseInfo = ClientOperator.getInstance().getRollingLogBaseInfo(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier);
+            if (null == rollingLogBaseInfo || rollingLogBaseInfo.size() == 0) {
+                rollingLogBaseInfo = Lists.newArrayList();
+            }
+            return rollingLogBaseInfo;
+        }
+        List<String> rollingLogBaseInfo = null;
+        try {
+            rollingLogBaseInfo = (List<String>) masterServer.sendMessage(new MessageRollingLogBaseInfo(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier));
+        } catch (Exception e) {
+            logger.error("getRollingLogBaseInfo failed!", e);
+        }
+        return rollingLogBaseInfo;
     }
 
     public String getJobMaster(JobIdentifier jobIdentifier) throws Exception {

@@ -53,12 +53,49 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
-    default ScheduleJob getScheduleJobDefiniteTashId() {
+    default ScheduleJob getScheduleJobDefiniteTaskId() {
         ScheduleJob sj = Template.getScheduleJobTemplate();
         sj.setExecTime(2000L);
         sj.setTaskId(-2021L);
         sj.setSourceType(-1);
         sj.setEngineLog("");
+        sj.setDtuicTenantId(-1008L);
+        sj.setStatus(4);
+        sj.setAppType(0);
+        sj.setJobName("Python-20200710");
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobDefiniteProjectId() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setExecTime(2000L);
+        sj.setTaskId(-2022L);
+        sj.setSourceType(-1);
+        sj.setEngineLog("");
+        sj.setDtuicTenantId(-1008L);
+        sj.setProjectId(-234L);
+        sj.setStatus(4);
+        sj.setExecStartTime(new Timestamp(1592559742000L));
+        sj.setAppType(0);
+        sj.setJobName("Python-20200710");
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobDefiniteProjectIdAndStatus() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setExecTime(2000L);
+        sj.setTaskId(-2022L);
+        sj.setSourceType(-1);
+        sj.setEngineLog("");
+        sj.setDtuicTenantId(-1008L);
+        sj.setProjectId(-12L);
+        sj.setStatus(4);
+        sj.setExecStartTime(new Timestamp(1592559742000L));
+        sj.setAppType(0);
+        sj.setJobName("Python-20200710");
+        sj.setStatus(5);
         return sj;
     }
 
@@ -66,8 +103,31 @@ public interface DataCollection {
     default ScheduleJob getScheduleJobTodayData() {
         ScheduleJob sj = Template.getScheduleJobTemplate();
         sj.setProjectId(-101L);
-        sj.setExecStartTime(new Timestamp(new DateTime().plusDays(-1).getMillis()));
+        sj.setExecStartTime(new Timestamp(new DateTime().getMillis()));
         sj.setTaskId(-2001L);
+        sj.setJobName("Test job1");
+        sj.setEngineLog("");
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobWithCycTime() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setProjectId(-101L);
+        sj.setExecStartTime(new Timestamp(new DateTime().getMillis()));
+        sj.setTaskId(-2006L);
+        sj.setJobName("Test job1");
+        sj.setEngineLog("");
+        sj.setCycTime("2020-07-01 10:12:12");
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobWithCycTime2() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setProjectId(-101L);
+        sj.setExecStartTime(new Timestamp(new DateTime().getMillis()));
+        sj.setTaskId(-2006L);
         sj.setJobName("Test job1");
         sj.setEngineLog("");
         return sj;
@@ -77,6 +137,7 @@ public interface DataCollection {
     default ScheduleJob getScheduleJobYesterdayData() {
         ScheduleJob sj = Template.getScheduleJobTemplate();
         sj.setExecStartTime(new Timestamp(new DateTime().plusDays(-1).getMillis()));
+        sj.setProjectId(-101L);
         sj.setJobName("Test job2");
         sj.setEngineLog("");
         return sj;
@@ -149,22 +210,54 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    @IgnoreUniqueRandomSet
     default ScheduleTaskShade getScheduleTaskShadeDefiniteTaskId(){
         ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
+        scheduleTaskShade.setScheduleStatus(5);
+        scheduleTaskShade.setTaskId(-2021L);
+        scheduleTaskShade.setTenantId(15L);
+        scheduleTaskShade.setProjectId(-1L);
+        scheduleTaskShade.setDtuicTenantId(-1008L);
+        scheduleTaskShade.setAppType(0);
+        return scheduleTaskShade;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    @IgnoreUniqueRandomSet
+    default ScheduleTaskShade getScheduleTaskShadeDefiniteTaskIdSecond(){
+        ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
+        scheduleTaskShade.setScheduleStatus(5);
+        scheduleTaskShade.setTaskId(-2022L);
+        scheduleTaskShade.setTenantId(15L);
+        scheduleTaskShade.setProjectId(-12L);
+        scheduleTaskShade.setDtuicTenantId(-1008L);
+        scheduleTaskShade.setAppType(0);
         scheduleTaskShade.setScheduleStatus(5);
         return scheduleTaskShade;
     }
 
     @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    @IgnoreUniqueRandomSet
     default ScheduleTaskShade getScheduleTaskShadeForSheduleJob(){
         ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
         scheduleTaskShade.setTaskType(0);
+        scheduleTaskShade.setProjectId(-101L);
+        scheduleTaskShade.setTenantId(15L);
+        scheduleTaskShade.setTaskId(-2001L);
+
         return scheduleTaskShade;
     }
+
 
     @DatabaseInsertOperation(dao = TestConsoleDtuicTenantDao.class)
     default Tenant getTenant(){
         Tenant tenant = Template.getTenantTemplate();
         return tenant;
+    }
+
+    @DatabaseInsertOperation(dao = TestConsoleUserDao.class)
+    default User getUser(){
+        User user = Template.getUserTemplate();
+        return user;
     }
 }

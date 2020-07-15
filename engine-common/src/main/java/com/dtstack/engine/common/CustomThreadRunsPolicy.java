@@ -18,26 +18,34 @@ public class CustomThreadRunsPolicy implements RejectedExecutionHandler {
 
     protected static final Logger logger = LoggerFactory.getLogger(CustomThreadRunsPolicy.class);
 
-    private final String threadName;
+    private String threadName;
 
-    private final String engineType;
+    private String type;
 
-    public CustomThreadRunsPolicy(String threadName, String engineType) {
+    private int timeout = 60;
+
+    public CustomThreadRunsPolicy(String threadName, String type) {
         this.threadName = threadName;
-        this.engineType = engineType;
+        this.type = type;
+    }
+
+    public CustomThreadRunsPolicy(String threadName, String type, int timeout) {
+        this.threadName = threadName;
+        this.type = type;
+        this.timeout = timeout;
     }
 
     @Override
     public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
         String msg = String.format("Thread pool is EXHAUSTED!" +
                         " Thread Name: %s, Pool Size: %d (active: %d, core: %d, max: %d, largest: %d), Task: %d (completed: %d)," +
-                        " Executor status:(isShutdown:%s, isTerminated:%s, isTerminating:%s), in engineType:%s!",
+                        " Executor status:(isShutdown:%s, isTerminated:%s, isTerminating:%s), in type:%s!",
                 threadName, e.getPoolSize(), e.getActiveCount(), e.getCorePoolSize(), e.getMaximumPoolSize(), e.getLargestPoolSize(),
                 e.getTaskCount(), e.getCompletedTaskCount(), e.isShutdown(), e.isTerminated(), e.isTerminating(),
-                engineType);
+                type);
         try {
             logger.warn(msg);
-            e.getQueue().offer(r, 60, TimeUnit.SECONDS);
+            e.getQueue().offer(r, timeout, TimeUnit.SECONDS);
         } catch (InterruptedException interruptedException) {
             logger.error(msg);
             throw new RejectedExecutionException("Interrupted waiting for worker");
