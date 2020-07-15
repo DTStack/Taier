@@ -37,7 +37,7 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        converters.add(0, new MappingJackson2HttpMessageConverter());
+//        converters.add(0, new MappingJackson2HttpMessageConverter());
         super.configureMessageConverters(converters);
     }
 
