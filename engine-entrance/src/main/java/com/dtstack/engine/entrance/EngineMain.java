@@ -19,7 +19,7 @@ public class EngineMain {
     public static void main(String[] args){
         try {
 
-            EngineApplication.main(null);
+            EngineApplication.main(args);
             WorkerMain.main(null);
             // add hook
             ShutdownHookUtil.addShutdownHook(EngineMain::shutdown, EngineMain.class.getSimpleName(), logger);
