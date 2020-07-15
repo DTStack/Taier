@@ -66,6 +66,7 @@ import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -380,16 +381,45 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
+        String applicationId = jobIdentifier.getApplicationId();
+        Boolean isFlinkSessionTask = applicationId.startsWith(FlinkConfig.FLINK_SESSION_PREFIX);
+        logger.info("cancel job applicationId is: {}", applicationId);
+
+        ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
         try {
-            ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
-            JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
-            targetClusterClient.cancelWithSavepoint(jobID, null);
-            if (targetClusterClient != flinkClusterClientManager.getClusterClient()) {
-                targetClusterClient.shutDownCluster();
+            RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+            if (!RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
+                JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
+                CompletableFuture cancel = null;
+
+                if (isFlinkSessionTask) {
+                    cancel = targetClusterClient.cancel(jobID);
+                } else {
+                    cancel = targetClusterClient.cancelWithSavepoint(jobID, null);
+                }
+
+                Object ack = cancel.get(2, TimeUnit.MINUTES);
+                if (ack instanceof String) {
+                    logger.info("cancelWithSavepoint success savepoint path is : {} ", ack.toString());
+                }
+
+                if (targetClusterClient != flinkClusterClientManager.getClusterClient()) {
+                    targetClusterClient.shutDownCluster();
+                }
             }
         } catch (Exception e) {
-            logger.error("", e);
-            return JobResult.createErrorResult(e);
+            // session mode
+            if (targetClusterClient == flinkClusterClientManager.getClusterClient()) {
+                logger.error("", e);
+                return JobResult.createErrorResult(e);
+            }
+
+            try {
+                targetClusterClient.shutDownCluster();
+            } catch (Exception ec) {
+                logger.error("shutDownCluster error", ec);
+                return JobResult.createErrorResult(e);
+            }
         }
 
         JobResult jobResult = JobResult.newInstance(false);
@@ -522,22 +552,11 @@ public class FlinkClient extends AbstractClient {
      */
     private String getExceptionInfo(String exceptPath, String reqURL) {
         String exceptionInfo = "";
-        int i = 0;
-        while (i < 10) {
-            try {
-                Thread.sleep(500);
-                exceptionInfo = getMessageByHttp(exceptPath, reqURL);
-                return exceptionInfo;
-            } catch (RdosDefineException e) {
-                if (!e.getErrorMessage().contains("404")) {
-                    throw e;
-                }
-            } catch (Exception ignore) {
-
-            } finally {
-                i++;
-            }
-
+        try {
+            exceptionInfo = getMessageByHttp(exceptPath, reqURL);
+            return exceptionInfo;
+        } catch (Exception e) {
+            logger.error("", e);
         }
 
         return exceptionInfo;

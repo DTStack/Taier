@@ -3,8 +3,10 @@ package com.dtstack.engine.common.util;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
+import com.alibaba.fastjson.JSONObject;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.DeserializationConfig;
@@ -42,9 +44,20 @@ public class PublicUtil {
 	public static <T> T jsonStrToObject(String jsonStr, Class<T> clazz) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException{
 		return  objectMapper.readValue(jsonStr, clazz);
 	}
+    public static <T> T jsonStrToObjectWithOutNull(String jsonStr, Class<T> clazz) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException {
+        JSONObject origin = JSONObject.parseObject(jsonStr);
+        JSONObject change = new JSONObject();
+        for (String key : origin.keySet()) {
+            if (Objects.nonNull(origin.get(key))) {
+                change.put(key, origin.get(key));
+            }
+        }
+        return objectMapper.readValue(change.toJSONString(), clazz);
+    }
 
 
-	@SuppressWarnings("unchecked")
+
+    @SuppressWarnings("unchecked")
 	public static Map<String,Object> objectToMap(Object obj) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException{
 
 		return objectMapper.readValue(objectMapper.writeValueAsBytes(obj), Map.class);

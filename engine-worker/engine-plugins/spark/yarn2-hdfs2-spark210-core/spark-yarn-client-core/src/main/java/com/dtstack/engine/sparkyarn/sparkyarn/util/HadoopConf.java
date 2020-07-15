@@ -22,74 +22,14 @@ public class HadoopConf {
 
 	private static final Logger LOG = LoggerFactory.getLogger(HadoopConf.class);
 
-    private final static String HADOOP_CONF = System.getProperty("user.dir")+"/conf/hadoop/";
-
-    private final static String HADOOP_CONF_DIR = System.getenv("HADOOP_CONF_DIR");
-
-    private static volatile Configuration defaultConfiguration = null;
-
-    private static volatile Configuration defaultYarnConfiguration = null;
-
-    private static final Object INIT_LOCK = new Object();
-
 	private Configuration configuration;
 
 	private Configuration yarnConfiguration;
 
-	private static void initDefaultConfig(){
-
-	    if(defaultConfiguration == null){
-            synchronized (INIT_LOCK){
-                if(defaultConfiguration != null){
-                    return;
-                }
-
-                try {
-                    defaultConfiguration = new Configuration();
-                    defaultYarnConfiguration = new YarnConfiguration();
-                    String dir = StringUtils.isNotBlank(HADOOP_CONF_DIR) ? HADOOP_CONF_DIR : HADOOP_CONF;
-                    File dirFile = new File(dir);
-                    if(!dirFile.exists()){
-                        LOG.error("-----------not set env for HADOOP_CONF_DIR!!!");
-                    }else if(!dirFile.isDirectory()){
-                        LOG.error("HADOOP_CONF_DIR:{} is not dir.", dir);
-                    }else{
-                        defaultConfiguration.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
-                        File[] xmlFileList = new File(dir).listFiles(new FilenameFilter() {
-                            @Override
-                            public boolean accept(File dir, String name) {
-                                if(name.endsWith(".xml")) {
-                                    return true;
-                                }
-                                return false;
-                            }
-                        });
-
-                        if(xmlFileList != null) {
-                            for(File xmlFile : xmlFileList) {
-                                defaultConfiguration.addResource(xmlFile.toURI().toURL());
-                                defaultYarnConfiguration.addResource(xmlFile.toURI().toURL());
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    LOG.error("",e);
-                }
-            }
-        }
-    }
-
     public HadoopConf(){
-
     }
 
     public void initHadoopConf(Map<String, Object> conf){
-
-	    if(conf == null || conf.size() == 0){
-            //读取环境变量--走默认配置
-            configuration = getDefaultConfiguration();
-            return;
-        }
 
         configuration = new Configuration();
         HadoopConfTool.setFsHdfsImplDisableCache(configuration);
@@ -105,14 +45,7 @@ public class HadoopConf {
 
     public void initYarnConf(Map<String, Object> conf){
 
-        if(conf == null || conf.size() == 0){
-            //读取环境变量--走默认配置
-            yarnConfiguration = getDefaultYarnConfiguration();
-            return;
-        }
-
-        yarnConfiguration = configuration == null ? new YarnConfiguration() : new YarnConfiguration(configuration);
-
+        yarnConfiguration = new YarnConfiguration(configuration);
         conf.keySet().forEach(key ->{
             Object value = conf.get(key);
             if (value instanceof String){
@@ -125,27 +58,7 @@ public class HadoopConf {
     }
 
     public void initHiveSecurityConf(Map<String, Object> conf){
-        if(conf == null || conf.size() == 0){
-            //读取环境变量--走默认配置
-            yarnConfiguration = getDefaultYarnConfiguration();
-            return;
-        }
-
         mapToConf(conf, yarnConfiguration);
-    }
-
-    public static Configuration getDefaultConfiguration() {
-        if(defaultConfiguration == null){
-            initDefaultConfig();
-        }
-        return defaultConfiguration;
-    }
-
-    public static Configuration getDefaultYarnConfiguration() {
-        if(defaultYarnConfiguration == null){
-            initDefaultConfig();
-        }
-        return defaultYarnConfiguration;
     }
 
     public Configuration getConfiguration(){

@@ -82,6 +82,7 @@ import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -400,13 +401,37 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
+        String appId = jobIdentifier.getApplicationId();
         try {
-            ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
-            JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
-            targetClusterClient.cancelWithSavepoint(jobID, null);
+            RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+            //NOTFOUND 视为已经job已经结束
+            if (RdosTaskStatus.NOTFOUND != rdosTaskStatus && !RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
+                ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+                JobID jobId = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
+
+                if (StringUtils.isEmpty(appId)) {
+                    // yarn session job cancel
+                    targetClusterClient.cancel(jobId);
+                } else {
+                    // per job cancel
+                    CompletableFuture completableFuture = targetClusterClient.cancelWithSavepoint(jobId, null);
+                    Object ask = completableFuture.get(2, TimeUnit.MINUTES);
+                    logger.info("flink job savepoint path {}", ask.toString());
+                }
+            }
         } catch (Exception e) {
-            logger.error("", e);
-            return JobResult.createErrorResult(e);
+            logger.error("cancelWithSavepoint error,will use yarn kill applicaiton", e);
+
+            if (StringUtils.isEmpty(appId)) {
+                return JobResult.createErrorResult(e);
+            }
+
+            try {
+                ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
+                flinkClientBuilder.getYarnClient().killApplication(applicationId);
+            } catch (Exception killExecption) {
+                return JobResult.createErrorResult(e);
+            }
         }
 
         JobResult jobResult = JobResult.newInstance(false);
@@ -611,24 +636,13 @@ public class FlinkClient extends AbstractClient {
     /**
      *  perjob模式下任务完成后进入jobHistory会有一定的时间
      */
-    private String getExceptionInfo(String exceptPath,String reqURL){
+    private String getExceptionInfo(String exceptPath, String reqURL) {
         String exceptionInfo = "";
-        int i = 0;
-        while (i < 10){
-            try {
-                Thread.sleep(500);
-                exceptionInfo = getMessageByHttp(exceptPath, reqURL);
-                return exceptionInfo;
-            } catch (RdosDefineException e){
-                if (!e.getErrorMessage().contains("404")){
-                    throw e;
-                }
-            } catch (Exception ignore){
-
-            }finally {
-                i++;
-            }
-
+        try {
+            exceptionInfo = getMessageByHttp(exceptPath, reqURL);
+            return exceptionInfo;
+        } catch (Exception e) {
+            logger.error("", e);
         }
 
         return exceptionInfo;

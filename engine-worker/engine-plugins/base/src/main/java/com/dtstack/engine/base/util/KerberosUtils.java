@@ -60,8 +60,11 @@ public class KerberosUtils {
         String krb5ConfPath = "";
         if (StringUtils.isNotBlank(krb5ConfName)) {
             krb5ConfPath = handler.loadFromSftp(krb5ConfName, config.getRemoteDir(), localDir, true);
-        } else {
+        }
+
+        try {
             handler.close();
+        } catch (Exception e) {
         }
 
         logger.info("kerberos login, keytabPath:{} krb5ConfPath:{}", keytabPath, krb5ConfPath);
