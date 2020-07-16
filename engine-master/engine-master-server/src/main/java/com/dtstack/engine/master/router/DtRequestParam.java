@@ -12,7 +12,7 @@ import java.lang.annotation.*;
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface RequestParam {
+public @interface DtRequestParam {
 
     @AliasFor("name")
     String value() default "";
@@ -20,5 +20,7 @@ public @interface RequestParam {
     @AliasFor("value")
     String name() default "";
 
-    boolean required() default true;
+    boolean required() default false;
+
+    String description() default "";
 }

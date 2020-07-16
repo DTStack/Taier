@@ -6,7 +6,7 @@ import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import com.dtstack.engine.master.router.DtRequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -20,12 +20,12 @@ public class EngineController {
     private EngineService engineService;
 
     @RequestMapping(value="/getQueue", method = {RequestMethod.POST})
-    List<QueueVO> getQueue(@RequestParam("engineId") Long engineId) {
+    List<QueueVO> getQueue(@DtRequestParam("engineId") Long engineId) {
         return engineService.getQueue(engineId);
     }
 
     @RequestMapping(value="/listSupportEngine", method = {RequestMethod.POST})
-    public String listSupportEngine(@RequestParam("tenantId") Long dtUicTenantId) {
+    public String listSupportEngine(@DtRequestParam("tenantId") Long dtUicTenantId) {
         return engineService.listSupportEngine(dtUicTenantId);
     }
 }

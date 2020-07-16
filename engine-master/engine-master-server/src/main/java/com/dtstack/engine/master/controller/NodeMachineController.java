@@ -4,7 +4,7 @@ import com.dtstack.engine.api.domain.NodeMachine;
 import io.swagger.annotations.Api;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import com.dtstack.engine.master.router.DtRequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -17,13 +17,13 @@ public class NodeMachineController {
 
     @RequestMapping(value="/listByAppType", method = {RequestMethod.POST})
     @Deprecated
-    public List<NodeMachine> listByAppType(@RequestParam("appType") String appType) {
+    public List<NodeMachine> listByAppType(@DtRequestParam("appType") String appType) {
         return null;
     }
 
     @RequestMapping(value="/getByAppTypeAndMachineType", method = {RequestMethod.POST})
     @Deprecated
-    public NodeMachine getByAppTypeAndMachineType(@RequestParam("appType") String appType, @RequestParam("machineType") int machineType) {
+    public NodeMachine getByAppTypeAndMachineType(@DtRequestParam("appType") String appType, @DtRequestParam("machineType") int machineType) {
         return null;
     }
 }

@@ -3,6 +3,7 @@ package com.dtstack.engine.master.controller;
 import com.dtstack.engine.api.dto.Resource;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.router.DtRequestParam;
 import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

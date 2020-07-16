@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.router;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.master.router.util.MultiReadHttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
@@ -8,7 +9,6 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import org.springframework.web.util.ContentCachingRequestWrapper;
 
 /**
  * company: www.dtstack.com
@@ -20,19 +20,19 @@ public class DtArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.hasParameterAnnotation(RequestParam.class);
+        return parameter.hasParameterAnnotation(DtRequestParam.class);
     }
 
     @Override
     public Object resolveArgument(MethodParameter methodParameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
-        RequestParam requestParam = methodParameter.getParameterAnnotation(RequestParam.class);
+        DtRequestParam requestParam = methodParameter.getParameterAnnotation(DtRequestParam.class);
         String paramName = requestParam.name();
         if (StringUtils.isNotBlank(paramName)) {
             paramName = methodParameter.getParameterName();
         }
 
-        ContentCachingRequestWrapper servletRequest = webRequest.getNativeRequest(ContentCachingRequestWrapper.class);
+        MultiReadHttpServletRequest servletRequest = webRequest.getNativeRequest(MultiReadHttpServletRequest.class);
 
         JSONObject requestBody = (JSONObject) servletRequest.getRequest().getAttribute(DtRequestWrapperFilter.DT_REQUEST_BODY);
         if (requestBody != null) {

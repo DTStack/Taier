@@ -5,7 +5,7 @@ import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import com.dtstack.engine.master.router.DtRequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -17,7 +17,7 @@ public class ProjectController {
     private ProjectService projectService;
 
     @RequestMapping(value="/updateSchedule", method = {RequestMethod.POST})
-    public void updateSchedule(@RequestParam("projectId")Long projectId, @RequestParam("appType")Integer appType, @RequestParam("scheduleStatus")Integer scheduleStatus) {
+    public void updateSchedule(@DtRequestParam("projectId")Long projectId, @DtRequestParam("appType")Integer appType, @DtRequestParam("scheduleStatus")Integer scheduleStatus) {
         projectService.updateSchedule(projectId, appType, scheduleStatus);
     }
 }

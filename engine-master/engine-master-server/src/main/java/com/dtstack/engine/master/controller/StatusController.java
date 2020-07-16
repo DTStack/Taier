@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.master.router.RequestParam;
+import com.dtstack.engine.master.router.DtRequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,7 +15,7 @@ public class StatusController {
 
 
     @RequestMapping(value = "/value")
-    public Integer value(@RequestParam("value") Integer value) {
+    public String value(@DtRequestParam("value") String value) {
         return value;
     }
 

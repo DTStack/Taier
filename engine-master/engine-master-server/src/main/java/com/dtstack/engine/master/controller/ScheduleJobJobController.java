@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import com.dtstack.engine.master.router.DtRequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -19,20 +19,20 @@ public class ScheduleJobJobController {
     private ScheduleJobJobService scheduleJobJobService;
 
     @RequestMapping(value="/displayOffSpring", method = {RequestMethod.POST})
-    public ScheduleJobVO displayOffSpring(@RequestParam("jobId") Long jobId,
-                                          @RequestParam("projectId") Long projectId,
-                                          @RequestParam("level") Integer level) throws Exception {
+    public ScheduleJobVO displayOffSpring(@DtRequestParam("jobId") Long jobId,
+                                          @DtRequestParam("projectId") Long projectId,
+                                          @DtRequestParam("level") Integer level) throws Exception {
         return scheduleJobJobService.displayOffSpring(jobId, projectId, level);
     }
 
     @RequestMapping(value="/displayOffSpringWorkFlow", method = {RequestMethod.POST})
     @ApiOperation(value = "为工作流节点展开子节点")
-    public ScheduleJobVO displayOffSpringWorkFlow(@RequestParam("jobId") Long jobId, @RequestParam("appType")Integer appType) throws Exception {
+    public ScheduleJobVO displayOffSpringWorkFlow(@DtRequestParam("jobId") Long jobId, @DtRequestParam("appType")Integer appType) throws Exception {
         return scheduleJobJobService.displayOffSpringWorkFlow(jobId, appType);
     }
 
     @RequestMapping(value="/displayForefathers", method = {RequestMethod.POST})
-    public ScheduleJobVO displayForefathers(@RequestParam("jobId") Long jobId, @RequestParam("level") Integer level) throws Exception {
+    public ScheduleJobVO displayForefathers(@DtRequestParam("jobId") Long jobId, @DtRequestParam("level") Integer level) throws Exception {
         return scheduleJobJobService.displayForefathers(jobId, level);
     }
 }
