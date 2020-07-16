@@ -51,6 +51,7 @@ import org.apache.flink.configuration.HistoryServerOptions;
 import org.apache.flink.kubernetes.kubeclient.FlinkKubeClient;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
+import org.apache.flink.runtime.messages.Acknowledge;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.function.FunctionUtils;
 import org.slf4j.Logger;
@@ -200,7 +201,8 @@ public class FlinkClient extends AbstractClient {
         JobGraph jobGraph = null;
         SavepointRestoreSettings spSettings = buildSavepointSetting(jobClient);
         String entryPointClass = jobParam.getMainClass();
-        String[] programArgs = addMonitorUrlParamForSync(programArgList, jobParam, monitorUrl);
+        EJobType jobType = jobClient.getJobType();
+        String[] programArgs = dealProgramArgs(programArgList, jobParam, monitorUrl, jobType);
 
         try {
             Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
@@ -212,6 +214,9 @@ public class FlinkClient extends AbstractClient {
             Pair<String, String> runResult = submitFlinkJob(clusterClient, jobGraph, taskRunMode);
             return JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond());
         } catch (Exception e) {
+            if (FlinkMode.isPerJob(taskRunMode)) {
+                clusterClient.shutDownCluster();
+            }
             return JobResult.createErrorResult(e);
         } finally {
             if (packagedProgram != null) {
@@ -228,17 +233,19 @@ public class FlinkClient extends AbstractClient {
      * @param monitorUrl
      * @return
      */
-    private String[] addMonitorUrlParamForSync(List<String> programArgList, JobParam jobParam, String monitorUrl) {
+    private String[] dealProgramArgs(List<String> programArgList, JobParam jobParam, String monitorUrl, EJobType jobType) {
         String args = jobParam.getClassArgs();
         if (StringUtils.isNotBlank(args)) {
             programArgList.addAll(Arrays.asList(args.split("\\s+")));
         }
-
         String[] programArgs = programArgList.toArray(new String[programArgList.size()]);
-        for (int i = 0; i < args.length(); i++) {
-            if ("-monitor".equals(programArgs[i])) {
-                programArgs[i + 1] = monitorUrl;
-                break;
+
+        if (EJobType.SYNC.equals(jobType)) {
+            for (int i = 0; i < args.length(); i++) {
+                if ("-monitor".equals(programArgs[i])) {
+                    programArgs[i + 1] = monitorUrl;
+                    break;
+                }
             }
         }
         return programArgs;
@@ -382,7 +389,6 @@ public class FlinkClient extends AbstractClient {
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
         String applicationId = jobIdentifier.getApplicationId();
-        Boolean isFlinkSessionTask = applicationId.startsWith(FlinkConfig.FLINK_SESSION_PREFIX);
         logger.info("cancel job applicationId is: {}", applicationId);
 
         ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
@@ -390,22 +396,14 @@ public class FlinkClient extends AbstractClient {
             RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
             if (!RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
                 JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
-                CompletableFuture cancel = null;
 
-                if (isFlinkSessionTask) {
-                    cancel = targetClusterClient.cancel(jobID);
-                } else {
-                    cancel = targetClusterClient.cancelWithSavepoint(jobID, null);
-                }
-
+                CompletableFuture cancel = targetClusterClient.cancel(jobID);;
                 Object ack = cancel.get(2, TimeUnit.MINUTES);
-                if (ack instanceof String) {
-                    logger.info("cancelWithSavepoint success savepoint path is : {} ", ack.toString());
+
+                if (ack instanceof Acknowledge) {
+                    logger.info("cancel job success, applicationId is {}", applicationId);
                 }
 
-                if (targetClusterClient != flinkClusterClientManager.getClusterClient()) {
-                    targetClusterClient.shutDownCluster();
-                }
             }
         } catch (Exception e) {
             // session mode
