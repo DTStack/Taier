@@ -1,12 +1,15 @@
 
 package com.dtstack.engine.master.config;
 
+import com.dtstack.engine.master.router.DtArgumentResolver;
 import com.dtstack.engine.master.router.login.LoginInterceptor;
 import com.google.common.collect.Lists;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.*;
@@ -21,6 +24,9 @@ import java.util.List;
  */
 @Configuration
 public class MvcConfig extends DelegatingWebMvcConfiguration {
+
+    @Autowired
+    private DtArgumentResolver dtArgumentResolver;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -41,6 +47,11 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
         super.configureMessageConverters(converters);
     }
 
+    @Override
+    protected void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+        super.addArgumentResolvers(argumentResolvers);
+        argumentResolvers.add(dtArgumentResolver);
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
