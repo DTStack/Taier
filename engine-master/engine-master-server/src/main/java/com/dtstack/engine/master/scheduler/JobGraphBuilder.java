@@ -153,43 +153,47 @@ public class JobGraphBuilder {
                     break;
                 }
 
-                buildSemaphore.acquire();
-
                 startId = batchTaskShades.get(batchTaskShades.size() - 1).getId();
                 logger.info("batch-number:{} startId:{}", batchIdx, startId);
-                jobGraphBuildPool.execute(() -> {
-                    try {
-                        for (ScheduleTaskShade task : batchTaskShades) {
-                            List<ScheduleBatchJob> jobRunBeans = new ArrayList<>();
-                            try {
-                                jobRunBeans = RetryUtil.executeWithRetry(() -> {
-                                    String cronJobName = CRON_JOB_NAME + "_" + task.getName();
-                                    return buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
-                                            true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId());
-                                }, environmentContext.getBuildJobErrorRetry(), 200, false);
-                            } catch (Exception e) {
-                                logger.error("!!!!! task {}  appType {} build job error !!!! ", task.getTaskId(), task.getAppType(), e);
-                            }
-                            synchronized (allJobs) {
-                                allJobs.addAll(jobRunBeans);
-                            }
 
-                            if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
-                                for (ScheduleBatchJob jobRunBean : jobRunBeans) {
-                                    flowJobId.put(this.buildFlowReplaceId(task.getTaskId(), jobRunBean.getCycTime(), task.getAppType()), jobRunBean.getJobId());
+                try {
+                    buildSemaphore.acquire();
+                    jobGraphBuildPool.execute(() -> {
+                        try {
+                            for (ScheduleTaskShade task : batchTaskShades) {
+                                List<ScheduleBatchJob> jobRunBeans = new ArrayList<>();
+                                try {
+                                    jobRunBeans = RetryUtil.executeWithRetry(() -> {
+                                        String cronJobName = CRON_JOB_NAME + "_" + task.getName();
+                                        return buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
+                                                true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId());
+                                    }, environmentContext.getBuildJobErrorRetry(), 200, false);
+                                } catch (Exception e) {
+                                    logger.error("!!! task {}  appType {} build job error !!! ", task.getTaskId(), task.getAppType(), e);
+                                }
+                                synchronized (allJobs) {
+                                    allJobs.addAll(jobRunBeans);
+                                }
+
+                                if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
+                                    for (ScheduleBatchJob jobRunBean : jobRunBeans) {
+                                        flowJobId.put(this.buildFlowReplaceId(task.getTaskId(), jobRunBean.getCycTime(), task.getAppType()), jobRunBean.getJobId());
+                                    }
                                 }
                             }
+                            logger.info("batch-number:{} done!!! allJobs size:{}", batchIdx, allJobs.size());
+                        } catch (Throwable e) {
+                            logger.error("build job error", e);
+                        } finally {
+                            buildSemaphore.release();
+                            ctl.countDown();
                         }
-                        logger.info("batch-number:{} done!!! allJobs size:{}", batchIdx, allJobs.size());
-                    } catch (Throwable e) {
-                        logger.error("build job error", e);
-                        buildSemaphore.release();
-                        ctl.countDown();
-                    } finally {
-                        buildSemaphore.release();
-                        ctl.countDown();
-                    }
-                });
+                    });
+                } catch (Throwable e) {
+                    logger.error("[acquire pool error]:", e);
+                    buildSemaphore.release();
+                    ctl.countDown();
+                }
             }
             ctl.await();
             logger.info("buildTaskJobGraph all done!!! allJobs size:{}", allJobs.size());

@@ -79,6 +79,7 @@ import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -397,13 +398,37 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
+        String appId = jobIdentifier.getApplicationId();
         try {
-            ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
-            JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
-            targetClusterClient.cancelWithSavepoint(jobID, null);
+            RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+            //NOTFOUND 视为已经job已经结束
+            if (RdosTaskStatus.NOTFOUND != rdosTaskStatus && !RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
+                ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+                JobID jobId = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
+
+                if (StringUtils.isEmpty(appId)) {
+                    // yarn session job cancel
+                    targetClusterClient.cancel(jobId);
+                } else {
+                    // per job cancel
+                    CompletableFuture completableFuture = targetClusterClient.cancelWithSavepoint(jobId, null);
+                    Object ask = completableFuture.get(2, TimeUnit.MINUTES);
+                    logger.info("flink job savepoint path {}", ask.toString());
+                }
+            }
         } catch (Exception e) {
-            logger.error("", e);
-            return JobResult.createErrorResult(e);
+            logger.error("cancelWithSavepoint error,will use yarn kill applicaiton", e);
+
+            if (StringUtils.isEmpty(appId)) {
+                return JobResult.createErrorResult(e);
+            }
+
+            try {
+                ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
+                flinkClientBuilder.getYarnClient().killApplication(applicationId);
+            } catch (Exception killExecption) {
+                return JobResult.createErrorResult(e);
+            }
         }
 
         JobResult jobResult = JobResult.newInstance(false);

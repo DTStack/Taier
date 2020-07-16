@@ -104,15 +104,14 @@ public class JobStatusDealer implements Runnable {
                             logger.info("jobId:{} before dealJob status:{}", job.getKey(), job.getValue());
                             dealJob(job.getKey());
                         } catch (Throwable e) {
-                            logger.error("{}", e);
+                            logger.error("jobId:{}", job.getKey(), e);
                         } finally {
                             buildSemaphore.release();
                             ctl.countDown();
                         }
                     });
                 } catch (Throwable e) {
-                    logger.error("jobId:{} [emergency] error:",job.getKey(), e);
-                } finally {
+                    logger.error("jobId:{} [acquire pool error]:",job.getKey(), e);
                     buildSemaphore.release();
                     ctl.countDown();
                 }

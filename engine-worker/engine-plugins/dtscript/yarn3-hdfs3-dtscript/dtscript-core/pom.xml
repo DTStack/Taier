@@ -146,13 +146,13 @@
                         <configuration>
                             <tasks>
                                 <copy file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
+                                      tofile="${basedir}/target/dtscript-core-dtscript.jar" />
                                 <copy todir="${basedir}/target/../../../../../../pluginLibs/${pluginDir.name}/"
-                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
+                                      file="${basedir}/target/dtscript-core-dtscript.jar"/>
                                 <delete>
                                     <fileset dir="${basedir}/target/../../../../../../pluginLibs/${pluginDir.name}/"
                                              includes="${jar.name}-*.jar"
-                                             excludes="${jar.name}-${git.branch}.jar"/>
+                                             excludes="dtscript-core-dtscript.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>

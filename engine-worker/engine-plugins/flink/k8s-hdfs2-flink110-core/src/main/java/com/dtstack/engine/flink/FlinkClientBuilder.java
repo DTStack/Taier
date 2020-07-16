@@ -55,7 +55,7 @@ public class FlinkClientBuilder {
         String k8sClusterId = flinkConfiguration.getString(KubernetesConfigOptions.CLUSTER_ID, defaultClusterId);
         // k8s集群名称不支持下划线，转为中划线
         k8sClusterId = StringUtils.replaceChars(k8sClusterId, ConfigConstrant.SPLIT, ConfigConstrant.CLUSTER_ID_SPLIT);
-        flinkConfiguration.setString(KubernetesConfigOptions.CLUSTER_ID, k8sClusterId);
+        flinkConfiguration.setString(KubernetesConfigOptions.CLUSTER_ID, k8sClusterId.toLowerCase());
 
         this.flinkKubeClient = KubeClientFactory.fromConfiguration(flinkConfiguration);
     }
