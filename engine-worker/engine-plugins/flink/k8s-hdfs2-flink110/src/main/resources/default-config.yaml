@@ -39,7 +39,7 @@ perjob:
 
   optional:
     jarTmpDir: ./tmp110
-    queue: default
+    namespace: default
     pluginLoadMode: classpath
     submitTimeout: 5
     flinkInterval: 5 SECONDS
@@ -98,7 +98,7 @@ session:
 
   optional:
     jarTmpDir: ./tmp110
-    queue: default
+    namespace: default
     pluginLoadMode: classpath
     submitTimeout: 5
     flinkInterval: 5 SECONDS
