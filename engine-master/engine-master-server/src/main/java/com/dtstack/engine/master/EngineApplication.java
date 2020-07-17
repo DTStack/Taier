@@ -18,10 +18,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * author: toutian
  * create: 2020/07/08
  */
-@SpringBootApplication(exclude = {
-    RedisAutoConfiguration.class,
-    RedisRepositoriesAutoConfiguration.class
-})
+@SpringBootApplication
 @EnableAspectJAutoProxy
 public class EngineApplication {
 
