@@ -2264,7 +2264,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      *
      * @param jobs
      */
-    public Integer BatchJobsBatchUpdate(@Param("jobs") String jobs) {
+    @Override
+    public Integer batchJobsBatchUpdate(@Param("jobs") String jobs) {
         if (StringUtils.isBlank(jobs)) {
             return 0;
         }
@@ -2274,7 +2275,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
         Integer updateSize = 0;
         for (ScheduleJob job : scheduleJobs) {
-            if(Objects.nonNull(job.getStatus())){
+            if (Objects.nonNull(job.getStatus())) {
                 //更新状态 日志信息也要更新
                 job.setLogInfo("");
             }
