@@ -41,6 +41,12 @@ public class RdosDefineException extends RuntimeException {
         setErrorMessage(message);
     }
 
+    public RdosDefineException(String message, ErrorCode errorCode, String url){
+        super(buildErrorInfo(errorCode, message, url));
+        this.errorCode = errorCode;
+        setErrorMessage(message);
+    }
+
     public RdosDefineException(ErrorCode errorCode, Throwable cause){
         super(buildErrorInfo(errorCode, errorCode.getDescription()), cause);
         this.errorCode = errorCode;
@@ -76,5 +82,11 @@ public class RdosDefineException extends RuntimeException {
     private static String buildErrorInfo(ErrorCode errorCode, String errorMessage) {
         return "{errorCode=" + errorCode.getCode() +
                 ", errorMessage=" + errorMessage + "}";
+    }
+
+    private static String buildErrorInfo(ErrorCode errorCode, String errorMessage, String url) {
+        return "{errorCode=" + errorCode.getCode() +
+                ", errorMessage=" + errorMessage +
+                ", url=" + url + "}";
     }
 }

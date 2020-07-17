@@ -180,7 +180,7 @@ public class FlinkClient extends AbstractClient {
         Configuration tmpConfiguration = new Configuration(flinkClientBuilder.getFlinkConfiguration());
         ClusterClient clusterClient = null;
         String monitorUrl = "";
-        logger.info("clusterClient monitorUrl is {},run mode is {}", monitorUrl, taskRunMode.name());
+        logger.info("clusterClient monitorUrl is {}, run mode is {}", monitorUrl, taskRunMode.name());
         try {
             if (FlinkMode.isPerJob(taskRunMode)) {
                 ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(tmpConfiguration, jobClient.getJobPriority(), jobClient.getConfProperties());
