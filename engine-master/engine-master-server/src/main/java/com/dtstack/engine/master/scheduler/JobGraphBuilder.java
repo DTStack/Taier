@@ -12,7 +12,6 @@ import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
-import com.dtstack.engine.master.data.SortedArrayList;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.*;
 import com.dtstack.engine.master.parser.*;
@@ -74,7 +73,6 @@ public class JobGraphBuilder {
 
     private static final int TASK_BATCH_SIZE = 50;
     private static final int JOB_BATCH_SIZE = 50;
-    private static final int MAX_TASK_BUILD_THREAD = 20;
 
     private static String dtfFormatString = "yyyyMMddHHmmss";
 
@@ -98,6 +96,8 @@ public class JobGraphBuilder {
 
     private Lock lock = new ReentrantLock();
 
+    private volatile boolean isBuildError = false;
+
     /**
      * 1：如果当前节点是master-->每天晚上10点预先生成第二天的任务依赖;
      * 2：如果初始化master节点-->获取当天的jobgraph为null-->生成
@@ -111,6 +111,7 @@ public class JobGraphBuilder {
         lock.lock();
 
         try {
+            isBuildError = false;
             //检查是否已经生成过
             String triggerTimeStr = triggerDay + " 00:00:00";
             Timestamp triggerTime = Timestamp.valueOf(triggerTimeStr);
@@ -128,20 +129,12 @@ public class JobGraphBuilder {
             if (totalTask <= 0) {
                 return;
             }
+            int MAX_TASK_BUILD_THREAD = totalTask / 100;
 
             ExecutorService jobGraphBuildPool = new ThreadPoolExecutor(MAX_TASK_BUILD_THREAD, MAX_TASK_BUILD_THREAD, 10L, TimeUnit.SECONDS,
                     new LinkedBlockingQueue<>(MAX_TASK_BUILD_THREAD), new CustomThreadFactory("JobGraphBuilder"));
 
-            SortedArrayList<ScheduleBatchJob> allJobs = new SortedArrayList<>((ebj1, ebj2) -> {
-                Long date1 = Long.valueOf(ebj1.getCycTime());
-                Long date2 = Long.valueOf(ebj2.getCycTime());
-                if (date1 < date2) {
-                    return -1;
-                } else if (date1 > date2) {
-                    return 1;
-                }
-                return 0;
-            });
+            List<ScheduleBatchJob> allJobs = new ArrayList<>(totalTask);
             Map<String, String> flowJobId = new ConcurrentHashMap<>(totalTask);
             //限制 thread 并发
             int totalBatch = totalTask / TASK_BATCH_SIZE;
@@ -163,51 +156,56 @@ public class JobGraphBuilder {
                     break;
                 }
 
-                buildSemaphore.acquire();
-
                 startId = batchTaskShades.get(batchTaskShades.size() - 1).getId();
                 logger.info("batch-number:{} startId:{}", batchIdx, startId);
-                jobGraphBuildPool.execute(() -> {
-                    try {
-                        for (ScheduleTaskShade task : batchTaskShades) {
-                            List<ScheduleBatchJob> jobRunBeans = new ArrayList<>();
-                            try {
-                                jobRunBeans = RetryUtil.executeWithRetry(() -> {
+
+                try {
+                    buildSemaphore.acquire();
+                    jobGraphBuildPool.execute(() -> {
+                        try {
+                            for (ScheduleTaskShade task : batchTaskShades) {
+                                List<ScheduleBatchJob> jobRunBeans = RetryUtil.executeWithRetry(() -> {
                                     String cronJobName = CRON_JOB_NAME + "_" + task.getName();
                                     return buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
                                             true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId());
                                 }, environmentContext.getBuildJobErrorRetry(), 200, false);
-                            } catch (Exception e) {
-                                logger.error("!!!!! task {}  appType {} build job error !!!! ", task.getTaskId(), task.getAppType(), e);
-                            }
-                            synchronized (allJobs) {
-                                allJobs.addAll(jobRunBeans);
-                            }
+                                synchronized (allJobs) {
+                                    allJobs.addAll(jobRunBeans);
+                                }
 
-                            if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
-                                for (ScheduleBatchJob jobRunBean : jobRunBeans) {
-                                    flowJobId.put(this.buildFlowReplaceId(task.getTaskId(), jobRunBean.getCycTime(), task.getAppType()), jobRunBean.getJobId());
+                                if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
+                                    for (ScheduleBatchJob jobRunBean : jobRunBeans) {
+                                        flowJobId.put(this.buildFlowReplaceId(task.getTaskId(), jobRunBean.getCycTime(), task.getAppType()), jobRunBean.getJobId());
+                                    }
                                 }
                             }
+                            logger.info("batch-number:{} done!!! allJobs size:{}", batchIdx, allJobs.size());
+                        } catch (Throwable e) {
+                            logger.error("!!! buildTaskJobGraph  build job error !!!", e);
+                            isBuildError = true;
+                            throw new RdosDefineException(e);
+                        } finally {
+                            buildSemaphore.release();
+                            ctl.countDown();
                         }
-                        logger.info("batch-number:{} done!!! allJobs size:{}", batchIdx, allJobs.size());
-                    } catch (Throwable e) {
-                        logger.error("build job error", e);
-                        buildSemaphore.release();
-                        ctl.countDown();
-                    } finally {
-                        buildSemaphore.release();
-                        ctl.countDown();
-                    }
-                });
+                    });
+                } catch (Throwable e) {
+                    logger.error("[acquire pool error]:", e);
+                    isBuildError = true;
+                    throw new RdosDefineException(e);
+                }
             }
             ctl.await();
+            if (isBuildError) {
+                logger.info("buildTaskJobGraph happend error jobSize {}", allJobs.size());
+                return;
+            }
             logger.info("buildTaskJobGraph all done!!! allJobs size:{}", allJobs.size());
             jobGraphBuildPool.shutdown();
 
             doSetFlowJobIdForSubTasks(allJobs, flowJobId);
 
-           /* allJobs.sort((ebj1, ebj2) -> {
+            allJobs.sort((ebj1, ebj2) -> {
                 Long date1 = Long.valueOf(ebj1.getCycTime());
                 Long date2 = Long.valueOf(ebj2.getCycTime());
                 if (date1 < date2) {
@@ -216,7 +214,7 @@ public class JobGraphBuilder {
                     return 1;
                 }
                 return 0;
-            });*/
+            });
 
             //存储生成的jobRunBean
             saveJobGraph(allJobs, triggerDay);
@@ -307,8 +305,8 @@ public class JobGraphBuilder {
      * @return
      */
     @Transactional
-    public boolean saveJobGraph(SortedArrayList<ScheduleBatchJob> jobList, String triggerDay) {
-        logger.error("start saveJobGraph to db {} error ", triggerDay);
+    public boolean saveJobGraph(List<ScheduleBatchJob> jobList, String triggerDay) {
+        logger.info("start saveJobGraph to db {} jobSize {}", triggerDay, jobList.size());
         //需要保存BatchJob, BatchJobJob
         batchJobService.insertJobList(jobList, EScheduleType.NORMAL_SCHEDULE.getType());
 
@@ -321,7 +319,7 @@ public class JobGraphBuilder {
                 return null;
             }, environmentContext.getBuildJobErrorRetry(), 200, false);
         } catch (Exception e) {
-            logger.error("addJobTrigger triggerTimeStr {} error ", triggerTimeStr);
+            logger.error("addJobTrigger triggerTimeStr {} error ", triggerTimeStr,e);
             throw new RdosDefineException(e);
         }
 
