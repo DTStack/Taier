@@ -356,4 +356,8 @@ public class EnvironmentContext {
     public boolean openScheduleJobCron(){
         return Boolean.parseBoolean(environment.getProperty("job.back.cron.open", "false"));
     }
+
+    public long getConsoleStopExpireTime() {
+        return Long.parseLong(environment.getProperty("consoleStopExpireTime", Long.toString(60 * 1000 * 24)));
+    }
 }
