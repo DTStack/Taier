@@ -20,16 +20,16 @@ import org.springframework.context.annotation.FilterType;
  * author: toutian
  * create: 2020/07/08
  */
-@SpringBootApplication(exclude = {
-        RedisAutoConfiguration.class,
-        RedisRepositoriesAutoConfiguration.class
-})
-//@SpringBootConfiguration
-//@EnableAutoConfiguration
-//@ComponentScan(excludeFilters = {@ComponentScan.Filter(type= FilterType.ASSIGNABLE_TYPE, classes={
+//@SpringBootApplication(exclude = {
 //        RedisAutoConfiguration.class,
 //        RedisRepositoriesAutoConfiguration.class
-//})})
+//})
+@SpringBootConfiguration
+@EnableAutoConfiguration
+@ComponentScan(excludeFilters = {@ComponentScan.Filter(type= FilterType.ASSIGNABLE_TYPE, classes={
+        RedisAutoConfiguration.class,
+        RedisRepositoriesAutoConfiguration.class
+})})
 @EnableAspectJAutoProxy
 public class EngineApplication {
 
