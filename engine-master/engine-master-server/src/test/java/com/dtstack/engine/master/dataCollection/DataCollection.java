@@ -67,6 +67,14 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobDefiniteJobId() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setId(-9089L);
+        sj.setJobId("9089");
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
     default ScheduleJob getScheduleJobDefiniteProjectId() {
         ScheduleJob sj = Template.getScheduleJobTemplate();
         sj.setExecTime(2000L);
