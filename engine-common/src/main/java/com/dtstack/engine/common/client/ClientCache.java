@@ -54,7 +54,7 @@ public class ClientCache {
 
             Map<String, IClient> clientMap = cache.computeIfAbsent(engineType, k -> Maps.newConcurrentMap());
 
-            Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
+            Properties properties = PublicUtil.jsonStrToObjectWithOutNull(pluginInfo, Properties.class);
 
             String md5plugin = MD5Util.getMd5String(pluginInfo);
             String md5sum = null;

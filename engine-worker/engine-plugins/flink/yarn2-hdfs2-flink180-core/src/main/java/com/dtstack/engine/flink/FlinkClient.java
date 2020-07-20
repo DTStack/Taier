@@ -218,7 +218,7 @@ public class FlinkClient extends AbstractClient {
             if (FlinkYarnMode.isPerJob(taskRunMode)) {
                 // perjob模式延后创建PackagedProgram
                 jarFile = FlinkUtil.downloadJar(jarPath, tmpFileDirPath, hadoopConf.getConfiguration(), null);
-                ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getJobPriority(), jobClient.getConfProperties());
+                ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getJobPriority(), jobClient.getConfProperties());
                 clusterSpecification.setConfiguration(flinkClientBuilder.getFlinkConfiguration());
                 clusterSpecification.setClasspaths(classPaths);
                 clusterSpecification.setEntryPointClass(entryPointClass);
@@ -402,15 +402,36 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
+        String appId = jobIdentifier.getApplicationId();
         try {
-            ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
-            JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
+            RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+            //NOTFOUND 视为已经job已经结束
+            if (RdosTaskStatus.NOTFOUND != rdosTaskStatus && !RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
+                ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+                JobID jobId = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
 
-            // savepoint dir default use state.savepoints.dir
-            targetClusterClient.cancelWithSavepoint(jobID, null);
+                if (StringUtils.isEmpty(appId)) {
+                    // yarn session job cancel
+                    targetClusterClient.cancel(jobId);
+                } else {
+                    // per job cancel
+                    String savepoint = targetClusterClient.cancelWithSavepoint(jobId, null);
+                    logger.info("flink job savepoint path {}", savepoint);
+                }
+            }
         } catch (Exception e) {
-            logger.error("", e);
-            return JobResult.createErrorResult(e);
+            logger.error("cancelWithSavepoint error,will use yarn kill applicaiton", e);
+
+            if (StringUtils.isEmpty(appId)) {
+                return JobResult.createErrorResult(e);
+            }
+
+            try {
+                ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
+                flinkClientBuilder.getYarnClient().killApplication(applicationId);
+            } catch (Exception killExecption) {
+                return JobResult.createErrorResult(e);
+            }
         }
 
         JobResult jobResult = JobResult.newInstance(false);
@@ -616,22 +637,11 @@ public class FlinkClient extends AbstractClient {
      */
     private String getExceptionInfo(String exceptPath, String reqURL) {
         String exceptionInfo = "";
-        int i = 0;
-        while (i < 10) {
-            try {
-                Thread.sleep(500);
-                exceptionInfo = getMessageByHttp(exceptPath, reqURL);
-                return exceptionInfo;
-            } catch (RdosDefineException e) {
-                if (!e.getErrorMessage().contains("404")) {
-                    throw e;
-                }
-            } catch (Exception ignore) {
-
-            } finally {
-                i++;
-            }
-
+        try {
+            exceptionInfo = getMessageByHttp(exceptPath, reqURL);
+            return exceptionInfo;
+        } catch (Exception e) {
+            logger.error("", e);
         }
 
         return exceptionInfo;

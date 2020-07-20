@@ -51,6 +51,7 @@ import org.apache.flink.configuration.HistoryServerOptions;
 import org.apache.flink.kubernetes.kubeclient.FlinkKubeClient;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
+import org.apache.flink.runtime.messages.Acknowledge;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.function.FunctionUtils;
 import org.slf4j.Logger;
@@ -66,6 +67,7 @@ import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -178,7 +180,7 @@ public class FlinkClient extends AbstractClient {
         Configuration tmpConfiguration = new Configuration(flinkClientBuilder.getFlinkConfiguration());
         ClusterClient clusterClient = null;
         String monitorUrl = "";
-        logger.info("clusterClient monitorUrl is {},run mode is {}", monitorUrl, taskRunMode.name());
+        logger.info("clusterClient monitorUrl is {}, run mode is {}", monitorUrl, taskRunMode.name());
         try {
             if (FlinkMode.isPerJob(taskRunMode)) {
                 ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(tmpConfiguration, jobClient.getJobPriority(), jobClient.getConfProperties());
@@ -199,7 +201,8 @@ public class FlinkClient extends AbstractClient {
         JobGraph jobGraph = null;
         SavepointRestoreSettings spSettings = buildSavepointSetting(jobClient);
         String entryPointClass = jobParam.getMainClass();
-        String[] programArgs = addMonitorUrlParamForSync(programArgList, jobParam, monitorUrl);
+        EJobType jobType = jobClient.getJobType();
+        String[] programArgs = dealProgramArgs(programArgList, jobParam, monitorUrl, jobType);
 
         try {
             Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
@@ -211,6 +214,9 @@ public class FlinkClient extends AbstractClient {
             Pair<String, String> runResult = submitFlinkJob(clusterClient, jobGraph, taskRunMode);
             return JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond());
         } catch (Exception e) {
+            if (FlinkMode.isPerJob(taskRunMode)) {
+                clusterClient.shutDownCluster();
+            }
             return JobResult.createErrorResult(e);
         } finally {
             if (packagedProgram != null) {
@@ -227,17 +233,19 @@ public class FlinkClient extends AbstractClient {
      * @param monitorUrl
      * @return
      */
-    private String[] addMonitorUrlParamForSync(List<String> programArgList, JobParam jobParam, String monitorUrl) {
+    private String[] dealProgramArgs(List<String> programArgList, JobParam jobParam, String monitorUrl, EJobType jobType) {
         String args = jobParam.getClassArgs();
         if (StringUtils.isNotBlank(args)) {
             programArgList.addAll(Arrays.asList(args.split("\\s+")));
         }
-
         String[] programArgs = programArgList.toArray(new String[programArgList.size()]);
-        for (int i = 0; i < args.length(); i++) {
-            if ("-monitor".equals(programArgs[i])) {
-                programArgs[i + 1] = monitorUrl;
-                break;
+
+        if (EJobType.SYNC.equals(jobType)) {
+            for (int i = 0; i < args.length(); i++) {
+                if ("-monitor".equals(programArgs[i])) {
+                    programArgs[i + 1] = monitorUrl;
+                    break;
+                }
             }
         }
         return programArgs;
@@ -380,16 +388,36 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
+        String applicationId = jobIdentifier.getApplicationId();
+        logger.info("cancel job applicationId is: {}", applicationId);
+
+        ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
         try {
-            ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
-            JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
-            targetClusterClient.cancelWithSavepoint(jobID, null);
-            if (targetClusterClient != flinkClusterClientManager.getClusterClient()) {
-                targetClusterClient.shutDownCluster();
+            RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+            if (!RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
+                JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
+
+                CompletableFuture cancel = targetClusterClient.cancel(jobID);;
+                Object ack = cancel.get(2, TimeUnit.MINUTES);
+
+                if (ack instanceof Acknowledge) {
+                    logger.info("cancel job success, applicationId is {}", applicationId);
+                }
+
             }
         } catch (Exception e) {
-            logger.error("", e);
-            return JobResult.createErrorResult(e);
+            // session mode
+            if (targetClusterClient == flinkClusterClientManager.getClusterClient()) {
+                logger.error("", e);
+                return JobResult.createErrorResult(e);
+            }
+
+            try {
+                targetClusterClient.shutDownCluster();
+            } catch (Exception ec) {
+                logger.error("shutDownCluster error", ec);
+                return JobResult.createErrorResult(e);
+            }
         }
 
         JobResult jobResult = JobResult.newInstance(false);
@@ -522,22 +550,11 @@ public class FlinkClient extends AbstractClient {
      */
     private String getExceptionInfo(String exceptPath, String reqURL) {
         String exceptionInfo = "";
-        int i = 0;
-        while (i < 10) {
-            try {
-                Thread.sleep(500);
-                exceptionInfo = getMessageByHttp(exceptPath, reqURL);
-                return exceptionInfo;
-            } catch (RdosDefineException e) {
-                if (!e.getErrorMessage().contains("404")) {
-                    throw e;
-                }
-            } catch (Exception ignore) {
-
-            } finally {
-                i++;
-            }
-
+        try {
+            exceptionInfo = getMessageByHttp(exceptPath, reqURL);
+            return exceptionInfo;
+        } catch (Exception e) {
+            logger.error("", e);
         }
 
         return exceptionInfo;
