@@ -73,8 +73,6 @@ public class SessionClientFactory extends AbstractClientFactory {
         this.kubernetesClusterDescriptor = createSessionClusterDescriptor();
 
         initZkClient();
-
-        this.lockPath = String.format("/yarn_session/%s", flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
         this.clusterClientLock = new InterProcessMutex(zkClient, lockPath);
     }
 
@@ -83,7 +81,9 @@ public class SessionClientFactory extends AbstractClientFactory {
         if (StringUtils.isBlank(zkAddress)) {
             throw new RdosDefineException("zkAddress is error");
         }
-        lockPath = String.format("/yarn_session/%s", flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
+
+        String sessionNodeName = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getNamespace();
+        this.lockPath = String.format("/kubernetes_session/%s", sessionNodeName);
 
         this.zkClient = CuratorFrameworkFactory.builder()
                 .connectString(zkAddress).retryPolicy(new ExponentialBackoffRetry(1000, 3))
@@ -92,7 +92,6 @@ public class SessionClientFactory extends AbstractClientFactory {
         this.zkClient.start();
         LOG.warn("connector zk success...");
     }
-
 
     public boolean startFlinkSession() {
         try {

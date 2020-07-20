@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -62,17 +63,21 @@ public class NodeRecoverService {
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }
+                List<JobClient> afterJobClients = new ArrayList<>(jobCaches.size());
                 for (EngineJobCache jobCache : jobCaches) {
                     try {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
-                        jobDealer.afterSubmitJob(jobClient);
+                        afterJobClients.add(jobClient);
                         startId = jobCache.getId();
                     } catch (Exception e) {
                         logger.error("", e);
                         //数据转换异常--打日志
                         jobDealer.dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
                     }
+                }
+                if (CollectionUtils.isNotEmpty(afterJobClients)) {
+                    jobDealer.afterSubmitJobBatch(afterJobClients);
                 }
             }
         } catch (Exception e) {
