@@ -227,7 +227,8 @@ public class ActionService {
 
         scheduleJob.setTenantId(paramActionExt.getTenantId());
         scheduleJob.setProjectId(getOrDefault(paramActionExt.getProjectId(), -1L));
-        scheduleJob.setDtuicTenantId(getOrDefault(paramActionExt.getDtuicTenantId(), -1L));
+        //dtuicTenantId() 取 tenantId字段
+        scheduleJob.setDtuicTenantId(getOrDefault(paramActionExt.getTenantId(), -1L));
         scheduleJob.setAppType(getOrDefault(paramActionExt.getAppType(), 0));
         scheduleJob.setJobKey(getOrDefault(paramActionExt.getJobKey(), String.format("%s%s%s", "tempJob", paramActionExt.getTaskId(), new DateTime().toString("yyyyMMdd") )));
         scheduleJob.setTaskId(getOrDefault(paramActionExt.getTaskSourceId(), -1L));
