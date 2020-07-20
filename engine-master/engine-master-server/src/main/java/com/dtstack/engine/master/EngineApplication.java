@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.FilterType;
@@ -24,14 +25,13 @@ import org.springframework.context.annotation.FilterType;
 //        RedisAutoConfiguration.class,
 //        RedisRepositoriesAutoConfiguration.class
 //})
-@SpringBootConfiguration
-@EnableAutoConfiguration
+@SpringBootApplication
 @ComponentScan(excludeFilters = {@ComponentScan.Filter(type= FilterType.ASSIGNABLE_TYPE, classes={
         RedisAutoConfiguration.class,
         RedisRepositoriesAutoConfiguration.class
 })})
 @EnableAspectJAutoProxy
-public class EngineApplication {
+public class EngineApplication extends SpringBootServletInitializer {
 
     private static Logger LOGGER = LoggerFactory.getLogger(EngineApplication.class);
 
