@@ -25,8 +25,8 @@ import com.dtstack.engine.flink.FlinkClusterClientManager;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
-import com.dtstack.engine.flink.util.FLinkConfUtil;
 import com.dtstack.engine.flink.util.FileUtil;
+import com.dtstack.engine.flink.util.FlinkConfUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
@@ -94,7 +94,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         String clusterId = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
         this.yarnSessionDescriptor = createYarnSessionClusterDescriptor();
         this.yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + clusterId);
-        this.yarnSessionSpecification = FLinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
+        this.yarnSessionSpecification = FlinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
 
         initZkClient();
         this.lockPath = String.format("/yarn_session/%s", flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());

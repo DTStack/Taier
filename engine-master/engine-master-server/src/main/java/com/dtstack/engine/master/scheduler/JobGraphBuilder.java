@@ -97,6 +97,8 @@ public class JobGraphBuilder {
 
     private Lock lock = new ReentrantLock();
 
+    private volatile boolean isBuildError = false;
+
     /**
      * 1：如果当前节点是master-->每天晚上10点预先生成第二天的任务依赖;
      * 2：如果初始化master节点-->获取当天的jobgraph为null-->生成
@@ -110,6 +112,7 @@ public class JobGraphBuilder {
         lock.lock();
 
         try {
+            isBuildError = false;
             //检查是否已经生成过
             String triggerTimeStr = triggerDay + " 00:00:00";
             Timestamp triggerTime = Timestamp.valueOf(triggerTimeStr);
@@ -161,16 +164,11 @@ public class JobGraphBuilder {
                     jobGraphBuildPool.execute(() -> {
                         try {
                             for (ScheduleTaskShade task : batchTaskShades) {
-                                List<ScheduleBatchJob> jobRunBeans = new ArrayList<>();
-                                try {
-                                    jobRunBeans = RetryUtil.executeWithRetry(() -> {
-                                        String cronJobName = CRON_JOB_NAME + "_" + task.getName();
-                                        return buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
-                                                true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId());
-                                    }, environmentContext.getBuildJobErrorRetry(), 200, false);
-                                } catch (Exception e) {
-                                    logger.error("!!! task {}  appType {} build job error !!! ", task.getTaskId(), task.getAppType(), e);
-                                }
+                                List<ScheduleBatchJob> jobRunBeans = RetryUtil.executeWithRetry(() -> {
+                                    String cronJobName = CRON_JOB_NAME + "_" + task.getName();
+                                    return buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
+                                            true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId());
+                                }, environmentContext.getBuildJobErrorRetry(), 200, false);
                                 synchronized (allJobs) {
                                     allJobs.addAll(jobRunBeans);
                                 }
@@ -183,7 +181,9 @@ public class JobGraphBuilder {
                             }
                             logger.info("batch-number:{} done!!! allJobs size:{}", batchIdx, allJobs.size());
                         } catch (Throwable e) {
-                            logger.error("build job error", e);
+                            logger.error("!!! buildTaskJobGraph  build job error !!!", e);
+                            isBuildError = true;
+                            throw new RdosDefineException(e);
                         } finally {
                             buildSemaphore.release();
                             ctl.countDown();
@@ -191,11 +191,15 @@ public class JobGraphBuilder {
                     });
                 } catch (Throwable e) {
                     logger.error("[acquire pool error]:", e);
-                    buildSemaphore.release();
-                    ctl.countDown();
+                    isBuildError = true;
+                    throw new RdosDefineException(e);
                 }
             }
             ctl.await();
+            if (isBuildError) {
+                logger.info("buildTaskJobGraph happend error jobSize {}", allJobs.size());
+                return;
+            }
             logger.info("buildTaskJobGraph all done!!! allJobs size:{}", allJobs.size());
             jobGraphBuildPool.shutdown();
 
@@ -302,6 +306,7 @@ public class JobGraphBuilder {
      */
     @Transactional
     public boolean saveJobGraph(List<ScheduleBatchJob> jobList, String triggerDay) {
+        logger.info("start saveJobGraph to db {} jobSize {}", triggerDay, jobList.size());
         //需要保存BatchJob, BatchJobJob
         batchJobService.insertJobList(jobList, EScheduleType.NORMAL_SCHEDULE.getType());
 
@@ -314,7 +319,7 @@ public class JobGraphBuilder {
                 return null;
             }, environmentContext.getBuildJobErrorRetry(), 200, false);
         } catch (Exception e) {
-            logger.info("addJobTrigger triggerTimeStr {} error ", triggerTimeStr);
+            logger.error("addJobTrigger triggerTimeStr {} error ", triggerTimeStr,e);
             throw new RdosDefineException(e);
         }
 
@@ -462,7 +467,9 @@ public class JobGraphBuilder {
             if (needAddFather) {
                 List<String> fatherDependency = getDependencyJobKeys(scheduleType, scheduleJob, scheduleCron, keyPreStr);
                 for (String dependencyJobKey : fatherDependency) {
-                    logger.info("get Job {} Job key  {} cron {} cycTime {}", jobKey, dependencyJobKey, JSONObject.toJSONString(scheduleCron), scheduleJob.getCycTime());
+                    if(logger.isDebugEnabled()){
+                        logger.debug("get Job {} Job key  {} cron {} cycTime {}", jobKey, dependencyJobKey, JSONObject.toJSONString(scheduleCron), scheduleJob.getCycTime());
+                    }
                     scheduleBatchJob.addBatchJobJob(createNewJobJob(scheduleJob, jobKey, dependencyJobKey, timestampNow));
                 }
             }
@@ -559,15 +566,6 @@ public class JobGraphBuilder {
         }
     }
 
-    public ScheduleEngineJob newInstance(Integer status, String jobId) {
-        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-        ScheduleEngineJob job = new ScheduleEngineJob();
-        job.setStatus(status);
-        job.setJobId(jobId);
-        job.setGmtCreate(timestamp);
-        job.setGmtModified(timestamp);
-        return job;
-    }
 
     public ScheduleJobJob createNewJobJob(ScheduleJob scheduleJob, String jobKey, String parentKey, Timestamp timestamp) {
         ScheduleJobJob jobJobJob = new ScheduleJobJob();

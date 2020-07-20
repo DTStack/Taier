@@ -40,6 +40,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -328,5 +330,55 @@ public class ScheduleJobServiceTest extends AbstractTest {
         Assert.assertEquals(list.size(), 1);
     }
 
+    @Test
+    @Transactional
+    @Rollback
+    public void testStatisticsTaskRecentInfo() {
+        ScheduleJob job = DataCollection.getData().getScheduleJobDefiniteTaskId();
+        List<Map<String, Object>> taskInfos = sheduleJobService.statisticsTaskRecentInfo(job.getTaskId(), job.getAppType(), job.getProjectId(), 1);
 
+        Assert.assertEquals(taskInfos.size(), 1);
+
+        Map<String, Object> info = taskInfos.get(0);
+        String jobId = info.get("jobId").toString();
+
+        Assert.assertEquals(jobId, job.getJobId());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testBatchJobsBatchUpdate() {
+        ScheduleJob job = DataCollection.getData().getScheduleJobDefiniteJobId();
+        job.setJobName("test_batchJobsBatchUpdate");
+
+        List<ScheduleJob> jobList = new ArrayList<>();
+        jobList.add(job);
+
+        String jobString = JSONObject.toJSONString(jobList);
+        Integer result = sheduleJobService.batchJobsBatchUpdate(jobString);
+
+        Assert.assertEquals(result.intValue(), 1);
+
+        Long jobId = job.getId();
+        ScheduleJob scheduleJob = sheduleJobService.getJobById(jobId);
+        Assert.assertEquals(scheduleJob.getJobName(), "test_batchJobsBatchUpdate");
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testUpdateTimeNull() {
+        ScheduleJob job = DataCollection.getData().getScheduleJobDefiniteJobId();
+        String jobId = job.getJobId();
+        Long id = job.getId();
+
+        sheduleJobService.updateTimeNull(jobId);
+
+        ScheduleJob scheduleJob = sheduleJobService.getJobById(id);
+        Timestamp execStartTime = scheduleJob.getExecStartTime();
+        Timestamp execEndTime = scheduleJob.getExecEndTime();
+
+        Assert.assertTrue(execStartTime == null && execEndTime == null);
+    }
 }

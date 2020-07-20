@@ -33,6 +33,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -40,6 +41,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * company: www.dtstack.com
@@ -149,12 +151,30 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         this.addGroupPriorityQueue(jobResource, jobClient, true);
     }
 
+    public void addSubmitJobBatch(List<JobClient> jobClients) {
+        List<String> taskIds = jobClients.stream().map(JobClient::getTaskId).collect(Collectors.toList());
+        updateCacheBatch(taskIds, EJobCacheStage.DB.getStage());
+        scheduleJobDao.updateJobStatusByJobIds(taskIds, RdosTaskStatus.WAITENGINE.getStatus());
+        LOG.info(" addSubmitJobBatch jobId:{} update", JSONObject.toJSONString(taskIds));
+        for (JobClient jobClient : jobClients) {
+            jobClient.setCallBack((jobStatus) -> {
+                updateJobStatus(jobClient.getTaskId(), jobStatus);
+            });
+            //加入节点的优先级队列
+            this.addGroupPriorityQueue(jobComputeResourcePlain.getJobResource(jobClient), jobClient, true);
+        }
+    }
+
     /**
      * 容灾时对已经提交到执行组件的任务，进行恢复
      */
-    public void afterSubmitJob(JobClient jobClient) {
-        updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
-        shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus());
+    public void afterSubmitJobBatch(List<JobClient> jobClients) {
+        List<String> taskIds = jobClients.stream().map(JobClient::getTaskId).collect(Collectors.toList());
+        updateCacheBatch(taskIds, EJobCacheStage.SUBMITTED.getStage());
+        LOG.info(" afterSubmitJobBatch jobId:{} update", JSONObject.toJSONString(taskIds));
+        for (String taskId : taskIds) {
+            shardCache.updateLocalMemTaskStatus(taskId, RdosTaskStatus.SUBMITTED.getStatus());
+        }
     }
 
     public boolean addGroupPriorityQueue(String jobResource, JobClient jobClient, boolean judgeBlock) {
@@ -195,6 +215,11 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         } else {
             engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
         }
+    }
+
+    private void updateCacheBatch(List<String> taskIds,int stage){
+        String nodeAddress = environmentContext.getLocalAddress();
+        engineJobCacheDao.updateStageBatch(taskIds, stage, nodeAddress);
     }
 
     public void updateCache(JobClient jobClient, int stage) {
@@ -252,14 +277,16 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                         //2. master节点已经为此节点做了容灾
                         break;
                     }
+                    List<JobClient> unSubmitClients = new ArrayList<>();
+                    List<JobClient> submitClients = new ArrayList<>();
                     for (EngineJobCache jobCache : jobCaches) {
                         try {
                             ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                             JobClient jobClient = new JobClient(paramAction);
                             if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
-                                JobDealer.this.addSubmitJob(jobClient, false);
+                                unSubmitClients.add(jobClient);
                             } else {
-                                JobDealer.this.afterSubmitJob(jobClient);
+                                submitClients.add(jobClient);
                             }
                             startId = jobCache.getId();
                         } catch (Exception e) {
@@ -267,6 +294,12 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                             //数据转换异常--打日志
                             dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
                         }
+                    }
+                    if (CollectionUtils.isNotEmpty(unSubmitClients)) {
+                        addSubmitJobBatch(unSubmitClients);
+                    }
+                    if (CollectionUtils.isNotEmpty(submitClients)) {
+                        afterSubmitJobBatch(submitClients);
                     }
                 }
             } catch (Exception e) {
