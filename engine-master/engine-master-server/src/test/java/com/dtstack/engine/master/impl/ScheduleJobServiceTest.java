@@ -32,8 +32,8 @@ import com.dtstack.engine.api.vo.ScheduleJobVO;
 import com.dtstack.engine.api.vo.SchedulePeriodInfoVO;
 import com.dtstack.engine.api.vo.ScheduleRunDetailVO;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.data.DataCollection;
-import com.google.common.base.Function;
+import com.dtstack.engine.master.dataCollection.DataCollection;
+import com.dtstack.engine.master.enums.EDeployMode;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,14 +54,11 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Autowired
     ScheduleJobService sheduleJobService;
 
-    @Autowired
-    public DataCollection dataCollection;
-
     @Test
     @Transactional
     @Rollback
     public void testGetStatusById() {
-        ScheduleJob scheduleJob = dataCollection.getScheduleJobFirst();
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobFirst();
         Long id = scheduleJob.getId();
         Integer statusById = sheduleJobService.getStatusById(id);
         if (!Objects.isNull(statusById)) {
@@ -74,7 +71,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testGetStatusJobList() {
-        ScheduleJob scheduleJob = dataCollection.getScheduleJobFirst();
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteProjectId();
         Long projectId = scheduleJob.getProjectId();
         Long tenantId = scheduleJob.getTenantId();
         Integer appType = scheduleJob.getAppType();
@@ -90,7 +87,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testGetStatusCount() {
-        ScheduleJob scheduleJob = dataCollection.getScheduleJobFirst();
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteProjectId();
         Long projectId = scheduleJob.getProjectId();
         Long tenantId = scheduleJob.getTenantId();
         Integer appType = scheduleJob.getAppType();
@@ -107,7 +104,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testGetJobById() {
-        ScheduleJob scheduleJob = dataCollection.getScheduleJobFirst();
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobFirst();
         Long id = scheduleJob.getId();
         ScheduleJob job = sheduleJobService.getJobById(id);
         Assert.assertEquals(job.getJobName(), "Python");
@@ -117,8 +114,8 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testRunTimeTopOrder() {
-        ScheduleJob scheduleJob = dataCollection.getScheduleJobFirst();
-        ScheduleJob scheduleJobSecond = dataCollection.getScheduleJobSecond();
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobFirst();
+        ScheduleJob scheduleJobSecond = DataCollection.getData().getScheduleJobSecond();
 
         Long projectId = scheduleJob.getProjectId();
         Integer appType = scheduleJob.getAppType();
@@ -139,8 +136,8 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testErrorTopOrder() {
-        ScheduleJob scheduleJob = dataCollection.getScheduleJobFirst();
-        ScheduleJob scheduleJobSecond = dataCollection.getScheduleJobSecond();
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobFirst();
+        ScheduleJob scheduleJobSecond = DataCollection.getData().getScheduleJobSecond();
 
         Long projectId = scheduleJob.getProjectId();
         Long tenantId = scheduleJob.getTenantId();
@@ -162,8 +159,8 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testGetJobGraph() {
-        ScheduleJob todayJob = dataCollection.getScheduleJobTodayData();
-        ScheduleJob yesterdayJob = dataCollection.getScheduleJobYesterdayData();
+        ScheduleJob todayJob = DataCollection.getData().getScheduleJobTodayData();
+        ScheduleJob yesterdayJob = DataCollection.getData().getScheduleJobYesterdayData();
 
         Long projectId = todayJob.getProjectId();
         Long tenantId = todayJob.getTenantId();
@@ -186,8 +183,8 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testGetScienceJobGraph() {
-        ScheduleJob todayJob = dataCollection.getScheduleJobTodayData();
-        ScheduleTaskShade scheduleTaskShadeForSheduleJob = dataCollection.getScheduleTaskShadeForSheduleJob();
+        ScheduleJob todayJob = DataCollection.getData().getScheduleJobTodayData();
+        ScheduleTaskShade taskShade = DataCollection.getData().getScheduleTaskShadeForSheduleJob();
         Long projectId = todayJob.getProjectId();
         Long tenantId = todayJob.getTenantId();
         String taskType = todayJob.getTaskType().toString();
@@ -206,17 +203,18 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testCountScienceJobStatus() {
-        ScheduleJob job = dataCollection.getScheduleJobTodayData();
-        ScheduleTaskShade scheduleTaskShadeForSheduleJob = dataCollection.getScheduleTaskShadeForSheduleJob();
+        ScheduleJob job = DataCollection.getData().getScheduleJobTodayData();
+        ScheduleTaskShade scheduleTaskShadeForSheduleJob = DataCollection.getData().getScheduleTaskShadeForSheduleJob();
 
         List<Long> projectId = Arrays.asList(job.getProjectId());
         Long tenantId = job.getTenantId();
         Integer status = job.getStatus();
         Integer type = job.getType();
         String taskType = job.getTaskType().toString();
-        String cycTime = job.getCycTime();
+        String startTime = job.getCycTime();
+        String endTime = job.getCycTime();
 
-        Map<String, Object> stringObjectMap = sheduleJobService.countScienceJobStatus(projectId, tenantId, status, type, taskType, cycTime, cycTime);
+        Map<String, Object> stringObjectMap = sheduleJobService.countScienceJobStatus(projectId, tenantId, status, type, taskType, startTime, endTime);
         Integer total = Integer.valueOf(stringObjectMap.get("total").toString());
         Assert.assertTrue(total == 1);
     }
@@ -225,7 +223,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testQueryJobs() {
-        ScheduleJob job = dataCollection.getScheduleJobTodayData();
+        ScheduleJob job = DataCollection.getData().getScheduleJobTodayData();
         QueryJobDTO queryJobDTO = new QueryJobDTO();
         queryJobDTO.setAppType(job.getAppType());
         queryJobDTO.setProjectId(job.getProjectId());
@@ -247,11 +245,11 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testDisplayPeriods() {
-        ScheduleJob job = dataCollection.getScheduleJobTodayData();
+        ScheduleJob job = DataCollection.getData().getScheduleJobWithCycTime();
         long jobId = Long.valueOf(job.getId());
 
         try {
-            List<SchedulePeriodInfoVO> schedulePeriodInfoVOS = sheduleJobService.displayPeriods(false, jobId, job.getProjectId(), 10);
+            List<SchedulePeriodInfoVO> schedulePeriodInfoVOS = sheduleJobService.displayPeriods(true, jobId, job.getProjectId(), 10);
             Assert.assertTrue(schedulePeriodInfoVOS.size() == 1 && schedulePeriodInfoVOS.get(0).getTaskId().equals(job.getTaskId()));
         } catch (Exception e) {
             e.printStackTrace();
@@ -262,10 +260,72 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testJobDetail() {
-        ScheduleTaskShade taskShade = dataCollection.getScheduleTaskShadeDefiniteTaskId();
+        ScheduleTaskShade taskShade = DataCollection.getData().getScheduleTaskShadeDefiniteTaskIdSecond();
         List<ScheduleRunDetailVO> scheduleRunDetailVOS = sheduleJobService.jobDetail(taskShade.getTaskId(), taskShade.getAppType());
         ScheduleRunDetailVO scheduleRunDetailVO = scheduleRunDetailVOS.get(0);
         Assert.assertEquals(scheduleRunDetailVO.getTaskName(), taskShade.getName());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testParseDeployTypeByTaskParams() {
+        EDeployMode eDeployMode = sheduleJobService.parseDeployTypeByTaskParams("flinktaskrunmode=per_job");
+        Assert.assertEquals(eDeployMode, EDeployMode.PERJOB);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testStopJob() throws Exception {
+        ScheduleJob runningJob = DataCollection.getData().getScheduleJobDefiniteTaskId();
+        String result = sheduleJobService.stopJob(runningJob.getId(), runningJob.getCreateUserId(), runningJob.getProjectId(), runningJob.getTenantId(),
+                runningJob.getDtuicTenantId(), true, runningJob.getAppType());
+
+        Assert.assertEquals(result, "");
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testStopJobByJobId() throws Exception {
+        ScheduleJob runningJob = DataCollection.getData().getScheduleJobDefiniteTaskId();
+        String result = sheduleJobService.stopJobByJobId(runningJob.getJobId(), runningJob.getCreateUserId(), runningJob.getProjectId(), runningJob.getTenantId(),
+                runningJob.getDtuicTenantId(), true, runningJob.getAppType());
+
+        Assert.assertEquals(result, "");
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testStopFillDataJobs() throws Exception {
+        ScheduleJob runningJob = DataCollection.getData().getScheduleJobDefiniteTaskId();
+
+        String fillDataJobName = "Python";
+        sheduleJobService.stopFillDataJobs(fillDataJobName, runningJob.getProjectId(), runningJob.getDtuicTenantId(), runningJob.getAppType());
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testBatchStopJobs() throws Exception {
+        ScheduleJob runningJob = DataCollection.getData().getScheduleJobDefiniteTaskId();
+
+        int count = sheduleJobService.batchStopJobs(Arrays.asList(runningJob.getId()), runningJob.getProjectId(), runningJob.getDtuicTenantId(), runningJob.getAppType());
+        Assert.assertEquals(count, 1);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testListJobIdByTaskNameAndStatusList() {
+        ScheduleJob job = DataCollection.getData().getScheduleJobDefiniteTaskId();
+        ScheduleTaskShade task = DataCollection.getData().getScheduleTaskShadeDefiniteTaskId();
+
+        List<String> list = sheduleJobService.listJobIdByTaskNameAndStatusList(task.getName(), Arrays.asList(job.getStatus()), task.getProjectId(), task.getAppType());
+        Assert.assertEquals(list.size(), 1);
     }
 
 

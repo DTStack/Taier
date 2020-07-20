@@ -2,6 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.dataCollection.DataCollection;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -28,7 +29,7 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
 	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	@Rollback
 	public void testFindTaskId() {
-		ScheduleTaskShade scheduleTaskShade = dataCollection.getScheduleTaskShade();
+		ScheduleTaskShade scheduleTaskShade = DataCollection.getData().getScheduleTaskShade();
 
 		ScheduleTaskShade taskShade = scheduleTaskShadeService.findTaskId(
 			scheduleTaskShade.getTaskId(),
@@ -42,7 +43,7 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
 	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	@Rollback
 	public void testGetBatchTaskById() {
-		ScheduleTaskShade stsDelete = dataCollection.getScheduleTaskShadeDelete();
+		ScheduleTaskShade stsDelete = DataCollection.getData().getScheduleTaskShadeDelete();
 
 		ScheduleTaskShade taskShade = null;
 		try {
@@ -52,7 +53,7 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
 		}
 		Assert.isNull(taskShade);
 
-		ScheduleTaskShade sts = dataCollection.getScheduleTaskShade();
+		ScheduleTaskShade sts = DataCollection.getData().getScheduleTaskShade();
 		taskShade = scheduleTaskShadeService.getBatchTaskById(sts.getTaskId(), sts.getAppType());
 		Assert.notNull(taskShade);
 	}
@@ -61,7 +62,7 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
 	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	@Rollback
 	public void testGetByName() {
-		ScheduleTaskShade sts = dataCollection.getScheduleTaskShade();
+		ScheduleTaskShade sts = DataCollection.getData().getScheduleTaskShade();
 		ScheduleTaskShade taskShade = scheduleTaskShadeService.getByName(
 			sts.getProjectId(), sts.getName(), sts.getAppType(), sts.getFlowId());
 
@@ -72,7 +73,7 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
 	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	@Rollback
 	public void testGetTaskByIds(){
-		ScheduleTaskShade sts = dataCollection.getScheduleTaskShade();
+		ScheduleTaskShade sts = DataCollection.getData().getScheduleTaskShade();
 		List taskIds = new ArrayList();
 		taskIds.add(sts.getTaskId());
 		List scheduleTaskShades = scheduleTaskShadeService.getTaskByIds(taskIds, sts.getAppType());
@@ -85,7 +86,7 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
 	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	@Rollback
 	public void testGetTasksByName() {
-		ScheduleTaskShade sts = dataCollection.getScheduleTaskShade();
+		ScheduleTaskShade sts = DataCollection.getData().getScheduleTaskShade();
 		List<ScheduleTaskShade> ScheduleTaskShades = scheduleTaskShadeService.getTasksByName(sts.getProjectId(), sts.getName(), sts.getAppType());
 		Assert.notEmpty(ScheduleTaskShades);
 		Assert.isTrue(sts.getName().equals(ScheduleTaskShades.get(0).getName()));
@@ -95,7 +96,7 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
 	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 	@Rollback
 	public void testUpdateTaskName() {
-		ScheduleTaskShade sts = dataCollection.getScheduleTaskShade();
+		ScheduleTaskShade sts = DataCollection.getData().getScheduleTaskShade();
 
 		String taskNameNew = "engine_new_name";
 		scheduleTaskShadeService.updateTaskName(sts.getTaskId(), taskNameNew, sts.getAppType());

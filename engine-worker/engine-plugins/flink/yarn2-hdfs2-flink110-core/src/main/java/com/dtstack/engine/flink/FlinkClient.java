@@ -1,10 +1,14 @@
 package com.dtstack.engine.flink;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.http.HttpClient;
 import com.dtstack.engine.common.http.PoolHttpClient;
+import com.dtstack.engine.common.util.ApplicationWSParser;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JarFileInfo;
@@ -16,8 +20,10 @@ import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.SFTPHandler;
+import com.dtstack.engine.common.util.UrlUtil;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
+import com.dtstack.engine.flink.entity.TaskmanagerInfo;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
 import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.parser.PrepareOperator;
@@ -77,6 +83,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static java.security.AccessController.doPrivileged;
 
@@ -102,6 +110,9 @@ public class FlinkClient extends AbstractClient {
     private static final String USER_DIR = System.getProperty("user.dir");
 
     private static final String DIR = "/keytab/";
+    private static final String APPLICATION_REST_API_TMP = "%s/ws/v1/cluster/apps/%s";
+    private static final String CONTAINER_LOG_URL_TMP = "%s/node/containerlogs/%s/%s";
+    private static final String TASK_MANAGERS_KEY = "taskmanagers";
 
     private static final Path tmpdir = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
 
@@ -654,6 +665,120 @@ public class FlinkClient extends AbstractClient {
             yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
             return yarnSeesionResourceInfo.judgeSlots(jobClient);
         }
+    }
+
+
+    /**
+     *  获取Flink任务执行时的container日志URL及字节大小
+     * @return
+     */
+    @Override
+    public List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier) {
+        String jobMaster = getJobMaster(jobIdentifier);
+        String rootURL = UrlUtil.getHttpRootUrl(jobMaster);
+        String amRootURl = String.format(APPLICATION_REST_API_TMP, rootURL, jobIdentifier.getApplicationId());
+
+        List<String> result = Lists.newArrayList();
+        try {
+            String response = PoolHttpClient.get(amRootURl);
+            if (!StringUtils.isEmpty(response)) {
+                ApplicationWSParser applicationWsParser = new ApplicationWSParser(response);
+                String amStatue = applicationWsParser.getParamContent(ApplicationWSParser.AM_STATUE);
+                if (!StringUtils.equalsIgnoreCase(amStatue, "RUNNING")) {
+                    logger.info("am statue is {} not running!", amStatue);
+                    return result;
+                }
+
+                String amContainerLogsURL = applicationWsParser.getParamContent(ApplicationWSParser.AM_CONTAINER_LOGS_TAG);
+                String user = applicationWsParser.getParamContent(ApplicationWSParser.AM_USER_TAG);
+                String containerLogUrlFormat = UrlUtil.formatUrlHost(amContainerLogsURL);
+                String trackingUrl = applicationWsParser.getParamContent(ApplicationWSParser.TRACKING_URL);
+
+                // parse am log
+                parseAmLog(applicationWsParser, amContainerLogsURL).ifPresent(result::add);
+                // parse containers log
+                List<String> containersLogs = parseContainersLog(applicationWsParser, user, containerLogUrlFormat, trackingUrl);
+                result.addAll(containersLogs);
+            }
+        } catch (Exception e) {
+            logger.error("getRollingLogBaseInfo error", e);
+        }
+
+        return result;
+    }
+
+    private String buildContainerLogUrl(String containerHostPortFormat, String[] nameAndHost, String user) {
+        logger.debug("buildContainerLogUrl name:{},host{},user{} ", nameAndHost[0], nameAndHost[1], user);
+        String containerUlrPre = String.format(containerHostPortFormat, nameAndHost[1]);
+        return String.format(CONTAINER_LOG_URL_TMP, containerUlrPre, nameAndHost[0], user);
+    }
+
+    /**
+     *  parse am log
+     * @param applicationWSParser
+     * @return
+     */
+    public Optional<String> parseAmLog(ApplicationWSParser applicationWSParser, String amContainerLogsURL) {
+        try {
+            String logPreURL = UrlUtil.getHttpRootUrl(amContainerLogsURL);
+            logger.info("jobmanager container logs URL is: {}, logPreURL is {} :", amContainerLogsURL, logPreURL);
+            ApplicationWSParser.RollingBaseInfo amLogInfo = applicationWSParser.parseContainerLogBaseInfo(amContainerLogsURL, logPreURL);
+            return Optional.ofNullable(JSONObject.toJSONString(amLogInfo));
+        } catch (Exception e) {
+            logger.error(" parse am Log error !", e);
+        }
+        return Optional.empty();
+    }
+
+    private List<String> parseContainersLog(ApplicationWSParser applicationWSParser, String user, String containerLogUrlFormat, String trackingUrl) throws IOException {
+        List<String> taskmanagerInfoStr = Lists.newArrayList();
+        try {
+            List<TaskmanagerInfo> taskmanagerInfos = getContainersNameAndHost(trackingUrl);
+            for (TaskmanagerInfo info : taskmanagerInfos) {
+                String[] nameAndHost = parseContainerNameAndHost(info);
+                String containerLogUrl = buildContainerLogUrl(containerLogUrlFormat, nameAndHost, user);
+                String preUrl =  UrlUtil.getHttpRootUrl(containerLogUrl);
+                logger.info("taskmanager container logs URL is: {},  preURL is :{}", containerLogUrl, preUrl);
+                ApplicationWSParser.RollingBaseInfo rollingBaseInfo = applicationWSParser.parseContainerLogBaseInfo(containerLogUrl, preUrl);
+                rollingBaseInfo.setOtherInfo(JSONObject.toJSONString(info));
+                taskmanagerInfoStr.add(JSONObject.toJSONString(rollingBaseInfo));
+            }
+        } catch (Exception e) {
+            logger.error(" parse taskmanager container log error !", e);
+        }
+
+        return taskmanagerInfoStr;
+    }
+
+    private List<TaskmanagerInfo> getContainersNameAndHost(String trackingUrl) throws IOException {
+        List<TaskmanagerInfo> containersNameAndHost = Lists.newArrayList();
+        try {
+            String taskManagerUrl = trackingUrl + "/" + TASK_MANAGERS_KEY;
+            String taskManagersInfo = HttpClient.get(taskManagerUrl);
+            JSONObject response = JSONObject.parseObject(taskManagersInfo);
+            JSONArray taskManagers = response.getJSONArray(TASK_MANAGERS_KEY);
+
+            containersNameAndHost = IntStream.range(0, taskManagers.size())
+                    .mapToObj(taskManagers::getJSONObject)
+                    .map(jsonObject -> JSONObject.toJavaObject(jsonObject, TaskmanagerInfo.class))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.error("request task managers error !", e);
+        }
+        return containersNameAndHost;
+    }
+
+    private String[] parseContainerNameAndHost(TaskmanagerInfo taskmanagerInfo) {
+        String containerName = taskmanagerInfo.getId();
+        String akkaPath = taskmanagerInfo.getPath();
+        String host = "";
+        try {
+            logger.info("parse akkaPath: {}", akkaPath);
+            host = akkaPath.split("[@:]")[2];
+        } catch (Exception e) {
+            logger.error("parseContainersHost error ", e);
+        }
+        return new String[]{containerName, host};
     }
 
     @Override

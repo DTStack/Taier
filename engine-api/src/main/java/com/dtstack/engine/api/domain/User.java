@@ -1,5 +1,7 @@
 package com.dtstack.engine.api.domain;
 
+import com.dtstack.engine.api.annotation.Unique;
+
 /**
  * @author: toutian
  */
@@ -9,6 +11,7 @@ public class User extends BaseEntity {
 
     private String phoneNumber;
 
+    @Unique
     private Long dtuicUserId;
 
     private String email;

@@ -172,4 +172,15 @@ public class ClientOperator {
         IClient client = clientCache.getClient(engineType,pluginInfo);
         return client.getClusterResource();
     }
+
+    public List<String> getRollingLogBaseInfo(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
+        checkoutOperator(engineType, pluginInfo, jobIdentifier);
+        try {
+            IClient client = clientCache.getClient(engineType, pluginInfo);
+            return client.getRollingLogBaseInfo(jobIdentifier);
+        } catch (Exception e) {
+            throw new RdosDefineException("get job rollingLogBaseInfo:" + jobIdentifier.getEngineJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
+        }
+    }
+
 }

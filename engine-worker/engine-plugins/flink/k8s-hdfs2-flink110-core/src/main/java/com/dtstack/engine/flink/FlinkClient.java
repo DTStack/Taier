@@ -189,6 +189,7 @@ public class FlinkClient extends AbstractClient {
 
             Preconditions.checkNotNull(clusterClient, "clusterClient is null");
             monitorUrl = clusterClient.getWebInterfaceURL();
+            logger.info("clusterClient monitorUrl is {},run mode is {}", monitorUrl, taskRunMode.name());
         } catch (Exception e) {
             logger.error("create clusterClient or getSession clusterClient error", e);
             throw new RdosDefineException(e);
@@ -415,7 +416,7 @@ public class FlinkClient extends AbstractClient {
         try {
             FlinkKubeClient flinkKubeClient = flinkClientBuilder.getFlinkKubeClient();
             if (flinkKubeClient.getInternalService(applicationId) == null) {
-                return RdosTaskStatus.CANCELED;
+                return RdosTaskStatus.NOTFOUND;
             }
 
             ClusterClient clusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
@@ -429,7 +430,7 @@ public class FlinkClient extends AbstractClient {
                     String state = (String) stateObj;
                     state = StringUtils.upperCase(state);
                     RdosTaskStatus rdosTaskStatus =  RdosTaskStatus.getTaskStatus(state);
-                    Boolean isFlinkSessionTask = applicationId.startsWith("FlinkSession-");
+                    Boolean isFlinkSessionTask = applicationId.startsWith(FlinkConfig.FLINK_SESSION_PREFIX);
                     if (RdosTaskStatus.isStopped(rdosTaskStatus.getStatus()) && !isFlinkSessionTask) {
                         clusterClient.shutDownCluster();
                     }

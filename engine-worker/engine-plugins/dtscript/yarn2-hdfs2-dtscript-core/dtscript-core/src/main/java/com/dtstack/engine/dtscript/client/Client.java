@@ -3,7 +3,6 @@ package com.dtstack.engine.dtscript.client;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.util.KerberosUtils;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.am.ApplicationMaster;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
@@ -48,18 +47,15 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Client {
 
     private static final Logger LOG = LoggerFactory.getLogger(Client.class);
 
-    private final AtomicBoolean REFRESH_APP_MASTER_JAR = new AtomicBoolean(true);
-
     private DtYarnConfiguration conf;
     private FileSystem dfs;
     private YarnClient yarnClient;
-    private Path appMasterJar;
+    private volatile Path appJarSrc;
 
 
     private static FsPermission JOB_FILE_PERMISSION = FsPermission.createImmutable((short) 0644);
@@ -67,36 +63,13 @@ public class Client {
     public Client(DtYarnConfiguration conf, BaseConfig allConfig) throws Exception {
         this.conf = conf;
         KerberosUtils.login(allConfig, () -> {
-            try {
-                String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
-                if (conf.get("hadoop.job.ugi") == null) {
-                    UserGroupInformation ugi = UserGroupInformation.createRemoteUser(appSubmitterUserName);
-                    conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
-                }
-
-                this.yarnClient = getYarnClient();
-                this.dfs = getFileSystem();
-                String appMasterJarPath = conf.get(DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH, DtYarnConfiguration.DEFAULT_DTSCRIPT_APPMASTERJAR_PATH);
-                appMasterJar = Utilities.getRemotePath(conf, appMasterJarPath);
-                if (REFRESH_APP_MASTER_JAR.get()) {
-                    synchronized (REFRESH_APP_MASTER_JAR) {
-                        if (REFRESH_APP_MASTER_JAR.get()) {
-                            if (getFileSystem().exists(appMasterJar)) {
-                                if (getFileSystem().delete(appMasterJar)) {
-                                    LOG.warn("Could not delete remote path " + appMasterJar.toString());
-                                }
-                            }
-                            Path appJarSrc = new Path(JobConf.findContainingJar(ApplicationMaster.class));
-                            LOG.info("Copying " + appJarSrc + " to remote path " + appMasterJar.toString());
-                            getFileSystem().copyFromLocalFile(false, true, appJarSrc, appMasterJar);
-                            REFRESH_APP_MASTER_JAR.set(false);
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                LOG.info("DtYarnConfiguration error", e);
-                throw new RdosDefineException(e);
+            String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
+            if (conf.get("hadoop.job.ugi") == null) {
+                UserGroupInformation ugi = UserGroupInformation.createRemoteUser(appSubmitterUserName);
+                conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
             }
+            Path appJarSrc = new Path(JobConf.findContainingJar(ApplicationMaster.class));
+            this.appJarSrc = appJarSrc;
             return null;
         }, conf);
     }
@@ -125,7 +98,7 @@ public class Client {
 
         conf.setBoolean(DtYarnConfiguration.APP_NODEMANAGER_EXCLUSIVE, clientArguments.exclusive);
 
-        if (StringUtils.isNotBlank(clientArguments.nodeLabel)){
+        if (StringUtils.isNotBlank(clientArguments.nodeLabel)) {
             conf.set(DtYarnConfiguration.NODE_LABEL, String.valueOf(clientArguments.nodeLabel));
         }
 
@@ -174,11 +147,15 @@ public class Client {
         localResources.put(DtYarnConstants.LEARNING_JOB_CONFIGURATION,
                 Utilities.createApplicationResource(getFileSystem(), jobConfPath, LocalResourceType.FILE));
 
-        localResources.put(DtYarnConstants.APP_MASTER_JAR,
+
+        Path appMasterJar = Utilities.getRemotePath(conf, applicationId, DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH);
+        LOG.info("Copying " + appJarSrc + " to remote path " + appMasterJar.toString());
+        getFileSystem().copyFromLocalFile(false, true, appJarSrc, appMasterJar);
+        localResources.put(DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH,
                 Utilities.createApplicationResource(getFileSystem(), appMasterJar, LocalResourceType.FILE));
 
 
-        StringBuilder classPathEnv = new StringBuilder("./*");
+        StringBuilder classPathEnv = new StringBuilder("${CLASSPATH}:./*");
 
         for (String cp : conf.getStrings(DtYarnConfiguration.YARN_APPLICATION_CLASSPATH,
                 DtYarnConfiguration.DEFAULT_XLEARNING_APPLICATION_CLASSPATH)) {
@@ -283,7 +260,7 @@ public class Client {
         applicationContext.setPriority(priority);
         applicationContext.setQueue(conf.get(DtYarnConfiguration.DT_APP_QUEUE, DtYarnConfiguration.DEFAULT_DT_APP_QUEUE));
         String nodeLabels = conf.get(DtYarnConfiguration.NODE_LABEL);
-        if (StringUtils.isNotBlank(nodeLabels)){
+        if (StringUtils.isNotBlank(nodeLabels)) {
             applicationContext.setNodeLabelExpression(nodeLabels);
         }
         applicationId = getYarnClient().submitApplication(applicationContext);
@@ -363,42 +340,42 @@ public class Client {
         return getYarnClient().getApplicationReport(appId);
     }
 
-    public YarnClient getYarnClient(){
-        try{
-            if(yarnClient == null){
-                synchronized (this){
-                    if(yarnClient == null){
+    public YarnClient getYarnClient() {
+        try {
+            if (yarnClient == null) {
+                synchronized (this) {
+                    if (yarnClient == null) {
                         YarnClient yarnClient1 = YarnClient.createYarnClient();
                         yarnClient1.init(conf);
                         yarnClient1.start();
                         yarnClient = yarnClient1;
                     }
                 }
-            }else{
+            } else {
                 //判断下是否可用
                 yarnClient.getAllQueues();
             }
-        }catch(Throwable e){
-            LOG.error("getYarnClient error:{}",e);
-            synchronized (this){
-                if(yarnClient != null){
+        } catch (Throwable e) {
+            LOG.error("getYarnClient error:{}", e);
+            synchronized (this) {
+                if (yarnClient != null) {
                     boolean flag = true;
-                    try{
+                    try {
                         //判断下是否可用
                         yarnClient.getAllQueues();
-                    }catch(Throwable e1){
-                        LOG.error("getYarnClient error:{}",e1);
+                    } catch (Throwable e1) {
+                        LOG.error("getYarnClient error:{}", e1);
                         flag = false;
                     }
-                    if(!flag){
-                        try{
+                    if (!flag) {
+                        try {
                             yarnClient.stop();
-                        }finally {
+                        } finally {
                             yarnClient = null;
                         }
                     }
                 }
-                if(yarnClient == null){
+                if (yarnClient == null) {
                     YarnClient yarnClient1 = YarnClient.createYarnClient();
                     yarnClient1.init(conf);
                     yarnClient1.start();
@@ -410,35 +387,35 @@ public class Client {
     }
 
     public FileSystem getFileSystem() throws IOException {
-        try{
-            if (dfs == null){
-                synchronized (this){
+        try {
+            if (dfs == null) {
+                synchronized (this) {
                     dfs = FileSystem.get(conf);
                 }
             } else {
                 dfs.getStatus();
             }
-        } catch(Throwable e){
-            LOG.error("getFileSystem error:{}",e);
-            synchronized (this){
-                if(dfs != null){
+        } catch (Throwable e) {
+            LOG.error("getFileSystem error:{}", e);
+            synchronized (this) {
+                if (dfs != null) {
                     boolean flag = true;
-                    try{
+                    try {
                         //判断下是否可用
                         dfs.getStatus();
-                    }catch(Throwable e1){
-                        LOG.error("getFileSystem error:{}",e1);
+                    } catch (Throwable e1) {
+                        LOG.error("getFileSystem error:{}", e1);
                         flag = false;
                     }
-                    if(!flag){
-                        try{
+                    if (!flag) {
+                        try {
                             dfs.close();
-                        }finally {
+                        } finally {
                             dfs = null;
                         }
                     }
                 }
-                if(dfs == null){
+                if (dfs == null) {
                     dfs = FileSystem.get(conf);
                 }
             }
