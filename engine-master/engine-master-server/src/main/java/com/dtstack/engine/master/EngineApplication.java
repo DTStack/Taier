@@ -5,11 +5,15 @@ import com.dtstack.engine.common.util.SystemPropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.FilterType;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 
@@ -18,10 +22,16 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * author: toutian
  * create: 2020/07/08
  */
-@SpringBootApplication(exclude = {
-    RedisAutoConfiguration.class,
-    RedisRepositoriesAutoConfiguration.class
-})
+//@SpringBootApplication(exclude = {
+//    RedisAutoConfiguration.class,
+//    RedisRepositoriesAutoConfiguration.class
+//})
+@SpringBootConfiguration
+@EnableAutoConfiguration
+@ComponentScan(excludeFilters = {@ComponentScan.Filter(type= FilterType.ASSIGNABLE_TYPE, classes={
+        RedisAutoConfiguration.class,
+        RedisRepositoriesAutoConfiguration.class
+})})
 @EnableAspectJAutoProxy
 public class EngineApplication {
 
