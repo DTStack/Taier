@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author yuebai
@@ -37,10 +38,12 @@ public class ScheduleJobBack {
     @Autowired
     private DataSource dataSource;
 
+    private ReentrantLock lock = new ReentrantLock();
+
     private static List<String> expireTableName = Lists.newArrayList("schedule_job", "schedule_job_job", "schedule_fill_data_job");
     private static String backTableSuffix = "_back";
-    private static String job_where_sql = "where period_type in #{periodType} AND cyc_time < #{limitDate}";
-    private static String fill_data_where_sql = "where id not in (select fill_id from schedule_job)";
+    private static String job_where_sql = "where period_type in #{periodType} AND cyc_time < #{limitDate} and id < #{limitId}";
+    private static String fill_data_where_sql = "where id not in (select fill_id from schedule_job WHERE fill_id > 0 )";
     private static String job_job_where_sql = "where job_key in (select job_key from schedule_job_back where id > #{lastId})";
     private List<Pair<Integer, String>> timePeriodTypeMapping = null;
 
@@ -56,8 +59,10 @@ public class ScheduleJobBack {
         if (isMaster && environment.openScheduleJobCron()) {
             String cron = environment.getScheduleJobCron();
             long mill = getTimeMillis(cron);
-            if (mill < System.currentTimeMillis()) {
+            if (System.currentTimeMillis() - mill < environment.getScheduleJobScope()) {
+                lock.lock();
                 process();
+                lock.unlock();
             }
         }
     }
@@ -74,7 +79,7 @@ public class ScheduleJobBack {
         return 0;
     }
 
-    public synchronized void process() {
+    public void process() {
         try (Connection connection = dataSource.getConnection()) {
             if (Objects.isNull(connection)) {
                 log.error("back up get connect error");
@@ -92,16 +97,23 @@ public class ScheduleJobBack {
                 }
             }
             //保存schedule_job_back的上一次id
-            Long lastJobBackId = this.getLastId(connection, "SELECT id from schedule_job ORDER BY id desc limit 1;");
+            Long lastJobBackId = this.getLastId(connection, "SELECT id from schedule_job_back ORDER BY id desc limit 1;");
+
+
+            log.info("back up schedule job lastJobBackId {}",lastJobBackId);
             //schedule_job表
             for (Pair<Integer, String> pair : timePeriodTypeMapping) {
-                this.backUpTables("schedule_job", pair.getKey(), pair.getValue(), connection, job_where_sql);
+                String limitDate = Objects.isNull(pair.getKey()) ? "" : String.format("'%s'",
+                        new DateTime().minusDays(pair.getKey()).withTime(0,0,0,0).toString("yyyyMMddHHmmss"));
+                //走ID索引
+                Long lastJobId = this.getLastId(connection, String.format("SELECT id from schedule_job where cyc_time >%s limit 1;",limitDate));
+                this.backUpTables("schedule_job", pair.getKey(), pair.getValue(), connection, job_where_sql.replace("#{limitId}",String.valueOf(lastJobId)));
             }
 
             //schedule_fill_data_job 直接删除fill_id没有的数据
             this.backUpTables("schedule_fill_data_job", null, null, connection, fill_data_where_sql);
 
-            if (lastJobBackId > 0L) {
+            if (lastJobBackId >= 0L) {
                 this.backUpTables("schedule_job_job", null, null, connection, job_job_where_sql.replace("#{lastId}", String.valueOf(lastJobBackId)));
             }
             log.info("back up schedule job end");
@@ -174,7 +186,8 @@ public class ScheduleJobBack {
         try (Statement statement = connection.createStatement()) {
             String backUpTableName = tableName + backTableSuffix;
             String limitDate = Objects.isNull(maxDays) ? "" : String.format("'%s'", new DateTime().minusDays(maxDays).toString("yyyyMMddHHmmss"));
-            String where = where_sql.replace("#{limitDate}", limitDate).replace("#{periodType}", String.format("(%s)", periodType));
+            String where = where_sql.replace("#{limitDate}", limitDate)
+                    .replace("#{periodType}", String.format("(%s)", periodType));
             log.info("start to backUpTables :{}  {}", tableName, where);
             //导入备份表
             String backUpSql = String.format("INSERT INTO `%s` SELECT * FROM `%s` %s", backUpTableName, tableName, where);
