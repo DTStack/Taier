@@ -73,6 +73,7 @@ public class JobGraphBuilder {
 
     private static final int TASK_BATCH_SIZE = 50;
     private static final int JOB_BATCH_SIZE = 50;
+    private static final int MAX_TASK_BUILD_THREAD = 20;
 
     private static String dtfFormatString = "yyyyMMddHHmmss";
 
@@ -129,7 +130,6 @@ public class JobGraphBuilder {
             if (totalTask <= 0) {
                 return;
             }
-            int MAX_TASK_BUILD_THREAD = totalTask / 100;
 
             ExecutorService jobGraphBuildPool = new ThreadPoolExecutor(MAX_TASK_BUILD_THREAD, MAX_TASK_BUILD_THREAD, 10L, TimeUnit.SECONDS,
                     new LinkedBlockingQueue<>(MAX_TASK_BUILD_THREAD), new CustomThreadFactory("JobGraphBuilder"));
