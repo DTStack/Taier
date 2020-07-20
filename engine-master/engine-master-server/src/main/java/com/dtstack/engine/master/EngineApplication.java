@@ -5,10 +5,14 @@ import com.dtstack.engine.common.util.SystemPropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.FilterType;
 
 
 /**
@@ -17,8 +21,8 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
  * create: 2020/07/08
  */
 @SpringBootApplication(exclude = {
-    RedisAutoConfiguration.class,
-    RedisRepositoriesAutoConfiguration.class
+        RedisAutoConfiguration.class,
+        RedisRepositoriesAutoConfiguration.class
 })
 //@SpringBootConfiguration
 //@EnableAutoConfiguration
