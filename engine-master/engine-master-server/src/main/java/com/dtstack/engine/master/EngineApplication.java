@@ -26,12 +26,8 @@ import org.springframework.context.annotation.FilterType;
 //        RedisRepositoriesAutoConfiguration.class
 //})
 @SpringBootApplication
-@ComponentScan(excludeFilters = {@ComponentScan.Filter(type= FilterType.ASSIGNABLE_TYPE, classes={
-        RedisAutoConfiguration.class,
-        RedisRepositoriesAutoConfiguration.class
-})})
 @EnableAspectJAutoProxy
-public class EngineApplication extends SpringBootServletInitializer {
+public class EngineApplication {
 
     private static Logger LOGGER = LoggerFactory.getLogger(EngineApplication.class);
 
