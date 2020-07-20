@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -18,7 +19,7 @@ import java.net.URLEncoder;
 import java.util.Objects;
 
 
-@Controller
+@RestController
 @RequestMapping("/node/download")
 @Api(value = "/node/download", tags = {"下载接口"})
 public class DownloadController {

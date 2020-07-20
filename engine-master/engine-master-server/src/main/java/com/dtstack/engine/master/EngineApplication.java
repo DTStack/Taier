@@ -27,7 +27,7 @@ import org.springframework.context.annotation.FilterType;
 //})
 @SpringBootApplication
 @EnableAspectJAutoProxy
-public class EngineApplication {
+public class EngineApplication extends SpringBootServletInitializer{
 
     private static Logger LOGGER = LoggerFactory.getLogger(EngineApplication.class);
 
