@@ -809,6 +809,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         batchJobDTO.setRetryNumSort(vo.getRetryNumSort());
         batchJobDTO.setBusinessDateSort(vo.getBusinessDateSort());
         batchJobDTO.setTaskPeriodId(convertStringToList(vo.getTaskPeriodId()));
+        batchJobDTO.setAppType(vo.getAppType());
 
         if (vo.getProjectIds() != null && vo.getProjectIds().size() > 0) {
             batchJobDTO.setProjectIds(vo.getProjectIds());
@@ -1660,7 +1661,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     public PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfo(@Param("vo") String queryJobDTO,
                                                                          @Param("flowJobIdList") List<String> flowJobIdList,
                                                                          @Param("fillJobName") String fillJobName,
-                                                                         @Param("dutyUserId") Long dutyUserId, @Param("searchType") String searchType) throws Exception {
+                                                                         @Param("dutyUserId") Long dutyUserId, @Param("searchType") String searchType,
+                                                                         @Param("appType") Integer appType) throws Exception {
         if (Strings.isNullOrEmpty(fillJobName)) {
             throw new RdosDefineException("(补数据名称不能为空)", ErrorCode.INVALID_PARAMETERS);
         }
@@ -1668,6 +1670,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         QueryJobDTO vo = JSONObject.parseObject(queryJobDTO, QueryJobDTO.class);
         vo.setSplitFiledFlag(true);
         ScheduleJobDTO batchJobDTO = this.createQuery(vo);
+        batchJobDTO.setAppType(appType);
         batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
         batchJobDTO.setFillDataJobName(fillJobName);
         batchJobDTO.setNeedQuerySonNode(true);
