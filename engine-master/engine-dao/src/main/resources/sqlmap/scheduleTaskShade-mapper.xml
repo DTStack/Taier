@@ -641,7 +641,7 @@
         <include refid="simple_select_content_fragment"/>
         FROM schedule_task_shade
         WHERE
-        1 = 1
+        app_type = #{appType}
         <if test="isDeleted != null">
             AND is_deleted = #{isDeleted}
         </if>
