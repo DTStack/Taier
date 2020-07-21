@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobRetry;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pojo.ParamAction;
@@ -13,7 +14,6 @@ import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.utils.EngineUtil;
 import com.google.common.collect.Lists;
-import io.vertx.core.json.JsonObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -270,7 +270,7 @@ public class ActionServiceTest extends AbstractTest {
 
 
     private Map<String, Object> getParams(String json) {
-        return new JsonObject(json).getMap();
+        return JSONObject.parseObject(json, HashMap.class);
     }
 
     private String getRandomStr() {
