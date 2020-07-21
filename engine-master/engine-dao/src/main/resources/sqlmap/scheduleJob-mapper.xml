@@ -106,7 +106,7 @@
                 AND bj.flow_job_id = 0
             </if>
             <if test="model.appType != null">
-                AND bj.app_type = #{model.appType} and ts.app_type = #{model.appType}
+                AND bj.app_type = #{model.appType}
             </if>
         </trim>
     </sql>
