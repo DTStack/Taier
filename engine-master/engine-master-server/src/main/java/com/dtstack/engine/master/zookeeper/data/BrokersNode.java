@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.data;
+package com.dtstack.engine.master.zookeeper.data;
 
 
 /**
