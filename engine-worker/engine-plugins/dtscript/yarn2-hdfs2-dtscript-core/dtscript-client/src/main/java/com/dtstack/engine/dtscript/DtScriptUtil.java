@@ -3,11 +3,11 @@ package com.dtstack.engine.dtscript;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.dtscript.common.type.AppTypeEnum;
-import org.apache.commons.lang.StringUtils;
 import sun.misc.BASE64Decoder;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 
 public class DtScriptUtil {
@@ -32,27 +32,20 @@ public class DtScriptUtil {
             }
         }
 
-        String taskParams = jobClient.getTaskParams();
+        Properties confProperties = jobClient.getConfProperties();
+        confProperties.stringPropertyNames().stream()
+                .map(String::trim)
+                .forEach(key -> {
+                    String value = confProperties.getProperty(key).trim();
+                    String newKey = key.replaceAll("\\.", "-");
 
-        if (StringUtils.isNotBlank(taskParams)) {
-            taskParams = taskParams.trim();
-            String[] ignoreTaskParams = taskParams.split("\n");
-            for (String ignoreTaskParam : ignoreTaskParams) {
-                if (ignoreTaskParam.trim().startsWith("#")) {
-                    continue;
-                }
-                String[] pair = ignoreTaskParam.split("=", 2);
-                if (pair.length == 2) {
-                    pair[0] = pair[0].replaceAll("\\.", "-");
-                    if (pair[0].contains("priority")) {
-                        pair[0] = "priority";
-                        pair[1] = String.valueOf(jobClient.getPriority());
+                    if (key.contains("priority")) {
+                        newKey = "priority";
+                        value = String.valueOf(jobClient.getPriority()).trim();
                     }
-                    args.add("--" + pair[0].trim());
-                    args.add(pair[1].trim());
-                }
-            }
-        }
+                    args.add("--" + newKey);
+                    args.add(value);
+                });
         return args.toArray(new String[args.size()]);
     }
 
