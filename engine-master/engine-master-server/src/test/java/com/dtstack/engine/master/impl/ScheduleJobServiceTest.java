@@ -356,7 +356,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         jobList.add(job);
 
         String jobString = JSONObject.toJSONString(jobList);
-        Integer result = sheduleJobService.batchJobsBatchUpdate(jobString);
+        Integer result = sheduleJobService.BatchJobsBatchUpdate(jobString);
 
         Assert.assertEquals(result.intValue(), 1);
 

@@ -224,7 +224,7 @@ public interface ScheduleJobService {
      *
      * @param jobs
      */
-    public Integer batchJobsBatchUpdate(@Param("jobs") String jobs);
+    public Integer BatchJobsBatchUpdate(@Param("jobs") String jobs);
 
     /**
      *  把开始时间和结束时间置为null
