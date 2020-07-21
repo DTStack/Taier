@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.resource;
+package com.dtstack.engine.master.jobdealer.resource;
 
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EngineType;

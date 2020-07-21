@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.resource;
+package com.dtstack.engine.master.jobdealer.resource;
 
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.vo.ClusterVO;

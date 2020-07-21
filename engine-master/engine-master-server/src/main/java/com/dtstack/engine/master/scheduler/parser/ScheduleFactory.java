@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.parser;
+package com.dtstack.engine.master.scheduler.parser;
 
 import com.dtstack.engine.common.enums.DependencyType;
 import com.dtstack.engine.common.exception.RdosDefineException;

@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.parser;
+package com.dtstack.engine.master.scheduler.parser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -21,7 +21,7 @@ import com.dtstack.engine.api.domain.EngineJobStopRecord;
 import com.dtstack.engine.common.enums.StoppedStatus;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.cache.ShardCache;
+import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;

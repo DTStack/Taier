@@ -1,8 +1,8 @@
-package com.dtstack.engine.master.cache;
+package com.dtstack.engine.master.jobdealer.cache;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.master.resource.ComputeResourceType;
+import com.dtstack.engine.master.jobdealer.resource.ComputeResourceType;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.parser;
+package com.dtstack.engine.master.scheduler.parser;
 
 import com.dtstack.engine.common.util.MathUtil;
 import com.google.common.base.Preconditions;

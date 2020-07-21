@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.resource;
+package com.dtstack.engine.master.jobdealer.resource;
 
 /**
  * company: www.dtstack.com

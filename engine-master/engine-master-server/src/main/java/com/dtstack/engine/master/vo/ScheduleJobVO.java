@@ -4,7 +4,7 @@ import com.dtstack.engine.api.domain.ScheduleEngineJob;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.DateUtil;
-import com.dtstack.engine.master.parser.ESchedulePeriodType;
+import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
 import org.apache.commons.lang3.StringUtils;
 
 /**

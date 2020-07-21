@@ -1,7 +1,7 @@
-package com.dtstack.engine.master.job.factory;
+package com.dtstack.engine.master.multiengine.factory;
 
 import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.master.job.JobStartTriggerBase;
+import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;

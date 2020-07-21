@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.job.impl;
+package com.dtstack.engine.master.multiengine.engine;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
@@ -24,7 +24,7 @@ import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
-import com.dtstack.engine.master.job.JobStartTriggerBase;
+import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
 import com.dtstack.schedule.common.enums.*;
 import com.dtstack.schedule.common.metric.batch.IMetric;

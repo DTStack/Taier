@@ -1,11 +1,11 @@
-package com.dtstack.engine.master.job.impl;
+package com.dtstack.engine.master.multiengine.engine;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
-import com.dtstack.engine.master.job.JobStartTriggerBase;
+import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import com.dtstack.schedule.common.enums.ScheduleEngineType;
 import com.dtstack.schedule.common.util.TimeParamOperator;
 import org.springframework.stereotype.Service;
