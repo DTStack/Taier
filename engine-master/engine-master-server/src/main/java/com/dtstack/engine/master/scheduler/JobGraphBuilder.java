@@ -1102,7 +1102,7 @@ public class JobGraphBuilder {
         if (batchTask.getTaskType().intValue() == EScheduleJobType.WORK_FLOW.getVal() ||
                 batchTask.getTaskType().intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
             for (ScheduleBatchJob jobRunBean : batchJobs) {
-                flowJobId.put(batchTask.getTaskId() + "_" + jobRunBean.getCycTime(), jobRunBean.getJobId());
+                flowJobId.put(batchTask.getTaskId() + "_" + jobRunBean.getCycTime() + "_" + batchTask.getAppType(), jobRunBean.getJobId());
             }
             //将工作流下的子任务生成补数据任务实例
             List<ScheduleBatchJob> subTaskJobs = buildSubTasksJobForFlowWork(batchTask.getTaskId(), preStr, fillJobName, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, appType);
