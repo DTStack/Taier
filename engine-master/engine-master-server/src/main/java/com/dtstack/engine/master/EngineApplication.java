@@ -25,8 +25,7 @@ import org.springframework.context.annotation.FilterType;
         RedisAutoConfiguration.class,
         RedisRepositoriesAutoConfiguration.class
 })
-//@SpringBootApplication
-@EnableAspectJAutoProxy
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 public class EngineApplication {
 
     private static Logger LOGGER = LoggerFactory.getLogger(EngineApplication.class);
