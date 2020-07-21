@@ -1212,7 +1212,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
             ScheduleTaskShade batchTask = scheduleTaskShadeDao.getOne(scheduleJob.getTaskId(), appType);
             //fix 任务被删除
             if (batchTask == null) {
-                List<ScheduleTaskShade> deleteTask = batchTaskShadeService.getSimpleTaskRangeAllByIds(Lists.newArrayList(scheduleJob.getTaskId()));
+                List<ScheduleTaskShade> deleteTask = batchTaskShadeService.getSimpleTaskRangeAllByIds(Lists.newArrayList(scheduleJob.getTaskId()),appType);
                 if (CollectionUtils.isEmpty(deleteTask)) {
                     continue;
                 }
@@ -2276,7 +2276,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param jobs
      */
     @Override
-    public Integer batchJobsBatchUpdate(@Param("jobs") String jobs) {
+    public Integer BatchJobsBatchUpdate(@Param("jobs") String jobs) {
         if (StringUtils.isBlank(jobs)) {
             return 0;
         }

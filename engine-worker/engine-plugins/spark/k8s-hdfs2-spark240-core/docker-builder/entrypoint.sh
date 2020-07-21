@@ -40,7 +40,7 @@ fi
 sftp_remotePath=${sftp_remotePath}
 if [ -n $sftp_remotePath ]; then
    echo 'download user jar from sftp:'
-   bash -c '/opt/sftpdownload.sh'
+   bash -c '/opt/dtstack/sftpdownload.sh'
 fi
 
 SPARK_K8S_CMD="$1"
@@ -52,7 +52,7 @@ case "$SPARK_K8S_CMD" in
       ;;
     *)
       echo "Non-spark-on-k8s command provided, proceeding in pass-through mode..."
-      exec /sbin/tini -s -- "$@"
+      exec gosu spark "$@"
       ;;
 esac
 
@@ -137,4 +137,4 @@ case "$SPARK_K8S_CMD" in
 esac
 
 # Execute the container CMD under tini for better hygiene
-exec /sbin/tini -s -- "${CMD[@]}"
+exec gosu spark /opt/dtstack/filebeat/bin/filebeat -c /opt/dtstack/filebeat/conf/filebeat-dtstack.yml & "${CMD[@]}"
