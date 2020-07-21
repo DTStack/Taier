@@ -21,13 +21,13 @@ import org.springframework.context.annotation.FilterType;
  * author: toutian
  * create: 2020/07/08
  */
-//@SpringBootApplication(exclude = {
-//        RedisAutoConfiguration.class,
-//        RedisRepositoriesAutoConfiguration.class
-//})
-@SpringBootApplication
+@SpringBootApplication(exclude = {
+        RedisAutoConfiguration.class,
+        RedisRepositoriesAutoConfiguration.class
+})
+//@SpringBootApplication
 @EnableAspectJAutoProxy
-public class EngineApplication extends SpringBootServletInitializer{
+public class EngineApplication {
 
     private static Logger LOGGER = LoggerFactory.getLogger(EngineApplication.class);
 
