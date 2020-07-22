@@ -195,7 +195,7 @@ public class ClusterServiceTest extends AbstractTest {
 
         //删除组件
         try {
-            componentService.delete(Lists.newArrayList(hdfsComponent.getId()));
+            componentService.delete(Lists.newArrayList(hdfsComponent.getId().intValue()));
         } catch (Exception e) {
             if (e instanceof RdosDefineException) {
                 RdosDefineException rdosDefineException = (RdosDefineException) e;
