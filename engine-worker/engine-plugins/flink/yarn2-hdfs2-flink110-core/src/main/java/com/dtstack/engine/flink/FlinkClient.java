@@ -8,9 +8,8 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.HttpClient;
 import com.dtstack.engine.common.http.PoolHttpClient;
-import com.dtstack.engine.common.util.ApplicationWSParser;
-import com.dtstack.engine.common.util.DtStringUtil;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.common.util.*;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -19,8 +18,6 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.util.SFTPHandler;
-import com.dtstack.engine.common.util.UrlUtil;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
 import com.dtstack.engine.flink.entity.TaskmanagerInfo;
@@ -183,6 +180,7 @@ public class FlinkClient extends AbstractClient {
     private JobResult submitJobWithJar(JobClient jobClient, List<URL> classPaths, List<String> programArgList) {
         if (flinkConfig.isOpenKerberos()){
             FileUtil.downloadKafkaKeyTab(jobClient.getTaskParams(), flinkConfig);
+            flinkClientBuilder.setSecurityConfig();
         }
 
         if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
@@ -924,4 +922,34 @@ public class FlinkClient extends AbstractClient {
         jobHistory = String.format("http://%s:%s", webAddress, port);
         return jobHistory;
     }
+
+    public static void main(String[] args) throws Exception {
+
+        System.setProperty("HADOOP_USER_NAME", "admin");
+
+        // input params json file path
+        String filePath = args[0];
+        File paramsFile = new File(filePath);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(paramsFile)));
+        String request = reader.readLine();
+        Map params =  PublicUtil.jsonStrToObject(request, Map.class);
+        ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
+        JobClient jobClient = new JobClient(paramAction);
+
+        String pluginInfo = jobClient.getPluginInfo();
+        Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
+        String md5plugin = MD5Util.getMd5String(pluginInfo);
+        properties.setProperty("md5sum", md5plugin);
+
+        FlinkClient client = new FlinkClient();
+        client.init(properties);
+
+        JobResult jobResult = client.submitJob(jobClient);
+        String appId = jobResult.getData("extid");
+        String jobId = jobResult.getData("jobid");
+        System.out.println("submit success!, jobId: " + jobId + ", appId: " + appId);
+        System.out.println(jobResult.getJsonStr());
+        System.exit(0);
+    }
+
 }

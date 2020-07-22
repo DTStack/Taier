@@ -67,11 +67,15 @@ public class KerberosUtils {
         } catch (Exception e) {
         }
 
-        logger.info("kerberos login, keytabPath:{} krb5ConfPath:{}", keytabPath, krb5ConfPath);
+        String principal = KerberosUtils.getPrincipal(keytabPath);
+        config.setPrincipalName(principal);
+        config.setPrincipalPath(keytabPath);
+
+        logger.info("kerberos login, principal:{}, keytabPath:{}, krb5ConfPath:{}", principal, keytabPath, krb5ConfPath);
         return KerberosUtils.loginKerberosWithCallBack(
                 configuration,
                 keytabPath,
-                KerberosUtils.getPrincipal(keytabPath),
+                principal,
                 krb5ConfPath,
                 supplier
         );
