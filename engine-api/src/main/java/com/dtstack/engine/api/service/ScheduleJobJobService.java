@@ -12,13 +12,13 @@ public interface ScheduleJobJobService {
     /**
      * @author toutian
      */
-    public ScheduleJobVO displayOffSpring(@Param("jobId") Long jobId,
-                                          @Param("projectId") Long projectId,
-                                          @Param("level") Integer level) throws Exception;
+    public ScheduleJobVO displayOffSpring( Long jobId,
+                                           Long projectId,
+                                           Integer level) throws Exception;
     /**
      * 为工作流节点展开子节点
      */
-    public ScheduleJobVO displayOffSpringWorkFlow(@Param("jobId") Long jobId, @Param("appType")Integer appType) throws Exception;
+    public ScheduleJobVO displayOffSpringWorkFlow( Long jobId, Integer appType) throws Exception;
 
-    public ScheduleJobVO displayForefathers(@Param("jobId") Long jobId, @Param("level") Integer level) throws Exception;
+    public ScheduleJobVO displayForefathers( Long jobId,  Integer level) throws Exception;
 }

@@ -2,6 +2,7 @@ package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.service.StreamTaskService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.math3.util.Pair;
@@ -16,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/node/streamTask")
 @Api(value = "/node/streamTask", tags = {"流任务接口"})
-public class StreamTaskController {
+public class StreamTaskController implements StreamTaskService {
 
     @Autowired
     private StreamTaskController streamTaskController;

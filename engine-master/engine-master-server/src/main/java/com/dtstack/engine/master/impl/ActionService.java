@@ -256,7 +256,7 @@ public class ActionService {
     /**
      * 根据jobid 和 计算类型，查询job的状态
      */
-    public Integer status(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
+    public Integer status( String jobId, Integer computeType) throws Exception {
 
         if (StringUtils.isBlank(jobId)||computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
@@ -272,7 +272,7 @@ public class ActionService {
     /**
      * 根据jobid 和 计算类型，查询job的状态
      */
-    public Map<String, Integer> statusByJobIds(@Param("jobIds") List<String> jobIds,@Param("computeType") Integer computeType) throws Exception {
+    public Map<String, Integer> statusByJobIds( List<String> jobIds, Integer computeType) throws Exception {
 
         if (CollectionUtils.isEmpty(jobIds)||computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
@@ -293,7 +293,7 @@ public class ActionService {
      * 根据jobid 和 计算类型，查询job开始运行的时间
      * return 毫秒级时间戳
      */
-    public Long startTime(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
+    public Long startTime( String jobId, Integer computeType) throws Exception {
 
         if (StringUtils.isBlank(jobId)||computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
@@ -313,7 +313,7 @@ public class ActionService {
     /**
      * 根据jobid 和 计算类型，查询job的日志
      */
-    public String log(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
+    public String log( String jobId, Integer computeType) throws Exception {
 
         if (StringUtils.isBlank(jobId)||computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
@@ -342,7 +342,7 @@ public class ActionService {
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
-    public String retryLog(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
+    public String retryLog( String jobId, Integer computeType) throws Exception {
 
         if (StringUtils.isBlank(jobId) || computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
@@ -365,7 +365,7 @@ public class ActionService {
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
-    public String retryLogDetail(@Param("jobId") String jobId,@Param("computeType") Integer computeType, @Param("retryNum") Integer retryNum) throws Exception {
+    public String retryLogDetail( String jobId, Integer computeType,  Integer retryNum) throws Exception {
 
         if (StringUtils.isBlank(jobId) || computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
@@ -400,7 +400,7 @@ public class ActionService {
     /**
      * 根据jobids 和 计算类型，查询job
      */
-    public List<Map<String,Object>> entitys(@Param("jobIds") List<String> jobIds,@Param("computeType") Integer computeType) throws Exception {
+    public List<Map<String,Object>> entitys( List<String> jobIds, Integer computeType) throws Exception {
 
         if (CollectionUtils.isEmpty(jobIds)||computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
@@ -475,7 +475,7 @@ public class ActionService {
      * 重置任务状态为未提交
      * @return
      */
-    public String resetTaskStatus(@Param("jobId") String jobId, @Param("computeType") Integer computeType){
+    public String resetTaskStatus( String jobId,  Integer computeType){
         //check jobstatus can reset
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         Preconditions.checkNotNull(scheduleJob, "not exists job with id " + jobId);
@@ -494,7 +494,7 @@ public class ActionService {
     /**
      * task 工程使用
      */
-    public List<Map<String, Object>> listJobStatus(@Param("time") Long time) {
+    public List<Map<String, Object>> listJobStatus( Long time) {
         if (time == null || time == 0L) {
             throw new RuntimeException("time is null");
         }
@@ -512,7 +512,7 @@ public class ActionService {
     }
 
 
-    public List<Map<String, Object>> listJobStatusByJobIds(@Param("jobIds") List<String> jobIds) throws Exception {
+    public List<Map<String, Object>> listJobStatusByJobIds( List<String> jobIds) throws Exception {
         if (CollectionUtils.isNotEmpty(jobIds)) {
             List<ScheduleJob> scheduleJobs = scheduleJobDao.getRdosJobByJobIds(jobIds);
             if (CollectionUtils.isNotEmpty(scheduleJobs)) {

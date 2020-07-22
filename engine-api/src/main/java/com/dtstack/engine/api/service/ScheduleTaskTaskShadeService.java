@@ -14,23 +14,23 @@ import java.util.*;
  */
 public interface ScheduleTaskTaskShadeService {
 
-    public void clearDataByTaskId(@Param("taskId") Long taskId,@Param("appType")Integer appType);
+    public void clearDataByTaskId( Long taskId,Integer appType);
 
-    public void saveTaskTaskList(@Param("taskTask") String taskLists);
+    public void saveTaskTaskList( String taskLists);
 
-    public List<ScheduleTaskTaskShade> getAllParentTask(@Param("taskId") Long taskId);
+    public List<ScheduleTaskTaskShade> getAllParentTask( Long taskId);
 
 
-    public ScheduleTaskVO displayOffSpring(@Param("taskId") Long taskId,
-                                           @Param("projectId") Long projectId,
-                                           @Param("userId") Long userId,
-                                           @Param("level") Integer level,
-                                           @Param("type") Integer directType, @Param("appType")Integer appType);
+    public ScheduleTaskVO displayOffSpring( Long taskId,
+                                            Long projectId,
+                                            Long userId,
+                                            Integer level,
+                                            Integer directType, Integer appType);
     /**
      * 查询工作流全部节点信息 -- 依赖树
      *
      * @param taskId
      * @return
      */
-    public ScheduleTaskVO getAllFlowSubTasks(@Param("taskId") Long taskId, @Param("appType") Integer appType);
+    public ScheduleTaskVO getAllFlowSubTasks( Long taskId,  Integer appType);
 }

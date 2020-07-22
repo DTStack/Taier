@@ -27,7 +27,7 @@ public interface ScheduleTaskShadeService {
      * web 接口
      * task删除时触发同步清理
      */
-    public void deleteTask(@Param("taskId") Long taskId, @Param("modifyUserId") long modifyUserId, @Param("appType") Integer appType);
+    public void deleteTask( Long taskId,  long modifyUserId,  Integer appType);
 
 
     /**
@@ -37,13 +37,13 @@ public interface ScheduleTaskShadeService {
      * @return
      * @author toutian
      */
-    public List<ScheduleTaskShade> getTasksByName(@Param("projectId") long projectId,
-                                                  @Param("name") String name, @Param("appType") Integer appType);
+    public List<ScheduleTaskShade> getTasksByName( long projectId,
+                                                   String name,  Integer appType);
 
-    public ScheduleTaskShade getByName(@Param("projectId") long projectId,
-                                       @Param("name") String name, @Param("appType") Integer appType,@Param("flowId")Long flowId);
+    public ScheduleTaskShade getByName( long projectId,
+                                        String name,  Integer appType,Long flowId);
 
-    public void updateTaskName(@Param("taskId") long id, @Param("taskName") String taskName, @Param("appType") Integer appType);
+    public void updateTaskName( long id,  String taskName,  Integer appType);
 
     /**
      * 分页查询已提交的任务
@@ -51,20 +51,20 @@ public interface ScheduleTaskShadeService {
     public PageResult<List<ScheduleTaskShadeVO>> pageQuery(ScheduleTaskShadeDTO dto);
 
 
-    public ScheduleTaskShade getBatchTaskById(@Param("id") Long taskId, @Param("appType") Integer appType);
+    public ScheduleTaskShade getBatchTaskById( Long taskId,  Integer appType);
 
-    public Map<String, Object> queryTasks(@Param("tenantId") Long tenantId,
-                                          @Param("projectId") Long projectId,
-                                          @Param("name") String name,
-                                          @Param("ownerId") Long ownerId,
-                                          @Param("startTime") Long startTime,
-                                          @Param("endTime") Long endTime,
-                                          @Param("scheduleStatus") Integer scheduleStatus,
-                                          @Param("taskType") String taskTypeList,
-                                          @Param("taskPeriodId") String periodTypeList,
-                                          @Param("currentPage") Integer currentPage,
-                                          @Param("pageSize") Integer pageSize, @Param("searchType") String searchType,
-                                          @Param("appType") Integer appType);
+    public Map<String, Object> queryTasks( Long tenantId,
+                                           Long projectId,
+                                           String name,
+                                           Long ownerId,
+                                           Long startTime,
+                                           Long endTime,
+                                           Integer scheduleStatus,
+                                           String taskTypeList,
+                                           String periodTypeList,
+                                           Integer currentPage,
+                                           Integer pageSize,  String searchType,
+                                           Integer appType);
 
 
     /**
@@ -76,9 +76,9 @@ public interface ScheduleTaskShadeService {
      * @param userId
      * @param appType
      */
-    public void frozenTask(@Param("taskIdList") List<Long> taskIdList, @Param("scheduleStatus") int scheduleStatus,
-                           @Param("projectId") Long projectId, @Param("userId") Long userId,
-                           @Param("appType") Integer appType);
+    public void frozenTask( List<Long> taskIdList,  int scheduleStatus,
+                            Long projectId,  Long userId,
+                            Integer appType);
 
 
     /**
@@ -87,7 +87,7 @@ public interface ScheduleTaskShadeService {
      * @param taskId
      * @return
      */
-    public ScheduleTaskVO dealFlowWorkTask(@Param("taskId") Long taskId, @Param("appType") Integer appType,@Param("taskTypes")List<Integer> taskTypes,@Param("ownerId")Long ownerId);
+    public ScheduleTaskVO dealFlowWorkTask( Long taskId,  Integer appType,List<Integer> taskTypes,Long ownerId);
 
     /**
      * 获取任务流下的所有子任务
@@ -95,10 +95,10 @@ public interface ScheduleTaskShadeService {
      * @param taskId
      * @return
      */
-    public List<ScheduleTaskShade> getFlowWorkSubTasks(@Param("taskId") Long taskId, @Param("appType") Integer appType,@Param("taskTypes")List<Integer> taskTypes,@Param("ownerId")Long ownerId);
+    public List<ScheduleTaskShade> getFlowWorkSubTasks( Long taskId,  Integer appType,List<Integer> taskTypes,Long ownerId);
 
 
-    public ScheduleTaskShade findTaskId(@Param("taskId") Long taskId, @Param("isDeleted") Integer isDeleted, @Param("appType") Integer appType);
+    public ScheduleTaskShade findTaskId( Long taskId,  Integer isDeleted,  Integer appType);
 
     /**
      * @param taskIds
@@ -107,7 +107,7 @@ public interface ScheduleTaskShadeService {
      * @param isSimple  不查询sql
      * @return
      */
-    public List<ScheduleTaskShade> findTaskIds(@Param("taskIds") List<Long> taskIds, @Param("isDeleted") Integer isDeleted, @Param("appType") Integer appType, @Param("isSimple") boolean isSimple);
+    public List<ScheduleTaskShade> findTaskIds( List<Long> taskIds,  Integer isDeleted,  Integer appType,  boolean isSimple);
 
 
     /**
@@ -118,13 +118,13 @@ public interface ScheduleTaskShadeService {
      * @param info
      * @return
      */
-    public void info(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("extraInfo") String info);
+    public void info( Long taskId,  Integer appType,  String info);
 
 
-    public List<Map<String, Object>> listDependencyTask(@Param("taskIds") List<Long> taskId, @Param("appType") Integer appType, @Param("name") String name, @Param("projectId") Long projectId);
+    public List<Map<String, Object>> listDependencyTask( List<Long> taskId,  Integer appType,  String name,  Long projectId);
 
 
-    public List<Map<String, Object>> listByTaskIdsNotIn(@Param("taskIds") List<Long> taskId, @Param("appType") Integer appType, @Param("projectId") Long projectId);
+    public List<Map<String, Object>> listByTaskIdsNotIn( List<Long> taskId,  Integer appType,  Long projectId);
 
     /**
      * 根据任务类型查询已提交到task服务的任务数
@@ -135,11 +135,11 @@ public interface ScheduleTaskShadeService {
      * @param taskTypes
      * @return
      */
-    public Map<String ,Object> countTaskByType(@Param("tenantId") Long tenantId,@Param("dtuicTenantId") Long dtuicTenantId,
-                                               @Param("projectId") Long projectId, @Param("appType") Integer appType,
-                                               @Param("taskTypes") List<Integer> taskTypes);
+    public Map<String ,Object> countTaskByType( Long tenantId, Long dtuicTenantId,
+                                                Long projectId,  Integer appType,
+                                                List<Integer> taskTypes);
 
-    List<Map<String ,Object>> countTaskByTypes(@Param("tenantId") Long tenantId,@Param("dtuicTenantId") Long dtuicTenantId,
-                     @Param("projectIds") List<Long> projectIds, @Param("appType") Integer appType,
-                     @Param("taskTypes") List<Integer> taskTypes);
+    public List<Map<String ,Object>> countTaskByTypes( Long tenantId, Long dtuicTenantId,
+                      List<Long> projectIds,  Integer appType,
+                      List<Integer> taskTypes);
 }

@@ -108,7 +108,7 @@ public class ConsoleService {
         }
     }
 
-    public Map<String, Object> searchJob(@Param("jobName") String jobName) {
+    public Map<String, Object> searchJob( String jobName) {
         Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
         String jobId = null;
         ScheduleJob scheduleJob = scheduleJobDao.getByName(jobName);
@@ -139,7 +139,7 @@ public class ConsoleService {
         return null;
     }
 
-    public List<String> listNames(@Param("jobName") String jobName) {
+    public List<String> listNames( String jobName) {
         try {
             Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
             return engineJobCacheDao.listNames(jobName);
@@ -156,7 +156,7 @@ public class ConsoleService {
     /**
      * 根据计算引擎类型显示任务
      */
-    public Collection<Map<String, Object>> overview(@Param("nodeAddress") String nodeAddress, @Param("clusterName") String clusterName) {
+    public Collection<Map<String, Object>> overview( String nodeAddress,  String clusterName) {
         if (StringUtils.isBlank(nodeAddress)) {
             nodeAddress = null;
         }
@@ -212,11 +212,11 @@ public class ConsoleService {
         return overview.values();
     }
 
-    public Map<String, Object> groupDetail(@Param("jobResource") String jobResource,
-                                           @Param("nodeAddress") String nodeAddress,
-                                           @Param("stage") Integer stage,
-                                           @Param("pageSize") Integer pageSize,
-                                           @Param("currentPage") Integer currentPage,@Param("dtToken") String dtToken) {
+    public Map<String, Object> groupDetail( String jobResource,
+                                            String nodeAddress,
+                                            Integer stage,
+                                            Integer pageSize,
+                                            Integer currentPage, String dtToken) {
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
         Preconditions.checkNotNull(stage, "parameters of stage is required");
         Preconditions.checkArgument(currentPage != null && currentPage > 0, "parameters of currentPage is required");
@@ -273,7 +273,7 @@ public class ConsoleService {
         theJobMap.put("tenantName", Objects.isNull(tenant) ? "" : tenant.getTenantName());
     }
 
-    public Boolean jobStick(@Param("jobId") String jobId) {
+    public Boolean jobStick( String jobId) {
         Preconditions.checkNotNull(jobId, "parameters of jobId is required");
 
         try {
@@ -303,7 +303,7 @@ public class ConsoleService {
         return false;
     }
 
-    public void stopJob(@Param("jobId") String jobId) throws Exception {
+    public void stopJob( String jobId) throws Exception {
         Preconditions.checkArgument(StringUtils.isNotBlank(jobId), "parameters of jobId is required");
         List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(Lists.newArrayList(jobId));
         if (alreadyExistJobIds.contains(jobId)) {
@@ -320,8 +320,8 @@ public class ConsoleService {
     /**
      * 概览，杀死全部
      */
-    public void stopAll(@Param("jobResource") String jobResource,
-                        @Param("nodeAddress") String nodeAddress) throws Exception {
+    public void stopAll( String jobResource,
+                         String nodeAddress) throws Exception {
 
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
 
@@ -330,10 +330,10 @@ public class ConsoleService {
         }
     }
 
-    public void stopJobList(@Param("jobResource") String jobResource,
-                            @Param("nodeAddress") String nodeAddress,
-                            @Param("stage") Integer stage,
-                            @Param("jobIdList") List<String> jobIdList) throws Exception {
+    public void stopJobList( String jobResource,
+                             String nodeAddress,
+                             Integer stage,
+                             List<String> jobIdList) throws Exception {
         if (jobIdList != null && !jobIdList.isEmpty()) {
             //杀死指定jobIdList的任务
 
@@ -401,7 +401,7 @@ public class ConsoleService {
         }
     }
 
-    public Map<String, Object> clusterResources(@Param("clusterName") String clusterName) {
+    public Map<String, Object> clusterResources( String clusterName) {
         if (StringUtils.isEmpty(clusterName)) {
             return MapUtils.EMPTY_MAP;
         }

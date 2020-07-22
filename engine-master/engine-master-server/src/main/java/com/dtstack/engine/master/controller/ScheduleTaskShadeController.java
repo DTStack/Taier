@@ -20,7 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/node/scheduleTaskShade")
 @Api(value = "/node/scheduleTaskShade", tags = {"任务接口"})
-public class ScheduleTaskShadeController {
+public class ScheduleTaskShadeController implements com.dtstack.engine.api.service.ScheduleTaskShadeService {
 
     @Autowired
     private ScheduleTaskShadeService scheduleTaskShadeService;
@@ -147,7 +147,7 @@ public class ScheduleTaskShadeController {
     }
 
     @RequestMapping(value="/countTaskByTypes", method = {RequestMethod.POST})
-    List<Map<String ,Object>> countTaskByTypes(@DtRequestParam("tenantId") Long tenantId,@DtRequestParam("dtuicTenantId") Long dtuicTenantId,
+    public List<Map<String ,Object>> countTaskByTypes(@DtRequestParam("tenantId") Long tenantId,@DtRequestParam("dtuicTenantId") Long dtuicTenantId,
                                                @DtRequestParam("projectIds") List<Long> projectIds, @DtRequestParam("appType") Integer appType,
                                                @DtRequestParam("taskTypes") List<Integer> taskTypes) {
         return scheduleTaskShadeService.countTaskByTypes(tenantId, dtuicTenantId, projectIds, appType, taskTypes);

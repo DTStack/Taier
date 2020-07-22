@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/node/cluster")
 @Api(value = "/node/cluster", tags = {"集群接口"})
-public class ClusterController {
+public class ClusterController implements com.dtstack.engine.api.service.ClusterService {
 
     @Autowired
     private ClusterService clusterService;

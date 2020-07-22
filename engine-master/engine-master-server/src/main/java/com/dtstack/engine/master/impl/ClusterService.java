@@ -173,7 +173,7 @@ public class ClusterService {
         return ClusterVO.toVO(cluster);
     }
 
-    public PageResult<List<ClusterVO>> pageQuery(@Param("currentPage") int currentPage, @Param("pageSize") int pageSize) {
+    public PageResult<List<ClusterVO>> pageQuery( int currentPage,  int pageSize) {
         PageQuery<ClusterDTO> pageQuery = new PageQuery<>(currentPage, pageSize, "gmt_modified", Sort.DESC.name());
         ClusterDTO model = new ClusterDTO();
         model.setIsDeleted(Deleted.NORMAL.getStatus());
@@ -191,7 +191,7 @@ public class ClusterService {
     /**
      * 对外接口
      */
-    public String clusterInfo(@Param("tenantId") Long tenantId) {
+    public String clusterInfo( Long tenantId) {
         ClusterVO cluster = getClusterByTenant(tenantId);
         if (cluster != null) {
             JSONObject config = buildClusterConfig(cluster);
@@ -202,7 +202,7 @@ public class ClusterService {
         return StringUtils.EMPTY;
     }
 
-    public String clusterExtInfo(@Param("tenantId") Long uicTenantId) {
+    public String clusterExtInfo( Long uicTenantId) {
         Long tenantId = tenantDao.getIdByDtUicTenantId(uicTenantId);
         if (tenantId == null) {
             return StringUtils.EMPTY;
@@ -219,7 +219,7 @@ public class ClusterService {
     /**
      * 对外接口
      */
-    public JSONObject pluginInfoJSON(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr, @Param("dtUicUserId")Long dtUicUserId,@Param("deployMode")Integer deployMode) {
+    public JSONObject pluginInfoJSON( Long dtUicTenantId,  String engineTypeStr, Long dtUicUserId,Integer deployMode) {
         //缓存是否存在
         String keyFormat = String.format("%s.%s.%s.%s", dtUicTenantId, engineTypeStr, dtUicTenantId, deployMode);
         JSONObject cacheInfo = pluginInfoCache.getIfPresent(keyFormat);
@@ -262,7 +262,7 @@ public class ClusterService {
         return pluginJson;
     }
 
-    public String pluginInfo(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr,@Param("userId") Long dtUicUserId,@Param("deployMode")Integer deployMode) {
+    public String pluginInfo( Long dtUicTenantId,  String engineTypeStr, Long dtUicUserId,Integer deployMode) {
         return "{}";
     }
 
@@ -294,7 +294,7 @@ public class ClusterService {
      * @param tenantId
      * @return
      */
-    public String clusterSftpDir(@Param("tenantId") Long tenantId, @Param("componentType") Integer componentType) {
+    public String clusterSftpDir( Long tenantId,  Integer componentType) {
         Long clusterId = engineTenantDao.getClusterIdByTenantId(tenantId);
         if (clusterId != null) {
             if(Objects.isNull(componentType)){
@@ -339,42 +339,42 @@ public class ClusterService {
      * 对外接口
      * FIXME 这里获取的hiveConf其实是spark thrift server的连接信息，后面会统一做修改
      */
-    public String hiveInfo(@Param("tenantId") Long dtUicTenantId, @Param("fullKerberos") Boolean fullKerberos) {
+    public String hiveInfo( Long dtUicTenantId,  Boolean fullKerberos) {
         return getConfigByKey(dtUicTenantId, EComponentType.SPARK_THRIFT.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
-    public String hiveServerInfo(@Param("tenantId") Long dtUicTenantId,@Param("fullKerberos") Boolean fullKerberos) {
+    public String hiveServerInfo( Long dtUicTenantId, Boolean fullKerberos) {
         return getConfigByKey(dtUicTenantId, EComponentType.HIVE_SERVER.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
-    public String hadoopInfo(@Param("tenantId") Long dtUicTenantId,@Param("fullKerberos") Boolean fullKerberos) {
+    public String hadoopInfo( Long dtUicTenantId, Boolean fullKerberos) {
         return getConfigByKey(dtUicTenantId, EComponentType.HDFS.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
-    public String carbonInfo(@Param("tenantId") Long dtUicTenantId,@Param("fullKerberos") Boolean fullKerberos) {
+    public String carbonInfo( Long dtUicTenantId, Boolean fullKerberos) {
         return getConfigByKey(dtUicTenantId, EComponentType.CARBON_DATA.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
-    public String impalaInfo(@Param("tenantId") Long dtUicTenantId,@Param("fullKerberos") Boolean fullKerberos) {
+    public String impalaInfo( Long dtUicTenantId, Boolean fullKerberos) {
         return getConfigByKey(dtUicTenantId, EComponentType.IMPALA_SQL.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
-    public String sftpInfo(@Param("tenantId") Long dtUicTenantId) {
+    public String sftpInfo( Long dtUicTenantId) {
         return getConfigByKey(dtUicTenantId, EComponentType.SFTP.getConfName(),false);
     }
 
@@ -416,7 +416,7 @@ public class ClusterService {
         return getCluster(engine.getClusterId(), true,false);
     }
 
-    public String getConfigByKey(@Param("dtUicTenantId")Long dtUicTenantId, @Param("key") String key,@Param("fullKerberos") Boolean fullKerberos) {
+    public String getConfigByKey(Long dtUicTenantId,  String key, Boolean fullKerberos) {
         ClusterVO cluster = getClusterByTenant(dtUicTenantId);
         JSONObject config = buildClusterConfig(cluster);
         //根据组件区分kerberos
@@ -716,15 +716,15 @@ public class ClusterService {
 
     }
 
-    public String tiDBInfo(@Param("tenantId") Long dtUicTenantId, @Param("userId") Long dtUicUserId){
+    public String tiDBInfo( Long dtUicTenantId,  Long dtUicUserId){
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.TiDB);
     }
 
-    public String oracleInfo(@Param("tenantId") Long dtUicTenantId,@Param("userId") Long dtUicUserId){
+    public String oracleInfo( Long dtUicTenantId, Long dtUicUserId){
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.Oracle);
     }
 
-    public String greenplumInfo(@Param("tenantId") Long dtUicTenantId,@Param("userId") Long dtUicUserId){
+    public String greenplumInfo( Long dtUicTenantId, Long dtUicUserId){
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.GREENPLUM6);
     }
 
@@ -768,7 +768,7 @@ public class ClusterService {
      * 判断该集群下是否有租户
      * @param clusterId
      */
-    public void deleteCluster(@Param("clusterId")Long clusterId){
+    public void deleteCluster(Long clusterId){
         if(Objects.isNull(clusterId)){
             throw new RdosDefineException("集群不能为空");
         }
@@ -799,7 +799,7 @@ public class ClusterService {
      * @param clusterId
      * @return
      */
-    public ClusterVO getCluster(@Param("clusterId") Long clusterId, @Param("kerberosConfig") Boolean kerberosConfig,@Param("removeTypeName") Boolean removeTypeName) {
+    public ClusterVO getCluster( Long clusterId,  Boolean kerberosConfig, Boolean removeTypeName) {
         Cluster cluster = clusterDao.getOne(clusterId);
         EngineAssert.assertTrue(cluster != null, ErrorCode.DATA_NOT_FIND.getDescription());
         ClusterVO clusterVO = ClusterVO.toVO(cluster);

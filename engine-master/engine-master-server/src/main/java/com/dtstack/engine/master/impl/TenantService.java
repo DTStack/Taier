@@ -79,11 +79,11 @@ public class TenantService {
     @Autowired
     private ComponentService componentService;
 
-    public PageResult<List<EngineTenantVO>> pageQuery(@Param("clusterId") Long clusterId,
-                                                      @Param("engineType") Integer engineType,
-                                                      @Param("tenantName") String tenantName,
-                                                      @Param("pageSize") int pageSize,
-                                                      @Param("currentPage") int currentPage){
+    public PageResult<List<EngineTenantVO>> pageQuery( Long clusterId,
+                                                       Integer engineType,
+                                                       String tenantName,
+                                                       int pageSize,
+                                                       int currentPage){
         Cluster cluster = clusterDao.getOne(clusterId);
         if(cluster == null){
             throw new RdosDefineException("集群不存在", ErrorCode.DATA_NOT_FIND);
@@ -114,8 +114,8 @@ public class TenantService {
      * @param engineType
      * @return
      */
-    public List<EngineTenantVO> listEngineTenant(@Param("dtuicTenantId") Long dtuicTenantId,
-                                                 @Param("engineType") Integer engineType) {
+    public List<EngineTenantVO> listEngineTenant( Long dtuicTenantId,
+                                                  Integer engineType) {
         EngineTenant engineTenant = engineTenantDao.getByTenantIdAndEngineType(dtuicTenantId, engineType);
         List<EngineTenantVO> engineTenantVOS = engineTenantDao.listEngineTenant(engineTenant.getEngineId());
         fillQueue(engineTenantVOS);
@@ -153,7 +153,7 @@ public class TenantService {
     }
 
 
-    public List listTenant(@Param("dtToken") String dtToken) {
+    public List listTenant( String dtToken) {
         List<UserTenant> tenantList = postTenantList(dtToken);
         if (CollectionUtils.isEmpty(tenantList)) {
             return tenantList;
@@ -189,8 +189,8 @@ public class TenantService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public void bindingTenant(@Param("tenantId") Long dtUicTenantId, @Param("clusterId") Long clusterId,
-                              @Param("queueId") Long queueId, @Param("dtToken") String dtToken) throws Exception {
+    public void bindingTenant( Long dtUicTenantId,  Long clusterId,
+                               Long queueId,  String dtToken) throws Exception {
         Cluster cluster = clusterDao.getOne(clusterId);
         EngineAssert.assertTrue(cluster != null, "集群不存在", ErrorCode.DATA_NOT_FIND);
 
@@ -312,8 +312,8 @@ public class TenantService {
      * 绑定/切换队列
      */
     @Transactional(rollbackFor = Exception.class)
-    public void bindingQueue(@Param("queueId") Long queueId,
-                             @Param("tenantId") Long dtUicTenantId) {
+    public void bindingQueue( Long queueId,
+                              Long dtUicTenantId) {
         Queue queue = queueDao.getOne(queueId);
         if (queue == null) {
             throw new RdosDefineException("队列不存在", ErrorCode.DATA_NOT_FIND);

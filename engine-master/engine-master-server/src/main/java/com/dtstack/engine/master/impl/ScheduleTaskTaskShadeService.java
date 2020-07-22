@@ -26,7 +26,7 @@ import java.util.*;
  * create: 2019/10/22
  */
 @Service
-public class ScheduleTaskTaskShadeService implements com.dtstack.engine.api.service.ScheduleTaskTaskShadeService {
+public class ScheduleTaskTaskShadeService {
 
     private static final Long IS_WORK_FLOW_SUBNODE = 0L;
 
@@ -36,12 +36,12 @@ public class ScheduleTaskTaskShadeService implements com.dtstack.engine.api.serv
     @Autowired
     private ScheduleTaskShadeService taskShadeService;
 
-    public void clearDataByTaskId(@Param("taskId") Long taskId,@Param("appType")Integer appType) {
+    public void clearDataByTaskId( Long taskId,Integer appType) {
         scheduleTaskTaskShadeDao.deleteByTaskId(taskId,appType);
     }
 
     @Transactional
-    public void saveTaskTaskList(@Param("taskTask") String taskLists) {
+    public void saveTaskTaskList( String taskLists) {
         if(StringUtils.isBlank(taskLists)){
             return;
         }
@@ -62,16 +62,16 @@ public class ScheduleTaskTaskShadeService implements com.dtstack.engine.api.serv
         }
     }
 
-    public List<ScheduleTaskTaskShade> getAllParentTask(@Param("taskId") Long taskId) {
+    public List<ScheduleTaskTaskShade> getAllParentTask( Long taskId) {
         return scheduleTaskTaskShadeDao.listParentTask(taskId);
     }
 
 
-    public com.dtstack.engine.master.vo.ScheduleTaskVO displayOffSpring(@Param("taskId") Long taskId,
-                                                                        @Param("projectId") Long projectId,
-                                                                        @Param("userId") Long userId,
-                                                                        @Param("level") Integer level,
-                                                                        @Param("type") Integer directType, @Param("appType")Integer appType) {
+    public com.dtstack.engine.master.vo.ScheduleTaskVO displayOffSpring( Long taskId,
+                                                                         Long projectId,
+                                                                         Long userId,
+                                                                         Integer level,
+                                                                         Integer directType, Integer appType) {
 
         ScheduleTaskShade task = null;
         try {
@@ -200,7 +200,7 @@ public class ScheduleTaskTaskShadeService implements com.dtstack.engine.api.serv
      * @param taskId
      * @return
      */
-    public com.dtstack.engine.master.vo.ScheduleTaskVO getAllFlowSubTasks(@Param("taskId") Long taskId, @Param("appType") Integer appType) {
+    public com.dtstack.engine.master.vo.ScheduleTaskVO getAllFlowSubTasks( Long taskId,  Integer appType) {
         ScheduleTaskShade task = taskShadeService.getBatchTaskById(taskId,appType);
         if (task == null) {
             return null;

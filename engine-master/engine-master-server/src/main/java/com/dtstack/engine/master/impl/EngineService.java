@@ -49,7 +49,7 @@ public class EngineService {
     @Autowired
     private TenantDao tenantDao;
 
-    public List<QueueVO> getQueue(@Param("engineId") Long engineId){
+    public List<QueueVO> getQueue( Long engineId){
         List<Queue> queueList = queueDao.listByEngineId(engineId);
         return QueueVO.toVOs(queueList);
     }
@@ -62,7 +62,7 @@ public class EngineService {
      *     }
      * ]
      */
-    public String listSupportEngine(@Param("tenantId") Long dtUicTenantId){
+    public String listSupportEngine( Long dtUicTenantId){
         JSONArray array = new JSONArray();
 
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);

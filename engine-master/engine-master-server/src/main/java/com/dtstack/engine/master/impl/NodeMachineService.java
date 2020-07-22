@@ -11,12 +11,12 @@ import java.util.List;
 public class NodeMachineService {
 
     @Deprecated
-    public List<NodeMachine> listByAppType(@Param("appType") String appType){
+    public List<NodeMachine> listByAppType( String appType){
         return Collections.emptyList();
     }
 
     @Deprecated
-    public NodeMachine getByAppTypeAndMachineType(@Param("appType") String appType, @Param("machineType") int machineType){
+    public NodeMachine getByAppTypeAndMachineType( String appType,  int machineType){
         return new NodeMachine();
     }
 }

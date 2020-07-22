@@ -195,7 +195,7 @@ public class AccountService {
      * 解绑数据库账号
      */
     @Transactional
-    public void unbindAccount(AccountTenantVo accountTenantVo, @Param("userId") Long userId) throws Exception {
+    public void unbindAccount(AccountTenantVo accountTenantVo,  Long userId) throws Exception {
         if (Objects.isNull(accountTenantVo) || Objects.isNull(accountTenantVo.getId())) {
             throw new RdosDefineException("参数不能为空");
         }
@@ -246,7 +246,7 @@ public class AccountService {
      * 更改数据库账号
      */
     @Transactional
-    public void updateBindAccount(AccountTenantVo accountTenantVo, @Param("userId") Long userId) throws Exception {
+    public void updateBindAccount(AccountTenantVo accountTenantVo,  Long userId) throws Exception {
         if (Objects.isNull(accountTenantVo) || Objects.isNull(accountTenantVo.getId())) {
             throw new RdosDefineException("参数不能为空");
         }
@@ -309,8 +309,8 @@ public class AccountService {
      * @param pageSize
      * @return
      */
-    public PageResult<List<AccountVo>> pageQuery(@Param("dtuicTenantId") Long dtuicTenantId, @Param("username") String username, @Param("currentPage") Integer currentPage,
-                                                 @Param("pageSize") Integer pageSize, @Param("engineType") Integer engineType) {
+    public PageResult<List<AccountVo>> pageQuery( Long dtuicTenantId,  String username,  Integer currentPage,
+                                                  Integer pageSize,  Integer engineType) {
         if (Objects.isNull(dtuicTenantId)) {
             throw new RdosDefineException("绑定参数不能为空");
         }
@@ -339,8 +339,8 @@ public class AccountService {
      * @param dtuicTenantId
      * @return
      */
-    public List<Map<String, Object>> getTenantUnBandList(@Param("dtuicTenantId") Long dtuicTenantId, @Param("dtToken") String dtToken, @Param("userId") Long userId,
-                                                         @Param("engineType")Integer engineType) {
+    public List<Map<String, Object>> getTenantUnBandList( Long dtuicTenantId,  String dtToken,  Long userId,
+                                                         Integer engineType) {
         if (Objects.isNull(dtuicTenantId)) {
             throw new RdosDefineException("请选择对应租户");
         }

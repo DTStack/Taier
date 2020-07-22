@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.domain.NodeMachine;
+import com.dtstack.engine.api.service.NodeMachineService;
 import io.swagger.annotations.Api;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -13,7 +14,7 @@ import java.util.List;
 @RequestMapping("/node/nodeMachine")
 @Api(value = "/node/nodeMachine", tags = {"节点接口"})
 @Deprecated
-public class NodeMachineController {
+public class NodeMachineController implements NodeMachineService {
 
     @RequestMapping(value="/listByAppType", method = {RequestMethod.POST})
     @Deprecated

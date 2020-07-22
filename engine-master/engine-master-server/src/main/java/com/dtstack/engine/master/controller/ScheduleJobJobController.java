@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/node/scheduleJobJob")
 @Api(value = "/node/scheduleJobJob", tags = {"任务实例依赖接口"})
-public class ScheduleJobJobController {
+public class ScheduleJobJobController implements com.dtstack.engine.api.service.ScheduleJobJobService {
 
     @Autowired
     private ScheduleJobJobService scheduleJobJobService;

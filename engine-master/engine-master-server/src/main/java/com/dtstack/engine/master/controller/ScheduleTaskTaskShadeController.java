@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/node/scheduleTaskTaskShade")
 @Api(value = "/node/scheduleTaskTaskShade", tags = {"任务依赖接口"})
-public class ScheduleTaskTaskShadeController {
+public class ScheduleTaskTaskShadeController implements com.dtstack.engine.api.service.ScheduleTaskTaskShadeService {
 
     @Autowired
     private ScheduleTaskTaskShadeService scheduleTaskTaskShadeService;

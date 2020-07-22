@@ -54,32 +54,32 @@ public class StreamTaskService {
     /**
      * 查询checkPoint
      */
-    public List<EngineJobCheckpoint> getCheckPoint(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd){
+    public List<EngineJobCheckpoint> getCheckPoint( String taskId,  Long triggerStart,  Long triggerEnd){
         return engineJobCheckpointDao.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
     }
 
-    public EngineJobCheckpoint getByTaskIdAndEngineTaskId(@Param("taskId") String taskId, @Param("engineTaskId") String engineTaskId){
+    public EngineJobCheckpoint getByTaskIdAndEngineTaskId( String taskId,  String engineTaskId){
         return engineJobCheckpointDao.getByTaskIdAndEngineTaskId(taskId, engineTaskId);
     }
 
     /**
      * 查询stream job
      */
-    public List<ScheduleJob> getEngineStreamJob(@Param("taskIds") List<String> taskIds){
+    public List<ScheduleJob> getEngineStreamJob( List<String> taskIds){
         return scheduleJobDao.getRdosJobByJobIds(taskIds);
     }
 
     /**
      * 获取某个状态的任务task_id
      */
-    public List<String> getTaskIdsByStatus(@Param("status") Integer status){
+    public List<String> getTaskIdsByStatus( Integer status){
         return scheduleJobDao.getJobIdsByStatus(status, ComputeType.STREAM.getType());
     }
 
     /**
      * 获取任务的状态
      */
-    public Integer getTaskStatus(@Param("taskId") String taskId){
+    public Integer getTaskStatus( String taskId){
         Integer status = null;
         if (StringUtils.isNotEmpty(taskId)){
         	ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
@@ -96,7 +96,7 @@ public class StreamTaskService {
      * @param taskId
      * @return
      */
-    public List<String> getRunningTaskLogUrl(@Param("taskId") String taskId) {
+    public List<String> getRunningTaskLogUrl( String taskId) {
 
         Preconditions.checkState(StringUtils.isNotEmpty(taskId), "taskId can't be empty");
 

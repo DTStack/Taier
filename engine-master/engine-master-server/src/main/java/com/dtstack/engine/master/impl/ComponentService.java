@@ -146,7 +146,7 @@ public class ComponentService {
      * }
      * }
      */
-    public String listConfigOfComponents(@Param("tenantId") Long dtUicTenantId, @Param("engineType") Integer engineType) {
+    public String listConfigOfComponents( Long dtUicTenantId,  Integer engineType) {
         JSONObject result = new JSONObject();
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
         if (tenantId == null) {
@@ -183,7 +183,7 @@ public class ComponentService {
         return result.toJSONString();
     }
 
-    public Component getOne(@Param("id") Long id) {
+    public Component getOne( Long id) {
         Component component = componentDao.getOne(id);
         if (component == null) {
             throw new RdosDefineException("组件不存在");
@@ -415,7 +415,7 @@ public class ComponentService {
     }
 
 
-    public KerberosConfig getKerberosConfig(@Param("clusterId") Long clusterId, @Param("componentType") Integer componentType) {
+    public KerberosConfig getKerberosConfig( Long clusterId,  Integer componentType) {
         KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType);
         return kerberosConfig;
     }
@@ -455,10 +455,10 @@ public class ComponentService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public ComponentVO addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("componentConfig") String componentConfig,
-                                            @Param("resources") List<Resource> resources, @Param("hadoopVersion") String hadoopVersion,
-                                            @Param("kerberosFileName") String kerberosFileName, @Param("componentTemplate") String componentTemplate,
-                                            @Param("componentCode") Integer componentCode) {
+    public ComponentVO addOrUpdateComponent( Long clusterId,  String componentConfig,
+                                             List<Resource> resources,  String hadoopVersion,
+                                             String kerberosFileName,  String componentTemplate,
+                                             Integer componentCode) {
         if (StringUtils.isBlank(componentConfig) && EComponentType.KUBERNETES.getTypeCode() != componentCode) {
             throw new RdosDefineException("组件信息不能为空");
         }
@@ -563,7 +563,7 @@ public class ComponentService {
         return componentVO;
     }
 
-    private String uploadResourceToSftp(@Param("clusterId") Long clusterId, @Param("resources") List<Resource> resources, @Param("kerberosFileName") String kerberosFileName,
+    private String uploadResourceToSftp( Long clusterId,  List<Resource> resources,  String kerberosFileName,
                                       Map<String, String> sftpMap,
                                       Component addComponent, Component dbComponent) {
         //上传配置文件到sftp 供后续下载
@@ -619,7 +619,7 @@ public class ComponentService {
      * @param instance
      * @param resource
      */
-    private void updateConfigToSftpPath(@Param("clusterId") Long clusterId, Map<String, String> sftpMap, SFTPHandler instance, Resource resource) {
+    private void updateConfigToSftpPath( Long clusterId, Map<String, String> sftpMap, SFTPHandler instance, Resource resource) {
         //上传xml到对应路径下 拼接confHdfsPath
         String confRemotePath = sftpMap.get("path") + File.separator;
         String buildPath = File.separator + buildConfRemoteDir(clusterId);
@@ -803,7 +803,7 @@ public class ComponentService {
      * @param componentId
      */
     @Transactional(rollbackFor = Exception.class)
-    public void closeKerberos(@Param("componentId") Long componentId) {
+    public void closeKerberos( Long componentId) {
         kerberosDao.deleteByComponentId(componentId);
         Component updateComponent = new Component();
         updateComponent.setId(componentId);
@@ -811,7 +811,7 @@ public class ComponentService {
         componentDao.update(updateComponent);
     }
 
-    public Map<String, Object> addOrCheckClusterWithName(@Param("clusterName") String clusterName) {
+    public Map<String, Object> addOrCheckClusterWithName( String clusterName) {
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("集群名称不能为空");
         }
@@ -842,7 +842,7 @@ public class ComponentService {
      * @param resources
      * @return
      */
-    public List<Object> config(@Param("resources") List<Resource> resources, @Param("componentType") Integer componentType,@Param("autoDelete") Boolean autoDelete) {
+    public List<Object> config( List<Resource> resources,  Integer componentType, Boolean autoDelete) {
         List<Object> datas = new ArrayList<>();
         try {
             List<String> xmlName = componentTypeConfigMapping.get(componentType);
@@ -1054,8 +1054,8 @@ public class ComponentService {
      * @param downloadType 0:kerberos配置文件 1:配置文件 2:模板文件
      * @return
      */
-    public File downloadFile(@Param("componentId") Long componentId, @Param("type") Integer downloadType, @Param("componentType") Integer componentType,
-                             @Param("hadoopVersion") String hadoopVersion, @Param("clusterName") String clusterName) {
+    public File downloadFile( Long componentId,  Integer downloadType,  Integer componentType,
+                              String hadoopVersion,  String clusterName) {
         String localDownLoadPath = "";
         String uploadFileName = "";
         if (Objects.isNull(componentId)) {
@@ -1145,7 +1145,7 @@ public class ComponentService {
      * @param componentType
      * @return
      */
-    public List<ClientTemplate> loadTemplate(@Param("componentType") Integer componentType, @Param("clusterName") String clusterName, @Param("version") String version) {
+    public List<ClientTemplate> loadTemplate( Integer componentType,  String clusterName,  String version) {
         EComponentType component = EComponentType.getByCode(componentType);
         List<ClientTemplate> defaultPluginConfig = null;
         try {
@@ -1325,7 +1325,7 @@ public class ComponentService {
      * @param componentIds
      */
     @Transactional(rollbackFor = Exception.class)
-    public void delete(@Param("componentIds") List<Long> componentIds) {
+    public void delete( List<Long> componentIds) {
         if (CollectionUtils.isEmpty(componentIds)) {
             return;
         }
@@ -1361,7 +1361,7 @@ public class ComponentService {
      * @param clusterName
      * @return
      */
-    public List<ComponentTestResult> testConnects(@Param("clusterName") String clusterName) {
+    public List<ComponentTestResult> testConnects( String clusterName) {
         Cluster cluster = null;
         if (StringUtils.isNotBlank(clusterName)) {
             cluster = clusterDao.getByClusterName(clusterName);

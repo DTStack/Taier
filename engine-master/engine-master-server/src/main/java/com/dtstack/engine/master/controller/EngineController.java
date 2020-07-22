@@ -14,13 +14,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/node/engine")
 @Api(value = "/node/engine", tags = {"引擎接口"})
-public class EngineController {
+public class EngineController implements com.dtstack.engine.api.service.EngineService {
 
     @Autowired
     private EngineService engineService;
 
     @RequestMapping(value="/getQueue", method = {RequestMethod.POST})
-    List<QueueVO> getQueue(@DtRequestParam("engineId") Long engineId) {
+    public List<QueueVO> getQueue(@DtRequestParam("engineId") Long engineId) {
         return engineService.getQueue(engineId);
     }
 
