@@ -1,21 +1,19 @@
 package com.dtstack.engine.api.service;
 
-import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.annotation.Forbidden;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.KerberosConfig;
 import com.dtstack.engine.api.dto.Resource;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.ComponentVO;
+import com.dtstack.sdk.core.common.DtInsightServer;
+import com.dtstack.sdk.core.feign.RequestLine;
 
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-public interface ComponentService {
+public interface ComponentService extends DtInsightServer {
     /**
      * {
      * "1":{
@@ -23,26 +21,32 @@ public interface ComponentService {
      * }
      * }
      */
-    public String listConfigOfComponents( Long dtUicTenantId,  Integer engineType);
+    @RequestLine("POST /node/component/listConfigOfComponents")
+    String listConfigOfComponents( Long dtUicTenantId,  Integer engineType);
 
-    public Component getOne( Long id);
+    @RequestLine("POST /node/component/getOne")
+    Component getOne( Long id);
 
-    public KerberosConfig getKerberosConfig( Long clusterId,  Integer componentType);
+    @RequestLine("POST /node/component/getKerberosConfig")
+    KerberosConfig getKerberosConfig( Long clusterId,  Integer componentType);
 
-    public ComponentVO addOrUpdateComponent( Long clusterId,  String componentConfig,
-                                             List<Resource> resources,  String hadoopVersion,
-                                             String kerberosFileName,  String componentTemplate,
-                                             Integer componentCode);
+    @RequestLine("POST /node/component/addOrUpdateComponent")
+    ComponentVO addOrUpdateComponent( Long clusterId,  String componentConfig,
+                                      List<Resource> resources,  String hadoopVersion,
+                                      String kerberosFileName,  String componentTemplate,
+                                      Integer componentCode);
 
     /**
      * 移除kerberos配置
      *
      * @param componentId
      */
-    public void closeKerberos( Long componentId);
+    @RequestLine("POST /node/component/closeKerberos")
+    void closeKerberos( Long componentId);
 
 
-    public Map<String, Object> addOrCheckClusterWithName( String clusterName);
+    @RequestLine("POST /node/component/addOrCheckClusterWithName")
+    Map<String, Object> addOrCheckClusterWithName( String clusterName);
 
     /**
      * parse zip中xml或者json
@@ -50,7 +54,8 @@ public interface ComponentService {
      * @param resources
      * @return
      */
-    public List<Object> config( List<Resource> resources,  Integer componentType, Boolean autoDelete);
+    @RequestLine("POST /node/component/config")
+    List<Object> config( List<Resource> resources,  Integer componentType, Boolean autoDelete);
 
     /**
      * 下载文件
@@ -59,8 +64,9 @@ public interface ComponentService {
      * @param downloadType 0:kerberos配置文件 1:配置文件 2:模板文件
      * @return
      */
-    public File downloadFile( Long componentId,  Integer downloadType,  Integer componentType,
-                              String hadoopVersion,  String clusterName);
+    @RequestLine("POST /node/component/downloadFile")
+    File downloadFile( Long componentId,  Integer downloadType,  Integer componentType,
+                       String hadoopVersion,  String clusterName);
 
     /**
      * 加载各个组件的默认值
@@ -69,7 +75,8 @@ public interface ComponentService {
      * @param componentType
      * @return
      */
-    public List<ClientTemplate> loadTemplate( Integer componentType,  String clusterName,  String version);
+    @RequestLine("POST /node/component/loadTemplate")
+    List<ClientTemplate> loadTemplate( Integer componentType,  String clusterName,  String version);
 
 
     /**
@@ -77,19 +84,22 @@ public interface ComponentService {
      *
      * @param componentIds
      */
-    public void delete( List<Long> componentIds);
+    @RequestLine("POST /node/component/delete")
+    void delete( List<Long> componentIds);
 
     /***
      * 获取对应的组件版本信息
      * @return
      */
-    public Map getComponentVersion();
+    @RequestLine("POST /node/component/getComponentVersion")
+    Map getComponentVersion();
 
     /**
      * 测试所有组件连通性
      * @param clusterName
      * @return
      */
-    public List<ComponentTestResult> testConnects( String clusterName);
+    @RequestLine("POST /node/component/testConnects")
+    List<ComponentTestResult> testConnects( String clusterName);
 
 }

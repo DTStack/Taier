@@ -2,12 +2,15 @@ package com.dtstack.engine.api.service;
 
 import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.vo.QueueVO;
+import com.dtstack.sdk.core.common.DtInsightServer;
+import com.dtstack.sdk.core.feign.RequestLine;
 
 import java.util.List;
 
-public interface EngineService {
+public interface EngineService extends DtInsightServer {
 
-    public List<QueueVO> getQueue( Long engineId);
+    @RequestLine("POST /node/engine/getQueue")
+    List<QueueVO> getQueue( Long engineId);
 
     /**
      * [
@@ -17,5 +20,6 @@ public interface EngineService {
      *     }
      * ]
      */
-    public String listSupportEngine( Long dtUicTenantId);
+    @RequestLine("POST /node/engine/listSupportEngine")
+    String listSupportEngine( Long dtUicTenantId);
 }

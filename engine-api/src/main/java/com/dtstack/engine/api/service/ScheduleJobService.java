@@ -17,6 +17,8 @@ import com.dtstack.engine.api.vo.ChartDataVO;
 import com.dtstack.engine.api.vo.JobTopErrorVO;
 import com.dtstack.engine.api.vo.JobTopOrderVO;
 import com.dtstack.engine.api.vo.RestartJobVO;
+import com.dtstack.sdk.core.common.DtInsightServer;
+import com.dtstack.sdk.core.feign.RequestLine;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -27,14 +29,15 @@ import java.util.Map;
  * author: toutian
  * create: 2017/5/3
  */
-public interface ScheduleJobService {
+public interface ScheduleJobService extends DtInsightServer {
 
     /**
      * 根据任务id展示任务详情
      *
      * @author toutian
      */
-    public ScheduleJob getJobById( long jobId);
+    @RequestLine("POST /node/scheduleJob/getJobById")
+    ScheduleJob getJobById( long jobId);
 
 
     /**
@@ -45,42 +48,49 @@ public interface ScheduleJobService {
      * @param dtuicTenantId
      * @return
      */
-    public PageResult getStatusJobList( Long projectId,  Long tenantId,  Integer appType,
-                                        Long dtuicTenantId,  Integer status,  int pageSize,  int pageIndex);
+    @RequestLine("POST /node/scheduleJob/getStatusJobList")
+    PageResult getStatusJobList( Long projectId,  Long tenantId,  Integer appType,
+                                 Long dtuicTenantId,  Integer status,  int pageSize,  int pageIndex);
 
     /**
      * 获取各个状态任务的数量
      */
-    public Map<String, Object> getStatusCount( Long projectId,  Long tenantId,  Integer appType, Long dtuicTenantId);
+    @RequestLine("POST /node/scheduleJob/getStatusCount")
+    Map<String, Object> getStatusCount( Long projectId,  Long tenantId,  Integer appType, Long dtuicTenantId);
 
     /**
      * 运行时长top排序
      */
-    public List<JobTopOrderVO> runTimeTopOrder( Long projectId,
-                                                Long startTime,
-                                                Long endTime,  Integer appType, Long dtuicTenantId);
+    @RequestLine("POST /node/scheduleJob/runTimeTopOrder")
+    List<JobTopOrderVO> runTimeTopOrder( Long projectId,
+                                         Long startTime,
+                                         Long endTime,  Integer appType, Long dtuicTenantId);
 
     /**
      * 近30天任务出错排行
      */
-    public List<JobTopErrorVO> errorTopOrder( Long projectId,  Long tenantId,  Integer appType, Long dtuicTenantId);
+    @RequestLine("POST /node/scheduleJob/errorTopOrder")
+    List<JobTopErrorVO> errorTopOrder( Long projectId,  Long tenantId,  Integer appType, Long dtuicTenantId);
 
 
     /**
      * 曲线图数据
      */
-    public ScheduleJobChartVO getJobGraph( Long projectId,  Long tenantId,  Integer appType,  Long dtuicTenantId);
+    @RequestLine("POST /node/scheduleJob/getJobGraph")
+    ScheduleJobChartVO getJobGraph( Long projectId,  Long tenantId,  Integer appType,  Long dtuicTenantId);
 
     /**
      * 获取数据科学的曲线图
      *
      * @return
      */
-    public ChartDataVO getScienceJobGraph( long projectId,  Long tenantId,
-                                           String taskType);
+    @RequestLine("POST /node/scheduleJob/getScienceJobGraph")
+    ChartDataVO getScienceJobGraph( long projectId,  Long tenantId,
+                                    String taskType);
 
-    public Map<String, Object> countScienceJobStatus( List<Long> projectIds,  Long tenantId,  Integer runStatus,  Integer type,  String taskType,
-                                                      String cycStartTime,  String cycEndTime);
+    @RequestLine("POST /node/scheduleJob/countScienceJobStatus")
+    Map<String, Object> countScienceJobStatus( List<Long> projectIds,  Long tenantId,  Integer runStatus,  Integer type,  String taskType,
+                                               String cycStartTime,  String cycEndTime);
 
     /**
      * 任务运维 - 搜索
@@ -88,9 +98,11 @@ public interface ScheduleJobService {
      * @return
      * @author toutian
      */
-    public PageResult<List<ScheduleJobVO>> queryJobs(QueryJobDTO vo) throws Exception;
+    @RequestLine("POST /node/scheduleJob/queryJobs")
+    PageResult<List<ScheduleJobVO>> queryJobs(QueryJobDTO vo) throws Exception;
 
-    public List<SchedulePeriodInfoVO> displayPeriods( boolean isAfter,  Long jobId,  Long projectId,  int limit) throws Exception;
+    @RequestLine("POST /node/scheduleJob/displayPeriods")
+    List<SchedulePeriodInfoVO> displayPeriods( boolean isAfter,  Long jobId,  Long projectId,  int limit) throws Exception;
 
     /**
      * 获取工作流节点的父节点和子节点关联信息
@@ -99,46 +111,54 @@ public interface ScheduleJobService {
      * @return
      * @throws Exception
      */
-    public ScheduleJobVO getRelatedJobs( String jobId,  String query) throws Exception;
+    @RequestLine("POST /node/scheduleJob/getRelatedJobs")
+    ScheduleJobVO getRelatedJobs( String jobId,  String query) throws Exception;
 
     /**
      * 获取任务的状态统计信息
      *
      * @author toutian
      */
-    public Map<String, Long> queryJobsStatusStatistics(QueryJobDTO vo);
+    @RequestLine("POST /node/scheduleJob/queryJobsStatusStatistics")
+    Map<String, Long> queryJobsStatusStatistics(QueryJobDTO vo);
 
 
-    public List<ScheduleRunDetailVO> jobDetail( Long taskId,  Integer appType);
+    @RequestLine("POST /node/scheduleJob/jobDetail")
+    List<ScheduleRunDetailVO> jobDetail( Long taskId,  Integer appType);
 
 
     /**
      * 触发 engine 执行指定task
      */
-    public void sendTaskStartTrigger(ScheduleJob scheduleJob) throws Exception;
+    @RequestLine("POST /node/scheduleJob/sendTaskStartTrigger")
+    void sendTaskStartTrigger(ScheduleJob scheduleJob) throws Exception;
 
-    public String stopJob( long jobId,  Long userId,  Long projectId,  Long tenantId,  Long dtuicTenantId,
-                           Boolean isRoot,  Integer appType) throws Exception;
+    @RequestLine("POST /node/scheduleJob/stopJob")
+    String stopJob( long jobId,  Long userId,  Long projectId,  Long tenantId,  Long dtuicTenantId,
+                    Boolean isRoot,  Integer appType) throws Exception;
 
 
-    public void stopFillDataJobs( String fillDataJobName,  Long projectId,  Long dtuicTenantId,  Integer appType) throws Exception;
+    @RequestLine("POST /node/scheduleJob/stopFillDataJobs")
+    void stopFillDataJobs( String fillDataJobName,  Long projectId,  Long dtuicTenantId,  Integer appType) throws Exception;
 
 
-    public int batchStopJobs( List<Long> jobIdList,
-                              Long projectId,
-                              Long dtuicTenantId,
-                              Integer appType);
+    @RequestLine("POST /node/scheduleJob/batchStopJobs")
+    int batchStopJobs( List<Long> jobIdList,
+                       Long projectId,
+                       Long dtuicTenantId,
+                       Integer appType);
 
 
     /**
      * 补数据的时候，选中什么业务日期，参数替换结果是业务日期+1天
      */
-    public String fillTaskData( String taskJsonStr,  String fillName,
-                                Long fromDay,  Long toDay,
-                                String beginTime,  String endTime,
-                                Long projectId,  Long userId,
-                                Long tenantId,
-                                Boolean isRoot,  Integer appType,  Long dtuicTenantId) throws Exception;
+    @RequestLine("POST /node/scheduleJob/fillTaskData")
+    String fillTaskData( String taskJsonStr,  String fillName,
+                         Long fromDay,  Long toDay,
+                         String beginTime,  String endTime,
+                         Long projectId,  Long userId,
+                         Long tenantId,
+                         Boolean isRoot,  Integer appType,  Long dtuicTenantId) throws Exception;
 
 
     /**
@@ -159,24 +179,27 @@ public interface ScheduleJobService {
      * @param tenantId
      * @return
      */
-    public PageResult<ScheduleFillDataJobPreViewVO> getFillDataJobInfoPreview( String jobName,  Long runDay,
-                                                                               Long bizStartDay,  Long bizEndDay,  Long dutyUserId,
-                                                                               Long projectId,  Integer appType,  Integer userId,
-                                                                               Integer currentPage,  Integer pageSize,  Long tenantId);
+    @RequestLine("POST /node/scheduleJob/getFillDataJobInfoPreview")
+    PageResult<ScheduleFillDataJobPreViewVO> getFillDataJobInfoPreview( String jobName,  Long runDay,
+                                                                        Long bizStartDay,  Long bizEndDay,  Long dutyUserId,
+                                                                        Long projectId,  Integer appType,  Integer userId,
+                                                                        Integer currentPage,  Integer pageSize,  Long tenantId);
 
     /**
      * @param fillJobName
      * @return
      */
     @Deprecated
-    public PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfoOld(QueryJobDTO vo,
-                                                                             String fillJobName,
-                                                                             Long dutyUserId) throws Exception;
+    @RequestLine("POST /node/scheduleJob/getFillDataDetailInfoOld")
+    PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfoOld(QueryJobDTO vo,
+                                                                     String fillJobName,
+                                                                     Long dutyUserId) throws Exception;
 
-    public PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfo( String queryJobDTO,
-                                                                          List<String> flowJobIdList,
-                                                                          String fillJobName,
-                                                                          Long dutyUserId,  String searchType) throws Exception;
+    @RequestLine("POST /node/scheduleJob/getFillDataDetailInfo")
+    PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfo( String queryJobDTO,
+                                                                   List<String> flowJobIdList,
+                                                                   String fillJobName,
+                                                                   Long dutyUserId,  String searchType) throws Exception;
 
     /**
      * 获取补数据实例工作流节点的父节点和子节点关联信息
@@ -185,17 +208,20 @@ public interface ScheduleJobService {
      * @return
      * @throws Exception
      */
-    public ScheduleFillDataJobDetailVO.FillDataRecord getRelatedJobsForFillData( String jobId,  String query,
-                                                                                 String fillJobName) throws Exception;
+    @RequestLine("POST /node/scheduleJob/getRelatedJobsForFillData")
+    ScheduleFillDataJobDetailVO.FillDataRecord getRelatedJobsForFillData( String jobId,  String query,
+                                                                          String fillJobName) throws Exception;
 
 
     /**
      * 获取重跑的数据节点信息
      */
-    public List<RestartJobVO> getRestartChildJob( String jobKey,  Long parentTaskId,  boolean isOnlyNextChild);
+    @RequestLine("POST /node/scheduleJob/getRestartChildJob")
+    List<RestartJobVO> getRestartChildJob( String jobKey,  Long parentTaskId,  boolean isOnlyNextChild);
 
 
-    public List<String> listJobIdByTaskNameAndStatusList( String taskName,  List<Integer> statusList,  Long projectId, Integer appType);
+    @RequestLine("POST /node/scheduleJob/listJobIdByTaskNameAndStatusList")
+    List<String> listJobIdByTaskNameAndStatusList( String taskName,  List<Integer> statusList,  Long projectId, Integer appType);
 
 
     /**
@@ -205,7 +231,8 @@ public interface ScheduleJobService {
      * @param projectId
      * @return
      */
-    public Map<String, ScheduleJob> getLabTaskRelationMap( List<String> jobIdList,  Long projectId);
+    @RequestLine("POST /node/scheduleJob/getLabTaskRelationMap")
+    Map<String, ScheduleJob> getLabTaskRelationMap( List<String> jobIdList,  Long projectId);
 
     /**
      * 获取任务执行信息
@@ -216,7 +243,8 @@ public interface ScheduleJobService {
      * @param count
      * @return
      */
-    public List<Map<String, Object>> statisticsTaskRecentInfo( Long taskId,  Integer appType,  Long projectId,  Integer count);
+    @RequestLine("POST /node/scheduleJob/statisticsTaskRecentInfo")
+    List<Map<String, Object>> statisticsTaskRecentInfo( Long taskId,  Integer appType,  Long projectId,  Integer count);
 
 
     /**
@@ -224,21 +252,26 @@ public interface ScheduleJobService {
      *
      * @param jobs
      */
-    public Integer BatchJobsBatchUpdate( String jobs);
+    @RequestLine("POST /node/scheduleJob/BatchJobsBatchUpdate")
+    Integer BatchJobsBatchUpdate( String jobs);
 
     /**
      *  把开始时间和结束时间置为null
      * @param jobId
      * @return
      */
-    public Integer updateTimeNull( String jobId);
+    @RequestLine("POST /node/scheduleJob/updateTimeNull")
+    Integer updateTimeNull( String jobId);
 
 
-    public ScheduleJob getById( Long id);
+    @RequestLine("POST /node/scheduleJob/getById")
+    ScheduleJob getById( Long id);
 
-    public ScheduleJob getByJobId( String jobId,  Integer isDeleted);
+    @RequestLine("POST /node/scheduleJob/getByJobId")
+    ScheduleJob getByJobId( String jobId,  Integer isDeleted);
 
-    public List<ScheduleJob> getByIds( List<Long> ids,  Long projectId);
+    @RequestLine("POST /node/scheduleJob/getByIds")
+    List<ScheduleJob> getByIds( List<Long> ids,  Long projectId);
 
 
     /**
@@ -249,8 +282,9 @@ public interface ScheduleJobService {
      * @param appType
      * @return
      */
-    public List<ScheduleJob> getSameDayChildJob( String batchJob,
-                                                 boolean isOnlyNextChild,  Integer appType);
+    @RequestLine("POST /node/scheduleJob/getSameDayChildJob")
+    List<ScheduleJob> getSameDayChildJob( String batchJob,
+                                          boolean isOnlyNextChild,  Integer appType);
 
     /**
      * FIXME 注意不要出现死循环
@@ -260,18 +294,23 @@ public interface ScheduleJobService {
      * @param scheduleJob
      * @return
      */
-    public List<ScheduleJob> getAllChildJobWithSameDay(ScheduleJob scheduleJob,
-                                                        boolean isOnlyNextChild,  Integer appType);
+    @RequestLine("POST /node/scheduleJob/getAllChildJobWithSameDay")
+    List<ScheduleJob> getAllChildJobWithSameDay(ScheduleJob scheduleJob,
+                                                boolean isOnlyNextChild,  Integer appType);
 
 
-    public Integer generalCount(ScheduleJobDTO query);
+    @RequestLine("POST /node/scheduleJob/generalCount")
+    Integer generalCount(ScheduleJobDTO query);
 
-    public Integer generalCountWithMinAndHour(ScheduleJobDTO query);
+    @RequestLine("POST /node/scheduleJob/generalCountWithMinAndHour")
+    Integer generalCountWithMinAndHour(ScheduleJobDTO query);
 
 
-    public List<ScheduleJob> generalQuery(PageQuery query);
+    @RequestLine("POST /node/scheduleJob/generalQuery")
+    List<ScheduleJob> generalQuery(PageQuery query);
 
-    public List<ScheduleJob> generalQueryWithMinAndHour(PageQuery query);
+    @RequestLine("POST /node/scheduleJob/generalQueryWithMinAndHour")
+    List<ScheduleJob> generalQueryWithMinAndHour(PageQuery query);
 
     /**
      * 获取job最后一次执行
@@ -280,7 +319,8 @@ public interface ScheduleJobService {
      * @param time
      * @return
      */
-    public ScheduleJob getLastSuccessJob( Long taskId,  Timestamp time, Integer appType);
+    @RequestLine("POST /node/scheduleJob/getLastSuccessJob")
+    ScheduleJob getLastSuccessJob( Long taskId,  Timestamp time, Integer appType);
 
 
     /**
@@ -293,8 +333,9 @@ public interface ScheduleJobService {
      * @param logVo
      * @throws Exception
      */
-    public ScheduleServerLogVO setAlogrithmLabLog( Integer status,  Integer taskType,  String jobId,
-                                                   String info,  String logVo,  Integer appType) throws Exception;
+    @RequestLine("POST /node/scheduleJob/setAlogrithmLabLog")
+    ScheduleServerLogVO setAlogrithmLabLog( Integer status,  Integer taskType,  String jobId,
+                                            String info,  String logVo,  Integer appType) throws Exception;
 
 
 
@@ -302,7 +343,8 @@ public interface ScheduleJobService {
      * 周期实例列表
      * 分钟任务和小时任务 展开按钮显示
      */
-    public List<ScheduleJobVO> minOrHourJobQuery(ScheduleJobDTO scheduleJobDTO);
+    @RequestLine("POST /node/scheduleJob/minOrHourJobQuery")
+    List<ScheduleJobVO> minOrHourJobQuery(ScheduleJobDTO scheduleJobDTO);
 
 
     /**
@@ -312,7 +354,8 @@ public interface ScheduleJobService {
      * @param status
      * @param logInfo
      */
-    public void updateJobStatusAndLogInfo( String jobId,  Integer status,  String logInfo);
+    @RequestLine("POST /node/scheduleJob/updateJobStatusAndLogInfo")
+    void updateJobStatusAndLogInfo( String jobId,  Integer status,  String logInfo);
 
 
     /**
@@ -320,15 +363,18 @@ public interface ScheduleJobService {
      * @param jobId
      * @return
      */
-    public String testCheckCanRun(String jobId);
+    @RequestLine("POST /node/scheduleJob/testCheckCanRun")
+    String testCheckCanRun(String jobId);
 
     /**
      * 生成当天任务实例
      * @throws Exception
      */
-    public void createTodayTaskShade( Long taskId, Integer appType);
+    @RequestLine("POST /node/scheduleJob/createTodayTaskShade")
+    void createTodayTaskShade( Long taskId, Integer appType);
 
-    public List<ScheduleJob> listByBusinessDateAndPeriodTypeAndStatusList(ScheduleJobDTO query);
+    @RequestLine("POST /node/scheduleJob/listByBusinessDateAndPeriodTypeAndStatusList")
+    List<ScheduleJob> listByBusinessDateAndPeriodTypeAndStatusList(ScheduleJobDTO query);
 
     /**
      * 根据cycTime和jobName获取，如获取当天的周期实例任务
@@ -337,7 +383,8 @@ public interface ScheduleJobService {
      * @param scheduleType
      * @return
      */
-    public List<ScheduleJob> listByCyctimeAndJobName( String preCycTime,  String preJobName,  Integer scheduleType);
+    @RequestLine("POST /node/scheduleJob/listByCyctimeAndJobName")
+    List<ScheduleJob> listByCyctimeAndJobName( String preCycTime,  String preJobName,  Integer scheduleType);
 
     /**
      * 按批次根据cycTime和jobName获取，如获取当天的周期实例任务
@@ -348,18 +395,22 @@ public interface ScheduleJobService {
      * @param batchJobSize
      * @return
      */
-    public List<ScheduleJob> listByCyctimeAndJobName( Long startId,  String preCycTime,  String preJobName,  Integer scheduleType,  Integer batchJobSize);
+    @RequestLine("POST /node/scheduleJob/listByCyctimeAndJobName")
+    List<ScheduleJob> listByCyctimeAndJobName( Long startId,  String preCycTime,  String preJobName,  Integer scheduleType,  Integer batchJobSize);
 
-    public Integer countByCyctimeAndJobName( String preCycTime,  String preJobName,  Integer scheduleType);
+    @RequestLine("POST /node/scheduleJob/countByCyctimeAndJobName")
+    Integer countByCyctimeAndJobName( String preCycTime,  String preJobName,  Integer scheduleType);
 
     /**
      * 根据jobKey删除job jobjob记录
      * @param jobKeyList
      */
-    public void deleteJobsByJobKey( List<String> jobKeyList);
+    @RequestLine("POST /node/scheduleJob/deleteJobsByJobKey")
+    void deleteJobsByJobKey( List<String> jobKeyList);
 
 
-    public List<ScheduleJob> syncBatchJob(QueryJobDTO dto);
+    @RequestLine("POST /node/scheduleJob/syncBatchJob")
+    List<ScheduleJob> syncBatchJob(QueryJobDTO dto);
 
     /**
      *
@@ -367,7 +418,8 @@ public interface ScheduleJobService {
      * @param taskIds
      * @param appType
      */
-    public List<ScheduleJob> listJobsByTaskIdsAndApptype( List<Long> taskIds, Integer appType);
+    @RequestLine("POST /node/scheduleJob/listJobsByTaskIdsAndApptype")
+    List<ScheduleJob> listJobsByTaskIdsAndApptype( List<Long> taskIds, Integer appType);
 
     /**
      * 根据任务ID 停止任务
@@ -380,6 +432,7 @@ public interface ScheduleJobService {
      * @param appType
      * @return
      */
+    @RequestLine("POST /node/scheduleJob/stopJobByJobId")
     String stopJobByJobId( String jobId,  Long userId,  Long projectId,  Long tenantId,  Long dtuicTenantId,
                            Boolean isRoot,  Integer appType) throws Exception;
 
