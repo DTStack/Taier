@@ -20,9 +20,8 @@ export default class SelectPopver extends React.Component<any, any> {
         const { compTypeKey, defaultValue, handleCanclePopover, modifyTabCompData } = this.props;
         // console.log('defaultValue------selectValue', defaultValue, selectValue)
         const popoverFooter = (
-            <div style={{ marginTop: 37 }}>
+            <div style={{ marginTop: 37, float: 'right' }}>
                 <Row>
-                    <Col span={8}></Col>
                     <Col>
                         <Button size="small" onClick={handleCanclePopover}>取消</Button>
                         <Button size="small" type="primary" style={{ marginLeft: 8 }} onClick={() => modifyTabCompData()}>确认</Button>
@@ -33,7 +32,7 @@ export default class SelectPopver extends React.Component<any, any> {
         switch (compTypeKey) {
             case TABS_TITLE_KEY.COMMON:
                 content = (
-                    <CheckboxGroup onChange={this.setCheckboxCompData} defaultValue={defaultValue}>
+                    <CheckboxGroup style={{ width: '100%' }} onChange={this.setCheckboxCompData} defaultValue={defaultValue}>
                         <Row>
                             {COMMON_COMPONENTS.map((item: any) => {
                                 return <Col key={`${item.componentTypeCode}`}><Checkbox value={item.componentTypeCode}>{item.componentName}</Checkbox></Col>
@@ -57,7 +56,7 @@ export default class SelectPopver extends React.Component<any, any> {
                 break;
             case TABS_TITLE_KEY.STORE:
                 content = (
-                    <CheckboxGroup onChange={this.setCheckboxCompData} defaultValue={defaultValue}>
+                    <CheckboxGroup style={{ width: '100%' }} onChange={this.setCheckboxCompData} defaultValue={defaultValue}>
                         <Row>
                             {STORE_COMPONENTS.map((item: any) => {
                                 return <Col key={`${item.componentTypeCode}`}><Checkbox value={item.componentTypeCode}>{item.componentName}</Checkbox></Col>
@@ -69,7 +68,7 @@ export default class SelectPopver extends React.Component<any, any> {
                 break;
             case TABS_TITLE_KEY.COMPUTE:
                 content = (
-                    <CheckboxGroup onChange={this.setCheckboxCompData} defaultValue={defaultValue}>
+                    <CheckboxGroup style={{ width: '100%' }} onChange={this.setCheckboxCompData} defaultValue={defaultValue}>
                         <Row>
                             {COMPUTE_COMPONENTS.map((item: any) => {
                                 return <Col key={`${item.componentTypeCode}`}><Checkbox value={item.componentTypeCode}>{item.componentName}</Checkbox></Col>

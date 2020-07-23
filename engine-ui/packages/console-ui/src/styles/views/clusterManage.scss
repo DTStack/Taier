@@ -391,6 +391,10 @@
             padding: 12px 20px 20px 20px;
             margin: 12px 0 20px 0;
             background-color: #FAFAFAFF;
+            .ant-form-item-label {
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
         }
     }
     .c-componentConfig__checkboxGroup {
