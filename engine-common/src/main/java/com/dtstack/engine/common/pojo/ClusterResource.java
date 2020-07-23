@@ -1,5 +1,8 @@
 package com.dtstack.engine.common.pojo;
 
+import com.alibaba.fastjson.JSONObject;
+import scala.Int;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,31 +13,50 @@ import java.util.List;
  */
 public class ClusterResource implements Serializable {
 
-    private List<TaskManagerDescription> flink = new ArrayList<>();
+    private ResourceMetrics resourceMetrics;
 
-    private List<NodeDescription> yarn = new ArrayList<>();
+    private List<NodeDescription> nodes = new ArrayList<>();
 
-    public List<TaskManagerDescription> getFlink() {
-        return flink;
+    private List<JSONObject> queues;
+
+    public ResourceMetrics getResourceMetrics() {
+        return resourceMetrics;
     }
 
-    public void setFlink(List<TaskManagerDescription> flink) {
-        this.flink = flink;
+    public void setResourceMetrics(ResourceMetrics resourceMetrics) {
+        this.resourceMetrics = resourceMetrics;
     }
 
-    public List<NodeDescription> getYarn() {
-        return yarn;
+    public List<JSONObject> getQueues() {
+        return queues;
     }
 
-    public void setYarn(List<NodeDescription> yarn) {
-        this.yarn = yarn;
+    public void setQueues(List<JSONObject> queues) {
+        this.queues = queues;
+    }
+
+    public List<NodeDescription> getNodes() {
+        return nodes;
+    }
+
+    public void setNodes(List<NodeDescription> nodes) {
+        this.nodes = nodes;
     }
 
     public static class NodeDescription {
+        private String nodeName;
         private int memory;
         private int virtualCores;
         private int usedMemory;
         private int usedVirtualCores;
+
+        public String getNodeName() {
+            return nodeName;
+        }
+
+        public void setNodeName(String nodeName) {
+            this.nodeName = nodeName;
+        }
 
         public int getMemory() {
             return memory;
@@ -69,93 +91,76 @@ public class ClusterResource implements Serializable {
         }
     }
 
+    public static class QueueDescription {
+        private String queueName;
+        private Double usedCapacity;
+        private Double configuredCapacity;
+        private Double maxCapacity;
+        private Resource usedResources;
+        private Resource usedAMResource;
+        private Resource amResourceLimit;
 
-    public static class TaskManagerDescription {
-        private String path;
-        private int dataPort;
-        private String id;
-        private int freeSlots;
-        private int cpuCores;
-        private int slotsNumber;
-        private long managedMemory;
-        private long freeMemory;
-        private long physicalMemory;
 
-        public TaskManagerDescription() {
+    }
+
+    public static class ResourceMetrics {
+        private Integer totalMem;
+        private Integer totalCores;
+        private Integer usedMem;
+        private Integer usedCores;
+
+        public Integer getTotalMem() {
+            return totalMem;
         }
 
-        public String getPath() {
-            return path;
+        public void setTotalMem(Integer totalMem) {
+            this.totalMem = totalMem;
         }
 
-        public void setPath(String path) {
-            this.path = path;
+        public Integer getTotalCores() {
+            return totalCores;
         }
 
-        public int getDataPort() {
-            return dataPort;
+        public void setTotalCores(Integer totalCores) {
+            this.totalCores = totalCores;
         }
 
-        public void setDataPort(int dataPort) {
-            this.dataPort = dataPort;
+        public Integer getUsedMem() {
+            return usedMem;
         }
 
-        public String getId() {
-            return id;
+        public void setUsedMem(Integer usedMem) {
+            this.usedMem = usedMem;
         }
 
-        public void setId(String id) {
-            this.id = id;
+        public Integer getUsedCores() {
+            return usedCores;
         }
 
-        public int getFreeSlots() {
-            return freeSlots;
-        }
-
-        public void setFreeSlots(int freeSlots) {
-            this.freeSlots = freeSlots;
-        }
-
-        public int getCpuCores() {
-            return cpuCores;
-        }
-
-        public void setCpuCores(int cpuCores) {
-            this.cpuCores = cpuCores;
-        }
-
-        public int getSlotsNumber() {
-            return slotsNumber;
-        }
-
-        public void setSlotsNumber(int slotsNumber) {
-            this.slotsNumber = slotsNumber;
-        }
-
-        public long getManagedMemory() {
-            return managedMemory;
-        }
-
-        public void setManagedMemory(long managedMemory) {
-            this.managedMemory = managedMemory;
-        }
-
-        public long getFreeMemory() {
-            return freeMemory;
-        }
-
-        public void setFreeMemory(long freeMemory) {
-            this.freeMemory = freeMemory;
-        }
-
-        public long getPhysicalMemory() {
-            return physicalMemory;
-        }
-
-        public void setPhysicalMemory(long physicalMemory) {
-            this.physicalMemory = physicalMemory;
+        public void setUsedCores(Integer usedCores) {
+            this.usedCores = usedCores;
         }
     }
 
+    public static class Resource {
+        private Integer memory;
+        private Integer core;
+
+        public Integer getMemory() {
+            return memory;
+        }
+
+        public void setMemory(Integer memory) {
+            this.memory = memory;
+        }
+
+        public Integer getCore() {
+            return core;
+        }
+
+        public void setCore(Integer core) {
+            this.core = core;
+        }
+    }
 
 }

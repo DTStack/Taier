@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.util.TypeUtils;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.base.resource.AbstractYarnResourceInfo;
 import com.dtstack.engine.base.resource.EngineResourceInfo;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
@@ -20,7 +21,9 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.pojo.ClusterResource;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.DtStringUtil;
+import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.hadoop.parser.AddJarOperator;
 import com.dtstack.engine.hadoop.util.HadoopConf;
@@ -66,6 +69,7 @@ public class HadoopClient extends AbstractClient {
     private static final String DEFAULT_APP_NAME_PREFIX = "Flink session";
     private static final String FLINK_URL_FORMAT = "http://%s/proxy/%s/taskmanagers";
     private static final String YARN_RM_WEB_KEY_PREFIX = "yarn.resourcemanager.webapp.address.";
+    private static final String YARN_SCHEDULER_FORMAT = "http://%s/ws/v1/cluster/scheduler";
     private static final long ONE_MEGABYTE = 1024*1024;
 
     @Override
@@ -526,16 +530,40 @@ public class HadoopClient extends AbstractClient {
                     resourceClient.start();
                     List<NodeReport> nodes = resourceClient.getNodeReports(NodeState.RUNNING);
                     List<ClusterResource.NodeDescription> clusterNodes = new ArrayList<>();
+
+                    ClusterResource.ResourceMetrics metrics = new ClusterResource.ResourceMetrics();
+                    Integer totalMem = 0;
+                    Integer totalCores = 0;
+                    Integer usedMem = 0;
+                    Integer usedCores = 0;
+
                     for (NodeReport rep : nodes) {
                         ClusterResource.NodeDescription node = new ClusterResource.NodeDescription();
+                        String nodeName = rep.getHttpAddress().split(":")[0];
+                        node.setNodeName(nodeName);
                         node.setMemory(rep.getCapability().getMemory());
                         node.setUsedMemory(rep.getUsed().getMemory());
                         node.setUsedVirtualCores(rep.getUsed().getVirtualCores());
                         node.setVirtualCores(rep.getCapability().getVirtualCores());
                         clusterNodes.add(node);
+
+                        // 计算集群资源总量和使用量
+                        Resource capability = rep.getCapability();
+                        Resource used = rep.getUsed();
+                        totalMem += capability.getMemory();
+                        totalCores += capability.getVirtualCores();
+                        usedMem += used.getMemory();
+                        usedCores += used.getVirtualCores();
                     }
-                    clusterResource.setYarn(clusterNodes);
-                    clusterResource.setFlink(this.initTaskManagerResource(yarnClient));
+                    metrics.setTotalMem(totalMem);
+                    metrics.setTotalCores(totalCores);
+                    metrics.setUsedMem(usedMem);
+                    metrics.setUsedCores(usedCores);
+
+                    clusterResource.setNodes(clusterNodes);
+                    clusterResource.setQueues(getQueueResource(yarnClient));
+                    clusterResource.setResourceMetrics(metrics);
+
                 } catch (Exception e) {
                     LOG.error("close reource error ", e);
                 } finally {
@@ -556,11 +584,56 @@ public class HadoopClient extends AbstractClient {
         return clusterResource;
     }
 
+    private List<JSONObject> getQueueResource(YarnClient yarnClient) throws Exception {
+        String webAddress = getYarnWebAddress(yarnClient);
+        String schedulerUrl = String.format(YARN_SCHEDULER_FORMAT, webAddress);
+        String schedulerInfoMsg = PoolHttpClient.get(schedulerUrl, null);
+        JSONObject schedulerInfo = JSONObject.parseObject(schedulerInfoMsg);
 
+        JSONObject schedulerJson = schedulerInfo.getJSONObject("scheduler");
+        if (!schedulerJson.containsKey("schedulerInfo")) {
+            LOG.error("get yarn queueInfo error! Miss schedulerInfo field");
+            return null;
+        }
+        JSONObject schedulerInfoJson = schedulerJson.getJSONObject("schedulerInfo");
+        if (!schedulerInfoJson.containsKey("queues")) {
+            LOG.error("get yarn queueInfo error! Miss queues field");
+            return null;
+        }
+        JSONObject queuesJson = schedulerInfoJson.getJSONObject("queues");
+        List<JSONObject> modifyQueueInfos = modifyQueueInfo(null, queuesJson);
+        return modifyQueueInfos;
+    }
 
-    public List<ClusterResource.TaskManagerDescription> initTaskManagerResource(YarnClient yarnClient) throws Exception {
-        List<ApplicationId> applicationIds = acquireApplicationIds(yarnClient);
+    private List<JSONObject> modifyQueueInfo(String parentName, JSONObject queueInfos) {
+        List<JSONObject> queues = new ArrayList<>();
+        if (!queueInfos.containsKey("queue")) {
+            return null;
+        }
 
+        for (Object ob : queueInfos.getJSONArray("queue")) {
+            JSONObject queueInfo = (JSONObject)ob;
+            String queueName = queueInfo.getString("queueName");
+            parentName = StringUtils.isBlank(parentName) ? "" : parentName + ".";
+            String queueNewName = parentName + queueName;
+
+            if (queueInfo.containsKey("queues")) {
+                List<JSONObject> childQueues = modifyQueueInfo(queueNewName, queueInfo.getJSONObject("queues"));
+                if (childQueues != null) {
+                    queues.addAll(childQueues);
+                }
+            }
+
+            queueInfo.put("queueName", queueNewName);
+            if (!queueInfo.containsKey("queues")) {
+                queues.add(queueInfo);
+            }
+
+        }
+        return queues;
+    }
+
+    private String getYarnWebAddress(YarnClient yarnClient) throws Exception {
         Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
         rmClientField.setAccessible(true);
         Object rmClient = rmClientField.get(yarnClient);
@@ -575,7 +648,7 @@ public class HadoopClient extends AbstractClient {
             currentProxyField.setAccessible(true);
             currentProxy = currentProxyField.get(h);
         } catch (Exception e) {
-            //兼容Hadoop 2.7.3.2.6.4.91-3
+            //兼容Hadoop 2.7.3 2.6.4.91-3
             LOG.warn("get currentProxy error: ", e);
             Field proxyDescriptorField = h.getClass().getDeclaredField("proxyDescriptor");
             proxyDescriptorField.setAccessible(true);
@@ -589,63 +662,43 @@ public class HadoopClient extends AbstractClient {
         proxyInfoField.setAccessible(true);
         String proxyInfoKey = (String) proxyInfoField.get(currentProxy);
 
+        YarnConfiguration config = (YarnConfiguration) yarnClient.getConfig();
         String key = YARN_RM_WEB_KEY_PREFIX + proxyInfoKey;
-        String addr = yarnClient.getConfig().get(key);
+        String webAddress = config.get(key);
 
-        if (addr == null) {
-            YarnConfiguration config = (YarnConfiguration) yarnClient.getConfig();
-            addr = config.get("yarn.resourcemanager.webapp.address");
+        if (webAddress == null) {
+            webAddress = config.get("yarn.resourcemanager.webapp.address");
         }
-
-        List<ClusterResource.TaskManagerDescription> taskManagerDescriptions = new ArrayList<>();
-        for (ApplicationId applicationId : applicationIds) {
-            String url = String.format(FLINK_URL_FORMAT, addr, applicationId.toString());
-            String msg = PoolHttpClient.get(url, null);
-            if (msg == null) {
-                continue;
-            }
-
-            JSONObject taskManagerInfo = JSONObject.parseObject(msg);
-            if (!taskManagerInfo.containsKey("taskmanagers")) {
-                continue;
-            }
-
-            JSONArray taskManagers = taskManagerInfo.getJSONArray("taskmanagers");
-            for (int i = 0; i < taskManagers.size(); i++) {
-                JSONObject jsonObject = taskManagers.getJSONObject(i);
-                if (jsonObject.containsKey("hardware")) {
-                    jsonObject.putAll(jsonObject.getJSONObject("hardware"));
-                }
-
-                ClusterResource.TaskManagerDescription description = TypeUtils.castToJavaBean(jsonObject, ClusterResource.TaskManagerDescription.class);
-                description.setFreeMemory(description.getFreeMemory() / ONE_MEGABYTE);
-                description.setPhysicalMemory(description.getPhysicalMemory() / ONE_MEGABYTE);
-                description.setManagedMemory(description.getManagedMemory() / ONE_MEGABYTE);
-                taskManagerDescriptions.add(description);
-            }
-        }
-        return taskManagerDescriptions;
-
+        return webAddress;
     }
 
-    private List<ApplicationId> acquireApplicationIds(YarnClient yarnClient) {
-        try {
-            Set<String> set = new HashSet<>();
-            set.add(APP_TYPE);
-            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
-            enumSet.add(YarnApplicationState.RUNNING);
-            List<ApplicationReport> reportList = yarnClient.getApplications(set, enumSet);
-            List<ApplicationId> applicationIds = new ArrayList<>();
-            for (ApplicationReport report : reportList) {
-                if (!report.getName().startsWith(DEFAULT_APP_NAME_PREFIX)) {
-                    continue;
-                }
-                applicationIds.add(report.getApplicationId());
-            }
-            return applicationIds;
-        } catch (Exception e) {
-            throw new RdosDefineException(e.getMessage());
-        }
+    public static void main(String[] args) throws Exception {
+
+        System.setProperty("HADOOP_USER_NAME", "admin");
+
+        // input params json file path
+        String filePath = args[0];
+        File paramsFile = new File(filePath);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(paramsFile)));
+        String request = reader.readLine();
+        Map params =  PublicUtil.jsonStrToObject(request, Map.class);
+        ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
+        JobClient jobClient = new JobClient(paramAction);
+
+        String pluginInfo = jobClient.getPluginInfo();
+        Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
+        String md5plugin = MD5Util.getMd5String(pluginInfo);
+        properties.setProperty("md5sum", md5plugin);
+
+        HadoopClient client = new HadoopClient();
+        client.init(properties);
+
+        ClusterResource clusterResource = client.getClusterResource();
+
+        System.out.println("submit success!");
+        System.out.println(clusterResource.toString());
+        System.exit(0);
     }
+
 
 }
