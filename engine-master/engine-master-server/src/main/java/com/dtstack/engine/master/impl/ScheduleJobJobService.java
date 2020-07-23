@@ -1,7 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.annotation.Forbidden;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.vo.ScheduleJobVO;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -255,7 +253,6 @@ public class ScheduleJobJobService {
         return vo;
     }
 
-    @Forbidden
     public com.dtstack.engine.master.vo.ScheduleJobVO getOffSpring(ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap, Map<Long, ScheduleTaskShade> idTaskMap, boolean isSubTask) {
         ScheduleJob job = keyJobMap.get(root.getJobKey());
         com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
@@ -403,7 +400,6 @@ public class ScheduleJobJobService {
         return vo;
     }
 
-    @Forbidden
     public List<ScheduleJobJob> getJobChild(String parentJobKey) {
         return scheduleJobJobDao.listByParentJobKey(parentJobKey);
     }

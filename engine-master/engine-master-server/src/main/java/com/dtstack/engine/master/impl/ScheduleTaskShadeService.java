@@ -1,8 +1,6 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.annotation.Forbidden;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
@@ -77,7 +75,6 @@ public class ScheduleTaskShadeService {
         scheduleTaskTaskShadeService.clearDataByTaskId(taskId,appType);
     }
 
-    @Forbidden
     public List<ScheduleTaskShade> listTaskByType(Long projectId, Integer taskType, String taskName) {
         return scheduleTaskShadeDao.listByType(projectId, taskType, taskName);
     }
@@ -85,12 +82,10 @@ public class ScheduleTaskShadeService {
     /**
      * 获取所有需要需要生成调度的task 没有sqlText字段
      */
-    @Forbidden
     public List<ScheduleTaskShade> listTaskByStatus(Long startId, Integer submitStatus, Integer projectSubmitStatus, Integer batchTaskSize) {
         return scheduleTaskShadeDao.listTaskByStatus(startId, submitStatus, projectSubmitStatus, batchTaskSize);
     }
 
-    @Forbidden
     public Integer countTaskByStatus(Integer submitStatus, Integer projectSubmitStatus) {
         return scheduleTaskShadeDao.countTaskByStatus(submitStatus, projectSubmitStatus);
     }
@@ -137,7 +132,6 @@ public class ScheduleTaskShadeService {
      * @param taskIdArray
      * @return
      */
-    @Forbidden
     public List<ScheduleTaskShade> getSimpleTaskRangeAllByIds(List<Long> taskIdArray) {
         if (CollectionUtils.isEmpty(taskIdArray)) {
             return Collections.EMPTY_LIST;
@@ -179,7 +173,6 @@ public class ScheduleTaskShadeService {
      * @return
      * @see JobGraphBuilder#getSelfDependencyJobKeys(com.dtstack.task.domain.BatchJob, com.dtstack.task.server.parser.ScheduleCron, java.lang.String)
      */
-    @Forbidden
     public String getTaskNameByJobKey(String jobKey,Integer appType) {
         String[] jobKeySplit = jobKey.split("_");
         if (jobKeySplit.length < 3) {
@@ -370,7 +363,6 @@ public class ScheduleTaskShadeService {
     }
 
 
-    @Forbidden
     private List<Integer> convertStringToList(String str) {
         if(StringUtils.isBlank(str)){
             return new ArrayList<>();
@@ -492,7 +484,6 @@ public class ScheduleTaskShadeService {
         return scheduleTaskShadeDao.listByTaskIdsNotIn(projectId, taskId);
     }
 
-    @Forbidden
     public ScheduleTaskShade getById(Long id ){
         return scheduleTaskShadeDao.getById(id);
     }

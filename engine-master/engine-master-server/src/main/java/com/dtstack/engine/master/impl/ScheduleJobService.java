@@ -2,8 +2,6 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.annotation.Forbidden;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.api.dto.ScheduleJobDTO;
@@ -168,7 +166,6 @@ public class ScheduleJobService {
         return scheduleJobDao.getOne(jobId);
     }
 
-    @Forbidden
     public ScheduleJob getJobByJobKeyAndType(String jobKey, int type) {
         return scheduleJobDao.getByJobKeyAndType(jobKey, type);
     }
@@ -352,7 +349,6 @@ public class ScheduleJobService {
         return scheduleJobDao.countScienceJobStatus(runStatus, projectIds, type, convertStringToList(taskType), tenantId,cycStartTime,cycEndTime);
     }
 
-    @Forbidden
     private List<Object> finishData(List<Map<String, Object>> metadata) {
         Map<String, Long> dataMap = new HashMap<>();
         List<Object> dataList = new ArrayList<>();
@@ -846,7 +842,6 @@ public class ScheduleJobService {
         }
     }
 
-    @Forbidden
     private void setBizDay(ScheduleJobDTO batchJobDTO, Long bizStartDay, Long bizEndDay, Long tenantId, Long projectId) {
         if (bizStartDay != null && bizEndDay != null) {
             String bizStart = dayFormatterAll.print(getTime(bizStartDay * 1000, 0).getTime());
@@ -859,7 +854,6 @@ public class ScheduleJobService {
         }
     }
 
-    @Forbidden
     private void setCycDay(ScheduleJobDTO batchJobDTO, Long cycStartDay, Long cycEndDay, Long tenantId, Long projectId) {
         if (cycStartDay != null && cycEndDay != null) {
             String cycStart = dayFormatterAll.print(getCycTime(cycStartDay * 1000).getTime());
@@ -887,7 +881,6 @@ public class ScheduleJobService {
         return new Timestamp(calendar.getTimeInMillis());
     }
 
-    @Forbidden
     private List<Integer> convertStringToList(String str) {
         List<Integer> resultList = new ArrayList<>();
         if (StringUtils.isNotBlank(str)) {
@@ -935,7 +928,6 @@ public class ScheduleJobService {
         return details;
     }
 
-    @Forbidden
     public Integer updateStatusAndLogInfoById(Long id, Integer status, String msg) {
         if (StringUtils.isNotBlank(msg) && msg.length() > 500) {
             msg = msg.substring(0, 500) + "...";
@@ -943,19 +935,16 @@ public class ScheduleJobService {
         return scheduleJobDao.updateStatusAndLogInfoById(id, status, msg);
     }
 
-    @Forbidden
     public Integer updateStatusByJobId(String jobId, Integer status) {
         return scheduleJobDao.updateStatusByJobId(jobId, status, null);
     }
 
-    @Forbidden
     public Long startJob(ScheduleJob scheduleJob) throws Exception {
         sendTaskStartTrigger(scheduleJob);
         return scheduleJob.getId();
     }
 
 
-    @Forbidden
     public Integer updateStatusWithExecTime(ScheduleJob updateJob) {
         if(Objects.isNull(updateJob) || Objects.isNull(updateJob.getJobId()) || Objects.isNull(updateJob.getAppType())){
             return 0;
@@ -1195,7 +1184,6 @@ public class ScheduleJobService {
      * @return
      * @throws IOException
      */
-    @Forbidden
     @Deprecated
     public String stopSubmittedJob(List<ScheduleJob> scheduleJobList, Long dtuicTenantId, Integer appType) throws Exception {
 
@@ -1247,7 +1235,6 @@ public class ScheduleJobService {
     /**
      * jobSize 在负载均衡时 区分 scheduleType（正常调度 和 补数据）
      */
-    @Forbidden
     @Transactional(rollbackFor = Exception.class)
     public void insertJobList(Collection<ScheduleBatchJob> batchJobCollection, Integer scheduleType) {
         if (CollectionUtils.isEmpty(batchJobCollection)) {
@@ -1325,7 +1312,6 @@ public class ScheduleJobService {
      *
      * @param batchJobList
      */
-    @Forbidden
     @Transactional
     public void updateJobListForRestart(List<ScheduleBatchJob> batchJobList) {
 
@@ -2093,7 +2079,6 @@ public class ScheduleJobService {
     }
 
 
-    @Forbidden
     public Long getTaskIdFromJobKey(String jobKey) {
         String[] strings = jobKey.split("_");
         if (strings.length < 2) {
@@ -2110,7 +2095,6 @@ public class ScheduleJobService {
         }
     }
 
-    @Forbidden
     public String getJobTriggerTimeFromJobKey(String jobKey) {
         String[] strings = jobKey.split("_");
         if (strings.length < 1) {
@@ -2127,7 +2111,6 @@ public class ScheduleJobService {
         return timeStr.substring(0, 8);
     }
 
-    @Forbidden
     public List<Long> getJobByTaskIdAndStatus(Long taskId, List<Integer> statusList, Integer appType) {
         return scheduleJobDao.listIdByTaskIdAndStatus(taskId, statusList, appType);
     }
@@ -2188,7 +2171,6 @@ public class ScheduleJobService {
      * @param jobId
      * @return
      */
-    @Forbidden
     public List<ScheduleJob> getSubJobsAndStatusByFlowId(String jobId) {
         return scheduleJobDao.getSubJobsAndStatusByFlowId(jobId);
     }
@@ -2199,7 +2181,6 @@ public class ScheduleJobService {
      * @param jobId 工作流jobId
      * @return
      */
-    @Forbidden
     public ScheduleJob getWorkFlowTopNode(String jobId) {
         return scheduleJobDao.getWorkFlowTopNode(jobId);
     }
@@ -2302,7 +2283,6 @@ public class ScheduleJobService {
         return scheduleJobDao.getByJobId(jobId, isDeleted);
     }
 
-    @Forbidden
     public Integer getJobStatus(String jobId){
         ScheduleJob job = scheduleJobDao.getRdosJobByJobId(jobId);
         if (Objects.isNull(job)) {
@@ -2490,7 +2470,6 @@ public class ScheduleJobService {
      *
      * @return
      */
-    @Forbidden
     public JSONObject getLogInfoFromEngine(String jobId) {
         try {
             String log = actionService.log(jobId, ComputeType.BATCH.getType());

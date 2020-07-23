@@ -1,6 +1,5 @@
 package com.dtstack.engine.api.service;
 
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.dto.ScheduleJobDTO;
 import com.dtstack.engine.api.dto.QueryJobDTO;

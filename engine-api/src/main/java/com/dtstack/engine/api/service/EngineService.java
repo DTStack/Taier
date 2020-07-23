@@ -1,6 +1,5 @@
 package com.dtstack.engine.api.service;
 
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.vo.QueueVO;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.RequestLine;

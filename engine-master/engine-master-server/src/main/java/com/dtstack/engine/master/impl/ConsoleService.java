@@ -1,11 +1,9 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -87,7 +85,6 @@ public class ConsoleService {
 
     private static long DELAULT_TENANT  = -1L;
 
-    @Forbidden
     public Boolean finishJob(String jobId, Integer status) {
         if (!RdosTaskStatus.isStopped(status)) {
             logger.warn("Job status：" + status + " is not stopped status");
@@ -419,7 +416,6 @@ public class ConsoleService {
         return getResources(yarnComponent, cluster);
     }
 
-    @Forbidden
     public Map<String, Object> getResources(Component yarnComponent, Cluster cluster) {
         Map<String, Object> clusterResources = new HashMap<>(2);
         try {
