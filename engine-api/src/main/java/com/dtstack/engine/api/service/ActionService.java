@@ -93,5 +93,6 @@ public interface ActionService extends DtInsightServer {
     @RequestLine("POST /node/action/listJobStatusByJobIds")
     List<Map<String, Object>> listJobStatusByJobIds( List<String> jobIds) throws Exception;
 
-    public String generateUniqueSign();
+    @RequestLine("POST /node/action/generateUniqueSign")
+    String generateUniqueSign();
 }
