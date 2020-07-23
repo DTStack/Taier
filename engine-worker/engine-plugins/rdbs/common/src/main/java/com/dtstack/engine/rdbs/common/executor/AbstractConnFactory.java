@@ -68,6 +68,8 @@ public abstract class AbstractConnFactory {
                     Map<String, Object> yarnMap = (Map<String, Object>) config.get("yarnConf");
                     yarnConf = KerberosUtils.convertMapConfToConfiguration(yarnMap);
                 }
+            } else {
+                baseConfig = new BaseConfig();
             }
             testConn();
         } catch (Exception e) {
