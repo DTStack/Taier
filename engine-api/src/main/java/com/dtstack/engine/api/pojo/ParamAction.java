@@ -1,5 +1,6 @@
 package com.dtstack.engine.api.pojo;
 
+import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.ApiModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -298,4 +299,16 @@ public class ParamAction {
         this.dtuicTenantId = dtuicTenantId;
     }
 
+	@Override
+    public String toString() {
+	    String jsonStr = "";
+	    try{
+            jsonStr = JSONObject.toJSONString(this);
+        }catch (Exception e){
+	        //不应该发生
+            logger.error("", e);
+        }
+
+        return jsonStr;
+    }
 }

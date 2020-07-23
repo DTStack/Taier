@@ -2,7 +2,7 @@ package com.dtstack.engine.master.router.cache;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.master.utils.PublicUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
@@ -93,7 +93,7 @@ public class ConsoleCache implements InitializingBean {
                     data = objectMapper.readValue(result.toString(), Map.class);
                     if (data != null) {
                         if (PublicUtil.isJavaBaseType(cla)) {
-                            return (T) PublicUtil.ClassConvter(cla, data.get(key));
+                            return (T) PublicUtil.classConvter(cla, data.get(key));
                         } else if (Map.class.equals(cla)) {
                             return (T) data.get(key);
                         } else {
