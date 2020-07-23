@@ -1,14 +1,18 @@
 package com.dtstack.engine.api.service;
 
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.NodeMachine;
+import com.dtstack.sdk.core.common.DtInsightServer;
+import com.dtstack.sdk.core.feign.RequestLine;
 
 import java.util.List;
 
-public interface NodeMachineService {
-    @Deprecated
-    public List<NodeMachine> listByAppType( String appType);
+public interface NodeMachineService extends DtInsightServer {
 
     @Deprecated
-    public NodeMachine getByAppTypeAndMachineType( String appType,  int machineType);
+    @RequestLine("POST /node/nodeMachine/listByAppType")
+    List<NodeMachine> listByAppType(String appType);
+
+    @Deprecated
+    @RequestLine("POST /node/nodeMachine/getByAppTypeAndMachineType")
+    NodeMachine getByAppTypeAndMachineType(String appType, int machineType);
 }
