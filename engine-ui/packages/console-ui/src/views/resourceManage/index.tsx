@@ -233,7 +233,7 @@ class ResourceManage extends React.Component<any, any> {
                                 label='集群'
                             >
                                 <Select
-                                    className='cluster-select'
+                                    className="dt-form-shadow-bg"
                                     style={{ width: '180px' }}
                                     placeholder='请选择集群'
                                     value={`${queryParams.clusterId}`}

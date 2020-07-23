@@ -17,7 +17,7 @@
         }
     },
     "plugins": [
-        ["import", { "libraryName": "antd", "style": true }],
+        ["import", { "libraryName": "antd", "style": false }],
         "@babel/transform-runtime",
         ["@babel/plugin-proposal-decorators",{"legacy": true}],
         "@babel/plugin-syntax-dynamic-import",

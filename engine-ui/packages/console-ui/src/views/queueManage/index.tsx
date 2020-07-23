@@ -309,7 +309,7 @@ class QueueManage extends React.Component<any, any> {
                 <div style={{ margin: '20px' }}>
                     集群：
                     <Select
-                        size="large"
+                        className="dt-form-shadow-bg"
                         style={{ width: 150, marginRight: '10px' }}
                         placeholder="选择集群"
                         onChange={this.clusterOptionChange.bind(this)}
@@ -319,9 +319,9 @@ class QueueManage extends React.Component<any, any> {
                             this.getClusterOptionView()
                         }
                     </Select>
-                        节点：
+                    节点：
                     <Select
-                        size="large"
+                        className="dt-form-shadow-bg"
                         style={{ width: 150 }}
                         placeholder="选择节点"
                         allowClear={true}
@@ -340,11 +340,11 @@ class QueueManage extends React.Component<any, any> {
                 <Card
                     style={{ marginTop: '0px' }}
                     className="box-1"
-                    noHovering
+                    hoverable
                 >
                     <Table
                         rowKey={(record: any) => {
-                            return record.clusterId
+                            return `queueManage-${record.clusterId}`
                         }}
                         className="m-table s-table"
                         loading={loading}

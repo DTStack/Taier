@@ -181,7 +181,7 @@ class BindCommModal extends React.Component<any, any> {
                                         label="资源队列"
                                         {...formItemLayout}
                                     >
-                                        {getFieldDecorator('queueId', null)(
+                                        {getFieldDecorator('queueId')(
                                             <Select
                                                 allowClear
                                                 placeholder='请选择资源队列'

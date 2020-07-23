@@ -714,7 +714,7 @@ class EditCluster extends React.Component<any, any> {
                                         </div>}
                                         <Card
                                             className="c-editCluster__container__card console-tabs cluster-tab-width"
-                                            noHovering
+                                            hoverable
                                         >
                                             <Tabs
                                                 tabPosition="left"

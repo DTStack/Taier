@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { get } from 'lodash';
 import { Modal, Form, Select, Alert, Button, Input } from 'antd';
-import { FormProps } from 'antd/lib/form/Form';
+import { FormComponentProps } from 'antd/lib/form/Form';
 import { formItemLayout } from '../../../consts';
 
 const Option = Select.Option;
 
-interface IProps extends FormProps {
+interface IProps extends FormComponentProps {
     title: string;
     data: object;
     userList: any[];

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { hashHistory } from 'react-router';
-import { Card, Table, Button, message, Popconfirm } from 'antd';
+import { Table, Button, message, Popconfirm } from 'antd';
 import moment from 'moment';
 import AddEngineModal from '../../components/addEngineModal';
 import Api from '../../api/console'
@@ -154,22 +154,18 @@ class ClusterManage extends React.Component<any, any> {
                     <span className="c-clusterManage__title__span">多集群管理</span>
                     <Button className="c-clusterManage__title__btn" type="primary" onClick={this.newCluster}>新增集群</Button>
                 </div>
-                <div className="contentBox m-card c-clusterManage__card">
-                    <Card
-                        noHovering
-                    >
-                        <Table
-                            rowKey={(record: any) => {
-                                return record.id
-                            }}
-                            className="m-table"
-                            pagination={this.getPagination()}
-                            loading={loading}
-                            dataSource={dataSource}
-                            columns={columns}
-                            onChange={this.handleTableChange}
-                        />
-                    </Card>
+                <div className="contentBox">
+                    <Table
+                        rowKey={(record: any, index: any) => {
+                            return `clusterManage-${record.id}`
+                        }}
+                        className="dt-table-border dt-table-last-row-noborder"
+                        pagination={this.getPagination()}
+                        loading={loading}
+                        dataSource={dataSource}
+                        columns={columns}
+                        onChange={this.handleTableChange}
+                    />
                 </div>
                 <AddEngineModal
                     key={editModalKey}

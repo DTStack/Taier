@@ -161,7 +161,7 @@ class DisplayResource extends React.Component<any, any> {
                 }
                 colon={false}
             >
-                {getFieldDecorator(`${configName}.paramsFile`, null)(
+                {getFieldDecorator(`${configName}.paramsFile`)(
                     <div>
                         {!isView && <label
                             style={{ lineHeight: '32px', textIndent: 'initial', height: 32, width: 172 }}

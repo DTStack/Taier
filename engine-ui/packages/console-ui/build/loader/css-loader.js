@@ -1,6 +1,5 @@
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const MY_PATH = require('../consts');
-const theme = require('dt-common/src/theme')(MY_PATH.BASE_NAME);
 
 module.exports = {
   dev: [
@@ -52,7 +51,6 @@ module.exports = {
           loader: "less-loader",
           options: {
             sourceMap: true,
-            modifyVars: theme,
             javascriptEnabled: true
           }
         }
@@ -106,7 +104,6 @@ module.exports = {
           loader: "less-loader",
           options: {
             sourceMap: false,
-            modifyVars: theme,
             javascriptEnabled: true,
           }
         }
