@@ -1,6 +1,5 @@
 package com.dtstack.engine.api.service;
 
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 
@@ -79,5 +78,5 @@ public interface ActionService {
 
     public List<Map<String, Object>> listJobStatusByJobIds( List<String> jobIds) throws Exception;
 
-
+    public String generateUniqueSign();
 }

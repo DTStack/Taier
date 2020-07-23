@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.config;
 
-import com.alibaba.druid.pool.DruidDataSource;
 import com.dtstack.engine.master.env.EnvironmentContext;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -18,6 +18,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
+import java.beans.PropertyVetoException;
 
 /**
  * company: www.dtstack.com
@@ -34,21 +35,19 @@ public class MybatisConfig {
     private EnvironmentContext environmentContext;
 
     @Primary
-    @Bean(name = "dataSource", destroyMethod = "close", initMethod = "init")
-    public DataSource dataSource() {
-        DruidDataSource dataSource = new DruidDataSource();
-        dataSource.setDriverClassName(environmentContext.getJdbcDriverClassName());
-        dataSource.setUrl(environmentContext.getJdbcUrl());
-        dataSource.setUsername(environmentContext.getJdbcUser());
+    @Bean(name = "dataSource")
+    public DataSource dataSource() throws PropertyVetoException {
+        ComboPooledDataSource dataSource = new ComboPooledDataSource();
+        dataSource.setDriverClass(environmentContext.getJdbcDriverClassName());
+        dataSource.setJdbcUrl(environmentContext.getJdbcUrl());
+        dataSource.setUser(environmentContext.getJdbcUser());
         dataSource.setPassword(environmentContext.getJdbcPassword());
-        dataSource.setMaxActive(environmentContext.getMaxPoolSize());
-        dataSource.setMinIdle(environmentContext.getMinPoolSize());
-        dataSource.setInitialSize(environmentContext.getInitialPoolSize());
-        dataSource.setTimeBetweenEvictionRunsMillis(environmentContext.getCheckTimeout());
-        dataSource.setMaxWait(environmentContext.getMaxWait());
-        dataSource.setTestOnBorrow(true);
-        dataSource.setTestOnReturn(true);
-        dataSource.setTestWhileIdle(true);
+        dataSource.setMaxPoolSize(environmentContext.getMaxPoolSize());
+        dataSource.setMinPoolSize(environmentContext.getMinPoolSize());
+        dataSource.setInitialPoolSize(environmentContext.getInitialPoolSize());
+        dataSource.setCheckoutTimeout(environmentContext.getCheckTimeout());
+        dataSource.setTestConnectionOnCheckin(true);
+        dataSource.setTestConnectionOnCheckout(true);
         return dataSource;
     }
 

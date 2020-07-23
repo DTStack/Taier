@@ -23,7 +23,7 @@ public class MysqlDataConnPool {
 
     private static final Logger LOG = LoggerFactory.getLogger(MysqlDataConnPool.class);
 
-    private static final String DRIVER_NAME = "com.mysql.cj.jdbc.Driver";
+    private static final String DRIVER_NAME = "com.mysql.jdbc.Driver";
 
     private static Map<String, String> dbConfig;
 

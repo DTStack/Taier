@@ -145,4 +145,9 @@ public class ActionController implements com.dtstack.engine.api.service.ActionSe
     public List<Map<String, Object>> listJobStatus(@DtRequestParam("time") Long time) {
         return actionService.listJobStatus(time);
     }
+
+    @RequestMapping(value="/generateUniqueSign", method = {RequestMethod.POST, RequestMethod.GET})
+    public String generateUniqueSign() {
+        return actionService.generateUniqueSign();
+    }
 }
