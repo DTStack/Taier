@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/node/engine")
 @Api(value = "/node/engine", tags = {"引擎接口"})
-public class EngineController implements com.dtstack.engine.api.service.EngineService {
+public class EngineController {
 
     @Autowired
     private EngineService engineService;

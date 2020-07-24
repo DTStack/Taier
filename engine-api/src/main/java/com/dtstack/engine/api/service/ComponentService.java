@@ -6,7 +6,9 @@ import com.dtstack.engine.api.dto.Resource;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.ComponentVO;
+import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
+import com.dtstack.sdk.core.feign.Param;
 import com.dtstack.sdk.core.feign.RequestLine;
 
 import java.io.File;
@@ -22,19 +24,19 @@ public interface ComponentService extends DtInsightServer {
      * }
      */
     @RequestLine("POST /node/component/listConfigOfComponents")
-    String listConfigOfComponents( Long dtUicTenantId,  Integer engineType);
+    ApiResponse<String> listConfigOfComponents(@Param("tenantId") Long dtUicTenantId, @Param("engineType") Integer engineType);
 
     @RequestLine("POST /node/component/getOne")
-    Component getOne( Long id);
+    ApiResponse<Component> getOne(@Param("id") Long id);
 
     @RequestLine("POST /node/component/getKerberosConfig")
-    KerberosConfig getKerberosConfig( Long clusterId,  Integer componentType);
+    ApiResponse<KerberosConfig> getKerberosConfig(@Param("clusterId") Long clusterId, @Param("componentType") Integer componentType);
 
     @RequestLine("POST /node/component/addOrUpdateComponent")
-    ComponentVO addOrUpdateComponent( Long clusterId,  String componentConfig,
-                                      List<Resource> resources,  String hadoopVersion,
-                                      String kerberosFileName,  String componentTemplate,
-                                      Integer componentCode);
+    ApiResponse<ComponentVO> addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("componentConfig") String componentConfig,
+                                                  @Param("resources") List<Resource> resources, @Param("hadoopVersion") String hadoopVersion,
+                                                  @Param("kerberosFileName") String kerberosFileName, @Param("componentTemplate") String componentTemplate,
+                                                  @Param("componentCode") Integer componentCode);
 
     /**
      * 移除kerberos配置
@@ -42,11 +44,11 @@ public interface ComponentService extends DtInsightServer {
      * @param componentId
      */
     @RequestLine("POST /node/component/closeKerberos")
-    void closeKerberos( Long componentId);
+    ApiResponse closeKerberos(@Param("componentId") Long componentId);
 
 
     @RequestLine("POST /node/component/addOrCheckClusterWithName")
-    Map<String, Object> addOrCheckClusterWithName( String clusterName);
+    ApiResponse<Map<String, Object>> addOrCheckClusterWithName(@Param("clusterName") String clusterName);
 
     /**
      * parse zip中xml或者json
@@ -55,7 +57,7 @@ public interface ComponentService extends DtInsightServer {
      * @return
      */
     @RequestLine("POST /node/component/config")
-    List<Object> config( List<Resource> resources,  Integer componentType, Boolean autoDelete);
+    ApiResponse<List<Object>> config(@Param("resources") List<Resource> resources, @Param("componentType") Integer componentType, @Param("autoDelete") Boolean autoDelete);
 
     /**
      * 下载文件
@@ -65,8 +67,8 @@ public interface ComponentService extends DtInsightServer {
      * @return
      */
     @RequestLine("POST /node/component/downloadFile")
-    File downloadFile( Long componentId,  Integer downloadType,  Integer componentType,
-                       String hadoopVersion,  String clusterName);
+    ApiResponse<File>downloadFile(@Param("componentId") Long componentId, @Param("type") Integer downloadType, @Param("componentType") Integer componentType,
+                                  @Param("hadoopVersion") String hadoopVersion, @Param("clusterName") String clusterName);
 
     /**
      * 加载各个组件的默认值
@@ -76,7 +78,7 @@ public interface ComponentService extends DtInsightServer {
      * @return
      */
     @RequestLine("POST /node/component/loadTemplate")
-    List<ClientTemplate> loadTemplate( Integer componentType,  String clusterName,  String version);
+    ApiResponse<List<ClientTemplate>> loadTemplate(@Param("componentType") Integer componentType, @Param("clusterName") String clusterName, @Param("version") String version);
 
 
     /**
@@ -85,14 +87,14 @@ public interface ComponentService extends DtInsightServer {
      * @param componentIds
      */
     @RequestLine("POST /node/component/delete")
-    void delete( List<Long> componentIds);
+    ApiResponse delete( @Param("componentIds") List<Long> componentIds);
 
     /***
      * 获取对应的组件版本信息
      * @return
      */
     @RequestLine("POST /node/component/getComponentVersion")
-    Map getComponentVersion();
+    ApiResponse<Map> getComponentVersion();
 
     /**
      * 测试所有组件连通性
@@ -100,6 +102,6 @@ public interface ComponentService extends DtInsightServer {
      * @return
      */
     @RequestLine("POST /node/component/testConnects")
-    List<ComponentTestResult> testConnects( String clusterName);
+    ApiResponse<List<ComponentTestResult>> testConnects(@Param("clusterName") String clusterName);
 
 }

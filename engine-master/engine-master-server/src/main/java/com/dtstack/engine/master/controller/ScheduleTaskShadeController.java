@@ -20,7 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/node/scheduleTaskShade")
 @Api(value = "/node/scheduleTaskShade", tags = {"任务接口"})
-public class ScheduleTaskShadeController implements com.dtstack.engine.api.service.ScheduleTaskShadeService {
+public class ScheduleTaskShadeController {
 
     @Autowired
     private ScheduleTaskShadeService scheduleTaskShadeService;

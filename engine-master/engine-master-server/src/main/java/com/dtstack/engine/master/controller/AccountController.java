@@ -16,7 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/node/account")
 @Api(value = "/node/account", tags = {"账户接口"})
-public class AccountController implements com.dtstack.engine.api.service.AccountService {
+public class AccountController {
 
     @Autowired
     private AccountService accountService;

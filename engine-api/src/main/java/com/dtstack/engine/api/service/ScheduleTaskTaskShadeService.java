@@ -2,9 +2,10 @@ package com.dtstack.engine.api.service;
 
 import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
+import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
+import com.dtstack.sdk.core.feign.Param;
 import com.dtstack.sdk.core.feign.RequestLine;
-
 
 import java.util.*;
 
@@ -16,21 +17,21 @@ import java.util.*;
 public interface ScheduleTaskTaskShadeService extends DtInsightServer {
 
     @RequestLine("POST /node/scheduleTaskTaskShade/clearDataByTaskId")
-    void clearDataByTaskId(Long taskId, Integer appType);
+    ApiResponse clearDataByTaskId(@Param("taskId") Long taskId, @Param("appType") Integer appType);
 
     @RequestLine("POST /node/scheduleTaskTaskShade/saveTaskTaskList")
-    void saveTaskTaskList(String taskLists);
+    ApiResponse saveTaskTaskList(@Param("taskLists") String taskLists);
 
     @RequestLine("POST /node/scheduleTaskTaskShade/getAllParentTask")
-    List<ScheduleTaskTaskShade> getAllParentTask(Long taskId);
+    ApiResponse<List<ScheduleTaskTaskShade>> getAllParentTask(@Param("taskId") Long taskId);
 
 
     @RequestLine("POST /node/scheduleTaskTaskShade/displayOffSpring")
-    ScheduleTaskVO displayOffSpring(Long taskId,
-                                    Long projectId,
-                                    Long userId,
-                                    Integer level,
-                                    Integer directType, Integer appType);
+    ApiResponse<ScheduleTaskVO> displayOffSpring(@Param("taskId") Long taskId,
+                                                 @Param("projectId") Long projectId,
+                                                 @Param("userId") Long userId,
+                                                 @Param("level") Integer level,
+                                                 @Param("directType") Integer directType, @Param("appType") Integer appType);
 
     /**
      * 查询工作流全部节点信息 -- 依赖树
@@ -39,5 +40,5 @@ public interface ScheduleTaskTaskShadeService extends DtInsightServer {
      * @return
      */
     @RequestLine("POST /node/scheduleTaskTaskShade/getAllFlowSubTasks")
-    ScheduleTaskVO getAllFlowSubTasks(Long taskId, Integer appType);
+    ApiResponse<ScheduleTaskVO> getAllFlowSubTasks(@Param("taskId") Long taskId, @Param("appType") Integer appType);
 }

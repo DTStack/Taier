@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/node/tenant")
 @Api(value = "/node/tenant", tags = {"租户接口"})
-public class TenantController implements com.dtstack.engine.api.service.TenantService {
+public class TenantController {
     @Autowired
     private TenantService tenantService;
 

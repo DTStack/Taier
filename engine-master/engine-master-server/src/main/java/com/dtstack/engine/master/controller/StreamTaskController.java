@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/node/streamTask")
 @Api(value = "/node/streamTask", tags = {"流任务接口"})
-public class StreamTaskController implements StreamTaskService {
+public class StreamTaskController {
 
     @Autowired
     private StreamTaskController streamTaskController;
