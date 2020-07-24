@@ -28,7 +28,7 @@ public class DtArgumentResolver implements HandlerMethodArgumentResolver {
 
         DtRequestParam requestParam = methodParameter.getParameterAnnotation(DtRequestParam.class);
         String paramName = requestParam.name();
-        if (StringUtils.isNotBlank(paramName)) {
+        if (StringUtils.isBlank(paramName)) {
             paramName = methodParameter.getParameterName();
         }
 
