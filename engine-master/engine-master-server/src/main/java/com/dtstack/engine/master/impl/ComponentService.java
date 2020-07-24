@@ -2,8 +2,6 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.annotation.Forbidden;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ClusterDTO;
@@ -31,7 +29,7 @@ import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.utils.FileUtil;
-import com.dtstack.engine.master.utils.PublicUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.utils.XmlFileUtil;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
@@ -40,7 +38,6 @@ import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import com.dtstack.schedule.common.util.ZipUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kerby.kerberos.kerb.keytab.Keytab;
@@ -191,7 +188,6 @@ public class ComponentService {
         return component;
     }
 
-    @Forbidden
     public String getSftpClusterKey(Long clusterId) {
         Cluster one = clusterDao.getOne(clusterId);
         if(Objects.isNull(one)){
@@ -200,7 +196,6 @@ public class ComponentService {
         return AppType.CONSOLE.name() + "_" + one.getClusterName();
     }
 
-    @Forbidden
     public Map<String, Object> fillKerberosConfig(String allConfString, Long clusterId) {
         JSONObject allConf = JSONObject.parseObject(allConfString);
         allConf.putAll(KerberosConfigVerify.replaceFilePath(allConf, getClusterLocalKerberosDir(clusterId)));
@@ -214,7 +209,6 @@ public class ComponentService {
     /**
      * 更新缓存
      */
-    @Forbidden
     public void updateCache(Long engineId, Integer componentCode) {
         Set<Long> dtUicTenantIds = new HashSet<>();
         if (Objects.nonNull(componentCode) && (
@@ -254,7 +248,6 @@ public class ComponentService {
         clusterService.clearPluginInfoCache();
     }
 
-    @Forbidden
     public List<Component> listComponent(Long engineId) {
         return componentDao.listByEngineId(engineId);
     }
@@ -324,12 +317,10 @@ public class ComponentService {
         }
     }
 
-    @Forbidden
     public String getClusterLocalKerberosDir(Long clusterId) {
         return env.getLocalKerberosDir() + File.separator + getSftpClusterKey(clusterId);
     }
 
-    @Forbidden
     public void addComponentWithConfig(Long engineId, String confName, JSONObject config) {
         EComponentType type = EComponentType.getByConfName(confName);
 
@@ -420,7 +411,6 @@ public class ComponentService {
         return kerberosConfig;
     }
 
-    @Forbidden
     public Map<String, String> getSFTPConfig(Long clusterId) {
         Engine hadoopEngine = getEngineByClusterId(clusterId);
         Component sftpComponent = componentDao.getByEngineIdAndComponentType(hadoopEngine.getId(), EComponentType.SFTP.getTypeCode());
@@ -903,7 +893,6 @@ public class ComponentService {
     }
 
 
-    @Forbidden
     public String buildSftpPath(Long clusterId, Integer componentCode) {
         Cluster one = clusterDao.getOne(clusterId);
         if(Objects.isNull(one)){
@@ -916,7 +905,6 @@ public class ComponentService {
     /**
      * 测试单个组件联通性
      */
-    @Forbidden
     public ComponentTestResult testConnect(Integer componentType, String componentConfig, String clusterName,
                                             String hadoopVersion, Long engineId, KerberosConfig kerberosConfig, Map<String, String> sftpConfig) {
         if (EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))) {
@@ -1038,7 +1026,6 @@ public class ComponentService {
      * @param componentCode
      * @return
      */
-    @Forbidden
     public String getLocalKerberosPath(Long clusterId, Integer componentCode) {
         Cluster one = clusterDao.getOne(clusterId);
         if(Objects.isNull(one)){
@@ -1211,7 +1198,6 @@ public class ComponentService {
      * @param version
      * @return
      */
-    @Forbidden
     public String convertComponentTypeToClient(String clusterName, Integer componentType, String version) {
         //普通rdb插件
         String pluginName = EComponentType.convertPluginNameByComponent(EComponentType.getByCode(componentType));
@@ -1304,7 +1290,6 @@ public class ComponentService {
      * @param hadoopVersion
      * @return
      */
-    @Forbidden
     private String formatHadoopVersion(String hadoopVersion) {
         if (StringUtils.isBlank(hadoopVersion)) {
             return "2";
@@ -1351,7 +1336,6 @@ public class ComponentService {
         return componentVersionMapping;
     }
 
-    @Forbidden
     public Component getComponentByClusterId(Long clusterId, Integer componentType) {
         return componentDao.getByClusterIdAndComponentType(clusterId, componentType);
     }
@@ -1427,7 +1411,6 @@ public class ComponentService {
         return testResults;
     }
 
-    @Forbidden
     public JSONObject getPluginInfoWithComponentType(Long dtuicTenantId,EComponentType componentType){
         ClusterVO cluster = clusterService.getClusterByTenant(dtuicTenantId);
 

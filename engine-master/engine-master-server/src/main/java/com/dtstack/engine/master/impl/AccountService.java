@@ -1,7 +1,6 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.Account;
 import com.dtstack.engine.api.domain.AccountTenant;
 import com.dtstack.engine.api.domain.User;
@@ -10,7 +9,6 @@ import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.AccountTenantVo;
 import com.dtstack.engine.api.vo.AccountVo;
-import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.AccountDao;
@@ -124,7 +122,6 @@ public class AccountService {
     }
 
 
-    @Forbidden
     @Transactional
     public void bindAccountTenant(AccountVo accountVo) {
         Account dbAccountByName = new Account();

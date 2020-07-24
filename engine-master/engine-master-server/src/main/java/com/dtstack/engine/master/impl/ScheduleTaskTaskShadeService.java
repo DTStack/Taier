@@ -1,8 +1,6 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.annotation.Forbidden;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.common.enums.DisplayDirect;
@@ -183,7 +181,6 @@ public class ScheduleTaskTaskShadeService {
      * @param flowId 工作流父节点id
      * @return
      */
-    @Forbidden
     private com.dtstack.engine.master.vo.ScheduleTaskVO getOnlyAllFlowSubTasks(Long flowId, Integer appType) {
         com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO();
         ScheduleTaskShade beginTaskShade = taskShadeService.getWorkFlowTopNode(flowId);
@@ -223,7 +220,6 @@ public class ScheduleTaskTaskShadeService {
      * @param directType
      * @return
      */
-    @Forbidden
     public com.dtstack.engine.master.vo.ScheduleTaskVO getFlowWorkOffSpring(ScheduleTaskShade taskShade, int level, Integer directType, Integer appType) {
         com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
         List<ScheduleTaskTaskShade> childTaskTasks = null;
@@ -240,7 +236,6 @@ public class ScheduleTaskTaskShadeService {
         return vo;
     }
 
-    @Forbidden
     public List<ScheduleTaskVO> getFlowWorkSubTasksRefTask(Set<Long> taskIds, int level, Integer directType, Integer appType) {
 
         //获得所有父节点task

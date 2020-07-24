@@ -1,8 +1,6 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.annotation.Forbidden;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ClusterDTO;
@@ -16,7 +14,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.*;
-import com.dtstack.engine.master.utils.PublicUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.Sort;
@@ -32,7 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -127,7 +124,6 @@ public class ClusterService {
         return true;
     }
 
-    @Forbidden
     @Transactional(rollbackFor = Exception.class)
     public void addDefaultCluster() throws Exception {
         Cluster cluster = new Cluster();
@@ -166,7 +162,6 @@ public class ClusterService {
 
 
 
-    @Forbidden
     public ClusterVO getClusterByName(String clusterName) {
         Cluster cluster = clusterDao.getByClusterName(clusterName);
         EngineAssert.assertTrue(cluster != null, ErrorCode.DATA_NOT_FIND.getDescription());
@@ -313,7 +308,6 @@ public class ClusterService {
         return null;
     }
 
-    @Forbidden
     public Queue getQueue(Long tenantId, Long clusterId) {
         Long queueId = engineTenantDao.getQueueIdByTenantId(tenantId);
         Queue queue = queueDao.getOne(queueId);
@@ -378,7 +372,6 @@ public class ClusterService {
         return getConfigByKey(dtUicTenantId, EComponentType.SFTP.getConfName(),false);
     }
 
-    @Forbidden
     public JSONObject buildClusterConfig(ClusterVO cluster) {
         JSONObject config = new JSONObject();
         List<SchedulingVo> scheduling = cluster.getScheduling();
@@ -397,7 +390,6 @@ public class ClusterService {
         return config;
     }
 
-    @Forbidden
     public ClusterVO getClusterByTenant(Long dtUicTenantId) {
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
         if (tenantId == null) {
@@ -516,7 +508,6 @@ public class ClusterService {
         }
     }
 
-    @Forbidden
     public Map<String, Object> getConfig(ClusterVO cluster,Long dtUicTenantId,String key) {
         JSONObject config = buildClusterConfig(cluster);
         EComponentType componentType = EComponentType.getByConfName(key);
@@ -538,7 +529,6 @@ public class ClusterService {
      * @param kerberosConfig
      * @param configObj
      */
-    @Forbidden
     public void addKerberosConfigWithHdfs(String key, ClusterVO cluster, KerberosConfig kerberosConfig, JSONObject configObj) {
         if (Objects.nonNull(kerberosConfig)) {
             KerberosConfigVO kerberosConfigVO = KerberosConfigVO.toVO(kerberosConfig);
@@ -553,7 +543,6 @@ public class ClusterService {
         }
     }
 
-    @Forbidden
     public JSONObject convertPluginInfo(JSONObject clusterConfigJson, EngineTypeComponentType type, ClusterVO clusterVO,Integer deployMode) {
         JSONObject pluginInfo = new JSONObject();
         if (EComponentType.HDFS == type.getComponentType()) {
@@ -706,7 +695,6 @@ public class ClusterService {
         return Lists.newArrayList();
     }
 
-    @Forbidden
     public Cluster getOne(Long clusterId) {
         Cluster one = clusterDao.getOne(clusterId);
         if (one == null) {

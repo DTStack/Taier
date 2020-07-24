@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

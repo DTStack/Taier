@@ -3,7 +3,6 @@ package com.dtstack.engine.master.impl;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;

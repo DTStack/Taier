@@ -1,7 +1,6 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.dao.QueueDao;
@@ -23,7 +22,6 @@ public class QueueService {
     @Autowired
     private QueueDao queueDao;
 
-    @Forbidden
     public void addDefaultQueue(Long engineId){
         Queue queue = new Queue();
         queue.setEngineId(engineId);
@@ -37,7 +35,6 @@ public class QueueService {
         queueDao.insert(queue);
     }
 
-    @Forbidden
     public void updateQueue(Long engineId, ComponentTestResult.ClusterResourceDescription description){
         List<Queue> queues = queueDao.listByEngineId(engineId);
         if(CollectionUtils.isEmpty(queues)){

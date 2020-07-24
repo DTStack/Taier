@@ -1,7 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.annotation.Forbidden;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.Engine;
 import com.dtstack.engine.api.domain.EngineTenant;
@@ -28,7 +26,6 @@ import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.router.login.domain.UserTenant;
 import com.dtstack.schedule.common.enums.Sort;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -275,7 +272,6 @@ public class TenantService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    @Forbidden
     public Tenant addTenant(Long dtUicTenantId, String dtToken){
         UserTenant userTenant = getTenantByDtUicTenantId(dtUicTenantId, dtToken);
         if(userTenant == null){
