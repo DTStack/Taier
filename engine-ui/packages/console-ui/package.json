@@ -149,6 +149,7 @@
     "ssh": "./scripts/ssh_server.sh",
     "hotfix": "./scripts/hotfix.sh --b",
     "push-dev": "./scripts/push-dev.sh",
+    "deploy-dev": "./scripts/deploy_dev.sh",
     "scp": "./scripts/scp.sh",
     "check-types": "tsc --skipLibCheck",
     "lint": "npx eslint './src/**/*.ts' './src/**/*.tsx' './src/**/*.js'",
