@@ -2,6 +2,7 @@ package com.dtstack.engine.flink;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -150,7 +151,7 @@ public class FlinkClient extends AbstractClient {
         flinkClientBuilder.initFlinkGlobalConfiguration(flinkExtProp);
 
         flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
-
+        AcceptedApplicationMonitor.start(hadoopConf.getYarnConfiguration(), flinkConfig.getQueue(), flinkConfig);
     }
 
     @Override
