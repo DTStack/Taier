@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/node/cluster")
+@RequestMapping({"/node/cluster", "/node/component/cluster"})
 @Api(value = "/node/cluster", tags = {"集群接口"})
 public class ClusterController implements com.dtstack.engine.api.service.ClusterService {
 
