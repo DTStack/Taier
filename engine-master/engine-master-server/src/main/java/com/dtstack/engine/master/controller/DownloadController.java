@@ -4,6 +4,9 @@ import com.dtstack.engine.api.service.DownloadService;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.sdk.core.common.ApiResponse;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +34,10 @@ public class DownloadController {
     private ComponentService componentService;
 
     @RequestMapping(value="/component/downloadFile", method = {RequestMethod.GET})
+    @ApiOperation(value = "下载文件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="type",value="0:kerberos配置文件 1:配置文件 2:模板文件",required=true, dataType = "int")
+    })
     public void handleDownload(@RequestParam("componentId") Long componentId, @RequestParam("type") Integer downloadType, @RequestParam("componentType") Integer componentType,
                                @RequestParam("hadoopVersion") String hadoopVersion, @RequestParam("clusterName") String clusterName, HttpServletResponse response) {
         response.setHeader("content-type", "application/octet-stream;charset=UTF-8");

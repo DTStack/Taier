@@ -46,15 +46,6 @@ public class ComponentController {
         return componentService.getKerberosConfig(clusterId, componentType);
     }
 
-
-    @RequestMapping(value="/addOrUpdateComponent", method = {RequestMethod.POST})
-    public ComponentVO addOrUpdateComponent(@RequestParam("clusterId") Long clusterId, @RequestParam("componentConfig") String componentConfig,
-                                            @RequestParam("resources") List<Resource> resources, @RequestParam("hadoopVersion") String hadoopVersion,
-                                            @RequestParam("kerberosFileName") String kerberosFileName, @RequestParam("componentTemplate") String componentTemplate,
-                                            @RequestParam("componentCode") Integer componentCode) {
-        return componentService.addOrUpdateComponent(clusterId, componentConfig, resources, hadoopVersion, kerberosFileName, componentTemplate, componentCode);
-    }
-
     @RequestMapping(value="/closeKerberos", method = {RequestMethod.POST})
     @ApiOperation(value="移除kerberos配置")
     public void closeKerberos(@DtRequestParam("componentId") Long componentId) {
@@ -64,22 +55,6 @@ public class ComponentController {
     @RequestMapping(value="/addOrCheckClusterWithName", method = {RequestMethod.POST})
     public Map<String, Object> addOrCheckClusterWithName(@DtRequestParam("clusterName") String clusterName) {
         return componentService.addOrCheckClusterWithName(clusterName);
-    }
-
-    @RequestMapping(value="/config", method = {RequestMethod.POST})
-    @ApiOperation(value = "解析zip中xml或者json")
-    public List<Object> config(@DtRequestParam("resources") List<Resource> resources, @DtRequestParam("componentType") Integer componentType,@DtRequestParam("autoDelete") Boolean autoDelete) {
-        return componentService.config(resources, componentType, autoDelete);
-    }
-
-    @RequestMapping(value="/downloadFile", method = {RequestMethod.POST})
-    @ApiOperation(value = "下载文件")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="type",value="0:kerberos配置文件 1:配置文件 2:模板文件",required=true, dataType = "int")
-    })
-    public File downloadFile(@DtRequestParam("componentId") Long componentId, @DtRequestParam("type") Integer downloadType, @DtRequestParam("componentType") Integer componentType,
-                             @DtRequestParam("hadoopVersion") String hadoopVersion, @DtRequestParam("clusterName") String clusterName) {
-        return componentService.downloadFile(componentId, downloadType, componentType, hadoopVersion, clusterName);
     }
 
 
