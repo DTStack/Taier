@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pager.PageResult;
@@ -79,6 +80,9 @@ public class ClusterServiceTest extends AbstractTest {
     @Mock
     private ConsoleCache consoleCache;
 
+    @Autowired
+    private EngineService engineService;
+
     private String testClusterName = "testcase";
 
     @Before
@@ -130,6 +134,9 @@ public class ClusterServiceTest extends AbstractTest {
      * @see ComponentService#listConfigOfComponents(java.lang.Long, java.lang.Integer)
      * @see ComponentService#getKerberosConfig(java.lang.Long, java.lang.Integer)
      * @see ComponentService#convertComponentTypeToClient(java.lang.String, java.lang.Integer, java.lang.String)
+     * @see EngineService#getQueue(java.lang.Long)
+     * @see EngineService#listSupportEngine(java.lang.Long)
+     * @see EngineService#listClusterEngines(java.lang.Long, boolean)
      */
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
@@ -193,6 +200,16 @@ public class ClusterServiceTest extends AbstractTest {
         String typeName = componentService.convertComponentTypeToClient(testClusterName, EComponentType.SPARK.getTypeCode(),"210");
         Assert.assertEquals(typeName,"yarn2-hdfs2-spark210");
 
+        //查询队列信息
+        List<QueueVO> queueVOS = engineService.getQueue(engineId);
+        Assert.assertNotNull(queueVOS);
+
+        //查询配置信息
+        JSONArray engineJson = JSONObject.parseArray(engineService.listSupportEngine(tenant.getDtUicTenantId()));
+        Assert.assertTrue(engineJson.size() > 0);
+        
+        List<EngineVO> engineVOS = engineService.listClusterEngines(clusterVO.getId(), true);
+        Assert.assertNotNull(engineVOS);
         //删除组件
         try {
             componentService.delete(Lists.newArrayList(hdfsComponent.getId().intValue()));
