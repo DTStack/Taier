@@ -12,7 +12,7 @@ import Api from '../../api/console';
 import '../../styles/main.scss';
 
 import { JobStage } from '../../consts/index';
-import Resource from '../../components/resource';
+// import Resource from '../../components/resource';
 
 const Option = Select.Option;
 
@@ -299,8 +299,7 @@ class QueueManage extends React.Component<any, any> {
     render () {
         const columns = this.initTableColumns();
         const {
-            dataSource, table, clusterId, node,
-            editModalKey, clusterList, isShowResource
+            dataSource, table, clusterId, node
         } = this.state;
         const { loading } = table;
 
@@ -333,7 +332,6 @@ class QueueManage extends React.Component<any, any> {
                         }
                     </Select>
                     <div style={{ float: 'right' }}>
-                        <Button size="large" type="primary" onClick={this.handleClickResource.bind(this)}>剩余资源</Button>
                         <Button size="large" style={{ marginLeft: '8px' }} onClick={this.getClusterDetail.bind(this)}>刷新</Button>
                     </div>
                 </div>
@@ -344,7 +342,7 @@ class QueueManage extends React.Component<any, any> {
                 >
                     <Table
                         rowKey={(record: any) => {
-                            return `queueManage-${record.clusterId}`
+                            return record.clusterId
                         }}
                         className="m-table s-table"
                         loading={loading}
@@ -354,12 +352,6 @@ class QueueManage extends React.Component<any, any> {
                     >
                     </Table>
                 </Card>
-                <Resource
-                    key={editModalKey}
-                    visible={isShowResource}
-                    onCancel={this.handleCloseResource.bind(this)}
-                    clusterList={clusterList}
-                />
             </div>
         )
     }

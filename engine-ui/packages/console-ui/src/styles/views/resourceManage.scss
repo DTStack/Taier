@@ -42,12 +42,19 @@
         margin-top: 15px;
         background: #FFFFFF;
         box-shadow: 0 0 6px 0 rgba(0,0,0,0.10);
-        .ant-card-wider-padding .ant-card-body {
-            padding: 0;
+        .console-tabs {
+            .ant-card-body {
+                padding: 0;
+            }
+            .ant-tabs-vertical.ant-tabs-left > .ant-tabs-content {
+                padding: 20px;
+            }
+            .ant-tabs-vertical.ant-tabs-left > .ant-tabs-bar {
+                margin-top: 10px;
+            }
         }
-        .tab-pane-wrapper {
-            border: 1px solid #DDDDDD;
-            margin: 20px;
+        .ant-card-wider-padding {
+            padding: 0;
         }
     }
 }

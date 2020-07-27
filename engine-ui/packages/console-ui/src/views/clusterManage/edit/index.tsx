@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, debounce } from 'lodash';
 import { hashHistory } from 'react-router';
 import {
     Form, Input, Card, Tabs, Button, message, Popconfirm } from 'antd';
@@ -686,8 +686,13 @@ class EditCluster extends React.Component<any, any> {
                                 <Input style={{ width: 340, height: 32 }} placeholder="请输入集群标识" disabled={true} />
                             )}
                         </FormItem>
-                        {isView ? <Button type="primary" className="c-editCluster__header__btn" onClick={this.turnEditComp}>编辑</Button>
-                            : <Button type="primary" className="c-editCluster__header__btn" loading={testLoading} onClick={this.handleNotSaveComps}>测试全部连通性</Button>}
+                        {isView
+                            ? <div>
+                                <Button style={{ marginRight: 10 }} onClick={debounce(this.getDataList, 500, { maxWait: 2000 })}>刷新</Button>
+                                <Button type="primary" onClick={this.turnEditComp}>编辑</Button>
+                            </div>
+                            : <Button type="primary" loading={testLoading} onClick={this.handleNotSaveComps}>测试全部连通性</Button>
+                        }
                     </div>
                     <div className="c-editCluster__container shadow">
                         <Tabs

@@ -1,270 +1,189 @@
 
 // 剩余资源
 import * as React from 'react';
-import { Modal, Select, Form, Table, Button } from 'antd';
-import { formItemLayout } from '../../consts';
+import { Table, Row, Col } from 'antd';
 import Api from '../../api/console';
 
-const Option = Select.Option;
 class Resource extends React.Component<any, any> {
     state: any = {
-        // selectHack: false,//select combobox自带bug
-        clusterName: undefined,
-        // yarn
-        yarnListSource: [],
-        // flink
-        flinkListSource: []
+        yarnListSource: []
     }
 
     componentDidMount () {
         this.getClusterResources();
     }
+
     // 获取资源信息
     getClusterResources () {
-        const { clusterName } = this.state;
+        const { clusterName } = this.props;
         Api.getClusterResources({
             clusterName: clusterName
         }).then((res: any) => {
             const yarnList = res.data ? res.data.yarn : [];
-            const flinkList = res.data ? res.data.flink : [];
             this.setState({
-                yarnListSource: yarnList,
-                flinkListSource: flinkList
+                yarnListSource: yarnList
             })
         })
-    }
-    // 改变集群
-    changeCluster (value: any) {
-        if (!value) {
-            this.setState({
-                yarnListSource: [],
-                flinkListSource: [],
-                clusterName: undefined
-            }, this.getClusterResources.bind(this))
-        } else {
-            this.setState({
-                clusterName: value
-            }, this.getClusterResources.bind(this))
-        }
     }
 
-    // 集群下拉
-    getClusterListOptionView () {
-        const { clusterList = [] } = this.props;
-        return clusterList.map((item: any, index: any) => {
-            return <Option key={item.id} value={item.clusterName}>{item.clusterName}</Option>
-        })
-    }
-    // 资源不足提示信息
-    yarnMessage = (data: any[] = []) => {
-        // virtualCores总数
-        const virtualCores = data.map((item: any) => {
-            return item.virtualCores
-        })
-        const getvirtualCores = (virtualCores: any) => {
-            let sum = 0;
-            virtualCores.forEach((val: any) => {
-                sum += val
-            })
-            return sum
-        }
-        const virtualCoresTotal = getvirtualCores(virtualCores);
-        // usedVirtualCores总数
-        const usedVirtualCores = data.map((item: any) => {
-            return item.usedVirtualCores
-        })
-        const getusedVirtualCores = (usedVirtualCores: any) => {
-            let sum = 0;
-            usedVirtualCores.forEach((val: any) => {
-                sum += val
-            })
-            return sum
-        }
-        const usedVirtualCoresTotal = getusedVirtualCores(usedVirtualCores);
-
-        // memory总数
-        const memory = data.map((item: any) => {
-            return item.memory
-        })
-        const getMemory = (memory: any) => {
-            let sum = 0;
-            memory.forEach((val: any) => {
-                sum += val
-            })
-            return sum
-        }
-        const memoryTotal = getMemory(memory);
-        // usedMemory总数
-        const usedMemory = data.map((item: any) => {
-            return item.usedMemory
-        })
-        const getUsedMemory = (usedMemory: any) => {
-            let sum = 0;
-            usedMemory.forEach((val: any) => {
-                sum += val
-            })
-            return sum
-        }
-        const usedMemoryTotal = getUsedMemory(usedMemory);
-        const coresCompar = (virtualCoresTotal - data.length) <= usedVirtualCoresTotal;
-        const memoryCompar = memoryTotal - (data.length) * 512 <= usedMemoryTotal;
-        if ((coresCompar || memoryCompar) && data.length > 0) {
-            return <p style={{ marginLeft: '40px', color: '#db5a5aed' }}>Yarn 集群计算资源不足（每个节点保留1vcore 512M）</p>
-        } else {
-            return null
-        }
-    }
-    flinkMessage = (data: any[] = []) => {
-        // freeSlots
-        const freeSlots = data.map((item: any) => {
-            return item.freeSlots
-        })
-        const getfreeSlots = (freeSlots: any) => {
-            let sum = 0;
-            freeSlots.forEach((val: any) => {
-                sum += val
-            })
-            return sum
-        }
-        const freeSlotsTotal = getfreeSlots(freeSlots);
-        if (freeSlotsTotal === 0 && data.length > 0) {
-            return <p style={{ marginLeft: '40px', color: '#db5a5aed' }}>Flink 集群计算资源不足</p>
-        } else {
-            return null
-        }
-    }
     initYarnColumns () {
         return [
+            {
+                title: 'NameManager',
+                dataIndex: 'nameManager',
+                render (text: any, record: any) {
+                    return record.nameManager || '-';
+                }
+            },
             {
                 title: 'virtualCores',
                 dataIndex: 'virtualCores',
                 render (text: any, record: any) {
                     return record.virtualCores;
-                },
-                width: '150px'
+                }
             },
             {
                 title: 'usedVirtualCores',
                 dataIndex: 'usedVirtualCores',
                 render (text: any, record: any) {
                     return record.usedVirtualCores;
-                },
-                width: '170px'
+                }
             },
             {
                 title: 'memory (M)',
                 dataIndex: 'memory',
                 render (text: any, record: any) {
                     return record.memory;
-                },
-                width: '150px'
+                }
             },
             {
                 title: 'usedMemory (M)',
                 dataIndex: 'usedMemory',
                 render (text: any, record: any) {
                     return record.usedMemory;
-                },
-                width: '160px'
+                }
             }
         ]
     }
-    initFlinkColumns () {
+
+    initSourceColumns = () => {
         return [
             {
-                title: 'freeSlots',
+                title: '资源队列',
+                dataIndex: 'name',
+                render (text: any, record: any) {
+                    return record.virtualCores;
+                }
+            },
+            {
+                title: '已使用容量',
                 dataIndex: 'freeSlots',
                 render (text: any, record: any) {
                     return record.freeSlots;
-                },
-                width: '165px'
+                }
             },
             {
-                title: 'cpuCores',
+                title: '分配容量',
                 dataIndex: 'cpuCores',
                 render (text: any, record: any) {
                     return record.cpuCores;
-                },
-                width: '155px'
+                }
             },
             {
-                title: 'slotsNumber',
+                title: '最大容量',
                 dataIndex: 'slotsNumber',
                 render (text: any, record: any) {
                     return record.slotsNumber;
-                },
-                width: '175px'
+                }
             },
             {
-                title: 'freeMemory (M)',
+                title: '最小容量',
                 dataIndex: 'freeMemory',
                 render (text: any, record: any) {
                     return record.freeMemory;
-                },
-                width: '190px'
+                }
             },
             {
-                title: 'physicalMemory (M)',
-                dataIndex: 'physicalMemory',
-                render (text: any, record: any) {
-                    return record.physicalMemory;
+                title: '查看',
+                dataIndex: 'action',
+                render (_, record: any) {
+                    return <a>资源详情</a>
                 },
-                width: '240px'
+                width: 150
             }
         ]
     }
+
+    initDefaultColumns = () => {
+        return [
+            {
+                title: 'Max Resource',
+                dataIndex: 'maxResource',
+                render (_, record: any) {
+                    return `mermory: ${record.mermory}, vCores: ${record.vCores}`;
+                }
+            },
+            {
+                title: 'Used Resource',
+                dataIndex: 'usedResource',
+                render (_, record: any) {
+                    return `mermory: ${record.mermory}, vCores: ${record.vCores}`;
+                }
+            },
+            {
+                title: 'Max AM Resource',
+                dataIndex: 'maxAmResource',
+                render (_, record: any) {
+                    return `mermory: ${record.mermory}, vCores: ${record.vCores}`;
+                }
+            },
+            {
+                title: 'Used AM Resource',
+                dataIndex: 'usedAmResource',
+                render (_, record: any) {
+                    return `mermory: ${record.mermory}, vCores: ${record.vCores}`;
+                }
+            }
+        ]
+    }
+
     render () {
         const columnsYarn = this.initYarnColumns();
-        const columnsFlink = this.initFlinkColumns();
-        const { flinkListSource, yarnListSource } = this.state;
+        const columnsSource = this.initSourceColumns();
+        const columnsDefault = this.initDefaultColumns()
+        const { yarnListSource } = this.state;
         return (
-            <div className="contentBox">
-                <Modal
-                    title="集群资源"
-                    visible={this.props.visible}
-                    onCancel={this.props.onCancel}
-                    onOk={this.props.onCancel}
-                    width="600px"
-                    className="m-card"
-                    footer={[
-                        <Button key="submit" type="primary" size="large" onClick={this.props.onCancel}>
-                        关闭
-                        </Button>
-                    ]}
-                >
-                    <Form.Item
-                        label="集群"
-                        {...formItemLayout}
-                    >
-                        <Select
-                            style={{ width: '100%' }}
-                            onChange={this.changeCluster.bind(this)}
-                            placeholder="请选择集群"
-                            value={this.state.clusterName}
-                            allowClear
-                        >
-                            {this.getClusterListOptionView()}
-                        </Select>
-                    </Form.Item>
-                    {this.yarnMessage(yarnListSource)}
-                    <Table
-                        className="m-table"
-                        style={{ margin: '0px 20px', marginTop: '10px', marginBottom: '20px' }}
-                        columns={columnsYarn}
-                        pagination={false}
-                        dataSource={yarnListSource}
-                        scroll={{ y: 200 }}
-                    />
-                    {this.flinkMessage(flinkListSource)}
-                    <Table
-                        className="m-table"
-                        style={{ margin: '0px 20px', marginTop: '10px' }}
-                        columns={columnsFlink}
-                        pagination={false}
-                        dataSource={flinkListSource}
-                        scroll={{ y: 200 }}
-                    />
-                </Modal>
+            <div style={{ padding: 20 }}>
+                <Row>
+                    <Col span={12} style={{ border: '1px solid #999', height: 150, marginRight: 20 }}>
+                    </Col>
+                    <Col span={11} style={{ border: '1px solid #999', height: 150 }}>
+                    </Col>
+                </Row>
+                <p style={{ fontSize: 16, fontWeight: 500, marginTop: 10 }}>Yarn-NameManager资源使用</p>
+                <Table
+                    className="dt-table-border dt-table-last-row-noborder"
+                    style={{ marginTop: '10px' }}
+                    columns={columnsYarn}
+                    pagination={false}
+                    dataSource={yarnListSource}
+                />
+                <p style={{ fontSize: 16, fontWeight: 500, marginTop: 10 }}>各资源队列资源使用</p>
+                <Table
+                    className="dt-table-border dt-table-last-row-noborder"
+                    style={{ marginTop: '10px' }}
+                    columns={columnsSource}
+                    pagination={false}
+                    dataSource={[]}
+                />
+                <p style={{ fontSize: 16, fontWeight: 500, marginTop: 10 }}>资源详情（default）</p>
+                <Table
+                    className="dt-table-border dt-table-last-row-noborder"
+                    style={{ marginTop: '10px' }}
+                    columns={columnsDefault}
+                    pagination={false}
+                    dataSource={[]}
+                />
             </div>
         )
     }

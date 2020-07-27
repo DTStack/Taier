@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Modal, Form, Select, Icon } from 'antd';
+import { Modal, Form, Select, Icon, Tooltip } from 'antd';
 import { debounce } from 'lodash';
 
 import API from 'dt-common/src/api';
@@ -178,7 +178,14 @@ class BindCommModal extends React.Component<any, any> {
                                 >
                                     <div className='engine-title'>Hadoop</div>
                                     <Form.Item
-                                        label="资源队列"
+                                        label={(
+                                            <span>
+                                                资源队列&nbsp;
+                                                <Tooltip title="指Yarn上分配的资源队列，若下拉列表中无全部队列，请前往“多集群管理”页面的具体集群中刷新集群">
+                                                    <Icon type="question-circle-o" />
+                                                </Tooltip>
+                                            </span>
+                                        )}
                                         {...formItemLayout}
                                     >
                                         {getFieldDecorator('queueId')(
