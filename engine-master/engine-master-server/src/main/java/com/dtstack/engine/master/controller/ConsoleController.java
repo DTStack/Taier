@@ -16,7 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/node/console")
 @Api(value = "/node/console", tags = {"控制台接口"})
-public class ConsoleController implements com.dtstack.engine.api.service.ConsoleService {
+public class ConsoleController {
 
     @Autowired
     private ConsoleService consoleService;

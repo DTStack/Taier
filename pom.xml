@@ -17,7 +17,7 @@
     </properties>
 
     <modules>
-        <module>engine-api</module>
+        <module>engine-client</module>
         <module>engine-common</module>
         <module>engine-master</module>
         <module>engine-worker</module>

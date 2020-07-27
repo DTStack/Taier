@@ -25,7 +25,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/node/component")
 @Api(value = "/node/component", tags = {"组件接口"})
-public class ComponentController implements com.dtstack.engine.api.service.ComponentService {
+public class ComponentController {
 
     @Autowired
     private ComponentService componentService;

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/node/project")
 @Api(value = "/node/project", tags = {"项目接口"})
-public class ProjectController implements com.dtstack.engine.api.service.ProjectService {
+public class ProjectController {
 
     @Autowired
     private ProjectService projectService;

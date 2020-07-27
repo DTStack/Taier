@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping("/node/nodeMachine")
 @Api(value = "/node/nodeMachine", tags = {"节点接口"})
 @Deprecated
-public class NodeMachineController implements NodeMachineService {
+public class NodeMachineController {
 
     @RequestMapping(value="/listByAppType", method = {RequestMethod.POST})
     @Deprecated

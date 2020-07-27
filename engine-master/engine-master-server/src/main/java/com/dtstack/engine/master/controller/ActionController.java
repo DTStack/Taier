@@ -15,7 +15,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/node/action")
 @Api(value = "/node/action", tags = {"任务动作接口"})
-public class ActionController implements com.dtstack.engine.api.service.ActionService {
+public class ActionController {
 
     @Autowired
     private ActionService actionService;

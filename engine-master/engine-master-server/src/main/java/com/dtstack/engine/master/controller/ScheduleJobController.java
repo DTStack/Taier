@@ -20,7 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/node/scheduleJob")
 @Api(value = "/node/scheduleJob", tags = {"任务实例接口"})
-public class ScheduleJobController implements com.dtstack.engine.api.service.ScheduleJobService {
+public class ScheduleJobController {
 
     @Autowired
     private ScheduleJobService scheduleJobService;
