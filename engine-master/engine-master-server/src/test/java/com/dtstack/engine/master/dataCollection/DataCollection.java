@@ -53,6 +53,24 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobToUnsumbittedStatus() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setEngineLog("");
+        sj.setStatus(8);
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class, method = "insertWithCustomGmt")
+    default ScheduleJob getScheduleJobIndependentWithGmt() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setGmtCreate(new Timestamp(1595822190349L));
+        sj.setGmtModified(new Timestamp(1595822190349L));
+        return sj;
+    }
+
+
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
     default ScheduleJob getScheduleJobDefiniteTaskId() {
         ScheduleJob sj = Template.getScheduleJobTemplate();
         sj.setExecTime(2000L);

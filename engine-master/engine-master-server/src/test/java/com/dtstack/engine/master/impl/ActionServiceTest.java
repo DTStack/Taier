@@ -7,7 +7,9 @@ import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.api.pojo.ParamActionExt;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.TestEngineUniqueSignDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
@@ -47,6 +49,9 @@ public class ActionServiceTest extends AbstractTest {
 
     @Autowired
     private TestEngineUniqueSignDao testEngineUniqueSignDao;
+
+    @Autowired
+    private ScheduleJobDao scheduleJobDao;
 
 
     @Before
@@ -266,6 +271,44 @@ public class ActionServiceTest extends AbstractTest {
     public void testGenerateUniqueSign() {
         String sign = actionService.generateUniqueSign();
         Assert.assertEquals(testEngineUniqueSignDao.getIdByUniqueSign(sign).size(),1);
+    }
+
+    @Test
+    public void testResetTaskStatus() {
+        ScheduleJob engineJob = DataCollection.getData().getScheduleJobToUnsumbittedStatus();
+        String jobId = engineJob.getJobId();
+        Integer computeType = engineJob.getComputeType();
+        String resultId = actionService.resetTaskStatus(jobId, computeType);
+        Assert.assertEquals(resultId, jobId);
+        ScheduleJob result = scheduleJobDao.getRdosJobByJobId(jobId);
+        Assert.assertEquals(result.getStatus(), RdosTaskStatus.UNSUBMIT.getStatus());
+    }
+
+    @Test
+    public void testListJobStatus() {
+        ScheduleJob engineJob = DataCollection.getData().getScheduleJobIndependentWithGmt();
+        try {
+            actionService.listJobStatus(null);
+            fail("Expect have a Exception");
+        } catch (Exception e) {}
+
+        try {
+            List<Map<String, Object>> result = actionService.listJobStatus(engineJob.getGmtModified().getTime());
+            Assert.assertTrue(result.size() > 0);
+        } catch (Exception e) {
+            fail("Unexpect have a Exception: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testListJobStatusByJobIds() {
+        ScheduleJob engineJob = DataCollection.getData().getScheduleJobIndependentWithGmt();
+        try {
+            List<Map<String, Object>> result = actionService.listJobStatusByJobIds(new ArrayList<>(Arrays.asList(engineJob.getJobId())));
+            Assert.assertTrue(result.size() > 0);
+        } catch (Exception e) {
+            fail("Unexpect have a Exception: " + e.getMessage());
+        }
     }
 
 
