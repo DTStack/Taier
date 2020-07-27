@@ -49,7 +49,7 @@ module.exports = {
                 secure: false
             },
             '/uic': { // UIC地址
-                target: 'http://dtuic.dtstack.net',
+                target: 'http://dtuic.dtstack.cn',
                 // target: 'http://uic.insight.cn',
                 // target: 'http://172.16.1.92:8668',
                 changeOrigin: true,

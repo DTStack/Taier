@@ -20,7 +20,8 @@ import ResourceManage from './views/resourceManage'
 import ClusterManage from './views/clusterManage'
 import EditCluster from './views/clusterManage/edit'
 import QueueManageDetail from './views/queueManage/taskDetail'
-
+import AlarmChannel from './views/alarmChannel';
+import AlarmRule from './views/alarmChannel/alarmRule'
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')
 // .then((module: any) => module.default), { name: 'testPage' })
@@ -48,6 +49,8 @@ export default (
             <Route path="resourceManage" component={ ResourceManage } />
             <Route path="clusterManage" component={ClusterManage} />
             <Route path="clusterManage/editCluster" component={ EditCluster } />
+            <Route path='alarmChannel' component={AlarmChannel} />
+            <Route path='alarmChannel/alarmRule' component={AlarmRule} />
         </Route>
         <Route path="/*" component={NotFund} />
     </Route>
