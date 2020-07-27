@@ -431,7 +431,6 @@ class TaskDetail extends React.Component<any, any> {
                                 return `taskDetail-${record.jobId}`
                             }}
                             loading={loading}
-                            // className="m-table s-table q-table detail-table"
                             className="dt-table-border"
                             pagination={this.getPagination()}
                             rowSelection={rowSelection}
