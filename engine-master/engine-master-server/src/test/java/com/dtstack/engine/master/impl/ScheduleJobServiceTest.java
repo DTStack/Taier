@@ -381,4 +381,48 @@ public class ScheduleJobServiceTest extends AbstractTest {
 
         Assert.assertTrue(execStartTime == null && execEndTime == null);
     }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testGetById() {
+        ScheduleJob job = DataCollection.getData().getScheduleJobDefiniteJobId();
+        Long id = job.getId();
+
+        ScheduleJob scheduleJob = sheduleJobService.getById(id);
+        Assert.assertEquals(scheduleJob.getJobName(), job.getJobName());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testGetByJobId() {
+        ScheduleJob job = DataCollection.getData().getScheduleJobDefiniteJobId();
+        String jobId = job.getJobId();
+
+        ScheduleJob scheduleJob = sheduleJobService.getByJobId(jobId, 0);
+        Assert.assertEquals(scheduleJob.getJobName(), job.getJobName());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testGetByIds() {
+        ScheduleJob job = DataCollection.getData().getScheduleJobDefiniteJobId();
+        Long id = job.getId();
+        Long projectId = job.getProjectId();
+        List<Long> ids = Arrays.asList(id);
+
+        List<ScheduleJob> scheduleJobs = sheduleJobService.getByIds(ids, projectId);
+        Assert.assertEquals(scheduleJobs.size(), 1);
+
+        ScheduleJob scheduleJob = scheduleJobs.get(0);
+        Assert.assertEquals(scheduleJob.getJobName(), job.getJobName());
+    }
+
+
+
+
+
+
 }

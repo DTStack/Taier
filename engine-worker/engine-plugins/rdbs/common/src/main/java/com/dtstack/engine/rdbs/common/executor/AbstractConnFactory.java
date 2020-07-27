@@ -68,6 +68,11 @@ public abstract class AbstractConnFactory {
                     Map<String, Object> yarnMap = (Map<String, Object>) config.get("yarnConf");
                     yarnConf = KerberosUtils.convertMapConfToConfiguration(yarnMap);
                 }
+                if (Objects.nonNull(properties.get("sftpConf"))) {
+                    baseConfig.setSftpConf((Map<String, String>) properties.get("sftpConf"));
+                }
+            } else {
+                baseConfig = new BaseConfig();
             }
             testConn();
         } catch (Exception e) {
