@@ -63,9 +63,13 @@ public class HiveConnFactory extends AbstractConnFactory {
 
         if (StringUtils.isNotEmpty(taskParams)) {
             for (String str : taskParams.split("\n")) {
+                if (str.startsWith("#")) {
+                    continue;
+                }
                 String[] keyAndVal = str.split("=");
                 if (keyAndVal.length > 1) {
-                    properties.setProperty(HIVE_CONF_PREFIX + keyAndVal[0], keyAndVal[1]);
+                    String newKey = keyAndVal[0].startsWith(HIVE_CONF_PREFIX) ? keyAndVal[0] : HIVE_CONF_PREFIX + keyAndVal[0];
+                    properties.setProperty(newKey, keyAndVal[1]);
                 }
             }
         }
