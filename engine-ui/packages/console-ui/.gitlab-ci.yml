@@ -15,7 +15,7 @@ stages:
   - check-types
   - test
   - build_deploy
-  - code_analysis
+  # - code_analysis
 
 # 当 merge_requests 执行 eslint 检查
 code_quality: 
@@ -58,11 +58,11 @@ build_deploy: # deploy dev environment
   only:
     - /dev/
 
-# 代码分析
-code_analysis:
-  stage: code_analysis
-  script: 
-    - npm run sonar
-  only:
-    - /dev/
+# # 代码分析
+# code_analysis:
+#   stage: code_analysis
+#   script: 
+#     - npm run sonar
+#   only:
+#     - /dev/
 

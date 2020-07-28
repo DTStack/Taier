@@ -115,7 +115,7 @@
     "mini-css-extract-plugin": "0.4.1",
     "monaco-editor-webpack-plugin": "~1.4.0",
     "node-notifier": "^5.2.1",
-    "node-sass": "4.11.0",
+    "node-sass": "^4.14.1",
     "progress-bar-webpack-plugin": "1.11.0",
     "react-test-renderer": "16.8.4",
     "replace": "1.1.5",
