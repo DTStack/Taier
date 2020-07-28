@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 public class LearningUtil {
 
@@ -28,28 +29,21 @@ public class LearningUtil {
 
         List<String> argList = new ArrayList<>();
         argList.addAll(Arrays.asList(args));
-        String taskParams = jobClient.getTaskParams();
 
-        if (StringUtils.isNotBlank(taskParams)) {
-            taskParams = taskParams.trim();
-            String[] split = taskParams.split("\n");
-            for (String s : split) {
-                if (s.startsWith("#")) {
-                    continue;
-                }
-                String[] pair = s.trim().split("=");
-                pair[0] = pair[0].replaceAll("\\.", "-");
-                if (pair[0].contains("priority")) {
-                    pair[0] = "priority";
-                    pair[1] = String.valueOf(jobClient.getPriority());
-                }
-                if (pair.length > 1) {
-                    argList.add("--" + pair[0]);
-                    argList.add(pair[1]);
-                }
+        Properties confProperties = jobClient.getConfProperties();
+        confProperties.stringPropertyNames().stream()
+                .map(String::trim)
+                .forEach(key -> {
+                    String value = confProperties.getProperty(key).trim();
+                    String newKey = key.replaceAll("\\.", "-");
 
-            }
-        }
+                    if (key.contains("priority")) {
+                        newKey = "priority";
+                        value = String.valueOf(jobClient.getPriority()).trim();
+                    }
+                    argList.add("--" + newKey);
+                    argList.add(value);
+                });
 
         //pluginInfo --> --remote-dfs-config
         if(Strings.isNotEmpty(jobClient.getPluginInfo())){
