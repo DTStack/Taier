@@ -18,6 +18,26 @@ public class BaseConfig {
 
     private String krbName;
 
+    private String principalPath;
+
+    private String principalName;
+
+    public String getPrincipalPath() {
+        return principalPath;
+    }
+
+    public void setPrincipalPath(String principalPath) {
+        this.principalPath = principalPath;
+    }
+
+    public String getPrincipalName() {
+        return principalName;
+    }
+
+    public void setPrincipalName(String principalName) {
+        this.principalName = principalName;
+    }
+
     public String getKrbName() {
         return krbName;
     }
