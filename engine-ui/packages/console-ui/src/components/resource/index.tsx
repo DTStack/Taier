@@ -1,12 +1,14 @@
 
 // 剩余资源
 import * as React from 'react';
-import { Table, Row, Col } from 'antd';
+import { Table } from 'antd';
 import Api from '../../api/console';
+import Echarts from '../../views/resourceManage/echarts';
 
 class Resource extends React.Component<any, any> {
     state: any = {
-        yarnListSource: []
+        yarnListSource: [],
+        tartget: ''
     }
 
     componentDidMount () {
@@ -151,15 +153,17 @@ class Resource extends React.Component<any, any> {
         const columnsYarn = this.initYarnColumns();
         const columnsSource = this.initSourceColumns();
         const columnsDefault = this.initDefaultColumns()
-        const { yarnListSource } = this.state;
+        const { yarnListSource, tartget } = this.state;
         return (
             <div style={{ padding: 20 }}>
-                <Row>
-                    <Col span={12} style={{ border: '1px solid #999', height: 150, marginRight: 20 }}>
-                    </Col>
-                    <Col span={11} style={{ border: '1px solid #999', height: 150 }}>
-                    </Col>
-                </Row>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <div style={{ border: '1px solid #e8e8e8', height: 150, width: '50%', marginRight: 10 }}>
+                        <Echarts name='cpu' />
+                    </div>
+                    <div style={{ border: '1px solid #e8e8e8', height: 150, width: '50%', marginLeft: 10 }}>
+                        <Echarts name='memory' />
+                    </div>
+                </div>
                 <p style={{ fontSize: 16, fontWeight: 500, marginTop: 10 }}>Yarn-NameManager资源使用</p>
                 <Table
                     className="dt-table-border dt-table-last-row-noborder"
@@ -176,14 +180,17 @@ class Resource extends React.Component<any, any> {
                     pagination={false}
                     dataSource={[]}
                 />
-                <p style={{ fontSize: 16, fontWeight: 500, marginTop: 10 }}>资源详情（default）</p>
-                <Table
-                    className="dt-table-border dt-table-last-row-noborder"
-                    style={{ marginTop: '10px' }}
-                    columns={columnsDefault}
-                    pagination={false}
-                    dataSource={[]}
-                />
+                { tartget ? <React.Fragment>
+                    <p style={{ fontSize: 16, fontWeight: 500, marginTop: 10 }}>资源详情（default）</p>
+                        <Table
+                            className="dt-table-border dt-table-last-row-noborder"
+                            style={{ marginTop: '10px' }}
+                            columns={columnsDefault}
+                            pagination={false}
+                            dataSource={[]}
+                        />
+                    </React.Fragment> : null
+                }
             </div>
         )
     }
