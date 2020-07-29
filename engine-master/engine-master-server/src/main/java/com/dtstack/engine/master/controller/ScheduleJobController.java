@@ -361,4 +361,15 @@ public class ScheduleJobController {
                           @DtRequestParam("isRoot") Boolean isRoot, @DtRequestParam("appType") Integer appType) throws Exception {
         return scheduleJobService.stopJobByJobId(jobId, userId, projectId, tenantId, dtuicTenantId, isRoot, appType);
     }
+
+    @RequestMapping(value="/buildTaskJobGraphTest", method = {RequestMethod.POST})
+    @ApiOperation(value = "生成指定日期的周期实例(需要数据库无对应记录)")
+    public void buildTaskJobGraphTest(@DtRequestParam("triggerDay") String triggerDay) {
+        scheduleJobService.buildTaskJobGraphTest(triggerDay);
+    }
+
+    @RequestMapping(value="/testTrigger", method = {RequestMethod.POST})
+    public void testTrigger(@DtRequestParam("jobId") String jobId) {
+        scheduleJobService.testTrigger(jobId);
+    }
 }
