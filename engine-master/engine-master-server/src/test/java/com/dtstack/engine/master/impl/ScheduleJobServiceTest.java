@@ -20,6 +20,7 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.api.pager.PageResult;
@@ -31,6 +32,7 @@ import com.dtstack.engine.api.vo.ScheduleJobChartVO;
 import com.dtstack.engine.api.vo.ScheduleJobVO;
 import com.dtstack.engine.api.vo.SchedulePeriodInfoVO;
 import com.dtstack.engine.api.vo.ScheduleRunDetailVO;
+import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.enums.EDeployMode;
@@ -418,6 +420,49 @@ public class ScheduleJobServiceTest extends AbstractTest {
 
         ScheduleJob scheduleJob = scheduleJobs.get(0);
         Assert.assertEquals(scheduleJob.getJobName(), job.getJobName());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testgetSameDayChildJob(){
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteJobkey();
+        String scheduleJobJson=JSONObject.toJSONString(scheduleJob);;
+        Integer appType = scheduleJob.getAppType();
+
+        List<ScheduleJob> sameDayChildJob = sheduleJobService.getSameDayChildJob(scheduleJobJson, true, appType);
+        Assert.assertEquals(sameDayChildJob.size(),1);
+
+        ScheduleJob scheduleJobQuery = sameDayChildJob.get(0);
+        Assert.assertEquals(scheduleJobQuery.getJobName(), scheduleJob.getJobName());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testGetAllChildJobWithSameDay(){
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteJobkey();
+        Integer appType = scheduleJob.getAppType();
+
+        List<ScheduleJob> allChildJobWithSameDay = sheduleJobService.getAllChildJobWithSameDay(scheduleJob, true, appType);
+        Assert.assertEquals(allChildJobWithSameDay.size(),1);
+
+        ScheduleJob scheduleJobQuery = allChildJobWithSameDay.get(0);
+        Assert.assertEquals(scheduleJobQuery.getJobName(), scheduleJob.getJobName());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testGetLastSuccessJob(){
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobSetCycTime();
+        Long taskId = scheduleJob.getTaskId();
+        Integer appType = scheduleJob.getAppType();
+
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        ScheduleJob lastSuccessJob = sheduleJobService.getLastSuccessJob(taskId, timestamp, appType);
+
+        Assert.assertEquals(lastSuccessJob.getJobName(), scheduleJob.getJobName());
     }
 
 
