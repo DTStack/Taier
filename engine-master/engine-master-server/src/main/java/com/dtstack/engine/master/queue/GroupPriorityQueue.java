@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.queue;
 
+import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;

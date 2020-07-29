@@ -1,18 +1,13 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.common.enums.EDeployType;
+import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.annotation.Param;
-import com.dtstack.engine.common.http.PoolHttpClient;
-import com.dtstack.engine.common.util.ApplicationWSParser;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.util.UrlUtil;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.EngineJobCheckpointDao;
@@ -23,7 +18,6 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.EDeployMode;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +32,7 @@ import java.util.List;
  * @author jiangbo
  */
 @Service
-public class StreamTaskService implements com.dtstack.engine.api.service.StreamTaskService {
+public class StreamTaskService {
 
     private static final Logger logger = LoggerFactory.getLogger(StreamTaskService.class);
 
@@ -59,37 +53,32 @@ public class StreamTaskService implements com.dtstack.engine.api.service.StreamT
     /**
      * 查询checkPoint
      */
-    @Override
-    public List<EngineJobCheckpoint> getCheckPoint(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd){
+    public List<EngineJobCheckpoint> getCheckPoint( String taskId,  Long triggerStart,  Long triggerEnd){
         return engineJobCheckpointDao.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
     }
 
-    @Override
-    public EngineJobCheckpoint getByTaskIdAndEngineTaskId(@Param("taskId") String taskId, @Param("engineTaskId") String engineTaskId){
+    public EngineJobCheckpoint getByTaskIdAndEngineTaskId( String taskId,  String engineTaskId){
         return engineJobCheckpointDao.getByTaskIdAndEngineTaskId(taskId, engineTaskId);
     }
 
     /**
      * 查询stream job
      */
-    @Override
-    public List<ScheduleJob> getEngineStreamJob(@Param("taskIds") List<String> taskIds){
+    public List<ScheduleJob> getEngineStreamJob( List<String> taskIds){
         return scheduleJobDao.getRdosJobByJobIds(taskIds);
     }
 
     /**
      * 获取某个状态的任务task_id
      */
-    @Override
-    public List<String> getTaskIdsByStatus(@Param("status") Integer status){
+    public List<String> getTaskIdsByStatus( Integer status){
         return scheduleJobDao.getJobIdsByStatus(status, ComputeType.STREAM.getType());
     }
 
     /**
      * 获取任务的状态
      */
-    @Override
-    public Integer getTaskStatus(@Param("taskId") String taskId){
+    public Integer getTaskStatus( String taskId){
         Integer status = null;
         if (StringUtils.isNotEmpty(taskId)){
         	ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
@@ -106,8 +95,7 @@ public class StreamTaskService implements com.dtstack.engine.api.service.StreamT
      * @param taskId
      * @return
      */
-    @Override
-    public List<String> getRunningTaskLogUrl(@Param("taskId") String taskId) {
+    public List<String> getRunningTaskLogUrl( String taskId) {
 
         Preconditions.checkState(StringUtils.isNotEmpty(taskId), "taskId can't be empty");
 

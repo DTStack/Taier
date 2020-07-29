@@ -44,6 +44,25 @@ public class PublicUtil {
 	public static <T> T jsonStrToObject(String jsonStr, Class<T> clazz) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException{
 		return  objectMapper.readValue(jsonStr, clazz);
 	}
+
+	@SuppressWarnings("unchecked")
+	public static Map<String, Object> strToMap(String str) throws  IOException{
+		if(str ==null){
+			return null;
+		}
+
+		return objectMapper.readValue(str, Map.class);
+	}
+
+	public static <T> T strToObject(String str,Class<T> classzz) throws  IOException{
+		if(str ==null){
+			return null;
+		}
+
+		return objectMapper.readValue(str,classzz);
+	}
+
+
     public static <T> T jsonStrToObjectWithOutNull(String jsonStr, Class<T> clazz) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException {
         JSONObject origin = JSONObject.parseObject(jsonStr);
         JSONObject change = new JSONObject();
@@ -54,7 +73,6 @@ public class PublicUtil {
         }
         return objectMapper.readValue(change.toJSONString(), clazz);
     }
-
 
 
     @SuppressWarnings("unchecked")
@@ -70,27 +88,6 @@ public class PublicUtil {
 
 	public static boolean count(int index,int multiples){
 		return index%multiples==0;
-	}
-
-	public static Object classConvter(Class<?> clazz, Object obj){
-		if(clazz.equals(Integer.class)||int.class.equals(clazz)){
-			obj = Integer.parseInt(obj.toString());
-		}else if(clazz.equals(Long.class)|| long.class.equals(clazz)){
-			obj = Long.parseLong(obj.toString());
-		}else if(clazz.equals(Double.class)|| double.class.equals(clazz)){
-			obj = Double.parseDouble(obj.toString());
-		}else if(clazz.equals(Float.class)|| float.class.equals(clazz)){
-			obj = Float.parseFloat(obj.toString());
-		}else if(clazz.equals(Byte.class)|| byte.class.equals(clazz)){
-			obj = Byte.parseByte(obj.toString());
-		}else if(clazz.equals(Short.class)|| short.class.equals(clazz)){
-			obj = Short.parseShort(obj.toString());
-		}else if(clazz.equals(Boolean.class)||boolean.class.equals(clazz)){
-			obj = Boolean.parseBoolean(obj.toString());
-		}else if(clazz.equals(String.class)){
-			obj = obj.toString();
-		}
-		return obj;
 	}
 
 	public static Properties stringToProperties(String str) throws IOException{
@@ -128,7 +125,7 @@ public class PublicUtil {
 	}
 
 
-	public static Object ClassConvter(Class<?> clazz,Object obj){
+	public static Object classConvter(Class<?> clazz,Object obj){
 		if(obj ==null) {return null;}
 		if(clazz.equals(Integer.class)||int.class.equals(clazz)){
 			obj = Integer.parseInt(obj.toString());

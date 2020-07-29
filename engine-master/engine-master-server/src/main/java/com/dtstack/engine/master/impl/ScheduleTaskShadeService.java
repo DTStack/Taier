@@ -1,8 +1,6 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.annotation.Forbidden;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
@@ -24,8 +22,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,14 +36,14 @@ import java.util.stream.Collectors;
  * create: 2019/10/22
  */
 @Service
-public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.ScheduleTaskShadeService {
+public class ScheduleTaskShadeService {
 
 
     @Autowired
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
 
     @Autowired
-    private ScheduleTaskTaskShadeService taskTaskShadeService;
+    private ScheduleTaskTaskShadeService scheduleTaskTaskShadeService;
 
     /**
      * web 接口
@@ -74,12 +70,11 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * web 接口
      * task删除时触发同步清理
      */
-    public void deleteTask(@Param("taskId") Long taskId, @Param("modifyUserId") long modifyUserId,@Param("appType") Integer appType) {
+    public void deleteTask( Long taskId,  long modifyUserId, Integer appType) {
         scheduleTaskShadeDao.delete(taskId, modifyUserId,appType);
-        taskTaskShadeService.clearDataByTaskId(taskId,appType);
+        scheduleTaskTaskShadeService.clearDataByTaskId(taskId,appType);
     }
 
-    @Forbidden
     public List<ScheduleTaskShade> listTaskByType(Long projectId, Integer taskType, String taskName) {
         return scheduleTaskShadeDao.listByType(projectId, taskType, taskName);
     }
@@ -87,12 +82,10 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
     /**
      * 获取所有需要需要生成调度的task 没有sqlText字段
      */
-    @Forbidden
     public List<ScheduleTaskShade> listTaskByStatus(Long startId, Integer submitStatus, Integer projectSubmitStatus, Integer batchTaskSize) {
         return scheduleTaskShadeDao.listTaskByStatus(startId, submitStatus, projectSubmitStatus, batchTaskSize);
     }
 
-    @Forbidden
     public Integer countTaskByStatus(Integer submitStatus, Integer projectSubmitStatus) {
         return scheduleTaskShadeDao.countTaskByStatus(submitStatus, projectSubmitStatus);
     }
@@ -106,16 +99,16 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @param taskTypes
      * @return
      */
-    public Map<String ,Object> countTaskByType(@Param("tenantId") Long tenantId,@Param("dtuicTenantId") Long dtuicTenantId,
-                                               @Param("projectId") Long projectId, @Param("appType") Integer appType,
-                                               @Param("taskTypes") List<Integer> taskTypes){
+    public Map<String ,Object> countTaskByType( Long tenantId, Long dtuicTenantId,
+                                                Long projectId,  Integer appType,
+                                                List<Integer> taskTypes){
         List<Map<String, Object>> maps = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, Lists.newArrayList(projectId), appType, taskTypes);
         return CollectionUtils.isNotEmpty(maps) ? maps.get(0) : new HashMap<>();
     }
 
-    public List<Map<String ,Object>> countTaskByTypes(@Param("tenantId") Long tenantId,@Param("dtuicTenantId") Long dtuicTenantId,
-                                               @Param("projectIds") List<Long> projectIds, @Param("appType") Integer appType,
-                                               @Param("taskTypes") List<Integer> taskTypes){
+    public List<Map<String ,Object>> countTaskByTypes( Long tenantId, Long dtuicTenantId,
+                                                List<Long> projectIds,  Integer appType,
+                                                List<Integer> taskTypes){
         return scheduleTaskShadeDao.countTaskByType(tenantId,dtuicTenantId,projectIds,appType,taskTypes);
     }
 
@@ -139,8 +132,7 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @param taskIdArray
      * @return
      */
-    @Forbidden
-    public List<ScheduleTaskShade> getSimpleTaskRangeAllByIds(List<Long> taskIdArray,Integer appType) {
+    public List<ScheduleTaskShade> getSimpleTaskRangeAllByIds(List<Long> taskIdArray, Integer appType) {
         if (CollectionUtils.isEmpty(taskIdArray)) {
             return Collections.EMPTY_LIST;
         }
@@ -155,13 +147,13 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @return
      * @author toutian
      */
-    public List<ScheduleTaskShade> getTasksByName(@Param("projectId") long projectId,
-                                                  @Param("name") String name, @Param("appType") Integer appType) {
+    public List<ScheduleTaskShade> getTasksByName( long projectId,
+                                                   String name,  Integer appType) {
         return scheduleTaskShadeDao.listByNameLike(projectId, name,appType,null,null);
     }
 
-    public ScheduleTaskShade getByName(@Param("projectId") long projectId,
-                                       @Param("name") String name, @Param("appType") Integer appType,@Param("flowId") Long flowId) {
+    public ScheduleTaskShade getByName( long projectId,
+                                        String name,  Integer appType, Long flowId) {
         //如果appType没传那就默认为ide
         if (Objects.isNull(appType)){
             appType = 1;
@@ -169,7 +161,7 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
         return scheduleTaskShadeDao.getByName(projectId, name,appType,flowId);
     }
 
-    public void updateTaskName(@Param("taskId") long id, @Param("taskName") String taskName,@Param("appType")Integer appType) {
+    public void updateTaskName( long id,  String taskName,Integer appType) {
         scheduleTaskShadeDao.updateTaskName(id, taskName,appType);
     }
 
@@ -181,7 +173,6 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @return
      * @see JobGraphBuilder#getSelfDependencyJobKeys(com.dtstack.task.domain.BatchJob, com.dtstack.task.server.parser.ScheduleCron, java.lang.String)
      */
-    @Forbidden
     public String getTaskNameByJobKey(String jobKey,Integer appType) {
         String[] jobKeySplit = jobKey.split("_");
         if (jobKeySplit.length < 3) {
@@ -238,7 +229,7 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
     }
 
 
-    public ScheduleTaskShade getBatchTaskById(@Param("id") Long taskId, @Param("appType")Integer appType) {
+    public ScheduleTaskShade getBatchTaskById( Long taskId, Integer appType) {
         ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId, appType);
         if (taskShade == null || Deleted.DELETED.getStatus().equals(taskShade.getIsDeleted())) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
@@ -246,18 +237,18 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
         return taskShade;
     }
 
-    public JSONObject queryTasks(@Param("tenantId") Long tenantId,
-                                 @Param("projectId") Long projectId,
-                                 @Param("name") String name,
-                                 @Param("ownerId") Long ownerId,
-                                 @Param("startTime") Long startTime,
-                                 @Param("endTime") Long endTime,
-                                 @Param("scheduleStatus") Integer scheduleStatus,
-                                 @Param("taskType") String taskTypeList,
-                                 @Param("taskPeriodId") String periodTypeList,
-                                 @Param("currentPage") Integer currentPage,
-                                 @Param("pageSize") Integer pageSize, @Param("searchType")  String  searchType,
-                                 @Param("appType")Integer appType){
+    public JSONObject queryTasks( Long tenantId,
+                                  Long projectId,
+                                  String name,
+                                  Long ownerId,
+                                  Long startTime,
+                                  Long endTime,
+                                  Integer scheduleStatus,
+                                  String taskTypeList,
+                                  String periodTypeList,
+                                  Integer currentPage,
+                                  Integer pageSize,   String  searchType,
+                                 Integer appType){
 
 
         ScheduleTaskShadeDTO batchTaskDTO = new ScheduleTaskShadeDTO();
@@ -372,7 +363,6 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
     }
 
 
-    @Forbidden
     private List<Integer> convertStringToList(String str) {
         if(StringUtils.isBlank(str)){
             return new ArrayList<>();
@@ -389,9 +379,9 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @param userId
      * @param appType
      */
-    public void frozenTask(@Param("taskIdList") List<Long> taskIdList, @Param("scheduleStatus") int scheduleStatus,
-                           @Param("projectId") Long projectId, @Param("userId") Long userId,
-                           @Param("appType") Integer appType) {
+    public void frozenTask( List<Long> taskIdList,  int scheduleStatus,
+                            Long projectId,  Long userId,
+                            Integer appType) {
         scheduleTaskShadeDao.batchUpdateTaskScheduleStatus(taskIdList,scheduleStatus,appType);
     }
 
@@ -401,7 +391,7 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @param taskId
      * @return
      */
-    public ScheduleTaskVO dealFlowWorkTask(@Param("taskId") Long taskId, @Param("appType")Integer appType,@Param("taskTypes")List<Integer> taskTypes,@Param("ownerId")Long ownerId) {
+    public ScheduleTaskVO dealFlowWorkTask( Long taskId, Integer appType,List<Integer> taskTypes,Long ownerId) {
         ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId,appType);
         if (taskShade == null) {
             return null;
@@ -424,7 +414,7 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @param taskId
      * @return
      */
-    public List<ScheduleTaskShade> getFlowWorkSubTasks(@Param("taskId") Long taskId, @Param("appType") Integer appType,@Param("taskTypes")List<Integer> taskTypes,@Param("ownerId")Long ownerId) {
+    public List<ScheduleTaskShade> getFlowWorkSubTasks( Long taskId,  Integer appType,List<Integer> taskTypes,Long ownerId) {
         ScheduleTaskShadeDTO batchTaskShadeDTO = new ScheduleTaskShadeDTO();
         batchTaskShadeDTO.setIsDeleted(Deleted.NORMAL.getStatus());
         batchTaskShadeDTO.setFlowId(taskId);
@@ -436,7 +426,7 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
     }
 
 
-    public ScheduleTaskShade findTaskId(@Param("taskId") Long taskId, @Param("isDeleted")Integer isDeleted, @Param("appType") Integer appType) {
+    public ScheduleTaskShade findTaskId( Long taskId, Integer isDeleted,  Integer appType) {
         if(Objects.isNull(taskId)){
             return null;
         }
@@ -455,7 +445,7 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @param isSimple 不查询sql
      * @return
      */
-    public List<ScheduleTaskShade> findTaskIds(@Param("taskIds") List<Long> taskIds, @Param("isDeleted")Integer isDeleted, @Param("appType") Integer appType, @Param("isSimple") boolean isSimple) {
+    public List<ScheduleTaskShade> findTaskIds( List<Long> taskIds, Integer isDeleted,  Integer appType,  boolean isSimple) {
         if(CollectionUtils.isEmpty(taskIds)){
             return null;
         }
@@ -475,7 +465,7 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
      * @param info
      * @return
      */
-    public void info(@Param("taskId") Long taskId,@Param("appType") Integer appType,@Param("extraInfo")String info) {
+    public void info( Long taskId, Integer appType,String info) {
         JSONObject extInfo = JSONObject.parseObject(scheduleTaskShadeDao.getExtInfoByTaskId(taskId, appType));
         if (Objects.isNull(extInfo)) {
             extInfo = new JSONObject();
@@ -485,16 +475,15 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
     }
 
 
-    public List<Map<String, Object>> listDependencyTask(@Param("taskIds") List<Long> taskId, @Param("appType") Integer appType, @Param("name") String name, @Param("projectId") Long projectId) {
+    public List<Map<String, Object>> listDependencyTask( List<Long> taskId,  Integer appType,  String name,  Long projectId) {
         return scheduleTaskShadeDao.listDependencyTask(projectId, name, taskId);
     }
 
 
-    public List<Map<String, Object>> listByTaskIdsNotIn(@Param("taskIds") List<Long> taskId, @Param("appType") Integer appType, @Param("projectId") Long projectId) {
+    public List<Map<String, Object>> listByTaskIdsNotIn( List<Long> taskId,  Integer appType,  Long projectId) {
         return scheduleTaskShadeDao.listByTaskIdsNotIn(projectId, taskId);
     }
 
-    @Forbidden
     public ScheduleTaskShade getById(Long id ){
         return scheduleTaskShadeDao.getById(id);
     }

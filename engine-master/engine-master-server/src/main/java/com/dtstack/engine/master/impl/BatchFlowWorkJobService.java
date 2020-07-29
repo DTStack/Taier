@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.google.common.collect.Lists;
@@ -17,7 +16,7 @@ import java.util.List;
  * create: 2019/10/22
  */
 @Service
-public class BatchFlowWorkJobService implements com.dtstack.engine.api.service.BatchFlowWorkJobService {
+public class BatchFlowWorkJobService {
 
     /**
      * 任务状态从低到高排序
@@ -45,7 +44,6 @@ public class BatchFlowWorkJobService implements com.dtstack.engine.api.service.B
      *
      * @param jobId
      */
-    @Forbidden
     public boolean checkRemoveAndUpdateFlowJobStatus(String jobId,Integer appType) {
 
         List<ScheduleJob> subJobs = batchJobService.getSubJobsAndStatusByFlowId(jobId);
