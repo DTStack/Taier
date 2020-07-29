@@ -69,6 +69,16 @@ public class FlinkConfig extends BaseConfig {
 
     private String pluginLoadMode = "shipfile";
 
+    private boolean monitorAcceptedApp = false;
+
+    public boolean isMonitorAcceptedApp() {
+        return monitorAcceptedApp;
+    }
+
+    public void setMonitorAcceptedApp(boolean monitorAcceptedApp) {
+        this.monitorAcceptedApp = monitorAcceptedApp;
+    }
+
     public String getTypeName() {
         return typeName;
     }

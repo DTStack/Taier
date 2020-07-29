@@ -31,7 +31,7 @@ public class AcceptedApplicationMonitor implements Runnable {
 
     private static final long INTERVAL = 3000;
 
-    private static final long THRESHOLD = 60 * 1000;
+    private static final long THRESHOLD = 60 * 1000 * 10;
 
     private static ScheduledExecutorService scheduledService;
 

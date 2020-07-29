@@ -151,7 +151,10 @@ public class FlinkClient extends AbstractClient {
         flinkClientBuilder.initFlinkGlobalConfiguration(flinkExtProp);
 
         flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
-        AcceptedApplicationMonitor.start(hadoopConf.getYarnConfiguration(), flinkConfig.getQueue(), flinkConfig);
+
+        if (flinkConfig.isMonitorAcceptedApp()) {
+            AcceptedApplicationMonitor.start(hadoopConf.getYarnConfiguration(), flinkConfig.getQueue(), flinkConfig);
+        }
     }
 
     @Override

@@ -62,6 +62,8 @@ perjob:
     yarn.application-attempts: 0
     high-availability: ZOOKEEPER
 
+    monitorAcceptedApp: false
+
 session:
   dependencyKey: deploymode
   dependencyValue: session
@@ -124,6 +126,8 @@ session:
     gatewayJobName: pushgateway
     yarn.application-attempts: 0
     high-availability: ZOOKEEPER
+
+    monitorAcceptedApp: false
 
 standalone:
   dependencyKey: deploymode

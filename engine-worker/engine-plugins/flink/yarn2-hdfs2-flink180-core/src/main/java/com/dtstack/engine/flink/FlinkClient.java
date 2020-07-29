@@ -101,6 +101,8 @@ public class FlinkClient extends AbstractClient {
 
     private static int MAX_RETRY_NUMBER = 2;
 
+    private static String MONITOR_ACCEPTED_APP_KEY = "monitorAcceptedApp";
+
     private String tmpFileDirPath = "./tmp";
 
     private static final Path TMPDIR = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
@@ -152,7 +154,10 @@ public class FlinkClient extends AbstractClient {
         } catch (Exception e) {
             throw new RdosDefineException(e);
         }
-        AcceptedApplicationMonitor.start(hadoopConf.getYarnConfiguration(), flinkConfig.getQueue(), flinkConfig);
+
+        if (flinkConfig.isMonitorAcceptedApp()) {
+            AcceptedApplicationMonitor.start(hadoopConf.getYarnConfiguration(), flinkConfig.getQueue(), flinkConfig);
+        }
     }
 
 
