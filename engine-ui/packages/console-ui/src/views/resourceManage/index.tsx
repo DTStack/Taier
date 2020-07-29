@@ -6,7 +6,7 @@ import Api from '../../api/console';
 import { ENGIN_TYPE_TEXT } from '../../consts';
 import { isHadoopEngine, isTiDBEngine, isOracleEngine, isGreenPlumEngine } from '../../consts/clusterFunc';
 import BindCommModal from '../../components/bindCommModal';
-import Resource from '../../components/resource';
+import Resource from './resourceUsage';
 
 import BindAccountPane from './bindAccount';
 
@@ -241,7 +241,7 @@ class ResourceManage extends React.Component<any, any> {
                             >
                                 <Select
                                     className="dt-form-shadow-bg"
-                                    style={{ width: '180px' }}
+                                    style={{ width: '264px' }}
                                     placeholder='请选择集群'
                                     value={`${queryParams.clusterId}`}
                                     onChange={this.handleChangeCluster}

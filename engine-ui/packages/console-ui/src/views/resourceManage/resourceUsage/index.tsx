@@ -1,0 +1,287 @@
+
+// 剩余资源
+import * as React from 'react'
+import { Table } from 'antd'
+import Api from '../../../api/console'
+import { cloneDeep } from 'lodash'
+import Chart from '../../../components/chart'
+import { pieOption, ALARM_DEFAULT, ALARM_HIGHT } from './constant'
+
+interface ResouceProps {
+    type: string;
+    title: string;
+    useNum: number;
+    total: number;
+    value: number;
+}
+
+const ResourceCard = (props: ResouceProps) => {
+    function setOptions (value: number) {
+        const option = cloneDeep(pieOption)
+        option.series[1].data = [
+            {
+                ...option.series[1].data[0],
+                value,
+                itemStyle: {
+                    normal: {
+                        color: value >= ALARM_DEFAULT ? (value >= ALARM_HIGHT ? '#FF5F5C' : '#FFB310') : '#16DE9A'
+                    }
+                }
+            },
+            {
+                ...option.series[1].data[1],
+                value: 150 - value
+            }
+        ]
+        return option
+    }
+
+    const { title, useNum, total, value } = props
+    const option = setOptions(value)
+
+    return (
+        <div className="c-resourceCard-container">
+            <Chart option={option} width={110} height={110} />
+            <div className="c-resourceCard-container__title">
+                <p>{title}</p>
+                <p><span style={{ fontSize: 18 }}>{useNum}</span> / {total}</p>
+            </div>
+        </div>
+    )
+}
+
+interface ResoruceTableProps {
+    columns: any[];
+    data: any[];
+    title: string;
+    desc?: string;
+}
+
+const RenderTable = (props: ResoruceTableProps) => {
+    const { columns, data, title, desc = '' } = props
+    return (
+        <div className="c-resouceManage__table__container">
+            <p>{title}{desc && `（${desc}）`}</p>
+            <Table
+                className="dt-table-border dt-table-last-row-noborder"
+                style={{ marginTop: '10px' }}
+                columns={columns}
+                dataSource={data}
+                pagination={false}
+            />
+        </div>
+    )
+}
+
+class Resource extends React.Component<any, any> {
+    state: any = {
+        nodesListSource: [],
+        queuesListSource: [
+            {
+                capacity: 100,
+                AMResourceLimit: {
+                    memory: 18432,
+                    vCores: 24
+                },
+                usedCapacity: 0,
+
+                userAMResourceLimit: {
+                    memory: 18432,
+                    vCores: 24
+                },
+                maxCapacity: 100,
+                resourcesUsed: {
+                    memory: 0,
+                    vCores: 0
+                },
+                usedAMResource: {
+                    memory: 0,
+                    vCores: 0
+                },
+                queueName: 'default'
+            }
+        ],
+        target: [],
+        resourceMetrics: {
+            totalMem: 18432,
+            totalCores: 24,
+            usedMem: 0,
+            usedCores: 0
+        }
+    }
+
+    componentDidMount () {
+        // this.getClusterResources()
+    }
+
+    // 获取资源信息
+    getClusterResources () {
+        const { clusterName } = this.props;
+        Api.getClusterResources({
+            clusterName: clusterName
+        }).then((res: any) => {
+            const nodesList = res.data ? res.data.nodes : [];
+            const queuesList = res.data ? res.data.queues : [];
+            this.setState({
+                nodesListSource: nodesList,
+                queuesListSource: queuesList
+            })
+        })
+    }
+
+    initNodesColumns () {
+        return [
+            {
+                title: 'nodeName',
+                dataIndex: 'nodeName',
+                render (_, record: any) {
+                    return record.nodeName || '-';
+                }
+            },
+            {
+                title: 'virtualCores',
+                dataIndex: 'virtualCores',
+                render (_, record: any) {
+                    return record.virtualCores;
+                }
+            },
+            {
+                title: 'usedVirtualCores',
+                dataIndex: 'usedVirtualCores',
+                render (_, record: any) {
+                    return record.usedVirtualCores;
+                }
+            },
+            {
+                title: 'memory (M)',
+                dataIndex: 'memory',
+                render (_, record: any) {
+                    return record.memory;
+                }
+            },
+            {
+                title: 'usedMemory (M)',
+                dataIndex: 'usedMemory',
+                render (_, record: any) {
+                    return record.usedMemory;
+                }
+            }
+        ]
+    }
+
+    initQueuesColumns = () => {
+        return [
+            {
+                title: '资源队列',
+                dataIndex: 'queueName',
+                render (_, record: any) {
+                    return record.queueName;
+                }
+            },
+            {
+                title: '已使用容量',
+                dataIndex: 'usedCapacity'
+            },
+            {
+                title: '分配容量',
+                dataIndex: 'capacity',
+                render (_, record: any) {
+                    return record.capacity;
+                }
+            },
+            {
+                title: '最大容量',
+                dataIndex: 'maxCapacity'
+            },
+            {
+                title: '查看',
+                dataIndex: 'action',
+                render: (_, record: any) => {
+                    return <a onClick={() => {
+                        this.setState({
+                            target: new Array(record)
+                        })
+                    }}>资源详情</a>
+                },
+                width: 150
+            }
+        ]
+    }
+
+    initDetailtColumns = () => {
+        return [
+            {
+                title: 'Max Resource',
+                dataIndex: 'AMResourceLimit',
+                render (text: any, record: any) {
+                    return <span>memory:{text.memory}, vCores:{text.vCores}</span>;
+                }
+            },
+            {
+                title: 'Used Resource',
+                dataIndex: 'resourcesUsed',
+                render (text: any, record: any) {
+                    return <span>memory:{text.memory}, vCores:{text.vCores}</span>;
+                }
+            },
+            {
+                title: 'Max AM Resource',
+                dataIndex: 'userAMResourceLimit',
+                render (text: any, record: any) {
+                    return <span>memory:{text.memory}, vCores:{text.vCores}</span>;
+                }
+            },
+            {
+                title: 'Used AM Resource',
+                dataIndex: 'usedAMResource',
+                render (text: any, record: any) {
+                    return <span>memory:{text.memory}, vCores:{text.vCores}</span>;
+                }
+            }
+        ]
+    }
+
+    render () {
+        const columnsNodes = this.initNodesColumns()
+        const columnsQueues = this.initQueuesColumns()
+        const columnsDetail = this.initDetailtColumns()
+        const { nodesListSource, target, queuesListSource } = this.state;
+        const { usedCores, totalCores, usedMem, totalMem } = this.state.resourceMetrics
+        return (
+            <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 20 }}>
+                    <div style={{ height: 110, width: '50%', marginRight: 10 }}>
+                        <ResourceCard
+                            type='cpu'
+                            title='CPU（core）'
+                            useNum={usedCores}
+                            total={totalCores}
+                            value={1.67} />
+                    </div>
+                    <div style={{ height: 110, width: '50%', marginLeft: 10 }}>
+                        <ResourceCard
+                            type='memory'
+                            title='内存（GB）'
+                            useNum={usedMem}
+                            total={totalMem}
+                            value={60.05} />
+                    </div>
+                </div>
+                <RenderTable
+                    columns={columnsNodes}
+                    data={nodesListSource}
+                    title='Yarn-NameManager资源使用' />
+                <RenderTable
+                    columns={columnsQueues}
+                    data={queuesListSource}
+                    title='各资源队列资源使用' />
+                { target.length > 0 ? <RenderTable
+                    columns={columnsDetail}
+                    data={target}
+                    title='资源详情'
+                    desc='default' /> : null }
+            </div>
+        )
+    }
+}
+export default Resource;

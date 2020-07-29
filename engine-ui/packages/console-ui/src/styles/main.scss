@@ -67,7 +67,7 @@ table{
         @include setCenter(center);
     }
     .ant-tabs-vertical.ant-tabs-left > .ant-tabs-bar {
-        @include setTabBarWidth(140px)
+        @include setTabBarWidth(200px)
     }
 }
 .console-tabs {

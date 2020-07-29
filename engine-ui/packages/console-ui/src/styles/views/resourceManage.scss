@@ -47,7 +47,7 @@
                 padding: 0;
             }
             .ant-tabs-vertical.ant-tabs-left > .ant-tabs-content {
-                padding: 20px;
+                padding: 14px 20px;
             }
             .ant-tabs-vertical.ant-tabs-left > .ant-tabs-bar {
                 margin-top: 10px;
@@ -72,6 +72,8 @@
     transition: color 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
     cursor: pointer;
     text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
 }
 .ant-tabs-bar {
     border-bottom: 1px solid #dddddd;
@@ -123,4 +125,34 @@
     color: #333333;
     line-height: 90px;
     text-align: center;
+}
+
+.c-resouceManage__table__container {
+    p {
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 20px;
+        margin-bottom: 12px;
+    }
+}
+
+.c-resourceCard-container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    border: 1px solid #e8e8e8;
+    padding: 8px 8px 8px 31px;
+    .c-resourceCard-container__title {
+        color: #333333;
+        font-size:12px;
+        font-weight:600;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin-left: 6px;
+        p {
+            margin: 0;
+        }
+    }
 }
