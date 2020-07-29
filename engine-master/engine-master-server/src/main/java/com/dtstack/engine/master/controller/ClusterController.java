@@ -6,6 +6,9 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ClusterEngineVO;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.sdk.core.common.ApiResponse;
+import com.dtstack.sdk.core.feign.Param;
+import com.dtstack.sdk.core.feign.RequestLine;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,6 +110,11 @@ public class ClusterController{
     @RequestMapping(value="/oracleInfo", method = {RequestMethod.POST})
     public String oracleInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("userId") Long dtUicUserId) {
         return clusterService.oracleInfo(dtUicTenantId, dtUicUserId);
+    }
+
+    @RequestMapping(value="/greenplumInfo", method = {RequestMethod.POST})
+    public String greenplumInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("userId") Long dtUicUserId) {
+        return clusterService.greenplumInfo(dtUicTenantId, dtUicUserId);
     }
 
     @RequestMapping(value="/deleteCluster", method = {RequestMethod.POST})

@@ -105,6 +105,9 @@ public interface ClusterService extends DtInsightServer {
     @RequestLine("POST /node/cluster/oracleInfo")
     ApiResponse<String> oracleInfo(@Param("tenantId") Long dtUicTenantId, @Param("userId") Long dtUicUserId);
 
+    @RequestLine("POST /node/cluster/greenplumInfo")
+    ApiResponse<String> greenplumInfo(@Param("tenantId") Long dtUicTenantId, @Param("userId") Long dtUicUserId);
+
     /**
      * 删除集群
      * 判断该集群下是否有租户
