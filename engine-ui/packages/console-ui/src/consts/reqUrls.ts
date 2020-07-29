@@ -77,5 +77,9 @@ export default {
     ACCOUNT_BIND: `${CONSOLE_BASE_URL}/account/bindAccount`,
     UPDATE_ACCOUNT_BIND: `${CONSOLE_BASE_URL}/account/updateBindAccount`,
     ACCOUNT_BIND_LIST: `${CONSOLE_BASE_URL}/account/pageQuery`,
-    ACCOUNT_UNBIND: `${CONSOLE_BASE_URL}/account/unbindAccount`
+    ACCOUNT_UNBIND: `${CONSOLE_BASE_URL}/account/unbindAccount`,
+
+    // 告警通道
+    ADD_OR_UPDATE_ALARM: `${CONSOLE_BASE_URL}/alarm/addOrUpdateAlarm`,
+    GET_ALARM_RULE_LIST: `${CONSOLE_BASE_URL}/alarm/getAlarmList`
 }

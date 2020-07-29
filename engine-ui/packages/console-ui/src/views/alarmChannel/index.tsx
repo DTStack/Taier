@@ -5,7 +5,7 @@ import { ALARM_TYPE_TEXT } from '../../consts';
 const Option = Select.Option;
 
 const AlarmChannel: React.FC = (props: any) => {
-    const [ clusterData, setClusterData ] = useState<any[]>([]);
+    const [clusterData, setClusterData] = useState<any[]>([]);
     const getClusterList = async () => {
         let res = await Api.getAllCluster();
         if (res.code === 1) setClusterData(res.data || [])

@@ -21,6 +21,9 @@
             padding: 24px 0 0 0;
             height: inherit;
             overflow: auto;
+            .ant-input-group-addon {
+                cursor: pointer;
+            }
             footer {
                 position: absolute;
                 width: 100%;

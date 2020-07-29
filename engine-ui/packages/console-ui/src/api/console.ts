@@ -202,5 +202,25 @@ export default {
     },
     switchQueue (params: any) {
         return http.post(req.SWITCH_QUEUE, params);
+    },
+
+    /**
+     * 告警通道
+     */
+    addOrUpdateAlarmRule (params: {
+        alarmType: number;
+        alertGateCode: number;
+        alertGateSource: string;
+        alertGateName: string;
+        alertGateJson: string;
+        alertTemplate: string;
+        receiveMethod?: string;
+        defaultChannel?: boolean;
+        file?: any;
+    }) {
+        return http.postAsFormData(req.ADD_OR_UPDATE_ALARM, params);
+    },
+    getAlarmRuleList (params: any) {
+        return http.post(req.GET_ALARM_RULE_LIST, params);
     }
 }
