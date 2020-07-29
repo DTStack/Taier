@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pager.PageResult;
@@ -179,7 +180,7 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNotNull(engineTenants);
         Assert.assertNotNull(engineTenants.getData());
         //查询集群组件信息
-        JSONObject componentsJson = JSONObject.parseObject(componentService.listConfigOfComponents(tenant.getDtUicTenantId(), MultiEngineType.HADOOP.getType()));
+        JSONObject componentsJson = JSONObject.parseObject(JSON.toJSONString(componentService.listConfigOfComponents(tenant.getDtUicTenantId(), MultiEngineType.HADOOP.getType())));
         Assert.assertNotNull(componentsJson);
 
         Assert.assertNotNull(componentsJson.getJSONObject(String.valueOf(EComponentType.YARN.getTypeCode())));

@@ -8,5 +8,5 @@ import com.dtstack.sdk.core.feign.RequestLine;
 public interface ProjectService extends DtInsightServer {
 
     @RequestLine("POST /node/project/updateSchedule")
-    ApiResponse updateSchedule(@Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("scheduleStatus") Integer scheduleStatus);
+    ApiResponse<Void> updateSchedule(@Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("scheduleStatus") Integer scheduleStatus);
 }

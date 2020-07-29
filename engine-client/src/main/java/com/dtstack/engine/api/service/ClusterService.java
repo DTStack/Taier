@@ -28,10 +28,13 @@ public interface ClusterService extends DtInsightServer {
      * 对外接口
      */
     @RequestLine("POST /node/cluster/clusterInfo")
-    ApiResponse<String> clusterInfo(@Param("tenantId") Long tenantId);
+    ApiResponse<ClusterVO> clusterInfo(@Param("tenantId") Long tenantId);
 
+    /**
+     * 对外接口
+     */
     @RequestLine("POST /node/cluster/clusterExtInfo")
-    ApiResponse<String> clusterExtInfo(@Param("tenantId") Long uicTenantId);
+    ApiResponse<ClusterVO> clusterExtInfo(@Param("tenantId") Long uicTenantId);
 
     /**
      * 对外接口
@@ -52,43 +55,34 @@ public interface ClusterService extends DtInsightServer {
     ApiResponse<String> clusterSftpDir(@Param("tenantId") Long tenantId, @Param("componentType") Integer componentType);
 
     /**
-     * 对外接口
-     * FIXME 这里获取的hiveConf其实是spark thrift server的连接信息，后面会统一做修改
+     * 获得插件信息
+     * 注释： 用于取代 /node/cluster/hiveServerInfo、/node/cluster/hadoopInfo、/node/cluster/carbonInfo、/node/cluster/impalaInfo、/node/cluster/sftpInfo等接口
+     * @param dtUicTenantId 用户id
+     * @param fullKerberos 是否将sftp中keytab配置转换为本地路径
+     *                     如果不传或者false,不转换;
+     *                     如果是true,转换;
+     * @param pluginType 插件类型 插入code即可
+     *                   HDFS(4, "HDFS", "hadoopConf"),
+     *                   SPARK_THRIFT(6, "SparkThrift", "hiveConf"),
+     *                   CARBON_DATA(7, "CarbonData ThriftServer", "carbonConf"),
+     *                   HIVE_SERVER(9, "HiveServer", "hiveServerConf"),
+     *                   IMPALA_SQL(11, "Impala SQL", "impalaSqlConf"),
+     *                   SFTP(10, "SFTP", "sftpConf"),
+     * @return
      */
-    @RequestLine("POST /node/cluster/hiveInfo")
-    ApiResponse<String> hiveInfo(@Param("tenantId") Long dtUicTenantId, @Param("fullKerberos") Boolean fullKerberos);
+    @RequestLine("POST /node/cluster/pluginInfoForType")
+    ApiResponse<String> pluginInfoForType(@Param("tenantId") Long dtUicTenantId  ,@Param("fullKerberos") Boolean fullKerberos, @Param("pluginType") Integer pluginType);
 
     /**
-     * 对外接口
+     * 通过枚举获得配置
+     *
+     * @param dtUicTenantId 用户id
+     * @param key 枚举类型 例如 FLINK
+     * @param fullKerberos 是否将sftp中keytab配置转换为本地路径
+     *                     如果不传或者false,不转换;
+     *                     如果是true,转换;
+     * @return
      */
-    @RequestLine("POST /node/cluster/hiveServerInfo")
-    ApiResponse<String> hiveServerInfo(@Param("tenantId") Long dtUicTenantId, @Param("fullKerberos") Boolean fullKerberos);
-
-    /**
-     * 对外接口
-     */
-    @RequestLine("POST /node/cluster/hadoopInfo")
-    ApiResponse<String> hadoopInfo(@Param("tenantId") Long dtUicTenantId, @Param("fullKerberos") Boolean fullKerberos);
-
-    /**
-     * 对外接口
-     */
-    @RequestLine("POST /node/cluster/carbonInfo")
-    ApiResponse<String> carbonInfo(@Param("tenantId") Long dtUicTenantId, @Param("fullKerberos") Boolean fullKerberos);
-
-    /**
-     * 对外接口
-     */
-    @RequestLine("POST /node/cluster/impalaInfo")
-    ApiResponse<String> impalaInfo(@Param(value = "tenantId") Long dtUicTenantId, @Param("fullKerberos") Boolean fullKerberos);
-
-    /**
-     * 对外接口
-     */
-    @RequestLine("POST /node/cluster/sftpInfo")
-    ApiResponse<String> sftpInfo(@Param("tenantId") Long dtUicTenantId);
-
-
     @RequestLine("POST /node/cluster/getConfigByKey")
     ApiResponse<String> getConfigByKey(@Param("dtUicTenantId") Long dtUicTenantId, @Param("key") String key, @Param("fullKerberos") Boolean fullKerberos);
 
@@ -99,14 +93,19 @@ public interface ClusterService extends DtInsightServer {
     @RequestLine("POST /node/cluster/clusters")
     ApiResponse<List<ClusterVO>> clusters();
 
-    @RequestLine("POST /node/cluster/tiDBInfo")
-    ApiResponse<String> tiDBInfo(@Param("tenantId") Long dtUicTenantId, @Param("userId") Long dtUicUserId);
-
-    @RequestLine("POST /node/cluster/oracleInfo")
-    ApiResponse<String> oracleInfo(@Param("tenantId") Long dtUicTenantId, @Param("userId") Long dtUicUserId);
-
-    @RequestLine("POST /node/cluster/greenplumInfo")
-    ApiResponse<String> greenplumInfo(@Param("tenantId") Long dtUicTenantId, @Param("userId") Long dtUicUserId);
+    /**
+     * 获得tiDBInfo,oracleInfo,greenplumInfo组件信息
+     * 注释： 用于取代 /node/cluster/tiDBInfo、/node/cluster/oracleInfo 、/node/cluster/greenplumInfo 等接口
+     * @param dtUicTenantId 组户id
+     * @param dtUicUserId 用户id
+     * @param type 组件类型
+     *             Oracle(2);
+     *             TiDB(31);
+     *             GREENPLUM6(36);
+     * @return
+     */
+    @RequestLine("POST /node/cluster/dbInfo")
+    ApiResponse<String> dbInfo(@Param("tenantId") Long dtUicTenantId, @Param("userId") Long dtUicUserId, @Param("type") Integer type);
 
     /**
      * 删除集群
@@ -114,7 +113,8 @@ public interface ClusterService extends DtInsightServer {
      * @param clusterId
      */
     @RequestLine("POST /node/cluster/deleteCluster")
-    ApiResponse deleteCluster( @Param("clusterId") Long clusterId);
+    ApiResponse<Void> deleteCluster( @Param("clusterId") Long clusterId);
+
 
     /**
      * 获取集群信息详情 需要根据组件分组
@@ -124,6 +124,11 @@ public interface ClusterService extends DtInsightServer {
     @RequestLine("POST /node/cluster/getCluster")
     ApiResponse<ClusterVO> getCluster(@Param("clusterId") Long clusterId, @Param("kerberosConfig") Boolean kerberosConfig, @Param("removeTypeName") Boolean removeTypeName);
 
+    /**
+     * 获得所有Cluster
+     *
+     * @return
+     */
     @RequestLine("POST /node/cluster/getAllCluster")
     ApiResponse<List<ClusterEngineVO>> getAllCluster();
 

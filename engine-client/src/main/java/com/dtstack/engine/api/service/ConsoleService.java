@@ -40,17 +40,17 @@ public interface ConsoleService extends DtInsightServer {
     ApiResponse<Boolean> jobStick(@Param("jobId") String jobId);
 
     @RequestLine("POST /node/console/stopJob")
-    ApiResponse stopJob(@Param("jobId") String jobId) throws Exception;
+    ApiResponse<Void> stopJob(@Param("jobId") String jobId) throws Exception;
 
     /**
      * 概览，杀死全部
      */
     @RequestLine("POST /node/console/stopAll")
-    ApiResponse stopAll(@Param("jobResource") String jobResource,
+    ApiResponse<Void> stopAll(@Param("jobResource") String jobResource,
                         @Param("nodeAddress") String nodeAddress) throws Exception;
 
     @RequestLine("POST /node/console/stopJobList")
-    ApiResponse stopJobList(@Param("jobResource") String jobResource,
+    ApiResponse<Void> stopJobList(@Param("jobResource") String jobResource,
                             @Param("nodeAddress") String nodeAddress,
                             @Param("stage") Integer stage,
                             @Param("jobIdList") List<String> jobIdList) throws Exception;

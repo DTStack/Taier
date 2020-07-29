@@ -9,6 +9,7 @@ import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
+import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -2442,13 +2443,13 @@ public class ScheduleJobService {
                             Long dtuicTenantId = subTaskShade.getDtuicTenantId();
                             if (dtuicTenantId != null) {
                                 subNodeDownloadLog.put(subTaskShade.getName(), String.format(DOWNLOAD_LOG, subJob.getJobId(), subTaskShade.getTaskType()));
-                                JSONObject logInfoFromEngine = this.getLogInfoFromEngine(subJob.getJobId());
+                                ActionLogVO logInfoFromEngine = this.getLogInfoFromEngine(subJob.getJobId());
                                 if (Objects.nonNull(logInfoFromEngine)) {
                                     subTaskLogInfo.append(subTaskShade.getName()).
                                             append("\n====================\n").
-                                            append(logInfoFromEngine.getString("logInfo")).
+                                            append(logInfoFromEngine.getLogInfo()).
                                             append("\n====================\n").
-                                            append(logInfoFromEngine.getString("engineLog")).
+                                            append(logInfoFromEngine.getEngineLog()).
                                             append("\n");
                                 }
                             }
@@ -2470,10 +2471,10 @@ public class ScheduleJobService {
      *
      * @return
      */
-    public JSONObject getLogInfoFromEngine(String jobId) {
+    public ActionLogVO getLogInfoFromEngine(String jobId) {
         try {
-            String log = actionService.log(jobId, ComputeType.BATCH.getType());
-            return JSONObject.parseObject(log);
+            ActionLogVO log = actionService.log(jobId, ComputeType.BATCH.getType());
+            return log;
         } catch (Exception e) {
             logger.error("Exception when getLogInfoFromEngine by jobId: {} and computeType: {}", jobId, ComputeType.BATCH.getType(), e);
         }
