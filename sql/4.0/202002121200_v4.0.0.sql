@@ -334,7 +334,7 @@ CREATE TABLE `rdos_batch_job`
     `next_cyc_time`   varchar(256)          DEFAULT NULL COMMENT '下一次调度时间 yyyyMMddHHmmss',
     PRIMARY KEY (`id`),
     KEY `index_task_id` (`task_id`),
-    KEY `index_job_id` (`job_id`),
+    KEY `index_job_id` (`job_id`(128)),
     KEY `index_fill_id` (`fill_id`),
     KEY `index_project_id` (`project_id`),
     UNIQUE KEY `idx_jobKey` (`job_key`(255)),
@@ -409,7 +409,7 @@ insert IGNORE into rdos_stream_task_checkpoint
 select * from ide.rdos_stream_task_checkpoint;
 
 insert IGNORE into rdos_engine_job_cache
-select * from ide.rdos_engine_job_cache;
+select *,0 AS is_failover from ide.rdos_engine_job_cache;
 
 insert IGNORE into rdos_plugin_job_info
 select * from ide.rdos_plugin_job_info;
@@ -593,11 +593,8 @@ update rdos_batch_job rbj left join ide.rdos_batch_task bt on rbj.task_id = bt.i
 set rbj.task_type = bt.task_type where bt.task_type is not null;
 
 
-update rdos_batch_job rbj
-set fill_id = (select fill_id
-               from ide.rdos_batch_fill_data_relation fdr
-               where rbj.id = fdr.job_id)
-where type = 1;
+update rdos_batch_job rbj left join ide.rdos_batch_fill_data_relation fdr on rbj.id = fdr.job_id
+set rbj.fill_id = fdr.fill_id where rbj.type = 1;
 
 update rdos_batch_job rbj
 set dtuic_tenant_id = (select dtuic_tenant_id from ide.rdos_tenant where ide.rdos_tenant.id = rbj.tenant_id)
@@ -746,7 +743,7 @@ insert IGNORE into console_account_tenant
 select * from console.console_account_tenant;
 
 
--- task
+-- task 没有task应用 报错不用处理
 
 insert IGNORE into schedule_task_shade( tenant_id, project_id, dtuic_tenant_id, app_type, node_pid, name, task_type, engine_type, compute_type, sql_text, task_params, task_id, schedule_conf, period_type, schedule_status, project_schedule_status, submit_status, gmt_create, gmt_modified, modify_user_id, create_user_id, owner_user_id, version_id, is_deleted, task_desc, main_class, exe_args, flow_id, is_publish_to_produce, extra_info, is_expire)
 select
