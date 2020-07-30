@@ -28,12 +28,6 @@ public interface ComponentService extends DtInsightServer {
     @RequestLine("POST /node/component/getKerberosConfig")
     ApiResponse<KerberosConfig> getKerberosConfig(@Param("clusterId") Long clusterId, @Param("componentType") Integer componentType);
 
-    @RequestLine("POST /node/component/addOrUpdateComponent")
-    ApiResponse<ComponentVO> addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("componentConfig") String componentConfig,
-                                                  @Param("resources") List<Resource> resources, @Param("hadoopVersion") String hadoopVersion,
-                                                  @Param("kerberosFileName") String kerberosFileName, @Param("componentTemplate") String componentTemplate,
-                                                  @Param("componentCode") Integer componentCode);
-
     /**
      * 移除kerberos配置
      *
@@ -42,29 +36,8 @@ public interface ComponentService extends DtInsightServer {
     @RequestLine("POST /node/component/closeKerberos")
     ApiResponse<Void> closeKerberos(@Param("componentId") Long componentId);
 
-
     @RequestLine("POST /node/component/addOrCheckClusterWithName")
     ApiResponse<ComponentsResultVO> addOrCheckClusterWithName(@Param("clusterName") String clusterName);
-
-    /**
-     * parse zip中xml或者json
-     *
-     * @param resources
-     * @return
-     */
-    @RequestLine("POST /node/component/config")
-    ApiResponse<List<Object>> config(@Param("resources") List<Resource> resources, @Param("componentType") Integer componentType, @Param("autoDelete") Boolean autoDelete);
-
-    /**
-     * 下载文件
-     *
-     * @param componentId
-     * @param downloadType 0:kerberos配置文件 1:配置文件 2:模板文件
-     * @return
-     */
-    @RequestLine("POST /node/component/downloadFile")
-    ApiResponse<File>downloadFile(@Param("componentId") Long componentId, @Param("type") Integer downloadType, @Param("componentType") Integer componentType,
-                                  @Param("hadoopVersion") String hadoopVersion, @Param("clusterName") String clusterName);
 
     /**
      * 加载各个组件的默认值
@@ -75,7 +48,6 @@ public interface ComponentService extends DtInsightServer {
      */
     @RequestLine("POST /node/component/loadTemplate")
     ApiResponse<List<ClientTemplate>> loadTemplate(@Param("componentType") Integer componentType, @Param("clusterName") String clusterName, @Param("version") String version);
-
 
     /**
      * 删除组件
@@ -99,5 +71,37 @@ public interface ComponentService extends DtInsightServer {
      */
     @RequestLine("POST /node/component/testConnects")
     ApiResponse<List<ComponentTestResult>> testConnects(@Param("clusterName") String clusterName);
+
+
+//    @RequestLine("POST /node/component/addOrUpdateComponent")
+//    ApiResponse<ComponentVO> addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("componentConfig") String componentConfig,
+//                                                  @Param("resources") List<Resource> resources, @Param("hadoopVersion") String hadoopVersion,
+//                                                  @Param("kerberosFileName") String kerberosFileName, @Param("componentTemplate") String componentTemplate,
+//                                                  @Param("componentCode") Integer componentCode);
+
+//    /**
+//     * parse zip中xml或者json
+//     *
+//     * @param resources
+//     * @return
+//     */
+//    @RequestLine("POST /node/component/config")
+//    ApiResponse<List<Object>> config(@Param("resources") List<Resource> resources, @Param("componentType") Integer componentType, @Param("autoDelete") Boolean autoDelete);
+
+//    /**
+//     * 下载文件
+//     *
+//     * @param componentId
+//     * @param downloadType 0:kerberos配置文件 1:配置文件 2:模板文件
+//     * @return
+//     */
+//    @RequestLine("POST /node/component/downloadFile")
+//    ApiResponse<File>downloadFile(@Param("componentId") Long componentId, @Param("type") Integer downloadType, @Param("componentType") Integer componentType,
+//                                  @Param("hadoopVersion") String hadoopVersion, @Param("clusterName") String clusterName);
+
+
+
+
+
 
 }

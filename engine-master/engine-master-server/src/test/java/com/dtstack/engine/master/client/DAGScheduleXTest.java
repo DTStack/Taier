@@ -11,10 +11,17 @@ import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
+import com.dtstack.engine.api.vo.console.ConsoleClusterResourcesVO;
+import com.dtstack.engine.api.vo.console.ConsoleJobVO;
 import com.dtstack.engine.api.vo.engine.EngineSupportVO;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
+import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
+import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.api.vo.tenant.UserTenantVO;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightApi;
+import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,7 +37,7 @@ import static junit.framework.TestCase.fail;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public class DAGScheduleXTestController {
+public class DAGScheduleXTest {
 
     private DtInsightApi.ApiBuilder builder = new DtInsightApi.ApiBuilder()
             .setEndpoint("http://127.0.0.1:8099")
@@ -43,9 +50,7 @@ public class DAGScheduleXTestController {
             DtInsightApi api = builder.buildApi();
             ActionService apiClient = api.getApiClient(ActionService.class);
             List<String> jobIds = new ArrayList<>();
-            jobIds.add("51f08832");
-            jobIds.add("289154ff");
-            jobIds.add("5de68c11");
+            jobIds.add("80246d68");
             ApiResponse<List<ActionJobStatusVO>> listApiResponse = apiClient.listJobStatusByJobIds(jobIds);
             System.out.println(JSON.toJSONString(listApiResponse));
         } catch (Exception e) {
@@ -100,9 +105,11 @@ public class DAGScheduleXTestController {
         try {
             DtInsightApi api = builder.buildApi();
             ScheduleTaskShadeService apiClient = api.getApiClient(ScheduleTaskShadeService.class);
-            ApiResponse apiResponse = apiClient.addOrUpdate(new ScheduleTaskShadeDTO());
+            ScheduleTaskShadeDTO batchTaskShadeDTO = new ScheduleTaskShadeDTO();
 
-            System.out.println(apiResponse);
+            batchTaskShadeDTO.setSort("dece");
+            ApiResponse apiResponse = apiClient.addOrUpdate(batchTaskShadeDTO);
+            System.out.println(JSON.toJSONString(apiResponse));
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
         }
@@ -204,6 +211,79 @@ public class DAGScheduleXTestController {
             fail("Have exception, message: " + e.getMessage());
         }
     }
+
+    @Test
+    public void testStartSearchJob() {
+        try {
+            DtInsightApi api = builder.buildApi();
+            ConsoleService apiClient = api.getApiClient(ConsoleService.class);
+            ApiResponse<ConsoleJobVO> consoleJobVOApiResponse = apiClient.searchJob("cronJob_mqTest01_20200729000000");
+            System.out.println(JSON.toJSONString(consoleJobVOApiResponse));
+        } catch (Exception e) {
+            fail("Have exception, message: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testStartGroupDetail() {
+        try {
+            DtInsightApi api = builder.buildApi();
+            ConsoleService apiClient = api.getApiClient(ConsoleService.class);
+            ApiResponse<ConsoleClusterResourcesVO> aDefault = apiClient.clusterResources("default");
+            System.out.println(JSON.toJSONString(aDefault));
+        } catch (Exception e) {
+            fail("Have exception, message: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testStartScheduleJobService() {
+        try {
+            DtInsightApi api = builder.buildApi();
+            ScheduleJobService apiClient = api.getApiClient(ScheduleJobService.class);
+            ApiResponse<ScheduleJobStatusVO> statusCount = apiClient.getStatusCount(1L, 1L, 3, 1L);
+            System.out.println(JSON.toJSONString(statusCount));
+        } catch (Exception e) {
+            fail("Have exception, message: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testStartCountScienceJobStatus() {
+        try {
+            DtInsightApi api = builder.buildApi();
+            ScheduleJobService apiClient = api.getApiClient(ScheduleJobService.class);
+            ApiResponse<ScheduleJobScienceJobStatusVO> scheduleJobScienceJobStatusVOApiResponse = apiClient.countScienceJobStatus(Lists.newArrayList(1L, 2L), 1L, 1, 1, "", "", "");
+            System.out.println(JSON.toJSONString(scheduleJobScienceJobStatusVOApiResponse));
+        } catch (Exception e) {
+            fail("Have exception, message: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testStartQueryTasks() {
+        try {
+            DtInsightApi api = builder.buildApi();
+            ScheduleTaskShadeService apiClient = api.getApiClient(ScheduleTaskShadeService.class);
+            ApiResponse<ScheduleTaskShadePageVO> response = apiClient.queryTasks(1L, 1L, "", null, null, null, null, null, null, null, null, null, null);
+            System.out.println(JSON.toJSONString(response));
+        } catch (Exception e) {
+            fail("Have exception, message: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testStartCountTaskByType() {
+        try {
+            DtInsightApi api = builder.buildApi();
+            ScheduleTaskShadeService apiClient = api.getApiClient(ScheduleTaskShadeService.class);
+            ApiResponse<ScheduleTaskShadeCountTaskVO> response = apiClient.countTaskByType(7L, 9L, 15L, 1, Lists.list(2,0));
+            System.out.println(JSON.toJSONString(response));
+        } catch (Exception e) {
+            fail("Have exception, message: " + e.getMessage());
+        }
+    }
+
 
 
 }

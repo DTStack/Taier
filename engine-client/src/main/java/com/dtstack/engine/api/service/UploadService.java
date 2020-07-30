@@ -11,4 +11,5 @@ public interface UploadService extends DtInsightServer {
 
     @RequestLine("POST /node/upload/upload")
     ApiResponse<List<Object>> upload(@Param("componentType") Integer componentType, @Param("autoDelete") Boolean autoDelete);
+
 }

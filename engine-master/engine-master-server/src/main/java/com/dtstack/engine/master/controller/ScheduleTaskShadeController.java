@@ -5,6 +5,8 @@ import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
+import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
+import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -69,18 +71,18 @@ public class ScheduleTaskShadeController {
     }
 
     @RequestMapping(value="/queryTasks", method = {RequestMethod.POST})
-    public Map<String, Object> queryTasks(@DtRequestParam("tenantId") Long tenantId,
-                                          @DtRequestParam("projectId") Long projectId,
-                                          @DtRequestParam("name") String name,
-                                          @DtRequestParam("ownerId") Long ownerId,
-                                          @DtRequestParam("startTime") Long startTime,
-                                          @DtRequestParam("endTime") Long endTime,
-                                          @DtRequestParam("scheduleStatus") Integer scheduleStatus,
-                                          @DtRequestParam("taskType") String taskTypeList,
-                                          @DtRequestParam("taskPeriodId") String periodTypeList,
-                                          @DtRequestParam("currentPage") Integer currentPage,
-                                          @DtRequestParam("pageSize") Integer pageSize, @DtRequestParam("searchType") String searchType,
-                                          @DtRequestParam("appType") Integer appType) {
+    public ScheduleTaskShadePageVO queryTasks(@DtRequestParam("tenantId") Long tenantId,
+                                              @DtRequestParam("projectId") Long projectId,
+                                              @DtRequestParam("name") String name,
+                                              @DtRequestParam("ownerId") Long ownerId,
+                                              @DtRequestParam("startTime") Long startTime,
+                                              @DtRequestParam("endTime") Long endTime,
+                                              @DtRequestParam("scheduleStatus") Integer scheduleStatus,
+                                              @DtRequestParam("taskType") String taskTypeList,
+                                              @DtRequestParam("taskPeriodId") String periodTypeList,
+                                              @DtRequestParam("currentPage") Integer currentPage,
+                                              @DtRequestParam("pageSize") Integer pageSize, @DtRequestParam("searchType") String searchType,
+                                              @DtRequestParam("appType") Integer appType) {
         return scheduleTaskShadeService.queryTasks(tenantId, projectId, name, ownerId, startTime, endTime, scheduleStatus, taskTypeList, periodTypeList, currentPage, pageSize, searchType, appType);
     }
 
@@ -140,16 +142,16 @@ public class ScheduleTaskShadeController {
 
     @RequestMapping(value="/countTaskByType", method = {RequestMethod.POST})
     @ApiOperation(value = "根据任务类型查询已提交到task服务的任务数")
-    public Map<String ,Object> countTaskByType(@DtRequestParam("tenantId") Long tenantId,@DtRequestParam("dtuicTenantId") Long dtuicTenantId,
+    public ScheduleTaskShadeCountTaskVO countTaskByType(@DtRequestParam("tenantId") Long tenantId,@DtRequestParam("dtuicTenantId") Long dtuicTenantId,
                                                @DtRequestParam("projectId") Long projectId, @DtRequestParam("appType") Integer appType,
                                                @DtRequestParam("taskTypes") List<Integer> taskTypes) {
         return scheduleTaskShadeService.countTaskByType(tenantId, dtuicTenantId, projectId, appType, taskTypes);
     }
 
     @RequestMapping(value="/countTaskByTypes", method = {RequestMethod.POST})
-    public List<Map<String ,Object>> countTaskByTypes(@DtRequestParam("tenantId") Long tenantId,@DtRequestParam("dtuicTenantId") Long dtuicTenantId,
-                                               @DtRequestParam("projectIds") List<Long> projectIds, @DtRequestParam("appType") Integer appType,
-                                               @DtRequestParam("taskTypes") List<Integer> taskTypes) {
+    public List<ScheduleTaskShadeCountTaskVO>  countTaskByTypes(@DtRequestParam("tenantId") Long tenantId, @DtRequestParam("dtuicTenantId") Long dtuicTenantId,
+                                                                 @DtRequestParam("projectIds") List<Long> projectIds, @DtRequestParam("appType") Integer appType,
+                                                                 @DtRequestParam("taskTypes") List<Integer> taskTypes) {
         return scheduleTaskShadeService.countTaskByTypes(tenantId, dtuicTenantId, projectIds, appType, taskTypes);
     }
 }

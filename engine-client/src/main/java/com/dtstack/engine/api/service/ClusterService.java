@@ -56,18 +56,18 @@ public interface ClusterService extends DtInsightServer {
 
     /**
      * 获得插件信息
-     * 注释： 用于取代 /node/cluster/hiveServerInfo、/node/cluster/hadoopInfo、/node/cluster/carbonInfo、/node/cluster/impalaInfo、/node/cluster/sftpInfo等接口
+     * 注释： 用于取代 /node/cluster/hiveInfo /node/cluster/hiveServerInfo、/node/cluster/hadoopInfo、/node/cluster/carbonInfo、/node/cluster/impalaInfo、/node/cluster/sftpInfo等接口
      * @param dtUicTenantId 用户id
      * @param fullKerberos 是否将sftp中keytab配置转换为本地路径
      *                     如果不传或者false,不转换;
      *                     如果是true,转换;
      * @param pluginType 插件类型 插入code即可
-     *                   HDFS(4, "HDFS", "hadoopConf"),
-     *                   SPARK_THRIFT(6, "SparkThrift", "hiveConf"),
-     *                   CARBON_DATA(7, "CarbonData ThriftServer", "carbonConf"),
-     *                   HIVE_SERVER(9, "HiveServer", "hiveServerConf"),
-     *                   IMPALA_SQL(11, "Impala SQL", "impalaSqlConf"),
-     *                   SFTP(10, "SFTP", "sftpConf"),
+     *                   HDFS(4, "HDFS", "hadoopConf"), -> /node/cluster/hadoopInfo
+     *                   SPARK_THRIFT(6, "SparkThrift", "hiveConf"), -> /node/cluster/hiveInfo
+     *                   CARBON_DATA(7, "CarbonData ThriftServer", "carbonConf"), -> /node/cluster/carbonInfo
+     *                   HIVE_SERVER(9, "HiveServer", "hiveServerConf"), ->  /node/cluster/hiveServerInfo
+     *                   IMPALA_SQL(11, "Impala SQL", "impalaSqlConf"), -> /node/cluster/impalaInfo
+     *                   SFTP(10, "SFTP", "sftpConf"), -> /node/cluster/sftpInfo
      * @return
      */
     @RequestLine("POST /node/cluster/pluginInfoForType")
@@ -99,9 +99,9 @@ public interface ClusterService extends DtInsightServer {
      * @param dtUicTenantId 组户id
      * @param dtUicUserId 用户id
      * @param type 组件类型
-     *             Oracle(2);
-     *             TiDB(31);
-     *             GREENPLUM6(36);
+     *             Oracle(2); /node/cluster/oracleInfo
+     *             TiDB(31); /node/cluster/tiDBInfo
+     *             GREENPLUM6(36); /node/cluster/greenplumInfo
      * @return
      */
     @RequestLine("POST /node/cluster/dbInfo")
