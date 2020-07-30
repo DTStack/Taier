@@ -66,6 +66,77 @@ public class ClusterController{
         return clusterService.pluginInfoForType(dtUicTenantId, fullKerberos,pluginType);
     }
 
+    /**
+     * 兼容其他应用保留
+     *
+     * @param dtUicTenantId
+     * @param fullKerberos
+     * @return
+     */
+    @RequestMapping(value="/hiveInfo", method = {RequestMethod.POST})
+    public String hiveInfo(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("fullKerberos") Boolean fullKerberos) {
+        return clusterService.hiveInfo(dtUicTenantId, fullKerberos);
+    }
+
+    /**
+     * 兼容其他应用保留
+     *
+     * @param dtUicTenantId
+     * @param fullKerberos
+     * @return
+     */
+    @RequestMapping(value="/hiveServerInfo", method = {RequestMethod.POST})
+    public String hiveServerInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("fullKerberos") Boolean fullKerberos) {
+        return clusterService.hiveServerInfo(dtUicTenantId, fullKerberos);
+    }
+
+    /**
+     * 兼容其他应用保留
+     *
+     * @param dtUicTenantId
+     * @param fullKerberos
+     * @return
+     */
+    @RequestMapping(value="/hadoopInfo", method = {RequestMethod.POST})
+    public String hadoopInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("fullKerberos") Boolean fullKerberos) {
+        return clusterService.hadoopInfo(dtUicTenantId, fullKerberos);
+    }
+
+    /**
+     * 兼容其他应用保留
+     *
+     * @param dtUicTenantId
+     * @param fullKerberos
+     * @return
+     */
+    @RequestMapping(value="/carbonInfo", method = {RequestMethod.POST})
+    public String carbonInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("fullKerberos") Boolean fullKerberos) {
+        return clusterService.carbonInfo(dtUicTenantId, fullKerberos);
+    }
+
+    /**
+     * 兼容其他应用保留
+     *
+     * @param dtUicTenantId
+     * @param fullKerberos
+     * @return
+     */
+    @RequestMapping(value="/impalaInfo", method = {RequestMethod.POST})
+    public String impalaInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("fullKerberos") Boolean fullKerberos) {
+        return clusterService.impalaInfo(dtUicTenantId, fullKerberos);
+    }
+
+    /**
+     * 兼容其他应用保留
+     *
+     * @param dtUicTenantId
+     * @return
+     */
+    @RequestMapping(value="/sftpInfo", method = {RequestMethod.POST})
+    public String sftpInfo(@DtRequestParam("tenantId") Long dtUicTenantId) {
+        return clusterService.sftpInfo(dtUicTenantId);
+    }
+
     @RequestMapping(value="/getConfigByKey", method = {RequestMethod.POST})
     public String getConfigByKey(@DtRequestParam("dtUicTenantId")Long dtUicTenantId, @DtRequestParam("key") String key, @DtRequestParam("fullKerberos") Boolean fullKerberos) {
         return clusterService.getConfigByKey(dtUicTenantId, key, fullKerberos);
@@ -75,6 +146,42 @@ public class ClusterController{
     @ApiOperation(value = "集群下拉列表")
     public List<ClusterVO> clusters() {
         return clusterService.clusters();
+    }
+
+    /**
+     * 兼容其他应用保留
+     *
+     * @param dtUicTenantId
+     * @param dtUicUserId
+     * @return
+     */
+    @RequestMapping(value="/tiDBInfo", method = {RequestMethod.POST})
+    public String tiDBInfo(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("userId") Long dtUicUserId) {
+        return clusterService.tiDBInfo(dtUicTenantId, dtUicUserId);
+    }
+
+    /**
+     * 兼容其他应用保留
+     *
+     * @param dtUicTenantId
+     * @param dtUicUserId
+     * @return
+     */
+    @RequestMapping(value="/oracleInfo", method = {RequestMethod.POST})
+    public String oracleInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("userId") Long dtUicUserId) {
+        return clusterService.oracleInfo(dtUicTenantId, dtUicUserId);
+    }
+
+    /**
+     * 兼容其他应用保留
+     *
+     * @param dtUicTenantId
+     * @param dtUicUserId
+     * @return
+     */
+    @RequestMapping(value="/greenplumInfo", method = {RequestMethod.POST})
+    public String greenplumInfo(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("userId") Long dtUicUserId) {
+        return clusterService.greenplumInfo(dtUicTenantId, dtUicUserId);
     }
 
     @RequestMapping(value="/dbInfo", method = {RequestMethod.POST})
