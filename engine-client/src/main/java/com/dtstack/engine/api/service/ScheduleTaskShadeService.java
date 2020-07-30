@@ -5,8 +5,11 @@ import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
+import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
+import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
+import com.dtstack.sdk.core.feign.Body;
 import com.dtstack.sdk.core.feign.Headers;
 import com.dtstack.sdk.core.feign.Param;
 import com.dtstack.sdk.core.feign.RequestLine;
@@ -27,14 +30,14 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
      */
     @RequestLine("POST /node/scheduleTaskShade/addOrUpdate")
     @Headers(value={"Content-Type: application/json"})
-    ApiResponse addOrUpdate( ScheduleTaskShadeDTO batchTaskShadeDTO);
+    ApiResponse<Void> addOrUpdate( ScheduleTaskShadeDTO batchTaskShadeDTO);
 
     /**
      * web 接口
      * task删除时触发同步清理
      */
     @RequestLine("POST /node/scheduleTaskShade/deleteTask")
-    ApiResponse deleteTask(@Param("taskId") Long taskId, @Param("modifyUserId") long modifyUserId, @Param("appType") Integer appType);
+    ApiResponse<Void> deleteTask(@Param("taskId") Long taskId, @Param("modifyUserId") long modifyUserId, @Param("appType") Integer appType);
 
 
     /**
@@ -53,7 +56,7 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
                                              @Param("name") String name, @Param("appType") Integer appType, @Param("flowId") Long flowId);
 
     @RequestLine("POST /node/scheduleTaskShade/updateTaskName")
-    ApiResponse updateTaskName(@Param("taskId") long id, @Param("taskName") String taskName, @Param("appType") Integer appType);
+    ApiResponse<Void> updateTaskName(@Param("taskId") long id, @Param("taskName") String taskName, @Param("appType") Integer appType);
 
     /**
      * 分页查询已提交的任务
@@ -67,18 +70,18 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
     ApiResponse<ScheduleTaskShade> getBatchTaskById(@Param("id") Long taskId, @Param("appType") Integer appType);
 
     @RequestLine("POST /node/scheduleTaskShade/queryTasks")
-    ApiResponse<Map<String, Object>> queryTasks(@Param("tenantId") Long tenantId,
-                                                @Param("projectId") Long projectId,
-                                                @Param("name") String name,
-                                                @Param("ownerId") Long ownerId,
-                                                @Param("startTime") Long startTime,
-                                                @Param("endTime") Long endTime,
-                                                @Param("scheduleStatus") Integer scheduleStatus,
-                                                @Param("taskTypeList") String taskTypeList,
-                                                @Param("periodTypeList") String periodTypeList,
-                                                @Param("currentPage") Integer currentPage,
-                                                @Param("pageSize") Integer pageSize, @Param("searchType") String searchType,
-                                                @Param("appType") Integer appType);
+    ApiResponse<ScheduleTaskShadePageVO> queryTasks(@Param("tenantId") Long tenantId,
+                                                    @Param("projectId") Long projectId,
+                                                    @Param("name") String name,
+                                                    @Param("ownerId") Long ownerId,
+                                                    @Param("startTime") Long startTime,
+                                                    @Param("endTime") Long endTime,
+                                                    @Param("scheduleStatus") Integer scheduleStatus,
+                                                    @Param("taskTypeList") String taskTypeList,
+                                                    @Param("periodTypeList") String periodTypeList,
+                                                    @Param("currentPage") Integer currentPage,
+                                                    @Param("pageSize") Integer pageSize, @Param("searchType") String searchType,
+                                                    @Param("appType") Integer appType);
 
 
     /**
@@ -91,7 +94,7 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
      * @param appType
      */
     @RequestLine("POST /node/scheduleTaskShade/frozenTask")
-    ApiResponse frozenTask(@Param("taskIdList") List<Long> taskIdList, @Param("scheduleStatus") int scheduleStatus,
+    ApiResponse<Void> frozenTask(@Param("taskIdList") List<Long> taskIdList, @Param("scheduleStatus") int scheduleStatus,
                            @Param("projectId") Long projectId, @Param("userId") Long userId,
                            @Param("appType") Integer appType);
 
@@ -138,7 +141,7 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
      * @return
      */
     @RequestLine("POST /node/scheduleTaskShade/info")
-    ApiResponse info(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("extraInfo") String info);
+    ApiResponse<Void> info(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("extraInfo") String info);
 
 
     @RequestLine("POST /node/scheduleTaskShade/listDependencyTask")
@@ -159,12 +162,12 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
      * @return
      */
     @RequestLine("POST /node/scheduleTaskShade/countTaskByType")
-    ApiResponse<Map<String, Object>> countTaskByType(@Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId,
-                                                     @Param("projectId") Long projectId, @Param("appType") Integer appType,
-                                                     @Param("taskTypes") List<Integer> taskTypes);
+    ApiResponse<ScheduleTaskShadeCountTaskVO> countTaskByType(@Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId,
+                                                              @Param("projectId") Long projectId, @Param("appType") Integer appType,
+                                                              @Param("taskTypes") List<Integer> taskTypes);
 
     @RequestLine("POST /node/scheduleTaskShade/countTaskByTypes")
-    ApiResponse<List<Map<String, Object>>> countTaskByTypes(@Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId,
+    ApiResponse<List<ScheduleTaskShadeCountTaskVO>> countTaskByTypes(@Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId,
                                                             @Param("projectIds") List<Long> projectIds, @Param("appType") Integer appType,
                                                             @Param("taskTypes") List<Integer> taskTypes);
 }

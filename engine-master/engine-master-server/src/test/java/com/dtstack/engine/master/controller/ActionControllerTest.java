@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.controller;
 
+import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.google.common.collect.Lists;
@@ -22,8 +23,8 @@ public class ActionControllerTest extends AbstractTest {
     public void testGetListJobStatusByJobIds() {
         List<String> jobIds = Lists.newArrayList(DataCollection.getData().getScheduleJobFirst().getJobId());
         try {
-            List<Map<String, Object>> result = actionController.listJobStatusByJobIds(jobIds);
-            System.out.println(result);
+            List<ActionJobStatusVO> actionJobStatusVOS = actionController.listJobStatusByJobIds(jobIds);
+            System.out.println(actionJobStatusVOS);
         } catch (Exception e) {
             fail();
         }

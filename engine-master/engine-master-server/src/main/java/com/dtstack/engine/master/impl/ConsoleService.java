@@ -2,7 +2,11 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.dto.AccountDTO;
+import com.dtstack.engine.api.pager.PageQuery;
+import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.api.vo.console.*;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -19,6 +23,7 @@ import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.zookeeper.ZkService;
+import com.dtstack.schedule.common.enums.Sort;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -26,6 +31,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -105,7 +111,7 @@ public class ConsoleService {
         }
     }
 
-    public Map<String, Object> searchJob( String jobName) {
+    public ConsoleJobVO searchJob( String jobName) {
         Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
         String jobId = null;
         ScheduleJob scheduleJob = scheduleJobDao.getByName(jobName);
@@ -120,16 +126,14 @@ public class ConsoleService {
             return null;
         }
         try {
-            Map<String, Object> theJobMap = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), Map.class);
+            ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
             Tenant tenant = tenantDao.getByDtUicTenantId(scheduleJob.getDtuicTenantId());
-            this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant);
-
-            Map<String, Object> result = new HashMap<>(3);
-            result.put("theJob", Lists.newArrayList(theJobMap));
-            result.put("theJobIdx", 1);
-            result.put("nodeAddress", engineJobCache.getNodeAddress());
-
-            return result;
+            ConsoleJobInfoVO consoleJobInfoVO = this.fillJobInfo(paramAction, scheduleJob, engineJobCache, tenant);
+            ConsoleJobVO vo = new ConsoleJobVO();
+            vo.setTheJob(consoleJobInfoVO);
+            vo.setNodeAddress(engineJobCache.getNodeAddress());
+            vo.setTheJobIdx(1);
+            return vo;
         } catch (Exception e) {
             logger.error("{}", e);
         }
@@ -209,11 +213,11 @@ public class ConsoleService {
         return overview.values();
     }
 
-    public Map<String, Object> groupDetail( String jobResource,
-                                            String nodeAddress,
-                                            Integer stage,
-                                            Integer pageSize,
-                                            Integer currentPage, String dtToken) {
+    public PageResult groupDetail(String jobResource,
+                                  String nodeAddress,
+                                  Integer stage,
+                                  Integer pageSize,
+                                  Integer currentPage, String dtToken) {
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
         Preconditions.checkNotNull(stage, "parameters of stage is required");
         Preconditions.checkArgument(currentPage != null && currentPage > 0, "parameters of currentPage is required");
@@ -252,11 +256,8 @@ public class ConsoleService {
         } catch (Exception e) {
             logger.error("{}", e);
         }
-        Map<String, Object> result = new HashMap<>();
-        result.put("data", data);
-        result.put("total", count);
-        result.put("currentPage", currentPage);
-        result.put("pageSize", pageSize);
+        PageQuery pageQuery = new PageQuery<>(currentPage, pageSize);
+        PageResult result = new PageResult(data,count.intValue(),pageQuery);
         return result;
     }
 
@@ -268,6 +269,19 @@ public class ConsoleService {
         String waitTime = DateUtil.getTimeDifference(currentTime - engineJobCache.getGmtCreate().getTime());
         theJobMap.put("waitTime", waitTime);
         theJobMap.put("tenantName", Objects.isNull(tenant) ? "" : tenant.getTenantName());
+    }
+
+    private ConsoleJobInfoVO fillJobInfo(ParamAction paramAction, ScheduleJob scheduleJob, EngineJobCache engineJobCache, Tenant tenant) {
+        ConsoleJobInfoVO infoVO = new ConsoleJobInfoVO();
+        infoVO.setStatus(scheduleJob.getStatus());
+        infoVO.setExecStartTime(scheduleJob.getExecStartTime());
+        infoVO.setGenerateTime(engineJobCache.getGmtCreate());
+        long currentTime = System.currentTimeMillis();
+        String waitTime = DateUtil.getTimeDifference(currentTime - engineJobCache.getGmtCreate().getTime());
+        infoVO.setWaitTime(waitTime);
+        infoVO.setTenantName(Objects.isNull(tenant) ? "" : tenant.getTenantName());
+        infoVO.setParamAction(paramAction);
+        return infoVO;
     }
 
     public Boolean jobStick( String jobId) {
@@ -398,9 +412,9 @@ public class ConsoleService {
         }
     }
 
-    public Map<String, Object> clusterResources( String clusterName) {
+    public ConsoleClusterResourcesVO clusterResources( String clusterName) {
         if (StringUtils.isEmpty(clusterName)) {
-            return MapUtils.EMPTY_MAP;
+            return new ConsoleClusterResourcesVO();
         }
 
         Cluster cluster = clusterDao.getByClusterName(clusterName);
@@ -416,8 +430,8 @@ public class ConsoleService {
         return getResources(yarnComponent, cluster);
     }
 
-    public Map<String, Object> getResources(Component yarnComponent, Cluster cluster) {
-        Map<String, Object> clusterResources = new HashMap<>(2);
+    public ConsoleClusterResourcesVO getResources(Component yarnComponent, Cluster cluster) {
+        ConsoleClusterResourcesVO consoleClusterResourcesVO = new ConsoleClusterResourcesVO();
         try {
             JSONObject pluginInfo = new JSONObject();
             JSONObject componentConfig = JSONObject.parseObject(yarnComponent.getComponentConfig());
@@ -437,13 +451,28 @@ public class ConsoleService {
             }
             pluginInfo.put(ComponentService.TYPE_NAME,typeName);
             ClusterResource clusterResource = workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
-            clusterResources.put("yarn", clusterResource.getYarn());
-            clusterResources.put("flink", clusterResource.getFlink());
+            List<ConsoleTaskManagerDescriptionVO> flinks = Lists.newArrayList();
+            List<ClusterResource.TaskManagerDescription> flink = clusterResource.getFlink();
+            for (ClusterResource.TaskManagerDescription taskManagerDescription : flink) {
+                ConsoleTaskManagerDescriptionVO vo = new ConsoleTaskManagerDescriptionVO();
+                BeanUtils.copyProperties(taskManagerDescription,vo);
+                flinks.add(vo);
+            }
+
+            List<ClusterResource.NodeDescription> yarn = clusterResource.getYarn();
+            List<ConsoleNodeDescriptionVO> consoleNodeDescriptionVOS = Lists.newArrayList();
+            for (ClusterResource.NodeDescription nodeDescription : yarn) {
+                ConsoleNodeDescriptionVO vo = new ConsoleNodeDescriptionVO();
+                BeanUtils.copyProperties(nodeDescription,vo);
+                consoleNodeDescriptionVOS.add(vo);
+            }
+            consoleClusterResourcesVO.setYarn(consoleNodeDescriptionVOS);
+            consoleClusterResourcesVO.setFlink(flinks);
         } catch (Exception e) {
             logger.error(" ", e);
             throw new RdosDefineException("flink资源获取异常");
         }
-        return clusterResources;
+        return consoleClusterResourcesVO;
     }
 
     private Component getYarnComponent(Long clusterId) {

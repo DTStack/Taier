@@ -9,6 +9,11 @@ import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
+import com.dtstack.engine.api.vo.action.ActionLogVO;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobTaskRecentInfoVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -211,13 +216,15 @@ public class ScheduleJobService {
     /**
      * 获取各个状态任务的数量
      */
-    public JSONObject getStatusCount( Long projectId,  Long tenantId,  Integer appType,  Long dtuicTenantId) {
+    public ScheduleJobStatusVO getStatusCount( Long projectId,  Long tenantId,  Integer appType,  Long dtuicTenantId) {
         int all = 0;
-        JSONObject m = new JSONObject(RdosTaskStatus.getCollectionStatus().size());
+        ScheduleJobStatusVO scheduleJobStatusVO =new ScheduleJobStatusVO();
         List<Map<String, Object>> data = scheduleJobDao.countByStatusAndType(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getUnStandardFormattedDate(DateUtil.calTodayMills()),
-                DateUtil.getUnStandardFormattedDate(DateUtil.TOMORROW_ZERO()), tenantId, projectId, appType,dtuicTenantId,null);
+                DateUtil.getUnStandardFormattedDate(DateUtil.TOMORROW_ZERO()), tenantId, projectId, appType, dtuicTenantId, null);
+        List<ScheduleJobStatusCountVO> scheduleJobStatusCountVOS = Lists.newArrayList();
         for (Integer code : RdosTaskStatus.getCollectionStatus().keySet()) {
             List<Integer> status = RdosTaskStatus.getCollectionStatus(code);
+            ScheduleJobStatusCountVO scheduleJobStatusCountVO = new ScheduleJobStatusCountVO();
             int count = 0;
             for (Map<String, Object> info : data) {
                 if (status.contains(MathUtil.getIntegerVal(info.get("status")))) {
@@ -226,12 +233,13 @@ public class ScheduleJobService {
             }
             all += count;
             RdosTaskStatus taskStatus = RdosTaskStatus.getTaskStatus(code);
-            m.put(taskStatus.name(), count);
+            scheduleJobStatusCountVO.setTaskName(taskStatus.name());
+            scheduleJobStatusCountVO.setCount(count);
+            scheduleJobStatusCountVOS.add(scheduleJobStatusCountVO);
         }
-
-        m.put("ALL", all);
-
-        return m;
+        scheduleJobStatusVO.setAll(all);
+        scheduleJobStatusVO.setScheduleJobStatusCountVO(scheduleJobStatusCountVOS);
+        return scheduleJobStatusVO;
     }
 
     /**
@@ -344,9 +352,15 @@ public class ScheduleJobService {
         return result.format(totalCnt, successCnt, failCnt, deployCnt);
     }
 
-    public Map<String, Object> countScienceJobStatus( List<Long> projectIds,  Long tenantId,  Integer runStatus,  Integer type,  String taskType,
+    public ScheduleJobScienceJobStatusVO countScienceJobStatus( List<Long> projectIds,  Long tenantId,  Integer runStatus,  Integer type,  String taskType,
                                                       String cycStartTime,  String cycEndTime) {
-        return scheduleJobDao.countScienceJobStatus(runStatus, projectIds, type, convertStringToList(taskType), tenantId,cycStartTime,cycEndTime);
+        Map<String, Object> stringObjectMap = scheduleJobDao.countScienceJobStatus(runStatus, projectIds, type, convertStringToList(taskType), tenantId, cycStartTime, cycEndTime);
+        ScheduleJobScienceJobStatusVO scienceJobStatusVO = new ScheduleJobScienceJobStatusVO();
+        scienceJobStatusVO.setTotal(stringObjectMap.get("total")==null?0:Integer.parseInt(stringObjectMap.get("total").toString()));
+        scienceJobStatusVO.setDeployCount(stringObjectMap.get("deployCount")==null?0:Integer.parseInt(stringObjectMap.get("deployCount").toString()));
+        scienceJobStatusVO.setFailCount(stringObjectMap.get("failCount")==null?0:Integer.parseInt(stringObjectMap.get("failCount").toString()));
+        scienceJobStatusVO.setSuccessCount(stringObjectMap.get("successCount")==null?0:Integer.parseInt(stringObjectMap.get("successCount").toString()));
+        return scienceJobStatusVO;
     }
 
     private List<Object> finishData(List<Map<String, Object>> metadata) {
@@ -2442,13 +2456,13 @@ public class ScheduleJobService {
                             Long dtuicTenantId = subTaskShade.getDtuicTenantId();
                             if (dtuicTenantId != null) {
                                 subNodeDownloadLog.put(subTaskShade.getName(), String.format(DOWNLOAD_LOG, subJob.getJobId(), subTaskShade.getTaskType()));
-                                JSONObject logInfoFromEngine = this.getLogInfoFromEngine(subJob.getJobId());
+                                ActionLogVO logInfoFromEngine = this.getLogInfoFromEngine(subJob.getJobId());
                                 if (Objects.nonNull(logInfoFromEngine)) {
                                     subTaskLogInfo.append(subTaskShade.getName()).
                                             append("\n====================\n").
-                                            append(logInfoFromEngine.getString("logInfo")).
+                                            append(logInfoFromEngine.getLogInfo()).
                                             append("\n====================\n").
-                                            append(logInfoFromEngine.getString("engineLog")).
+                                            append(logInfoFromEngine.getEngineLog()).
                                             append("\n");
                                 }
                             }
@@ -2470,10 +2484,10 @@ public class ScheduleJobService {
      *
      * @return
      */
-    public JSONObject getLogInfoFromEngine(String jobId) {
+    public ActionLogVO getLogInfoFromEngine(String jobId) {
         try {
-            String log = actionService.log(jobId, ComputeType.BATCH.getType());
-            return JSONObject.parseObject(log);
+            ActionLogVO log = actionService.log(jobId, ComputeType.BATCH.getType());
+            return log;
         } catch (Exception e) {
             logger.error("Exception when getLogInfoFromEngine by jobId: {} and computeType: {}", jobId, ComputeType.BATCH.getType(), e);
         }

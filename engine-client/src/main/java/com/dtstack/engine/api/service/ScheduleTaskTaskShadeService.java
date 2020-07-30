@@ -17,10 +17,10 @@ import java.util.*;
 public interface ScheduleTaskTaskShadeService extends DtInsightServer {
 
     @RequestLine("POST /node/scheduleTaskTaskShade/clearDataByTaskId")
-    ApiResponse clearDataByTaskId(@Param("taskId") Long taskId, @Param("appType") Integer appType);
+    ApiResponse<Void> clearDataByTaskId(@Param("taskId") Long taskId, @Param("appType") Integer appType);
 
     @RequestLine("POST /node/scheduleTaskTaskShade/saveTaskTaskList")
-    ApiResponse saveTaskTaskList(@Param("taskLists") String taskLists);
+    ApiResponse<Void> saveTaskTaskList(@Param("taskLists") String taskLists);
 
     @RequestLine("POST /node/scheduleTaskTaskShade/getAllParentTask")
     ApiResponse<List<ScheduleTaskTaskShade>> getAllParentTask(@Param("taskId") Long taskId);

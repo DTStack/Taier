@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.multiengine.engine;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.engine.api.domain.Component;
@@ -8,6 +9,7 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.api.vo.ClusterVO;
+import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
@@ -472,8 +474,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
     public String queryLastLocation(Long dtUicTenantId, String jobId, long startTime, long endTime, String taskParam) {
         endTime = endTime + 1000 * 60;
-        String enginePluginInfo = componentService.listConfigOfComponents(dtUicTenantId, MultiEngineType.HADOOP.getType());
-        JSONObject jsonObject = JSONObject.parseObject(enginePluginInfo);
+        List<ComponentsConfigOfComponentsVO> componentsConfigOfComponentsVOS = componentService.listConfigOfComponents(dtUicTenantId, MultiEngineType.HADOOP.getType());
+        JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(componentsConfigOfComponentsVOS));
         JSONObject flinkJsonObject = jsonObject.getJSONObject(EComponentType.FLINK.getTypeCode() + "");
         EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam);
         JSONObject flinkConfig = flinkJsonObject.getJSONObject(eDeployMode.getMode());
@@ -520,8 +522,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
      * @return checkpoint存储路径
      */
     private String getSavepointPath(Long tenantId) {
-        String clusterInfoStr = clusterService.clusterInfo(tenantId);
-        JSONObject clusterJson = JSONObject.parseObject(clusterInfoStr);
+        ClusterVO clusterVO = clusterService.clusterInfo(tenantId);
+        JSONObject clusterJson = JSONObject.parseObject(JSON.toJSONString(clusterVO));
         JSONObject flinkConf = clusterJson.getJSONObject("flinkConf");
         if (!flinkConf.containsKey(KEY_SAVEPOINT)) {
             return null;

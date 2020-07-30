@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Account;
 import com.dtstack.engine.api.domain.AccountTenant;
@@ -7,6 +8,7 @@ import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.api.dto.AccountDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.AccountTenantUnBandsVO;
 import com.dtstack.engine.api.vo.AccountTenantVo;
 import com.dtstack.engine.api.vo.AccountVo;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -357,6 +359,7 @@ public class AccountService {
             rootMap.put("createTime", rootUser.getGmtCreate());
             uicUsers.add(rootMap);
         }
+
         if (CollectionUtils.isEmpty(uicUsers)) {
             return new ArrayList(0);
         }
@@ -368,9 +371,12 @@ public class AccountService {
             userInIds = new ArrayList<>();
         }
         //过滤租户下已绑定的用户
-        return uicUsers.stream()
+        List<Map<String, Object>> userId1 = uicUsers.stream()
                 .filter((uicUser) -> !userInIds.contains(Long.valueOf(uicUser.get("userId").toString())))
                 .collect(Collectors.toList());
+
+
+        return userId1;
 
     }
 }

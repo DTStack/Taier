@@ -19,21 +19,21 @@ public interface AccountService extends DtInsightServer {
      */
     @RequestLine("POST /node/account/bindAccount")
     @Headers(value={"Content-Type: application/json"})
-    ApiResponse bindAccount(AccountVo accountVo) throws Exception;
+    ApiResponse<Void> bindAccount(AccountVo accountVo) throws Exception;
 
     /**
      * 解绑数据库账号
      */
     @RequestLine("POST /node/account/unbindAccount")
     @Headers(value={"Content-Type: application/json"})
-    ApiResponse unbindAccount( AccountTenantVo accountTenantVo,  @Param("userId") Long userId) throws Exception;
+    ApiResponse<Void> unbindAccount( AccountTenantVo accountTenantVo,  @Param("userId") Long userId) throws Exception;
 
     /**
      * 解绑数据库账号
      */
     @RequestLine("POST /node/account/updateBindAccount")
     @Headers(value={"Content-Type: application/json"})
-    ApiResponse updateBindAccount( AccountTenantVo accountTenantVo,  @Param("userId") Long userId) throws Exception;
+    ApiResponse<Void> updateBindAccount( AccountTenantVo accountTenantVo,  @Param("userId") Long userId) throws Exception;
 
     /**
      * 分页查询

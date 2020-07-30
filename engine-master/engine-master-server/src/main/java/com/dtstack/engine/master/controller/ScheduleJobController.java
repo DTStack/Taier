@@ -6,6 +6,8 @@ import com.dtstack.engine.api.dto.ScheduleJobDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,7 +42,7 @@ public class ScheduleJobController {
 
     @RequestMapping(value="/getStatusCount", method = {RequestMethod.POST})
     @ApiOperation(value = "获取各个状态任务的数量")
-    public Map<String, Object> getStatusCount(@DtRequestParam("projectId") Long projectId, @DtRequestParam("tenantId") Long tenantId, @DtRequestParam("appType") Integer appType, @DtRequestParam("dtuicTenantId") Long dtuicTenantId) {
+    public ScheduleJobStatusVO getStatusCount(@DtRequestParam("projectId") Long projectId, @DtRequestParam("tenantId") Long tenantId, @DtRequestParam("appType") Integer appType, @DtRequestParam("dtuicTenantId") Long dtuicTenantId) {
         return scheduleJobService.getStatusCount(projectId, tenantId, appType, dtuicTenantId);
     }
 
@@ -75,8 +77,8 @@ public class ScheduleJobController {
     }
 
     @RequestMapping(value="/countScienceJobStatus", method = {RequestMethod.POST})
-    public Map<String, Object> countScienceJobStatus(@DtRequestParam("projectIds") List<Long> projectIds, @DtRequestParam("tenantId") Long tenantId, @DtRequestParam("runStatus") Integer runStatus, @DtRequestParam("type") Integer type, @DtRequestParam("taskType") String taskType,
-                                                     @DtRequestParam("cycStartDay") String cycStartTime, @DtRequestParam("cycEndDay") String cycEndTime) {
+    public ScheduleJobScienceJobStatusVO countScienceJobStatus(@DtRequestParam("projectIds") List<Long> projectIds, @DtRequestParam("tenantId") Long tenantId, @DtRequestParam("runStatus") Integer runStatus, @DtRequestParam("type") Integer type, @DtRequestParam("taskType") String taskType,
+                                                               @DtRequestParam("cycStartDay") String cycStartTime, @DtRequestParam("cycEndDay") String cycEndTime) {
         return scheduleJobService.countScienceJobStatus(projectIds, tenantId, runStatus, type, taskType, cycStartTime, cycEndTime);
     }
 

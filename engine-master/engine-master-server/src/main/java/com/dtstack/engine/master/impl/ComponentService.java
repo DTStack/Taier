@@ -13,6 +13,8 @@ import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.ComponentVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.Pair;
+import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
+import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.exception.EngineAssert;
@@ -143,21 +145,22 @@ public class ComponentService {
      * }
      * }
      */
-    public String listConfigOfComponents( Long dtUicTenantId,  Integer engineType) {
-        JSONObject result = new JSONObject();
+    public List<ComponentsConfigOfComponentsVO> listConfigOfComponents(Long dtUicTenantId, Integer engineType) {
+        List<ComponentsConfigOfComponentsVO> componentsVOS = Lists.newArrayList();
+
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
         if (tenantId == null) {
-            return result.toJSONString();
+            return componentsVOS;
         }
 
         List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
         if (CollectionUtils.isEmpty(engineIds)) {
-            return result.toJSONString();
+            return componentsVOS;
         }
 
         List<Engine> engines = engineDao.listByEngineIds(engineIds);
         if (CollectionUtils.isEmpty(engines)) {
-            return result.toJSONString();
+            return componentsVOS;
         }
 
         Engine targetEngine = null;
@@ -169,15 +172,17 @@ public class ComponentService {
         }
 
         if (targetEngine == null) {
-            return result.toJSONString();
+            return componentsVOS;
         }
 
         List<Component> componentList = componentDao.listByEngineId(targetEngine.getId());
         for (Component component : componentList) {
-            result.put(String.valueOf(component.getComponentTypeCode()), JSONObject.parseObject(component.getComponentConfig()));
+            ComponentsConfigOfComponentsVO componentsConfigOfComponentsVO = new ComponentsConfigOfComponentsVO();
+            componentsConfigOfComponentsVO.setComponentTypeCode(component.getComponentTypeCode());
+            componentsConfigOfComponentsVO.setComponentConfig(component.getComponentConfig());
+            componentsVOS.add(componentsConfigOfComponentsVO);
         }
-
-        return result.toJSONString();
+        return componentsVOS;
     }
 
     public Component getOne( Long id) {
@@ -801,7 +806,7 @@ public class ComponentService {
         componentDao.update(updateComponent);
     }
 
-    public Map<String, Object> addOrCheckClusterWithName( String clusterName) {
+    public ComponentsResultVO addOrCheckClusterWithName( String clusterName) {
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("集群名称不能为空");
         }
@@ -812,11 +817,11 @@ public class ComponentService {
             ClusterDTO clusterDTO = new ClusterDTO();
             clusterDTO.setClusterName(clusterName);
             ClusterVO clusterVO = clusterService.addCluster(clusterDTO);
-            Map<String, Object> result = new HashMap<>();
+            ComponentsResultVO componentsResultVO = new ComponentsResultVO();
             Long clusterId = clusterVO.getClusterId();
-            result.put("clusterId", clusterId);
+            componentsResultVO.setClusterId(clusterId);
             LOGGER.info("add cluster {} ", clusterId);
-            return result;
+            return componentsResultVO;
         }
         throw new RdosDefineException("集群名称已存在");
     }

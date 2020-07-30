@@ -2,23 +2,19 @@ package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.KerberosConfig;
-import com.dtstack.engine.api.dto.Resource;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.api.vo.ComponentVO;
+import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
+import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.engine.master.impl.ComponentService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import com.dtstack.engine.master.router.DtRequestParam;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +27,7 @@ public class ComponentController {
     private ComponentService componentService;
 
     @RequestMapping(value="/listConfigOfComponents", method = {RequestMethod.POST})
-    public String listConfigOfComponents(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("engineType") Integer engineType) {
+    public List<ComponentsConfigOfComponentsVO> listConfigOfComponents(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("engineType") Integer engineType) {
         return componentService.listConfigOfComponents(dtUicTenantId, engineType);
     }
 
@@ -53,7 +49,7 @@ public class ComponentController {
     }
 
     @RequestMapping(value="/addOrCheckClusterWithName", method = {RequestMethod.POST})
-    public Map<String, Object> addOrCheckClusterWithName(@DtRequestParam("clusterName") String clusterName) {
+    public ComponentsResultVO addOrCheckClusterWithName(@DtRequestParam("clusterName") String clusterName) {
         return componentService.addOrCheckClusterWithName(clusterName);
     }
 
@@ -76,7 +72,6 @@ public class ComponentController {
     public Map getComponentVersion() {
         return componentService.getComponentVersion();
     }
-
 
     @RequestMapping(value="/testConnects", method = {RequestMethod.POST})
     @ApiOperation(value = "测试所有组件连通性")

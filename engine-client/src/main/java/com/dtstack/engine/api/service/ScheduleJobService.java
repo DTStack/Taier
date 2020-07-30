@@ -16,6 +16,8 @@ import com.dtstack.engine.api.vo.ChartDataVO;
 import com.dtstack.engine.api.vo.JobTopErrorVO;
 import com.dtstack.engine.api.vo.JobTopOrderVO;
 import com.dtstack.engine.api.vo.RestartJobVO;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Headers;
@@ -58,7 +60,7 @@ public interface ScheduleJobService extends DtInsightServer {
      * 获取各个状态任务的数量
      */
     @RequestLine("POST /node/scheduleJob/getStatusCount")
-    ApiResponse<Map<String, Object>> getStatusCount(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId);
+    ApiResponse<ScheduleJobStatusVO> getStatusCount(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId);
 
     /**
      * 运行时长top排序
@@ -91,8 +93,8 @@ public interface ScheduleJobService extends DtInsightServer {
                                                 @Param("taskType") String taskType);
 
     @RequestLine("POST /node/scheduleJob/countScienceJobStatus")
-    ApiResponse<Map<String, Object>> countScienceJobStatus(@Param("projectIds") List<Long> projectIds, @Param("tenantId") Long tenantId, @Param("runStatus") Integer runStatus, @Param("type") Integer type, @Param("taskType") String taskType,
-                                                           @Param("cycStartTime") String cycStartTime, @Param("cycEndTime") String cycEndTime);
+    ApiResponse<ScheduleJobScienceJobStatusVO> countScienceJobStatus(@Param("projectIds") List<Long> projectIds, @Param("tenantId") Long tenantId, @Param("runStatus") Integer runStatus, @Param("type") Integer type, @Param("taskType") String taskType,
+                                                                     @Param("cycStartTime") String cycStartTime, @Param("cycEndTime") String cycEndTime);
 
     /**
      * 任务运维 - 搜索
@@ -136,7 +138,7 @@ public interface ScheduleJobService extends DtInsightServer {
      */
     @RequestLine("POST /node/scheduleJob/sendTaskStartTrigger")
     @Headers(value={"Content-Type: application/json"})
-    ApiResponse sendTaskStartTrigger( ScheduleJob scheduleJob) throws Exception;
+    ApiResponse<Void> sendTaskStartTrigger( ScheduleJob scheduleJob) throws Exception;
 
     @RequestLine("POST /node/scheduleJob/stopJob")
     ApiResponse<String> stopJob(@Param("jobId") long jobId, @Param("userId") Long userId, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId,
@@ -144,7 +146,7 @@ public interface ScheduleJobService extends DtInsightServer {
 
 
     @RequestLine("POST /node/scheduleJob/stopFillDataJobs")
-    ApiResponse stopFillDataJobs(@Param("fillDataJobName") String fillDataJobName, @Param("projectId") Long projectId, @Param("dtuicTenantId") Long dtuicTenantId, @Param("appType") Integer appType) throws Exception;
+    ApiResponse<Void> stopFillDataJobs(@Param("fillDataJobName") String fillDataJobName, @Param("projectId") Long projectId, @Param("dtuicTenantId") Long dtuicTenantId, @Param("appType") Integer appType) throws Exception;
 
 
     @RequestLine("POST /node/scheduleJob/batchStopJobs")
@@ -365,7 +367,7 @@ public interface ScheduleJobService extends DtInsightServer {
      * @param logInfo
      */
     @RequestLine("POST /node/scheduleJob/updateJobStatusAndLogInfo")
-    ApiResponse updateJobStatusAndLogInfo(@Param("jobId") String jobId, @Param("status") Integer status, @Param("logInfo") String logInfo);
+    ApiResponse<Void> updateJobStatusAndLogInfo(@Param("jobId") String jobId, @Param("status") Integer status, @Param("logInfo") String logInfo);
 
 
     /**
@@ -381,7 +383,7 @@ public interface ScheduleJobService extends DtInsightServer {
      * @throws Exception
      */
     @RequestLine("POST /node/scheduleJob/createTodayTaskShade")
-    ApiResponse createTodayTaskShade(@Param("taskId") Long taskId, @Param("appType") Integer appType);
+    ApiResponse<Void> createTodayTaskShade(@Param("taskId") Long taskId, @Param("appType") Integer appType);
 
     @RequestLine("POST /node/scheduleJob/listByBusinessDateAndPeriodTypeAndStatusList")
     ApiResponse<List<ScheduleJob>> listByBusinessDateAndPeriodTypeAndStatusList(ScheduleJobDTO query);
@@ -416,7 +418,7 @@ public interface ScheduleJobService extends DtInsightServer {
      * @param jobKeyList
      */
     @RequestLine("POST /node/scheduleJob/deleteJobsByJobKey")
-    ApiResponse deleteJobsByJobKey(@Param("jobKeyList") List<String> jobKeyList);
+    ApiResponse<Void> deleteJobsByJobKey(@Param("jobKeyList") List<String> jobKeyList);
 
 
     @RequestLine("POST /node/scheduleJob/syncBatchJob")
@@ -434,6 +436,7 @@ public interface ScheduleJobService extends DtInsightServer {
 
     /**
      * 根据任务ID 停止任务
+     *
      * @param jobId
      * @param userId
      * @param projectId
@@ -446,5 +449,17 @@ public interface ScheduleJobService extends DtInsightServer {
     @RequestLine("POST /node/scheduleJob/stopJobByJobId")
     ApiResponse<String> stopJobByJobId(@Param("jobId") String jobId, @Param("userId") Long userId, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId,
                                        @Param("isRoot") Boolean isRoot, @Param("appType") Integer appType) throws Exception;
+
+    /**
+     * 生成指定日期的周期实例(需要数据库无对应记录)
+     *
+     * @param triggerDay
+     * @return
+     */
+    @RequestLine("POST /node/scheduleJob/buildTaskJobGraphTest")
+    ApiResponse<Void> buildTaskJobGraphTest(@Param("triggerDay") String triggerDay);
+
+    @RequestLine("POST /node/scheduleJob/testTrigger")
+    ApiResponse<Void> testTrigger(@Param("jobId") String jobId);
 
 }
