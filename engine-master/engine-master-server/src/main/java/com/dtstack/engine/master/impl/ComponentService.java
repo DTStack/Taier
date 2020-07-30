@@ -1315,20 +1315,20 @@ public class ComponentService {
      * @param componentIds
      */
     @Transactional(rollbackFor = Exception.class)
-    public void delete( List<Long> componentIds) {
+    public void delete( List<Integer> componentIds) {
         if (CollectionUtils.isEmpty(componentIds)) {
             return;
         }
-        for (Long componentId : componentIds) {
-            Component component = componentDao.getOne(componentId);
+        for (Integer componentId : componentIds) {
+            Component component = componentDao.getOne(componentId.longValue());
             EngineAssert.assertTrue(component != null, ErrorCode.DATA_NOT_FIND.getDescription());
 
             if (EComponentType.requireComponent.contains(EComponentType.getByCode(component.getComponentTypeCode()))){
                 throw new RdosDefineException(component.getComponentName() + " 是必选组件，不可删除");
             }
             component.setIsDeleted(Deleted.DELETED.getStatus());
-            componentDao.deleteById(componentId);
-            kerberosDao.deleteByComponentId(componentId);
+            componentDao.deleteById(componentId.longValue());
+            kerberosDao.deleteByComponentId(componentId.longValue());
         }
     }
 

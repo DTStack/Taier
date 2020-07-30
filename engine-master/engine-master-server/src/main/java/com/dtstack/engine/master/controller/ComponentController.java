@@ -63,7 +63,7 @@ public class ComponentController {
 
     @RequestMapping(value="/delete", method = {RequestMethod.POST})
     @ApiOperation(value = "删除组件")
-    public void delete(@DtRequestParam("componentIds") List<Long> componentIds) {
+    public void delete(@DtRequestParam("componentIds") List<Integer> componentIds) {
         componentService.delete(componentIds);
     }
 

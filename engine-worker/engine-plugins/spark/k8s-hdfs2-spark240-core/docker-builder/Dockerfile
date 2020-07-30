@@ -15,11 +15,10 @@
 # limitations under the License.
 #
 
-FROM openjdk:8-alpine
+FROM openjdk:8-jdk
 
-ARG spark_jars=jars
-ARG img_path=kubernetes/dockerfiles
-ARG k8s_tests=kubernetes/tests
+ARG spark_version=2.4.4
+ARG filebeat_path=filebeat
 
 # Before building the docker image, first build and make a Spark distribution following
 # the instructions in http://spark.apache.org/docs/latest/building-spark.html.
@@ -28,44 +27,74 @@ ARG k8s_tests=kubernetes/tests
 # of the Spark distribution. E.g.:
 # docker build -t spark:latest -f kubernetes/dockerfiles/spark/Dockerfile .
 
-RUN set -ex && \
-    apk upgrade --no-cache && \
-    ln -s /lib /lib64 && \
-    apk add --no-cache bash tini libc6-compat linux-pam nss expect openssh-server openssh-client python python3 && \
-    python -m ensurepip && \
-    python3 -m ensurepip && \
-    rm -r /usr/lib/python*/ensurepip && \
-    pip install --upgrade pip setuptools && \
-    rm -r /root/.cache && \
-    mkdir -p /opt/spark && \
-    mkdir -p /opt/spark/work-dir && \
-    mkdir -p /opt/dtstack/spark && \
-    mkdir -p /opt/spark/conf && \
-    mkdir -p /opt/spark/logs && \
-    mkdir -p /opt/spark/python && \
-    touch /opt/spark/RELEASE && \
-    rm /bin/sh && \
-    ln -sv /bin/bash /bin/sh && \
-    echo "auth required pam_wheel.so use_uid" >> /etc/pam.d/su && \
-    chgrp root /etc/passwd && chmod ug+rw /etc/passwd
+# Create flink user
+RUN  groupadd -r spark && useradd -r -g spark spark
 
-COPY ${spark_jars} /opt/spark/jars
-COPY bin /opt/spark/bin
-COPY sbin /opt/spark/sbin
-COPY ${img_path}/spark/entrypoint.sh /opt/
-COPY ${img_path}/spark/sftpdownload.sh /opt/
-COPY examples /opt/spark/examples
-COPY ${k8s_tests} /opt/spark/tests
-COPY data /opt/spark/data
-COPY spark-sql-proxy.jar /opt/dtstack/spark
-COPY conf/log4j.properties /opt/spark/conf
+ENV GOSU_VERSION 1.11
+RUN set -ex; \
+    \
+    fetchDeps=" \
+        libsnappy1v5 \
+        gettext-base \
+        sysstat \
+        dnsutils \
+        vim \
+        python \
+        python3 \
+        ca-certificates \
+        dirmngr \
+        gnupg \
+        wget \
+        git \
+        expect \
+    "; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends $fetchDeps; \
+    rm -rf /var/lib/apt/lists/*; \
+    \
+    dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
+    wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch"; \
+    wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
+    gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+    gpgconf --kill all; \
+    rm -r "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+    chmod +x /usr/local/bin/gosu; \
+    gosu nobody true; \
+    /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone; \
+    mkdir -p /opt/dtstack
 
-COPY python/lib /opt/spark/python/lib
 
-ENV PYTHONPATH /opt/spark/python/lib/pyspark.zip:${SPARK_HOME}/python/lib/py4j-*.zip
+# Install spark
+RUN wget -O /opt/dtstack/spark-$spark_version.tgz "https://archive.apache.org/dist/spark/spark-$spark_version/spark-$spark_version-bin-hadoop2.7.tgz" && \
+    cd /opt/dtstack && tar -zxvf spark-$spark_version.tgz && \
+    rm -rf spark-$spark_version.tgz
+
+# set env
 ENV SPARK_HOME /opt/spark
+ENV PYTHONPATH /opt/spark/python/lib/pyspark.zip:${SPARK_HOME}/python/lib/py4j-*.zip
 
+# Install filebeat
+ADD $filebeat_path /opt/dtstack
 
-WORKDIR /opt/spark/work-dir
+COPY entrypoint.sh /opt/dtstack
+COPY sftpdownload.sh /opt/dtstack
+COPY spark-sql-proxy.jar /opt/dtstack/
 
-ENTRYPOINT [ "/opt/entrypoint.sh" ]
+RUN set -x && \
+  ln -s /opt/dtstack/spark-[0-9]* $SPARK_HOME && \
+  chown -h spark:spark $SPARK_HOME &&\
+  chown -R spark:spark /opt/dtstack && \
+  chmod 755 /opt/dtstack/entrypoint.sh && \
+  chmod 755 /opt/dtstack/sftpdownload.sh && \
+  mkdir /opt/spark/logs
+
+# update kubernetes-client
+RUN rm -rf /opt/spark/jars/kubernetes-* && \
+    wget -O /opt/spark/jars/kubernetes-client-4.6.1.jar "https://repo1.maven.org/maven2/io/fabric8/kubernetes-client/4.6.1/kubernetes-client-4.6.1.jar" && \
+    wget -O /opt/spark/jars/kubernetes-model-4.6.1.jar "https://repo1.maven.org/maven2/io/fabric8/kubernetes-model/4.6.1/kubernetes-model-4.6.1.jar" && \
+    wget -O /opt/spark/jars/kubernetes-model-common-4.6.1.jar "https://repo1.maven.org/maven2/io/fabric8/kubernetes-model-common/4.6.1/kubernetes-model-common-4.6.1.jar"
+
+WORKDIR /opt/spark
+ENTRYPOINT [ "/opt/dtstack/entrypoint.sh" ]

@@ -534,7 +534,7 @@ public class ScheduleJobService {
         }
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listAfterOrBeforeJobs(job.getTaskId(), isAfter, job.getCycTime());
         Collections.sort(scheduleJobs, new Comparator<ScheduleJob>() {
-            
+
             public int compare(ScheduleJob o1, ScheduleJob o2) {
                 if (Long.parseLong(o1.getCycTime()) < Long.parseLong(o2.getCycTime())) {
                     return 1;
@@ -817,6 +817,7 @@ public class ScheduleJobService {
         batchJobDTO.setRetryNumSort(vo.getRetryNumSort());
         batchJobDTO.setBusinessDateSort(vo.getBusinessDateSort());
         batchJobDTO.setTaskPeriodId(convertStringToList(vo.getTaskPeriodId()));
+        batchJobDTO.setAppType(vo.getAppType());
 
         if (vo.getProjectIds() != null && vo.getProjectIds().size() > 0) {
             batchJobDTO.setProjectIds(vo.getProjectIds());
@@ -909,7 +910,7 @@ public class ScheduleJobService {
         return resultList;
     }
 
-    
+
     public List<ScheduleRunDetailVO> jobDetail( Long taskId,  Integer appType) {
 
         ScheduleTaskShade task = batchTaskShadeService.getBatchTaskById(taskId, appType);
@@ -1212,7 +1213,7 @@ public class ScheduleJobService {
             ScheduleTaskShade batchTask = scheduleTaskShadeDao.getOne(scheduleJob.getTaskId(), appType);
             //fix 任务被删除
             if (batchTask == null) {
-                List<ScheduleTaskShade> deleteTask = batchTaskShadeService.getSimpleTaskRangeAllByIds(Lists.newArrayList(scheduleJob.getTaskId()));
+                List<ScheduleTaskShade> deleteTask = batchTaskShadeService.getSimpleTaskRangeAllByIds(Lists.newArrayList(scheduleJob.getTaskId()),appType);
                 if (CollectionUtils.isEmpty(deleteTask)) {
                     continue;
                 }
@@ -1316,6 +1317,14 @@ public class ScheduleJobService {
             }, environmentContext.getBuildJobErrorRetry(), 200, false);
         } catch (Exception e) {
             logger.error("!!!!! persisteJobs job error !!!! job {} jobjob {}", jobWaitForSave, jobJobWaitForSave, e);
+            throw new RdosDefineException(e);
+        } finally {
+            if (jobWaitForSave.size() > 0) {
+                jobWaitForSave.clear();
+            }
+            if (jobJobWaitForSave.size() > 0) {
+                jobJobWaitForSave.clear();
+            }
         }
     }
 
@@ -1651,7 +1660,8 @@ public class ScheduleJobService {
     public PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfo( String queryJobDTO,
                                                                           List<String> flowJobIdList,
                                                                           String fillJobName,
-                                                                          Long dutyUserId,  String searchType) throws Exception {
+                                                                          Long dutyUserId,  String searchType,
+                                                                          Integer appType) throws Exception {
         if (Strings.isNullOrEmpty(fillJobName)) {
             throw new RdosDefineException("(补数据名称不能为空)", ErrorCode.INVALID_PARAMETERS);
         }
@@ -1659,6 +1669,7 @@ public class ScheduleJobService {
         QueryJobDTO vo = JSONObject.parseObject(queryJobDTO, QueryJobDTO.class);
         vo.setSplitFiledFlag(true);
         ScheduleJobDTO batchJobDTO = this.createQuery(vo);
+        batchJobDTO.setAppType(appType);
         batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
         batchJobDTO.setFillDataJobName(fillJobName);
         batchJobDTO.setNeedQuerySonNode(true);
@@ -2268,7 +2279,7 @@ public class ScheduleJobService {
         }
         Integer updateSize = 0;
         for (ScheduleJob job : scheduleJobs) {
-            if(Objects.nonNull(job.getStatus())){
+            if (Objects.nonNull(job.getStatus())) {
                 //更新状态 日志信息也要更新
                 job.setLogInfo("");
             }
@@ -2698,7 +2709,7 @@ public class ScheduleJobService {
      *
      * @return
      */
-    
+
     public List<ScheduleJob> syncBatchJob(QueryJobDTO dto) {
         if (Objects.isNull(dto) || Objects.isNull(dto.getAppType())) {
             return new ArrayList<>();
@@ -2725,7 +2736,7 @@ public class ScheduleJobService {
      * @param taskIds
      * @param appType
      */
-    
+
     public List<ScheduleJob> listJobsByTaskIdsAndApptype( List<Long> taskIds, Integer appType){
         return scheduleJobDao.listJobsByTaskIdAndApptype(taskIds,appType);
     }

@@ -153,12 +153,12 @@ public class ScheduleTaskShadeService {
      * @param taskIdArray
      * @return
      */
-    public List<ScheduleTaskShade> getSimpleTaskRangeAllByIds(List<Long> taskIdArray) {
+    public List<ScheduleTaskShade> getSimpleTaskRangeAllByIds(List<Long> taskIdArray, Integer appType) {
         if (CollectionUtils.isEmpty(taskIdArray)) {
             return Collections.EMPTY_LIST;
         }
 
-        return scheduleTaskShadeDao.listSimpleByTaskIds(taskIdArray, null);
+        return scheduleTaskShadeDao.listSimpleByTaskIds(taskIdArray, null,appType);
     }
 
     /**
@@ -466,7 +466,7 @@ public class ScheduleTaskShadeService {
             return null;
         }
         if(isSimple){
-            return scheduleTaskShadeDao.listSimpleByTaskIds(taskIds,isDeleted);
+            return scheduleTaskShadeDao.listSimpleByTaskIds(taskIds,isDeleted,appType);
         }
         return  scheduleTaskShadeDao.listByTaskIds(taskIds, isDeleted,appType);
     }

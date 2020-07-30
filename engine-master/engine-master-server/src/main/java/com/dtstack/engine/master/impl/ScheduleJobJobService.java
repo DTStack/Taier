@@ -21,13 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -107,12 +101,16 @@ public class ScheduleJobJobService {
         List<Long> taskIds = new ArrayList<>();
 
         List<ScheduleJob> jobs = scheduleJobDao.listJobByJobKeys(allJobKeys);
+        Integer appType = null;
         for (ScheduleJob scheduleJob : jobs) {
             keyJobMap.put(scheduleJob.getJobKey(), scheduleJob);
             taskIds.add(scheduleJob.getTaskId());
+            if (Objects.isNull(appType) && Objects.nonNull(scheduleJob.getAppType())) {
+                appType = scheduleJob.getAppType();
+            }
         }
 
-        List<ScheduleTaskShade> taskShades = batchTaskShadeService.getSimpleTaskRangeAllByIds(taskIds);
+        List<ScheduleTaskShade> taskShades = batchTaskShadeService.getSimpleTaskRangeAllByIds(taskIds,appType);
         taskShades.forEach(item -> idTaskMap.put(item.getTaskId(), item));
     }
 

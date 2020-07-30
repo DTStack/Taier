@@ -173,8 +173,9 @@ public class ScheduleJobController {
     public PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfo(@DtRequestParam("vo") String queryJobDTO,
                                                                          @DtRequestParam("flowJobIdList") List<String> flowJobIdList,
                                                                          @DtRequestParam("fillJobName") String fillJobName,
-                                                                         @DtRequestParam("dutyUserId") Long dutyUserId, @DtRequestParam("searchType") String searchType) throws Exception {
-        return scheduleJobService.getFillDataDetailInfo(queryJobDTO, flowJobIdList, fillJobName, dutyUserId, searchType);
+                                                                         @DtRequestParam("dutyUserId") Long dutyUserId, @DtRequestParam("searchType") String searchType,
+                                                                         @DtRequestParam("appType") Integer appType) throws Exception {
+        return scheduleJobService.getFillDataDetailInfo(queryJobDTO, flowJobIdList, fillJobName, dutyUserId, searchType, appType);
     }
 
 

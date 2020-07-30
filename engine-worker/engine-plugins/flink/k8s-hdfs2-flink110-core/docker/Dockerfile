@@ -17,8 +17,6 @@
 ################################################################################
 
 FROM openjdk:8-jdk
-#FROM openjdk:8-jre
-
 
 # build params
 # flink-dist can point to a directory or a tarball on the local system
@@ -34,39 +32,39 @@ RUN  groupadd -r flink && useradd -r -g flink flink
 # Install requirements
 ENV GOSU_VERSION 1.11
 RUN set -ex; \
-	\
-	fetchDeps=" \
-                libsnappy1v5 \
-                gettext-base \
-                sysstat \
-                dnsutils \
-                vim \
-                python \
-                python3 \
-		ca-certificates \
-		dirmngr \
-		gnupg \
-		wget \
-		git \
-	"; \
-	apt-get update; \
-	apt-get install -y --no-install-recommends $fetchDeps; \
-	rm -rf /var/lib/apt/lists/*; \
-	\
-	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
-	wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch"; \
-	wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
-	export GNUPGHOME="$(mktemp -d)"; \
-	gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
-	gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
-	gpgconf --kill all; \
-	rm -r "$GNUPGHOME" /usr/local/bin/gosu.asc; \
-	chmod +x /usr/local/bin/gosu; \
-	gosu nobody true; \
-	\
-        /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone; \
-        \
-        wget -O /opt/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar "https://repo.maven.apache.org/maven2/org/apache/flink/flink-shaded-hadoop-2-uber/2.7.5-10.0/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar"
+    \
+    fetchDeps=" \
+        libsnappy1v5 \
+        gettext-base \
+        sysstat \
+        dnsutils \
+        vim \
+        python \
+        python3 \
+        ca-certificates \
+        dirmngr \
+        gnupg \
+        wget \
+        git \
+    "; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends $fetchDeps; \
+    rm -rf /var/lib/apt/lists/*; \
+    \
+    dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
+    wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch"; \
+    wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
+    gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+    gpgconf --kill all; \
+    rm -r "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+    chmod +x /usr/local/bin/gosu; \
+    gosu nobody true; \
+    \
+    /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone; \
+    \
+    wget -O /opt/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar "https://repo.maven.apache.org/maven2/org/apache/flink/flink-shaded-hadoop-2-uber/2.7.5-10.0/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar"
 
 
 # Install maven

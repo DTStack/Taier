@@ -42,6 +42,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -329,6 +331,100 @@ public class ScheduleJobServiceTest extends AbstractTest {
         List<String> list = sheduleJobService.listJobIdByTaskNameAndStatusList(task.getName(), Arrays.asList(job.getStatus()), task.getProjectId(), task.getAppType());
         Assert.assertEquals(list.size(), 1);
     }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testStatisticsTaskRecentInfo() {
+        ScheduleJob job = DataCollection.getData().getScheduleJobDefiniteTaskId();
+        List<Map<String, Object>> taskInfos = sheduleJobService.statisticsTaskRecentInfo(job.getTaskId(), job.getAppType(), job.getProjectId(), 1);
+
+        Assert.assertEquals(taskInfos.size(), 1);
+
+        Map<String, Object> info = taskInfos.get(0);
+        String jobId = info.get("jobId").toString();
+
+        Assert.assertEquals(jobId, job.getJobId());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testBatchJobsBatchUpdate() {
+        ScheduleJob job = DataCollection.getData().getScheduleJobDefiniteJobId();
+        job.setJobName("test_batchJobsBatchUpdate");
+
+        List<ScheduleJob> jobList = new ArrayList<>();
+        jobList.add(job);
+
+        String jobString = JSONObject.toJSONString(jobList);
+        Integer result = sheduleJobService.BatchJobsBatchUpdate(jobString);
+
+        Assert.assertEquals(result.intValue(), 1);
+
+        Long jobId = job.getId();
+        ScheduleJob scheduleJob = sheduleJobService.getJobById(jobId);
+        Assert.assertEquals(scheduleJob.getJobName(), "test_batchJobsBatchUpdate");
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testUpdateTimeNull() {
+        ScheduleJob job = DataCollection.getData().getScheduleJobDefiniteJobId();
+        String jobId = job.getJobId();
+        Long id = job.getId();
+
+        sheduleJobService.updateTimeNull(jobId);
+
+        ScheduleJob scheduleJob = sheduleJobService.getJobById(id);
+        Timestamp execStartTime = scheduleJob.getExecStartTime();
+        Timestamp execEndTime = scheduleJob.getExecEndTime();
+
+        Assert.assertTrue(execStartTime == null && execEndTime == null);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testGetById() {
+        ScheduleJob job = DataCollection.getData().getScheduleJobDefiniteJobId();
+        Long id = job.getId();
+
+        ScheduleJob scheduleJob = sheduleJobService.getById(id);
+        Assert.assertEquals(scheduleJob.getJobName(), job.getJobName());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testGetByJobId() {
+        ScheduleJob job = DataCollection.getData().getScheduleJobDefiniteJobId();
+        String jobId = job.getJobId();
+
+        ScheduleJob scheduleJob = sheduleJobService.getByJobId(jobId, 0);
+        Assert.assertEquals(scheduleJob.getJobName(), job.getJobName());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testGetByIds() {
+        ScheduleJob job = DataCollection.getData().getScheduleJobDefiniteJobId();
+        Long id = job.getId();
+        Long projectId = job.getProjectId();
+        List<Long> ids = Arrays.asList(id);
+
+        List<ScheduleJob> scheduleJobs = sheduleJobService.getByIds(ids, projectId);
+        Assert.assertEquals(scheduleJobs.size(), 1);
+
+        ScheduleJob scheduleJob = scheduleJobs.get(0);
+        Assert.assertEquals(scheduleJob.getJobName(), job.getJobName());
+    }
+
+
+
+
 
 
 }

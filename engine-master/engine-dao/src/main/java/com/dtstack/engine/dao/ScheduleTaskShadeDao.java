@@ -80,7 +80,7 @@ public interface ScheduleTaskShadeDao {
      * @param isDeleted
      * @return
      */
-    List<ScheduleTaskShade> listSimpleByTaskIds(@Param("taskIds") Collection<Long> taskIds, @Param("isDeleted") Integer isDeleted);
+    List<ScheduleTaskShade> listSimpleByTaskIds(@Param("taskIds") Collection<Long> taskIds, @Param("isDeleted") Integer isDeleted,@Param("appType") Integer appType);
 
     ScheduleTaskShade getOneWithDeleted(@Param("id") Long id, @Param("isDeleted") Integer isDeleted, @Param("appType") Integer appType);
 
