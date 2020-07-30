@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.*;
 
 public class HadoopClient extends AbstractClient {
@@ -74,7 +75,7 @@ public class HadoopClient extends AbstractClient {
 
     @Override
     public void init(Properties prop) throws Exception {
-        System.out.println("hadoop client init...");
+        LOG.info("hadoop client init...");
 
         String configStr = PublicUtil.objToString(prop);
         config = PublicUtil.jsonStrToObject(configStr, Config.class);
@@ -531,7 +532,6 @@ public class HadoopClient extends AbstractClient {
                     List<NodeReport> nodes = resourceClient.getNodeReports(NodeState.RUNNING);
                     List<ClusterResource.NodeDescription> clusterNodes = new ArrayList<>();
 
-                    ClusterResource.ResourceMetrics metrics = new ClusterResource.ResourceMetrics();
                     Integer totalMem = 0;
                     Integer totalCores = 0;
                     Integer usedMem = 0;
@@ -555,10 +555,9 @@ public class HadoopClient extends AbstractClient {
                         usedMem += used.getMemory();
                         usedCores += used.getVirtualCores();
                     }
-                    metrics.setTotalMem(totalMem);
-                    metrics.setTotalCores(totalCores);
-                    metrics.setUsedMem(usedMem);
-                    metrics.setUsedCores(usedCores);
+
+                    ClusterResource.ResourceMetrics metrics = createResourceMetrics(
+                            totalMem, usedMem, totalCores, usedCores);
 
                     clusterResource.setNodes(clusterNodes);
                     clusterResource.setQueues(getQueueResource(yarnClient));
@@ -582,6 +581,32 @@ public class HadoopClient extends AbstractClient {
             throw new RdosDefineException(e.getMessage());
         }
         return clusterResource;
+    }
+
+    private ClusterResource.ResourceMetrics createResourceMetrics(
+            Integer totalMem, Integer usedMem, Integer totalCores, Integer usedCores) {
+
+        ClusterResource.ResourceMetrics metrics = new ClusterResource.ResourceMetrics();
+
+        metrics.setTotalCores(totalCores);
+        metrics.setUsedCores(usedCores);
+
+        BigDecimal totalMemDecimal = new BigDecimal(totalMem / (1024 * 1.0));
+        Double totalMemNew = totalMemDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        metrics.setTotalMem(totalMemNew);
+
+        BigDecimal usedMemDecimal = new BigDecimal(usedMem / (1024 * 1.0));
+        Double usedMemNew = usedMemDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        metrics.setUsedMem(usedMemNew);
+
+        BigDecimal memRateDecimal = new BigDecimal(usedMem / (totalMem * 1.0));
+        double memRate = memRateDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        metrics.setMemRate(memRate);
+
+        BigDecimal coresRateDecimal = new BigDecimal(usedCores / (totalCores * 1.0));
+        double coresRate = coresRateDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        metrics.setCoresRate(coresRate);
+        return metrics;
     }
 
     private List<JSONObject> getQueueResource(YarnClient yarnClient) throws Exception {
@@ -626,11 +651,35 @@ public class HadoopClient extends AbstractClient {
 
             queueInfo.put("queueName", queueNewName);
             if (!queueInfo.containsKey("queues")) {
+                fillUser(queueInfo);
                 queues.add(queueInfo);
             }
 
         }
         return queues;
+    }
+
+    private void fillUser(JSONObject queueInfo) {
+        JSONObject queueUsers = queueInfo.getJSONObject("users");
+        if (queueUsers == null) {
+            JSONObject userJSONObject = new JSONObject();
+            userJSONObject.put("username", "admin");
+            userJSONObject.put("resourcesUsed", queueInfo.getJSONObject("resourcesUsed"));
+            userJSONObject.put("AMResourceUsed", queueInfo.getJSONObject("usedAMResource"));
+            userJSONObject.put("userResourceLimit", queueInfo.getJSONObject("userAMResourceLimit"));
+            userJSONObject.put("maxResource", queueInfo.getJSONObject("userAMResourceLimit"));
+            userJSONObject.put("maxAMResource", queueInfo.getJSONObject("userAMResourceLimit"));
+            List<JSONObject> users = new ArrayList<>();
+            users.add(userJSONObject);
+            queueInfo.put("users", users);
+        } else {
+            JSONArray users = queueUsers.getJSONArray("user");
+            for (Object user : users) {
+                JSONObject userJSONObject = (JSONObject)user;
+                userJSONObject.put("maxResource", userJSONObject.getJSONObject("userResourceLimit"));
+                userJSONObject.put("maxAMResource", userJSONObject.getJSONObject("userResourceLimit"));
+            }
+        }
     }
 
     private String getYarnWebAddress(YarnClient yarnClient) throws Exception {
@@ -695,8 +744,8 @@ public class HadoopClient extends AbstractClient {
 
         ClusterResource clusterResource = client.getClusterResource();
 
-        System.out.println("submit success!");
-        System.out.println(clusterResource.toString());
+        LOG.info("submit success!");
+        LOG.info(clusterResource.toString());
         System.exit(0);
     }
 

@@ -91,29 +91,20 @@ public class ClusterResource implements Serializable {
         }
     }
 
-    public static class QueueDescription {
-        private String queueName;
-        private Double usedCapacity;
-        private Double configuredCapacity;
-        private Double maxCapacity;
-        private Resource usedResources;
-        private Resource usedAMResource;
-        private Resource amResourceLimit;
-
-
-    }
-
     public static class ResourceMetrics {
-        private Integer totalMem;
-        private Integer totalCores;
-        private Integer usedMem;
-        private Integer usedCores;
 
-        public Integer getTotalMem() {
+        private Double totalMem;
+        private Integer totalCores;
+        private Double usedMem;
+        private Integer usedCores;
+        private Double memRate;
+        private Double coresRate;
+
+        public Double getTotalMem() {
             return totalMem;
         }
 
-        public void setTotalMem(Integer totalMem) {
+        public void setTotalMem(Double totalMem) {
             this.totalMem = totalMem;
         }
 
@@ -125,11 +116,11 @@ public class ClusterResource implements Serializable {
             this.totalCores = totalCores;
         }
 
-        public Integer getUsedMem() {
+        public Double getUsedMem() {
             return usedMem;
         }
 
-        public void setUsedMem(Integer usedMem) {
+        public void setUsedMem(Double usedMem) {
             this.usedMem = usedMem;
         }
 
@@ -140,26 +131,21 @@ public class ClusterResource implements Serializable {
         public void setUsedCores(Integer usedCores) {
             this.usedCores = usedCores;
         }
-    }
 
-    public static class Resource {
-        private Integer memory;
-        private Integer core;
-
-        public Integer getMemory() {
-            return memory;
+        public Double getMemRate() {
+            return memRate;
         }
 
-        public void setMemory(Integer memory) {
-            this.memory = memory;
+        public void setMemRate(Double memRate) {
+            this.memRate = memRate;
         }
 
-        public Integer getCore() {
-            return core;
+        public Double getCoresRate() {
+            return coresRate;
         }
 
-        public void setCore(Integer core) {
-            this.core = core;
+        public void setCoresRate(Double coresRate) {
+            this.coresRate = coresRate;
         }
     }
 
