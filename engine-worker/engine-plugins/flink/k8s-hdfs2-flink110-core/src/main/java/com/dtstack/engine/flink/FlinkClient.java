@@ -442,15 +442,29 @@ public class FlinkClient extends AbstractClient {
         }
 
         try {
+            String reqUrl = "";
+            String response = "";
             FlinkKubeClient flinkKubeClient = flinkClientBuilder.getFlinkKubeClient();
             if (flinkKubeClient.getInternalService(applicationId) == null) {
-                return RdosTaskStatus.NOTFOUND;
+                String jobHistoryURL = getJobHistoryURL();
+                reqUrl = jobHistoryURL + "/jobs/" + jobId;
+                Long refreshInterval = flinkClientBuilder.getFlinkConfiguration()
+                        .getLong(HistoryServerOptions.HISTORY_SERVER_ARCHIVE_REFRESH_INTERVAL);
+                Thread.sleep(refreshInterval);
+                try {
+                    response = PoolHttpClient.get(reqUrl);
+                } catch (IOException e) {
+                    logger.error("Get job status error from jobHistory. " + e.getMessage());
+                }
             }
 
             ClusterClient clusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
             String reqUrlPrefix = clusterClient.getWebInterfaceURL();
-            String reqUrl = reqUrlPrefix + "/jobs/" + jobId;
-            String response = PoolHttpClient.get(reqUrl);
+            if (StringUtils.isEmpty(reqUrl)) {
+                reqUrl = reqUrlPrefix + "/jobs/" + jobId;
+                response = PoolHttpClient.get(reqUrl);
+            }
+
             if (response != null) {
                 Map<String, Object> statusMap = PublicUtil.jsonStrToObject(response, Map.class);
                 Object stateObj = statusMap.get("state");
@@ -649,7 +663,7 @@ public class FlinkClient extends AbstractClient {
 
         cacheFile.remove(jobClient.getTaskId());
 
-        FlinkUtil.deleteK8sConfig(jobClient);
+        //FlinkUtil.deleteK8sConfig(jobClient);
     }
 
     @Override
