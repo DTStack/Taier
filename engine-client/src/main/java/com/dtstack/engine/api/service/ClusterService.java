@@ -2,6 +2,8 @@ package com.dtstack.engine.api.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.dto.ClusterDTO;
+import com.dtstack.engine.api.enums.DbType;
+import com.dtstack.engine.api.enums.EComponentApiType;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ClusterEngineVO;
 import com.dtstack.engine.api.vo.ClusterVO;
@@ -71,7 +73,7 @@ public interface ClusterService extends DtInsightServer {
      * @return
      */
     @RequestLine("POST /node/cluster/pluginInfoForType")
-    ApiResponse<String> pluginInfoForType(@Param("tenantId") Long dtUicTenantId  ,@Param("fullKerberos") Boolean fullKerberos, @Param("pluginType") Integer pluginType);
+    ApiResponse<String> pluginInfoForType(@Param("tenantId") Long dtUicTenantId  ,@Param("fullKerberos") Boolean fullKerberos, @Param("pluginType") EComponentApiType pluginType );
 
     /**
      * 通过枚举获得配置
@@ -99,13 +101,13 @@ public interface ClusterService extends DtInsightServer {
      * @param dtUicTenantId 组户id
      * @param dtUicUserId 用户id
      * @param type 组件类型
-     *             Oracle(2); /node/cluster/oracleInfo
-     *             TiDB(31); /node/cluster/tiDBInfo
-     *             GREENPLUM6(36); /node/cluster/greenplumInfo
+     *             `Oracle(2);` /node/cluster/oracleInfo
+     *             `TiDB(31);` /node/cluster/tiDBInfo
+     *             `GREENPLUM6(36);` /node/cluster/greenplumInfo
      * @return
      */
     @RequestLine("POST /node/cluster/dbInfo")
-    ApiResponse<String> dbInfo(@Param("tenantId") Long dtUicTenantId, @Param("userId") Long dtUicUserId, @Param("type") Integer type);
+    ApiResponse<String> dbInfo(@Param("tenantId") Long dtUicTenantId, @Param("userId") Long dtUicUserId, @Param("type") DbType type);
 
     /**
      * 删除集群

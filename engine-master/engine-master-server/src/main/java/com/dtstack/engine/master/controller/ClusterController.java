@@ -2,6 +2,8 @@ package com.dtstack.engine.master.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.dto.ClusterDTO;
+import com.dtstack.engine.api.enums.DbType;
+import com.dtstack.engine.api.enums.EComponentApiType;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ClusterEngineVO;
 import com.dtstack.engine.api.vo.ClusterVO;
@@ -62,8 +64,8 @@ public class ClusterController{
 
     @ApiOperation(value = "获得插件信息")
     @RequestMapping(value="/pluginInfoForType", method = {RequestMethod.POST})
-    public String pluginInfoForType(@DtRequestParam("tenantId") Long dtUicTenantId  , @DtRequestParam("fullKerberos") Boolean fullKerberos, @DtRequestParam("pluginType") Integer pluginType){
-        return clusterService.pluginInfoForType(dtUicTenantId, fullKerberos,pluginType);
+    public String pluginInfoForType(@DtRequestParam("tenantId") Long dtUicTenantId  , @DtRequestParam("fullKerberos") Boolean fullKerberos, @DtRequestParam("pluginType") EComponentApiType pluginType){
+        return clusterService.pluginInfoForType(dtUicTenantId, fullKerberos,pluginType.getTypeCode());
     }
 
     /**
@@ -185,8 +187,8 @@ public class ClusterController{
     }
 
     @RequestMapping(value="/dbInfo", method = {RequestMethod.POST})
-    public String dbInfo(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("userId") Long dtUicUserId, @DtRequestParam("type") Integer type) {
-        return clusterService.dbInfo(dtUicTenantId, dtUicUserId , type);
+    public String dbInfo(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("userId") Long dtUicUserId, @DtRequestParam("type") DbType type) {
+        return clusterService.dbInfo(dtUicTenantId, dtUicUserId , type.getTypeCode());
     }
 
     @RequestMapping(value="/deleteCluster", method = {RequestMethod.POST})
