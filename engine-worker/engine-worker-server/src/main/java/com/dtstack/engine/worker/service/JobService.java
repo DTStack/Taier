@@ -8,6 +8,7 @@ import com.dtstack.engine.common.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.client.ClientOperator;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +22,7 @@ public class JobService extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(MessageJudgeSlots.class, msg -> {
-                    boolean sufficient = ClientOperator.getInstance().judgeSlots(msg.getJobClient());
+                    JudgeResult sufficient = ClientOperator.getInstance().judgeSlots(msg.getJobClient());
                     sender().tell(sufficient, getSelf());
                 })
                 .match(MessageSubmitJob.class, msg -> {

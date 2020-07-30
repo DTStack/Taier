@@ -23,11 +23,18 @@
         where job_id = #{jobId}
     </update>
 
+    <update id="updateWaitReason">
+        update schedule_engine_job_cache
+        set
+        wait_reason = #{waitReason}, gmt_modified=now()
+        where job_id = #{jobId}
+    </update>
+
     <update id="updateStageBatch">
         update schedule_engine_job_cache
         set
-            node_address = #{nodeAddress}, stage = #{stage},
-            is_failover = 0, gmt_modified=now()
+        node_address = #{nodeAddress}, stage = #{stage},
+        is_failover = 0, gmt_modified=now()
         where job_id in
         <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
             #{jobId}

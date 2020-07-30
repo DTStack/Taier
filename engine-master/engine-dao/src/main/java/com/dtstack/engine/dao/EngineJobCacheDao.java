@@ -24,6 +24,8 @@ public interface EngineJobCacheDao {
 
     int updateStage(@Param("jobId") String jobId, @Param("stage") Integer stage,@Param("nodeAddress") String nodeAddress, @Param("jobPriority") Long jobPriority);
 
+    int updateWaitReason(@Param("jobId") String jobId, @Param("waitReason") String waitReason);
+
     int updateStageBatch(@Param("jobIds") List<String> jobIds, @Param("stage") Integer stage,@Param("nodeAddress") String nodeAddress);
 
     List<EngineJobCache> listByStage(@Param("startId") Long id, @Param("nodeAddress") String nodeAddress, @Param("stage") Integer stage, @Param("jobResource") String jobResource);

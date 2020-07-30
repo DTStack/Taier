@@ -1,11 +1,13 @@
 package com.dtstack.engine.flink.resource;
 
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.base.resource.AbstractYarnResourceInfo;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.collect.Lists;
+import org.apache.hadoop.yarn.client.api.YarnClient;
 
 import java.util.List;
 import java.util.Properties;
@@ -25,17 +27,28 @@ public class FlinkPerJobResourceInfo extends AbstractYarnResourceInfo {
     public int numberTaskManagers = 1;
     public int slotsPerTaskManager = 1;
 
+    private YarnClient yarnClient;
+    private String queueName;
+    private int yarnAccepterTaskNumber;
+
     public FlinkPerJobResourceInfo() {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public void init(Object... params) {
+        this.yarnClient = (YarnClient)params[0];
+        this.queueName = (String)params[1];
+        this.yarnAccepterTaskNumber = (int)params[2];
+    }
+
+    @Override
+    public JudgeResult judgeSlots(JobClient jobClient) {
         return judgePerjobResource(jobClient);
     }
 
-    private boolean judgePerjobResource(JobClient jobClient) {
+    private JudgeResult judgePerjobResource(JobClient jobClient) {
         if (totalFreeCore == 0 || totalFreeMem == 0) {
-            return false;
+            return JudgeResult.newInstance(false, "totalFreeCore or totalFreeMem is 0");
         }
 
         Properties properties = jobClient.getConfProperties();

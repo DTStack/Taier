@@ -649,32 +649,31 @@ public class FlinkClient extends AbstractClient {
 
         FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(), jobClient.getComputeType());
         boolean isPerJob = ComputeType.STREAM == jobClient.getComputeType() || FlinkYarnMode.isPerJob(taskRunMode);
-        FlinkPerJobResourceInfo perJobResourceInfo = new FlinkPerJobResourceInfo();
-        boolean yarnRs;
 
         try {
+            FlinkPerJobResourceInfo perJobResourceInfo = new FlinkPerJobResourceInfo();
+            perJobResourceInfo.init(flinkClientBuilder.getYarnClient(), flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
             perJobResourceInfo.getYarnSlots(flinkClientBuilder.getYarnClient(),
                     flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
-            yarnRs = perJobResourceInfo.judgeSlots(jobClient);
-        } catch (YarnException e){
-            logger.error("judgeSlots error:{}", e);
-            return false;
-        }
+            JudgeResult judgeResult = perJobResourceInfo.judgeSlots(jobClient);
 
-        if (isPerJob ){
-            return yarnRs;
-        } else {
-            if (!yarnRs){
-                return false;
+            if (!judgeResult.getResult() || isPerJob){
+                return judgeResult;
+            } else {
+                if (!flinkClusterClientManager.getIsClientOn()) {
+                    logger.warn("wait flink client recover...");
+                    return JudgeResult.newInstance(false, "wait flink client recover");
+                }
+                FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
+                String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
+                yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
+                Boolean rs = yarnSeesionResourceInfo.judgeSlots(jobClient);
+                return JudgeResult.newInstance(rs, "");
             }
-            if (!flinkClusterClientManager.getIsClientOn()){
-                logger.warn("wait flink client recover...");
-                return false;
-            }
-            FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
-            String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
-            yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
-            return yarnSeesionResourceInfo.judgeSlots(jobClient);
+
+        } catch (Exception e){
+            logger.error("judgeSlots error:{}", e);
+            return JudgeResult.newInstance(false, "judgeSlots error");
         }
     }
 

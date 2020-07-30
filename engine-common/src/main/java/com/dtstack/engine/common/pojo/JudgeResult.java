@@ -1,16 +1,17 @@
 package com.dtstack.engine.common.pojo;
 
-public class JudgeResult {
+import java.io.Serializable;
+
+public class JudgeResult implements Serializable {
 
     private Boolean result;
     private String reason;
 
-    public JudgeResult() {
-    }
-
-    public JudgeResult(Boolean result, String reason) {
-        this.result = result;
-        this.reason = reason;
+    public static JudgeResult newInstance(Boolean result, String reason) {
+        JudgeResult judgeResult = new JudgeResult();
+        judgeResult.setResult(result);
+        judgeResult.setReason(reason);
+        return judgeResult;
     }
 
     public Boolean getResult() {

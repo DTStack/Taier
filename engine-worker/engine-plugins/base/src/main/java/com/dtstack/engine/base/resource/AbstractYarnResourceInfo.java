@@ -1,6 +1,7 @@
 package com.dtstack.engine.base.resource;
 
 import com.dtstack.engine.common.exception.LimitResourceException;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -53,6 +54,10 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
     protected int[] nmFreeMem = null;
     protected int containerCoreMax;
     protected int containerMemoryMax;
+
+    @Override
+    public void init(Object... ob) {
+    }
 
     protected boolean judgeYarnResource(List<InstanceInfo> instanceInfos) {
         if (totalFreeCore == 0 || totalFreeMem == 0) {
@@ -148,6 +153,7 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
                     filter(report -> report.getQueue().endsWith(queueName)).collect(Collectors.toList());
             if (acceptedApps.size() > yarnAccepterTaskNumber) {
                 logger.info("queueName {} acceptedApps {} >= yarnAccepterTaskNumber {}", queueName, acceptedApps.size(), yarnAccepterTaskNumber);
+                JudgeResult judgeResult = JudgeResult.newInstance(false, "The number of accepted apps is greater than " + yarnAccepterTaskNumber);
                 return;
             }
 
