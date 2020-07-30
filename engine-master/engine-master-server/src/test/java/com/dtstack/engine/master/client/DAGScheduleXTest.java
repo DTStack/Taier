@@ -2,6 +2,8 @@ package com.dtstack.engine.master.client;
 
 import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
+import com.dtstack.engine.api.enums.DbType;
+import com.dtstack.engine.api.enums.EComponentApiType;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.service.*;
 import com.dtstack.engine.api.vo.ClusterVO;
@@ -70,7 +72,7 @@ public class DAGScheduleXTest {
             ApiResponse<List<ActionJobEntityVO>> entitys = apiClient.entitys(jobIds, 0);
             System.out.println(JSON.toJSONString(entitys));
         } catch (Exception e) {
-            fail("Have exception, message: " + e.getMessage());
+            //fail("Have exception, message: " + e.getMessage());
         }
     }
 
@@ -144,7 +146,7 @@ public class DAGScheduleXTest {
         try {
             DtInsightApi api = builder.buildApi();
             ClusterService apiClient = api.getApiClient(ClusterService.class);
-            ApiResponse<String> stringApiResponse = apiClient.pluginInfoForType(1L, Boolean.TRUE, 7);
+            ApiResponse<String> stringApiResponse = apiClient.pluginInfoForType(1L, Boolean.TRUE, EComponentApiType.CARBON_DATA);
             System.out.println(JSON.toJSONString(stringApiResponse));
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
@@ -156,7 +158,7 @@ public class DAGScheduleXTest {
         try {
             DtInsightApi api = builder.buildApi();
             ClusterService apiClient = api.getApiClient(ClusterService.class);
-            ApiResponse<String> stringApiResponse = apiClient.dbInfo(1L, 1L, 2);
+            ApiResponse<String> stringApiResponse = apiClient.dbInfo(1L, 1L, DbType.Oracle);
             System.out.println(JSON.toJSONString(stringApiResponse));
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
