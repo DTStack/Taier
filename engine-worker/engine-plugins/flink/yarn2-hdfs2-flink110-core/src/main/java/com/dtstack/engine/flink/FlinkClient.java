@@ -9,6 +9,7 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.HttpClient;
 import com.dtstack.engine.common.http.PoolHttpClient;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.*;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
@@ -644,7 +645,7 @@ public class FlinkClient extends AbstractClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public JudgeResult judgeSlots(JobClient jobClient) {
 
         FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(), jobClient.getComputeType());
         boolean isPerJob = ComputeType.STREAM == jobClient.getComputeType() || FlinkYarnMode.isPerJob(taskRunMode);
@@ -652,7 +653,8 @@ public class FlinkClient extends AbstractClient {
         boolean yarnRs;
 
         try {
-            perJobResourceInfo.getYarnSlots(flinkClientBuilder.getYarnClient(), flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
+            perJobResourceInfo.getYarnSlots(flinkClientBuilder.getYarnClient(),
+                    flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
             yarnRs = perJobResourceInfo.judgeSlots(jobClient);
         } catch (YarnException e){
             logger.error("judgeSlots error:{}", e);
