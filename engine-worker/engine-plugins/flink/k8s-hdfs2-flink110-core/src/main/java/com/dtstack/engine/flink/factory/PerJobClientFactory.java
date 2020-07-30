@@ -82,7 +82,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
             setNoneHaModeConfig(newConf);
         }
 
-        String projobClusterId = String.format("%s-%s", "flinkperjob", jobClient.getTaskId());
+        String projobClusterId = String.format("%s-%s", FlinkConfig.FLINK_PERJOB_PREFIX, jobClient.getTaskId());
         newConf.setString(KubernetesConfigOptions.CLUSTER_ID, projobClusterId);
 
         KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
