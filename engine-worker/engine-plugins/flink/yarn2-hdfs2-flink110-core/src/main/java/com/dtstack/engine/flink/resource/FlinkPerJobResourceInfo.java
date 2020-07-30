@@ -3,14 +3,22 @@ package com.dtstack.engine.flink.resource;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.flink.FlinkClient;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.base.resource.AbstractYarnResourceInfo;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.collect.Lists;
+import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
+import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * 用于存储从flink上获取的资源信息
@@ -21,6 +29,8 @@ import java.util.Properties;
  */
 
 public class FlinkPerJobResourceInfo extends AbstractYarnResourceInfo {
+
+    private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
     public int jobmanagerMemoryMb = ConfigConstrant.MIN_JM_MEMORY;
     public int taskmanagerMemoryMb = ConfigConstrant.MIN_JM_MEMORY;
@@ -34,19 +44,34 @@ public class FlinkPerJobResourceInfo extends AbstractYarnResourceInfo {
     public FlinkPerJobResourceInfo() {
     }
 
-    @Override
-    public void init(Object... params) {
-        this.yarnClient = (YarnClient)params[0];
-        this.queueName = (String)params[1];
-        this.yarnAccepterTaskNumber = (int)params[2];
+    private FlinkPerJobResourceInfo(YarnClient yarnClient, String queueName, int yarnAccepterTaskNumber) {
+        this.yarnClient = yarnClient;
+        this.queueName = queueName;
+        this.yarnAccepterTaskNumber = yarnAccepterTaskNumber;
     }
 
     @Override
-    public JudgeResult judgeSlots(JobClient jobClient) {
+    public JudgeResult judgeSlots(JobClient jobClient) throws Exception {
         return judgePerjobResource(jobClient);
     }
 
-    private JudgeResult judgePerjobResource(JobClient jobClient) {
+    private JudgeResult judgePerjobResource(JobClient jobClient) throws Exception {
+
+        EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
+        enumSet.add(YarnApplicationState.ACCEPTED);
+        List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet).stream().
+                filter(report -> report.getQueue().endsWith(queueName)).collect(Collectors.toList());
+
+        if (acceptedApps.size() > yarnAccepterTaskNumber) {
+            logger.info("queueName {} acceptedApps {} >= yarnAccepterTaskNumber {}",
+                    queueName, acceptedApps.size(), yarnAccepterTaskNumber);
+            JudgeResult judgeResult = JudgeResult.newInstance(false,
+                    "The number of accepted apps is greater than " + yarnAccepterTaskNumber);
+            return judgeResult;
+        }
+
+        this.getYarnSlots(yarnClient, queueName, yarnAccepterTaskNumber);
+
         if (totalFreeCore == 0 || totalFreeMem == 0) {
             return JudgeResult.newInstance(false, "totalFreeCore or totalFreeMem is 0");
         }
@@ -85,5 +110,35 @@ public class FlinkPerJobResourceInfo extends AbstractYarnResourceInfo {
                 InstanceInfo.newRecord(numberTaskManagers, slotsPerTaskManager, taskmanagerMemoryMb));
         return judgeYarnResource(instanceInfos);
     }
+
+    public static FlinkPerJobResourceInfoBuilder FlinkPerJobResourceInfoBuilde() {
+        return new FlinkPerJobResourceInfoBuilder();
+    }
+
+    public static class FlinkPerJobResourceInfoBuilder {
+        private YarnClient yarnClient;
+        private String queueName;
+        private Integer yarnAccepterTaskNumber;
+
+        public FlinkPerJobResourceInfoBuilder withYarnClient(YarnClient yarnClient) {
+            this.yarnClient = yarnClient;
+            return this;
+        }
+
+        public FlinkPerJobResourceInfoBuilder withQueueName(String queueName) {
+            this.queueName = queueName;
+            return this;
+        }
+
+        public FlinkPerJobResourceInfoBuilder withYarnAccepterTaskNumber(Integer yarnAccepterTaskNumber) {
+            this.yarnAccepterTaskNumber = yarnAccepterTaskNumber;
+            return this;
+        }
+
+        public FlinkPerJobResourceInfo build() {
+            return new FlinkPerJobResourceInfo(yarnClient, queueName, yarnAccepterTaskNumber);
+        }
+    }
+
 
 }

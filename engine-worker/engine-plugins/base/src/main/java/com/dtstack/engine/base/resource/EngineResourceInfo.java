@@ -13,8 +13,7 @@ public interface EngineResourceInfo {
 
     String LIMIT_RESOURCE_ERROR = "LIMIT RESOURCE ERROR:";
 
-    void init(Object... ob);
 
-    JudgeResult judgeSlots(JobClient jobClient);
+    JudgeResult judgeSlots(JobClient jobClient) throws Exception;
 
 }

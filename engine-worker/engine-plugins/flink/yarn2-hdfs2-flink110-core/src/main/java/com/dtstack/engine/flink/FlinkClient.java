@@ -651,8 +651,11 @@ public class FlinkClient extends AbstractClient {
         boolean isPerJob = ComputeType.STREAM == jobClient.getComputeType() || FlinkYarnMode.isPerJob(taskRunMode);
 
         try {
-            FlinkPerJobResourceInfo perJobResourceInfo = new FlinkPerJobResourceInfo();
-            perJobResourceInfo.init(flinkClientBuilder.getYarnClient(), flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
+            FlinkPerJobResourceInfo perJobResourceInfo = FlinkPerJobResourceInfo.FlinkPerJobResourceInfoBuilde()
+                    .withYarnClient(flinkClientBuilder.getYarnClient())
+                    .withQueueName(flinkConfig.getQueue())
+                    .withYarnAccepterTaskNumber(flinkConfig.getYarnAccepterTaskNumber())
+                    .build();
             perJobResourceInfo.getYarnSlots(flinkClientBuilder.getYarnClient(),
                     flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
             JudgeResult judgeResult = perJobResourceInfo.judgeSlots(jobClient);

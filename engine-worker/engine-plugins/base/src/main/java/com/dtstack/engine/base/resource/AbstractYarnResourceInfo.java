@@ -55,25 +55,24 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
     protected int containerCoreMax;
     protected int containerMemoryMax;
 
-    @Override
-    public void init(Object... ob) {
-    }
 
-    protected boolean judgeYarnResource(List<InstanceInfo> instanceInfos) {
-        if (totalFreeCore == 0 || totalFreeMem == 0) {
+    protected JudgeResult judgeYarnResource(List<InstanceInfo> instanceInfos) {
+
+        /*if (totalFreeCore == 0 || totalFreeMem == 0) {
             logger.info("judgeYarnResource, totalFreeCore={}, totalFreeMem={}", totalFreeCore, totalFreeMem);
             return false;
-        }
+        }*/
+
         int needTotalCore = 0;
         int needTotalMem = 0;
         for (InstanceInfo instanceInfo : instanceInfos) {
             if (instanceInfo.coresPerInstance > containerCoreMax) {
                 logger.info("judgeYarnResource, containerCoreMax={}, coresPerInstance={}", containerCoreMax, instanceInfo.coresPerInstance);
-                return false;
+                return JudgeResult.newInstance(false, "");
             }
             if (instanceInfo.memPerInstance > containerMemoryMax) {
                 logger.info("judgeYarnResource, containerMemoryMax={}, memPerInstance={}", containerMemoryMax, instanceInfo.memPerInstance);
-                return false;
+                return JudgeResult.newInstance(false, "");
             }
             needTotalCore += instanceInfo.instances * instanceInfo.coresPerInstance;
             needTotalMem += instanceInfo.instances * instanceInfo.memPerInstance;
@@ -147,16 +146,6 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
 
     public void getYarnSlots(YarnClient yarnClient, String queueName, int yarnAccepterTaskNumber) throws YarnException {
         try {
-            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
-            enumSet.add(YarnApplicationState.ACCEPTED);
-            List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet).stream().
-                    filter(report -> report.getQueue().endsWith(queueName)).collect(Collectors.toList());
-            if (acceptedApps.size() > yarnAccepterTaskNumber) {
-                logger.info("queueName {} acceptedApps {} >= yarnAccepterTaskNumber {}", queueName, acceptedApps.size(), yarnAccepterTaskNumber);
-                JudgeResult judgeResult = JudgeResult.newInstance(false, "The number of accepted apps is greater than " + yarnAccepterTaskNumber);
-                return;
-            }
-
             List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
             if (!elasticCapacity) {
                 getQueueRemainCapacity(1, queueName, yarnClient.getRootQueueInfos());
