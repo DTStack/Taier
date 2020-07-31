@@ -126,7 +126,7 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
         return false;
     }
 
-    public void getResource(KubernetesClient kubernetesClient, String namespace) {
+    public void getResource(KubernetesClient kubernetesClient) {
 
         List<Node> nodes = kubernetesClient.nodes().list().getItems();
         Map<String, NodeStatus> nodeStatusMap = new HashMap<>(nodes.size());

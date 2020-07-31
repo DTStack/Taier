@@ -10,6 +10,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dtscript.client.Client;
 import com.google.common.collect.Lists;
@@ -235,14 +236,19 @@ public class DtScriptClient extends AbstractClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
-        DtScriptResourceInfo resourceInfo = new DtScriptResourceInfo();
+    public JudgeResult judgeSlots(JobClient jobClient) {
+
         try {
+            DtScriptResourceInfo resourceInfo = DtScriptResourceInfo.DtScriptResourceInfoBuilder()
+                    .withYarnClient(client.getYarnClient())
+                    .withQueueName(conf.get(DtYarnConfiguration.DT_APP_QUEUE))
+                    .withYarnAccepterTaskNumber(conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1))
+                    .build();
             resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(DtYarnConfiguration.DT_APP_QUEUE), conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
             return resourceInfo.judgeSlots(jobClient);
         } catch (YarnException e) {
             LOG.error("", e);
-            return false;
+            return JudgeResult.newInstance(false,"judgeSlots error");
         }
     }
 

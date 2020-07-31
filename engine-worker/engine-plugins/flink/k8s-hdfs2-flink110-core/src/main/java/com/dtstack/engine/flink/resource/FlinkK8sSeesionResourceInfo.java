@@ -65,13 +65,14 @@ public class FlinkK8sSeesionResourceInfo extends AbstractK8sResourceInfo {
             List<Pod> pendingPods = pods.stream()
                     .filter(p -> PENDING_PHASE.equals(p.getStatus().getPhase()))
                     .collect(Collectors.toList());
+
             if (pendingPods.size() > allowPendingPodSize) {
                 logger.info("pendingPods-size:{} allowPendingPodSize:{}", pendingPods.size(), allowPendingPodSize);
                 return JudgeResult.newInstance(false, "The number of pending pod is greater than " + allowPendingPodSize);
             }
         }
 
-        getResource(kubernetesClient, namespace);
+        getResource(kubernetesClient);
 
         Properties properties = jobClient.getConfProperties();
 

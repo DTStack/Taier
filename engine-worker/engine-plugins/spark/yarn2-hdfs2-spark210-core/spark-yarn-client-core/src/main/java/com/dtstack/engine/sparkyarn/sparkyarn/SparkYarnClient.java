@@ -599,12 +599,16 @@ public class SparkYarnClient extends AbstractClient {
 
         try {
             return KerberosUtils.login(sparkYarnConfig, () -> {
-                SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
+
                 try {
+                    SparkYarnResourceInfo resourceInfo = SparkYarnResourceInfo.SparkYarnResourceInfoBuilder()
+                            .withYarnClient(getYarnClient())
+                            .withQueueName(sparkYarnConfig.getQueue())
+                            .withYarnAccepterTaskNumber(sparkYarnConfig.getYarnAccepterTaskNumber())
+                            .build();
                     resourceInfo.getYarnSlots(getYarnClient(), sparkYarnConfig.getQueue(), sparkYarnConfig.getYarnAccepterTaskNumber());
-                    boolean rs = resourceInfo.judgeSlots(jobClient);
-                    return JudgeResult.newInstance(rs, "");
-                } catch (YarnException e) {
+                    return resourceInfo.judgeSlots(jobClient);
+                } catch (Exception e) {
                     logger.error("", e);
                     return JudgeResult.newInstance(false, "judgeSlots error");
                 }

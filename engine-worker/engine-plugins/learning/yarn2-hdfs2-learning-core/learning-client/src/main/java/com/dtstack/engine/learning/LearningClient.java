@@ -186,11 +186,13 @@ public class LearningClient extends AbstractClient {
 
     @Override
     public JudgeResult judgeSlots(JobClient jobClient) {
-        LearningResourceInfo resourceInfo = new LearningResourceInfo();
         try {
-            resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(LearningConfiguration.XLEARNING_APP_QUEUE), conf.getInt(LearningResourceInfo.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
-            boolean rs = resourceInfo.judgeSlots(jobClient);
-            return JudgeResult.newInstance(rs, "");
+            LearningResourceInfo resourceInfo = LearningResourceInfo.LearningResourceInfoBuilder()
+                    .withYarnClient(client.getYarnClient())
+                    .withQueueName(conf.get(LearningConfiguration.XLEARNING_APP_QUEUE))
+                    .withYarnAccepterTaskNumber(conf.getInt(LearningResourceInfo.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1))
+                    .build();
+            return resourceInfo.judgeSlots(jobClient);
         } catch (YarnException e) {
             LOG.error("", e);
             return JudgeResult.newInstance(false, "judgeSlots error");
