@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.QueryJobDTO;
@@ -13,7 +12,6 @@ import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
-import com.dtstack.engine.api.vo.schedule.job.ScheduleJobTaskRecentInfoVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -1206,9 +1204,10 @@ public class ScheduleJobService {
             return null;
         }
 
-        JSONObject sendData = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
 
+        List<String> jobIds = Lists.newArrayList();
+//      JSONObject sendData = new JSONObject();
+//      JSONArray jsonArray = new JSONArray();
         for (ScheduleJob scheduleJob : scheduleJobList) {
             ScheduleTaskShade batchTask = scheduleTaskShadeDao.getOne(scheduleJob.getTaskId(), appType);
             //fix 任务被删除
@@ -1217,32 +1216,34 @@ public class ScheduleJobService {
                 if (CollectionUtils.isEmpty(deleteTask)) {
                     continue;
                 }
-                batchTask = deleteTask.get(0);
+                // batchTask = deleteTask.get(0);
             }
             Integer status = scheduleJob.getStatus();
             if (!RdosTaskStatus.getCanStopStatus().contains(status)) {
                 continue;
             }
 
-            JSONObject params = new JSONObject();
-            params.put("engineType", ScheduleEngineType.getEngineName(batchTask.getEngineType()));
-            params.put("taskId", scheduleJob.getJobId());
-            params.put("computeType", batchTask.getComputeType());
-            params.put("taskType", batchTask.getTaskType());
-            //dtuicTenantId
-            params.put("tenantId", dtuicTenantId);
-            if (batchTask.getTaskType().equals(EScheduleJobType.DEEP_LEARNING.getVal())) {
-                params.put("engineType", ScheduleEngineType.Learning.getEngineName());
-                params.put("taskType", EScheduleJobType.SPARK_PYTHON.getVal());
-            } else if (batchTask.getTaskType().equals(EScheduleJobType.PYTHON.getVal()) || batchTask.getTaskType().equals(EScheduleJobType.SHELL.getVal())) {
-                params.put("engineType", ScheduleEngineType.DtScript.getEngineName());
-                params.put("taskType", EScheduleJobType.SPARK_PYTHON.getVal());
-            }
-
-            jsonArray.add(params);
+            jobIds.add(scheduleJob.getJobId());
+//            JSONObject params = new JSONObject();
+//            params.put("engineType", ScheduleEngineType.getEngineName(batchTask.getEngineType()));
+//            params.put("taskId", scheduleJob.getJobId());
+//            params.put("computeType", batchTask.getComputeType());
+//            params.put("taskType", batchTask.getTaskType());
+//            //dtuicTenantId
+//            params.put("tenantId", dtuicTenantId);
+//            if (batchTask.getTaskType().equals(EScheduleJobType.DEEP_LEARNING.getVal())) {
+//                params.put("engineType", ScheduleEngineType.Learning.getEngineName());
+//                params.put("taskType", EScheduleJobType.SPARK_PYTHON.getVal());
+//            } else if (batchTask.getTaskType().equals(EScheduleJobType.PYTHON.getVal()) || batchTask.getTaskType().equals(EScheduleJobType.SHELL.getVal())) {
+//                params.put("engineType", ScheduleEngineType.DtScript.getEngineName());
+//                params.put("taskType", EScheduleJobType.SPARK_PYTHON.getVal());
+//            }
+//
+//            jsonArray.add(params);
         }
-        sendData.put("jobs", jsonArray);
-        actionService.stop(sendData);
+//        sendData.put("jobs", jsonArray);
+
+        actionService.stop(jobIds);
         return "";
     }
 

@@ -27,12 +27,12 @@ public interface ActionService extends DtInsightServer {
      * 1: 在master等待队列中查找
      * 2: 在worker-exe等待队列里面查找
      * 3：在worker-status监听队列里面查找（可以直接在master节点上直接发送消息到对应的引擎）
-     * @param params
+     * @param jobIds 任务id
      * @throws Exception
      */
     @RequestLine("POST /node/action/stop")
     @Headers(value={"Content-Type: application/json"})
-    ApiResponse<Boolean> stop(Map<String, Object> params) throws Exception;
+    ApiResponse<Boolean> stop(@Param("jobIds") List<String> jobIds) throws Exception;
 
     /**
      * 根据jobid 和 计算类型，查询job的状态

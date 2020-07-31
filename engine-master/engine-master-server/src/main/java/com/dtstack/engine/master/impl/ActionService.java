@@ -132,31 +132,26 @@ public class ActionService {
     }
 
     /**
-     * 只允许发到master节点上
-     * 1: 在master等待队列中查找
-     * 2: 在worker-exe等待队列里面查找
-     * 3：在worker-status监听队列里面查找（可以直接在master节点上直接发送消息到对应的引擎）
-     * @param params
+     * 停止的请求接口
      * @throws Exception
      */
-    public Boolean stop(Map<String, Object> params) throws Exception {
+    public Boolean stop(List<String> jobIds) {
+//        if(!params.containsKey("jobs")){
+//            logger.info("invalid param:" + params);
+//            return false;
+//        }
+//
+//        Object paramsObj = params.get("jobs");
+//        if(!(paramsObj instanceof List)){
+//            logger.info("invalid param:" + params);
+//            return false;
+//        }
 
-        if(!params.containsKey("jobs")){
-            logger.info("invalid param:" + params);
-            return false;
-        }
-
-        Object paramsObj = params.get("jobs");
-        if(!(paramsObj instanceof List)){
-            logger.info("invalid param:" + params);
-            return false;
-        }
-
-        List<Map<String, Object>> paramList = (List<Map<String, Object>>) paramsObj;
-        List<String> jobIds = new ArrayList<>(paramList.size());
-        for(Map<String, Object> param : paramList){
-            jobIds.add(MapUtils.getString(param, "taskId"));
-        }
+//        List<Map<String, Object>> paramList = (List<Map<String, Object>>) paramsObj;
+//        List<String> jobIds = new ArrayList<>(paramList.size());
+//        for(Map<String, Object> param : paramList){
+//            jobIds.add(MapUtils.getString(param, "taskId"));
+//        }
         List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.getRdosJobByJobIds(jobIds));
         jobStopDealer.addStopJobs(jobs);
         return true;

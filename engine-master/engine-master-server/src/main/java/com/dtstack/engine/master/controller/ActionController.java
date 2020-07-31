@@ -45,10 +45,10 @@ public class ActionController {
     @RequestMapping(value="/stop", method = {RequestMethod.POST})
     @ApiOperation(value = "停止任务")
     @ApiImplicitParams({
-            @ApiImplicitParam(name="paramMap",value="请求停止任务的相关信息",required=true, paramType="body")
+            @ApiImplicitParam(name="jobIds",value="请求停止任务的相关信息，jobIds",required=true, paramType="body")
     })
-    public Boolean stop(@RequestBody Map<String, Object> paramMap) throws Exception {
-        return actionService.stop(paramMap);
+    public Boolean stop(@DtRequestParam(value = "jobIds") List<String> jobIds) throws Exception {
+        return actionService.stop(jobIds);
     }
 
     @RequestMapping(value="/status", method = {RequestMethod.POST})
