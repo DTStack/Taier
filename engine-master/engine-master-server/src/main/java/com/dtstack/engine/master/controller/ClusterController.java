@@ -51,7 +51,7 @@ public class ClusterController{
     }
 
 
-    @RequestMapping(value="/tenantId", method = {RequestMethod.POST})
+    @RequestMapping(value="/pluginInfo", method = {RequestMethod.POST})
     public String pluginInfo(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("engineType") String engineTypeStr,@DtRequestParam("userId") Long dtUicUserId,@DtRequestParam("deployMode")Integer deployMode) {
         return clusterService.pluginInfo(dtUicTenantId, engineTypeStr, dtUicUserId, deployMode);
     }
