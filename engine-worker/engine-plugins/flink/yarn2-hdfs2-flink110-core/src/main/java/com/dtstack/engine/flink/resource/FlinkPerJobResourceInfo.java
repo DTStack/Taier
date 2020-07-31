@@ -61,10 +61,10 @@ public class FlinkPerJobResourceInfo extends AbstractYarnResourceInfo {
         enumSet.add(YarnApplicationState.ACCEPTED);
         List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet).stream().
                 filter(report -> report.getQueue().endsWith(queueName)).collect(Collectors.toList());
-
         if (acceptedApps.size() > yarnAccepterTaskNumber) {
             logger.info("queueName {} acceptedApps {} >= yarnAccepterTaskNumber {}",
                     queueName, acceptedApps.size(), yarnAccepterTaskNumber);
+
             JudgeResult judgeResult = JudgeResult.newInstance(false,
                     "The number of accepted apps is greater than " + yarnAccepterTaskNumber);
             return judgeResult;
@@ -72,10 +72,17 @@ public class FlinkPerJobResourceInfo extends AbstractYarnResourceInfo {
 
         this.getYarnSlots(yarnClient, queueName, yarnAccepterTaskNumber);
 
-        if (totalFreeCore == 0 || totalFreeMem == 0) {
-            return JudgeResult.newInstance(false, "totalFreeCore or totalFreeMem is 0");
-        }
+        setTaskResourceInfo(jobClient);
 
+        List<InstanceInfo> instanceInfos = Lists.newArrayList(
+                //作为启动 am 和 jobmanager
+                InstanceInfo.newRecord(1, 1, jobmanagerMemoryMb),
+                InstanceInfo.newRecord(numberTaskManagers, slotsPerTaskManager, taskmanagerMemoryMb));
+
+        return judgeYarnResource(instanceInfos);
+    }
+
+    private void setTaskResourceInfo(JobClient jobClient) {
         Properties properties = jobClient.getConfProperties();
 
         if (properties != null && properties.containsKey(ConfigConstrant.SLOTS)) {
@@ -103,15 +110,9 @@ public class FlinkPerJobResourceInfo extends AbstractYarnResourceInfo {
         if (taskmanagerMemoryMb < ConfigConstrant.MIN_TM_MEMORY) {
             taskmanagerMemoryMb = ConfigConstrant.MIN_TM_MEMORY;
         }
-
-        List<InstanceInfo> instanceInfos = Lists.newArrayList(
-                //作为启动 am 和 jobmanager
-                InstanceInfo.newRecord(1, 1, jobmanagerMemoryMb),
-                InstanceInfo.newRecord(numberTaskManagers, slotsPerTaskManager, taskmanagerMemoryMb));
-        return judgeYarnResource(instanceInfos);
     }
 
-    public static FlinkPerJobResourceInfoBuilder FlinkPerJobResourceInfoBuilde() {
+    public static FlinkPerJobResourceInfoBuilder FlinkPerJobResourceInfoBuilder() {
         return new FlinkPerJobResourceInfoBuilder();
     }
 
@@ -139,6 +140,5 @@ public class FlinkPerJobResourceInfo extends AbstractYarnResourceInfo {
             return new FlinkPerJobResourceInfo(yarnClient, queueName, yarnAccepterTaskNumber);
         }
     }
-
 
 }

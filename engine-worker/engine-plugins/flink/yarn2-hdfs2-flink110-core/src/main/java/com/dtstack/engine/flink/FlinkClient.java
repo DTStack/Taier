@@ -651,7 +651,7 @@ public class FlinkClient extends AbstractClient {
         boolean isPerJob = ComputeType.STREAM == jobClient.getComputeType() || FlinkYarnMode.isPerJob(taskRunMode);
 
         try {
-            FlinkPerJobResourceInfo perJobResourceInfo = FlinkPerJobResourceInfo.FlinkPerJobResourceInfoBuilde()
+            FlinkPerJobResourceInfo perJobResourceInfo = FlinkPerJobResourceInfo.FlinkPerJobResourceInfoBuilder()
                     .withYarnClient(flinkClientBuilder.getYarnClient())
                     .withQueueName(flinkConfig.getQueue())
                     .withYarnAccepterTaskNumber(flinkConfig.getYarnAccepterTaskNumber())
@@ -670,13 +670,12 @@ public class FlinkClient extends AbstractClient {
                 FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
                 String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
                 yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
-                Boolean rs = yarnSeesionResourceInfo.judgeSlots(jobClient);
-                return JudgeResult.newInstance(rs, "");
+                return yarnSeesionResourceInfo.judgeSlots(jobClient);
             }
 
         } catch (Exception e){
             logger.error("judgeSlots error:{}", e);
-            return JudgeResult.newInstance(false, "judgeSlots error");
+            return JudgeResult.newInstance(false, "judgeSlots error !");
         }
     }
 

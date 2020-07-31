@@ -3,6 +3,7 @@ package com.dtstack.engine.flink;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JarFileInfo;
@@ -22,7 +23,7 @@ import com.dtstack.engine.flink.parser.AddJarOperator;
 import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
-import com.dtstack.engine.flink.resource.FlinkSeesionResourceInfo;
+import com.dtstack.engine.flink.resource.FlinkK8sSeesionResourceInfo;
 import com.dtstack.engine.flink.util.FlinkRestParseUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.flink.util.HadoopConf;
@@ -575,15 +576,18 @@ public class FlinkClient extends AbstractClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public JudgeResult judgeSlots(JobClient jobClient) {
 
         try {
-            FlinkSeesionResourceInfo seesionResourceInfo = new FlinkSeesionResourceInfo();
-            seesionResourceInfo.getResource(kubernetesClient, null, 0);
+            FlinkK8sSeesionResourceInfo seesionResourceInfo = FlinkK8sSeesionResourceInfo.FlinkK8sSeesionResourceInfoBuilder()
+                    .withKubernetesClient(kubernetesClient)
+                    .withNamespace(flinkConfig.getNamespace())
+                    .withAllowPendingPodSize(0)
+                    .build();
             return seesionResourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
             logger.error("judgeSlots error:{}", e);
-            return false;
+            return JudgeResult.newInstance(false,"judgeSlots error");
         }
     }
 

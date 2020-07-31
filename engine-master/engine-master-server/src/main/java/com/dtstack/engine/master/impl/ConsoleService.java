@@ -267,7 +267,7 @@ public class ConsoleService {
         long currentTime = System.currentTimeMillis();
         String waitTime = DateUtil.getTimeDifference(currentTime - engineJobCache.getGmtCreate().getTime());
         theJobMap.put("waitTime", waitTime);
-        theJobMap.put("waitReason", "");
+        theJobMap.put("waitReason", engineJobCache.getWaitReason());
         theJobMap.put("tenantName", Objects.isNull(tenant) ? "" : tenant.getTenantName());
     }
 

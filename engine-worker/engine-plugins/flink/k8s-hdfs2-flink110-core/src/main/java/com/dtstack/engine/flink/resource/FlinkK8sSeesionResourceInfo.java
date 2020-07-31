@@ -2,16 +2,24 @@ package com.dtstack.engine.flink.resource;
 
 import com.dtstack.engine.base.resource.AbstractK8sResourceInfo;
 import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.flink.FlinkClient;
 import com.dtstack.engine.flink.enums.FlinkMode;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.collect.Lists;
+import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import scala.Int;
 
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * 用于存储从flink上获取的资源信息
@@ -21,25 +29,49 @@ import java.util.Properties;
  * @author xuchao
  */
 
-public class FlinkSeesionResourceInfo extends AbstractK8sResourceInfo {
+public class FlinkK8sSeesionResourceInfo extends AbstractK8sResourceInfo {
+
+    private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
+
+    private final static String PENDING_PHASE = "Pending";
 
     public int jobmanagerMemoryMb = ConfigConstrant.MIN_JM_MEMORY;
     public int taskmanagerMemoryMb = ConfigConstrant.MIN_JM_MEMORY;
     public int numberTaskManagers = 1;
     public int slotsPerTaskManager = 1;
 
-    public FlinkSeesionResourceInfo() {
+    private KubernetesClient kubernetesClient;
+    private String namespace;
+    private Integer allowPendingPodSize;
+
+    public FlinkK8sSeesionResourceInfo() {
+    }
+
+    public FlinkK8sSeesionResourceInfo(KubernetesClient kubernetesClient, String namespace, Integer allowPendingPodSize) {
+        this.kubernetesClient = kubernetesClient;
+        this.namespace = namespace;
+        this.allowPendingPodSize = allowPendingPodSize;
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public JudgeResult judgeSlots(JobClient jobClient) {
         return judgeResource(jobClient);
     }
 
-    private boolean judgeResource(JobClient jobClient) {
-        if (totalFreeCore == 0 || totalFreeMem == 0) {
-            return false;
+    private JudgeResult judgeResource(JobClient jobClient) {
+
+        if (allowPendingPodSize > 0) {
+            List<Pod> pods = kubernetesClient.pods().inNamespace(namespace).list().getItems();
+            List<Pod> pendingPods = pods.stream()
+                    .filter(p -> PENDING_PHASE.equals(p.getStatus().getPhase()))
+                    .collect(Collectors.toList());
+            if (pendingPods.size() > allowPendingPodSize) {
+                logger.info("pendingPods-size:{} allowPendingPodSize:{}", pendingPods.size(), allowPendingPodSize);
+                return JudgeResult.newInstance(false, "The number of pending pod is greater than " + allowPendingPodSize);
+            }
         }
+
+        getResource(kubernetesClient, namespace);
 
         Properties properties = jobClient.getConfProperties();
 
@@ -78,6 +110,35 @@ public class FlinkSeesionResourceInfo extends AbstractK8sResourceInfo {
             instanceInfos.add(InstanceInfo.newRecord(1, Quantity.getAmountInBytes(new Quantity("1")).doubleValue(), Quantity.getAmountInBytes(new Quantity(jobmanagerMemoryMb + "M")).doubleValue()));
         }
         return judgeResource(instanceInfos);
+    }
+
+    public static FlinkK8sSeesionResourceInfoBuilder FlinkK8sSeesionResourceInfoBuilder() {
+        return new FlinkK8sSeesionResourceInfoBuilder();
+    }
+
+    public static class FlinkK8sSeesionResourceInfoBuilder {
+        private KubernetesClient kubernetesClient;
+        private String namespace;
+        private Integer allowPendingPodSize;
+
+        public FlinkK8sSeesionResourceInfoBuilder withKubernetesClient(KubernetesClient kubernetesClient) {
+            this.kubernetesClient = kubernetesClient;
+            return this;
+        }
+
+        public FlinkK8sSeesionResourceInfoBuilder withNamespace(String namespace) {
+            this.namespace = namespace;
+            return this;
+        }
+
+        public FlinkK8sSeesionResourceInfoBuilder withAllowPendingPodSize(Integer allowPendingPodSize) {
+            this.allowPendingPodSize = allowPendingPodSize;
+            return this;
+        }
+
+        public FlinkK8sSeesionResourceInfo build() {
+            return new FlinkK8sSeesionResourceInfo(kubernetesClient, namespace, allowPendingPodSize);
+        }
     }
 
 }
