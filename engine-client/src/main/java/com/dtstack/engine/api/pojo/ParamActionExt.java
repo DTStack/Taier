@@ -1,5 +1,6 @@
 package com.dtstack.engine.api.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.slf4j.Logger;
@@ -76,6 +77,9 @@ public class ParamActionExt extends ParamAction {
     private Integer versionId;
 
     private Long projectId;
+
+    @Deprecated
+    private Boolean isFailRetry;
 
     public Long getProjectId() {
         return projectId;
@@ -157,4 +161,11 @@ public class ParamActionExt extends ParamAction {
         this.jobKey = jobKey;
     }
 
+    public Boolean getFailRetry() {
+        return isFailRetry;
+    }
+
+    public void setFailRetry(Boolean failRetry) {
+        isFailRetry = failRetry;
+    }
 }
