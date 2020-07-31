@@ -35,7 +35,7 @@ public interface TenantService extends DtInsightServer {
 
     @RequestLine("POST /node/tenant/bindingTenant")
     ApiResponse<Void> bindingTenant(@Param("tenantId") Long dtUicTenantId, @Param("clusterId") Long clusterId,
-                              @Param("queueId") Long queueId, @Param("dtToken") String dtToken) throws Exception;
+                              @Param("queueId") Long queueId, @Param("dtToken") String dtToken) ;
 
 
     @RequestLine("POST /node/tenant/bindingQueue")

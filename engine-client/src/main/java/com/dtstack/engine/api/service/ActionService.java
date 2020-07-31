@@ -23,66 +23,63 @@ public interface ActionService extends DtInsightServer {
     ApiResponse<Boolean> start(ParamActionExt paramActionExt);
 
     /**
-     * 只允许发到master节点上
-     * 1: 在master等待队列中查找
-     * 2: 在worker-exe等待队列里面查找
-     * 3：在worker-status监听队列里面查找（可以直接在master节点上直接发送消息到对应的引擎）
+     *
      * @param jobIds 任务id
-     * @throws Exception
+     * @
      */
     @RequestLine("POST /node/action/stop")
     @Headers(value={"Content-Type: application/json"})
-    ApiResponse<Boolean> stop(@Param("jobIds") List<String> jobIds) throws Exception;
+    ApiResponse<Boolean> stop(@Param("jobIds") List<String> jobIds) ;
 
     /**
      * 根据jobid 和 计算类型，查询job的状态
      */
     @RequestLine("POST /node/action/status")
-    ApiResponse<Integer> status(@Param("jobId") String jobId, @Param("computeType") Integer computeType) throws Exception;
+    ApiResponse<Integer> status(@Param("jobId") String jobId, @Param("computeType") Integer computeType) ;
 
     /**
      * 根据jobid 和 计算类型，查询job的状态
      */
     @RequestLine("POST /node/action/statusByJobIds")
-    ApiResponse<Map<String, Integer>> statusByJobIds(@Param("jobIds") List<String> jobIds, @Param("computeType") Integer computeType) throws Exception;
+    ApiResponse<Map<String, Integer>> statusByJobIds(@Param("jobIds") List<String> jobIds, @Param("computeType") Integer computeType) ;
 
     /**
      * 根据jobid 和 计算类型，查询job开始运行的时间
      * return 毫秒级时间戳
      */
     @RequestLine("POST /node/action/startTime")
-    ApiResponse<Long> startTime(@Param("jobId") String jobId, @Param("computeType") Integer computeType) throws Exception;
+    ApiResponse<Long> startTime(@Param("jobId") String jobId, @Param("computeType") Integer computeType) ;
 
     /**
      * 根据jobid 和 计算类型，查询job的日志
      */
     @RequestLine("POST /node/action/log")
-    ApiResponse<ActionLogVO> log(@Param("jobId") String jobId, @Param("computeType") Integer computeType) throws Exception;
+    ApiResponse<ActionLogVO> log(@Param("jobId") String jobId, @Param("computeType") Integer computeType) ;
 
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
     @RequestLine("POST /node/action/retryLog")
-    ApiResponse<List<ActionRetryLogVO>> retryLog(@Param("jobId") String jobId, @Param("computeType") Integer computeType) throws Exception;
+    ApiResponse<List<ActionRetryLogVO>> retryLog(@Param("jobId") String jobId, @Param("computeType") Integer computeType) ;
 
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
     @RequestLine("POST /node/action/retryLogDetail")
-    ApiResponse<ActionRetryLogVO> retryLogDetail(@Param("jobId") String jobId, @Param("computeType") Integer computeType, @Param("retryNum") Integer retryNum) throws Exception;
+    ApiResponse<ActionRetryLogVO> retryLogDetail(@Param("jobId") String jobId, @Param("computeType") Integer computeType, @Param("retryNum") Integer retryNum) ;
 
     /**
      * 根据jobids 和 计算类型，查询job
      */
     @RequestLine("POST /node/action/entitys")
-    ApiResponse<List<ActionJobEntityVO>> entitys(@Param("jobIds") List<String> jobIds, @Param("computeType") Integer computeType) throws Exception;
+    ApiResponse<List<ActionJobEntityVO>> entitys(@Param("jobIds") List<String> jobIds, @Param("computeType") Integer computeType) ;
 
     /**
      * 根据jobid 和 计算类型，查询container 信息
      */
     @RequestLine("POST /node/action/containerInfos")
     @Headers(value={"Content-Type: application/json"})
-    ApiResponse<List<String>> containerInfos(ParamAction paramAction) throws Exception;
+    ApiResponse<List<String>> containerInfos(ParamAction paramAction) ;
 
 
     /**
@@ -99,7 +96,7 @@ public interface ActionService extends DtInsightServer {
     ApiResponse<List<ActionJobStatusVO>> listJobStatus(@Param("time") Long time);
 
     @RequestLine("POST /node/action/listJobStatusByJobIds")
-    ApiResponse<List<ActionJobStatusVO>> listJobStatusByJobIds(@Param("jobIds") List<String> jobIds) throws Exception;
+    ApiResponse<List<ActionJobStatusVO>> listJobStatusByJobIds(@Param("jobIds") List<String> jobIds) ;
 
     @RequestLine("POST /node/action/generateUniqueSign")
     ApiResponse<String> generateUniqueSign();

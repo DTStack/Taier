@@ -42,7 +42,7 @@ import static junit.framework.TestCase.fail;
 public class DAGScheduleXTest {
 
     private DtInsightApi.ApiBuilder builder = new DtInsightApi.ApiBuilder()
-            .setEndpoint("http://127.0.0.1:8099")
+            .setEndpoint("http://172.16.100.251:8090")
             .setToken("eyJzdWNjZXNzIjp0cnVlLCJtZXNzYWdlIjoi5omn6KGM5oiQ5YqfIiwiZGF0YSI6eyJ1c2VySWQiOjEsInVzZXJOYW1lIjoiYWRtaW5AZHRzdGFjay5jb20iLCJlbWFpbCI6ImFkbWluQGR0c3RhY2suY29tIiwicGhvbmUiOiIxMzUyNjkyNTI4NiIsInRlbmFudElkIjoxLCJ0ZW5hbnROYW1lIjoiRFRTdGFja+enn+aItyIsInRlbmFudE93bmVyIjpmYWxzZSwidGVuYW50T3duZXJJZCI6OH19");
 
 
@@ -69,8 +69,8 @@ public class DAGScheduleXTest {
             jobIds.add("51f08832");
             jobIds.add("289154ff");
             jobIds.add("5de68c11");
-            ApiResponse<List<ActionJobEntityVO>> entitys = apiClient.entitys(jobIds, 0);
-            System.out.println(JSON.toJSONString(entitys));
+            ApiResponse<Boolean> stop = apiClient.stop(jobIds);
+            System.out.println(JSON.toJSONString(stop));
         } catch (Exception e) {
             //fail("Have exception, message: " + e.getMessage());
         }
