@@ -1,8 +1,5 @@
 #!/bin/bash
-
-source="./dist/console"
-target="/opt/dtstack/DTConsole/ConsoleFront"
-server="172.16.100.168"
+source $(dirname "$0")/const.sh
 
 echo "Uploading $source to $server:$target"
 
