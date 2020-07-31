@@ -36,7 +36,7 @@ const ResourceCard = (props: ResouceProps) => {
         return option
     }
 
-    const { title, useNum, total, value } = props
+    const { title, useNum, total, value = 0 } = props
     const option = setOptions(value)
 
     return (
@@ -76,42 +76,13 @@ const RenderTable = (props: ResoruceTableProps) => {
 class Resource extends React.Component<any, any> {
     state: any = {
         nodesListSource: [],
-        queuesListSource: [
-            {
-                capacity: 100,
-                AMResourceLimit: {
-                    memory: 18432,
-                    vCores: 24
-                },
-                usedCapacity: 0,
-
-                userAMResourceLimit: {
-                    memory: 18432,
-                    vCores: 24
-                },
-                maxCapacity: 100,
-                resourcesUsed: {
-                    memory: 0,
-                    vCores: 0
-                },
-                usedAMResource: {
-                    memory: 0,
-                    vCores: 0
-                },
-                queueName: 'default'
-            }
-        ],
-        target: [],
-        resourceMetrics: {
-            totalMem: 18432,
-            totalCores: 24,
-            usedMem: 0,
-            usedCores: 0
-        }
+        queuesListSource: [],
+        target: '',
+        resourceMetrics: {}
     }
 
     componentDidMount () {
-        // this.getClusterResources()
+        this.getClusterResources()
     }
 
     // 获取资源信息
@@ -122,9 +93,11 @@ class Resource extends React.Component<any, any> {
         }).then((res: any) => {
             const nodesList = res.data ? res.data.nodes : [];
             const queuesList = res.data ? res.data.queues : [];
+            const resource = res.data ? res.data.resourceMetrics : {};
             this.setState({
                 nodesListSource: nodesList,
-                queuesListSource: queuesList
+                queuesListSource: queuesList,
+                resourceMetrics: resource
             })
         })
     }
@@ -199,7 +172,7 @@ class Resource extends React.Component<any, any> {
                 render: (_, record: any) => {
                     return <a onClick={() => {
                         this.setState({
-                            target: new Array(record)
+                            target: record
                         })
                     }}>资源详情</a>
                 },
@@ -212,30 +185,50 @@ class Resource extends React.Component<any, any> {
         return [
             {
                 title: 'Max Resource',
-                dataIndex: 'AMResourceLimit',
-                render (text: any, record: any) {
-                    return <span>memory:{text.memory}, vCores:{text.vCores}</span>;
+                dataIndex: 'maxResource',
+                render (text: any) {
+                    return (
+                        <span>
+                            memory:<span style={{ margin: 5 }}>{text.memory},</span>
+                            vCores:<span style={{ margin: 5 }}>{text.vCores}</span>
+                        </span>
+                    )
                 }
             },
             {
                 title: 'Used Resource',
                 dataIndex: 'resourcesUsed',
-                render (text: any, record: any) {
-                    return <span>memory:{text.memory}, vCores:{text.vCores}</span>;
+                render (text: any) {
+                    return (
+                        <span>
+                            memory:<span style={{ margin: 5 }}>{text.memory},</span>
+                            vCores:<span style={{ margin: 5 }}>{text.vCores}</span>
+                        </span>
+                    )
                 }
             },
             {
                 title: 'Max AM Resource',
-                dataIndex: 'userAMResourceLimit',
-                render (text: any, record: any) {
-                    return <span>memory:{text.memory}, vCores:{text.vCores}</span>;
+                dataIndex: 'maxAMResource',
+                render (text: any) {
+                    return (
+                        <span>
+                            memory:<span style={{ margin: 5 }}>{text.memory},</span>
+                            vCores:<span style={{ margin: 5 }}>{text.vCores}</span>
+                        </span>
+                    )
                 }
             },
             {
                 title: 'Used AM Resource',
-                dataIndex: 'usedAMResource',
-                render (text: any, record: any) {
-                    return <span>memory:{text.memory}, vCores:{text.vCores}</span>;
+                dataIndex: 'AMResourceUsed',
+                render (text: any) {
+                    return (
+                        <span>
+                            memory:<span style={{ margin: 5 }}>{text.memory},</span>
+                            vCores:<span style={{ margin: 5 }}>{text.vCores}</span>
+                        </span>
+                    )
                 }
             }
         ]
@@ -246,7 +239,8 @@ class Resource extends React.Component<any, any> {
         const columnsQueues = this.initQueuesColumns()
         const columnsDetail = this.initDetailtColumns()
         const { nodesListSource, target, queuesListSource } = this.state;
-        const { usedCores, totalCores, usedMem, totalMem } = this.state.resourceMetrics
+        const { usedCores, totalCores, usedMem, totalMem,
+            memRate, coresRate } = this.state.resourceMetrics
         return (
             <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 20 }}>
@@ -256,7 +250,7 @@ class Resource extends React.Component<any, any> {
                             title='CPU（core）'
                             useNum={usedCores}
                             total={totalCores}
-                            value={1.67} />
+                            value={coresRate} />
                     </div>
                     <div style={{ height: 110, width: '50%', marginLeft: 10 }}>
                         <ResourceCard
@@ -264,7 +258,7 @@ class Resource extends React.Component<any, any> {
                             title='内存（GB）'
                             useNum={usedMem}
                             total={totalMem}
-                            value={60.05} />
+                            value={memRate} />
                     </div>
                 </div>
                 <RenderTable
@@ -275,11 +269,11 @@ class Resource extends React.Component<any, any> {
                     columns={columnsQueues}
                     data={queuesListSource}
                     title='各资源队列资源使用' />
-                { target.length > 0 ? <RenderTable
+                { target ? <RenderTable
                     columns={columnsDetail}
-                    data={target}
+                    data={target.users}
                     title='资源详情'
-                    desc='default' /> : null }
+                    desc={target.queueName} /> : null }
             </div>
         )
     }

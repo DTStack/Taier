@@ -6,7 +6,7 @@ import Api from '../../api/console';
 import { ENGIN_TYPE_TEXT } from '../../consts';
 import { isHadoopEngine, isTiDBEngine, isOracleEngine, isGreenPlumEngine } from '../../consts/clusterFunc';
 import BindCommModal from '../../components/bindCommModal';
-import Resource from './resourceUsage';
+import Resource from './resourceView';
 
 import BindAccountPane from './bindAccount';
 
@@ -299,7 +299,7 @@ class ResourceManage extends React.Component<any, any> {
                                                             onSearch={this.changeTenantName}
                                                         />
                                                         <Table
-                                                            className='m-table border-table'
+                                                            className='dt-table-border'
                                                             loading={loading}
                                                             rowKey={(record, index) => `${index}-${record.tenantId}`}
                                                             columns={isHadoop ? hadoopColumns : otherColumns}

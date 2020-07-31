@@ -344,7 +344,7 @@ class QueueManage extends React.Component<any, any> {
                         rowKey={(record: any) => {
                             return record.clusterId
                         }}
-                        className="m-table s-table"
+                        className="dt-table-border"
                         loading={loading}
                         columns={columns}
                         dataSource={dataSource}

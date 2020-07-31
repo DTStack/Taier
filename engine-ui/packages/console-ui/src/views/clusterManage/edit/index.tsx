@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cloneDeep, debounce } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { hashHistory } from 'react-router';
 import {
     Form, Input, Card, Tabs, Button, message, Popconfirm } from 'antd';
@@ -124,6 +124,7 @@ class EditCluster extends React.Component<any, any> {
 
     turnEditComp = () => {
         const { cluster } = this.props.location.state || {} as any;
+        this.setState({ testLoading: false })
         hashHistory.push({
             pathname: '/console/clusterManage/editCluster',
             state: {
@@ -604,7 +605,7 @@ class EditCluster extends React.Component<any, any> {
         })
     }
 
-    testConnects = (clusterName: string) => {
+    testConnects = (clusterName: string, type?: string) => {
         this.setState({
             testLoading: true
         });
@@ -612,17 +613,18 @@ class EditCluster extends React.Component<any, any> {
             clusterName
         }).then((res: any) => {
             if (res.code === 1) {
-                let testStatus: any = {}
-                res.data.forEach((temp: any) => {
-                    testStatus[temp.componentTypeCode] = { ...temp }
-                })
-                this.setState({
-                    testStatus: testStatus
-                })
+                if (!type) {
+                    let testStatus: any = {}
+                    res.data.forEach((temp: any) => {
+                        testStatus[temp.componentTypeCode] = { ...temp }
+                    })
+                    this.setState({
+                        testStatus: testStatus
+                    })
+                } else {
+                    message.success('刷新成功')
+                }
             }
-            this.setState({
-                testLoading: false
-            })
         }).finally(() => {
             this.setState({
                 testLoading: false
@@ -688,7 +690,7 @@ class EditCluster extends React.Component<any, any> {
                         </FormItem>
                         {isView
                             ? <div>
-                                <Button style={{ marginRight: 10 }} onClick={debounce(this.getDataList, 500, { maxWait: 2000 })}>刷新</Button>
+                                <Button style={{ marginRight: 10 }} loading={testLoading} onClick={this.testConnects.bind(this, clusterName, 'refresh')}>刷新</Button>
                                 <Button type="primary" onClick={this.turnEditComp}>编辑</Button>
                             </div>
                             : <Button type="primary" loading={testLoading} onClick={this.handleNotSaveComps}>测试全部连通性</Button>

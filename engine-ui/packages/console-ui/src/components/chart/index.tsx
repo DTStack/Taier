@@ -22,7 +22,7 @@ interface IState {
 }
 
 export default class Chart extends React.PureComponent<IProps, IState> {
-    constructor(props: IProps) {
+    constructor (props: IProps) {
         super(props);
         this.state = {
             myChart: null
@@ -31,18 +31,18 @@ export default class Chart extends React.PureComponent<IProps, IState> {
 
     public chart = null;
 
-    componentDidMount() {
+    componentDidMount () {
         const { option } = this.props;
         const myChart = echarts.init(this.chart);
         myChart.setOption(option);
         this.setState({ myChart })
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         this.state.myChart.dispose();
     }
 
-    componentDidUpdate(prevProps: IProps) {
+    componentDidUpdate (prevProps: IProps) {
         const { option } = this.props;
         if (!isEqual(prevProps.option, option)) {
             this.state.myChart.setOption(option);
@@ -56,7 +56,7 @@ export default class Chart extends React.PureComponent<IProps, IState> {
         return param + 'px';
     }
 
-    render() {
+    render () {
         const { width, height, style } = this.props;
         const styleParams = {
             ...style,
