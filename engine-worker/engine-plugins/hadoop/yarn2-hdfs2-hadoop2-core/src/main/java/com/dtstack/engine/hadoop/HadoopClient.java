@@ -591,22 +591,27 @@ public class HadoopClient extends AbstractClient {
         metrics.setTotalCores(totalCores);
         metrics.setUsedCores(usedCores);
 
-        BigDecimal totalMemDecimal = new BigDecimal(totalMem / (1024 * 1.0));
-        Double totalMemNew = totalMemDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        Double totalMemDouble = totalMem / (1024 * 1.0);
+        Double totalMemNew = retainDecimal(2, totalMemDouble);
         metrics.setTotalMem(totalMemNew);
 
-        BigDecimal usedMemDecimal = new BigDecimal(usedMem / (1024 * 1.0));
-        Double usedMemNew = usedMemDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        Double usedMemDouble = usedMem / (1024 * 1.0);
+        Double usedMemNew = retainDecimal(2, usedMemDouble);
         metrics.setUsedMem(usedMemNew);
 
-        BigDecimal memRateDecimal = new BigDecimal(usedMem / (totalMem * 1.0));
-        double memRate = memRateDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        Double memRateDouble = usedMem / (totalMem * 1.0) * 100;
+        Double memRate = retainDecimal(2, memRateDouble);
         metrics.setMemRate(memRate);
 
-        BigDecimal coresRateDecimal = new BigDecimal(usedCores / (totalCores * 1.0));
-        double coresRate = coresRateDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        Double coresRateDouble = usedCores / (totalCores * 1.0) * 100;
+        Double coresRate = retainDecimal(2, coresRateDouble);
         metrics.setCoresRate(coresRate);
         return metrics;
+    }
+
+    private Double retainDecimal(Integer position, Double decimal) {
+        BigDecimal retain = new BigDecimal(decimal);
+        return retain.setScale(position, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
     private List<JSONObject> getQueueResource(YarnClient yarnClient) throws Exception {
@@ -652,11 +657,23 @@ public class HadoopClient extends AbstractClient {
             queueInfo.put("queueName", queueNewName);
             if (!queueInfo.containsKey("queues")) {
                 fillUser(queueInfo);
+                retainCapacity(queueInfo);
                 queues.add(queueInfo);
             }
-
         }
         return queues;
+    }
+
+    private void retainCapacity(JSONObject queueInfo) {
+        Double capacity = queueInfo.getDouble("capacity");
+        queueInfo.put("capacity", retainDecimal(2, capacity));
+
+        Double usedCapacity = queueInfo.getDouble("usedCapacity");
+        queueInfo.put("usedCapacity", retainDecimal(2, usedCapacity));
+
+        Double maxCapacity = queueInfo.getDouble("maxCapacity");
+        queueInfo.put("maxCapacity", retainDecimal(2, maxCapacity));
+
     }
 
     private void fillUser(JSONObject queueInfo) {
