@@ -91,14 +91,13 @@ class Resource extends React.Component<any, any> {
         Api.getClusterResources({
             clusterName: clusterName
         }).then((res: any) => {
-            const nodesList = res.data ? res.data.nodes : [];
-            const queuesList = res.data ? res.data.queues : [];
-            const resource = res.data ? res.data.resourceMetrics : {};
-            this.setState({
-                nodesListSource: nodesList,
-                queuesListSource: queuesList,
-                resourceMetrics: resource
-            })
+            if (res.code == 1) {
+                this.setState({
+                    nodesListSource: res.data.nodes || [],
+                    queuesListSource: res.data.queues || [],
+                    resourceMetrics: res.data.resourceMetrics || {}
+                })
+            }
         })
     }
 
