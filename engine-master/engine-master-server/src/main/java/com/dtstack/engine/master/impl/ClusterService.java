@@ -417,6 +417,8 @@ public class ClusterService {
         KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(),componentType.getTypeCode());
         JSONObject configObj = config.getJSONObject(key);
         if (configObj != null) {
+            //返回版本
+            configObj.put("version",component.getHadoopVersion());
             addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
             if (Objects.nonNull(fullKerberos) && fullKerberos) {
                 //将sftp中keytab配置转换为本地路径
