@@ -2,6 +2,9 @@ package com.dtstack.engine.api.vo.schedule.task.shade;
 
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.ScheduleTaskVO;
+
+import java.util.List;
 
 
 /**
@@ -12,15 +15,15 @@ import com.dtstack.engine.api.pager.PageResult;
  */
 public class ScheduleTaskShadePageVO{
 
-    private PageResult pageResult;
+    private PageResult<List<ScheduleTaskVO>> pageResult;
     private Integer publishedTasks;
 
 
-    public PageResult getPageResult() {
+    public PageResult<List<ScheduleTaskVO>> getPageResult() {
         return pageResult;
     }
 
-    public void setPageResult(PageResult pageResult) {
+    public void setPageResult(PageResult<List<ScheduleTaskVO>> pageResult) {
         this.pageResult = pageResult;
     }
 

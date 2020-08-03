@@ -324,7 +324,7 @@ public class ScheduleTaskShadeService {
 
         int count = scheduleTaskShadeDao.generalCount(batchTaskDTO);
 
-        List<com.dtstack.engine.master.vo.ScheduleTaskVO> vos = new ArrayList<>(batchTasks.size());
+        List<ScheduleTaskVO> vos = new ArrayList<>(batchTasks.size());
 
         for (ScheduleTaskShade batchTask : batchTasks) {
             vos.add(new com.dtstack.engine.master.vo.ScheduleTaskVO(batchTask,true));
@@ -336,8 +336,10 @@ public class ScheduleTaskShadeService {
             //vos = dealFlowWorkTasks(vos);
         }
 
+
+
         int publishedTasks = scheduleTaskShadeDao.countPublishToProduce(projectId,appType);
-        PageResult<List<com.dtstack.engine.master.vo.ScheduleTaskVO>> pageResult = new PageResult<>(vos, count, pageQuery);
+        PageResult<List<ScheduleTaskVO>> pageResult = new PageResult<>(vos, count, pageQuery);
         ScheduleTaskShadePageVO scheduleTaskShadeTaskVO = new ScheduleTaskShadePageVO();
         scheduleTaskShadeTaskVO.setPageResult(pageResult);
         scheduleTaskShadeTaskVO.setPublishedTasks(publishedTasks);
@@ -345,22 +347,22 @@ public class ScheduleTaskShadeService {
         return scheduleTaskShadeTaskVO;
     }
 
-    private List<com.dtstack.engine.master.vo.ScheduleTaskVO> dealFlowWorkSubTasks(List<com.dtstack.engine.master.vo.ScheduleTaskVO> vos, Integer appType) {
-        Map<Long, com.dtstack.engine.master.vo.ScheduleTaskVO> record = Maps.newHashMap();
+    private List<ScheduleTaskVO> dealFlowWorkSubTasks(List<ScheduleTaskVO> vos, Integer appType) {
+        Map<Long, ScheduleTaskVO> record = Maps.newHashMap();
         Map<Long, Integer> voIndex = Maps.newHashMap();
         vos.forEach(task -> voIndex.put(task.getId(), vos.indexOf(task)));
-        Iterator<com.dtstack.engine.master.vo.ScheduleTaskVO> iterator = vos.iterator();
-        List<com.dtstack.engine.master.vo.ScheduleTaskVO> vosCopy = new ArrayList<>(vos);
+        Iterator<ScheduleTaskVO> iterator = vos.iterator();
+        List<ScheduleTaskVO> vosCopy = new ArrayList<>(vos);
         while (iterator.hasNext()) {
-            com.dtstack.engine.master.vo.ScheduleTaskVO vo = iterator.next();
+            ScheduleTaskVO vo = iterator.next();
             Long flowId = vo.getFlowId();
             if (flowId > 0) {
                 if (record.containsKey(flowId)) {
-                    com.dtstack.engine.master.vo.ScheduleTaskVO flowVo = record.get(flowId);
+                    ScheduleTaskVO flowVo = record.get(flowId);
                     flowVo.getRelatedTasks().add(vo);
                     iterator.remove();
                 } else {
-                    com.dtstack.engine.master.vo.ScheduleTaskVO flowVo;
+                    ScheduleTaskVO flowVo;
                     if (voIndex.containsKey(flowId)) {
                         flowVo = vosCopy.get(voIndex.get(flowId));
                         flowVo.setRelatedTasks(Lists.newArrayList(vo));

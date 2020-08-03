@@ -280,8 +280,8 @@ public class DAGScheduleXTest {
         try {
             DtInsightApi api = builder.buildApi();
             ScheduleTaskShadeService apiClient = api.getApiClient(ScheduleTaskShadeService.class);
-//            ApiResponse<ScheduleTaskShadePageVO> response = apiClient.queryTasks(1L, 1L, "", null, null, null, null, null, null, null, null, null, null);
-//            System.out.println(JSON.toJSONString(response));
+            ApiResponse<ScheduleTaskShadePageVO> response = apiClient.queryTasks(1L, 1L, "", null, null, null, null, null, null, null, null, null, null);
+            System.out.println(JSON.toJSONString(response));
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
         }
