@@ -123,8 +123,8 @@ public class DAGScheduleXTest {
         try {
             DtInsightApi api = builder.buildApi();
             ClusterService apiClient = api.getApiClient(ClusterService.class);
-            ApiResponse<ClusterVO> clusterVOApiResponse = apiClient.clusterInfo(1L);
-            System.out.println(JSON.toJSONString(clusterVOApiResponse));
+            ApiResponse<String> stringApiResponse = apiClient.pluginInfo(1L, "", 1L, 1);
+            System.out.println(JSON.toJSONString(stringApiResponse));
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
         }
