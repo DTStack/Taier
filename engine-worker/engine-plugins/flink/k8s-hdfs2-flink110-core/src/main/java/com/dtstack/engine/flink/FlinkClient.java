@@ -257,6 +257,11 @@ public class FlinkClient extends AbstractClient {
         ClusterClient<String> clusterClient = null;
         try {
             clusterDescriptor = PerJobClientFactory.getPerJobClientFactory().createPerjobClusterDescriptor(jobClient);
+            String projobClusterId = String.format("%s-%s", FlinkConfig.FLINK_PERJOB_PREFIX, jobClient.getTaskId());
+            if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
+                flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
+            }
+
             clusterClient = clusterDescriptor.deploySessionCluster(clusterSpecification).getClusterClient();
 
             flinkClusterClientManager.addClient(clusterClient.getClusterId(), clusterClient);
