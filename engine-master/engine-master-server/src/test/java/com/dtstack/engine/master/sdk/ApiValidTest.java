@@ -23,42 +23,41 @@ public class ApiValidTest extends AbstractCommonTest {
     @Test
     public void testApiSame() {
         Set<Class<? extends Class<?>>> controllerClasses = find(CONTROLLER_PACKSGE);
-        List<String> controllerMethods = new ArrayList<>();
+        Map<String, String> controllerMethods = new HashMap<>();
         for (Class<? extends Class<?>> clazz: controllerClasses) {
             RequestMapping requestMapping = clazz.getAnnotation(RequestMapping.class);
             if (requestMapping == null) {
                 continue;
             }
-            String path = getFormatString(requestMapping.value(), false);
             Method[] methods = clazz.getDeclaredMethods();
-            for (Method method: methods) {
-                StringBuilder sb = new StringBuilder();
-                sb.append(path);
-                RequestMapping methodRequestMapping = method.getAnnotation(RequestMapping.class);
-                if (methodRequestMapping == null) {
-                    continue;
-                }
-                sb.append(getFormatString(methodRequestMapping.value(), false));
-
-                for (Parameter p: method.getParameters()) {
-                    sb.append(getFormatString(p.getType().getSimpleName(), true));
-                    if (p.isAnnotationPresent(DtRequestParam.class)) {
-                        DtRequestParam dtRequestParam = p.getAnnotation(DtRequestParam.class);
-                        sb.append(getFormatString(dtRequestParam.value(),true));
-                    } else if (p.isAnnotationPresent(RequestParam.class)) {
-                        RequestParam requestParam = p.getAnnotation(RequestParam.class);
-                        sb.append(getFormatString(requestParam.value(), true));
-                    } else {
-                        sb.append(getFormatString(p.getName(), true));
+            for (String clazzPath: requestMapping.value()) {
+                for (Method method: methods) {
+                    StringBuilder sb = new StringBuilder();
+                    RequestMapping methodRequestMapping = method.getAnnotation(RequestMapping.class);
+                    if (methodRequestMapping == null) {
+                        continue;
                     }
-                }
+                    for (String methodPath: methodRequestMapping.value()) {
+                        for (Parameter p: method.getParameters()) {
+                            sb.append(getFormatString(p.getType().getSimpleName()));
+                            if (p.isAnnotationPresent(DtRequestParam.class)) {
+                                DtRequestParam dtRequestParam = p.getAnnotation(DtRequestParam.class);
+                                sb.append(getFormatString(dtRequestParam.value()));
+                            } else if (p.isAnnotationPresent(RequestParam.class)) {
+                                RequestParam requestParam = p.getAnnotation(RequestParam.class);
+                                sb.append(getFormatString(requestParam.value()));
+                            } else {
+                                sb.append(getFormatString(p.getName()));
+                            }
+                        }
+                        controllerMethods.put(clazzPath + methodPath, sb.toString());
+                    }
 
-                controllerMethods.add(sb.toString());
+                }
             }
         }
-        Collections.sort(controllerMethods);
 
-        List<String> serviceMethods = new ArrayList<>();
+        Map<String, String> serviceMethods = new HashMap<>();
         Set<Class<? extends Class<?>>> serviceClasses = find(SERVICE_PACKAGE);
         for (Class<? extends Class<?>> clazz: serviceClasses) {
             Method[] methods = clazz.getDeclaredMethods();
@@ -70,38 +69,23 @@ public class ApiValidTest extends AbstractCommonTest {
                 }
                 String lineValue = requestLine.value();
                 String[] splitValues = lineValue.split(" ");
-                String path = getFormatString(splitValues[splitValues.length - 1], false);
-                sb.append(path);
+                String path = splitValues[splitValues.length - 1];
                 for (Parameter p: method.getParameters()) {
-                    sb.append(getFormatString(p.getType().getSimpleName(), true));
+                    sb.append(getFormatString(p.getType().getSimpleName()));
                     if (p.isAnnotationPresent(Param.class)) {
                         Param param = p.getAnnotation(Param.class);
-                        sb.append(getFormatString(param.value(), true));
+                        sb.append(getFormatString(param.value()));
                     } else {
-                        sb.append(getFormatString(p.getName(), true));
+                        sb.append(getFormatString(p.getName()));
                     }
                 }
-                serviceMethods.add(sb.toString());
+                serviceMethods.put(path, sb.toString());
             }
         }
-        Collections.sort(serviceMethods);
 
-        List<String> tempControllerMethods = new ArrayList<>(controllerMethods);
-        controllerMethods.removeAll(serviceMethods);
-        serviceMethods.removeAll(tempControllerMethods);
-
-        List<String> diffMethods = new ArrayList<>();
-        diffMethods.addAll(controllerMethods);
-        diffMethods.addAll(serviceMethods);
-
-        Collections.sort(diffMethods);
-
-        if (!diffMethods.isEmpty()) {
-            StringBuilder diffSb = new StringBuilder();
-            for (String method: diffMethods) {
-                diffSb.append("\n" + method);
-            }
-            fail("have different methods: " + diffSb.toString());
+        String result = formatOutput(controllerMethods, serviceMethods);
+        if (result.length() != 0) {
+            fail("\n" + result);
         }
     }
 
@@ -112,22 +96,29 @@ public class ApiValidTest extends AbstractCommonTest {
         return typeSet;
     }
 
-    private static String getFormatString(String[] str, boolean needDownLine) {
-        StringBuilder sb = new StringBuilder();
-        for (String s : str) {
-            if (needDownLine) {
-                sb.append("_");
-            }
-            sb.append(s);
-        }
-        return sb.toString();
+    private static String getFormatString(String str) {
+        return "_" + str;
     }
 
-    private static String getFormatString(String str, boolean needDownLine) {
-        if (needDownLine) {
-            return "_" + str;
+    private static String formatOutput(Map<String, String> controllerMethods, Map<String, String> serviceMethods) {
+        StringBuilder sb = new StringBuilder();
+        for (String controllerKey: controllerMethods.keySet()) {
+            String controllerParams = controllerMethods.get(controllerKey);
+            if (serviceMethods.containsKey(controllerKey)) {
+                String serviceParams = serviceMethods.get(controllerKey);
+                if (!(controllerParams != null && controllerParams.equals(serviceParams))) {
+                    sb.append(controllerKey + "两者都有，但是参数不一致" + "\n" + "controller参数: " + controllerParams + "\n" +
+                            "service参数: " + serviceParams + "\n\n");
+                }
+                serviceMethods.remove(controllerKey);
+            } else {
+                sb.append(controllerKey + "在controller存在，service中不存在" + "\n\n");
+            }
         }
-        return str;
+        for (String serviceKey: serviceMethods.keySet()) {
+            sb.append(serviceKey + "在service中存在，controller中不存在" + "\n\n");
+        }
+        return sb.toString();
     }
 
 }
