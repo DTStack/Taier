@@ -696,6 +696,7 @@ public class HadoopClient extends AbstractClient {
                 userJSONObject.put("maxResource", userJSONObject.getJSONObject("userResourceLimit"));
                 userJSONObject.put("maxAMResource", userJSONObject.getJSONObject("userResourceLimit"));
             }
+            queueInfo.put("users", users);
         }
     }
 
