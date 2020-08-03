@@ -1340,8 +1340,60 @@ public class ComponentService {
         return componentDao.getByClusterIdAndComponentType(clusterId, componentType);
     }
 
+    /**
+     * 刷新组件信息
+     * @param clusterName
+     * @return
+     */
     public List<ComponentTestResult> refresh(String clusterName) {
+        List<ComponentTestResult> refreshResults = new ArrayList<>();
+        if (StringUtils.isNotBlank(clusterName)) {
+            throw new RdosDefineException("clusterName is null");
+        }
+        Cluster cluster = clusterDao.getByClusterName(clusterName);
 
+        List<Component> components = getComponents(clusterName);
+        if (CollectionUtils.isEmpty(components)) {
+            return refreshResults;
+        }
+
+        Map<String, String> sftpMap = getSftpMap(components);
+        CountDownLatch countDownLatch = new CountDownLatch(components.size());
+        for (Component component : components) {
+            if (EComponentType.YARN.getTypeCode() != component.getComponentTypeCode()) {
+                continue;
+            }
+            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(
+                    cluster.getId(), component.getComponentTypeCode());
+            Map<String, String> finalSftpMap = sftpMap;
+            try {
+                CompletableFuture.runAsync(() -> {
+                    ComponentTestResult refreshResult = new ComponentTestResult();
+                    try {
+                        refreshResult = this.testConnect(component.getComponentTypeCode(),
+                                component.getComponentConfig(), clusterName, component.getHadoopVersion(),
+                                component.getEngineId(), kerberosConfig, finalSftpMap);
+
+                        if (refreshResult.getResult() && EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
+                            engineService.updateResource(component.getEngineId(), refreshResult.getClusterResourceDescription());
+                            queueService.updateQueue(component.getEngineId(), refreshResult.getClusterResourceDescription());
+                        }
+
+                    } catch (Exception e) {
+                        refreshResult.setResult(false);
+                        refreshResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+                        LOGGER.error("refres {}  error ", component.getComponentConfig(), e);
+                    } finally {
+                        refreshResult.setComponentTypeCode(component.getComponentTypeCode());
+                        refreshResults.add(refreshResult);
+                        countDownLatch.countDown();
+                    }
+                }, connectPool).get(env.getTestConnectTimeout(),TimeUnit.SECONDS);
+            } catch (Exception e) {
+                LOGGER.error("refres {}  e ", component.getComponentConfig(), e);
+            }
+        }
+        return refreshResults;
     }
 
     /**
@@ -1350,28 +1402,16 @@ public class ComponentService {
      * @return
      */
     public List<ComponentTestResult> testConnects(String clusterName) {
-        List<ComponentTestResult> results = new ArrayList<>();
 
         if (StringUtils.isNotBlank(clusterName)) {
             throw new RdosDefineException("clusterName is null");
         }
-
         Cluster cluster = clusterDao.getByClusterName(clusterName);
 
         List<Component> components = getComponents(clusterName);
-        if (CollectionUtils.isEmpty(components)) {
-            return new ArrayList<>(0);
-        }
-        Optional<Component> componentOptional = components.stream()
-                .filter(c -> EComponentType.SFTP.getTypeCode() == c.getComponentTypeCode())
-                .findFirst();
-        Map<String, String> sftpMap = null;
-        try {
-            if (componentOptional.isPresent()) {
-                sftpMap = (Map) JSONObject.parseObject(componentOptional.get().getComponentConfig(), Map.class);
-            }
-        } catch (Exception e) {
-        }
+
+        Map<String, String> sftpMap = getSftpMap(components);
+
         List<ComponentTestResult> testResults = new ArrayList<>(components.size());
         CountDownLatch countDownLatch = new CountDownLatch(components.size());
         for (Component component : components) {
@@ -1424,7 +1464,7 @@ public class ComponentService {
         }
         List<Engine> engines = engineDao.listByClusterId(cluster.getId());
         if (CollectionUtils.isEmpty(engines)) {
-            return null;
+            return new ArrayList<>(0);
         }
         List<Long> engineId = engines.stream().map(Engine::getId).collect(Collectors.toList());
 
@@ -1432,7 +1472,21 @@ public class ComponentService {
         if (CollectionUtils.isEmpty(components)) {
             return new ArrayList<>(0);
         }
-        return null;
+        return components;
+    }
+
+    private Map<String, String> getSftpMap(List<Component> components) {
+        Optional<Component> componentOptional = components.stream()
+                .filter(c -> EComponentType.SFTP.getTypeCode() == c.getComponentTypeCode())
+                .findFirst();
+        Map<String, String> sftpMap = null;
+        try {
+            if (componentOptional.isPresent()) {
+                sftpMap = (Map) JSONObject.parseObject(componentOptional.get().getComponentConfig(), Map.class);
+            }
+        } catch (Exception e) {
+        }
+        return sftpMap;
     }
 
     public JSONObject getPluginInfoWithComponentType(Long dtuicTenantId,EComponentType componentType){
