@@ -397,7 +397,7 @@
     </update>
 
     <insert id="insert" parameterType="ScheduleTaskShade" useGeneratedKeys="false" keyProperty="id">
-        INSERT INTO schedule_task_shade
+        INSERT IGNORE INTO schedule_task_shade
         (tenant_id,project_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,
          schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,app_type,dtuic_tenant_id,task_id,is_expire,project_schedule_status)
         VALUES
