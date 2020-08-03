@@ -1,7 +1,6 @@
 package com.dtstack.engine.master.client;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.assertj.core.util.Lists;
@@ -117,12 +116,14 @@ public class DAGScheduleXSDKTest {
                 }
             }
         } else {
-            System.out.println("出现重载方法");
+            System.out.println("---------出现重载方法---------");
             for (Method method : serviceMethod) {
                 serviceParameters = method.getParameters();
                 String result = comparisonFiled(name, controllerMethodName, controllerParameters, serviceParameters);
                 if(StringUtils.isNotBlank(result)) {
                     System.out.println("重载方法method:"+method.getName()+"出现参数不一致,"+result);
+                } else {
+                    System.out.println("重载方法method:"+method.getName()+"出现参数一致,");
                 }
             }
         }
