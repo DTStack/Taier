@@ -42,9 +42,21 @@ import static junit.framework.TestCase.fail;
 public class DAGScheduleXTest {
 
     private DtInsightApi.ApiBuilder builder = new DtInsightApi.ApiBuilder()
-            .setEndpoint("http://172.16.100.251:8090")
+            .setEndpoint("http://127.0.0.1:8099")
             .setToken("eyJzdWNjZXNzIjp0cnVlLCJtZXNzYWdlIjoi5omn6KGM5oiQ5YqfIiwiZGF0YSI6eyJ1c2VySWQiOjEsInVzZXJOYW1lIjoiYWRtaW5AZHRzdGFjay5jb20iLCJlbWFpbCI6ImFkbWluQGR0c3RhY2suY29tIiwicGhvbmUiOiIxMzUyNjkyNTI4NiIsInRlbmFudElkIjoxLCJ0ZW5hbnROYW1lIjoiRFRTdGFja+enn+aItyIsInRlbmFudE93bmVyIjpmYWxzZSwidGVuYW50T3duZXJJZCI6OH19");
 
+
+    @Test
+    public void testStart0() {
+        try {
+            DtInsightApi api = builder.buildApi();
+            ActionService apiClient = api.getApiClient(ActionService.class);
+            ApiResponse<String> stringApiResponse = apiClient.generateUniqueSign();
+            System.out.println(stringApiResponse);
+        } catch (Exception e) {
+            fail("Have exception, message: " + e.getMessage());
+        }
+    }
 
     @Test
     public void testStart() {
@@ -267,8 +279,8 @@ public class DAGScheduleXTest {
         try {
             DtInsightApi api = builder.buildApi();
             ScheduleTaskShadeService apiClient = api.getApiClient(ScheduleTaskShadeService.class);
-            ApiResponse<ScheduleTaskShadePageVO> response = apiClient.queryTasks(1L, 1L, "", null, null, null, null, null, null, null, null, null, null);
-            System.out.println(JSON.toJSONString(response));
+//            ApiResponse<ScheduleTaskShadePageVO> response = apiClient.queryTasks(1L, 1L, "", null, null, null, null, null, null, null, null, null, null);
+//            System.out.println(JSON.toJSONString(response));
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
         }

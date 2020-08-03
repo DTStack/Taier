@@ -77,8 +77,8 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
                                                     @Param("startTime") Long startTime,
                                                     @Param("endTime") Long endTime,
                                                     @Param("scheduleStatus") Integer scheduleStatus,
-                                                    @Param("taskTypeList") String taskTypeList,
-                                                    @Param("periodTypeList") String periodTypeList,
+                                                    @Param("taskType") String taskTypeList,
+                                                    @Param("taskPeriodId") String periodTypeList,
                                                     @Param("currentPage") Integer currentPage,
                                                     @Param("pageSize") Integer pageSize, @Param("searchType") String searchType,
                                                     @Param("appType") Integer appType);
@@ -145,11 +145,11 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
 
 
     @RequestLine("POST /node/scheduleTaskShade/listDependencyTask")
-    ApiResponse<List<Map<String, Object>>> listDependencyTask(@Param("taskId") List<Long> taskId, @Param("appType") Integer appType, @Param("name") String name, @Param("projectId") Long projectId);
+    ApiResponse<List<Map<String, Object>>> listDependencyTask(@Param("taskIds") List<Long> taskId, @Param("appType") Integer appType, @Param("name") String name, @Param("projectId") Long projectId);
 
 
     @RequestLine("POST /node/scheduleTaskShade/listByTaskIdsNotIn")
-    ApiResponse<List<Map<String, Object>>> listByTaskIdsNotIn(@Param("taskId") List<Long> taskId, @Param("appType") Integer appType, @Param("projectId") Long projectId);
+    ApiResponse<List<Map<String, Object>>> listByTaskIdsNotIn(@Param("taskIds") List<Long> taskId, @Param("appType") Integer appType, @Param("projectId") Long projectId);
 
     /**
      * 根据任务类型查询已提交到task服务的任务数

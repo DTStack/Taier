@@ -45,7 +45,7 @@ public interface ClusterService extends DtInsightServer {
     ApiResponse<JSONObject> pluginInfoJSON(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr, @Param("dtUicUserId") Long dtUicUserId, @Param("deployMode") Integer deployMode);
 
     @RequestLine("POST /node/cluster/pluginInfo")
-    ApiResponse<String> pluginInfo(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr, @Param("dtUicUserId") Long dtUicUserId, @Param("deployMode") Integer deployMode);
+    ApiResponse<String> pluginInfo(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr, @Param("userId") Long dtUicUserId, @Param("deployMode") Integer deployMode);
 
     /**
      * 获取集群在sftp上的路径
