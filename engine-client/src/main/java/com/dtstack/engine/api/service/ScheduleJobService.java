@@ -197,10 +197,11 @@ public interface ScheduleJobService extends DtInsightServer {
      * @return
      */
     @Deprecated
-    @RequestLine("POST /node/scheduleJob/getFillDataDetailInfoOld")
+    @RequestLine("POST /node/scheduleJob/getFillDataDetailInfoOld?fillJobName={fillJobName}&dutyUserId={dutyUserId}")
+    @Headers(value={"Content-Type: application/json"})
     ApiResponse<PageResult<ScheduleFillDataJobDetailVO>> getFillDataDetailInfoOld(QueryJobDTO vo,
                                                                                   @Param("fillJobName") String fillJobName,
-                                                                                  @Param("dutyUserId") Long dutyUserId) ;
+                                                                                  @Param("dutyUserId") Long dutyUserId);
 
     @RequestLine("POST /node/scheduleJob/getFillDataDetailInfo")
     ApiResponse<PageResult<ScheduleFillDataJobDetailVO>> getFillDataDetailInfo(@Param("vo") String queryJobDTO,
@@ -301,7 +302,8 @@ public interface ScheduleJobService extends DtInsightServer {
      * @param scheduleJob
      * @return
      */
-    @RequestLine("POST /node/scheduleJob/getAllChildJobWithSameDay")
+    @RequestLine("POST /node/scheduleJob/getAllChildJobWithSameDay?isOnlyNextChild={isOnlyNextChild}&appType={appType}")
+    @Headers(value={"Content-Type: application/json"})
     ApiResponse<List<ScheduleJob>> getAllChildJobWithSameDay(ScheduleJob scheduleJob,
                                                              @Param("isOnlyNextChild") boolean isOnlyNextChild, @Param("appType") Integer appType);
 

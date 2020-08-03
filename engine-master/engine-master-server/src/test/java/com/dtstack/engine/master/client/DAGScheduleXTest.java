@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.client;
 
 import com.alibaba.fastjson.JSON;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.enums.DbType;
 import com.dtstack.engine.api.enums.EComponentApiType;
@@ -255,8 +256,8 @@ public class DAGScheduleXTest {
         try {
             DtInsightApi api = builder.buildApi();
             ScheduleJobService apiClient = api.getApiClient(ScheduleJobService.class);
-            ApiResponse<ScheduleJobStatusVO> statusCount = apiClient.getStatusCount(1L, 1L, 3, 1L);
-            System.out.println(JSON.toJSONString(statusCount));
+            ApiResponse<List<ScheduleJob>> allChildJobWithSameDay = apiClient.getAllChildJobWithSameDay(new ScheduleJob(), Boolean.FALSE, 3);
+            System.out.println(JSON.toJSONString(allChildJobWithSameDay));
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
         }

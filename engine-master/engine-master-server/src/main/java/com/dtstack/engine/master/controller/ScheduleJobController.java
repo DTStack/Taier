@@ -252,7 +252,7 @@ public class ScheduleJobController {
     @RequestMapping(value="/getAllChildJobWithSameDay", method = {RequestMethod.POST})
     @ApiOperation(value = "查询出指定job的所有关联的子job")
     public List<ScheduleJob> getAllChildJobWithSameDay(@RequestBody ScheduleJob scheduleJob,
-                                                       @RequestParam("isOnlyNextChild") boolean isOnlyNextChild, @DtRequestParam("appType") Integer appType) {
+                                                       @RequestParam("isOnlyNextChild") boolean isOnlyNextChild, @RequestParam("appType") Integer appType) {
         return scheduleJobService.getAllChildJobWithSameDay(scheduleJob, isOnlyNextChild, appType);
     }
 

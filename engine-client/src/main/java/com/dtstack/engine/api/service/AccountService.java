@@ -24,14 +24,14 @@ public interface AccountService extends DtInsightServer {
     /**
      * 解绑数据库账号
      */
-    @RequestLine("POST /node/account/unbindAccount")
+    @RequestLine("POST /node/account/unbindAccount?userId={userId}")
     @Headers(value={"Content-Type: application/json"})
     ApiResponse<Void> unbindAccount( AccountTenantVo accountTenantVo,  @Param("userId") Long userId);
 
     /**
      * 解绑数据库账号
      */
-    @RequestLine("POST /node/account/updateBindAccount")
+    @RequestLine("POST /node/account/updateBindAccount?userId={userId}")
     @Headers(value={"Content-Type: application/json"})
     ApiResponse<Void> updateBindAccount( AccountTenantVo accountTenantVo,  @Param("userId") Long userId);
 
