@@ -29,9 +29,9 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.sparkk8s.config.SparkK8sConfig;
-import com.dtstack.engine.sparkk8s.executor.MrSubmiter;
-import com.dtstack.engine.sparkk8s.executor.PythonSubmiter;
-import com.dtstack.engine.sparkk8s.executor.SqlSubmiter;
+import com.dtstack.engine.sparkk8s.submit.MrSubmit;
+import com.dtstack.engine.sparkk8s.submit.PythonSubmit;
+import com.dtstack.engine.sparkk8s.submit.SqlSubmit;
 import com.dtstack.engine.sparkk8s.parser.AddJarOperator;
 import com.dtstack.engine.sparkk8s.resourceinfo.SparkK8sResourceInfo;
 import com.dtstack.engine.sparkk8s.utils.SparkConfigUtil;
@@ -41,6 +41,7 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.spark.deploy.k8s.ExtendConfig;
+import org.mortbay.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,11 +85,11 @@ public class SparkK8sClient extends AbstractClient {
         EJobType jobType = jobClient.getJobType();
         JobResult jobResult = null;
         if (EJobType.MR.equals(jobType)) {
-            jobResult = new MrSubmiter(jobClient, sparkK8sConfig, sparkDefaultProp).submit();
+            jobResult = new MrSubmit(jobClient, sparkK8sConfig, sparkDefaultProp).submit();
         } else if (EJobType.SQL.equals(jobType)) {
-            jobResult = new SqlSubmiter(jobClient, sparkK8sConfig, sparkDefaultProp, hdfsConfPath).submit();
+            jobResult = new SqlSubmit(jobClient, sparkK8sConfig, sparkDefaultProp, hdfsConfPath).submit();
         } else if (EJobType.PYTHON.equals(jobType)) {
-            jobResult = new PythonSubmiter(jobClient, sparkK8sConfig, sparkDefaultProp).submit();
+            jobResult = new PythonSubmit(jobClient, sparkK8sConfig, sparkDefaultProp).submit();
         }
         return jobResult;
     }
@@ -195,11 +196,13 @@ public class SparkK8sClient extends AbstractClient {
 
     @Override
     public String getJobMaster(JobIdentifier jobIdentifier) {
+        String masterUrl = "";
         KubernetesClient k8sClient = getK8sClient();
         if (!Objects.isNull(k8sClient)) {
-            return k8sClient.getMasterUrl().toString();
+            masterUrl = k8sClient.getMasterUrl().toString();
         }
-        return "";
+        LOG.info("spark k8s client master url is:{}", masterUrl);
+        return masterUrl;
     }
 
     public KubernetesClient getK8sClient() {

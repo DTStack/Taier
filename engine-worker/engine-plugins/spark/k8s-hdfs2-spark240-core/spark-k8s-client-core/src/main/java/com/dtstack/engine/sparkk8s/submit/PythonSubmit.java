@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.sparkk8s.executor;
+package com.dtstack.engine.sparkk8s.submit;
 
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobParam;
@@ -36,7 +36,7 @@ import java.util.Properties;
  * Company: www.dtstack.com
  * @author maqi
  */
-public class PythonSubmiter extends AbstractSparkSubmiter {
+public class PythonSubmit extends AbstractSparkSubmit {
     private static final String PYTHON_RUNNER_CLASS = "org.apache.spark.deploy.PythonRunner";
     private static final String PYTHON_RUNNER_DEPENDENCY_RES_KEY = "extRefResource";
 
@@ -44,7 +44,7 @@ public class PythonSubmiter extends AbstractSparkSubmiter {
     private Properties sparkDefaultProp;
     private SparkK8sConfig sparkK8sConfig;
 
-    public PythonSubmiter(JobClient jobClient, SparkK8sConfig sparkK8sConfig, Properties sparkDefaultProp) {
+    public PythonSubmit(JobClient jobClient, SparkK8sConfig sparkK8sConfig, Properties sparkDefaultProp) {
         this.jobClient = jobClient;
         this.sparkDefaultProp = sparkDefaultProp;
         this.sparkK8sConfig = sparkK8sConfig;
@@ -58,7 +58,7 @@ public class PythonSubmiter extends AbstractSparkSubmiter {
         String pyFilePath = jobParam.getJarPath();
         String pyFilePathImagePath = getJarImagePath(pyFilePath);
         String jarName = StringUtils.substring(pyFilePath, pyFilePath.lastIndexOf("/"));
-        String sftpDir = StringUtils.substringBetween(pyFilePath, AbstractSparkSubmiter.SFTP_PREFIX, jarName);
+        String sftpDir = StringUtils.substringBetween(pyFilePath, AbstractSparkSubmit.SFTP_PREFIX, jarName);
 
         String appName = jobParam.getJobName();
         String exeArgsStr = jobParam.getClassArgs();
@@ -75,7 +75,7 @@ public class PythonSubmiter extends AbstractSparkSubmiter {
         argList.add("--primary-py-file");
         argList.add(pyFilePathImagePath);
 
-        argList.add("--class");
+        argList.add("--main-class");
         argList.add(PYTHON_RUNNER_CLASS);
 
         String[] appArgs = new String[]{};
@@ -86,6 +86,10 @@ public class PythonSubmiter extends AbstractSparkSubmiter {
         String dependencyResource = "";
         boolean nextIsDependencyVal = false;
         for (String appArg : appArgs) {
+            if (StringUtils.equalsIgnoreCase(appArg, "null") || StringUtils.isBlank(appArg)) {
+                continue;
+            }
+
             if (nextIsDependencyVal) {
                 dependencyResource = appArg;
                 continue;
@@ -118,6 +122,7 @@ public class PythonSubmiter extends AbstractSparkSubmiter {
         SparkConf sparkConf = SparkConfigUtil.buildBasicSparkConf(sparkDefaultProp);
         SparkConfigUtil.replaceBasicSparkConf(sparkConf, confProp);
 
+        SparkConfigUtil.setHadoopUserName(sparkK8sConfig, sparkConf);
         sparkConf.setAppName(appName);
         // sftp config
         fillSftpConfig(sftpDir, sparkConf, sparkK8sConfig.getSftpConf());

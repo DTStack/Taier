@@ -67,7 +67,8 @@ public class ConfigMapDecorator extends Decorator<ConfigMap, KubernetesConfigMap
         final Map<String, String> configMap = resource.getData() == null ? new HashMap<>() : resource.getData();
         configMap.put(FLINK_CONF_FILENAME, flinkConfContent.toString());
 
-        final String log4jFile = confDir + File.separator + CONFIG_FILE_LOG4J_NAME;
+        String logLevel = flinkConfig.getString(KubernetesConfigOptions.FLINK_LOG_LEVEL).toLowerCase();
+        final String log4jFile = confDir + File.separator + logLevel + File.separator + CONFIG_FILE_LOG4J_NAME;
         try {
             final String log4jContent = KubernetesUtils.getContentFromFile(log4jFile);
             configMap.put(CONFIG_FILE_LOG4J_NAME, log4jContent);
@@ -75,7 +76,7 @@ public class ConfigMapDecorator extends Decorator<ConfigMap, KubernetesConfigMap
             LOG.info("File {} will not be added to configMap, {}", log4jFile, e.getMessage());
         }
 
-        final String logbackFile = confDir + File.separator + CONFIG_FILE_LOGBACK_NAME;
+        final String logbackFile = confDir + File.separator + logLevel + File.separator + CONFIG_FILE_LOGBACK_NAME;
         try {
             final String logbackContent = KubernetesUtils.getContentFromFile(logbackFile);
             configMap.put(CONFIG_FILE_LOGBACK_NAME, logbackContent);

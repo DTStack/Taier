@@ -49,7 +49,7 @@ public interface ScheduleJobDao {
 
     List<Long> listIdByTaskIdAndStatus(@Param("taskId") Long taskId, @Param("statuses") List<Integer> status, @Param("appType") Integer appType);
 
-    List<String> listJobIdByTaskIdAndStatus(@Param("taskId") Long taskId, @Param("statuses") List<Integer> status);
+    List<String> listJobIdByTaskIdAndStatus(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("statuses") List<Integer> status);
 
     List<Map<String, String>> listTaskExeTimeInfo(@Param("taskId") Long taskId, @Param("statuses") List<Integer> status, @Param("pageQuery") PageQuery pageQuery);
 

@@ -50,11 +50,15 @@ public class FlinkClientBuilder {
         this.hadoopConf = hadoopConf;
         this.flinkConfiguration = initFlinkGlobalConfiguration(extProp);
 
-        String defaultClusterId = flinkConfig.getFlinkSessionName() + ConfigConstrant.CLUSTER_ID_SPLIT + flinkConfig.getCluster() + ConfigConstrant.CLUSTER_ID_SPLIT + flinkConfig.getQueue();
+        String defaultClusterId = flinkConfig.getFlinkSessionName() + ConfigConstrant.CLUSTER_ID_SPLIT
+                + flinkConfig.getCluster() + ConfigConstrant.CLUSTER_ID_SPLIT + flinkConfig.getNamespace();
         String k8sClusterId = flinkConfiguration.getString(KubernetesConfigOptions.CLUSTER_ID, defaultClusterId);
+
+        this.flinkConfiguration.set(KubernetesConfigOptions.NAMESPACE, flinkConfig.getNamespace());
+
         // k8s集群名称不支持下划线，转为中划线
         k8sClusterId = StringUtils.replaceChars(k8sClusterId, ConfigConstrant.SPLIT, ConfigConstrant.CLUSTER_ID_SPLIT);
-        flinkConfiguration.setString(KubernetesConfigOptions.CLUSTER_ID, k8sClusterId);
+        flinkConfiguration.setString(KubernetesConfigOptions.CLUSTER_ID, k8sClusterId.toLowerCase());
 
         this.flinkKubeClient = KubeClientFactory.fromConfiguration(flinkConfiguration);
     }

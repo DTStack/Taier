@@ -134,6 +134,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         componentTypeConfigMapping.put(EComponentType.YARN.getTypeCode(), Lists.newArrayList("yarn-site.xml"));
         componentVersionMapping.put(EComponentType.FLINK.getName(), Lists.newArrayList(new Pair<>("1.8", "180"), new Pair<>("1.10", "110")));
         componentVersionMapping.put(EComponentType.SPARK.getName(), Lists.newArrayList(new Pair<>("2.1.X", "210"), new Pair<>("2.4.X", "240")));
+        componentVersionMapping.put(EComponentType.SPARK_THRIFT.getName(), Lists.newArrayList(new Pair<>("1.X", "1.x"), new Pair<>("2.X", "2.x")));
         //-1 为hadoopversion
         componentVersionMapping.put("hadoopVersion", Lists.newArrayList(new Pair<>("hadoop2", "hadoop2"),
                 new Pair<>("hadoop3", "hadoop3"), new Pair<>("HW", "HW")));
@@ -198,18 +199,6 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
             throw new RdosDefineException("集群不存在");
         }
         return AppType.CONSOLE.name() + "_" + one.getClusterName();
-    }
-
-    private Map<String, String> parseKerberosConfig(Resource resource, String localKerberosConf) throws Exception {
-        Map<String, Map<String, String>> confMap = KerberosConfigVerify.parseKerberosFromUpload(resource.getUploadedFileName(), localKerberosConf);
-        if (MapUtils.isNotEmpty(confMap)) {
-            Map<String, String> map = new HashMap<>();
-            for (String key : confMap.keySet()) {
-                map.putAll(confMap.get(key));
-            }
-            return map;
-        }
-        throw new RdosDefineException("缺少xml配置文件");
     }
 
     @Forbidden

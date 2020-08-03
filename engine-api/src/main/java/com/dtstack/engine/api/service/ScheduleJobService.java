@@ -176,7 +176,7 @@ public interface ScheduleJobService {
     public PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfo(@Param("vo") String queryJobDTO,
                                                                          @Param("flowJobIdList") List<String> flowJobIdList,
                                                                          @Param("fillJobName") String fillJobName,
-                                                                         @Param("dutyUserId") Long dutyUserId, @Param("searchType") String searchType) throws Exception;
+                                                                         @Param("dutyUserId") Long dutyUserId, @Param("searchType") String searchType,@Param("appType") Integer appType) throws Exception;
 
     /**
      * 获取补数据实例工作流节点的父节点和子节点关联信息

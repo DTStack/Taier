@@ -42,7 +42,7 @@ public class FlinkConfig {
 
     private String cluster;
 
-    private String queue;
+    private String namespace;
 
     private Map<String, Object> hadoopConf;
 
@@ -252,12 +252,12 @@ public class FlinkConfig {
         this.cluster = cluster;
     }
 
-    public String getQueue() {
-        return StringUtils.isBlank(queue) ? "default" : queue;
+    public String getNamespace() {
+        return StringUtils.isBlank(namespace) ? "default" : namespace;
     }
 
-    public void setQueue(String queue) {
-        this.queue = queue;
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
     }
 
     public boolean getElasticCapacity() {

@@ -150,6 +150,12 @@ public class KubernetesConfigOptions {
             .defaultValue("/opt/flink/log")
             .withDescription("The directory that logs of jobmanager and taskmanager be saved in the pod.");
 
+    public static final ConfigOption<String> FLINK_LOG_LEVEL =
+        key("logLevel")
+            .stringType()
+            .defaultValue("info")
+            .withDescription("The task run log level.");
+
     /**
      * The flink rest service exposed type.
      */

@@ -35,7 +35,7 @@ public interface StreamTaskService {
      * @param taskId
      * @return
      */
-    public Pair<String, String> getRunningTaskLogUrl(@Param("taskId") String taskId);
+    public List<String> getRunningTaskLogUrl(@Param("taskId") String taskId);
 
 
 }

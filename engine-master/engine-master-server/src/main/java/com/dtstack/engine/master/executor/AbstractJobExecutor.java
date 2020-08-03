@@ -195,12 +195,16 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     if (type.intValue() == EScheduleJobType.WORK_FLOW.getVal() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
                         if (status.intValue() == RdosTaskStatus.UNSUBMIT.getStatus()) {
                             this.start(batchTask, scheduleBatchJob);
+                            this.errorJobCache.remove(scheduleBatchJob.getJobKey());
+                            this.notStartCache.remove(scheduleBatchJob.getJobKey());
                         }
                         if (!batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType())) {
                             jopPriorityQueue.putSurvivor(batchJobElement);
                         }
                     } else {
                         this.start(batchTask, scheduleBatchJob);
+                        this.errorJobCache.remove(scheduleBatchJob.getJobKey());
+                        this.notStartCache.remove(scheduleBatchJob.getJobKey());
                     }
                 } else if (checkRunInfo.getStatus() == JobCheckStatus.TIME_NOT_REACH) {
                     notStartCache.clear();

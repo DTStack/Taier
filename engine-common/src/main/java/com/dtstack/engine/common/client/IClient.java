@@ -48,4 +48,6 @@ public interface IClient {
 	String uploadStringToHdfs(String bytes, String hdfsPath);
 
 	ClusterResource getClusterResource();
+
+	List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier);
 }
