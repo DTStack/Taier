@@ -18,7 +18,7 @@ import static org.junit.Assert.fail;
 public class ApiValidTest extends AbstractCommonTest {
     private final static String SERVICE_PACKAGE = "com.dtstack.engine.api.service";
     private final static String CONTROLLER_PACKSGE = "com.dtstack.engine.master.controller";
-
+    private final static String[] ignorePath = {"/node/component/cluster", "/node"};
 
     @Test
     public void testApiSame() {
@@ -31,6 +31,9 @@ public class ApiValidTest extends AbstractCommonTest {
             }
             Method[] methods = clazz.getDeclaredMethods();
             for (String clazzPath: requestMapping.value()) {
+                if (Arrays.asList(ignorePath).contains(clazzPath)) {
+                    continue;
+                }
                 for (Method method: methods) {
                     StringBuilder sb = new StringBuilder();
                     RequestMapping methodRequestMapping = method.getAnnotation(RequestMapping.class);
