@@ -1340,31 +1340,31 @@ public class ComponentService {
         return componentDao.getByClusterIdAndComponentType(clusterId, componentType);
     }
 
+    public List<ComponentTestResult> refresh(String clusterName) {
+
+    }
+
     /**
      * 测试所有组件连通性
      * @param clusterName
      * @return
      */
-    public List<ComponentTestResult> testConnects( String clusterName) {
-        Cluster cluster = null;
-        if (StringUtils.isNotBlank(clusterName)) {
-            cluster = clusterDao.getByClusterName(clusterName);
-        }
-        if (Objects.isNull(cluster)) {
-            throw new RdosDefineException("集群不存在");
-        }
+    public List<ComponentTestResult> testConnects(String clusterName) {
         List<ComponentTestResult> results = new ArrayList<>();
-        List<Engine> engines = engineDao.listByClusterId(cluster.getId());
-        if (CollectionUtils.isEmpty(engines)) {
-            return results;
-        }
-        List<Long> engineId = engines.stream().map(Engine::getId).collect(Collectors.toList());
 
-        List<Component> components = componentDao.listByEngineIds(engineId);
+        if (StringUtils.isNotBlank(clusterName)) {
+            throw new RdosDefineException("clusterName is null");
+        }
+
+        Cluster cluster = clusterDao.getByClusterName(clusterName);
+
+        List<Component> components = getComponents(clusterName);
         if (CollectionUtils.isEmpty(components)) {
             return new ArrayList<>(0);
         }
-        Optional<Component> componentOptional = components.stream().filter(c -> EComponentType.SFTP.getTypeCode() == c.getComponentTypeCode()).findFirst();
+        Optional<Component> componentOptional = components.stream()
+                .filter(c -> EComponentType.SFTP.getTypeCode() == c.getComponentTypeCode())
+                .findFirst();
         Map<String, String> sftpMap = null;
         try {
             if (componentOptional.isPresent()) {
@@ -1409,6 +1409,30 @@ public class ComponentService {
             LOGGER.error("test connect  await {}  error ", clusterName, e);
         }
         return testResults;
+    }
+
+    private List<Component> getComponents(String clusterName){
+
+        if (StringUtils.isNotBlank(clusterName)) {
+            throw new RdosDefineException("clusterName is null");
+        }
+
+        Cluster cluster = clusterDao.getByClusterName(clusterName);
+
+        if (Objects.isNull(cluster)) {
+            throw new RdosDefineException("集群不存在");
+        }
+        List<Engine> engines = engineDao.listByClusterId(cluster.getId());
+        if (CollectionUtils.isEmpty(engines)) {
+            return null;
+        }
+        List<Long> engineId = engines.stream().map(Engine::getId).collect(Collectors.toList());
+
+        List<Component> components = componentDao.listByEngineIds(engineId);
+        if (CollectionUtils.isEmpty(components)) {
+            return new ArrayList<>(0);
+        }
+        return null;
     }
 
     public JSONObject getPluginInfoWithComponentType(Long dtuicTenantId,EComponentType componentType){

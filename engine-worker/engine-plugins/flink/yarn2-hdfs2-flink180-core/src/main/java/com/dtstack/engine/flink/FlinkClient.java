@@ -676,8 +676,7 @@ public class FlinkClient extends AbstractClient {
                 FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
                 String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
                 yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
-                Boolean rs = yarnSeesionResourceInfo.judgeSlots(jobClient);
-                return JudgeResult.newInstance(rs, "");
+                return yarnSeesionResourceInfo.judgeSlots(jobClient);
             }
 
         } catch (Exception e){
