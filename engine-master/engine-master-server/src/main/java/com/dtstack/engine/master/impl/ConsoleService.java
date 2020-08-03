@@ -437,8 +437,9 @@ public class ConsoleService {
             }
             pluginInfo.put(ComponentService.TYPE_NAME,typeName);
             ClusterResource clusterResource = workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
-            clusterResources.put("yarn", clusterResource.getYarn());
-            clusterResources.put("flink", clusterResource.getFlink());
+            clusterResources.put("resourceMetrics", clusterResource.getResourceMetrics());
+            clusterResources.put("nodes", clusterResource.getNodes());
+            clusterResources.put("queues", clusterResource.getQueues());
         } catch (Exception e) {
             logger.error(" ", e);
             throw new RdosDefineException("flink资源获取异常");
