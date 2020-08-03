@@ -3,9 +3,8 @@ package com.dtstack.engine.hadoop;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.util.TypeUtils;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.base.resource.AbstractYarnResourceInfo;
+import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.base.resource.EngineResourceInfo;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
@@ -21,7 +20,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.pojo.ClusterResource;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -228,8 +227,12 @@ public class HadoopClient extends AbstractClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
-        return resourceInfo.judgeSlots(jobClient);
+    public JudgeResult judgeSlots(JobClient jobClient) {
+        try {
+            return resourceInfo.judgeSlots(jobClient);
+        } catch (Exception e) {
+            return JudgeResult.newInstance(false, "judgeSlots error");
+        }
     }
 
     @Override

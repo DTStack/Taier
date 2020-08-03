@@ -1,6 +1,7 @@
 package com.dtstack.engine.learning;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.learning.conf.LearningConfiguration;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.MathUtil;
@@ -184,14 +185,17 @@ public class LearningClient extends AbstractClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
-        LearningResourceInfo resourceInfo = new LearningResourceInfo();
+    public JudgeResult judgeSlots(JobClient jobClient) {
         try {
-            resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(LearningConfiguration.XLEARNING_APP_QUEUE), conf.getInt(LearningResourceInfo.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
+            LearningResourceInfo resourceInfo = LearningResourceInfo.LearningResourceInfoBuilder()
+                    .withYarnClient(client.getYarnClient())
+                    .withQueueName(conf.get(LearningConfiguration.XLEARNING_APP_QUEUE))
+                    .withYarnAccepterTaskNumber(conf.getInt(LearningResourceInfo.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1))
+                    .build();
             return resourceInfo.judgeSlots(jobClient);
         } catch (YarnException e) {
             LOG.error("", e);
-            return false;
+            return JudgeResult.newInstance(false, "judgeSlots error");
         }
     }
 

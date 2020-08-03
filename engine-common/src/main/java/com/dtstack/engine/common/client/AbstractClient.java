@@ -8,6 +8,7 @@ import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.pojo.ClusterResource;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,8 +99,8 @@ public abstract class AbstractClient implements IClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
-        return false;
+    public JudgeResult judgeSlots(JobClient jobClient) {
+        return JudgeResult.newInstance(false, "");
     }
 
     protected void beforeSubmitFunc(JobClient jobClient) {

@@ -10,6 +10,7 @@ import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.base.resource.EngineResourceInfo;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.odps.util.OdpsUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -197,8 +198,8 @@ public class OdpsClient extends AbstractClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
-        return resourceInfo.judgeSlots(jobClient);
+    public JudgeResult judgeSlots(JobClient jobClient) {
+        return JudgeResult.newInstance(true, "");
     }
 
     private boolean hasLog(String jobId) {

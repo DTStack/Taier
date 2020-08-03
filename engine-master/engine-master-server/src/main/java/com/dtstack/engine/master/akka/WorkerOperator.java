@@ -15,6 +15,7 @@ import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.common.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.google.common.base.Strings;
@@ -80,7 +81,7 @@ public class WorkerOperator {
         return info.toJSONString();
     }
 
-    public boolean judgeSlots(JobClient jobClient) throws Exception {
+    public JudgeResult judgeSlots(JobClient jobClient) throws Exception {
         this.buildPluginInfo(jobClient);
         if (AkkaConfig.isLocalMode()) {
             return ClientOperator.getInstance().judgeSlots(jobClient);
@@ -90,7 +91,7 @@ public class WorkerOperator {
         if (result instanceof Exception) {
             throw (Exception) result;
         } else {
-            return (boolean) result;
+            return (JudgeResult) result;
         }
     }
 

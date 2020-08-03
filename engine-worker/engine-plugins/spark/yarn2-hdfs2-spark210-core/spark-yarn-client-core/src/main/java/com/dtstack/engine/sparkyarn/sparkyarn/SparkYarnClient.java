@@ -14,6 +14,7 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -594,23 +595,28 @@ public class SparkYarnClient extends AbstractClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public JudgeResult judgeSlots(JobClient jobClient) {
 
         try {
             return KerberosUtils.login(sparkYarnConfig, () -> {
-                SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
+
                 try {
+                    SparkYarnResourceInfo resourceInfo = SparkYarnResourceInfo.SparkYarnResourceInfoBuilder()
+                            .withYarnClient(getYarnClient())
+                            .withQueueName(sparkYarnConfig.getQueue())
+                            .withYarnAccepterTaskNumber(sparkYarnConfig.getYarnAccepterTaskNumber())
+                            .build();
                     resourceInfo.getYarnSlots(getYarnClient(), sparkYarnConfig.getQueue(), sparkYarnConfig.getYarnAccepterTaskNumber());
                     return resourceInfo.judgeSlots(jobClient);
-                } catch (YarnException e) {
+                } catch (Exception e) {
                     logger.error("", e);
-                    return false;
+                    return JudgeResult.newInstance(false, "judgeSlots error");
                 }
             }, yarnConf);
         } catch (Exception e) {
             logger.error("judgeSlots error", e);
+            return JudgeResult.newInstance(false, "judgeSlots error");
         }
-        return false;
     }
 
     public void setHadoopUserName(SparkYarnConfig sparkYarnConfig){
