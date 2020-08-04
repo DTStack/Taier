@@ -1,11 +1,14 @@
 package com.dtstack.engine.rdbs.presto;
 
+import com.alibaba.fastjson.JSONObject;
 import com.facebook.presto.jdbc.PrestoConnection;
 import com.facebook.presto.jdbc.PrestoStatement;
 import org.junit.Test;
 
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestPrestoDB {
 
@@ -13,16 +16,32 @@ public class TestPrestoDB {
     public void testPrestoConn() throws Exception{
         String driver = "com.facebook.presto.jdbc.PrestoDriver";
         Class.forName(driver);
-        String url = "jdbc:hive2://node001:10004/data_science";
-        String user = "";
-        String pass = "";
+        String url = "jdbc:presto://172.16.100.168:8091/mysql";
+        String user = "root";
 
-        StringBuffer sb = new StringBuffer("select * from temp_mf_test limit 5");
-        String createProc = sb.toString();
+        String sql = "select * from task3_copy01.console_engine";
 
-        PrestoConnection conn = (PrestoConnection) DriverManager.getConnection(url, user, pass);
+        PrestoConnection conn = (PrestoConnection) DriverManager.getConnection(url, user, null);
 
         PrestoStatement stmt = (PrestoStatement)conn.createStatement();
-        ResultSet res = stmt.executeQuery(createProc);
+        ResultSet resultSet = stmt.executeQuery(sql);
+
+        List<JSONObject> results = new ArrayList<>();
+        int count = resultSet.getMetaData().getColumnCount();
+        String[] columns = new String[count];
+        for (int i = 0; i < count; i++) {
+            columns[i] = resultSet.getMetaData().getColumnName(i + 1);
+        }
+        while (resultSet.next()) {
+            JSONObject jsonObject = new JSONObject();
+            for (int j = 0; j < count; j++) {
+                jsonObject.put(columns[j], resultSet.getString(j + 1));
+            }
+            results.add(jsonObject);
+        }
+
+        for (JSONObject jsonObject: results) {
+            System.out.println(jsonObject.toString());
+        }
     }
 }
