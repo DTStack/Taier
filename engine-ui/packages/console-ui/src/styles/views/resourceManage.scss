@@ -127,7 +127,13 @@
     text-align: center;
 }
 
-.c-resouceManage__table__container {
+.c-resourceView__container {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 20px;
+}
+
+.c-resourceView__table__container {
     p {
         font-size: 14px;
         font-weight: 600;
@@ -136,14 +142,14 @@
     }
 }
 
-.c-resourceCard-container {
+.c-resourceCard__container {
     height: 100%;
     width: 100%;
     display: flex;
     justify-content: flex-start;
     border: 1px solid #e8e8e8;
     padding: 8px 8px 8px 31px;
-    .c-resourceCard-container__title {
+    .c-resourceCard__container__title {
         color: #333333;
         font-size:12px;
         font-weight:600;

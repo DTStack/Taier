@@ -79,8 +79,7 @@ module.exports = {
                 secure: false
             },
             '/node': { // 控制台
-                // target: 'http://172.16.100.225:7001/proxy/44', // doraemon
-                target: 'http://172.16.100.168:8090',
+                target: 'http://172.16.100.225:7001/proxy/44', // doraemon
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,
                 secure: false,

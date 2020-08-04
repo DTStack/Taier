@@ -40,9 +40,9 @@ const ResourceCard = (props: ResouceProps) => {
     const option = setOptions(value)
 
     return (
-        <div className="c-resourceCard-container">
+        <div className="c-resourceCard__container">
             <Chart option={option} width={110} height={110} />
-            <div className="c-resourceCard-container__title">
+            <div className="c-resourceCard__container__title">
                 <p>{title}</p>
                 <p><span style={{ fontSize: 18 }}>{useNum}</span> / {total}</p>
             </div>
@@ -60,7 +60,7 @@ interface ResoruceTableProps {
 const RenderTable = (props: ResoruceTableProps) => {
     const { columns, data, title, desc = '' } = props
     return (
-        <div className="c-resouceManage__table__container">
+        <div className="c-resourceView__table__container">
             <p>{title}{desc && `（${desc}）`}</p>
             <Table
                 className="dt-table-border dt-table-last-row-noborder"
@@ -152,18 +152,24 @@ class Resource extends React.Component<any, any> {
             },
             {
                 title: '已使用容量',
-                dataIndex: 'usedCapacity'
+                dataIndex: 'usedCapacity',
+                render (_, record: any) {
+                    return `${record.usedCapacity}%`;
+                }
             },
             {
                 title: '分配容量',
                 dataIndex: 'capacity',
                 render (_, record: any) {
-                    return record.capacity;
+                    return `${record.capacity}%`;
                 }
             },
             {
                 title: '最大容量',
-                dataIndex: 'maxCapacity'
+                dataIndex: 'maxCapacity',
+                render (_, record: any) {
+                    return `${record.maxCapacity}%`;
+                }
             },
             {
                 title: '查看',
@@ -182,6 +188,10 @@ class Resource extends React.Component<any, any> {
 
     initDetailtColumns = () => {
         return [
+            {
+                title: 'Username',
+                dataIndex: 'username'
+            },
             {
                 title: 'Max Resource',
                 dataIndex: 'maxResource',
@@ -242,7 +252,7 @@ class Resource extends React.Component<any, any> {
             memRate, coresRate } = this.state.resourceMetrics
         return (
             <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 20 }}>
+                <div className="c-resourceView__container">
                     <div style={{ height: 110, width: '50%', marginRight: 10 }}>
                         <ResourceCard
                             type='cpu'

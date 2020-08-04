@@ -2,7 +2,8 @@ import * as React from 'react';
 import { cloneDeep } from 'lodash';
 import { hashHistory } from 'react-router';
 import {
-    Form, Input, Card, Tabs, Button, message, Popconfirm } from 'antd';
+    Form, Input, Card, Tabs, Button, message,
+    notification, Popconfirm } from 'antd';
 import Api from '../../../api/console';
 
 import req from '../../../consts/reqUrls';
@@ -605,30 +606,42 @@ class EditCluster extends React.Component<any, any> {
         })
     }
 
-    testConnects = (clusterName: string, type?: string) => {
-        this.setState({
-            testLoading: true
-        });
+    testConnects = (clusterName: string) => {
+        this.setState({ testLoading: true });
         Api.testConnects({
             clusterName
         }).then((res: any) => {
             if (res.code === 1) {
-                if (!type) {
-                    let testStatus: any = {}
-                    res.data.forEach((temp: any) => {
-                        testStatus[temp.componentTypeCode] = { ...temp }
-                    })
-                    this.setState({
-                        testStatus: testStatus
-                    })
-                } else {
+                let testStatus: any = {}
+                res.data.forEach((temp: any) => {
+                    testStatus[temp.componentTypeCode] = { ...temp }
+                })
+                this.setState({
+                    testStatus: testStatus
+                })
+            }
+        }).finally(() => {
+            this.setState({ testLoading: false })
+        })
+    }
+
+    refreshYarnQueue (clusterName: string) {
+        this.setState({ testLoading: true });
+        Api.refreshQueue({ clusterName }).then((res: any) => {
+            if (res.code == 1) {
+                const target = res.data.find(v => v.componentTypeCode == COMPONENT_TYPE_VALUE.YARN)
+                if (target.result || res.data.length == 0) {
                     message.success('刷新成功')
+                } else {
+                    notification['error']({
+                        message: '刷新失败',
+                        description: `${target.errorMsg}`,
+                        style: { wordBreak: 'break-word' }
+                    });
                 }
             }
         }).finally(() => {
-            this.setState({
-                testLoading: false
-            })
+            this.setState({ testLoading: false })
         })
     }
 
@@ -690,7 +703,7 @@ class EditCluster extends React.Component<any, any> {
                         </FormItem>
                         {isView
                             ? <div>
-                                <Button style={{ marginRight: 10 }} loading={testLoading} onClick={this.testConnects.bind(this, clusterName, 'refresh')}>刷新</Button>
+                                <Button style={{ marginRight: 10 }} loading={testLoading} onClick={this.refreshYarnQueue.bind(this, clusterName)}>刷新</Button>
                                 <Button type="primary" onClick={this.turnEditComp}>编辑</Button>
                             </div>
                             : <Button type="primary" loading={testLoading} onClick={this.handleNotSaveComps}>测试全部连通性</Button>
