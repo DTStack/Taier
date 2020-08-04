@@ -630,7 +630,7 @@ class EditCluster extends React.Component<any, any> {
         Api.refreshQueue({ clusterName }).then((res: any) => {
             if (res.code == 1) {
                 const target = res.data.find(v => v.componentTypeCode == COMPONENT_TYPE_VALUE.YARN)
-                if (target.result || res.data.length == 0) {
+                if (target?.result || res.data.length == 0) {
                     message.success('刷新成功')
                 } else {
                     notification['error']({
