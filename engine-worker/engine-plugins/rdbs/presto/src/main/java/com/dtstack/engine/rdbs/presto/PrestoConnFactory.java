@@ -2,6 +2,7 @@ package com.dtstack.engine.rdbs.presto;
 
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 
+
 public class PrestoConnFactory extends AbstractConnFactory {
 
     public PrestoConnFactory() {
@@ -10,12 +11,27 @@ public class PrestoConnFactory extends AbstractConnFactory {
     }
 
     @Override
+    public boolean supportTransaction() {
+        return false;
+    }
+
+    @Override
+    public boolean supportProcedure(String sql) {
+        return false;
+    }
+
+    @Override
     public String getCreateProcedureHeader(String procName) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean supportTransaction() {
-        return false;
+    public String getCallProc(String procName) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getDropProc(String procName) {
+        throw new UnsupportedOperationException();
     }
 }
