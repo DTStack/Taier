@@ -186,14 +186,15 @@ public class ClusterService {
     /**
      * 对外接口
      */
-    public ClusterVO clusterInfo( Long tenantId) {
+    public String clusterInfo( Long tenantId) {
         ClusterVO cluster = getClusterByTenant(tenantId);
         if (cluster != null) {
-            return cluster;
-        } else {
-            LOGGER.error("无法取得集群信息，默认集群信息没有配置！");
-            return null;
+            JSONObject config = buildClusterConfig(cluster);
+            return config.toJSONString();
         }
+
+        LOGGER.error("无法取得集群信息，默认集群信息没有配置！");
+        return StringUtils.EMPTY;
     }
 
     public ClusterVO clusterExtInfo( Long uicTenantId) {

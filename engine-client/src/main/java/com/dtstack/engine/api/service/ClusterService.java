@@ -30,7 +30,7 @@ public interface ClusterService extends DtInsightServer {
      * 对外接口
      */
     @RequestLine("POST /node/cluster/clusterInfo")
-    ApiResponse<ClusterVO> clusterInfo(@Param("tenantId") Long tenantId);
+    ApiResponse<String> clusterInfo(@Param("tenantId") Long tenantId);
 
     /**
      * 对外接口

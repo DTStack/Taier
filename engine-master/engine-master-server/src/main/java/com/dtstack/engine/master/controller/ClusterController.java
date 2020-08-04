@@ -36,7 +36,7 @@ public class ClusterController{
     }
 
     @RequestMapping(value="/clusterInfo", method = {RequestMethod.POST})
-    public ClusterVO clusterInfo(@DtRequestParam("tenantId") Long tenantId) {
+    public String clusterInfo(@DtRequestParam("tenantId") Long tenantId) {
         return clusterService.clusterInfo(tenantId);
     }
 
