@@ -25,12 +25,12 @@ class Resource extends React.Component<any, any> {
         Api.getClusterResources({
             clusterName: clusterName
         }).then((res: any) => {
-            const yarnList = res.data ? res.data.yarn : [];
-            const flinkList = res.data ? res.data.flink : [];
-            this.setState({
-                yarnListSource: yarnList,
-                flinkListSource: flinkList
-            })
+            if (res.code == 1) {
+                this.setState({
+                    yarnListSource: res.data.yarn || [],
+                    flinkListSource: res.data.flink || []
+                })
+            }
         })
     }
     // 改变集群
