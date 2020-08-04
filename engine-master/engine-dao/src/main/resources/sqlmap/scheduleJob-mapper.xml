@@ -82,8 +82,10 @@
                 </foreach>
             </if>
             <if test="model.cycStartDay != null and model.cycEndDay != null">
-                AND bj.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} limit 1)
-                AND bj.id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<=]]> #{model.cycEndDay} ORDER BY id desc limit 1)
+                AND bj.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} and cyc_time !='' limit 1)
+                AND bj.cyc_time <![CDATA[>=]]> #{model.cycStartDay}
+                AND bj.id <![CDATA[<]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<]]> #{model.cycEndDay} and cyc_time !='' ORDER BY id desc limit 1)
+                AND bj.cyc_time <![CDATA[<]]> #{model.cycEndDay}
             </if>
             <if test="model.jobNameRightLike != null">
                 AND bj.job_name LIKE '${model.jobNameRightLike}%'
@@ -848,9 +850,6 @@
                 #{jobId}
             </foreach>
         </if>
-        <!--<if test="model.ownerUserId != null">
-            AND ts.owner_user_id = #{model.ownerUserId}
-        </if>-->
         <if test="model.pageQuery == true">
             <include refid="page_condition"/>
         </if>
