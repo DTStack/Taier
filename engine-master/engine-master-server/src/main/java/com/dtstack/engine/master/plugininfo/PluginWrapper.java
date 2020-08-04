@@ -6,9 +6,11 @@ import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
+import com.dtstack.engine.master.enums.EDeployMode;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.ScheduleEngineType;
 import org.apache.commons.collections.MapUtils;
@@ -36,6 +38,8 @@ public class PluginWrapper{
     private static final String CLUSTER = "cluster";
     private static final String DEPLOY_MODEL = "deployMode";
     private static final String QUEUE = "queue";
+    private static final String APP_TYPE = "appType";
+
 
     @Autowired
     private ClusterService clusterService;
@@ -63,7 +67,10 @@ public class PluginWrapper{
 
         Long tenantId = action.getTenantId();
         String engineType = action.getEngineType();
-        if(Objects.isNull(deployMode) && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)){
+        if (AppType.STREAM.getType() == MapUtils.getInteger(actionParam, APP_TYPE)) {
+            //流计算默认perjob
+            deployMode = EDeployMode.PERJOB.getType();
+        } else if (Objects.isNull(deployMode) && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
             //解析参数
             deployMode = scheduleJobService.parseDeployTypeByTaskParams(action.getTaskParams()).getType();
         }
