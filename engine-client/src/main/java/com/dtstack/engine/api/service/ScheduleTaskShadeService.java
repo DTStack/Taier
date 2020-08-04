@@ -166,6 +166,10 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
                                                               @Param("projectId") Long projectId, @Param("appType") Integer appType,
                                                               @Param("taskTypes") List<Integer> taskTypes);
 
+
+    @RequestLine("POST /node/scheduleTaskShade/getTaskByIds")
+    List<ScheduleTaskShade> getTaskByIds(@Param("taskIds") List<Long> taskIds, @Param("appType") Integer appType);
+
     @RequestLine("POST /node/scheduleTaskShade/countTaskByTypes")
     ApiResponse<List<ScheduleTaskShadeCountTaskVO>> countTaskByTypes(@Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId,
                                                             @Param("projectIds") List<Long> projectIds, @Param("appType") Integer appType,

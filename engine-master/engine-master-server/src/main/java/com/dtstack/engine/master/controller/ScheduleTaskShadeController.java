@@ -156,6 +156,12 @@ public class ScheduleTaskShadeController {
         return scheduleTaskShadeService.countTaskByType(tenantId, dtuicTenantId, projectId, appType, taskTypes);
     }
 
+    @RequestMapping(value="/getTaskByIds", method = {RequestMethod.POST})
+    @ApiOperation(value = "根据任务类型查询已提交到task服务的任务数")
+    public List<ScheduleTaskShade> getTaskByIds(List<Long> taskIds, Integer appType) {
+        return scheduleTaskShadeService.getTaskByIds(taskIds, appType);
+    }
+
     @RequestMapping(value="/countTaskByTypes", method = {RequestMethod.POST})
     public List<ScheduleTaskShadeCountTaskVO>  countTaskByTypes(@DtRequestParam("tenantId") Long tenantId, @DtRequestParam("dtuicTenantId") Long dtuicTenantId,
                                                                  @DtRequestParam("projectIds") List<Long> projectIds, @DtRequestParam("appType") Integer appType,
