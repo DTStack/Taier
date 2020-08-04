@@ -12,10 +12,16 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.lang.Nullable;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+
+import javax.validation.ValidationException;
+import java.util.List;
 
 @ControllerAdvice("com.dtstack.engine.master.controller")
 public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
@@ -45,6 +51,23 @@ public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
         }
         apiResult.setCode(ErrorCode.SUCCESS.getCode());
         return apiResult;
+    }
+
+    /**
+     * ValidationException
+     */
+    @ResponseBody
+    @ExceptionHandler(BindException.class)
+    public ApiResult handleValidationException(BindException e) {
+        ExceptionEnums errorCode = ErrorCode.UNKNOWN_ERROR;
+        BindingResult bindingResult = e.getBindingResult();
+        List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+        StringBuilder message = new StringBuilder();
+        for (FieldError fieldError : fieldErrors) {
+            message.append(fieldError.getField()).append(":").append(fieldError.getDefaultMessage()).append(",");
+        }
+
+        return ApiResult.createErrorResult(message.toString(), errorCode.getCode());
     }
 
     @ResponseBody

@@ -12,8 +12,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.ibatis.binding.BindingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.dtstack.engine.master.router.DtRequestParam;
+import org.springframework.boot.context.properties.bind.validation.ValidationBindHandler;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,9 +33,12 @@ public class ScheduleTaskShadeController {
     private ScheduleTaskShadeService scheduleTaskShadeService;
 
 
-    @RequestMapping(value="/addOrUpdate", method = {RequestMethod.POST})
+    @RequestMapping(value = "/addOrUpdate", method = {RequestMethod.POST})
     @ApiOperation(value = "添加或更新任务", notes = "例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息")
-    public void addOrUpdate(@RequestBody ScheduleTaskShadeDTO batchTaskShadeDTO) {
+    public void addOrUpdate(@RequestBody @Validated ScheduleTaskShadeDTO batchTaskShadeDTO, BindingResult bindingResult) throws BindException {
+        if (bindingResult.hasErrors()) {
+            throw new BindException(bindingResult);
+        }
         scheduleTaskShadeService.addOrUpdate(batchTaskShadeDTO);
     }
 
