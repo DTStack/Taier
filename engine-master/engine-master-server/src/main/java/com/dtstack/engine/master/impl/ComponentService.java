@@ -1350,12 +1350,12 @@ public class ComponentService {
      */
     public List<ComponentTestResult> refresh(String clusterName) {
         List<ComponentTestResult> refreshResults = new ArrayList<>();
-        if (StringUtils.isNotBlank(clusterName)) {
+        if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("clusterName is null");
         }
         Cluster cluster = clusterDao.getByClusterName(clusterName);
 
-        List<Component> components = getComponents(clusterName);
+        List<Component> components = getComponents(cluster);
         if (CollectionUtils.isEmpty(components)) {
             return refreshResults;
         }
@@ -1406,12 +1406,12 @@ public class ComponentService {
      */
     public List<ComponentTestResult> testConnects(String clusterName) {
 
-        if (StringUtils.isNotBlank(clusterName)) {
+        if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("clusterName is null");
         }
         Cluster cluster = clusterDao.getByClusterName(clusterName);
 
-        List<Component> components = getComponents(clusterName);
+        List<Component> components = getComponents(cluster);
 
         Map<String, String> sftpMap = getSftpMap(components);
 
@@ -1454,13 +1454,7 @@ public class ComponentService {
         return testResults;
     }
 
-    private List<Component> getComponents(String clusterName){
-
-        if (StringUtils.isNotBlank(clusterName)) {
-            throw new RdosDefineException("clusterName is null");
-        }
-
-        Cluster cluster = clusterDao.getByClusterName(clusterName);
+    private List<Component> getComponents(Cluster cluster){
 
         if (Objects.isNull(cluster)) {
             throw new RdosDefineException("集群不存在");
