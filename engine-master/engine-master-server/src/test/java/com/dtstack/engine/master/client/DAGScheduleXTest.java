@@ -2,6 +2,7 @@ package com.dtstack.engine.master.client;
 
 import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.enums.DbType;
 import com.dtstack.engine.api.enums.EComponentApiType;
@@ -43,7 +44,7 @@ import static junit.framework.TestCase.fail;
 public class DAGScheduleXTest {
 
     private DtInsightApi.ApiBuilder builder = new DtInsightApi.ApiBuilder()
-            .setEndpoint("http://172.16.100.251:8090")
+            .setEndpoint("http://127.0.0.1:8099")
             .setToken("eyJzdWNjZXNzIjp0cnVlLCJtZXNzYWdlIjoi5omn6KGM5oiQ5YqfIiwiZGF0YSI6eyJ1c2VySWQiOjEsInVzZXJOYW1lIjoiYWRtaW5AZHRzdGFjay5jb20iLCJlbWFpbCI6ImFkbWluQGR0c3RhY2suY29tIiwicGhvbmUiOiIxMzUyNjkyNTI4NiIsInRlbmFudElkIjoxLCJ0ZW5hbnROYW1lIjoiRFRTdGFja+enn+aItyIsInRlbmFudE93bmVyIjpmYWxzZSwidGVuYW50T3duZXJJZCI6OH19");
 
 
@@ -51,9 +52,9 @@ public class DAGScheduleXTest {
     public void testStart0() {
         try {
             DtInsightApi api = builder.buildApi();
-            ActionService apiClient = api.getApiClient(ActionService.class);
-            ApiResponse<String> stringApiResponse = apiClient.generateUniqueSign();
-            System.out.println(stringApiResponse);
+            ScheduleTaskShadeService apiClient = api.getApiClient(ScheduleTaskShadeService.class);
+            ApiResponse<List<ScheduleTaskShade>> taskByIds = apiClient.getTaskByIds(Lists.newArrayList(1L, 2L), 1);
+            System.out.println(JSON.toJSONString(taskByIds));
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
         }

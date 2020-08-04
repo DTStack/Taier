@@ -12,10 +12,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.ibatis.binding.BindingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.dtstack.engine.master.router.DtRequestParam;
-import org.springframework.boot.context.properties.bind.validation.ValidationBindHandler;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -158,7 +156,7 @@ public class ScheduleTaskShadeController {
 
     @RequestMapping(value="/getTaskByIds", method = {RequestMethod.POST})
     @ApiOperation(value = "根据任务类型查询已提交到task服务的任务数")
-    public List<ScheduleTaskShade> getTaskByIds(List<Long> taskIds, Integer appType) {
+    public List<ScheduleTaskShade> getTaskByIds(@DtRequestParam("taskIds") List<Long> taskIds,@DtRequestParam("appType") Integer appType) {
         return scheduleTaskShadeService.getTaskByIds(taskIds, appType);
     }
 
