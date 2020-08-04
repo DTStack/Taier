@@ -68,7 +68,7 @@
         <dependency>
             <groupId>dt.insight.plat</groupId>
             <artifactId>dt-insight-sdk-core</artifactId>
-            <version>4.0.1</version>
+            <version>4.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
