@@ -216,42 +216,45 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      */
     @Forbidden
     public void updateCache(Long engineId, Integer componentCode) {
-        Set<Long> dtUicTenantIds = new HashSet<>();
-        if (Objects.nonNull(componentCode) && (
-                EComponentType.TIDB_SQL.getTypeCode() == componentCode ||
-                EComponentType.LIBRA_SQL.getTypeCode() == componentCode ||
-                EComponentType.GREENPLUM_SQL.getTypeCode() == componentCode ||
-                EComponentType.ORACLE_SQL.getTypeCode() == componentCode)) {
+        try {
+            Set<Long> dtUicTenantIds = new HashSet<>();
+            if (Objects.nonNull(componentCode) && (
+                    EComponentType.TIDB_SQL.getTypeCode() == componentCode ||
+                    EComponentType.LIBRA_SQL.getTypeCode() == componentCode ||
+                    EComponentType.GREENPLUM_SQL.getTypeCode() == componentCode ||
+                    EComponentType.ORACLE_SQL.getTypeCode() == componentCode)) {
 
-            //tidb 和libra 没有queue
-            List<EngineTenantVO> tenantVOS = engineTenantDao.listEngineTenant(engineId);
-            if (CollectionUtils.isNotEmpty(tenantVOS)) {
-                for (EngineTenantVO tenantVO : tenantVOS) {
-                    if (Objects.nonNull(tenantVO) && Objects.nonNull(tenantVO.getTenantId())) {
-                        dtUicTenantIds.add(tenantVO.getTenantId());
+                //tidb 和libra 没有queue
+                List<EngineTenantVO> tenantVOS = engineTenantDao.listEngineTenant(engineId);
+                if (CollectionUtils.isNotEmpty(tenantVOS)) {
+                    for (EngineTenantVO tenantVO : tenantVOS) {
+                        if (Objects.nonNull(tenantVO) && Objects.nonNull(tenantVO.getTenantId())) {
+                            dtUicTenantIds.add(tenantVO.getTenantId());
+                        }
                     }
                 }
-            }
-        } else {
-            List<Queue> refreshQueues = queueDao.listByEngineId(engineId);
-            if (CollectionUtils.isEmpty(refreshQueues)) {
-                return;
-            }
+            } else {
+                List<Queue> refreshQueues = queueDao.listByEngineId(engineId);
+                if (CollectionUtils.isEmpty(refreshQueues)) {
+                    return;
+                }
 
-            List<Long> queueIds = refreshQueues.stream().map(BaseEntity::getId).collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(queueIds)) {
-                return;
+                List<Long> queueIds = refreshQueues.stream().map(BaseEntity::getId).collect(Collectors.toList());
+                if (CollectionUtils.isEmpty(queueIds)) {
+                    return;
+                }
+                List<Long> tenantIds = engineTenantDao.listTenantIdByQueueIds(queueIds);
+                dtUicTenantIds = new HashSet<>(tenantDao.listDtUicTenantIdByIds(tenantIds));
             }
-            List<Long> tenantIds = engineTenantDao.listTenantIdByQueueIds(queueIds);
-            dtUicTenantIds = new HashSet<>(tenantDao.listDtUicTenantIdByIds(tenantIds));
-        }
-        //缓存刷新
-        if (!dtUicTenantIds.isEmpty()) {
-            for (Long uicTenantId : dtUicTenantIds) {
-                consoleCache.publishRemoveMessage(uicTenantId.toString());
+            //缓存刷新
+            if (!dtUicTenantIds.isEmpty()) {
+                for (Long uicTenantId : dtUicTenantIds) {
+                    consoleCache.publishRemoveMessage(uicTenantId.toString());
+                }
             }
+        } finally {
+            clusterService.clearPluginInfoCache();
         }
-        clusterService.clearPluginInfoCache();
     }
 
     @Forbidden
