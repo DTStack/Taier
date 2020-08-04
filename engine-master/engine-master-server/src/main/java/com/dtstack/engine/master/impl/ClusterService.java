@@ -833,7 +833,7 @@ public class ClusterService {
      * 清除缓存
      */
     public void clearPluginInfoCache(){
-        pluginInfoCache.cleanUp();
+        pluginInfoCache.invalidateAll();
         LOGGER.info("-------clear plugin info cache success-----");
     }
 }
