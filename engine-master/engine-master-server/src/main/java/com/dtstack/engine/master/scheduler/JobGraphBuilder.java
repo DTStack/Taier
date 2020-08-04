@@ -182,8 +182,6 @@ public class JobGraphBuilder {
                             logger.info("batch-number:{} done!!! allJobs size:{}", batchIdx, allJobs.size());
                         } catch (Throwable e) {
                             logger.error("!!! buildTaskJobGraph  build job error !!!", e);
-                            isBuildError = true;
-                            throw new RdosDefineException(e);
                         } finally {
                             buildSemaphore.release();
                             ctl.countDown();
