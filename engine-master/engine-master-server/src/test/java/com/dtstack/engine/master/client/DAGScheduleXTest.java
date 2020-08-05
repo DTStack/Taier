@@ -43,8 +43,11 @@ import static junit.framework.TestCase.fail;
  */
 public class DAGScheduleXTest {
 
+    private String REMOTE_URL="http://172.16.100.251:8090";
+    private String LOCALHOST_URL="http://127.0.0.1:8099";
+
     private DtInsightApi.ApiBuilder builder = new DtInsightApi.ApiBuilder()
-            .setEndpoint("http://127.0.0.1:8099")
+            .setEndpoint(LOCALHOST_URL)
             .setToken("eyJzdWNjZXNzIjp0cnVlLCJtZXNzYWdlIjoi5omn6KGM5oiQ5YqfIiwiZGF0YSI6eyJ1c2VySWQiOjEsInVzZXJOYW1lIjoiYWRtaW5AZHRzdGFjay5jb20iLCJlbWFpbCI6ImFkbWluQGR0c3RhY2suY29tIiwicGhvbmUiOiIxMzUyNjkyNTI4NiIsInRlbmFudElkIjoxLCJ0ZW5hbnROYW1lIjoiRFRTdGFja+enn+aItyIsInRlbmFudE93bmVyIjpmYWxzZSwidGVuYW50T3duZXJJZCI6OH19");
 
 
