@@ -404,6 +404,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                 startTime = System.currentTimeMillis();
                 this.lastAppState = YarnApplicationState.NEW;
                 clusterClientManager.initClusterClient();
+                attemptId = null;
 
                 Thread.sleep(RETRY_WAIT);
             } catch (Exception e) {
