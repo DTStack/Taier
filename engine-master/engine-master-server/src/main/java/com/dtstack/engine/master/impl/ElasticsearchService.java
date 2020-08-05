@@ -79,15 +79,17 @@ public class ElasticsearchService implements InitializingBean, DisposableBean {
         this.fetchSize = Integer.valueOf(environmentContext.getElasticsearchFetchSize());
         this.keepAlive = Long.valueOf(environmentContext.getElasticsearchKeepAlive());
 
-        RestClientBuilder builder = RestClient.builder(httpHosts.toArray(new HttpHost[httpHosts.size()]));
-        if (!StringUtils.isEmpty(username) && !StringUtils.isEmpty(password)) {
-            final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
-            builder = RestClient.builder(httpHosts.toArray(new HttpHost[httpHosts.size()]))
-                    .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
-        }
+        if (httpHosts.size() > 0) {
+            RestClientBuilder builder = RestClient.builder(httpHosts.toArray(new HttpHost[httpHosts.size()]));
 
-        restHighLevelClient = new RestHighLevelClient(builder);
+            if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
+                final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+                builder = RestClient.builder(httpHosts.toArray(new HttpHost[httpHosts.size()]))
+                        .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+            }
+            restHighLevelClient = new RestHighLevelClient(builder);
+        }
     }
 
     /**
@@ -179,14 +181,15 @@ public class ElasticsearchService implements InitializingBean, DisposableBean {
      */
     public static List<HttpHost> parseHostsString(String hostsStr) {
         final List<HttpHost> hostList = new ArrayList<>();
-        final String[] hosts = hostsStr.split(";");
         final String validationExceptionMessage = "'elasticsearch address format should " +
                 "follow the format 'http://host_name:port', but is '" + hostsStr + "'.";
 
-        if (hosts.length == 0) {
-            throw new RdosDefineException(validationExceptionMessage);
+        if (StringUtils.isEmpty(hostsStr)) {
+            LOG.warn("No set elasticsearch host!");
+            return hostList;
         }
 
+        final String[] hosts = hostsStr.split(";");
         for (String host : hosts) {
             try {
                 final URL url = new URL(host);
