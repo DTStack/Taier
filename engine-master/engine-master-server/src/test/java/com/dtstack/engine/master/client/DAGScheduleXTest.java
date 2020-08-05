@@ -47,7 +47,7 @@ public class DAGScheduleXTest {
     private String LOCALHOST_URL="http://127.0.0.1:8099";
 
     private DtInsightApi.ApiBuilder builder = new DtInsightApi.ApiBuilder()
-            .setEndpoint(LOCALHOST_URL)
+            .setEndpoint(REMOTE_URL)
             .setToken("eyJzdWNjZXNzIjp0cnVlLCJtZXNzYWdlIjoi5omn6KGM5oiQ5YqfIiwiZGF0YSI6eyJ1c2VySWQiOjEsInVzZXJOYW1lIjoiYWRtaW5AZHRzdGFjay5jb20iLCJlbWFpbCI6ImFkbWluQGR0c3RhY2suY29tIiwicGhvbmUiOiIxMzUyNjkyNTI4NiIsInRlbmFudElkIjoxLCJ0ZW5hbnROYW1lIjoiRFRTdGFja+enn+aItyIsInRlbmFudE93bmVyIjpmYWxzZSwidGVuYW50T3duZXJJZCI6OH19");
 
 
@@ -140,7 +140,7 @@ public class DAGScheduleXTest {
         try {
             DtInsightApi api = builder.buildApi();
             ClusterService apiClient = api.getApiClient(ClusterService.class);
-            ApiResponse<String> stringApiResponse = apiClient.pluginInfo(1L, "", 1L, 1);
+            ApiResponse<String> stringApiResponse = apiClient.clusterInfo(1L);
             System.out.println(JSON.toJSONString(stringApiResponse));
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
