@@ -1,5 +1,7 @@
 package com.dtstack.engine.flink;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
@@ -86,6 +88,8 @@ public class FlinkClient extends AbstractClient {
     private static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
 
     public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
+
+    private static final String TASKMANAGERS_KEY = "taskmanagers";
 
     private String tmpFileDirPath = "./tmp";
 
@@ -756,5 +760,35 @@ public class FlinkClient extends AbstractClient {
         }
     }
 
+    @Override
+    public List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier) {
+        List<String> resrult = new ArrayList<>();
+        try {
+            ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+            String webInterfaceUrl = currClient.getWebInterfaceURL();
+            String taskmanagersUrl = String.format("%s/%s", webInterfaceUrl, TASKMANAGERS_KEY);
+            String taskmanagersMsg = PoolHttpClient.get(taskmanagersUrl);
+            JSONObject taskmanagers = JSONObject.parseObject(taskmanagersMsg);
+            if (!taskmanagers.containsKey(TASKMANAGERS_KEY)) {
+                logger.error("Get the taskmanagers but does not include the taskmanagers field! " + taskmanagersMsg);
+                throw new RdosDefineException("Does not include the taskmanagers field.");
+            }
+            JSONArray taskmanagersInfo = taskmanagers.getJSONArray(TASKMANAGERS_KEY);
+            for(Object taskmanager : taskmanagersInfo) {
+                JSONObject taskmanagerJson = (JSONObject)taskmanager;
+                String taskmanagerId = taskmanagerJson.getString("id");
+                String logUrl = String.format("%s/taskmanagers/%s/log", webInterfaceUrl, taskmanagerId);
+                taskmanagerJson.put("downLoadLog", logUrl);
+                taskmanagerJson.put("name", "taskmanager.log");
+                Integer totalBytes = PoolHttpClient.get(logUrl).getBytes().length;
+                taskmanagerJson.put("totalBytes", totalBytes);
+                resrult.add(taskmanagerJson.toString());
+            }
+        } catch (Exception e) {
+            logger.error("getRollingLogBaseInfo error {}", e);
+        }
+
+        return resrult;
+    }
 
 }
