@@ -7,7 +7,7 @@ ALTER TABLE console_cluster RENAME TO console_cluster_bak;
 ALTER TABLE schedule_job
     ADD INDEX idx_gmt_modified (`gmt_modified`) COMMENT '修改时间';
 ALTER TABLE schedule_job
-    ADD INDEX idx_cyctime (`cyc_time`) COMMENT '执行时间';
+    ADD INDEX idx_cyctime (`cyc_time`(128)) COMMENT '执行时间';
 
 CREATE TABLE `console_engine`
 (
