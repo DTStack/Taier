@@ -67,12 +67,13 @@ table{
         @include setCenter(center);
     }
     .ant-tabs-vertical.ant-tabs-left > .ant-tabs-bar {
-        @include setTabBarWidth(140px)
+        @include setTabBarWidth(200px)
     }
 }
 .console-tabs {
     .ant-tabs-vertical.ant-tabs-left > .ant-tabs-bar .ant-tabs-tab {
-        height: 40;
+        height: 40px;
+        text-align: left;
     }
     .ant-tabs-vertical.ant-tabs-left > .ant-tabs-bar {
         float: left;

@@ -202,5 +202,10 @@ export default {
     },
     switchQueue (params: any) {
         return http.post(req.SWITCH_QUEUE, params);
+    },
+    refreshQueue (params: {
+        clusterName: string;
+    }) {
+        return http.post(req.REFRESH_QUEUE, params);
     }
 }
