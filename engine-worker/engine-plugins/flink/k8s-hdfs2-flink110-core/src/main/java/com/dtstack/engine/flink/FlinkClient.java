@@ -782,7 +782,8 @@ public class FlinkClient extends AbstractClient {
                 taskmanagerJson.put("name", "taskmanager.log");
                 Integer totalBytes = PoolHttpClient.get(logUrl).getBytes().length;
                 taskmanagerJson.put("totalBytes", totalBytes);
-                resrult.add(taskmanagerJson.toString());
+                taskmanagerJson.remove("hardware");
+                resrult.add(JSONObject.toJSONString(taskmanagerJson));
             }
         } catch (Exception e) {
             logger.error("getRollingLogBaseInfo error {}", e);
