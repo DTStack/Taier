@@ -44,7 +44,7 @@ const ResourceCard = (props: ResouceProps) => {
             <Chart option={option} width={110} height={110} />
             <div className="c-resourceCard__container__title">
                 <p>{title}</p>
-                <p><span style={{ fontSize: 18 }}>{useNum}</span> / {total}</p>
+                <p><span style={{ fontSize: 18 }}>{useNum || '-'}</span> / {total || '-'}</p>
             </div>
         </div>
     )
@@ -273,7 +273,7 @@ class Resource extends React.Component<any, any> {
                 <RenderTable
                     columns={columnsNodes}
                     data={nodesListSource}
-                    title='Yarn-NameManager资源使用' />
+                    title='Yarn-NodeManager资源使用' />
                 <RenderTable
                     columns={columnsQueues}
                     data={queuesListSource}
