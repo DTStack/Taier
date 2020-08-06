@@ -574,6 +574,10 @@ public class ClusterService {
             JSONObject greenplumConf = JSONObject.parseObject(greenplumInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
             pluginInfo = this.convertSQLComponent(greenplumConf, pluginInfo);
             pluginInfo.put("typeName", "greenplum");
+        } else if (EComponentType.PRESTO_SQL == type.getComponentType()) {
+            JSONObject prestoConf = JSONObject.parseObject(prestoInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
+            pluginInfo = this.convertSQLComponent(prestoConf, pluginInfo);
+            pluginInfo.put("typeName", "presto");
         } else {
             //flink spark 需要区分任务类型
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
@@ -716,6 +720,10 @@ public class ClusterService {
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.GREENPLUM6);
     }
 
+    public String prestoInfo(Long dtUicTenantId, Long dtUicUserId) {
+        return accountInfo(dtUicTenantId, dtUicUserId, DataSourceType.Presto);
+    }
+
 
     private String accountInfo(Long dtUicTenantId, Long dtUicUserId, DataSourceType dataSourceType) {
         EComponentType componentType = null;
@@ -725,6 +733,8 @@ public class ClusterService {
             componentType = EComponentType.TIDB_SQL;
         } else if (DataSourceType.GREENPLUM6.equals(dataSourceType)) {
             componentType = EComponentType.GREENPLUM_SQL;
+        } else if (DataSourceType.Presto.equals(dataSourceType)) {
+            componentType = EComponentType.PRESTO_SQL;
         }
         if (componentType == null) {
             throw new RdosDefineException("不支持的数据源类型");

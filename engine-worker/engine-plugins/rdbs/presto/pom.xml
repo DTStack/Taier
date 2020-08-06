@@ -84,10 +84,10 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../../../pluginLibs/sqlserver/"
+                                <copy todir="${basedir}/target/../../../../../pluginLibs/presto/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/sqlserver/"
+                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/presto/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>

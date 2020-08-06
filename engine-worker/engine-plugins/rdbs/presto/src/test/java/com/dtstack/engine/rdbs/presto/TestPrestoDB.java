@@ -21,7 +21,7 @@ public class TestPrestoDB {
 
         String sql = "select * from task3_copy01.console_engine";
 
-        PrestoConnection conn = (PrestoConnection) DriverManager.getConnection(url, user, null);
+        PrestoConnection conn = (PrestoConnection) DriverManager.getConnection(url, user, "");
 
         PrestoStatement stmt = (PrestoStatement)conn.createStatement();
         ResultSet resultSet = stmt.executeQuery(sql);

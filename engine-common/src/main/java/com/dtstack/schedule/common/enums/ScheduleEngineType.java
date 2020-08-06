@@ -30,7 +30,8 @@ public enum ScheduleEngineType {
     TIDB(14,"tidb"),
     ORACLE(15,"oracle"),
     GREENPLUM(16, "greenplum"),
-    KUBERNETES(17,"kubernetes");
+    KUBERNETES(17,"kubernetes"),
+    Presto(18, "presto");
 
     private int val;
 
@@ -97,6 +98,8 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.TIDB;
             case "kubernetes":
                 return ScheduleEngineType.KUBERNETES;
+            case "presto":
+                return ScheduleEngineType.Presto;
         }
         return null;
     }
