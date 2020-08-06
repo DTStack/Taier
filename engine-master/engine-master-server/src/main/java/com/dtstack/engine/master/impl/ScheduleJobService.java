@@ -1450,10 +1450,10 @@ public class ScheduleJobService {
      * @param tenantId
      * @return
      */
-    public PageResult<ScheduleFillDataJobPreViewVO> getFillDataJobInfoPreview( String jobName,  Long runDay,
-                                                                               Long bizStartDay,  Long bizEndDay,  Long dutyUserId,
-                                                                               Long projectId,  Integer appType,  Integer userId,
-                                                                               Integer currentPage,  Integer pageSize,  Long tenantId) {
+    public PageResult<List<ScheduleFillDataJobPreViewVO>> getFillDataJobInfoPreview(String jobName, Long runDay,
+                                                Long bizStartDay, Long bizEndDay, Long dutyUserId,
+                                                Long projectId, Integer appType, Integer userId,
+                                                Integer currentPage, Integer pageSize, Long tenantId) {
         final List<ScheduleTaskShade> taskList;
         ScheduleJobDTO batchJobDTO = new ScheduleJobDTO();
         if (!Strings.isNullOrEmpty(jobName)) {

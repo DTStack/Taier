@@ -187,7 +187,7 @@ public interface ScheduleJobService extends DtInsightServer {
      * @return
      */
     @RequestLine("POST /node/scheduleJob/getFillDataJobInfoPreview")
-    ApiResponse<PageResult<ScheduleFillDataJobPreViewVO>> getFillDataJobInfoPreview(@Param("jobName") String jobName, @Param("runDay") Long runDay,
+    ApiResponse<PageResult<List<ScheduleFillDataJobPreViewVO>>> getFillDataJobInfoPreview(@Param("jobName") String jobName, @Param("runDay") Long runDay,
                                                                                     @Param("bizStartDay") Long bizStartDay, @Param("bizEndDay") Long bizEndDay, @Param("dutyUserId") Long dutyUserId,
                                                                                     @Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("user") Integer userId,
                                                                                     @Param("currentPage") Integer currentPage, @Param("pageSize") Integer pageSize, @Param("tenantId") Long tenantId);

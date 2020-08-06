@@ -153,7 +153,7 @@ public class ScheduleJobController {
 
 
     @RequestMapping(value="/getFillDataJobInfoPreview", method = {RequestMethod.POST})
-    public PageResult<ScheduleFillDataJobPreViewVO> getFillDataJobInfoPreview(@DtRequestParam("jobName") String jobName, @DtRequestParam("runDay") Long runDay,
+    public PageResult<List<ScheduleFillDataJobPreViewVO>> getFillDataJobInfoPreview(@DtRequestParam("jobName") String jobName, @DtRequestParam("runDay") Long runDay,
                                                                               @DtRequestParam("bizStartDay") Long bizStartDay, @DtRequestParam("bizEndDay") Long bizEndDay, @DtRequestParam("dutyUserId") Long dutyUserId,
                                                                               @DtRequestParam("projectId") Long projectId, @DtRequestParam("appType") Integer appType, @DtRequestParam("user") Integer userId,
                                                                               @DtRequestParam("currentPage") Integer currentPage, @DtRequestParam("pageSize") Integer pageSize, @DtRequestParam("tenantId") Long tenantId) {

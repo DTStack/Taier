@@ -6,9 +6,11 @@ import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.enums.DbType;
 import com.dtstack.engine.api.enums.EComponentApiType;
+import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.service.*;
 import com.dtstack.engine.api.vo.ClusterVO;
+import com.dtstack.engine.api.vo.ScheduleFillDataJobPreViewVO;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
@@ -55,9 +57,9 @@ public class DAGScheduleXTest {
     public void testStart0() {
         try {
             DtInsightApi api = builder.buildApi();
-            ScheduleTaskShadeService apiClient = api.getApiClient(ScheduleTaskShadeService.class);
-            ApiResponse<List<ScheduleTaskShade>> taskByIds = apiClient.getTaskByIds(Lists.newArrayList(1L, 2L), 1);
-            System.out.println(JSON.toJSONString(taskByIds));
+            ComponentService apiClient = api.getApiClient(ComponentService.class);
+            ApiResponse<List<ComponentsConfigOfComponentsVO>> listApiResponse = apiClient.listConfigOfComponents(1L, 1);
+            System.out.println(JSON.toJSONString(listApiResponse));
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
         }
@@ -260,8 +262,8 @@ public class DAGScheduleXTest {
         try {
             DtInsightApi api = builder.buildApi();
             ScheduleJobService apiClient = api.getApiClient(ScheduleJobService.class);
-            ApiResponse<List<ScheduleJob>> allChildJobWithSameDay = apiClient.getAllChildJobWithSameDay(new ScheduleJob(), Boolean.FALSE, 3);
-            System.out.println(JSON.toJSONString(allChildJobWithSameDay));
+            ApiResponse<PageResult<List<ScheduleFillDataJobPreViewVO>>> fillDataJobInfoPreview = apiClient.getFillDataJobInfoPreview("", null, null, null, null, 13L, null, 5, 1, 20, 3L);
+            System.out.println(JSON.toJSONString(fillDataJobInfoPreview));
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
         }
