@@ -1,6 +1,5 @@
 package com.dtstack.engine.api.pojo;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.slf4j.Logger;
