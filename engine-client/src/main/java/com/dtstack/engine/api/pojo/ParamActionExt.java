@@ -161,11 +161,11 @@ public class ParamActionExt extends ParamAction {
         this.jobKey = jobKey;
     }
 
-    public Boolean getFailRetry() {
+    public Boolean getIsFailRetry() {
         return isFailRetry;
     }
 
-    public void setFailRetry(Boolean failRetry) {
+    public void setIsFailRetry(Boolean failRetry) {
         isFailRetry = failRetry;
     }
 }
