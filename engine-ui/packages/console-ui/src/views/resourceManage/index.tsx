@@ -6,6 +6,7 @@ import Api from '../../api/console';
 import { ENGIN_TYPE_TEXT } from '../../consts';
 import { isHadoopEngine, isTiDBEngine, isOracleEngine, isGreenPlumEngine } from '../../consts/clusterFunc';
 import BindCommModal from '../../components/bindCommModal';
+import Resource from './resourceView';
 
 import BindAccountPane from './bindAccount';
 
@@ -25,7 +26,8 @@ class ResourceManage extends React.Component<any, any> {
             engineType: '',
             tenantName: '',
             pageSize: PAGESIZE,
-            currentPage: 1
+            currentPage: 1,
+            clusterName: ''
         },
         loading: false,
         total: 0,
@@ -102,7 +104,11 @@ class ResourceManage extends React.Component<any, any> {
             const initEngine = engineList[0] || [];
             this.setState({
                 clusterList: data,
-                queryParams: Object.assign(this.state.queryParams, { clusterId: initCluster.clusterId, engineType: initEngine.engineType }),
+                queryParams: Object.assign(this.state.queryParams, {
+                    clusterId: initCluster.clusterId,
+                    engineType: initEngine.engineType
+                }),
+                clusterName: initCluster.clusterName,
                 engineList,
                 loading: true
             }, this.searchTenant)
@@ -128,7 +134,8 @@ class ResourceManage extends React.Component<any, any> {
         })
         this.setState({
             engineList: currentEngineList,
-            queryParams
+            queryParams,
+            clusterName: currentCluster[0].clusterName
         }, this.searchTenant)
     }
     changeTenantName = (value: any) => {
@@ -217,7 +224,7 @@ class ResourceManage extends React.Component<any, any> {
         const hadoopColumns = this.initHadoopColumns();
         const otherColumns = this.initOtherColumns()
         const { tableData, queryParams, total, loading, engineList, clusterList,
-            tenantModal, queueModal, modalKey, editModalKey } = this.state;
+            tenantModal, queueModal, modalKey, editModalKey, clusterName } = this.state;
         const pagination: any = {
             current: queryParams.currentPage,
             pageSize: PAGESIZE,
@@ -234,7 +241,7 @@ class ResourceManage extends React.Component<any, any> {
                             >
                                 <Select
                                     className="dt-form-shadow-bg"
-                                    style={{ width: '180px' }}
+                                    style={{ width: '264px' }}
                                     placeholder='请选择集群'
                                     value={`${queryParams.clusterId}`}
                                     onChange={this.handleChangeCluster}
@@ -273,6 +280,11 @@ class ResourceManage extends React.Component<any, any> {
                                                 tabPosition='top'
                                                 animated={false}
                                             >
+                                                {
+                                                    isHadoopEngine(engineType) ? <TabPane tab="资源全景" key={`showResource`}>
+                                                        <Resource key={`${clusterName}`} clusterName={clusterName} />
+                                                    </TabPane> : null
+                                                }
                                                 <TabPane tab="租户绑定" key={`bindTenant`}>
                                                     <div style={{ margin: 15 }}>
                                                         <Search
@@ -287,7 +299,7 @@ class ResourceManage extends React.Component<any, any> {
                                                             onSearch={this.changeTenantName}
                                                         />
                                                         <Table
-                                                            className='m-table border-table'
+                                                            className='dt-table-border'
                                                             loading={loading}
                                                             rowKey={(record, index) => `${index}-${record.tenantId}`}
                                                             columns={isHadoop ? hadoopColumns : otherColumns}

@@ -71,6 +71,7 @@ export default {
     GET_QUEUE: `${CONSOLE_BASE_URL}/engine/getQueue`,
     BIND_TENANT: `${CONSOLE_BASE_URL}/tenant/bindingTenant`,
     SWITCH_QUEUE: `${CONSOLE_BASE_URL}/tenant/bindingQueue`,
+    REFRESH_QUEUE: `${CONSOLE_BASE_URL}/component/refresh`,
 
     // TiDB 引擎账号绑定
     ACCOUNT_UNBIND_LIST: `${CONSOLE_BASE_URL}/account/getTenantUnBandList`,

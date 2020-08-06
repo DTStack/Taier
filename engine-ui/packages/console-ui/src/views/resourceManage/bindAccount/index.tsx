@@ -246,7 +246,7 @@ class BindAccountTable extends React.Component<IProps, IState> {
                     <Button type="primary" onClick={() => this.showHideBindModal()}>绑定账号</Button>
                 </span>
                 <Table
-                    className='m-table border-table'
+                    className='dt-table-border'
                     loading={loading}
                     rowKey={(record, index) => `accounts-${index}-${record.userId}`}
                     columns={this.initColumns()}

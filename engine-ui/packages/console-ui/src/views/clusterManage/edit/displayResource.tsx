@@ -213,6 +213,11 @@ class DisplayResource extends React.Component<any, any> {
                 version = components.hadoopVersion || '';
                 versionCompsData = versionData.Spark || []
                 break;
+            case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
+                defaultVersion = '2.x';
+                version = components.hadoopVersion || '';
+                versionCompsData = versionData.SparkThrift || []
+                break;
             default:
                 break;
         }
@@ -283,6 +288,7 @@ class DisplayResource extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
                 return (
                     <React.Fragment>
+                        {this.renderCompsVersion(COMPONEMT_CONFIG_KEYS.SPARK_THRIFT_SERVER)}
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.SPARK_THRIFT_SERVER)}
                         {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.SPARK_THRIFT_SERVER)}
                     </React.Fragment>

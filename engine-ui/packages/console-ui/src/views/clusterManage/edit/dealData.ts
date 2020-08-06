@@ -22,6 +22,9 @@ function getCompsVersion (componentTypeCode: number, compVersion: string) {
     if (componentTypeCode === COMPONENT_TYPE_VALUE.SPARK) {
         version = compVersion === '' ? '210' : compVersion;
     }
+    if (componentTypeCode === COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER) {
+        version = compVersion === '' ? '2.x' : compVersion;
+    }
     return version;
 }
 

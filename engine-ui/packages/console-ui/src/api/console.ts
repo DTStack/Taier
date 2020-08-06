@@ -222,5 +222,10 @@ export default {
     },
     getAlarmRuleList (params: any) {
         return http.post(req.GET_ALARM_RULE_LIST, params);
+    },
+    refreshQueue (params: {
+        clusterName: string;
+    }) {
+        return http.post(req.REFRESH_QUEUE, params);
     }
 }
