@@ -147,7 +147,7 @@ const AlarmRule: React.FC = (props: any) => {
                             </FormItem>
                         ) : null
                     }
-                    <FormItem {...formItemCenterLayout} label='使用场景'>
+                    {/* <FormItem {...formItemCenterLayout} label='使用场景'>
                         {getFieldDecorator('alertGateSource', {
                             rules: [{
                                 required: true,
@@ -158,6 +158,22 @@ const AlarmRule: React.FC = (props: any) => {
                             }, {
                                 pattern: /^[^\s]*$/,
                                 message: '不允许填写空格'
+                            }]
+                        })(
+                            <Input />
+                        )}
+                    </FormItem> */}
+                    <FormItem {...formItemCenterLayout} label='通道标识'>
+                        {getFieldDecorator('alertIden', {
+                            rules: [{
+                                required: true,
+                                message: '请输入通道标识'
+                            }, {
+                                max: 32,
+                                message: '通道标识不超过32个字符'
+                            }, {
+                                pattern: /^[A-Za-z_]+$/,
+                                message: '只支持英文字符、下划线'
                             }]
                         })(
                             <Input />
