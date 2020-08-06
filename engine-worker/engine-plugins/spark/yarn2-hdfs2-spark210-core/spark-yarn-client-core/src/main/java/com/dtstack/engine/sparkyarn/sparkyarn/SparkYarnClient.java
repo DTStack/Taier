@@ -606,7 +606,6 @@ public class SparkYarnClient extends AbstractClient {
                             .withQueueName(sparkYarnConfig.getQueue())
                             .withYarnAccepterTaskNumber(sparkYarnConfig.getYarnAccepterTaskNumber())
                             .build();
-                    resourceInfo.getYarnSlots(getYarnClient(), sparkYarnConfig.getQueue(), sparkYarnConfig.getYarnAccepterTaskNumber());
                     return resourceInfo.judgeSlots(jobClient);
                 } catch (Exception e) {
                     logger.error("", e);

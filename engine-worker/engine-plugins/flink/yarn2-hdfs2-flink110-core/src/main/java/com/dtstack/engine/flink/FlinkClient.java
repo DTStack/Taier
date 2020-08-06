@@ -660,8 +660,7 @@ public class FlinkClient extends AbstractClient {
                     .withQueueName(flinkConfig.getQueue())
                     .withYarnAccepterTaskNumber(flinkConfig.getYarnAccepterTaskNumber())
                     .build();
-            perJobResourceInfo.getYarnSlots(flinkClientBuilder.getYarnClient(),
-                    flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
+
             JudgeResult judgeResult = perJobResourceInfo.judgeSlots(jobClient);
 
             if (!judgeResult.getResult() || isPerJob){
