@@ -544,7 +544,7 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
         return data;
     }
 
-    public String getAppLogDir(@Param("jobId") String jobId, @Param("engineType") String engineType) throws Exception {
+    public String getAppLogDir(@Param("jobId") String jobId) throws Exception {
 
         Preconditions.checkState(StringUtils.isNotEmpty(jobId), "jobId can't be empty");
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
