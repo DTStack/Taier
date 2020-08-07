@@ -220,8 +220,22 @@ export default {
     }) {
         return http.postAsFormData(req.ADD_OR_UPDATE_ALARM, params);
     },
-    getAlarmRuleList (params: any) {
+    getAlarmRuleList (params: {
+        currentPage: number;
+        pageSize: number;
+        clusterId: string;
+    }) {
         return http.post(req.GET_ALARM_RULE_LIST, params);
+    },
+    deleteAlarmRule (params: {
+        id: number;
+    }) {
+        return http.post(req.DEL_ALARM_RULE_LIST, params);
+    },
+    getByAlertId (params: {
+        id: number;
+    }) {
+        return http.post(req.GET_ALARM_BY_ID, params);
     },
     refreshQueue (params: {
         clusterName: string;

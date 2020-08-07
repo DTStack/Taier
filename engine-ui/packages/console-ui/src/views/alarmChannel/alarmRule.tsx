@@ -3,11 +3,13 @@ import { Breadcrumb, Card, Form, Radio, Select,
     Input, Checkbox, Upload, Button, Tooltip, Icon,
     message
 } from 'antd';
+import { cloneDeep } from 'lodash';
+import utils from 'dt-common/src/utils';
 import Api from '../../api/console'
 import { formItemCenterLayout, ALARM_TYPE_TEXT, ALARM_TYPE,
     CHANNEL_MODE_VALUE, CHANNEL_MODE, CHANNEL_CONF_TEXT
 } from '../../consts';
-import { canTestAlarm } from './help';
+import { canTestAlarm, showAlertTemplete } from './help';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -63,9 +65,14 @@ const AlarmRule: React.FC = (props: any) => {
         props.router.push('/console/alarmChannel')
     }
     const handleSubmit = () => {
+        const clusterId = utils.getParameterByName('clusterId');
         validateFields(async (err, values) => {
+            console.log('values', values)
             if (!err) {
-                let res = await Api.addOrUpdateAlarmRule(values);
+                let res = await Api.addOrUpdateAlarmRule(Object.assign({}, values, {
+                    isDefault: values.isDefault ? 1 : 0,
+                    clusterId
+                }));
                 if (res.code === 1) {
                     message.success('新增成功');
                     goBack();
@@ -93,13 +100,14 @@ const AlarmRule: React.FC = (props: any) => {
         onChange: fileUploadChange
     };
     let testText: string = getFieldValue('alarmType') === ALARM_TYPE.EMAIL ? '邮箱' : '手机号码';
+    const isCreate = utils.getParameterByName('isCreate');
     return (
         <div className='alarm-rule__wrapper'>
             <Breadcrumb>
                 <Breadcrumb.Item> <a onClick={() => {
                     props.router.push('/console/alarmChannel')
-                }}>新增告警通道</a></Breadcrumb.Item>
-                <Breadcrumb.Item>{'新增告警通道'}</Breadcrumb.Item>
+                }}>告警通道</a></Breadcrumb.Item>
+                <Breadcrumb.Item>{`${isCreate ? '新增' : '编辑'}告警通道`}</Breadcrumb.Item>
             </Breadcrumb>
             <Card bordered={false}>
                 <Form>
@@ -196,7 +204,7 @@ const AlarmRule: React.FC = (props: any) => {
                         )}
                     </FormItem>
                     <FormItem {...formItemCenterLayout} label={' '} colon={false}>
-                        {getFieldDecorator('defaultChannel', {
+                        {getFieldDecorator('isDefault', {
                             valuePropName: 'checked',
                             initialValue: false
                         })(
@@ -216,19 +224,23 @@ const AlarmRule: React.FC = (props: any) => {
                             <TextArea placeholder={getChannelConfText()} rows={6} />
                         )}
                     </FormItem>
-                    <FormItem {...formItemCenterLayout} label='通知消息模版'>
-                        {getFieldDecorator('alertTemplate', {
-                            rules: [{
-                                required: true,
-                                message: '请输入通知消息模版'
-                            }]
-                        })(
-                            <TextArea
-                                placeholder={`请按照此格式填写："【企业名称】$` + `{message}，请及时处理`}
-                                rows={4}
-                            />
-                        )}
-                    </FormItem>
+                    {
+                        showAlertTemplete(getFieldValue('alarmType'), getFieldValue('alertGateCode')) ? (
+                            <FormItem {...formItemCenterLayout} label='通知消息模版'>
+                                {getFieldDecorator('alertTemplate', {
+                                    rules: [{
+                                        required: true,
+                                        message: '请输入通知消息模版'
+                                    }]
+                                })(
+                                    <TextArea
+                                        placeholder={`请按照此格式填写："【企业名称】$` + `{message}，请及时处理`}
+                                        rows={4}
+                                    />
+                                )}
+                            </FormItem>
+                        ) : null
+                    }
                     {
                         canTestAlarm(getFieldValue('alarmType')) ? (
                             <FormItem {...formItemCenterLayout} label=' ' colon={false}>
@@ -255,13 +267,19 @@ const AlarmRule: React.FC = (props: any) => {
 export default Form.create({
     onFieldsChange (props, fields) {
         if (fields.hasOwnProperty('alarmType')) {
-            props.form.setFieldsValue({
-                alertGateCode: '',
-                receiveMethod: ''
-            })
         }
     },
-    mapPropsToFields (props) {
-
+    mapPropsToFields (props: any) {
+        const ruleData = props.location.state?.ruleData;
+        if (!ruleData) return;
+        let keyValMap = {};
+        let newRuleData = cloneDeep(ruleData);
+        for (let [key, value] of Object.entries(newRuleData)) {
+            keyValMap = Object.assign({}, keyValMap, {
+                [key]: Form.createFormField({ value: value })
+            })
+        }
+        console.log('keyValMap', keyValMap)
+        return keyValMap
     }
 })(AlarmRule);
