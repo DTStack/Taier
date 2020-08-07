@@ -183,4 +183,14 @@ public class ClientOperator {
         }
     }
 
+    public String getAppLogDir(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
+        checkoutOperator(engineType, pluginInfo, jobIdentifier);
+        try {
+            IClient client = clientCache.getClient(engineType, pluginInfo);
+            return client.getAppLogDir(jobIdentifier);
+        } catch (Exception e) {
+            throw new RdosDefineException("get job rollingLogBaseInfo:" + jobIdentifier.getEngineJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
+        }
+    }
+
 }

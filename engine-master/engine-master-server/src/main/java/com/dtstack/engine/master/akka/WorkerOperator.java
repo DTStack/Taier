@@ -297,6 +297,13 @@ public class WorkerOperator {
         return (ClusterResource) masterServer.sendMessage(new MessageResourceInfo(engineType, pluginInfo));
     }
 
+    public String getAppLogDir(JobIdentifier jobIdentifier) throws Exception {
+        if (AkkaConfig.isLocalMode()) {
+            return ClientOperator.getInstance().getAppLogDir(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier);
+        }
+        return (String) masterServer.sendMessage(new MessageGetAppLogDir(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier));
+    }
+
     private <M> M callbackAndReset(JobClient jobClient, CallBack<M> classLoaderCallBack) throws Exception {
         JobClientCallBack callBack = jobClient.getJobCallBack();
         M result = null;

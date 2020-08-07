@@ -50,4 +50,6 @@ public interface IClient {
 	ClusterResource getClusterResource();
 
 	List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier);
+
+	String getAppLogDir(JobIdentifier jobIdentifier);
 }
