@@ -1,7 +1,4 @@
-package com.dtstack.schedule.common.enums;
-
-
-import com.dtstack.engine.common.exception.RdosDefineException;
+package com.dtstack.engine.api.enums;
 
 /**
  * Reason:
@@ -30,8 +27,11 @@ public enum ScheduleEngineType {
     TIDB(14,"tidb"),
     ORACLE(15,"oracle"),
     GREENPLUM(16, "greenplum"),
-    KUBERNETES(17,"kubernetes");
-
+    KUBERNETES(17,"kubernetes"),
+    MYSQL(18,"mysql"),
+    SQL_SERVER(19,"sqlServer"),
+    MAX_COMPUTE(20,"maxCompute"),
+    DUMMY(21,"dummy");
     private int val;
 
     private String engineName;
@@ -126,7 +126,7 @@ public enum ScheduleEngineType {
         } else if (version.equals(3)) {
             scheduleEngineType = Python3;
         } else {
-            throw new RdosDefineException("python不支持2.x和3.x之外的版本类型");
+            throw new UnsupportedOperationException("python不支持2.x和3.x之外的版本类型");
         }
         return scheduleEngineType;
     }

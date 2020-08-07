@@ -8,6 +8,7 @@ import com.dtstack.engine.api.domain.KerberosConfig;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
+import com.dtstack.engine.api.enums.ScheduleEngineType;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.common.constrant.ConfigConstant;
