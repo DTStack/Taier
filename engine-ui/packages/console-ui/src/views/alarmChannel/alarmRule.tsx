@@ -18,8 +18,8 @@ const AlarmRule: React.FC = (props: any) => {
     const [fileList, setFileList] = useState<any[]>([])
     const { getFieldDecorator, getFieldValue, validateFields } = props.form;
     const getChannelModeOpts = () => {
-        const alarmType = getFieldValue('alarmType');
-        switch (alarmType) {
+        const alertGateType = getFieldValue('alertGateType');
+        switch (alertGateType) {
             case ALARM_TYPE.MSG: {
                 return CHANNEL_MODE.sms.map((item, index) => {
                     return <Option value={item.value} key={`${index}`}>{item.title}</Option>
@@ -99,7 +99,7 @@ const AlarmRule: React.FC = (props: any) => {
         accept: '.jar',
         onChange: fileUploadChange
     };
-    let testText: string = getFieldValue('alarmType') === ALARM_TYPE.EMAIL ? '邮箱' : '手机号码';
+    let testText: string = getFieldValue('alertGateType') === ALARM_TYPE.EMAIL ? '邮箱' : '手机号码';
     const isCreate = utils.getParameterByName('isCreate');
     return (
         <div className='alarm-rule__wrapper'>
@@ -112,7 +112,7 @@ const AlarmRule: React.FC = (props: any) => {
             <Card bordered={false}>
                 <Form>
                     <FormItem {...formItemCenterLayout} label='告警类型'>
-                        {getFieldDecorator('alarmType', {
+                        {getFieldDecorator('alertGateType', {
                             rules: [{
                                 required: true,
                                 message: '请选择告警类型'
@@ -172,7 +172,7 @@ const AlarmRule: React.FC = (props: any) => {
                         )}
                     </FormItem> */}
                     <FormItem {...formItemCenterLayout} label='通道标识'>
-                        {getFieldDecorator('alertIden', {
+                        {getFieldDecorator('alertGateSource', {
                             rules: [{
                                 required: true,
                                 message: '请输入通道标识'
@@ -225,7 +225,7 @@ const AlarmRule: React.FC = (props: any) => {
                         )}
                     </FormItem>
                     {
-                        showAlertTemplete(getFieldValue('alarmType'), getFieldValue('alertGateCode')) ? (
+                        showAlertTemplete(getFieldValue('alertGateType'), getFieldValue('alertGateCode')) ? (
                             <FormItem {...formItemCenterLayout} label='通知消息模版'>
                                 {getFieldDecorator('alertTemplate', {
                                     rules: [{
@@ -242,7 +242,7 @@ const AlarmRule: React.FC = (props: any) => {
                         ) : null
                     }
                     {
-                        canTestAlarm(getFieldValue('alarmType')) ? (
+                        canTestAlarm(getFieldValue('alertGateType')) ? (
                             <FormItem {...formItemCenterLayout} label=' ' colon={false}>
                                 {getFieldDecorator('receiveMethod', {
                                     rules: [{
@@ -266,7 +266,7 @@ const AlarmRule: React.FC = (props: any) => {
 
 export default Form.create({
     onFieldsChange (props, fields) {
-        if (fields.hasOwnProperty('alarmType')) {
+        if (fields.hasOwnProperty('alertGateType')) {
         }
     },
     mapPropsToFields (props: any) {
