@@ -13,25 +13,25 @@ public enum ScheduleEngineType {
     Flink(0, "flink"),
     Spark(1, "spark"),
     Datax(2, "datax"),
-    Learning(3,"learning"),
-    Shell(4,"shell"),
-    Python2(5,"python2"),
+    Learning(3, "learning"),
+    Shell(4, "shell"),
+    Python2(5, "python2"),
     DtScript(6, "dtScript"),
     Python3(7, "python3"),
     Hadoop(8, "hadoop"),
     Carbon(9, "carbon"),
     Libra(10, "postgresql"),
-    Kylin(11,"kylin"),
-    HIVE(12,"hive"),
+    Kylin(11, "kylin"),
+    HIVE(12, "hive"),
     IMPALA(13, "impala"),
-    TIDB(14,"tidb"),
-    ORACLE(15,"oracle"),
+    TIDB(14, "tidb"),
+    ORACLE(15, "oracle"),
     GREENPLUM(16, "greenplum"),
-    KUBERNETES(17,"kubernetes"),
-    MYSQL(18,"mysql"),
-    SQL_SERVER(19,"sqlServer"),
-    MAX_COMPUTE(20,"maxCompute"),
-    DUMMY(21,"dummy");
+    KUBERNETES(17, "kubernetes"),
+    MYSQL(18, "mysql"),
+    SQLSERVER(19, "sqlserver"),
+    MAX_COMPUTE(20, "maxCompute"),
+    DUMMY(21, "dummy");
     private int val;
 
     private String engineName;
@@ -45,7 +45,7 @@ public enum ScheduleEngineType {
         return val;
     }
 
-    public String getEngineName(){
+    public String getEngineName() {
         return engineName;
     }
 
@@ -89,7 +89,7 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.HIVE;
             case "libra":
                 return ScheduleEngineType.Libra;
-            case"kylin":
+            case "kylin":
                 return ScheduleEngineType.Kylin;
             case "impala":
                 return ScheduleEngineType.IMPALA;
@@ -111,7 +111,7 @@ public enum ScheduleEngineType {
         return null;
     }
 
-    public static String getEngineName(int val){
+    public static String getEngineName(int val) {
         ScheduleEngineType scheduleEngineType = getEngineType(val);
         return scheduleEngineType.getEngineName().toLowerCase();
     }
@@ -119,7 +119,8 @@ public enum ScheduleEngineType {
     public static ScheduleEngineType getByEScriptType(Integer scriptType) {
         return getByPythonVersion(++scriptType);
     }
-    public static ScheduleEngineType getByPythonVersion(Integer version){
+
+    public static ScheduleEngineType getByPythonVersion(Integer version) {
         ScheduleEngineType scheduleEngineType;
         if (version.equals(2)) {
             scheduleEngineType = Python2;

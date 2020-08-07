@@ -37,6 +37,7 @@ public class ScheduleTask extends AppTenantEntity {
 
     /**
      * '执行引擎类型 0 flink, 1 spark'
+     * {@link com.dtstack.engine.api.enums.ScheduleEngineType}
      */
     @NotNull(message = "引擎类型(engineType)必填")
     @ApiModelProperty(notes = "执行引擎类型 0 flink, 1 spark")
