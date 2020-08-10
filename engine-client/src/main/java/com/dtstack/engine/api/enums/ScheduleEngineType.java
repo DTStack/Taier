@@ -97,6 +97,14 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.TIDB;
             case "kubernetes":
                 return ScheduleEngineType.KUBERNETES;
+            case "mysql":
+                return ScheduleEngineType.MYSQL;
+            case "sqlserver":
+                return ScheduleEngineType.SQLSERVER;
+            case "maxCompute":
+                return ScheduleEngineType.MAX_COMPUTE;
+            case "dummy":
+                return ScheduleEngineType.DUMMY;
         }
         return null;
     }

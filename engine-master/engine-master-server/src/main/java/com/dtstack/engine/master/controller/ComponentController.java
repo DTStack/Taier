@@ -67,6 +67,7 @@ public class ComponentController {
         componentService.delete(componentIds);
     }
 
+
     @RequestMapping(value="/getComponentVersion", method = {RequestMethod.POST})
     @ApiOperation(value = "获取对应的组件版本信息")
     public Map getComponentVersion() {
