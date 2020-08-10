@@ -35,6 +35,11 @@ class Header extends React.Component<any, any> {
             link: `${baseUrl}/resourceManage`,
             enable: true
         }, {
+            id: 'alarmChannel',
+            name: '告警通道',
+            link: `${baseUrl}/alarmChannel`,
+            enable: true
+        }, {
             id: 'clusterManage',
             name: '多集群管理',
             link: `${baseUrl}/clusterManage`,

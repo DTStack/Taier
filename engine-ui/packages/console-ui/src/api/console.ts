@@ -203,6 +203,50 @@ export default {
     switchQueue (params: any) {
         return http.post(req.SWITCH_QUEUE, params);
     },
+
+    /**
+     * 告警通道
+     */
+    addOrUpdateAlarmRule (params: {
+        alarmType: number;
+        alertGateCode: number;
+        alertGateSource: string;
+        alertGateName: string;
+        alertGateJson: string;
+        alertTemplate: string;
+        receiveMethod?: string;
+        defaultChannel?: boolean;
+        file?: any;
+    }) {
+        return http.postAsFormData(req.ADD_OR_UPDATE_ALARM, params);
+    },
+    getAlarmRuleList (params: {
+        currentPage: number;
+        pageSize: number;
+        alertGateType?: any[];
+        clusterId?: string;
+    }) {
+        return http.post(req.GET_ALARM_RULE_LIST, params);
+    },
+    deleteAlarmRule (params: {
+        id: number;
+    }) {
+        return http.post(req.DEL_ALARM_RULE_LIST, params);
+    },
+    getByAlertId (params: {
+        id: number;
+    }) {
+        return http.post(req.GET_ALARM_BY_ID, params);
+    },
+    setDefaultAlert (params: {
+        alertId: number;
+        alertGateType: number;
+    }) {
+        return http.post(req.SET_DEFAULT_ALERT, params);
+    },
+    testAlert (params: any) {
+        return http.postAsFormData(req.TEST_ALERT, params);
+    },
     refreshQueue (params: {
         clusterName: string;
     }) {
