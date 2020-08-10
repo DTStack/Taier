@@ -4,6 +4,7 @@ package com.dtstack.engine.base.monitor;
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
@@ -55,15 +56,19 @@ public class AcceptedApplicationMonitor implements Runnable {
 
     @Override
     public void run() {
-        try {
+
+        try (
             YarnClient yarnClient = KerberosUtils.login(config, () -> {
                 YarnClient client = YarnClient.createYarnClient();
                 client.init(yarnConf);
                 client.start();
-                return client;
-            }, yarnConf);
+                return client;}, yarnConf);
+        ) {
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.ACCEPTED);
+            if (yarnClient == null) {
+                throw new RdosDefineException("AcceptedApplicationMonitor init yarnClient fail");
+            }
             List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet).stream().
                     filter(report -> report.getQueue().endsWith(queueName)).collect(Collectors.toList());
             for (ApplicationReport report : acceptedApps) {
