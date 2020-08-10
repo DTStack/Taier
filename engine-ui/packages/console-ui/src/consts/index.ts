@@ -170,18 +170,6 @@ export const CHANNEL_MODE_VALUE = {
 }
 export const CHANNEL_MODE = {
     sms: [
-        // {
-        //     value: CHANNEL_MODE_VALUE.SMS_YP,
-        //     title: '云片短信通道'
-        // },
-        // {
-        //     value: CHANNEL_MODE_VALUE.SMS_DY,
-        //     title: '大鱼短信通道'
-        // },
-        // {
-        //     value: CHANNEL_MODE_VALUE.SMS_API,
-        //     title: 'API短信通道'
-        // },
         {
             value: CHANNEL_MODE_VALUE.SMS_JAR,
             title: '扩展插件通道'
@@ -192,10 +180,6 @@ export const CHANNEL_MODE = {
             value: CHANNEL_MODE_VALUE.MAIL_DT,
             title: '默认邮件通道'
         },
-        // {
-        //     value: CHANNEL_MODE_VALUE.MAIL_API,
-        //     title: 'API邮件通道'
-        // },
         {
             value: CHANNEL_MODE_VALUE.MAIL_JAR,
             title: '扩展插件通道'
@@ -206,10 +190,6 @@ export const CHANNEL_MODE = {
             value: CHANNEL_MODE_VALUE.DING_DT,
             title: '钉钉机器人'
         },
-        // {
-        //     value: CHANNEL_MODE_VALUE.DING_API,
-        //     title: 'API钉钉通道'
-        // },
         {
             value: CHANNEL_MODE_VALUE.DING_JAR,
             title: '扩展插件通道'

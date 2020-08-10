@@ -223,7 +223,8 @@ export default {
     getAlarmRuleList (params: {
         currentPage: number;
         pageSize: number;
-        clusterId: string;
+        alertGateType?: any[];
+        clusterId?: string;
     }) {
         return http.post(req.GET_ALARM_RULE_LIST, params);
     },
@@ -236,6 +237,15 @@ export default {
         id: number;
     }) {
         return http.post(req.GET_ALARM_BY_ID, params);
+    },
+    setDefaultAlert (params: {
+        alertId: number;
+        alertGateType: number;
+    }) {
+        return http.post(req.SET_DEFAULT_ALERT, params);
+    },
+    testAlert (params: any) {
+        return http.postAsFormData(req.TEST_ALERT, params);
     },
     refreshQueue (params: {
         clusterName: string;

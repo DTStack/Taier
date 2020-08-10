@@ -1,29 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Select, Button, Form, Pagination, message } from 'antd';
+import { Table, Button, Form, Pagination, message, Modal } from 'antd';
 import Api from '../../api/console';
 import { ALARM_TYPE_TEXT } from '../../consts';
-const Option = Select.Option;
 interface PaginationTypes {
     currentPage: number;
     pageSize: number;
     total?: number;
 }
+const { confirm } = Modal;
 
 const AlarmChannel: React.FC = (props: any) => {
-    const [clusterData, setClusterData] = useState<any[]>([]);
     const [pagination, setPagination] = useState<PaginationTypes>({ currentPage: 1, total: 0, pageSize: 15 });
-    const [params, setParams] = useState<any>({ clusterId: '' });
-    const getClusterList = async () => {
-        let res = await Api.getAllCluster();
-        if (res.code === 1) setClusterData(res.data || [])
-    }
-    useEffect(() => {
-        getClusterList()
-        return () => {
-            // cleanup
-        }
-    }, [])
-
+    const [params, setParams] = useState<any>({ alertGateType: [] });
     const useAlarmList = (query, pagination) => {
         const [loading, setLoading] = useState<boolean>(false);
         const [alarmList, setAlarmList] = useState<any[]>([])
@@ -31,11 +19,11 @@ const AlarmChannel: React.FC = (props: any) => {
             const getAlarmRuleList = async () => {
                 setLoading(true);
                 const { currentPage, pageSize } = pagination;
-                const { clusterId } = params;
+                const { alertGateType } = params;
                 let res = await Api.getAlarmRuleList({
                     currentPage: currentPage,
                     pageSize: pageSize,
-                    clusterId: clusterId
+                    alertGateType
                 });
                 if (res && res.code == 1) {
                     setAlarmList(res.data?.data || []);
@@ -46,9 +34,6 @@ const AlarmChannel: React.FC = (props: any) => {
             getAlarmRuleList().then();
         }, [query])
         return [{ loading, alarmList }]
-    }
-    const handeChangeCluster = (value) => {
-        setParams(state => ({ ...state, clusterId: value }))
     }
     const deleteRule = async (id: number) => {
         let res = await Api.deleteAlarmRule({ id })
@@ -61,9 +46,6 @@ const AlarmChannel: React.FC = (props: any) => {
         if (res.code === 1) {
             props.router.push({
                 pathname: '/console/alarmChannel/alarmRule',
-                query: {
-                    clusterId: params.clusterId
-                },
                 state: {
                     ruleData: res.data || {}
                 }
@@ -103,33 +85,47 @@ const AlarmChannel: React.FC = (props: any) => {
         }, {
             title: '默认通道',
             dataIndex: 'isDefault',
-            render: () => {
-                return (
-                    <Button type='primary'>短信默认通道</Button>
-                )
+            render: (text, record: any) => {
+                const showText = `${ALARM_TYPE_TEXT[record.alertGateType].slice(0, 2)}默认通道`;
+                if (text) {
+                    return <Button disabled type='primary'>{showText}</Button>
+                } else {
+                    return <Button type='primary' onClick={() => { setDefaultChannel(record) }}>{`设为${showText}`}</Button>
+                }
             }
         }]
     }
-    const renderClusterOpts = () => {
-        return clusterData.map(item => {
-            return <Option key={item.id} value={`${item.id}`} data-item={item}>{item.clusterName}</Option>
-        })
+    const setDefaultChannel = (record) => {
+        const { alertId, alertGateType, alertGateName } = record;
+        const showText = `${ALARM_TYPE_TEXT[alertGateType].slice(0, 2)}默认通道`;
+        confirm({
+            title: `确定将“${alertGateName}(通道名称)” 设为${showText}吗`,
+            content: '设置为默认告警通道后，各应用的告警信息将走此通道',
+            onOk () {
+                Api.setDefaultAlert({ alertId, alertGateType }).then(res => {
+                    if (res.code === 1) {
+                        message.success('操作成功')
+                    }
+                })
+            },
+            onCancel () {
+                console.log('Cancel');
+            }
+        });
+    }
+    const handleTableChange = (paginations: any, filters: any, sorter: any) => {
+        setParams(state => ({ ...state, alertGateType: filters.alertGateType || [] }));
+        setPagination(state => ({ ...state, currentPage: paginations.current || 1 }));
     }
     const [{ loading, alarmList }] = useAlarmList(params, pagination)
     return (
         <div className='alarm__wrapper'>
             <Form layout='inline'>
-                <Form.Item label='集群'>
-                    <Select className='dt-form-shadow-bg' onChange={handeChangeCluster}>
-                        {renderClusterOpts()}
-                    </Select>
-                </Form.Item>
                 <Form.Item>
                     <Button type='primary' onClick={() => {
                         props.router.push({
                             pathname: '/console/alarmChannel/alarmRule',
                             query: {
-                                clusterId: params.clusterId,
                                 isCreate: true
                             }
                         })
@@ -144,6 +140,7 @@ const AlarmChannel: React.FC = (props: any) => {
                 columns={initColumns()}
                 dataSource={alarmList}
                 pagination={false}
+                onChange={handleTableChange}
                 footer={() => {
                     return <Pagination
                         {...{

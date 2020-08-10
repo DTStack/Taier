@@ -5,3 +5,6 @@ export function canTestAlarm (alertGateType: number): boolean {
 export function showAlertTemplete (alertGateType: number, alertGateCode: string): boolean {
     return ALARM_TYPE.EMAIL === alertGateType && CHANNEL_MODE_VALUE.MAIL_DT === alertGateCode
 }
+export function textAlertKey (type: number): string {
+    return type === ALARM_TYPE.EMAIL ? 'emails' : 'phones';
+}

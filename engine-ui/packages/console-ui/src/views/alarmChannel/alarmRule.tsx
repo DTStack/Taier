@@ -9,7 +9,7 @@ import Api from '../../api/console'
 import { formItemCenterLayout, ALARM_TYPE_TEXT, ALARM_TYPE,
     CHANNEL_MODE_VALUE, CHANNEL_MODE, CHANNEL_CONF_TEXT
 } from '../../consts';
-import { canTestAlarm, showAlertTemplete } from './help';
+import { canTestAlarm, showAlertTemplete, textAlertKey } from './help';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -55,9 +55,18 @@ const AlarmRule: React.FC = (props: any) => {
         return text;
     }
     const testAlarm = () => {
-        validateFields((err, values) => {
+        validateFields(async (err, values) => {
             if (!err) {
-                console.log('test', values)
+                const testKey = textAlertKey(values.alertGateType);
+                let testValue = values[testKey].split(',')
+                let res = await Api.testAlert(Object.assign({}, values, {
+                    isDefault: values.isDefault ? 1 : 0,
+                    file: values.file?.file,
+                    [testKey]: testValue
+                }));
+                if (res.code === 1) {
+                    message.success('消息已发送')
+                }
             }
         })
     }
@@ -65,42 +74,35 @@ const AlarmRule: React.FC = (props: any) => {
         props.router.push('/console/alarmChannel')
     }
     const handleSubmit = () => {
-        const clusterId = utils.getParameterByName('clusterId');
         validateFields(async (err, values) => {
-            console.log('values', values)
             if (!err) {
                 let res = await Api.addOrUpdateAlarmRule(Object.assign({}, values, {
                     isDefault: values.isDefault ? 1 : 0,
-                    clusterId
+                    file: values.file?.file
                 }));
                 if (res.code === 1) {
                     message.success('新增成功');
                     goBack();
                 }
-                console.log('submit', values)
             }
         })
-    }
-    const fileUploadChange = (info) => {
-        let fileList = [...info.fileList];
-        fileList = fileList.slice(-1);
-        if (info.file.status !== 'uploading') {
-            console.log(info.file)
-        }
-        if (info.file.status === 'done') {
-            message.success(`${info.file.name} 上传成功`);
-        } else if (info.file.status === 'error') {
-            message.error(`${info.file.name} 上传失败`);
-        }
-        setFileList(fileList)
     }
     const uploadProp = {
         name: 'file',
         accept: '.jar',
-        onChange: fileUploadChange
+        beforeUpload: (file: any) => {
+            console.log(file);
+            let fileList = [file];
+            fileList = fileList.slice(-1);
+            setFileList(fileList)
+            return false;
+        },
+        fileList
     };
     let testText: string = getFieldValue('alertGateType') === ALARM_TYPE.EMAIL ? '邮箱' : '手机号码';
+    let alertKey: string = textAlertKey(getFieldValue('alertGateType'));
     const isCreate = utils.getParameterByName('isCreate');
+    const ruleData = props.location.state?.ruleData;
     return (
         <div className='alarm-rule__wrapper'>
             <Breadcrumb>
@@ -148,29 +150,16 @@ const AlarmRule: React.FC = (props: any) => {
                                         required: false
                                     }]
                                 })(
-                                    <Upload {...uploadProp} fileList={fileList}>
+                                    <Upload {...uploadProp}>
                                         <a href="javascript:;">选择jar文件</a>
                                     </Upload>
                                 )}
+                                {
+                                    ruleData?.filePath && !getFieldValue('file') && <span>{ruleData?.filePath}</span>
+                                }
                             </FormItem>
                         ) : null
                     }
-                    {/* <FormItem {...formItemCenterLayout} label='使用场景'>
-                        {getFieldDecorator('alertGateSource', {
-                            rules: [{
-                                required: true,
-                                message: '请输入使用场景'
-                            }, {
-                                max: 128,
-                                message: '使用场景不超过128个字符'
-                            }, {
-                                pattern: /^[^\s]*$/,
-                                message: '不允许填写空格'
-                            }]
-                        })(
-                            <Input />
-                        )}
-                    </FormItem> */}
                     <FormItem {...formItemCenterLayout} label='通道标识'>
                         {getFieldDecorator('alertGateSource', {
                             rules: [{
@@ -244,7 +233,7 @@ const AlarmRule: React.FC = (props: any) => {
                     {
                         canTestAlarm(getFieldValue('alertGateType')) ? (
                             <FormItem {...formItemCenterLayout} label=' ' colon={false}>
-                                {getFieldDecorator('receiveMethod', {
+                                {getFieldDecorator(`${alertKey}`, {
                                     rules: [{
                                         required: false
                                     }]

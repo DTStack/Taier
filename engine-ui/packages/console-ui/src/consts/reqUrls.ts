@@ -85,5 +85,6 @@ export default {
     GET_ALARM_RULE_LIST: `${CONSOLE_PERFORM_URL}/service/alert/page`,
     DEL_ALARM_RULE_LIST: `${CONSOLE_PERFORM_URL}/service/alert/delete`,
     GET_ALARM_BY_ID: `${CONSOLE_PERFORM_URL}/service/alert/getByAlertId`,
-    SET_DEFAULT_ALERT: `${CONSOLE_PERFORM_URL}/service/alert/setDefaultAlert`
+    SET_DEFAULT_ALERT: `${CONSOLE_PERFORM_URL}/service/alert/setDefaultAlert`,
+    TEST_ALERT: `${CONSOLE_PERFORM_URL}/service/alert/testAlert`
 }

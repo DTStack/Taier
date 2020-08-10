@@ -1,11 +1,9 @@
 .alarm__wrapper {
     padding: 20px;
     >.ant-form {
+        overflow: hidden;
         margin-bottom: 12px;
-        .ant-select {
-            width: 260px;
-        }
-        div:nth-child(2) {
+        .ant-form-item {
             float: right;
         }
     }
