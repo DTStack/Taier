@@ -126,11 +126,12 @@ public class GroupPriorityQueue {
 
         /**
          * blocked=true，已存储的任务数据超出队列limited上限
-         *
+         * <p>
          * 如果队列中的任务数量小于
-         * @see com.dtstack.engine.service.queue.GroupPriorityQueue#QUEUE_SIZE_LIMITED ,
+         *
+         * @see com.dtstack.engine.master.queue.GroupPriorityQueue#queueSizeLimited ,
          * 并且没有查询到新的数据，则停止调度
-         * @see com.dtstack.engine.service.queue.GroupPriorityQueue#blocked
+         * @see com.dtstack.engine.master.queue.GroupPriorityQueue#blocked
          */
         @Override
         public void run() {
@@ -138,21 +139,20 @@ public class GroupPriorityQueue {
                 int jobSize = engineJobCacheDao.countByStage(jobResource, EJobCacheStage.unSubmitted(), environmentContext.getLocalAddress());
                 if (jobSize == 0) {
                     return;
-                } else if (jobSize < getQueueSizeLimited()) {
-                    emitJob2PriorityQueue();
-                    return;
-                } else {
-                    blocked.set(true);
                 }
             }
 
-            if (priorityQueueSize() < getQueueSizeLimited()) {
-                emitJob2PriorityQueue();
-            }
+            emitJob2PriorityQueue();
         }
     }
 
+    /**
+     * @return false: blocked | true: unblocked
+     */
     private boolean emitJob2PriorityQueue() {
+        if (priorityQueueSize() >= getQueueSizeLimited()) {
+            return false;
+        }
         boolean empty = false;
         String localAddress = environmentContext.getLocalAddress();
         try {
