@@ -77,7 +77,7 @@ public class NodeRecoverService implements com.dtstack.engine.api.service.NodeRe
                     }
                 }
                 if (CollectionUtils.isNotEmpty(afterJobClients)) {
-                    jobDealer.afterSubmitJobBatch(afterJobClients);
+                    jobDealer.afterSubmitJobVast(afterJobClients);
                 }
             }
         } catch (Exception e) {
