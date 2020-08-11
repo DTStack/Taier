@@ -581,7 +581,7 @@ select tenant_id,
 from ide.rdos_batch_job;
 
 update rdos_batch_job rbj left join ide.rdos_engine_job rebj on rbj.job_id = rebj.job_id
-set rbj.status          = IFNULL(rebj.status, 0),
+set rbj.status          = IFNULL(rebj.status, -2),
     rbj.exec_start_time = rebj.exec_start_time,
     rbj.exec_end_time   = rebj.exec_end_time,
     rbj.exec_time       = rebj.exec_time,
