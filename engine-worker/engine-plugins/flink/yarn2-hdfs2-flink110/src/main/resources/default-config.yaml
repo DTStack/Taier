@@ -26,13 +26,13 @@ perjob:
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 110job
-    clusterMode: session
     metrics.reporter.promgateway.randomJobNameSuffix:
       controls: select
       values: [true,false]
     metrics.reporter.promgateway.deleteOnShutdown:
       controls: select
       values: [true,false]
+    clusterMode: yarn
 
   optional:
     jarTmpDir: ./tmp110
@@ -54,7 +54,6 @@ perjob:
     yarn.jobmanager.heap.mb: 1024
     yarn.taskmanager.numberOfTaskManager: 2
     yarn.taskmanager.numberOfTaskSlots: 2
-    sessionStartAuto: false
 
     flink.env.java.opts: -XX:MaxMetaspaceSize=500m
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
@@ -90,17 +89,16 @@ session:
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 110job
-    clusterMode: session
     metrics.reporter.promgateway.randomJobNameSuffix:
       controls: select
       values: [true,false]
     metrics.reporter.promgateway.deleteOnShutdown:
       controls: select
       values: [true,false]
+    clusterMode: yarn
 
   optional:
     jarTmpDir: ./tmp180
-    flinkYarnMode: PER_JOB
     queue: default
     pluginLoadMode: shipfile
     submitTimeout: 5
@@ -155,13 +153,13 @@ standalone:
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 110job
-    clusterMode: standalone
     metrics.reporter.promgateway.randomJobNameSuffix:
       controls: select
       values: [true,false]
     metrics.reporter.promgateway.deleteOnShutdown:
       controls: select
       values: [true,false]
+    clusterMode: standalone
 
   optional:
     state.backend: RocksDB
