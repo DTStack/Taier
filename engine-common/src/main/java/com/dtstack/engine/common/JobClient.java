@@ -418,6 +418,14 @@ public class JobClient extends OrderObject{
         return lackingCount++;
     }
 
+    public void setAppType(Integer appType) {
+        this.appType = appType;
+    }
+
+    public Integer getAppType() {
+        return appType;
+    }
+
     @Override
     public String toString() {
         return "JobClient{" +

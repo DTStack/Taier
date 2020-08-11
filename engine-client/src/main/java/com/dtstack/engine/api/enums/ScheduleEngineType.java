@@ -97,6 +97,8 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.TIDB;
             case "kubernetes":
                 return ScheduleEngineType.KUBERNETES;
+            case "mysql":
+                return ScheduleEngineType.MYSQL;
         }
         return null;
     }

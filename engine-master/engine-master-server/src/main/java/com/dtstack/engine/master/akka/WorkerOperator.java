@@ -17,6 +17,7 @@ import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
+import com.dtstack.schedule.common.enums.AppType;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
