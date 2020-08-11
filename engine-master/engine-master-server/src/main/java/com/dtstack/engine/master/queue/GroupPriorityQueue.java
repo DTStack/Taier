@@ -133,6 +133,7 @@ public class GroupPriorityQueue {
             if (Boolean.FALSE == blocked.get()) {
                 int jobSize = engineJobCacheDao.countByStage(jobResource, EJobCacheStage.unSubmitted(), environmentContext.getLocalAddress());
                 if (jobSize < getQueueSizeLimited()) {
+                    emitJob2PriorityQueue();
                     return;
                 }
                 blocked.set(true);
@@ -145,10 +146,7 @@ public class GroupPriorityQueue {
              * @see com.dtstack.engine.service.queue.GroupPriorityQueue#blocked
              */
             if (priorityQueueSize() < getQueueSizeLimited()) {
-                boolean empty = emitJob2PriorityQueue();
-                if (empty) {
-                    blocked.set(false);
-                }
+                emitJob2PriorityQueue();
             }
         }
     }
@@ -189,6 +187,9 @@ public class GroupPriorityQueue {
             }
         } catch (Exception e) {
             logger.error("emitJob2PriorityQueue localAddress:{} error:", localAddress, e);
+        }
+        if (empty) {
+            blocked.set(false);
         }
         return empty;
     }
