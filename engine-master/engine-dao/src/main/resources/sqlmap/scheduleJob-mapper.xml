@@ -365,10 +365,10 @@
             <if test="id != null">
                 id = #{id},
             </if>
-            <if test="tenantId != null">
+            <if test="tenantId != null and tenantId > 0">
                 tenant_id = #{tenantId},
             </if>
-            <if test="projectId != null">
+            <if test="projectId != null and projectId > 0">
                 project_id = #{projectId},
             </if>
             <if test="jobId != null">
@@ -410,7 +410,7 @@
             <if test="status != null">
                 status = #{status},
             </if>
-            <if test="dtuicTenantId !=null">
+            <if test="dtuicTenantId !=null and dtuicTenantId > 0">
                 dtuic_tenant_id = #{dtuicTenantId},
             </if>
             <if test="appType!=null">
