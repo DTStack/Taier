@@ -612,6 +612,7 @@
         WHERE bj.type = #{type}
         and bj.tenant_id = #{tenantId}
         and bj.is_deleted = 0
+        and bj.flow_job_id = 0
         <if test="taskTypes != null and taskTypes.size()>0">
             and ts.task_type in
                 <foreach collection="taskTypes" item="taskType" open="(" close=")" separator=",">
