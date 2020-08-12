@@ -158,7 +158,7 @@ public class ElasticsearchService implements InitializingBean, DisposableBean {
             String name = fileNameAndContent.getLeft();
             String content = fileNameAndContent.getRight();
             StringBuilder stringBuilder = completeLogs.computeIfAbsent(name, (n) -> new StringBuilder());
-            stringBuilder.append(content);
+            stringBuilder.append(content).append(System.lineSeparator());
         }
     }
 
