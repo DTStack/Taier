@@ -30,7 +30,7 @@ public enum ScheduleEngineType {
     KUBERNETES(17, "kubernetes"),
     MYSQL(18, "mysql"),
     SQLSERVER(19, "sqlserver"),
-    MAX_COMPUTE(20, "maxCompute"),
+    MAX_COMPUTE(20, "maxcompute"),
     DUMMY(21, "dummy");
     private int val;
 
@@ -101,7 +101,7 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.MYSQL;
             case "sqlserver":
                 return ScheduleEngineType.SQLSERVER;
-            case "maxCompute":
+            case "maxcompute":
                 return ScheduleEngineType.MAX_COMPUTE;
             case "dummy":
                 return ScheduleEngineType.DUMMY;
