@@ -408,7 +408,7 @@
             <if test="status != null">
                 status = #{status},
             </if>
-            <if test="dtuicTenantId !=null">
+            <if test="dtuicTenantId !=null and dtuicTenantId > 0">
                 dtuic_tenant_id = #{dtuicTenantId},
             </if>
             <if test="appType!=null">
