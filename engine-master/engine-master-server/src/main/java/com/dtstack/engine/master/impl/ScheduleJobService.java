@@ -2,8 +2,6 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.annotation.Forbidden;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.api.dto.ScheduleJobDTO;
@@ -15,6 +13,7 @@ import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.RetryUtil;
@@ -24,18 +23,15 @@ import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.EDeployMode;
-import com.dtstack.engine.master.job.JobStartTriggerBase;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.job.JobStartTriggerBase;
-import com.dtstack.engine.master.job.factory.MultiEngineFactory;
+import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
+import com.dtstack.engine.master.multiengine.factory.MultiEngineFactory;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
-import com.dtstack.engine.master.jobdealer.JobStopDealer;
-import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
-import com.dtstack.engine.master.utils.PublicUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
@@ -88,7 +84,7 @@ import java.util.stream.Collectors;
  * create: 2017/5/3
  */
 @Service
-public class ScheduleJobService implements com.dtstack.engine.api.service.ScheduleJobService {
+public class ScheduleJobService {
 
     private final static Logger logger = LoggerFactory.getLogger(ScheduleJobService.class);
 
@@ -166,11 +162,10 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      *
      * @author toutian
      */
-    public ScheduleJob getJobById(@Param("jobId") long jobId) {
+    public ScheduleJob getJobById( long jobId) {
         return scheduleJobDao.getOne(jobId);
     }
 
-    @Forbidden
     public ScheduleJob getJobByJobKeyAndType(String jobKey, int type) {
         return scheduleJobDao.getByJobKeyAndType(jobKey, type);
     }
@@ -192,8 +187,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param dtuicTenantId
      * @return
      */
-    public PageResult getStatusJobList(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType,
-                                       @Param("dtuicTenantId") Long dtuicTenantId, @Param("status") Integer status, @Param("pageSize") int pageSize, @Param("pageIndex") int pageIndex) {
+    public PageResult getStatusJobList( Long projectId,  Long tenantId,  Integer appType,
+                                        Long dtuicTenantId,  Integer status,  int pageSize,  int pageIndex) {
         if (Objects.isNull(status) || Objects.isNull(dtuicTenantId)) {
             return null;
         }
@@ -216,7 +211,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     /**
      * 获取各个状态任务的数量
      */
-    public JSONObject getStatusCount(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId) {
+    public JSONObject getStatusCount( Long projectId,  Long tenantId,  Integer appType,  Long dtuicTenantId) {
         int all = 0;
         JSONObject m = new JSONObject(RdosTaskStatus.getCollectionStatus().size());
         List<Map<String, Object>> data = scheduleJobDao.countByStatusAndType(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getUnStandardFormattedDate(DateUtil.calTodayMills()),
@@ -242,9 +237,9 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     /**
      * 运行时长top排序
      */
-    public List<JobTopOrderVO> runTimeTopOrder(@Param("projectId") Long projectId,
-                                               @Param("startTime") Long startTime,
-                                               @Param("endTime") Long endTime, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId) {
+    public List<JobTopOrderVO> runTimeTopOrder( Long projectId,
+                                                Long startTime,
+                                                Long endTime,  Integer appType,  Long dtuicTenantId) {
 
         if (null != startTime && null != endTime) {
             startTime = startTime * 1000;
@@ -287,7 +282,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     /**
      * 近30天任务出错排行
      */
-    public List<JobTopErrorVO> errorTopOrder(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId) {
+    public List<JobTopErrorVO> errorTopOrder( Long projectId,  Long tenantId,  Integer appType,  Long dtuicTenantId) {
 
         Timestamp time = new Timestamp(DateUtil.getLastDay(30));
         PageQuery pageQuery = new PageQuery(1, 10);
@@ -311,7 +306,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     /**
      * 曲线图数据
      */
-    public ScheduleJobChartVO getJobGraph(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId) {
+    public ScheduleJobChartVO getJobGraph( Long projectId,  Long tenantId,  Integer appType,  Long dtuicTenantId) {
 
         List<Integer> statusList = new ArrayList<>(4);
         List<Integer> finishedList = RdosTaskStatus.getCollectionStatus(RdosTaskStatus.FINISHED.getStatus());
@@ -335,8 +330,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      *
      * @return
      */
-    public ChartDataVO getScienceJobGraph(@Param("projectId") long projectId, @Param("tenantId") Long tenantId,
-                                          @Param("taskType") String taskType) {
+    public ChartDataVO getScienceJobGraph( long projectId,  Long tenantId,
+                                           String taskType) {
         List<Integer> finishedList = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus());
         List<Integer> failedList = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus());
         List<Integer> deployList = Lists.newArrayList(RdosTaskStatus.UNSUBMIT.getStatus(), RdosTaskStatus.SUBMITTING.getStatus(), RdosTaskStatus.WAITENGINE.getStatus());
@@ -349,12 +344,11 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return result.format(totalCnt, successCnt, failCnt, deployCnt);
     }
 
-    public Map<String, Object> countScienceJobStatus(@Param("projectIds") List<Long> projectIds, @Param("tenantId") Long tenantId, @Param("runStatus") Integer runStatus, @Param("type") Integer type, @Param("taskType") String taskType,
-                                                     @Param("cycStartDay") String cycStartTime, @Param("cycEndDay") String cycEndTime) {
+    public Map<String, Object> countScienceJobStatus( List<Long> projectIds,  Long tenantId,  Integer runStatus,  Integer type,  String taskType,
+                                                      String cycStartTime,  String cycEndTime) {
         return scheduleJobDao.countScienceJobStatus(runStatus, projectIds, type, convertStringToList(taskType), tenantId,cycStartTime,cycEndTime);
     }
 
-    @Forbidden
     private List<Object> finishData(List<Map<String, Object>> metadata) {
         Map<String, Long> dataMap = new HashMap<>();
         List<Object> dataList = new ArrayList<>();
@@ -520,14 +514,14 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return count;
     }
 
-    public List<SchedulePeriodInfoVO> displayPeriods(@Param("isAfter") boolean isAfter, @Param("jobId") Long jobId, @Param("projectId") Long projectId, @Param("limit") int limit) throws Exception {
+    public List<SchedulePeriodInfoVO> displayPeriods( boolean isAfter,  Long jobId,  Long projectId,  int limit) throws Exception {
         ScheduleJob job = scheduleJobDao.getOne(jobId);
         if (job == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listAfterOrBeforeJobs(job.getTaskId(), isAfter, job.getCycTime());
         Collections.sort(scheduleJobs, new Comparator<ScheduleJob>() {
-            @Override
+
             public int compare(ScheduleJob o1, ScheduleJob o2) {
                 if (Long.parseLong(o1.getCycTime()) < Long.parseLong(o2.getCycTime())) {
                     return 1;
@@ -561,7 +555,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @return
      * @throws Exception
      */
-    public ScheduleJobVO getRelatedJobs(@Param("jobId") String jobId, @Param("vo") String query) throws Exception {
+    public ScheduleJobVO getRelatedJobs( String jobId,  String query) throws Exception {
         QueryJobDTO vo = JSONObject.parseObject(query, QueryJobDTO.class);
         ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, Deleted.NORMAL.getStatus());
         Map<Long, ScheduleTaskForFillDataDTO> shadeMap = this.prepare(Lists.newArrayList(scheduleJob));
@@ -853,7 +847,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
     }
 
-    @Forbidden
     private void setBizDay(ScheduleJobDTO batchJobDTO, Long bizStartDay, Long bizEndDay, Long tenantId, Long projectId) {
         if (bizStartDay != null && bizEndDay != null) {
             String bizStart = dayFormatterAll.print(getTime(bizStartDay * 1000, 0).getTime());
@@ -866,7 +859,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
     }
 
-    @Forbidden
     private void setCycDay(ScheduleJobDTO batchJobDTO, Long cycStartDay, Long cycEndDay, Long tenantId, Long projectId) {
         if (cycStartDay != null && cycEndDay != null) {
             String cycStart = dayFormatterAll.print(getCycTime(cycStartDay * 1000).getTime());
@@ -894,7 +886,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return new Timestamp(calendar.getTimeInMillis());
     }
 
-    @Forbidden
     private List<Integer> convertStringToList(String str) {
         List<Integer> resultList = new ArrayList<>();
         if (StringUtils.isNotBlank(str)) {
@@ -909,8 +900,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return resultList;
     }
 
-    @Override
-    public List<ScheduleRunDetailVO> jobDetail(@Param("taskId") Long taskId, @Param("appType") Integer appType) {
+
+    public List<ScheduleRunDetailVO> jobDetail( Long taskId,  Integer appType) {
 
         ScheduleTaskShade task = batchTaskShadeService.getBatchTaskById(taskId, appType);
 
@@ -942,7 +933,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return details;
     }
 
-    @Forbidden
     public Integer updateStatusAndLogInfoById(Long id, Integer status, String msg) {
         if (StringUtils.isNotBlank(msg) && msg.length() > 500) {
             msg = msg.substring(0, 500) + "...";
@@ -950,19 +940,16 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return scheduleJobDao.updateStatusAndLogInfoById(id, status, msg);
     }
 
-    @Forbidden
     public Integer updateStatusByJobId(String jobId, Integer status) {
         return scheduleJobDao.updateStatusByJobId(jobId, status, null);
     }
 
-    @Forbidden
     public Long startJob(ScheduleJob scheduleJob) throws Exception {
         sendTaskStartTrigger(scheduleJob);
         return scheduleJob.getId();
     }
 
 
-    @Forbidden
     public Integer updateStatusWithExecTime(ScheduleJob updateJob) {
         if(Objects.isNull(updateJob) || Objects.isNull(updateJob.getJobId()) || Objects.isNull(updateJob.getAppType())){
             return 0;
@@ -974,7 +961,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return scheduleJobDao.updateStatusWithExecTime(updateJob);
     }
 
-    public void testTrigger(@Param("jobId") String jobId) {
+    public void testTrigger( String jobId) {
         ScheduleJob rdosJobByJobId = scheduleJobDao.getRdosJobByJobId(jobId);
         if (Objects.nonNull(rdosJobByJobId)) {
             try {
@@ -1063,7 +1050,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                     actionParam.put("deployMode", eDeployMode.getType());
                 }
                 this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus());
-                actionService.start(actionParam);
+                ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(actionParam, ParamActionExt.class);
+                actionService.start(paramActionExt);
                 return;
             }
         }
@@ -1105,14 +1093,14 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     }
 
 
-    public String stopJob(@Param("jobId") long jobId, @Param("userId") Long userId, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId,
-                          @Param("isRoot") Boolean isRoot, @Param("appType") Integer appType) throws Exception {
+    public String stopJob( long jobId,  Long userId,  Long projectId,  Long tenantId,  Long dtuicTenantId,
+                           Boolean isRoot,  Integer appType) throws Exception {
 
         ScheduleJob scheduleJob = scheduleJobDao.getOne(jobId);
         return stopJobByScheduleJob(dtuicTenantId, appType, scheduleJob);
     }
 
-    private String stopJobByScheduleJob(@Param("dtuicTenantId") Long dtuicTenantId, @Param("appType") Integer appType, ScheduleJob scheduleJob) throws Exception {
+    private String stopJobByScheduleJob( Long dtuicTenantId,  Integer appType, ScheduleJob scheduleJob) throws Exception {
         if (scheduleJob == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
@@ -1141,8 +1129,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
     }
 
-    public String stopJobByJobId(@Param("jobId") String jobId, @Param("userId") Long userId, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId,
-                                 @Param("isRoot") Boolean isRoot, @Param("appType") Integer appType) throws Exception{
+    public String stopJobByJobId( String jobId,  Long userId,  Long projectId,  Long tenantId,  Long dtuicTenantId,
+                                  Boolean isRoot,  Integer appType) throws Exception{
         if(StringUtils.isBlank(jobId)){
             return "";
         }
@@ -1153,7 +1141,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
 
 
-    public void stopFillDataJobs(@Param("fillDataJobName") String fillDataJobName, @Param("projectId") Long projectId, @Param("dtuicTenantId") Long dtuicTenantId, @Param("appType") Integer appType) throws Exception {
+    public void stopFillDataJobs( String fillDataJobName,  Long projectId,  Long dtuicTenantId,  Integer appType) throws Exception {
         //还未发送到engine部分---直接停止
         if (StringUtils.isBlank(fillDataJobName) || null == projectId || null == appType) {
             return;
@@ -1170,10 +1158,10 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
 
 
     @Transactional(rollbackFor = Exception.class)
-    public int batchStopJobs(@Param("jobIdList") List<Long> jobIdList,
-                             @Param("projectId") Long projectId,
-                             @Param("dtuicTenantId") Long dtuicTenantId,
-                             @Param("appType") Integer appType) {
+    public int batchStopJobs( List<Long> jobIdList,
+                              Long projectId,
+                              Long dtuicTenantId,
+                              Integer appType) {
         if (CollectionUtils.isEmpty(jobIdList)) {
             return 0;
         }
@@ -1201,7 +1189,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @return
      * @throws IOException
      */
-    @Forbidden
     @Deprecated
     public String stopSubmittedJob(List<ScheduleJob> scheduleJobList, Long dtuicTenantId, Integer appType) throws Exception {
 
@@ -1253,7 +1240,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     /**
      * jobSize 在负载均衡时 区分 scheduleType（正常调度 和 补数据）
      */
-    @Forbidden
     @Transactional(rollbackFor = Exception.class)
     public void insertJobList(Collection<ScheduleBatchJob> batchJobCollection, Integer scheduleType) {
         if (CollectionUtils.isEmpty(batchJobCollection)) {
@@ -1339,7 +1325,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      *
      * @param batchJobList
      */
-    @Forbidden
     @Transactional
     public void updateJobListForRestart(List<ScheduleBatchJob> batchJobList) {
 
@@ -1357,12 +1342,12 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * 补数据的时候，选中什么业务日期，参数替换结果是业务日期+1天
      */
     @Transactional
-    public String fillTaskData(@Param("taskJson") String taskJsonStr, @Param("fillName") String fillName,
-                               @Param("fromDay") Long fromDay, @Param("toDay") Long toDay,
-                               @Param("concreteStartTime") String beginTime, @Param("concreteEndTime") String endTime,
-                               @Param("projectId") Long projectId, @Param("userId") Long userId,
-                               @Param("tenantId") Long tenantId,
-                               @Param("isRoot") Boolean isRoot, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId) throws Exception {
+    public String fillTaskData( String taskJsonStr,  String fillName,
+                                Long fromDay,  Long toDay,
+                                String beginTime,  String endTime,
+                                Long projectId,  Long userId,
+                                Long tenantId,
+                                Boolean isRoot,  Integer appType,  Long dtuicTenantId) throws Exception {
 
         taskJsonStr = StringUtils.isEmpty(taskJsonStr) ? "{}" : taskJsonStr;
         ArrayNode jsonNode = objMapper.readValue(taskJsonStr, ArrayNode.class);
@@ -1454,10 +1439,10 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param tenantId
      * @return
      */
-    public PageResult<ScheduleFillDataJobPreViewVO> getFillDataJobInfoPreview(@Param("jobName") String jobName, @Param("runDay") Long runDay,
-                                                                              @Param("bizStartDay") Long bizStartDay, @Param("bizEndDay") Long bizEndDay, @Param("dutyUserId") Long dutyUserId,
-                                                                              @Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("user") Integer userId,
-                                                                              @Param("currentPage") Integer currentPage, @Param("pageSize") Integer pageSize, @Param("tenantId") Long tenantId) {
+    public PageResult<ScheduleFillDataJobPreViewVO> getFillDataJobInfoPreview( String jobName,  Long runDay,
+                                                                               Long bizStartDay,  Long bizEndDay,  Long dutyUserId,
+                                                                               Long projectId,  Integer appType,  Integer userId,
+                                                                               Integer currentPage,  Integer pageSize,  Long tenantId) {
         final List<ScheduleTaskShade> taskList;
         ScheduleJobDTO batchJobDTO = new ScheduleJobDTO();
         if (!Strings.isNullOrEmpty(jobName)) {
@@ -1578,8 +1563,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      */
     @Deprecated
     public PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfoOld(QueryJobDTO vo,
-                                                                            @Param("fillJobName") String fillJobName,
-                                                                            @Param("dutyUserId") Long dutyUserId) throws Exception {
+                                                                             String fillJobName,
+                                                                             Long dutyUserId) throws Exception {
         if (Strings.isNullOrEmpty(fillJobName)) {
             throw new RdosDefineException("(补数据名称不能为空)", ErrorCode.INVALID_PARAMETERS);
         }
@@ -1662,11 +1647,11 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return new PageResult(scheduleFillDataJobDetailVO, totalCount, pageQuery);
     }
 
-    public PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfo(@Param("vo") String queryJobDTO,
-                                                                         @Param("flowJobIdList") List<String> flowJobIdList,
-                                                                         @Param("fillJobName") String fillJobName,
-                                                                         @Param("dutyUserId") Long dutyUserId, @Param("searchType") String searchType,
-                                                                         @Param("appType") Integer appType) throws Exception {
+    public PageResult<ScheduleFillDataJobDetailVO> getFillDataDetailInfo( String queryJobDTO,
+                                                                          List<String> flowJobIdList,
+                                                                          String fillJobName,
+                                                                          Long dutyUserId,  String searchType,
+                                                                          Integer appType) throws Exception {
         if (Strings.isNullOrEmpty(fillJobName)) {
             throw new RdosDefineException("(补数据名称不能为空)", ErrorCode.INVALID_PARAMETERS);
         }
@@ -1759,8 +1744,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @return
      * @throws Exception
      */
-    public ScheduleFillDataJobDetailVO.FillDataRecord getRelatedJobsForFillData(@Param("jobId") String jobId, @Param("vo") String query,
-                                                                                @Param("fillJobName") String fillJobName) throws Exception {
+    public ScheduleFillDataJobDetailVO.FillDataRecord getRelatedJobsForFillData( String jobId,  String query,
+                                                                                 String fillJobName) throws Exception {
         QueryJobDTO vo = JSONObject.parseObject(query, QueryJobDTO.class);
         ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, Deleted.NORMAL.getStatus());
         Map<String, ScheduleEngineJob> engineJobMap = Maps.newHashMap();
@@ -2045,7 +2030,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      *
      * @return
      */
-    public List<RestartJobVO> getRestartChildJob(@Param("jobKey") String jobKey, @Param("taskId") Long parentTaskId, @Param("isOnlyNextChild") boolean isOnlyNextChild) {
+    public List<RestartJobVO> getRestartChildJob( String jobKey,  Long parentTaskId,  boolean isOnlyNextChild) {
 
         List<ScheduleJobJob> scheduleJobJobList = batchJobJobService.getJobChild(jobKey);
         List<String> jobKeyList = Lists.newArrayList();
@@ -2109,7 +2094,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
     }
 
 
-    @Forbidden
     public Long getTaskIdFromJobKey(String jobKey) {
         String[] strings = jobKey.split("_");
         if (strings.length < 2) {
@@ -2126,7 +2110,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
     }
 
-    @Forbidden
     public String getJobTriggerTimeFromJobKey(String jobKey) {
         String[] strings = jobKey.split("_");
         if (strings.length < 1) {
@@ -2143,7 +2126,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return timeStr.substring(0, 8);
     }
 
-    @Forbidden
     public List<Long> getJobByTaskIdAndStatus(Long taskId, List<Integer> statusList, Integer appType) {
         return scheduleJobDao.listIdByTaskIdAndStatus(taskId, statusList, appType);
     }
@@ -2204,7 +2186,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param jobId
      * @return
      */
-    @Forbidden
     public List<ScheduleJob> getSubJobsAndStatusByFlowId(String jobId) {
         return scheduleJobDao.getSubJobsAndStatusByFlowId(jobId);
     }
@@ -2215,7 +2196,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param jobId 工作流jobId
      * @return
      */
-    @Forbidden
     public ScheduleJob getWorkFlowTopNode(String jobId) {
         return scheduleJobDao.getWorkFlowTopNode(jobId);
     }
@@ -2229,7 +2209,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         return operateModel;
     }
 
-    public List<String> listJobIdByTaskNameAndStatusList(@Param("taskName") String taskName, @Param("statusList") List<Integer> statusList, @Param("projectId") Long projectId,@Param("appType") Integer appType) {
+    public List<String> listJobIdByTaskNameAndStatusList( String taskName,  List<Integer> statusList,  Long projectId, Integer appType) {
         ScheduleTaskShade task = batchTaskShadeService.getByName(projectId, taskName,appType,null);
         if (task != null) {
             List<String> jobIdList = scheduleJobDao.listJobIdByTaskIdAndStatus(task.getTaskId(), task.getAppType() ,statusList);
@@ -2246,7 +2226,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param projectId
      * @return
      */
-    public Map<String, ScheduleJob> getLabTaskRelationMap(@Param("jobIdList") List<String> jobIdList, @Param("projectId") Long projectId) {
+    public Map<String, ScheduleJob> getLabTaskRelationMap( List<String> jobIdList,  Long projectId) {
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listByJobIdList(jobIdList, projectId);
         if (CollectionUtils.isNotEmpty(scheduleJobs)) {
             Map<String, ScheduleJob> jobMap = new HashMap<>();
@@ -2268,7 +2248,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param count
      * @return
      */
-    public List<Map<String, Object>> statisticsTaskRecentInfo(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("projectId") Long projectId, @Param("count") Integer count) {
+    public List<Map<String, Object>> statisticsTaskRecentInfo( Long taskId,  Integer appType,  Long projectId,  Integer count) {
         return scheduleJobDao.listTaskExeInfo(taskId, projectId, count, appType);
 
     }
@@ -2279,8 +2259,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      *
      * @param jobs
      */
-    @Override
-    public Integer BatchJobsBatchUpdate(@Param("jobs") String jobs) {
+    public Integer BatchJobsBatchUpdate( String jobs) {
         if (StringUtils.isBlank(jobs)) {
             return 0;
         }
@@ -2306,20 +2285,19 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param jobId
      * @return
      */
-    public Integer updateTimeNull(@Param("jobId") String jobId){
+    public Integer updateTimeNull( String jobId){
         return scheduleJobDao.updateNullTime(jobId);
     }
 
 
-    public ScheduleJob getById(@Param("id") Long id) {
+    public ScheduleJob getById( Long id) {
         return scheduleJobDao.getOne(id);
     }
 
-    public ScheduleJob getByJobId(@Param("jobId") String jobId, @Param("isDeleted") Integer isDeleted) {
+    public ScheduleJob getByJobId( String jobId,  Integer isDeleted) {
         return scheduleJobDao.getByJobId(jobId, isDeleted);
     }
 
-    @Forbidden
     public Integer getJobStatus(String jobId){
         ScheduleJob job = scheduleJobDao.getRdosJobByJobId(jobId);
         if (Objects.isNull(job)) {
@@ -2327,7 +2305,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
         }
         return job.getStatus();
     }
-    public List<ScheduleJob> getByIds(@Param("ids") List<Long> ids, @Param("project") Long projectId) {
+    public List<ScheduleJob> getByIds( List<Long> ids,  Long projectId) {
         return scheduleJobDao.listByJobIds(ids);
     }
 
@@ -2340,8 +2318,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param appType
      * @return
      */
-    public List<ScheduleJob> getSameDayChildJob(@Param("batchJob") String batchJob,
-                                                @Param("isOnlyNextChild") boolean isOnlyNextChild, @Param("appType") Integer appType) {
+    public List<ScheduleJob> getSameDayChildJob( String batchJob,
+                                                 boolean isOnlyNextChild,  Integer appType) {
         ScheduleJob job = JSONObject.parseObject(batchJob, ScheduleJob.class);
         if (Objects.isNull(job)) {
             return new ArrayList<>();
@@ -2358,7 +2336,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @return
      */
     public List<ScheduleJob> getAllChildJobWithSameDay(ScheduleJob scheduleJob,
-                                                       @Param("isOnlyNextChild") boolean isOnlyNextChild, @Param("appType") Integer appType) {
+                                                        boolean isOnlyNextChild,  Integer appType) {
 
         String jobKey = scheduleJob.getJobKey();
         List<ScheduleJobJob> scheduleJobJobList = batchJobJobService.getJobChild(jobKey);
@@ -2437,7 +2415,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param time
      * @return
      */
-    public ScheduleJob getLastSuccessJob(@Param("taskId") Long taskId, @Param("time") Timestamp time,@Param("appType") Integer appType) {
+    public ScheduleJob getLastSuccessJob( Long taskId,  Timestamp time, Integer appType) {
         return scheduleJobDao.getByTaskIdAndStatusOrderByIdLimit(taskId, RdosTaskStatus.FINISHED.getStatus(),time, appType);
     }
 
@@ -2452,8 +2430,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param logVo
      * @throws Exception
      */
-    public ScheduleServerLogVO setAlogrithmLabLog(@Param("status") Integer status, @Param("taskType") Integer taskType, @Param("jobId") String jobId,
-                                                  @Param("info") String info, @Param("logVo") String logVo, @Param("appType") Integer appType) throws Exception {
+    public ScheduleServerLogVO setAlogrithmLabLog( Integer status,  Integer taskType,  String jobId,
+                                                   String info,  String logVo,  Integer appType) throws Exception {
         ScheduleServerLogVO scheduleServerLogVO = JSONObject.parseObject(logVo, ScheduleServerLogVO.class);
         if (taskType.equals(EScheduleJobType.ALGORITHM_LAB.getVal())) {
             if (RdosTaskStatus.FAILED_STATUS.contains(status) ||
@@ -2507,7 +2485,6 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      *
      * @return
      */
-    @Forbidden
     public JSONObject getLogInfoFromEngine(String jobId) {
         try {
             String log = actionService.log(jobId, ComputeType.BATCH.getType());
@@ -2560,7 +2537,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param status
      * @param logInfo
      */
-    public void updateJobStatusAndLogInfo(@Param("jobId") String jobId, @Param("status") Integer status, @Param("logInfo") String logInfo) {
+    public void updateJobStatusAndLogInfo( String jobId,  Integer status,  String logInfo) {
         scheduleJobDao.updateStatusByJobId(jobId, status, logInfo);
     }
 
@@ -2571,7 +2548,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param jobId
      * @return
      */
-    public String testCheckCanRun(@Param("jobId")String jobId){
+    public String testCheckCanRun(String jobId){
         ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, Deleted.NORMAL.getStatus());
         if (Objects.isNull(scheduleJob)) {
             return "任务不存在";
@@ -2598,7 +2575,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @throws Exception
      */
     @Transactional(rollbackFor = Exception.class)
-    public void createTodayTaskShade(@Param("taskId") Long taskId, @Param("appType") Integer appType) {
+    public void createTodayTaskShade( Long taskId,  Integer appType) {
         try {
             //如果appType为空的话则为离线
             if (Objects.isNull(appType)) {
@@ -2681,7 +2658,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param scheduleType
      * @return
      */
-    public List<ScheduleJob> listByCyctimeAndJobName(@Param("preCycTime") String preCycTime, @Param("preJobName") String preJobName, @Param("scheduleType") Integer scheduleType) {
+    public List<ScheduleJob> listByCyctimeAndJobName( String preCycTime,  String preJobName,  Integer scheduleType) {
         return scheduleJobDao.listJobByCyctimeAndJobName(preCycTime, preJobName, scheduleType);
     }
 
@@ -2695,11 +2672,11 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param batchJobSize
      * @return
      */
-    public List<ScheduleJob> listByCyctimeAndJobName(@Param("startId") Long startId, @Param("preCycTime") String preCycTime, @Param("preJobName") String preJobName, @Param("scheduleType") Integer scheduleType, @Param("batchJobSize") Integer batchJobSize) {
+    public List<ScheduleJob> listByCyctimeAndJobName( Long startId,  String preCycTime,  String preJobName,  Integer scheduleType,  Integer batchJobSize) {
         return scheduleJobDao.listJobByCyctimeAndJobNameBatch(startId, preCycTime, preJobName, scheduleType, batchJobSize);
     }
 
-    public Integer countByCyctimeAndJobName(@Param("preCycTime") String preCycTime, @Param("preJobName") String preJobName, @Param("scheduleType") Integer scheduleType) {
+    public Integer countByCyctimeAndJobName( String preCycTime,  String preJobName,  Integer scheduleType) {
         return scheduleJobDao.countJobByCyctimeAndJobName(preCycTime, preJobName, scheduleType);
     }
 
@@ -2709,7 +2686,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param jobKeyList
      */
     @Transactional(rollbackFor = Exception.class)
-    public void deleteJobsByJobKey(@Param("jobKeyList") List<String> jobKeyList) {
+    public void deleteJobsByJobKey( List<String> jobKeyList) {
         scheduleJobDao.deleteByJobKey(jobKeyList);
         scheduleJobJobDao.deleteByJobKey(jobKeyList);
     }
@@ -2722,7 +2699,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      *
      * @return
      */
-    @Override
+
     public List<ScheduleJob> syncBatchJob(QueryJobDTO dto) {
         if (Objects.isNull(dto) || Objects.isNull(dto.getAppType())) {
             return new ArrayList<>();
@@ -2749,8 +2726,8 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param taskIds
      * @param appType
      */
-    @Override
-    public List<ScheduleJob> listJobsByTaskIdsAndApptype(@Param("taskIds") List<Long> taskIds,@Param("appType") Integer appType){
+
+    public List<ScheduleJob> listJobsByTaskIdsAndApptype( List<Long> taskIds, Integer appType){
         return scheduleJobDao.listJobsByTaskIdAndApptype(taskIds,appType);
     }
 
@@ -2760,7 +2737,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      *
      * @param triggerDay
      */
-    public void buildTaskJobGraphTest(@Param("triggerDay") String triggerDay) {
+    public void buildTaskJobGraphTest( String triggerDay) {
         CompletableFuture.runAsync(() -> jobGraphBuilder.buildTaskJobGraph(triggerDay));
     }
 

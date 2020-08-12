@@ -26,7 +26,7 @@ import java.beans.PropertyVetoException;
  * create: 2017/8/14
  */
 @Configuration
-@EnableTransactionManagement(proxyTargetClass = true)
+@EnableTransactionManagement
 @ComponentScan(basePackages = {"com.dtstack.engine.*"})
 @MapperScan(basePackages = {"com.dtstack.engine.dao"}, sqlSessionTemplateRef = "sqlSessionTemplate")
 public class MybatisConfig {
@@ -51,6 +51,7 @@ public class MybatisConfig {
         return dataSource;
     }
 
+    @Primary
     @Bean(name = "sqlSessionFactory")
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
@@ -70,11 +71,13 @@ public class MybatisConfig {
      * 配置事务管理器
      */
     @Bean(name = "transactionManager")
+    @Primary
     public DataSourceTransactionManager transactionManager() throws Exception {
         return new DataSourceTransactionManager(dataSource());
     }
 
     @Bean(name = "sqlSessionTemplate")
+    @Primary
     public SqlSessionTemplate sqlSessionTemplate() throws Exception {
         return new SqlSessionTemplate(sqlSessionFactory());
     }

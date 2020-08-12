@@ -4,10 +4,8 @@ import com.dtstack.engine.api.domain.ScheduleEngineJob;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.DateUtil;
-import com.dtstack.engine.master.parser.ESchedulePeriodType;
+import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * company: www.dtstack.com
@@ -15,8 +13,6 @@ import org.slf4j.LoggerFactory;
  * create: 2017/6/6
  */
 public class ScheduleJobVO extends com.dtstack.engine.api.vo.ScheduleJobVO {
-
-    private static final Logger logger = LoggerFactory.getLogger(ScheduleJobVO.class);
 
     public ScheduleJobVO() {
     }

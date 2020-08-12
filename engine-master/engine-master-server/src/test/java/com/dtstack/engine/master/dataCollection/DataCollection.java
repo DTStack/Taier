@@ -53,6 +53,24 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobToUnsumbittedStatus() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setEngineLog("");
+        sj.setStatus(8);
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class, method = "insertWithCustomGmt")
+    default ScheduleJob getScheduleJobIndependentWithGmt() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setGmtCreate(new Timestamp(1595822190349L));
+        sj.setGmtModified(new Timestamp(1595822190349L));
+        return sj;
+    }
+
+
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
     default ScheduleJob getScheduleJobDefiniteTaskId() {
         ScheduleJob sj = Template.getScheduleJobTemplate();
         sj.setExecTime(2000L);
@@ -73,6 +91,7 @@ public interface DataCollection {
         sj.setJobId("9089");
         return sj;
     }
+
 
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
     default ScheduleJob getScheduleJobDefiniteProjectId() {
@@ -267,5 +286,55 @@ public interface DataCollection {
     default User getUser(){
         User user = Template.getUserTemplate();
         return user;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    @IgnoreUniqueRandomSet
+    default ScheduleTaskShade getScheduleTaskShadeDefiniteTaskId2(){
+        ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
+        scheduleTaskShade.setTenantId(-20001L);
+        scheduleTaskShade.setProjectId(-20001L);
+        scheduleTaskShade.setDtuicTenantId(-20001L);
+        scheduleTaskShade.setAppType(-1001);
+        scheduleTaskShade.setTaskId(-511L);
+        return scheduleTaskShade;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    @IgnoreUniqueRandomSet
+    default ScheduleJob getScheduleJobDefiniteJobkey() {
+        ScheduleJob scheduleJobJob = Template.getScheduleJobTemplate();
+        scheduleJobJob.setTenantId(-20001L);
+        scheduleJobJob.setProjectId(-20001L);
+        scheduleJobJob.setDtuicTenantId(-20001L);
+        scheduleJobJob.setAppType(-1001);
+        scheduleJobJob.setJobKey("cronTrigger_77_20200729000000");
+        scheduleJobJob.setTaskId(-511L);
+        return scheduleJobJob;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobJobDao.class)
+    default ScheduleJobJob getScheduleJobJobSetParentKey(){
+        ScheduleJobJob scheduleJobJob = new ScheduleJobJob();
+        scheduleJobJob.setTenantId(-20001L);
+        scheduleJobJob.setProjectId(-20001L);
+        scheduleJobJob.setDtuicTenantId(-20001L);
+        scheduleJobJob.setAppType(-1001);
+
+        scheduleJobJob.setParentJobKey("cronTrigger_77_20200729000000");
+        scheduleJobJob.setJobKey("cronTrigger_77_20200729000000");
+        return scheduleJobJob;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobSetCycTime() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setProjectId(-1012L);
+        sj.setExecStartTime(new Timestamp(new DateTime().getMillis()));
+        sj.setTaskId(-20021L);
+        sj.setJobName("Test job1");
+        sj.setEngineLog("");
+        sj.setCycTime("20200501163446");
+        return sj;
     }
 }

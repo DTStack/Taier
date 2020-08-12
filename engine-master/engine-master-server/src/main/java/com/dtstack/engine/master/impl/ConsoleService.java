@@ -1,22 +1,20 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.ClusterResource;
-import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.cache.ShardCache;
+import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
@@ -45,7 +43,7 @@ import java.util.stream.Collectors;
  * create: 2018/9/18
  */
 @Service
-public class ConsoleService implements com.dtstack.engine.api.service.ConsoleService {
+public class ConsoleService {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsoleService.class);
 
@@ -87,7 +85,6 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
 
     private static long DELAULT_TENANT  = -1L;
 
-    @Forbidden
     public Boolean finishJob(String jobId, Integer status) {
         if (!RdosTaskStatus.isStopped(status)) {
             logger.warn("Job status：" + status + " is not stopped status");
@@ -108,7 +105,7 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
         }
     }
 
-    public Map<String, Object> searchJob(@Param("jobName") String jobName) {
+    public Map<String, Object> searchJob( String jobName) {
         Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
         String jobId = null;
         ScheduleJob scheduleJob = scheduleJobDao.getByName(jobName);
@@ -139,7 +136,7 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
         return null;
     }
 
-    public List<String> listNames(@Param("jobName") String jobName) {
+    public List<String> listNames( String jobName) {
         try {
             Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
             return engineJobCacheDao.listNames(jobName);
@@ -156,7 +153,7 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
     /**
      * 根据计算引擎类型显示任务
      */
-    public Collection<Map<String, Object>> overview(@Param("nodeAddress") String nodeAddress, @Param("clusterName") String clusterName) {
+    public Collection<Map<String, Object>> overview( String nodeAddress,  String clusterName) {
         if (StringUtils.isBlank(nodeAddress)) {
             nodeAddress = null;
         }
@@ -212,11 +209,11 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
         return overview.values();
     }
 
-    public Map<String, Object> groupDetail(@Param("jobResource") String jobResource,
-                                           @Param("nodeAddress") String nodeAddress,
-                                           @Param("stage") Integer stage,
-                                           @Param("pageSize") Integer pageSize,
-                                           @Param("currentPage") Integer currentPage,@Param("dtToken") String dtToken) {
+    public Map<String, Object> groupDetail( String jobResource,
+                                            String nodeAddress,
+                                            Integer stage,
+                                            Integer pageSize,
+                                            Integer currentPage, String dtToken) {
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
         Preconditions.checkNotNull(stage, "parameters of stage is required");
         Preconditions.checkArgument(currentPage != null && currentPage > 0, "parameters of currentPage is required");
@@ -273,7 +270,7 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
         theJobMap.put("tenantName", Objects.isNull(tenant) ? "" : tenant.getTenantName());
     }
 
-    public Boolean jobStick(@Param("jobId") String jobId) {
+    public Boolean jobStick( String jobId) {
         Preconditions.checkNotNull(jobId, "parameters of jobId is required");
 
         try {
@@ -303,7 +300,7 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
         return false;
     }
 
-    public void stopJob(@Param("jobId") String jobId) throws Exception {
+    public void stopJob( String jobId) throws Exception {
         Preconditions.checkArgument(StringUtils.isNotBlank(jobId), "parameters of jobId is required");
         List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(Lists.newArrayList(jobId));
         if (alreadyExistJobIds.contains(jobId)) {
@@ -320,8 +317,8 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
     /**
      * 概览，杀死全部
      */
-    public void stopAll(@Param("jobResource") String jobResource,
-                        @Param("nodeAddress") String nodeAddress) throws Exception {
+    public void stopAll( String jobResource,
+                         String nodeAddress) throws Exception {
 
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
 
@@ -330,10 +327,10 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
         }
     }
 
-    public void stopJobList(@Param("jobResource") String jobResource,
-                            @Param("nodeAddress") String nodeAddress,
-                            @Param("stage") Integer stage,
-                            @Param("jobIdList") List<String> jobIdList) throws Exception {
+    public void stopJobList( String jobResource,
+                             String nodeAddress,
+                             Integer stage,
+                             List<String> jobIdList) throws Exception {
         if (jobIdList != null && !jobIdList.isEmpty()) {
             //杀死指定jobIdList的任务
 
@@ -401,7 +398,7 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
         }
     }
 
-    public Map<String, Object> clusterResources(@Param("clusterName") String clusterName) {
+    public Map<String, Object> clusterResources( String clusterName) {
         if (StringUtils.isEmpty(clusterName)) {
             return MapUtils.EMPTY_MAP;
         }
@@ -419,7 +416,6 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
         return getResources(yarnComponent, cluster);
     }
 
-    @Forbidden
     public Map<String, Object> getResources(Component yarnComponent, Cluster cluster) {
         Map<String, Object> clusterResources = new HashMap<>(2);
         try {

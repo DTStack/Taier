@@ -10,7 +10,7 @@ import java.util.Map;
  * Created by sishu.yss on 2017/3/14.
  */
 @Service
-public class MigrationService implements com.dtstack.engine.api.service.MigrationService {
+public class MigrationService {
 
     @Autowired
     private FailoverStrategy failoverStrategy;

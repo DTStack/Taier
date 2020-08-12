@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,14 +13,14 @@ import java.util.Objects;
  * @date 2020-01-19
  */
 @Service
-public class ProjectService implements com.dtstack.engine.api.service.ProjectService {
+public class ProjectService {
 
     private final Logger logger = LoggerFactory.getLogger(ProjectService.class);
 
     @Autowired
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
 
-    public void updateSchedule(@Param("projectId")Long projectId, @Param("appType")Integer appType, @Param("scheduleStatus")Integer scheduleStatus) {
+    public void updateSchedule(Long projectId, Integer appType, Integer scheduleStatus) {
         if (Objects.isNull(projectId) || Objects.isNull(appType) || Objects.isNull(scheduleStatus)) {
             return;
         }

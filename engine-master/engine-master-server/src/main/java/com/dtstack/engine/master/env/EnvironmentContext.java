@@ -78,7 +78,11 @@ public class EnvironmentContext {
     }
 
     public int getCheckTimeout() {
-        return Integer.parseInt(environment.getProperty("check.timeout", "10000"));
+        return Integer.parseInt(environment.getProperty("check.timeout", "30000"));
+    }
+
+    public int getMaxWait() {
+        return Integer.parseInt(environment.getProperty("max.wait", "10000"));
     }
 
     /**

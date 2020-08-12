@@ -55,7 +55,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerJobClientFactory.class);
 
-    private static final String DIR = "/keytab/";
+    private static final String KERBEROS_DIR = "/kerberosPath/";
     private static final String LOG_LEVEL_KEY = "logLevel";
 
     private static final String USER_DIR = System.getProperty("user.dir");
@@ -92,10 +92,13 @@ public class PerJobClientFactory extends AbstractClientFactory {
                 classpaths.add(new File(jarFileInfo.getJarPath()).toURI().toURL());
             }
         }
-        List<File> keytabFilePath = getKeytabFilePath(jobClient);
+
+        if (flinkConfig.isOpenKerberos()) {
+            List<File> keytabFilePath = getKeytabFilePath();
+            clusterDescriptor.addShipFiles(keytabFilePath);
+        }
 
         clusterDescriptor.setName(jobClient.getJobName());
-        clusterDescriptor.addShipFiles(keytabFilePath);
         clusterDescriptor.setProvidedUserJarFiles(classpaths);
         clusterDescriptor.setQueue(flinkConfig.getQueue());
         return clusterDescriptor;
@@ -134,18 +137,18 @@ public class PerJobClientFactory extends AbstractClientFactory {
         return configuration;
     }
 
-
-    private List<File> getKeytabFilePath(JobClient jobClient) {
+    private List<File> getKeytabFilePath() {
         List<File> keytabs = Lists.newLinkedList();
-        String keytabDir = USER_DIR + DIR + jobClient.getTaskId();
+        String remoteDir = flinkConfig.getRemoteDir();
+        String keytabDir = USER_DIR + KERBEROS_DIR + remoteDir;
         File keytabDirName = new File(keytabDir);
         File[] files = keytabDirName.listFiles();
 
-        if (flinkConfig.isOpenKerberos() && keytabDirName.isDirectory() && files.length > 0) {
-            for (File file : files) {
-                keytabs.add(file);
-            }
-            return keytabs;
+        if (files == null || files.length == 0) {
+            throw new RdosDefineException("not find keytab file from " + keytabDir);
+        }
+        for (File file : files) {
+            keytabs.add(file);
         }
         return keytabs;
     }

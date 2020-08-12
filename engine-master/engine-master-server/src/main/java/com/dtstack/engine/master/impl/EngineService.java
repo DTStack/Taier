@@ -2,14 +2,12 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.Engine;
 import com.dtstack.engine.api.domain.EngineTenant;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.vo.EngineVO;
 import com.dtstack.engine.api.vo.QueueVO;
-import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.dao.EngineDao;
@@ -23,14 +21,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class EngineService implements com.dtstack.engine.api.service.EngineService {
+public class EngineService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EngineService.class);
 
@@ -49,7 +46,7 @@ public class EngineService implements com.dtstack.engine.api.service.EngineServi
     @Autowired
     private TenantDao tenantDao;
 
-    public List<QueueVO> getQueue(@Param("engineId") Long engineId){
+    public List<QueueVO> getQueue( Long engineId){
         List<Queue> queueList = queueDao.listByEngineId(engineId);
         return QueueVO.toVOs(queueList);
     }
@@ -62,7 +59,7 @@ public class EngineService implements com.dtstack.engine.api.service.EngineServi
      *     }
      * ]
      */
-    public String listSupportEngine(@Param("tenantId") Long dtUicTenantId){
+    public String listSupportEngine( Long dtUicTenantId){
         JSONArray array = new JSONArray();
 
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
@@ -136,7 +133,6 @@ public class EngineService implements com.dtstack.engine.api.service.EngineServi
     }
 
 
-    @Forbidden
     public void updateResource(Long engineId, ComponentTestResult.ClusterResourceDescription description){
         Engine engine = engineDao.getOne(engineId);
         engine.setTotalCore(description.getTotalCores());
@@ -146,7 +142,6 @@ public class EngineService implements com.dtstack.engine.api.service.EngineServi
         engineDao.update(engine);
     }
 
-    @Forbidden
     public void addEnginesByComponentConfig(JSONObject componentConfig, Long clusterId){
         Map<Integer, List<String>> engineComponentMap = EngineUtil.classifyComponent(componentConfig.keySet());
         for (Integer integer : engineComponentMap.keySet()) {
@@ -170,12 +165,10 @@ public class EngineService implements com.dtstack.engine.api.service.EngineServi
         }
     }
 
-    @Forbidden
     public Engine getOne(Long engineId) {
         return engineDao.getOne(engineId);
     }
 
-    @Forbidden
     public List<EngineVO> listClusterEngines(Long clusterId, boolean queryQueue) {
         List<Engine> engines = engineDao.listByClusterId(clusterId);
         List<EngineVO> result = EngineVO.toVOs(engines);

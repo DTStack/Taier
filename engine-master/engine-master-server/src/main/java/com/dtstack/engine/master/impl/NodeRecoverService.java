@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
@@ -24,7 +24,7 @@ import java.util.List;
  * create: 2019/10/29
  */
 @Service
-public class NodeRecoverService implements com.dtstack.engine.api.service.NodeRecoverService {
+public class NodeRecoverService {
 
     private static final Logger logger = LoggerFactory.getLogger(NodeRecoverService.class);
 

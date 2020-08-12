@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.dao.ScheduleFillDataJobDao;
 import com.dtstack.engine.api.domain.ScheduleFillDataJob;
 import com.google.common.collect.Lists;
@@ -19,18 +18,16 @@ import java.util.List;
  * create: 2019/10/22
  */
 @Service
-public class ScheduleFillDataJobService implements com.dtstack.engine.api.service.ScheduleFillDataJobService {
+public class ScheduleFillDataJobService  {
 
     @Autowired
     private ScheduleFillDataJobDao scheduleFillDataJobDao;
 
-    @Forbidden
     public boolean checkExistsName(String jobName, long projectId) {
         ScheduleFillDataJob scheduleFillDataJob = scheduleFillDataJobDao.getByJobName(jobName, projectId);
         return scheduleFillDataJob != null;
     }
 
-    @Forbidden
     public List<ScheduleFillDataJob> getFillJobList(List<String> fillJobName, long projectId){
         if(CollectionUtils.isEmpty(fillJobName)){
             return Lists.newArrayList();
@@ -40,7 +37,6 @@ public class ScheduleFillDataJobService implements com.dtstack.engine.api.servic
     }
 
     @Transactional
-    @Forbidden
     public ScheduleFillDataJob saveData(String jobName, long tenantId, long projectId, String runDay,
                                         String fromDay, String toDay, long userId, Integer appType, Long dtuicTenantId) {
 
