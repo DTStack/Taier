@@ -14,6 +14,7 @@ import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.*;
 import com.dtstack.engine.master.utils.PublicUtil;
@@ -57,6 +58,8 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
     private final static String CLUSTER = "cluster";
     private final static String QUEUE = "queue";
     private final static String TENANT_ID = "tenantId";
+    private static final String DEPLOY_MODEL = "deployMode";
+    private static final String NAMESPACE = "namespace";
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -247,7 +250,7 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
         cluster.setDtUicUserId(dtUicUserId);
 
         JSONObject clusterConfigJson = buildClusterConfig(cluster);
-        JSONObject pluginJson = convertPluginInfo(clusterConfigJson, type, cluster,deployMode);
+        JSONObject pluginJson = convertPluginInfo(clusterConfigJson, type, cluster, deployMode);
         if (pluginJson == null) {
             throw new RdosDefineException(format("The cluster is not configured [%s] engine", engineTypeStr));
         }
@@ -335,6 +338,30 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
         // 没有绑定集群和队列时，返回第一个队列
         return queues.get(0);
     }
+
+    public String getNamespace(ParamAction action, Long tenantId, String engineName) {
+
+        try {
+            Map actionParam = PublicUtil.objectToMap(action);
+            Integer deployMode = MapUtils.getInteger(actionParam, DEPLOY_MODEL);
+            EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineName);
+            EDeployMode deploy = EComponentType.FLINK.equals(type.getComponentType()) ? EDeployMode.SESSION : EDeployMode.PERJOB;
+            if (Objects.nonNull(deployMode)) {
+                deploy = EDeployMode.getByType(deployMode);
+            }
+
+            ClusterVO cluster = getClusterByTenant(tenantId);
+            JSONObject clusterConfigJson = buildClusterConfig(cluster);
+
+            JSONObject flinkConf = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
+            JSONObject pluginInfo = flinkConf.getJSONObject(deploy.getMode());
+            return pluginInfo.getString(NAMESPACE);
+        } catch (IOException e) {
+            LOGGER.error("Get namespace error " + e.getMessage());
+        }
+        return null;
+    }
+
 
     /**
      * 对外接口
@@ -853,5 +880,6 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
         pluginInfoCache.invalidateAll();
         LOGGER.info("-------clear plugin info cache success-----");
     }
+
 }
 
