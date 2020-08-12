@@ -67,7 +67,7 @@ public class PluginWrapper{
 
         Long tenantId = action.getTenantId();
         String engineType = action.getEngineType();
-        if (AppType.STREAM.getType() == MapUtils.getInteger(actionParam, APP_TYPE)) {
+        if (Objects.nonNull(MapUtils.getInteger(actionParam, APP_TYPE)) && AppType.STREAM.getType() == MapUtils.getInteger(actionParam, APP_TYPE)) {
             //流计算默认perjob
             deployMode = EDeployMode.PERJOB.getType();
         } else if (Objects.isNull(deployMode) && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
