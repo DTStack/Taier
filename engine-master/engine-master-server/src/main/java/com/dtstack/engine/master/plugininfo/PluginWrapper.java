@@ -39,6 +39,7 @@ public class PluginWrapper{
     private static final String DEPLOY_MODEL = "deployMode";
     private static final String QUEUE = "queue";
     private static final String NAMESPACE = "namespace";
+    private static final String APP_TYPE = "appType";
 
     @Autowired
     private ClusterService clusterService;
@@ -66,7 +67,10 @@ public class PluginWrapper{
 
         Long tenantId = action.getTenantId();
         String engineType = action.getEngineType();
-        if(Objects.isNull(deployMode) && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)){
+        if (Objects.nonNull(MapUtils.getInteger(actionParam, APP_TYPE)) && AppType.STREAM.getType() == MapUtils.getInteger(actionParam, APP_TYPE)) {
+            //流计算默认perjob
+            deployMode = EDeployMode.PERJOB.getType();
+        } else if (Objects.isNull(deployMode) && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
             //解析参数
             deployMode = scheduleJobService.parseDeployTypeByTaskParams(action.getTaskParams()).getType();
         }
