@@ -426,6 +426,9 @@ select * from ide.rdos_engine_job_stop_record;
 insert IGNORE into rdos_node_machine
 select * from ide.rdos_node_machine;
 
+insert IGNORE into rdos_job_graph_trigger
+select * from ide.rdos_job_graph_trigger;
+
 -- console
 
 insert IGNORE into console_cluster
