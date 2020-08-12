@@ -110,6 +110,9 @@
             <if test="model.appType != null">
                 AND bj.app_type = #{model.appType}
             </if>
+            <if test="model.execStartDay != null and model.execEndDay != null">
+                AND exec_time &gt;= ${model.execStartDay} and exec_time &lt;= ${model.execEndDay}
+            </if>
         </trim>
     </sql>
 
@@ -320,6 +323,10 @@
                     #{projectId}
                 </foreach>
             </if>
+            <if test="model.execStartDay != null and model.execEndDay != null">
+                AND exec_time &gt;= ${model.execStartDay} and exec_time &lt;= ${model.execEndDay}
+            </if>
+
         </trim>
     </sql>
 
