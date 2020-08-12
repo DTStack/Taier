@@ -60,7 +60,9 @@ public class BaseVerticle {
 			throw new RdosDefineException(ErrorCode.METHOD_FORBIDDEN);
 		}
 		Method proxyMethod = getMethod(obj.getClass(), method);
-		Object result =  proxyMethod.invoke(obj, mapToParamObjects(params, targetMethod.getParameters(), targetMethod.getParameterTypes()));
+        LOGGER.info("request:{} ---> mapToParamObjects; params:{}, parameters:{}, parameterTypes:{}", path, params, targetMethod.getParameters(), targetMethod.getParameterTypes());
+
+        Object result =  proxyMethod.invoke(obj, mapToParamObjects(params, targetMethod.getParameters(), targetMethod.getParameterTypes()));
 
 		return result;
 	}
@@ -79,7 +81,6 @@ public class BaseVerticle {
 
 	private Object[] mapToParamObjects(Map<String, Object> params,
 									   Parameter[] parameters, Class<?>[] parameterTypes) throws Exception {
-		LOGGER.info("--->mapToParamObjects   :params{},parameters {},parameterTypes{}", params, parameters, parameterTypes);
 		if (parameters == null || parameters.length == 0) {
 			return new Object[]{};
 		}
@@ -101,7 +102,6 @@ public class BaseVerticle {
 			}
 			args[i] = obj;
 		}
-		LOGGER.info("-->mapToParamObjects  end");
 		return args;
 	}
 
