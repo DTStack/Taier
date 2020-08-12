@@ -13,11 +13,7 @@ import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
-import com.dtstack.schedule.common.enums.Deleted;
-import com.dtstack.schedule.common.enums.EProjectScheduleStatus;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
-import com.dtstack.schedule.common.enums.ESubmitStatus;
-import com.dtstack.schedule.common.enums.Sort;
+import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -102,14 +98,14 @@ public class ScheduleTaskShadeService {
     public Map<String ,Object> countTaskByType( Long tenantId, Long dtuicTenantId,
                                                 Long projectId,  Integer appType,
                                                 List<Integer> taskTypes){
-        List<Map<String, Object>> maps = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, Lists.newArrayList(projectId), appType, taskTypes);
+        List<Map<String, Object>> maps = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, Lists.newArrayList(projectId), appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
         return CollectionUtils.isNotEmpty(maps) ? maps.get(0) : new HashMap<>();
     }
 
     public List<Map<String ,Object>> countTaskByTypes( Long tenantId, Long dtuicTenantId,
                                                 List<Long> projectIds,  Integer appType,
                                                 List<Integer> taskTypes){
-        return scheduleTaskShadeDao.countTaskByType(tenantId,dtuicTenantId,projectIds,appType,taskTypes);
+        return scheduleTaskShadeDao.countTaskByType(tenantId,dtuicTenantId,projectIds,appType,taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
     }
 
 
