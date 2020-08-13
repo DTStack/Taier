@@ -48,7 +48,7 @@ public enum ScheduleEngineType {
         return val;
     }
 
-    public String getEngineName(){
+    public String getEngineName() {
         return engineName;
     }
 
@@ -92,7 +92,7 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.HIVE;
             case "libra":
                 return ScheduleEngineType.Libra;
-            case"kylin":
+            case "kylin":
                 return ScheduleEngineType.Kylin;
             case "impala":
                 return ScheduleEngineType.IMPALA;
@@ -100,6 +100,16 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.TIDB;
             case "kubernetes":
                 return ScheduleEngineType.KUBERNETES;
+            case "mysql":
+                return ScheduleEngineType.MYSQL;
+            case "sqlserver":
+                return ScheduleEngineType.SQLSERVER;
+            case "maxcompute":
+                return ScheduleEngineType.MAX_COMPUTE;
+            case "dummy":
+                return ScheduleEngineType.DUMMY;
+            case "presto":
+                return ScheduleEngineType.Presto;
         }
         return null;
     }
@@ -114,7 +124,7 @@ public enum ScheduleEngineType {
         return null;
     }
 
-    public static String getEngineName(int val){
+    public static String getEngineName(int val) {
         ScheduleEngineType scheduleEngineType = getEngineType(val);
         return scheduleEngineType.getEngineName().toLowerCase();
     }
@@ -122,14 +132,15 @@ public enum ScheduleEngineType {
     public static ScheduleEngineType getByEScriptType(Integer scriptType) {
         return getByPythonVersion(++scriptType);
     }
-    public static ScheduleEngineType getByPythonVersion(Integer version){
+
+    public static ScheduleEngineType getByPythonVersion(Integer version) {
         ScheduleEngineType scheduleEngineType;
         if (version.equals(2)) {
             scheduleEngineType = Python2;
         } else if (version.equals(3)) {
             scheduleEngineType = Python3;
         } else {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("python不支持2.x和3.x之外的版本类型");
         }
         return scheduleEngineType;
     }
