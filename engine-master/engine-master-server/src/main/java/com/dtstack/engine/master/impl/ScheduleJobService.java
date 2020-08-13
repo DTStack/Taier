@@ -794,6 +794,8 @@ public class ScheduleJobService {
             batchJobDTO.setOwnerUserId(vo.getOwnerId());
         }
 
+
+
         //业务时间
         this.setBizDay(batchJobDTO, vo.getBizStartDay(), vo.getBizEndDay(), vo.getTenantId(), vo.getProjectId());
 
@@ -804,7 +806,8 @@ public class ScheduleJobService {
         }
         //分页
         batchJobDTO.setPageQuery(true);
-
+        batchJobDTO.setExecStartDay(vo.getExecStartDay());
+        batchJobDTO.setExecEndDay(vo.getExecEndDay());
         return batchJobDTO;
     }
 

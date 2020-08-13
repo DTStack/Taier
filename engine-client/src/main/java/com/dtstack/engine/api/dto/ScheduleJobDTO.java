@@ -58,6 +58,9 @@ public class ScheduleJobDTO extends ScheduleJob {
 
     private Integer pageSize;
 
+    private Long execStartDay;
+
+    private Long execEndDay;
 
     private List<Long> projectIds;
 
@@ -326,5 +329,21 @@ public class ScheduleJobDTO extends ScheduleJob {
 
     public void setTaskTypes(List<Integer> taskTypes) {
         this.taskTypes = taskTypes;
+    }
+
+    public Long getExecStartDay() {
+        return execStartDay;
+    }
+
+    public void setExecStartDay(Long execStartDay) {
+        this.execStartDay = execStartDay;
+    }
+
+    public Long getExecEndDay() {
+        return execEndDay;
+    }
+
+    public void setExecEndDay(Long execEndDay) {
+        this.execEndDay = execEndDay;
     }
 }
