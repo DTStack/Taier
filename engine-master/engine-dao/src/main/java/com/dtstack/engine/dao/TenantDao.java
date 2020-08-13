@@ -20,4 +20,6 @@ public interface TenantDao {
     List<Long> listDtUicTenantIdByIds(@Param("ids") List<Long> ids);
 
     List<Tenant> listAllTenantByDtUicTenantIds(@Param("ids") List<Long> ids);
+
+    void delete(@Param("id")Long id);
 }
