@@ -39,6 +39,7 @@ public class CommonResource {
                 case Kylin:
                 case Impala:
                 case TiDB:
+                case Presto:
                 case GreenPlum:
                 case Dummy:
                     commonResource = this;
@@ -83,6 +84,8 @@ public class CommonResource {
                 return ComputeResourceType.GreenPlum;
             case Dummy:
                 return ComputeResourceType.Dummy;
+            case Presto:
+                return ComputeResourceType.Presto;
             default:
                 throw new RdosDefineException("engineType:" + engineType + " is not support.");
         }

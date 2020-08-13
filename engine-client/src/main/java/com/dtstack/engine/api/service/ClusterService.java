@@ -134,5 +134,11 @@ public interface ClusterService extends DtInsightServer {
     @RequestLine("POST /node/cluster/getAllCluster")
     ApiResponse<List<ClusterEngineVO>> getAllCluster();
 
+    /**
+     * 对外接口
+     */
+    @RequestLine("POST /node/cluster/prestoInfo")
+    ApiResponse<String> prestoInfo(@Param("tenantId") Long dtUicTenantId, @Param("fullKerberos") Boolean fullKerberos);
+
 
 }

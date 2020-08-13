@@ -207,6 +207,20 @@ public class ConsoleUtil {
         consoleCache.set(String.format("%s.%s",tenantId,userId), CacheKey.TIDB.name(), value);
     }
 
+    public static <T> T getPresto(String tenantId,String userId, Class<T> clazz) {
+        if (consoleCache == null) {
+            return null;
+        }
+        return consoleCache.get(String.format("%s.%s",tenantId,userId), CacheKey.PRESTO.name(), clazz);
+    }
+
+    public static void setPresto(String tenantId,String userId, Object value) {
+        if (consoleCache == null) {
+            return;
+        }
+        consoleCache.set(String.format("%s.%s",tenantId,userId), CacheKey.PRESTO.name(), value);
+    }
+
     public enum CacheKey {
         CLUSTER,
         PLUGIN,
@@ -221,7 +235,8 @@ public class ConsoleUtil {
         SFTP_REMOTE_DIR,
         SFTP,
         IMPALA,
-        TIDB;
+        TIDB,
+        PRESTO;
     }
 
     public static String getEnginePluginInfo(String tenantId, Integer engineType) {

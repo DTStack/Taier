@@ -23,6 +23,7 @@
         <module>impala</module>
         <module>tidb</module>
         <module>greenplum</module>
+        <module>presto</module>
     </modules>
 
     <dependencies>

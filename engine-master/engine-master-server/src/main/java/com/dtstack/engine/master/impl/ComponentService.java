@@ -221,7 +221,8 @@ public class ComponentService {
                 EComponentType.TIDB_SQL.getTypeCode() == componentCode ||
                 EComponentType.LIBRA_SQL.getTypeCode() == componentCode ||
                 EComponentType.GREENPLUM_SQL.getTypeCode() == componentCode ||
-                EComponentType.ORACLE_SQL.getTypeCode() == componentCode)) {
+                EComponentType.ORACLE_SQL.getTypeCode() == componentCode) ||
+                EComponentType.PRESTO_SQL.getTypeCode() == componentCode) {
 
             //tidb 和libra 没有queue
             List<EngineTenantVO> tenantVOS = engineTenantDao.listEngineTenant(engineId);
