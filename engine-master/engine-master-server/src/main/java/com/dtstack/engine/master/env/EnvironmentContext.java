@@ -167,6 +167,35 @@ public class EnvironmentContext {
     }
 
     /**
+     *  ===es====
+     */
+    public String getElasticsearchAddress() {
+        return environment.getProperty("es.address");
+    }
+
+    public String getElasticsearchUsername() {
+        return environment.getProperty("es.username");
+    }
+
+    public String getElasticsearchPassword() {
+        return environment.getProperty("es.password");
+    }
+
+    public String getElasticsearchIndex() {
+        return environment.getProperty("es.index");
+    }
+
+    public String getElasticsearchFetchSize() {
+        return environment.getProperty("es.fetchSize", "500");
+    }
+
+    public String getElasticsearchKeepAlive() {
+        //  默认10分钟
+        return environment.getProperty("es.scroll.keepAlive", "10");
+    }
+
+
+    /**
      * ===============hadoop ===============
      */
 

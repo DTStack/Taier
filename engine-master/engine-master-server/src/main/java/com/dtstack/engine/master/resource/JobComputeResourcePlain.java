@@ -1,15 +1,22 @@
 package com.dtstack.engine.master.resource;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.enums.EDeployMode;
+import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ClusterService;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -55,12 +62,23 @@ public class JobComputeResourcePlain {
 
 
     private void buildJobClientGroupName(JobClient jobClient){
-        jobClient.setGroupName(ConfigConstant.DEFAULT_GROUP_NAME);
+
         ClusterVO cluster = clusterService.getClusterByTenant(jobClient.getTenantId());
         if(Objects.isNull(cluster)){
             return;
         }
+        String clusterName = cluster.getClusterName();
+        String groupName = String.format("%s_default", clusterName);
+
+        String namespace = clusterService.getNamespace(jobClient.getParamAction(),
+                jobClient.getTenantId(), jobClient.getEngineType());
         Queue queue = clusterService.getQueue(jobClient.getTenantId(), cluster.getClusterId());
-        jobClient.setGroupName(cluster.getClusterName() + SPLIT + (queue == null ? null : queue.getQueueName()));
+
+        if (StringUtils.isNotEmpty(namespace)) {
+            groupName = String.format("%s_%s", clusterName, namespace);
+        } else if (!Objects.isNull(queue)) {
+            groupName = String.format("%s_%s", clusterName, queue.getQueueName());
+        }
+        jobClient.setGroupName(groupName);
     }
 }

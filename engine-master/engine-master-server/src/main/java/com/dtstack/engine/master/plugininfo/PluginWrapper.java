@@ -38,6 +38,8 @@ public class PluginWrapper{
     private static final String CLUSTER = "cluster";
     private static final String DEPLOY_MODEL = "deployMode";
     private static final String QUEUE = "queue";
+    private static final String NAMESPACE = "namespace";
+    private static final String APP_TYPE = "appType";
 
     @Autowired
     private ClusterService clusterService;
@@ -65,17 +67,30 @@ public class PluginWrapper{
 
         Long tenantId = action.getTenantId();
         String engineType = action.getEngineType();
-        if(Objects.isNull(deployMode) && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)){
+        if (Objects.nonNull(MapUtils.getInteger(actionParam, APP_TYPE)) && AppType.STREAM.getType() == MapUtils.getInteger(actionParam, APP_TYPE)) {
+            //流计算默认perjob
+            deployMode = EDeployMode.PERJOB.getType();
+        } else if (Objects.isNull(deployMode) && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
             //解析参数
             deployMode = scheduleJobService.parseDeployTypeByTaskParams(action.getTaskParams()).getType();
         }
         JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode);
-        action.setGroupName(ConfigConstant.DEFAULT_GROUP_NAME);
+        String groupName = ConfigConstant.DEFAULT_GROUP_NAME;
+        action.setGroupName(groupName);
         if (Objects.nonNull(pluginInfoJson) && !pluginInfoJson.isEmpty()) {
             addParamsToJdbcUrl(actionParam, pluginInfoJson);
             addUserNameToHadoop(pluginInfoJson, ldapUserName);
             addUserNameToImpalaOrHive(pluginInfoJson, ldapUserName, ldapPassword, dbName, engineType);
-            action.setGroupName(pluginInfoJson.getString(CLUSTER) + "_" + pluginInfoJson.getString(QUEUE));
+
+            String clusterName = pluginInfoJson.getString(CLUSTER);
+            String queue = pluginInfoJson.getString(QUEUE);
+            String namespace = pluginInfoJson.getString(NAMESPACE);
+            if (StringUtils.isNotEmpty(queue)) {
+                groupName = String.format("%s_%s", clusterName, queue);
+            } else if (StringUtils.isNotEmpty(namespace)) {
+                groupName = String.format("%s_%s", clusterName, namespace);
+            }
+            action.setGroupName(groupName);
         }
 
         return pluginInfoJson;
