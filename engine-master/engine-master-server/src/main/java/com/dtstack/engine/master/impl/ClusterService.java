@@ -367,6 +367,16 @@ public class ClusterService {
 
     /**
      * 对外接口
+     * @param dtUicTenantId
+     * @param fullKerberos
+     * @return
+     */
+    public String prestoInfo(Long dtUicTenantId, Boolean fullKerberos) {
+        return getConfigByKey(dtUicTenantId, EComponentType.PRESTO_SQL.getConfName(), fullKerberos);
+    }
+
+    /**
+     * 对外接口
      */
     public String sftpInfo( Long dtUicTenantId) {
         return getConfigByKey(dtUicTenantId, EComponentType.SFTP.getConfName(),false);
