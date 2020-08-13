@@ -70,6 +70,7 @@ public interface ClusterService extends DtInsightServer {
      *                   HIVE_SERVER(9, "HiveServer", "hiveServerConf"), ->  /node/cluster/hiveServerInfo
      *                   IMPALA_SQL(11, "Impala SQL", "impalaSqlConf"), -> /node/cluster/impalaInfo
      *                   SFTP(10, "SFTP", "sftpConf"), -> /node/cluster/sftpInfo
+     *                   PRESTO(16, "Presto")
      * @return
      */
     @RequestLine("POST /node/cluster/pluginInfoForType")
