@@ -1,7 +1,5 @@
-package com.dtstack.schedule.common.enums;
+package com.dtstack.engine.api.enums;
 
-
-import com.dtstack.engine.common.exception.RdosDefineException;
 
 /**
  * Reason:
@@ -16,22 +14,26 @@ public enum ScheduleEngineType {
     Flink(0, "flink"),
     Spark(1, "spark"),
     Datax(2, "datax"),
-    Learning(3,"learning"),
-    Shell(4,"shell"),
-    Python2(5,"python2"),
+    Learning(3, "learning"),
+    Shell(4, "shell"),
+    Python2(5, "python2"),
     DtScript(6, "dtScript"),
     Python3(7, "python3"),
     Hadoop(8, "hadoop"),
     Carbon(9, "carbon"),
     Libra(10, "postgresql"),
-    Kylin(11,"kylin"),
-    HIVE(12,"hive"),
+    Kylin(11, "kylin"),
+    HIVE(12, "hive"),
     IMPALA(13, "impala"),
-    TIDB(14,"tidb"),
-    ORACLE(15,"oracle"),
+    TIDB(14, "tidb"),
+    ORACLE(15, "oracle"),
     GREENPLUM(16, "greenplum"),
-    KUBERNETES(17,"kubernetes"),
-    Presto(18, "presto");
+    KUBERNETES(17, "kubernetes"),
+    MYSQL(18, "mysql"),
+    SQLSERVER(19, "sqlserver"),
+    MAX_COMPUTE(20, "maxcompute"),
+    DUMMY(21, "dummy"),
+    Presto(22, "presto");
 
     private int val;
 
@@ -98,8 +100,6 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.TIDB;
             case "kubernetes":
                 return ScheduleEngineType.KUBERNETES;
-            case "presto":
-                return ScheduleEngineType.Presto;
         }
         return null;
     }
@@ -129,7 +129,7 @@ public enum ScheduleEngineType {
         } else if (version.equals(3)) {
             scheduleEngineType = Python3;
         } else {
-            throw new RdosDefineException("python不支持2.x和3.x之外的版本类型");
+            throw new UnsupportedOperationException();
         }
         return scheduleEngineType;
     }

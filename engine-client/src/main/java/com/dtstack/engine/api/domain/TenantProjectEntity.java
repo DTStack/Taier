@@ -2,8 +2,10 @@ package com.dtstack.engine.api.domain;
 
 import io.swagger.annotations.ApiModel;
 
+
 @ApiModel
 public class TenantProjectEntity extends BaseEntity {
+
 
     private Long tenantId;
 

@@ -299,6 +299,14 @@ public class ParamAction {
         this.dtuicTenantId = dtuicTenantId;
     }
 
+	public Integer getSourceType() {
+		return sourceType;
+	}
+
+	public void setSourceType(Integer sourceType) {
+		this.sourceType = sourceType;
+	}
+
 	@Override
     public String toString() {
 	    String jsonStr = "";

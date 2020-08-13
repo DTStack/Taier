@@ -8,6 +8,7 @@ import com.dtstack.engine.api.domain.EngineTenant;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.vo.EngineVO;
 import com.dtstack.engine.api.vo.QueueVO;
+import com.dtstack.engine.api.vo.engine.EngineSupportVO;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.dao.EngineDao;
@@ -16,6 +17,7 @@ import com.dtstack.engine.dao.QueueDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.utils.EngineUtil;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,25 +61,23 @@ public class EngineService {
      *     }
      * ]
      */
-    public String listSupportEngine( Long dtUicTenantId){
+    public List<EngineSupportVO> listSupportEngine( Long dtUicTenantId){
         JSONArray array = new JSONArray();
-
+        List<EngineSupportVO> vos = Lists.newArrayList();
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
         if (tenantId == null){
-            return array.toJSONString();
+            return vos;
         }
 
         List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
         List<Engine> engineList = engineDao.listByEngineIds(engineIds);
         if(CollectionUtils.isEmpty(engineList)){
-            return array.toJSONString();
+            return vos;
         }
 
         for (Engine engine : engineList) {
-            JSONObject item = new JSONObject();
-            array.add(item);
-            item.put("engineType",engine.getEngineType());
-
+            EngineSupportVO engineSupportVO = new EngineSupportVO();
+            engineSupportVO.setEngineType(engine.getEngineType());
             List<Component> componentList = componentService.listComponent(engine.getId());
             if (CollectionUtils.isEmpty(componentList)){
                 continue;
@@ -86,10 +86,11 @@ public class EngineService {
             List<Integer> componentTypes = componentList.stream()
                     .map(Component::getComponentTypeCode)
                     .collect(Collectors.toList());
-            item.put("supportComponent", componentTypes);
+            engineSupportVO.setSupportComponent(componentTypes);
+            vos.add(engineSupportVO);
         }
 
-        return array.toJSONString();
+        return vos;
     }
 
 

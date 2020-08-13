@@ -9,6 +9,8 @@ import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
+import com.dtstack.engine.api.vo.tenant.TenantAdminVO;
+import com.dtstack.engine.api.vo.tenant.UserTenantVO;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -23,11 +25,15 @@ import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
+import com.dtstack.engine.master.router.login.domain.TenantAdmin;
 import com.dtstack.engine.master.router.login.domain.UserTenant;
+import com.dtstack.fasterxml.jackson.databind.util.BeanUtil;
 import com.dtstack.schedule.common.enums.Sort;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -150,26 +156,36 @@ public class TenantService {
     }
 
 
-    public List listTenant( String dtToken) {
+    public List<UserTenantVO> listTenant(String dtToken) {
         List<UserTenant> tenantList = postTenantList(dtToken);
         if (CollectionUtils.isEmpty(tenantList)) {
-            return tenantList;
+            return Lists.newArrayList();
         }
 
         List<Long> hasClusterTenantIds = tenantDao.listAllDtUicTenantIds();
         if (hasClusterTenantIds.isEmpty()) {
-            return tenantList;
+            return Lists.newArrayList();
         }
+        tenantList.removeIf(tenant -> hasClusterTenantIds.contains(tenant.getTenantId()));
 
-        Iterator it = tenantList.iterator();
-        while (it.hasNext()) {
-            UserTenant tenant = (UserTenant) it.next();
-            if (hasClusterTenantIds.contains(tenant.getTenantId())) {
-                it.remove();
+        return beanConversionVo(tenantList);
+    }
+
+    private List<UserTenantVO> beanConversionVo(List<UserTenant> tenantList) {
+        List<UserTenantVO> vos = Lists.newArrayList();
+        for (UserTenant userTenant : tenantList) {
+            UserTenantVO vo = new UserTenantVO();
+            BeanUtils.copyProperties(userTenant, vo);
+            List<TenantAdmin> adminList = userTenant.getAdminList();
+            List<TenantAdminVO> tenantAdminVOS = Lists.newArrayList();
+            for (TenantAdmin tenantAdmin : adminList) {
+                TenantAdminVO tenantAdminVO = new TenantAdminVO();
+                BeanUtils.copyProperties(tenantAdmin, tenantAdminVO);
+                tenantAdminVOS.add(tenantAdminVO);
             }
+            vo.setAdminList(tenantAdminVOS);
         }
-
-        return tenantList;
+        return vos;
     }
 
     private List<UserTenant> postTenantList(String dtToken) {
