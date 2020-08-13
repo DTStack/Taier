@@ -51,6 +51,8 @@ JAVA_OPTS="$JAVA_OPTS -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOcc
 
 JAVA_OPTS="$JAVA_OPTS -Dconfig.file=${FILE}"
 
+JAVA_OPTS="$JAVA_OPTS -Djava.io.tmpdir=./tmpSave"
+
 #Comment to speed up starting time
 #JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
 

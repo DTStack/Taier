@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
+import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
+import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -95,17 +97,36 @@ public class ScheduleTaskShadeService {
      * @param taskTypes
      * @return
      */
-    public Map<String ,Object> countTaskByType( Long tenantId, Long dtuicTenantId,
+    public ScheduleTaskShadeCountTaskVO countTaskByType( Long tenantId, Long dtuicTenantId,
                                                 Long projectId,  Integer appType,
                                                 List<Integer> taskTypes){
         List<Map<String, Object>> maps = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, Lists.newArrayList(projectId), appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
-        return CollectionUtils.isNotEmpty(maps) ? maps.get(0) : new HashMap<>();
+        if (CollectionUtils.isEmpty(maps)) {
+            return new ScheduleTaskShadeCountTaskVO();
+        }
+
+        ScheduleTaskShadeCountTaskVO scheduleTaskShadeCountTaskVO = new ScheduleTaskShadeCountTaskVO();
+        Map<String, Object> stringObjectMap = maps.get(0);
+        buildVO(scheduleTaskShadeCountTaskVO, stringObjectMap);
+        return scheduleTaskShadeCountTaskVO;
     }
 
-    public List<Map<String ,Object>> countTaskByTypes( Long tenantId, Long dtuicTenantId,
+    private void buildVO(ScheduleTaskShadeCountTaskVO scheduleTaskShadeCountTaskVO, Map<String, Object> stringObjectMap) {
+        scheduleTaskShadeCountTaskVO.setDeployCount(stringObjectMap.get("deployCount")!=null?Integer.parseInt(stringObjectMap.get("deployCount").toString()):0);
+        scheduleTaskShadeCountTaskVO.setProjectId(stringObjectMap.get("projectId") != null ? stringObjectMap.get("projectId").toString() : "");
+    }
+
+    public List<ScheduleTaskShadeCountTaskVO> countTaskByTypes( Long tenantId, Long dtuicTenantId,
                                                 List<Long> projectIds,  Integer appType,
                                                 List<Integer> taskTypes){
-        return scheduleTaskShadeDao.countTaskByType(tenantId,dtuicTenantId,projectIds,appType,taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
+        List<Map<String, Object>> maps = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, projectIds, appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
+        List<ScheduleTaskShadeCountTaskVO> scheduleTaskShadeCountTaskVOS = Lists.newArrayList();
+        for (Map<String, Object> map : maps) {
+            ScheduleTaskShadeCountTaskVO scheduleTaskShadeCountTaskVO = new ScheduleTaskShadeCountTaskVO();
+            buildVO(scheduleTaskShadeCountTaskVO, map);
+            scheduleTaskShadeCountTaskVOS.add(scheduleTaskShadeCountTaskVO);
+        }
+        return scheduleTaskShadeCountTaskVOS;
     }
 
 
@@ -233,18 +254,18 @@ public class ScheduleTaskShadeService {
         return taskShade;
     }
 
-    public JSONObject queryTasks( Long tenantId,
-                                  Long projectId,
-                                  String name,
-                                  Long ownerId,
-                                  Long startTime,
-                                  Long endTime,
-                                  Integer scheduleStatus,
-                                  String taskTypeList,
-                                  String periodTypeList,
-                                  Integer currentPage,
-                                  Integer pageSize,   String  searchType,
-                                 Integer appType){
+    public ScheduleTaskShadePageVO queryTasks(Long tenantId,
+                                              Long projectId,
+                                              String name,
+                                              Long ownerId,
+                                              Long startTime,
+                                              Long endTime,
+                                              Integer scheduleStatus,
+                                              String taskTypeList,
+                                              String periodTypeList,
+                                              Integer currentPage,
+                                              Integer pageSize, String  searchType,
+                                              Integer appType){
 
 
         ScheduleTaskShadeDTO batchTaskDTO = new ScheduleTaskShadeDTO();
@@ -299,7 +320,7 @@ public class ScheduleTaskShadeService {
 
         int count = scheduleTaskShadeDao.generalCount(batchTaskDTO);
 
-        List<com.dtstack.engine.master.vo.ScheduleTaskVO> vos = new ArrayList<>(batchTasks.size());
+        List<ScheduleTaskVO> vos = new ArrayList<>(batchTasks.size());
 
         for (ScheduleTaskShade batchTask : batchTasks) {
             vos.add(new com.dtstack.engine.master.vo.ScheduleTaskVO(batchTask,true));
@@ -311,36 +332,33 @@ public class ScheduleTaskShadeService {
             //vos = dealFlowWorkTasks(vos);
         }
 
-        int publishedTasks = scheduleTaskShadeDao.countPublishToProduce(projectId,appType);
 
-        PageResult<List<com.dtstack.engine.master.vo.ScheduleTaskVO>> pageResult = new PageResult<>(vos, count, pageQuery);
-        JSONObject result = new JSONObject();
-        result.put("currentPage", pageResult.getCurrentPage());
-        result.put("data", pageResult.getData());
-        result.put("pageSize", pageResult.getPageSize());
-        result.put("totalCount", pageResult.getTotalCount());
-        result.put("totalPage", pageResult.getTotalPage());
-        result.put("attachment", pageResult.getAttachment());
-        result.put("publishedTasks", publishedTasks);
-        return result;
+
+        int publishedTasks = scheduleTaskShadeDao.countPublishToProduce(projectId,appType);
+        PageResult<List<ScheduleTaskVO>> pageResult = new PageResult<>(vos, count, pageQuery);
+        ScheduleTaskShadePageVO scheduleTaskShadeTaskVO = new ScheduleTaskShadePageVO();
+        scheduleTaskShadeTaskVO.setPageResult(pageResult);
+        scheduleTaskShadeTaskVO.setPublishedTasks(publishedTasks);
+
+        return scheduleTaskShadeTaskVO;
     }
 
-    private List<com.dtstack.engine.master.vo.ScheduleTaskVO> dealFlowWorkSubTasks(List<com.dtstack.engine.master.vo.ScheduleTaskVO> vos, Integer appType) {
-        Map<Long, com.dtstack.engine.master.vo.ScheduleTaskVO> record = Maps.newHashMap();
+    private List<ScheduleTaskVO> dealFlowWorkSubTasks(List<ScheduleTaskVO> vos, Integer appType) {
+        Map<Long, ScheduleTaskVO> record = Maps.newHashMap();
         Map<Long, Integer> voIndex = Maps.newHashMap();
         vos.forEach(task -> voIndex.put(task.getId(), vos.indexOf(task)));
-        Iterator<com.dtstack.engine.master.vo.ScheduleTaskVO> iterator = vos.iterator();
-        List<com.dtstack.engine.master.vo.ScheduleTaskVO> vosCopy = new ArrayList<>(vos);
+        Iterator<ScheduleTaskVO> iterator = vos.iterator();
+        List<ScheduleTaskVO> vosCopy = new ArrayList<>(vos);
         while (iterator.hasNext()) {
-            com.dtstack.engine.master.vo.ScheduleTaskVO vo = iterator.next();
+            ScheduleTaskVO vo = iterator.next();
             Long flowId = vo.getFlowId();
             if (flowId > 0) {
                 if (record.containsKey(flowId)) {
-                    com.dtstack.engine.master.vo.ScheduleTaskVO flowVo = record.get(flowId);
+                    ScheduleTaskVO flowVo = record.get(flowId);
                     flowVo.getRelatedTasks().add(vo);
                     iterator.remove();
                 } else {
-                    com.dtstack.engine.master.vo.ScheduleTaskVO flowVo;
+                    ScheduleTaskVO flowVo;
                     if (voIndex.containsKey(flowId)) {
                         flowVo = vosCopy.get(voIndex.get(flowId));
                         flowVo.setRelatedTasks(Lists.newArrayList(vo));

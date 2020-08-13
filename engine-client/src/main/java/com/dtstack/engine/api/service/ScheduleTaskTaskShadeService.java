@@ -17,10 +17,10 @@ import java.util.*;
 public interface ScheduleTaskTaskShadeService extends DtInsightServer {
 
     @RequestLine("POST /node/scheduleTaskTaskShade/clearDataByTaskId")
-    ApiResponse clearDataByTaskId(@Param("taskId") Long taskId, @Param("appType") Integer appType);
+    ApiResponse<Void> clearDataByTaskId(@Param("taskId") Long taskId, @Param("appType") Integer appType);
 
     @RequestLine("POST /node/scheduleTaskTaskShade/saveTaskTaskList")
-    ApiResponse saveTaskTaskList(@Param("taskLists") String taskLists);
+    ApiResponse<Void> saveTaskTaskList(@Param("taskTask") String taskLists);
 
     @RequestLine("POST /node/scheduleTaskTaskShade/getAllParentTask")
     ApiResponse<List<ScheduleTaskTaskShade>> getAllParentTask(@Param("taskId") Long taskId);
@@ -31,7 +31,7 @@ public interface ScheduleTaskTaskShadeService extends DtInsightServer {
                                                  @Param("projectId") Long projectId,
                                                  @Param("userId") Long userId,
                                                  @Param("level") Integer level,
-                                                 @Param("directType") Integer directType, @Param("appType") Integer appType);
+                                                 @Param("type") Integer directType, @Param("appType")Integer appType);
 
     /**
      * 查询工作流全部节点信息 -- 依赖树

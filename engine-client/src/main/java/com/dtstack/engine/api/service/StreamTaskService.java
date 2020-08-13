@@ -45,7 +45,7 @@ public interface StreamTaskService extends DtInsightServer {
      * @return
      */
     @RequestLine("POST /node/streamTask/getRunningTaskLogUrl")
-    ApiResponse<Pair<String, String>> getRunningTaskLogUrl(@Param("taskId") String taskId);
+    ApiResponse<List<String>> getRunningTaskLogUrl(@Param("taskId") String taskId);
 
 
 }

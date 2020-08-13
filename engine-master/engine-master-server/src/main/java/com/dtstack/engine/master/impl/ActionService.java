@@ -3,6 +3,10 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
+import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
+import com.dtstack.engine.api.vo.action.ActionLogVO;
+import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.CustomThreadRunsPolicy;
 import com.dtstack.engine.common.enums.EScheduleType;
@@ -20,6 +24,7 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -127,31 +132,26 @@ public class ActionService {
     }
 
     /**
-     * 只允许发到master节点上
-     * 1: 在master等待队列中查找
-     * 2: 在worker-exe等待队列里面查找
-     * 3：在worker-status监听队列里面查找（可以直接在master节点上直接发送消息到对应的引擎）
-     * @param params
+     * 停止的请求接口
      * @throws Exception
      */
-    public Boolean stop(Map<String, Object> params) throws Exception {
+    public Boolean stop(List<String> jobIds) {
+//        if(!params.containsKey("jobs")){
+//            logger.info("invalid param:" + params);
+//            return false;
+//        }
+//
+//        Object paramsObj = params.get("jobs");
+//        if(!(paramsObj instanceof List)){
+//            logger.info("invalid param:" + params);
+//            return false;
+//        }
 
-        if(!params.containsKey("jobs")){
-            logger.info("invalid param:" + params);
-            return false;
-        }
-
-        Object paramsObj = params.get("jobs");
-        if(!(paramsObj instanceof List)){
-            logger.info("invalid param:" + params);
-            return false;
-        }
-
-        List<Map<String, Object>> paramList = (List<Map<String, Object>>) paramsObj;
-        List<String> jobIds = new ArrayList<>(paramList.size());
-        for(Map<String, Object> param : paramList){
-            jobIds.add(MapUtils.getString(param, "taskId"));
-        }
+//        List<Map<String, Object>> paramList = (List<Map<String, Object>>) paramsObj;
+//        List<String> jobIds = new ArrayList<>(paramList.size());
+//        for(Map<String, Object> param : paramList){
+//            jobIds.add(MapUtils.getString(param, "taskId"));
+//        }
         List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.getRdosJobByJobIds(jobIds));
         jobStopDealer.addStopJobs(jobs);
         return true;
@@ -312,16 +312,16 @@ public class ActionService {
     /**
      * 根据jobid 和 计算类型，查询job的日志
      */
-    public String log( String jobId, Integer computeType) throws Exception {
+    public ActionLogVO log( String jobId, Integer computeType) throws Exception {
 
         if (StringUtils.isBlank(jobId)||computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
-        Map<String,String> log = new HashMap<>(2);
+        ActionLogVO vo = new ActionLogVO();
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         if (scheduleJob != null) {
-        	log.put("logInfo", scheduleJob.getLogInfo());
+            vo.setLogInfo(scheduleJob.getLogInfo());
         	String engineLog = scheduleJob.getEngineLog();
             if (StringUtils.isBlank(engineLog)) {
                 engineLog = CompletableFuture.supplyAsync(
@@ -333,38 +333,37 @@ public class ActionService {
                     engineLog = "";
                 }
             }
-        	log.put("engineLog", engineLog);
+            vo.setEngineLog(engineLog);
         }
-        return PublicUtil.objToString(log);
+        return vo;
     }
 
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
-    public String retryLog( String jobId, Integer computeType) throws Exception {
+    public List<ActionRetryLogVO> retryLog( String jobId, Integer computeType) throws Exception {
 
         if (StringUtils.isBlank(jobId) || computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
-
-        List<Map<String,String>> logs = new ArrayList<>(5);
+        ActionRetryLogVO vo = new ActionRetryLogVO();
+        List<ActionRetryLogVO> logs = new ArrayList<>(5);
         List<EngineJobRetry> batchJobRetrys = engineJobRetryDao.listJobRetryByJobId(jobId);
         if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
             batchJobRetrys.forEach(jobRetry->{
-                Map<String,String> log = new HashMap<String,String>(4);
-                log.put("retryNum",jobRetry.getRetryNum().toString());
-                log.put("logInfo",jobRetry.getLogInfo());
-                log.put("retryTaskParams",jobRetry.getRetryTaskParams());
-                logs.add(log);
+                vo.setRetryNum(jobRetry.getRetryNum());
+                vo.setLogInfo(jobRetry.getLogInfo());
+                vo.setRetryTaskParams(jobRetry.getRetryTaskParams());
+                logs.add(vo);
             });
         }
-        return PublicUtil.objToString(logs);
+        return logs;
     }
 
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
-    public String retryLogDetail( String jobId, Integer computeType,  Integer retryNum) throws Exception {
+    public ActionRetryLogVO retryLogDetail( String jobId, Integer computeType,  Integer retryNum) throws Exception {
 
         if (StringUtils.isBlank(jobId) || computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
@@ -376,10 +375,10 @@ public class ActionService {
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         //数组库中存储的retryNum为0开始的索引位置
         EngineJobRetry jobRetry = engineJobRetryDao.getJobRetryByJobId(jobId, retryNum - 1);
-        Map<String,String> log = new HashMap<String,String>(4);
+        ActionRetryLogVO vo = new ActionRetryLogVO();
         if (jobRetry != null) {
-            log.put("retryNum",jobRetry.getRetryNum().toString());
-            log.put("logInfo",jobRetry.getLogInfo());
+            vo.setRetryNum(jobRetry.getRetryNum());
+            vo.setLogInfo(jobRetry.getLogInfo());
             String engineLog = jobRetry.getEngineLog();
             if (StringUtils.isBlank(jobRetry.getEngineLog())){
                 engineLog = jobDealer.getAndUpdateEngineLog(jobId, jobRetry.getEngineJobId(), jobRetry.getApplicationId(), scheduleJob.getPluginInfoId());
@@ -390,35 +389,36 @@ public class ActionService {
                     engineLog = "";
                 }
             }
-            log.put("engineLog", engineLog);
-            log.put("retryTaskParams",jobRetry.getRetryTaskParams());
+            vo.setEngineLog(engineLog);
+            vo.setRetryTaskParams(jobRetry.getRetryTaskParams());
+
         }
-        return PublicUtil.objToString(log);
+        return vo;
     }
 
     /**
      * 根据jobids 和 计算类型，查询job
      */
-    public List<Map<String,Object>> entitys( List<String> jobIds, Integer computeType) throws Exception {
+    public List<ActionJobEntityVO> entitys( List<String> jobIds, Integer computeType) throws Exception {
 
         if (CollectionUtils.isEmpty(jobIds)||computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
-        List<Map<String,Object>> result = null;
+        List<ActionJobEntityVO> result = null;
         List<ScheduleJob> scheduleJobs = scheduleJobDao.getRdosJobByJobIds(jobIds);
         if (CollectionUtils.isNotEmpty(scheduleJobs)) {
         	result = new ArrayList<>(scheduleJobs.size());
         	for (ScheduleJob scheduleJob:scheduleJobs){
-        		Map<String,Object> data = new HashMap<>();
-        		data.put("jobId", scheduleJob.getJobId());
-        		data.put("status", scheduleJob.getStatus());
-        		data.put("execStartTime", scheduleJob.getExecStartTime());
-        		data.put("logInfo", scheduleJob.getLogInfo());
-        		data.put("engineLog", scheduleJob.getEngineLog());
-                data.put("engineJobId", scheduleJob.getEngineJobId());
-                data.put("applicationId", scheduleJob.getApplicationId());
-        		result.add(data);
+                ActionJobEntityVO vo = new ActionJobEntityVO();
+                vo.setJobId(scheduleJob.getJobId());
+                vo.setStatus(scheduleJob.getStatus());
+                vo.setExecStartTime(scheduleJob.getExecStartTime());
+                vo.setLogInfo(scheduleJob.getLogInfo());
+                vo.setEngineLog(scheduleJob.getEngineLog());
+                vo.setEngineJobId(scheduleJob.getEngineJobId());
+                vo.setApplicationId(scheduleJob.getApplicationId());
+        		result.add(vo);
         	}
         }
         return result;
@@ -493,16 +493,16 @@ public class ActionService {
     /**
      * task 工程使用
      */
-    public List<Map<String, Object>> listJobStatus( Long time) {
+    public List<ActionJobStatusVO> listJobStatus( Long time) {
         if (time == null || time == 0L) {
             throw new RuntimeException("time is null");
         }
 
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType());
         if (CollectionUtils.isNotEmpty(scheduleJobs)) {
-            List<Map<String, Object>> result = new ArrayList<>(scheduleJobs.size());
+            List<ActionJobStatusVO> result = new ArrayList<>(scheduleJobs.size());
             for (ScheduleJob scheduleJob : scheduleJobs) {
-                Map<String, Object> data = batJobConvertMap(scheduleJob);
+                ActionJobStatusVO data = batJobConvertMap(scheduleJob);
                 result.add(data);
             }
             return result;
@@ -511,14 +511,14 @@ public class ActionService {
     }
 
 
-    public List<Map<String, Object>> listJobStatusByJobIds( List<String> jobIds) throws Exception {
+    public List<ActionJobStatusVO> listJobStatusByJobIds( List<String> jobIds) throws Exception {
         if (CollectionUtils.isNotEmpty(jobIds)) {
             List<ScheduleJob> scheduleJobs = scheduleJobDao.getRdosJobByJobIds(jobIds);
             if (CollectionUtils.isNotEmpty(scheduleJobs)) {
-                List<Map<String, Object>> result = new ArrayList<>(scheduleJobs.size());
+                List<ActionJobStatusVO> result = new ArrayList<>(scheduleJobs.size());
                 for (ScheduleJob scheduleJob : scheduleJobs) {
-                    Map<String, Object> data = batJobConvertMap(scheduleJob);
-                    result.add(data);
+                    ActionJobStatusVO vo = batJobConvertMap(scheduleJob);
+                    result.add(vo);
                 }
                 return result;
             }
@@ -526,14 +526,22 @@ public class ActionService {
         return Collections.EMPTY_LIST;
     }
 
-    private Map<String, Object> batJobConvertMap(ScheduleJob scheduleJob){
-        Map<String, Object> data = new HashMap<>(6);
-        data.put("jobId", scheduleJob.getJobId());
-        data.put("status", scheduleJob.getStatus());
-        data.put("execStartTime", scheduleJob.getExecStartTime() == null ? 0 : scheduleJob.getExecStartTime());
-        data.put("execEndTime", scheduleJob.getExecEndTime() == null ? 0 : scheduleJob.getExecEndTime());
-        data.put("execTime", scheduleJob.getExecTime());
-        data.put("retryNum", scheduleJob.getRetryNum());
-        return data;
+    private ActionJobStatusVO batJobConvertMap(ScheduleJob scheduleJob){
+        ActionJobStatusVO vo =new ActionJobStatusVO();
+        vo.setJobId(scheduleJob.getJobId());
+        vo.setStatus(scheduleJob.getStatus());
+        vo.setExecStartTime(scheduleJob.getExecStartTime() == null ? new Timestamp(0) : scheduleJob.getExecStartTime());
+        vo.setExecEndTime(scheduleJob.getExecEndTime() == null ? new Timestamp(0) : scheduleJob.getExecEndTime());
+        vo.setExecTime(scheduleJob.getExecTime());
+        vo.setRetryNum(scheduleJob.getRetryNum());
+
+//        Map<String, Object> data = new HashMap<>(6);
+//        data.put("jobId", scheduleJob.getJobId());
+//        data.put("status", scheduleJob.getStatus());
+//        data.put("execStartTime", scheduleJob.getExecStartTime() == null ? 0 : scheduleJob.getExecStartTime());
+//        data.put("execEndTime", scheduleJob.getExecEndTime() == null ? 0 : scheduleJob.getExecEndTime());
+//        data.put("execTime", scheduleJob.getExecTime());
+//        data.put("retryNum", scheduleJob.getRetryNum());
+        return vo;
     }
 }

@@ -197,18 +197,17 @@ public class ClusterService {
         return StringUtils.EMPTY;
     }
 
-    public String clusterExtInfo( Long uicTenantId) {
+    public ClusterVO clusterExtInfo( Long uicTenantId) {
         Long tenantId = tenantDao.getIdByDtUicTenantId(uicTenantId);
         if (tenantId == null) {
-            return StringUtils.EMPTY;
+            return null;
         }
         List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
         if (CollectionUtils.isEmpty(engineIds)) {
-            return StringUtils.EMPTY;
+            return null;
         }
         Engine engine = engineDao.getOne(engineIds.get(0));
-        ClusterVO cluster = getCluster(engine.getClusterId(), true,false);
-        return JSONObject.toJSONString(cluster);
+        return getCluster(engine.getClusterId(), true,false);
     }
 
     /**
@@ -416,6 +415,7 @@ public class ClusterService {
         Component component = componentDao.getByClusterIdAndComponentType(cluster.getId(),componentType.getTypeCode());
         KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(),componentType.getTypeCode());
         JSONObject configObj = config.getJSONObject(key);
+
         if (configObj != null) {
             //返回版本
             configObj.put("version",component.getHadoopVersion());
@@ -510,18 +510,18 @@ public class ClusterService {
         }
     }
 
-    public Map<String, Object> getConfig(ClusterVO cluster,Long dtUicTenantId,String key) {
-        JSONObject config = buildClusterConfig(cluster);
-        EComponentType componentType = EComponentType.getByConfName(key);
-        KerberosConfig kerberosConfig = componentService.getKerberosConfig(cluster.getId(),componentType.getTypeCode());
-
-        JSONObject configObj = config.getJSONObject(key);
-        if (configObj != null) {
-            addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
-            return configObj;
-        }
-        return null;
-    }
+//    public Map<String, Object> getConfig(ClusterVO cluster,Long dtUicTenantId,String key) {
+//        JSONObject config = buildClusterConfig(cluster);
+//        EComponentType componentType = EComponentType.getByConfName(key);
+//        KerberosConfig kerberosConfig = componentService.getKerberosConfig(cluster.getId(),componentType.getTypeCode());
+//
+//        JSONObject configObj = config.getJSONObject(key);
+//        if (configObj != null) {
+//            addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
+//            return configObj;
+//        }
+//        return null;
+//    }
 
     /**
      * 如果开启集群开启了kerberos认证，kerberosConfig中还需要包含hdfs配置
@@ -706,15 +706,16 @@ public class ClusterService {
 
     }
 
-    public String tiDBInfo( Long dtUicTenantId,  Long dtUicUserId){
+    public String tiDBInfo(Long dtUicTenantId, Long dtUicUserId){
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.TiDB);
     }
 
-    public String oracleInfo( Long dtUicTenantId, Long dtUicUserId){
+    public String oracleInfo(Long dtUicTenantId, Long dtUicUserId){
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.Oracle);
     }
 
-    public String greenplumInfo( Long dtUicTenantId, Long dtUicUserId){
+
+    public String greenplumInfo(Long dtUicTenantId, Long dtUicUserId){
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.GREENPLUM6);
     }
 
@@ -837,6 +838,16 @@ public class ClusterService {
     public void clearPluginInfoCache(){
         pluginInfoCache.cleanUp();
         LOGGER.info("-------clear plugin info cache success-----");
+    }
+
+    public String pluginInfoForType(Long dtUicTenantId, Boolean fullKerberos, Integer pluginType) {
+        EComponentType type = EComponentType.getByCode(pluginType);
+        return getConfigByKey(dtUicTenantId, type.getConfName(),fullKerberos);
+    }
+
+    public String dbInfo(Long dtUicTenantId, Long dtUicUserId, Integer type) {
+        DataSourceType sourceType = DataSourceType.getSourceType(type);
+        return accountInfo(dtUicTenantId,dtUicUserId,sourceType);
     }
 }
 

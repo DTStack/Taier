@@ -4,6 +4,8 @@ package com.dtstack.engine.api.domain;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * company: www.dtstack.com
  * author: toutian
@@ -15,48 +17,57 @@ public class ScheduleTask extends AppTenantEntity {
     /**
      * '任务名称'
      */
+    @NotNull(message = "任务名称(name)必填")
     @ApiModelProperty(notes = "任务名称")
     private String name;
 
     /**
      * '任务类型 0 sql，1 mr，2 sync ，3 python
      */
+    @NotNull(message = "任务类型(taskType)必填")
     @ApiModelProperty(notes = "任务类型 0 sql，1 mr，2 sync ，3 python")
     private Integer taskType;
 
     /**
      * '计算类型 0实时，1 离线'
      */
+    @NotNull(message = "计算类型(computeType)必填")
     @ApiModelProperty(notes = "计算类型 0实时，1 离线")
     private Integer computeType;
 
     /**
      * '执行引擎类型 0 flink, 1 spark'
+     * {@link com.dtstack.engine.api.enums.ScheduleEngineType}
      */
+    @NotNull(message = "引擎类型(engineType)必填")
     @ApiModelProperty(notes = "执行引擎类型 0 flink, 1 spark")
     private Integer engineType;
 
     /**
      * 'sql 文本'
      */
+    @NotNull(message = "sql 文本(sqlText)必填")
     @ApiModelProperty(notes = "sql 文本")
     private String sqlText;
 
     /**
      * '任务参数'
      */
+    @NotNull(message = "任务参数(taskParams)必填")
     @ApiModelProperty(notes = "任务参数")
     private String taskParams;
 
     /**
      * 调度配置
      */
+    @NotNull(message = "调度配置(scheduleConf)必填")
     @ApiModelProperty(notes = "调度配置")
     private String scheduleConf;
 
     /**
      * 周期类型
      */
+    @NotNull(message = "周期类型(periodType)必填")
     @ApiModelProperty(notes = "周期类型")
     private Integer periodType;
 
@@ -64,6 +75,7 @@ public class ScheduleTask extends AppTenantEntity {
      * 调度状态
      */
     @ApiModelProperty(notes = "调度状态")
+    @NotNull(message = "调度状态(scheduleStatus)必填")
     private Integer scheduleStatus;
 
     /**

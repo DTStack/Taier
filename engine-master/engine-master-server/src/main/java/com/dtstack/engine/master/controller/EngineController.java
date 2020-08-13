@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.vo.QueueVO;
+import com.dtstack.engine.api.vo.engine.EngineSupportVO;
 import com.dtstack.engine.master.impl.EngineService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class EngineController {
     }
 
     @RequestMapping(value="/listSupportEngine", method = {RequestMethod.POST})
-    public String listSupportEngine(@DtRequestParam("tenantId") Long dtUicTenantId) {
+    public List<EngineSupportVO> listSupportEngine(@DtRequestParam("tenantId") Long dtUicTenantId) {
         return engineService.listSupportEngine(dtUicTenantId);
     }
 }

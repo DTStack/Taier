@@ -77,6 +77,9 @@ public class ParamActionExt extends ParamAction {
 
     private Long projectId;
 
+    @Deprecated
+    private Boolean isFailRetry;
+
     public Long getProjectId() {
         return projectId;
     }
@@ -157,4 +160,11 @@ public class ParamActionExt extends ParamAction {
         this.jobKey = jobKey;
     }
 
+    public Boolean getIsFailRetry() {
+        return isFailRetry;
+    }
+
+    public void setIsFailRetry(Boolean failRetry) {
+        isFailRetry = failRetry;
+    }
 }

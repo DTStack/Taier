@@ -9,7 +9,6 @@ import java.util.List;
 @ApiModel
 public class ScheduleTaskShadeDTO extends ScheduleTaskShade {
 
-
     private Timestamp startGmtModified;
     private Timestamp endGmtModified;
 

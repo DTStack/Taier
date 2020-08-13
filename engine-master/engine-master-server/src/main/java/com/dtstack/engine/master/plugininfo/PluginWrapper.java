@@ -10,7 +10,7 @@ import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.schedule.common.enums.Deleted;
-import com.dtstack.schedule.common.enums.ScheduleEngineType;
+import com.dtstack.engine.api.enums.ScheduleEngineType;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

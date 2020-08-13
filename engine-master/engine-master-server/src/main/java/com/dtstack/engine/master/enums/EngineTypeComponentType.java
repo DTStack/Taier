@@ -19,7 +19,7 @@
 package com.dtstack.engine.master.enums;
 
 
-import com.dtstack.schedule.common.enums.ScheduleEngineType;
+import com.dtstack.engine.api.enums.ScheduleEngineType;
 
 public enum EngineTypeComponentType {
 

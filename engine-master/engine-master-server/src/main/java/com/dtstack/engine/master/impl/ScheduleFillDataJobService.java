@@ -37,8 +37,8 @@ public class ScheduleFillDataJobService  {
     }
 
     @Transactional
-    public ScheduleFillDataJob saveData(String jobName, long tenantId, long projectId, String runDay,
-                                        String fromDay, String toDay, long userId, Integer appType, Long dtuicTenantId) {
+    public ScheduleFillDataJob saveData(String jobName, Long tenantId, Long projectId, String runDay,
+                                        String fromDay, String toDay, Long userId, Integer appType, Long dtuicTenantId) {
 
         Timestamp currTimeStamp = Timestamp.valueOf(LocalDateTime.now());
 
