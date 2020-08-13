@@ -50,6 +50,7 @@ public enum DataSourceType {
     EMQ(34),
     DMDB(35),
     GREENPLUM6(36),
+    Presto(37)
     ;
 
     private int val;
@@ -121,6 +122,8 @@ public enum DataSourceType {
                 return DataBaseType.DMDB;
             case GREENPLUM6:
                 return DataBaseType.Greenplum6;
+            case Presto:
+                return DataBaseType.Presto;
             default:
                 throw new RdosDefineException("不支持数据源类型");
         }
@@ -152,6 +155,7 @@ public enum DataSourceType {
                 Phoenix.getVal(),
                 TiDB.getVal(),
                 DMDB.getVal(),
-                GREENPLUM6.getVal());
+                GREENPLUM6.getVal(),
+                Presto.getVal());
     }
 }

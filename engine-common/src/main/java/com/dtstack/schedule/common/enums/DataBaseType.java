@@ -39,7 +39,8 @@ public enum DataBaseType {
     TiDB("TiDB", "com.mysql.jdbc.Driver"),
     MySql8("mysql8", "com.mysql.cj.jdbc.Driver"),
     DMDB("DMDB","dm.jdbc.driver.DmDriver"),
-    Greenplum6("Greenplum6", "com.pivotal.jdbc.GreenplumDriver");
+    Greenplum6("Greenplum6", "com.pivotal.jdbc.GreenplumDriver"),
+    Presto("presto", "com.facebook.presto.jdbc.PrestoDriver");
 
     private String typeName;
     private String driverClassName;

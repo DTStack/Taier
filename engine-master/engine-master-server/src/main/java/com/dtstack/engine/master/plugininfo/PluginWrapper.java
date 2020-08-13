@@ -120,6 +120,11 @@ public class PluginWrapper{
             return;
         }
 
+        if (MultiEngineType.PRESTO.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
+            pluginInfoJson.put("jdbcUrl", dbUrl);
+            return;
+        }
+
         if (MultiEngineType.GREENPLUM.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
             pluginInfoJson.put("jdbcUrl", dbUrl);
             return;

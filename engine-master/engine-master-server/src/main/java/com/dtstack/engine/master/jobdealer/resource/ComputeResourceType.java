@@ -21,6 +21,7 @@ public enum ComputeResourceType {
     Impala,
     TiDB,
     GreenPlum,
-    Dummy;
+    Dummy,
+    Presto;
 
 }
