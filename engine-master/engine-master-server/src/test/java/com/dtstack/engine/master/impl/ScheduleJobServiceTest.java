@@ -422,6 +422,49 @@ public class ScheduleJobServiceTest extends AbstractTest {
         Assert.assertEquals(scheduleJob.getJobName(), job.getJobName());
     }
 
+    @Test
+    @Transactional
+    @Rollback
+    public void testgetSameDayChildJob(){
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteJobkey();
+        String scheduleJobJson=JSONObject.toJSONString(scheduleJob);;
+        Integer appType = scheduleJob.getAppType();
+
+        List<ScheduleJob> sameDayChildJob = sheduleJobService.getSameDayChildJob(scheduleJobJson, true, appType);
+        Assert.assertEquals(sameDayChildJob.size(),1);
+
+        ScheduleJob scheduleJobQuery = sameDayChildJob.get(0);
+        Assert.assertEquals(scheduleJobQuery.getJobName(), scheduleJob.getJobName());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testGetAllChildJobWithSameDay(){
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteJobkey();
+        Integer appType = scheduleJob.getAppType();
+
+        List<ScheduleJob> allChildJobWithSameDay = sheduleJobService.getAllChildJobWithSameDay(scheduleJob, true, appType);
+        Assert.assertEquals(allChildJobWithSameDay.size(),1);
+
+        ScheduleJob scheduleJobQuery = allChildJobWithSameDay.get(0);
+        Assert.assertEquals(scheduleJobQuery.getJobName(), scheduleJob.getJobName());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testGetLastSuccessJob(){
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobSetCycTime();
+        Long taskId = scheduleJob.getTaskId();
+        Integer appType = scheduleJob.getAppType();
+
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        ScheduleJob lastSuccessJob = sheduleJobService.getLastSuccessJob(taskId, timestamp, appType);
+
+        Assert.assertEquals(lastSuccessJob.getJobName(), scheduleJob.getJobName());
+    }
+
 
 
 

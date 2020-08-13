@@ -446,6 +446,7 @@ public class ScheduleJobService {
 
         int count = 0;
         if (AppType.DATASCIENCE.getType() == vo.getAppType()) {
+            batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
             count = queryScienceJob(batchJobDTO, queryAll, pageQuery, result);
         } else {
             count = queryNormalJob(batchJobDTO, queryAll, pageQuery, result);
@@ -708,6 +709,9 @@ public class ScheduleJobService {
         vo.setSplitFiledFlag(true);
         ScheduleJobDTO batchJobDTO = createQuery(vo);
         batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_ParentNodes.getType());
+        if (vo.getAppType() == AppType.DATASCIENCE.getType()) {
+            batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
+        }
         //需要查询工作流的子节点
         batchJobDTO.setNeedQuerySonNode(true);
         if (StringUtils.isNotBlank(vo.getTaskName()) || Objects.nonNull(vo.getOwnerId())) {
