@@ -77,13 +77,17 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
             needTotalMem += instanceInfo.instances * instanceInfo.memPerInstance;
         }
         if (needTotalCore == 0 || needTotalMem == 0) {
-            throw new LimitResourceException("Yarn task resource configuration error，needTotalCore：" + 0 + ", needTotalMem：" + needTotalMem);
+            String msg = "Yarn task resource configuration error，needTotalCore：" + 0 + ", needTotalMem：" + needTotalMem;
+            logger.error(msg);
+            return JudgeResult.newInstance(false, msg);
         }
         if (needTotalCore > (totalCore * queueCapacity)) {
-            throw new LimitResourceException("The Yarn task is set to a core larger than the maximum allocated core");
+            logger.error("The Yarn task is set to a core larger than the maximum allocated core");
+            return JudgeResult.newInstance(false, "The Yarn task is set to a core larger than the maximum allocated core");
         }
         if (needTotalMem > (totalMem * queueCapacity)) {
-            throw new LimitResourceException("The Yarn task is set to a mem larger than the maximum allocated mem");
+            logger.error("The Yarn task is set to a mem larger than the maximum allocated mem");
+            return JudgeResult.newInstance(false, "The Yarn task is set to a mem larger than the maximum allocated mem");
         }
         if (needTotalCore > (totalCore * capacity)) {
             logger.info("judgeYarnResource, needTotalCore={}, totalCore={}, capacity={}", needTotalCore, totalCore, capacity);
