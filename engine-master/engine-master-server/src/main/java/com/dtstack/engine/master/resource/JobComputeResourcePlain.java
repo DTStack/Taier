@@ -62,13 +62,13 @@ public class JobComputeResourcePlain {
 
 
     private void buildJobClientGroupName(JobClient jobClient){
-        String groupName = ConfigConstant.DEFAULT_GROUP_NAME;
 
         ClusterVO cluster = clusterService.getClusterByTenant(jobClient.getTenantId());
         if(Objects.isNull(cluster)){
             return;
         }
         String clusterName = cluster.getClusterName();
+        String groupName = String.format("%s_default", clusterName);
 
         String namespace = clusterService.getNamespace(jobClient.getParamAction(),
                 jobClient.getTenantId(), jobClient.getEngineType());
