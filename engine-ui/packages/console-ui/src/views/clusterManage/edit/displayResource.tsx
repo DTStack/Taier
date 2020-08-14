@@ -242,96 +242,58 @@ class DisplayResource extends React.Component<any, any> {
     }
 
     renderDisplayResource = () => {
-        const { components } = this.props;
-        const componentTypeCode = components.componentTypeCode;
+        const { componentTypeCode = '' } = this.props?.components;
         switch (componentTypeCode) {
             case COMPONENT_TYPE_VALUE.SFTP:
-                return this.renderParamsFile(COMPONEMT_CONFIG_KEYS.SFTP)
-            case COMPONENT_TYPE_VALUE.YARN:
-                return (
-                    <React.Fragment>
-                        {this.renderCompsVersion(COMPONEMT_CONFIG_KEYS.YARN)}
-                        {this.renderConfigsFile(COMPONEMT_CONFIG_KEYS.YARN)}
-                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.YARN)}
-                    </React.Fragment>
-                )
-            case COMPONENT_TYPE_VALUE.KUBERNETES:
-                return (
-                    <React.Fragment>
-                        {this.renderConfigsFile(COMPONEMT_CONFIG_KEYS.KUBERNETES)}
-                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.KUBERNETES)}
-                    </React.Fragment>
-                )
-            case COMPONENT_TYPE_VALUE.HDFS:
-                return (
-                    <React.Fragment>
-                        {this.renderCompsVersion(COMPONEMT_CONFIG_KEYS.HDFS)}
-                        {this.renderConfigsFile(COMPONEMT_CONFIG_KEYS.HDFS)}
-                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.HDFS)}
-                    </React.Fragment>
-                )
-            case COMPONENT_TYPE_VALUE.TIDB_SQL:
-                return this.renderParamsFile(COMPONEMT_CONFIG_KEYS.TIDB_SQL)
-            case COMPONENT_TYPE_VALUE.LIBRA_SQL:
-                return this.renderParamsFile(COMPONEMT_CONFIG_KEYS.LIBRA_SQL)
             case COMPONENT_TYPE_VALUE.ORACLE_SQL:
-                return this.renderParamsFile(COMPONEMT_CONFIG_KEYS.ORACLE_SQL)
+            case COMPONENT_TYPE_VALUE.LIBRA_SQL:
+            case COMPONENT_TYPE_VALUE.TIDB_SQL:
             case COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL:
-                return this.renderParamsFile(COMPONEMT_CONFIG_KEYS.GREEN_PLUM_SQL)
+            case COMPONENT_TYPE_VALUE.PRESTO_SQL: {
+                return this.renderParamsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])
+            }
+            case COMPONENT_TYPE_VALUE.KUBERNETES: {
+                return (
+                    <React.Fragment>
+                        {this.renderConfigsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                    </React.Fragment>
+                )
+            }
             case COMPONENT_TYPE_VALUE.IMPALA_SQL:
+            case COMPONENT_TYPE_VALUE.HIVE_SERVER:
+            case COMPONENT_TYPE_VALUE.LEARNING:
+            case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
                 return (
                     <React.Fragment>
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.IMPALA_SQL)}
                         {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.IMPALA_SQL)}
                     </React.Fragment>
                 )
+            }
+            case COMPONENT_TYPE_VALUE.YARN:
+            case COMPONENT_TYPE_VALUE.HDFS: {
+                return (
+                    <React.Fragment>
+                        {this.renderCompsVersion(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderConfigsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                    </React.Fragment>
+                )
+            }
             case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
-                return (
-                    <React.Fragment>
-                        {this.renderCompsVersion(COMPONEMT_CONFIG_KEYS.SPARK_THRIFT_SERVER)}
-                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.SPARK_THRIFT_SERVER)}
-                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.SPARK_THRIFT_SERVER)}
-                    </React.Fragment>
-                )
             case COMPONENT_TYPE_VALUE.SPARK:
+            case COMPONENT_TYPE_VALUE.FLINK: {
                 return (
                     <React.Fragment>
-                        {this.renderCompsVersion(COMPONEMT_CONFIG_KEYS.SPARK)}
-                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.SPARK)}
-                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.SPARK)}
+                        {this.renderCompsVersion(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderParamsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                     </React.Fragment>
                 )
-            case COMPONENT_TYPE_VALUE.HIVE_SERVER:
-                return (
-                    <React.Fragment>
-                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.HIVE_SERVER)}
-                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.HIVE_SERVER)}
-                    </React.Fragment>
-                )
-            case COMPONENT_TYPE_VALUE.LEARNING:
-                return (
-                    <React.Fragment>
-                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.LEARNING)}
-                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.LEARNING)}
-                    </React.Fragment>
-                )
-            case COMPONENT_TYPE_VALUE.FLINK:
-                return (
-                    <React.Fragment>
-                        {this.renderCompsVersion(COMPONEMT_CONFIG_KEYS.FLINK)}
-                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.FLINK)}
-                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.FLINK)}
-                    </React.Fragment>
-                )
-            case COMPONENT_TYPE_VALUE.DTYARNSHELL:
-                return (
-                    <React.Fragment>
-                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.DTYARNSHELL)}
-                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.DTYARNSHELL)}
-                    </React.Fragment>
-                )
+            }
             default:
-                return '';
+                return null;
         }
     }
     render () {
