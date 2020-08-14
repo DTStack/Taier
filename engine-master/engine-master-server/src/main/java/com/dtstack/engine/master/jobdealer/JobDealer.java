@@ -152,7 +152,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         this.addGroupPriorityQueue(jobResource, jobClient, true);
     }
 
-    public void addSubmitJobBatch(List<JobClient> jobClients) {
+    public void addSubmitJobVast(List<JobClient> jobClients) {
         List<String> taskIds = jobClients.stream().map(JobClient::getTaskId).collect(Collectors.toList());
         updateCacheBatch(taskIds, EJobCacheStage.DB.getStage());
         scheduleJobDao.updateJobStatusByJobIds(taskIds, RdosTaskStatus.WAITENGINE.getStatus());
@@ -169,7 +169,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     /**
      * 容灾时对已经提交到执行组件的任务，进行恢复
      */
-    public void afterSubmitJobBatch(List<JobClient> jobClients) {
+    public void afterSubmitJobVast(List<JobClient> jobClients) {
         List<String> taskIds = jobClients.stream().map(JobClient::getTaskId).collect(Collectors.toList());
         updateCacheBatch(taskIds, EJobCacheStage.SUBMITTED.getStage());
         LOG.info(" afterSubmitJobBatch jobId:{} update", JSONObject.toJSONString(taskIds));
@@ -297,10 +297,10 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                         }
                     }
                     if (CollectionUtils.isNotEmpty(unSubmitClients)) {
-                        addSubmitJobBatch(unSubmitClients);
+                        addSubmitJobVast(unSubmitClients);
                     }
                     if (CollectionUtils.isNotEmpty(submitClients)) {
-                        afterSubmitJobBatch(submitClients);
+                        afterSubmitJobVast(submitClients);
                     }
                 }
             } catch (Exception e) {

@@ -1,5 +1,7 @@
 package com.dtstack.engine.flink;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
@@ -86,6 +88,12 @@ public class FlinkClient extends AbstractClient {
     private static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
 
     public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
+
+    private static final String TASKMANAGERS_URL_FORMAT = "%s/taskmanagers";
+
+    private static final String JOBMANAGER_LOG_URL_FORMAT = "%s/jobmanager/log";
+
+    private static final String TASKMANAGERS_KEY = "taskmanagers";
 
     private String tmpFileDirPath = "./tmp";
 
@@ -257,6 +265,10 @@ public class FlinkClient extends AbstractClient {
         ClusterClient<String> clusterClient = null;
         try {
             clusterDescriptor = PerJobClientFactory.getPerJobClientFactory().createPerjobClusterDescriptor(jobClient);
+            String projobClusterId = String.format("%s-%s", FlinkConfig.FLINK_PERJOB_PREFIX, jobClient.getTaskId());
+            if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
+                flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
+            }
             clusterClient = clusterDescriptor.deploySessionCluster(clusterSpecification).getClusterClient();
 
             flinkClusterClientManager.addClient(clusterClient.getClusterId(), clusterClient);
@@ -663,7 +675,7 @@ public class FlinkClient extends AbstractClient {
 
         cacheFile.remove(jobClient.getTaskId());
 
-        FlinkUtil.deleteK8sConfig(jobClient);
+        //FlinkUtil.deleteK8sConfig(jobClient);
     }
 
     @Override
@@ -752,5 +764,79 @@ public class FlinkClient extends AbstractClient {
         }
     }
 
+    @Override
+    public List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier) {
+        List<String> resrult = new ArrayList<>();
+        try {
+            ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+            String webInterfaceUrl = currClient.getWebInterfaceURL();
+
+            String jobmanagerLogInfo = getJobmanagerLogInfo(webInterfaceUrl);
+            resrult.add(jobmanagerLogInfo);
+
+            List<String> taskmanagerLogInfos = getTaskmanagersLogInfo(webInterfaceUrl);
+            resrult.addAll(taskmanagerLogInfos);
+        } catch (Exception e) {
+            logger.error("getRollingLogBaseInfo error {}", e);
+        }
+
+        return resrult;
+    }
+
+    private String getJobmanagerLogInfo(String webInterfaceUrl) throws IOException {
+        JSONObject jobmanager = new JSONObject();
+        jobmanager.put("typeName", "jobmanager");
+        String jobmanagerUrl = String.format(JOBMANAGER_LOG_URL_FORMAT, webInterfaceUrl);
+        String jobmanagerMsg = PoolHttpClient.get(jobmanagerUrl);
+
+        JSONObject logInfo = new JSONObject();
+        logInfo.put("name", "jobmanager.log");
+        Integer totalBytes = jobmanagerMsg.length();
+        logInfo.put("totalBytes", String.valueOf(totalBytes));
+        logInfo.put("url", jobmanagerUrl);
+
+        List<JSONObject> logInfos = new ArrayList<>();
+        logInfos.add(logInfo);
+        jobmanager.put("logs", logInfos);
+
+        return JSONObject.toJSONString(jobmanager);
+    }
+
+    private List<String> getTaskmanagersLogInfo(String webInterfaceUrl) throws IOException {
+        List<String> taskmanagerLogs = new ArrayList<>();
+
+        String taskmanagersUrl = String.format(TASKMANAGERS_URL_FORMAT, webInterfaceUrl);
+        String taskmanagersMsg = PoolHttpClient.get(taskmanagersUrl);
+        JSONObject taskmanagers = JSONObject.parseObject(taskmanagersMsg);
+        if (!taskmanagers.containsKey(TASKMANAGERS_KEY)) {
+            logger.error("Get the taskmanagers but does not include the taskmanagers field! " + taskmanagersMsg);
+            throw new RdosDefineException("Does not include the taskmanagers field.");
+        }
+        JSONArray taskmanagersInfo = taskmanagers.getJSONArray(TASKMANAGERS_KEY);
+        for(Object taskmanager : taskmanagersInfo) {
+            JSONObject logInfo = new JSONObject();
+
+            JSONObject taskmanagerJson = (JSONObject)taskmanager;
+            String taskmanagerId = taskmanagerJson.getString("id");
+            String logUrl = String.format("%s/taskmanagers/%s/log", webInterfaceUrl, taskmanagerId);
+
+            JSONObject taskmanagerLogInfo = new JSONObject();
+            taskmanagerLogInfo.put("url", logUrl);
+            taskmanagerLogInfo.put("name", "taskmanager.log");
+            Integer totalBytes = PoolHttpClient.get(logUrl).length();
+            taskmanagerLogInfo.put("totalBytes", String.valueOf(totalBytes));
+
+            List<JSONObject> logInfos = new ArrayList<>();
+            logInfos.add(taskmanagerLogInfo);
+
+            logInfo.put("typeName", "taskmanager");
+            logInfo.put("otherInfo", JSONObject.toJSONString(taskmanagerJson));
+            logInfo.put("logs", logInfos);
+
+            taskmanagerLogs.add(JSONObject.toJSONString(logInfo));
+        }
+
+        return taskmanagerLogs;
+    }
 
 }

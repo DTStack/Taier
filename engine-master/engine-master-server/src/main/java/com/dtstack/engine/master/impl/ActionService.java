@@ -76,6 +76,10 @@ public class ActionService {
     @Autowired
     private JobStopDealer jobStopDealer;
 
+    @Autowired
+    private ElasticsearchService elasticsearchService;
+
+
     private static int length = 8;
 
     private Random random = new Random();
@@ -337,6 +341,24 @@ public class ActionService {
         }
         return vo;
     }
+
+    /**
+     * 根据jobid 从es中获取日志
+     */
+    public String logFromEs(String jobId, Integer computeType) throws Exception {
+        if (StringUtils.isBlank(jobId)) {
+            throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
+        }
+
+        String engineLog = "";
+        ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
+        if (scheduleJob != null) {
+            engineLog = elasticsearchService.searchWithJobId("taskId", jobId);
+        }
+        return engineLog;
+    }
+
+
 
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志

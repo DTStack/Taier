@@ -36,6 +36,7 @@ perjob:
 
     kubernetes.rest-service.exposed.type: NodePort
     kubernetes.container.image: registry.cn-hangzhou.aliyuncs.com/dtstack-dev/dt-flink:1.10
+    flinkx.hosts:
 
   optional:
     jarTmpDir: ./tmp110
@@ -95,6 +96,7 @@ session:
 
     kubernetes.rest-service.exposed.type: NodePort
     kubernetes.container.image: registry.cn-hangzhou.aliyuncs.com/dtstack-dev/dt-flink:1.10
+    flinkx.hosts:
 
   optional:
     jarTmpDir: ./tmp110

@@ -124,36 +124,35 @@ public class GroupPriorityQueue {
 
     private class AcquireGroupQueueJob implements Runnable {
 
+        /**
+         * blocked=true，已存储的任务数据超出队列limited上限
+         * <p>
+         * 如果队列中的任务数量小于
+         *
+         * @see com.dtstack.engine.master.queue.GroupPriorityQueue#queueSizeLimited ,
+         * 并且没有查询到新的数据，则停止调度
+         * @see com.dtstack.engine.master.queue.GroupPriorityQueue#blocked
+         */
         @Override
         public void run() {
-
-            /**
-             * blocked=true，已存储的任务数据超出队列limited上限
-             */
             if (Boolean.FALSE == blocked.get()) {
                 int jobSize = engineJobCacheDao.countByStage(jobResource, EJobCacheStage.unSubmitted(), environmentContext.getLocalAddress());
-                if (jobSize < getQueueSizeLimited()) {
+                if (jobSize == 0) {
                     return;
                 }
-                blocked.set(true);
             }
 
-            /**
-             * 如果队列中的任务数量小于
-             * @see com.dtstack.engine.service.queue.GroupPriorityQueue#QUEUE_SIZE_LIMITED ,
-             * 并且没有查询到新的数据，则停止调度
-             * @see com.dtstack.engine.service.queue.GroupPriorityQueue#blocked
-             */
-            if (priorityQueueSize() < getQueueSizeLimited()) {
-                boolean empty = emitJob2PriorityQueue();
-                if (empty) {
-                    blocked.set(false);
-                }
-            }
+            emitJob2PriorityQueue();
         }
     }
 
+    /**
+     * @return false: blocked | true: unblocked
+     */
     private boolean emitJob2PriorityQueue() {
+        if (priorityQueueSize() >= getQueueSizeLimited()) {
+            return false;
+        }
         boolean empty = false;
         String localAddress = environmentContext.getLocalAddress();
         try {
@@ -189,6 +188,9 @@ public class GroupPriorityQueue {
             }
         } catch (Exception e) {
             logger.error("emitJob2PriorityQueue localAddress:{} error:", localAddress, e);
+        }
+        if (empty) {
+            blocked.set(false);
         }
         return empty;
     }
