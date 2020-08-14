@@ -29,7 +29,7 @@ public interface ScheduleTaskShadeDao {
 
     List<ScheduleTaskShade> listByNameLike(@Param("projectId") long projectId, @Param("name") String name, @Param("appType")Integer appType, @Param("ownerId") Long ownerId, @Param("projectIds") List<Long> projectIds);
 
-    List<ScheduleTaskShade> listByNameLikeWithSearchType(@Param("projectId") long projectId, @Param("name") String name, @Param("appType")Integer appType,
+    List<ScheduleTaskShade> listByNameLikeWithSearchType(@Param("projectId") Long projectId, @Param("name") String name, @Param("appType")Integer appType,
                                                    @Param("ownerId") Long ownerId, @Param("projectIds") List<Long> projectIds,@Param("searchType")Integer searchType);
 
     List<ScheduleTaskShade> listByName(@Param("projectId") long projectId, @Param("name") String name);

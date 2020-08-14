@@ -61,22 +61,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -802,8 +787,12 @@ public class ScheduleJobService {
         }
         //分页
         batchJobDTO.setPageQuery(true);
-        batchJobDTO.setExecStartDay(vo.getExecStartDay());
-        batchJobDTO.setExecEndDay(vo.getExecEndDay());
+        if(vo.getExecStartDay()!=null){
+            batchJobDTO.setExecStartDay(new Date(vo.getExecStartDay()));
+        }
+        if (vo.getExecEndDay()!=null) {
+            batchJobDTO.setExecEndDay(new Date(vo.getExecEndDay()));
+        }
         return batchJobDTO;
     }
 
