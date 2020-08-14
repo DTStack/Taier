@@ -28,10 +28,19 @@ import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.util.FileUtil;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.api.common.JobSubmissionResult;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
+import org.apache.flink.runtime.execution.Environment;
+import org.apache.flink.runtime.io.network.partition.ResultPartitionType;
+import org.apache.flink.runtime.jobgraph.DistributionPattern;
+import org.apache.flink.runtime.jobgraph.JobGraph;
+import org.apache.flink.runtime.jobgraph.JobVertex;
+import org.apache.flink.runtime.jobgraph.ScheduleMode;
+import org.apache.flink.runtime.jobgraph.tasks.AbstractInvokable;
+import org.apache.flink.runtime.jobmanager.scheduler.SlotSharingGroup;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.locks.InterProcessMutex;
@@ -61,6 +70,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -321,6 +331,9 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         private static final Integer RETRY_WAIT = 10 * 1000;
 
+        private int checkSubmitJobGraphInterval = 10;
+        private AtomicLong checkSubmitJobGraph = new AtomicLong(0);
+
         private AtomicBoolean run = new AtomicBoolean(true);
 
         private FlinkClusterClientManager clusterClientManager;
@@ -331,8 +344,6 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         private YarnApplicationState lastAppState;
 
-        private String attemptId;
-
         private long startTime = System.currentTimeMillis();
 
         public AppStatusMonitor(FlinkClusterClientManager clusterClientManager, FlinkClientBuilder clientBuilder, SessionClientFactory yarnSessionClientFactory) {
@@ -340,6 +351,7 @@ public class SessionClientFactory extends AbstractClientFactory {
             this.clientBuilder = clientBuilder;
             this.sessionClientFactory = yarnSessionClientFactory;
             this.lastAppState = YarnApplicationState.NEW;
+            this.checkSubmitJobGraphInterval = clientBuilder.getFlinkConfig().getCheckSubmitJobGraphInterval();
         }
 
         @Override
@@ -362,9 +374,12 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     if (lastAppState != appState) {
                                         LOG.info("YARN application has been deployed successfully.");
                                     }
-                                    if (isDifferentAttemptId(applicationReport)) {
-                                        LOG.error("AttemptId has changed, prepare to stop Flink yarn-session client.");
-                                        clusterClientManager.setIsClientOn(false);
+                                    if (checkSubmitJobGraph.getAndIncrement() % checkSubmitJobGraphInterval == 0) {
+                                        JobSubmissionResult execResult = clusterClientManager.getClusterClient().submitJob(createJobGraph(), Thread.currentThread().getContextClassLoader());
+                                        if (!execResult.isJobExecutionResult()) {
+                                            clusterClientManager.setIsClientOn(false);
+                                            LOG.info("checkSubmitJobGraph result:false, retry to init ClusterClient.");
+                                        }
                                     }
                                     break;
                                 default:
@@ -408,7 +423,6 @@ public class SessionClientFactory extends AbstractClientFactory {
                 startTime = System.currentTimeMillis();
                 this.lastAppState = YarnApplicationState.NEW;
                 clusterClientManager.initClusterClient();
-                attemptId = null;
 
                 Thread.sleep(RETRY_WAIT);
             } catch (Exception e) {
@@ -420,21 +434,57 @@ public class SessionClientFactory extends AbstractClientFactory {
             this.run = new AtomicBoolean(run);
         }
 
-        private boolean isDifferentAttemptId(ApplicationReport applicationReport) {
-            String appId = applicationReport.getCurrentApplicationAttemptId().getApplicationId().toString();
-            String attemptIdStr = String.valueOf(applicationReport.getCurrentApplicationAttemptId().getAttemptId());
-            String currentAttemptId = appId + attemptIdStr;
-            if (attemptId == null) {
-                attemptId = currentAttemptId;
-                return false;
-            }
-            if (!attemptId.equals(currentAttemptId)) {
-                attemptId = currentAttemptId;
-                return true;
-            }
-            return false;
+        private JobGraph createJobGraph() {
+            SlotSharingGroup slotSharingGroup = new SlotSharingGroup();
+
+            final JobVertex source = new JobVertex("source");
+            source.setInvokableClass(OneTimeFailingInvokable.class);
+            source.setSlotSharingGroup(slotSharingGroup);
+
+            final JobVertex sink = new JobVertex("sink");
+            sink.setInvokableClass(NoOpInvokable.class);
+            sink.setSlotSharingGroup(slotSharingGroup);
+
+            sink.connectNewDataSetAsInput(source, DistributionPattern.POINTWISE, ResultPartitionType.PIPELINED);
+            JobGraph jobGraph = new JobGraph("DT idle detection", source, sink);
+
+            jobGraph.setScheduleMode(ScheduleMode.EAGER);
+            return jobGraph;
         }
 
+        /**
+         * Invokable which fails exactly once (one sub task of it).
+         */
+        public static final class OneTimeFailingInvokable extends AbstractInvokable {
+
+            private static final AtomicBoolean hasFailed = new AtomicBoolean(false);
+
+            /**
+             * Create an Invokable task and set its environment.
+             *
+             * @param environment The environment assigned to this invokable.
+             */
+            public OneTimeFailingInvokable(Environment environment) {
+                super(environment);
+            }
+
+            @Override
+            public void invoke() throws Exception {
+                if (hasFailed.compareAndSet(false, true)) {
+                    throw new FlinkException("One time failure.");
+                }
+            }
+        }
+
+        public class NoOpInvokable extends AbstractInvokable {
+
+            public NoOpInvokable(Environment environment) {
+                super(environment);
+            }
+
+            @Override
+            public void invoke() {}
+        }
 
     }
 

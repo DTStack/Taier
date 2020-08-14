@@ -4,6 +4,7 @@ import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.enums.Deploy;
 import com.dtstack.engine.flink.util.HadoopConf;
+import com.sun.istack.NotNull;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
 import org.apache.flink.core.fs.FileSystem;
@@ -164,6 +165,7 @@ public class FlinkClientBuilder {
         return null;
     }
 
+    @NotNull
     public FlinkConfig getFlinkConfig() {
         return flinkConfig;
     }
