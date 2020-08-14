@@ -198,7 +198,7 @@ public class DtUicUserConnect {
         dataMap.put("productCode", "RDOS");
         dataMap.put("callbackUrl", callbackUrl);
         dataMap.put("active", active);
-        dataMap.put("additionKey", "BATCH");
+        dataMap.put("additionKey", "DAGScheduleX");
 
         try {
             String event = PoolHttpClient.post(String.format("%s/api/platform/register-event", uicUrl), dataMap, (Map) null);

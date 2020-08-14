@@ -1,9 +1,8 @@
 package com.dtstack.engine.master.vo;
 
 /**
- * @Author: 尘二(chener @ dtstack.com)
- * @Date: 2019/6/4 14:51
- * @Description:
+ * @author yuebai
+ * @date 2020-08-13
  */
 public class PlatformEventVO {
 
