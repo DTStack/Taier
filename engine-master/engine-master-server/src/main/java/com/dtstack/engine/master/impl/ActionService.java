@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.CustomThreadRunsPolicy;
-import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -17,8 +16,6 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.ParamAction;
-import com.dtstack.engine.master.enums.EDeployMode;
-import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -564,27 +561,5 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
         data.put("execTime", scheduleJob.getExecTime());
         data.put("retryNum", scheduleJob.getRetryNum());
         return data;
-    }
-
-    public String getAppLogDir(@Param("jobId") String jobId) throws Exception {
-
-        Preconditions.checkState(StringUtils.isNotEmpty(jobId), "jobId can't be empty");
-        ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
-        Preconditions.checkNotNull(scheduleJob, "can't find record by taskId" + jobId);
-
-        String applicationId = scheduleJob.getApplicationId();
-        if (StringUtils.isEmpty(applicationId)) {
-            throw new RdosDefineException(String.format("job %s not exists.", jobId), ErrorCode.INVALID_TASK_RUN_MODE);
-        }
-        Preconditions.checkState(applicationId.contains("application"), String.format("current task %s don't have application id.", jobId));
-
-        JobIdentifier jobIdentifier = null;
-        try {
-            jobIdentifier = new JobIdentifier(scheduleJob.getEngineJobId(), applicationId, jobId, scheduleJob.getDtuicTenantId(), EngineTypeComponentType.HDFS.getScheduleEngineType().getEngineName(), EDeployMode.PERJOB.getType(), scheduleJob.getCreateUserId(), null);
-            return workerOperator.getAppLogDir(jobIdentifier);
-        } catch (Exception e) {
-            logger.error("jobIdentifier:{} ", jobIdentifier, e);
-            throw new RdosDefineException(String.format("get job:%s ref application url error..", jobId), ErrorCode.UNKNOWN_ERROR, e);
-        }
     }
 }

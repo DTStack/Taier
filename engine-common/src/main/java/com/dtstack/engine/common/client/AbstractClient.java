@@ -148,10 +148,6 @@ public abstract class AbstractClient implements IClient {
         return null;
     }
 
-    @Override
-    public String getAppLogDir(JobIdentifier jobIdentifier) {
-        return null;
-    }
 
     protected String findPluginConfig(Class<?> clazz, String fileName) {
         URL[] urLs = ((URLClassLoader) clazz.getClassLoader()).getURLs();
