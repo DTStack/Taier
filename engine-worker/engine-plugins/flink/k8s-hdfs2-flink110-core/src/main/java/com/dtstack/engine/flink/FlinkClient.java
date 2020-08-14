@@ -223,7 +223,8 @@ public class FlinkClient extends AbstractClient {
             return JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond());
         } catch (Exception e) {
             if (FlinkMode.isPerJob(taskRunMode)) {
-                clusterClient.shutDownCluster();
+                String clusterId = clusterClient.getClusterId().toString();
+                flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(clusterId);
             }
             return JobResult.createErrorResult(e);
         } finally {
