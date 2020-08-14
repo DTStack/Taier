@@ -16,14 +16,20 @@ function getActionType (mode: string) {
 // 设置版本默认值
 function getCompsVersion (componentTypeCode: number, compVersion: string) {
     let version: any = '';
-    if (componentTypeCode === COMPONENT_TYPE_VALUE.FLINK) {
-        version = compVersion === '' ? '180' : compVersion;
-    }
-    if (componentTypeCode === COMPONENT_TYPE_VALUE.SPARK) {
-        version = compVersion === '' ? '210' : compVersion;
-    }
-    if (componentTypeCode === COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER) {
-        version = compVersion === '' ? '2.x' : compVersion;
+    switch (componentTypeCode) {
+        case COMPONENT_TYPE_VALUE.FLINK:
+            version = compVersion ? '180' : compVersion;
+            break;
+        case COMPONENT_TYPE_VALUE.SPARK:
+            version = compVersion ? '210' : compVersion;
+            break;
+        case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
+        case COMPONENT_TYPE_VALUE.HIVE_SERVER: {
+            version = compVersion ? '2.x' : compVersion;
+            break;
+        }
+        default:
+            break;
     }
     return version;
 }
