@@ -376,7 +376,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             try {
                 RetryUtil.executeWithRetry(() -> {
                     LOG.info("create partition dtuicTenantId {} {}", dtuicTenantId, sql);
-                    JSONObject pluginInfo = buildDataSourcePluginInfo(dtuicTenantId, sourceType, username, password, jdbcUrl);
+                    JSONObject pluginInfo = buildDataSourcePluginInfo(parameter.getJSONObject("hadoopConfig"), sourceType, username, password, jdbcUrl);
                     workerOperator.executeQuery(DataSourceType.getBaseType(sourceType).getTypeName(),pluginInfo.toJSONString(),sql,(String) actionParam.get("engineIdentity"));
                     cleanFileName(parameter);
                     return null;
@@ -392,49 +392,33 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
     /**
      * 拼接数据源的连接信息
      * hive 需要判断是否开启了kerberos
-     * @param dtuicTenantId
      * @param sourceType
      * @param username
      * @param password
      * @param jdbcUrl
      * @return
      */
-    private JSONObject buildDataSourcePluginInfo(Long dtuicTenantId, Integer sourceType, String username, String password, String jdbcUrl) {
+    private JSONObject buildDataSourcePluginInfo(JSONObject hadoopConfig, Integer sourceType, String username, String password, String jdbcUrl) {
         JSONObject pluginInfo = new JSONObject();
         pluginInfo.put("jdbcUrl", jdbcUrl);
         pluginInfo.put("username", username);
         pluginInfo.put("password", password);
         pluginInfo.put("driverClassName", DataSourceType.getBaseType(sourceType).getDriverClassName());
         pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,DataSourceType.getBaseType(sourceType).getTypeName());
+        if (DataSourceType.HIVE.getVal() != sourceType && DataSourceType.HIVE1X.getVal() != sourceType) {
+            return pluginInfo;
+        }
         //如果开启了kerberos
-        if (DataSourceType.HIVE.getVal() != sourceType) {
-            return pluginInfo;
-        }
-        ClusterVO clusetVo = clusterService.getClusterByTenant(dtuicTenantId);
-        if (Objects.isNull(clusetVo)) {
-            return pluginInfo;
-        }
-        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusetVo.getId(), EComponentType.SPARK_THRIFT.getTypeCode());
-        if (Objects.isNull(kerberosConfig)) {
-            return pluginInfo;
-        }
         JSONObject config = new JSONObject();
-        //开启了kerberos
-        pluginInfo.put("openKerberos", kerberosConfig.getOpenKerberos());
-        config.put("openKerberos", kerberosConfig.getOpenKerberos());
-        config.put("remoteDir", kerberosConfig.getRemotePath());
-        config.put("principalFile", kerberosConfig.getName());
-        config.put("krbName", kerberosConfig.getKrbName());
-        //补充yarn参数
-        Component yarnComponent = componentService.getComponentByClusterId(clusetVo.getId(), EComponentType.YARN.getTypeCode());
-        if (Objects.nonNull(yarnComponent)) {
-            Map yarnMap = JSONObject.parseObject(yarnComponent.getComponentConfig(), Map.class);
-            config.put("yarnConf", yarnMap);
-        }
-        Component sftpComponent = componentService.getComponentByClusterId(clusetVo.getId(), EComponentType.SFTP.getTypeCode());
-        if (Objects.nonNull(sftpComponent)) {
-            Map sftpMap = JSONObject.parseObject(sftpComponent.getComponentConfig(), Map.class);
-            pluginInfo.put("sftpConf", sftpMap);
+        if ("kerberos".equalsIgnoreCase(hadoopConfig.getString("hadoop.security.authentication"))) {
+            //开启了kerberos
+            pluginInfo.put("openKerberos", "true");
+            config.put("openKerberos", "true");
+            config.put("remoteDir", hadoopConfig.getString("remoteDir"));
+            config.put("principalFile", hadoopConfig.getString("principalFile"));
+            config.put("krbName", hadoopConfig.getString("krbName"));
+            config.put("yarnConf", hadoopConfig);
+            pluginInfo.put("sftpConf", hadoopConfig.getJSONObject("sftpConf"));
         }
         pluginInfo.put("config", config);
         return pluginInfo;
