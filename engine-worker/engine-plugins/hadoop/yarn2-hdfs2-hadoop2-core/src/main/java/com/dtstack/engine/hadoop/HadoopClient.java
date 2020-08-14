@@ -41,7 +41,6 @@ import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
-import org.apache.hadoop.yarn.logaggregation.LogAggregationUtils;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +66,7 @@ public class HadoopClient extends AbstractClient {
     private static final String DEFAULT_APP_NAME_PREFIX = "Flink session";
     private static final String FLINK_URL_FORMAT = "http://%s/proxy/%s/taskmanagers";
     private static final String YARN_RM_WEB_KEY_PREFIX = "yarn.resourcemanager.webapp.address.";
-    private static final long ONE_MEGABYTE = 1024 * 1024;
+    private static final long ONE_MEGABYTE = 1024*1024;
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -85,8 +84,8 @@ public class HadoopClient extends AbstractClient {
         conf.set("mapreduce.framework.name", "yarn");
         conf.set("yarn.scheduler.maximum-allocation-mb", "1024");
         conf.set("yarn.nodemanager.resource.memory-mb", "1024");
-        conf.set("mapreduce.map.memory.mb", "1024");
-        conf.set("mapreduce.reduce.memory.mb", "1024");
+        conf.set("mapreduce.map.memory.mb","1024");
+        conf.set("mapreduce.reduce.memory.mb","1024");
         conf.setBoolean("mapreduce.app-submission.cross-platform", true);
 
         setHadoopUserName(config);
@@ -110,7 +109,7 @@ public class HadoopClient extends AbstractClient {
     protected JobResult processSubmitJobWithType(JobClient jobClient) {
         EJobType jobType = jobClient.getJobType();
         JobResult jobResult = null;
-        if (EJobType.MR.equals(jobType)) {
+        if(EJobType.MR.equals(jobType)){
             jobResult = submitJobWithJar(jobClient);
         }
         return jobResult;
@@ -146,7 +145,7 @@ public class HadoopClient extends AbstractClient {
         try {
             ApplicationReport report = getYarnClient().getApplicationReport(appId);
             YarnApplicationState applicationState = report.getYarnApplicationState();
-            switch (applicationState) {
+            switch(applicationState) {
                 case KILLED:
                     return RdosTaskStatus.KILLED;
                 case NEW:
@@ -162,13 +161,13 @@ public class HadoopClient extends AbstractClient {
                 case FINISHED:
                     //state 为finished状态下需要兼顾判断finalStatus.
                     FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
-                    if (finalApplicationStatus == FinalApplicationStatus.FAILED) {
+                    if(finalApplicationStatus == FinalApplicationStatus.FAILED){
                         return RdosTaskStatus.FAILED;
-                    } else if (finalApplicationStatus == FinalApplicationStatus.SUCCEEDED) {
+                    }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
                         return RdosTaskStatus.FINISHED;
-                    } else if (finalApplicationStatus == FinalApplicationStatus.KILLED) {
+                    }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
                         return RdosTaskStatus.KILLED;
-                    } else {
+                    }else{
                         return RdosTaskStatus.RUNNING;
                     }
 
@@ -196,9 +195,9 @@ public class HadoopClient extends AbstractClient {
         try {
             setHadoopUserName(config);
             JobParam jobParam = new JobParam(jobClient);
-            Map<String, Object> plugininfo = PublicUtil.jsonStrToObject(jobClient.getPluginInfo(), Map.class);
+            Map<String, Object> plugininfo = PublicUtil.jsonStrToObject(jobClient.getPluginInfo(),Map.class);
             Configuration jobConf = new Configuration(conf);
-            if (plugininfo.containsKey(QUEUE)) {
+            if(plugininfo.containsKey(QUEUE)){
                 jobConf.set(MRJobConfig.QUEUE_NAME, plugininfo.get(QUEUE).toString());
             }
 
@@ -215,12 +214,12 @@ public class HadoopClient extends AbstractClient {
 
     private void downloadHdfsFile(String from, String to) throws IOException {
         File toFile = new File(to);
-        if (!toFile.getParentFile().exists()) {
+        if(!toFile.getParentFile().exists()){
             Files.createParentDirs(toFile);
         }
         Path hdfsFilePath = new Path(from);
-        InputStream is = FileSystem.get(conf).open(hdfsFilePath);//读取文件
-        IOUtils.copyBytes(is, new FileOutputStream(toFile), 2048, true);//保存到本地
+        InputStream is= FileSystem.get(conf).open(hdfsFilePath);//读取文件
+        IOUtils.copyBytes(is, new FileOutputStream(toFile),2048, true);//保存到本地
     }
 
     @Override
@@ -243,8 +242,8 @@ public class HadoopClient extends AbstractClient {
         return null;
     }
 
-    private void setHadoopUserName(Config config) {
-        if (Strings.isNullOrEmpty(config.getHadoopUserName())) {
+    private void setHadoopUserName(Config config){
+        if(Strings.isNullOrEmpty(config.getHadoopUserName())){
             return;
         }
 
@@ -252,42 +251,42 @@ public class HadoopClient extends AbstractClient {
     }
 
 
-    public YarnClient getYarnClient() {
-        try {
-            if (yarnClient == null) {
-                synchronized (this) {
-                    if (yarnClient == null) {
+    public YarnClient getYarnClient(){
+        try{
+            if(yarnClient == null){
+                synchronized (this){
+                    if(yarnClient == null){
                         YarnClient yarnClient1 = YarnClient.createYarnClient();
                         yarnClient1.init(conf);
                         yarnClient1.start();
                         yarnClient = yarnClient1;
                     }
                 }
-            } else {
+            }else{
                 //判断下是否可用
                 yarnClient.getAllQueues();
             }
-        } catch (Throwable e) {
-            LOG.error("getYarnClient error:{}", e);
-            synchronized (this) {
-                if (yarnClient != null) {
+        }catch(Throwable e){
+            LOG.error("getYarnClient error:{}",e);
+            synchronized (this){
+                if(yarnClient != null){
                     boolean flag = true;
-                    try {
+                    try{
                         //判断下是否可用
                         yarnClient.getAllQueues();
-                    } catch (Throwable e1) {
-                        LOG.error("getYarnClient error:{}", e1);
+                    }catch(Throwable e1){
+                        LOG.error("getYarnClient error:{}",e1);
                         flag = false;
                     }
-                    if (!flag) {
-                        try {
+                    if(!flag){
+                        try{
                             yarnClient.stop();
-                        } finally {
+                        }finally {
                             yarnClient = null;
                         }
                     }
                 }
-                if (yarnClient == null) {
+                if(yarnClient == null){
                     YarnClient yarnClient1 = YarnClient.createYarnClient();
                     yarnClient1.init(conf);
                     yarnClient1.start();
@@ -302,7 +301,7 @@ public class HadoopClient extends AbstractClient {
     public void beforeSubmitFunc(JobClient jobClient) {
         String sql = jobClient.getSql();
         List<String> sqlArr = DtStringUtil.splitIgnoreQuota(sql, ';');
-        if (sqlArr.size() == 0) {
+        if(sqlArr.size() == 0){
             return;
         }
 
@@ -310,15 +309,15 @@ public class HadoopClient extends AbstractClient {
         Iterator<String> sqlItera = sqlList.iterator();
         List<String> fileList = Lists.newArrayList();
 
-        while (sqlItera.hasNext()) {
+        while (sqlItera.hasNext()){
             String tmpSql = sqlItera.next();
-            if (AddJarOperator.verific(tmpSql)) {
+            if(AddJarOperator.verific(tmpSql)){
                 sqlItera.remove();
                 JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
 
                 String addFilePath = jarFileInfo.getJarPath();
                 //只支持hdfs
-                if (!addFilePath.startsWith(HDFS_PREFIX)) {
+                if(!addFilePath.startsWith(HDFS_PREFIX)) {
                     throw new RdosDefineException("only support hdfs protocol for jar path");
                 }
                 String localJarPath = TMP_PATH + File.separator + UUID.randomUUID().toString() + ".jar";
@@ -342,19 +341,19 @@ public class HadoopClient extends AbstractClient {
     @Override
     public void afterSubmitFunc(JobClient jobClient) {
         List<String> fileList = cacheFile.get(jobClient.getTaskId());
-        if (CollectionUtils.isEmpty(fileList)) {
+        if(CollectionUtils.isEmpty(fileList)){
             return;
         }
 
         //清理包含下载下来的临时jar文件
-        for (String path : fileList) {
-            try {
+        for(String path : fileList){
+            try{
                 File file = new File(path);
-                if (file.exists()) {
+                if(file.exists()){
                     file.delete();
                 }
 
-            } catch (Exception e1) {
+            }catch (Exception e1){
                 LOG.error("", e1);
             }
         }
@@ -364,7 +363,6 @@ public class HadoopClient extends AbstractClient {
 
     /**
      * 测试联通性 yarn需要返回集群队列信息
-     *
      * @param pluginInfo
      * @return
      */
@@ -378,7 +376,7 @@ public class HadoopClient extends AbstractClient {
                 //测试hdfs联通性
                 return this.checkHdfsConnect(allConfig);
             }
-            return KerberosUtils.login(allConfig, () -> testYarnConnect(testResult, allConfig), conf);
+            return KerberosUtils.login(allConfig, () -> testYarnConnect(testResult, allConfig),conf);
 
         } catch (Exception e) {
             LOG.error("test yarn connect error", e);
@@ -438,7 +436,6 @@ public class HadoopClient extends AbstractClient {
 
     /**
      * 上传文件到hdfs中
-     *
      * @param bytes
      * @param hdfsPath 文件路径
      * @return
@@ -455,7 +452,7 @@ public class HadoopClient extends AbstractClient {
                     FSDataOutputStream os = fs.create(destP);
                     IOUtils.copyBytes(is, os, 4096, true);
                 } catch (IOException e) {
-                    LOG.error("submit file {} to hdfs error", hdfsPath, e);
+                    LOG.error("submit file {} to hdfs error", hdfsPath,e);
                     throw new RdosDefineException("上传文件失败", e);
                 } finally {
                     if (Objects.nonNull(fs)) {
@@ -560,6 +557,7 @@ public class HadoopClient extends AbstractClient {
     }
 
 
+
     public List<ClusterResource.TaskManagerDescription> initTaskManagerResource(YarnClient yarnClient) throws Exception {
         List<ApplicationId> applicationIds = acquireApplicationIds(yarnClient);
 
@@ -647,29 +645,6 @@ public class HadoopClient extends AbstractClient {
             return applicationIds;
         } catch (Exception e) {
             throw new RdosDefineException(e.getMessage());
-        }
-    }
-
-
-    @Override
-    public String getAppLogDir(JobIdentifier jobIdentifier) {
-        String jobId = jobIdentifier.getEngineJobId();
-        Path remoteRootLogDir = new Path(conf.get(
-                YarnConfiguration.NM_REMOTE_APP_LOG_DIR,
-                YarnConfiguration.DEFAULT_NM_REMOTE_APP_LOG_DIR));
-        String logDirSuffix = LogAggregationUtils.getRemoteNodeLogDirSuffix(conf);
-        ApplicationId appId = ConverterUtils.toApplicationId(jobId);
-        try {
-            //kerberos认证User
-            String jobOwner = UserGroupInformation.getCurrentUser().getShortUserName();
-            LOG.info("applicationId:{}, jobOwner:{}", appId, jobOwner);
-            Path remoteAppLogDir = LogAggregationUtils.getRemoteAppLogDir(remoteRootLogDir, appId, jobOwner, logDirSuffix);
-            LOG.info("applicationId:{}, remoteAppLogDir:{}", appId, remoteAppLogDir);
-
-            return remoteAppLogDir.toString();
-        } catch (Exception e) {
-            LOG.error("", e);
-            return null;
         }
     }
 

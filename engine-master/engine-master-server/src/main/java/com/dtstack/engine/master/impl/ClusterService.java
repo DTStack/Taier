@@ -225,7 +225,7 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
      */
     public JSONObject pluginInfoJSON(@Param("tenantId") Long dtUicTenantId, @Param("engineType") String engineTypeStr, @Param("dtUicUserId")Long dtUicUserId,@Param("deployMode")Integer deployMode) {
         //缓存是否存在
-        String keyFormat = String.format("%s.%s.%s.%s", dtUicTenantId, engineTypeStr, dtUicUserId, deployMode);
+        String keyFormat = String.format("%s.%s.%s.%s", dtUicTenantId, engineTypeStr, dtUicTenantId, deployMode);
         JSONObject cacheInfo = pluginInfoCache.getIfPresent(keyFormat);
         if (Objects.nonNull(cacheInfo)) {
             return cacheInfo;
