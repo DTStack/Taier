@@ -403,15 +403,16 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         pluginInfo.put("jdbcUrl", jdbcUrl);
         pluginInfo.put("username", username);
         pluginInfo.put("password", password);
-        pluginInfo.put("driverClassName", DataSourceType.getBaseType(sourceType).getDriverClassName());
         pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,DataSourceType.getBaseType(sourceType).getTypeName());
         if (DataSourceType.HIVE.getVal() != sourceType && DataSourceType.HIVE1X.getVal() != sourceType) {
             return pluginInfo;
         }
-        //如果开启了kerberos
+        if (Objects.isNull(hadoopConfig)) {
+            throw new RdosDefineException("hadoop配置不能为空");
+        }
         JSONObject config = new JSONObject();
         if ("kerberos".equalsIgnoreCase(hadoopConfig.getString("hadoop.security.authentication"))) {
-            //开启了kerberos
+            //开启了kerberos 用数据同步中job 中配置项
             pluginInfo.put("openKerberos", "true");
             config.put("openKerberos", "true");
             config.put("remoteDir", hadoopConfig.getString("remoteDir"));
