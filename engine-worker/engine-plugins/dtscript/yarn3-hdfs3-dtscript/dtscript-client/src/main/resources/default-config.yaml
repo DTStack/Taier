@@ -3,6 +3,7 @@ commonConf:
   required:
     java.home: /opt/dtstack/java/bin
     hadoop.home.dir: /data/hadoop_base
+    hadoop.username: admin
 
 pythonConf:
   controls: group
