@@ -28,7 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.ClusterDescriptor;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.configuration.ResourceManagerOptions;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.kubernetes.KubernetesClusterDescriptor;
@@ -36,7 +35,6 @@ import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.MalformedURLException;
 import java.util.Properties;
 
 /**
@@ -46,12 +44,6 @@ import java.util.Properties;
  */
 public class PerJobClientFactory extends AbstractClientFactory {
     private static final Logger LOG = LoggerFactory.getLogger(PerJobClientFactory.class);
-
-    private final static String TASKID_MASTER_KEY = "TASK_ID";
-
-    private final static String FLINKX_HOSTS_ENV = "FLINKX_HOSTS";
-
-    private final static String FLINKX_HOSTS_CONFIG_KEY = "flinkx.hosts";
 
     private FlinkConfig flinkConfig;
     private Configuration flinkConfiguration;
@@ -64,15 +56,15 @@ public class PerJobClientFactory extends AbstractClientFactory {
     public ClusterDescriptor<String> createPerjobClusterDescriptor(JobClient jobClient, String projobClusterId) {
         Configuration newConf = new Configuration(flinkConfiguration);
 
-        String taskIdMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + TASKID_MASTER_KEY;
+        String taskIdMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.TASKID_KEY;
         newConf.setString(taskIdMasterKey, jobClient.getTaskId());
-        String taskIdTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + TASKID_MASTER_KEY;
+        String taskIdTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + ConfigConstrant.TASKID_KEY;
         newConf.setString(taskIdTaskMangerKey, jobClient.getTaskId());
 
-        String flinkxHostsMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + FLINKX_HOSTS_ENV;
-        newConf.setString(flinkxHostsMasterKey, newConf.getString(FLINKX_HOSTS_CONFIG_KEY, ""));
-        String flinkxHostsTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + FLINKX_HOSTS_ENV;
-        newConf.setString(flinkxHostsTaskMangerKey, newConf.getString(FLINKX_HOSTS_CONFIG_KEY, ""));
+        String flinkxHostsMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.FLINKX_HOSTS_ENV;
+        newConf.setString(flinkxHostsMasterKey, newConf.getString(ConfigConstrant.FLINKX_HOSTS_CONFIG_KEY, ""));
+        String flinkxHostsTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + ConfigConstrant.FLINKX_HOSTS_ENV;
+        newConf.setString(flinkxHostsTaskMangerKey, newConf.getString(ConfigConstrant.FLINKX_HOSTS_CONFIG_KEY, ""));
 
 
         newConf = appendJobConfigAndInitFs(jobClient.getConfProperties(), newConf);
@@ -82,6 +74,8 @@ public class PerJobClientFactory extends AbstractClientFactory {
         if (!flinkConfig.getFlinkHighAvailability() && ComputeType.BATCH == jobClient.getComputeType()) {
             setNoneHaModeConfig(newConf);
         }
+
+        newConf.setString(KubernetesConfigOptions.CLUSTER_ID, projobClusterId);
 
         KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
 

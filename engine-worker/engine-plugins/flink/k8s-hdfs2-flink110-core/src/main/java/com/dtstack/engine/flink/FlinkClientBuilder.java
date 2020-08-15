@@ -29,14 +29,6 @@ public class FlinkClientBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlinkClientBuilder.class);
 
-    private final static String AKKA_ASK_TIMEOUT = "50 s";
-
-    private final static String AKKA_CLIENT_TIMEOUT = "300 s";
-
-    private final static String AKKA_TCP_TIMEOUT = "60 s";
-
-    private final static String JVM_OPTIONS = "-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing";
-
     private FlinkConfig flinkConfig;
 
     private org.apache.hadoop.conf.Configuration hadoopConf;
@@ -65,11 +57,11 @@ public class FlinkClientBuilder {
 
     private Configuration initFlinkGlobalConfiguration(Properties extProp) {
         Configuration config = new Configuration();
-        config.setString("akka.client.timeout", AKKA_CLIENT_TIMEOUT);
-        config.setString("akka.ask.timeout", AKKA_ASK_TIMEOUT);
-        config.setString("akka.tcp.timeout", AKKA_TCP_TIMEOUT);
+        config.setString("akka.client.timeout", ConfigConstrant.AKKA_CLIENT_TIMEOUT);
+        config.setString("akka.ask.timeout", ConfigConstrant.AKKA_ASK_TIMEOUT);
+        config.setString("akka.tcp.timeout", ConfigConstrant.AKKA_TCP_TIMEOUT);
         // JVM Param
-        config.setString(CoreOptions.FLINK_JVM_OPTIONS, JVM_OPTIONS);
+        config.setString(CoreOptions.FLINK_JVM_OPTIONS, ConfigConstrant.JVM_OPTIONS);
 
         // hadoop
         config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));

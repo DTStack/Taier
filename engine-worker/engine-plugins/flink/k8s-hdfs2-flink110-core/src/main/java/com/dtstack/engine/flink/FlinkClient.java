@@ -85,17 +85,6 @@ public class FlinkClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
-    //FIXME key值需要根据客户端传输名称调整
-    private static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
-
-    public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
-
-    private static final String TASKMANAGERS_URL_FORMAT = "%s/taskmanagers";
-
-    private static final String JOBMANAGER_LOG_URL_FORMAT = "%s/jobmanager/log";
-
-    private static final String TASKMANAGERS_KEY = "taskmanagers";
-
     private String tmpFileDirPath = "./tmp";
 
     private static final Path tmpdir = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
@@ -265,7 +254,7 @@ public class FlinkClient extends AbstractClient {
     private ClusterClient createClusterClientForPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws ClusterDeploymentException {
         ClusterDescriptor<String> clusterDescriptor = null;
         ClusterClient<String> clusterClient = null;
-        String projobClusterId = String.format("%s-%s-%s", FlinkConfig.FLINK_PERJOB_PREFIX, jobClient.getTaskId(), jobClient.getGenerateTime());
+        String projobClusterId = String.format("%s-%s-%s", ConfigConstrant.FLINK_PERJOB_PREFIX, jobClient.getTaskId(), jobClient.getGenerateTime());
         try {
             clusterDescriptor = flinkClusterClientManager.getPerJobClientFactory().createPerjobClusterDescriptor(jobClient, projobClusterId);
             if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
@@ -332,8 +321,8 @@ public class FlinkClient extends AbstractClient {
 
         String externalPath = jobClient.getExternalPath();
         boolean allowNonRestoredState = false;
-        if (jobClient.getConfProperties().containsKey(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY)) {
-            String allowNonRestored = (String) jobClient.getConfProperties().get(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY);
+        if (jobClient.getConfProperties().containsKey(ConfigConstrant.FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY)) {
+            String allowNonRestored = (String) jobClient.getConfProperties().get(ConfigConstrant.FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY);
             allowNonRestoredState = BooleanUtils.toBoolean(allowNonRestored);
         }
 
@@ -486,7 +475,7 @@ public class FlinkClient extends AbstractClient {
                     String state = (String) stateObj;
                     state = StringUtils.upperCase(state);
                     RdosTaskStatus rdosTaskStatus =  RdosTaskStatus.getTaskStatus(state);
-                    Boolean isFlinkSessionTask = applicationId.startsWith(FlinkConfig.FLINK_SESSION_PREFIX);
+                    Boolean isFlinkSessionTask = applicationId.startsWith(ConfigConstrant.FLINK_SESSION_PREFIX);
                     if (RdosTaskStatus.isStopped(rdosTaskStatus.getStatus()) && !isFlinkSessionTask) {
                         clusterClient.shutDownCluster();
                     }
@@ -705,7 +694,7 @@ public class FlinkClient extends AbstractClient {
         }
 
         try {
-            return getMessageByHttp(String.format(FLINK_CP_URL_FORMAT, jobId), reqURL);
+            return getMessageByHttp(String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, jobId), reqURL);
         } catch (IOException e) {
             logger.error("", e);
             return null;
@@ -796,7 +785,7 @@ public class FlinkClient extends AbstractClient {
     private String getJobmanagerLogInfo(String webInterfaceUrl) throws IOException {
         JSONObject jobmanager = new JSONObject();
         jobmanager.put("typeName", "jobmanager");
-        String jobmanagerUrl = String.format(JOBMANAGER_LOG_URL_FORMAT, webInterfaceUrl);
+        String jobmanagerUrl = String.format(ConfigConstrant.JOBMANAGER_LOG_URL_FORMAT, webInterfaceUrl);
         String jobmanagerMsg = PoolHttpClient.get(jobmanagerUrl);
 
         JSONObject logInfo = new JSONObject();
@@ -815,14 +804,14 @@ public class FlinkClient extends AbstractClient {
     private List<String> getTaskmanagersLogInfo(String webInterfaceUrl) throws IOException {
         List<String> taskmanagerLogs = new ArrayList<>();
 
-        String taskmanagersUrl = String.format(TASKMANAGERS_URL_FORMAT, webInterfaceUrl);
+        String taskmanagersUrl = String.format(ConfigConstrant.TASKMANAGERS_URL_FORMAT, webInterfaceUrl);
         String taskmanagersMsg = PoolHttpClient.get(taskmanagersUrl);
         JSONObject taskmanagers = JSONObject.parseObject(taskmanagersMsg);
-        if (!taskmanagers.containsKey(TASKMANAGERS_KEY)) {
+        if (!taskmanagers.containsKey(ConfigConstrant.TASKMANAGERS_KEY)) {
             logger.error("Get the taskmanagers but does not include the taskmanagers field! " + taskmanagersMsg);
             throw new RdosDefineException("Does not include the taskmanagers field.");
         }
-        JSONArray taskmanagersInfo = taskmanagers.getJSONArray(TASKMANAGERS_KEY);
+        JSONArray taskmanagersInfo = taskmanagers.getJSONArray(ConfigConstrant.TASKMANAGERS_KEY);
         for(Object taskmanager : taskmanagersInfo) {
             JSONObject logInfo = new JSONObject();
 
