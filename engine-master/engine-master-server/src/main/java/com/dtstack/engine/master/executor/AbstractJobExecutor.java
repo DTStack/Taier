@@ -274,9 +274,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 }
                 listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight());
             }
-            if (logger.isDebugEnabled()) {
-                logger.debug("scheduleType:{},nodeAddress:{},emitJob2Queue return startId:{}", getScheduleType(), nodeAddress, startId);
-            }
+
+            logger.debug("scheduleType:{},nodeAddress:{},emitJob2Queue return startId:{}", getScheduleType(), nodeAddress, startId);
         } catch (Exception e) {
             logger.error("scheduleType:{},odeAddress:{},emitJob2Queue error:{}", getScheduleType(), nodeAddress, e);
         }

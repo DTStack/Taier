@@ -86,7 +86,7 @@ public class JopPriorityQueue {
         try {
             return putElement(element);
         } catch (Exception e) {
-            logger.info("jobId:{},queue timeout cause interrupted:",scheduleBatchJob.getJobId(),e);
+            logger.error("jobId:{},queue timeout cause interrupted:",scheduleBatchJob.getJobId(),e);
             return Boolean.FALSE;
         }
     }
