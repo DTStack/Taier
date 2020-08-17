@@ -127,22 +127,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
     public void recoverOtherNode() {
         //处理其他节点故障恢复时转移而来的数据
-        jopPriorityQueue.clearAndAllIngestion((this::disasterPreparedness));
-    }
-
-
-    public void disasterPreparedness() {
-        // 容器关闭，容器内的作业恢复待扫描的状态
-        while (jopPriorityQueue.getQueueSize() > 0) {
-            try {
-                BatchJobElement batchJobElement = jopPriorityQueue.takeJob();
-                ScheduleBatchJob scheduleBatchJob = batchJobElement.getScheduleBatchJob();
-                // 更新待扫描状态
-                batchJobService.updateRunStatusById(scheduleBatchJob.getId(), JobRunStatus.JOIN_THE_TEAM ,JobRunStatus.CREATE);
-            } catch (InterruptedException e) {
-                logger.error("happens error:", e);
-            }
-        }
+        jopPriorityQueue.clearAndAllIngestion();
     }
 
     @Override

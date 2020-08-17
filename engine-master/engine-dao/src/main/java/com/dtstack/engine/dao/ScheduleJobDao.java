@@ -239,4 +239,6 @@ public interface ScheduleJobDao {
     Integer updateRunStatusById(@Param("id") Long id, @Param("original") Integer original, @Param("update") Integer update);
 
     Long getListMinId(@Param("nodeAddress") String nodeAddress, @Param("scheduleType") Integer scheduleType, @Param("cycStartTime") String left, @Param("cycEndTime") String right, @Param("runStatus") Integer code);
+
+    Integer updateListRunStatus(@Param("ids") List<Long> ids, @Param("update") Integer update);
 }

@@ -1275,7 +1275,7 @@
     </select>
 
     <select id="listSimpleJobByStatusAddress" resultType="SimpleScheduleJobPO">
-        SELECT id, job_id, type
+        SELECT id, job_id, type, run_status
         FROM schedule_job
         WHERE id > #{startId} AND (node_address = #{nodeAddress} or node_address is null)
         <if test="statuses != null">
@@ -1621,6 +1621,15 @@
         set `run_status`=#{update}
         where `id` = #{id}
         and `run_status` = #{original}
+        and `is_deleted`=0;
+    </update>
+    <update id="updateListRunStatus">
+        update `schedule_job`
+        set `run_status`=#{update}
+        where `id` IN
+        <foreach collection="ids" separator="," open="(" close=")" item="id">
+            #{id}
+        </foreach>
         and `is_deleted`=0;
     </update>
 </mapper>

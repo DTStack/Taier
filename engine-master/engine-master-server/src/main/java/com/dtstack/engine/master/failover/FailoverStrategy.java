@@ -9,6 +9,7 @@ import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.po.SimpleScheduleJobPO;
+import com.dtstack.engine.master.enums.JobRunStatus;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.NodeRecoverService;
 import com.dtstack.engine.master.queue.JobPartitioner;
@@ -199,16 +200,22 @@ public class FailoverStrategy {
                 }
                 List<Long> cronJobIds = Lists.newArrayList();
                 List<Long> fillJobIds = Lists.newArrayList();
+                List<Long> runStatus = Lists.newArrayList();
                 for (SimpleScheduleJobPO batchJob : jobs) {
                     if (EScheduleType.NORMAL_SCHEDULE.getType() == batchJob.getType()) {
                         cronJobIds.add(batchJob.getId());
                     } else {
                         fillJobIds.add(batchJob.getId());
                     }
+
+                    if (JobRunStatus.JOIN_THE_TEAM.getCode().equals(batchJob.getRunStatus())) {
+                        runStatus.add(batchJob.getId());
+                    }
                     startId = batchJob.getId();
                 }
                 distributeBatchJobs(cronJobIds, EScheduleType.NORMAL_SCHEDULE.getType());
                 distributeBatchJobs(fillJobIds, EScheduleType.NORMAL_SCHEDULE.getType());
+                updateRunStatus(runStatus);
             }
 
             //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收需要再次恢复（由HearBeatCheckListener监控）。
@@ -220,6 +227,12 @@ public class FailoverStrategy {
             LOG.warn("----- nodeAddress:{} BatchJob 任务结束恢复-----", nodeAddress);
         } catch (Exception e) {
             LOG.error("----nodeAddress:{} faultTolerantRecoverBatchJob error:{}", nodeAddress, e);
+        }
+    }
+
+    private void updateRunStatus(List<Long> runStatus) {
+        if (CollectionUtils.isNotEmpty(runStatus)) {
+            scheduleJobDao.updateListRunStatus(runStatus,JobRunStatus.CREATE.getCode());
         }
     }
 

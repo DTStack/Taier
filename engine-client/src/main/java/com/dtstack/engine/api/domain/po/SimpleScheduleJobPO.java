@@ -13,6 +13,7 @@ public class SimpleScheduleJobPO {
     private Long id;
     private String jobId;
     private Integer type;
+    private Integer runStatus;
 
     public Long getId() {
         return id;
@@ -36,5 +37,13 @@ public class SimpleScheduleJobPO {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public Integer getRunStatus() {
+        return runStatus;
+    }
+
+    public void setRunStatus(Integer runStatus) {
+        this.runStatus = runStatus;
     }
 }

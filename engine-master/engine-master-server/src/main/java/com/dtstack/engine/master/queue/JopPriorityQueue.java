@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * company: www.dtstack.com
@@ -37,8 +36,6 @@ public class JopPriorityQueue {
     private OrderLinkedBlockingQueue<BatchJobElement> queue;
 
     private AcquireGroupQueueJob acquireGroupQueueJob = new AcquireGroupQueueJob();
-
-    private AtomicBoolean clearQueue = new AtomicBoolean(false);
 
     /**
      * JopPriorityQueue 中增加独立线程，以定时调度方式从数据库中获取任务。（数据库查询以id和优先级为条件）
@@ -77,11 +74,6 @@ public class JopPriorityQueue {
             throw new RuntimeException("scheduleBatchJob is null");
         }
 
-        // 判断队列是否关闭
-        if (clearQueue.get() == Boolean.TRUE) {
-            return false;
-        }
-
         BatchJobElement element = new BatchJobElement(scheduleBatchJob);
         return putElement(element);
     }
@@ -99,9 +91,7 @@ public class JopPriorityQueue {
     }
 
 
-    public void clearAndAllIngestion(CloseQueue closeQueue) {
-        clearQueue.compareAndSet(Boolean.FALSE,Boolean.TRUE);
-        closeQueue.processingStatus();
+    public void clearAndAllIngestion() {
         queue.clear();
     }
 
@@ -123,15 +113,5 @@ public class JopPriorityQueue {
          */
         void ingestion(JopPriorityQueue jopPriorityQueue);
     }
-
-    public interface CloseQueue {
-
-        /**
-         * 关闭队列时，如何处理队列中剩下的元素
-         *
-         */
-        void processingStatus();
-    }
-
 
 }
