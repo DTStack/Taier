@@ -26,6 +26,7 @@ public class FillJobExecutor extends AbstractJobExecutor {
     @Override
     public void stop() {
         RUNNING.set(false);
+        this.disasterPreparedness();
         logger.info("---stop FillJobExecutor----");
     }
 

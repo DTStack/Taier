@@ -26,6 +26,7 @@ import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.EDeployMode;
+import com.dtstack.engine.master.enums.JobRunStatus;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import com.dtstack.engine.master.multiengine.factory.MultiEngineFactory;
@@ -2756,4 +2757,20 @@ public class ScheduleJobService {
         CompletableFuture.runAsync(() -> jobGraphBuilder.buildTaskJobGraph(triggerDay));
     }
 
+    public boolean updateRunStatusById(Long id, JobRunStatus original, JobRunStatus update) {
+        if (id==null|| original==null|| update==null) {
+            return Boolean.FALSE;
+        }
+
+        Integer integer = scheduleJobDao.updateRunStatusById(id, original.getCode(), update.getCode());
+
+        if (integer != null && !integer.equals(0)) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    public Long getListMinId(String nodeAddress,Integer scheduleType, String left, String right) {
+        return scheduleJobDao.getListMinId(nodeAddress, scheduleType, left, right, JobRunStatus.CREATE.getCode());
+    }
 }

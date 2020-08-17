@@ -1341,6 +1341,7 @@
         </if>
         AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
         AND is_deleted = 0
+        AND `run_status` = #{runStatus}
         order by id, cyc_time asc limit 500
     </select>
 
@@ -1587,6 +1588,25 @@
         and is_deleted=0;
     </select>
 
+    <select id="getListMinId" resultType="java.lang.Long">
+        SELECT
+            min(id)
+        FROM schedule_job bj
+        WHERE node_address = #{nodeAddress}
+        <if test="scheduleType != null">
+            AND type = #{scheduleType}
+        </if>
+        <if test="cycStartTime != null">
+            AND cyc_time &gt;= #{cycStartTime}
+        </if>
+        <if test="cycEndTime != null">
+            AND cyc_time &lt; #{cycEndTime}
+        </if>
+        AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
+        AND is_deleted = 0
+        AND `run_status` = #{runStatus}
+    </select>
+
     <update id="updateJobStatusByJobIds">
         update schedule_job
         set gmt_modified=now(), status=#{status}
@@ -1595,5 +1615,12 @@
             #{jobId}
         </foreach>
         and is_deleted=0;
+    </update>
+    <update id="updateRunStatusById">
+        update `schedule_job`
+        set `run_status`=#{update}
+        where `id` = #{id}
+        and `run_status` = #{original}
+        and `is_deleted`=0;
     </update>
 </mapper>
