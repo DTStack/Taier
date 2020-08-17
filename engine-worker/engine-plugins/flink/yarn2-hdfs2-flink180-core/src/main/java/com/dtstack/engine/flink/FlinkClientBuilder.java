@@ -3,6 +3,7 @@ package com.dtstack.engine.flink;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.enums.ClusterMode;
+import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.HadoopConf;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
@@ -28,14 +29,6 @@ import java.util.Properties;
 public class FlinkClientBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlinkClientBuilder.class);
-
-    private final static String AKKA_ASK_TIMEOUT = "50 s";
-
-    private final static String AKKA_CLIENT_TIMEOUT = "300 s";
-
-    private final static String AKKA_TCP_TIMEOUT = "60 s";
-
-    private static String jvm_options = "-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing";
 
     private FlinkConfig flinkConfig;
 
@@ -70,11 +63,11 @@ public class FlinkClientBuilder {
 
     public void initFlinkGlobalConfiguration(Properties extProp) {
         Configuration config = new Configuration();
-        config.setString("akka.client.timeout", AKKA_CLIENT_TIMEOUT);
-        config.setString("akka.ask.timeout", AKKA_ASK_TIMEOUT);
-        config.setString("akka.tcp.timeout", AKKA_TCP_TIMEOUT);
+        config.setString("akka.client.timeout", ConfigConstrant.AKKA_CLIENT_TIMEOUT);
+        config.setString("akka.ask.timeout", ConfigConstrant.AKKA_ASK_TIMEOUT);
+        config.setString("akka.tcp.timeout", ConfigConstrant.AKKA_TCP_TIMEOUT);
         // JVM Param
-        config.setString(CoreOptions.FLINK_JVM_OPTIONS, jvm_options);
+        config.setString(CoreOptions.FLINK_JVM_OPTIONS, ConfigConstrant.JVM_OPTIONS);
         config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));
         config.setLong("submitTimeout", 5);
 

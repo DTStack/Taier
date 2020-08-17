@@ -294,7 +294,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
             String flinkPluginRoot = flinkConfig.getFlinkPluginRoot();
             if (StringUtils.isNotBlank(flinkPluginRoot)) {
-                String syncPluginDir = flinkPluginRoot + SyncPluginInfo.FILE_SP + SyncPluginInfo.SYNC_PLUGIN_DIR_NAME;
+                String syncPluginDir = flinkPluginRoot + ConfigConstrant.SP + ConfigConstrant.SYNCPLUGIN_DIR;
                 File syncFile = new File(syncPluginDir);
                 if (!syncFile.exists()) {
                     throw new RdosDefineException("syncPlugin path is null");
