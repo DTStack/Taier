@@ -127,8 +127,23 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
     public void recoverOtherNode() {
         //处理其他节点故障恢复时转移而来的数据
-        jopPriorityQueue.clearAndAllIngestion();
+        jopPriorityQueue.clearAndAllIngestion((this::disasterPreparedness));
     }
+
+    public void disasterPreparedness() {
+        // 容器关闭，容器内的作业恢复待扫描的状态
+        while (jopPriorityQueue.getQueueSize() > 0) {
+            try {
+                BatchJobElement batchJobElement = jopPriorityQueue.takeJob();
+                ScheduleBatchJob scheduleBatchJob = batchJobElement.getScheduleBatchJob();
+                // 更新待扫描状态
+                batchJobService.updateRunStatusById(scheduleBatchJob.getId(), JobRunStatus.JOIN_THE_TEAM ,JobRunStatus.CREATE);
+            } catch (InterruptedException e) {
+                logger.error("happens error:", e);
+            }
+        }
+    }
+
 
     @Override
     public void run() {
@@ -261,13 +276,16 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                         if (updateStatus) {
                             boolean isPutQueue = jopPriorityQueue.putJob(scheduleBatchJob);
                             if (!isPutQueue) {
+                                if (logger.isInfoEnabled()) {
+                                    logger.info("scheduleType:{} nodeAddress:{} schedule:{} job rollback", getScheduleType(), nodeAddress,scheduleBatchJob.getJobId());
+                                }
                                 batchJobService.updateRunStatusById(scheduleBatchJob.getId(), JobRunStatus.JOIN_THE_TEAM, JobRunStatus.CREATE);
+                            } else {
+                                if (logger.isInfoEnabled()) {
+                                    logger.info("scheduleType:{} nodeAddress:{} schedule:{} enter queue", getScheduleType(), nodeAddress,scheduleBatchJob.getJobId());
+                                }
                             }
                         }
-                        if (logger.isInfoEnabled()) {
-                            logger.info("scheduleType:{} nodeAddress:{} schedule:{} enter queue", getScheduleType(), nodeAddress,scheduleBatchJob.getJobId());
-                        }
-
                     }
                     //重跑任务不记录id
                     if (Restarted.RESTARTED.getStatus() != scheduleBatchJob.getIsRestart()) {
