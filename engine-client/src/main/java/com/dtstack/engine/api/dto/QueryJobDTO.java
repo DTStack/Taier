@@ -33,6 +33,8 @@ public class QueryJobDTO {
     private String fillTaskName;
     private Long cycStartDay;
     private Long cycEndDay;
+    private Long execStartDay;
+    private Long execEndDay;
     // 增加失败状态细分标志
     private Boolean splitFiledFlag;
     private String searchType;
@@ -264,5 +266,21 @@ public class QueryJobDTO {
 
     public void setTaskPeriodId(String taskPeriodId) {
         this.taskPeriodId = taskPeriodId;
+    }
+
+    public Long getExecStartDay() {
+        return execStartDay;
+    }
+
+    public void setExecStartDay(Long execStartDay) {
+        this.execStartDay = execStartDay;
+    }
+
+    public Long getExecEndDay() {
+        return execEndDay;
+    }
+
+    public void setExecEndDay(Long execEndDay) {
+        this.execEndDay = execEndDay;
     }
 }
