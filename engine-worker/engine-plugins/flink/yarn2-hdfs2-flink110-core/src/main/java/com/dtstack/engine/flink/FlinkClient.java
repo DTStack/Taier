@@ -67,6 +67,7 @@ import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
+import org.apache.kerby.config.Conf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.security.action.GetPropertyAction;
@@ -94,21 +95,9 @@ public class FlinkClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
-    //FIXME key值需要根据客户端传输名称调整
-    private static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
-
-    public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
-
     private static int MAX_RETRY_NUMBER = 2;
 
     private String tmpFileDirPath = "./tmp";
-
-    private static final String USER_DIR = System.getProperty("user.dir");
-
-    private static final String DIR = "/keytab/";
-    private static final String APPLICATION_REST_API_TMP = "%s/ws/v1/cluster/apps/%s";
-    private static final String CONTAINER_LOG_URL_TMP = "%s/node/containerlogs/%s/%s";
-    private static final String TASK_MANAGERS_KEY = "taskmanagers";
 
     private static final Path tmpdir = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
 
@@ -331,8 +320,8 @@ public class FlinkClient extends AbstractClient {
 
         String externalPath = jobClient.getExternalPath();
         boolean allowNonRestoredState = false;
-        if(jobClient.getConfProperties().containsKey(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY)){
-            String allowNonRestored = (String) jobClient.getConfProperties().get(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY);
+        if(jobClient.getConfProperties().containsKey(ConfigConstrant.FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY)){
+            String allowNonRestored = (String) jobClient.getConfProperties().get(ConfigConstrant.FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY);
             allowNonRestoredState = BooleanUtils.toBoolean(allowNonRestored);
         }
 
@@ -696,7 +685,7 @@ public class FlinkClient extends AbstractClient {
     public List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier) {
         String jobMaster = getJobMaster(jobIdentifier);
         String rootURL = UrlUtil.getHttpRootUrl(jobMaster);
-        String amRootURl = String.format(APPLICATION_REST_API_TMP, rootURL, jobIdentifier.getApplicationId());
+        String amRootURl = String.format(ConfigConstrant.YARN_APPLICATION_URL_FORMAT, rootURL, jobIdentifier.getApplicationId());
 
         List<String> result = Lists.newArrayList();
         try {
@@ -730,7 +719,7 @@ public class FlinkClient extends AbstractClient {
     private String buildContainerLogUrl(String containerHostPortFormat, String[] nameAndHost, String user) {
         logger.debug("buildContainerLogUrl name:{},host{},user{} ", nameAndHost[0], nameAndHost[1], user);
         String containerUlrPre = String.format(containerHostPortFormat, nameAndHost[1]);
-        return String.format(CONTAINER_LOG_URL_TMP, containerUlrPre, nameAndHost[0], user);
+        return String.format(ConfigConstrant.YARN_CONTAINER_LOG_URL_FORMAT, containerUlrPre, nameAndHost[0], user);
     }
 
     /**
@@ -773,10 +762,10 @@ public class FlinkClient extends AbstractClient {
     private List<TaskmanagerInfo> getContainersNameAndHost(String trackingUrl) throws IOException {
         List<TaskmanagerInfo> containersNameAndHost = Lists.newArrayList();
         try {
-            String taskManagerUrl = trackingUrl + "/" + TASK_MANAGERS_KEY;
+            String taskManagerUrl = String.format(ConfigConstrant.TASKMANAGERS_URL_FORMAT, trackingUrl);
             String taskManagersInfo = HttpClient.get(taskManagerUrl);
             JSONObject response = JSONObject.parseObject(taskManagersInfo);
-            JSONArray taskManagers = response.getJSONArray(TASK_MANAGERS_KEY);
+            JSONArray taskManagers = response.getJSONArray(ConfigConstrant.TASKMANAGERS_KEY);
 
             containersNameAndHost = IntStream.range(0, taskManagers.size())
                     .mapToObj(taskManagers::getJSONObject)
@@ -818,7 +807,7 @@ public class FlinkClient extends AbstractClient {
             if (PrepareOperator.verificKeytab(tmpSql)) {
                 sqlItera.remove();
                 SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
-                String localDir = USER_DIR + DIR + jobClient.getTaskId();
+                String localDir = ConfigConstrant.LOCAL_KEYTAB_TASK_DIR_PARENT + jobClient.getTaskId();
                 String localPath = handler.loadFromSftp(PrepareOperator.getFileName(tmpSql), flinkConfig.getRemoteDir(), localDir);
                 logger.info("Download file to :" + localPath);
             } else if (PrepareOperator.verific(tmpSql)) {
@@ -891,7 +880,7 @@ public class FlinkClient extends AbstractClient {
         }
 
         try {
-            return getMessageByHttp(String.format(FLINK_CP_URL_FORMAT, jobId), reqURL);
+            return getMessageByHttp(String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, jobId), reqURL);
         } catch (IOException e) {
             logger.error("", e);
             return null;

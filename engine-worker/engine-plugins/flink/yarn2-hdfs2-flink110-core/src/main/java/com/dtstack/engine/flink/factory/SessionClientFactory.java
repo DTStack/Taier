@@ -289,7 +289,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
             String flinkPluginRoot = flinkConfig.getFlinkPluginRoot();
             if (StringUtils.isNotBlank(flinkPluginRoot)) {
-                String syncPluginDir = flinkPluginRoot + SyncPluginInfo.FILE_SP + SyncPluginInfo.SYNC_PLUGIN_DIR_NAME;
+                String syncPluginDir = flinkPluginRoot + ConfigConstrant.SP + ConfigConstrant.SYNCPLUGIN_DIR;
                 List<File> pluginPaths = Arrays.stream(new File(syncPluginDir).listFiles())
                         .filter(file -> !file.getName().endsWith("zip"))
                         .collect(Collectors.toList());

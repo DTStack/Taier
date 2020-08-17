@@ -18,8 +18,6 @@ import java.util.Map;
  */
 public class FlinkConfig extends BaseConfig {
 
-    private static final String DEFAULT_FLINK_PLUGIN_ROOT = "/opt/dtstack/flinkplugin";
-
     private static final String DEFAULT_JAR_TMP_DIR = "../tmp110";
 
     private static List<String> ENGINE_FLINK_CONFIGS = null;
@@ -232,7 +230,7 @@ public class FlinkConfig extends BaseConfig {
 
     public String getFlinkPluginRoot() {
         if(Strings.isNullOrEmpty(flinkPluginRoot)){
-            return DEFAULT_FLINK_PLUGIN_ROOT;
+            return ConfigConstrant.DEFAULT_FLINK_PLUGIN_ROOT;
         }
 
         return flinkPluginRoot;

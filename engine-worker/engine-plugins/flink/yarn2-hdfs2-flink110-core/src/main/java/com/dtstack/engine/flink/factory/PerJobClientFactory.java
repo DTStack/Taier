@@ -57,12 +57,6 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerJobClientFactory.class);
 
-    private static final String KERBEROS_DIR = "/kerberosPath/";
-
-    private static final String LOG_LEVEL_KEY = "logLevel";
-
-    private static final String USER_DIR = System.getProperty("user.dir");
-
     private FlinkConfig flinkConfig;
     private Configuration flinkConfiguration;
     private YarnConfiguration yarnConf;
@@ -89,6 +83,11 @@ public class PerJobClientFactory extends AbstractClientFactory {
             }
         }
 
+        if (flinkConfig.isOpenKerberos()) {
+            List<File> keytabFilePath = getKeytabFilePath();
+            clusterDescriptor.addShipFiles(keytabFilePath);
+        }
+
         clusterDescriptor.setProvidedUserJarFiles(classpaths);
         return clusterDescriptor;
     }
@@ -98,7 +97,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
         if (properties != null) {
             properties.stringPropertyNames()
                     .stream()
-                    .filter(key -> key.toString().contains(".") || key.toString().equalsIgnoreCase(LOG_LEVEL_KEY))
+                    .filter(key -> key.toString().contains(".") || key.toString().equalsIgnoreCase(ConfigConstrant.LOG_LEVEL_KEY))
                     .forEach(key -> configuration.setString(key.toString(), properties.getProperty(key)));
         }
 
@@ -129,6 +128,22 @@ public class PerJobClientFactory extends AbstractClientFactory {
     @Override
     public ClusterClient getClusterClient() {
         return null;
+    }
+
+    private List<File> getKeytabFilePath() {
+        List<File> keytabs = Lists.newLinkedList();
+        String remoteDir = flinkConfig.getRemoteDir();
+        String keytabDir = ConfigConstrant.LOCAL_KEYTAB_DIR + remoteDir;
+        File keytabDirName = new File(keytabDir);
+        File[] files = keytabDirName.listFiles();
+
+        if (files == null || files.length == 0) {
+            throw new RdosDefineException("not find keytab file from " + keytabDir);
+        }
+        for (File file : files) {
+            keytabs.add(file);
+        }
+        return keytabs;
     }
 
     public static PerJobClientFactory createPerJobClientFactory(FlinkClientBuilder flinkClientBuilder) {

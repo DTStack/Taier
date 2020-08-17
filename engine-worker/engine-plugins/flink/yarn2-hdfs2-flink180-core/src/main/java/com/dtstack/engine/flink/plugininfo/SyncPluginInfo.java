@@ -30,8 +30,6 @@ public class SyncPluginInfo {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncPluginInfo.class);
 
-    public static final String SYNC_PLUGIN_DIR_NAME = "syncplugin";
-
     //同步模块在flink集群加载插件
     private String flinkRemoteSyncPluginRoot;
 
