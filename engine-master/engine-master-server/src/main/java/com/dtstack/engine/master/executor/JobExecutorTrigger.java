@@ -78,8 +78,8 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
             }
             allNodeJobInfo.computeIfAbsent(nodeAddress, na -> {
                 Map<Integer, QueueInfo> nodeJobInfo = Maps.newHashMap();
-                executors.forEach(executor -> nodeJobInfo.computeIfAbsent(executor.getScheduleType(), k -> {
-                    int queueSize = scheduleJobDao.countTasksByCycTimeTypeAndAddress(nodeAddress, executor.getScheduleType(), cycTime.getLeft(), cycTime.getRight());
+                executors.forEach(executor -> nodeJobInfo.computeIfAbsent(executor.getScheduleType().getType(), k -> {
+                    int queueSize = scheduleJobDao.countTasksByCycTimeTypeAndAddress(nodeAddress, executor.getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight());
                     QueueInfo queueInfo = new QueueInfo();
                     queueInfo.setSize(queueSize);
                     return queueInfo;

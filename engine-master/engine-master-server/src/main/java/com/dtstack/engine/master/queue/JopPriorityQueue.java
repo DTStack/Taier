@@ -72,7 +72,7 @@ public class JopPriorityQueue {
         return queue.take();
     }
 
-    public boolean putJob(ScheduleBatchJob scheduleBatchJob) throws InterruptedException {
+    public boolean putJob(ScheduleBatchJob scheduleBatchJob) {
         if (scheduleBatchJob == null) {
             throw new RuntimeException("scheduleBatchJob is null");
         }
@@ -82,7 +82,13 @@ public class JopPriorityQueue {
         }
 
         BatchJobElement element = new BatchJobElement(scheduleBatchJob);
-        return putElement(element);
+
+        try {
+            return putElement(element);
+        } catch (Exception e) {
+            logger.info("jobId:{},queue timeout cause interrupted:",scheduleBatchJob.getJobId(),e);
+            return Boolean.FALSE;
+        }
     }
 
     private boolean putElement(BatchJobElement element) throws InterruptedException {
@@ -97,11 +103,15 @@ public class JopPriorityQueue {
         return true;
     }
 
-
-    public void clearAndAllIngestion(CloseQueue closeQueue) {
+    /**
+     * 清空队列，禁止使用 queue.clear()
+     *
+     * @param clearQueueInterface 关闭队列后执行的逻辑
+     */
+    public void clearAndAllIngestion(ClearQueue clearQueueInterface) {
         try {
             clearQueue.compareAndSet(Boolean.FALSE,Boolean.TRUE);
-            closeQueue.processingStatus();
+            clearQueueInterface.processingStatus(this);
         } finally {
             clearQueue.compareAndSet(Boolean.TRUE,Boolean.FALSE);
         }
@@ -126,14 +136,14 @@ public class JopPriorityQueue {
         void ingestion(JopPriorityQueue jopPriorityQueue);
     }
 
-     public interface CloseQueue {
+     public interface ClearQueue {
         /**
          * 匿名函数获取 scheduleType 下的任务
          * 关闭队列时，如何处理队列中剩下的元素
          *
          * @return
          */
-        void processingStatus();
+        void processingStatus(JopPriorityQueue jopPriorityQueue);
      }
 
 
