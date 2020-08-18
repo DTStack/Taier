@@ -111,6 +111,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 env.getAcquireQueueJobInterval(),
                 env.getQueueSize(),
                 this::emitJob2Queue);
+
         String engineType = "default";
         String threadName = this.getClass().getSimpleName() + "_" + engineType + "_startJobProcessor";
         executorService = new ThreadPoolExecutor(env.getJobExecutorPoolCorePoolSize(), env.getJobExecutorPoolMaximumPoolSize(), env.getJobExecutorPoolKeepAliveTime(), TimeUnit.MILLISECONDS,
@@ -212,54 +213,57 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             //限制数据范围
             Pair<String, String> cycTime = getCycTime();
             Long startId = batchJobService.getListMinId(nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight());
-            List<ScheduleBatchJob> listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight());
-            while (CollectionUtils.isNotEmpty(listExecJobs)) {
-                logger.info("scheduleType:{} nodeAddress:{} startId:{} start put queue", getScheduleType(), nodeAddress, startId);
+            logger.info(" nodeAddress:{} start scanning since when startId:{}", nodeAddress,startId);
+            if (startId!=null) {
+                List<ScheduleBatchJob> listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight());
+                while (CollectionUtils.isNotEmpty(listExecJobs)) {
+                    logger.info("scheduleType:{} nodeAddress:{} startId:{} start put queue", getScheduleType(), nodeAddress, startId);
 
-                for (ScheduleBatchJob scheduleBatchJob : listExecJobs) {
-                    // 节点检查是否能进入队列
-                    JobCheckRunInfo checkRunInfo;
+                    for (ScheduleBatchJob scheduleBatchJob : listExecJobs) {
+                        // 节点检查是否能进入队列
+                        JobCheckRunInfo checkRunInfo;
 
-                    Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
-                    ScheduleTaskShade batchTask = this.taskCache().computeIfAbsent(taskIdUnique, k -> batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType()));
+                        Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
+                        ScheduleTaskShade batchTask = this.taskCache().computeIfAbsent(taskIdUnique, k -> batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType()));
 
-                    if (batchTask == null) {
-                        String errMsg = JobCheckStatus.NO_TASK.getMsg();
-                        batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.SUBMITFAILD.getStatus(), errMsg);
-                        logger.warn("jobId:{} scheduleType:{} submit failed for taskId:{} already deleted.", scheduleBatchJob.getJobId(), getScheduleType(), scheduleBatchJob.getTaskId());
-                        continue;
-                    }
+                        if (batchTask == null) {
+                            String errMsg = JobCheckStatus.NO_TASK.getMsg();
+                            batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.SUBMITFAILD.getStatus(), errMsg);
+                            logger.warn("jobId:{} scheduleType:{} submit failed for taskId:{} already deleted.", scheduleBatchJob.getJobId(), getScheduleType(), scheduleBatchJob.getTaskId());
+                            continue;
+                        }
 
-                    Integer type = batchTask.getTaskType();
-                    Integer status = batchJobService.getStatusById(scheduleBatchJob.getId());
+                        Integer type = batchTask.getTaskType();
+                        Integer status = batchJobService.getStatusById(scheduleBatchJob.getId());
 
-                    boolean checkRunInfoRs = (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) && !RdosTaskStatus.UNSUBMIT.getStatus().equals(status);
-                    if (checkRunInfoRs) {
-                        checkRunInfo = JobCheckRunInfo.createCheckInfo(JobCheckStatus.CAN_EXE);
-                    } else {
-                        checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), this.notStartCache, this.errorJobCache, this.taskCache());
-                    }
+                        boolean checkRunInfoRs = (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) && !RdosTaskStatus.UNSUBMIT.getStatus().equals(status);
+                        if (checkRunInfoRs) {
+                            checkRunInfo = JobCheckRunInfo.createCheckInfo(JobCheckStatus.CAN_EXE);
+                        } else {
+                            checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), this.notStartCache, this.errorJobCache, this.taskCache());
+                        }
 
-                    if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
-                        // 更新job状态
-                        boolean updateStatus = batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.CREATE, JobPhaseStatus.JOIN_THE_TEAM);
-                        if (updateStatus) {
-                            logger.info("jobId:{} scheduleType:{} nodeAddress:{} JobPhaseStatus:{} update success", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, JobPhaseStatus.JOIN_THE_TEAM);
-                            boolean isPutQueue = jopPriorityQueue.putJob(scheduleBatchJob);
-                            if (!isPutQueue) {
-                                logger.info("jobId:{} scheduleType:{} nodeAddress:{} job phase rollback", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress);
-                                batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.JOIN_THE_TEAM, JobPhaseStatus.CREATE);
-                            } else {
-                                logger.info("jobId:{} scheduleType:{} nodeAddress:{} enter queue", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress);
+                        if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
+                            // 更新job状态
+                            boolean updateStatus = batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.CREATE, JobPhaseStatus.JOIN_THE_TEAM);
+                            if (updateStatus) {
+                                logger.info("jobId:{} scheduleType:{} nodeAddress:{} JobPhaseStatus:{} update success", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, JobPhaseStatus.JOIN_THE_TEAM);
+                                boolean isPutQueue = jopPriorityQueue.putJob(scheduleBatchJob);
+                                if (!isPutQueue) {
+                                    logger.info("jobId:{} scheduleType:{} nodeAddress:{} job phase rollback", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress);
+                                    batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.JOIN_THE_TEAM, JobPhaseStatus.CREATE);
+                                } else {
+                                    logger.info("jobId:{} scheduleType:{} nodeAddress:{} enter queue", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress);
+                                }
                             }
                         }
+                        //重跑任务不记录id
+                        if (Restarted.RESTARTED.getStatus() != scheduleBatchJob.getIsRestart()) {
+                            startId = scheduleBatchJob.getId();
+                        }
                     }
-                    //重跑任务不记录id
-                    if (Restarted.RESTARTED.getStatus() != scheduleBatchJob.getIsRestart()) {
-                        startId = scheduleBatchJob.getId();
-                    }
+                    listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight());
                 }
-                listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight());
             }
         } catch (Exception e) {
             logger.error("scheduleType:{} nodeAddress:{} emitJob2Queue error:", getScheduleType(), nodeAddress, e);
@@ -334,7 +338,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     private Pair<String, String> getCycTime() {
         Pair<String, String> cycTime = null;
         if (getScheduleType().getType() == EScheduleType.NORMAL_SCHEDULE.getType()) {
-            cycTime = jobRichOperator.getCycTimeLimit();
+            cycTime = jobRichOperator.getCycTimeLimitEndNow();
         } else {
             //补数据没有时间限制
             cycTime = new ImmutablePair<>(null, null);
