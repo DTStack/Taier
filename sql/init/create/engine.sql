@@ -123,7 +123,7 @@ CREATE TABLE `schedule_node_machine` (
 
 CREATE TABLE `console_cluster` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `cluster_name` varchar(24) NOT NULL COMMENT '集群名称',
+  `cluster_name` varchar(128) NOT NULL COMMENT '集群名称',
   `hadoop_version` varchar(24) NOT NULL COMMENT 'hadoop版本',
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
