@@ -81,10 +81,15 @@ public class FlinkClusterClientManager {
             if (!isClientOn.get()) {
                 throw new RdosDefineException("No flink session found cluster on Kubernetes. getClusterClient failed...");
             }
-            return clusterClient;
+            return getSessionJobClient();
         } else {
             return getPerJobClient(jobIdentifier);
         }
+    }
+
+    private ClusterClient getSessionJobClient() {
+
+        return null;
     }
 
     private ClusterClient getPerJobClient(JobIdentifier jobIdentifier) {

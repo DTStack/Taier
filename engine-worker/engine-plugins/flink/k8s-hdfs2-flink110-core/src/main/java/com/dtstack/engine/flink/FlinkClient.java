@@ -180,7 +180,6 @@ public class FlinkClient extends AbstractClient {
         logger.info("clusterClient monitorUrl is {}, run mode is {}", monitorUrl, taskRunMode.name());
         try {
             if (FlinkMode.isPerJob(taskRunMode)) {
-
                 PerJobClientFactory perJobClientFactory = flinkClusterClientManager.getPerJobClientFactory();
                 clusterClient = perJobClientFactory.getClusterClient();
 

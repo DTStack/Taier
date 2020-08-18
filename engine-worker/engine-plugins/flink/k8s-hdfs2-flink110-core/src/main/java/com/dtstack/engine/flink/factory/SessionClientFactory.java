@@ -25,6 +25,7 @@ import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.ClusterDescriptor;
+import org.apache.flink.client.deployment.ClusterRetrieveException;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.ClusterClientProvider;
@@ -42,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -60,37 +62,42 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     private FlinkConfig flinkConfig;
     private InterProcessMutex clusterClientLock;
-    private String lockPath;
-    private CuratorFramework zkClient;
     private Configuration flinkConfiguration;
 
-    public SessionClientFactory(FlinkClientBuilder flinkClientBuilder) throws MalformedURLException {
+    private FlinkClientBuilder flinkClientBuilder;
+    private static volatile SessionClientFactory sessionClientFactory;
+
+    public SessionClientFactory(FlinkClientBuilder flinkClientBuilder) {
+
+        this.flinkClientBuilder = flinkClientBuilder;
+
+
         this.flinkConfig = flinkClientBuilder.getFlinkConfig();
         this.flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
         this.flinkKubeClient = flinkClientBuilder.getFlinkKubeClient();
 
-        this.clusterSpecification = FlinkConfUtil.createClusterSpecification(flinkConfiguration, 0, null);
         this.kubernetesClusterDescriptor = createSessionClusterDescriptor();
 
-        initZkClient();
-        this.clusterClientLock = new InterProcessMutex(zkClient, lockPath);
+        initClusterClientLock();
     }
 
-    private void initZkClient() {
+    private void initClusterClientLock() {
         String zkAddress = flinkConfiguration.getValue(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM);
         if (StringUtils.isBlank(zkAddress)) {
             throw new RdosDefineException("zkAddress is error");
         }
 
         String sessionNodeName = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getNamespace();
-        this.lockPath = String.format("/kubernetes_session/%s", sessionNodeName);
+        String lockPath = String.format("/kubernetes_session/%s", sessionNodeName);
 
-        this.zkClient = CuratorFrameworkFactory.builder()
+        CuratorFramework zkClient = CuratorFrameworkFactory.builder()
                 .connectString(zkAddress).retryPolicy(new ExponentialBackoffRetry(1000, 3))
                 .connectionTimeoutMs(1000)
                 .sessionTimeoutMs(1000).build();
-        this.zkClient.start();
+        zkClient.start();
         LOG.warn("connector zk success...");
+
+        this.clusterClientLock = new InterProcessMutex(zkClient, lockPath);
     }
 
     public boolean startFlinkSession() {
@@ -121,7 +128,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                 try {
                     this.clusterClientLock.release();
                 } catch (Exception e) {
-                    LOG.error("lockPath:{} release clusterClientLock error:{}", lockPath, e);
+                    LOG.error("release clusterClientLock error:{}", e);
                 }
             }
         }
@@ -142,7 +149,44 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     @Override
     public ClusterClient getClusterClient() {
-        return clusterClient;
+        Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
+        FlinkConfig flinkConfig = flinkClientBuilder.getFlinkConfig();
+        String clusterId = flinkConfiguration.get(KubernetesConfigOptions.CLUSTER_ID);
+        ClusterDescriptor kubernetesClusterDescriptor = createSessionClusterDescriptor();
+
+        ClusterClient<String> retrieveClusterClient = retrieveClusterClient(clusterId);
+
+        if (Objects.nonNull(retrieveClusterClient)) {
+            return retrieveClusterClient;
+        }
+
+        ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(flinkConfiguration, 0, null);
+        if (flinkConfig.getSessionStartAuto()) {
+            try {
+                ClusterClient<String> clusterClient = kubernetesClusterDescriptor.deploySessionCluster(clusterSpecification).getClusterClient();
+                return clusterClient;
+            } catch (FlinkException e) {
+                LOG.info("Couldn't deploy session on Kubernetes cluster, {}", e);
+                throw new RdosDefineException(e);
+            }
+        }
+
+        throw new RdosDefineException("Get clusterClient error");
+    }
+
+    public ClusterClient retrieveClusterClient(String clusterId) {
+        try {
+            Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
+            ClusterDescriptor kubernetesClusterDescriptor = createSessionClusterDescriptor();
+            ClusterClientProvider<String> clusterClientProvider = kubernetesClusterDescriptor.retrieve(clusterId);
+            if (Objects.isNull(clusterClientProvider)) {
+                return null;
+            }
+            ClusterClient<String> clusterClient = clusterClientProvider.getClusterClient();
+            return clusterClient;
+        } catch (Exception e) {
+            throw new RdosDefineException(e);
+        }
     }
 
     /**
@@ -167,7 +211,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         }
 
         KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
-        String clusterId = acquireAppIdAndSetClusterId(newConf);
+        String clusterId = newConf.get(KubernetesConfigOptions.CLUSTER_ID);
 
         ClusterClient<String> clusterClient = null;
         if (clusterId != null && flinkKubeClient.getInternalService(clusterId) != null) {
@@ -184,28 +228,16 @@ public class SessionClientFactory extends AbstractClientFactory {
         return null;
     }
 
+    public ClusterDescriptor<String> createSessionClusterDescriptor() {
+        Configuration newConf = flinkClientBuilder.getFlinkConfiguration();
 
-    private String acquireAppIdAndSetClusterId(Configuration configuration) {
-        try {
-            String clusterId = configuration.get(KubernetesConfigOptions.CLUSTER_ID);
-            return clusterId;
-        } catch (Exception e) {
-            LOG.error("", e);
-            throw new RdosDefineException(e.getMessage());
-        }
-    }
-
-    public ClusterDescriptor<String> createSessionClusterDescriptor() throws MalformedURLException {
-        Configuration newConf = new Configuration(flinkConfiguration);
-
-        if (!flinkConfig.getFlinkHighAvailability()) {
+        if (!flinkClientBuilder.getFlinkConfig().getFlinkHighAvailability()) {
             setNoneHaModeConfig(newConf);
         } else {
             //由engine管控的session clusterId不进行设置，默认使用appId作为clusterId
             newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
         }
 
-        KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
 
         // plugin dependent on shipfile
         if (StringUtils.isNotBlank(flinkConfig.getPluginLoadMode()) && ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(flinkConfig.getPluginLoadMode())) {
@@ -213,6 +245,7 @@ public class SessionClientFactory extends AbstractClientFactory {
             newConf.setString("classloader.resolve-order", "parent-first");
         }
 
+        KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
         return clusterDescriptor;
     }
 
@@ -222,6 +255,23 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     public static class SessionClientFactoryBuilder {
 
+        private FlinkClientBuilder flinkClientBuilder;
+
+        public SessionClientFactoryBuilder withFlinkClientBuilder(FlinkClientBuilder flinkClientBuilder) {
+            this.flinkClientBuilder = flinkClientBuilder;
+            return this;
+        }
+
+        public SessionClientFactory build() {
+            if (Objects.isNull(sessionClientFactory)) {
+                synchronized (SessionClientFactory.class) {
+                    if (Objects.isNull(sessionClientFactory)) {
+                        sessionClientFactory = new SessionClientFactory(flinkClientBuilder);
+                    }
+                }
+            }
+            return sessionClientFactory;
+        }
 
     }
 
