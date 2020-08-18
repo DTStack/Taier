@@ -9,7 +9,8 @@ import Api from '../../api/console'
 import { formItemCenterLayout, ALARM_TYPE_TEXT, ALARM_TYPE,
     CHANNEL_MODE_VALUE, CHANNEL_MODE, CHANNEL_CONF_TEXT
 } from '../../consts';
-import { canTestAlarm, showAlertTemplete, textAlertKey } from './help';
+import { canTestAlarm, showAlertTemplete, textAlertKey,
+    showAlertGateJson } from './help';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -17,6 +18,8 @@ const TextArea = Input.TextArea;
 const AlarmRule: React.FC = (props: any) => {
     const [fileList, setFileList] = useState<any[]>([])
     const { getFieldDecorator, getFieldValue, validateFields } = props.form;
+    const id = props.location.state?.id;
+    const ruleData = props.location.state?.ruleData;
     const getChannelModeOpts = () => {
         const alertGateType = getFieldValue('alertGateType');
         switch (alertGateType) {
@@ -77,6 +80,8 @@ const AlarmRule: React.FC = (props: any) => {
         validateFields(async (err, values) => {
             if (!err) {
                 let res = await Api.addOrUpdateAlarmRule(Object.assign({}, values, {
+                    id: id || '',
+                    filePath: ruleData?.filePath || '',
                     isDefault: values.isDefault ? 1 : 0,
                     file: values.file?.file
                 }));
@@ -97,12 +102,14 @@ const AlarmRule: React.FC = (props: any) => {
             setFileList(fileList)
             return false;
         },
+        onRemove: () => {
+            setFileList([])
+        },
         fileList
     };
     let testText: string = getFieldValue('alertGateType') === ALARM_TYPE.EMAIL ? '邮箱' : '手机号码';
     let alertKey: string = textAlertKey(getFieldValue('alertGateType'));
     const isCreate = utils.getParameterByName('isCreate');
-    const ruleData = props.location.state?.ruleData;
     return (
         <div className='alarm-rule__wrapper'>
             <Breadcrumb>
@@ -173,7 +180,7 @@ const AlarmRule: React.FC = (props: any) => {
                                 message: '只支持英文字符、下划线'
                             }]
                         })(
-                            <Input />
+                            <Input disabled={!!id} />
                         )}
                     </FormItem>
                     <FormItem {...formItemCenterLayout} label='通道名称'>
@@ -203,16 +210,18 @@ const AlarmRule: React.FC = (props: any) => {
                             <Icon type="info-circle" />
                         </Tooltip>
                     </FormItem>
-                    <FormItem {...formItemCenterLayout} label='通道配置信息'>
-                        {getFieldDecorator('alertGateJson', {
-                            rules: [{
-                                required: true,
-                                message: '请输入通道配置信息'
-                            }]
-                        })(
-                            <TextArea placeholder={getChannelConfText()} rows={6} />
-                        )}
-                    </FormItem>
+                    {
+                        showAlertGateJson(getFieldValue('alertGateCode')) ? <FormItem {...formItemCenterLayout} label='通道配置信息'>
+                            {getFieldDecorator('alertGateJson', {
+                                rules: [{
+                                    required: true,
+                                    message: '请输入通道配置信息'
+                                }]
+                            })(
+                                <TextArea placeholder={getChannelConfText()} rows={6} />
+                            )}
+                        </FormItem> : null
+                    }
                     {
                         showAlertTemplete(getFieldValue('alertGateType'), getFieldValue('alertGateCode')) ? (
                             <FormItem {...formItemCenterLayout} label='通知消息模版'>
@@ -238,7 +247,9 @@ const AlarmRule: React.FC = (props: any) => {
                                         required: false
                                     }]
                                 })(
-                                    <Input placeholder={`输入${testText}测试号码，多个${testText}用英文逗号隔开`} addonAfter={<span onClick={() => { testAlarm() }}>点击测试</span>} />
+                                    <Input
+                                        placeholder={`输入${testText}测试号码，多个${testText}用英文逗号隔开`}
+                                        addonAfter={<span onClick={() => { testAlarm() }}>点击测试</span>} />
                                 )}
                             </FormItem>
                         ) : null
@@ -254,8 +265,12 @@ const AlarmRule: React.FC = (props: any) => {
 }
 
 export default Form.create({
-    onFieldsChange (props, fields) {
+    onValuesChange (props: any, fields: any) {
         if (fields.hasOwnProperty('alertGateType')) {
+            props.form.setFieldsValue({
+                alertGateCode: undefined,
+                alertGateJson: undefined
+            })
         }
     },
     mapPropsToFields (props: any) {
