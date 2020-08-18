@@ -190,7 +190,7 @@ CREATE TABLE `console_engine_tenant` (
 CREATE TABLE `console_queue` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `engine_id` int(11) NOT NULL COMMENT '引擎id',
-  `queue_name` varchar(24) NOT NULL COMMENT '队列名称',
+  `queue_name` varchar(128) NOT NULL COMMENT '队列名称',
   `capacity` varchar(24) NOT NULL COMMENT '最小容量',
   `max_capacity` varchar(24) NOT NULL COMMENT '最大容量',
   `queue_state` varchar(24) NOT NULL COMMENT '运行状态',
