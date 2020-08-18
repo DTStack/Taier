@@ -370,11 +370,11 @@ public class EnvironmentContext {
     }
 
     public Integer getJobExecutorPoolCorePoolSize(){
-        return Integer.valueOf(environment.getProperty("job.executor.pool.core.size", "16"));
+        return Integer.valueOf(environment.getProperty("job.executor.pool.core.size", "10"));
     }
 
     public Integer getJobExecutorPoolMaximumPoolSize(){
-        return Integer.valueOf(environment.getProperty("job.executor.pool.maximum.size", "32"));
+        return Integer.valueOf(environment.getProperty("job.executor.pool.maximum.size", "10"));
     }
 
     public Long getJobExecutorPoolKeepAliveTime(){

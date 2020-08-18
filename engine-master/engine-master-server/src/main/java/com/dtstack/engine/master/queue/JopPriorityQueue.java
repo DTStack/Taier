@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.queue;
 
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.queue.OrderLinkedBlockingQueue;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ public class JopPriorityQueue {
      */
     private int queueSizeLimited = 5000;
 
-    private Integer scheduleType;
+    private EScheduleType scheduleType;
 
     private Ingestion ingestion;
 
@@ -38,19 +39,19 @@ public class JopPriorityQueue {
 
     private AcquireGroupQueueJob acquireGroupQueueJob = new AcquireGroupQueueJob();
 
-    private AtomicBoolean clearQueue = new AtomicBoolean(false);
-
     /**
      * JopPriorityQueue 中增加独立线程，以定时调度方式从数据库中获取任务。（数据库查询以id和优先级为条件）
      *
      * @param scheduleType <= batchJob.type
      */
-    public JopPriorityQueue(Integer scheduleType, Long acquireJobInterval, Integer queueSize, Ingestion ingestion) {
+    public JopPriorityQueue(EScheduleType scheduleType, Long acquireJobInterval, Integer queueSize, Ingestion ingestion) {
         this.acquireJobInterval = acquireJobInterval;
         this.queueSizeLimited = queueSize;
         this.queue = new OrderLinkedBlockingQueue<>(queueSize);
         this.scheduleType = scheduleType;
         this.ingestion = ingestion;
+        logger.info("init JopPriorityQueue, scheduleType:{} queueSizeLimited:{} acquireJobInterval:{}", scheduleType, queueSize, acquireJobInterval);
+
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName() + "_Acquire_" + scheduleType + "_Job"));
         scheduledService.scheduleWithFixedDelay(
                 this.acquireGroupQueueJob,
@@ -77,16 +78,12 @@ public class JopPriorityQueue {
             throw new RuntimeException("scheduleBatchJob is null");
         }
 
-        if (clearQueue.get() == Boolean.TRUE) {
-            return Boolean.FALSE;
-        }
-
         BatchJobElement element = new BatchJobElement(scheduleBatchJob);
 
         try {
             return putElement(element);
         } catch (Exception e) {
-            logger.error("jobId:{},queue timeout cause interrupted:",scheduleBatchJob.getJobId(),e);
+            logger.error("jobId:{},queue timeout cause interrupted:", scheduleBatchJob.getJobId(), e);
             return Boolean.FALSE;
         }
     }
@@ -101,20 +98,6 @@ public class JopPriorityQueue {
         }
         queue.put(element);
         return true;
-    }
-
-    /**
-     * 清空队列，禁止使用 queue.clear()
-     *
-     * @param clearQueueInterface 关闭队列后执行的逻辑
-     */
-    public void clearAndAllIngestion(ClearQueue clearQueueInterface) {
-        try {
-            clearQueue.compareAndSet(Boolean.FALSE,Boolean.TRUE);
-            clearQueueInterface.processingStatus(this);
-        } finally {
-            clearQueue.compareAndSet(Boolean.TRUE,Boolean.FALSE);
-        }
     }
 
     private class AcquireGroupQueueJob implements Runnable {
@@ -135,16 +118,5 @@ public class JopPriorityQueue {
          */
         void ingestion(JopPriorityQueue jopPriorityQueue);
     }
-
-     public interface ClearQueue {
-        /**
-         * 匿名函数获取 scheduleType 下的任务
-         * 关闭队列时，如何处理队列中剩下的元素
-         *
-         * @return
-         */
-        void processingStatus(JopPriorityQueue jopPriorityQueue);
-     }
-
 
 }
