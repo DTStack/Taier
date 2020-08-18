@@ -8,8 +8,10 @@ package com.dtstack.engine.master.jobdealer.resource;
 public enum ComputeResourceType {
 
     Yarn,
+    Kubernetes,
     FlinkStandalone,
     FlinkYarnSession,
+    FlinkKubernetesSession,
     SparkStandalone,
     Mysql,
     Oracle,
@@ -21,6 +23,7 @@ public enum ComputeResourceType {
     Impala,
     TiDB,
     GreenPlum,
-    Dummy;
+    Dummy,
+    Presto;
 
 }

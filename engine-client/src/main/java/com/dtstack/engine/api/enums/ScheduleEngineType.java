@@ -1,7 +1,5 @@
-package com.dtstack.schedule.common.enums;
+package com.dtstack.engine.api.enums;
 
-
-import com.dtstack.engine.common.exception.RdosDefineException;
 
 /**
  * Reason:
@@ -16,21 +14,26 @@ public enum ScheduleEngineType {
     Flink(0, "flink"),
     Spark(1, "spark"),
     Datax(2, "datax"),
-    Learning(3,"learning"),
-    Shell(4,"shell"),
-    Python2(5,"python2"),
+    Learning(3, "learning"),
+    Shell(4, "shell"),
+    Python2(5, "python2"),
     DtScript(6, "dtScript"),
     Python3(7, "python3"),
     Hadoop(8, "hadoop"),
     Carbon(9, "carbon"),
     Libra(10, "postgresql"),
-    Kylin(11,"kylin"),
-    HIVE(12,"hive"),
+    Kylin(11, "kylin"),
+    HIVE(12, "hive"),
     IMPALA(13, "impala"),
-    TIDB(14,"tidb"),
-    ORACLE(15,"oracle"),
+    TIDB(14, "tidb"),
+    ORACLE(15, "oracle"),
     GREENPLUM(16, "greenplum"),
-    KUBERNETES(17,"kubernetes");
+    KUBERNETES(17, "kubernetes"),
+    MYSQL(18, "mysql"),
+    SQLSERVER(19, "sqlserver"),
+    MAX_COMPUTE(20, "maxcompute"),
+    DUMMY(21, "dummy"),
+    Presto(22, "presto");
 
     private int val;
 
@@ -45,7 +48,7 @@ public enum ScheduleEngineType {
         return val;
     }
 
-    public String getEngineName(){
+    public String getEngineName() {
         return engineName;
     }
 
@@ -89,7 +92,7 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.HIVE;
             case "libra":
                 return ScheduleEngineType.Libra;
-            case"kylin":
+            case "kylin":
                 return ScheduleEngineType.Kylin;
             case "impala":
                 return ScheduleEngineType.IMPALA;
@@ -97,6 +100,16 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.TIDB;
             case "kubernetes":
                 return ScheduleEngineType.KUBERNETES;
+            case "mysql":
+                return ScheduleEngineType.MYSQL;
+            case "sqlserver":
+                return ScheduleEngineType.SQLSERVER;
+            case "maxcompute":
+                return ScheduleEngineType.MAX_COMPUTE;
+            case "dummy":
+                return ScheduleEngineType.DUMMY;
+            case "presto":
+                return ScheduleEngineType.Presto;
         }
         return null;
     }
@@ -111,7 +124,7 @@ public enum ScheduleEngineType {
         return null;
     }
 
-    public static String getEngineName(int val){
+    public static String getEngineName(int val) {
         ScheduleEngineType scheduleEngineType = getEngineType(val);
         return scheduleEngineType.getEngineName().toLowerCase();
     }
@@ -119,14 +132,15 @@ public enum ScheduleEngineType {
     public static ScheduleEngineType getByEScriptType(Integer scriptType) {
         return getByPythonVersion(++scriptType);
     }
-    public static ScheduleEngineType getByPythonVersion(Integer version){
+
+    public static ScheduleEngineType getByPythonVersion(Integer version) {
         ScheduleEngineType scheduleEngineType;
         if (version.equals(2)) {
             scheduleEngineType = Python2;
         } else if (version.equals(3)) {
             scheduleEngineType = Python3;
         } else {
-            throw new RdosDefineException("python不支持2.x和3.x之外的版本类型");
+            throw new UnsupportedOperationException("python不支持2.x和3.x之外的版本类型");
         }
         return scheduleEngineType;
     }

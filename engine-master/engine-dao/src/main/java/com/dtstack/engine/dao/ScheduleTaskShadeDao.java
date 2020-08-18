@@ -23,13 +23,14 @@ public interface ScheduleTaskShadeDao {
 
     Integer countTaskByStatus(@Param("submitStatus") Integer submitStatus, @Param("projectScheduleStatus") Integer projectScheduleStatus);
 
-    List<Map<String,Object>> countTaskByType(@Param("tenantId") Long tenantId,@Param("dtuicTenantId") Long dtuicTenantId,@Param("projectIds")List<Long> projectIds,@Param("appType")Integer appType,@Param("taskTypes")List<Integer> taskTypes);
+    List<Map<String,Object>> countTaskByType(@Param("tenantId") Long tenantId,@Param("dtuicTenantId") Long dtuicTenantId,@Param("projectIds")List<Long> projectIds,@Param("appType")Integer appType,@Param("taskTypes")List<Integer> taskTypes,
+                                             @Param("flowId") Long flowId);
 
     List<ScheduleTaskShade> listByTaskIds(@Param("taskIds") Collection<Long> taskIds, @Param("isDeleted") Integer isDeleted, @Param("appType")Integer appType);
 
     List<ScheduleTaskShade> listByNameLike(@Param("projectId") long projectId, @Param("name") String name, @Param("appType")Integer appType, @Param("ownerId") Long ownerId, @Param("projectIds") List<Long> projectIds);
 
-    List<ScheduleTaskShade> listByNameLikeWithSearchType(@Param("projectId") long projectId, @Param("name") String name, @Param("appType")Integer appType,
+    List<ScheduleTaskShade> listByNameLikeWithSearchType(@Param("projectId") Long projectId, @Param("name") String name, @Param("appType")Integer appType,
                                                    @Param("ownerId") Long ownerId, @Param("projectIds") List<Long> projectIds,@Param("searchType")Integer searchType);
 
     List<ScheduleTaskShade> listByName(@Param("projectId") long projectId, @Param("name") String name);

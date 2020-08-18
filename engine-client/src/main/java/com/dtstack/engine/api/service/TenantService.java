@@ -2,6 +2,7 @@ package com.dtstack.engine.api.service;
 
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.EngineTenantVO;
+import com.dtstack.engine.api.vo.tenant.UserTenantVO;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Param;
@@ -29,15 +30,15 @@ public interface TenantService extends DtInsightServer {
     ApiResponse<List<EngineTenantVO>> listEngineTenant(@Param("dtuicTenantId") Long dtuicTenantId,
                                                        @Param("engineType") Integer engineType);
 
-    @RequestLine("POST /node/tenant/listTenant")
-    ApiResponse<List> listTenant(@Param("dtToken") String dtToken);
+    @RequestLine("POST /node/tenant/dtToken")
+    ApiResponse<List<UserTenantVO>> listTenant(@Param("dtToken") String dtToken);
 
     @RequestLine("POST /node/tenant/bindingTenant")
-    ApiResponse bindingTenant(@Param("tenantId") Long dtUicTenantId, @Param("clusterId") Long clusterId,
-                              @Param("queueId") Long queueId, @Param("dtToken") String dtToken) throws Exception;
+    ApiResponse<Void> bindingTenant(@Param("tenantId") Long dtUicTenantId, @Param("clusterId") Long clusterId,
+                              @Param("queueId") Long queueId, @Param("dtToken") String dtToken) ;
 
 
     @RequestLine("POST /node/tenant/bindingQueue")
-    ApiResponse bindingQueue(@Param("queueId") Long queueId,
-                             @Param("dtUicTenantId") Long dtUicTenantId);
+    ApiResponse<Void> bindingQueue(@Param("queueId") Long queueId,
+                             @Param("tenantId") Long dtUicTenantId);
 }

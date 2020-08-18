@@ -12,7 +12,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ClientTemplate;
-import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;

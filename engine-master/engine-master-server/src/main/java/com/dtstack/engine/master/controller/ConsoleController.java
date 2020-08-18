@@ -1,5 +1,8 @@
 package com.dtstack.engine.master.controller;
 
+import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.console.ConsoleJobVO;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.master.impl.ConsoleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,7 +30,7 @@ public class ConsoleController {
     }
 
     @RequestMapping(value="/searchJob", method = {RequestMethod.POST})
-    public Map<String, Object> searchJob(@DtRequestParam("jobName") String jobName) {
+    public ConsoleJobVO searchJob(@DtRequestParam("jobName") String jobName) {
         return consoleService.searchJob(jobName);
     }
 
@@ -48,11 +51,11 @@ public class ConsoleController {
     }
 
     @RequestMapping(value="/groupDetail", method = {RequestMethod.POST})
-    public Map<String, Object> groupDetail(@DtRequestParam("jobResource") String jobResource,
-                                           @DtRequestParam("nodeAddress") String nodeAddress,
-                                           @DtRequestParam("stage") Integer stage,
-                                           @DtRequestParam("pageSize") Integer pageSize,
-                                           @DtRequestParam("currentPage") Integer currentPage,@DtRequestParam("dtToken") String dtToken) {
+    public PageResult groupDetail(@DtRequestParam("jobResource") String jobResource,
+                                  @DtRequestParam("nodeAddress") String nodeAddress,
+                                  @DtRequestParam("stage") Integer stage,
+                                  @DtRequestParam("pageSize") Integer pageSize,
+                                  @DtRequestParam("currentPage") Integer currentPage, @DtRequestParam("dtToken") String dtToken) {
         return consoleService.groupDetail(jobResource, nodeAddress, stage, pageSize, currentPage, dtToken);
     }
 
@@ -82,7 +85,7 @@ public class ConsoleController {
     }
 
     @RequestMapping(value="/clusterResources", method = {RequestMethod.POST})
-    public Map<String, Object> clusterResources(@DtRequestParam("clusterName") String clusterName) {
+    public ClusterResource clusterResources(@DtRequestParam("clusterName") String clusterName) {
         return consoleService.clusterResources(clusterName);
     }
 }

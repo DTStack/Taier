@@ -19,14 +19,10 @@
         update schedule_engine_job_cache
         set
         node_address = #{nodeAddress}, stage = #{stage}, job_priority = #{jobPriority},
+        <if test="waitReason != null">
+            wait_reason = #{waitReason},
+        </if>
         is_failover = 0, gmt_modified=now()
-        where job_id = #{jobId}
-    </update>
-
-    <update id="updateWaitReason">
-        update schedule_engine_job_cache
-        set
-        wait_reason = #{waitReason}, gmt_modified=now()
         where job_id = #{jobId}
     </update>
 
@@ -115,7 +111,7 @@
     <update id="updateNodeAddressFailover">
         UPDATE
         schedule_engine_job_cache
-        set node_address = #{nodeAddress}, is_failover = 1
+        set node_address = #{nodeAddress}, stage = #{stage}, is_failover = 1
         WHERE job_id IN
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
             #{jobId}

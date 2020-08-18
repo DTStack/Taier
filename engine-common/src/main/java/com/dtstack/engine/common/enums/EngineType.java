@@ -41,7 +41,8 @@ public enum EngineType {
 
     TiDB('e'),
     GreenPlum('f'),
-    Dummy('g'),;
+    Dummy('g'),
+    Presto('h');
     private char val;
 
     EngineType(char val) {
@@ -89,6 +90,8 @@ public enum EngineType {
                 return EngineType.GreenPlum;
             case "dummy":
                 return EngineType.Dummy;
+            case "presto":
+                return EngineType.Presto;
             default:
                 throw new UnsupportedOperationException("unsupported operation exception");
         }

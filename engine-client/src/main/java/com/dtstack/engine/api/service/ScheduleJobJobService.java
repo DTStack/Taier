@@ -19,13 +19,13 @@ public interface ScheduleJobJobService extends DtInsightServer {
     @RequestLine("POST /node/scheduleJobJob/displayOffSpring")
     ApiResponse<ScheduleJobVO> displayOffSpring(@Param("jobId") Long jobId,
                                                 @Param("projectId") Long projectId,
-                                                @Param("level") Integer level) throws Exception;
+                                                @Param("level") Integer level) ;
     /**
      * 为工作流节点展开子节点
      */
     @RequestLine("POST /node/scheduleJobJob/displayOffSpringWorkFlow")
-    ApiResponse<ScheduleJobVO> displayOffSpringWorkFlow(@Param("jobId") Long jobId, @Param("appType") Integer appType) throws Exception;
+    ApiResponse<ScheduleJobVO> displayOffSpringWorkFlow(@Param("jobId") Long jobId, @Param("appType") Integer appType) ;
 
     @RequestLine("POST /node/scheduleJobJob/displayForefathers")
-    ApiResponse<ScheduleJobVO> displayForefathers(@Param("jobId") Long jobId, @Param("level") Integer level) throws Exception;
+    ApiResponse<ScheduleJobVO> displayForefathers(@Param("jobId") Long jobId, @Param("level") Integer level) ;
 }

@@ -55,6 +55,8 @@ public class ScheduleJobVO extends TenantProjectEntity {
 
     private Integer version;
 
+    private Integer taskType;
+
     public Integer getRetryNum() {
         return retryNum;
     }
@@ -303,5 +305,13 @@ public class ScheduleJobVO extends TenantProjectEntity {
 
     public void setOwnerUserId(Long ownerUserId) {
         this.ownerUserId = ownerUserId;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
     }
 }

@@ -4,13 +4,11 @@ import akka.actor.AbstractActor;
 import com.dtstack.engine.common.akka.message.*;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.api.pojo.ClientTemplate;
-import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.pojo.JudgeResult;
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;

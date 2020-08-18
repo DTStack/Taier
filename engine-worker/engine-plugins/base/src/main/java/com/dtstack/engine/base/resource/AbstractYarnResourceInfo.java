@@ -55,39 +55,33 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
     protected int containerCoreMax;
     protected int containerMemoryMax;
 
-
     protected JudgeResult judgeYarnResource(List<InstanceInfo> instanceInfos) {
-
         if (totalFreeCore == 0 || totalFreeMem == 0) {
+            logger.info("judgeYarnResource, totalFreeCore={}, totalFreeMem={}", totalFreeCore, totalFreeMem);
             return JudgeResult.newInstance(false, "totalFreeCore or totalFreeMem is 0");
         }
-
         int needTotalCore = 0;
         int needTotalMem = 0;
         for (InstanceInfo instanceInfo : instanceInfos) {
             if (instanceInfo.coresPerInstance > containerCoreMax) {
                 logger.info("judgeYarnResource, containerCoreMax={}, coresPerInstance={}", containerCoreMax, instanceInfo.coresPerInstance);
-                return JudgeResult.newInstance(false, "the jobmanager or taskmanager set to core larger than then maximum containerCore");
+                return JudgeResult.newInstance(false, "the instance's per core larger than then maximum containerCore");
             }
             if (instanceInfo.memPerInstance > containerMemoryMax) {
                 logger.info("judgeYarnResource, containerMemoryMax={}, memPerInstance={}", containerMemoryMax, instanceInfo.memPerInstance);
-                return JudgeResult.newInstance(false, "the jobmanager or taskmanager set to memory larger than then maximum containerMemory");
+                return JudgeResult.newInstance(false, "the instance's per memory larger than then maximum containerMemory");
             }
             needTotalCore += instanceInfo.instances * instanceInfo.coresPerInstance;
             needTotalMem += instanceInfo.instances * instanceInfo.memPerInstance;
         }
         if (needTotalCore == 0 || needTotalMem == 0) {
-            String msg = "Yarn task resource configuration error，needTotalCore：" + 0 + ", needTotalMem：" + needTotalMem;
-            logger.error(msg);
-            return JudgeResult.newInstance(false, msg);
+            throw new LimitResourceException("Yarn task resource configuration error，needTotalCore：" + 0 + ", needTotalMem：" + needTotalMem);
         }
         if (needTotalCore > (totalCore * queueCapacity)) {
-            logger.error("The Yarn task is set to a core larger than the maximum allocated core");
-            return JudgeResult.newInstance(false, "The Yarn task is set to a core larger than the maximum allocated core");
+            throw new LimitResourceException("The Yarn task is set to a core larger than the maximum allocated core");
         }
         if (needTotalMem > (totalMem * queueCapacity)) {
-            logger.error("The Yarn task is set to a mem larger than the maximum allocated mem");
-            return JudgeResult.newInstance(false, "The Yarn task is set to a mem larger than the maximum allocated mem");
+            throw new LimitResourceException("The Yarn task is set to a mem larger than the maximum allocated mem");
         }
         if (needTotalCore > (totalCore * capacity)) {
             logger.info("judgeYarnResource, needTotalCore={}, totalCore={}, capacity={}", needTotalCore, totalCore, capacity);
@@ -150,6 +144,7 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
 
     public void getYarnSlots(YarnClient yarnClient, String queueName, int yarnAccepterTaskNumber) throws YarnException {
         try {
+
             List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
             if (!elasticCapacity) {
                 getQueueRemainCapacity(1, queueName, yarnClient.getRootQueueInfos());

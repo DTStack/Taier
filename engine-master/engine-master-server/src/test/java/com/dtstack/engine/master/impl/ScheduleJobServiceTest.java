@@ -20,7 +20,6 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.api.pager.PageResult;
@@ -32,7 +31,8 @@ import com.dtstack.engine.api.vo.ScheduleJobChartVO;
 import com.dtstack.engine.api.vo.ScheduleJobVO;
 import com.dtstack.engine.api.vo.SchedulePeriodInfoVO;
 import com.dtstack.engine.api.vo.ScheduleRunDetailVO;
-import com.dtstack.engine.common.util.DateUtil;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.enums.EDeployMode;
@@ -97,10 +97,10 @@ public class ScheduleJobServiceTest extends AbstractTest {
         Integer appType = scheduleJob.getAppType();
         Long dtuicTenantId = scheduleJob.getDtuicTenantId();
 
-        JSONObject statusCount = sheduleJobService.getStatusCount(projectId, tenantId, appType, dtuicTenantId);
+        ScheduleJobStatusVO statusCount = sheduleJobService.getStatusCount(projectId, tenantId, appType, dtuicTenantId);
         if (!Objects.isNull(statusCount)) {
-            String all = statusCount.getString("ALL");
-            Assert.assertTrue(Integer.valueOf(all) == 1);
+            Integer all = statusCount.getAll();
+            Assert.assertTrue(all == 1);
         }
     }
 
@@ -218,8 +218,8 @@ public class ScheduleJobServiceTest extends AbstractTest {
         String startTime = job.getCycTime();
         String endTime = job.getCycTime();
 
-        Map<String, Object> stringObjectMap = sheduleJobService.countScienceJobStatus(projectId, tenantId, status, type, taskType, startTime, endTime);
-        Integer total = Integer.valueOf(stringObjectMap.get("total").toString());
+        ScheduleJobScienceJobStatusVO scheduleJobScienceJobStatusVO = sheduleJobService.countScienceJobStatus(projectId, tenantId, status, type, taskType, startTime, endTime);
+        Integer total = scheduleJobScienceJobStatusVO.getTotal();
         Assert.assertTrue(total == 1);
     }
 

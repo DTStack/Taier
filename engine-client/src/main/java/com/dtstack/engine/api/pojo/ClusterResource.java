@@ -1,7 +1,6 @@
-package com.dtstack.engine.common.pojo;
+package com.dtstack.engine.api.pojo;
 
 import com.alibaba.fastjson.JSONObject;
-import scala.Int;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -208,7 +208,7 @@ public class FailoverStrategy {
                     startId = batchJob.getId();
                 }
                 distributeBatchJobs(cronJobIds, EScheduleType.NORMAL_SCHEDULE.getType());
-                distributeBatchJobs(fillJobIds, EScheduleType.NORMAL_SCHEDULE.getType());
+                distributeBatchJobs(fillJobIds, EScheduleType.FILL_DATA.getType());
             }
 
             //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收需要再次恢复（由HearBeatCheckListener监控）。
@@ -270,6 +270,7 @@ public class FailoverStrategy {
                 continue;
             }
             scheduleJobDao.updateNodeAddress(nodeEntry.getKey(), nodeEntry.getValue());
+            LOG.info("jobIds:{} failover to address:{}", nodeEntry.getValue(), nodeEntry.getKey());
         }
     }
 
@@ -307,7 +308,7 @@ public class FailoverStrategy {
                     }
                 }
                 distributeQueueJobs(jobResources);
-                distributeZkJobs(submittedJobs);
+                distributeSubmittedJobs(submittedJobs);
             }
             //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收
             List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(0L, nodeAddress, null, null);
@@ -345,7 +346,7 @@ public class FailoverStrategy {
                 }
             }
         }
-        updateJobCaches(nodeJobs);
+        updateJobCaches(nodeJobs, EJobCacheStage.DB.getStage());
     }
 
     private Map<String, Integer> computeJobCacheSizeForNode(int jobSize, String jobResource) {
@@ -362,7 +363,7 @@ public class FailoverStrategy {
         return jobSizeInfo;
     }
 
-    private void distributeZkJobs(List<String> jobs) {
+    private void distributeSubmittedJobs(List<String> jobs) {
         if (jobs.isEmpty()) {
             return;
         }
@@ -380,16 +381,17 @@ public class FailoverStrategy {
                 nodeJobIds.add(jobId);
             }
         }
-        updateJobCaches(nodeJobs);
+        updateJobCaches(nodeJobs, EJobCacheStage.SUBMITTED.getStage());
     }
 
-    private void updateJobCaches(Map<String, List<String>> nodeJobs) {
+    private void updateJobCaches(Map<String, List<String>> nodeJobs, Integer stage) {
         for (Map.Entry<String, List<String>> nodeEntry : nodeJobs.entrySet()) {
             if (nodeEntry.getValue().isEmpty()) {
                 continue;
             }
 
-            engineJobCacheDao.updateNodeAddressFailover(nodeEntry.getKey(), nodeEntry.getValue());
+            engineJobCacheDao.updateNodeAddressFailover(nodeEntry.getKey(), nodeEntry.getValue(), stage);
+            LOG.info("jobIds:{} failover to address:{}, set stage={}", nodeEntry.getValue(), nodeEntry.getKey(), stage);
         }
     }
 

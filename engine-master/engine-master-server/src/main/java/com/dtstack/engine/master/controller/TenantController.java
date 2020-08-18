@@ -2,6 +2,7 @@ package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.EngineTenantVO;
+import com.dtstack.engine.api.vo.tenant.UserTenantVO;
 import com.dtstack.engine.master.impl.TenantService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -37,7 +38,7 @@ public class TenantController {
     }
 
     @RequestMapping(value="/dtToken", method = {RequestMethod.POST})
-    public List listTenant(@DtRequestParam("dtToken") String dtToken) {
+    public List<UserTenantVO> listTenant(@DtRequestParam("dtToken") String dtToken) {
         return tenantService.listTenant(dtToken);
     }
 

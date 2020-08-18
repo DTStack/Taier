@@ -6,7 +6,7 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import org.apache.commons.lang3.StringUtils;

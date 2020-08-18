@@ -36,7 +36,8 @@ public enum EScheduleJobType {
     ORACLE_SQL(20,"Oracle SQL",0,8),
     GREENPLUM_SQL(21,"greenplum SQL",0,21),
     TENSORFLOW_1_X(22, "TensorFlow 1.x", 0, 5),
-    KERAS(23, "Keras", 3, 6);
+    KERAS(23, "Keras", 3, 6),
+    PRESTO_SQL(24, "Presto", 0, 30);
 
 
     private Integer type;

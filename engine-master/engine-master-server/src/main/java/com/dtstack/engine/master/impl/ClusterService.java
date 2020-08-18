@@ -6,6 +6,7 @@ import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EngineType;
@@ -54,6 +55,8 @@ public class ClusterService {
     private final static String CLUSTER = "cluster";
     private final static String QUEUE = "queue";
     private final static String TENANT_ID = "tenantId";
+    private static final String DEPLOY_MODEL = "deployMode";
+    private static final String NAMESPACE = "namespace";
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -197,18 +200,17 @@ public class ClusterService {
         return StringUtils.EMPTY;
     }
 
-    public String clusterExtInfo( Long uicTenantId) {
+    public ClusterVO clusterExtInfo( Long uicTenantId) {
         Long tenantId = tenantDao.getIdByDtUicTenantId(uicTenantId);
         if (tenantId == null) {
-            return StringUtils.EMPTY;
+            return null;
         }
         List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
         if (CollectionUtils.isEmpty(engineIds)) {
-            return StringUtils.EMPTY;
+            return null;
         }
         Engine engine = engineDao.getOne(engineIds.get(0));
-        ClusterVO cluster = getCluster(engine.getClusterId(), true,false);
-        return JSONObject.toJSONString(cluster);
+        return getCluster(engine.getClusterId(), true,false);
     }
 
     /**
@@ -241,7 +243,7 @@ public class ClusterService {
         cluster.setDtUicUserId(dtUicUserId);
 
         JSONObject clusterConfigJson = buildClusterConfig(cluster);
-        JSONObject pluginJson = convertPluginInfo(clusterConfigJson, type, cluster,deployMode);
+        JSONObject pluginJson = convertPluginInfo(clusterConfigJson, type, cluster, deployMode);
         if (pluginJson == null) {
             throw new RdosDefineException(format("The cluster is not configured [%s] engine", engineTypeStr));
         }
@@ -329,6 +331,30 @@ public class ClusterService {
         return queues.get(0);
     }
 
+    public String getNamespace(ParamAction action, Long tenantId, String engineName) {
+
+        try {
+            Map actionParam = PublicUtil.objectToMap(action);
+            Integer deployMode = MapUtils.getInteger(actionParam, DEPLOY_MODEL);
+            EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineName);
+            EDeployMode deploy = EComponentType.FLINK.equals(type.getComponentType()) ? EDeployMode.SESSION : EDeployMode.PERJOB;
+            if (Objects.nonNull(deployMode)) {
+                deploy = EDeployMode.getByType(deployMode);
+            }
+
+            ClusterVO cluster = getClusterByTenant(tenantId);
+            JSONObject clusterConfigJson = buildClusterConfig(cluster);
+
+            JSONObject flinkConf = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
+            JSONObject pluginInfo = flinkConf.getJSONObject(deploy.getMode());
+            return pluginInfo.getString(NAMESPACE);
+        } catch (IOException e) {
+            LOGGER.error("Get namespace error " + e.getMessage());
+        }
+        return null;
+    }
+
+
     /**
      * 对外接口
      * FIXME 这里获取的hiveConf其实是spark thrift server的连接信息，后面会统一做修改
@@ -363,6 +389,16 @@ public class ClusterService {
      */
     public String impalaInfo( Long dtUicTenantId, Boolean fullKerberos) {
         return getConfigByKey(dtUicTenantId, EComponentType.IMPALA_SQL.getConfName(),fullKerberos);
+    }
+
+    /**
+     * 对外接口
+     * @param dtUicTenantId
+     * @param fullKerberos
+     * @return
+     */
+    public String prestoInfo(Long dtUicTenantId, Boolean fullKerberos) {
+        return getConfigByKey(dtUicTenantId, EComponentType.PRESTO_SQL.getConfName(), fullKerberos);
     }
 
     /**
@@ -416,7 +452,10 @@ public class ClusterService {
         Component component = componentDao.getByClusterIdAndComponentType(cluster.getId(),componentType.getTypeCode());
         KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(),componentType.getTypeCode());
         JSONObject configObj = config.getJSONObject(key);
+
         if (configObj != null) {
+            //返回版本
+            configObj.put("version",component.getHadoopVersion());
             addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
             if (Objects.nonNull(fullKerberos) && fullKerberos) {
                 //将sftp中keytab配置转换为本地路径
@@ -508,18 +547,18 @@ public class ClusterService {
         }
     }
 
-    public Map<String, Object> getConfig(ClusterVO cluster,Long dtUicTenantId,String key) {
-        JSONObject config = buildClusterConfig(cluster);
-        EComponentType componentType = EComponentType.getByConfName(key);
-        KerberosConfig kerberosConfig = componentService.getKerberosConfig(cluster.getId(),componentType.getTypeCode());
-
-        JSONObject configObj = config.getJSONObject(key);
-        if (configObj != null) {
-            addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
-            return configObj;
-        }
-        return null;
-    }
+//    public Map<String, Object> getConfig(ClusterVO cluster,Long dtUicTenantId,String key) {
+//        JSONObject config = buildClusterConfig(cluster);
+//        EComponentType componentType = EComponentType.getByConfName(key);
+//        KerberosConfig kerberosConfig = componentService.getKerberosConfig(cluster.getId(),componentType.getTypeCode());
+//
+//        JSONObject configObj = config.getJSONObject(key);
+//        if (configObj != null) {
+//            addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
+//            return configObj;
+//        }
+//        return null;
+//    }
 
     /**
      * 如果开启集群开启了kerberos认证，kerberosConfig中还需要包含hdfs配置
@@ -574,6 +613,10 @@ public class ClusterService {
             JSONObject greenplumConf = JSONObject.parseObject(greenplumInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
             pluginInfo = this.convertSQLComponent(greenplumConf, pluginInfo);
             pluginInfo.put("typeName", "greenplum");
+        } else if (EComponentType.PRESTO_SQL == type.getComponentType()) {
+            JSONObject prestoConf = JSONObject.parseObject(prestoInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
+            pluginInfo = this.convertSQLComponent(prestoConf, pluginInfo);
+            pluginInfo.put("typeName", "presto");
         } else {
             //flink spark 需要区分任务类型
             if (EComponentType.FLINK.equals(type.getComponentType()) || EComponentType.SPARK.equals(type.getComponentType())) {
@@ -704,16 +747,21 @@ public class ClusterService {
 
     }
 
-    public String tiDBInfo( Long dtUicTenantId,  Long dtUicUserId){
+    public String tiDBInfo(Long dtUicTenantId, Long dtUicUserId){
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.TiDB);
     }
 
-    public String oracleInfo( Long dtUicTenantId, Long dtUicUserId){
+    public String oracleInfo(Long dtUicTenantId, Long dtUicUserId){
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.Oracle);
     }
 
-    public String greenplumInfo( Long dtUicTenantId, Long dtUicUserId){
+
+    public String greenplumInfo(Long dtUicTenantId, Long dtUicUserId){
         return accountInfo(dtUicTenantId,dtUicUserId,DataSourceType.GREENPLUM6);
+    }
+
+    public String prestoInfo(Long dtUicTenantId, Long dtUicUserId) {
+        return accountInfo(dtUicTenantId, dtUicUserId, DataSourceType.Presto);
     }
 
 
@@ -725,6 +773,8 @@ public class ClusterService {
             componentType = EComponentType.TIDB_SQL;
         } else if (DataSourceType.GREENPLUM6.equals(dataSourceType)) {
             componentType = EComponentType.GREENPLUM_SQL;
+        } else if (DataSourceType.Presto.equals(dataSourceType)) {
+            componentType = EComponentType.PRESTO_SQL;
         }
         if (componentType == null) {
             throw new RdosDefineException("不支持的数据源类型");
@@ -835,6 +885,16 @@ public class ClusterService {
     public void clearPluginInfoCache(){
         pluginInfoCache.invalidateAll();
         LOGGER.info("-------clear plugin info cache success-----");
+    }
+
+    public String pluginInfoForType(Long dtUicTenantId, Boolean fullKerberos, Integer pluginType) {
+        EComponentType type = EComponentType.getByCode(pluginType);
+        return getConfigByKey(dtUicTenantId, type.getConfName(),fullKerberos);
+    }
+
+    public String dbInfo(Long dtUicTenantId, Long dtUicUserId, Integer type) {
+        DataSourceType sourceType = DataSourceType.getSourceType(type);
+        return accountInfo(dtUicTenantId,dtUicUserId,sourceType);
     }
 }
 

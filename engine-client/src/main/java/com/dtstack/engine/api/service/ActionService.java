@@ -2,6 +2,10 @@ package com.dtstack.engine.api.service;
 
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
+import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
+import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
+import com.dtstack.engine.api.vo.action.ActionLogVO;
+import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.*;
@@ -19,66 +23,69 @@ public interface ActionService extends DtInsightServer {
     ApiResponse<Boolean> start(ParamActionExt paramActionExt);
 
     /**
-     * 只允许发到master节点上
-     * 1: 在master等待队列中查找
-     * 2: 在worker-exe等待队列里面查找
-     * 3：在worker-status监听队列里面查找（可以直接在master节点上直接发送消息到对应的引擎）
-     * @param params
-     * @throws Exception
+     *
+     * @param jobIds 任务id
+     * @
      */
     @RequestLine("POST /node/action/stop")
     @Headers(value={"Content-Type: application/json"})
-    ApiResponse<Boolean> stop(Map<String, Object> params) throws Exception;
+    ApiResponse<Boolean> stop(@Param("jobIds") List<String> jobIds) ;
 
     /**
      * 根据jobid 和 计算类型，查询job的状态
      */
     @RequestLine("POST /node/action/status")
-    ApiResponse<Integer> status(@Param("jobId") String jobId, @Param("computeType") Integer computeType) throws Exception;
+    ApiResponse<Integer> status(@Param("jobId") String jobId, @Param("computeType") Integer computeType) ;
 
     /**
      * 根据jobid 和 计算类型，查询job的状态
      */
     @RequestLine("POST /node/action/statusByJobIds")
-    ApiResponse<Map<String, Integer>> statusByJobIds(@Param("jobIds") List<String> jobIds, @Param("computeType") Integer computeType) throws Exception;
+    ApiResponse<Map<String, Integer>> statusByJobIds(@Param("jobIds") List<String> jobIds, @Param("computeType") Integer computeType) ;
 
     /**
      * 根据jobid 和 计算类型，查询job开始运行的时间
      * return 毫秒级时间戳
      */
     @RequestLine("POST /node/action/startTime")
-    ApiResponse<Long> startTime(@Param("jobId") String jobId, @Param("computeType") Integer computeType) throws Exception;
+    ApiResponse<Long> startTime(@Param("jobId") String jobId, @Param("computeType") Integer computeType) ;
 
     /**
      * 根据jobid 和 计算类型，查询job的日志
      */
     @RequestLine("POST /node/action/log")
-    ApiResponse<String> log(@Param("jobId") String jobId, @Param("computeType") Integer computeType) throws Exception;
+    ApiResponse<ActionLogVO> log(@Param("jobId") String jobId, @Param("computeType") Integer computeType) ;
+
+    /**
+     * 根据jobid 和 计算类型，查询k8s调度下job的日志
+     */
+    @RequestLine("POST /node/action/logFromEs")
+    ApiResponse<String> logFromEs(String jobId, Integer computeType);
 
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
     @RequestLine("POST /node/action/retryLog")
-    ApiResponse<String> retryLog(@Param("jobId") String jobId, @Param("computeType") Integer computeType) throws Exception;
+    ApiResponse<List<ActionRetryLogVO>> retryLog(@Param("jobId") String jobId, @Param("computeType") Integer computeType) ;
 
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
     @RequestLine("POST /node/action/retryLogDetail")
-    ApiResponse<String> retryLogDetail(@Param("jobId") String jobId, @Param("computeType") Integer computeType, @Param("retryNum") Integer retryNum) throws Exception;
+    ApiResponse<ActionRetryLogVO> retryLogDetail(@Param("jobId") String jobId, @Param("computeType") Integer computeType, @Param("retryNum") Integer retryNum) ;
 
     /**
      * 根据jobids 和 计算类型，查询job
      */
     @RequestLine("POST /node/action/entitys")
-    ApiResponse<List<Map<String,Object>>> entitys(@Param("jobIds") List<String> jobIds, @Param("computeType") Integer computeType) throws Exception;
+    ApiResponse<List<ActionJobEntityVO>> entitys(@Param("jobIds") List<String> jobIds, @Param("computeType") Integer computeType) ;
 
     /**
      * 根据jobid 和 计算类型，查询container 信息
      */
     @RequestLine("POST /node/action/containerInfos")
     @Headers(value={"Content-Type: application/json"})
-    ApiResponse<List<String>> containerInfos(ParamAction paramAction) throws Exception;
+    ApiResponse<List<String>> containerInfos(ParamAction paramAction) ;
 
 
     /**
@@ -92,10 +99,10 @@ public interface ActionService extends DtInsightServer {
      * task 工程使用
      */
     @RequestLine("POST /node/action/listJobStatus")
-    ApiResponse<List<Map<String, Object>>> listJobStatus(@Param("time") Long time);
+    ApiResponse<List<ActionJobStatusVO>> listJobStatus(@Param("time") Long time);
 
     @RequestLine("POST /node/action/listJobStatusByJobIds")
-    ApiResponse<List<Map<String, Object>>> listJobStatusByJobIds( @Param("jobIds") List<String> jobIds) throws Exception;
+    ApiResponse<List<ActionJobStatusVO>> listJobStatusByJobIds(@Param("jobIds") List<String> jobIds) ;
 
     @RequestLine("POST /node/action/generateUniqueSign")
     ApiResponse<String> generateUniqueSign();
