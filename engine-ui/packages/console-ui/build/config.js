@@ -86,7 +86,7 @@ module.exports = {
                 onProxyReq: ProxyReq
             },
             '/api/console': { // 控制台
-                target: 'http://172.16.2.9:8084/', // doraemon
+                target: 'http://172.16.100.225:7001/proxy/52', // doraemon
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,
                 secure: false,
