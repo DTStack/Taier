@@ -10,12 +10,10 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 import org.apache.commons.lang.StringUtils;
-import org.apache.flink.client.deployment.ClusterDescriptor;
 import org.apache.flink.client.program.ClusterClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -56,7 +54,6 @@ public class FlinkClusterClientManager {
         LOG.warn("Start init FlinkClusterClientManager");
         FlinkClusterClientManager manager = new FlinkClusterClientManager();
         manager.flinkClientBuilder = flinkClientBuilder;
-        manager.perJobClientFactory = PerJobClientFactory.createPerJobClientFactory(flinkClientBuilder);
         manager.initClusterClient();
         return manager;
     }
@@ -73,7 +70,7 @@ public class FlinkClusterClientManager {
 
 
     /**
-     * Get YarnSession ClusterClient
+     * Get KubernetesSession ClusterClient
      */
     public ClusterClient getClusterClient() {
         return getClusterClient(null);
@@ -100,12 +97,12 @@ public class FlinkClusterClientManager {
             clusterClient = perJobClientCache.get(clusterId, () -> {
                 JobClient jobClient = new JobClient();
                 jobClient.setTaskId(taskId);
-                //jobName不能为空，复用applicationId
-                ClusterDescriptor<String> clusterDescriptor = perJobClientFactory.createPerjobClusterDescriptor(jobClient, clusterId);
-                return clusterDescriptor.retrieve(clusterId).getClusterClient();
+
+                PerJobClientFactory perJobClientFactory = PerJobClientFactory.getPerJobClientFactory();
+                return perJobClientFactory.retrieveClusterClient(clusterId);
             });
 
-        } catch (ExecutionException e) {
+        } catch (Exception e) {
             throw new RuntimeException("get cluster on Kubernetes client exception:", e);
         }
 

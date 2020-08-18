@@ -215,4 +215,14 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         return clusterDescriptor;
     }
+
+    public static SessionClientFactoryBuilder sessionClientFactoryBuilder() {
+        return new SessionClientFactoryBuilder();
+    }
+
+    public static class SessionClientFactoryBuilder {
+
+
+    }
+
 }

@@ -25,7 +25,9 @@ import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.client.deployment.ClusterDeploymentException;
 import org.apache.flink.client.deployment.ClusterDescriptor;
+import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ResourceManagerOptions;
@@ -35,6 +37,7 @@ import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -43,17 +46,26 @@ import java.util.Properties;
  * @author maqi
  */
 public class PerJobClientFactory extends AbstractClientFactory {
+
     private static final Logger LOG = LoggerFactory.getLogger(PerJobClientFactory.class);
 
-    private FlinkConfig flinkConfig;
-    private Configuration flinkConfiguration;
+    public static volatile PerJobClientFactory perJobClientFactory;
 
-    private PerJobClientFactory(FlinkClientBuilder flinkClientBuilder) {
-        this.flinkConfig = flinkClientBuilder.getFlinkConfig();
-        this.flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
+    private JobClient jobClient;
+    private FlinkClientBuilder flinkClientBuilder;
+    private ClusterSpecification clusterSpecification;
+
+    private PerJobClientFactory(JobClient jobClient, FlinkClientBuilder flinkClientBuilder,
+                                ClusterSpecification clusterSpecification) {
+        this.jobClient = jobClient;
+        this.flinkClientBuilder = flinkClientBuilder;
+        this.clusterSpecification = clusterSpecification;
     }
 
     public ClusterDescriptor<String> createPerjobClusterDescriptor(JobClient jobClient, String projobClusterId) {
+
+        FlinkConfig flinkConfig = flinkClientBuilder.getFlinkConfig();
+        Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
         Configuration newConf = new Configuration(flinkConfiguration);
 
         String taskIdMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.TASKID_KEY;
@@ -111,12 +123,73 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
     @Override
     public ClusterClient getClusterClient() {
-        return null;
+        try (
+                ClusterDescriptor<String> clusterDescriptor = createPerjobClusterDescriptor(jobClient, null);
+        ) {
+
+            String projobClusterId = String.format("%s-%s", ConfigConstrant.FLINK_PERJOB_PREFIX, jobClient.getTaskId());
+            if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
+                flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
+            }
+            ClusterClient clusterClient = clusterDescriptor.deploySessionCluster(clusterSpecification).getClusterClient();
+            return clusterClient;
+        } catch (ClusterDeploymentException e) {
+            throw new RdosDefineException(e);
+        }
     }
 
-    public static PerJobClientFactory createPerJobClientFactory(FlinkClientBuilder flinkClientBuilder) {
-        PerJobClientFactory perJobClientFactory = new PerJobClientFactory(flinkClientBuilder);
+    public ClusterClient retrieveClusterClient(String clusterId) {
+
+        try (
+                ClusterDescriptor<String> clusterDescriptor = createPerjobClusterDescriptor(jobClient, null);
+        ) {
+            return clusterDescriptor.retrieve(clusterId).getClusterClient();
+        } catch (Exception e) {
+            throw new RdosDefineException(e);
+        }
+
+    }
+
+    public static PerJobClientFactory getPerJobClientFactory() {
         return perJobClientFactory;
+    }
+
+    public static PerJobClientFactoryBuilder perJobClientFactoryBuilder(){
+        return new PerJobClientFactoryBuilder();
+    }
+
+    public static class PerJobClientFactoryBuilder {
+
+        private JobClient jobClient;
+        private FlinkClientBuilder flinkClientBuilder;
+        private ClusterSpecification clusterSpecification;
+
+        public PerJobClientFactoryBuilder withJobClient(JobClient jobClient) {
+            this.jobClient = jobClient;
+            return this;
+        }
+
+        public PerJobClientFactoryBuilder withFlinkClientBuilder(FlinkClientBuilder flinkClientBuilder) {
+            this.flinkClientBuilder = flinkClientBuilder;
+            return this;
+        }
+
+        public PerJobClientFactoryBuilder withClusterSpecification(ClusterSpecification clusterSpecification) {
+            this.clusterSpecification = clusterSpecification;
+            return this;
+        }
+
+        public PerJobClientFactory build() {
+            if (Objects.isNull(perJobClientFactory)) {
+                synchronized (PerJobClientFactory.class) {
+                    if (Objects.isNull(perJobClientFactory)) {
+                        perJobClientFactory = new PerJobClientFactory(jobClient, flinkClientBuilder, clusterSpecification);
+                    }
+                }
+            }
+            return perJobClientFactory;
+        }
+
     }
 
 }

@@ -19,6 +19,7 @@ import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
 import com.dtstack.engine.flink.enums.FlinkMode;
+import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.parser.AddJarOperator;
 import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
@@ -43,8 +44,6 @@ import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.cache.DistributedCache;
 import org.apache.flink.client.ClientUtils;
-import org.apache.flink.client.deployment.ClusterDeploymentException;
-import org.apache.flink.client.deployment.ClusterDescriptor;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
@@ -181,8 +180,11 @@ public class FlinkClient extends AbstractClient {
         logger.info("clusterClient monitorUrl is {}, run mode is {}", monitorUrl, taskRunMode.name());
         try {
             if (FlinkMode.isPerJob(taskRunMode)) {
-                ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(tmpConfiguration, jobClient.getJobPriority(), jobClient.getConfProperties());
-                clusterClient = createClusterClientForPerJob(clusterSpecification, jobClient);
+
+                PerJobClientFactory perJobClientFactory = flinkClusterClientManager.getPerJobClientFactory();
+                clusterClient = perJobClientFactory.getClusterClient();
+
+                flinkClusterClientManager.addClient(clusterClient.getClusterId().toString(), clusterClient);
             } else {
                 clusterClient = flinkClusterClientManager.getClusterClient(null);
             }
@@ -249,36 +251,6 @@ public class FlinkClient extends AbstractClient {
         }
         return programArgs;
     }
-
-
-    private ClusterClient createClusterClientForPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws ClusterDeploymentException {
-        ClusterDescriptor<String> clusterDescriptor = null;
-        ClusterClient<String> clusterClient = null;
-        String projobClusterId = String.format("%s-%s-%s", ConfigConstrant.FLINK_PERJOB_PREFIX, jobClient.getTaskId(), jobClient.getGenerateTime());
-        try {
-            clusterDescriptor = flinkClusterClientManager.getPerJobClientFactory().createPerjobClusterDescriptor(jobClient, projobClusterId);
-            if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
-                flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
-            }
-            clusterClient = clusterDescriptor.deploySessionCluster(clusterSpecification).getClusterClient();
-
-            flinkClusterClientManager.addClient(clusterClient.getClusterId(), clusterClient);
-            return clusterClient;
-        } catch (Exception e) {
-            try {
-                if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
-                    flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
-                }
-                if (clusterDescriptor != null) {
-                    clusterDescriptor.close();
-                }
-            } catch (Exception e1) {
-                logger.info("Could not properly close the kubernetes cluster descriptor.", e1);
-            }
-            throw new RdosDefineException(e);
-        }
-    }
-
 
     private Pair<String, String> submitFlinkJob(ClusterClient clusterClient, JobGraph jobGraph, FlinkMode taskRunMode) throws Exception {
         try {
