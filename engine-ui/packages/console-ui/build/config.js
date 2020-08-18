@@ -7,7 +7,7 @@ module.exports = {
         host: '0.0.0.0',
         proxy: {
             '/dt-common': {
-                target: 'http://v3.insight.dtstack.net/', // 开发环境
+                target: 'http://dev.insight.dtstack.cn/', // 开发环境
                 // ignorePath: true,
                 // pathRewrite:{"/dt-common": "/portal"},
                 changeOrigin: true,
@@ -86,7 +86,7 @@ module.exports = {
                 onProxyReq: ProxyReq
             },
             '/api/console': { // 控制台
-                target: 'http://172.16.2.9:8084/', // doraemon
+                target: 'http://172.16.100.225:7001/proxy/52', // doraemon
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,
                 secure: false,

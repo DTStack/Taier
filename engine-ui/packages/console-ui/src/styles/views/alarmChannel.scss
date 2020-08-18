@@ -12,9 +12,8 @@
     padding: 20px;
     height: 100%;
     .ant-card {
-        height: inherit;
+        height: calc(100vh - 142px);
         margin-top: 12px;
-        // margin-bottom: 20px;
         .ant-card-body {
             padding: 24px 0 0 0;
             height: inherit;
@@ -30,7 +29,7 @@
                 line-height: 68px;
                 text-align: center;
                 left: 0;
-                bottom: -78px;
+                bottom: -18px;
                 border-top: 1px solid #ddd;
                 background: #ffffff;
                 button:nth-child(2) {

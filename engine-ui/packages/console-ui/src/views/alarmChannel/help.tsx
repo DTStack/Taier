@@ -8,3 +8,6 @@ export function showAlertTemplete (alertGateType: number, alertGateCode: string)
 export function textAlertKey (type: number): string {
     return type === ALARM_TYPE.EMAIL ? 'emails' : 'phones';
 }
+export function showAlertGateJson (alertGateCode: string): boolean {
+    return CHANNEL_MODE_VALUE.DING_DT !== alertGateCode
+}
