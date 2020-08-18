@@ -54,6 +54,7 @@ const AlarmChannel: React.FC = (props: any) => {
             props.router.push({
                 pathname: '/console/alarmChannel/alarmRule',
                 state: {
+                    id,
                     ruleData: res.data || {}
                 }
             })
@@ -76,7 +77,7 @@ const AlarmChannel: React.FC = (props: any) => {
                 return ALARM_TYPE_TEXT[text]
             }
         }, {
-            title: '使用场景',
+            title: '通道标识',
             dataIndex: 'alertGateSource'
         }, {
             title: '操作',
