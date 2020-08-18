@@ -11,7 +11,10 @@ const { confirm } = Modal;
 
 const AlarmChannel: React.FC = (props: any) => {
     const [pagination, setPagination] = useState<PaginationTypes>({ currentPage: 1, total: 0, pageSize: 15 });
-    const [params, setParams] = useState<any>({ alertGateType: [] });
+    const [params, setParams] = useState<{
+        alertGateType: any[];
+        reFreshKey: number | '';
+    }>({ alertGateType: [], reFreshKey: '' });
     const useAlarmList = (query, pagination) => {
         const [loading, setLoading] = useState<boolean>(false);
         const [alarmList, setAlarmList] = useState<any[]>([])
@@ -35,10 +38,14 @@ const AlarmChannel: React.FC = (props: any) => {
         }, [query])
         return [{ loading, alarmList }]
     }
+    const refreshTable = () => {
+        setParams(state => ({ ...state, reFreshKey: Math.random() }));
+    }
     const deleteRule = async (id: number) => {
         let res = await Api.deleteAlarmRule({ id })
         if (res.code === 1) {
-            message.success('删除成功！')
+            message.success('删除成功！');
+            refreshTable()
         }
     }
     const editAlarm = async (id: number) => {
@@ -104,7 +111,8 @@ const AlarmChannel: React.FC = (props: any) => {
             onOk () {
                 Api.setDefaultAlert({ alertId, alertGateType }).then(res => {
                     if (res.code === 1) {
-                        message.success('操作成功')
+                        message.success('操作成功');
+                        refreshTable();
                     }
                 })
             },
