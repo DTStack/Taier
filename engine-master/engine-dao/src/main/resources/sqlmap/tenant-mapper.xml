@@ -70,4 +70,8 @@
         </if>
     </select>
 
+    <update id="delete">
+        update console_dtuic_tenant set is_deleted = 1 where id = #{id}
+    </update>
+
 </mapper>

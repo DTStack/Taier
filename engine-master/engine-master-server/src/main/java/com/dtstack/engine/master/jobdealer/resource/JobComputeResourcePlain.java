@@ -71,7 +71,7 @@ public class JobComputeResourcePlain {
         String groupName = String.format("%s_default", clusterName);
 
         String namespace = clusterService.getNamespace(jobClient.getParamAction(),
-                jobClient.getTenantId(), jobClient.getEngineType());
+                jobClient.getTenantId(), jobClient.getEngineType(), jobClient.getComputeType());
         Queue queue = clusterService.getQueue(jobClient.getTenantId(), cluster.getClusterId());
 
         if (StringUtils.isNotEmpty(namespace)) {
