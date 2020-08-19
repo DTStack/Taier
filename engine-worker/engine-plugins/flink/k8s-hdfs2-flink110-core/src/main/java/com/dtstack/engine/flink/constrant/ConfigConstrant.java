@@ -33,6 +33,10 @@ public class ConfigConstrant {
     public final static String FLINKX_HOSTS_ENV = "FLINKX_HOSTS";
     public final static String FLINKX_HOSTS_CONFIG_KEY = "flinkx.hosts";
 
+    public final static String JOBMANAGER_COMPONENT = "jobmanager";
+    public final static String TASKMANAGER_COMPONENT = "taskmanager";
+    public final static String JOBMANAGER_LOG_NAME = "jobmanager.log";
+    public final static String TASKMANAGER_LOG_NAME = "taskmanager.log";
 
     // ------------------------------------------------------------------------
     // Resource Configs
@@ -83,6 +87,7 @@ public class ConfigConstrant {
     public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
     public static final String TASKMANAGERS_URL_FORMAT = "%s/taskmanagers";
     public static final String JOBMANAGER_LOG_URL_FORMAT = "%s/jobmanager/log";
+    public static final String TASKMANAGER_LOG_URL_FORMAT = "%s/taskmanagers/%s/log";
     public static final String TASKMANAGERS_KEY = "taskmanagers";
 
 }

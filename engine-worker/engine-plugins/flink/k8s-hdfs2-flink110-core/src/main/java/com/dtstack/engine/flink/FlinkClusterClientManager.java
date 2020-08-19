@@ -11,9 +11,11 @@ import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flink.client.program.ClusterClient;
+import org.apache.flink.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -31,9 +33,7 @@ public class FlinkClusterClientManager {
     /**
      * 客户端是否处于可用状态
      */
-    private AtomicBoolean isClientOn = new AtomicBoolean(false);
-
-    private ClusterClient<String> clusterClient;
+    private AtomicBoolean isClientOn = new AtomicBoolean(true);
 
     private SessionClientFactory sessionClientFactory;
 
@@ -54,20 +54,10 @@ public class FlinkClusterClientManager {
         LOG.warn("Start init FlinkClusterClientManager");
         FlinkClusterClientManager manager = new FlinkClusterClientManager();
         manager.flinkClientBuilder = flinkClientBuilder;
-        manager.initClusterClient();
+        manager.perJobClientFactory = PerJobClientFactory.createPerJobClientFactory(flinkClientBuilder);
+        manager.sessionClientFactory = SessionClientFactory.createSessionClientFactory(flinkClientBuilder);
         return manager;
     }
-
-    public void initClusterClient() throws Exception {
-        if (sessionClientFactory == null) {
-            this.sessionClientFactory = new SessionClientFactory(flinkClientBuilder);
-            LOG.warn("create FlinkSessionStarter.");
-        }
-        boolean clientOn = sessionClientFactory.startFlinkSession();
-        this.setIsClientOn(clientOn);
-        clusterClient = sessionClientFactory.getClusterClient();
-    }
-
 
     /**
      * Get KubernetesSession ClusterClient
@@ -77,7 +67,9 @@ public class FlinkClusterClientManager {
     }
 
     public ClusterClient getClusterClient(JobIdentifier jobIdentifier) {
-        if (jobIdentifier == null || StringUtils.isBlank(jobIdentifier.getApplicationId()) || jobIdentifier.getApplicationId().contains("flinksession")) {
+        String applicationId = jobIdentifier == null? null : jobIdentifier.getApplicationId();
+        Boolean isSession = StringUtils.isBlank(applicationId) || applicationId.contains("flinksession");
+        if (jobIdentifier == null || isSession) {
             if (!isClientOn.get()) {
                 throw new RdosDefineException("No flink session found cluster on Kubernetes. getClusterClient failed...");
             }
@@ -89,7 +81,20 @@ public class FlinkClusterClientManager {
 
     private ClusterClient getSessionJobClient() {
 
-        return null;
+        String sessionClusterId = sessionClientFactory.getSessionClusterId();
+        ClusterClient clusterClient = sessionClientFactory.retrieveClusterClient(sessionClusterId, null);
+
+        if (Objects.nonNull(clusterClient)) {
+            return clusterClient;
+        }
+
+        FlinkConfig flinkConfig = flinkClientBuilder.getFlinkConfig();
+        if (flinkConfig.getSessionStartAuto()) {
+            synchronized (SessionClientFactory.class) {
+                clusterClient = sessionClientFactory.getClusterClient(null);
+            }
+        }
+        return clusterClient;
     }
 
     private ClusterClient getPerJobClient(JobIdentifier jobIdentifier) {
@@ -97,21 +102,16 @@ public class FlinkClusterClientManager {
         String clusterId = jobIdentifier.getApplicationId();
         String taskId = jobIdentifier.getTaskId();
 
-        ClusterClient clusterClient;
         try {
-            clusterClient = perJobClientCache.get(clusterId, () -> {
+            ClusterClient clusterClient = perJobClientCache.get(clusterId, () -> {
                 JobClient jobClient = new JobClient();
                 jobClient.setTaskId(taskId);
-
-                PerJobClientFactory perJobClientFactory = PerJobClientFactory.getPerJobClientFactory();
-                return perJobClientFactory.retrieveClusterClient(clusterId);
+                return perJobClientFactory.retrieveClusterClient(clusterId, jobClient);
             });
-
+            return clusterClient;
         } catch (Exception e) {
             throw new RuntimeException("get cluster on Kubernetes client exception:", e);
         }
-
-        return clusterClient;
     }
 
     public void addClient(String applicationId, ClusterClient<String> clusterClient) {
@@ -136,9 +136,7 @@ public class FlinkClusterClientManager {
             LOG.info("key={},value={},reason={}", notification.getKey(), notification.getValue(), notification.getCause());
             if (notification.getValue() != null) {
                 try {
-                    if (notification.getValue() != FlinkClusterClientManager.this.clusterClient) {
-                        notification.getValue().shutDownCluster();
-                    }
+                    notification.getValue().shutDownCluster();
                 } catch (Exception ex) {
                     LOG.info("[ClusterClientCache] Could not properly shutdown cluster client.", ex);
                 }
@@ -147,10 +145,12 @@ public class FlinkClusterClientManager {
     }
 
     public SessionClientFactory getSessionClientFactory() {
+        Preconditions.checkNotNull(sessionClientFactory, "sessionClientFactory is null");
         return sessionClientFactory;
     }
 
     public PerJobClientFactory getPerJobClientFactory() {
+        Preconditions.checkNotNull(perJobClientFactory, "perJobClientFactory is null");
         return perJobClientFactory;
     }
 }

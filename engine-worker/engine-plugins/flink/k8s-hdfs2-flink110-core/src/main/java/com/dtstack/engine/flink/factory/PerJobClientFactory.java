@@ -38,6 +38,7 @@ import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -50,17 +51,14 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerJobClientFactory.class);
 
-    private static volatile PerJobClientFactory perJobClientFactory;
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
-    private JobClient jobClient;
     private FlinkClientBuilder flinkClientBuilder;
-
 
     private PerJobClientFactory() {
     }
 
-    private PerJobClientFactory(JobClient jobClient, FlinkClientBuilder flinkClientBuilder) {
-        this.jobClient = jobClient;
+    private PerJobClientFactory(FlinkClientBuilder flinkClientBuilder) {
         this.flinkClientBuilder = flinkClientBuilder;
     }
 
@@ -124,13 +122,17 @@ public class PerJobClientFactory extends AbstractClientFactory {
     }
 
     @Override
-    public ClusterClient getClusterClient() {
+    public ClusterClient getClusterClient(JobClient jobClient) {
+
+        String currentTime = dateFormat.format(System.currentTimeMillis());
+        String taskId = jobClient.getTaskId();
+        String projobClusterId = String.format("%s-%s-%s", ConfigConstrant.FLINK_PERJOB_PREFIX, taskId, currentTime);
+
         try (
                 ClusterDescriptor<String> clusterDescriptor = createPerjobClusterDescriptor(jobClient, null);
         ) {
 
             Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
-            String projobClusterId = String.format("%s-%s", ConfigConstrant.FLINK_PERJOB_PREFIX, jobClient.getTaskId());
             if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
                 flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
             }
@@ -138,11 +140,15 @@ public class PerJobClientFactory extends AbstractClientFactory {
             ClusterClient clusterClient = clusterDescriptor.deploySessionCluster(clusterSpecification).getClusterClient();
             return clusterClient;
         } catch (ClusterDeploymentException e) {
+            if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
+                flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
+            }
             throw new RdosDefineException(e);
         }
     }
 
-    public ClusterClient retrieveClusterClient(String clusterId) {
+    @Override
+    public ClusterClient retrieveClusterClient(String clusterId, JobClient jobClient) {
 
         try (
                 ClusterDescriptor<String> clusterDescriptor = createPerjobClusterDescriptor(jobClient, null);
@@ -154,12 +160,12 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
     }
 
-    public JobClient getJobClient() {
-        return jobClient;
-    }
-
-    public void setJobClient(JobClient jobClient) {
-        this.jobClient = jobClient;
+    public static PerJobClientFactory createPerJobClientFactory(FlinkClientBuilder flinkClientBuilder) {
+        PerJobClientFactory perJobClientFactory = new PerJobClientFactory(flinkClientBuilder);
+        if (Objects.isNull(dateFormat)) {
+            dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        }
+        return perJobClientFactory;
     }
 
     public FlinkClientBuilder getFlinkClientBuilder() {
@@ -169,43 +175,4 @@ public class PerJobClientFactory extends AbstractClientFactory {
     public void setFlinkClientBuilder(FlinkClientBuilder flinkClientBuilder) {
         this.flinkClientBuilder = flinkClientBuilder;
     }
-
-    public static PerJobClientFactory getPerJobClientFactory() {
-        return perJobClientFactory;
-    }
-
-    public static PerJobClientFactoryBuilder perJobClientFactoryBuilder(){
-        return new PerJobClientFactoryBuilder();
-    }
-
-    public static class PerJobClientFactoryBuilder {
-
-        private JobClient jobClient;
-        private FlinkClientBuilder flinkClientBuilder;
-
-        public PerJobClientFactoryBuilder withJobClient(JobClient jobClient) {
-            this.jobClient = jobClient;
-            return this;
-        }
-
-        public PerJobClientFactoryBuilder withFlinkClientBuilder(FlinkClientBuilder flinkClientBuilder) {
-            this.flinkClientBuilder = flinkClientBuilder;
-            return this;
-        }
-
-        public PerJobClientFactory build() {
-            if (Objects.isNull(perJobClientFactory)) {
-                synchronized (PerJobClientFactory.class) {
-                    if (Objects.isNull(perJobClientFactory)) {
-                        perJobClientFactory = new PerJobClientFactory();
-                    }
-                }
-            }
-            perJobClientFactory.setJobClient(jobClient);
-            perJobClientFactory.setFlinkClientBuilder(flinkClientBuilder);
-            return perJobClientFactory;
-        }
-
-    }
-
 }

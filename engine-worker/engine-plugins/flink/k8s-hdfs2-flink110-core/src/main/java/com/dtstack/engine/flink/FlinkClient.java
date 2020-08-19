@@ -24,7 +24,6 @@ import com.dtstack.engine.flink.parser.AddJarOperator;
 import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.resource.FlinkSeesionResourceInfo;
-import com.dtstack.engine.flink.util.FlinkConfUtil;
 import com.dtstack.engine.flink.util.FlinkRestParseUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.flink.util.HadoopConf;
@@ -44,7 +43,6 @@ import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.cache.DistributedCache;
 import org.apache.flink.client.ClientUtils;
-import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.PackagedProgramUtils;
@@ -181,7 +179,7 @@ public class FlinkClient extends AbstractClient {
         try {
             if (FlinkMode.isPerJob(taskRunMode)) {
                 PerJobClientFactory perJobClientFactory = flinkClusterClientManager.getPerJobClientFactory();
-                clusterClient = perJobClientFactory.getClusterClient();
+                clusterClient = perJobClientFactory.getClusterClient(jobClient);
 
                 flinkClusterClientManager.addClient(clusterClient.getClusterId().toString(), clusterClient);
             } else {
@@ -261,7 +259,6 @@ public class FlinkClient extends AbstractClient {
             if (!FlinkMode.isPerJob(taskRunMode) && flinkClusterClientManager.getIsClientOn()) {
                 logger.info("submit job error,flink session init ..");
                 flinkClusterClientManager.setIsClientOn(false);
-                flinkClusterClientManager.initClusterClient();
             }
             throw e;
         } finally {
@@ -381,7 +378,8 @@ public class FlinkClient extends AbstractClient {
             }
         } catch (Exception e) {
             // session mode
-            if (targetClusterClient == flinkClusterClientManager.getClusterClient()) {
+            Boolean isSession = StringUtils.isBlank(applicationId) || applicationId.contains("flinksession");
+            if (isSession) {
                 logger.error("", e);
                 return JobResult.createErrorResult(e);
             }
@@ -755,12 +753,12 @@ public class FlinkClient extends AbstractClient {
 
     private String getJobmanagerLogInfo(String webInterfaceUrl) throws IOException {
         JSONObject jobmanager = new JSONObject();
-        jobmanager.put("typeName", "jobmanager");
+        jobmanager.put("typeName", ConfigConstrant.JOBMANAGER_COMPONENT);
         String jobmanagerUrl = String.format(ConfigConstrant.JOBMANAGER_LOG_URL_FORMAT, webInterfaceUrl);
         String jobmanagerMsg = PoolHttpClient.get(jobmanagerUrl);
 
         JSONObject logInfo = new JSONObject();
-        logInfo.put("name", "jobmanager.log");
+        logInfo.put("name", ConfigConstrant.JOBMANAGER_LOG_NAME);
         Integer totalBytes = jobmanagerMsg.length();
         logInfo.put("totalBytes", String.valueOf(totalBytes));
         logInfo.put("url", jobmanagerUrl);
@@ -788,18 +786,18 @@ public class FlinkClient extends AbstractClient {
 
             JSONObject taskmanagerJson = (JSONObject)taskmanager;
             String taskmanagerId = taskmanagerJson.getString("id");
-            String logUrl = String.format("%s/taskmanagers/%s/log", webInterfaceUrl, taskmanagerId);
+            String logUrl = String.format(ConfigConstrant.TASKMANAGER_LOG_URL_FORMAT, webInterfaceUrl, taskmanagerId);
 
             JSONObject taskmanagerLogInfo = new JSONObject();
             taskmanagerLogInfo.put("url", logUrl);
-            taskmanagerLogInfo.put("name", "taskmanager.log");
+            taskmanagerLogInfo.put("name", ConfigConstrant.TASKMANAGER_LOG_NAME);
             Integer totalBytes = PoolHttpClient.get(logUrl).length();
             taskmanagerLogInfo.put("totalBytes", String.valueOf(totalBytes));
 
             List<JSONObject> logInfos = new ArrayList<>();
             logInfos.add(taskmanagerLogInfo);
 
-            logInfo.put("typeName", "taskmanager");
+            logInfo.put("typeName", ConfigConstrant.TASKMANAGER_COMPONENT);
             logInfo.put("otherInfo", JSONObject.toJSONString(taskmanagerJson));
             logInfo.put("logs", logInfos);
 
