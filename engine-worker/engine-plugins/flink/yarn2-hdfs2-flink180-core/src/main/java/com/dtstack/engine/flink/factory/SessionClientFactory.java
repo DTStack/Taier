@@ -180,14 +180,6 @@ public class SessionClientFactory extends AbstractClientFactory {
     }
 
 
-    public void stopFlinkYarnSession() {
-        try {
-            clusterClient.shutdown();
-        } catch (Exception ex) {
-            LOG.info("[YarnSessionClientFactory] Could not properly shutdown cluster client.", ex);
-        }
-    }
-
     @Override
     public ClusterClient<ApplicationId> getClusterClient() {
         return clusterClient;
@@ -415,10 +407,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         private void retry() {
             //重试
             try {
-                if (sessionClientFactory.getClusterClient() != null) {
-                    LOG.error("------- Flink yarn-session client shutdown ----");
-                    sessionClientFactory.stopFlinkYarnSession();
-                }
+                stopFlinkYarnSession();
                 LOG.warn("-- retry Flink yarn-session client ----");
                 startTime = System.currentTimeMillis();
                 this.lastAppState = YarnApplicationState.NEW;
@@ -427,6 +416,24 @@ public class SessionClientFactory extends AbstractClientFactory {
                 Thread.sleep(RETRY_WAIT);
             } catch (Exception e) {
                 LOG.error("", e);
+            }
+        }
+
+        private void stopFlinkYarnSession() {
+            if (sessionClientFactory.getClusterClient() != null) {
+                LOG.error("------- Flink yarn-session client shutdown ----");
+
+                try {
+                    clusterClientManager.getClusterClient().shutdown();
+                } catch (Exception ex) {
+                    LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
+                }
+                try {
+                    ApplicationId applicationId = (ApplicationId) clusterClientManager.getClusterClient().getClusterId();
+                    clientBuilder.getYarnClient().killApplication(applicationId);
+                } catch (Exception ex) {
+                    LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
+                }
             }
         }
 
