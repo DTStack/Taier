@@ -259,7 +259,7 @@ public class FlinkClient extends AbstractClient {
      */
     private Pair<String, String> runJobByPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws Exception {
         logger.info("--------job:{} run by PerJob mode-----.", jobClient.getTaskId());
-        AbstractYarnClusterDescriptor descriptor = PerJobClientFactory.getPerJobClientFactory().createPerJobClusterDescriptor(jobClient);
+        AbstractYarnClusterDescriptor descriptor = flinkClusterClientManager.getPerJobClientFactory().createPerJobClusterDescriptor(jobClient);
         ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, new JobGraph(), true);
 
         String applicationId = clusterClient.getClusterId().toString();

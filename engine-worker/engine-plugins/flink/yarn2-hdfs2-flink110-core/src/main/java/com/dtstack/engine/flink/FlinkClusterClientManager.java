@@ -165,4 +165,12 @@ public class FlinkClusterClientManager {
             }
         }
     }
+
+    public SessionClientFactory getSessionClientFactory() {
+        return sessionClientFactory;
+    }
+
+    public PerJobClientFactory getPerJobClientFactory() {
+        return perJobClientFactory;
+    }
 }
