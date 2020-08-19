@@ -124,7 +124,7 @@ CREATE TABLE `schedule_node_machine` (
 
 CREATE TABLE `console_cluster` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `cluster_name` varchar(24) NOT NULL COMMENT '集群名称',
+  `cluster_name` varchar(128) NOT NULL COMMENT '集群名称',
   `hadoop_version` varchar(24) NOT NULL COMMENT 'hadoop版本',
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -191,7 +191,7 @@ CREATE TABLE `console_engine_tenant` (
 CREATE TABLE `console_queue` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `engine_id` int(11) NOT NULL COMMENT '引擎id',
-  `queue_name` varchar(24) NOT NULL COMMENT '队列名称',
+  `queue_name` varchar(128) NOT NULL COMMENT '队列名称',
   `capacity` varchar(24) NOT NULL COMMENT '最小容量',
   `max_capacity` varchar(24) NOT NULL COMMENT '最大容量',
   `queue_state` varchar(24) NOT NULL COMMENT '运行状态',
