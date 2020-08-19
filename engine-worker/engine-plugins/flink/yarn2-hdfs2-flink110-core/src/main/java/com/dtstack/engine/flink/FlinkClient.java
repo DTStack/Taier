@@ -3,12 +3,14 @@ package com.dtstack.engine.flink;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.HttpClient;
 import com.dtstack.engine.common.http.PoolHttpClient;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.*;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
@@ -148,6 +150,9 @@ public class FlinkClient extends AbstractClient {
 
         flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
 
+        if (flinkConfig.isMonitorAcceptedApp()) {
+            AcceptedApplicationMonitor.start(hadoopConf.getYarnConfiguration(), flinkConfig.getQueue(), flinkConfig);
+        }
     }
 
     @Override
@@ -644,35 +649,36 @@ public class FlinkClient extends AbstractClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public JudgeResult judgeSlots(JobClient jobClient) {
 
         FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(), jobClient.getComputeType());
         boolean isPerJob = ComputeType.STREAM == jobClient.getComputeType() || FlinkYarnMode.isPerJob(taskRunMode);
-        FlinkPerJobResourceInfo perJobResourceInfo = new FlinkPerJobResourceInfo();
-        boolean yarnRs;
 
         try {
-            perJobResourceInfo.getYarnSlots(flinkClientBuilder.getYarnClient(), flinkConfig.getQueue(), flinkConfig.getYarnAccepterTaskNumber());
-            yarnRs = perJobResourceInfo.judgeSlots(jobClient);
-        } catch (YarnException e){
-            logger.error("judgeSlots error:{}", e);
-            return false;
-        }
+            FlinkPerJobResourceInfo perJobResourceInfo = FlinkPerJobResourceInfo.FlinkPerJobResourceInfoBuilder()
+                    .withYarnClient(flinkClientBuilder.getYarnClient())
+                    .withQueueName(flinkConfig.getQueue())
+                    .withYarnAccepterTaskNumber(flinkConfig.getYarnAccepterTaskNumber())
+                    .build();
 
-        if (isPerJob ){
-            return yarnRs;
-        } else {
-            if (!yarnRs){
-                return false;
+            JudgeResult judgeResult = perJobResourceInfo.judgeSlots(jobClient);
+
+            if (!judgeResult.getResult() || isPerJob){
+                return judgeResult;
+            } else {
+                if (!flinkClusterClientManager.getIsClientOn()) {
+                    logger.warn("wait flink client recover...");
+                    return JudgeResult.newInstance(false, "wait flink client recover");
+                }
+                FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
+                String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
+                yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
+                return yarnSeesionResourceInfo.judgeSlots(jobClient);
             }
-            if (!flinkClusterClientManager.getIsClientOn()){
-                logger.warn("wait flink client recover...");
-                return false;
-            }
-            FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
-            String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
-            yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
-            return yarnSeesionResourceInfo.judgeSlots(jobClient);
+
+        } catch (Exception e){
+            logger.error("judgeSlots error:{}", e);
+            return JudgeResult.newInstance(false, "judgeSlots error !");
         }
     }
 

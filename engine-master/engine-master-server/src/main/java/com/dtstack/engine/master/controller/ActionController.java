@@ -91,6 +91,16 @@ public class ActionController {
         return actionService.log(jobId, computeType);
     }
 
+    @RequestMapping(value="/logFromEs", method = {RequestMethod.POST})
+    @ApiOperation(value = "K8s调度下，查询单个Job的log日志")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="jobId",value="查询的job的jobId值",required=true, dataType = "String"),
+            @ApiImplicitParam(name="computeType",value="查询的job的computeType值",required=true, dataType = "int")
+    })
+    public String logFromEs(String jobId, Integer computeType) throws Exception {
+        return actionService.logFromEs(jobId, computeType);
+    }
+
     @RequestMapping(value="/retryLog", method = {RequestMethod.POST})
     @ApiOperation(value = "查询单个Job的重试log日志")
     @ApiImplicitParams({

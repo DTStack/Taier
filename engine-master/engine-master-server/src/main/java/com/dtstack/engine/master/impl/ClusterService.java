@@ -6,6 +6,7 @@ import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EngineType;
@@ -54,6 +55,8 @@ public class ClusterService {
     private final static String CLUSTER = "cluster";
     private final static String QUEUE = "queue";
     private final static String TENANT_ID = "tenantId";
+    private static final String DEPLOY_MODEL = "deployMode";
+    private static final String NAMESPACE = "namespace";
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -240,7 +243,7 @@ public class ClusterService {
         cluster.setDtUicUserId(dtUicUserId);
 
         JSONObject clusterConfigJson = buildClusterConfig(cluster);
-        JSONObject pluginJson = convertPluginInfo(clusterConfigJson, type, cluster,deployMode);
+        JSONObject pluginJson = convertPluginInfo(clusterConfigJson, type, cluster, deployMode);
         if (pluginJson == null) {
             throw new RdosDefineException(format("The cluster is not configured [%s] engine", engineTypeStr));
         }
@@ -327,6 +330,30 @@ public class ClusterService {
         // 没有绑定集群和队列时，返回第一个队列
         return queues.get(0);
     }
+
+    public String getNamespace(ParamAction action, Long tenantId, String engineName) {
+
+        try {
+            Map actionParam = PublicUtil.objectToMap(action);
+            Integer deployMode = MapUtils.getInteger(actionParam, DEPLOY_MODEL);
+            EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineName);
+            EDeployMode deploy = EComponentType.FLINK.equals(type.getComponentType()) ? EDeployMode.SESSION : EDeployMode.PERJOB;
+            if (Objects.nonNull(deployMode)) {
+                deploy = EDeployMode.getByType(deployMode);
+            }
+
+            ClusterVO cluster = getClusterByTenant(tenantId);
+            JSONObject clusterConfigJson = buildClusterConfig(cluster);
+
+            JSONObject flinkConf = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
+            JSONObject pluginInfo = flinkConf.getJSONObject(deploy.getMode());
+            return pluginInfo.getString(NAMESPACE);
+        } catch (IOException e) {
+            LOGGER.error("Get namespace error " + e.getMessage());
+        }
+        return null;
+    }
+
 
     /**
      * 对外接口
@@ -856,7 +883,7 @@ public class ClusterService {
      * 清除缓存
      */
     public void clearPluginInfoCache(){
-        pluginInfoCache.cleanUp();
+        pluginInfoCache.invalidateAll();
         LOGGER.info("-------clear plugin info cache success-----");
     }
 
