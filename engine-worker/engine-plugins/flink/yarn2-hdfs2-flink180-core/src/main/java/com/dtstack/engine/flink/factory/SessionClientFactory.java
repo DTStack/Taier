@@ -374,7 +374,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     if (lastAppState != appState) {
                                         LOG.info("YARN application has been deployed successfully.");
                                     }
-                                    if (checkSubmitJobGraph.getAndIncrement() % checkSubmitJobGraphInterval == 0) {
+                                    if (checkSubmitJobGraphInterval > 0 && checkSubmitJobGraph.getAndIncrement() % checkSubmitJobGraphInterval == 0) {
                                         JobSubmissionResult execResult = clusterClientManager.getClusterClient().submitJob(createJobGraph(), Thread.currentThread().getContextClassLoader());
                                         if (!execResult.isJobExecutionResult()) {
                                             clusterClientManager.setIsClientOn(false);
