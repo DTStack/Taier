@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -24,24 +25,38 @@ public class JobPartitioner {
     @Autowired
     private ZkService zkService;
 
+    public Map<String, Integer> getDefaultStrategy(List<String> aliveNodes, int jobSize) {
+        Map<String, Integer> jobSizeInfo = new HashMap<String, Integer>(aliveNodes.size());
+        int size = jobSize / aliveNodes.size() + 1;
+        for (String aliveNode : aliveNodes) {
+            jobSizeInfo.put(aliveNode, size);
+        }
+        return jobSizeInfo;
+    }
+
     /**
      * compute job number per node
      */
     public Map<String, Integer> computeBatchJobSize(Integer type, int jobSize) {
+        //节点挂了就会迁移的
+        List<String> aliveNodes = zkService.getAliveBrokersChildren();
         Map<Integer, Map<String, QueueInfo>> allNodesJobQueueInfo = queueListener.getAllNodesJobQueueInfo();
         if (allNodesJobQueueInfo.isEmpty()) {
-            return null;
+            return getDefaultStrategy(aliveNodes, jobSize);
         }
         Map<String, QueueInfo> nodesJobQueue = allNodesJobQueueInfo.get(type);
         if (nodesJobQueue == null || nodesJobQueue.isEmpty()) {
-            return null;
+            return getDefaultStrategy(aliveNodes, jobSize);
         }
         Map<String, Integer> nodeSort = Maps.newHashMap();
         int total = jobSize;
         for (Map.Entry<String, QueueInfo> queueInfoEntry : nodesJobQueue.entrySet()) {
             QueueInfo queueInfo = queueInfoEntry.getValue();
             total += queueInfo.getSize();
-            nodeSort.put(queueInfoEntry.getKey(), queueInfo.getSize());
+            //排除宕机节点
+            if (aliveNodes.contains(queueInfoEntry.getKey())) {
+                nodeSort.put(queueInfoEntry.getKey(), queueInfo.getSize());
+            }
         }
         int avg = (total / nodeSort.size()) + 1;
         for (Map.Entry<String, Integer> entry : nodeSort.entrySet()) {
@@ -51,20 +66,24 @@ public class JobPartitioner {
     }
 
     public Map<String, Integer> computeJobCacheSize(String jobResource, int jobSize) {
+        List<String> aliveNodes = zkService.getAliveBrokersChildren();
         Map<String, Map<String, GroupInfo>> allNodesGroupQueueJobResources = queueListener.getAllNodesGroupQueueInfo();
         if (allNodesGroupQueueJobResources.isEmpty()) {
-            return null;
+            return getDefaultStrategy(aliveNodes, jobSize);
         }
         Map<String, GroupInfo> nodesGroupQueue = allNodesGroupQueueJobResources.get(jobResource);
         if (nodesGroupQueue == null || nodesGroupQueue.isEmpty()) {
-            return null;
+            return getDefaultStrategy(aliveNodes, jobSize);
         }
         Map<String, Integer> nodeSort = Maps.newHashMap();
         int total = jobSize;
         for (Map.Entry<String, GroupInfo> groupInfoEntry : nodesGroupQueue.entrySet()) {
             GroupInfo groupInfo = groupInfoEntry.getValue();
             total += groupInfo.getSize();
-            nodeSort.put(groupInfoEntry.getKey(), groupInfo.getSize());
+            //排除宕机节点
+            if (aliveNodes.contains(groupInfoEntry.getKey())) {
+                nodeSort.put(groupInfoEntry.getKey(), groupInfo.getSize());
+            }
         }
         int avg = total / nodeSort.size() + 1;
         for (Map.Entry<String, Integer> entry : nodeSort.entrySet()) {

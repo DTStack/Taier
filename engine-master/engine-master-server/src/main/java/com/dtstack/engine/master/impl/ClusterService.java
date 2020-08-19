@@ -10,6 +10,7 @@ import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -339,22 +340,35 @@ public class ClusterService implements InitializingBean, com.dtstack.engine.api.
         return queues.get(0);
     }
 
-    public String getNamespace(ParamAction action, Long tenantId, String engineName) {
+    public String getNamespace(ParamAction action, Long tenantId, String engineName, ComputeType computeType) {
 
         try {
             Map actionParam = PublicUtil.objectToMap(action);
             Integer deployMode = MapUtils.getInteger(actionParam, DEPLOY_MODEL);
             EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineName);
-            EDeployMode deploy = EComponentType.FLINK.equals(type.getComponentType()) ? EDeployMode.SESSION : EDeployMode.PERJOB;
+
+            EDeployMode deploy = EDeployMode.PERJOB;
+            if (ComputeType.BATCH == computeType && EngineTypeComponentType.FLINK.equals(type)) {
+                deploy = EDeployMode.SESSION;
+            }
             if (Objects.nonNull(deployMode)) {
                 deploy = EDeployMode.getByType(deployMode);
             }
 
             ClusterVO cluster = getClusterByTenant(tenantId);
-            JSONObject clusterConfigJson = buildClusterConfig(cluster);
+            if (Objects.isNull(cluster)) {
+                return null;
+            }
 
-            JSONObject flinkConf = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
-            JSONObject pluginInfo = flinkConf.getJSONObject(deploy.getMode());
+            JSONObject clusterConfigJson = buildClusterConfig(cluster);
+            JSONObject componentConf = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
+            if (Objects.isNull(componentConf)) {
+                return null;
+            }
+            JSONObject pluginInfo = componentConf.getJSONObject(deploy.getMode());
+            if (Objects.isNull(pluginInfo)) {
+                return null;
+            }
             return pluginInfo.getString(NAMESPACE);
         } catch (IOException e) {
             LOGGER.error("Get namespace error " + e.getMessage());
