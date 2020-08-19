@@ -13,7 +13,9 @@ public enum EComponentApiType {
     CARBON_DATA(7),
     HIVE_SERVER(9),
     IMPALA_SQL(11),
-    SFTP(10);
+    SFTP(10),
+    PRESTO_SQL(16);
+
     private int typeCode;
 
     EComponentApiType(int typeCode) {
