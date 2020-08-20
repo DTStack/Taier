@@ -2,7 +2,6 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.dto.AccountDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamAction;
@@ -12,7 +11,7 @@ import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
@@ -23,7 +22,6 @@ import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.zookeeper.ZkService;
-import com.dtstack.schedule.common.enums.Sort;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -31,7 +29,6 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -244,9 +241,13 @@ public class ConsoleService {
                     ScheduleJob scheduleJob = scheduleJobMap.getOrDefault(engineJobCache.getJobId(), new ScheduleJob());
                     //补充租户信息
                     Tenant tenant = tenantMap.get(scheduleJob.getDtuicTenantId());
-                    if(Objects.isNull(tenant) && DELAULT_TENANT != scheduleJob.getDtuicTenantId()){
+                    if(Objects.isNull(tenant) && DELAULT_TENANT != scheduleJob.getDtuicTenantId() && scheduleJob.getDtuicTenantId() > 0){
                         //可能临时运行 租户在tenant表没有 需要添加
-                        tenant = tenantService.addTenant(scheduleJob.getDtuicTenantId(), dtToken);
+                        try {
+                            tenant = tenantService.addTenant(scheduleJob.getDtuicTenantId(), dtToken);
+                        } catch (Exception e) {
+                            logger.error(" get tenant error {}", scheduleJob.getDtuicTenantId(),e);
+                        }
                     }
                     this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant);
                     data.add(theJobMap);
@@ -261,13 +262,14 @@ public class ConsoleService {
         return result;
     }
 
-    private void fillJobInfo(Map<String, Object> theJobMap, ScheduleJob scheduleJob, EngineJobCache engineJobCache,Tenant tenant) {
+    private void fillJobInfo(Map<String, Object> theJobMap, ScheduleJob scheduleJob, EngineJobCache engineJobCache, Tenant tenant) {
         theJobMap.put("status", scheduleJob.getStatus());
         theJobMap.put("execStartTime", scheduleJob.getExecStartTime());
         theJobMap.put("generateTime", engineJobCache.getGmtCreate());
         long currentTime = System.currentTimeMillis();
         String waitTime = DateUtil.getTimeDifference(currentTime - engineJobCache.getGmtCreate().getTime());
         theJobMap.put("waitTime", waitTime);
+        theJobMap.put("waitReason", engineJobCache.getWaitReason());
         theJobMap.put("tenantName", Objects.isNull(tenant) ? "" : tenant.getTenantName());
     }
 
@@ -304,7 +306,7 @@ public class ConsoleService {
                 if (EJobCacheStage.PRIORITY.getStage() == engineJobCache.getStage()) {
                     //先将队列中的元素移除，重复插入会被忽略
                     GroupPriorityQueue groupPriorityQueue = jobDealer.getGroupPriorityQueue(engineJobCache.getJobResource());
-                    groupPriorityQueue.remove(engineJobCache.getJobId());
+                    groupPriorityQueue.remove(jobClient);
                 }
                 return jobDealer.addGroupPriorityQueue(engineJobCache.getJobResource(), jobClient, false);
             }
@@ -412,9 +414,9 @@ public class ConsoleService {
         }
     }
 
-    public ConsoleClusterResourcesVO clusterResources( String clusterName) {
+    public ClusterResource clusterResources( String clusterName) {
         if (StringUtils.isEmpty(clusterName)) {
-            return new ConsoleClusterResourcesVO();
+            return new ClusterResource();
         }
 
         Cluster cluster = clusterDao.getByClusterName(clusterName);
@@ -430,8 +432,7 @@ public class ConsoleService {
         return getResources(yarnComponent, cluster);
     }
 
-    public ConsoleClusterResourcesVO getResources(Component yarnComponent, Cluster cluster) {
-        ConsoleClusterResourcesVO consoleClusterResourcesVO = new ConsoleClusterResourcesVO();
+    public ClusterResource getResources(Component yarnComponent, Cluster cluster) {
         try {
             JSONObject pluginInfo = new JSONObject();
             JSONObject componentConfig = JSONObject.parseObject(yarnComponent.getComponentConfig());
@@ -451,28 +452,11 @@ public class ConsoleService {
             }
             pluginInfo.put(ComponentService.TYPE_NAME,typeName);
             ClusterResource clusterResource = workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
-            List<ConsoleTaskManagerDescriptionVO> flinks = Lists.newArrayList();
-            List<ClusterResource.TaskManagerDescription> flink = clusterResource.getFlink();
-            for (ClusterResource.TaskManagerDescription taskManagerDescription : flink) {
-                ConsoleTaskManagerDescriptionVO vo = new ConsoleTaskManagerDescriptionVO();
-                BeanUtils.copyProperties(taskManagerDescription,vo);
-                flinks.add(vo);
-            }
-
-            List<ClusterResource.NodeDescription> yarn = clusterResource.getYarn();
-            List<ConsoleNodeDescriptionVO> consoleNodeDescriptionVOS = Lists.newArrayList();
-            for (ClusterResource.NodeDescription nodeDescription : yarn) {
-                ConsoleNodeDescriptionVO vo = new ConsoleNodeDescriptionVO();
-                BeanUtils.copyProperties(nodeDescription,vo);
-                consoleNodeDescriptionVOS.add(vo);
-            }
-            consoleClusterResourcesVO.setYarn(consoleNodeDescriptionVOS);
-            consoleClusterResourcesVO.setFlink(flinks);
+            return clusterResource;
         } catch (Exception e) {
             logger.error(" ", e);
             throw new RdosDefineException("flink资源获取异常");
         }
-        return consoleClusterResourcesVO;
     }
 
     private Component getYarnComponent(Long clusterId) {

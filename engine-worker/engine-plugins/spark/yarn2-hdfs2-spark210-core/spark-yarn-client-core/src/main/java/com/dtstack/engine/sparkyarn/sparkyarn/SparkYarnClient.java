@@ -14,6 +14,7 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -191,7 +192,7 @@ public class SparkYarnClient extends AbstractClient {
         try {
             ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
-            appId = clientExt.submitApplication(jobClient.getJobPriority());
+            appId = clientExt.submitApplication(jobClient.getApplicationPriority());
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             logger.info("", ex);
@@ -269,7 +270,7 @@ public class SparkYarnClient extends AbstractClient {
             ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
             ClientExt clientExt = new ClientExt(clientArguments, yarnConf, sparkConf);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
-            appId = clientExt.submitApplication(jobClient.getJobPriority());
+            appId = clientExt.submitApplication(jobClient.getApplicationPriority());
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             logger.info("", ex);
@@ -336,7 +337,7 @@ public class SparkYarnClient extends AbstractClient {
         try {
             ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
-            appId = clientExt.submitApplication(jobClient.getJobPriority());
+            appId = clientExt.submitApplication(jobClient.getApplicationPriority());
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
@@ -594,23 +595,27 @@ public class SparkYarnClient extends AbstractClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public JudgeResult judgeSlots(JobClient jobClient) {
 
         try {
             return KerberosUtils.login(sparkYarnConfig, () -> {
-                SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
+
                 try {
-                    resourceInfo.getYarnSlots(getYarnClient(), sparkYarnConfig.getQueue(), sparkYarnConfig.getYarnAccepterTaskNumber());
+                    SparkYarnResourceInfo resourceInfo = SparkYarnResourceInfo.SparkYarnResourceInfoBuilder()
+                            .withYarnClient(getYarnClient())
+                            .withQueueName(sparkYarnConfig.getQueue())
+                            .withYarnAccepterTaskNumber(sparkYarnConfig.getYarnAccepterTaskNumber())
+                            .build();
                     return resourceInfo.judgeSlots(jobClient);
-                } catch (YarnException e) {
+                } catch (Exception e) {
                     logger.error("", e);
-                    return false;
+                    return JudgeResult.newInstance(false, "judgeSlots error");
                 }
             }, yarnConf);
         } catch (Exception e) {
             logger.error("judgeSlots error", e);
+            return JudgeResult.newInstance(false, "judgeSlots error");
         }
-        return false;
     }
 
     public void setHadoopUserName(SparkYarnConfig sparkYarnConfig){

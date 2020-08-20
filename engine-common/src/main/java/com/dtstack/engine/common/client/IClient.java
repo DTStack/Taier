@@ -4,9 +4,10 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.api.pojo.ClientTemplate;
-import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,7 +34,7 @@ public interface IClient {
 
 	String getJobLog(JobIdentifier jobIdentifier);
 
-	boolean judgeSlots(JobClient jobClient);
+	JudgeResult judgeSlots(JobClient jobClient);
 
 	List<String> getContainerInfos(JobIdentifier jobIdentifier);
 
