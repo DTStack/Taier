@@ -213,12 +213,10 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             //限制数据范围
             Pair<String, String> cycTime = getCycTime();
             Long startId = batchJobService.getListMinId(nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight());
-            logger.info(" nodeAddress:{} start scanning since when startId:{}", nodeAddress,startId);
+            logger.info("scheduleType:{} nodeAddress:{} leftTime {},rightTime {} start scanning since when startId:{}",getScheduleType().getType(),cycTime.getLeft(), cycTime.getRight(),nodeAddress,startId);
             if (startId!=null) {
                 List<ScheduleBatchJob> listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight());
                 while (CollectionUtils.isNotEmpty(listExecJobs)) {
-                    logger.info("scheduleType:{} nodeAddress:{} startId:{} start put queue", getScheduleType(), nodeAddress, startId);
-
                     for (ScheduleBatchJob scheduleBatchJob : listExecJobs) {
                         // 节点检查是否能进入队列
                         JobCheckRunInfo checkRunInfo;
@@ -263,6 +261,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                         }
                     }
                     listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight());
+                    logger.info("scheduleType:{} nodeAddress:{} leftTime {},rightTime {} start scanning since when startId:{}",getScheduleType().getType(),cycTime.getLeft(), cycTime.getRight(),nodeAddress,startId);
                 }
             }
         } catch (Exception e) {
