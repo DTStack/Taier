@@ -166,4 +166,12 @@
             #{jobId}
         </foreach>
     </delete>
+
+    <update id="updateJobInfo">
+        UPDATE
+        schedule_engine_job_cache
+        set job_info = #{jobInfo}
+        WHERE job_id = #{jobId}
+    </update>
+
 </mapper>
