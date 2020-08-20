@@ -98,6 +98,10 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.IMPALA;
             case "tidb":
                 return ScheduleEngineType.TIDB;
+            case "oracle":
+                return ScheduleEngineType.ORACLE;
+            case "greenplum":
+                return ScheduleEngineType.GREENPLUM;
             case "kubernetes":
                 return ScheduleEngineType.KUBERNETES;
             case "mysql":
