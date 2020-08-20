@@ -25,17 +25,22 @@ import java.util.Properties;
  * Reason:
  * Date: 2017/2/21
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
-public class JobClient extends OrderObject{
+public class JobClient extends OrderObject {
 
     private static final Logger logger = LoggerFactory.getLogger(JobClient.class);
 
-    /**默认的优先级，值越小，优先级越高*/
+    /**
+     * 默认的优先级，值越小，优先级越高
+     */
     private static final int DEFAULT_PRIORITY_LEVEL_VALUE = 10;
 
-    /**用户填写的优先级占的比重*/
+    /**
+     * 用户填写的优先级占的比重
+     */
     private static final int PRIORITY_LEVEL_WEIGHT = 100000;
 
     private JobClientCallBack jobClientCallBack;
@@ -66,10 +71,14 @@ public class JobClient extends OrderObject{
 
     private JobResult jobResult;
 
-    /**externalPath 不为null则为从保存点恢复*/
+    /**
+     * externalPath 不为null则为从保存点恢复
+     */
     private String externalPath;
 
-    /**提交MR执行的时候附带的执行参数*/
+    /**
+     * 提交MR执行的时候附带的执行参数
+     */
     private String classArgs;
 
     private int again = 1;
@@ -86,7 +95,9 @@ public class JobClient extends OrderObject{
 
     private volatile long lackingCount;
 
-    /** uic租户信息**/
+    /**
+     * uic租户信息
+     **/
     private long tenantId;
 
     private Long userId;
@@ -116,18 +127,18 @@ public class JobClient extends OrderObject{
         this.userId = paramAction.getUserId();
         this.appType = paramAction.getAppType();
 
-        if (paramAction.getComputeType().equals(ComputeType.STREAM.getType())){
+        if (paramAction.getComputeType().equals(ComputeType.STREAM.getType())) {
             this.maxRetryNum = 0;
         } else {
             this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 3 : paramAction.getMaxRetryNum();
         }
-        if(paramAction.getPluginInfo() != null){
+        if (paramAction.getPluginInfo() != null) {
             this.pluginInfo = PublicUtil.objToString(paramAction.getPluginInfo());
         }
-        if(taskParams != null){
+        if (taskParams != null) {
             this.confProperties = PublicUtil.stringToProperties(taskParams);
         }
-        if (paramAction.getPriority() <= 0){
+        if (paramAction.getPriority() <= 0) {
             String valStr = confProperties == null ? null : confProperties.getProperty(ConfigConstant.CUSTOMER_PRIORITY_VAL);
             this.priorityLevel = valStr == null ? DEFAULT_PRIORITY_LEVEL_VALUE : MathUtil.getIntegerVal(valStr);
             //设置priority值, 值越小，优先级越高
@@ -136,7 +147,7 @@ public class JobClient extends OrderObject{
             priority = paramAction.getPriority();
         }
         this.groupName = paramAction.getGroupName();
-        if (StringUtils.isBlank(groupName)){
+        if (StringUtils.isBlank(groupName)) {
             groupName = ConfigConstant.DEFAULT_GROUP_NAME;
         }
         //将任务id 标识为对象id
@@ -144,7 +155,7 @@ public class JobClient extends OrderObject{
 
     }
 
-    public ParamAction getParamAction(){
+    public ParamAction getParamAction() {
         ParamAction action = new ParamAction();
         action.setSqlText(sql);
         action.setTaskParams(taskParams);
@@ -165,10 +176,10 @@ public class JobClient extends OrderObject{
         action.setTenantId(tenantId);
         action.setUserId(userId);
         action.setAppType(appType);
-        if(!Strings.isNullOrEmpty(pluginInfo)){
-            try{
+        if (!Strings.isNullOrEmpty(pluginInfo)) {
+            try {
                 action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
-            }catch (Exception e){
+            } catch (Exception e) {
                 //不应该走到这个异常,这个数据本身是由map转换过来的
                 logger.error("", e);
             }
@@ -272,12 +283,12 @@ public class JobClient extends OrderObject{
         this.attachJarInfos = attachJarInfos;
     }
 
-    public void addAttachJarInfo(JarFileInfo jarFileInfo){
+    public void addAttachJarInfo(JarFileInfo jarFileInfo) {
         attachJarInfos.add(jarFileInfo);
     }
 
-    public void doStatusCallBack(Integer status){
-        if(jobClientCallBack == null){
+    public void doStatusCallBack(Integer status) {
+        if (jobClientCallBack == null) {
             throw new RdosDefineException("not set jobClientCallBak...");
         }
         jobClientCallBack.updateStatus(status);
@@ -364,7 +375,7 @@ public class JobClient extends OrderObject{
     }
 
     public long getGenerateTime() {
-        if (generateTime <=0) {
+        if (generateTime <= 0) {
             generateTime = System.currentTimeMillis();
         }
         return generateTime;
@@ -374,8 +385,8 @@ public class JobClient extends OrderObject{
         this.generateTime = generateTime;
     }
 
-    public int getJobPriority() {
-        return Integer.MAX_VALUE - (int)(getPriority() / 1000);
+    public int getApplicationPriority() {
+        return Integer.MAX_VALUE - (int) (getPriority() / 1000);
     }
 
     public String getApplicationId() {
@@ -427,6 +438,18 @@ public class JobClient extends OrderObject{
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        JobClient jobClient = (JobClient) o;
+        return taskId != null ? taskId.equals(jobClient.taskId) : jobClient.taskId == null;
+    }
+
+    @Override
     public String toString() {
         return "JobClient{" +
                 " jobClientCallBack=" + jobClientCallBack +
@@ -435,7 +458,7 @@ public class JobClient extends OrderObject{
                 ", confProperties=" + confProperties +
                 ", sql='" + sql +
                 ", taskParams='" + taskParams +
-                ", jobName='" + jobName+
+                ", jobName='" + jobName +
                 ", taskId='" + taskId +
                 ", engineTaskId='" + engineTaskId +
                 ", jobType=" + jobType +
