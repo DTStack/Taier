@@ -1,6 +1,7 @@
 
 package com.dtstack.engine.master.config;
 
+import com.dtstack.engine.master.router.DtArgumentCookieResolver;
 import com.dtstack.engine.master.router.DtArgumentResolver;
 import com.dtstack.engine.master.router.login.LoginInterceptor;
 import com.google.common.collect.Lists;
@@ -28,6 +29,9 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
     @Autowired
     private DtArgumentResolver dtArgumentResolver;
 
+    @Autowired
+    private DtArgumentCookieResolver dtArgumentCookieResolver;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
@@ -51,6 +55,7 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
     protected void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         super.addArgumentResolvers(argumentResolvers);
         argumentResolvers.add(dtArgumentResolver);
+        argumentResolvers.add(dtArgumentCookieResolver);
     }
 
     @Override
