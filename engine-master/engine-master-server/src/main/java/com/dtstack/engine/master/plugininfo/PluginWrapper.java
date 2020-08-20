@@ -219,8 +219,8 @@ public class PluginWrapper{
         if (Objects.isNull(dbPluginInfo)) {
             dbPluginInfo = new JSONObject();
         }
-        if (dbPluginInfo.containsKey(PLUGIN_INFO)) {
-            logger.info("jobId {} contains pluginInfo  {} not save", jobId, dbPluginInfo.getJSONObject("pluginInfo"));
+        if (dbPluginInfo.containsKey(PLUGIN_INFO) && !dbPluginInfo.getJSONObject(PLUGIN_INFO).isEmpty()) {
+            logger.info("jobId {} contains pluginInfo  {} not save", jobId, dbPluginInfo.getJSONObject(PLUGIN_INFO));
             return;
         }
         dbPluginInfo.putIfAbsent(PLUGIN_INFO, pluginInfo);
