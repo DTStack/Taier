@@ -114,8 +114,6 @@ public class StreamTaskService {
             throw new RdosDefineException(String.format("job %s not running in perjob", taskId), ErrorCode.INVALID_TASK_RUN_MODE);
         }
 
-        Preconditions.checkState(applicationId.contains("application"), String.format("current task %s don't have application id.", taskId));
-
         JobClient jobClient = null;
         JobIdentifier jobIdentifier = null;
 

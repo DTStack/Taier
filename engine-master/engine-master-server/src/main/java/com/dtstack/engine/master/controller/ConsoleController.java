@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.console.ConsoleClusterResourcesVO;
 import com.dtstack.engine.api.vo.console.ConsoleJobVO;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.master.impl.ConsoleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -85,7 +85,7 @@ public class ConsoleController {
     }
 
     @RequestMapping(value="/clusterResources", method = {RequestMethod.POST})
-    public ConsoleClusterResourcesVO clusterResources(@DtRequestParam("clusterName") String clusterName) {
+    public ClusterResource clusterResources(@DtRequestParam("clusterName") String clusterName) {
         return consoleService.clusterResources(clusterName);
     }
 }

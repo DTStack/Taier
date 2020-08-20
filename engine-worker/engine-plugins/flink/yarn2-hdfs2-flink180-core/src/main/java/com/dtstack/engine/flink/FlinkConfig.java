@@ -41,7 +41,7 @@ public class FlinkConfig extends BaseConfig {
 
     private String remotePluginRootDir;
 
-    private String clusterMode = Deploy.session.name(); // 集群运行模式: standalone or yarn
+    private String clusterMode = Deploy.yarn.name(); // 集群运行模式: standalone or yarn
 
     private String cluster;
 
@@ -63,11 +63,21 @@ public class FlinkConfig extends BaseConfig {
 
     private String flinkSessionName = "Flink session";
 
-    private boolean sessionStartAuto = true;
+    private boolean sessionStartAuto = false;
 
     private boolean flinkHighAvailability = false;
 
     private String pluginLoadMode = "shipfile";
+
+    private boolean monitorAcceptedApp = false;
+
+    public boolean isMonitorAcceptedApp() {
+        return monitorAcceptedApp;
+    }
+
+    public void setMonitorAcceptedApp(boolean monitorAcceptedApp) {
+        this.monitorAcceptedApp = monitorAcceptedApp;
+    }
 
     public String getTypeName() {
         return typeName;

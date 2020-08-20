@@ -1,6 +1,5 @@
 package com.dtstack.engine.api.vo.console;
 
-import com.dtstack.engine.api.pojo.ParamAction;
 
 /**
  * @Auther: dazhi

@@ -29,6 +29,16 @@ public class EngineJobCache extends DataObject{
 
     private Integer isFailover;
 
+    private String waitReason;
+
+    public String getWaitReason() {
+        return waitReason;
+    }
+
+    public void setWaitReason(String waitReason) {
+        this.waitReason = waitReason;
+    }
+
     public String getJobId() {
         return jobId;
     }

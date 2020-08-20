@@ -53,7 +53,7 @@ public class FlinkClientBuilder {
         builder.yarnConf = yarnConf;
 
         KerberosUtils.login(flinkConfig, ()->{
-            if (Deploy.session.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
+            if (Deploy.yarn.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
                 try {
                     builder.yarnClient = initYarnClient(yarnConf);
                 } catch (Exception e) {

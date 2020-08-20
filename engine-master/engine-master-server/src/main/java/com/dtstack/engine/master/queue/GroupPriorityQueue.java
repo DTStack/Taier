@@ -2,6 +2,7 @@ package com.dtstack.engine.master.queue;
 
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.queue.comparator.JobClientComparator;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
@@ -12,7 +13,6 @@ import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.JobSubmitDealer;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.queue.OrderLinkedBlockingQueue;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -22,6 +22,7 @@ import org.springframework.context.ApplicationContext;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -52,7 +53,7 @@ public class GroupPriorityQueue {
     private JobPartitioner jobPartitioner;
     private WorkerOperator workerOperator;
 
-    private OrderLinkedBlockingQueue<JobClient> queue = null;
+    private PriorityBlockingQueue<JobClient> queue = null;
     private JobSubmitDealer jobSubmitDealer = null;
 
     private GroupPriorityQueue() {
@@ -95,12 +96,12 @@ public class GroupPriorityQueue {
         return jobSubmitDealer.tryPutRestartJob(jobClient);
     }
 
-    public OrderLinkedBlockingQueue<JobClient> getQueue() {
+    public PriorityBlockingQueue<JobClient> getQueue() {
         return queue;
     }
 
-    public boolean remove(String jobId) {
-        if (queue.remove(jobId)) {
+    public boolean remove(JobClient jobClient) {
+        if (queue.remove(jobClient)) {
             return true;
         }
         return false;
@@ -124,36 +125,35 @@ public class GroupPriorityQueue {
 
     private class AcquireGroupQueueJob implements Runnable {
 
+        /**
+         * blocked=true，已存储的任务数据超出队列limited上限
+         * <p>
+         * 如果队列中的任务数量小于
+         *
+         * @see com.dtstack.engine.master.queue.GroupPriorityQueue#queueSizeLimited ,
+         * 并且没有查询到新的数据，则停止调度
+         * @see com.dtstack.engine.master.queue.GroupPriorityQueue#blocked
+         */
         @Override
         public void run() {
-
-            /**
-             * blocked=true，已存储的任务数据超出队列limited上限
-             */
             if (Boolean.FALSE == blocked.get()) {
                 int jobSize = engineJobCacheDao.countByStage(jobResource, EJobCacheStage.unSubmitted(), environmentContext.getLocalAddress());
-                if (jobSize < getQueueSizeLimited()) {
+                if (jobSize == 0) {
                     return;
                 }
-                blocked.set(true);
             }
 
-            /**
-             * 如果队列中的任务数量小于
-             * @see com.dtstack.engine.service.queue.GroupPriorityQueue#QUEUE_SIZE_LIMITED ,
-             * 并且没有查询到新的数据，则停止调度
-             * @see com.dtstack.engine.service.queue.GroupPriorityQueue#blocked
-             */
-            if (priorityQueueSize() < getQueueSizeLimited()) {
-                boolean empty = emitJob2PriorityQueue();
-                if (empty) {
-                    blocked.set(false);
-                }
-            }
+            emitJob2PriorityQueue();
         }
     }
 
+    /**
+     * @return false: blocked | true: unblocked
+     */
     private boolean emitJob2PriorityQueue() {
+        if (priorityQueueSize() >= getQueueSizeLimited()) {
+            return false;
+        }
         boolean empty = false;
         String localAddress = environmentContext.getLocalAddress();
         try {
@@ -189,6 +189,9 @@ public class GroupPriorityQueue {
             }
         } catch (Exception e) {
             logger.error("emitJob2PriorityQueue localAddress:{} error:", localAddress, e);
+        }
+        if (empty) {
+            blocked.set(false);
         }
         return empty;
     }
@@ -253,7 +256,7 @@ public class GroupPriorityQueue {
 
         checkParams();
 
-        this.queue = new OrderLinkedBlockingQueue<>(queueSizeLimited * 2);
+        this.queue = new PriorityBlockingQueue<>(queueSizeLimited * 2, new JobClientComparator());
         this.jobSubmitDealer = new JobSubmitDealer(environmentContext.getLocalAddress(), this, applicationContext);
 
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_AcquireJob"));

@@ -1,11 +1,14 @@
 package com.dtstack.engine.learning;
 
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.learning.client.ClientArguments;
 import com.dtstack.engine.common.exception.ClientArgumentException;
 import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.base.resource.AbstractYarnResourceInfo;
 import com.google.common.collect.Lists;
+import org.apache.hadoop.yarn.client.api.YarnClient;
+import org.apache.hadoop.yarn.exceptions.YarnException;
 
 import java.util.List;
 
@@ -20,8 +23,21 @@ public class LearningResourceInfo extends AbstractYarnResourceInfo {
 
     public static final String DT_APP_YARN_ACCEPTER_TASK_NUMBER = "yarnAccepterTaskNumber";
 
+    private YarnClient yarnClient;
+    private String queueName;
+    private Integer yarnAccepterTaskNumber;
+
+    public LearningResourceInfo(YarnClient yarnClient, String queueName, Integer yarnAccepterTaskNumber) {
+        this.yarnClient = yarnClient;
+        this.queueName = queueName;
+        this.yarnAccepterTaskNumber = yarnAccepterTaskNumber;
+    }
+
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public JudgeResult judgeSlots(JobClient jobClient) throws YarnException {
+
+        getYarnSlots(yarnClient, queueName, yarnAccepterTaskNumber);
+
         ClientArguments clientArguments;
         try {
             String[] args = LearningUtil.buildPythonArgs(jobClient);
@@ -44,13 +60,10 @@ public class LearningResourceInfo extends AbstractYarnResourceInfo {
         return this.judgeResource(amCores, amMem, workerNum, workerCores, workerMem, psNum, psCores, psMem);
     }
 
-    private boolean judgeResource(int amCores, int amMem, int workerNum, int workerCores, int workerMem, int psNum, int psCores, int psMem) {
+    private JudgeResult judgeResource(int amCores, int amMem, int workerNum, int workerCores, int workerMem, int psNum, int psCores, int psMem) {
         if (workerNum == 0 || workerMem == 0 || workerCores == 0) {
             throw new LimitResourceException("Yarn task resource configuration error，" +
                     "instance：" + workerNum + ", coresPerInstance：" + workerCores + ", memPerInstance：" + workerMem);
-        }
-        if (totalFreeCore == 0 || totalFreeMem == 0) {
-            return false;
         }
 
         List<InstanceInfo> instanceInfos = Lists.newArrayList(
@@ -60,5 +73,34 @@ public class LearningResourceInfo extends AbstractYarnResourceInfo {
             instanceInfos.add(InstanceInfo.newRecord(psNum, psCores, psMem));
         }
         return judgeYarnResource(instanceInfos);
+    }
+
+    public static LearningResourceInfoBuilder LearningResourceInfoBuilder() {
+        return new LearningResourceInfoBuilder();
+    }
+
+    public static class LearningResourceInfoBuilder {
+        private YarnClient yarnClient;
+        private String queueName;
+        private Integer yarnAccepterTaskNumber;
+
+        public LearningResourceInfoBuilder withYarnClient(YarnClient yarnClient) {
+            this.yarnClient = yarnClient;
+            return this;
+        }
+
+        public LearningResourceInfoBuilder withQueueName(String queueName) {
+            this.queueName = queueName;
+            return this;
+        }
+
+        public LearningResourceInfoBuilder withYarnAccepterTaskNumber(Integer yarnAccepterTaskNumber) {
+            this.yarnAccepterTaskNumber = yarnAccepterTaskNumber;
+            return this;
+        }
+
+        public LearningResourceInfo build() {
+            return new LearningResourceInfo(yarnClient, queueName, yarnAccepterTaskNumber);
+        }
     }
 }

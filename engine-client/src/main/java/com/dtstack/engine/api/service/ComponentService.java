@@ -2,10 +2,8 @@ package com.dtstack.engine.api.service;
 
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.KerberosConfig;
-import com.dtstack.engine.api.dto.Resource;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.api.vo.ComponentVO;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.sdk.core.common.ApiResponse;
@@ -13,7 +11,6 @@ import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Param;
 import com.dtstack.sdk.core.feign.RequestLine;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -71,37 +68,5 @@ public interface ComponentService extends DtInsightServer {
      */
     @RequestLine("POST /node/component/testConnects")
     ApiResponse<List<ComponentTestResult>> testConnects(@Param("clusterName") String clusterName);
-
-
-//    @RequestLine("POST /node/component/addOrUpdateComponent")
-//    ApiResponse<ComponentVO> addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("componentConfig") String componentConfig,
-//                                                  @Param("resources") List<Resource> resources, @Param("hadoopVersion") String hadoopVersion,
-//                                                  @Param("kerberosFileName") String kerberosFileName, @Param("componentTemplate") String componentTemplate,
-//                                                  @Param("componentCode") Integer componentCode);
-
-//    /**
-//     * parse zip中xml或者json
-//     *
-//     * @param resources
-//     * @return
-//     */
-//    @RequestLine("POST /node/component/config")
-//    ApiResponse<List<Object>> config(@Param("resources") List<Resource> resources, @Param("componentType") Integer componentType, @Param("autoDelete") Boolean autoDelete);
-
-//    /**
-//     * 下载文件
-//     *
-//     * @param componentId
-//     * @param downloadType 0:kerberos配置文件 1:配置文件 2:模板文件
-//     * @return
-//     */
-//    @RequestLine("POST /node/component/downloadFile")
-//    ApiResponse<File>downloadFile(@Param("componentId") Long componentId, @Param("type") Integer downloadType, @Param("componentType") Integer componentType,
-//                                  @Param("hadoopVersion") String hadoopVersion, @Param("clusterName") String clusterName);
-
-
-
-
-
 
 }

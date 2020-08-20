@@ -1,6 +1,7 @@
 package com.dtstack.engine.base.resource;
 
 import com.dtstack.engine.common.exception.LimitResourceException;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.google.common.collect.Lists;
 import io.fabric8.kubernetes.api.model.Node;
 import io.fabric8.kubernetes.api.model.NodeStatus;
@@ -52,10 +53,10 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
     protected double[] nmFreeCore = null;
     protected double[] nmFreeMem = null;
 
-    protected boolean judgeResource(List<InstanceInfo> instanceInfos) {
+    protected JudgeResult judgeResource(List<InstanceInfo> instanceInfos) {
         if (totalFreeCore == 0 || totalFreeMem == 0) {
             logger.info("judgeResource, totalFreeCore={}, totalFreeMem={}", totalFreeCore, totalFreeMem);
-            return false;
+            return JudgeResult.newInstance(false, "totalFreeCore or totalFreeMem is 0");
         }
         double needTotalCore = 0;
         double needTotalMem = 0;
@@ -68,32 +69,33 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
         }
         if (needTotalCore > totalCore) {
             logger.info("judgeResource, needTotalCore={}, totalCore={}", needTotalCore, totalCore);
-            return false;
+            return JudgeResult.newInstance(false, "The task required core resources are greater than the total resources");
         }
         if (needTotalMem > totalMem) {
             logger.info("judgeResource, needTotalMem={}, totalMem={}", needTotalMem, totalMem);
-            return false;
+            return JudgeResult.newInstance(false, "The task required memory resources are greater than the total resources");
         }
         for (InstanceInfo instanceInfo : instanceInfos) {
-            if (!judgeInstanceResource(instanceInfo.instances, instanceInfo.coresPerInstance, instanceInfo.memPerInstance)) {
+            JudgeResult judgeInstanceResource = judgeInstanceResource(instanceInfo.instances, instanceInfo.coresPerInstance, instanceInfo.memPerInstance);
+            if (!judgeInstanceResource.getResult()) {
                 logger.info("judgeResource, nmFreeCore={}, nmFreeMem={} instanceInfo={}", nmFreeCore, nmFreeMem, instanceInfo);
-                return false;
+                return judgeInstanceResource;
             }
         }
-        return true;
+        return JudgeResult.newInstance(true, "");
     }
 
-    private boolean judgeInstanceResource(int instances, double coresPerInstance, double memPerInstance) {
+    private JudgeResult judgeInstanceResource(int instances, double coresPerInstance, double memPerInstance) {
         if (instances == 0 || coresPerInstance == 0 || memPerInstance == 0) {
             throw new LimitResourceException("task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
         }
         if (!judgeCores(instances, coresPerInstance)) {
-            return false;
+            return JudgeResult.newInstance(false, "Insufficient cpu resources of kubernetes cluster");
         }
         if (!judgeMem(instances, memPerInstance)) {
-            return false;
+            return JudgeResult.newInstance(false, "Insufficient memory resources of kubernetes cluster");
         }
-        return true;
+        return JudgeResult.newInstance(true, "");
     }
 
     private boolean judgeCores(int instances, double coresPerInstance) {
@@ -124,15 +126,7 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
         return false;
     }
 
-    public void getResource(KubernetesClient kubernetesClient, List<String> labels, int allowPendingPodSize) {
-        if (allowPendingPodSize > 0) {
-            List<Pod> pods = kubernetesClient.pods().list().getItems();
-            List<Pod> pendingPods = pods.stream().filter(p -> PENDING_PHASE.equals(p.getStatus().getPhase())).collect(Collectors.toList());
-            if (pendingPods.size() > allowPendingPodSize) {
-                logger.info("pendingPods-size:{} allowPendingPodSize:{}", pendingPods.size(), allowPendingPodSize);
-                return;
-            }
-        }
+    public void getResource(KubernetesClient kubernetesClient) {
 
         List<Node> nodes = kubernetesClient.nodes().list().getItems();
         Map<String, NodeStatus> nodeStatusMap = new HashMap<>(nodes.size());
