@@ -561,19 +561,6 @@ public class ClusterService {
         }
     }
 
-//    public Map<String, Object> getConfig(ClusterVO cluster,Long dtUicTenantId,String key) {
-//        JSONObject config = buildClusterConfig(cluster);
-//        EComponentType componentType = EComponentType.getByConfName(key);
-//        KerberosConfig kerberosConfig = componentService.getKerberosConfig(cluster.getId(),componentType.getTypeCode());
-//
-//        JSONObject configObj = config.getJSONObject(key);
-//        if (configObj != null) {
-//            addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
-//            return configObj;
-//        }
-//        return null;
-//    }
-
     /**
      * 如果开启集群开启了kerberos认证，kerberosConfig中还需要包含hdfs配置
      *

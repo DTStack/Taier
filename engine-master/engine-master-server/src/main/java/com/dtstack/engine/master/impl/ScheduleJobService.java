@@ -1215,8 +1215,6 @@ public class ScheduleJobService {
 
 
         List<String> jobIds = Lists.newArrayList();
-//      JSONObject sendData = new JSONObject();
-//      JSONArray jsonArray = new JSONArray();
         for (ScheduleJob scheduleJob : scheduleJobList) {
             ScheduleTaskShade batchTask = scheduleTaskShadeDao.getOne(scheduleJob.getTaskId(), appType);
             //fix 任务被删除
@@ -1233,24 +1231,7 @@ public class ScheduleJobService {
             }
 
             jobIds.add(scheduleJob.getJobId());
-//            JSONObject params = new JSONObject();
-//            params.put("engineType", ScheduleEngineType.getEngineName(batchTask.getEngineType()));
-//            params.put("taskId", scheduleJob.getJobId());
-//            params.put("computeType", batchTask.getComputeType());
-//            params.put("taskType", batchTask.getTaskType());
-//            //dtuicTenantId
-//            params.put("tenantId", dtuicTenantId);
-//            if (batchTask.getTaskType().equals(EScheduleJobType.DEEP_LEARNING.getVal())) {
-//                params.put("engineType", ScheduleEngineType.Learning.getEngineName());
-//                params.put("taskType", EScheduleJobType.SPARK_PYTHON.getVal());
-//            } else if (batchTask.getTaskType().equals(EScheduleJobType.PYTHON.getVal()) || batchTask.getTaskType().equals(EScheduleJobType.SHELL.getVal())) {
-//                params.put("engineType", ScheduleEngineType.DtScript.getEngineName());
-//                params.put("taskType", EScheduleJobType.SPARK_PYTHON.getVal());
-//            }
-//
-//            jsonArray.add(params);
         }
-//        sendData.put("jobs", jsonArray);
 
         actionService.stop(jobIds);
         return "";
@@ -1352,9 +1333,6 @@ public class ScheduleJobService {
             if (scheduleBatchJob.getScheduleJob() != null) {
                 scheduleJobDao.update(scheduleBatchJob.getScheduleJob());
             }
-
-            //batchEngineJobService.saveOrUpdateEngineJob(scheduleBatchJob.getBatchEngineJob(), null);
-//            batchEngineJobService.resetJobForRestart(scheduleBatchJob.getBatchEngineJob().getId(), RdosTaskStatus.UNSUBMIT.getStatus(), scheduleBatchJob.getBatchEngineJob().getVersionId());
         }
     }
 
