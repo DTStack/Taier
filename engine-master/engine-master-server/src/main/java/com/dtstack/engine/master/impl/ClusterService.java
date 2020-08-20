@@ -219,7 +219,7 @@ public class ClusterService {
      */
     public JSONObject pluginInfoJSON( Long dtUicTenantId,  String engineTypeStr, Long dtUicUserId,Integer deployMode) {
         //缓存是否存在
-        String keyFormat = String.format("%s.%s.%s.%s", dtUicTenantId, engineTypeStr, dtUicTenantId, deployMode);
+        String keyFormat = String.format("%s.%s.%s.%s", dtUicTenantId, engineTypeStr, dtUicUserId, deployMode);
         JSONObject cacheInfo = pluginInfoCache.getIfPresent(keyFormat);
         if (Objects.nonNull(cacheInfo)) {
             return cacheInfo;
