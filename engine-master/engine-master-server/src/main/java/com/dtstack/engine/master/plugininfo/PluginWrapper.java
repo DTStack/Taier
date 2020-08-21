@@ -223,7 +223,7 @@ public class PluginWrapper{
             logger.info("jobId {} contains pluginInfo  {} not save", jobId, dbPluginInfo.getJSONObject(PLUGIN_INFO));
             return;
         }
-        dbPluginInfo.put(PLUGIN_INFO, pluginInfo);
+        dbPluginInfo.put(PLUGIN_INFO, JSONObject.parseObject(pluginInfo,Map.class));
         engineJobCacheDao.updateJobInfo(dbPluginInfo.toJSONString(), jobId);
     }
 
