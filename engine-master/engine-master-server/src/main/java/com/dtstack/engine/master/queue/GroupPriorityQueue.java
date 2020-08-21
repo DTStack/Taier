@@ -60,7 +60,7 @@ public class GroupPriorityQueue {
     private GroupPriorityQueue() {
     }
 
-    public boolean add(JobClient jobClient, boolean judgeBlock) throws InterruptedException {
+    public boolean add(JobClient jobClient, boolean judgeBlock) {
         if (judgeBlock) {
             if (isBlocked()) {
                 logger.info("jobId:{} unable add to queue, because queue is blocked.", jobClient.getTaskId());
@@ -72,7 +72,7 @@ public class GroupPriorityQueue {
         }
     }
 
-    private boolean addInner(JobClient jobClient) throws InterruptedException {
+    private boolean addInner(JobClient jobClient) {
         if (this.priorityQueueSize() >= getQueueSizeLimited()) {
             blocked.set(true);
             logger.info("jobId:{} unable add to queue, because over QueueSizeLimited.", jobClient.getTaskId());
@@ -81,15 +81,15 @@ public class GroupPriorityQueue {
         return addRedirect(jobClient);
     }
 
-    private boolean addRedirect(JobClient jobClient) throws InterruptedException {
+    private boolean addRedirect(JobClient jobClient) {
         if (queue.contains(jobClient)) {
             logger.info("jobId:{} unable add to queue, because jobId already exist.", jobClient.getTaskId());
             return true;
         }
 
+        jobDealer.saveCache(jobClient, jobResource, EJobCacheStage.PRIORITY.getStage());
         queue.put(jobClient);
         logger.info("jobId:{} redirect add job to queue.", jobClient.getTaskId());
-        jobDealer.updateCache(jobClient, EJobCacheStage.PRIORITY.getStage());
         return true;
     }
 

@@ -180,11 +180,9 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         try {
             GroupPriorityQueue groupPriorityQueue = getGroupPriorityQueue(jobResource);
             boolean rs = groupPriorityQueue.add(jobClient, judgeBlock);
-            EJobCacheStage stage = EJobCacheStage.DB;
-            if (rs) {
-                stage = EJobCacheStage.PRIORITY;
+            if (!rs) {
+                saveCache(jobClient, jobResource, EJobCacheStage.DB.getStage());
             }
-            saveCache(jobClient, jobResource, stage.getStage());
             return rs;
         } catch (Exception e) {
             LOG.error("", e);
@@ -213,7 +211,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         LOG.info("jobId:{} update job status:{}.", jobId, status);
     }
 
-    private void saveCache(JobClient jobClient, String jobResource, int stage) {
+    public void saveCache(JobClient jobClient, String jobResource, int stage) {
         String nodeAddress = environmentContext.getLocalAddress();
         engineJobCacheDao.insert(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
     }
