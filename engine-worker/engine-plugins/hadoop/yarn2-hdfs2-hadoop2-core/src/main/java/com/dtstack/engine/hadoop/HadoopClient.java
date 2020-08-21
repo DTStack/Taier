@@ -231,7 +231,7 @@ public class HadoopClient extends AbstractClient {
         try {
             return resourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
-            return JudgeResult.newInstance(false, "judgeSlots error");
+            return JudgeResult.notOk(false, "judgeSlots error");
         }
     }
 

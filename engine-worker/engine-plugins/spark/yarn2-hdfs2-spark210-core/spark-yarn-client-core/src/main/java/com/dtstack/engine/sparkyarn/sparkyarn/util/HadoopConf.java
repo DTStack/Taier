@@ -24,7 +24,7 @@ public class HadoopConf {
 
 	private Configuration configuration;
 
-	private Configuration yarnConfiguration;
+	private YarnConfiguration yarnConfiguration;
 
     public HadoopConf(){
     }
@@ -69,7 +69,7 @@ public class HadoopConf {
 		return configuration.get("fs.defaultFS");
 	}
 
-	public Configuration getYarnConfiguration() {
+	public YarnConfiguration getYarnConfiguration() {
 		return yarnConfiguration;
 	}
 

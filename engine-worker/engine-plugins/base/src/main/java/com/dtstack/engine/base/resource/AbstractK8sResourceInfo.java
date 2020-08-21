@@ -5,7 +5,6 @@ import com.dtstack.engine.common.pojo.JudgeResult;
 import com.google.common.collect.Lists;
 import io.fabric8.kubernetes.api.model.Node;
 import io.fabric8.kubernetes.api.model.NodeStatus;
-import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.NodeMetrics;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -17,7 +16,6 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 
 /**
@@ -56,7 +54,7 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
     protected JudgeResult judgeResource(List<InstanceInfo> instanceInfos) {
         if (totalFreeCore == 0 || totalFreeMem == 0) {
             logger.info("judgeResource, totalFreeCore={}, totalFreeMem={}", totalFreeCore, totalFreeMem);
-            return JudgeResult.newInstance(false, "totalFreeCore or totalFreeMem is 0");
+            return JudgeResult.notOk(false, "totalFreeCore or totalFreeMem is 0");
         }
         double needTotalCore = 0;
         double needTotalMem = 0;
@@ -69,11 +67,11 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
         }
         if (needTotalCore > totalCore) {
             logger.info("judgeResource, needTotalCore={}, totalCore={}", needTotalCore, totalCore);
-            return JudgeResult.newInstance(false, "The task required core resources are greater than the total resources");
+            throw new LimitResourceException("The task required core resources are greater than the total resources");
         }
         if (needTotalMem > totalMem) {
             logger.info("judgeResource, needTotalMem={}, totalMem={}", needTotalMem, totalMem);
-            return JudgeResult.newInstance(false, "The task required memory resources are greater than the total resources");
+            throw new LimitResourceException("The task required memory resources are greater than the total resources");
         }
         for (InstanceInfo instanceInfo : instanceInfos) {
             JudgeResult judgeInstanceResource = judgeInstanceResource(instanceInfo.instances, instanceInfo.coresPerInstance, instanceInfo.memPerInstance);
@@ -82,7 +80,7 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
                 return judgeInstanceResource;
             }
         }
-        return JudgeResult.newInstance(true, "");
+        return JudgeResult.ok();
     }
 
     private JudgeResult judgeInstanceResource(int instances, double coresPerInstance, double memPerInstance) {
@@ -90,12 +88,12 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
             throw new LimitResourceException("task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
         }
         if (!judgeCores(instances, coresPerInstance)) {
-            return JudgeResult.newInstance(false, "Insufficient cpu resources of kubernetes cluster");
+            return JudgeResult.notOk(false, "Insufficient cpu resources of kubernetes cluster");
         }
         if (!judgeMem(instances, memPerInstance)) {
-            return JudgeResult.newInstance(false, "Insufficient memory resources of kubernetes cluster");
+            return JudgeResult.notOk(false, "Insufficient memory resources of kubernetes cluster");
         }
-        return JudgeResult.newInstance(true, "");
+        return JudgeResult.ok();
     }
 
     private boolean judgeCores(int instances, double coresPerInstance) {

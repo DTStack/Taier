@@ -1,6 +1,7 @@
 package com.dtstack.engine.dtscript;
 
 import com.dtstack.engine.base.BaseConfig;
+import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -8,6 +9,7 @@ import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
@@ -99,6 +101,10 @@ public class DtScriptClient extends AbstractClient {
         }
 
         client = new Client(conf, configMap);
+
+        if (conf.getBoolean("monitorAcceptedApp", false)) {
+            AcceptedApplicationMonitor.start(conf, queue, configMap);
+        }
     }
 
     @Override
@@ -237,18 +243,18 @@ public class DtScriptClient extends AbstractClient {
 
     @Override
     public JudgeResult judgeSlots(JobClient jobClient) {
-
         try {
             DtScriptResourceInfo resourceInfo = DtScriptResourceInfo.DtScriptResourceInfoBuilder()
                     .withYarnClient(client.getYarnClient())
                     .withQueueName(conf.get(DtYarnConfiguration.DT_APP_QUEUE))
                     .withYarnAccepterTaskNumber(conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1))
                     .build();
-            resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(DtYarnConfiguration.DT_APP_QUEUE), conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
             return resourceInfo.judgeSlots(jobClient);
-        } catch (YarnException e) {
+        } catch (LimitResourceException le) {
+            throw le;
+        } catch (Exception e) {
             LOG.error("", e);
-            return JudgeResult.newInstance(false,"judgeSlots error");
+            return JudgeResult.notOk(false,"judgeSlots error");
         }
     }
 

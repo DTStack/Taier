@@ -8,7 +8,6 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.base.resource.AbstractYarnResourceInfo;
 import com.google.common.collect.Lists;
 import org.apache.hadoop.yarn.client.api.YarnClient;
-import org.apache.hadoop.yarn.exceptions.YarnException;
 
 import java.util.List;
 
@@ -34,9 +33,12 @@ public class LearningResourceInfo extends AbstractYarnResourceInfo {
     }
 
     @Override
-    public JudgeResult judgeSlots(JobClient jobClient) throws YarnException {
+    public JudgeResult judgeSlots(JobClient jobClient) {
 
-        getYarnSlots(yarnClient, queueName, yarnAccepterTaskNumber);
+        JudgeResult jr = getYarnSlots(yarnClient, queueName, yarnAccepterTaskNumber);
+        if (!jr.getResult()) {
+            return jr;
+        }
 
         ClientArguments clientArguments;
         try {

@@ -58,18 +58,18 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
     protected JudgeResult judgeYarnResource(List<InstanceInfo> instanceInfos) {
         if (totalFreeCore == 0 || totalFreeMem == 0) {
             logger.info("judgeYarnResource, totalFreeCore={}, totalFreeMem={}", totalFreeCore, totalFreeMem);
-            return JudgeResult.newInstance(false, "totalFreeCore or totalFreeMem is 0");
+            return JudgeResult.notOk(false, "totalFreeCore or totalFreeMem is 0");
         }
         int needTotalCore = 0;
         int needTotalMem = 0;
         for (InstanceInfo instanceInfo : instanceInfos) {
             if (instanceInfo.coresPerInstance > containerCoreMax) {
                 logger.info("judgeYarnResource, containerCoreMax={}, coresPerInstance={}", containerCoreMax, instanceInfo.coresPerInstance);
-                return JudgeResult.newInstance(false, "the instance's per core larger than then maximum containerCore");
+                return JudgeResult.notOk(false, "the instance's per core larger than then maximum containerCore");
             }
             if (instanceInfo.memPerInstance > containerMemoryMax) {
                 logger.info("judgeYarnResource, containerMemoryMax={}, memPerInstance={}", containerMemoryMax, instanceInfo.memPerInstance);
-                return JudgeResult.newInstance(false, "the instance's per memory larger than then maximum containerMemory");
+                return JudgeResult.notOk(false, "the instance's per memory larger than then maximum containerMemory");
             }
             needTotalCore += instanceInfo.instances * instanceInfo.coresPerInstance;
             needTotalMem += instanceInfo.instances * instanceInfo.memPerInstance;
@@ -85,11 +85,11 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
         }
         if (needTotalCore > (totalCore * capacity)) {
             logger.info("judgeYarnResource, needTotalCore={}, totalCore={}, capacity={}", needTotalCore, totalCore, capacity);
-            return JudgeResult.newInstance(false, "The task required core resources are greater than the total queue resources");
+            return JudgeResult.notOk(false, "The task required core resources are greater than the total queue resources");
         }
         if (needTotalMem > (totalMem * capacity)) {
             logger.info("judgeYarnResource, needTotalMem={}, totalMem={}, capacity={}", needTotalMem, totalMem, capacity);
-            return JudgeResult.newInstance(false, "The task required memory resources are greater than the total queue resources");
+            return JudgeResult.notOk(false, "The task required memory resources are greater than the total queue resources");
         }
         for (InstanceInfo instanceInfo : instanceInfos) {
             JudgeResult judgeInstanceResource = judgeInstanceResource(instanceInfo.instances, instanceInfo.coresPerInstance, instanceInfo.memPerInstance);
@@ -98,7 +98,7 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
                 return judgeInstanceResource;
             }
         }
-        return JudgeResult.newInstance(true, "");
+        return JudgeResult.ok();
     }
 
     private JudgeResult judgeInstanceResource(int instances, int coresPerInstance, int memPerInstance) {
@@ -106,12 +106,12 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
             throw new LimitResourceException("Yarn task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
         }
         if (!judgeCores(instances, coresPerInstance)) {
-            return JudgeResult.newInstance(false, "Insufficient cpu resources of yarn cluster");
+            return JudgeResult.notOk(false, "Insufficient cpu resources of yarn cluster");
         }
         if (!judgeMem(instances, memPerInstance)) {
-            return JudgeResult.newInstance(false, "Insufficient memory resources of yarn cluster");
+            return JudgeResult.notOk(false, "Insufficient memory resources of yarn cluster");
         }
-        return JudgeResult.newInstance(true, "");
+        return JudgeResult.ok();
     }
 
     private boolean judgeCores(int instances, int coresPerInstance) {
@@ -142,8 +142,16 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
         return false;
     }
 
-    public void getYarnSlots(YarnClient yarnClient, String queueName, int yarnAccepterTaskNumber) throws YarnException {
+    public JudgeResult getYarnSlots(YarnClient yarnClient, String queueName, int yarnAccepterTaskNumber) {
         try {
+            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
+            enumSet.add(YarnApplicationState.ACCEPTED);
+            List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet).stream().
+                    filter(report -> report.getQueue().endsWith(queueName)).collect(Collectors.toList());
+            if (acceptedApps.size() > yarnAccepterTaskNumber) {
+                logger.info("queueName:{} acceptedApps:{} >= yarnAccepterTaskNumber:{}", queueName, acceptedApps.size(), yarnAccepterTaskNumber);
+                return JudgeResult.notOk(false, "queueName:" + queueName + " acceptedApps:" + acceptedApps.size() + " >= yarnAccepterTaskNumber:" + yarnAccepterTaskNumber);
+            }
 
             List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
             if (!elasticCapacity) {
@@ -171,8 +179,9 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
             }
 
             calc();
-        } catch ( IOException | YarnException e) {
-            throw new YarnException(e);
+            return JudgeResult.ok();
+        } catch (IOException | YarnException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -229,7 +238,7 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
         }
 
         @Override
-        public String toString(){
+        public String toString() {
             return String.format("InstanceInfo[instances=%s, coresPerInstance=%s, memPerInstance=%s]", instances, coresPerInstance, memPerInstance);
         }
 

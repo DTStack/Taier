@@ -11,9 +11,6 @@ import com.dtstack.engine.common.pojo.JudgeResult;
  */
 public interface EngineResourceInfo {
 
-    String LIMIT_RESOURCE_ERROR = "LIMIT RESOURCE ERROR:";
-
-
-    JudgeResult judgeSlots(JobClient jobClient) throws Exception;
+    JudgeResult judgeSlots(JobClient jobClient);
 
 }

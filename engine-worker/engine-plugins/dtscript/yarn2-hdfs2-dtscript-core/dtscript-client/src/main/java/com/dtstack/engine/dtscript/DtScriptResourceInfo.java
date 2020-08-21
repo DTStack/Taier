@@ -34,9 +34,12 @@ public class DtScriptResourceInfo extends AbstractYarnResourceInfo {
     }
 
     @Override
-    public JudgeResult judgeSlots(JobClient jobClient) throws YarnException {
+    public JudgeResult judgeSlots(JobClient jobClient) {
 
-        getYarnSlots(yarnClient, queueName,yarnAccepterTaskNumber );
+        JudgeResult jr = getYarnSlots(yarnClient, queueName, yarnAccepterTaskNumber);
+        if (!jr.getResult()) {
+            return jr;
+        }
 
         ClientArguments clientArguments;
         try {
