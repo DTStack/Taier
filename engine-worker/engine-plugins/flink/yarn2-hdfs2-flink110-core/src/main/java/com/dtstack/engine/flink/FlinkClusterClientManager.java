@@ -74,9 +74,9 @@ public class FlinkClusterClientManager {
 
     public void initClusterClient() throws Exception {
         KerberosUtils.login(flinkConfig, () -> {
-            if (flinkConfig.getClusterMode().equals(ClusterMode.STANDALONE.name())) {
+            if (flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.STANDALONE.name())) {
                 clusterClient = new StandaloneClientFactory(flinkClientBuilder.getFlinkConfiguration()).getClusterClient();
-            } else if (flinkConfig.getClusterMode().equals(ClusterMode.SESSION.name())) {
+            } else if (flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.SESSION.name())) {
                 if (null == sessionClientFactory) {
                     try {
                         this.sessionClientFactory = new SessionClientFactory(this, flinkClientBuilder);
