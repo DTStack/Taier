@@ -32,7 +32,7 @@ perjob:
     metrics.reporter.promgateway.deleteOnShutdown:
       controls: select
       values: [true,false]
-    clusterMode: yarn
+    clusterMode: perjob
 
   optional:
     jarTmpDir: ./tmp180
@@ -95,7 +95,7 @@ session:
     metrics.reporter.promgateway.deleteOnShutdown:
       controls: select
       values: [true,false]
-    clusterMode: yarn
+    clusterMode: session
 
   optional:
     jarTmpDir: ./tmp180
