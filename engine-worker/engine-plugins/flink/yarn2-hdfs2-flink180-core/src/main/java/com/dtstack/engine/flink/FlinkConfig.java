@@ -70,7 +70,7 @@ public class FlinkConfig extends BaseConfig {
 
     private boolean monitorAcceptedApp = false;
 
-    public boolean isMonitorAcceptedApp() {
+    public boolean getMonitorAcceptedApp() {
         return monitorAcceptedApp;
     }
 

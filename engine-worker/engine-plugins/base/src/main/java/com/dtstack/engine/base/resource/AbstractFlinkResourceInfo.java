@@ -35,7 +35,7 @@ public abstract class AbstractFlinkResourceInfo implements EngineResourceInfo {
         }
         //没有资源直接返回false
         if (availableSlots == 0) {
-            return JudgeResult.newInstance(false, "Available resources available is 0");
+            return JudgeResult.notOk(false, "Available resources available is 0");
         }
         int maxParallel = Math.max(sqlEnvParallel, mrParallel);
         if (totalSlots < maxParallel) {
@@ -43,9 +43,9 @@ public abstract class AbstractFlinkResourceInfo implements EngineResourceInfo {
         }
         Boolean rs = availableSlots >= maxParallel;
         if (!rs) {
-            return JudgeResult.newInstance(false, "Available resources are greater than task request resources");
+            return JudgeResult.notOk(false, "Available resources are greater than task request resources");
         }
-        return JudgeResult.newInstance(true, "");
+        return JudgeResult.ok();
     }
 
 

@@ -71,6 +71,8 @@ public class SparkYarnConfig extends BaseConfig {
         return typeName;
     }
 
+    private boolean monitorAcceptedApp = false;
+
     public void setTypeName(String typeName) {
         this.typeName = typeName;
     }
@@ -243,4 +245,11 @@ public class SparkYarnConfig extends BaseConfig {
         this.kerberosConfig = kerberosConfig;
     }
 
+    public boolean getMonitorAcceptedApp() {
+        return monitorAcceptedApp;
+    }
+
+    public void setMonitorAcceptedApp(boolean monitorAcceptedApp) {
+        this.monitorAcceptedApp = monitorAcceptedApp;
+    }
 }

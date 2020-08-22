@@ -199,7 +199,7 @@ public class OdpsClient extends AbstractClient {
 
     @Override
     public JudgeResult judgeSlots(JobClient jobClient) {
-        return JudgeResult.newInstance(true, "");
+        return JudgeResult.ok();
     }
 
     private boolean hasLog(String jobId) {

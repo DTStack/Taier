@@ -15,6 +15,6 @@ public class OdpsResourceInfo implements EngineResourceInfo {
 
     @Override
     public JudgeResult judgeSlots(JobClient jobClient) {
-        return JudgeResult.newInstance(true, "");
+        return JudgeResult.ok();
     }
 }

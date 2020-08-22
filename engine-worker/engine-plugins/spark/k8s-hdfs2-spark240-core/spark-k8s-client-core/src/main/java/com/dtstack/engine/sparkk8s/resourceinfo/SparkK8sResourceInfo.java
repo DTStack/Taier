@@ -5,7 +5,6 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,10 +46,10 @@ public class SparkK8sResourceInfo implements EngineResourceInfo {
 
             if (pendingPods.size() > allowPendingPodSize) {
                 LOG.info("pendingPods-size:{} allowPendingPodSize:{}", pendingPods.size(), allowPendingPodSize);
-                return JudgeResult.newInstance(false, "The number of pending pod is greater than " + allowPendingPodSize);
+                return JudgeResult.notOk(false, "The number of pending pod is greater than " + allowPendingPodSize);
             }
         }
-        return JudgeResult.newInstance(true, "");
+        return JudgeResult.ok();
     }
 
     public static SparkK8sResourceInfoBuilder SparkK8sResourceInfoBuilder() {

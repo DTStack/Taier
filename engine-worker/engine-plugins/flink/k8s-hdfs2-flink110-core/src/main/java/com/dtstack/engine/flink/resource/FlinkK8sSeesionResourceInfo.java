@@ -15,7 +15,6 @@ import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Int;
 
 import java.util.List;
 import java.util.Properties;
@@ -68,7 +67,7 @@ public class FlinkK8sSeesionResourceInfo extends AbstractK8sResourceInfo {
 
             if (pendingPods.size() > allowPendingPodSize) {
                 logger.info("pendingPods-size:{} allowPendingPodSize:{}", pendingPods.size(), allowPendingPodSize);
-                return JudgeResult.newInstance(false, "The number of pending pod is greater than " + allowPendingPodSize);
+                return JudgeResult.notOk(false, "The number of pending pod is greater than " + allowPendingPodSize);
             }
         }
 

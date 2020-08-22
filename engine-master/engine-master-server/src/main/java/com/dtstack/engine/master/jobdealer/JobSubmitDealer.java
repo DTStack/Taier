@@ -60,7 +60,7 @@ public class JobSubmitDealer implements Runnable {
     private GroupPriorityQueue priorityQueue;
     private OrderLinkedBlockingQueue<JobClient> queue = null;
     private DelayBlockingQueue<SimpleJobDelay<JobClient>> delayJobQueue = null;
-    private JudgeResult workerNotFindResult = JudgeResult.newInstance(false, "worker not find");
+    private JudgeResult workerNotFindResult = JudgeResult.notOk(false, "worker not find");
 
     public JobSubmitDealer(String localAddress, GroupPriorityQueue priorityQueue, ApplicationContext applicationContext) {
         this.jobPartitioner = applicationContext.getBean(JobPartitioner.class);
