@@ -82,8 +82,10 @@
                 </foreach>
             </if>
             <if test="model.cycStartDay != null and model.cycEndDay != null">
-                AND bj.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} limit 1)
-                AND bj.id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<=]]> #{model.cycEndDay} ORDER BY id desc limit 1)
+                AND bj.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} and cyc_time !='' limit 1)
+                AND bj.cyc_time <![CDATA[>=]]> #{model.cycStartDay}
+                AND bj.id <![CDATA[<]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<]]> #{model.cycEndDay} and cyc_time !='' ORDER BY id desc limit 1)
+                AND bj.cyc_time <![CDATA[<]]> #{model.cycEndDay}
             </if>
             <if test="model.jobNameRightLike != null">
                 AND bj.job_name LIKE '${model.jobNameRightLike}%'
@@ -610,6 +612,7 @@
         WHERE bj.type = #{type}
         and bj.tenant_id = #{tenantId}
         and bj.is_deleted = 0
+        and bj.flow_job_id = 0
         <if test="taskTypes != null and taskTypes.size()>0">
             and ts.task_type in
                 <foreach collection="taskTypes" item="taskType" open="(" close=")" separator=",">
@@ -670,6 +673,7 @@
         group by bj.task_id,groupDate
         )bj
         LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
+        WHERE bj.app_type = ts.app_type
         <include refid="select_where_fragment"/>
         <if test="model.pageQuery == true">
             <include refid="page_condition"/>
@@ -848,9 +852,6 @@
                 #{jobId}
             </foreach>
         </if>
-        <!--<if test="model.ownerUserId != null">
-            AND ts.owner_user_id = #{model.ownerUserId}
-        </if>-->
         <if test="model.pageQuery == true">
             <include refid="page_condition"/>
         </if>
@@ -869,10 +870,12 @@
         left(bj.business_date,8) as groupDate
         from schedule_job bj
         LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
+        where bj.app_type = ts.app_type
         <include refid="select_where_fragment"/>
         group by bj.task_id,groupDate
         )bj
         LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
+        where bj.app_type = ts.app_type
         <include refid="select_where_fragment"/>
         <if test="model.pageQuery == true">
             <include refid="page_condition"/>
@@ -884,6 +887,7 @@
         <include refid="select_content_fragment"/>
         from  schedule_job bj
         LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
+        where bj.app_type = ts.app_type
         <include refid="select_where_fragment"/>
         <include refid="queryWorkFlow"/>
         <if test="model.jobIds != null and model.jobIds.size > 0">
