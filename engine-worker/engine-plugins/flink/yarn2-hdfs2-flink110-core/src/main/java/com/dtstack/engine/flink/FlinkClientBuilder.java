@@ -2,7 +2,7 @@ package com.dtstack.engine.flink;
 
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.flink.enums.Deploy;
+import com.dtstack.engine.flink.enums.ClusterMode;
 import com.dtstack.engine.flink.util.HadoopConf;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
@@ -54,7 +54,7 @@ public class FlinkClientBuilder {
         builder.yarnConf = yarnConf;
 
         KerberosUtils.login(flinkConfig, () -> {
-            if (Deploy.session.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
+            if (!ClusterMode.STANDALONE.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
                 try {
                     builder.yarnClient = initYarnClient(yarnConf);
                 } catch (Exception e) {

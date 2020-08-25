@@ -7,6 +7,7 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.kylin.enums.EKylinJobStatus;
 import com.google.gson.*;
 import org.apache.commons.lang3.StringUtils;
@@ -208,28 +209,30 @@ public class KylinClient extends AbstractClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public JudgeResult judgeSlots(JobClient jobClient) {
         return hasResource();
     }
 
-    private boolean hasResource(){
+    private JudgeResult hasResource(){
         JsonElement lastJob = getLastJob();
         if(lastJob instanceof JsonNull){
-            return true;
+            return JudgeResult.ok();
         }
 
         String status = lastJob.getAsJsonObject().get(KEY_JOB_STATUS).getAsString();
         if(EKylinJobStatus.PENDING.name().equals(status) || EKylinJobStatus.RUNNING.name().equals(status)){
-            logger.info("The last job of cube [{}] is in status [{}],waiting for it to finish", kylinConfig.getCubeName(), status);
-            return false;
+            String msg = String.format("The last job of cube [%s] is in status [%s], waiting for it to finish", kylinConfig.getCubeName(), status);
+            logger.info(msg);
+            return JudgeResult.notOk(false, msg);
         }
 
         if(EKylinJobStatus.STOPPED.name().equals(status)){
-            logger.warn("The last job of cube [{}] is in status [{}],please resume or discard it first", kylinConfig.getCubeName(), status);
-            return false;
+            String msg = String.format("The last job of cube [%s] is in status [%s],please resume or discard it first", kylinConfig.getCubeName(), status);
+            logger.warn(msg);
+            return JudgeResult.notOk(false, msg);
         }
 
-        return true;
+        return JudgeResult.ok();
     }
 
     private JsonElement getLastJob(){

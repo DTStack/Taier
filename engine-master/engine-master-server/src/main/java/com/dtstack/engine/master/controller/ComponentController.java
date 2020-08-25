@@ -79,4 +79,10 @@ public class ComponentController {
     public List<ComponentTestResult> testConnects(@DtRequestParam("clusterName") String clusterName) {
         return componentService.testConnects(clusterName);
     }
+
+    @RequestMapping(value="/refresh", method = {RequestMethod.POST})
+    @ApiOperation(value = "刷新组件信息")
+    public List<ComponentTestResult> refresh(@DtRequestParam("clusterName") String clusterName) {
+        return componentService.refresh(clusterName);
+    }
 }

@@ -3,6 +3,11 @@ package com.dtstack.engine.master.jobdealer.resource;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.dao.ClusterDao;
+import com.dtstack.engine.dao.EngineDao;
+import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.impl.ComponentService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -18,6 +23,19 @@ public class CommonResource {
 
     private static Map<EngineType, CommonResource> resources = new ConcurrentHashMap<>();
 
+    @Autowired
+    protected ClusterDao clusterDao;
+
+    @Autowired
+    protected EngineDao engineDao;
+
+    @Autowired
+    protected ClusterService clusterService;
+
+    @Autowired
+    protected ComponentService componentService;
+
+
     public ComputeResourceType newInstance(JobClient jobClient) {
         EngineType engineType = EngineType.getEngineType(jobClient.getEngineType());
         CommonResource resource = resources.computeIfAbsent(engineType, k -> {
@@ -25,6 +43,10 @@ public class CommonResource {
             switch (engineType) {
                 case Flink:
                     commonResource = new FlinkResource();
+                    commonResource.setClusterDao(clusterDao);
+                    commonResource.setEngineDao(engineDao);
+                    commonResource.setClusterService(clusterService);
+                    commonResource.setComponentService(componentService);
                     break;
                 case Spark:
                 case Learning:
@@ -39,6 +61,7 @@ public class CommonResource {
                 case Kylin:
                 case Impala:
                 case TiDB:
+                case Presto:
                 case GreenPlum:
                 case Dummy:
                     commonResource = this;
@@ -83,8 +106,42 @@ public class CommonResource {
                 return ComputeResourceType.GreenPlum;
             case Dummy:
                 return ComputeResourceType.Dummy;
+            case Presto:
+                return ComputeResourceType.Presto;
             default:
                 throw new RdosDefineException("engineType:" + engineType + " is not support.");
         }
+    }
+
+    public ClusterDao getClusterDao() {
+        return clusterDao;
+    }
+
+    public void setClusterDao(ClusterDao clusterDao) {
+        this.clusterDao = clusterDao;
+    }
+
+    public EngineDao getEngineDao() {
+        return engineDao;
+    }
+
+    public void setEngineDao(EngineDao engineDao) {
+        this.engineDao = engineDao;
+    }
+
+    public ClusterService getClusterService() {
+        return clusterService;
+    }
+
+    public void setClusterService(ClusterService clusterService) {
+        this.clusterService = clusterService;
+    }
+
+    public ComponentService getComponentService() {
+        return componentService;
+    }
+
+    public void setComponentService(ComponentService componentService) {
+        this.componentService = componentService;
     }
 }

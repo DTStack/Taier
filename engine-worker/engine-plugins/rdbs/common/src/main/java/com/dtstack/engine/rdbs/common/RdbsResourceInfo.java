@@ -2,6 +2,7 @@ package com.dtstack.engine.rdbs.common;
 
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.base.resource.EngineResourceInfo;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.rdbs.common.executor.RdbsExeQueue;
 
 /**
@@ -20,7 +21,11 @@ public class RdbsResourceInfo implements EngineResourceInfo {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
-        return rdbsExeQueue.checkCanSubmit();
+    public JudgeResult judgeSlots(JobClient jobClient) {
+        Boolean rs = rdbsExeQueue.checkCanSubmit();
+        if (rs) {
+            return JudgeResult.notOk(rs, "");
+        }
+        return JudgeResult.notOk(rs, "The execution queue is full");
     }
 }

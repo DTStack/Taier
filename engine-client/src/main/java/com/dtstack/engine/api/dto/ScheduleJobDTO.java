@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModel;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -57,6 +58,10 @@ public class ScheduleJobDTO extends ScheduleJob {
     private Integer currentPage;
 
     private Integer pageSize;
+
+    private Date execStartDay;
+
+    private Date execEndDay;
 
     private List<Long> projectIds;
 
@@ -325,5 +330,21 @@ public class ScheduleJobDTO extends ScheduleJob {
 
     public void setTaskTypes(List<Integer> taskTypes) {
         this.taskTypes = taskTypes;
+    }
+
+    public Date getExecStartDay() {
+        return execStartDay;
+    }
+
+    public void setExecStartDay(Date execStartDay) {
+        this.execStartDay = execStartDay;
+    }
+
+    public Date getExecEndDay() {
+        return execEndDay;
+    }
+
+    public void setExecEndDay(Date execEndDay) {
+        this.execEndDay = execEndDay;
     }
 }

@@ -26,7 +26,8 @@ public enum EComponentType {
     TIDB_SQL(12, "TiDB SQL", "tidbConf"),
     ORACLE_SQL(13, "Oracle SQL", "oracleConf"),
     GREENPLUM_SQL(14, "Greenplum SQL", "greenplumConf"),
-    KUBERNETES(15, "Kubernetes", "kubernetesConf");
+    KUBERNETES(15, "Kubernetes", "kubernetesConf"),
+    PRESTO_SQL(16, "Presto SQL", "prestoConf");
 
     private int typeCode;
 
@@ -92,7 +93,7 @@ public enum EComponentType {
     // 计算组件
     public static List<EComponentType> ComputeScheduling = Lists.newArrayList(EComponentType.SPARK, EComponentType.SPARK_THRIFT,
             EComponentType.FLINK, EComponentType.HIVE_SERVER, EComponentType.IMPALA_SQL, EComponentType.DT_SCRIPT,
-            EComponentType.LEARNING, EComponentType.TIDB_SQL, EComponentType.LIBRA_SQL, EComponentType.ORACLE_SQL,EComponentType.CARBON_DATA,EComponentType.GREENPLUM_SQL);
+            EComponentType.LEARNING, EComponentType.TIDB_SQL, EComponentType.PRESTO_SQL, EComponentType.LIBRA_SQL, EComponentType.ORACLE_SQL,EComponentType.CARBON_DATA,EComponentType.GREENPLUM_SQL);
 
     public static List<EComponentType> CommonScheduling = Lists.newArrayList(EComponentType.SFTP);
 
@@ -113,6 +114,9 @@ public enum EComponentType {
 
     public static List<EComponentType> GreenplumComponents = Lists.newArrayList(EComponentType.GREENPLUM_SQL);
 
+    //Presto引擎组件
+    public static List<EComponentType> PrestoComponents = Lists.newArrayList(EComponentType.PRESTO_SQL);
+
 
     public static MultiEngineType getEngineTypeByComponent(EComponentType componentType) {
         if (HadoopComponents.contains(componentType)) {
@@ -129,6 +133,9 @@ public enum EComponentType {
         }
         if (GreenplumComponents.contains(componentType)) {
             return MultiEngineType.GREENPLUM;
+        }
+        if (PrestoComponents.contains(componentType)) {
+            return MultiEngineType.PRESTO;
         }
         throw new RdosDefineException("不支持的引擎组件");
     }
@@ -168,7 +175,8 @@ public enum EComponentType {
                 return "impala";
             case GREENPLUM_SQL:
                 return "greenplum";
-
+            case PRESTO_SQL:
+                return "presto";
         }
         return "";
     }
@@ -181,11 +189,11 @@ public enum EComponentType {
 
     //SQL组件
     public static List<EComponentType> sqlComponent = Lists.newArrayList(EComponentType.SPARK_THRIFT,EComponentType.HIVE_SERVER,EComponentType.TIDB_SQL,EComponentType.ORACLE_SQL,
-            EComponentType.LIBRA_SQL,EComponentType.IMPALA_SQL,EComponentType.GREENPLUM_SQL);
+            EComponentType.LIBRA_SQL,EComponentType.IMPALA_SQL,EComponentType.GREENPLUM_SQL, EComponentType.PRESTO_SQL);
 
     //对应引擎的组件不能删除
     public static List<EComponentType> requireComponent = Lists.newArrayList(EComponentType.ORACLE_SQL,EComponentType.HDFS,EComponentType.TIDB_SQL,EComponentType.ORACLE_SQL,
-            EComponentType.LIBRA_SQL,EComponentType.GREENPLUM_SQL);
+            EComponentType.LIBRA_SQL,EComponentType.GREENPLUM_SQL, EComponentType.PRESTO_SQL);
 
 
 }

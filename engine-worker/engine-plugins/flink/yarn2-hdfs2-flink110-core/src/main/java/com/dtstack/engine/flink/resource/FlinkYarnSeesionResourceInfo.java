@@ -1,5 +1,6 @@
 package com.dtstack.engine.flink.resource;
 
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.base.resource.AbstractFlinkResourceInfo;
@@ -31,11 +32,11 @@ public class FlinkYarnSeesionResourceInfo extends AbstractFlinkResourceInfo {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public JudgeResult judgeSlots(JobClient jobClient) {
         return judgeYarnSeesionResource(jobClient);
     }
 
-    private boolean judgeYarnSeesionResource(JobClient jobClient) {
+    private JudgeResult judgeYarnSeesionResource(JobClient jobClient) {
         int sqlEnvParallel = 1;
         int mrParallel = 1;
 
@@ -47,7 +48,7 @@ public class FlinkYarnSeesionResourceInfo extends AbstractFlinkResourceInfo {
             mrParallel = MathUtil.getIntegerVal(jobClient.getConfProperties().get(ConfigConstrant.MR_JOB_PARALLELISM));
         }
 
-        return super.judgeFlinkSessionResource(sqlEnvParallel, mrParallel);
+        return judgeFlinkSessionResource(sqlEnvParallel, mrParallel);
     }
 
     public FlinkYarnSeesionResourceInfo getFlinkSessionSlots(String message, int flinkSessionSlotCount){

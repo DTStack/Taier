@@ -418,31 +418,43 @@ public class JobClient extends OrderObject{
         return lackingCount++;
     }
 
+    public void setAppType(Integer appType) {
+        this.appType = appType;
+    }
+
+    public Integer getAppType() {
+        return appType;
+    }
+
     @Override
     public String toString() {
         return "JobClient{" +
-                " jobClientCallBack=" + jobClientCallBack +
+                "jobClientCallBack=" + jobClientCallBack +
                 ", attachJarInfos=" + attachJarInfos +
-                ", coreJar=" + coreJarInfo +
+                ", coreJarInfo=" + coreJarInfo +
                 ", confProperties=" + confProperties +
-                ", sql='" + sql +
-                ", taskParams='" + taskParams +
-                ", jobName='" + jobName+
-                ", taskId='" + taskId +
-                ", engineTaskId='" + engineTaskId +
+                ", sql='" + sql + '\'' +
+                ", taskParams='" + taskParams + '\'' +
+                ", jobName='" + jobName + '\'' +
+                ", taskId='" + taskId + '\'' +
+                ", engineTaskId='" + engineTaskId + '\'' +
+                ", applicationId='" + applicationId + '\'' +
                 ", jobType=" + jobType +
                 ", computeType=" + computeType +
-                ", engineType='" + engineType +
+                ", engineType='" + engineType + '\'' +
                 ", jobResult=" + jobResult +
-                ", externalPath=" + externalPath +
-                ", classArgs='" + classArgs +
+                ", externalPath='" + externalPath + '\'' +
+                ", classArgs='" + classArgs + '\'' +
                 ", again=" + again +
-                ", groupName=" + groupName +
+                ", groupName='" + groupName + '\'' +
+                ", priorityLevel=" + priorityLevel +
+                ", pluginInfo='" + pluginInfo + '\'' +
                 ", generateTime=" + generateTime +
-                ", priority=" + priority +
                 ", maxRetryNum=" + maxRetryNum +
                 ", lackingCount=" + lackingCount +
+                ", tenantId=" + tenantId +
+                ", userId=" + userId +
+                ", appType=" + appType +
                 '}';
     }
-
 }

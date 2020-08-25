@@ -130,10 +130,11 @@ public class ComponentService {
     static {
         //hdfs core 需要合并
         componentTypeConfigMapping.put(EComponentType.HDFS.getTypeCode(), Lists.newArrayList("hdfs-site.xml", "core-site.xml","hive-site.xml"));
-        componentTypeConfigMapping.put(EComponentType.YARN.getTypeCode(), Lists.newArrayList("yarn-site.xml"));
+        componentTypeConfigMapping.put(EComponentType.YARN.getTypeCode(), Lists.newArrayList("yarn-site.xml","core-site.xml"));
         componentVersionMapping.put(EComponentType.FLINK.getName(), Lists.newArrayList(new Pair<>("1.8", "180"), new Pair<>("1.10", "110")));
         componentVersionMapping.put(EComponentType.SPARK.getName(), Lists.newArrayList(new Pair<>("2.1.X", "210"), new Pair<>("2.4.X", "240")));
         componentVersionMapping.put(EComponentType.SPARK_THRIFT.getName(), Lists.newArrayList(new Pair<>("1.X", "1.x"), new Pair<>("2.X", "2.x")));
+        componentVersionMapping.put(EComponentType.HIVE_SERVER.getName(), Lists.newArrayList(new Pair<>("1.X", "1.x"), new Pair<>("2.X", "2.x")));
         //-1 为hadoopversion
         componentVersionMapping.put("hadoopVersion", Lists.newArrayList(new Pair<>("hadoop2", "hadoop2"),
                 new Pair<>("hadoop3", "hadoop3"), new Pair<>("HW", "HW")));
@@ -216,42 +217,46 @@ public class ComponentService {
      * 更新缓存
      */
     public void updateCache(Long engineId, Integer componentCode) {
-        Set<Long> dtUicTenantIds = new HashSet<>();
-        if (Objects.nonNull(componentCode) && (
-                EComponentType.TIDB_SQL.getTypeCode() == componentCode ||
-                EComponentType.LIBRA_SQL.getTypeCode() == componentCode ||
-                EComponentType.GREENPLUM_SQL.getTypeCode() == componentCode ||
-                EComponentType.ORACLE_SQL.getTypeCode() == componentCode)) {
+        try {
+            Set<Long> dtUicTenantIds = new HashSet<>();
+            if (Objects.nonNull(componentCode) && (
+                    EComponentType.TIDB_SQL.getTypeCode() == componentCode ||
+                            EComponentType.LIBRA_SQL.getTypeCode() == componentCode ||
+                            EComponentType.GREENPLUM_SQL.getTypeCode() == componentCode ||
+                            EComponentType.ORACLE_SQL.getTypeCode() == componentCode) ||
+                    EComponentType.PRESTO_SQL.getTypeCode() == componentCode) {
 
-            //tidb 和libra 没有queue
-            List<EngineTenantVO> tenantVOS = engineTenantDao.listEngineTenant(engineId);
-            if (CollectionUtils.isNotEmpty(tenantVOS)) {
-                for (EngineTenantVO tenantVO : tenantVOS) {
-                    if (Objects.nonNull(tenantVO) && Objects.nonNull(tenantVO.getTenantId())) {
-                        dtUicTenantIds.add(tenantVO.getTenantId());
+                //tidb 和libra 没有queue
+                List<EngineTenantVO> tenantVOS = engineTenantDao.listEngineTenant(engineId);
+                if (CollectionUtils.isNotEmpty(tenantVOS)) {
+                    for (EngineTenantVO tenantVO : tenantVOS) {
+                        if (Objects.nonNull(tenantVO) && Objects.nonNull(tenantVO.getTenantId())) {
+                            dtUicTenantIds.add(tenantVO.getTenantId());
+                        }
                     }
                 }
-            }
-        } else {
-            List<Queue> refreshQueues = queueDao.listByEngineId(engineId);
-            if (CollectionUtils.isEmpty(refreshQueues)) {
-                return;
-            }
+            } else {
+                List<Queue> refreshQueues = queueDao.listByEngineId(engineId);
+                if (CollectionUtils.isEmpty(refreshQueues)) {
+                    return;
+                }
 
-            List<Long> queueIds = refreshQueues.stream().map(BaseEntity::getId).collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(queueIds)) {
-                return;
+                List<Long> queueIds = refreshQueues.stream().map(BaseEntity::getId).collect(Collectors.toList());
+                if (CollectionUtils.isEmpty(queueIds)) {
+                    return;
+                }
+                List<Long> tenantIds = engineTenantDao.listTenantIdByQueueIds(queueIds);
+                dtUicTenantIds = new HashSet<>(tenantDao.listDtUicTenantIdByIds(tenantIds));
             }
-            List<Long> tenantIds = engineTenantDao.listTenantIdByQueueIds(queueIds);
-            dtUicTenantIds = new HashSet<>(tenantDao.listDtUicTenantIdByIds(tenantIds));
-        }
-        //缓存刷新
-        if (!dtUicTenantIds.isEmpty()) {
-            for (Long uicTenantId : dtUicTenantIds) {
-                consoleCache.publishRemoveMessage(uicTenantId.toString());
+            //缓存刷新
+            if (!dtUicTenantIds.isEmpty()) {
+                for (Long uicTenantId : dtUicTenantIds) {
+                    consoleCache.publishRemoveMessage(uicTenantId.toString());
+                }
             }
+        } finally {
+            clusterService.clearPluginInfoCache();
         }
-        clusterService.clearPluginInfoCache();
     }
 
     public List<Component> listComponent(Long engineId) {
@@ -1347,37 +1352,77 @@ public class ComponentService {
     }
 
     /**
+     * 刷新组件信息
+     * @param clusterName
+     * @return
+     */
+    public List<ComponentTestResult> refresh(String clusterName) {
+        List<ComponentTestResult> refreshResults = new ArrayList<>();
+        if (StringUtils.isBlank(clusterName)) {
+            throw new RdosDefineException("clusterName is null");
+        }
+        Cluster cluster = clusterDao.getByClusterName(clusterName);
+
+        List<Component> components = getComponents(cluster);
+        if (CollectionUtils.isEmpty(components)) {
+            return refreshResults;
+        }
+
+        Map<String, String> sftpMap = getSftpMap(components);
+        CountDownLatch countDownLatch = new CountDownLatch(components.size());
+        for (Component component : components) {
+            if (EComponentType.YARN.getTypeCode() != component.getComponentTypeCode()) {
+                continue;
+            }
+            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(
+                    cluster.getId(), component.getComponentTypeCode());
+            Map<String, String> finalSftpMap = sftpMap;
+            try {
+                CompletableFuture.runAsync(() -> {
+                    ComponentTestResult refreshResult = new ComponentTestResult();
+                    try {
+                        refreshResult = this.testConnect(component.getComponentTypeCode(),
+                                component.getComponentConfig(), clusterName, component.getHadoopVersion(),
+                                component.getEngineId(), kerberosConfig, finalSftpMap);
+
+                        if (refreshResult.getResult() && EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
+                            engineService.updateResource(component.getEngineId(), refreshResult.getClusterResourceDescription());
+                            queueService.updateQueue(component.getEngineId(), refreshResult.getClusterResourceDescription());
+                        }
+
+                    } catch (Exception e) {
+                        refreshResult.setResult(false);
+                        refreshResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+                        LOGGER.error("refres {}  error ", component.getComponentConfig(), e);
+                    } finally {
+                        refreshResult.setComponentTypeCode(component.getComponentTypeCode());
+                        refreshResults.add(refreshResult);
+                        countDownLatch.countDown();
+                    }
+                }, connectPool).get(env.getTestConnectTimeout(),TimeUnit.SECONDS);
+            } catch (Exception e) {
+                LOGGER.error("refres {}  e ", component.getComponentConfig(), e);
+            }
+        }
+        return refreshResults;
+    }
+
+    /**
      * 测试所有组件连通性
      * @param clusterName
      * @return
      */
-    public List<ComponentTestResult> testConnects( String clusterName) {
-        Cluster cluster = null;
-        if (StringUtils.isNotBlank(clusterName)) {
-            cluster = clusterDao.getByClusterName(clusterName);
-        }
-        if (Objects.isNull(cluster)) {
-            throw new RdosDefineException("集群不存在");
-        }
-        List<ComponentTestResult> results = new ArrayList<>();
-        List<Engine> engines = engineDao.listByClusterId(cluster.getId());
-        if (CollectionUtils.isEmpty(engines)) {
-            return results;
-        }
-        List<Long> engineId = engines.stream().map(Engine::getId).collect(Collectors.toList());
+    public List<ComponentTestResult> testConnects(String clusterName) {
 
-        List<Component> components = componentDao.listByEngineIds(engineId);
-        if (CollectionUtils.isEmpty(components)) {
-            return new ArrayList<>(0);
+        if (StringUtils.isBlank(clusterName)) {
+            throw new RdosDefineException("clusterName is null");
         }
-        Optional<Component> componentOptional = components.stream().filter(c -> EComponentType.SFTP.getTypeCode() == c.getComponentTypeCode()).findFirst();
-        Map<String, String> sftpMap = null;
-        try {
-            if (componentOptional.isPresent()) {
-                sftpMap = (Map) JSONObject.parseObject(componentOptional.get().getComponentConfig(), Map.class);
-            }
-        } catch (Exception e) {
-        }
+        Cluster cluster = clusterDao.getByClusterName(clusterName);
+
+        List<Component> components = getComponents(cluster);
+
+        Map<String, String> sftpMap = getSftpMap(components);
+
         List<ComponentTestResult> testResults = new ArrayList<>(components.size());
         CountDownLatch countDownLatch = new CountDownLatch(components.size());
         for (Component component : components) {
@@ -1415,6 +1460,38 @@ public class ComponentService {
             LOGGER.error("test connect  await {}  error ", clusterName, e);
         }
         return testResults;
+    }
+
+    private List<Component> getComponents(Cluster cluster){
+
+        if (Objects.isNull(cluster)) {
+            throw new RdosDefineException("集群不存在");
+        }
+        List<Engine> engines = engineDao.listByClusterId(cluster.getId());
+        if (CollectionUtils.isEmpty(engines)) {
+            return new ArrayList<>(0);
+        }
+        List<Long> engineId = engines.stream().map(Engine::getId).collect(Collectors.toList());
+
+        List<Component> components = componentDao.listByEngineIds(engineId);
+        if (CollectionUtils.isEmpty(components)) {
+            return new ArrayList<>(0);
+        }
+        return components;
+    }
+
+    private Map<String, String> getSftpMap(List<Component> components) {
+        Optional<Component> componentOptional = components.stream()
+                .filter(c -> EComponentType.SFTP.getTypeCode() == c.getComponentTypeCode())
+                .findFirst();
+        Map<String, String> sftpMap = null;
+        try {
+            if (componentOptional.isPresent()) {
+                sftpMap = (Map) JSONObject.parseObject(componentOptional.get().getComponentConfig(), Map.class);
+            }
+        } catch (Exception e) {
+        }
+        return sftpMap;
     }
 
     public JSONObject getPluginInfoWithComponentType(Long dtuicTenantId,EComponentType componentType){

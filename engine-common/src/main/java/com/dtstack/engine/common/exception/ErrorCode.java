@@ -11,42 +11,6 @@ import java.io.Serializable;
  */
 public enum ErrorCode implements ExceptionEnums, Serializable {
 
-
-//    /***----------------start 公共模块错误码 0 ~ 100 start----------------------------------------****/
-//
-//    NOT_LOGIN(0, "not login"),
-//    SUCCESS(1, "success"),
-//    PERMISSION_LIMIT(3, "permission limit"),
-//
-//    UNKNOWN_ERROR(10, "unknown error"),
-//    SERVER_EXCEPTION(11, "server exception"),
-//
-//    UNSUPPORTED_OPERATION(12, "unsupported operation"),
-//    INVALID_PARAMETERS(13, "invalid parameters"),
-//    NAME_ALREADY_EXIST(14, "name alread exist"),
-//    NAME_FORMAT_ERROR(15, "name format error"),
-//    NAME_ILLEGAL(16, "name illegal"),
-//    NO_MASTER_NODE(17, "no master node"),
-//    INVALID_TASK_STATUS(18, "invalid task status"),
-//    INVALID_TASK_RUN_MODE(19, "invalid task run mod"),
-//    JOB_CACHE_NOT_EXIST(20, "job cache not exist this job"),
-//
-//    SERVICE_NOT_EXIST(47, "service not exist"),
-//    SERVICE_FORBIDDEN(48, "service forbidden"),
-//    METHOD_NOT_EXIST(49, "method not exist"),
-//    METHOD_FORBIDDEN(50, "method forbidden"),
-//    CALL_UNLAWFUL(51, "call unlawful"),
-//
-//    HTTP_CALL_ERROR(60, "http call error"),
-//
-//
-//    /***----------------end 公共模块错误码 end ----------------------------------------****/
-//
-//
-//
-//    NOT_USED(10000000, "");
-
-
     /***----------------start 公共模块错误码 0 ~ 100 start----------------------------------------****/
 
     NOT_LOGIN(0, "not login"),

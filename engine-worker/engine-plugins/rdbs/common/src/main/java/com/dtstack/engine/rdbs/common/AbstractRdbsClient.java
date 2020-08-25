@@ -10,6 +10,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
@@ -118,8 +119,13 @@ public abstract class AbstractRdbsClient extends AbstractClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
-        return resourceInfo.judgeSlots(jobClient);
+    public JudgeResult judgeSlots(JobClient jobClient) {
+        try {
+            return resourceInfo.judgeSlots(jobClient);
+        } catch (Exception e) {
+            LOG.error("JudgeSlots error " + e.getMessage());
+            return JudgeResult.notOk(false, "JudgeSlots error");
+        }
     }
 
     @Override

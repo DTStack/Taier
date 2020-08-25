@@ -1,5 +1,6 @@
 package com.dtstack.engine.api.enums;
 
+
 /**
  * Reason:
  * Date: 2017/2/20
@@ -31,7 +32,9 @@ public enum ScheduleEngineType {
     MYSQL(18, "mysql"),
     SQLSERVER(19, "sqlserver"),
     MAX_COMPUTE(20, "maxcompute"),
-    DUMMY(21, "dummy");
+    DUMMY(21, "dummy"),
+    Presto(22, "presto");
+
     private int val;
 
     private String engineName;
@@ -109,6 +112,8 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.MAX_COMPUTE;
             case "dummy":
                 return ScheduleEngineType.DUMMY;
+            case "presto":
+                return ScheduleEngineType.Presto;
         }
         return null;
     }

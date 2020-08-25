@@ -26,7 +26,6 @@ perjob:
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 110job
-    clusterMode: kubernetes
     metrics.reporter.promgateway.randomJobNameSuffix:
       controls: select
       values: [true,false]
@@ -36,6 +35,7 @@ perjob:
 
     kubernetes.rest-service.exposed.type: NodePort
     kubernetes.container.image: registry.cn-hangzhou.aliyuncs.com/dtstack-dev/dt-flink:1.10
+    flinkx.hosts:
 
   optional:
     jarTmpDir: ./tmp110
@@ -52,8 +52,6 @@ perjob:
 
     prometheusHost:
     prometheusPort: 9090
-
-    sessionStartAuto: false
 
     flink.env.java.opts: -XX:MaxMetaspaceSize=500m
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
@@ -95,6 +93,7 @@ session:
 
     kubernetes.rest-service.exposed.type: NodePort
     kubernetes.container.image: registry.cn-hangzhou.aliyuncs.com/dtstack-dev/dt-flink:1.10
+    flinkx.hosts:
 
   optional:
     jarTmpDir: ./tmp110

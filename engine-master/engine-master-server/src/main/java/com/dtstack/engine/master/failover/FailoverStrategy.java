@@ -208,7 +208,7 @@ public class FailoverStrategy {
                     startId = batchJob.getId();
                 }
                 distributeBatchJobs(cronJobIds, EScheduleType.NORMAL_SCHEDULE.getType());
-                distributeBatchJobs(fillJobIds, EScheduleType.NORMAL_SCHEDULE.getType());
+                distributeBatchJobs(fillJobIds, EScheduleType.FILL_DATA.getType());
             }
 
             //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收需要再次恢复（由HearBeatCheckListener监控）。
@@ -236,7 +236,7 @@ public class FailoverStrategy {
         //任务多节点分发，每个节点要分发的任务量
         Map<String, List<Long>> nodeJobs = Maps.newHashMap();
 
-        Map<String, Integer> nodeJobSize = computeBatchJobSizeForNode(jobIds.size(), scheduleType);
+        Map<String, Integer> nodeJobSize = jobPartitioner.computeBatchJobSize(scheduleType, jobIds.size());
         for (Map.Entry<String, Integer> nodeJobSizeEntry : nodeJobSize.entrySet()) {
             String nodeAddress = nodeJobSizeEntry.getKey();
             int nodeSize = nodeJobSizeEntry.getValue();
@@ -250,26 +250,13 @@ public class FailoverStrategy {
         updateBatchJobs(nodeJobs);
     }
 
-    private Map<String, Integer> computeBatchJobSizeForNode(int jobSize, int scheduleType) {
-        Map<String, Integer> jobSizeInfo = jobPartitioner.computeBatchJobSize(scheduleType, jobSize);
-        if (jobSizeInfo == null) {
-            //if empty
-            List<String> aliveNodes = zkService.getAliveBrokersChildren();
-            jobSizeInfo = new HashMap<String, Integer>(aliveNodes.size());
-            int size = jobSize / aliveNodes.size() + 1;
-            for (String aliveNode : aliveNodes) {
-                jobSizeInfo.put(aliveNode, size);
-            }
-        }
-        return jobSizeInfo;
-    }
-
     private void updateBatchJobs(Map<String, List<Long>> nodeJobs) {
         for (Map.Entry<String, List<Long>> nodeEntry : nodeJobs.entrySet()) {
             if (nodeEntry.getValue().isEmpty()) {
                 continue;
             }
             scheduleJobDao.updateNodeAddress(nodeEntry.getKey(), nodeEntry.getValue());
+            LOG.info("jobIds:{} failover to address:{}", nodeEntry.getValue(), nodeEntry.getKey());
         }
     }
 
@@ -307,7 +294,7 @@ public class FailoverStrategy {
                     }
                 }
                 distributeQueueJobs(jobResources);
-                distributeZkJobs(submittedJobs);
+                distributeSubmittedJobs(submittedJobs);
             }
             //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收
             List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(0L, nodeAddress, null, null);
@@ -333,7 +320,7 @@ public class FailoverStrategy {
             if (jobIds.isEmpty()) {
                 continue;
             }
-            Map<String, Integer> jobCacheSizeInfo = computeJobCacheSizeForNode(jobIds.size(), jobResource);
+            Map<String, Integer> jobCacheSizeInfo = jobPartitioner.computeJobCacheSize(jobResource, jobIds.size());
             Iterator<String> jobIdsIterator = jobIds.iterator();
             for (Map.Entry<String, Integer> jobCacheSizeEntry : jobCacheSizeInfo.entrySet()) {
                 String nodeAddress = jobCacheSizeEntry.getKey();
@@ -345,24 +332,10 @@ public class FailoverStrategy {
                 }
             }
         }
-        updateJobCaches(nodeJobs);
+        updateJobCaches(nodeJobs, EJobCacheStage.DB.getStage());
     }
 
-    private Map<String, Integer> computeJobCacheSizeForNode(int jobSize, String jobResource) {
-        Map<String, Integer> jobSizeInfo = jobPartitioner.computeJobCacheSize(jobResource, jobSize);
-        if (jobSizeInfo == null) {
-            //if empty
-            List<String> aliveNodes = zkService.getAliveBrokersChildren();
-            jobSizeInfo = new HashMap<String, Integer>(aliveNodes.size());
-            int size = jobSize / aliveNodes.size() + 1;
-            for (String aliveNode : aliveNodes) {
-                jobSizeInfo.put(aliveNode, size);
-            }
-        }
-        return jobSizeInfo;
-    }
-
-    private void distributeZkJobs(List<String> jobs) {
+    private void distributeSubmittedJobs(List<String> jobs) {
         if (jobs.isEmpty()) {
             return;
         }
@@ -373,23 +346,24 @@ public class FailoverStrategy {
         Iterator<String> jobsIt = jobs.iterator();
         int size = avg;
         for (String nodeAddress : aliveNodes) {
-            if (size > 0 && jobsIt.hasNext()) {
+            while (size > 0 && jobsIt.hasNext()) {
                 size--;
                 String jobId = jobsIt.next();
                 List<String> nodeJobIds = nodeJobs.computeIfAbsent(nodeAddress, k -> Lists.newArrayList());
                 nodeJobIds.add(jobId);
             }
         }
-        updateJobCaches(nodeJobs);
+        updateJobCaches(nodeJobs, EJobCacheStage.SUBMITTED.getStage());
     }
 
-    private void updateJobCaches(Map<String, List<String>> nodeJobs) {
+    private void updateJobCaches(Map<String, List<String>> nodeJobs, Integer stage) {
         for (Map.Entry<String, List<String>> nodeEntry : nodeJobs.entrySet()) {
             if (nodeEntry.getValue().isEmpty()) {
                 continue;
             }
 
-            engineJobCacheDao.updateNodeAddressFailover(nodeEntry.getKey(), nodeEntry.getValue());
+            engineJobCacheDao.updateNodeAddressFailover(nodeEntry.getKey(), nodeEntry.getValue(), stage);
+            LOG.info("jobIds:{} failover to address:{}, set stage={}", nodeEntry.getValue(), nodeEntry.getKey(), stage);
         }
     }
 

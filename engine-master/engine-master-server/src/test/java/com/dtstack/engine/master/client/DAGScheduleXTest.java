@@ -7,21 +7,18 @@ import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.enums.DbType;
 import com.dtstack.engine.api.enums.EComponentApiType;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.pojo.ParamActionExt;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.service.*;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.ScheduleFillDataJobPreViewVO;
-import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
-import com.dtstack.engine.api.vo.console.ConsoleClusterResourcesVO;
 import com.dtstack.engine.api.vo.console.ConsoleJobVO;
 import com.dtstack.engine.api.vo.engine.EngineSupportVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
-import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.api.vo.tenant.UserTenantVO;
@@ -250,7 +247,7 @@ public class DAGScheduleXTest {
         try {
             DtInsightApi api = builder.buildApi();
             ConsoleService apiClient = api.getApiClient(ConsoleService.class);
-            ApiResponse<ConsoleClusterResourcesVO> aDefault = apiClient.clusterResources("default");
+            ApiResponse<ClusterResource> aDefault = apiClient.clusterResources("default");
             System.out.println(JSON.toJSONString(aDefault));
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());

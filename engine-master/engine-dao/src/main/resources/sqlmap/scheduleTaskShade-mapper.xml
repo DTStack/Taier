@@ -213,7 +213,7 @@
             <if test="isPublishToProduce != null">
                 is_publish_to_produce = #{isPublishToProduce},
             </if>
-            <if test="dtuicTenantId !=null">
+            <if test="dtuicTenantId !=null and dtuicTenantId > 0">
                 dtuic_tenant_id  = #{dtuicTenantId},
             </if>
             <if test="flowId !=null">

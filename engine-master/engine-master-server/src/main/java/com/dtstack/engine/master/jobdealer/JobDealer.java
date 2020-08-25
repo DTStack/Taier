@@ -152,7 +152,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         this.addGroupPriorityQueue(jobResource, jobClient, true);
     }
 
-    public void addSubmitJobBatch(List<JobClient> jobClients) {
+    public void addSubmitJobVast(List<JobClient> jobClients) {
         List<String> taskIds = jobClients.stream().map(JobClient::getTaskId).collect(Collectors.toList());
         updateCacheBatch(taskIds, EJobCacheStage.DB.getStage());
         scheduleJobDao.updateJobStatusByJobIds(taskIds, RdosTaskStatus.WAITENGINE.getStatus());
@@ -169,7 +169,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     /**
      * 容灾时对已经提交到执行组件的任务，进行恢复
      */
-    public void afterSubmitJobBatch(List<JobClient> jobClients) {
+    public void afterSubmitJobVast(List<JobClient> jobClients) {
         List<String> taskIds = jobClients.stream().map(JobClient::getTaskId).collect(Collectors.toList());
         updateCacheBatch(taskIds, EJobCacheStage.SUBMITTED.getStage());
         LOG.info(" afterSubmitJobBatch jobId:{} update", JSONObject.toJSONString(taskIds));
@@ -214,7 +214,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         if (insert) {
             engineJobCacheDao.insert(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
         } else {
-            engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
+            engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), null);
         }
     }
 
@@ -225,7 +225,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
 
     public void updateCache(JobClient jobClient, int stage) {
         String nodeAddress = environmentContext.getLocalAddress();
-        engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority());
+        engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), null);
     }
 
     public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId,Long dtuicTenantId) {
@@ -297,10 +297,10 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                         }
                     }
                     if (CollectionUtils.isNotEmpty(unSubmitClients)) {
-                        addSubmitJobBatch(unSubmitClients);
+                        addSubmitJobVast(unSubmitClients);
                     }
                     if (CollectionUtils.isNotEmpty(submitClients)) {
-                        afterSubmitJobBatch(submitClients);
+                        afterSubmitJobVast(submitClients);
                     }
                 }
             } catch (Exception e) {

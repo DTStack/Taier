@@ -7,6 +7,7 @@ import com.dtstack.engine.api.enums.EComponentApiType;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ClusterEngineVO;
 import com.dtstack.engine.api.vo.ClusterVO;
+import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.sdk.core.feign.Param;
 import io.swagger.annotations.Api;
@@ -206,5 +207,10 @@ public class ClusterController{
     @RequestMapping(value="/getAllCluster", method = {RequestMethod.POST})
     public List<ClusterEngineVO> getAllCluster() {
         return clusterService.getAllCluster();
+    }
+
+    @RequestMapping(value="/prestoInfo", method = {RequestMethod.POST})
+    public String prestoInfo(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("fullKerberos") Boolean fullKerberos) {
+        return getConfigByKey(dtUicTenantId, EComponentType.PRESTO_SQL.getConfName(), fullKerberos);
     }
 }

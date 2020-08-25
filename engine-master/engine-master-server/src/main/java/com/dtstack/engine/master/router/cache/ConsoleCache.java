@@ -62,13 +62,23 @@ public class ConsoleCache implements InitializingBean {
      */
     private static volatile Map<String, DruidDataSource> tidbComboPooledDataSourceMap = Maps.newConcurrentMap();
 
+    /**
+     * presto缓存
+     */
+    private static volatile Map<String, DruidDataSource> prestoComboPooledDataSourceMap = Maps.newConcurrentMap();
+
     private static volatile Map<String, String> tidbCacheKey = Maps.newConcurrentMap();
+
+    private static volatile Map<String, String> prestoCacheKey = Maps.newConcurrentMap();
 
     public void set(String tenantId, String key, Object value) {
         try {
             String cacheKey = getCacheKey(tenantId);
             if(ConsoleUtil.CacheKey.TIDB.name().equals(key)){
                 tidbCacheKey.put(tenantId,cacheKey);
+            }
+            if (ConsoleUtil.CacheKey.PRESTO.name().equals(key)) {
+                prestoCacheKey.put(tenantId, cacheKey);
             }
             Map<String, Object> data = uaCache.getIfPresent(cacheKey);
             if (data == null) {
@@ -148,6 +158,18 @@ public class ConsoleCache implements InitializingBean {
                 }
             }
 
+            for (String key : prestoCacheKey.keySet()) {
+                //tidb 是tenantId.userId
+                if (key.startsWith(tenantId)) {
+                    uaCache.asMap().remove(prestoCacheKey.get(key));
+                    redisTemplate.delete(prestoCacheKey.get(key));
+                    DruidDataSource prestoPoolDataSource = prestoComboPooledDataSourceMap.remove(prestoCacheKey.get(key));
+                    if(Objects.nonNull(prestoPoolDataSource)){
+                        prestoPoolDataSource.close();
+                    }
+                }
+            }
+
             if (redisTemplate.hasKey(cacheKey)) {
                 redisTemplate.delete(cacheKey);
             }
@@ -188,6 +210,10 @@ public class ConsoleCache implements InitializingBean {
 
     public static Map<String, DruidDataSource> getTidbComboPooledDataSourceMap() {
         return tidbComboPooledDataSourceMap;
+    }
+
+    public static Map<String, DruidDataSource> getprestoComboPooledDataSourceMap() {
+        return prestoComboPooledDataSourceMap;
     }
 
     @Override

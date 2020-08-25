@@ -80,6 +80,7 @@ public class SessionClientFactory extends AbstractClientFactory {
     private String lockPath;
     private CuratorFramework zkClient;
     private Configuration flinkConfiguration;
+    private String sessionAppNameSuffix;
 
     private boolean isDetached = true;
     private FlinkClusterClientManager flinkClusterClientManager;
@@ -91,9 +92,9 @@ public class SessionClientFactory extends AbstractClientFactory {
         this.flinkClusterClientManager = flinkClusterClientManager;
         this.flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
 
-        String clusterId = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
+        this.sessionAppNameSuffix = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
         this.yarnSessionDescriptor = createYarnSessionClusterDescriptor();
-        this.yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + clusterId);
+        this.yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + sessionAppNameSuffix);
         this.yarnSessionSpecification = FlinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
 
         initZkClient();
@@ -230,15 +231,16 @@ public class SessionClientFactory extends AbstractClientFactory {
 
 
             for (ApplicationReport report : reportList) {
-                LOG.info("filter flink session application,current report name is {},queue is {},status is {}", report.getName(), report.getQueue(), report.getYarnApplicationState());
-                if (!report.getName().startsWith(flinkConfig.getFlinkSessionName())) {
-                    continue;
-                }
-
+                LOG.info("filter flink session application current reportName:{} queue:{} status:{}", report.getName(), report.getQueue(), report.getYarnApplicationState());
                 if (!report.getYarnApplicationState().equals(YarnApplicationState.RUNNING)) {
                     continue;
                 }
-
+                if (!report.getName().startsWith(flinkConfig.getFlinkSessionName())) {
+                    continue;
+                }
+                if (flinkConfig.getSessionStartAuto() && !report.getName().endsWith(sessionAppNameSuffix)) {
+                    continue;
+                }
                 if (!report.getQueue().endsWith(flinkConfig.getQueue())) {
                     continue;
                 }
@@ -250,9 +252,8 @@ public class SessionClientFactory extends AbstractClientFactory {
                     maxMemory = thisMemory;
                     maxCores = thisCores;
                     applicationId = report.getApplicationId();
-                    String clusterId = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
                     //flinkClusterId不为空 且 yarnsession不是由engine来管控时，需要设置clusterId（兼容手动启动yarnsession的情况）
-                    if (StringUtils.isBlank(configuration.getValue(HighAvailabilityOptions.HA_CLUSTER_ID)) || report.getName().endsWith(clusterId)) {
+                    if (StringUtils.isBlank(configuration.getValue(HighAvailabilityOptions.HA_CLUSTER_ID)) || report.getName().endsWith(sessionAppNameSuffix)) {
                         configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, applicationId.toString());
                     }
                 }
@@ -408,6 +409,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                 startTime = System.currentTimeMillis();
                 this.lastAppState = YarnApplicationState.NEW;
                 clusterClientManager.initClusterClient();
+                attemptId = null;
 
                 Thread.sleep(RETRY_WAIT);
             } catch (Exception e) {

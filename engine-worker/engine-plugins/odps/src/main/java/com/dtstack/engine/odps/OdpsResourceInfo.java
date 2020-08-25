@@ -2,6 +2,7 @@ package com.dtstack.engine.odps;
 
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.base.resource.EngineResourceInfo;
+import com.dtstack.engine.common.pojo.JudgeResult;
 
 /**
  * Reason:
@@ -13,7 +14,7 @@ import com.dtstack.engine.base.resource.EngineResourceInfo;
 public class OdpsResourceInfo implements EngineResourceInfo {
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
-        return true;
+    public JudgeResult judgeSlots(JobClient jobClient) {
+        return JudgeResult.ok();
     }
 }

@@ -16,15 +16,13 @@
 # limitations under the License.
 ################################################################################
 
-FROM openjdk:8-jdk
+FROM openjdk:8u242-jdk
 
 # build params
 # flink-dist can point to a directory or a tarball on the local system
 ARG flink_dist=dt-flink-1.10.tar.gz
-ARG maven_settings=settings.xml
 ARG filebeat_path=filebeat
-ARG flink_sql_branch=v1.10.0_dev
-ARG flinkx_branch=feature_1.10_dev_k8s
+
 
 # Create flink user
 RUN  groupadd -r flink && useradd -r -g flink flink
@@ -46,6 +44,7 @@ RUN set -ex; \
         gnupg \
         wget \
         git \
+        procps \
     "; \
     apt-get update; \
     apt-get install -y --no-install-recommends $fetchDeps; \
@@ -64,31 +63,15 @@ RUN set -ex; \
     \
     /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone; \
     \
-    wget -O /opt/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar "https://repo.maven.apache.org/maven2/org/apache/flink/flink-shaded-hadoop-2-uber/2.7.5-10.0/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar"
-
-
-# Install maven
-RUN cd /opt && wget http://apache-mirror.rbc.ru/pub/apache/maven/maven-3/3.2.5/binaries/apache-maven-3.2.5-bin.tar.gz && \
-    tar -zxvf apache-maven-3.2.5-bin.tar.gz && \
-    export PATH=/opt/apache-maven-3.2.5/bin:$PATH && \
-    ln -s /opt/apache-maven-3.2.5/bin/mvn /usr/local/bin/mvn && \
-    rm -rf /opt/apache-maven-3.2.5/conf/settings.xml
-ADD $maven_settings /opt/apache-maven-3.2.5/conf/
-
-RUN mkdir -p /opt/hadoop/etc/hadoop
+    wget -O /opt/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar "https://repo.maven.apache.org/maven2/org/apache/flink/flink-shaded-hadoop-2-uber/2.7.5-10.0/flink-shaded-hadoop-2-uber-2.7.5-10.0.jar"; \
+    mkdir -p /opt/hadoop/etc/hadoop; \
+    echo "alias ll='ls -alF'" >> /etc/profile
 
 # Add flinkStreamSql plugin and flinkx plugin
-RUN mkdir -p /opt/dtstack/flinkplugin && \
-    cd /opt/dtstack/flinkplugin && \
-    git clone -b $flink_sql_branch http://xiuzhu9527:wozuiyaobai@gitlab.prod.dtstack.cn/dt-insight-engine/flinkStreamSQL.git && \
-    cd flinkStreamSQL && \
-    mvn -T 1C clean package -Dmaven.test.skip && \
-    mv /opt/dtstack/flinkplugin/flinkStreamSQL/sqlplugins /opt/dtstack/flinkplugin/sqlplugin && rm -rf /opt/dtstack/flinkplugin/flinkStreamSQL && \
-    cd /opt/dtstack/flinkplugin && \
-    git clone -b $flinkx_branch http://xiuzhu9527:wozuiyaobai@gitlab.prod.dtstack.cn/dt-insight-engine/flinkx.git && \
-    cd flinkx && \
-    mvn -T 1C clean package -Dmaven.test.skip && \
-    mv /opt/dtstack/flinkplugin/flinkx/plugins /opt/dtstack/flinkplugin/syncplugin && rm -rf /opt/dtstack/flinkplugin/flinkx
+RUN mkdir -p /opt/dtstack/flinkplugin/sqlplugin && \
+    mkdir -p /opt/dtstack/flinkplugin/syncplugin
+ADD flinkStreamSQL/sqlplugins/ /opt/dtstack/flinkplugin/sqlplugin/
+ADD flinkx/plugins/ /opt/dtstack/flinkplugin/syncplugin/
 
 # Flink environment variables
 ENV FLINK_INSTALL_PATH=/opt
@@ -104,7 +87,6 @@ ENV HADOOP_USER_NAME admin
 
 # Install build dependencies and flink
 ADD $flink_dist $FLINK_INSTALL_PATH/
-
 # Install filebeat
 ADD $filebeat_path /opt/
 
@@ -115,10 +97,12 @@ RUN set -x && \
   ln -s $FLINK_OPT_DIR/flink-python*.jar $FLINK_LIB_DIR && \
   if [ -f ${FLINK_INSTALL_PATH}/flink-shaded-hadoop* ]; then ln -s ${FLINK_INSTALL_PATH}/flink-shaded-hadoop* $FLINK_LIB_DIR; fi && \
   chown -R flink:flink ${FLINK_INSTALL_PATH}/flink-* && \
-  chown -h flink:flink $FLINK_HOME &&\
-  chown -R flink:flink /opt/filebeat
+  chown -h flink:flink $FLINK_HOME && \
+  chown -R flink:flink /opt/filebeat && \
+  chown -R flink:flink /opt/dtstack
 
 COPY kubernetes-entry.sh /opt/flink/bin/
+
 
 WORKDIR /opt/flink
 EXPOSE 8081 6123
