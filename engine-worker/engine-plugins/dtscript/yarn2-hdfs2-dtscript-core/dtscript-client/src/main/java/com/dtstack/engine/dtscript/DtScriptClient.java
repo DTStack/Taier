@@ -131,40 +131,47 @@ public class DtScriptClient extends AbstractClient {
         }
 
         try {
-            ApplicationReport report = client.getApplicationReport(jobId);
-            YarnApplicationState applicationState = report.getYarnApplicationState();
-            switch(applicationState) {
-                case KILLED:
-                    return RdosTaskStatus.KILLED;
-                case NEW:
-                case NEW_SAVING:
-                    return RdosTaskStatus.CREATED;
-                case SUBMITTED:
-                    //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
-                    return RdosTaskStatus.WAITCOMPUTE;
-                case ACCEPTED:
-                    return RdosTaskStatus.SCHEDULED;
-                case RUNNING:
-                    return RdosTaskStatus.RUNNING;
-                case FINISHED:
-                    //state 为finished状态下需要兼顾判断finalStatus.
-                    FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
-                    if(finalApplicationStatus == FinalApplicationStatus.FAILED){
-                        return RdosTaskStatus.FAILED;
-                    }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
-                        return RdosTaskStatus.FINISHED;
-                    }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
-                        return RdosTaskStatus.KILLED;
-                    }else{
-                        return RdosTaskStatus.RUNNING;
-                    }
+            return KerberosUtils.login(configMap, () -> {
+                try {
+                    ApplicationReport report = client.getApplicationReport(jobId);
+                    YarnApplicationState applicationState = report.getYarnApplicationState();
+                    switch(applicationState) {
+                        case KILLED:
+                            return RdosTaskStatus.KILLED;
+                        case NEW:
+                        case NEW_SAVING:
+                            return RdosTaskStatus.CREATED;
+                        case SUBMITTED:
+                            //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
+                            return RdosTaskStatus.WAITCOMPUTE;
+                        case ACCEPTED:
+                            return RdosTaskStatus.SCHEDULED;
+                        case RUNNING:
+                            return RdosTaskStatus.RUNNING;
+                        case FINISHED:
+                            //state 为finished状态下需要兼顾判断finalStatus.
+                            FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
+                            if(finalApplicationStatus == FinalApplicationStatus.FAILED){
+                                return RdosTaskStatus.FAILED;
+                            }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
+                                return RdosTaskStatus.FINISHED;
+                            }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
+                                return RdosTaskStatus.KILLED;
+                            }else{
+                                return RdosTaskStatus.RUNNING;
+                            }
 
-                case FAILED:
-                    return RdosTaskStatus.FAILED;
-                default:
-                    throw new RdosDefineException("Unsupported application state");
-            }
-        } catch (YarnException e) {
+                        case FAILED:
+                            return RdosTaskStatus.FAILED;
+                        default:
+                            throw new RdosDefineException("Unsupported application state");
+                    }
+                } catch (Exception e1) {
+                    LOG.error("", e1);
+                    return RdosTaskStatus.NOTFOUND;
+                }
+            },conf);
+        } catch (Exception e) {
             LOG.error("", e);
             return RdosTaskStatus.NOTFOUND;
         }
@@ -236,14 +243,21 @@ public class DtScriptClient extends AbstractClient {
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
-        DtScriptResourceInfo resourceInfo = new DtScriptResourceInfo();
         try {
-            resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(DtYarnConfiguration.DT_APP_QUEUE), conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
-            return resourceInfo.judgeSlots(jobClient);
-        } catch (YarnException e) {
-            LOG.error("", e);
-            return false;
+            return KerberosUtils.login(configMap, () -> {
+                DtScriptResourceInfo resourceInfo = new DtScriptResourceInfo();
+                try {
+                    resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(DtYarnConfiguration.DT_APP_QUEUE), conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER, 1));
+                    return resourceInfo.judgeSlots(jobClient);
+                } catch (YarnException e) {
+                    LOG.error("", e);
+                    return false;
+                }
+            }, conf);
+        } catch (Exception e) {
+            LOG.info("get judgeSlots {} error", jobClient.getTaskId(), e);
         }
+        return false;
     }
 
     @Override
