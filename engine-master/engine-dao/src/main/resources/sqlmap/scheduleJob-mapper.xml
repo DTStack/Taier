@@ -1329,7 +1329,14 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
-        WHERE id > #{startId} AND node_address = #{nodeAddress}
+        WHERE
+        node_address = #{nodeAddress}
+        <if test="isEq">
+            AND id >= #{startId}
+        </if>
+        <if test="!isEq">
+            AND id > #{startId}
+        </if>
         <if test="scheduleType != null">
             AND type = #{scheduleType}
         </if>

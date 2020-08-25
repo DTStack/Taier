@@ -120,8 +120,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 new CustomThreadRunsPolicy(threadName, engineType));
     }
 
-    protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress, String cycStartTime, String cycEndTime) {
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, getScheduleType().getType(), cycStartTime, cycEndTime, JobPhaseStatus.CREATE.getCode());
+    protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress, String cycStartTime, String cycEndTime,Boolean isEq) {
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, getScheduleType().getType(), cycStartTime, cycEndTime, JobPhaseStatus.CREATE.getCode(),isEq);
         List<ScheduleBatchJob> listExecJobs = getScheduleBatchJobList(scheduleJobs);
 
         //添加需要重跑的数据
@@ -215,7 +215,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             Long startId = batchJobService.getListMinId(nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight());
             logger.info(" nodeAddress:{} start scanning since when startId:{}", nodeAddress,startId);
             if (startId!=null) {
-                List<ScheduleBatchJob> listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight());
+                List<ScheduleBatchJob> listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight(),Boolean.TRUE);
                 while (CollectionUtils.isNotEmpty(listExecJobs)) {
                     logger.info("scheduleType:{} nodeAddress:{} startId:{} start put queue", getScheduleType(), nodeAddress, startId);
 
@@ -262,7 +262,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                             startId = scheduleBatchJob.getId();
                         }
                     }
-                    listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight());
+                    listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight(),Boolean.FALSE);
                 }
             }
         } catch (Exception e) {
