@@ -26,13 +26,13 @@ perjob:
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 181job
-    clusterMode: standalone
     metrics.reporter.promgateway.randomJobNameSuffix:
       controls: select
       values: [true,false]
     metrics.reporter.promgateway.deleteOnShutdown:
       controls: select
       values: [true,false]
+    clusterMode: yarn
 
   optional:
     jarTmpDir: ./tmp180
@@ -60,6 +60,8 @@ perjob:
     gatewayJobName: pushgateway
     yarn.application-attempts: 0
     high-availability: ZOOKEEPER
+
+    monitorAcceptedApp: false
 
 session:
   dependencyKey: deploymode
@@ -93,10 +95,10 @@ session:
     metrics.reporter.promgateway.deleteOnShutdown:
       controls: select
       values: [true,false]
+    clusterMode: yarn
 
   optional:
     jarTmpDir: ./tmp180
-    flinkYarnMode: PER_JOB
     queue: default
     pluginLoadMode: shipfile
     submitTimeout: 5
@@ -122,6 +124,8 @@ session:
     gatewayJobName: pushgateway
     yarn.application-attempts: 0
     high-availability: ZOOKEEPER
+
+    monitorAcceptedApp: false
 
 standalone:
   dependencyKey: deploymode
@@ -149,13 +153,13 @@ standalone:
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 181job
-    clusterMode: session
     metrics.reporter.promgateway.randomJobNameSuffix:
       controls: select
       values: [true,false]
     metrics.reporter.promgateway.deleteOnShutdown:
       controls: select
       values: [true,false]
+    clusterMode: standalone
 
   optional:
     state.backend: RocksDB

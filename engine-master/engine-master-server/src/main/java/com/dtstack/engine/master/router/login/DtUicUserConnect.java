@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.master.enums.PlatformEventType;
 import com.dtstack.engine.master.router.login.domain.DtUicUser;
 import com.dtstack.engine.master.router.login.domain.UserTenant;
 import com.google.common.collect.Lists;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -188,5 +190,21 @@ public class DtUicUserConnect {
             LOGGER.error("{}", tr);
         }
         return null;
+    }
+
+    public static void registerEvent(String uicUrl, PlatformEventType eventType, String callbackUrl, boolean active) {
+        Map<String, Object> dataMap = new HashMap();
+        dataMap.put("eventCode", eventType.name());
+        dataMap.put("productCode", "RDOS");
+        dataMap.put("callbackUrl", callbackUrl);
+        dataMap.put("active", active);
+        dataMap.put("additionKey", "DAGScheduleX");
+
+        try {
+            String event = PoolHttpClient.post(String.format("%s/api/platform/register-event", uicUrl), dataMap, (Map) null);
+        } catch (Exception e) {
+            LOGGER.error("registerEvent {}",eventType.getComment(), e);
+        }
+
     }
 }

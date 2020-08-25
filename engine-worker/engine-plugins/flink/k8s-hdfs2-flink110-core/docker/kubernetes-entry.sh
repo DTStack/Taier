@@ -26,14 +26,25 @@ bin=`cd "$bin"; pwd`
 # get Flink config
 . /opt/flink/bin/config.sh
 
-echo "Start filebeat"
-#exec gosu flink "/opt/filebeat/bin/filebeat -c /opt/filebeat/conf/filebeat-dtstack.yml" &
-
 FLINK_CLASSPATH=`manglePathList $(constructFlinkClassPath):$INTERNAL_HADOOP_CLASSPATHS`
 # FLINK_CLASSPATH will be used by KubernetesUtils.java to generate jobmanager and taskmanager start command.
 export FLINK_CLASSPATH
 
-echo "Start command : $*"
 
-#exec gosu flink "$0" "$@"
+sed -i "s/flinkx_hosts/$FLINKX_HOSTS/g" /opt/filebeat/conf/filebeat-dtstack.yml
+
+if [[ $HOSTNAME == *taskmanager* ]]; then
+    component="taskmanager"${HOSTNAME#*taskmanager}
+else
+    component="jobmanager"
+fi
+sed -i "s/component_value/$component/g" /opt/filebeat/conf/filebeat-dtstack.yml
+sed -i "s/taskId_value/$TASK_ID/g" /opt/filebeat/conf/filebeat-dtstack.yml
+
+
+
+filebeat_command="/opt/filebeat/bin/filebeat -c /opt/filebeat/conf/filebeat-dtstack.yml"
+
+command="$filebeat_command & $@"
+echo "Start command: $command"
 exec gosu flink /opt/filebeat/bin/filebeat -c /opt/filebeat/conf/filebeat-dtstack.yml & "$@"

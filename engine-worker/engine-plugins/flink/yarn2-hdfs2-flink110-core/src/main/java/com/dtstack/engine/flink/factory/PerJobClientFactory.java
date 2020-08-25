@@ -66,7 +66,6 @@ public class PerJobClientFactory extends AbstractClientFactory {
     private FlinkConfig flinkConfig;
     private Configuration flinkConfiguration;
     private YarnConfiguration yarnConf;
-    public static volatile PerJobClientFactory perJobClientFactory;
 
     private PerJobClientFactory(FlinkClientBuilder flinkClientBuilder) {
         this.flinkConfig = flinkClientBuilder.getFlinkConfig();
@@ -133,19 +132,8 @@ public class PerJobClientFactory extends AbstractClientFactory {
     }
 
     public static PerJobClientFactory createPerJobClientFactory(FlinkClientBuilder flinkClientBuilder) {
-        if (perJobClientFactory == null) {
-            synchronized (PerJobClientFactory.class) {
-                if (perJobClientFactory == null) {
-                    perJobClientFactory = new PerJobClientFactory(flinkClientBuilder);
-                }
-            }
-        }
+        PerJobClientFactory perJobClientFactory = new PerJobClientFactory(flinkClientBuilder);
         return perJobClientFactory;
     }
-
-    public static PerJobClientFactory getPerJobClientFactory() {
-        return perJobClientFactory;
-    }
-
 
 }

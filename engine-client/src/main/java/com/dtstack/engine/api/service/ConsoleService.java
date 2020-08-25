@@ -1,7 +1,7 @@
 package com.dtstack.engine.api.service;
 
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.console.ConsoleClusterResourcesVO;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.vo.console.ConsoleJobVO;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
@@ -70,7 +70,7 @@ public interface ConsoleService extends DtInsightServer {
                             @Param("jobIdList") List<String> jobIdList) ;
 
     @RequestLine("POST /node/console/clusterResources")
-    ApiResponse<ConsoleClusterResourcesVO> clusterResources(@Param("clusterName") String clusterName);
+    ApiResponse<ClusterResource> clusterResources(@Param("clusterName") String clusterName);
 
 
 }

@@ -41,6 +41,7 @@ CREATE TABLE `schedule_engine_job_cache` (
   `job_priority` BIGINT(20) DEFAULT NULL COMMENT '任务优先级',
   `job_resource` VARCHAR(256) DEFAULT NULL COMMENT 'job的计算引擎资源类型',
   `is_failover` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0：不是，1：由故障恢复来的任务',
+  `wait_reason` VARCHAR(256) DEFAULT NULL COMMENT '任务等待原因',
   PRIMARY KEY (`id`),
   unique KEY `index_job_id` (`job_id`(128))
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
@@ -123,7 +124,7 @@ CREATE TABLE `schedule_node_machine` (
 
 CREATE TABLE `console_cluster` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `cluster_name` varchar(24) NOT NULL COMMENT '集群名称',
+  `cluster_name` varchar(128) NOT NULL COMMENT '集群名称',
   `hadoop_version` varchar(24) NOT NULL COMMENT 'hadoop版本',
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -190,7 +191,7 @@ CREATE TABLE `console_engine_tenant` (
 CREATE TABLE `console_queue` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `engine_id` int(11) NOT NULL COMMENT '引擎id',
-  `queue_name` varchar(24) NOT NULL COMMENT '队列名称',
+  `queue_name` varchar(128) NOT NULL COMMENT '队列名称',
   `capacity` varchar(24) NOT NULL COMMENT '最小容量',
   `max_capacity` varchar(24) NOT NULL COMMENT '最大容量',
   `queue_state` varchar(24) NOT NULL COMMENT '运行状态',
@@ -373,6 +374,7 @@ CREATE TABLE `schedule_job`
   `plugin_info_id`  int(11)      DEFAULT NULL COMMENT '插件信息',
   `retry_task_params` text       DEFAULT NULL COMMENT '重试任务参数',
   `compute_type`    tinyint(1)   NOT NULL DEFAULT '1' COMMENT '计算类型STREAM(0), BATCH(1)',
+  `phase_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '运行状态: CREATE(0):创建,JOIN_THE_TEAM(1):入队,LEAVE_THE_TEAM(2):出队',
   PRIMARY KEY (`id`),
   KEY `index_task_id` (`task_id`),
   UNIQUE KEY `index_job_id` (`job_id`(128),`is_deleted`),

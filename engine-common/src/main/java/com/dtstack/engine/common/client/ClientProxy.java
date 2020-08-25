@@ -12,9 +12,10 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ClientTemplate;
-import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -186,14 +187,14 @@ public class ClientProxy implements IClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public JudgeResult judgeSlots(JobClient jobClient) {
         try {
             return CompletableFuture.supplyAsync(() -> {
                 try {
-                    return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<Boolean>() {
+                    return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<JudgeResult>() {
 
                         @Override
-                        public Boolean execute() throws Exception {
+                        public JudgeResult execute() throws Exception {
                             return targetClient.judgeSlots(jobClient);
                         }
                     }, targetClient.getClass().getClassLoader(), true);
@@ -203,7 +204,7 @@ public class ClientProxy implements IClient {
                     } else if (e instanceof LimitResourceException) {
                         throw new LimitResourceException(e.getMessage());
                     } else if (e instanceof RdosDefineException && ((RdosDefineException) e).getErrorCode() == ErrorCode.HTTP_CALL_ERROR) {
-                        return false;
+                        return JudgeResult.newInstance(false, "judgeSlots error");
                     }
                     throw new RdosDefineException(e);
                 }

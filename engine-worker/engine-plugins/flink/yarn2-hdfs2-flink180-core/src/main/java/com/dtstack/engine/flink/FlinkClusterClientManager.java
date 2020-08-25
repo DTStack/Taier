@@ -77,7 +77,7 @@ public class FlinkClusterClientManager {
         KerberosUtils.login(flinkConfig, () -> {
             if (flinkConfig.getClusterMode().equals(Deploy.standalone.name())) {
                 clusterClient = new StandaloneClientFactory(flinkClientBuilder.getFlinkConfiguration(), flinkConfig).getClusterClient();
-            } else if (flinkConfig.getClusterMode().equals(Deploy.session.name())) {
+            } else if (flinkConfig.getClusterMode().equals(Deploy.yarn.name())) {
                 if (null == sessionClientFactory) {
                     try {
                         sessionClientFactory = new SessionClientFactory(this, flinkClientBuilder);
@@ -163,5 +163,13 @@ public class FlinkClusterClientManager {
                 }
             }
         }
+    }
+
+    public SessionClientFactory getSessionClientFactory() {
+        return sessionClientFactory;
+    }
+
+    public PerJobClientFactory getPerJobClientFactory() {
+        return perJobClientFactory;
     }
 }

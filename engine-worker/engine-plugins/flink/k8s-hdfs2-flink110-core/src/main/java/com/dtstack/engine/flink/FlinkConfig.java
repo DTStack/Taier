@@ -20,6 +20,8 @@ public class FlinkConfig {
 
     public static final String FLINK_SESSION_PREFIX = "flinksession";
 
+    public static final String FLINK_PERJOB_PREFIX = "flinkperjob";
+
     private static final String DEFAULT_JAR_TMP_DIR = "../tmp1100";
 
     private static List<String> ENGINE_FLINK_CONFIGS = null;
