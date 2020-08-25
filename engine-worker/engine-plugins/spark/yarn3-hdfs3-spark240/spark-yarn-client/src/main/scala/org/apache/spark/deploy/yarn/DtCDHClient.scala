@@ -149,6 +149,10 @@ private[spark] class DtCDHClient(
     yarnClient.stop()
   }
 
+  def submitApplication(priority : Int = 0): ApplicationId = {
+    submitApplication()
+  }
+
   /**
     * Submit an application running our ApplicationMaster to the ResourceManager.
     *
