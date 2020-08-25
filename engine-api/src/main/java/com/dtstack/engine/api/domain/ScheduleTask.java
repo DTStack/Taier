@@ -95,7 +95,7 @@ public class ScheduleTask extends AppTenantEntity {
     /**
      * 所属工作流id
      */
-    private Long flowId = 0L;
+    private Long flowId;
 
 
     private Integer isExpire;
