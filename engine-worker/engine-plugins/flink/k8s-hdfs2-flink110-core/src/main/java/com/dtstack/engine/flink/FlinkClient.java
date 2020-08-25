@@ -192,7 +192,7 @@ public class FlinkClient extends AbstractClient {
         logger.info("clusterClient monitorUrl is {}, run mode is {}", monitorUrl, taskRunMode.name());
         try {
             if (FlinkMode.isPerJob(taskRunMode)) {
-                ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(tmpConfiguration, jobClient.getJobPriority(), jobClient.getConfProperties());
+                ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(tmpConfiguration, jobClient.getApplicationPriority(), jobClient.getConfProperties());
                 clusterClient = createClusterClientForPerJob(clusterSpecification, jobClient);
             } else {
                 clusterClient = flinkClusterClientManager.getClusterClient(null);

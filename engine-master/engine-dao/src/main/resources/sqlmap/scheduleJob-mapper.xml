@@ -1289,7 +1289,7 @@
     </select>
 
     <select id="listSimpleJobByStatusAddress" resultType="SimpleScheduleJobPO">
-        SELECT id, job_id, type
+        SELECT id, job_id, type, phase_status
         FROM schedule_job
         WHERE id > #{startId} AND (node_address = #{nodeAddress} or node_address is null)
         <if test="statuses != null">
@@ -1343,7 +1343,14 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
-        WHERE id > #{startId} AND node_address = #{nodeAddress}
+        WHERE
+        node_address = #{nodeAddress}
+        <if test="isEq">
+            AND id >= #{startId}
+        </if>
+        <if test="!isEq">
+            AND id > #{startId}
+        </if>
         <if test="scheduleType != null">
             AND type = #{scheduleType}
         </if>
@@ -1355,6 +1362,7 @@
         </if>
         AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
         AND is_deleted = 0
+        AND `phase_status` = #{phaseStatus}
         order by id, cyc_time asc limit 500
     </select>
 
@@ -1601,6 +1609,25 @@
         and is_deleted=0;
     </select>
 
+    <select id="getListMinId" resultType="java.lang.Long">
+        SELECT
+            min(id)
+        FROM schedule_job bj
+        WHERE node_address = #{nodeAddress}
+        <if test="scheduleType != null">
+            AND type = #{scheduleType}
+        </if>
+        <if test="cycStartTime != null">
+            AND cyc_time &gt;= #{cycStartTime}
+        </if>
+        <if test="cycEndTime != null">
+            AND cyc_time &lt; #{cycEndTime}
+        </if>
+        AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
+        AND is_deleted = 0
+        AND `phase_status` = #{phaseStatus}
+    </select>
+
     <update id="updateJobStatusByJobIds">
         update schedule_job
         set gmt_modified=now(), status=#{status}
@@ -1609,5 +1636,21 @@
             #{jobId}
         </foreach>
         and is_deleted=0;
+    </update>
+    <update id="updatePhaseStatusById">
+        update `schedule_job`
+        set `phase_status`=#{update}
+        where `id` = #{id}
+        and `phase_status` = #{original}
+        and `is_deleted`=0;
+    </update>
+    <update id="updateListPhaseStatus">
+        update `schedule_job`
+        set `phase_status`=#{update}
+        where `id` IN
+        <foreach collection="ids" separator="," open="(" close=")" item="id">
+            #{id}
+        </foreach>
+        and `is_deleted`=0;
     </update>
 </mapper>

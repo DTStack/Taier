@@ -10,7 +10,7 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.pojo.SimpleJobDelay;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
-import com.dtstack.engine.common.queue.OrderLinkedBlockingQueue;
+import com.dtstack.engine.common.util.SleepUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
@@ -25,6 +25,7 @@ import org.springframework.context.ApplicationContext;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -58,7 +59,7 @@ public class JobSubmitDealer implements Runnable {
     private String localAddress;
     private String jobResource = null;
     private GroupPriorityQueue priorityQueue;
-    private OrderLinkedBlockingQueue<JobClient> queue = null;
+    private PriorityBlockingQueue<JobClient> queue = null;
     private DelayBlockingQueue<SimpleJobDelay<JobClient>> delayJobQueue = null;
     private JudgeResult workerNotFindResult = JudgeResult.notOk(false, "worker not find");
 
@@ -146,14 +147,8 @@ public class JobSubmitDealer implements Runnable {
             engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.LACKING.getStage(), localAddress, jobClient.getPriority(), judgeResult.getReason());
             jobClient.doStatusCallBack(RdosTaskStatus.LACKING.getStatus());
         } catch (InterruptedException e) {
+            queue.put(jobClient);
             logger.error("jobId:{} delayJobQueue.put failed.", e);
-            try {
-                queue.put(jobClient);
-            } catch (InterruptedException ie) {
-                shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
-                jobClient.doStatusCallBack(RdosTaskStatus.FAILED.getStatus());
-                logger.error("jobId:{} queue.put failed.", e);
-            }
         }
         logger.info("jobId:{} success add job to lacking delayJobQueue, job's lackingCount:{}.", jobClient.getTaskId(), jobClient.getLackingCount());
     }
@@ -296,15 +291,11 @@ public class JobSubmitDealer implements Runnable {
         if (jobClient.lackingCountIncrement() > jobLackingCountLimited && delayJobQueue.size() < priorityQueue.getQueueSizeLimited()) {
             putLackingJob(jobClient, judgeResult);
         } else {
-            try {
-                engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.PRIORITY.getStage(), localAddress, jobClient.getPriority(), null);
-                queue.put(jobClient);
-                Thread.sleep(jobLackingInterval);
-                logger.info("jobId:{} unlimited_lackingCount:{} add to priorityQueue.", jobClient.getTaskId(), jobClient.getLackingCount());
-            } catch (Exception e) {
-                logger.error("jobId:{} engineType:{} handlerNoResource happens error:", jobClient.getTaskId(), jobClient.getEngineType(), e);
-                putLackingJob(jobClient, judgeResult);
-            }
+            engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.PRIORITY.getStage(), localAddress, jobClient.getPriority(), null);
+            queue.put(jobClient);
+            SleepUtil.sleep(jobLackingInterval);
+            logger.info("jobId:{} unlimited_lackingCount:{} add to priorityQueue.", jobClient.getTaskId(), jobClient.getLackingCount());
+
         }
     }
 

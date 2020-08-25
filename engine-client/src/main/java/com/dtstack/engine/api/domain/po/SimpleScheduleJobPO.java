@@ -13,6 +13,7 @@ public class SimpleScheduleJobPO {
     private Long id;
     private String jobId;
     private Integer type;
+    private Integer phaseStatus;
 
     public Long getId() {
         return id;
@@ -36,5 +37,13 @@ public class SimpleScheduleJobPO {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public Integer getPhaseStatus() {
+        return phaseStatus;
+    }
+
+    public void setPhaseStatus(Integer phaseStatus) {
+        this.phaseStatus = phaseStatus;
     }
 }

@@ -138,14 +138,12 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     /**
      * 提交优先级队列->最终提交到具体执行组件
      */
-    public void addSubmitJob(JobClient jobClient, boolean insert) {
+    public void addSubmitJob(JobClient jobClient) {
         String jobResource = jobComputeResourcePlain.getJobResource(jobClient);
 
         jobClient.setCallBack((jobStatus) -> {
             updateJobStatus(jobClient.getTaskId(), jobStatus);
         });
-
-        saveCache(jobClient, jobResource, EJobCacheStage.DB.getStage(), insert);
         jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
 
         //加入节点的优先级队列
@@ -181,7 +179,11 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     public boolean addGroupPriorityQueue(String jobResource, JobClient jobClient, boolean judgeBlock) {
         try {
             GroupPriorityQueue groupPriorityQueue = getGroupPriorityQueue(jobResource);
-            return groupPriorityQueue.add(jobClient, judgeBlock);
+            boolean rs = groupPriorityQueue.add(jobClient, judgeBlock);
+            if (!rs) {
+                saveCache(jobClient, jobResource, EJobCacheStage.DB.getStage());
+            }
+            return rs;
         } catch (Exception e) {
             LOG.error("", e);
             dealSubmitFailJob(jobClient.getTaskId(), e.toString());
@@ -209,16 +211,12 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         LOG.info("jobId:{} update job status:{}.", jobId, status);
     }
 
-    private void saveCache(JobClient jobClient, String jobResource, int stage, boolean insert) {
+    public void saveCache(JobClient jobClient, String jobResource, int stage) {
         String nodeAddress = environmentContext.getLocalAddress();
-        if (insert) {
-            engineJobCacheDao.insert(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
-        } else {
-            engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), null);
-        }
+        engineJobCacheDao.insert(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
     }
 
-    private void updateCacheBatch(List<String> taskIds,int stage){
+    private void updateCacheBatch(List<String> taskIds, int stage) {
         String nodeAddress = environmentContext.getLocalAddress();
         engineJobCacheDao.updateStageBatch(taskIds, stage, nodeAddress);
     }
@@ -228,21 +226,21 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), null);
     }
 
-    public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId,Long dtuicTenantId) {
+    public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId, Long dtuicTenantId) {
 
 
         String engineLog = null;
         try {
             EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
-            if(Objects.isNull(engineJobCache)){
+            if (Objects.isNull(engineJobCache)) {
                 return "";
             }
             String engineType = engineJobCache.getEngineType();
             JSONObject info = JSONObject.parseObject(engineJobCache.getJobInfo());
-            JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId,dtuicTenantId,engineType,
-                    scheduleJobService.parseDeployTypeByTaskParams(info.getString("taskParams")).getType(),info.getLong("userId"),info.getString("pluginInfo"));
+            JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId, dtuicTenantId, engineType,
+                    scheduleJobService.parseDeployTypeByTaskParams(info.getString("taskParams")).getType(), info.getLong("userId"), info.getString("pluginInfo"));
             //从engine获取log
-             engineLog = workerOperator.getEngineLog(jobIdentifier);
+            engineLog = workerOperator.getEngineLog(jobIdentifier);
             if (engineLog != null) {
                 scheduleJobDao.updateEngineLog(jobId, engineLog);
             }

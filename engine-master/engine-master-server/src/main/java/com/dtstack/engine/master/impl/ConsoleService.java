@@ -322,7 +322,7 @@ public class ConsoleService {
                 if (EJobCacheStage.PRIORITY.getStage() == engineJobCache.getStage()) {
                     //先将队列中的元素移除，重复插入会被忽略
                     GroupPriorityQueue groupPriorityQueue = jobDealer.getGroupPriorityQueue(engineJobCache.getJobResource());
-                    groupPriorityQueue.remove(engineJobCache.getJobId());
+                    groupPriorityQueue.remove(jobClient);
                 }
                 return jobDealer.addGroupPriorityQueue(engineJobCache.getJobResource(), jobClient, false);
             }

@@ -100,9 +100,8 @@ public class ActionService {
             boolean canAccepted = receiveStartJob(paramActionExt);
             //会对重复数据做校验
             if(canAccepted){
-
                 JobClient jobClient = new JobClient(paramActionExt);
-                jobDealer.addSubmitJob(jobClient, true);
+                jobDealer.addSubmitJob(jobClient);
                 return true;
             }
             logger.warn("Job taskId：" + paramActionExt.getTaskId() + " duplicate submissions are not allowed");
