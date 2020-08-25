@@ -524,7 +524,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
      */
     private String getSavepointPath(Long tenantId) {
         String clusterInfoStr = clusterService.clusterInfo(tenantId);
-        JSONObject clusterJson = JSONObject.parseObject(JSON.toJSONString(clusterInfoStr));
+        JSONObject clusterJson = JSONObject.parseObject(clusterInfoStr);
         JSONObject flinkConf = clusterJson.getJSONObject("flinkConf");
         if (!flinkConf.containsKey(KEY_SAVEPOINT)) {
             return null;
