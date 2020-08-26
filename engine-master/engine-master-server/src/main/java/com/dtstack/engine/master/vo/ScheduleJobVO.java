@@ -35,6 +35,8 @@ public class ScheduleJobVO extends com.dtstack.engine.api.vo.ScheduleJobVO {
         this.setStatus(scheduleJob.getStatus());
         this.setRetryNum(scheduleJob.getRetryNum());
         this.setScheduleEngineJob(new ScheduleEngineJob(scheduleJob));
+        this.setExecStartTime(scheduleJob.getExecStartTime());
+        this.setExecEndTime(scheduleJob.getExecEndTime());
     }
 
     private String getOnlyDate(String date){
@@ -76,6 +78,7 @@ public class ScheduleJobVO extends com.dtstack.engine.api.vo.ScheduleJobVO {
             if(combineStatus == RdosTaskStatus.RUNNING.getStatus() || combineStatus == RdosTaskStatus.FINISHED.getStatus() || combineStatus == RdosTaskStatus.FAILED.getStatus()){
                 if (scheduleEngineJob.getExecStartTime() != null) {
                     this.setExecStartDate(DateUtil.getStandardFormattedDate(scheduleEngineJob.getExecStartTime().getTime()));
+                    this.setExecStartTime(scheduleEngineJob.getExecStartTime());
                 }
 
             }
@@ -84,6 +87,7 @@ public class ScheduleJobVO extends com.dtstack.engine.api.vo.ScheduleJobVO {
             if(combineStatus == RdosTaskStatus.FINISHED.getStatus() || combineStatus == RdosTaskStatus.FAILED.getStatus()){
                 if (scheduleEngineJob.getExecEndTime() != null) {
                     this.setExecEndDate(DateUtil.getStandardFormattedDate(scheduleEngineJob.getExecEndTime().getTime()));
+                    this.setExecEndTime(scheduleEngineJob.getExecEndTime());
                 }
             }
             if (scheduleEngineJob.getExecStartTime() != null && scheduleEngineJob.getExecEndTime() != null) {
