@@ -149,6 +149,10 @@ private[spark] class DtCDHClient(
     yarnClient.stop()
   }
 
+  def submitApplication(priority : Int = 0): ApplicationId = {
+    submitApplication()
+  }
+
   /**
     * Submit an application running our ApplicationMaster to the ResourceManager.
     *
@@ -399,6 +403,13 @@ private[spark] class DtCDHClient(
     new Path(resolvedDestDir, qualifiedDestPath.getName())
   }
 
+  def initSecurity():Unit = {
+    val userPrincipal = sparkConf.get("spark.yarn.principal")
+    val userKeytabPath = sparkConf.get("spark.yarn.keytab")
+    UserGroupInformation.setConfiguration(hadoopConf)
+    UserGroupInformation.loginUserFromKeytab(userPrincipal, userKeytabPath)
+  }
+
   /**
     * Upload any resources to the distributed cache if needed. If a resource is intended to be
     * consumed locally, set up the appropriate config for downstream code to handle it properly.
@@ -412,6 +423,10 @@ private[spark] class DtCDHClient(
     // Upload Spark and the application JAR to the remote file system if necessary,
     // and add them as local resources to the application master.
     val fs = destDir.getFileSystem(hadoopConf)
+
+    if (sparkConf.get("security").equalsIgnoreCase("true")){
+      initSecurity()
+    }
 
     // Used to keep track of URIs added to the distributed cache. If the same URI is added
     // multiple times, YARN will fail to launch containers for the app with an internal

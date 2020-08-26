@@ -54,14 +54,17 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
             batchTaskShadeDTO.setGmtModified(new Timestamp(System.currentTimeMillis()));
             scheduleTaskShadeDao.update(batchTaskShadeDTO);
         } else {
-            if(Objects.isNull(batchTaskShadeDTO.getProjectScheduleStatus())){
+            if (null == batchTaskShadeDTO.getProjectScheduleStatus()) {
                 batchTaskShadeDTO.setProjectScheduleStatus(EProjectScheduleStatus.NORMAL.getStatus());
             }
-            if(Objects.isNull(batchTaskShadeDTO.getNodePid())){
+            if (null == batchTaskShadeDTO.getNodePid()) {
                 batchTaskShadeDTO.setNodePid(0L);
             }
             if (Objects.isNull(batchTaskShadeDTO.getDtuicTenantId()) || batchTaskShadeDTO.getDtuicTenantId() <= 0) {
                 throw new RdosDefineException("租户dtuicTenantId 不能为空");
+            }
+            if (null == batchTaskShadeDTO.getFlowId()) {
+                batchTaskShadeDTO.setFlowId(0L);
             }
             scheduleTaskShadeDao.insert(batchTaskShadeDTO);
         }

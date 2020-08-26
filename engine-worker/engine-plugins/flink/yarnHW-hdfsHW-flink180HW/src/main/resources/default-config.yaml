@@ -26,7 +26,7 @@ perjob:
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 181job
-    clusterMode: standalone
+    clusterMode: session
     metrics.reporter.promgateway.randomJobNameSuffix:
       controls: select
       values: [true,false]
@@ -54,6 +54,7 @@ perjob:
     yarn.jobmanager.heap.mb: 1024
     yarn.taskmanager.numberOfTaskManager: 2
     yarn.taskmanager.numberOfTaskSlots: 2
+    sessionStartAuto: false
 
     flink.env.java.opts: -XX:MaxMetaspaceSize=500m
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
@@ -87,6 +88,7 @@ session:
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 181job
+    clusterMode: session
     metrics.reporter.promgateway.randomJobNameSuffix:
       controls: select
       values: [true,false]
@@ -149,7 +151,7 @@ standalone:
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
     metrics.reporter.promgateway.jobName: 181job
-    clusterMode: session
+    clusterMode: standalone
     metrics.reporter.promgateway.randomJobNameSuffix:
       controls: select
       values: [true,false]

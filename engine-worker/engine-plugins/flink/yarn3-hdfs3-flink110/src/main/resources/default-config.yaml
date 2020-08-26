@@ -6,26 +6,26 @@ perjob:
   dependencyValue: perjob
   controls: group
   required:
-    flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink180_lib
-    jobmanager.archive.fs.dir: hdfs://ns1/dtInsight/flink180/completed-jobs
+    flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink110_lib
+    jobmanager.archive.fs.dir: hdfs://ns1/dtInsight/flink110/completed-jobs
     flinkPluginRoot: /data/insight_plugin/flinkplugin
     remotePluginRootDir: /data/insight_plugin/flinkplugin
 
     high-availability.cluster-id: /default
-    high-availability.zookeeper.path.root: /flink180
+    high-availability.zookeeper.path.root: /flink110
     high-availability.zookeeper.quorum:
-    high-availability.storageDir: hdfs://ns1/flink180/ha
+    high-availability.storageDir: hdfs://ns1/flink110/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082
 
-    state.checkpoints.dir: hdfs://ns1/dtInsight/flink180/checkpoints
+    state.checkpoints.dir: hdfs://ns1/dtInsight/flink110/checkpoints
     state.checkpoints.num-retained: 11
 
     metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
-    metrics.reporter.promgateway.jobName: 181job
+    metrics.reporter.promgateway.jobName: 110job
     clusterMode: session
     metrics.reporter.promgateway.randomJobNameSuffix:
       controls: select
@@ -35,7 +35,7 @@ perjob:
       values: [true,false]
 
   optional:
-    jarTmpDir: ./tmp180
+    jarTmpDir: ./tmp110
     queue: default
     pluginLoadMode: shipfile
     submitTimeout: 5
@@ -44,7 +44,7 @@ perjob:
     taskparams.taskmanager.heap.mb: 20
 
     state.backend: RocksDB
-    state.savepoints.dir: hdfs://ns1/dtInsight/flink180/savepoints
+    state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints
     state.backend.incremental: true
 
     prometheusHost:
@@ -68,26 +68,26 @@ session:
   controls: group
   required:
     flinkSessionSlotCount: 10
-    flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink180_lib
-    jobmanager.archive.fs.dir: hdfs://ns1/dtInsight/flink180/completed-jobs
+    flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink110_lib
+    jobmanager.archive.fs.dir: hdfs://ns1/dtInsight/flink110/completed-jobs
     flinkPluginRoot: /data/insight_plugin/flinkplugin
     remotePluginRootDir: /data/insight_plugin/flinkplugin
 
     high-availability.cluster-id: /default
-    high-availability.zookeeper.path.root: /flink180
+    high-availability.zookeeper.path.root: /flink110
     high-availability.zookeeper.quorum:
-    high-availability.storageDir: hdfs://ns1/flink180/ha
+    high-availability.storageDir: hdfs://ns1/flink110/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082
 
-    state.checkpoints.dir: hdfs://ns1/dtInsight/flink180/checkpoints
+    state.checkpoints.dir: hdfs://ns1/dtInsight/flink110/checkpoints
     state.checkpoints.num-retained: 11
 
     metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
-    metrics.reporter.promgateway.jobName: 181job
+    metrics.reporter.promgateway.jobName: 110job
     clusterMode: session
     metrics.reporter.promgateway.randomJobNameSuffix:
       controls: select
@@ -107,7 +107,7 @@ session:
     taskparams.taskmanager.heap.mb: 20
 
     state.backend: RocksDB
-    state.savepoints.dir: hdfs://ns1/dtInsight/flink180/savepoints
+    state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints
     state.backend.incremental: true
 
     prometheusHost:
@@ -130,27 +130,27 @@ standalone:
   dependencyValue: standalone
   controls: group
   required:
-    flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink180_lib
-    jobmanager.archive.fs.dir: hdfs://ns1/dtInsight/flink180/completed-jobs
+    flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink110_lib
+    jobmanager.archive.fs.dir: hdfs://ns1/dtInsight/flink110/completed-jobs
     flinkPluginRoot: /data/insight_plugin/flinkplugin
     remotePluginRootDir: /data/insight_plugin/flinkplugin
 
     high-availability: zookeeper
     high-availability.cluster-id: /default
-    high-availability.zookeeper.path.root: /flink180
+    high-availability.zookeeper.path.root: /flink110
     high-availability.zookeeper.quorum:
-    high-availability.storageDir: hdfs://ns1/flink180/ha
+    high-availability.storageDir: hdfs://ns1/flink110/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082
 
-    state.checkpoints.dir: hdfs://ns1/dtInsight/flink180/checkpoints
+    state.checkpoints.dir: hdfs://ns1/dtInsight/flink110/checkpoints
     state.checkpoints.num-retained: 11
 
     metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
-    metrics.reporter.promgateway.jobName: 181job
+    metrics.reporter.promgateway.jobName: 110job
     clusterMode: standalone
     metrics.reporter.promgateway.randomJobNameSuffix:
       controls: select
@@ -161,7 +161,7 @@ standalone:
 
   optional:
     state.backend: RocksDB
-    state.savepoints.dir: hdfs://ns1/dtInsight/flink180/savepoints
+    state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints
     state.backend.incremental: true
 
     prometheusHost:
