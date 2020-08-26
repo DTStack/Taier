@@ -265,9 +265,9 @@ public class FlinkClient extends AbstractClient {
     private ClusterClient createClusterClientForPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws ClusterDeploymentException {
         ClusterDescriptor<String> clusterDescriptor = null;
         ClusterClient<String> clusterClient = null;
+        String projobClusterId = String.format("%s-%s-%s", FlinkConfig.FLINK_PERJOB_PREFIX, jobClient.getTaskId(), jobClient.getGenerateTime());
         try {
-            clusterDescriptor = flinkClusterClientManager.getPerJobClientFactory().createPerjobClusterDescriptor(jobClient);
-            String projobClusterId = String.format("%s-%s", FlinkConfig.FLINK_PERJOB_PREFIX, jobClient.getTaskId());
+            clusterDescriptor = flinkClusterClientManager.getPerJobClientFactory().createPerjobClusterDescriptor(jobClient, projobClusterId);
             if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
                 flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
             }
@@ -277,8 +277,8 @@ public class FlinkClient extends AbstractClient {
             return clusterClient;
         } catch (Exception e) {
             try {
-                if (clusterClient != null) {
-                    clusterClient.shutDownCluster();
+                if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
+                    flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
                 }
                 if (clusterDescriptor != null) {
                     clusterDescriptor.close();

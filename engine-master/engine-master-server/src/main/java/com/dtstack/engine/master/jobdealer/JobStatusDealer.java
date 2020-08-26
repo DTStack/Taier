@@ -223,6 +223,7 @@ public class JobStatusDealer implements Runnable {
             statusFrequency.setNum(statusFrequency.getNum() + 1);
         } else {
             statusFrequency.setNum(0);
+            statusFrequency.setStatus(status);
         }
         return statusFrequency;
     }
