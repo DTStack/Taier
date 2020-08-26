@@ -12,11 +12,14 @@
     <artifactId>plugins.spark.yarn3-hdfs3-spark240</artifactId>
     <packaging>pom</packaging>
 
+
+    <!--cdh 6.1.3 & 7.1.3 版本适配-->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spark.version>2.4.0</spark.version>
         <scala.version>2.11.8</scala.version>
         <hadoop.version>3.0.0</hadoop.version>
+        <shims.version>2.1.1-cdh6.1.1</shims.version>
     </properties>
 
     <modules>

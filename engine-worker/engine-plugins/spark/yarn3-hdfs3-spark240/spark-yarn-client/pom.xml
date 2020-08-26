@@ -39,6 +39,18 @@
             <version>${scala.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-common</artifactId>
+            <version>${shims.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-shims</artifactId>
+            <version>${shims.version}</version>
+        </dependency>
+
 
         <!-- spark  -->
         <dependency>
