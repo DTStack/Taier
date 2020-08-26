@@ -1059,7 +1059,7 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 }
                 if (EJobType.SYNC.getType() == scheduleJob.getTaskType()) {
                     //数据同步需要解析是perjob 还是session
-                    EDeployMode eDeployMode = this.parseDeployTypeByTaskParams(batchTask.getTaskParams());
+                    EDeployMode eDeployMode = this.parseDeployTypeByTaskParams(batchTask.getTaskParams(),batchTask.getComputeType());
                     actionParam.put("deployMode", eDeployMode.getType());
                 }
                 this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus());
@@ -1078,7 +1078,10 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @param taskParams
      * @return
      */
-    public EDeployMode parseDeployTypeByTaskParams(String taskParams) {
+    public EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType) {
+        if (ComputeType.STREAM.getType().equals(computeType)) {
+            return EDeployMode.PERJOB;
+        }
         if (StringUtils.isBlank(taskParams)) {
             return EDeployMode.SESSION;
         }
