@@ -3,25 +3,23 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.api.annotation.Param;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
-import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,6 +59,9 @@ public class ScheduleTaskShadeService implements com.dtstack.engine.api.service.
             }
             if (null == batchTaskShadeDTO.getNodePid()) {
                 batchTaskShadeDTO.setNodePid(0L);
+            }
+            if (Objects.isNull(batchTaskShadeDTO.getDtuicTenantId()) || batchTaskShadeDTO.getDtuicTenantId() <= 0) {
+                throw new RdosDefineException("租户dtuicTenantId 不能为空");
             }
             if (null == batchTaskShadeDTO.getFlowId()) {
                 batchTaskShadeDTO.setFlowId(0L);
