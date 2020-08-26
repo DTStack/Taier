@@ -72,7 +72,7 @@ public class PluginWrapper{
             deployMode = EDeployMode.PERJOB.getType();
         } else if (Objects.isNull(deployMode) && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
             //解析参数
-            deployMode = scheduleJobService.parseDeployTypeByTaskParams(action.getTaskParams()).getType();
+            deployMode = scheduleJobService.parseDeployTypeByTaskParams(action.getTaskParams(),action.getComputeType()).getType();
         }
         JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode);
         String groupName = ConfigConstant.DEFAULT_GROUP_NAME;
