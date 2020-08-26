@@ -13,6 +13,8 @@ import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
+import com.dtstack.engine.master.executor.CronJobExecutor;
+import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.schedule.common.enums.*;
@@ -43,6 +45,12 @@ public class ScheduleTaskShadeService {
     @Autowired
     private ScheduleTaskTaskShadeService scheduleTaskTaskShadeService;
 
+    @Autowired
+    private CronJobExecutor cronJobExecutor;
+
+    @Autowired
+    private FillJobExecutor fillJobExecutor;
+
     /**
      * web 接口
      * 例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息
@@ -53,6 +61,7 @@ public class ScheduleTaskShadeService {
             //更新提交时间
             batchTaskShadeDTO.setGmtModified(new Timestamp(System.currentTimeMillis()));
             scheduleTaskShadeDao.update(batchTaskShadeDTO);
+            this.removeTaskCache(batchTaskShadeDTO.getTaskId(),batchTaskShadeDTO.getAppType());
         } else {
             if(Objects.isNull(batchTaskShadeDTO.getProjectScheduleStatus())){
                 batchTaskShadeDTO.setProjectScheduleStatus(EProjectScheduleStatus.NORMAL.getStatus());
@@ -71,6 +80,7 @@ public class ScheduleTaskShadeService {
     public void deleteTask( Long taskId,  long modifyUserId, Integer appType) {
         scheduleTaskShadeDao.delete(taskId, modifyUserId,appType);
         scheduleTaskTaskShadeService.clearDataByTaskId(taskId,appType);
+        this.removeTaskCache(taskId,appType);
     }
 
     public List<ScheduleTaskShade> listTaskByType(Long projectId, Integer taskType, String taskName) {
@@ -393,10 +403,13 @@ public class ScheduleTaskShadeService {
      * @param userId
      * @param appType
      */
-    public void frozenTask( List<Long> taskIdList,  int scheduleStatus,
-                            Long projectId,  Long userId,
-                            Integer appType) {
-        scheduleTaskShadeDao.batchUpdateTaskScheduleStatus(taskIdList,scheduleStatus,appType);
+    public void frozenTask(List<Long> taskIdList, int scheduleStatus,
+                           Long projectId, Long userId,
+                           Integer appType) {
+        scheduleTaskShadeDao.batchUpdateTaskScheduleStatus(taskIdList, scheduleStatus, appType);
+        for (Long taskId : taskIdList) {
+            this.removeTaskCache(taskId, appType);
+        }
     }
 
 
@@ -500,5 +513,15 @@ public class ScheduleTaskShadeService {
 
     public ScheduleTaskShade getById(Long id ){
         return scheduleTaskShadeDao.getById(id);
+    }
+
+    /**
+     * 更新调度中的taskCache
+     * @param taskId
+     * @param appType
+     */
+    public void removeTaskCache(Long taskId,Integer appType){
+        cronJobExecutor.removeTaskCache(taskId,appType);
+        fillJobExecutor.removeTaskCache(taskId,appType);
     }
 }

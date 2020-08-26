@@ -200,6 +200,20 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         return this.softReference.get();
     }
 
+    public void removeTaskCache(Long taskId, Integer appType) {
+        if (null == taskId || null == appType) {
+            return;
+        }
+        if (null == this.softReference) {
+            return;
+        }
+        Map<Long, ScheduleTaskShade> taskShadeMap = this.softReference.get();
+        if (null != taskShadeMap) {
+            taskShadeMap.remove(jobRichOperator.getTaskIdUnique(appType, taskId));
+            logger.info("scheduleType:{} remove cache {} appType {} ", getScheduleType(), taskId, appType);
+        }
+    }
+
 
     private void emitJob2Queue() {
         String nodeAddress = zkService.getLocalAddress();
