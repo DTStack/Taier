@@ -2272,6 +2272,11 @@ public class ScheduleJobService {
                 //更新状态 日志信息也要更新
                 job.setLogInfo("");
             }
+
+            if (RdosTaskStatus.UNSUBMIT.getStatus().equals(job.getStatus())) {
+                job.setPhaseStatus(JobPhaseStatus.CREATE.getCode());
+            }
+
             updateSize += scheduleJobDao.update(job);
 
         }

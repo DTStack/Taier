@@ -429,6 +429,9 @@
             <if test="retryNum != null">
                 retry_num = #{retryNum},
             </if>
+            <if test="phaseStatus != null">
+                phase_status = #{phaseStatus},
+            </if>
         </set>
     </sql>
 
@@ -1649,5 +1652,9 @@
             #{id}
         </foreach>
         and `is_deleted`=0;
+    </update>
+
+    <update id="updateJobStatusAndPhaseStatus">
+        update schedule_job set gmt_modified=now(),status=#{status},`phase_status` = #{phaseStatus} where job_id=#{jobId};
     </update>
 </mapper>
