@@ -570,11 +570,15 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 				shipFiles.add(new File(tmp.getValue().filePath));
 			}
 		}
+
+		//fix zhaoshang 适配
         String shipFileConf = System.getProperty("user.dir") + File.separator + "/shipFileConf";
         File file = new File(shipFileConf);
         if (file.exists() && file.isDirectory()) {
             shipFiles.addAll(Arrays.asList(file.listFiles()));
         }
+
+
 		// flinkx get classpath
 		jobGraph.getClasspaths().forEach(jarFile -> {
 			try {
