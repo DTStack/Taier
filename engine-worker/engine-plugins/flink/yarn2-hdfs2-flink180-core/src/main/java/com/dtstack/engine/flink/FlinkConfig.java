@@ -63,7 +63,7 @@ public class FlinkConfig extends BaseConfig {
 
     private String flinkSessionName = "Flink session";
 
-    private boolean sessionStartAuto = true;
+    private boolean sessionStartAuto = false;
 
     private boolean flinkHighAvailability = false;
 
