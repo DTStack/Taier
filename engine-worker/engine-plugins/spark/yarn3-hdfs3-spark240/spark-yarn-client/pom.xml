@@ -42,13 +42,13 @@
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-common</artifactId>
-            <version>${shims.version}</version>
+            <version>${hivejdbc.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-shims</artifactId>
-            <version>${shims.version}</version>
+            <version>${hivejdbc.version}</version>
         </dependency>
 
 
