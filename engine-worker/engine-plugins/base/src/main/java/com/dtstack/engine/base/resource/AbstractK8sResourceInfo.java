@@ -1,14 +1,13 @@
 package com.dtstack.engine.base.resource;
 
+import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.exception.LimitResourceException;
 import com.google.common.collect.Lists;
-import io.fabric8.kubernetes.api.model.Node;
-import io.fabric8.kubernetes.api.model.NodeStatus;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.NodeMetrics;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.internal.NodeMetricOperationsImpl;
+import org.agrona.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +15,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -143,7 +143,6 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
         NodeMetricOperationsImpl nodeMetricOperations = kubernetesClient.top().nodes();
         List<NodeMetrics> nodeMetrics = nodeMetricOperations.metrics().getItems();
         for (NodeMetrics nodeMetric : nodeMetrics) {
-            System.out.println(nodeMetric);
 
             String nodeName = nodeMetric.getMetadata().getName();
             NodeStatus nodeStatus = nodeStatusMap.get(nodeName);
@@ -189,6 +188,39 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
             nmFreeCore[index] = nodeFreeCores;
             index++;
         }
+    }
+
+    public boolean judgeResourceInNamespace(List<InstanceInfo> instanceInfos, ResourceQuota resourceQuota) {
+        Double needTotalCore = 0d;
+        Double needTotalMem = 0d;
+        for (InstanceInfo instanceInfo : instanceInfos) {
+            needTotalCore += instanceInfo.instances * instanceInfo.coresPerInstance;
+            needTotalMem += instanceInfo.instances * instanceInfo.memPerInstance;
+        }
+
+        Quantity amountTotalCores = resourceQuota.getStatus().getHard().get("requests.cpu");
+        Quantity amountTotalMem = resourceQuota.getStatus().getHard().get("requests.memory");
+        Double totalCores = Objects.isNull(amountTotalCores) ? 0d : Quantity.getAmountInBytes(amountTotalCores).doubleValue();
+        Double totalMem = Objects.isNull(amountTotalMem) ? 0d : Quantity.getAmountInBytes(amountTotalMem).doubleValue();
+
+        Quantity amountUsedCores = resourceQuota.getStatus().getUsed().get("requests.cpu");
+        Quantity amountUsedMem = resourceQuota.getStatus().getUsed().get("requests.memory");
+        Double usedCores = Objects.isNull(amountUsedCores) ? 0d : Quantity.getAmountInBytes(amountUsedCores).doubleValue();
+        Double usedMem = Objects.isNull(amountUsedMem) ? 0d : Quantity.getAmountInBytes(amountUsedMem).doubleValue();
+
+        Double freeCores = totalCores - usedCores;
+        Double freeMem = totalMem - usedMem;
+
+        if (freeCores <= needTotalCore) {
+            logger.warn("Insufficient cpu resources。 needTotalCore: {}, freeCores: {}", needTotalCore, freeCores);
+            return false;
+        }
+
+        if (freeMem <= needTotalMem) {
+            logger.warn("Insufficient memory resources。 needTotalMem: {}, freeMem: {}", needTotalMem, freeMem);
+            return false;
+        }
+        return true;
     }
 
     public static class InstanceInfo {

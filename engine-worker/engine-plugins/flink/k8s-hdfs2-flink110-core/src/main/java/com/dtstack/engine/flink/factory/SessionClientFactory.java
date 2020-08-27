@@ -152,6 +152,18 @@ public class SessionClientFactory extends AbstractClientFactory {
         Configuration newConf = new Configuration(flinkConfiguration);
         if (!flinkConfig.getFlinkHighAvailability()) {
             setNoneHaModeConfig(newConf);
+        } else {
+            Long currentTime = System.currentTimeMillis();
+            String kubernetesClusterId = newConf.getString(KubernetesConfigOptions.CLUSTER_ID);
+            String HAClusterId = String.format("%s-%s", kubernetesClusterId, currentTime);
+
+            String HAStoragePath = newConf.get(HighAvailabilityOptions.HA_STORAGE_PATH);
+            String newHAStoragePath = String.format("%s/%s", HAStoragePath, HAClusterId);
+            newConf.setString(HighAvailabilityOptions.HA_STORAGE_PATH, newHAStoragePath);
+
+            String HAZookeeperRoot = newConf.get(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT);
+            String newHAZookeeperRoot = String.format("%s/%s", HAZookeeperRoot, HAClusterId);
+            newConf.set(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, newHAZookeeperRoot);
         }
 
         KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
