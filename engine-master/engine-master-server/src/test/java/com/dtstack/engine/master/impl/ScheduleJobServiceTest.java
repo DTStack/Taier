@@ -272,8 +272,8 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testParseDeployTypeByTaskParams() {
-        EDeployMode eDeployMode = sheduleJobService.parseDeployTypeByTaskParams("flinktaskrunmode=per_job",0);
-        Assert.assertEquals(eDeployMode, EDeployMode.PERJOB);
+        EDeployMode eDeployMode = sheduleJobService.parseDeployTypeByTaskParams("flinkTaskRunMode=session",0);
+        Assert.assertEquals(eDeployMode, EDeployMode.SESSION);
     }
 
     @Test

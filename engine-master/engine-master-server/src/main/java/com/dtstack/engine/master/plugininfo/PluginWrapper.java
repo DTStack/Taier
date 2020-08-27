@@ -67,10 +67,7 @@ public class PluginWrapper{
 
         Long tenantId = action.getTenantId();
         String engineType = action.getEngineType();
-        if (Objects.nonNull(MapUtils.getInteger(actionParam, APP_TYPE)) && AppType.STREAM.getType() == MapUtils.getInteger(actionParam, APP_TYPE)) {
-            //流计算默认perjob
-            deployMode = EDeployMode.PERJOB.getType();
-        } else if (Objects.isNull(deployMode) && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
+        if (Objects.isNull(deployMode) && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
             //解析参数
             deployMode = scheduleJobService.parseDeployTypeByTaskParams(action.getTaskParams(),action.getComputeType()).getType();
         }
