@@ -61,7 +61,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
         this.flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
     }
 
-    public ClusterDescriptor<String> createPerjobClusterDescriptor(JobClient jobClient) {
+    public ClusterDescriptor<String> createPerjobClusterDescriptor(JobClient jobClient, String projobClusterId) {
         Configuration newConf = new Configuration(flinkConfiguration);
 
         String taskIdMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + TASKID_MASTER_KEY;
@@ -77,12 +77,11 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
         newConf = appendJobConfigAndInitFs(jobClient.getConfProperties(), newConf);
 
+        newConf.setString(KubernetesConfigOptions.CLUSTER_ID, projobClusterId);
+
         if (!flinkConfig.getFlinkHighAvailability() && ComputeType.BATCH == jobClient.getComputeType()) {
             setNoneHaModeConfig(newConf);
         }
-
-        String projobClusterId = String.format("%s-%s", FlinkConfig.FLINK_PERJOB_PREFIX, jobClient.getTaskId());
-        newConf.setString(KubernetesConfigOptions.CLUSTER_ID, projobClusterId);
 
         KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
 
@@ -98,11 +97,14 @@ public class PerJobClientFactory extends AbstractClientFactory {
     private Configuration appendJobConfigAndInitFs(Properties properties, Configuration configuration) {
         if (properties != null) {
             properties.forEach((key, value) -> {
-                if (key.toString().contains(".")) {
+                Boolean isLogLevel = key.toString().equalsIgnoreCase(KubernetesConfigOptions.FLINK_LOG_LEVEL.key());
+                Boolean isLogFileName = key.toString().equalsIgnoreCase(KubernetesConfigOptions.FLINK_LOG_FILE_NAME.key());
+                if (key.toString().contains(".") || isLogLevel || isLogFileName) {
                     configuration.setString(key.toString(), value.toString());
                 }
             });
         }
+
         try {
             FileSystem.initialize(configuration);
         } catch (Exception e) {

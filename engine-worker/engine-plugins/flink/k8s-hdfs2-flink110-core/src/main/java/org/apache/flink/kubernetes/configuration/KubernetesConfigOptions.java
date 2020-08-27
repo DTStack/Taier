@@ -156,6 +156,12 @@ public class KubernetesConfigOptions {
             .defaultValue("info")
             .withDescription("The task run log level.");
 
+    public static final ConfigOption<String> FLINK_LOG_FILE_NAME =
+        key("logFileName")
+            .stringType()
+            .defaultValue("log4j-roll.properties")
+            .withDescription("The task run log file name.");
+
     /**
      * The flink rest service exposed type.
      */
