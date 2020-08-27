@@ -184,6 +184,7 @@ public class FlinkClient extends AbstractClient {
     private JobResult submitJobWithJar(JobClient jobClient, List<URL> classPaths, List<String> programArgList) {
         if (flinkConfig.isOpenKerberos()) {
             FileUtil.downloadKafkaKeyTab(jobClient.getTaskParams(), flinkConfig);
+            flinkClientBuilder.setSecurityConfig();
         }
 
         if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
