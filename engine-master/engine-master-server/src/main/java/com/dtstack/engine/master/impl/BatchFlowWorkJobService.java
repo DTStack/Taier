@@ -119,7 +119,7 @@ public class BatchFlowWorkJobService {
                 bottleStatus = RdosTaskStatus.FROZEN.getStatus();
             }
         }
-
+        logger.error("jobId:{} bottleStatus:{}", jobId,bottleStatus);
         if (RdosTaskStatus.FINISHED.getStatus().equals(bottleStatus) || RdosTaskStatus.FAILED.getStatus().equals(bottleStatus)
                 || RdosTaskStatus.PARENTFAILED.getStatus().equals(bottleStatus) || RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)) {
             //更新结束时间时间
