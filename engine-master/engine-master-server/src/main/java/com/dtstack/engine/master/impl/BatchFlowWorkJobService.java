@@ -135,7 +135,7 @@ public class BatchFlowWorkJobService {
             batchJobService.updateStatusByJobId(jobId, bottleStatus);
         }
 
-        if (RdosTaskStatus.STOP_STATUS.contains(bottleStatus)) {
+        if (RdosTaskStatus.getStoppedStatus().contains(bottleStatus)) {
             logger.error("jobId:{} is WORK_FLOW or ALGORITHM_LAB son is execution complete update phaseStatus to execute_over.", jobId);
             batchJobService.updatePhaseStatusById(id, JobPhaseStatus.CREATE, JobPhaseStatus.EXECUTE_OVER);
         }
