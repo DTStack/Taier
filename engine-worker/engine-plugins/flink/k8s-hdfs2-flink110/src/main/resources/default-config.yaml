@@ -32,7 +32,6 @@ perjob:
     metrics.reporter.promgateway.deleteOnShutdown:
       controls: select
       values: [true,false]
-    clusterMode: kubernetes
 
     kubernetes.rest-service.exposed.type: NodePort
     kubernetes.container.image: registry.cn-hangzhou.aliyuncs.com/dtstack-dev/dt-flink:1.10
@@ -91,7 +90,6 @@ session:
     metrics.reporter.promgateway.deleteOnShutdown:
       controls: select
       values: [true,false]
-    clusterMode: kubernetes
 
     kubernetes.rest-service.exposed.type: NodePort
     kubernetes.container.image: registry.cn-hangzhou.aliyuncs.com/dtstack-dev/dt-flink:1.10

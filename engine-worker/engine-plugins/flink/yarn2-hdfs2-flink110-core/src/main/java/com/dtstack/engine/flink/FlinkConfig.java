@@ -2,7 +2,6 @@ package com.dtstack.engine.flink;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
-import com.dtstack.engine.flink.enums.Deploy;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -41,7 +40,7 @@ public class FlinkConfig extends BaseConfig {
 
     private String remotePluginRootDir;
 
-    private String clusterMode = Deploy.yarn.name(); // 集群运行模式: standalone or yarn
+    private String clusterMode;
 
     private String cluster;
 
@@ -76,7 +75,7 @@ public class FlinkConfig extends BaseConfig {
 
     private boolean monitorAcceptedApp = false;
 
-    public boolean isMonitorAcceptedApp() {
+    public boolean getMonitorAcceptedApp() {
         return monitorAcceptedApp;
     }
 

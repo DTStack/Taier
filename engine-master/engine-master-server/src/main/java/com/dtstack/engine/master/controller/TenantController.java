@@ -4,6 +4,7 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.tenant.UserTenantVO;
 import com.dtstack.engine.master.impl.TenantService;
+import com.dtstack.engine.master.router.DtHeader;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,13 +39,13 @@ public class TenantController {
     }
 
     @RequestMapping(value="/dtToken", method = {RequestMethod.POST})
-    public List<UserTenantVO> listTenant(@DtRequestParam("dtToken") String dtToken) {
+    public List<UserTenantVO> listTenant(@DtHeader(value = "cookie",cookie = "dt_token") String dtToken) {
         return tenantService.listTenant(dtToken);
     }
 
     @RequestMapping(value="/bindingTenant", method = {RequestMethod.POST})
     public void bindingTenant(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("clusterId") Long clusterId,
-                              @DtRequestParam("queueId") Long queueId, @DtRequestParam("dtToken") String dtToken) throws Exception {
+                              @DtRequestParam("queueId") Long queueId, @DtHeader(value = "cookie",cookie = "dt_token") String dtToken) throws Exception {
         tenantService.bindingTenant(dtUicTenantId, clusterId, queueId, dtToken);
     }
 

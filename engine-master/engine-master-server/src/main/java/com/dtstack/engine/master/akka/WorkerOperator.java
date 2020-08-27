@@ -98,6 +98,7 @@ public class WorkerOperator {
 
     public JobResult submitJob(JobClient jobClient) throws Exception {
         this.buildPluginInfo(jobClient);
+        pluginWrapper.savePluginInfoToDB(jobClient.getTaskId(),jobClient.getPluginInfo());
         if (AkkaConfig.isLocalMode()){
             return ClientOperator.getInstance().submitJob(jobClient);
         }

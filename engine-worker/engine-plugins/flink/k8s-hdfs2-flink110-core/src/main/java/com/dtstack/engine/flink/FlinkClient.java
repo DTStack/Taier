@@ -3,6 +3,7 @@ package com.dtstack.engine.flink;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.pojo.JudgeResult;
@@ -597,9 +598,11 @@ public class FlinkClient extends AbstractClient {
                     .withAllowPendingPodSize(0)
                     .build();
             return seesionResourceInfo.judgeSlots(jobClient);
+        } catch (LimitResourceException le) {
+            throw le;
         } catch (Exception e) {
             logger.error("judgeSlots error:{}", e);
-            return JudgeResult.newInstance(false,"judgeSlots error");
+            return JudgeResult.notOk(false,"judgeSlots error");
         }
     }
 

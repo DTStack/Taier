@@ -339,6 +339,10 @@ public class ClusterService {
             Integer deployMode = MapUtils.getInteger(actionParam, DEPLOY_MODEL);
             EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineName);
 
+            if (type == null) {
+                return null;
+            }
+
             EDeployMode deploy = EDeployMode.PERJOB;
             if (ComputeType.BATCH == computeType && EngineTypeComponentType.FLINK.equals(type)) {
                 deploy = EDeployMode.SESSION;

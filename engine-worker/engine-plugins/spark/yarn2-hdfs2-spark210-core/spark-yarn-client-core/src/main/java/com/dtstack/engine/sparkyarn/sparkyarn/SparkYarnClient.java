@@ -1,5 +1,6 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
+import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JarFileInfo;
@@ -11,6 +12,7 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.pojo.JobResult;
@@ -89,7 +91,7 @@ public class SparkYarnClient extends AbstractClient {
 
     private SparkYarnConfig sparkYarnConfig;
 
-    private Configuration yarnConf;
+    private YarnConfiguration yarnConf;
 
     private YarnClient yarnClient;
 
@@ -108,6 +110,9 @@ public class SparkYarnClient extends AbstractClient {
         logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
         yarnClient = KerberosUtils.login(sparkYarnConfig,this::getYarnClient,yarnConf);
 
+        if (sparkYarnConfig.getMonitorAcceptedApp()) {
+            AcceptedApplicationMonitor.start(yarnConf, sparkYarnConfig.getQueue(), sparkYarnConfig);
+        }
     }
 
     private void initYarnConf(SparkYarnConfig sparkConfig){
@@ -599,22 +604,18 @@ public class SparkYarnClient extends AbstractClient {
 
         try {
             return KerberosUtils.login(sparkYarnConfig, () -> {
-
-                try {
                     SparkYarnResourceInfo resourceInfo = SparkYarnResourceInfo.SparkYarnResourceInfoBuilder()
                             .withYarnClient(getYarnClient())
                             .withQueueName(sparkYarnConfig.getQueue())
                             .withYarnAccepterTaskNumber(sparkYarnConfig.getYarnAccepterTaskNumber())
                             .build();
                     return resourceInfo.judgeSlots(jobClient);
-                } catch (Exception e) {
-                    logger.error("", e);
-                    return JudgeResult.newInstance(false, "judgeSlots error");
-                }
             }, yarnConf);
+        } catch (LimitResourceException le){
+            throw le;
         } catch (Exception e) {
             logger.error("judgeSlots error", e);
-            return JudgeResult.newInstance(false, "judgeSlots error");
+            return JudgeResult.notOk(false, "judgeSlots error");
         }
     }
 

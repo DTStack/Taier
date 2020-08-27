@@ -24,6 +24,7 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
@@ -42,7 +43,6 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.spark.deploy.k8s.ExtendConfig;
-import org.mortbay.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -193,9 +193,11 @@ public class SparkK8sClient extends AbstractClient {
                     .withAllowPendingPodSize(2)
                     .build();
             return sparkResourceInfo.judgeSlots(jobClient);
+        } catch (LimitResourceException le) {
+            throw le;
         } catch (Exception e) {
             LOG.error("judgeSlots error:{}", e);
-            return JudgeResult.newInstance(false, "judgeSlots error");
+            return JudgeResult.notOk(false, "judgeSlots error");
         }
     }
 

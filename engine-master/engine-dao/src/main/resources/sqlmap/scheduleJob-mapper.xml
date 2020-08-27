@@ -531,6 +531,7 @@
         </if>
         AND bj.type = #{type}
         AND bj.app_type = #{appType}
+        AND ts.app_type = #{appType}
         AND bj.task_type != 10
         <if test="startTime != null and startTime != ''">
             AND bj.cyc_time <![CDATA[>=]]> #{startTime}
@@ -597,6 +598,7 @@
         and bj.project_id = #{projectId}
         and bj.tenant_id = #{tenantId}
         and bj.is_deleted = 0
+        and bj.app_type = ts.app_type
         <if test="taskTypes != null and taskTypes.size()>0">
             and ts.task_type in
             <foreach collection="taskTypes" item="taskType" open="(" close=")" separator=",">
@@ -623,6 +625,7 @@
         and bj.tenant_id = #{tenantId}
         and bj.is_deleted = 0
         and bj.flow_job_id = 0
+        and bj.app_type = ts.app_type
         <if test="taskTypes != null and taskTypes.size()>0">
             and ts.task_type in
                 <foreach collection="taskTypes" item="taskType" open="(" close=")" separator=",">
@@ -665,32 +668,6 @@
 
 
 
-    <select id="generalScienceQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
-        SELECT
-        <include refid="select_content_fragment"/>
-        from (
-        select *,'' as groupDate from schedule_job
-        <include refid="select_where_batch_job"/>
-        and period_type not in (0,1)
-        union
-        select
-        bj.*,
-        left(bj.business_date,8) as groupDate
-        from schedule_job bj
-        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
-        <include refid="select_where_fragment"/>
-        and bj.period_type in (0,1)
-        group by bj.task_id,groupDate
-        )bj
-        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
-        WHERE bj.app_type = ts.app_type
-        <include refid="select_where_fragment"/>
-        <if test="model.pageQuery == true">
-            <include refid="page_condition"/>
-        </if>
-
-    </select>
-
     <select id="listTodayJobs" resultType="java.util.HashMap">
         SELECT DATE_FORMAT(bj.exec_start_time, '%H') AS hour, COUNT(1) AS data
         FROM schedule_job bj
@@ -714,6 +691,32 @@
             </foreach>
         </if>
         GROUP BY hour
+    </select>
+
+    <select id="generalScienceQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        from (
+        select *,'' as groupDate from schedule_job
+        <include refid="select_where_batch_job"/>
+        and period_type not in (0,1)
+        union
+        select
+        bj.*,
+        left(bj.business_date,8) as groupDate
+        from schedule_job bj
+        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
+        and bj.period_type in (0,1)
+        group by bj.task_id,groupDate
+        )bj
+        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
+        and bj.app_type = ts.app_type
+        <if test="model.pageQuery == true">
+            <include refid="page_condition"/>
+        </if>
+
     </select>
 
     <select id="listYesterdayJobs" resultType="java.util.HashMap">
@@ -868,37 +871,13 @@
 
     </select>
 
-    <select id="generalQueryWithMinAndHour" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
-        SELECT
-        <include refid="select_content_fragment"/>
-        from (
-        select *,'' as groupDate from schedule_job
-        <include refid="select_where_batch_job"/>
-        union
-        select
-        bj.*,
-        left(bj.business_date,8) as groupDate
-        from schedule_job bj
-        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
-        where bj.app_type = ts.app_type
-        <include refid="select_where_fragment"/>
-        group by bj.task_id,groupDate
-        )bj
-        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
-        where bj.app_type = ts.app_type
-        <include refid="select_where_fragment"/>
-        <if test="model.pageQuery == true">
-            <include refid="page_condition"/>
-        </if>
-    </select>
-
     <select id="minOrHourJobQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         from  schedule_job bj
         LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
-        where bj.app_type = ts.app_type
         <include refid="select_where_fragment"/>
+        and bj.app_type = ts.app_type
         <include refid="queryWorkFlow"/>
         <if test="model.jobIds != null and model.jobIds.size > 0">
             or bj.job_id in
@@ -926,6 +905,30 @@
             </foreach>
         </if>
         limit 1
+    </select>
+
+    <select id="generalQueryWithMinAndHour" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        from (
+        select *,'' as groupDate from schedule_job
+        <include refid="select_where_batch_job"/>
+        union
+        select
+        bj.*,
+        left(bj.business_date,8) as groupDate
+        from schedule_job bj
+        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
+        and bj.app_type = ts.app_type
+        group by bj.task_id,groupDate
+        )bj
+        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
+        and bj.app_type = ts.app_type
+        <if test="model.pageQuery == true">
+            <include refid="page_condition"/>
+        </if>
     </select>
 
     <select id="generalCountWithMinAndHour" resultType="java.lang.Integer">

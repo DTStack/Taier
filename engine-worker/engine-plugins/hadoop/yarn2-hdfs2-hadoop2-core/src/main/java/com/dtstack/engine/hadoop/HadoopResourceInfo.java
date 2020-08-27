@@ -9,6 +9,6 @@ public class HadoopResourceInfo implements EngineResourceInfo {
 
     @Override
     public JudgeResult judgeSlots(JobClient jobClient) {
-        return JudgeResult.newInstance(true, "");
+        return JudgeResult.ok();
     }
 }

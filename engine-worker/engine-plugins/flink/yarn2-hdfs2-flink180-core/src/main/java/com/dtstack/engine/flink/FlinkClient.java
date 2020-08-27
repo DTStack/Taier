@@ -15,6 +15,7 @@ import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.HttpClient;
 import com.dtstack.engine.common.http.PoolHttpClient;
@@ -149,7 +150,7 @@ public class FlinkClient extends AbstractClient {
             throw new RdosDefineException(e);
         }
 
-        if (flinkConfig.isMonitorAcceptedApp()) {
+        if (flinkConfig.getMonitorAcceptedApp()) {
             AcceptedApplicationMonitor.start(hadoopConf.getYarnConfiguration(), flinkConfig.getQueue(), flinkConfig);
         }
     }
@@ -669,17 +670,18 @@ public class FlinkClient extends AbstractClient {
             } else {
                 if (!flinkClusterClientManager.getIsClientOn()) {
                     logger.warn("wait flink client recover...");
-                    return JudgeResult.newInstance(false, "wait flink client recover");
+                    return JudgeResult.notOk(false, "wait flink client recover");
                 }
                 FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
                 String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
                 yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
                 return yarnSeesionResourceInfo.judgeSlots(jobClient);
             }
-
+        } catch (LimitResourceException le) {
+            throw le;
         } catch (Exception e){
             logger.error("judgeSlots error:{}", e);
-            return JudgeResult.newInstance(false, "judgeSlots error");
+            return JudgeResult.notOk(false, "judgeSlots error");
         }
     }
 
