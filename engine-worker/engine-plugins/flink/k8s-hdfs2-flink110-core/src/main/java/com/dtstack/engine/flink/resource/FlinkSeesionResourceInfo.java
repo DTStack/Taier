@@ -9,6 +9,7 @@ import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.collect.Lists;
 import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.api.model.ResourceQuota;
 
 import java.util.List;
 import java.util.Properties;
@@ -41,6 +42,17 @@ public class FlinkSeesionResourceInfo extends AbstractK8sResourceInfo {
             return false;
         }
 
+        List<InstanceInfo> instanceInfos = getInstanceInfos(jobClient);
+        return judgeResource(instanceInfos);
+    }
+
+    public boolean judgeSlotsInNamespace(JobClient jobClient, ResourceQuota resourceQuota) {
+        List<InstanceInfo> instanceInfos = getInstanceInfos(jobClient);
+
+        return judgeResourceInNamespace(instanceInfos, resourceQuota);
+    }
+
+    public List<InstanceInfo> getInstanceInfos(JobClient jobClient) {
         Properties properties = jobClient.getConfProperties();
 
         if (properties != null && properties.containsKey(ConfigConstrant.SLOTS)) {
@@ -77,7 +89,7 @@ public class FlinkSeesionResourceInfo extends AbstractK8sResourceInfo {
         if (isPerJob) {
             instanceInfos.add(InstanceInfo.newRecord(1, Quantity.getAmountInBytes(new Quantity("1")).doubleValue(), Quantity.getAmountInBytes(new Quantity(jobmanagerMemoryMb + "M")).doubleValue()));
         }
-        return judgeResource(instanceInfos);
+        return instanceInfos;
     }
 
 }

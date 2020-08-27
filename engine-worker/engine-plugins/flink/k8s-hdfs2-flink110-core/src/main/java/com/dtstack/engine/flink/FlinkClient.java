@@ -19,12 +19,11 @@ import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
 import com.dtstack.engine.flink.enums.FlinkMode;
-import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.parser.AddJarOperator;
 import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
-import com.dtstack.engine.flink.util.FlinkConfUtil;
 import com.dtstack.engine.flink.resource.FlinkSeesionResourceInfo;
+import com.dtstack.engine.flink.util.FlinkConfUtil;
 import com.dtstack.engine.flink.util.FlinkRestParseUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.flink.util.HadoopConf;
@@ -32,6 +31,8 @@ import com.dtstack.engine.common.client.AbstractClient;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
+import io.fabric8.kubernetes.api.model.ResourceQuota;
+import io.fabric8.kubernetes.api.model.ResourceQuotaList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.Charsets;
@@ -264,9 +265,9 @@ public class FlinkClient extends AbstractClient {
     private ClusterClient createClusterClientForPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws ClusterDeploymentException {
         ClusterDescriptor<String> clusterDescriptor = null;
         ClusterClient<String> clusterClient = null;
+        String projobClusterId = String.format("%s-%s-%s", FlinkConfig.FLINK_PERJOB_PREFIX, jobClient.getTaskId(), jobClient.getGenerateTime());
         try {
-            clusterDescriptor = flinkClusterClientManager.getPerJobClientFactory().createPerjobClusterDescriptor(jobClient);
-            String projobClusterId = String.format("%s-%s", FlinkConfig.FLINK_PERJOB_PREFIX, jobClient.getTaskId());
+            clusterDescriptor = flinkClusterClientManager.getPerJobClientFactory().createPerjobClusterDescriptor(jobClient, projobClusterId);
             if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
                 flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
             }
@@ -276,8 +277,8 @@ public class FlinkClient extends AbstractClient {
             return clusterClient;
         } catch (Exception e) {
             try {
-                if (clusterClient != null) {
-                    clusterClient.shutDownCluster();
+                if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
+                    flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
                 }
                 if (clusterDescriptor != null) {
                     clusterDescriptor.close();
@@ -592,8 +593,16 @@ public class FlinkClient extends AbstractClient {
 
         try {
             FlinkSeesionResourceInfo seesionResourceInfo = new FlinkSeesionResourceInfo();
-            seesionResourceInfo.getResource(kubernetesClient, null, 0);
-            return seesionResourceInfo.judgeSlots(jobClient);
+            String groupName = jobClient.getGroupName();
+            String namespace = groupName.split("_")[1];
+            ResourceQuotaList resourceQuotas = kubernetesClient.resourceQuotas().inNamespace(namespace).list();
+            if (resourceQuotas != null && resourceQuotas.getItems().size() > 0) {
+                ResourceQuota resourceQuota = resourceQuotas.getItems().get(0);
+                return seesionResourceInfo.judgeSlotsInNamespace(jobClient, resourceQuota);
+            } else {
+                seesionResourceInfo.getResource(kubernetesClient, null, 0);
+                return seesionResourceInfo.judgeSlots(jobClient);
+            }
         } catch (Exception e) {
             logger.error("judgeSlots error:{}", e);
             return false;
