@@ -25,7 +25,9 @@ import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.directory.api.util.Strings;
 import org.apache.flink.client.deployment.ClusterDeploymentException;
 import org.apache.flink.client.deployment.ClusterDescriptor;
 import org.apache.flink.client.deployment.ClusterSpecification;
@@ -124,12 +126,12 @@ public class PerJobClientFactory extends AbstractClientFactory {
     @Override
     public ClusterClient getClusterClient(JobClient jobClient) {
 
+        String taskName = getEffectiveTaskName(jobClient.getJobName());
         String currentTime = dateFormat.format(System.currentTimeMillis());
-        String taskId = jobClient.getTaskId();
-        String projobClusterId = String.format("%s-%s-%s", ConfigConstrant.FLINK_PERJOB_PREFIX, taskId, currentTime);
+        String projobClusterId = String.format("%s-%s", taskName, currentTime);
 
         try (
-                ClusterDescriptor<String> clusterDescriptor = createPerjobClusterDescriptor(jobClient, null);
+                ClusterDescriptor<String> clusterDescriptor = createPerjobClusterDescriptor(jobClient, projobClusterId);
         ) {
 
             Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
@@ -145,6 +147,18 @@ public class PerJobClientFactory extends AbstractClientFactory {
             }
             throw new RdosDefineException(e);
         }
+    }
+
+    private String getEffectiveTaskName(String taskName) {
+        if (Strings.isNotEmpty(taskName)) {
+            taskName = StringUtils.lowerCase(taskName);
+            taskName = taskName.replaceAll("\\p{P}", "");
+            Integer taskNameLength = taskName.length();
+            if (taskNameLength > ConfigConstrant.TASKNAME_MAX_LENGTH) {
+                taskName = taskName.substring(taskNameLength - ConfigConstrant.TASKNAME_MAX_LENGTH, taskNameLength);
+            }
+        }
+        return taskName;
     }
 
     @Override
