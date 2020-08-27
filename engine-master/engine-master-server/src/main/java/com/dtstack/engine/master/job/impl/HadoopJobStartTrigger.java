@@ -442,7 +442,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 JSONObject reader = (JSONObject) JSONPath.eval(jsonJob, "$.job.content[0].reader");
                 Object increCol = JSONPath.eval(reader, "$.parameter.increColumn");
                 if (Objects.nonNull(increCol) && Objects.nonNull(job.getExecStartTime()) && Objects.nonNull(job.getExecEndTime())) {
-                    String lastEndLocation = this.queryLastLocation(dtuicTenantId, job.getEngineJobId(), job.getExecStartTime().getTime(), job.getExecEndTime().getTime(),taskparams);
+                    String lastEndLocation = this.queryLastLocation(dtuicTenantId, job.getEngineJobId(), job.getExecStartTime().getTime(), job.getExecEndTime().getTime(),taskparams,job.getComputeType());
                     LOG.info("last job {} applicationId {} startTime {} endTim {} location {}", job.getJobId(), job.getEngineJobId(), job.getExecStartTime(), job.getExecEndTime(), lastEndLocation);
                     reader.getJSONObject("parameter").put("startLocation", lastEndLocation);
                 }
@@ -455,12 +455,12 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         return jsonJob.toJSONString();
     }
 
-    public String queryLastLocation(Long dtUicTenantId, String jobId, long startTime, long endTime, String taskParam) {
+    public String queryLastLocation(Long dtUicTenantId, String jobId, long startTime, long endTime, String taskParam,Integer computeType) {
         endTime = endTime + 1000 * 60;
         String enginePluginInfo = componentService.listConfigOfComponents(dtUicTenantId, MultiEngineType.HADOOP.getType());
         JSONObject jsonObject = JSONObject.parseObject(enginePluginInfo);
         JSONObject flinkJsonObject = jsonObject.getJSONObject(EComponentType.FLINK.getTypeCode() + "");
-        EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam);
+        EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam,computeType);
         JSONObject flinkConfig = flinkJsonObject.getJSONObject(eDeployMode.getMode());
         String prometheusHost = flinkConfig.getString("prometheusHost");
         String prometheusPort = flinkConfig.getString("prometheusPort");

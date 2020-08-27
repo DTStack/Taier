@@ -421,16 +421,27 @@ public class FlinkClient extends AbstractClient {
                 }
             }
         } catch (Exception e) {
-            logger.error("cancelWithSavepoint error,will use yarn kill applicaiton", e);
+            logger.error("cancelWithSavepoint error,will use yarn kill application", e);
 
             if (StringUtils.isEmpty(appId)) {
                 return JobResult.createErrorResult(e);
             }
-
             try {
-                ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
-                flinkClientBuilder.getYarnClient().killApplication(applicationId);
-            } catch (Exception killExecption) {
+                JobResult jobResult = KerberosUtils.login(flinkConfig, () -> {
+                    try {
+                        ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
+                        flinkClientBuilder.getYarnClient().killApplication(applicationId);
+                    } catch (Exception killException) {
+                        logger.error("yarn {} kill application  kill application", appId, killException);
+                        return JobResult.createErrorResult(e);
+                    }
+                    return null;
+                }, hadoopConf.getYarnConfiguration());
+                if (null != jobResult) {
+                    return jobResult;
+                }
+            } catch (Exception exception) {
+                logger.error("yarn {} kill application  kill application", appId,exception);
                 return JobResult.createErrorResult(e);
             }
         }
