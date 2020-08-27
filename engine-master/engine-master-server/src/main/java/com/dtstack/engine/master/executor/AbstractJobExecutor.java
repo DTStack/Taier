@@ -159,7 +159,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     if (status.intValue() == RdosTaskStatus.UNSUBMIT.getStatus()) {
                         startAndClear(scheduleBatchJob, batchTask);
                     }
-
+                    logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
                     batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(),scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
                 } else {
                     startAndClear(scheduleBatchJob, batchTask);
@@ -247,6 +247,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
                         boolean checkRunInfoRs = (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal());
                         if (checkRunInfoRs) {
+                            logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB so immediate put queue.", scheduleBatchJob.getJobId(), getScheduleType());
                             putScheduleJob(scheduleBatchJob);
                         } else {
                             checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), this.notStartCache, this.errorJobCache, this.taskCache());
