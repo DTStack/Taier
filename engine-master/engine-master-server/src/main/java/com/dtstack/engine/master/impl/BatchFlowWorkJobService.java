@@ -131,7 +131,7 @@ public class BatchFlowWorkJobService {
         }
 
         if (RdosTaskStatus.STOP_STATUS.contains(bottleStatus)) {
-            batchJobService.updatePhaseStatusById(id, JobPhaseStatus.JOIN_THE_TEAM, JobPhaseStatus.EXECUTE_OVER);
+            batchJobService.updatePhaseStatusById(id, JobPhaseStatus.CREATE, JobPhaseStatus.EXECUTE_OVER);
         }
         return canRemove;
     }
