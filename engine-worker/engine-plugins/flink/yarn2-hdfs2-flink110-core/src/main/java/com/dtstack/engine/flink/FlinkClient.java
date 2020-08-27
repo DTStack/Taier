@@ -438,6 +438,7 @@ public class FlinkClient extends AbstractClient {
                     return jobResult;
                 }
             } catch (Exception exception) {
+                logger.error("yarn {} kill application  kill application", appId,exception);
                 return JobResult.createErrorResult(e);
             }
         }
