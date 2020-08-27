@@ -1079,32 +1079,28 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
      * @return
      */
     public EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType) {
-        if (ComputeType.STREAM.getType().equals(computeType)) {
-            return EDeployMode.PERJOB;
-        }
-        if (StringUtils.isBlank(taskParams)) {
-            return EDeployMode.SESSION;
-        }
-        String[] split = taskParams.split("\n");
-        if (split.length <= 0) {
-            return EDeployMode.SESSION;
-        }
-        for (String s : split) {
-            String trim = s.toLowerCase().trim();
-            if (trim.startsWith("#")) {
-                continue;
-            }
-            if (trim.contains("flinktaskrunmode")) {
-                if (trim.contains("session")) {
-                    return EDeployMode.SESSION;
-                } else if (trim.contains("per_job")) {
-                    return EDeployMode.PERJOB;
-                } else if (trim.contains("standalone")) {
-                    return EDeployMode.STANDALONE;
+        try {
+            if (!StringUtils.isBlank(taskParams)) {
+                Properties properties = com.dtstack.engine.common.util.PublicUtil.stringToProperties(taskParams);
+                String flinkTaskRunMode = properties.getProperty("flinkTaskRunMode");
+                if (!StringUtils.isEmpty(flinkTaskRunMode)) {
+                    if (flinkTaskRunMode.equalsIgnoreCase("session")) {
+                        return EDeployMode.SESSION;
+                    } else if (flinkTaskRunMode.equalsIgnoreCase("per_job")) {
+                        return EDeployMode.PERJOB;
+                    } else if (flinkTaskRunMode.equalsIgnoreCase("standalone")) {
+                        return EDeployMode.STANDALONE;
+                    }
                 }
             }
+        } catch (Exception e) {
+            logger.error(" parseDeployTypeByTaskParams {} error", taskParams, e);
         }
-        return EDeployMode.SESSION;
+        if (ComputeType.STREAM.getType().equals(computeType)) {
+            return EDeployMode.PERJOB;
+        } else {
+            return EDeployMode.SESSION;
+        }
     }
 
 

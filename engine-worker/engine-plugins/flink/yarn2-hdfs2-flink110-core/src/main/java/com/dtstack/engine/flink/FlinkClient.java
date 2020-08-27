@@ -416,36 +416,31 @@ public class FlinkClient extends AbstractClient {
                     logger.info("flink job savepoint path {}", ask.toString());
                 }
             }
+            return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
         } catch (Exception e) {
-            logger.error("cancelWithSavepoint error,will use yarn kill application", e);
+            logger.error("jobId:{} engineJobId:{} applicationId:{} cancelJob error, try to cancel with yarnClient.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), e);
 
             if (StringUtils.isEmpty(appId)) {
                 return JobResult.createErrorResult(e);
             }
 
             try {
-                JobResult jobResult = KerberosUtils.login(flinkConfig, () -> {
+                return KerberosUtils.login(flinkConfig, () -> {
                     try {
                         ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
                         flinkClientBuilder.getYarnClient().killApplication(applicationId);
+                        logger.info("jobId:{} engineJobId:{} applicationId:{} yarnClient kill application success.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId());
+                        return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
                     } catch (Exception killException) {
-                        logger.error("yarn {} kill application  kill application", appId, killException);
+                        logger.error("jobId:{} engineJobId:{} applicationId:{} yarnClient kill application error:", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), killException);
                         return JobResult.createErrorResult(e);
                     }
-                    return null;
                 }, hadoopConf.getYarnConfiguration());
-                if (null != jobResult) {
-                    return jobResult;
-                }
             } catch (Exception exception) {
-                logger.error("yarn {} kill application  kill application", appId,exception);
+                logger.error("jobId:{} engineJobId:{} applicationId:{} yarnClient kill application error:", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), exception);
                 return JobResult.createErrorResult(e);
             }
         }
-
-        JobResult jobResult = JobResult.newInstance(false);
-        jobResult.setData(JobResult.JOB_ID_KEY, jobIdentifier.getEngineJobId());
-        return jobResult;
     }
 
     /**
