@@ -17,6 +17,7 @@ import org.apache.flink.runtime.util.HadoopUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.Properties;
 
 
@@ -84,7 +85,7 @@ public class FlinkClientBuilder {
 
         if (extProp != null) {
             extProp.forEach((key, value) -> {
-                if (!FlinkConfig.getEngineFlinkConfigs().contains(key.toString())) {
+                if (Objects.nonNull(key) && Objects.nonNull(value)) {
                     config.setString(key.toString(), value.toString());
                 }
             });
