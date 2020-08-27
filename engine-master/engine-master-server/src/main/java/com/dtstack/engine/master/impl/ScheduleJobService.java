@@ -1084,11 +1084,11 @@ public class ScheduleJobService implements com.dtstack.engine.api.service.Schedu
                 Properties properties = com.dtstack.engine.common.util.PublicUtil.stringToProperties(taskParams);
                 String flinkTaskRunMode = properties.getProperty("flinkTaskRunMode");
                 if (!StringUtils.isEmpty(flinkTaskRunMode)) {
-                    if (flinkTaskRunMode.toLowerCase().contains("session")) {
+                    if (flinkTaskRunMode.equalsIgnoreCase("session")) {
                         return EDeployMode.SESSION;
-                    } else if (flinkTaskRunMode.toLowerCase().contains("per_job")) {
+                    } else if (flinkTaskRunMode.equalsIgnoreCase("per_job")) {
                         return EDeployMode.PERJOB;
-                    } else if (flinkTaskRunMode.toLowerCase().contains("standalone")) {
+                    } else if (flinkTaskRunMode.equalsIgnoreCase("standalone")) {
                         return EDeployMode.STANDALONE;
                     }
                 }
