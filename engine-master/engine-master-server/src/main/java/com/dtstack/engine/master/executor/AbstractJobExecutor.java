@@ -147,23 +147,9 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 scheduleJob = scheduleBatchJob.getScheduleJob();
 
                 logger.info("jobId:{} scheduleType:{} take job from queue.", scheduleJob.getJobId(), getScheduleType());
-
                 Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
-                ScheduleTaskShade batchTask = this.taskCache().computeIfAbsent(taskIdUnique,
-                        k -> batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType()));
-
-                Integer type = batchTask.getTaskType();
-                Integer status = batchJobService.getStatusById(scheduleBatchJob.getId());
-
-                if (type.intValue() == EScheduleJobType.WORK_FLOW.getVal() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
-                    if (status.intValue() == RdosTaskStatus.UNSUBMIT.getStatus()) {
-                        startAndClear(scheduleBatchJob, batchTask);
-                    }
-                    logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
-                    batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(),scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
-                } else {
-                    startAndClear(scheduleBatchJob, batchTask);
-                }
+                ScheduleTaskShade batchTask = this.taskCache().computeIfAbsent(taskIdUnique, k -> batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType()));
+                startAndClear(scheduleBatchJob, batchTask);
             } catch (Exception e) {
                 logger.error("happens error:", e);
                 try {
@@ -245,10 +231,13 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                         Integer type = batchTask.getTaskType();
                         Integer status = batchJobService.getStatusById(scheduleBatchJob.getId());
 
-                        boolean checkRunInfoRs = (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal());
-                        if (checkRunInfoRs) {
+                        if (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
                             logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB so immediate put queue.", scheduleBatchJob.getJobId(), getScheduleType());
-                            putScheduleJob(scheduleBatchJob);
+                            if (status != null && status.equals(RdosTaskStatus.UNSUBMIT.getStatus())) {
+                                putScheduleJob(scheduleBatchJob);
+                            }
+                            logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
+                            batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(),scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
                         } else {
                             checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), this.notStartCache, this.errorJobCache, this.taskCache());
                             if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
