@@ -424,9 +424,17 @@ public class FlinkClient extends AbstractClient {
             }
 
             try {
-                ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
-                flinkClientBuilder.getYarnClient().killApplication(applicationId);
-            } catch (Exception killExecption) {
+                KerberosUtils.login(flinkConfig, () -> {
+                    try {
+                        ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
+                        flinkClientBuilder.getYarnClient().killApplication(applicationId);
+                    } catch (Exception killException) {
+                        throw new RdosDefineException(killException);
+                    }
+                    return null;
+                }, hadoopConf.getYarnConfiguration());
+            } catch (Exception exception) {
+                logger.error("yarn {} kill application  kill application", appId, exception);
                 return JobResult.createErrorResult(e);
             }
         }

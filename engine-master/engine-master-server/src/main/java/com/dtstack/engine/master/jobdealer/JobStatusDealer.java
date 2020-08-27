@@ -152,9 +152,11 @@ public class JobStatusDealer implements Runnable {
             String appId = scheduleJob.getApplicationId();
             String engineType = engineJobCache.getEngineType();
             JSONObject info = JSONObject.parseObject(engineJobCache.getJobInfo());
+            String taskParams = info.getString("taskParams");
+            String pluginInfo = info.getString("pluginInfo");
+            Long userId = info.getLong("userId");
             JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getDtuicTenantId(),engineType,
-                    scheduleJobService.parseDeployTypeByTaskParams(info.getString("taskParams"),scheduleJob.getComputeType()).getType(),info.getLong("userId"),
-                    info.getString("pluginInfo"));
+                    scheduleJobService.parseDeployTypeByTaskParams(taskParams,scheduleJob.getComputeType()).getType(),userId, pluginInfo);
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
 
