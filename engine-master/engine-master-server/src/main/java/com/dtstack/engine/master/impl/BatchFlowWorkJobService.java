@@ -2,6 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class BatchFlowWorkJobService {
      *
      * @param jobId
      */
-    public boolean checkRemoveAndUpdateFlowJobStatus(String jobId,Integer appType) {
+    public boolean checkRemoveAndUpdateFlowJobStatus(Long id,String jobId,Integer appType) {
 
         List<ScheduleJob> subJobs = batchJobService.getSubJobsAndStatusByFlowId(jobId);
         boolean canRemove = false;
@@ -127,6 +128,10 @@ public class BatchFlowWorkJobService {
         } else {
             //更新工作流状态
             batchJobService.updateStatusByJobId(jobId, bottleStatus);
+        }
+
+        if (RdosTaskStatus.STOP_STATUS.contains(bottleStatus)) {
+            batchJobService.updatePhaseStatusById(id, JobPhaseStatus.JOIN_THE_TEAM, JobPhaseStatus.EXECUTE_OVER);
         }
         return canRemove;
     }

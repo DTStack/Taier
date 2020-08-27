@@ -160,7 +160,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                         startAndClear(scheduleBatchJob, batchTask);
                     }
 
-                    batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
+                    batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(),scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
                 } else {
                     startAndClear(scheduleBatchJob, batchTask);
                 }
@@ -231,21 +231,21 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                         Integer type = batchTask.getTaskType();
                         Integer status = batchJobService.getStatusById(scheduleBatchJob.getId());
 
-                        boolean checkRunInfoRs = (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) && !RdosTaskStatus.UNSUBMIT.getStatus().equals(status);
+                        boolean checkRunInfoRs = (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal());
                         if (checkRunInfoRs) {
-                            checkRunInfo = JobCheckRunInfo.createCheckInfo(JobCheckStatus.CAN_EXE);
+                            putScheduleJob(scheduleBatchJob);
                         } else {
                             checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), this.notStartCache, this.errorJobCache, this.taskCache());
-                        }
-
-                        if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
-                            // 更新job状态
-                            boolean updateStatus = batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.CREATE, JobPhaseStatus.JOIN_THE_TEAM);
-                            if (updateStatus) {
-                                logger.info("jobId:{} scheduleType:{} nodeAddress:{} JobPhaseStatus:{} update success", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, JobPhaseStatus.JOIN_THE_TEAM);
-                                putScheduleJob(scheduleBatchJob);
+                            if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
+                                // 更新job状态
+                                boolean updateStatus = batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.CREATE, JobPhaseStatus.JOIN_THE_TEAM);
+                                if (updateStatus) {
+                                    logger.info("jobId:{} scheduleType:{} nodeAddress:{} JobPhaseStatus:{} update success", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, JobPhaseStatus.JOIN_THE_TEAM);
+                                    putScheduleJob(scheduleBatchJob);
+                                }
                             }
                         }
+
                         //重跑任务不记录id
                         if (Restarted.RESTARTED.getStatus() != scheduleBatchJob.getIsRestart()) {
                             startId = scheduleBatchJob.getId();
