@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Form, Pagination, message, Modal } from 'antd';
+import { Table, Button, Form, Pagination,
+    Popconfirm, message, Modal } from 'antd';
 import Api from '../../api/console';
 import { ALARM_TYPE_TEXT } from '../../consts';
 interface PaginationTypes {
@@ -87,7 +88,13 @@ const AlarmChannel: React.FC = (props: any) => {
                 return <span>
                     <a onClick={() => { editAlarm(alertId) }}>编辑</a>
                     <span className="ant-divider" ></span>
-                    <a onClick={() => { deleteRule(alertId) }}>删除</a>
+                    <Popconfirm
+                        title="确认删除该告警通道？"
+                        okText="确定" cancelText="取消"
+                        onConfirm={() => { deleteRule(alertId) }}
+                    >
+                        <a>删除</a>
+                    </Popconfirm>
                 </span>
             }
         }, {

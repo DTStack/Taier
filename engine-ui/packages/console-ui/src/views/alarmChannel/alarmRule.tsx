@@ -7,7 +7,8 @@ import { cloneDeep } from 'lodash';
 import utils from 'dt-common/src/utils';
 import Api from '../../api/console'
 import { formItemCenterLayout, ALARM_TYPE_TEXT, ALARM_TYPE,
-    CHANNEL_MODE_VALUE, CHANNEL_MODE, CHANNEL_CONF_TEXT
+    CHANNEL_MODE_VALUE, CHANNEL_MODE, CHANNEL_CONF_TEXT,
+    NUM_COMMA, PHONE_REG, EMAIL_COMMA, EMAIL_REG
 } from '../../consts';
 import { canTestAlarm, showAlertTemplete, textAlertKey,
     showAlertGateJson } from './help';
@@ -17,9 +18,10 @@ const Option = Select.Option;
 const TextArea = Input.TextArea;
 const AlarmRule: React.FC = (props: any) => {
     const [fileList, setFileList] = useState<any[]>([])
-    const { getFieldDecorator, getFieldValue, validateFields } = props.form;
+    const { getFieldDecorator, getFieldValue, validateFields, setFieldsValue } = props.form;
     const id = props.location.state?.id;
     const ruleData = props.location.state?.ruleData;
+    const isEmail: boolean = getFieldValue('alertGateType') === ALARM_TYPE.EMAIL;
     const getChannelModeOpts = () => {
         const alertGateType = getFieldValue('alertGateType');
         switch (alertGateType) {
@@ -63,8 +65,9 @@ const AlarmRule: React.FC = (props: any) => {
                 const testKey = textAlertKey(values.alertGateType);
                 let testValue = values[testKey].split(',')
                 let res = await Api.testAlert(Object.assign({}, values, {
+                    filePath: ruleData?.filePath || '',
                     isDefault: values.isDefault ? 1 : 0,
-                    file: values.file?.file,
+                    file: values.file?.file || '',
                     [testKey]: testValue
                 }));
                 if (res.code === 1) {
@@ -81,16 +84,32 @@ const AlarmRule: React.FC = (props: any) => {
             if (!err) {
                 let res = await Api.addOrUpdateAlarmRule(Object.assign({}, values, {
                     id: id || '',
-                    filePath: ruleData?.filePath || '',
                     isDefault: values.isDefault ? 1 : 0,
-                    file: values.file?.file
+                    file: fileList.length ? values.file?.file : ''
                 }));
                 if (res.code === 1) {
-                    message.success('新增成功');
+                    const msg = id ? '编辑成功' : '新增成功'
+                    message.success(msg);
                     goBack();
                 }
             }
         })
+    }
+    const validAlertKey = (rule: any, value: string, callBack: Function) => {
+        if (value && !isEmail) {
+            if (!NUM_COMMA.test(value)) callBack('请输入正确格式的手机号码')
+            const phone = value.split(',')
+            phone.forEach((p: string) => {
+                if (!PHONE_REG.test(p) && p.length) callBack('请输入正确格式的手机号码')
+            })
+        } else if (value && isEmail) {
+            if (!EMAIL_COMMA.test(value)) callBack('请输入正确格式的邮箱账号')
+            const email = value.split(',')
+            email.forEach((e: string) => {
+                if (!EMAIL_REG.test(e) && e.length) callBack('请输入正确格式的邮箱账号')
+            })
+        }
+        callBack()
     }
     const uploadProp = {
         name: 'file',
@@ -104,10 +123,11 @@ const AlarmRule: React.FC = (props: any) => {
         },
         onRemove: () => {
             setFileList([])
+            setFieldsValue({ file: undefined })
         },
         fileList
     };
-    let testText: string = getFieldValue('alertGateType') === ALARM_TYPE.EMAIL ? '邮箱' : '手机号码';
+    let testText: string = isEmail ? '邮箱' : '手机号码';
     let alertKey: string = textAlertKey(getFieldValue('alertGateType'));
     const isCreate = utils.getParameterByName('isCreate');
     return (
@@ -245,7 +265,10 @@ const AlarmRule: React.FC = (props: any) => {
                                 {getFieldDecorator(`${alertKey}`, {
                                     rules: [{
                                         required: false
-                                    }]
+                                    }, {
+                                        validator: validAlertKey
+                                    }],
+                                    initialValue: ''
                                 })(
                                     <Input
                                         placeholder={`输入${testText}测试号码，多个${testText}用英文逗号隔开`}

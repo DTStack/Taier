@@ -218,10 +218,14 @@ class DisplayResource extends React.Component<any, any> {
                 version = components.hadoopVersion || '';
                 versionCompsData = versionData.SparkThrift || []
                 break;
+            case COMPONENT_TYPE_VALUE.HIVE_SERVER:
+                defaultVersion = '2.x';
+                version = components.hadoopVersion || '';
+                versionCompsData = versionData.HiveServer || []
+                break;
             default:
                 break;
         }
-        // console.log('version===========ssss', version)
         return (
             <FormItem
                 label="组件版本"
@@ -262,6 +266,13 @@ class DisplayResource extends React.Component<any, any> {
             }
             case COMPONENT_TYPE_VALUE.IMPALA_SQL:
             case COMPONENT_TYPE_VALUE.HIVE_SERVER:
+                return (
+                    <React.Fragment>
+                        {this.renderCompsVersion(COMPONEMT_CONFIG_KEYS.HIVE_SERVER)}
+                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.HIVE_SERVER)}
+                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.HIVE_SERVER)}
+                    </React.Fragment>
+                )
             case COMPONENT_TYPE_VALUE.LEARNING:
             case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
                 return (
