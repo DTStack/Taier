@@ -109,16 +109,7 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.flink.configuration.ConfigConstants.DEFAULT_FLINK_USR_LIB_DIR;
@@ -579,6 +570,15 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 				shipFiles.add(new File(tmp.getValue().filePath));
 			}
 		}
+
+		//fix zhaoshang 适配
+        String shipFileConf = System.getProperty("user.dir") + File.separator + "/shipFileConf";
+        File file = new File(shipFileConf);
+        if (file.exists() && file.isDirectory()) {
+            shipFiles.addAll(Arrays.asList(file.listFiles()));
+        }
+
+
 		// flinkx get classpath
 		jobGraph.getClasspaths().forEach(jarFile -> {
 			try {

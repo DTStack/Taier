@@ -205,8 +205,6 @@ public class LearningClient extends AbstractClient {
                     .withYarnAccepterTaskNumber(conf.getInt(LearningResourceInfo.DT_APP_YARN_ACCEPTER_TASK_NUMBER, 1))
                     .build();
             return resourceInfo.judgeSlots(jobClient);
-        } catch (LimitResourceException le) {
-            throw le;
         } catch (Exception e) {
             LOG.error("", e);
             return JudgeResult.notOk(false, "judgeSlots error");

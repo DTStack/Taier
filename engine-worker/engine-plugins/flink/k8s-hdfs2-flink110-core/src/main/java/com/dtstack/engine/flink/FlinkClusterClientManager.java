@@ -101,7 +101,7 @@ public class FlinkClusterClientManager {
                 JobClient jobClient = new JobClient();
                 jobClient.setTaskId(taskId);
                 //jobName不能为空，复用applicationId
-                ClusterDescriptor<String> clusterDescriptor = perJobClientFactory.createPerjobClusterDescriptor(jobClient);
+                ClusterDescriptor<String> clusterDescriptor = perJobClientFactory.createPerjobClusterDescriptor(jobClient, clusterId);
                 return clusterDescriptor.retrieve(clusterId).getClusterClient();
             });
 

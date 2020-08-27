@@ -193,8 +193,6 @@ public class SparkK8sClient extends AbstractClient {
                     .withAllowPendingPodSize(2)
                     .build();
             return sparkResourceInfo.judgeSlots(jobClient);
-        } catch (LimitResourceException le) {
-            throw le;
         } catch (Exception e) {
             LOG.error("judgeSlots error:{}", e);
             return JudgeResult.notOk(false, "judgeSlots error");
