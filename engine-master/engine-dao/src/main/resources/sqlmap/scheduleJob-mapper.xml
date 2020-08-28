@@ -1568,7 +1568,7 @@
    </update>
 
     <select id="getRdosJobByJobId" resultType="ScheduleJob">
-       select * from schedule_job where job_id=#{jobId} and is_deleted=0;
+       select * from schedule_job where job_id=#{jobId} and is_deleted=0 limit 1;
    </select>
 
     <select id="getRdosJobByJobIds" resultType="ScheduleJob">

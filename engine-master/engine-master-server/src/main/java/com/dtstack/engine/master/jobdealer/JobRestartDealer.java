@@ -253,11 +253,14 @@ public class JobRestartDealer {
      */
     private Integer getAlreadyRetryNum(String jobId){
         ScheduleJob rdosEngineBatchJob = scheduleJobDao.getRdosJobByJobId(jobId);
-        return rdosEngineBatchJob.getRetryNum() == null ? 0 : rdosEngineBatchJob.getRetryNum();
+        return rdosEngineBatchJob == null || rdosEngineBatchJob.getRetryNum() == null ? 0 : rdosEngineBatchJob.getRetryNum();
     }
 
     private void increaseJobRetryNum(String jobId){
         ScheduleJob rdosEngineBatchJob = scheduleJobDao.getRdosJobByJobId(jobId);
+        if (rdosEngineBatchJob != null) {
+            return;
+        }
         Integer retryNum = rdosEngineBatchJob.getRetryNum() == null ? 0 : rdosEngineBatchJob.getRetryNum();
         retryNum++;
         scheduleJobDao.updateRetryNum(jobId, retryNum);
