@@ -19,6 +19,34 @@ public class PlatformEventVO {
 
     private Long tenantId;
 
+    /**
+     * 租户名字
+     */
+    private String tenantName;
+
+
+    /**
+     * 租户描述信息
+     */
+    private String tenantDesc;
+
+
+    public String getTenantDesc() {
+        return tenantDesc;
+    }
+
+    public void setTenantDesc(String tenantDesc) {
+        this.tenantDesc = tenantDesc;
+    }
+
+    public String getTenantName() {
+        return tenantName;
+    }
+
+    public void setTenantName(String tenantName) {
+        this.tenantName = tenantName;
+    }
+
     public Long getTenantId() {
         return tenantId;
     }
@@ -76,6 +104,8 @@ public class PlatformEventVO {
                 ", token='" + token + '\'' +
                 ", phone='" + phone + '\'' +
                 ", tenantId=" + tenantId +
+                ", tenantName='" + tenantName + '\'' +
+                ", tenantDesc='" + tenantDesc + '\'' +
                 '}';
     }
 }

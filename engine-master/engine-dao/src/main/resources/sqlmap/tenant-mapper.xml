@@ -74,4 +74,10 @@
         update console_dtuic_tenant set is_deleted = 1 where id = #{id}
     </update>
 
+    <update id="updateByDtUicTenantId">
+        update console_dtuic_tenant
+        <include refid="update_fragment"/>
+        where dt_uic_tenant_id = #{dtUicTenantId}
+    </update>
+
 </mapper>
