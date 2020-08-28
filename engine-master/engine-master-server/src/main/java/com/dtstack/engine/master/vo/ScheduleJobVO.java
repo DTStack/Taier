@@ -49,7 +49,7 @@ public class ScheduleJobVO extends com.dtstack.engine.api.vo.ScheduleJobVO {
 
     public void setBatchTask(ScheduleTaskVO batchTask) {
         this.isGroupTask = false;
-        if (StringUtils.isBlank(taskPeriodType)) {
+        if (StringUtils.isBlank(taskPeriodType) && null!= getTaskPeriodId()) {
             String taskType = "";
             if (ESchedulePeriodType.MIN.getVal() == getTaskPeriodId()) {
                 taskType = "分钟任务";
