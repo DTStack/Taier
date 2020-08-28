@@ -10,12 +10,12 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>plugins.flink.yarn2-hdfs2-flink110</artifactId>
-    <name>plugins.flink.yarn2-hdfs2-flink110</name>
+    <artifactId>plugins.flink.yarn3-hdfs3-flink110</artifactId>
+    <name>plugins.flink.yarn3-hdfs3-flink110</name>
 
     <url>http://maven.apache.org</url>
     <properties>
-        <pluginDir.name>yarn2-hdfs2-flink110</pluginDir.name>
+        <pluginDir.name>yarn3-hdfs3-flink110</pluginDir.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <flink.version>1.10.0</flink.version>
     </properties>

@@ -1064,7 +1064,7 @@ public class ScheduleJobService {
                 }
                 if (EJobType.SYNC.getType() == scheduleJob.getTaskType()) {
                     //数据同步需要解析是perjob 还是session
-                    EDeployMode eDeployMode = this.parseDeployTypeByTaskParams(batchTask.getTaskParams());
+                    EDeployMode eDeployMode = this.parseDeployTypeByTaskParams(batchTask.getTaskParams(),batchTask.getComputeType());
                     actionParam.put("deployMode", eDeployMode.getType());
                 }
                 this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus());
@@ -1084,30 +1084,29 @@ public class ScheduleJobService {
      * @param taskParams
      * @return
      */
-    public EDeployMode parseDeployTypeByTaskParams(String taskParams) {
-        if (StringUtils.isBlank(taskParams)) {
-            return EDeployMode.SESSION;
-        }
-        String[] split = taskParams.split("\n");
-        if (split.length <= 0) {
-            return EDeployMode.SESSION;
-        }
-        for (String s : split) {
-            String trim = s.toLowerCase().trim();
-            if (trim.startsWith("#")) {
-                continue;
-            }
-            if (trim.contains("flinktaskrunmode")) {
-                if (trim.contains("session")) {
-                    return EDeployMode.SESSION;
-                } else if (trim.contains("per_job")) {
-                    return EDeployMode.PERJOB;
-                } else if (trim.contains("standalone")) {
-                    return EDeployMode.STANDALONE;
+    public EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType) {
+        try {
+            if (!StringUtils.isBlank(taskParams)) {
+                Properties properties = com.dtstack.engine.common.util.PublicUtil.stringToProperties(taskParams);
+                String flinkTaskRunMode = properties.getProperty("flinkTaskRunMode");
+                if (!StringUtils.isEmpty(flinkTaskRunMode)) {
+                    if (flinkTaskRunMode.equalsIgnoreCase("session")) {
+                        return EDeployMode.SESSION;
+                    } else if (flinkTaskRunMode.equalsIgnoreCase("per_job")) {
+                        return EDeployMode.PERJOB;
+                    } else if (flinkTaskRunMode.equalsIgnoreCase("standalone")) {
+                        return EDeployMode.STANDALONE;
+                    }
                 }
             }
+        } catch (Exception e) {
+            logger.error(" parseDeployTypeByTaskParams {} error", taskParams, e);
         }
-        return EDeployMode.SESSION;
+        if (ComputeType.STREAM.getType().equals(computeType)) {
+            return EDeployMode.PERJOB;
+        } else {
+            return EDeployMode.SESSION;
+        }
     }
 
 

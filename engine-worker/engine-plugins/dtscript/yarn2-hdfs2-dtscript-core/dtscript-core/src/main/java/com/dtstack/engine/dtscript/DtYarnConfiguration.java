@@ -1,6 +1,7 @@
 package com.dtstack.engine.dtscript;
 
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 public class DtYarnConfiguration extends YarnConfiguration {
@@ -124,4 +125,11 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final String NODE_LABEL = "nodeLabel";
 
+
+    public DtYarnConfiguration() {
+    }
+
+    public DtYarnConfiguration(Configuration conf) {
+        super(conf);
+    }
 }

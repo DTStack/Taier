@@ -68,7 +68,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.security.action.GetPropertyAction;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
@@ -405,41 +411,48 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
-        String appId = jobIdentifier.getApplicationId();
         try {
-            RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
-            //NOTFOUND 视为已经job已经结束
-            if (RdosTaskStatus.NOTFOUND != rdosTaskStatus && !RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
-                ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
-                JobID jobId = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
+            return KerberosUtils.login(flinkConfig, () -> {
+                String appId = jobIdentifier.getApplicationId();
+                try {
+                    RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+                    //NOTFOUND 视为已经job已经结束
+                    if (RdosTaskStatus.NOTFOUND != rdosTaskStatus && !RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
+                        ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+                        JobID jobId = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
 
-                if (StringUtils.isEmpty(appId)) {
-                    // yarn session job cancel
-                    targetClusterClient.cancel(jobId);
-                } else {
-                    // per job cancel
-                    String savepoint = targetClusterClient.cancelWithSavepoint(jobId, null);
-                    logger.info("flink job savepoint path {}", savepoint);
+                        if (StringUtils.isEmpty(appId)) {
+                            // yarn session job cancel
+                            targetClusterClient.cancel(jobId);
+                        } else {
+                            // per job cancel
+                            String savepoint = targetClusterClient.cancelWithSavepoint(jobId, null);
+                            logger.info("flink job savepoint path {}", savepoint);
+                        }
+                    }
+                    return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
+                } catch (Exception e) {
+                    logger.error("jobId:{} engineJobId:{} applicationId:{} cancelJob error, try to cancel with yarnClient.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), e);
+
+                    if (StringUtils.isEmpty(appId)) {
+                        return JobResult.createErrorResult(e);
+                    }
+
+                    try {
+                        ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
+                        flinkClientBuilder.getYarnClient().killApplication(applicationId);
+                        logger.info("jobId:{} engineJobId:{} applicationId:{} yarnClient kill application success.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId());
+                        return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
+                    } catch (Exception killException) {
+                        logger.error("jobId:{} engineJobId:{} applicationId:{} yarnClient kill application error:", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), killException);
+                        return JobResult.createErrorResult(e);
+                    }
                 }
-            }
-        } catch (Exception e) {
-            logger.error("cancelWithSavepoint error,will use yarn kill applicaiton", e);
-
-            if (StringUtils.isEmpty(appId)) {
-                return JobResult.createErrorResult(e);
-            }
-
-            try {
-                ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
-                flinkClientBuilder.getYarnClient().killApplication(applicationId);
-            } catch (Exception killExecption) {
-                return JobResult.createErrorResult(e);
-            }
+            }, hadoopConf.getYarnConfiguration());
+        } catch (Exception exception) {
+            logger.error("jobId:{} engineJobId:{} applicationId:{} cancelJob error:", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), exception);
+            return JobResult.createErrorResult(exception);
         }
-
-        JobResult jobResult = JobResult.newInstance(false);
-        jobResult.setData(JobResult.JOB_ID_KEY, jobIdentifier.getEngineJobId());
-        return jobResult;
     }
 
     /**
@@ -677,8 +690,6 @@ public class FlinkClient extends AbstractClient {
                 yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
                 return yarnSeesionResourceInfo.judgeSlots(jobClient);
             }
-        } catch (LimitResourceException le) {
-            throw le;
         } catch (Exception e){
             logger.error("judgeSlots error:{}", e);
             return JudgeResult.notOk(false, "judgeSlots error");

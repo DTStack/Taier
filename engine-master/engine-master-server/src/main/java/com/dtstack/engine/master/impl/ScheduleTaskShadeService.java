@@ -3,6 +3,7 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
@@ -16,7 +17,6 @@ import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
-import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -63,11 +63,17 @@ public class ScheduleTaskShadeService {
             scheduleTaskShadeDao.update(batchTaskShadeDTO);
             this.removeTaskCache(batchTaskShadeDTO.getTaskId(),batchTaskShadeDTO.getAppType());
         } else {
-            if(Objects.isNull(batchTaskShadeDTO.getProjectScheduleStatus())){
+            if (null == batchTaskShadeDTO.getProjectScheduleStatus()) {
                 batchTaskShadeDTO.setProjectScheduleStatus(EProjectScheduleStatus.NORMAL.getStatus());
             }
-            if(Objects.isNull(batchTaskShadeDTO.getNodePid())){
+            if (null == batchTaskShadeDTO.getNodePid()) {
                 batchTaskShadeDTO.setNodePid(0L);
+            }
+            if (Objects.isNull(batchTaskShadeDTO.getDtuicTenantId()) || batchTaskShadeDTO.getDtuicTenantId() <= 0) {
+                throw new RdosDefineException("租户dtuicTenantId 不能为空");
+            }
+            if (null == batchTaskShadeDTO.getFlowId()) {
+                batchTaskShadeDTO.setFlowId(0L);
             }
             scheduleTaskShadeDao.insert(batchTaskShadeDTO);
         }

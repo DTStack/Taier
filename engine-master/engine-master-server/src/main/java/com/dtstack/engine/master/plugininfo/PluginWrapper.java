@@ -9,11 +9,9 @@ import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
-import com.dtstack.engine.master.enums.EDeployMode;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
-import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -73,12 +71,9 @@ public class PluginWrapper{
 
         Long tenantId = action.getTenantId();
         String engineType = action.getEngineType();
-        if (Objects.nonNull(MapUtils.getInteger(actionParam, APP_TYPE)) && AppType.STREAM.getType() == MapUtils.getInteger(actionParam, APP_TYPE)) {
-            //流计算默认perjob
-            deployMode = EDeployMode.PERJOB.getType();
-        } else if (Objects.isNull(deployMode) && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
+        if (Objects.isNull(deployMode) && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
             //解析参数
-            deployMode = scheduleJobService.parseDeployTypeByTaskParams(action.getTaskParams()).getType();
+            deployMode = scheduleJobService.parseDeployTypeByTaskParams(action.getTaskParams(),action.getComputeType()).getType();
         }
         JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode);
         String groupName = ConfigConstant.DEFAULT_GROUP_NAME;
@@ -227,12 +222,12 @@ public class PluginWrapper{
         engineJobCacheDao.updateJobInfo(dbPluginInfo.toJSONString(), jobId);
     }
 
-    public String getPluginInfo(String taskParams, String engineType, Long tenantId, Long userId) {
+    public String getPluginInfo(String taskParams, Integer computeType, String engineType, Long tenantId, Long userId) {
         try {
             Integer deployMode = null;
             if (ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
                 //解析参数
-                deployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParams).getType();
+                deployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParams, computeType).getType();
             }
             JSONObject infoJSON = clusterService.pluginInfoJSON(tenantId, engineType, userId, deployMode);
             if (Objects.nonNull(infoJSON)) {

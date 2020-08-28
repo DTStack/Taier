@@ -10,6 +10,16 @@ perjob:
     sparkYarnArchive: hdfs://ns1/dtInsight/sparkjars/jars
     sparkSqlProxyPath:  hdfs://ns1/dtInsight/spark/client/spark-sql-proxy.jar
     sparkPythonExtLibPath:
+    spark.executor.memory: 512m
+    spark.cores.max: 1
+    spark.executor.instances: 1
+    spark.executor.cores: 1
+    spark.submit.deployMode: cluster
+    spark.executor.heartbeatInterval: 600s
+    spark.network.timeout: 600s
+    spark.rpc.askTimeout: 600s
+    spark.speculation: true
+    spark.yarn.maxAppAttempts: 1
   optional:
     spark.yarn.appMasterEnv.PYSPARK_PYTHON: /data/anaconda3/bin/python3
     spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON: /data/anaconda3/bin/python3

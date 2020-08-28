@@ -372,10 +372,10 @@
             <if test="id != null">
                 id = #{id},
             </if>
-            <if test="tenantId != null">
+            <if test="tenantId != null and tenantId > 0">
                 tenant_id = #{tenantId},
             </if>
-            <if test="projectId != null">
+            <if test="projectId != null and projectId > 0">
                 project_id = #{projectId},
             </if>
             <if test="jobId != null">
