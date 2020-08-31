@@ -67,7 +67,6 @@ import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -368,15 +367,14 @@ public class FlinkClient extends AbstractClient {
             if (!RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
                 JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
 
-                CompletableFuture cancel = targetClusterClient.cancel(jobID);;
-                Object ack = cancel.get(2, TimeUnit.MINUTES);
+                String savepointPath = targetClusterClient.stopWithSavepoint(jobID, true, null)
+                        .get(jobIdentifier.getTimeout(), TimeUnit.MILLISECONDS).toString();
 
-                if (ack instanceof Acknowledge) {
-                    logger.info("cancel job success, applicationId is {}", applicationId);
-                }
-
+                logger.info("Job[{}] Savepoint completed. Path:{}", jobID.toString(), savepointPath);
             }
         } catch (Exception e) {
+            logger.error("Stop job error: {}", e.getMessage());
+
             // session mode
             Boolean isSession = StringUtils.isBlank(applicationId) || applicationId.contains("flinksession");
             if (isSession) {
