@@ -7,6 +7,13 @@
             float: right;
         }
     }
+    .alarm-btn {
+        width: 130px;
+        background-color: rgba(63, 135, 255, 0.1);
+        color: #3f87ff;
+        pointer-events: none;
+        border: 0;
+    }
 }
 .alarm-rule__wrapper {
     padding: 20px;

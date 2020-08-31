@@ -101,6 +101,15 @@ class Resource extends React.Component<any, any> {
         })
     }
 
+    handleShowDetailt (record: any) {
+        const { target } = this.state
+        let newRecord = cloneDeep(record)
+        if (target?.queueName === record.queueName && target?.queueName) {
+            newRecord = ''
+        }
+        this.setState({ target: newRecord })
+    }
+
     initNodesColumns () {
         return [
             {
@@ -176,9 +185,7 @@ class Resource extends React.Component<any, any> {
                 dataIndex: 'action',
                 render: (_, record: any) => {
                     return <a onClick={() => {
-                        this.setState({
-                            target: record
-                        })
+                        this.handleShowDetailt(record)
                     }}>资源详情</a>
                 },
                 width: 150
