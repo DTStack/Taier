@@ -207,7 +207,7 @@ public class LearningClient extends AbstractClient {
             return resourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
             LOG.error("", e);
-            return JudgeResult.notOk(false, "judgeSlots error");
+            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
         }
     }
 
