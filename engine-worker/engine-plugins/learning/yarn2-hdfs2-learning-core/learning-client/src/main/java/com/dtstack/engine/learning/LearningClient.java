@@ -2,7 +2,6 @@ package com.dtstack.engine.learning;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
-import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.PublicUtil;

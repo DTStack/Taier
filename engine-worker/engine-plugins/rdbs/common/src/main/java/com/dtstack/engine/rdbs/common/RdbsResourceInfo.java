@@ -26,6 +26,6 @@ public class RdbsResourceInfo implements EngineResourceInfo {
         if (rs) {
             return JudgeResult.ok();
         }
-        return JudgeResult.notOk(rs, "The execution queue is full");
+        return JudgeResult.notOk("The execution queue is full");
     }
 }
