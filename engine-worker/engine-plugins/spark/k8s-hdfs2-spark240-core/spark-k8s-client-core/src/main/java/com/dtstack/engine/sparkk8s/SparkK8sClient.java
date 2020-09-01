@@ -24,7 +24,6 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
