@@ -58,6 +58,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         this.flinkClientBuilder = flinkClientBuilder;
 
         this.flinkConfig = flinkClientBuilder.getFlinkConfig();
+
         Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
         String defaultClusterId = flinkConfig.getFlinkSessionName() + ConfigConstrant.CLUSTER_ID_SPLIT
                 + flinkConfig.getCluster() + ConfigConstrant.CLUSTER_ID_SPLIT + flinkConfig.getNamespace();

@@ -79,7 +79,7 @@ public class Fabric8FlinkKubeClient implements FlinkKubeClient {
 	public Fabric8FlinkKubeClient(Configuration flinkConfig, KubernetesClient client) {
 		this.flinkConfig = checkNotNull(flinkConfig);
 		this.internalClient = checkNotNull(client);
-		this.clusterId = checkNotNull(flinkConfig.getString(KubernetesConfigOptions.CLUSTER_ID));
+		this.clusterId = flinkConfig.getString(KubernetesConfigOptions.CLUSTER_ID) == null? "flink-cluster" : flinkConfig.getString(KubernetesConfigOptions.CLUSTER_ID);
 
 		this.nameSpace = flinkConfig.getString(KubernetesConfigOptions.NAMESPACE);
 
