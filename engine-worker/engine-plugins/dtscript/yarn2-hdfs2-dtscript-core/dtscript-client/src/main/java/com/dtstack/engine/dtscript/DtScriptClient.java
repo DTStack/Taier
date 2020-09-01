@@ -9,7 +9,6 @@ import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
@@ -24,7 +23,6 @@ import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
-import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -261,12 +259,12 @@ public class DtScriptClient extends AbstractClient {
                     return resourceInfo.judgeSlots(jobClient);
                 } catch (Exception e) {
                     LOG.error("", e);
-                    return JudgeResult.notOk(false,"judgeSlots error");
+                    return JudgeResult.notOk("judgeSlots error");
                 }
             }, conf);
         } catch (Exception e) {
             LOG.error("", e);
-            return JudgeResult.notOk(false,"judgeSlots error");
+            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
         }
     }
 

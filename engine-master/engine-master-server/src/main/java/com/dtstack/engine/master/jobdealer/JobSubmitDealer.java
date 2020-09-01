@@ -61,7 +61,7 @@ public class JobSubmitDealer implements Runnable {
     private GroupPriorityQueue priorityQueue;
     private PriorityBlockingQueue<JobClient> queue = null;
     private DelayBlockingQueue<SimpleJobDelay<JobClient>> delayJobQueue = null;
-    private JudgeResult workerNotFindResult = JudgeResult.notOk(false, "worker not find");
+    private JudgeResult workerNotFindResult = JudgeResult.notOk( "worker not find");
 
     public JobSubmitDealer(String localAddress, GroupPriorityQueue priorityQueue, ApplicationContext applicationContext) {
         this.jobPartitioner = applicationContext.getBean(JobPartitioner.class);
@@ -248,7 +248,7 @@ public class JobSubmitDealer implements Runnable {
 
             // 判断资源
             JudgeResult judgeResult = workerOperator.judgeSlots(jobClient);
-            if (judgeResult.getResult()) {
+            if (JudgeResult.JudgeType.OK == judgeResult.getResult()) {
                 logger.info("jobId:{} engineType:{} submit jobClient:{} to engine start.", jobClient.getTaskId(), jobClient.getEngineType(), jobClient);
 
                 jobClient.doStatusCallBack(RdosTaskStatus.COMPUTING.getStatus());
@@ -262,6 +262,11 @@ public class JobSubmitDealer implements Runnable {
                 jobClient.setEngineTaskId(jobId);
                 addToTaskListener(jobClient, jobResult);
                 logger.info("jobId:{} engineType:{} submit to engine end.", jobClient.getTaskId(), jobClient.getEngineType());
+            } else if (JudgeResult.JudgeType.LIMIT_ERROR == judgeResult.getResult()) {
+                logger.error("jobId:{} engineType:{} submitJob happens system error:{}", jobClient.getTaskId(), jobClient.getEngineType(), judgeResult.getReason());
+                jobClient.setEngineTaskId(null);
+                jobResult = JobResult.createErrorResult(false, judgeResult.getReason());
+                addToTaskListener(jobClient, jobResult);
             } else {
                 logger.info("jobId:{} engineType:{} judgeSlots result is false.", jobClient.getTaskId(), jobClient.getEngineType());
                 handlerNoResource(jobClient, judgeResult);
@@ -269,18 +274,17 @@ public class JobSubmitDealer implements Runnable {
         } catch (WorkerAccessException e) {
             logger.info(" jobId:{} engineType:{} worker not find.", jobClient.getTaskId(), jobClient.getEngineType());
             handlerNoResource(jobClient, workerNotFindResult);
-        } catch (ClientAccessException | ClientArgumentException | LimitResourceException e) {
-            logger.error("jobId:{} engineType:{} submitJob happens system error:", jobClient.getTaskId(), jobClient.getEngineType(), e);
-            jobClient.setEngineTaskId(null);
-            jobResult = JobResult.createErrorResult(false, e);
-            addToTaskListener(jobClient, jobResult);
+        } catch (ClientAccessException | ClientArgumentException e) {
+            handlerFailedWithRetry(jobClient, false, e);
         } catch (Throwable e) {
-            logger.error("jobId:{} engineType:{} submitJob happens unknown error:", jobClient.getTaskId(), jobClient.getEngineType(), e);
-            //捕获未处理异常,防止跳出执行线程
-            jobClient.setEngineTaskId(null);
-            jobResult = JobResult.createErrorResult(true, e);
-            addToTaskListener(jobClient, jobResult);
+            handlerFailedWithRetry(jobClient, true, e);
         }
+    }
+
+    private void handlerFailedWithRetry(JobClient jobClient, boolean checkRetry, Throwable e) {
+        logger.error("jobId:{} engineType:{} submitJob happens system error:", jobClient.getTaskId(), jobClient.getEngineType(), e);
+        jobClient.setEngineTaskId(null);
+        addToTaskListener(jobClient, JobResult.createErrorResult(checkRetry, e));
     }
 
     private void handlerNoResource(JobClient jobClient, JudgeResult judgeResult) {

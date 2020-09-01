@@ -48,7 +48,7 @@ public class FlinkPerJobResourceInfo extends AbstractYarnResourceInfo {
     private JudgeResult judgePerjobResource(JobClient jobClient) {
 
         JudgeResult jr = getYarnSlots(yarnClient, queueName, yarnAccepterTaskNumber);
-        if (!jr.getResult()) {
+        if (!jr.available()) {
             return jr;
         }
 

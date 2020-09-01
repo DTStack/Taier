@@ -46,7 +46,7 @@ public class SparkK8sResourceInfo implements EngineResourceInfo {
 
             if (pendingPods.size() > allowPendingPodSize) {
                 LOG.info("pendingPods-size:{} allowPendingPodSize:{}", pendingPods.size(), allowPendingPodSize);
-                return JudgeResult.notOk(false, "The number of pending pod is greater than " + allowPendingPodSize);
+                return JudgeResult.notOk( "The number of pending pod is greater than " + allowPendingPodSize);
             }
         }
         return JudgeResult.ok();

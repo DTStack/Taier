@@ -7,7 +7,6 @@ import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.HttpClient;
 import com.dtstack.engine.common.http.PoolHttpClient;
@@ -670,12 +669,12 @@ public class FlinkClient extends AbstractClient {
 
             JudgeResult judgeResult = perJobResourceInfo.judgeSlots(jobClient);
 
-            if (!judgeResult.getResult() || isPerJob){
+            if (!judgeResult.available() || isPerJob){
                 return judgeResult;
             } else {
                 if (!flinkClusterClientManager.getIsClientOn()) {
                     logger.warn("wait flink client recover...");
-                    return JudgeResult.notOk(false, "wait flink client recover");
+                    return JudgeResult.notOk( "wait flink client recover");
                 }
                 FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
                 String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
@@ -684,7 +683,7 @@ public class FlinkClient extends AbstractClient {
             }
         } catch (Exception e){
             logger.error("judgeSlots error:{}", e);
-            return JudgeResult.notOk(false, "judgeSlots error !");
+            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
         }
     }
 

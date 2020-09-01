@@ -1,6 +1,5 @@
 package com.dtstack.engine.base.resource;
 
-import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.google.common.collect.Lists;
 import io.fabric8.kubernetes.api.model.Node;
@@ -56,7 +55,7 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
     protected JudgeResult judgeResource(List<InstanceInfo> instanceInfos) {
         if (totalFreeCore == 0 || totalFreeMem == 0) {
             logger.info("judgeResource, totalFreeCore={}, totalFreeMem={}", totalFreeCore, totalFreeMem);
-            return JudgeResult.notOk(false, "totalFreeCore or totalFreeMem is 0");
+            return JudgeResult.notOk( "totalFreeCore or totalFreeMem is 0");
         }
         double needTotalCore = 0;
         double needTotalMem = 0;
@@ -65,19 +64,19 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
             needTotalMem += instanceInfo.instances * instanceInfo.memPerInstance;
         }
         if (needTotalCore == 0 || needTotalMem == 0) {
-            throw new LimitResourceException("task resource configuration error，needTotalCore：" + 0 + ", needTotalMem：" + needTotalMem);
+            return JudgeResult.limitError("task resource configuration error，needTotalCore：" + 0 + ", needTotalMem：" + needTotalMem);
         }
         if (needTotalCore > totalCore) {
             logger.info("judgeResource, needTotalCore={}, totalCore={}", needTotalCore, totalCore);
-            throw new LimitResourceException("The task required core resources are greater than the total resources");
+            return JudgeResult.limitError("The task required core resources are greater than the total resources");
         }
         if (needTotalMem > totalMem) {
             logger.info("judgeResource, needTotalMem={}, totalMem={}", needTotalMem, totalMem);
-            throw new LimitResourceException("The task required memory resources are greater than the total resources");
+            return JudgeResult.limitError("The task required memory resources are greater than the total resources");
         }
         for (InstanceInfo instanceInfo : instanceInfos) {
             JudgeResult judgeInstanceResource = judgeInstanceResource(instanceInfo.instances, instanceInfo.coresPerInstance, instanceInfo.memPerInstance);
-            if (!judgeInstanceResource.getResult()) {
+            if (!judgeInstanceResource.available()) {
                 logger.info("judgeResource, nmFreeCore={}, nmFreeMem={} instanceInfo={}", nmFreeCore, nmFreeMem, instanceInfo);
                 return judgeInstanceResource;
             }
@@ -87,13 +86,13 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
 
     private JudgeResult judgeInstanceResource(int instances, double coresPerInstance, double memPerInstance) {
         if (instances == 0 || coresPerInstance == 0 || memPerInstance == 0) {
-            throw new LimitResourceException("task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
+            JudgeResult.limitError("task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
         }
         if (!judgeCores(instances, coresPerInstance)) {
-            return JudgeResult.notOk(false, "Insufficient cpu resources of kubernetes cluster");
+            return JudgeResult.notOk( "Insufficient cpu resources of kubernetes cluster");
         }
         if (!judgeMem(instances, memPerInstance)) {
-            return JudgeResult.notOk(false, "Insufficient memory resources of kubernetes cluster");
+            return JudgeResult.notOk( "Insufficient memory resources of kubernetes cluster");
         }
         return JudgeResult.ok();
     }
@@ -207,12 +206,12 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
 
         if (freeCores <= needTotalCore) {
             logger.warn("Insufficient cpu resources。 needTotalCore: {}, freeCores: {}", needTotalCore, freeCores);
-            return JudgeResult.notOk(false, "Insufficient cpu resources。 needTotalCore:" + needTotalCore + ", freeCores: " + freeCores);
+            return JudgeResult.notOk( "Insufficient cpu resources。 needTotalCore:" + needTotalCore + ", freeCores: " + freeCores);
         }
 
         if (freeMem <= needTotalMem) {
             logger.warn("Insufficient memory resources。 needTotalMem: {}, freeMem: {}", needTotalMem, freeMem);
-            return JudgeResult.notOk(false, "Insufficient memory resources。 needTotalMem: " + needTotalMem + ", freeMem: " + freeMem);
+            return JudgeResult.notOk( "Insufficient memory resources。 needTotalMem: " + needTotalMem + ", freeMem: " + freeMem);
         }
         return JudgeResult.ok();
     }

@@ -4,27 +4,38 @@ import java.io.Serializable;
 
 public class JudgeResult implements Serializable {
 
-    private Boolean result;
+    private JudgeType result;
     private String reason;
 
     public static JudgeResult ok() {
         JudgeResult judgeResult = new JudgeResult();
-        judgeResult.setResult(true);
+        judgeResult.setResult(JudgeType.OK);
         return judgeResult;
     }
 
-    public static JudgeResult notOk(Boolean result, String reason) {
+    public static JudgeResult notOk(String reason) {
         JudgeResult judgeResult = new JudgeResult();
-        judgeResult.setResult(result);
+        judgeResult.setResult(JudgeType.NOT_OK);
         judgeResult.setReason(reason);
         return judgeResult;
     }
 
-    public Boolean getResult() {
+    public static JudgeResult limitError(String reason) {
+        JudgeResult judgeResult = new JudgeResult();
+        judgeResult.setResult(JudgeType.LIMIT_ERROR);
+        judgeResult.setReason(reason);
+        return judgeResult;
+    }
+
+    public boolean available() {
+        return result != null && result == JudgeType.OK;
+    }
+
+    public JudgeType getResult() {
         return result;
     }
 
-    public void setResult(Boolean result) {
+    public void setResult(JudgeType result) {
         this.result = result;
     }
 
@@ -34,5 +45,12 @@ public class JudgeResult implements Serializable {
 
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+
+    public enum JudgeType {
+        OK,
+        NOT_OK,
+        LIMIT_ERROR
     }
 }
