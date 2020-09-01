@@ -1,0 +1,51 @@
+.alarm__wrapper {
+    padding: 20px;
+    >.ant-form {
+        overflow: hidden;
+        margin-bottom: 12px;
+        .ant-form-item {
+            float: right;
+        }
+    }
+    .alarm-btn {
+        width: 130px;
+        background-color: rgba(63, 135, 255, 0.1);
+        color: #3f87ff;
+        pointer-events: none;
+        border: 0;
+    }
+}
+.alarm-rule__wrapper {
+    padding: 20px;
+    height: 100%;
+    .ant-card {
+        height: calc(100vh - 142px);
+        margin-top: 12px;
+        .ant-card-body {
+            padding: 24px 0 0 0;
+            height: inherit;
+            overflow: auto;
+            .ant-input-group-addon {
+                cursor: pointer;
+            }
+            > form {
+                overflow-y: auto;
+                margin-bottom: 68px;
+            }
+            footer {
+                position: absolute;
+                width: 100%;
+                height: 68px;
+                line-height: 68px;
+                text-align: center;
+                left: 0;
+                bottom: 0;
+                border-top: 1px solid #ddd;
+                background: #ffffff;
+                button:nth-child(2) {
+                    margin-left: 10px;
+                }
+            }
+        }
+    }
+}

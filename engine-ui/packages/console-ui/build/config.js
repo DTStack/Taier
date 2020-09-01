@@ -1,4 +1,5 @@
 'use strict';
+const ProxyReq = require('./proxyMiddleware');
 
 module.exports = {
     server: {
@@ -6,9 +7,7 @@ module.exports = {
         host: '0.0.0.0',
         proxy: {
             '/dt-common': {
-                target: 'http://dev.insight.dtstack.net/', // 开发环境
-                // target: "http://172.16.6.135:8089", // tmp server
-                // target: "http://172.16.10.45:8089",
+                target: 'http://dev.insight.dtstack.cn/', // 开发环境
                 // ignorePath: true,
                 // pathRewrite:{"/dt-common": "/portal"},
                 changeOrigin: true,
@@ -50,7 +49,7 @@ module.exports = {
                 secure: false
             },
             '/uic': { // UIC地址
-                target: 'http://dtuic.dtstack.net',
+                target: 'http://dtuic.dtstack.cn',
                 // target: 'http://uic.insight.cn',
                 // target: 'http://172.16.1.92:8668',
                 changeOrigin: true,
@@ -80,14 +79,18 @@ module.exports = {
                 secure: false
             },
             '/node': { // 控制台
-                target: 'http://172.16.101.236:8090', // 开发环境
-                // target: 'http://172.16.0.52:8099',
-                // target: 'http://172.16.101.189:8090',
-                // target: 'http://172.16.100.168:8090', // 开发环境
-                // target: 'http://172.16.10.195:8091', // 测试环境
-                pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
+                target: 'http://172.16.100.225:7001/proxy/44', // doraemon
+                // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,
-                secure: false
+                secure: false,
+                onProxyReq: ProxyReq
+            },
+            '/api/console': { // 控制台
+                target: 'http://172.16.100.225:7001/proxy/52', // doraemon
+                // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
+                changeOrigin: true,
+                secure: false,
+                onProxyReq: ProxyReq
             },
             '/api/analysis': { // 分析引擎
                 target: 'http://172.16.10.168:9022', // 开发环境

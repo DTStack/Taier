@@ -35,22 +35,29 @@ class Header extends React.Component<any, any> {
             link: `${baseUrl}/resourceManage`,
             enable: true
         }, {
+            id: 'alarmChannel',
+            name: '告警通道',
+            link: `${baseUrl}/alarmChannel`,
+            enable: true
+        }, {
             id: 'clusterManage',
             name: '多集群管理',
             link: `${baseUrl}/clusterManage`,
             enable: true
         }];
 
-        const logo = <React.Fragment>
-            <img
-                className='c-header__logo c-header__logo--console'
-                alt="logo"
-                src={getHeaderLogo(app.id)}
-            />
-            <span className='c-header__title c-header__title--console'>
-                {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}{window.APP_CONF.name}
-            </span>
-        </React.Fragment>;
+        const logo = (
+            <div className="logo dt-header-log-wrapper" style={{ float: 'left' }}>
+                <img
+                    className='c-header__logo'
+                    alt="logo"
+                    src={getHeaderLogo(app.id)}
+                />
+                <span className='c-header__title'>
+                    {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}{window.APP_CONF.name}
+                </span>
+            </div>
+        )
         return <Navigator
             logo={logo}
             menuItems={menuItems}

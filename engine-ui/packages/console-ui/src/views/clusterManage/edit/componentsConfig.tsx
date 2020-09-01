@@ -254,7 +254,7 @@ class ComponentsConfig extends React.Component<any, any> {
                         })(
                             <Input disabled={isView} style={{ width: 'calc(100% - 12px)' }} onChange={(e: any) => this.handleCustomParam(e, groupKey, param.id, comps)} />
                         )}
-                        :
+                        <span style={{ marginLeft: 2 }}>:</span>
                     </FormItem>
                 </Col>
                 <Col span={formItemLayout.wrapperCol.sm.span}>
@@ -266,7 +266,7 @@ class ComponentsConfig extends React.Component<any, any> {
                             }],
                             initialValue: param.value || ''
                         })(
-                            <Input disabled={isView} />
+                            <Input disabled={isView} style={{ maxWidth: 680 }} />
                         )}
                     </FormItem>
                 </Col>

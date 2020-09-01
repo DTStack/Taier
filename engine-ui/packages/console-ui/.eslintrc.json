@@ -48,6 +48,7 @@
         "import/no-extraneous-dependencies": ["error", {"devDependencies": false, "optionalDependencies": false, "peerDependencies": false}],
         "react/display-name":[0],
         "react/sort-comp": 0,
+        "react/jsx-no-target-blank":2,
         "react/jsx-uses-react": 1,
         "react/prefer-stateless-function": 0,
         "react/jsx-closing-bracket-location": 0,

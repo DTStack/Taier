@@ -2,7 +2,7 @@
 
 export const CONSOLE_BASE_URL = '/node';
 export const CONSOLE_BASE_UPLOAD_URL = '/node';
-
+export const CONSOLE_PERFORM_URL = '/api/console'
 export default {
 
     // ===== 用户相关 ===== //
@@ -71,11 +71,20 @@ export default {
     GET_QUEUE: `${CONSOLE_BASE_URL}/engine/getQueue`,
     BIND_TENANT: `${CONSOLE_BASE_URL}/tenant/bindingTenant`,
     SWITCH_QUEUE: `${CONSOLE_BASE_URL}/tenant/bindingQueue`,
+    REFRESH_QUEUE: `${CONSOLE_BASE_URL}/component/refresh`,
 
     // TiDB 引擎账号绑定
     ACCOUNT_UNBIND_LIST: `${CONSOLE_BASE_URL}/account/getTenantUnBandList`,
     ACCOUNT_BIND: `${CONSOLE_BASE_URL}/account/bindAccount`,
     UPDATE_ACCOUNT_BIND: `${CONSOLE_BASE_URL}/account/updateBindAccount`,
     ACCOUNT_BIND_LIST: `${CONSOLE_BASE_URL}/account/pageQuery`,
-    ACCOUNT_UNBIND: `${CONSOLE_BASE_URL}/account/unbindAccount`
+    ACCOUNT_UNBIND: `${CONSOLE_BASE_URL}/account/unbindAccount`,
+
+    // 告警通道
+    ADD_OR_UPDATE_ALARM: `${CONSOLE_PERFORM_URL}/service/alert/edit`,
+    GET_ALARM_RULE_LIST: `${CONSOLE_PERFORM_URL}/service/alert/page`,
+    DEL_ALARM_RULE_LIST: `${CONSOLE_PERFORM_URL}/service/alert/delete`,
+    GET_ALARM_BY_ID: `${CONSOLE_PERFORM_URL}/service/alert/getByAlertId`,
+    SET_DEFAULT_ALERT: `${CONSOLE_PERFORM_URL}/service/alert/setDefaultAlert`,
+    TEST_ALERT: `${CONSOLE_PERFORM_URL}/service/alert/testAlert`
 }

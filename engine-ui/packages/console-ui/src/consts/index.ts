@@ -142,6 +142,66 @@ export const COMPUTE_COMPONENTS: any = [
     { componentTypeCode: COMPONENT_TYPE_VALUE.ORACLE_SQL, componentName: COMPONENT_CONFIG_NAME.ORACLE_SQL },
     { componentTypeCode: COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL, componentName: COMPONENT_CONFIG_NAME.GREEN_PLUM_SQL }
 ]
+/**
+ * 告警通道
+ */
+export enum ALARM_TYPE {
+    MSG = 1,
+    EMAIL = 2,
+    DING = 3
+}
+export const ALARM_TYPE_TEXT = {
+    [ALARM_TYPE.MSG]: '短信通道',
+    [ALARM_TYPE.EMAIL]: '邮件通道',
+    [ALARM_TYPE.DING]: '钉钉通道'
+}
+
+export const CHANNEL_MODE_VALUE = {
+    SMS_YP: 'sms_yp',
+    SMS_DY: 'sms_dy',
+    SMS_API: 'sms_api',
+    SMS_JAR: 'sms_jar',
+    MAIL_DT: 'mail_dt',
+    MAIL_API: 'mail_api',
+    MAIL_JAR: 'mail_jar',
+    DING_DT: 'ding_dt',
+    DING_API: 'ding_api',
+    DING_JAR: 'ding_jar'
+}
+export const CHANNEL_MODE = {
+    sms: [
+        {
+            value: CHANNEL_MODE_VALUE.SMS_JAR,
+            title: '扩展插件通道'
+        }
+    ],
+    mail: [
+        {
+            value: CHANNEL_MODE_VALUE.MAIL_DT,
+            title: '默认邮件通道'
+        },
+        {
+            value: CHANNEL_MODE_VALUE.MAIL_JAR,
+            title: '扩展插件通道'
+        }
+    ],
+    dingTalk: [
+        {
+            value: CHANNEL_MODE_VALUE.DING_DT,
+            title: '钉钉机器人'
+        },
+        {
+            value: CHANNEL_MODE_VALUE.DING_JAR,
+            title: '扩展插件通道'
+        }
+    ]
+}
+export const CHANNEL_CONF_TEXT = {
+    JAR: '{"classname":"com.dtstack.sender.sms.xxxsender"}',
+    API: '{\n"cookiestore": false,\n"configs": [{\n"url": "",\n"method": "get",\n"header": {},\n"body": {}\n}],\n"context": {}\n} ',
+    SMS_YP: '请按照此格式输入配置信息：\n{"yp_api_key":"xxxxxx"}',
+    MAIL_DT: '{\n"mail.smtp.host":"smtp.yeah.net",\n"mail.smtp.port":"25",\n"mail.smtp.ssl.enable":"false",\n"mail.smtp.username":"daishu@dtstack.com",\n"mail.smtp.password":"xxxx",\n"mail.smtp.from":"daishu@dtstack.com"\n}'
+}
 
 // 任务状态
 export const TASK_STATE = {
@@ -680,6 +740,16 @@ export const formItemLayout: any = { // 表单常用布局
         sm: { span: 14 }
     }
 };
+export const formItemCenterLayout: any = { // center
+    labelCol: {
+        xs: { span: 24 },
+        sm: { span: 9 }
+    },
+    wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 6 }
+    }
+};
 export const longLabelFormLayout: any = {
     labelCol: {
         xs: { span: 24 },
@@ -1008,3 +1078,11 @@ export const pieOption: any = {
         }
     ]
 }
+
+export const NUM_COMMA = /^[0-9,]+$/
+
+export const PHONE_REG = /^1[3|4|5|6|7|8|9]\d{9}$/
+
+export const EMAIL_COMMA = /^[a-z0-9@,.]+$/
+
+export const EMAIL_REG = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/

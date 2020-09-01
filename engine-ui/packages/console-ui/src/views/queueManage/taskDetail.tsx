@@ -353,18 +353,17 @@ class TaskDetail extends React.Component<any, any> {
         )
         return (
             <Row className="table-footer">
-                <Col className="inline">
+                <Col>
                     <Checkbox
-                        className="select-all"
+                        style={{ padding: '0 16px 0 20px' }}
                         indeterminate={indeterminate}
                         checked={checked}
                         onChange={this.onCheckAllChange}
                     >
                         全选
                     </Checkbox>
-                </Col>
-                <Col className="inline">
                     <Dropdown.Button
+                        style={{ padding: '0 16px 0 20px' }}
                         size="small"
                         trigger={['click']}
                         onClick={this.handleKillSelect}
@@ -429,10 +428,10 @@ class TaskDetail extends React.Component<any, any> {
                         </div>
                         <Table
                             rowKey={(record: any) => {
-                                return record.jobId
+                                return `taskDetail-${record.jobId}`
                             }}
                             loading={loading}
-                            className="m-table s-table q-table detail-table"
+                            className="dt-table-border"
                             pagination={this.getPagination()}
                             rowSelection={rowSelection}
                             dataSource={dataSource}
