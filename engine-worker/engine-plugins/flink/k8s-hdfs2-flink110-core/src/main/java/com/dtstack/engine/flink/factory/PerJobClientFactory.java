@@ -70,6 +70,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
         Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
         Configuration newConf = new Configuration(flinkConfiguration);
 
+        // set log env
         String taskIdMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.TASKID_KEY;
         newConf.setString(taskIdMasterKey, jobClient.getTaskId());
         String taskIdTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + ConfigConstrant.TASKID_KEY;
@@ -80,16 +81,18 @@ public class PerJobClientFactory extends AbstractClientFactory {
         String flinkxHostsTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + ConfigConstrant.FLINKX_HOSTS_ENV;
         newConf.setString(flinkxHostsTaskMangerKey, newConf.getString(ConfigConstrant.FLINKX_HOSTS_CONFIG_KEY, ""));
 
-
+        // set job config
         newConf = appendJobConfigAndInitFs(jobClient.getConfProperties(), newConf);
 
+        // set cluster id
         newConf.setString(KubernetesConfigOptions.CLUSTER_ID, projobClusterId);
+
+        // set resource config
+        FlinkConfUtil.setResourceConfig(newConf, jobClient.getConfProperties());
 
         if (!flinkConfig.getFlinkHighAvailability() && ComputeType.BATCH == jobClient.getComputeType()) {
             setNoneHaModeConfig(newConf);
         }
-
-        newConf.setString(KubernetesConfigOptions.CLUSTER_ID, projobClusterId);
 
         KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
 
@@ -138,7 +141,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
             if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
                 flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
             }
-            ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(flinkConfiguration, jobClient.getJobPriority(), jobClient.getConfProperties());
+            ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(flinkConfiguration, jobClient.getConfProperties());
             ClusterClient clusterClient = clusterDescriptor.deploySessionCluster(clusterSpecification).getClusterClient();
             return clusterClient;
         } catch (ClusterDeploymentException e) {

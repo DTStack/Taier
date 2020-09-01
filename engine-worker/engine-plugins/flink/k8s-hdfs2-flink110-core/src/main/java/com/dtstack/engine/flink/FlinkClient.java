@@ -403,7 +403,7 @@ public class FlinkClient extends AbstractClient {
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
         String jobId = jobIdentifier.getEngineJobId();
-        String applicationId = jobIdentifier.getApplicationId();
+        String clusterId = jobIdentifier.getApplicationId();
 
         if (StringUtils.isBlank(jobId)) {
             logger.warn("jobIdentifier:{} is blank.", jobIdentifier);
@@ -414,7 +414,7 @@ public class FlinkClient extends AbstractClient {
             String reqUrl = "";
             String response = "";
             FlinkKubeClient flinkKubeClient = flinkClientBuilder.getFlinkKubeClient();
-            if (flinkKubeClient.getInternalService(applicationId) == null) {
+            if (flinkKubeClient.getInternalService(clusterId) == null) {
                 String jobHistoryURL = getJobHistoryURL();
                 reqUrl = jobHistoryURL + "/jobs/" + jobId;
                 Long refreshInterval = flinkClientBuilder.getFlinkConfiguration()
@@ -441,9 +441,11 @@ public class FlinkClient extends AbstractClient {
                     String state = (String) stateObj;
                     state = StringUtils.upperCase(state);
                     RdosTaskStatus rdosTaskStatus =  RdosTaskStatus.getTaskStatus(state);
-                    Boolean isFlinkSessionTask = applicationId.startsWith(ConfigConstrant.FLINK_SESSION_PREFIX);
+                    Boolean isFlinkSessionTask = clusterId.startsWith(ConfigConstrant.FLINK_SESSION_PREFIX);
                     if (RdosTaskStatus.isStopped(rdosTaskStatus.getStatus()) && !isFlinkSessionTask) {
-                        clusterClient.shutDownCluster();
+                        if (flinkClientBuilder.getFlinkKubeClient().getInternalService(clusterId) != null) {
+                            flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(clusterId);
+                        }
                     }
                     return rdosTaskStatus;
 

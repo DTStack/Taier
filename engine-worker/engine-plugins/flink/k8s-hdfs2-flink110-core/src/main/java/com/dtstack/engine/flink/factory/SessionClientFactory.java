@@ -56,19 +56,17 @@ public class SessionClientFactory extends AbstractClientFactory {
     public SessionClientFactory(FlinkClientBuilder flinkClientBuilder) {
 
         this.flinkClientBuilder = flinkClientBuilder;
-
         this.flinkConfig = flinkClientBuilder.getFlinkConfig();
 
-        Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
         String defaultClusterId = flinkConfig.getFlinkSessionName() + ConfigConstrant.CLUSTER_ID_SPLIT
                 + flinkConfig.getCluster() + ConfigConstrant.CLUSTER_ID_SPLIT + flinkConfig.getNamespace();
-        String clusterId = flinkConfiguration.getString(KubernetesConfigOptions.CLUSTER_ID, defaultClusterId);
-        sessionClusterId = StringUtils.replaceChars(clusterId, ConfigConstrant.SPLIT, ConfigConstrant.CLUSTER_ID_SPLIT);
+        sessionClusterId = StringUtils.replaceChars(defaultClusterId, ConfigConstrant.SPLIT, ConfigConstrant.CLUSTER_ID_SPLIT);
     }
 
     @Override
     public ClusterClient getClusterClient(JobClient jobClient) {
         Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
+
         ClusterDescriptor kubernetesClusterDescriptor = createSessionClusterDescriptor();
 
         ClusterClient<String> retrieveClusterClient = retrieveClusterClient(sessionClusterId, null);
@@ -77,8 +75,8 @@ public class SessionClientFactory extends AbstractClientFactory {
             return retrieveClusterClient;
         }
 
-        ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(flinkConfiguration, 0, null);
         try {
+            ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(flinkConfiguration, null);
             ClusterClient<String> clusterClient = kubernetesClusterDescriptor.deploySessionCluster(clusterSpecification).getClusterClient();
             Preconditions.checkNotNull(clusterClient, "clusterClient is null");
             return clusterClient;
@@ -105,7 +103,9 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     public ClusterDescriptor<String> createSessionClusterDescriptor() {
 
-        Configuration newConf = flinkClientBuilder.getFlinkConfiguration();
+        Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
+        Configuration newConf = new Configuration(flinkConfiguration);
+
 
         if (!flinkClientBuilder.getFlinkConfig().getFlinkHighAvailability()) {
             setNoneHaModeConfig(newConf);
@@ -120,6 +120,9 @@ public class SessionClientFactory extends AbstractClientFactory {
             newConf.setString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, flinkConfig.getPluginLoadMode());
             newConf.setString("classloader.resolve-order", "parent-first");
         }
+
+        // set resource config
+        FlinkConfUtil.setResourceConfig(newConf, null);
 
         KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
         return clusterDescriptor;
