@@ -117,6 +117,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         sql = jobParamReplace.paramReplace(sql, taskParamsToReplace, scheduleJob.getCycTime());
 
         String taskExeArgs = null;
+        String uploadPath = null;
 
         if (EScheduleJobType.SPARK_SQL.getVal().equals(taskShade.getTaskType()) || EScheduleJobType.HIVE_SQL.getVal().equals(taskShade.getTaskType())
                 || EScheduleJobType.CARBON_SQL.getVal().equals(taskShade.getTaskType())) {
@@ -153,20 +154,16 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             //替换jobId
             taskExeArgs = content.replace(TaskConstant.JOB_ID, scheduleJob.getJobId());
             //提交上传路径
-            if (StringUtils.isNotBlank(taskExeArgs) && taskExeArgs.contains(TaskConstant.UPLOADPATH)) {
-                taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
-                        taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime()));
-            } else if (StringUtils.isNotBlank(sql) && sql.contains(TaskConstant.UPLOADPATH)) {
-                //上传代码到hdfs
-                String uploadPath = this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
-                        taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
+            uploadPath = this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
+                    taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
+            taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
+            if (StringUtils.isNotBlank(sql) && sql.contains(TaskConstant.UPLOADPATH)) {
                 sql = sql.replace(TaskConstant.UPLOADPATH, uploadPath);
-                taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
             }
         }
 
         if (taskExeArgs != null) {
-           this.replaceTaskExeArgs(actionParam, scheduleJob, taskParamsToReplace, taskExeArgs);
+           this.replaceTaskExeArgs(actionParam, scheduleJob, taskParamsToReplace, taskExeArgs,uploadPath);
         }
 
         actionParam.put("sqlText", sql);
@@ -175,15 +172,22 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         actionParam.remove("taskParamsToReplace");
     }
 
-    private void replaceTaskExeArgs(Map<String, Object> actionParam, ScheduleJob scheduleJob, List<ScheduleTaskParamShade> taskParamsToReplace, String taskExeArgs) throws UnsupportedEncodingException {
+    private void replaceTaskExeArgs(Map<String, Object> actionParam, ScheduleJob scheduleJob, List<ScheduleTaskParamShade> taskParamsToReplace,
+                                    String taskExeArgs,String uploadPath) throws UnsupportedEncodingException {
         //替换jobId
         taskExeArgs = taskExeArgs.replace(TaskConstant.JOB_ID, scheduleJob.getJobId());
+        taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
 
         //替换组件的exeArgs中的cmd参数
         if (taskExeArgs.contains(TaskConstant.LAUNCH)) {
-            String modelParam = (String) actionParam.get(TaskConstant.MODEL_PARAM);
+            String modelParam = (String) actionParam.get("modelParam");
             String launchCmd = (String) actionParam.get(TaskConstant.LAUNCH_CMD);
             if (StringUtils.isNotBlank(modelParam)) {
+                if (StringUtils.isNotBlank(uploadPath)) {
+                    //替换文件名
+                    String fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/") + 1);
+                    launchCmd = launchCmd.replace(TaskConstant.FILE_NAME, fileName);
+                }
                 //如果存在modelParam参数 需要进行cycTime替换url加密
                 modelParam = URLEncoder.encode(jobParamReplace.paramReplace(modelParam,taskParamsToReplace,scheduleJob.getCycTime()), Charsets.UTF_8.name());
                 launchCmd = launchCmd.replace(TaskConstant.MODEL_PARAM, modelParam);
