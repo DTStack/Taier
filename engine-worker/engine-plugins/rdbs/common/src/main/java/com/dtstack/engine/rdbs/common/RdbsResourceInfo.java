@@ -24,8 +24,8 @@ public class RdbsResourceInfo implements EngineResourceInfo {
     public JudgeResult judgeSlots(JobClient jobClient) {
         Boolean rs = rdbsExeQueue.checkCanSubmit();
         if (rs) {
-            return JudgeResult.notOk(rs, "");
+            return JudgeResult.ok();
         }
-        return JudgeResult.notOk(rs, "The execution queue is full");
+        return JudgeResult.notOk("The execution queue is full");
     }
 }

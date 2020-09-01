@@ -223,13 +223,13 @@ public class KylinClient extends AbstractClient {
         if(EKylinJobStatus.PENDING.name().equals(status) || EKylinJobStatus.RUNNING.name().equals(status)){
             String msg = String.format("The last job of cube [%s] is in status [%s], waiting for it to finish", kylinConfig.getCubeName(), status);
             logger.info(msg);
-            return JudgeResult.notOk(false, msg);
+            return JudgeResult.notOk( msg);
         }
 
         if(EKylinJobStatus.STOPPED.name().equals(status)){
             String msg = String.format("The last job of cube [%s] is in status [%s],please resume or discard it first", kylinConfig.getCubeName(), status);
             logger.warn(msg);
-            return JudgeResult.notOk(false, msg);
+            return JudgeResult.notOk( msg);
         }
 
         return JudgeResult.ok();

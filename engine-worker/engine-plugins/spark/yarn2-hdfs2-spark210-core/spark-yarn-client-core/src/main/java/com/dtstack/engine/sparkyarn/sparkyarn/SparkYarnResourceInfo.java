@@ -56,7 +56,7 @@ public class SparkYarnResourceInfo extends AbstractYarnResourceInfo {
     public JudgeResult judgeSlots(JobClient jobClient) {
 
         JudgeResult jr = getYarnSlots(yarnClient, queueName, yarnAccepterTaskNumber);
-        if (!jr.getResult()) {
+        if (!jr.available()) {
             return jr;
         }
 
