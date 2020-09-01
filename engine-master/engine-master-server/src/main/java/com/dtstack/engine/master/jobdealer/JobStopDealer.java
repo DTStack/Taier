@@ -108,15 +108,14 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
             throw new RdosDefineException("please don't stop too many tasks at once, limit:" + JOB_STOP_LIMIT);
         }
 
-        int stopCount = 0;
         List<ScheduleJob> needSendStopJobs = new ArrayList<>(jobs.size());
         List<Long> unSubmitJob = new ArrayList<>(jobs.size());
         for (ScheduleJob job : jobs) {
-            stopCount++;
             if (RdosTaskStatus.UNSUBMIT.getStatus().equals(job.getStatus()) || SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
                 unSubmitJob.add(job.getId());
+            } else {
+                needSendStopJobs.add(job);
             }
-            needSendStopJobs.add(job);
         }
 
         List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobs.stream().map(ScheduleJob::getJobId).collect(Collectors.toList()));
@@ -138,7 +137,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
             scheduleJobDao.updateJobStatusByIds(RdosTaskStatus.CANCELED.getStatus(), unSubmitJob);
         }
 
-        return stopCount;
+        return jobs.size();
 
     }
 
