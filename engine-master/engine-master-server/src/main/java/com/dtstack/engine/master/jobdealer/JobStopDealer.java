@@ -112,13 +112,11 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         List<ScheduleJob> needSendStopJobs = new ArrayList<>(jobs.size());
         List<Long> unSubmitJob = new ArrayList<>(jobs.size());
         for (ScheduleJob job : jobs) {
-            if (checkJobCanStop(job.getStatus())) {
-                stopCount++;
-                if (RdosTaskStatus.UNSUBMIT.getStatus().equals(job.getStatus()) || SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
-                    unSubmitJob.add(job.getId());
-                }
-                needSendStopJobs.add(job);
+            stopCount++;
+            if (RdosTaskStatus.UNSUBMIT.getStatus().equals(job.getStatus()) || SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
+                unSubmitJob.add(job.getId());
             }
+            needSendStopJobs.add(job);
         }
 
         List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobs.stream().map(ScheduleJob::getJobId).collect(Collectors.toList()));
