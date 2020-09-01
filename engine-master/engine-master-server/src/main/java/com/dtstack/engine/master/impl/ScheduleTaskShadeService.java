@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
@@ -413,8 +414,12 @@ public class ScheduleTaskShadeService {
                            Long projectId, Long userId,
                            Integer appType) {
         scheduleTaskShadeDao.batchUpdateTaskScheduleStatus(taskIdList, scheduleStatus, appType);
-        for (Long taskId : taskIdList) {
-            this.removeTaskCache(taskId, appType);
+        for (Object taskId : taskIdList) {
+            if (taskId instanceof Integer) {
+                this.removeTaskCache(((Integer) taskId).longValue(), appType);
+            } else if (taskId instanceof Long) {
+                this.removeTaskCache((Long) taskId, appType);
+            }
         }
     }
 
