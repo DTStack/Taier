@@ -684,7 +684,7 @@ public class FlinkClient extends AbstractClient {
             }
         } catch (Exception e){
             logger.error("judgeSlots error:{}", e);
-            return JudgeResult.notOk(false, "judgeSlots error !");
+            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
         }
     }
 

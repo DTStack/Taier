@@ -212,7 +212,7 @@ public class ClientProxy implements IClient {
             throw new ClientArgumentException(e);
         } else if (throwable instanceof LimitResourceException) {
             throw new LimitResourceException(e.getMessage());
-        } else if (throwable instanceof RdosDefineException && ((RdosDefineException) throwable).getErrorCode() == ErrorCode.HTTP_CALL_ERROR) {
+        } else if (throwable instanceof RdosDefineException) {
             return JudgeResult.notOk(false, "judgeSlots error");
         }
         throw new RdosDefineException(e);

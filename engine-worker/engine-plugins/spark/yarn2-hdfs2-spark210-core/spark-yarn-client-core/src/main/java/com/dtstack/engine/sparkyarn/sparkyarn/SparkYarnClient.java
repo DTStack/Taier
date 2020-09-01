@@ -613,7 +613,7 @@ public class SparkYarnClient extends AbstractClient {
             }, yarnConf);
         } catch (Exception e) {
             logger.error("judgeSlots error", e);
-            return JudgeResult.notOk(false, "judgeSlots error");
+            throw new RdosDefineException(e.getMessage());
         }
     }
 

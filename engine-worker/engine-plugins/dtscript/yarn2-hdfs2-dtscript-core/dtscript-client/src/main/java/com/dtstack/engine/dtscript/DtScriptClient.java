@@ -266,7 +266,7 @@ public class DtScriptClient extends AbstractClient {
             }, conf);
         } catch (Exception e) {
             LOG.error("", e);
-            return JudgeResult.notOk(false,"judgeSlots error");
+            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
         }
     }
 

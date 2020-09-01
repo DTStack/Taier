@@ -194,8 +194,8 @@ public class SparkK8sClient extends AbstractClient {
                     .build();
             return sparkResourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
-            LOG.error("judgeSlots error:{}", e);
-            return JudgeResult.notOk(false, "judgeSlots error");
+            LOG.error("judgeSlots error:{}",jobClient.getTaskId(), e);
+            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
         }
     }
 
