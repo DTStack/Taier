@@ -68,9 +68,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
 
         ClusterDescriptor kubernetesClusterDescriptor = createSessionClusterDescriptor();
-
         ClusterClient<String> retrieveClusterClient = retrieveClusterClient(sessionClusterId, null);
-
         if (Objects.nonNull(retrieveClusterClient)) {
             return retrieveClusterClient;
         }
@@ -89,6 +87,9 @@ public class SessionClientFactory extends AbstractClientFactory {
     @Override
     public ClusterClient retrieveClusterClient(String clusterId, JobClient jobClient) {
         try {
+            if (flinkClientBuilder.getFlinkKubeClient().getInternalService(clusterId) == null) {
+                return null;
+            }
             ClusterDescriptor kubernetesClusterDescriptor = createSessionClusterDescriptor();
             ClusterClientProvider<String> clusterClientProvider = kubernetesClusterDescriptor.retrieve(clusterId);
             if (Objects.isNull(clusterClientProvider)) {
@@ -123,6 +124,8 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         // set resource config
         FlinkConfUtil.setResourceConfig(newConf, null);
+
+        newConf.setString(KubernetesConfigOptions.CLUSTER_ID, sessionClusterId);
 
         KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
         return clusterDescriptor;
