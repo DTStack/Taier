@@ -103,9 +103,9 @@ const AlarmChannel: React.FC = (props: any) => {
             render: (text, record: any) => {
                 const showText = `${ALARM_TYPE_TEXT[record.alertGateType].slice(0, 2)}默认通道`;
                 if (text) {
-                    return <Button disabled type='primary'>{showText}</Button>
+                    return <Button className="alarm-btn" disabled>{showText}</Button>
                 } else {
-                    return <Button type='primary' onClick={() => { setDefaultChannel(record) }}>{`设为${showText}`}</Button>
+                    return <Button style={{ width: 130 }} onClick={() => { setDefaultChannel(record) }}>{`设为${showText}`}</Button>
                 }
             }
         }]
