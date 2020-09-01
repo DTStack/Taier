@@ -184,8 +184,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             String modelParam = (String) actionParam.get(TaskConstant.MODEL_PARAM);
             String launchCmd = (String) actionParam.get(TaskConstant.LAUNCH_CMD);
             if (StringUtils.isNotBlank(modelParam)) {
-                //如果存在modelParam参数 需要进行url加密
-                modelParam = URLEncoder.encode(modelParam, "UTF-8");
+                //如果存在modelParam参数 需要进行cycTime替换url加密
+                modelParam = URLEncoder.encode(jobParamReplace.paramReplace(modelParam,taskParamsToReplace,scheduleJob.getCycTime()), Charsets.UTF_8.name());
                 launchCmd = launchCmd.replace(TaskConstant.MODEL_PARAM, modelParam);
             }
             launchCmd = jobParamReplace.paramReplace(launchCmd, taskParamsToReplace, scheduleJob.getCycTime());
