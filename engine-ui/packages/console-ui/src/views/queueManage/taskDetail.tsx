@@ -101,7 +101,7 @@ class TaskDetail extends React.Component<any, any> {
                         table: {
                             ...table,
                             loading: false,
-                            total: get(res, 'data.total', 0)
+                            total: get(res, 'data.totalCount', 0)
                         }
                     })
                 } else {
