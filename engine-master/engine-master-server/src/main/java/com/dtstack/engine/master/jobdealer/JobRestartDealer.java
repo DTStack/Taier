@@ -258,7 +258,7 @@ public class JobRestartDealer {
 
     private void increaseJobRetryNum(String jobId){
         ScheduleJob rdosEngineBatchJob = scheduleJobDao.getRdosJobByJobId(jobId);
-        if (rdosEngineBatchJob != null) {
+        if (rdosEngineBatchJob == null) {
             return;
         }
         Integer retryNum = rdosEngineBatchJob.getRetryNum() == null ? 0 : rdosEngineBatchJob.getRetryNum();
