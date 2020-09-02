@@ -178,11 +178,10 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         public void run() {
             long tmpStartId = 0L;
             Timestamp operatorExpired = new Timestamp(System.currentTimeMillis() + OPERATOR_EXPIRED_INTERVAL);
-            Timestamp lessThanOperatorExpired = new Timestamp(System.currentTimeMillis());
             while (true) {
                 try {
                     //根据条件判断是否有数据存在
-                    List<EngineJobStopRecord> jobStopRecords = engineJobStopRecordDao.listStopJob(tmpStartId, lessThanOperatorExpired);
+                    List<EngineJobStopRecord> jobStopRecords = engineJobStopRecordDao.listStopJob(tmpStartId);
                     if (jobStopRecords.isEmpty()) {
                         break;
                     }
