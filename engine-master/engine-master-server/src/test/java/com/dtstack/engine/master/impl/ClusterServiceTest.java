@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
@@ -186,7 +187,7 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNotNull(engineTenants);
         Assert.assertNotNull(engineTenants.getData());
         //查询集群组件信息
-        JSONObject componentsJson = JSONObject.parseObject(componentService.listConfigOfComponents(tenant.getDtUicTenantId(), MultiEngineType.HADOOP.getType()));
+        JSONObject componentsJson = JSONObject.parseObject(JSON.toJSONString(componentService.listConfigOfComponents(tenant.getDtUicTenantId(), MultiEngineType.HADOOP.getType())));
         Assert.assertNotNull(componentsJson);
 
         Assert.assertNotNull(componentsJson.getJSONObject(String.valueOf(EComponentType.YARN.getTypeCode())));
@@ -205,7 +206,7 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNotNull(queueVOS);
 
         //查询配置信息
-        JSONArray engineJson = JSONObject.parseArray(engineService.listSupportEngine(tenant.getDtUicTenantId()));
+        JSONArray engineJson = JSONObject.parseArray(JSON.toJSONString(engineService.listSupportEngine(tenant.getDtUicTenantId())));
         Assert.assertTrue(engineJson.size() > 0);
         
         List<EngineVO> engineVOS = engineService.listClusterEngines(clusterVO.getId(), true);

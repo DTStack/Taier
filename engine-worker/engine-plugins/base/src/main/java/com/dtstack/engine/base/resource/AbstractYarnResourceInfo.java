@@ -1,6 +1,6 @@
 package com.dtstack.engine.base.resource;
 
-import com.dtstack.engine.common.exception.LimitResourceException;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -54,62 +54,63 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
     protected int containerCoreMax;
     protected int containerMemoryMax;
 
-    protected boolean judgeYarnResource(List<InstanceInfo> instanceInfos) {
+    protected JudgeResult judgeYarnResource(List<InstanceInfo> instanceInfos) {
         if (totalFreeCore == 0 || totalFreeMem == 0) {
             logger.info("judgeYarnResource, totalFreeCore={}, totalFreeMem={}", totalFreeCore, totalFreeMem);
-            return false;
+            return JudgeResult.notOk( "totalFreeCore or totalFreeMem is 0");
         }
         int needTotalCore = 0;
         int needTotalMem = 0;
         for (InstanceInfo instanceInfo : instanceInfos) {
             if (instanceInfo.coresPerInstance > containerCoreMax) {
                 logger.info("judgeYarnResource, containerCoreMax={}, coresPerInstance={}", containerCoreMax, instanceInfo.coresPerInstance);
-                return false;
+                return JudgeResult.notOk( "the instance's per core larger than then maximum containerCore");
             }
             if (instanceInfo.memPerInstance > containerMemoryMax) {
                 logger.info("judgeYarnResource, containerMemoryMax={}, memPerInstance={}", containerMemoryMax, instanceInfo.memPerInstance);
-                return false;
+                return JudgeResult.notOk( "the instance's per memory larger than then maximum containerMemory");
             }
             needTotalCore += instanceInfo.instances * instanceInfo.coresPerInstance;
             needTotalMem += instanceInfo.instances * instanceInfo.memPerInstance;
         }
         if (needTotalCore == 0 || needTotalMem == 0) {
-            throw new LimitResourceException("Yarn task resource configuration error，needTotalCore：" + 0 + ", needTotalMem：" + needTotalMem);
+            return JudgeResult.limitError("Yarn task resource configuration error，needTotalCore：" + 0 + ", needTotalMem：" + needTotalMem);
         }
         if (needTotalCore > (totalCore * queueCapacity)) {
-            throw new LimitResourceException("The Yarn task is set to a core larger than the maximum allocated core");
+            return JudgeResult.limitError("The Yarn task is set to a core larger than the maximum allocated core");
         }
         if (needTotalMem > (totalMem * queueCapacity)) {
-            throw new LimitResourceException("The Yarn task is set to a mem larger than the maximum allocated mem");
+            return JudgeResult.limitError("The Yarn task is set to a mem larger than the maximum allocated mem");
         }
         if (needTotalCore > (totalCore * capacity)) {
             logger.info("judgeYarnResource, needTotalCore={}, totalCore={}, capacity={}", needTotalCore, totalCore, capacity);
-            return false;
+            return JudgeResult.notOk( "The task required core resources are greater than the total queue resources");
         }
         if (needTotalMem > (totalMem * capacity)) {
             logger.info("judgeYarnResource, needTotalMem={}, totalMem={}, capacity={}", needTotalMem, totalMem, capacity);
-            return false;
+            return JudgeResult.notOk( "The task required memory resources are greater than the total queue resources");
         }
         for (InstanceInfo instanceInfo : instanceInfos) {
-            if (!judgeInstanceResource(instanceInfo.instances, instanceInfo.coresPerInstance, instanceInfo.memPerInstance)) {
+            JudgeResult judgeInstanceResource = judgeInstanceResource(instanceInfo.instances, instanceInfo.coresPerInstance, instanceInfo.memPerInstance);
+            if (!judgeInstanceResource.available()) {
                 logger.info("judgeYarnResource, nmFreeCore={}, nmFreeMem={} instanceInfo={}", nmFreeCore, nmFreeMem, instanceInfo);
-                return false;
+                return judgeInstanceResource;
             }
         }
-        return true;
+        return JudgeResult.ok();
     }
 
-    private boolean judgeInstanceResource(int instances, int coresPerInstance, int memPerInstance) {
+    private JudgeResult judgeInstanceResource(int instances, int coresPerInstance, int memPerInstance) {
         if (instances == 0 || coresPerInstance == 0 || memPerInstance == 0) {
-            throw new LimitResourceException("Yarn task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
+            return JudgeResult.limitError("Yarn task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
         }
         if (!judgeCores(instances, coresPerInstance)) {
-            return false;
+            return JudgeResult.notOk( "Insufficient cpu resources of yarn cluster");
         }
         if (!judgeMem(instances, memPerInstance)) {
-            return false;
+            return JudgeResult.notOk( "Insufficient memory resources of yarn cluster");
         }
-        return true;
+        return JudgeResult.ok();
     }
 
     private boolean judgeCores(int instances, int coresPerInstance) {
@@ -140,15 +141,15 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
         return false;
     }
 
-    public void getYarnSlots(YarnClient yarnClient, String queueName, int yarnAccepterTaskNumber) throws YarnException {
+    public JudgeResult getYarnSlots(YarnClient yarnClient, String queueName, int yarnAccepterTaskNumber) {
         try {
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.ACCEPTED);
             List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet).stream().
                     filter(report -> report.getQueue().endsWith(queueName)).collect(Collectors.toList());
             if (acceptedApps.size() > yarnAccepterTaskNumber) {
-                logger.info("queueName {} acceptedApps {} >= yarnAccepterTaskNumber {}", queueName, acceptedApps.size(), yarnAccepterTaskNumber);
-                return;
+                logger.info("queueName:{} acceptedApps:{} >= yarnAccepterTaskNumber:{}", queueName, acceptedApps.size(), yarnAccepterTaskNumber);
+                return JudgeResult.notOk( "queueName:" + queueName + " acceptedApps:" + acceptedApps.size() + " >= yarnAccepterTaskNumber:" + yarnAccepterTaskNumber);
             }
 
             List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
@@ -177,8 +178,9 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
             }
 
             calc();
-        } catch ( IOException | YarnException e) {
-            throw new YarnException(e);
+            return JudgeResult.ok();
+        } catch (IOException | YarnException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -235,7 +237,7 @@ public abstract class AbstractYarnResourceInfo implements EngineResourceInfo {
         }
 
         @Override
-        public String toString(){
+        public String toString() {
             return String.format("InstanceInfo[instances=%s, coresPerInstance=%s, memPerInstance=%s]", instances, coresPerInstance, memPerInstance);
         }
 

@@ -5,6 +5,7 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
@@ -227,8 +228,8 @@ public class FlinkClientTest {
 		MemberModifier.field(FlinkClient.class, "flinkConfig")
 			.set(flinkClient, flinkConfig);
 
-		boolean perJudgeSlot = flinkClient.judgeSlots(perJobClient);
-		Assert.assertTrue(perJudgeSlot);
+		JudgeResult perJudgeSlot = flinkClient.judgeSlots(perJobClient);
+		Assert.assertTrue(perJudgeSlot.available());
 
 		JobClient jobClient = YarnMockUtil.mockJobClient("session", null);
 
@@ -244,8 +245,8 @@ public class FlinkClientTest {
 
 		//when(flinkClient.getMessageByHttp(anyString())).thenReturn(taskmanagers);
 
-		boolean judgeSlot = flinkClient.judgeSlots(jobClient);
-		Assert.assertTrue(judgeSlot);
+		JudgeResult judgeSlot = flinkClient.judgeSlots(jobClient);
+		Assert.assertTrue(judgeSlot.available());
 
 	}
 

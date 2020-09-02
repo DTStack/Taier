@@ -110,6 +110,9 @@
             <if test="model.appType != null">
                 AND bj.app_type = #{model.appType}
             </if>
+            <if test="model.execStartDay != null and model.execEndDay != null">
+                AND exec_start_time &gt;= #{model.execStartDay} and exec_start_time &lt;= #{model.execEndDay}
+            </if>
         </trim>
     </sql>
 
@@ -320,6 +323,10 @@
                     #{projectId}
                 </foreach>
             </if>
+            <if test="model.execStartDay != null and model.execEndDay != null">
+                AND exec_start_time &gt;= ${model.execStartDay} and exec_start_time &lt;= ${model.execEndDay}
+            </if>
+
         </trim>
     </sql>
 
@@ -365,10 +372,10 @@
             <if test="id != null">
                 id = #{id},
             </if>
-            <if test="tenantId != null">
+            <if test="tenantId != null and tenantId > 0">
                 tenant_id = #{tenantId},
             </if>
-            <if test="projectId != null">
+            <if test="projectId != null and projectId > 0">
                 project_id = #{projectId},
             </if>
             <if test="jobId != null">
@@ -421,6 +428,9 @@
             </if>
             <if test="retryNum != null">
                 retry_num = #{retryNum},
+            </if>
+            <if test="phaseStatus != null">
+                phase_status = #{phaseStatus},
             </if>
         </set>
     </sql>
@@ -521,6 +531,7 @@
         </if>
         AND bj.type = #{type}
         AND bj.app_type = #{appType}
+        AND ts.app_type = #{appType}
         AND bj.task_type != 10
         <if test="startTime != null and startTime != ''">
             AND bj.cyc_time <![CDATA[>=]]> #{startTime}
@@ -587,6 +598,7 @@
         and bj.project_id = #{projectId}
         and bj.tenant_id = #{tenantId}
         and bj.is_deleted = 0
+        and bj.app_type = ts.app_type
         <if test="taskTypes != null and taskTypes.size()>0">
             and ts.task_type in
             <foreach collection="taskTypes" item="taskType" open="(" close=")" separator=",">
@@ -613,6 +625,7 @@
         and bj.tenant_id = #{tenantId}
         and bj.is_deleted = 0
         and bj.flow_job_id = 0
+        and bj.app_type = ts.app_type
         <if test="taskTypes != null and taskTypes.size()>0">
             and ts.task_type in
                 <foreach collection="taskTypes" item="taskType" open="(" close=")" separator=",">
@@ -655,32 +668,6 @@
 
 
 
-    <select id="generalScienceQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
-        SELECT
-        <include refid="select_content_fragment"/>
-        from (
-        select *,'' as groupDate from schedule_job
-        <include refid="select_where_batch_job"/>
-        and period_type not in (0,1)
-        union
-        select
-        bj.*,
-        left(bj.business_date,8) as groupDate
-        from schedule_job bj
-        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
-        <include refid="select_where_fragment"/>
-        and bj.period_type in (0,1)
-        group by bj.task_id,groupDate
-        )bj
-        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
-        WHERE bj.app_type = ts.app_type
-        <include refid="select_where_fragment"/>
-        <if test="model.pageQuery == true">
-            <include refid="page_condition"/>
-        </if>
-
-    </select>
-
     <select id="listTodayJobs" resultType="java.util.HashMap">
         SELECT DATE_FORMAT(bj.exec_start_time, '%H') AS hour, COUNT(1) AS data
         FROM schedule_job bj
@@ -704,6 +691,32 @@
             </foreach>
         </if>
         GROUP BY hour
+    </select>
+
+    <select id="generalScienceQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        from (
+        select *,'' as groupDate from schedule_job
+        <include refid="select_where_batch_job"/>
+        and period_type not in (0,1)
+        union
+        select
+        bj.*,
+        left(bj.business_date,8) as groupDate
+        from schedule_job bj
+        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
+        and bj.period_type in (0,1)
+        group by bj.task_id,groupDate
+        )bj
+        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
+        and bj.app_type = ts.app_type
+        <if test="model.pageQuery == true">
+            <include refid="page_condition"/>
+        </if>
+
     </select>
 
     <select id="listYesterdayJobs" resultType="java.util.HashMap">
@@ -858,37 +871,13 @@
 
     </select>
 
-    <select id="generalQueryWithMinAndHour" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
-        SELECT
-        <include refid="select_content_fragment"/>
-        from (
-        select *,'' as groupDate from schedule_job
-        <include refid="select_where_batch_job"/>
-        union
-        select
-        bj.*,
-        left(bj.business_date,8) as groupDate
-        from schedule_job bj
-        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
-        where bj.app_type = ts.app_type
-        <include refid="select_where_fragment"/>
-        group by bj.task_id,groupDate
-        )bj
-        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
-        where bj.app_type = ts.app_type
-        <include refid="select_where_fragment"/>
-        <if test="model.pageQuery == true">
-            <include refid="page_condition"/>
-        </if>
-    </select>
-
     <select id="minOrHourJobQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         from  schedule_job bj
         LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
-        where bj.app_type = ts.app_type
         <include refid="select_where_fragment"/>
+        and bj.app_type = ts.app_type
         <include refid="queryWorkFlow"/>
         <if test="model.jobIds != null and model.jobIds.size > 0">
             or bj.job_id in
@@ -916,6 +905,30 @@
             </foreach>
         </if>
         limit 1
+    </select>
+
+    <select id="generalQueryWithMinAndHour" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="ScheduleJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        from (
+        select *,'' as groupDate from schedule_job
+        <include refid="select_where_batch_job"/>
+        union
+        select
+        bj.*,
+        left(bj.business_date,8) as groupDate
+        from schedule_job bj
+        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
+        and bj.app_type = ts.app_type
+        group by bj.task_id,groupDate
+        )bj
+        LEFT JOIN schedule_task_shade ts ON bj.task_id = ts.task_id
+        <include refid="select_where_fragment"/>
+        and bj.app_type = ts.app_type
+        <if test="model.pageQuery == true">
+            <include refid="page_condition"/>
+        </if>
     </select>
 
     <select id="generalCountWithMinAndHour" resultType="java.lang.Integer">
@@ -1279,7 +1292,7 @@
     </select>
 
     <select id="listSimpleJobByStatusAddress" resultType="SimpleScheduleJobPO">
-        SELECT id, job_id, type
+        SELECT id, job_id, type, phase_status
         FROM schedule_job
         WHERE id > #{startId} AND (node_address = #{nodeAddress} or node_address is null)
         <if test="statuses != null">
@@ -1333,7 +1346,14 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
-        WHERE id > #{startId} AND node_address = #{nodeAddress}
+        WHERE
+        node_address = #{nodeAddress}
+        <if test="isEq">
+            AND id >= #{startId}
+        </if>
+        <if test="!isEq">
+            AND id > #{startId}
+        </if>
         <if test="scheduleType != null">
             AND type = #{scheduleType}
         </if>
@@ -1345,6 +1365,7 @@
         </if>
         AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
         AND is_deleted = 0
+        AND `phase_status` = #{phaseStatus}
         order by id, cyc_time asc limit 500
     </select>
 
@@ -1547,7 +1568,7 @@
    </update>
 
     <select id="getRdosJobByJobId" resultType="ScheduleJob">
-       select * from schedule_job where job_id=#{jobId} and is_deleted=0;
+       select * from schedule_job where job_id=#{jobId} and is_deleted=0 limit 1;
    </select>
 
     <select id="getRdosJobByJobIds" resultType="ScheduleJob">
@@ -1591,6 +1612,25 @@
         and is_deleted=0;
     </select>
 
+    <select id="getListMinId" resultType="java.lang.Long">
+        SELECT
+            min(id)
+        FROM schedule_job bj
+        WHERE node_address = #{nodeAddress}
+        <if test="scheduleType != null">
+            AND type = #{scheduleType}
+        </if>
+        <if test="cycStartTime != null">
+            AND cyc_time &gt;= #{cycStartTime}
+        </if>
+        <if test="cycEndTime != null">
+            AND cyc_time &lt; #{cycEndTime}
+        </if>
+        AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
+        AND is_deleted = 0
+        AND `phase_status` = #{phaseStatus}
+    </select>
+
     <update id="updateJobStatusByJobIds">
         update schedule_job
         set gmt_modified=now(), status=#{status}
@@ -1599,5 +1639,25 @@
             #{jobId}
         </foreach>
         and is_deleted=0;
+    </update>
+    <update id="updatePhaseStatusById">
+        update `schedule_job`
+        set `phase_status`=#{update}
+        where `id` = #{id}
+        and `phase_status` = #{original}
+        and `is_deleted`=0;
+    </update>
+    <update id="updateListPhaseStatus">
+        update `schedule_job`
+        set `phase_status`=#{update}
+        where `id` IN
+        <foreach collection="ids" separator="," open="(" close=")" item="id">
+            #{id}
+        </foreach>
+        and `is_deleted`=0;
+    </update>
+
+    <update id="updateJobStatusAndPhaseStatus">
+        update schedule_job set gmt_modified=now(),status=#{status},`phase_status` = #{phaseStatus} where job_id=#{jobId};
     </update>
 </mapper>

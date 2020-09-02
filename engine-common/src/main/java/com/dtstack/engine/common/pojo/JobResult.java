@@ -54,6 +54,12 @@ public class JobResult implements Serializable {
         return jobResult;
     }
 
+    public static JobResult createErrorResult(boolean checkRetry, String errMsg){
+        JobResult jobResult = JobResult.newInstance(checkRetry);
+        jobResult.setData(MSG_INFO, addTimeForMsg(errMsg));
+        return jobResult;
+    }
+
     public static JobResult createErrorResult(String errMsg){
         JobResult jobResult = JobResult.newInstance(true);
         jobResult.setData(MSG_INFO, addTimeForMsg(errMsg));

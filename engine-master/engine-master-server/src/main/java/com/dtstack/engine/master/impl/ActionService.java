@@ -2,27 +2,29 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
+import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
+import com.dtstack.engine.api.vo.action.ActionLogVO;
+import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.CustomThreadRunsPolicy;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.annotation.Param;
-import com.dtstack.engine.common.pojo.ParamActionExt;
+import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -41,7 +43,7 @@ import java.util.concurrent.*;
  * @author sishu.yss
  */
 @Service
-public class ActionService implements com.dtstack.engine.api.service.ActionService {
+public class ActionService {
 
     private static final Logger logger = LoggerFactory.getLogger(ActionService.class);
 
@@ -89,29 +91,25 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
      * 接受来自客户端的请求, 并判断节点队列长度。
      * 如在当前节点,则直接处理任务
      */
-    public Boolean start(Map<String, Object> params){
+    public Boolean start(ParamActionExt paramActionExt){
 
+        logger.info("start  actionParam: {}", JSONObject.toJSONString(paramActionExt));
 
-        logger.info("start  actionParam: {}", JSONObject.toJSONString(params));
-
-        ParamActionExt paramActionExt = null;
         try{
-            paramActionExt = PublicUtil.mapToObject(params, ParamActionExt.class);
             checkParam(paramActionExt);
             //taskId唯一去重，并发请求时以数据库taskId主键去重返回false
             boolean canAccepted = receiveStartJob(paramActionExt);
             //会对重复数据做校验
             if(canAccepted){
-
                 JobClient jobClient = new JobClient(paramActionExt);
-                jobDealer.addSubmitJob(jobClient, true);
+                jobDealer.addSubmitJob(jobClient);
                 return true;
             }
             logger.warn("Job taskId：" + paramActionExt.getTaskId() + " duplicate submissions are not allowed");
         }catch (Exception e){
             logger.error("", e);
             //任务提交出错 需要将状态从提交中 更新为失败 否则一直在提交中
-            String taskId = (String) params.get("taskId");
+            String taskId = paramActionExt.getTaskId();
             try {
                 if (StringUtils.isNotBlank(taskId)) {
                     logger.error("Job taskId：" + taskId + " submit error ", e);
@@ -135,33 +133,13 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
     }
 
     /**
-     * 只允许发到master节点上
-     * 1: 在master等待队列中查找
-     * 2: 在worker-exe等待队列里面查找
-     * 3：在worker-status监听队列里面查找（可以直接在master节点上直接发送消息到对应的引擎）
-     * @param params
+     * 停止的请求接口
      * @throws Exception
      */
-    public void stop(Map<String, Object> params) throws Exception {
-
-        if(!params.containsKey("jobs")){
-            logger.info("invalid param:" + params);
-            return ;
-        }
-
-        Object paramsObj = params.get("jobs");
-        if(!(paramsObj instanceof List)){
-            logger.info("invalid param:" + params);
-            return;
-        }
-
-        List<Map<String, Object>> paramList = (List<Map<String, Object>>) paramsObj;
-        List<String> jobIds = new ArrayList<>(paramList.size());
-        for(Map<String, Object> param : paramList){
-            jobIds.add(MapUtils.getString(param, "taskId"));
-        }
+    public Boolean stop(List<String> jobIds) {
         List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.getRdosJobByJobIds(jobIds));
         jobStopDealer.addStopJobs(jobs);
+        return true;
     }
 
     private void checkParam(ParamAction paramAction) throws Exception{
@@ -262,7 +240,7 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
     /**
      * 根据jobid 和 计算类型，查询job的状态
      */
-    public Integer status(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
+    public Integer status( String jobId, Integer computeType) throws Exception {
 
         if (StringUtils.isBlank(jobId)||computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
@@ -278,7 +256,7 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
     /**
      * 根据jobid 和 计算类型，查询job的状态
      */
-    public Map<String, Integer> statusByJobIds(@Param("jobIds") List<String> jobIds,@Param("computeType") Integer computeType) throws Exception {
+    public Map<String, Integer> statusByJobIds( List<String> jobIds, Integer computeType) throws Exception {
 
         if (CollectionUtils.isEmpty(jobIds)||computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
@@ -299,7 +277,7 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
      * 根据jobid 和 计算类型，查询job开始运行的时间
      * return 毫秒级时间戳
      */
-    public Long startTime(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
+    public Long startTime( String jobId, Integer computeType) throws Exception {
 
         if (StringUtils.isBlank(jobId)||computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
@@ -319,16 +297,16 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
     /**
      * 根据jobid 和 计算类型，查询job的日志
      */
-    public String log(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
+    public ActionLogVO log( String jobId, Integer computeType) throws Exception {
 
         if (StringUtils.isBlank(jobId)||computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
-        Map<String,String> log = new HashMap<>(2);
+        ActionLogVO vo = new ActionLogVO();
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         if (scheduleJob != null) {
-        	log.put("logInfo", scheduleJob.getLogInfo());
+            vo.setLogInfo(scheduleJob.getLogInfo());
         	String engineLog = scheduleJob.getEngineLog();
             if (StringUtils.isBlank(engineLog)) {
                 engineLog = CompletableFuture.supplyAsync(
@@ -340,15 +318,15 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
                     engineLog = "";
                 }
             }
-        	log.put("engineLog", engineLog);
+            vo.setEngineLog(engineLog);
         }
-        return PublicUtil.objToString(log);
+        return vo;
     }
 
     /**
      * 根据jobid 从es中获取日志
      */
-    public String logFromEs(@Param("jobId") String jobId, @Param("computeType") Integer computeType) throws Exception {
+    public String logFromEs(String jobId, Integer computeType) throws Exception {
         if (StringUtils.isBlank(jobId)) {
             throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
@@ -366,30 +344,29 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
-    public String retryLog(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
+    public List<ActionRetryLogVO> retryLog( String jobId, Integer computeType) throws Exception {
 
         if (StringUtils.isBlank(jobId) || computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
-
-        List<Map<String,String>> logs = new ArrayList<>(5);
+        ActionRetryLogVO vo = new ActionRetryLogVO();
+        List<ActionRetryLogVO> logs = new ArrayList<>(5);
         List<EngineJobRetry> batchJobRetrys = engineJobRetryDao.listJobRetryByJobId(jobId);
         if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
             batchJobRetrys.forEach(jobRetry->{
-                Map<String,String> log = new HashMap<String,String>(4);
-                log.put("retryNum",jobRetry.getRetryNum().toString());
-                log.put("logInfo",jobRetry.getLogInfo());
-                log.put("retryTaskParams",jobRetry.getRetryTaskParams());
-                logs.add(log);
+                vo.setRetryNum(jobRetry.getRetryNum());
+                vo.setLogInfo(jobRetry.getLogInfo());
+                vo.setRetryTaskParams(jobRetry.getRetryTaskParams());
+                logs.add(vo);
             });
         }
-        return PublicUtil.objToString(logs);
+        return logs;
     }
 
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
-    public String retryLogDetail(@Param("jobId") String jobId,@Param("computeType") Integer computeType, @Param("retryNum") Integer retryNum) throws Exception {
+    public ActionRetryLogVO retryLogDetail( String jobId, Integer computeType,  Integer retryNum) throws Exception {
 
         if (StringUtils.isBlank(jobId) || computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
@@ -401,10 +378,10 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         //数组库中存储的retryNum为0开始的索引位置
         EngineJobRetry jobRetry = engineJobRetryDao.getJobRetryByJobId(jobId, retryNum - 1);
-        Map<String,String> log = new HashMap<String,String>(4);
+        ActionRetryLogVO vo = new ActionRetryLogVO();
         if (jobRetry != null) {
-            log.put("retryNum",jobRetry.getRetryNum().toString());
-            log.put("logInfo",jobRetry.getLogInfo());
+            vo.setRetryNum(jobRetry.getRetryNum());
+            vo.setLogInfo(jobRetry.getLogInfo());
             String engineLog = jobRetry.getEngineLog();
             if (StringUtils.isBlank(jobRetry.getEngineLog())){
                 engineLog = jobDealer.getAndUpdateEngineLog(jobId, jobRetry.getEngineJobId(), jobRetry.getApplicationId(), scheduleJob.getPluginInfoId());
@@ -415,35 +392,36 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
                     engineLog = "";
                 }
             }
-            log.put("engineLog", engineLog);
-            log.put("retryTaskParams",jobRetry.getRetryTaskParams());
+            vo.setEngineLog(engineLog);
+            vo.setRetryTaskParams(jobRetry.getRetryTaskParams());
+
         }
-        return PublicUtil.objToString(log);
+        return vo;
     }
 
     /**
      * 根据jobids 和 计算类型，查询job
      */
-    public List<Map<String,Object>> entitys(@Param("jobIds") List<String> jobIds,@Param("computeType") Integer computeType) throws Exception {
+    public List<ActionJobEntityVO> entitys( List<String> jobIds, Integer computeType) throws Exception {
 
         if (CollectionUtils.isEmpty(jobIds)||computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
-        List<Map<String,Object>> result = null;
+        List<ActionJobEntityVO> result = null;
         List<ScheduleJob> scheduleJobs = scheduleJobDao.getRdosJobByJobIds(jobIds);
         if (CollectionUtils.isNotEmpty(scheduleJobs)) {
         	result = new ArrayList<>(scheduleJobs.size());
         	for (ScheduleJob scheduleJob:scheduleJobs){
-        		Map<String,Object> data = new HashMap<>();
-        		data.put("jobId", scheduleJob.getJobId());
-        		data.put("status", scheduleJob.getStatus());
-        		data.put("execStartTime", scheduleJob.getExecStartTime());
-        		data.put("logInfo", scheduleJob.getLogInfo());
-        		data.put("engineLog", scheduleJob.getEngineLog());
-                data.put("engineJobId", scheduleJob.getEngineJobId());
-                data.put("applicationId", scheduleJob.getApplicationId());
-        		result.add(data);
+                ActionJobEntityVO vo = new ActionJobEntityVO();
+                vo.setJobId(scheduleJob.getJobId());
+                vo.setStatus(scheduleJob.getStatus());
+                vo.setExecStartTime(scheduleJob.getExecStartTime());
+                vo.setLogInfo(scheduleJob.getLogInfo());
+                vo.setEngineLog(scheduleJob.getEngineLog());
+                vo.setEngineJobId(scheduleJob.getEngineJobId());
+                vo.setApplicationId(scheduleJob.getApplicationId());
+        		result.add(vo);
         	}
         }
         return result;
@@ -453,8 +431,7 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
     /**
      * 根据jobid 和 计算类型，查询container 信息
      */
-    public List<String> containerInfos(Map<String, Object> param) throws Exception {
-        ParamAction paramAction = PublicUtil.mapToObject(param, ParamAction.class);
+    public List<String> containerInfos(ParamAction paramAction) throws Exception {
         checkParam(paramAction);
         //从数据库补齐数据
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(paramAction.getTaskId());
@@ -500,7 +477,7 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
      * 重置任务状态为未提交
      * @return
      */
-    public String resetTaskStatus(@Param("jobId") String jobId, @Param("computeType") Integer computeType){
+    public String resetTaskStatus( String jobId,  Integer computeType){
         //check jobstatus can reset
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         Preconditions.checkNotNull(scheduleJob, "not exists job with id " + jobId);
@@ -511,7 +488,7 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
         }
 
         //do reset status
-        scheduleJobDao.updateJobStatus(jobId, RdosTaskStatus.UNSUBMIT.getStatus());
+        scheduleJobDao.updateJobStatusAndPhaseStatus(jobId, RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode());
         logger.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.UNSUBMIT.getStatus());
         return jobId;
     }
@@ -519,16 +496,16 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
     /**
      * task 工程使用
      */
-    public List<Map<String, Object>> listJobStatus(@Param("time") Long time) {
+    public List<ActionJobStatusVO> listJobStatus( Long time) {
         if (time == null || time == 0L) {
             throw new RuntimeException("time is null");
         }
 
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType());
         if (CollectionUtils.isNotEmpty(scheduleJobs)) {
-            List<Map<String, Object>> result = new ArrayList<>(scheduleJobs.size());
+            List<ActionJobStatusVO> result = new ArrayList<>(scheduleJobs.size());
             for (ScheduleJob scheduleJob : scheduleJobs) {
-                Map<String, Object> data = batJobConvertMap(scheduleJob);
+                ActionJobStatusVO data = batJobConvertMap(scheduleJob);
                 result.add(data);
             }
             return result;
@@ -537,14 +514,14 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
     }
 
 
-    public List<Map<String, Object>> listJobStatusByJobIds(@Param("jobIds") List<String> jobIds) throws Exception {
+    public List<ActionJobStatusVO> listJobStatusByJobIds( List<String> jobIds) throws Exception {
         if (CollectionUtils.isNotEmpty(jobIds)) {
             List<ScheduleJob> scheduleJobs = scheduleJobDao.getRdosJobByJobIds(jobIds);
             if (CollectionUtils.isNotEmpty(scheduleJobs)) {
-                List<Map<String, Object>> result = new ArrayList<>(scheduleJobs.size());
+                List<ActionJobStatusVO> result = new ArrayList<>(scheduleJobs.size());
                 for (ScheduleJob scheduleJob : scheduleJobs) {
-                    Map<String, Object> data = batJobConvertMap(scheduleJob);
-                    result.add(data);
+                    ActionJobStatusVO vo = batJobConvertMap(scheduleJob);
+                    result.add(vo);
                 }
                 return result;
             }
@@ -552,14 +529,14 @@ public class ActionService implements com.dtstack.engine.api.service.ActionServi
         return Collections.EMPTY_LIST;
     }
 
-    private Map<String, Object> batJobConvertMap(ScheduleJob scheduleJob){
-        Map<String, Object> data = new HashMap<>(6);
-        data.put("jobId", scheduleJob.getJobId());
-        data.put("status", scheduleJob.getStatus());
-        data.put("execStartTime", scheduleJob.getExecStartTime() == null ? 0 : scheduleJob.getExecStartTime());
-        data.put("execEndTime", scheduleJob.getExecEndTime() == null ? 0 : scheduleJob.getExecEndTime());
-        data.put("execTime", scheduleJob.getExecTime());
-        data.put("retryNum", scheduleJob.getRetryNum());
-        return data;
+    private ActionJobStatusVO batJobConvertMap(ScheduleJob scheduleJob){
+        ActionJobStatusVO vo =new ActionJobStatusVO();
+        vo.setJobId(scheduleJob.getJobId());
+        vo.setStatus(scheduleJob.getStatus());
+        vo.setExecStartTime(scheduleJob.getExecStartTime() == null ? new Timestamp(0) : scheduleJob.getExecStartTime());
+        vo.setExecEndTime(scheduleJob.getExecEndTime() == null ? new Timestamp(0) : scheduleJob.getExecEndTime());
+        vo.setExecTime(scheduleJob.getExecTime());
+        vo.setRetryNum(scheduleJob.getRetryNum());
+        return vo;
     }
 }

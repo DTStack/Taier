@@ -19,9 +19,9 @@ import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
-import com.dtstack.engine.master.parser.ESchedulePeriodType;
-import com.dtstack.engine.master.parser.ScheduleCron;
-import com.dtstack.engine.master.parser.ScheduleFactory;
+import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
+import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
+import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -632,7 +632,21 @@ public class JobRichOperator {
         return new ImmutablePair<>(startTime, endTime);
     }
 
+    public Pair<String, String> getCycTimeLimitEndNow() {
+        // 当前时间
+        Calendar calendar = Calendar.getInstance();
+        String endTime = sdf.format(calendar.getTime());
 
-
+        // 获得配置的前几天
+        Integer dayGap = environmentContext.getCycTimeDayGap();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.add(Calendar.DATE, -dayGap);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        String startTime = sdf.format(calendar.getTime());
+        return new ImmutablePair<>(startTime, endTime);
+    }
 
 }

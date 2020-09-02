@@ -92,4 +92,19 @@ public class ScheduleBatchJob {
     public void setDependencyChildPrePeriodList(List<ScheduleJob> dependencyChildPrePeriodList) {
         this.dependencyChildPrePeriodList = dependencyChildPrePeriodList;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ScheduleBatchJob that = (ScheduleBatchJob) o;
+
+        return scheduleJob != null ? scheduleJob.getJobId().equals(that.getJobId()) : that.getJobId() == null;
+    }
+
 }

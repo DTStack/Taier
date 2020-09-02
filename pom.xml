@@ -2,7 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>com.dtstack.engine</groupId>
     <artifactId>engine-all</artifactId>
     <version>1.0.0</version>
@@ -12,13 +11,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <zookeeper.version>3.4.6</zookeeper.version>
         <hadoop.version>2.7.3</hadoop.version>
-        <spring.version>4.1.9.RELEASE</spring.version>
+        <spring.version>5.2.3.RELEASE</spring.version>
         <fastjson>2.9.6</fastjson>
         <hivejdbc.version>1.1.1</hivejdbc.version>
     </properties>
 
     <modules>
-        <module>engine-api</module>
+        <module>engine-client</module>
         <module>engine-common</module>
         <module>engine-master</module>
         <module>engine-worker</module>
@@ -27,6 +26,20 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>2.2.4.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>2.1.1</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-common</artifactId>

@@ -1,24 +1,26 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.pager.PageQuery;
+import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.api.vo.console.*;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.pojo.ClusterResource;
-import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.cache.ShardCache;
+import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.base.Preconditions;
@@ -45,7 +47,7 @@ import java.util.stream.Collectors;
  * create: 2018/9/18
  */
 @Service
-public class ConsoleService implements com.dtstack.engine.api.service.ConsoleService {
+public class ConsoleService {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsoleService.class);
 
@@ -85,9 +87,11 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
     @Autowired
     private WorkerOperator workerOperator;
 
+    @Autowired
+    private PluginWrapper pluginWrapper;
+
     private static long DELAULT_TENANT  = -1L;
 
-    @Forbidden
     public Boolean finishJob(String jobId, Integer status) {
         if (!RdosTaskStatus.isStopped(status)) {
             logger.warn("Job status：" + status + " is not stopped status");
@@ -108,7 +112,7 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
         }
     }
 
-    public Map<String, Object> searchJob(@Param("jobName") String jobName) {
+    public ConsoleJobVO searchJob( String jobName) {
         Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
         String jobId = null;
         ScheduleJob scheduleJob = scheduleJobDao.getByName(jobName);
@@ -123,23 +127,21 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
             return null;
         }
         try {
-            Map<String, Object> theJobMap = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), Map.class);
+            ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
             Tenant tenant = tenantDao.getByDtUicTenantId(scheduleJob.getDtuicTenantId());
-            this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant);
-
-            Map<String, Object> result = new HashMap<>(3);
-            result.put("theJob", Lists.newArrayList(theJobMap));
-            result.put("theJobIdx", 1);
-            result.put("nodeAddress", engineJobCache.getNodeAddress());
-
-            return result;
+            ConsoleJobInfoVO consoleJobInfoVO = this.fillJobInfo(paramAction, scheduleJob, engineJobCache, tenant);
+            ConsoleJobVO vo = new ConsoleJobVO();
+            vo.setTheJob(consoleJobInfoVO);
+            vo.setNodeAddress(engineJobCache.getNodeAddress());
+            vo.setTheJobIdx(1);
+            return vo;
         } catch (Exception e) {
             logger.error("{}", e);
         }
         return null;
     }
 
-    public List<String> listNames(@Param("jobName") String jobName) {
+    public List<String> listNames( String jobName) {
         try {
             Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
             return engineJobCacheDao.listNames(jobName);
@@ -156,7 +158,7 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
     /**
      * 根据计算引擎类型显示任务
      */
-    public Collection<Map<String, Object>> overview(@Param("nodeAddress") String nodeAddress, @Param("clusterName") String clusterName) {
+    public Collection<Map<String, Object>> overview( String nodeAddress,  String clusterName) {
         if (StringUtils.isBlank(nodeAddress)) {
             nodeAddress = null;
         }
@@ -212,11 +214,11 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
         return overview.values();
     }
 
-    public Map<String, Object> groupDetail(@Param("jobResource") String jobResource,
-                                           @Param("nodeAddress") String nodeAddress,
-                                           @Param("stage") Integer stage,
-                                           @Param("pageSize") Integer pageSize,
-                                           @Param("currentPage") Integer currentPage,@Param("dtToken") String dtToken) {
+    public PageResult groupDetail(String jobResource,
+                                  String nodeAddress,
+                                  Integer stage,
+                                  Integer pageSize,
+                                  Integer currentPage, String dtToken) {
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
         Preconditions.checkNotNull(stage, "parameters of stage is required");
         Preconditions.checkArgument(currentPage != null && currentPage > 0, "parameters of currentPage is required");
@@ -259,25 +261,48 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
         } catch (Exception e) {
             logger.error("{}", e);
         }
-        Map<String, Object> result = new HashMap<>();
-        result.put("data", data);
-        result.put("total", count);
-        result.put("currentPage", currentPage);
-        result.put("pageSize", pageSize);
+        PageQuery pageQuery = new PageQuery<>(currentPage, pageSize);
+        PageResult result = new PageResult(data,count.intValue(),pageQuery);
         return result;
     }
 
-    private void fillJobInfo(Map<String, Object> theJobMap, ScheduleJob scheduleJob, EngineJobCache engineJobCache,Tenant tenant) {
+    private void fillJobInfo(Map<String, Object> theJobMap, ScheduleJob scheduleJob, EngineJobCache engineJobCache, Tenant tenant) {
         theJobMap.put("status", scheduleJob.getStatus());
         theJobMap.put("execStartTime", scheduleJob.getExecStartTime());
         theJobMap.put("generateTime", engineJobCache.getGmtCreate());
         long currentTime = System.currentTimeMillis();
         String waitTime = DateUtil.getTimeDifference(currentTime - engineJobCache.getGmtCreate().getTime());
         theJobMap.put("waitTime", waitTime);
+        theJobMap.put("waitReason", engineJobCache.getWaitReason());
         theJobMap.put("tenantName", Objects.isNull(tenant) ? "" : tenant.getTenantName());
+        String jobInfo = (String) theJobMap.get("jobInfo");
+        JSONObject jobInfoJSON = JSONObject.parseObject(jobInfo);
+        if (Objects.isNull(jobInfoJSON)) {
+            jobInfoJSON = new JSONObject();
+        }
+        if (!jobInfoJSON.containsKey(PluginWrapper.PLUGIN_INFO)) {
+            //获取插件信息
+            String pluginInfo = pluginWrapper.getPluginInfo(jobInfoJSON.getString("taskParams"), engineJobCache.getComputeType(), engineJobCache.getEngineType(),
+                    Objects.isNull(tenant) ? -1L : tenant.getDtUicTenantId(), jobInfoJSON.getLong("userId"));
+            jobInfoJSON.put(PluginWrapper.PLUGIN_INFO, pluginInfo);
+            theJobMap.put("jobInfo", jobInfoJSON.toJSONString());
+        }
     }
 
-    public Boolean jobStick(@Param("jobId") String jobId) {
+    private ConsoleJobInfoVO fillJobInfo(ParamAction paramAction, ScheduleJob scheduleJob, EngineJobCache engineJobCache, Tenant tenant) {
+        ConsoleJobInfoVO infoVO = new ConsoleJobInfoVO();
+        infoVO.setStatus(scheduleJob.getStatus());
+        infoVO.setExecStartTime(scheduleJob.getExecStartTime());
+        infoVO.setGenerateTime(engineJobCache.getGmtCreate());
+        long currentTime = System.currentTimeMillis();
+        String waitTime = DateUtil.getTimeDifference(currentTime - engineJobCache.getGmtCreate().getTime());
+        infoVO.setWaitTime(waitTime);
+        infoVO.setTenantName(Objects.isNull(tenant) ? "" : tenant.getTenantName());
+        infoVO.setParamAction(paramAction);
+        return infoVO;
+    }
+
+    public Boolean jobStick( String jobId) {
         Preconditions.checkNotNull(jobId, "parameters of jobId is required");
 
         try {
@@ -297,7 +322,7 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
                 if (EJobCacheStage.PRIORITY.getStage() == engineJobCache.getStage()) {
                     //先将队列中的元素移除，重复插入会被忽略
                     GroupPriorityQueue groupPriorityQueue = jobDealer.getGroupPriorityQueue(engineJobCache.getJobResource());
-                    groupPriorityQueue.remove(engineJobCache.getJobId());
+                    groupPriorityQueue.remove(jobClient);
                 }
                 return jobDealer.addGroupPriorityQueue(engineJobCache.getJobResource(), jobClient, false);
             }
@@ -307,7 +332,7 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
         return false;
     }
 
-    public void stopJob(@Param("jobId") String jobId) throws Exception {
+    public void stopJob( String jobId) throws Exception {
         Preconditions.checkArgument(StringUtils.isNotBlank(jobId), "parameters of jobId is required");
         List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(Lists.newArrayList(jobId));
         if (alreadyExistJobIds.contains(jobId)) {
@@ -324,8 +349,8 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
     /**
      * 概览，杀死全部
      */
-    public void stopAll(@Param("jobResource") String jobResource,
-                        @Param("nodeAddress") String nodeAddress) throws Exception {
+    public void stopAll( String jobResource,
+                         String nodeAddress) throws Exception {
 
         Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
 
@@ -334,10 +359,10 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
         }
     }
 
-    public void stopJobList(@Param("jobResource") String jobResource,
-                            @Param("nodeAddress") String nodeAddress,
-                            @Param("stage") Integer stage,
-                            @Param("jobIdList") List<String> jobIdList) throws Exception {
+    public void stopJobList( String jobResource,
+                             String nodeAddress,
+                             Integer stage,
+                             List<String> jobIdList) throws Exception {
         if (jobIdList != null && !jobIdList.isEmpty()) {
             //杀死指定jobIdList的任务
 
@@ -405,9 +430,9 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
         }
     }
 
-    public Map<String, Object> clusterResources(@Param("clusterName") String clusterName) {
+    public ClusterResource clusterResources( String clusterName) {
         if (StringUtils.isEmpty(clusterName)) {
-            return MapUtils.EMPTY_MAP;
+            return new ClusterResource();
         }
 
         Cluster cluster = clusterDao.getByClusterName(clusterName);
@@ -423,9 +448,7 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
         return getResources(yarnComponent, cluster);
     }
 
-    @Forbidden
-    public Map<String, Object> getResources(Component yarnComponent, Cluster cluster) {
-        Map<String, Object> clusterResources = new HashMap<>(2);
+    public ClusterResource getResources(Component yarnComponent, Cluster cluster) {
         try {
             JSONObject pluginInfo = new JSONObject();
             JSONObject componentConfig = JSONObject.parseObject(yarnComponent.getComponentConfig());
@@ -445,13 +468,11 @@ public class ConsoleService implements com.dtstack.engine.api.service.ConsoleSer
             }
             pluginInfo.put(ComponentService.TYPE_NAME,typeName);
             ClusterResource clusterResource = workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
-            clusterResources.put("yarn", clusterResource.getYarn());
-            clusterResources.put("flink", clusterResource.getFlink());
+            return clusterResource;
         } catch (Exception e) {
             logger.error(" ", e);
             throw new RdosDefineException("flink资源获取异常");
         }
-        return clusterResources;
     }
 
     private Component getYarnComponent(Long clusterId) {

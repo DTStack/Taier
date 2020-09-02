@@ -57,7 +57,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerJobClientFactory.class);
 
-    private static final String DIR = "/keytab/";
+    private static final String KERBEROS_DIR = "/kerberosPath/";
 
     private static final String LOG_LEVEL_KEY = "logLevel";
 
@@ -88,9 +88,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
                 classpaths.add(new File(jarFileInfo.getJarPath()).toURI().toURL());
             }
         }
-        List<File> keytabFilePath = getKeytabFilePath(jobClient);
 
-        clusterDescriptor.addShipFiles(keytabFilePath);
         clusterDescriptor.setProvidedUserJarFiles(classpaths);
         return clusterDescriptor;
     }
@@ -126,21 +124,6 @@ public class PerJobClientFactory extends AbstractClientFactory {
             throw new RdosDefineException(e.getMessage());
         }
         return configuration;
-    }
-
-    private List<File> getKeytabFilePath(JobClient jobClient) {
-        List<File> keytabs = Lists.newLinkedList();
-        String keytabDir = USER_DIR + DIR + jobClient.getTaskId();
-        File keytabDirName = new File(keytabDir);
-        File[] files = keytabDirName.listFiles();
-
-        if (flinkConfig.isOpenKerberos() && keytabDirName.isDirectory() && files.length > 0) {
-            for (File file : files) {
-                keytabs.add(file);
-            }
-            return keytabs;
-        }
-        return keytabs;
     }
 
     @Override

@@ -1,10 +1,12 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.UnitConvertUtil;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.base.resource.AbstractYarnResourceInfo;
 import com.google.common.collect.Lists;
+import org.apache.hadoop.yarn.client.api.YarnClient;
 
 import java.util.List;
 import java.util.Properties;
@@ -40,8 +42,23 @@ public class SparkYarnResourceInfo extends AbstractYarnResourceInfo {
 
     public final static int DEFAULT_MEM_OVERHEAD = 384;
 
+    private YarnClient yarnClient;
+    private String queueName;
+    private Integer yarnAccepterTaskNumber;
+
+    public SparkYarnResourceInfo(YarnClient yarnClient, String queueName, Integer yarnAccepterTaskNumber) {
+        this.yarnClient = yarnClient;
+        this.queueName = queueName;
+        this.yarnAccepterTaskNumber = yarnAccepterTaskNumber;
+    }
+
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public JudgeResult judgeSlots(JobClient jobClient) {
+
+        JudgeResult jr = getYarnSlots(yarnClient, queueName, yarnAccepterTaskNumber);
+        if (!jr.available()) {
+            return jr;
+        }
 
         Properties properties = jobClient.getConfProperties();
         int driverCores = DEFAULT_CORES;
@@ -86,4 +103,35 @@ public class SparkYarnResourceInfo extends AbstractYarnResourceInfo {
                 InstanceInfo.newRecord(executorNum, executorCores, executorMem));
         return judgeYarnResource(instanceInfos);
     }
+
+
+    public static SparkYarnResourceInfoBuilder SparkYarnResourceInfoBuilder() {
+        return new SparkYarnResourceInfoBuilder();
+    }
+
+    public static class SparkYarnResourceInfoBuilder {
+        private YarnClient yarnClient;
+        private String queueName;
+        private Integer yarnAccepterTaskNumber;
+
+        public SparkYarnResourceInfoBuilder withYarnClient(YarnClient yarnClient) {
+            this.yarnClient = yarnClient;
+            return this;
+        }
+
+        public SparkYarnResourceInfoBuilder withQueueName(String queueName) {
+            this.queueName = queueName;
+            return this;
+        }
+
+        public SparkYarnResourceInfoBuilder withYarnAccepterTaskNumber(Integer yarnAccepterTaskNumber) {
+            this.yarnAccepterTaskNumber = yarnAccepterTaskNumber;
+            return this;
+        }
+
+        public SparkYarnResourceInfo build() {
+            return new SparkYarnResourceInfo(yarnClient, queueName, yarnAccepterTaskNumber);
+        }
+    }
+
 }

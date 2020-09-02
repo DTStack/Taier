@@ -1,16 +1,16 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.Account;
 import com.dtstack.engine.api.domain.AccountTenant;
 import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.api.dto.AccountDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.AccountTenantUnBandsVO;
 import com.dtstack.engine.api.vo.AccountTenantVo;
 import com.dtstack.engine.api.vo.AccountVo;
-import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.AccountDao;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  * @date 2020-02-14
  */
 @Service
-public class AccountService implements com.dtstack.engine.api.service.AccountService {
+public class AccountService {
 
     private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 
@@ -124,7 +124,6 @@ public class AccountService implements com.dtstack.engine.api.service.AccountSer
     }
 
 
-    @Forbidden
     @Transactional
     public void bindAccountTenant(AccountVo accountVo) {
         Account dbAccountByName = new Account();
@@ -195,7 +194,7 @@ public class AccountService implements com.dtstack.engine.api.service.AccountSer
      * 解绑数据库账号
      */
     @Transactional
-    public void unbindAccount(AccountTenantVo accountTenantVo, @Param("userId") Long userId) throws Exception {
+    public void unbindAccount(AccountTenantVo accountTenantVo,  Long userId) throws Exception {
         if (Objects.isNull(accountTenantVo) || Objects.isNull(accountTenantVo.getId())) {
             throw new RdosDefineException("参数不能为空");
         }
@@ -243,10 +242,10 @@ public class AccountService implements com.dtstack.engine.api.service.AccountSer
 
 
     /**
-     * 解绑数据库账号
+     * 更改数据库账号
      */
     @Transactional
-    public void updateBindAccount(AccountTenantVo accountTenantVo, @Param("userId") Long userId) throws Exception {
+    public void updateBindAccount(AccountTenantVo accountTenantVo,  Long userId) throws Exception {
         if (Objects.isNull(accountTenantVo) || Objects.isNull(accountTenantVo.getId())) {
             throw new RdosDefineException("参数不能为空");
         }
@@ -309,8 +308,8 @@ public class AccountService implements com.dtstack.engine.api.service.AccountSer
      * @param pageSize
      * @return
      */
-    public PageResult<List<AccountVo>> pageQuery(@Param("dtuicTenantId") Long dtuicTenantId, @Param("username") String username, @Param("currentPage") Integer currentPage,
-                                                 @Param("pageSize") Integer pageSize, @Param("engineType") Integer engineType) {
+    public PageResult<List<AccountVo>> pageQuery( Long dtuicTenantId,  String username,  Integer currentPage,
+                                                  Integer pageSize,  Integer engineType) {
         if (Objects.isNull(dtuicTenantId)) {
             throw new RdosDefineException("绑定参数不能为空");
         }
@@ -339,8 +338,8 @@ public class AccountService implements com.dtstack.engine.api.service.AccountSer
      * @param dtuicTenantId
      * @return
      */
-    public List<Map<String, Object>> getTenantUnBandList(@Param("dtuicTenantId") Long dtuicTenantId, @Param("dtToken") String dtToken, @Param("userId") Long userId,
-                                                         @Param("engineType")Integer engineType) {
+    public List<Map<String, Object>> getTenantUnBandList( Long dtuicTenantId,  String dtToken,  Long userId,
+                                                         Integer engineType) {
         if (Objects.isNull(dtuicTenantId)) {
             throw new RdosDefineException("请选择对应租户");
         }
@@ -360,6 +359,7 @@ public class AccountService implements com.dtstack.engine.api.service.AccountSer
             rootMap.put("createTime", rootUser.getGmtCreate());
             uicUsers.add(rootMap);
         }
+
         if (CollectionUtils.isEmpty(uicUsers)) {
             return new ArrayList(0);
         }
@@ -371,9 +371,12 @@ public class AccountService implements com.dtstack.engine.api.service.AccountSer
             userInIds = new ArrayList<>();
         }
         //过滤租户下已绑定的用户
-        return uicUsers.stream()
+        List<Map<String, Object>> userId1 = uicUsers.stream()
                 .filter((uicUser) -> !userInIds.contains(Long.valueOf(uicUser.get("userId").toString())))
                 .collect(Collectors.toList());
+
+
+        return userId1;
 
     }
 }

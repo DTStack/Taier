@@ -1,7 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.annotation.Forbidden;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.vo.ScheduleJobVO;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -32,7 +30,7 @@ import java.util.stream.Collectors;
  * create: 2019/10/22
  */
 @Service
-public class ScheduleJobJobService implements com.dtstack.engine.api.service.ScheduleJobJobService {
+public class ScheduleJobJobService {
 
     private final static Logger logger = LoggerFactory.getLogger(ScheduleJobJobService.class);
 
@@ -53,9 +51,9 @@ public class ScheduleJobJobService implements com.dtstack.engine.api.service.Sch
     /**
      * @author toutian
      */
-    public com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpring(@Param("jobId") Long jobId,
-                                                                       @Param("projectId") Long projectId,
-                                                                       @Param("level") Integer level) throws Exception {
+    public com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpring( Long jobId,
+                                                                        Long projectId,
+                                                                        Integer level) throws Exception {
 
         ScheduleJob job = scheduleJobDao.getOne(jobId);
         if (job == null) {
@@ -253,7 +251,6 @@ public class ScheduleJobJobService implements com.dtstack.engine.api.service.Sch
         return vo;
     }
 
-    @Forbidden
     public com.dtstack.engine.master.vo.ScheduleJobVO getOffSpring(ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap, Map<Long, ScheduleTaskShade> idTaskMap, boolean isSubTask) {
         ScheduleJob job = keyJobMap.get(root.getJobKey());
         com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
@@ -310,7 +307,7 @@ public class ScheduleJobJobService implements com.dtstack.engine.api.service.Sch
     /**
      * 为工作流节点展开子节点
      */
-    public com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpringWorkFlow(@Param("jobId") Long jobId, @Param("appType")Integer appType) throws Exception {
+    public com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpringWorkFlow( Long jobId, Integer appType) throws Exception {
         ScheduleJob job = batchJobService.getJobById(jobId);
         ScheduleTaskShade batchTaskShade = batchTaskShadeService.getBatchTaskById(job.getTaskId(),appType);
         com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
@@ -336,7 +333,7 @@ public class ScheduleJobJobService implements com.dtstack.engine.api.service.Sch
         });
     }
 
-    public com.dtstack.engine.master.vo.ScheduleJobVO displayForefathers(@Param("jobId") Long jobId, @Param("level") Integer level) throws Exception {
+    public com.dtstack.engine.master.vo.ScheduleJobVO displayForefathers( Long jobId,  Integer level) throws Exception {
 
         ScheduleJob job = scheduleJobDao.getOne(jobId);
         if (job == null) {
@@ -401,7 +398,6 @@ public class ScheduleJobJobService implements com.dtstack.engine.api.service.Sch
         return vo;
     }
 
-    @Forbidden
     public List<ScheduleJobJob> getJobChild(String parentJobKey) {
         return scheduleJobJobDao.listByParentJobKey(parentJobKey);
     }

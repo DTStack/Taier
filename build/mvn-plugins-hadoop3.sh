@@ -7,7 +7,7 @@ then
 fi
 echo "Dependency ${hadoopversion} Building..."
 
-mvn clean package -DskipTests -Dhadoop.version=${hadoopversion} -Dhivejdbc.version=2.1.0 -pl \
+mvn clean package -DskipTests -Dhadoop.version=${hadoopversion} -Dhivejdbc.version=2.1.1-cdh6.1.1 -pl \
 engine-worker/engine-plugins/dummy,\
 engine-worker/engine-plugins/hadoop/yarn3-hdfs3-hadoop3,\
 engine-worker/engine-plugins/dtscript/yarn3-hdfs3-dtscript/dtscript-client,\
@@ -26,5 +26,6 @@ engine-worker/engine-plugins/rdbs/postgresql,\
 engine-worker/engine-plugins/rdbs/impala,\
 engine-worker/engine-plugins/rdbs/tidb,\
 engine-worker/engine-plugins/rdbs/greenplum,\
+engine-worker/engine-plugins/rdbs/presto,\
 engine-entrance \
 -am

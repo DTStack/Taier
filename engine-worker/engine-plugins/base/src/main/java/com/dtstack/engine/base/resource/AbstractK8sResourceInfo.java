@@ -1,11 +1,11 @@
 package com.dtstack.engine.base.resource;
 
-import com.dtstack.engine.common.exception.LimitResourceException;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.google.common.collect.Lists;
 import io.fabric8.kubernetes.api.model.Node;
 import io.fabric8.kubernetes.api.model.NodeStatus;
-import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.api.model.ResourceQuota;
 import io.fabric8.kubernetes.api.model.metrics.v1beta1.NodeMetrics;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.internal.NodeMetricOperationsImpl;
@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 
 /**
@@ -52,10 +52,10 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
     protected double[] nmFreeCore = null;
     protected double[] nmFreeMem = null;
 
-    protected boolean judgeResource(List<InstanceInfo> instanceInfos) {
+    protected JudgeResult judgeResource(List<InstanceInfo> instanceInfos) {
         if (totalFreeCore == 0 || totalFreeMem == 0) {
             logger.info("judgeResource, totalFreeCore={}, totalFreeMem={}", totalFreeCore, totalFreeMem);
-            return false;
+            return JudgeResult.notOk( "totalFreeCore or totalFreeMem is 0");
         }
         double needTotalCore = 0;
         double needTotalMem = 0;
@@ -64,36 +64,37 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
             needTotalMem += instanceInfo.instances * instanceInfo.memPerInstance;
         }
         if (needTotalCore == 0 || needTotalMem == 0) {
-            throw new LimitResourceException("task resource configuration error，needTotalCore：" + 0 + ", needTotalMem：" + needTotalMem);
+            return JudgeResult.limitError("task resource configuration error，needTotalCore：" + 0 + ", needTotalMem：" + needTotalMem);
         }
         if (needTotalCore > totalCore) {
             logger.info("judgeResource, needTotalCore={}, totalCore={}", needTotalCore, totalCore);
-            return false;
+            return JudgeResult.limitError("The task required core resources are greater than the total resources");
         }
         if (needTotalMem > totalMem) {
             logger.info("judgeResource, needTotalMem={}, totalMem={}", needTotalMem, totalMem);
-            return false;
+            return JudgeResult.limitError("The task required memory resources are greater than the total resources");
         }
         for (InstanceInfo instanceInfo : instanceInfos) {
-            if (!judgeInstanceResource(instanceInfo.instances, instanceInfo.coresPerInstance, instanceInfo.memPerInstance)) {
+            JudgeResult judgeInstanceResource = judgeInstanceResource(instanceInfo.instances, instanceInfo.coresPerInstance, instanceInfo.memPerInstance);
+            if (!judgeInstanceResource.available()) {
                 logger.info("judgeResource, nmFreeCore={}, nmFreeMem={} instanceInfo={}", nmFreeCore, nmFreeMem, instanceInfo);
-                return false;
+                return judgeInstanceResource;
             }
         }
-        return true;
+        return JudgeResult.ok();
     }
 
-    private boolean judgeInstanceResource(int instances, double coresPerInstance, double memPerInstance) {
+    private JudgeResult judgeInstanceResource(int instances, double coresPerInstance, double memPerInstance) {
         if (instances == 0 || coresPerInstance == 0 || memPerInstance == 0) {
-            throw new LimitResourceException("task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
+            return JudgeResult.limitError("task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
         }
         if (!judgeCores(instances, coresPerInstance)) {
-            return false;
+            return JudgeResult.notOk( "Insufficient cpu resources of kubernetes cluster");
         }
         if (!judgeMem(instances, memPerInstance)) {
-            return false;
+            return JudgeResult.notOk( "Insufficient memory resources of kubernetes cluster");
         }
-        return true;
+        return JudgeResult.ok();
     }
 
     private boolean judgeCores(int instances, double coresPerInstance) {
@@ -124,15 +125,7 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
         return false;
     }
 
-    public void getResource(KubernetesClient kubernetesClient, List<String> labels, int allowPendingPodSize) {
-        if (allowPendingPodSize > 0) {
-            List<Pod> pods = kubernetesClient.pods().list().getItems();
-            List<Pod> pendingPods = pods.stream().filter(p -> PENDING_PHASE.equals(p.getStatus().getPhase())).collect(Collectors.toList());
-            if (pendingPods.size() > allowPendingPodSize) {
-                logger.info("pendingPods-size:{} allowPendingPodSize:{}", pendingPods.size(), allowPendingPodSize);
-                return;
-            }
-        }
+    public void getResource(KubernetesClient kubernetesClient) {
 
         List<Node> nodes = kubernetesClient.nodes().list().getItems();
         Map<String, NodeStatus> nodeStatusMap = new HashMap<>(nodes.size());
@@ -143,7 +136,6 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
         NodeMetricOperationsImpl nodeMetricOperations = kubernetesClient.top().nodes();
         List<NodeMetrics> nodeMetrics = nodeMetricOperations.metrics().getItems();
         for (NodeMetrics nodeMetric : nodeMetrics) {
-            System.out.println(nodeMetric);
 
             String nodeName = nodeMetric.getMetadata().getName();
             NodeStatus nodeStatus = nodeStatusMap.get(nodeName);
@@ -189,6 +181,39 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
             nmFreeCore[index] = nodeFreeCores;
             index++;
         }
+    }
+
+    public JudgeResult judgeResourceInNamespace(List<InstanceInfo> instanceInfos, ResourceQuota resourceQuota) {
+        Double needTotalCore = 0d;
+        Double needTotalMem = 0d;
+        for (InstanceInfo instanceInfo : instanceInfos) {
+            needTotalCore += instanceInfo.instances * instanceInfo.coresPerInstance;
+            needTotalMem += instanceInfo.instances * instanceInfo.memPerInstance;
+        }
+
+        Quantity amountTotalCores = resourceQuota.getStatus().getHard().get("requests.cpu");
+        Quantity amountTotalMem = resourceQuota.getStatus().getHard().get("requests.memory");
+        Double totalCores = Objects.isNull(amountTotalCores) ? 0d : Quantity.getAmountInBytes(amountTotalCores).doubleValue();
+        Double totalMem = Objects.isNull(amountTotalMem) ? 0d : Quantity.getAmountInBytes(amountTotalMem).doubleValue();
+
+        Quantity amountUsedCores = resourceQuota.getStatus().getUsed().get("requests.cpu");
+        Quantity amountUsedMem = resourceQuota.getStatus().getUsed().get("requests.memory");
+        Double usedCores = Objects.isNull(amountUsedCores) ? 0d : Quantity.getAmountInBytes(amountUsedCores).doubleValue();
+        Double usedMem = Objects.isNull(amountUsedMem) ? 0d : Quantity.getAmountInBytes(amountUsedMem).doubleValue();
+
+        Double freeCores = totalCores - usedCores;
+        Double freeMem = totalMem - usedMem;
+
+        if (freeCores <= needTotalCore) {
+            logger.warn("Insufficient cpu resources。 needTotalCore: {}, freeCores: {}", needTotalCore, freeCores);
+            return JudgeResult.notOk( "Insufficient cpu resources。 needTotalCore:" + needTotalCore + ", freeCores: " + freeCores);
+        }
+
+        if (freeMem <= needTotalMem) {
+            logger.warn("Insufficient memory resources。 needTotalMem: {}, freeMem: {}", needTotalMem, freeMem);
+            return JudgeResult.notOk( "Insufficient memory resources。 needTotalMem: " + needTotalMem + ", freeMem: " + freeMem);
+        }
+        return JudgeResult.ok();
     }
 
     public static class InstanceInfo {

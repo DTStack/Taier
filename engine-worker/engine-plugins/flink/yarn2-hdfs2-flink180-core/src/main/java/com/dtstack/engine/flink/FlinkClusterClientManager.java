@@ -4,7 +4,7 @@ import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.flink.enums.Deploy;
+import com.dtstack.engine.flink.enums.ClusterMode;
 import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.factory.StandaloneClientFactory;
 import com.dtstack.engine.flink.factory.SessionClientFactory;
@@ -75,9 +75,9 @@ public class FlinkClusterClientManager {
 
     public void initClusterClient() throws Exception {
         KerberosUtils.login(flinkConfig, () -> {
-            if (flinkConfig.getClusterMode().equals(Deploy.standalone.name())) {
+            if (flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.STANDALONE.name())) {
                 clusterClient = new StandaloneClientFactory(flinkClientBuilder.getFlinkConfiguration(), flinkConfig).getClusterClient();
-            } else if (flinkConfig.getClusterMode().equals(Deploy.session.name())) {
+            } else if (flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.SESSION.name())) {
                 if (null == sessionClientFactory) {
                     try {
                         sessionClientFactory = new SessionClientFactory(this, flinkClientBuilder);

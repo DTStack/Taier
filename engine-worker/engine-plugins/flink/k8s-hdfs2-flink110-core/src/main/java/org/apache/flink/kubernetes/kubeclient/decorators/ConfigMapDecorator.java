@@ -68,7 +68,7 @@ public class ConfigMapDecorator extends Decorator<ConfigMap, KubernetesConfigMap
         configMap.put(FLINK_CONF_FILENAME, flinkConfContent.toString());
 
         String logLevel = flinkConfig.getString(KubernetesConfigOptions.FLINK_LOG_LEVEL).toLowerCase();
-        String log4jRollFileName = "log4j-roll.properties";
+        String log4jRollFileName = flinkConfig.getString(KubernetesConfigOptions.FLINK_LOG_FILE_NAME);
         final String log4jFile = confDir + File.separator + logLevel + File.separator + log4jRollFileName;
         try {
             final String log4jContent = KubernetesUtils.getContentFromFile(log4jFile);

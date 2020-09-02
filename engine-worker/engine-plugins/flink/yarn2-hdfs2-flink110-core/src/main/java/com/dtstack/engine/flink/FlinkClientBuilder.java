@@ -2,10 +2,11 @@ package com.dtstack.engine.flink;
 
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.flink.enums.Deploy;
+import com.dtstack.engine.flink.enums.ClusterMode;
 import com.dtstack.engine.flink.util.HadoopConf;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
+import org.apache.flink.configuration.SecurityOptions;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.util.HadoopUtils;
 import org.apache.flink.yarn.configuration.YarnConfigOptions;
@@ -49,12 +50,11 @@ public class FlinkClientBuilder {
 
     public static FlinkClientBuilder create(FlinkConfig flinkConfig, org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf) throws Exception {
         FlinkClientBuilder builder = new FlinkClientBuilder();
-        builder.flinkConfig = flinkConfig;
         builder.hadoopConf = hadoopConf;
         builder.yarnConf = yarnConf;
 
         KerberosUtils.login(flinkConfig, () -> {
-            if (Deploy.session.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
+            if (!ClusterMode.STANDALONE.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
                 try {
                     builder.yarnClient = initYarnClient(yarnConf);
                 } catch (Exception e) {
@@ -63,7 +63,8 @@ public class FlinkClientBuilder {
                 }
             }
             return null;
-        },yarnConf);
+        }, yarnConf);
+        builder.flinkConfig = flinkConfig;
 
         return builder;
     }
@@ -95,6 +96,13 @@ public class FlinkClientBuilder {
         }
 
         flinkConfiguration = config;
+    }
+
+    public void setSecurityConfig() {
+        String keytabPath = flinkConfig.getPrincipalPath();
+        String principal = flinkConfig.getPrincipalName();
+        flinkConfiguration.setString(SecurityOptions.KERBEROS_LOGIN_KEYTAB, keytabPath);
+        flinkConfiguration.setString(SecurityOptions.KERBEROS_LOGIN_PRINCIPAL, principal);
     }
 
     public static HadoopConf initHadoopConf(FlinkConfig flinkConfig) {
@@ -161,7 +169,7 @@ public class FlinkClientBuilder {
 
     public YarnClient buildYarnClient() {
         try {
-            KerberosUtils.login(flinkConfig, () -> {
+            return KerberosUtils.login(flinkConfig, () -> {
                 YarnClient yarnClient1 = YarnClient.createYarnClient();
                 yarnClient1.init(yarnConf);
                 yarnClient1.start();
@@ -171,7 +179,6 @@ public class FlinkClientBuilder {
         } catch (Exception e) {
             throw new RdosDefineException("build yarn client error", e);
         }
-        return null;
     }
 
     public Configuration getFlinkConfiguration() {

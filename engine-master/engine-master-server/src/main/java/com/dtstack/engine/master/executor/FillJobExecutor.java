@@ -19,8 +19,8 @@ public class FillJobExecutor extends AbstractJobExecutor {
     private final Logger logger = LoggerFactory.getLogger(FillJobExecutor.class);
 
     @Override
-    public Integer getScheduleType() {
-        return EScheduleType.FILL_DATA.getType();
+    public EScheduleType getScheduleType() {
+        return EScheduleType.FILL_DATA;
     }
 
     @Override

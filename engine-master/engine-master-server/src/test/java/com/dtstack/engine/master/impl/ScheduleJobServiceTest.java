@@ -31,6 +31,8 @@ import com.dtstack.engine.api.vo.ScheduleJobChartVO;
 import com.dtstack.engine.api.vo.ScheduleJobVO;
 import com.dtstack.engine.api.vo.SchedulePeriodInfoVO;
 import com.dtstack.engine.api.vo.ScheduleRunDetailVO;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
+import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.enums.EDeployMode;
@@ -95,10 +97,10 @@ public class ScheduleJobServiceTest extends AbstractTest {
         Integer appType = scheduleJob.getAppType();
         Long dtuicTenantId = scheduleJob.getDtuicTenantId();
 
-        JSONObject statusCount = sheduleJobService.getStatusCount(projectId, tenantId, appType, dtuicTenantId);
+        ScheduleJobStatusVO statusCount = sheduleJobService.getStatusCount(projectId, tenantId, appType, dtuicTenantId);
         if (!Objects.isNull(statusCount)) {
-            String all = statusCount.getString("ALL");
-            Assert.assertTrue(Integer.valueOf(all) == 1);
+            Integer all = statusCount.getAll();
+            Assert.assertTrue(all == 1);
         }
     }
 
@@ -216,8 +218,8 @@ public class ScheduleJobServiceTest extends AbstractTest {
         String startTime = job.getCycTime();
         String endTime = job.getCycTime();
 
-        Map<String, Object> stringObjectMap = sheduleJobService.countScienceJobStatus(projectId, tenantId, status, type, taskType, startTime, endTime);
-        Integer total = Integer.valueOf(stringObjectMap.get("total").toString());
+        ScheduleJobScienceJobStatusVO scheduleJobScienceJobStatusVO = sheduleJobService.countScienceJobStatus(projectId, tenantId, status, type, taskType, startTime, endTime);
+        Integer total = scheduleJobScienceJobStatusVO.getTotal();
         Assert.assertTrue(total == 1);
     }
 
@@ -272,8 +274,8 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testParseDeployTypeByTaskParams() {
-        EDeployMode eDeployMode = sheduleJobService.parseDeployTypeByTaskParams("flinktaskrunmode=per_job");
-        Assert.assertEquals(eDeployMode, EDeployMode.PERJOB);
+        EDeployMode eDeployMode = sheduleJobService.parseDeployTypeByTaskParams("flinkTaskRunMode=session",0);
+        Assert.assertEquals(eDeployMode, EDeployMode.SESSION);
     }
 
     @Test
@@ -418,6 +420,49 @@ public class ScheduleJobServiceTest extends AbstractTest {
 
         ScheduleJob scheduleJob = scheduleJobs.get(0);
         Assert.assertEquals(scheduleJob.getJobName(), job.getJobName());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testgetSameDayChildJob(){
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteJobkey();
+        String scheduleJobJson=JSONObject.toJSONString(scheduleJob);;
+        Integer appType = scheduleJob.getAppType();
+
+        List<ScheduleJob> sameDayChildJob = sheduleJobService.getSameDayChildJob(scheduleJobJson, true, appType);
+        Assert.assertEquals(sameDayChildJob.size(),1);
+
+        ScheduleJob scheduleJobQuery = sameDayChildJob.get(0);
+        Assert.assertEquals(scheduleJobQuery.getJobName(), scheduleJob.getJobName());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testGetAllChildJobWithSameDay(){
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteJobkey();
+        Integer appType = scheduleJob.getAppType();
+
+        List<ScheduleJob> allChildJobWithSameDay = sheduleJobService.getAllChildJobWithSameDay(scheduleJob, true, appType);
+        Assert.assertEquals(allChildJobWithSameDay.size(),1);
+
+        ScheduleJob scheduleJobQuery = allChildJobWithSameDay.get(0);
+        Assert.assertEquals(scheduleJobQuery.getJobName(), scheduleJob.getJobName());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    public void testGetLastSuccessJob(){
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobSetCycTime();
+        Long taskId = scheduleJob.getTaskId();
+        Integer appType = scheduleJob.getAppType();
+
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        ScheduleJob lastSuccessJob = sheduleJobService.getLastSuccessJob(taskId, timestamp, appType);
+
+        Assert.assertEquals(lastSuccessJob.getJobName(), scheduleJob.getJobName());
     }
 
 

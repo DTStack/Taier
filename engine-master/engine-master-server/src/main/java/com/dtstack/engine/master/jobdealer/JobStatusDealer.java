@@ -14,8 +14,8 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.bo.JobCompletedInfo;
 import com.dtstack.engine.master.bo.JobStatusFrequency;
-import com.dtstack.engine.master.cache.ShardCache;
-import com.dtstack.engine.master.cache.ShardManager;
+import com.dtstack.engine.master.jobdealer.cache.ShardCache;
+import com.dtstack.engine.master.jobdealer.cache.ShardManager;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.google.common.collect.Maps;
@@ -152,13 +152,15 @@ public class JobStatusDealer implements Runnable {
             String appId = scheduleJob.getApplicationId();
             String engineType = engineJobCache.getEngineType();
             JSONObject info = JSONObject.parseObject(engineJobCache.getJobInfo());
+            String taskParams = info.getString("taskParams");
+            String pluginInfo = info.getString("pluginInfo");
+            Long userId = info.getLong("userId");
             JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getDtuicTenantId(),engineType,
-                    scheduleJobService.parseDeployTypeByTaskParams(info.getString("taskParams")).getType(),info.getLong("userId"),
-                    info.getString("pluginInfo"));
+                    scheduleJobService.parseDeployTypeByTaskParams(taskParams,scheduleJob.getComputeType()).getType(),userId, pluginInfo);
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
 
-            logger.info("jobId:{} dealJob status:{}", jobId, rdosTaskStatus);
+            logger.info("------ jobId:{} dealJob status:{}", jobId, rdosTaskStatus);
 
             if (rdosTaskStatus != null) {
 
@@ -167,7 +169,7 @@ public class JobStatusDealer implements Runnable {
                 // 重试状态 先不更新状态
                 boolean isRestart = jobRestartDealer.checkAndRestart(status, jobId, engineTaskId, appId);
                 if (isRestart) {
-                    logger.info("jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
+                    logger.info("----- jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
                     return;
                 }
 
@@ -187,7 +189,7 @@ public class JobStatusDealer implements Runnable {
                     jobCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineType);
                 }
 
-                logger.info("jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
+                logger.info("------ jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
             }
         }
     }
@@ -222,7 +224,7 @@ public class JobStatusDealer implements Runnable {
         if (statusFrequency.getStatus().equals(status)) {
             statusFrequency.setNum(statusFrequency.getNum() + 1);
         } else {
-            statusFrequency.setNum(0);
+            statusFrequency.resetJobStatus(status);
         }
         return statusFrequency;
     }

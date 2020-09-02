@@ -92,7 +92,7 @@ public class KubernetesClient extends AbstractClient {
             String kubernetesConf = (String) conf.get("kubernetesConf");
             io.fabric8.kubernetes.client.Config kubernetes = io.fabric8.kubernetes.client.Config.fromKubeconfig(kubernetesConf);
             client = new DefaultKubernetesClient(kubernetes);
-            client.nodes().list();
+            client.getVersion();
             testResult.setResult(true);
         } finally {
             if (Objects.nonNull(client)) {

@@ -4,12 +4,11 @@ import akka.actor.AbstractActor;
 import com.dtstack.engine.common.akka.message.*;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.api.pojo.ClientTemplate;
-import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.client.ClientOperator;
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.ListUtils;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -21,7 +20,7 @@ public class JobService extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(MessageJudgeSlots.class, msg -> {
-                    boolean sufficient = ClientOperator.getInstance().judgeSlots(msg.getJobClient());
+                    JudgeResult sufficient = ClientOperator.getInstance().judgeSlots(msg.getJobClient());
                     sender().tell(sufficient, getSelf());
                 })
                 .match(MessageSubmitJob.class, msg -> {
