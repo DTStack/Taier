@@ -101,7 +101,7 @@ public class EnvironmentContext {
     }
 
     public String getHttpAddress() {
-        return environment.getProperty("http.address", "0.0.0.0");
+        return environment.getProperty("http.address", AddressUtil.getOneIp());
     }
 
     /**
