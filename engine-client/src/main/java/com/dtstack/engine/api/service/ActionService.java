@@ -60,7 +60,7 @@ public interface ActionService extends DtInsightServer {
      * 根据jobid 和 计算类型，查询k8s调度下job的日志
      */
     @RequestLine("POST /node/action/logFromEs")
-    ApiResponse<String> logFromEs(String jobId, Integer computeType);
+    ApiResponse<String> logFromEs(@Param("jobId") String jobId, @Param("computeType") Integer computeType);
 
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志

@@ -8,7 +8,6 @@ import com.dtstack.engine.common.callback.CallBack;
 import com.dtstack.engine.common.callback.ClassLoaderCallBackMethod;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ClientArgumentException;
-import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ClientTemplate;
@@ -212,8 +211,8 @@ public class ClientProxy implements IClient {
             throw new ClientArgumentException(e);
         } else if (throwable instanceof LimitResourceException) {
             throw new LimitResourceException(e.getMessage());
-        } else if (throwable instanceof RdosDefineException && ((RdosDefineException) throwable).getErrorCode() == ErrorCode.HTTP_CALL_ERROR) {
-            return JudgeResult.notOk(false, "judgeSlots error");
+        } else if (throwable instanceof RdosDefineException) {
+            return JudgeResult.notOk( "judgeSlots error");
         }
         throw new RdosDefineException(e);
     }

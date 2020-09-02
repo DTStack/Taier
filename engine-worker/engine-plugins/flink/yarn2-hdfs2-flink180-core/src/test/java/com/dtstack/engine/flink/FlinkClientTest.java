@@ -229,7 +229,7 @@ public class FlinkClientTest {
 			.set(flinkClient, flinkConfig);
 
 		JudgeResult perJudgeSlot = flinkClient.judgeSlots(perJobClient);
-		Assert.assertTrue(perJudgeSlot.getResult());
+		Assert.assertTrue(perJudgeSlot.available());
 
 		JobClient jobClient = YarnMockUtil.mockJobClient("session", null);
 
@@ -246,7 +246,7 @@ public class FlinkClientTest {
 		//when(flinkClient.getMessageByHttp(anyString())).thenReturn(taskmanagers);
 
 		JudgeResult judgeSlot = flinkClient.judgeSlots(jobClient);
-		Assert.assertTrue(judgeSlot.getResult());
+		Assert.assertTrue(judgeSlot.available());
 
 	}
 
