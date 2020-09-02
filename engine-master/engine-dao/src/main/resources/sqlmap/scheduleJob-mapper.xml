@@ -1525,11 +1525,11 @@
 	   INSERT INTO schedule_job
         (gmt_create, gmt_modified, tenant_id, project_id, dtuic_tenant_id, app_type, job_id, job_key, job_name, task_id,
         create_user_id, is_deleted, `type`, is_restart, business_date, cyc_time, dependency_type, flow_job_id,
-        status, task_type, max_retry_num, node_address, version_id, compute_type)
+        status, task_type, max_retry_num, node_address, version_id, compute_type,period_type)
 	   VALUES
 	   (now(), now(), #{tenantId}, #{projectId}, #{dtuicTenantId}, #{appType}, #{jobId}, #{jobKey}, #{jobName}, #{taskId},
 	   #{createUserId}, #{isDeleted}, #{type}, #{isRestart}, #{businessDate}, #{cycTime}, #{dependencyType}, #{flowJobId},
-	   #{status}, #{taskType}, #{maxRetryNum}, #{nodeAddress}, #{versionId}, #{computeType})
+	   #{status}, #{taskType}, #{maxRetryNum}, #{nodeAddress}, #{versionId}, #{computeType},#{periodType})
     </insert>
 
 
