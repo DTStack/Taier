@@ -55,7 +55,7 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
             reader.close();
             String reqBody = builder.toString();
             if (StringUtils.isNotBlank(reqBody)) {
-                request.setAttribute(DT_REQUEST_BODY, JSONObject.parse(reqBody));
+                request.setAttribute(DT_REQUEST_BODY, reqBody);
             }
             logger.info("Uri: " + uri + ", Params: " + reqBody);
         }
