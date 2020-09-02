@@ -1,6 +1,6 @@
 import 'whatwg-fetch'
 import { reqHeader, authBeforeRes } from './interceptor';
-import ProgressBar from '../components/progressBar/index';
+import ProgressBar from '@/components/ProgressBar/index';
 import token from './token';
 
 const AUTH_PARAM = 'Authorization';
