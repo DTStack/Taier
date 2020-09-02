@@ -55,7 +55,7 @@ public class DtArgumentResolver implements HandlerMethodArgumentResolver {
                         return JSON.parseArray(value, Class.forName(actualTypeArguments[0].getTypeName()));
                     }
                 } catch (Exception e) {
-                    return null;
+                    return requestBody.getObject(paramName, parameterType);
                 }
             }
 
