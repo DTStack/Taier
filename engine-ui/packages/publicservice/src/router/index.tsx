@@ -1,5 +1,5 @@
 import * as React from "react"
-import routerConf from './routerConf';
+import routerConf from './router-conf';
 import {  Router, Switch, Route,Redirect } from 'react-router-dom';
 import {history}from '@/utils/index'
 

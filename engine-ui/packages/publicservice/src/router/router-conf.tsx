@@ -2,9 +2,9 @@
 import BasicLayout  from '@/layouts/BasicLayout';
 import AdvanceLayout  from '@/layouts/AdvanceLayout';
 import Page404 from 'pages/exception/404';
-// import Login from '@/pages/user/login';
-// import Register from '@/pages/user/register';
-import Home from 'pages/home'
+import Login from '@/pages/user/Login';
+import Register from '@/pages/user/Register';
+import Home from 'pages/Home'
 
 
 const routerConf = [
@@ -18,16 +18,16 @@ const routerConf = [
     layout: AdvanceLayout,
     component: Home,
   },
-  // {
-  //  path:'/login',
-  //  layout: null,
-  //  component: Login,
-  // },
-  // {
-  //   path:'/register',
-  //   layout: null,
-  //   component: Register,
-  //  },
+  {
+   path:'/login',
+   layout: null,
+   component: Login,
+  },
+  {
+    path:'/register',
+    layout: null,
+    component: Register,
+   },
 		{
 		path: '*',
     layout: BasicLayout,

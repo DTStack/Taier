@@ -1,5 +1,4 @@
 import * as React from 'react';
-//import { Button } from 'antd';
 const TabContent: React.FC<any> = (props: any) => {
 	const [color, setColor] = React.useState('blue');
 	const changeColor = (e) => {
