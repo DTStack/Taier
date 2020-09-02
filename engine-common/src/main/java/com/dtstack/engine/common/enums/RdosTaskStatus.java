@@ -255,7 +255,7 @@ public enum RdosTaskStatus implements Serializable {
 
     static {
         COLLECTION_STATUS.put(UNSUBMIT.getStatus(), Lists.newArrayList(UNSUBMIT.getStatus()));
-        COLLECTION_STATUS.put(RUNNING.getStatus(), Lists.newArrayList(RUNNING.getStatus()));
+        COLLECTION_STATUS.put(RUNNING.getStatus(), Lists.newArrayList(RUNNING.getStatus(), NOTFOUND.getStatus()));
         COLLECTION_STATUS.put(FINISHED.getStatus(), FINISH_STATUS);
         COLLECTION_STATUS.put(FAILED.getStatus(), FAILED_STATUS);
         COLLECTION_STATUS.put(WAITENGINE.getStatus(), WAIT_STATUS);
