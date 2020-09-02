@@ -39,17 +39,15 @@ public class DtArgumentResolver implements HandlerMethodArgumentResolver {
 
         MultiReadHttpServletRequest servletRequest = webRequest.getNativeRequest(MultiReadHttpServletRequest.class);
 
-        String paramJson = (String) servletRequest.getRequest().getAttribute(DtRequestWrapperFilter.DT_REQUEST_BODY);
+        JSONObject requestBody = (JSONObject) servletRequest.getRequest().getAttribute(DtRequestWrapperFilter.DT_REQUEST_BODY);
 
-        if (StringUtils.isNotBlank(paramJson)) {
-            JSONObject requestBody = JSONObject.parseObject(paramJson);
-
+        if (requestBody != null) {
             Class<?> parameterType = methodParameter.getParameterType();
 
             if (parameterType.equals(List.class)) {
                 try {
                     String value = requestBody.getString(paramName);
-                    ParameterizedTypeImpl genericParameterType = (ParameterizedTypeImpl)methodParameter.getGenericParameterType();
+                    ParameterizedTypeImpl genericParameterType = (ParameterizedTypeImpl) methodParameter.getGenericParameterType();
                     Type[] actualTypeArguments = genericParameterType.getActualTypeArguments();
                     if (actualTypeArguments[0] != null) {
                         return JSON.parseArray(value, Class.forName(actualTypeArguments[0].getTypeName()));
