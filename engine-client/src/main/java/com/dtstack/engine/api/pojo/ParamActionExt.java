@@ -80,6 +80,8 @@ public class ParamActionExt extends ParamAction {
     @Deprecated
     private Boolean isFailRetry;
 
+    private Integer periodType;
+
     public Long getProjectId() {
         return projectId;
     }
@@ -166,5 +168,13 @@ public class ParamActionExt extends ParamAction {
 
     public void setIsFailRetry(Boolean failRetry) {
         isFailRetry = failRetry;
+    }
+
+    public Integer getPeriodType() {
+        return periodType;
+    }
+
+    public void setPeriodType(Integer periodType) {
+        this.periodType = periodType;
     }
 }

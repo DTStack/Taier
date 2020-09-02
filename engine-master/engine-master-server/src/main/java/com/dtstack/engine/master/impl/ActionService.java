@@ -229,7 +229,7 @@ public class ActionService {
         scheduleJob.setNodeAddress(environmentContext.getLocalAddress());
         scheduleJob.setVersionId(getOrDefault(paramActionExt.getVersionId(), 0));
         scheduleJob.setComputeType(getOrDefault(paramActionExt.getComputeType(), 1));
-
+        scheduleJob.setPeriodType(paramActionExt.getPeriodType());
         return scheduleJob;
     }
 

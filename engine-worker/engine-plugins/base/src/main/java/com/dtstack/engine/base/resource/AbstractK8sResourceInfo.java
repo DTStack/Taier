@@ -86,7 +86,7 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
 
     private JudgeResult judgeInstanceResource(int instances, double coresPerInstance, double memPerInstance) {
         if (instances == 0 || coresPerInstance == 0 || memPerInstance == 0) {
-            JudgeResult.limitError("task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
+            return JudgeResult.limitError("task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
         }
         if (!judgeCores(instances, coresPerInstance)) {
             return JudgeResult.notOk( "Insufficient cpu resources of kubernetes cluster");
