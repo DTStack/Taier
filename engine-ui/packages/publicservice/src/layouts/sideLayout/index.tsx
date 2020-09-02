@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { Layout } from 'antd';
 import { connect } from 'react-redux';
-import SideBar from './sideBar';
+import SideBar from './SideBar';
 import { isUndefined } from 'lodash';
-import MainLayout from 'layouts/mainLayout';
-import * as global from '@/pages/global/redux/action';
+import MainLayout from '@/layouts/MainLayout';
+import * as global from '@/store/global/action';
 import { bindActionCreators } from 'redux';
 import './style.scss';
 

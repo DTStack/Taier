@@ -1,6 +1,6 @@
 
-import BasicLayout  from '@/layouts/basicLayout';
-import AdvanceLayout  from '@/layouts/advanceLayout';
+import BasicLayout  from '@/layouts/BasicLayout';
+import AdvanceLayout  from '@/layouts/AdvanceLayout';
 import Page404 from 'pages/exception/404';
 // import Login from '@/pages/user/login';
 // import Register from '@/pages/user/register';

@@ -1,5 +1,5 @@
 
-import {globalType} from './actionType';
+import {globalType} from './action-type';
 
 const initialState = {
   userData: {},

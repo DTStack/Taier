@@ -16,7 +16,7 @@
         "forceConsistentCasingInFileNames": true,
        // "noImplicitReturns": true,
        // "suppressImplicitAnyIndexErrors": true,
-        "noUnusedLocals": true,
+        "noUnusedLocals": false,
         "experimentalDecorators": true,
         "typeRoots": [
             "node",
@@ -53,7 +53,7 @@
     "include": [
         "./**/*.ts",
         "./**/*.tsx",
-        "./src/**/*.js"
+        "./src/**/*.js", "src/components/Uploader/index.jsx", "src/components/MapDrop/index.jsx", "src/components/Footer/index.jsx", "src/components/Downloader/index.jsx", "src/components/Swiper/index.jsx", "src/components/ProgressBar/index.jsx", "src/components/PageHeader/index.jsx", "src/components/Loading/index.jsx", "src/components/echarts/WordChart/index.jsx", "src/components/echarts/ScatterChart/index.jsx", "src/components/echarts/RadarChart/index.jsx", "src/components/echarts/PieChart/index.jsx", "src/components/echarts/MapChart/index.jsx", "src/components/echarts/LineChart/index.jsx", "src/components/echarts/GaugeChart/index.jsx", "src/components/echarts/DoubleChart/index.jsx", "src/components/echarts/BarChart/index.jsx", "src/components/echarts/AreaChart/index.jsx"
     ],
     "exclude": ["node_modules", "build", "dist", "scripts", "test", "webpack", "jest"]
 }

@@ -1,4 +1,4 @@
-import {globalType} from './actionType';
+import {globalType} from './action-type';
 
 const userData = (data) => ({
   type: globalType.GET_USER_DATA,

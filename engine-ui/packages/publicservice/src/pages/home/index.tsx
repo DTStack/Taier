@@ -10,7 +10,7 @@ import TabContent from './components/tabContent';
 import {fieldsMap} from './models';
 import  * as moment from 'moment';
 // declare var frontConf
-import AreaChart from 'components/echarts/AreaChart';
+import AreaChart from '@/components/echarts/AreaChart';
 const { confirm } = Modal;
 
 interface IPagination {
@@ -223,7 +223,6 @@ class Home extends React.Component<{}, IState> {
     const { recordList } = this.state;
     return (
       <div className="pager">
-        <AreaChart />
         <TableArea
           recordList={recordList}
           columns={columns}

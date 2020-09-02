@@ -6,7 +6,15 @@ import thunk from 'redux-thunk'
 import { composeWithDevTools } from 'redux-devtools-extension'
 import {history} from 'utils/index'
 import { API,URL} from "@/services";
-import appReducer from '@/pages/global';
+// import appReducer from './global';
+import global from './global';
+
+
+const appReducer = {
+  global,
+};
+
+
 
 const middlewares:any = [thunk.withExtraArgument({API,URL}), routerMiddleware(history)];
 

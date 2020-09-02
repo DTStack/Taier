@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { Layout } from 'antd';
 import { connect } from 'react-redux';
-import TopBar from './topBar';
-import Foot from 'components/footer';
+import TopBar from './TopBar';
+import Foot from '@/components/Footer';
 import { withRouter } from 'react-router';
-import * as global from '@/pages/global/redux/action';
+import * as global from '@/store/global/action';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { bindActionCreators } from 'redux';
 import './style.scss';

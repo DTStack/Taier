@@ -1,5 +1,5 @@
-import React from './node_modules/react';
-import Error from './node_modules/@/pages/exception/404'
+import React from 'react';
+import Error from '@/pages/exception/404'
 
 export default class ErrorBoundary extends React.PureComponent{
   state={
