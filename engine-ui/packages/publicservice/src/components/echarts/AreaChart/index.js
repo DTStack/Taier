@@ -1,11 +1,12 @@
 import React from 'react'
 
-import echarts from "./common";
-import 'echarts/lib/chart/pie'
+import echarts from "../common";
+import 'echarts/lib/chart/line'
 import { fromJS } from 'immutable'
 import ReactResizeDetector from 'react-resize-detector';
-import throttle from '@/utils/throttle';
-export default class RadarChart extends React.Component {
+import _ from 'lodash';
+
+export default class AreaChart extends React.Component {
 
   constructor(props) {
     super(props)
@@ -14,6 +15,7 @@ export default class RadarChart extends React.Component {
   initChart = () => {
     const { option = {}, config = { handle: '' } } = this.props;
     const { chart } = this.state;
+    console.log(option, config, this.props)
     chart.showLoading();
     chart.off('click');
     if (typeof config.handle == 'function') {
@@ -22,6 +24,7 @@ export default class RadarChart extends React.Component {
     chart.setOption(option);
     chart.hideLoading();
   }
+  
   shouldComponentUpdate(nextProps, nextState) {
     if (fromJS(nextProps) == fromJS(this.props)) {
       return false
@@ -34,7 +37,6 @@ export default class RadarChart extends React.Component {
     this.setState({ chart }, () => {
       this.initChart();
     });
-    setTimeout(() => { chart.resize(); }, 0);
   }
   componentDidUpdate() {
     this.initChart()
@@ -43,16 +45,19 @@ export default class RadarChart extends React.Component {
     const { chart } = this.state;
     chart.dispose();
   }
-  chartResize = throttle((width) => {
+  chartResize = _.throttle((width) => {
     const { chart } = this.state;
+    console.log(width)
     if (chart) chart.resize();
   }, 1000)
 
   render() {
     let { height = "200px", width = "100%" } = this.props.config || {};
     return <div>
-      <div ref={id => (this.id = id)} style={{ width, height }} />
+      <div ref={id => (this.id = id)} style={{ width, height, background: 'red' }} />
       <ReactResizeDetector handleWidth handleHeight onResize={this.chartResize.bind(this)} />
     </div>
   }
 }
+
+

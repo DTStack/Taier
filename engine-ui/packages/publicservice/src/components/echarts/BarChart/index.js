@@ -1,10 +1,10 @@
 import React from "react";
 
-import echarts from "./common";
+import echarts from "../common";
 import "echarts/lib/chart/bar";
 import { fromJS } from "immutable";
 import ReactResizeDetector from 'react-resize-detector';
-import throttle from '@/utils/throttle';
+import _ from 'lodash';
 
 export default class BarChart extends React.Component {
   constructor(props) {
@@ -42,7 +42,7 @@ export default class BarChart extends React.Component {
     const { chart } = this.state;
     chart.dispose();
   }
-  chartResize = throttle((width) => {
+  chartResize = _.throttle((width) => {
     const { chart } = this.state;
     console.log(chart, 'chart');
     if (chart) chart.resize();

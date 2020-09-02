@@ -1,13 +1,13 @@
+/**
+ * Created by yongyuehuang on 2017/8/5.
+ */
 import React from 'react'
-import echarts from "./common";
-import 'echarts/lib/component/geo'
-import 'echarts/lib/chart/map' //引入地图
-import 'echarts/lib/chart/lines'
-import 'echarts/map/js/china' // 引入中国地图
+import echarts from "../common";
+require('echarts-wordcloud');
 import {fromJS} from 'immutable'
 import ReactResizeDetector from 'react-resize-detector';
-import throttle from '@/utils/throttle';
-export default class MapChart extends React.Component {
+import _ from 'lodash';
+export default class WordChart extends React.Component {
   
   constructor(props) {
     super(props)
@@ -15,7 +15,7 @@ export default class MapChart extends React.Component {
   
   initChart=()=> {
     const { option={},config={handle:''}} = this.props;
-    const{chart}=this.state;
+    const{ chart }=this.state;
     chart.showLoading();
     chart.off('click');
     if(typeof config.handle=='function' ){
@@ -36,8 +36,8 @@ export default class MapChart extends React.Component {
     this.setState({chart},()=>{
       this.initChart();
     });
+    setTimeout(()=>{  chart.resize();},0);
   }
-
   componentDidUpdate() {
     this.initChart()
   }
@@ -45,18 +45,16 @@ export default class MapChart extends React.Component {
     const{ chart }=this.state;
     chart.dispose();
   }
-  chartResize = throttle((width) => {
+  chartResize = _.throttle((width) => {
     const { chart } = this.state;
     if (chart) chart.resize();
   }, 1000)
 
   render() {
-    let { height="300px",width="100%"} = this.props.config||{};
-    return <div>
-       <div ref={id => (this.id = id)}style={{width, height}} />
-       <ReactResizeDetector  handleWidth handleHeight onResize={this.chartResize.bind(this)}/>
-      </div>
+    let { height="200px",width="100%"} = this.props.config||{};
+   return <div>
+    <div ref={id => (this.id = id)}style={{width, height}} />
+    <ReactResizeDetector  handleWidth handleHeight onResize={this.chartResize.bind(this)}/>
+   </div>
   }
 }
-
-
