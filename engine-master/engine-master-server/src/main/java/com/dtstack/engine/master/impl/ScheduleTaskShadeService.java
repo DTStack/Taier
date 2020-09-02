@@ -414,12 +414,8 @@ public class ScheduleTaskShadeService {
                            Long projectId, Long userId,
                            Integer appType) {
         scheduleTaskShadeDao.batchUpdateTaskScheduleStatus(taskIdList, scheduleStatus, appType);
-        for (Object taskId : taskIdList) {
-            if (taskId instanceof Integer) {
-                this.removeTaskCache(((Integer) taskId).longValue(), appType);
-            } else if (taskId instanceof Long) {
-                this.removeTaskCache((Long) taskId, appType);
-            }
+        for (Long taskId : taskIdList) {
+            this.removeTaskCache(taskId, appType);
         }
     }
 
