@@ -380,13 +380,6 @@ public class FlinkClient extends AbstractClient {
                 logger.error("", e);
                 return JobResult.createErrorResult(e);
             }
-
-            try {
-                targetClusterClient.shutDownCluster();
-            } catch (Exception ec) {
-                logger.error("shutDownCluster error", ec);
-                return JobResult.createErrorResult(e);
-            }
         }
 
         JobResult jobResult = JobResult.newInstance(false);
