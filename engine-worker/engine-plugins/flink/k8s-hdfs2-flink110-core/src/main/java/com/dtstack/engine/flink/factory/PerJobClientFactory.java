@@ -25,6 +25,9 @@ import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.directory.api.util.Strings;
@@ -129,18 +132,17 @@ public class PerJobClientFactory extends AbstractClientFactory {
     @Override
     public ClusterClient getClusterClient(JobClient jobClient) {
 
-        String taskName = getEffectiveTaskName(jobClient.getJobName());
-        String currentTime = dateFormat.format(System.currentTimeMillis());
-        String projobClusterId = String.format("%s-%s", taskName, currentTime);
+        String taskName = getEffectiveTaskName(jobClient);
+        String salt = RandomStringUtils.randomAlphanumeric(8).toLowerCase();
+        String projobClusterId = String.format("%s-%s", taskName, salt);
 
         try (
                 ClusterDescriptor<String> clusterDescriptor = createPerjobClusterDescriptor(jobClient, projobClusterId);
         ) {
 
+            deleteJobIfExist(flinkClientBuilder.getKubernetesClient(), jobClient, taskName);
+
             Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
-            if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
-                flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
-            }
             ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(flinkConfiguration, jobClient.getConfProperties());
             ClusterClient clusterClient = clusterDescriptor.deploySessionCluster(clusterSpecification).getClusterClient();
             return clusterClient;
@@ -152,16 +154,36 @@ public class PerJobClientFactory extends AbstractClientFactory {
         }
     }
 
-    private String getEffectiveTaskName(String taskName) {
+    private String getEffectiveTaskName(JobClient jobClient) {
+        String taskName = jobClient.getJobName();
+        String taskId = jobClient.getTaskId();
         if (Strings.isNotEmpty(taskName)) {
             taskName = StringUtils.lowerCase(taskName);
+            taskName = StringUtils.splitByWholeSeparator(taskName, taskId)[0];
             taskName = taskName.replaceAll("\\p{P}", "");
+            taskName = String.format("%s-%s", taskName, taskId);
             Integer taskNameLength = taskName.length();
             if (taskNameLength > ConfigConstrant.TASKNAME_MAX_LENGTH) {
                 taskName = taskName.substring(taskNameLength - ConfigConstrant.TASKNAME_MAX_LENGTH, taskNameLength);
             }
         }
         return taskName;
+    }
+
+    private void deleteJobIfExist(KubernetesClient kubernetesClient, JobClient jobClient, String effectiveTaskName) {
+        String namespace = flinkClientBuilder.getFlinkConfig().getNamespace();
+        ServiceList services = kubernetesClient.services().inNamespace(namespace).list();
+        for (Service service : services.getItems()) {
+            String serviceName = service.getMetadata().getName();
+            if (StringUtils.isEmpty(serviceName)) {
+                continue;
+            }
+            String regex = String.format("(%s)-[0-9a-z]{8}", effectiveTaskName);
+            Boolean isEffective = serviceName.matches(regex);
+            if (StringUtils.startsWith(serviceName, effectiveTaskName) && isEffective) {
+                flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(serviceName);
+            }
+        }
     }
 
     @Override
