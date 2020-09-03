@@ -16,13 +16,13 @@
     <packaging>pom</packaging>
 
     <properties>
-        <learning.version>4.0.0-SNAPSHOT</learning.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <modules>
         <module>yarn2-hdfs2-learning-core</module>
         <module>yarn2-hdfs2-learning</module>
+        <module>yarn3-hdfs3-learning</module>
     </modules>
 
 
