@@ -168,7 +168,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
     public ClusterClient retrieveClusterClient(String clusterId, JobClient jobClient) {
 
         try (
-                ClusterDescriptor<String> clusterDescriptor = createPerjobClusterDescriptor(jobClient, null);
+                ClusterDescriptor<String> clusterDescriptor = createPerjobClusterDescriptor(jobClient, clusterId);
         ) {
             return clusterDescriptor.retrieve(clusterId).getClusterClient();
         } catch (Exception e) {

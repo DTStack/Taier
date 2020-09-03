@@ -30,10 +30,12 @@ import org.apache.flink.kubernetes.kubeclient.resources.KubernetesDeployment;
 import org.apache.flink.kubernetes.kubeclient.resources.KubernetesPod;
 import org.apache.flink.kubernetes.kubeclient.resources.KubernetesService;
 import org.apache.flink.kubernetes.utils.Constants;
+import org.apache.flink.util.ExecutorUtils;
 import org.apache.flink.util.TimeUtils;
 import org.apache.flink.util.function.FunctionUtils;
 
 import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.LoadBalancerStatus;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServicePort;
@@ -45,15 +47,16 @@ import io.fabric8.kubernetes.client.Watcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
@@ -76,12 +79,19 @@ public class Fabric8FlinkKubeClient implements FlinkKubeClient {
 	private final List<Decorator<Deployment, KubernetesDeployment>> flinkMasterDeploymentDecorators = new ArrayList<>();
 	private final List<Decorator<Pod, KubernetesPod>> taskManagerPodDecorators = new ArrayList<>();
 
-	public Fabric8FlinkKubeClient(Configuration flinkConfig, KubernetesClient client) {
+	private final ExecutorService kubeClientExecutorService;
+
+	public Fabric8FlinkKubeClient(
+			Configuration flinkConfig,
+			KubernetesClient client,
+			Supplier<ExecutorService> asyncExecutorFactory) {
 		this.flinkConfig = checkNotNull(flinkConfig);
 		this.internalClient = checkNotNull(client);
 		this.clusterId = flinkConfig.getString(KubernetesConfigOptions.CLUSTER_ID) == null? "flink-cluster" : flinkConfig.getString(KubernetesConfigOptions.CLUSTER_ID);
 
 		this.nameSpace = flinkConfig.getString(KubernetesConfigOptions.NAMESPACE);
+
+		this.kubeClientExecutorService = asyncExecutorFactory.get();
 
 		initialize();
 	}
@@ -153,76 +163,56 @@ public class Fabric8FlinkKubeClient implements FlinkKubeClient {
 	}
 
 	@Override
-	public void createTaskManagerPod(TaskManagerPodParameter parameter) {
-		KubernetesPod pod = new KubernetesPod(this.flinkConfig);
+	public CompletableFuture<Void> createTaskManagerPod(TaskManagerPodParameter parameter) {
+		return CompletableFuture.runAsync(
+				() -> {
+					KubernetesPod pod = new KubernetesPod(this.flinkConfig);
 
-		for (Decorator<Pod, KubernetesPod> d : this.taskManagerPodDecorators) {
-			pod = d.decorate(pod);
-		}
+					for (Decorator<Pod, KubernetesPod> d : this.taskManagerPodDecorators) {
+						pod = d.decorate(pod);
+					}
 
-		pod = new TaskManagerPodDecorator(parameter).decorate(pod);
+					pod = new TaskManagerPodDecorator(parameter).decorate(pod);
 
-		LOG.debug("Create TaskManager pod with spec: {}", pod.getInternalResource().getSpec());
+					LOG.debug("Create TaskManager pod with spec: {}", pod.getInternalResource().getSpec());
 
-		this.internalClient.pods().inNamespace(this.nameSpace).create(pod.getInternalResource());
+					this.internalClient.pods().inNamespace(this.nameSpace).create(pod.getInternalResource());
+				},
+				kubeClientExecutorService);
 	}
 
 	@Override
-	public void stopPod(String podName) {
-		this.internalClient.pods().withName(podName).delete();
+	public CompletableFuture<Void> stopPod(String podName) {
+		return CompletableFuture.runAsync(
+				() -> this.internalClient.pods().withName(podName).delete(),
+				kubeClientExecutorService);
 	}
 
 	@Override
-	@Nullable
-	public Endpoint getRestEndpoint(String clusterId) {
+	public Optional<Endpoint> getRestEndpoint(String clusterId) {
 		int restPort = this.flinkConfig.getInteger(RestOptions.PORT);
 		String serviceExposedType = flinkConfig.getString(KubernetesConfigOptions.REST_SERVICE_EXPOSED_TYPE);
 
 		// Return the service.namespace directly when use ClusterIP.
 		if (serviceExposedType.equals(KubernetesConfigOptions.ServiceExposedType.ClusterIP.toString())) {
-			return new Endpoint(clusterId + "." + nameSpace, restPort);
+			return Optional.of(new Endpoint(clusterId + "." + nameSpace, restPort));
 		}
-
-		KubernetesService restService = getRestService(clusterId);
-		if (restService == null) {
-			return null;
-		}
-		Service service = restService.getInternalResource();
-
-		String address = null;
-
-		if (service.getStatus() != null && (service.getStatus().getLoadBalancer() != null ||
-			service.getStatus().getLoadBalancer().getIngress() != null)) {
-			if (service.getStatus().getLoadBalancer().getIngress().size() > 0) {
-				address = service.getStatus().getLoadBalancer().getIngress().get(0).getIp();
-				if (address == null || address.isEmpty()) {
-					address = service.getStatus().getLoadBalancer().getIngress().get(0).getHostname();
-				}
-			} else {
-				address = this.internalClient.getMasterUrl().getHost();
-				restPort = getServiceNodePort(service, RestOptions.PORT);
-			}
-		} else if (service.getSpec().getExternalIPs() != null && service.getSpec().getExternalIPs().size() > 0) {
-			address = service.getSpec().getExternalIPs().get(0);
-		}
-		if (address == null || address.isEmpty()) {
-			return null;
-		}
-		return new Endpoint(address, restPort);
+		return getRestService(clusterId)
+				.flatMap(restService -> getRestEndPointFromService(restService.getInternalResource(), restPort));
 	}
 
 	@Override
 	public List<KubernetesPod> getPodsWithLabels(Map<String, String> labels) {
 		final List<Pod> podList = this.internalClient.pods().withLabels(labels).list().getItems();
 
-		if (podList == null || podList.size() < 1) {
+		if (podList == null || podList.isEmpty()) {
 			return new ArrayList<>();
 		}
 
 		return podList
-			.stream()
-			.map(e -> new KubernetesPod(flinkConfig, e))
-			.collect(Collectors.toList());
+				.stream()
+				.map(e -> new KubernetesPod(flinkConfig, e))
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -236,14 +226,12 @@ public class Fabric8FlinkKubeClient implements FlinkKubeClient {
 	}
 
 	@Override
-	@Nullable
-	public KubernetesService getInternalService(String clusterId) {
+	public Optional<KubernetesService> getInternalService(String clusterId) {
 		return getService(clusterId);
 	}
 
 	@Override
-	@Nullable
-	public KubernetesService getRestService(String clusterId) {
+	public Optional<KubernetesService> getRestService(String clusterId) {
 		return getService(clusterId + Constants.FLINK_REST_SERVICE_SUFFIX);
 	}
 
@@ -283,6 +271,7 @@ public class Fabric8FlinkKubeClient implements FlinkKubeClient {
 	@Override
 	public void close() {
 		this.internalClient.close();
+		ExecutorUtils.gracefulShutdown(5, TimeUnit.SECONDS, this.kubeClientExecutorService);
 	}
 
 	private CompletableFuture<KubernetesService> createService(
@@ -298,42 +287,42 @@ public class Fabric8FlinkKubeClient implements FlinkKubeClient {
 		this.internalClient.services().create(kubernetesService.getInternalResource());
 
 		final ActionWatcher<Service> watcher = new ActionWatcher<>(
-			Watcher.Action.ADDED,
-			kubernetesService.getInternalResource());
+				Watcher.Action.ADDED,
+				kubernetesService.getInternalResource());
 
 		final Watch watchConnectionManager = this.internalClient
-			.services()
-			.inNamespace(this.nameSpace)
-			.withName(serviceName)
-			.watch(watcher);
+				.services()
+				.inNamespace(this.nameSpace)
+				.withName(serviceName)
+				.watch(watcher);
 
 		final Duration timeout = TimeUtils.parseDuration(
-			flinkConfig.get(KubernetesConfigOptions.SERVICE_CREATE_TIMEOUT));
+				flinkConfig.get(KubernetesConfigOptions.SERVICE_CREATE_TIMEOUT));
 
 		return CompletableFuture.supplyAsync(
-			FunctionUtils.uncheckedSupplier(() -> {
-				final Service createdService = watcher.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
-				watchConnectionManager.close();
+				FunctionUtils.uncheckedSupplier(() -> {
+					final Service createdService = watcher.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
+					watchConnectionManager.close();
 
-				return new KubernetesService(this.flinkConfig, createdService);
-			}));
+					return new KubernetesService(this.flinkConfig, createdService);
+				}));
 	}
 
-	private KubernetesService getService(String serviceName) {
+	private Optional<KubernetesService> getService(String serviceName) {
 		final Service service = this
-			.internalClient
-			.services()
-			.inNamespace(nameSpace)
-			.withName(serviceName)
-			.fromServer()
-			.get();
+				.internalClient
+				.services()
+				.inNamespace(nameSpace)
+				.withName(serviceName)
+				.fromServer()
+				.get();
 
 		if (service == null) {
 			LOG.debug("Service {} does not exist", serviceName);
-			return null;
+			return Optional.empty();
 		}
 
-		return new KubernetesService(this.flinkConfig, service);
+		return Optional.of(new KubernetesService(flinkConfig, service));
 	}
 
 	/**
@@ -350,8 +339,46 @@ public class Fabric8FlinkKubeClient implements FlinkKubeClient {
 		}
 		return port;
 	}
-
 	public KubernetesClient getInternalClient() {
 		return internalClient;
+	}
+
+	private Optional<Endpoint> getRestEndPointFromService(Service service, int restPort) {
+		if (service.getStatus() == null) {
+			return Optional.empty();
+		}
+
+		LoadBalancerStatus loadBalancer = service.getStatus().getLoadBalancer();
+		boolean hasExternalIP = service.getSpec() != null &&
+				service.getSpec().getExternalIPs() != null && !service.getSpec().getExternalIPs().isEmpty();
+
+		if (loadBalancer != null) {
+			return getLoadBalancerRestEndpoint(loadBalancer, service, restPort);
+		} else if (hasExternalIP) {
+			final String address = service.getSpec().getExternalIPs().get(0);
+			if (address != null && !address.isEmpty()) {
+				return Optional.of(new Endpoint(address, restPort));
+			}
+		}
+		return Optional.empty();
+	}
+
+	private Optional<Endpoint> getLoadBalancerRestEndpoint(LoadBalancerStatus loadBalancer, Service svc, int restPort) {
+		boolean hasIngress = loadBalancer.getIngress() != null && !loadBalancer.getIngress().isEmpty();
+		String address;
+		int port = restPort;
+		if (hasIngress) {
+			address = loadBalancer.getIngress().get(0).getIp();
+			// Use hostname when the ip address is null
+			if (address == null || address.isEmpty()) {
+				address = loadBalancer.getIngress().get(0).getHostname();
+			}
+		} else {
+			// Use node port
+			address = this.internalClient.getMasterUrl().getHost();
+			port = getServiceNodePort(svc, RestOptions.PORT);
+		}
+		boolean noAddress = address == null || address.isEmpty();
+		return noAddress ? Optional.empty() : Optional.of(new Endpoint(address, port));
 	}
 }
