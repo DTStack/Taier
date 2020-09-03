@@ -51,4 +51,6 @@ public interface EngineJobCacheDao {
     List<EngineJobCache> listByJobResource(@Param("jobResource") String jobResource, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress, @Param("start") Integer start, @Param("pageSize") Integer pageSize);
 
     Integer deleteByJobIds(@Param("jobIds") List<String> jobIds);
+
+    Integer updateJobInfo(@Param("jobInfo") String jobInfo, @Param("jobId") String jobId);
 }

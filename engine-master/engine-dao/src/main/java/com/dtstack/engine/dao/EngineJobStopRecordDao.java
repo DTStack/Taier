@@ -19,7 +19,7 @@ public interface EngineJobStopRecordDao {
 
     Integer updateOperatorExpiredVersion(@Param("id") Long id, @Param("operatorExpired") Timestamp operatorExpired, @Param("version") Integer version);
 
-    List<EngineJobStopRecord> listStopJob(@Param("startId") Long startId, @Param("lessThanOperatorExpired") Timestamp lessThanOperatorExpired);
+    List<EngineJobStopRecord> listStopJob(@Param("startId") Long startId);
 
     List<String> listByJobIds(@Param("jobIds") List<String> jobIds);
 

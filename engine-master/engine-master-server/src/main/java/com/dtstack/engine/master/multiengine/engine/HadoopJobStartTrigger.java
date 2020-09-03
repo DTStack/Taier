@@ -3,13 +3,10 @@ package com.dtstack.engine.master.multiengine.engine;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.KerberosConfig;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.api.enums.ScheduleEngineType;
-import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.constrant.TaskConstant;
@@ -17,7 +14,6 @@ import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.RetryUtil;
-import com.dtstack.engine.dao.KerberosDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.EComponentType;
@@ -29,7 +25,10 @@ import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
-import com.dtstack.schedule.common.enums.*;
+import com.dtstack.schedule.common.enums.DataBaseType;
+import com.dtstack.schedule.common.enums.DataSourceType;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.schedule.common.enums.ETableType;
 import com.dtstack.schedule.common.metric.batch.IMetric;
 import com.dtstack.schedule.common.metric.batch.MetricBuilder;
 import com.dtstack.schedule.common.metric.prometheus.PrometheusMetricQuery;
@@ -49,6 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 import java.sql.Timestamp;
@@ -81,9 +81,6 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
     @Autowired
     private WorkerOperator workerOperator;
-
-    @Autowired
-    private KerberosDao kerberosDao;
     
     @Autowired
     private ScheduleJobService scheduleJobService;
@@ -120,6 +117,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         sql = jobParamReplace.paramReplace(sql, taskParamsToReplace, scheduleJob.getCycTime());
 
         String taskExeArgs = null;
+        String uploadPath = null;
 
         if (EScheduleJobType.SPARK_SQL.getVal().equals(taskShade.getTaskType()) || EScheduleJobType.HIVE_SQL.getVal().equals(taskShade.getTaskType())
                 || EScheduleJobType.CARBON_SQL.getVal().equals(taskShade.getTaskType())) {
@@ -142,24 +140,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 taskExeArgs += " " + savepointArgs;
             }
         } else if (taskShade.getTaskType().equals(EScheduleJobType.TENSORFLOW_1_X.getVal()) || taskShade.getTaskType().equals(EScheduleJobType.KERAS.getVal())) {
-            //tensorflow 参数
-            //--files ${uploadPath} --python-version 3 --launch-cmd ${launch} --app-type tensorflow --app-name dddd
-            String exeArgs = (String) actionParam.get("exeArgs");
-            String launchCmd = (String) actionParam.getOrDefault("launch-cmd", "python ${file}");
-            //分为资源上传 和 hdfs上传
-            String fileName = "";
-            if (launchCmd.contains(TaskConstant.FILE_NAME) || launchCmd.contains(TaskConstant.UPLOADPATH)) {
-                String uploadPath = this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
-                        taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
-                fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/") + 1);
-                exeArgs = exeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
-            }
-            launchCmd = jobParamReplace.paramReplace(launchCmd, taskParamsToReplace, scheduleJob.getCycTime());
-            //替换参数 base64 生成launchCmd
-            String launchString = Base64Util.baseEncode(launchCmd.replace(TaskConstant.FILE_NAME, fileName));
-            taskExeArgs = exeArgs.replace(TaskConstant.LAUNCH, launchString);
-            LOG.info(" TensorFlow job {} fileName {} exeArgs {} ", scheduleJob.getJobId(), fileName, taskExeArgs);
-
+            taskExeArgs = this.buildTensorflowOrKeras(actionParam, taskShade, scheduleJob, taskParamsToReplace);
         } else if (taskShade.getEngineType().equals(ScheduleEngineType.Learning.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.Shell.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.DtScript.getVal())
@@ -173,36 +154,72 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             //替换jobId
             taskExeArgs = content.replace(TaskConstant.JOB_ID, scheduleJob.getJobId());
             //提交上传路径
-            if (StringUtils.isNotBlank(taskExeArgs) && taskExeArgs.contains(TaskConstant.UPLOADPATH)) {
-                taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
-                        taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime()));
-            } else if (StringUtils.isNotBlank(sql) && sql.contains(TaskConstant.UPLOADPATH)) {
-                //上传代码到hdfs
-                String uploadPath = this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
-                        taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
+            uploadPath = this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
+                    taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
+            taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
+            if (StringUtils.isNotBlank(sql) && sql.contains(TaskConstant.UPLOADPATH)) {
                 sql = sql.replace(TaskConstant.UPLOADPATH, uploadPath);
-                taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
             }
-
         }
 
         if (taskExeArgs != null) {
-            //替换jobId
-            taskExeArgs = taskExeArgs.replace(TaskConstant.JOB_ID, scheduleJob.getJobId());
-
-            //替换组件的exeArgs中的cmd参数
-            if(taskExeArgs.contains(TaskConstant.LAUNCH)){
-                String launchCmd = jobParamReplace.paramReplace((String) actionParam.get("launch-cmd"),taskParamsToReplace,scheduleJob.getCycTime());
-                //替换参数 base64 生成launchCmd
-                taskExeArgs = taskExeArgs.replace(TaskConstant.LAUNCH,Base64Util.baseEncode(launchCmd));
-            }
-            actionParam.put("exeArgs", taskExeArgs);
+           this.replaceTaskExeArgs(actionParam, scheduleJob, taskParamsToReplace, taskExeArgs,uploadPath);
         }
 
         actionParam.put("sqlText", sql);
         actionParam.put("taskParams", taskParams);
         //engine 不需要用到的参数 去除
         actionParam.remove("taskParamsToReplace");
+    }
+
+    private void replaceTaskExeArgs(Map<String, Object> actionParam, ScheduleJob scheduleJob, List<ScheduleTaskParamShade> taskParamsToReplace,
+                                    String taskExeArgs,String uploadPath) throws UnsupportedEncodingException {
+        //替换jobId
+        taskExeArgs = taskExeArgs.replace(TaskConstant.JOB_ID, scheduleJob.getJobId());
+        taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
+
+        //替换组件的exeArgs中的cmd参数
+        if (taskExeArgs.contains(TaskConstant.LAUNCH)) {
+            String modelParam = (String) actionParam.get("modelParam");
+            String launchCmd = (String) actionParam.get(TaskConstant.LAUNCH_CMD);
+            if (StringUtils.isNotBlank(modelParam)) {
+                if (StringUtils.isNotBlank(uploadPath)) {
+                    //替换文件名
+                    String fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/") + 1);
+                    launchCmd = launchCmd.replace(TaskConstant.FILE_NAME, fileName);
+                }
+                //如果存在modelParam参数 需要进行cycTime替换url加密
+                modelParam = URLEncoder.encode(jobParamReplace.paramReplace(modelParam,taskParamsToReplace,scheduleJob.getCycTime()), Charsets.UTF_8.name());
+                launchCmd = launchCmd.replace(TaskConstant.MODEL_PARAM, modelParam);
+            }
+            launchCmd = jobParamReplace.paramReplace(launchCmd, taskParamsToReplace, scheduleJob.getCycTime());
+            //替换参数 base64 生成launchCmd
+            taskExeArgs = taskExeArgs.replace(TaskConstant.LAUNCH, Base64Util.baseEncode(launchCmd));
+            LOG.info(" replaceTaskExeArgs job {} exeArgs {} ", scheduleJob.getJobId(), taskExeArgs);
+        }
+        actionParam.put("exeArgs", taskExeArgs);
+    }
+
+    private String buildTensorflowOrKeras(Map<String, Object> actionParam, ScheduleTaskShade taskShade, ScheduleJob scheduleJob, List<ScheduleTaskParamShade> taskParamsToReplace) {
+        String taskExeArgs;
+        //tensorflow 参数
+        //--files ${uploadPath} --python-version 3 --launch-cmd ${launch} --app-type tensorflow --app-name dddd
+        String exeArgs = (String) actionParam.get("exeArgs");
+        String launchCmd = (String) actionParam.getOrDefault(TaskConstant.LAUNCH_CMD, "python ${file}");
+        //分为资源上传 和 hdfs上传
+        String fileName = "";
+        if (launchCmd.contains(TaskConstant.FILE_NAME) || launchCmd.contains(TaskConstant.UPLOADPATH)) {
+            String uploadPath = this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
+                    taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
+            fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/") + 1);
+            exeArgs = exeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
+        }
+        launchCmd = jobParamReplace.paramReplace(launchCmd, taskParamsToReplace, scheduleJob.getCycTime());
+        //替换参数 base64 生成launchCmd
+        String launchString = Base64Util.baseEncode(launchCmd.replace(TaskConstant.FILE_NAME, fileName));
+        taskExeArgs = exeArgs.replace(TaskConstant.LAUNCH, launchString);
+        LOG.info(" TensorFlow job {} fileName {} exeArgs {} ", scheduleJob.getJobId(), fileName, taskExeArgs);
+        return taskExeArgs;
     }
 
     /**
@@ -445,7 +462,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 JSONObject reader = (JSONObject) JSONPath.eval(jsonJob, "$.job.content[0].reader");
                 Object increCol = JSONPath.eval(reader, "$.parameter.increColumn");
                 if (Objects.nonNull(increCol) && Objects.nonNull(job.getExecStartTime()) && Objects.nonNull(job.getExecEndTime())) {
-                    String lastEndLocation = this.queryLastLocation(dtuicTenantId, job.getEngineJobId(), job.getExecStartTime().getTime(), job.getExecEndTime().getTime(),taskparams);
+                    String lastEndLocation = this.queryLastLocation(dtuicTenantId, job.getEngineJobId(), job.getExecStartTime().getTime(), job.getExecEndTime().getTime(),taskparams,job.getComputeType());
                     LOG.info("last job {} applicationId {} startTime {} endTim {} location {}", job.getJobId(), job.getEngineJobId(), job.getExecStartTime(), job.getExecEndTime(), lastEndLocation);
                     reader.getJSONObject("parameter").put("startLocation", lastEndLocation);
                 }
@@ -458,12 +475,12 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         return jsonJob.toJSONString();
     }
 
-    public String queryLastLocation(Long dtUicTenantId, String jobId, long startTime, long endTime, String taskParam) {
+    public String queryLastLocation(Long dtUicTenantId, String jobId, long startTime, long endTime, String taskParam,Integer computeType) {
         endTime = endTime + 1000 * 60;
         List<ComponentsConfigOfComponentsVO> componentsConfigOfComponentsVOS = componentService.listConfigOfComponents(dtUicTenantId, MultiEngineType.HADOOP.getType());
         JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(componentsConfigOfComponentsVOS));
         JSONObject flinkJsonObject = jsonObject.getJSONObject(EComponentType.FLINK.getTypeCode() + "");
-        EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam);
+        EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam,computeType);
         JSONObject flinkConfig = flinkJsonObject.getJSONObject(eDeployMode.getMode());
         String prometheusHost = flinkConfig.getString("prometheusHost");
         String prometheusPort = flinkConfig.getString("prometheusPort");
@@ -509,7 +526,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
      */
     private String getSavepointPath(Long tenantId) {
         String clusterInfoStr = clusterService.clusterInfo(tenantId);
-        JSONObject clusterJson = JSONObject.parseObject(JSON.toJSONString(clusterInfoStr));
+        JSONObject clusterJson = JSONObject.parseObject(clusterInfoStr);
         JSONObject flinkConf = clusterJson.getJSONObject("flinkConf");
         if (!flinkConf.containsKey(KEY_SAVEPOINT)) {
             return null;

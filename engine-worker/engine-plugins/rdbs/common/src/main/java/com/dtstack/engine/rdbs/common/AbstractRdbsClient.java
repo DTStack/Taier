@@ -124,7 +124,7 @@ public abstract class AbstractRdbsClient extends AbstractClient {
             return resourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
             LOG.error("JudgeSlots error " + e.getMessage());
-            return JudgeResult.newInstance(false, "JudgeSlots error");
+            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
         }
     }
 

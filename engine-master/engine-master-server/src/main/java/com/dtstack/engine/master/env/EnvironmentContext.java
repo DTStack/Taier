@@ -397,4 +397,20 @@ public class EnvironmentContext {
     public Integer getScheduleJobScope() {
         return Integer.valueOf(environment.getProperty("job.back.scope", "1000*60"));
     }
+
+    public Integer getJobExecutorPoolCorePoolSize(){
+        return Integer.valueOf(environment.getProperty("job.executor.pool.core.size", "10"));
+    }
+
+    public Integer getJobExecutorPoolMaximumPoolSize(){
+        return Integer.valueOf(environment.getProperty("job.executor.pool.maximum.size", "10"));
+    }
+
+    public Long getJobExecutorPoolKeepAliveTime(){
+        return Long.valueOf(environment.getProperty("job.executor.pool.keep.alive.time", "1000"));
+    }
+
+    public Integer getJobExecutorPoolQueueSize(){
+        return Integer.valueOf(environment.getProperty("job.executor.pool.queue.size", "1000"));
+    }
 }

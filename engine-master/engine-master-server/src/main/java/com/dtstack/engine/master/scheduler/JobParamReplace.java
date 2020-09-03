@@ -38,11 +38,6 @@ public class JobParamReplace {
         NOTEBOOK_FEATURE_PARAMETERS.add("bdp.system.localPath");
         NOTEBOOK_FEATURE_PARAMETERS.add("bdp.system.remotePath");
         NOTEBOOK_FEATURE_PARAMETERS.add("bdp.system.hdfsServer");
-
-//        SYS_PARAMETER.put("bdp.system.bizdate", "yyyyMMdd-1");
-//        SYS_PARAMETER.put("bdp.system.cyctime", "yyyyMMddHHmmss");
-//        SYS_PARAMETER.put("bdp.system.currmonth", "yyyyMM-0");
-//        SYS_PARAMETER.put("bdp.system.premonth", "yyyyMM-1");
     }
 
 

@@ -32,7 +32,7 @@ perjob:
     metrics.reporter.promgateway.deleteOnShutdown:
       controls: select
       values: [true,false]
-    clusterMode: yarn
+    clusterMode: perjob
 
   optional:
     jarTmpDir: ./tmp180
@@ -54,6 +54,7 @@ perjob:
     yarn.jobmanager.heap.mb: 1024
     yarn.taskmanager.numberOfTaskManager: 2
     yarn.taskmanager.numberOfTaskSlots: 2
+    sessionStartAuto: false
 
     flink.env.java.opts: -XX:MaxMetaspaceSize=500m
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
@@ -95,7 +96,7 @@ session:
     metrics.reporter.promgateway.deleteOnShutdown:
       controls: select
       values: [true,false]
-    clusterMode: yarn
+    clusterMode: session
 
   optional:
     jarTmpDir: ./tmp180

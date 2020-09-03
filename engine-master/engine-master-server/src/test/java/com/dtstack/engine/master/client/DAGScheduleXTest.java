@@ -46,7 +46,7 @@ public class DAGScheduleXTest {
     private String LOCALHOST_URL="http://127.0.0.1:8099";
 
     private DtInsightApi.ApiBuilder builder = new DtInsightApi.ApiBuilder()
-            .setEndpoint(REMOTE_URL)
+            .setEndpoint(LOCALHOST_URL)
             .setToken("eyJzdWNjZXNzIjp0cnVlLCJtZXNzYWdlIjoi5omn6KGM5oiQ5YqfIiwiZGF0YSI6eyJ1c2VySWQiOjEsInVzZXJOYW1lIjoiYWRtaW5AZHRzdGFjay5jb20iLCJlbWFpbCI6ImFkbWluQGR0c3RhY2suY29tIiwicGhvbmUiOiIxMzUyNjkyNTI4NiIsInRlbmFudElkIjoxLCJ0ZW5hbnROYW1lIjoiRFRTdGFja+enn+aItyIsInRlbmFudE93bmVyIjpmYWxzZSwidGVuYW50T3duZXJJZCI6OH19");
 
 
@@ -54,9 +54,10 @@ public class DAGScheduleXTest {
     public void testStart0() {
         try {
             DtInsightApi api = builder.buildApi();
-            ComponentService apiClient = api.getApiClient(ComponentService.class);
-            ApiResponse<List<ComponentsConfigOfComponentsVO>> listApiResponse = apiClient.listConfigOfComponents(1L, 1);
-            System.out.println(JSON.toJSONString(listApiResponse));
+            ScheduleTaskShadeService apiClient = api.getApiClient(ScheduleTaskShadeService.class);
+            ArrayList<Long> taskIdList = Lists.newArrayList(1L, 2L);
+            ApiResponse<Void> response = apiClient.frozenTask(taskIdList,1,1L,1L,1);
+            System.out.println(JSON.toJSONString(response));
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
         }

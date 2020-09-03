@@ -8,7 +8,6 @@ import com.dtstack.engine.common.callback.CallBack;
 import com.dtstack.engine.common.callback.ClassLoaderCallBackMethod;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ClientArgumentException;
-import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ClientTemplate;
@@ -199,19 +198,23 @@ public class ClientProxy implements IClient {
                         }
                     }, targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
-                    if (e instanceof ClientArgumentException) {
-                        throw new ClientArgumentException(e);
-                    } else if (e instanceof LimitResourceException) {
-                        throw new LimitResourceException(e.getMessage());
-                    } else if (e instanceof RdosDefineException && ((RdosDefineException) e).getErrorCode() == ErrorCode.HTTP_CALL_ERROR) {
-                        return JudgeResult.newInstance(false, "judgeSlots error");
-                    }
-                    throw new RdosDefineException(e);
+                    return getJudgeResultWithException(e, e);
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e);
+            return getJudgeResultWithException(e, e.getCause());
         }
+    }
+
+    private JudgeResult getJudgeResultWithException(Exception e, Throwable throwable) {
+        if (throwable instanceof ClientArgumentException) {
+            throw new ClientArgumentException(e);
+        } else if (throwable instanceof LimitResourceException) {
+            throw new LimitResourceException(e.getMessage());
+        } else if (throwable instanceof RdosDefineException) {
+            return JudgeResult.notOk( "judgeSlots error");
+        }
+        throw new RdosDefineException(e);
     }
 
     @Override

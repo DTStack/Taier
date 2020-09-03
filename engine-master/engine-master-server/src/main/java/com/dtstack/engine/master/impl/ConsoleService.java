@@ -20,6 +20,7 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.base.Preconditions;
@@ -85,6 +86,9 @@ public class ConsoleService {
 
     @Autowired
     private WorkerOperator workerOperator;
+
+    @Autowired
+    private PluginWrapper pluginWrapper;
 
     private static long DELAULT_TENANT  = -1L;
 
@@ -271,6 +275,18 @@ public class ConsoleService {
         theJobMap.put("waitTime", waitTime);
         theJobMap.put("waitReason", engineJobCache.getWaitReason());
         theJobMap.put("tenantName", Objects.isNull(tenant) ? "" : tenant.getTenantName());
+        String jobInfo = (String) theJobMap.get("jobInfo");
+        JSONObject jobInfoJSON = JSONObject.parseObject(jobInfo);
+        if (Objects.isNull(jobInfoJSON)) {
+            jobInfoJSON = new JSONObject();
+        }
+        if (!jobInfoJSON.containsKey(PluginWrapper.PLUGIN_INFO)) {
+            //获取插件信息
+            String pluginInfo = pluginWrapper.getPluginInfo(jobInfoJSON.getString("taskParams"), engineJobCache.getComputeType(), engineJobCache.getEngineType(),
+                    Objects.isNull(tenant) ? -1L : tenant.getDtUicTenantId(), jobInfoJSON.getLong("userId"));
+            jobInfoJSON.put(PluginWrapper.PLUGIN_INFO, pluginInfo);
+            theJobMap.put("jobInfo", jobInfoJSON.toJSONString());
+        }
     }
 
     private ConsoleJobInfoVO fillJobInfo(ParamAction paramAction, ScheduleJob scheduleJob, EngineJobCache engineJobCache, Tenant tenant) {
@@ -306,7 +322,7 @@ public class ConsoleService {
                 if (EJobCacheStage.PRIORITY.getStage() == engineJobCache.getStage()) {
                     //先将队列中的元素移除，重复插入会被忽略
                     GroupPriorityQueue groupPriorityQueue = jobDealer.getGroupPriorityQueue(engineJobCache.getJobResource());
-                    groupPriorityQueue.remove(engineJobCache.getJobId());
+                    groupPriorityQueue.remove(jobClient);
                 }
                 return jobDealer.addGroupPriorityQueue(engineJobCache.getJobResource(), jobClient, false);
             }

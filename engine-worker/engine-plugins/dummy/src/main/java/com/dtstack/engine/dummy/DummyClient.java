@@ -78,7 +78,7 @@ public class DummyClient extends AbstractClient {
 
     @Override
     public JudgeResult judgeSlots(JobClient jobClient) {
-        return JudgeResult.newInstance(true, "");
+        return JudgeResult.ok();
     }
 
     @Override

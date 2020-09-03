@@ -4,12 +4,10 @@ package com.dtstack.engine.dtscript;
 import com.dtstack.engine.base.resource.AbstractYarnResourceInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.exception.ClientArgumentException;
-import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.dtscript.client.ClientArguments;
 import com.google.common.collect.Lists;
 import org.apache.hadoop.yarn.client.api.YarnClient;
-import org.apache.hadoop.yarn.exceptions.YarnException;
 
 import java.util.List;
 
@@ -34,9 +32,12 @@ public class DtScriptResourceInfo extends AbstractYarnResourceInfo {
     }
 
     @Override
-    public JudgeResult judgeSlots(JobClient jobClient) throws YarnException {
+    public JudgeResult judgeSlots(JobClient jobClient) {
 
-        getYarnSlots(yarnClient, queueName,yarnAccepterTaskNumber );
+        JudgeResult jr = getYarnSlots(yarnClient, queueName, yarnAccepterTaskNumber);
+        if (!jr.available()) {
+            return jr;
+        }
 
         ClientArguments clientArguments;
         try {
@@ -58,7 +59,7 @@ public class DtScriptResourceInfo extends AbstractYarnResourceInfo {
 
     private JudgeResult judgeResource(int amCores, int amMem, int workerNum, int workerCores, int workerMem) {
         if (workerNum == 0 || workerMem == 0 || workerCores == 0) {
-            throw new LimitResourceException("Yarn task resource configuration error，" +
+            return JudgeResult.limitError("Yarn task resource configuration error，" +
                     "instance：" + workerNum + ", coresPerInstance：" + workerCores + ", memPerInstance：" + workerMem);
         }
 

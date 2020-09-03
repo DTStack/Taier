@@ -14,19 +14,17 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -103,9 +101,8 @@ public class ActionService {
             boolean canAccepted = receiveStartJob(paramActionExt);
             //会对重复数据做校验
             if(canAccepted){
-
                 JobClient jobClient = new JobClient(paramActionExt);
-                jobDealer.addSubmitJob(jobClient, true);
+                jobDealer.addSubmitJob(jobClient);
                 return true;
             }
             logger.warn("Job taskId：" + paramActionExt.getTaskId() + " duplicate submissions are not allowed");
@@ -140,22 +137,6 @@ public class ActionService {
      * @throws Exception
      */
     public Boolean stop(List<String> jobIds) {
-//        if(!params.containsKey("jobs")){
-//            logger.info("invalid param:" + params);
-//            return false;
-//        }
-//
-//        Object paramsObj = params.get("jobs");
-//        if(!(paramsObj instanceof List)){
-//            logger.info("invalid param:" + params);
-//            return false;
-//        }
-
-//        List<Map<String, Object>> paramList = (List<Map<String, Object>>) paramsObj;
-//        List<String> jobIds = new ArrayList<>(paramList.size());
-//        for(Map<String, Object> param : paramList){
-//            jobIds.add(MapUtils.getString(param, "taskId"));
-//        }
         List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.getRdosJobByJobIds(jobIds));
         jobStopDealer.addStopJobs(jobs);
         return true;
@@ -248,7 +229,7 @@ public class ActionService {
         scheduleJob.setNodeAddress(environmentContext.getLocalAddress());
         scheduleJob.setVersionId(getOrDefault(paramActionExt.getVersionId(), 0));
         scheduleJob.setComputeType(getOrDefault(paramActionExt.getComputeType(), 1));
-
+        scheduleJob.setPeriodType(paramActionExt.getPeriodType());
         return scheduleJob;
     }
 
@@ -507,7 +488,7 @@ public class ActionService {
         }
 
         //do reset status
-        scheduleJobDao.updateJobStatus(jobId, RdosTaskStatus.UNSUBMIT.getStatus());
+        scheduleJobDao.updateJobStatusAndPhaseStatus(jobId, RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode());
         logger.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.UNSUBMIT.getStatus());
         return jobId;
     }
@@ -556,14 +537,6 @@ public class ActionService {
         vo.setExecEndTime(scheduleJob.getExecEndTime() == null ? new Timestamp(0) : scheduleJob.getExecEndTime());
         vo.setExecTime(scheduleJob.getExecTime());
         vo.setRetryNum(scheduleJob.getRetryNum());
-
-//        Map<String, Object> data = new HashMap<>(6);
-//        data.put("jobId", scheduleJob.getJobId());
-//        data.put("status", scheduleJob.getStatus());
-//        data.put("execStartTime", scheduleJob.getExecStartTime() == null ? 0 : scheduleJob.getExecStartTime());
-//        data.put("execEndTime", scheduleJob.getExecEndTime() == null ? 0 : scheduleJob.getExecEndTime());
-//        data.put("execTime", scheduleJob.getExecTime());
-//        data.put("retryNum", scheduleJob.getRetryNum());
         return vo;
     }
 }

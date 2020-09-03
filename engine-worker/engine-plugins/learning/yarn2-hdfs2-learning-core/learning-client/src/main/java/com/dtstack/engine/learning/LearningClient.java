@@ -1,7 +1,10 @@
 package com.dtstack.engine.learning;
 
+import com.dtstack.engine.base.BaseConfig;
+import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JudgeResult;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.learning.conf.LearningConfiguration;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.MathUtil;
@@ -45,6 +48,8 @@ public class LearningClient extends AbstractClient {
 
     private LearningConfiguration conf = new LearningConfiguration();
 
+    private BaseConfig configMap;
+
     private static final Gson GSON = new Gson();
 
     @Override
@@ -52,6 +57,8 @@ public class LearningClient extends AbstractClient {
         LOG.info("LearningClien.init ...");
         conf.set("fs.hdfs.impl.disable.cache", "true");
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
+        String propStr = PublicUtil.objToString(prop);
+        configMap = PublicUtil.jsonStrToObject(propStr, BaseConfig.class);
 
         Boolean useLocalEnv = MathUtil.getBoolean(prop.get("use.local.env"), false);
         if(useLocalEnv){
@@ -90,6 +97,10 @@ public class LearningClient extends AbstractClient {
         }
 
         client = new Client(conf);
+
+        if (conf.getBoolean("monitorAcceptedApp", false)) {
+            AcceptedApplicationMonitor.start(conf, queue, configMap);
+        }
     }
 
     @Override
@@ -190,12 +201,12 @@ public class LearningClient extends AbstractClient {
             LearningResourceInfo resourceInfo = LearningResourceInfo.LearningResourceInfoBuilder()
                     .withYarnClient(client.getYarnClient())
                     .withQueueName(conf.get(LearningConfiguration.XLEARNING_APP_QUEUE))
-                    .withYarnAccepterTaskNumber(conf.getInt(LearningResourceInfo.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1))
+                    .withYarnAccepterTaskNumber(conf.getInt(LearningResourceInfo.DT_APP_YARN_ACCEPTER_TASK_NUMBER, 1))
                     .build();
             return resourceInfo.judgeSlots(jobClient);
-        } catch (YarnException e) {
+        } catch (Exception e) {
             LOG.error("", e);
-            return JudgeResult.newInstance(false, "judgeSlots error");
+            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
         }
     }
 

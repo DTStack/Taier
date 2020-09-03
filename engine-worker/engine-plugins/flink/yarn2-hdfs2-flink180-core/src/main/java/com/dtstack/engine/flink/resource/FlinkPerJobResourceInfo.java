@@ -3,22 +3,14 @@ package com.dtstack.engine.flink.resource;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.flink.FlinkClient;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.base.resource.AbstractYarnResourceInfo;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.collect.Lists;
-import org.apache.hadoop.yarn.api.records.ApplicationReport;
-import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
-import org.apache.hadoop.yarn.exceptions.YarnException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 /**
  * 用于存储从flink上获取的资源信息
@@ -29,8 +21,6 @@ import java.util.stream.Collectors;
  */
 
 public class FlinkPerJobResourceInfo extends AbstractYarnResourceInfo {
-
-    private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
     public int jobmanagerMemoryMb = ConfigConstrant.MIN_JM_MEMORY;
     public int taskmanagerMemoryMb = ConfigConstrant.MIN_JM_MEMORY;
@@ -51,26 +41,16 @@ public class FlinkPerJobResourceInfo extends AbstractYarnResourceInfo {
     }
 
     @Override
-    public JudgeResult judgeSlots(JobClient jobClient) throws Exception {
+    public JudgeResult judgeSlots(JobClient jobClient) {
         return judgePerjobResource(jobClient);
     }
 
-    private JudgeResult judgePerjobResource(JobClient jobClient) throws Exception {
+    private JudgeResult judgePerjobResource(JobClient jobClient) {
 
-        EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
-        enumSet.add(YarnApplicationState.ACCEPTED);
-        List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet).stream().
-                filter(report -> report.getQueue().endsWith(queueName)).collect(Collectors.toList());
-        if (acceptedApps.size() > yarnAccepterTaskNumber) {
-            logger.info("queueName {} acceptedApps {} >= yarnAccepterTaskNumber {}",
-                    queueName, acceptedApps.size(), yarnAccepterTaskNumber);
-
-            JudgeResult judgeResult = JudgeResult.newInstance(false,
-                    "The number of accepted apps is greater than " + yarnAccepterTaskNumber);
-            return judgeResult;
+        JudgeResult jr = getYarnSlots(yarnClient, queueName, yarnAccepterTaskNumber);
+        if (!jr.available()) {
+            return jr;
         }
-
-        this.getYarnSlots(yarnClient, queueName, yarnAccepterTaskNumber);
 
         setTaskResourceInfo(jobClient);
 

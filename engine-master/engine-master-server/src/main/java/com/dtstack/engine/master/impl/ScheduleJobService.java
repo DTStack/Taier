@@ -26,6 +26,7 @@ import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.EDeployMode;
+import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import com.dtstack.engine.master.multiengine.factory.MultiEngineFactory;
@@ -1063,7 +1064,7 @@ public class ScheduleJobService {
                 }
                 if (EJobType.SYNC.getType() == scheduleJob.getTaskType()) {
                     //数据同步需要解析是perjob 还是session
-                    EDeployMode eDeployMode = this.parseDeployTypeByTaskParams(batchTask.getTaskParams());
+                    EDeployMode eDeployMode = this.parseDeployTypeByTaskParams(batchTask.getTaskParams(),batchTask.getComputeType());
                     actionParam.put("deployMode", eDeployMode.getType());
                 }
                 this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus());
@@ -1083,30 +1084,29 @@ public class ScheduleJobService {
      * @param taskParams
      * @return
      */
-    public EDeployMode parseDeployTypeByTaskParams(String taskParams) {
-        if (StringUtils.isBlank(taskParams)) {
-            return EDeployMode.SESSION;
-        }
-        String[] split = taskParams.split("\n");
-        if (split.length <= 0) {
-            return EDeployMode.SESSION;
-        }
-        for (String s : split) {
-            String trim = s.toLowerCase().trim();
-            if (trim.startsWith("#")) {
-                continue;
-            }
-            if (trim.contains("flinktaskrunmode")) {
-                if (trim.contains("session")) {
-                    return EDeployMode.SESSION;
-                } else if (trim.contains("per_job")) {
-                    return EDeployMode.PERJOB;
-                } else if (trim.contains("standalone")) {
-                    return EDeployMode.STANDALONE;
+    public EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType) {
+        try {
+            if (!StringUtils.isBlank(taskParams)) {
+                Properties properties = com.dtstack.engine.common.util.PublicUtil.stringToProperties(taskParams);
+                String flinkTaskRunMode = properties.getProperty("flinkTaskRunMode");
+                if (!StringUtils.isEmpty(flinkTaskRunMode)) {
+                    if (flinkTaskRunMode.equalsIgnoreCase("session")) {
+                        return EDeployMode.SESSION;
+                    } else if (flinkTaskRunMode.equalsIgnoreCase("per_job")) {
+                        return EDeployMode.PERJOB;
+                    } else if (flinkTaskRunMode.equalsIgnoreCase("standalone")) {
+                        return EDeployMode.STANDALONE;
+                    }
                 }
             }
+        } catch (Exception e) {
+            logger.error(" parseDeployTypeByTaskParams {} error", taskParams, e);
         }
-        return EDeployMode.SESSION;
+        if (ComputeType.STREAM.getType().equals(computeType)) {
+            return EDeployMode.PERJOB;
+        } else {
+            return EDeployMode.SESSION;
+        }
     }
 
 
@@ -1215,8 +1215,6 @@ public class ScheduleJobService {
 
 
         List<String> jobIds = Lists.newArrayList();
-//      JSONObject sendData = new JSONObject();
-//      JSONArray jsonArray = new JSONArray();
         for (ScheduleJob scheduleJob : scheduleJobList) {
             ScheduleTaskShade batchTask = scheduleTaskShadeDao.getOne(scheduleJob.getTaskId(), appType);
             //fix 任务被删除
@@ -1233,24 +1231,7 @@ public class ScheduleJobService {
             }
 
             jobIds.add(scheduleJob.getJobId());
-//            JSONObject params = new JSONObject();
-//            params.put("engineType", ScheduleEngineType.getEngineName(batchTask.getEngineType()));
-//            params.put("taskId", scheduleJob.getJobId());
-//            params.put("computeType", batchTask.getComputeType());
-//            params.put("taskType", batchTask.getTaskType());
-//            //dtuicTenantId
-//            params.put("tenantId", dtuicTenantId);
-//            if (batchTask.getTaskType().equals(EScheduleJobType.DEEP_LEARNING.getVal())) {
-//                params.put("engineType", ScheduleEngineType.Learning.getEngineName());
-//                params.put("taskType", EScheduleJobType.SPARK_PYTHON.getVal());
-//            } else if (batchTask.getTaskType().equals(EScheduleJobType.PYTHON.getVal()) || batchTask.getTaskType().equals(EScheduleJobType.SHELL.getVal())) {
-//                params.put("engineType", ScheduleEngineType.DtScript.getEngineName());
-//                params.put("taskType", EScheduleJobType.SPARK_PYTHON.getVal());
-//            }
-//
-//            jsonArray.add(params);
         }
-//        sendData.put("jobs", jsonArray);
 
         actionService.stop(jobIds);
         return "";
@@ -1352,9 +1333,6 @@ public class ScheduleJobService {
             if (scheduleBatchJob.getScheduleJob() != null) {
                 scheduleJobDao.update(scheduleBatchJob.getScheduleJob());
             }
-
-            //batchEngineJobService.saveOrUpdateEngineJob(scheduleBatchJob.getBatchEngineJob(), null);
-//            batchEngineJobService.resetJobForRestart(scheduleBatchJob.getBatchEngineJob().getId(), RdosTaskStatus.UNSUBMIT.getStatus(), scheduleBatchJob.getBatchEngineJob().getVersionId());
         }
     }
 
@@ -1565,6 +1543,7 @@ public class ScheduleJobService {
 
         Long unSubmit = resultMap.get(RdosTaskStatus.UNSUBMIT.getStatus()) == null ? 0L : resultMap.get(RdosTaskStatus.UNSUBMIT.getStatus());
         Long running = resultMap.get(RdosTaskStatus.RUNNING.getStatus()) == null ? 0L : resultMap.get(RdosTaskStatus.RUNNING.getStatus());
+        running += resultMap.get(RdosTaskStatus.NOTFOUND.getStatus()) == null ? 0L : resultMap.get(RdosTaskStatus.NOTFOUND.getStatus());
         Long finished = resultMap.get(RdosTaskStatus.FINISHED.getStatus()) == null ? 0L : resultMap.get(RdosTaskStatus.FINISHED.getStatus());
         Long failed = resultMap.get(RdosTaskStatus.FAILED.getStatus()) == null ? 0L : resultMap.get(RdosTaskStatus.FAILED.getStatus());
         Long waitEngine = resultMap.get(RdosTaskStatus.WAITENGINE.getStatus()) == null ? 0L : resultMap.get(RdosTaskStatus.WAITENGINE.getStatus());
@@ -2293,6 +2272,11 @@ public class ScheduleJobService {
                 //更新状态 日志信息也要更新
                 job.setLogInfo("");
             }
+
+            if (RdosTaskStatus.UNSUBMIT.getStatus().equals(job.getStatus())) {
+                job.setPhaseStatus(JobPhaseStatus.CREATE.getCode());
+            }
+
             updateSize += scheduleJobDao.update(job);
 
         }
@@ -2761,4 +2745,20 @@ public class ScheduleJobService {
         CompletableFuture.runAsync(() -> jobGraphBuilder.buildTaskJobGraph(triggerDay));
     }
 
+    public boolean updatePhaseStatusById(Long id, JobPhaseStatus original, JobPhaseStatus update) {
+        if (id==null|| original==null|| update==null) {
+            return Boolean.FALSE;
+        }
+
+        Integer integer = scheduleJobDao.updatePhaseStatusById(id, original.getCode(), update.getCode());
+
+        if (integer != null && !integer.equals(0)) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    public Long getListMinId(String nodeAddress,Integer scheduleType, String left, String right) {
+        return scheduleJobDao.getListMinId(nodeAddress, scheduleType, left, right, JobPhaseStatus.CREATE.getCode());
+    }
 }

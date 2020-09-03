@@ -1,6 +1,5 @@
 package com.dtstack.engine.base.resource;
 
-import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.google.common.collect.Lists;
 
@@ -25,7 +24,7 @@ public abstract class AbstractFlinkResourceInfo implements EngineResourceInfo {
 
     protected JudgeResult judgeFlinkSessionResource(int sqlEnvParallel, int mrParallel) {
         if (sqlEnvParallel == 0 && mrParallel == 0) {
-            throw new LimitResourceException("Flink task resource configuration error，sqlEnvParallel：" + sqlEnvParallel + ", mrParallel：" + mrParallel);
+            return JudgeResult.limitError("Flink task resource configuration error，sqlEnvParallel：" + sqlEnvParallel + ", mrParallel：" + mrParallel);
         }
         int availableSlots = 0;
         int totalSlots = 0;
@@ -35,17 +34,17 @@ public abstract class AbstractFlinkResourceInfo implements EngineResourceInfo {
         }
         //没有资源直接返回false
         if (availableSlots == 0) {
-            return JudgeResult.newInstance(false, "Available resources available is 0");
+            return JudgeResult.notOk( "Available resources available is 0");
         }
         int maxParallel = Math.max(sqlEnvParallel, mrParallel);
         if (totalSlots < maxParallel) {
-            throw new LimitResourceException("Flink task allocation resource exceeds the maximum resource of the cluster, totalSlots:" + totalSlots + ",maxParallel:" + maxParallel);
+            return JudgeResult.limitError("Flink task allocation resource exceeds the maximum resource of the cluster, totalSlots:" + totalSlots + ",maxParallel:" + maxParallel);
         }
         Boolean rs = availableSlots >= maxParallel;
         if (!rs) {
-            return JudgeResult.newInstance(false, "Available resources are greater than task request resources");
+            return JudgeResult.notOk( "Available resources are greater than task request resources");
         }
-        return JudgeResult.newInstance(true, "");
+        return JudgeResult.ok();
     }
 
 

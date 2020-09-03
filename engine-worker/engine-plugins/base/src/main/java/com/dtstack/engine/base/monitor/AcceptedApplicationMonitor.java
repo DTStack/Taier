@@ -30,7 +30,7 @@ public class AcceptedApplicationMonitor implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(AcceptedApplicationMonitor.class);
 
-    private static final long INTERVAL = 3000;
+    private static final long INTERVAL = 60000;
 
     private static final long THRESHOLD = 60 * 1000 * 10;
 

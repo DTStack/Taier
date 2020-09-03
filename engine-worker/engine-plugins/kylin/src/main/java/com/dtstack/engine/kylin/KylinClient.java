@@ -216,23 +216,23 @@ public class KylinClient extends AbstractClient {
     private JudgeResult hasResource(){
         JsonElement lastJob = getLastJob();
         if(lastJob instanceof JsonNull){
-            return JudgeResult.newInstance(true, "");
+            return JudgeResult.ok();
         }
 
         String status = lastJob.getAsJsonObject().get(KEY_JOB_STATUS).getAsString();
         if(EKylinJobStatus.PENDING.name().equals(status) || EKylinJobStatus.RUNNING.name().equals(status)){
             String msg = String.format("The last job of cube [%s] is in status [%s], waiting for it to finish", kylinConfig.getCubeName(), status);
             logger.info(msg);
-            return JudgeResult.newInstance(false, msg);
+            return JudgeResult.notOk( msg);
         }
 
         if(EKylinJobStatus.STOPPED.name().equals(status)){
             String msg = String.format("The last job of cube [%s] is in status [%s],please resume or discard it first", kylinConfig.getCubeName(), status);
             logger.warn(msg);
-            return JudgeResult.newInstance(false, msg);
+            return JudgeResult.notOk( msg);
         }
 
-        return JudgeResult.newInstance(true, "");
+        return JudgeResult.ok();
     }
 
     private JsonElement getLastJob(){

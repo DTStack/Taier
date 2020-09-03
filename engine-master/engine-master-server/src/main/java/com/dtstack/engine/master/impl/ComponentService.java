@@ -1215,6 +1215,13 @@ public class ComponentService {
         if (StringUtils.isNotBlank(pluginName)) {
             return pluginName;
         }
+        //如果没传 给默认插件 version
+        if (StringUtils.isEmpty(version)) {
+            List<Pair<String, String>> defaultVersion = componentVersionMapping.get(EComponentType.getByCode(componentType).getName());
+            if (CollectionUtils.isNotEmpty(defaultVersion)) {
+                version = defaultVersion.get(0).getValue();
+            }
+        }
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("集群名称不能为空");
         } else if (EComponentType.YARN.getTypeCode() == componentType) {

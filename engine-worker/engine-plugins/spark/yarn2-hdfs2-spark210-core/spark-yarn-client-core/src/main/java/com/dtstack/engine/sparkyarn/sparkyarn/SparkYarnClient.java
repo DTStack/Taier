@@ -1,5 +1,6 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
+import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JarFileInfo;
@@ -28,7 +29,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -89,7 +89,7 @@ public class SparkYarnClient extends AbstractClient {
 
     private SparkYarnConfig sparkYarnConfig;
 
-    private Configuration yarnConf;
+    private YarnConfiguration yarnConf;
 
     private YarnClient yarnClient;
 
@@ -108,6 +108,9 @@ public class SparkYarnClient extends AbstractClient {
         logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
         yarnClient = KerberosUtils.login(sparkYarnConfig,this::getYarnClient,yarnConf);
 
+        if (sparkYarnConfig.getMonitorAcceptedApp()) {
+            AcceptedApplicationMonitor.start(yarnConf, sparkYarnConfig.getQueue(), sparkYarnConfig);
+        }
     }
 
     private void initYarnConf(SparkYarnConfig sparkConfig){
@@ -192,7 +195,7 @@ public class SparkYarnClient extends AbstractClient {
         try {
             ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
-            appId = clientExt.submitApplication(jobClient.getJobPriority());
+            appId = clientExt.submitApplication(jobClient.getApplicationPriority());
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             logger.info("", ex);
@@ -270,7 +273,7 @@ public class SparkYarnClient extends AbstractClient {
             ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
             ClientExt clientExt = new ClientExt(clientArguments, yarnConf, sparkConf);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
-            appId = clientExt.submitApplication(jobClient.getJobPriority());
+            appId = clientExt.submitApplication(jobClient.getApplicationPriority());
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             logger.info("", ex);
@@ -337,7 +340,7 @@ public class SparkYarnClient extends AbstractClient {
         try {
             ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
-            appId = clientExt.submitApplication(jobClient.getJobPriority());
+            appId = clientExt.submitApplication(jobClient.getApplicationPriority());
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
@@ -599,22 +602,16 @@ public class SparkYarnClient extends AbstractClient {
 
         try {
             return KerberosUtils.login(sparkYarnConfig, () -> {
-
-                try {
                     SparkYarnResourceInfo resourceInfo = SparkYarnResourceInfo.SparkYarnResourceInfoBuilder()
                             .withYarnClient(getYarnClient())
                             .withQueueName(sparkYarnConfig.getQueue())
                             .withYarnAccepterTaskNumber(sparkYarnConfig.getYarnAccepterTaskNumber())
                             .build();
                     return resourceInfo.judgeSlots(jobClient);
-                } catch (Exception e) {
-                    logger.error("", e);
-                    return JudgeResult.newInstance(false, "judgeSlots error");
-                }
             }, yarnConf);
         } catch (Exception e) {
             logger.error("judgeSlots error", e);
-            return JudgeResult.newInstance(false, "judgeSlots error");
+            throw new RdosDefineException(e.getMessage());
         }
     }
 

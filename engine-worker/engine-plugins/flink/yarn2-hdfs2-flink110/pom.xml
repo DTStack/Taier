@@ -109,7 +109,7 @@
             <version>${flink.version}</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>flink-shaded-hadoop2</artifactId>
+                    <artifactId>flink-shaded-hadoop-2</artifactId>
                     <groupId>org.apache.flink</groupId>
                 </exclusion>
             </exclusions>

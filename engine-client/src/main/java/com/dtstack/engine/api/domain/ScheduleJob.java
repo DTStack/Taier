@@ -105,6 +105,8 @@ public class ScheduleJob extends AppTenantEntity {
 
     private Integer computeType;
 
+    private Integer phaseStatus;
+
     public String getEngineJobId() {
         return engineJobId;
     }
@@ -368,5 +370,13 @@ public class ScheduleJob extends AppTenantEntity {
 
     public void setNextCycTime(String nextCycTime) {
         this.nextCycTime = nextCycTime;
+    }
+
+    public Integer getPhaseStatus() {
+        return phaseStatus;
+    }
+
+    public void setPhaseStatus(Integer phaseStatus) {
+        this.phaseStatus = phaseStatus;
     }
 }

@@ -339,6 +339,10 @@ public class ClusterService {
             Integer deployMode = MapUtils.getInteger(actionParam, DEPLOY_MODEL);
             EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineName);
 
+            if (type == null) {
+                return null;
+            }
+
             EDeployMode deploy = EDeployMode.PERJOB;
             if (ComputeType.BATCH == computeType && EngineTypeComponentType.FLINK.equals(type)) {
                 deploy = EDeployMode.SESSION;
@@ -560,19 +564,6 @@ public class ClusterService {
             throw new RdosDefineException("下载kerberos文件失败");
         }
     }
-
-//    public Map<String, Object> getConfig(ClusterVO cluster,Long dtUicTenantId,String key) {
-//        JSONObject config = buildClusterConfig(cluster);
-//        EComponentType componentType = EComponentType.getByConfName(key);
-//        KerberosConfig kerberosConfig = componentService.getKerberosConfig(cluster.getId(),componentType.getTypeCode());
-//
-//        JSONObject configObj = config.getJSONObject(key);
-//        if (configObj != null) {
-//            addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
-//            return configObj;
-//        }
-//        return null;
-//    }
 
     /**
      * 如果开启集群开启了kerberos认证，kerberosConfig中还需要包含hdfs配置

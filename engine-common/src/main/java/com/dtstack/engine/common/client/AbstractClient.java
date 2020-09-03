@@ -100,7 +100,7 @@ public abstract class AbstractClient implements IClient {
 
     @Override
     public JudgeResult judgeSlots(JobClient jobClient) {
-        return JudgeResult.newInstance(false, "");
+        return JudgeResult.notOk( "");
     }
 
     protected void beforeSubmitFunc(JobClient jobClient) {

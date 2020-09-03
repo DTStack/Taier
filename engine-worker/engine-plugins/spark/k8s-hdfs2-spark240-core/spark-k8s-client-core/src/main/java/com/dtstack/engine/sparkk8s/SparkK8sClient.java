@@ -42,7 +42,6 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.spark.deploy.k8s.ExtendConfig;
-import org.mortbay.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -194,8 +193,8 @@ public class SparkK8sClient extends AbstractClient {
                     .build();
             return sparkResourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
-            LOG.error("judgeSlots error:{}", e);
-            return JudgeResult.newInstance(false, "judgeSlots error");
+            LOG.error("judgeSlots error:{}",jobClient.getTaskId(), e);
+            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
         }
     }
 
