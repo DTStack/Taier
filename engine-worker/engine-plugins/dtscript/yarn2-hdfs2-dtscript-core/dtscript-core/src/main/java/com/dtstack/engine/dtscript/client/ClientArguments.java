@@ -31,6 +31,7 @@ public class ClientArguments {
     int amCores;
     int workerMemory;
     int workerVcores;
+    long workerGCores;
     int workerNum;
     int psMemory;
     int psVcores;
@@ -378,6 +379,7 @@ public class ClientArguments {
         amCores = DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES;
         workerMemory = DtYarnConfiguration.DEFAULT_LEARNING_WORKER_MEMORY;
         workerVcores = DtYarnConfiguration.DEFAULT_LEARNING_WORKER_VCORES;
+        workerGCores = DtYarnConfiguration.DEFAULT_LEARNING_WORKER_GPU;
         workerNum = DtYarnConfiguration.DEFAULT_DT_WORKER_NUM;
         appMem = DtYarnConfiguration.DEFAULT_LEARNING_APP_MEMORY;
         pythonVersion = DtYarnConfiguration.DEFAULT_LEARNING_PYTHON_VERSION;
@@ -419,6 +421,8 @@ public class ClientArguments {
                 "Amount of memory in MB to be requested to run worker");
         allOptions.addOption("workerCores", "worker-cores", true,
                 "Amount of vcores to be requested to run worker");
+        allOptions.addOption("workerGcores", "worker-gcores", true,
+                "Amount of gpu cores to be requested to run worker");
         allOptions.addOption("workerNum", "worker-num", true,
                 "No. of containers on which the worker needs to be executed");
 
@@ -550,6 +554,11 @@ public class ClientArguments {
         if (commandLine.hasOption("worker-cores")) {
             String workerVcoresStr = commandLine.getOptionValue("worker-cores");
             workerVcores = Integer.parseInt(workerVcoresStr);
+        }
+
+        if (commandLine.hasOption("worker-gcores")) {
+            String workerGCoresStr = commandLine.getOptionValue("worker-gcores");
+            workerGCores = Long.parseLong(workerGCoresStr);
         }
 
         if (commandLine.hasOption("worker-num")) {
