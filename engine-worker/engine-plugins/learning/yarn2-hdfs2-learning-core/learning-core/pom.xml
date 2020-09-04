@@ -22,7 +22,6 @@
             <groupId>com.dtstack</groupId>
             <artifactId>learning</artifactId>
             <version>${learning.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
