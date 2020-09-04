@@ -1,12 +1,9 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.Engine;
-import com.dtstack.engine.api.domain.EngineTenant;
-import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.domain.Tenant;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.tenant.TenantAdminVO;
@@ -14,12 +11,7 @@ import com.dtstack.engine.api.vo.tenant.UserTenantVO;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.dao.ClusterDao;
-import com.dtstack.engine.dao.EngineDao;
-import com.dtstack.engine.dao.EngineTenantDao;
-import com.dtstack.engine.dao.QueueDao;
-import com.dtstack.engine.dao.TenantDao;
+import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -27,7 +19,6 @@ import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.router.login.domain.TenantAdmin;
 import com.dtstack.engine.master.router.login.domain.UserTenant;
-import com.dtstack.fasterxml.jackson.databind.util.BeanUtil;
 import com.dtstack.schedule.common.enums.Sort;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -40,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -150,8 +140,8 @@ public class TenantService {
             }
 
             engineTenantVO.setQueue(queue.getQueuePath());
-            engineTenantVO.setMaxCapacity(queue.getMaxCapacity());
-            engineTenantVO.setMinCapacity(queue.getCapacity());
+            engineTenantVO.setMaxCapacity(Double.valueOf(queue.getMaxCapacity()).intValue() * 100 + "%");
+            engineTenantVO.setMinCapacity(Double.valueOf(queue.getCapacity()).intValue() * 100 + "%");
         }
     }
 
