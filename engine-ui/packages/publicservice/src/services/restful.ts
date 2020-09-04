@@ -29,10 +29,10 @@ export default {
   },
   getNavData:{
     method:'get',
-    url:'/mock/navData.json'
+    url:'/mock/nav-data.json'
   },
   getUserData:{
     method:'get',
-    url:'/mock/userData.json'
+    url:'/mock/user-data.json'
   },
 }
