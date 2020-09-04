@@ -38,14 +38,20 @@ import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.configuration.YarnConfigOptions;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
+import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.YarnApplicationState;
+import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * Date: 2020/5/13
@@ -105,6 +111,30 @@ public class PerJobClientFactory extends AbstractClientFactory {
         return clusterDescriptor;
     }
 
+    public void deleteTaskIfExist(JobClient jobClient) {
+        try {
+            String taskName = jobClient.getJobName();
+            String queueName = flinkConfig.getQueue();
+            YarnClient yarnClient = flinkClientBuilder.getYarnClient();
+
+            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
+            enumSet.add(YarnApplicationState.ACCEPTED);
+            enumSet.add(YarnApplicationState.RUNNING);
+
+            List<ApplicationReport> existApps = yarnClient.getApplications(enumSet).stream().
+                    filter(report -> report.getQueue().endsWith(queueName))
+                    .filter(report -> report.getName().equals(taskName))
+                    .collect(Collectors.toList());
+
+            for (ApplicationReport report : existApps) {
+                ApplicationId appId = report.getApplicationId();
+                yarnClient.killApplication(appId);
+            }
+        } catch (Exception e) {
+            LOG.error("Delete task error " + e.getMessage());
+            throw new RdosDefineException("Delete task error");
+        }
+    }
 
     private Configuration appendConfigAndInitFs(JobClient jobClient, Configuration configuration) {
         Properties properties = jobClient.getConfProperties();
