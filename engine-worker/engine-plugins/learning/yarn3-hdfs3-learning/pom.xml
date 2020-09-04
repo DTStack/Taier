@@ -17,7 +17,7 @@
     <properties>
         <junit.version>4.11</junit.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <learning3.version>4.0.0</learning3.version>
+        <learning3.version>4.0.0-gpu-SNAPSHOT</learning3.version>
     </properties>
 
     <url>http://maven.apache.org</url>
