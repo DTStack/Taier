@@ -863,7 +863,7 @@ public class ClusterService {
             SchedulingVo schedulingVo = new SchedulingVo();
             schedulingVo.setSchedulingCode(value.getType());
             schedulingVo.setSchedulingName(value.getName());
-            schedulingVo.setComponents(ComponentVO.toVOS(scheduleType.get(value),Objects.isNull(removeTypeName) ? true : removeTypeName));
+            schedulingVo.setComponents(ComponentVO.toVOS(scheduleType.get(value), Objects.isNull(removeTypeName) || removeTypeName));
             schedulingVos.add(schedulingVo);
         }
         clusterVO.setScheduling(schedulingVos);

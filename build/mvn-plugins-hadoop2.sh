@@ -29,6 +29,7 @@ engine-worker/engine-plugins/rdbs/oracle,\
 engine-worker/engine-plugins/rdbs/sqlserver,\
 engine-worker/engine-plugins/rdbs/hive,\
 engine-worker/engine-plugins/rdbs/hive2,\
+engine-worker/engine-plugins/rdbs/hive-2.1.1-cdh6.1.1,\
 engine-worker/engine-plugins/rdbs/postgresql,\
 engine-worker/engine-plugins/rdbs/impala,\
 engine-worker/engine-plugins/rdbs/tidb,\
