@@ -70,6 +70,10 @@
         <appender-ref ref="flinkAppender" />
     </logger>
 
+    <logger name="com.dtstack.engine.flink.factory.SessionClientFactory" level="info" additivity="false">
+        <appender-ref ref="flinkAppender" />
+    </logger>
+
     <logger name="com.dtstack.engine.master.router" level="info" additivity="false">
         <appender-ref ref="request" />
     </logger>
@@ -97,7 +101,7 @@
     </logger>
     <logger name="com.dtstack.engine.master.queue.JopPriorityQueue" level="info" additivity="false">
         <appender-ref ref="schedule" />
-    </logger>
+    </logger>com.dtstack.engine.flink.factory.SessionClientFactory.AppStatusMonitor
 
     <root level="info">
         <appender-ref ref="allAppender" />
