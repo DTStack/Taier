@@ -10,11 +10,11 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>hive-2.1.1-cdh6.1.1</artifactId>
+    <artifactId>hive2.1.1-cdh6.1.1</artifactId>
     <version>1.0.0</version>
 
     <properties>
-        <jar.name>hive-2.1.1-cdh6.1.1</jar.name>
+        <jar.name>hive2.1.1-cdh6.1.1</jar.name>
         <hive-jdbc-cdh.version>2.1.1-cdh6.1.1</hive-jdbc-cdh.version>
     </properties>
 
@@ -105,10 +105,10 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../../../pluginLibs/hive-2.1.1-cdh6.1.1/"
+                                <copy todir="${basedir}/target/../../../../../pluginLibs/hive2.1.1-cdh6.1.1/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/hive-2.1.1-cdh6.1.1/"
+                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/hive2.1.1-cdh6.1.1/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
