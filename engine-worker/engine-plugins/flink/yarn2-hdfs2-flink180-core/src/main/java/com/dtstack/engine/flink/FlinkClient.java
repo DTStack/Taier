@@ -752,7 +752,7 @@ public class FlinkClient extends AbstractClient {
         try {
             String logPreURL = UrlUtil.getHttpRootUrl(amContainerLogsURL);
             logger.info("jobmanager container logs URL is: {}, logPreURL is {} :", amContainerLogsURL, logPreURL);
-            ApplicationWSParser.RollingBaseInfo amLogInfo = applicationWSParser.parseContainerLogBaseInfo(amContainerLogsURL, logPreURL);
+            ApplicationWSParser.RollingBaseInfo amLogInfo = applicationWSParser.parseContainerLogBaseInfo(amContainerLogsURL, logPreURL, ConfigConstrant.JOBMANAGER_COMPONEN);
             return Optional.ofNullable(JSONObject.toJSONString(amLogInfo));
         } catch (Exception e) {
             logger.error(" parse am Log error !", e);
@@ -769,7 +769,7 @@ public class FlinkClient extends AbstractClient {
                 String containerLogUrl = buildContainerLogUrl(containerLogUrlFormat, nameAndHost, user);
                 String preUrl =  UrlUtil.getHttpRootUrl(containerLogUrl);
                 logger.info("taskmanager container logs URL is: {},  preURL is :{}", containerLogUrl, preUrl);
-                ApplicationWSParser.RollingBaseInfo rollingBaseInfo = applicationWSParser.parseContainerLogBaseInfo(containerLogUrl, preUrl);
+                ApplicationWSParser.RollingBaseInfo rollingBaseInfo = applicationWSParser.parseContainerLogBaseInfo(containerLogUrl, preUrl, ConfigConstrant.TASKMANAGER_COMPONEN);
                 rollingBaseInfo.setOtherInfo(JSONObject.toJSONString(info));
                 taskmanagerInfoStr.add(JSONObject.toJSONString(rollingBaseInfo));
             }
