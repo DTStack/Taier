@@ -1228,7 +1228,7 @@ public class ComponentService {
             if (version.contains("cdh")) {
                 //cdh为完整路径
                 pluginName = pluginName + version;
-            } else {
+            } else if (!version.equalsIgnoreCase("1.x")) {
                 pluginName = pluginName + version.charAt(0);
             }
             return pluginName;
