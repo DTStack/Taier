@@ -19,6 +19,7 @@
         <module>oracle</module>
         <module>sqlserver</module>
         <module>hive</module>
+        <module>hive2</module>
         <module>postgresql</module>
         <module>impala</module>
         <module>tidb</module>
