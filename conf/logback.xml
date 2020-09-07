@@ -101,7 +101,7 @@
     </logger>
     <logger name="com.dtstack.engine.master.queue.JopPriorityQueue" level="info" additivity="false">
         <appender-ref ref="schedule" />
-    </logger>com.dtstack.engine.flink.factory.SessionClientFactory.AppStatusMonitor
+    </logger>
 
     <root level="info">
         <appender-ref ref="allAppender" />
