@@ -4,6 +4,7 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.util.JobGraphUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
@@ -64,7 +65,7 @@ public class JobSubmittedDealer implements Runnable {
                     JobResult jobResult = jobClient.getJobResult();
                     String appId = jobResult.getData(JobResult.EXT_ID_KEY);
                     String latencyMarkerInfo = jobResult.getData(JobResult.LATENCY_MARKER_INFO);
-                    scheduleJobDao.updateJobSubmitSuccess(jobClient.getTaskId(), jobClient.getEngineTaskId(), appId, jobClient.getJobResult().getJsonStr(),latencyMarkerInfo);
+                    scheduleJobDao.updateJobSubmitSuccess(jobClient.getTaskId(), jobClient.getEngineTaskId(), appId, jobClient.getJobResult().getJsonStr(), JobGraphUtil.formatJSON(jobClient.getEngineTaskId(),latencyMarkerInfo));
                     jobDealer.updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
                     jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
                     shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus());
