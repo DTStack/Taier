@@ -249,10 +249,14 @@ public class SFTPHandler {
 
     public String loadFromSftp(String fileName, String remoteDir, String localDir){
         String remoteFile = remoteDir + File.separator + fileName;
+        if (StringUtils.isEmpty(remoteDir)) {
+            remoteFile = fileName;
+        }
+
         String localFile = localDir + File.separator + fileName;
         try {
-            if (new File(fileName).exists()){
-                return fileName;
+            if (new File(localFile).exists()){
+                return localFile;
             } else {
                 downloadFile(remoteFile, localFile);
                 return localFile;
