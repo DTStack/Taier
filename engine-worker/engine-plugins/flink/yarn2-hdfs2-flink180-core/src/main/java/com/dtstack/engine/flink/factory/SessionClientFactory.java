@@ -500,15 +500,16 @@ public class SessionClientFactory extends AbstractClientFactory {
                 } catch (Exception ex) {
                     LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
                 }
-                try {
-                    Configuration newConf = new Configuration(sessionClientFactory.flinkConfiguration);
-                    ApplicationId applicationId = sessionClientFactory.acquireAppIdAndSetClusterId(newConf);
-                    if (applicationId != null){
-                        clientBuilder.getYarnClient().killApplication(applicationId);
-                    }
-                } catch (Exception ex) {
-                    LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
+            }
+
+            try {
+                Configuration newConf = new Configuration(sessionClientFactory.flinkConfiguration);
+                ApplicationId applicationId = sessionClientFactory.acquireAppIdAndSetClusterId(newConf);
+                if (applicationId != null){
+                    clientBuilder.getYarnClient().killApplication(applicationId);
                 }
+            } catch (Exception ex) {
+                LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
             }
         }
 
