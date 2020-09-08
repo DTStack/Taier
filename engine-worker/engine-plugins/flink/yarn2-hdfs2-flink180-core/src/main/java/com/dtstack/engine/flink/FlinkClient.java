@@ -104,7 +104,7 @@ public class FlinkClient extends AbstractClient {
 
     private static final Path TMPDIR = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
 
-    private static final String DIR = "/keytab/";
+    private static final String KEYTAB_DIR = "/keytab/";
     private static final String APPLICATION_REST_API_TMP = "%s/ws/v1/cluster/apps/%s";
     private static final String CONTAINER_LOG_URL_TMP = "%s/node/containerlogs/%s/%s";
     private static final String TASK_MANAGERS_KEY = "taskmanagers";
@@ -819,8 +819,22 @@ public class FlinkClient extends AbstractClient {
             if (PrepareOperator.verificKeytab(tmpSql)) {
                 sqlItera.remove();
                 SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
-                String localDir = USER_DIR + DIR + jobClient.getTaskId();
-                String localPath = handler.loadFromSftp(PrepareOperator.getFileName(tmpSql), flinkConfig.getRemoteDir(), localDir);
+                String localDir = USER_DIR + KEYTAB_DIR + jobClient.getTaskId();
+
+                if (!new File(localDir).exists()) {
+                    new File(localDir).mkdirs();
+                }
+
+                String keytabFileName = PrepareOperator.getFileName(tmpSql);
+                String remoteDir = flinkConfig.getRemoteDir();
+
+                if (StringUtils.isEmpty(remoteDir)) {
+                    File keytabFile = new File(keytabFileName);
+                    keytabFileName = keytabFile.getName();
+                    remoteDir = keytabFile.getParent();
+                }
+
+                String localPath = handler.loadFromSftp(keytabFileName, remoteDir, localDir);
                 logger.info("Download file to :" + localPath);
             } else if (PrepareOperator.verific(tmpSql)) {
                 sqlItera.remove();
@@ -874,7 +888,7 @@ public class FlinkClient extends AbstractClient {
 
         cacheFile.remove(jobClient.getTaskId());
 
-        String localDirStr = USER_DIR + DIR + jobClient.getTaskId();
+        String localDirStr = USER_DIR + KEYTAB_DIR + jobClient.getTaskId();
         File localDir = new File(localDirStr);
         if (localDir.exists()){
             try {
