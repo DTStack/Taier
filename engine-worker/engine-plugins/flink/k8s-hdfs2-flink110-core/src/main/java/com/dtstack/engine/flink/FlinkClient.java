@@ -19,15 +19,13 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
+import com.dtstack.engine.flink.entity.LatencyMarkerInfo;
 import com.dtstack.engine.flink.enums.FlinkMode;
 import com.dtstack.engine.flink.parser.AddJarOperator;
 import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
-import com.dtstack.engine.flink.util.FlinkConfUtil;
+import com.dtstack.engine.flink.util.*;
 import com.dtstack.engine.flink.resource.FlinkK8sSeesionResourceInfo;
-import com.dtstack.engine.flink.util.FlinkRestParseUtil;
-import com.dtstack.engine.flink.util.FlinkUtil;
-import com.dtstack.engine.flink.util.HadoopConf;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -220,9 +218,8 @@ public class FlinkClient extends AbstractClient {
             jobGraph = PackagedProgramUtils.createJobGraph(packagedProgram, tmpConfiguration, runParallelism, false);
 
             fillJobGraphClassPath(jobGraph);
-
             Pair<String, String> runResult = submitFlinkJob(clusterClient, jobGraph, taskRunMode);
-            return JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond());
+            return JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond(), JobGraphBuildUtil.buildLatencyMarker(jobGraph));
         } catch (Exception e) {
             if (FlinkMode.isPerJob(taskRunMode)) {
                 String clusterId = clusterClient.getClusterId().toString();

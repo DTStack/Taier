@@ -63,7 +63,8 @@ public class JobSubmittedDealer implements Runnable {
                 if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
                     JobResult jobResult = jobClient.getJobResult();
                     String appId = jobResult.getData(JobResult.EXT_ID_KEY);
-                    scheduleJobDao.updateJobSubmitSuccess(jobClient.getTaskId(), jobClient.getEngineTaskId(), appId, jobClient.getJobResult().getJsonStr());
+                    String latencyMarkerInfo = jobResult.getData(JobResult.LATENCY_MARKER_INFO);
+                    scheduleJobDao.updateJobSubmitSuccess(jobClient.getTaskId(), jobClient.getEngineTaskId(), appId, jobClient.getJobResult().getJsonStr(),latencyMarkerInfo);
                     jobDealer.updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
                     jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
                     shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus());
@@ -73,7 +74,7 @@ public class JobSubmittedDealer implements Runnable {
                     engineJobCacheDao.delete(jobClient.getTaskId());
                 }
             } catch (Throwable e) {
-                logger.error("TaskListener run error:{}", e);
+                logger.error("TaskListener run error", e);
             }
         }
     }

@@ -1,0 +1,1 @@
+ALTER TABLE SCHEDULE_JOB ADD COLUMN latency_marker_info TEXT DEFAULT NULL COMMENT 'jobGraph构建json';

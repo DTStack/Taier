@@ -1559,7 +1559,7 @@
     <update id="updateJobSubmitSuccess">
 	   update schedule_job
 	   set log_info = #{submitLog}, engine_job_id=#{engineId}, application_id=#{appId},
-	    gmt_modified=now(), exec_start_time=now()
+	    gmt_modified=now(), exec_start_time=now(),latency_marker_info = #{latencyMarkerInfo}
 	   where job_id=#{jobId};
    </update>
 
@@ -1660,4 +1660,8 @@
     <update id="updateJobStatusAndPhaseStatus">
         update schedule_job set gmt_modified=now(),status=#{status},`phase_status` = #{phaseStatus} where job_id=#{jobId};
     </update>
+
+    <select id="getLatencyMarkerInfo" resultType="java.lang.String">
+        select latency_marker_info from schedule_job where job_id = #{jobId}
+    </select>
 </mapper>

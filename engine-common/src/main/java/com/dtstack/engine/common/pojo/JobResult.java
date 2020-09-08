@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.DateUtil;
 import com.google.common.base.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,8 @@ public class JobResult implements Serializable {
     public static final String EXT_ID_KEY = "extid";
 
     public static final String MSG_INFO = "msg_info";
+
+    public static final String LATENCY_MARKER_INFO = "latency_marker_info";
 
     private JSONObject json = new JSONObject();
 
@@ -77,6 +80,19 @@ public class JobResult implements Serializable {
         JobResult jobResult = createSuccessResult(taskId);
         if(!Strings.isNullOrEmpty(extId)){
             jobResult.setData(EXT_ID_KEY, extId);
+        }
+
+        return jobResult;
+    }
+
+
+    public static JobResult createSuccessResult(String taskId, String extId, String latencyMarkerInfo) {
+        JobResult jobResult = createSuccessResult(taskId);
+        if (!Strings.isNullOrEmpty(extId)) {
+            jobResult.setData(EXT_ID_KEY, extId);
+        }
+        if (!StringUtils.isEmpty(latencyMarkerInfo)) {
+            jobResult.setData(LATENCY_MARKER_INFO, latencyMarkerInfo);
         }
 
         return jobResult;
