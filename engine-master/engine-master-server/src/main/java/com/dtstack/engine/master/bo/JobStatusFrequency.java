@@ -24,7 +24,7 @@ public class JobStatusFrequency {
     public void resetJobStatus(Integer status) {
         this.createTime = System.currentTimeMillis();
         this.status = status;
-        this.status = 0;
+        this.num = 0;
     }
 
     public Integer getStatus() {
