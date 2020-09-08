@@ -160,9 +160,6 @@ public enum EComponentType {
 
     public static String convertPluginNameByComponent(EComponentType componentCode){
         switch (componentCode){
-            case SPARK_THRIFT:
-            case HIVE_SERVER:
-                return "hive";
             case TIDB_SQL:
                 return "tidb";
             case ORACLE_SQL:
