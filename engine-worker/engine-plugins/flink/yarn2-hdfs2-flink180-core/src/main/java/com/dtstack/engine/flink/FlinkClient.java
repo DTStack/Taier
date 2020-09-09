@@ -863,7 +863,8 @@ public class FlinkClient extends AbstractClient {
         }
 
         cacheFile.put(jobClient.getTaskId(), fileList);
-        jobClient.setSql(String.join(";", sqlList));
+        String newSql = String.join(";", sqlList);
+        jobClient.setSql(newSql);
     }
 
     @Override

@@ -55,7 +55,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerJobClientFactory.class);
 
-    private static final String KEYTAB_DIR = "/keytab/";
+    private static final String KEYTAB_DIR = "/keytab";
     private static final String LOG_LEVEL_KEY = "logLevel";
 
     private static final String USER_DIR = System.getProperty("user.dir");
@@ -152,7 +152,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
             keytabs.add(file);
         }
 
-        String taskKeytabDirPath = keytabDirParent + jobClient.getTaskId();
+        String taskKeytabDirPath = keytabDirParent + File.separator + jobClient.getTaskId();
         File taskKeytabDir = new File(taskKeytabDirPath);
         File[] taskKeytabFiles = taskKeytabDir.listFiles();
         if (taskKeytabFiles != null && taskKeytabFiles.length > 0) {
