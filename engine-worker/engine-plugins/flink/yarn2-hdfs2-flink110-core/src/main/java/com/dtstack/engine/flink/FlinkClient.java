@@ -228,6 +228,7 @@ public class FlinkClient extends AbstractClient {
                 clusterSpecification.setClassLoaderType(ClassLoaderType.getClassLoaderType(jobClient.getJobType()));
 
                 runResult = runJobByPerJob(clusterSpecification, jobClient);
+                jobGraph = clusterSpecification.getJobGraph();
                 packagedProgram = clusterSpecification.getProgram();
             } else {
                 Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
