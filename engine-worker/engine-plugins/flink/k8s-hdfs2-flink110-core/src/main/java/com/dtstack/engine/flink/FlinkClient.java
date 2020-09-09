@@ -544,7 +544,8 @@ public class FlinkClient extends AbstractClient {
         try {
             FlinkSeesionResourceInfo seesionResourceInfo = new FlinkSeesionResourceInfo();
             String groupName = jobClient.getGroupName();
-            String namespace = groupName.split("_")[1];
+            String[] contents = groupName.split("_");
+            String namespace = contents[contents.length-1];
             ResourceQuotaList resourceQuotas = kubernetesClient.resourceQuotas().inNamespace(namespace).list();
             if (resourceQuotas != null && resourceQuotas.getItems().size() > 0) {
                 ResourceQuota resourceQuota = resourceQuotas.getItems().get(0);
