@@ -385,9 +385,10 @@ public class SparkYarnClient extends AbstractClient {
     private void setSparkLog4jLocalFilePath(SparkConf sparkConf, JobClient jobClient) {
         Properties confProp = jobClient.getConfProperties();
         String logLevel = MathUtil.getString(confProp.get(LOG_LEVEL_KEY), "info");
-        File file = new File(userDir);
+        String path = userDir + File.separator + SPARK_CONF_DIR + File.separator + logLevel.toLowerCase() + File.separator + SPARK_LOG4J_FILE_NAME;
+        File file = new File(path);
         if (file.exists()) {
-            sparkConf.set(SPARK_LOCAL_LOG4J_KEY, userDir + File.separator + SPARK_CONF_DIR + File.separator + logLevel.toLowerCase() + File.separator + SPARK_LOG4J_FILE_NAME);
+            sparkConf.set(SPARK_LOCAL_LOG4J_KEY, path);
         }
     }
 
