@@ -33,7 +33,7 @@ public class JobResult implements Serializable {
 
     public static final String MSG_INFO = "msg_info";
 
-    public static final String LATENCY_MARKER_INFO = "latency_marker_info";
+    public static final String JOB_GRAPH = "job_graph";
 
     private JSONObject json = new JSONObject();
 
@@ -86,13 +86,13 @@ public class JobResult implements Serializable {
     }
 
 
-    public static JobResult createSuccessResult(String taskId, String extId, String latencyMarkerInfo) {
+    public static JobResult createSuccessResult(String taskId, String extId, String jobGraph) {
         JobResult jobResult = createSuccessResult(taskId);
         if (!Strings.isNullOrEmpty(extId)) {
             jobResult.setData(EXT_ID_KEY, extId);
         }
-        if (!StringUtils.isEmpty(latencyMarkerInfo)) {
-            jobResult.setData(LATENCY_MARKER_INFO, latencyMarkerInfo);
+        if (!StringUtils.isEmpty(jobGraph)) {
+            jobResult.setData(JOB_GRAPH, jobGraph);
         }
 
         return jobResult;

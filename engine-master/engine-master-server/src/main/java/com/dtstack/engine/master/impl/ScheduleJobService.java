@@ -2762,7 +2762,7 @@ public class ScheduleJobService {
         return scheduleJobDao.getListMinId(nodeAddress, scheduleType, left, right, JobPhaseStatus.CREATE.getCode());
     }
 
-    public String getLatencyMarkerInfo(String jobId) {
-        return scheduleJobDao.getLatencyMarkerInfo(jobId);
+    public String getJobGraphJSON(String jobId) {
+        return scheduleJobDao.getJobGraph(jobId);
     }
 }

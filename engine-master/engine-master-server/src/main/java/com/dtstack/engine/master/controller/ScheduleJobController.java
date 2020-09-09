@@ -375,8 +375,8 @@ public class ScheduleJobController {
         scheduleJobService.testTrigger(jobId);
     }
 
-    @RequestMapping(value="/getLatencyMarkerInfo", method = {RequestMethod.POST,RequestMethod.GET})
-    public String getLatencyMarkerInfo(@DtRequestParam("jobId") String jobId) {
-       return scheduleJobService.getLatencyMarkerInfo(jobId);
+    @RequestMapping(value="/getJobGraph", method = {RequestMethod.POST,RequestMethod.GET})
+    public String getJobGraph(@DtRequestParam("jobId") String jobId) {
+       return scheduleJobService.getJobGraphJSON(jobId);
     }
 }
