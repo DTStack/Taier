@@ -37,7 +37,6 @@ public class JobGraphBuildUtil {
         jobVertices.stream().map(jobVertex -> {
             String jobVertexID = jobVertex.getID().toString();
             String JobVertexName = jobVertex.getName();
-
             List<String> inputs = jobVertex.getInputs()
                     .stream()
                     .map(e -> e.getSourceId().toHexString())
@@ -63,6 +62,8 @@ public class JobGraphBuildUtil {
                     .setJobVertexId(jobVertexID)
                     .setInputs(inputs)
                     .setOutput(output)
+                    .setParallelism(jobVertex.getParallelism())
+                    .setMaxParallelism(jobVertex.getMaxParallelism())
                     .setSubJobVertex(subJobVertices)
                     .build();
 

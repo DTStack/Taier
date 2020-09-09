@@ -12,11 +12,16 @@ public class LatencyMarkerInfo {
     private List<String> output;
     private List<SubJobVertices> subJobVertices;
 
-    private LatencyMarkerInfo(String jobVertexName, String jobVertexId, List<String> inputs, List<String> output) {
+    private int maxParallelism;
+    private int parallelism;
+
+    private LatencyMarkerInfo(String jobVertexName, String jobVertexId, List<String> inputs, List<String> output, int parallelism, int maxParallelism) {
         this.jobVertexName = jobVertexName;
         this.jobVertexId = jobVertexId;
         this.inputs = inputs;
         this.output = output;
+        this.parallelism = parallelism;
+        this.maxParallelism = maxParallelism;
     }
 
     class SubJobVertices {
@@ -93,6 +98,22 @@ public class LatencyMarkerInfo {
         this.output = output;
     }
 
+    public int getMaxParallelism() {
+        return maxParallelism;
+    }
+
+    public void setMaxParallelism(int maxParallelism) {
+        this.maxParallelism = maxParallelism;
+    }
+
+    public int getParallelism() {
+        return parallelism;
+    }
+
+    public void setParallelism(int parallelism) {
+        this.parallelism = parallelism;
+    }
+
     public static LatencyMarkerInfo.Builder builder() {
         return new LatencyMarkerInfo.Builder();
     }
@@ -103,6 +124,18 @@ public class LatencyMarkerInfo {
         private List<String> inputs;
         private List<String> output;
         private List<Tuple2> subJobVertices;
+        private int maxParallelism;
+        private int parallelism;
+
+        public LatencyMarkerInfo.Builder setParallelism(int parallelism) {
+            this.parallelism = parallelism;
+            return this;
+        }
+
+        public LatencyMarkerInfo.Builder setMaxParallelism(int maxParallelism) {
+            this.maxParallelism = maxParallelism;
+            return this;
+        }
 
         public LatencyMarkerInfo.Builder setJobVertexName(String jobVertexName) {
             this.jobVertexName = jobVertexName;
@@ -130,7 +163,7 @@ public class LatencyMarkerInfo {
         }
 
         public LatencyMarkerInfo build() {
-            LatencyMarkerInfo latencyMarkerInfo = new LatencyMarkerInfo(jobVertexName, jobVertexId, inputs, output);
+            LatencyMarkerInfo latencyMarkerInfo = new LatencyMarkerInfo(jobVertexName, jobVertexId, inputs, output,parallelism,maxParallelism);
             List<SubJobVertices> subJobVerticesList = this.subJobVertices.stream()
                     .map(e -> latencyMarkerInfo.new SubJobVertices(e.f0.toString(), e.f1.toString()))
                     .collect(Collectors.toList());
