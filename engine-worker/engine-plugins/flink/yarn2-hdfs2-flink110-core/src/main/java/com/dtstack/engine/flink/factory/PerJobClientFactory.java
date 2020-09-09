@@ -36,7 +36,6 @@ import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
 import org.apache.flink.yarn.YarnClusterDescriptor;
 import org.apache.flink.yarn.configuration.YarnConfigOptions;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -84,7 +82,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
         }
 
         if (flinkConfig.isOpenKerberos()) {
-            List<File> keytabFilePath = getKeytabFilePath();
+            List<File> keytabFilePath = getKeytabFilePath(jobClient);
             clusterDescriptor.addShipFiles(keytabFilePath);
         }
 
@@ -130,19 +128,30 @@ public class PerJobClientFactory extends AbstractClientFactory {
         return null;
     }
 
-    private List<File> getKeytabFilePath() {
+    private List<File> getKeytabFilePath(JobClient jobClient) {
         List<File> keytabs = Lists.newLinkedList();
         String remoteDir = flinkConfig.getRemoteDir();
-        String keytabDir = ConfigConstrant.LOCAL_KEYTAB_DIR + remoteDir;
-        File keytabDirName = new File(keytabDir);
-        File[] files = keytabDirName.listFiles();
 
-        if (files == null || files.length == 0) {
-            throw new RdosDefineException("not find keytab file from " + keytabDir);
+        String clusterKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
+        File clusterKeytabDir = new File(clusterKeytabDirPath);
+        File[] clusterKeytabFiles = clusterKeytabDir.listFiles();
+
+        if (clusterKeytabFiles == null || clusterKeytabFiles.length == 0) {
+            throw new RdosDefineException("not find keytab file from " + clusterKeytabDirPath);
         }
-        for (File file : files) {
+        for (File file : clusterKeytabFiles) {
             keytabs.add(file);
         }
+
+        String taskKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+        File taskKeytabDir = new File(taskKeytabDirPath);
+        File[] taskKeytabFiles = taskKeytabDir.listFiles();
+        if (taskKeytabFiles != null && taskKeytabFiles.length > 0) {
+            for (File file : taskKeytabFiles) {
+                keytabs.add(file);
+            }
+        }
+
         return keytabs;
     }
 

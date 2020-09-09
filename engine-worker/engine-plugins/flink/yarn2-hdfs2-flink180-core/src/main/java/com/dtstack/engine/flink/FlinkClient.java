@@ -94,17 +94,7 @@ public class FlinkClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
-    private static int MAX_RETRY_NUMBER = 2;
-
-    private static String MONITOR_ACCEPTED_APP_KEY = "monitorAcceptedApp";
-
     private String tmpFileDirPath = "./tmp";
-
-    private static final Path TMPDIR = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
-
-    private static final String KEYTAB_DIR = "/keytab/";
-
-    private static final String USER_DIR = System.getProperty("user.dir");
 
     private Properties flinkExtProp;
 
@@ -262,7 +252,7 @@ public class FlinkClient extends AbstractClient {
         String applicationId = clusterClient.getClusterId().toString();
         String flinkJobId = clusterSpecification.getJobGraph().getJobID().toString();
 
-        delFilesFromDir(TMPDIR, applicationId);
+        delFilesFromDir(ConfigConstrant.IO_TMPDIR, applicationId);
 
         flinkClusterClientManager.addClient(applicationId, clusterClient);
 
@@ -295,7 +285,7 @@ public class FlinkClient extends AbstractClient {
             }
             throw e;
         } finally {
-            delFilesFromDir(TMPDIR, "flink-jobgraph");
+            delFilesFromDir(ConfigConstrant.IO_TMPDIR, "flink-jobgraph");
         }
     }
 
@@ -588,7 +578,7 @@ public class FlinkClient extends AbstractClient {
     public String getMessageByHttp(String path) {
         try {
             String reqUrl = String.format("%s%s", getReqUrl(), path);
-            return PoolHttpClient.get(reqUrl, null, MAX_RETRY_NUMBER);
+            return PoolHttpClient.get(reqUrl, null, ConfigConstrant.HTTP_MAX_RETRY);
         } catch (Exception e) {
             throw new RdosDefineException(ErrorCode.HTTP_CALL_ERROR, e);
         }
@@ -818,7 +808,7 @@ public class FlinkClient extends AbstractClient {
             if (PrepareOperator.verificKeytab(tmpSql)) {
                 sqlItera.remove();
                 SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
-                String localDir = USER_DIR + KEYTAB_DIR + jobClient.getTaskId();
+                String localDir = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
 
                 if (!new File(localDir).exists()) {
                     new File(localDir).mkdirs();
@@ -888,7 +878,7 @@ public class FlinkClient extends AbstractClient {
 
         cacheFile.remove(jobClient.getTaskId());
 
-        String localDirStr = USER_DIR + KEYTAB_DIR + jobClient.getTaskId();
+        String localDirStr = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
         File localDir = new File(localDirStr);
         if (localDir.exists()){
             try {

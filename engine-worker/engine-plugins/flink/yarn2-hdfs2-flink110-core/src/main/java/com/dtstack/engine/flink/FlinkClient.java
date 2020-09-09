@@ -45,6 +45,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.Charsets;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
@@ -67,7 +68,6 @@ import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
-import org.apache.kerby.config.Conf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.security.action.GetPropertyAction;
@@ -95,11 +95,7 @@ public class FlinkClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
-    private static int MAX_RETRY_NUMBER = 2;
-
     private String tmpFileDirPath = "./tmp";
-
-    private static final Path tmpdir = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
 
     private Properties flinkExtProp;
 
@@ -254,7 +250,7 @@ public class FlinkClient extends AbstractClient {
         String applicationId = clusterClient.getClusterId().toString();
         String flinkJobId = clusterSpecification.getJobGraph().getJobID().toString();
 
-        delFilesFromDir(tmpdir, applicationId);
+        delFilesFromDir(ConfigConstrant.IO_TMPDIR, applicationId);
 
         flinkClusterClientManager.addClient(applicationId, clusterClient);
 
@@ -281,7 +277,7 @@ public class FlinkClient extends AbstractClient {
             }
             throw e;
         } finally {
-            delFilesFromDir(tmpdir, "flink-jobgraph");
+            delFilesFromDir(ConfigConstrant.IO_TMPDIR, "flink-jobgraph");
         }
     }
 
@@ -574,7 +570,7 @@ public class FlinkClient extends AbstractClient {
     public String getMessageByHttp(String path) {
         try {
             String reqUrl = String.format("%s%s", getReqUrl(), path);
-            return PoolHttpClient.get(reqUrl, null, MAX_RETRY_NUMBER);
+            return PoolHttpClient.get(reqUrl, null, ConfigConstrant.HTTP_MAX_RETRY);
         } catch (Exception e) {
             if(flinkClusterClientManager.getIsClientOn()){
                 flinkClusterClientManager.setIsClientOn(false);
@@ -807,8 +803,22 @@ public class FlinkClient extends AbstractClient {
             if (PrepareOperator.verificKeytab(tmpSql)) {
                 sqlItera.remove();
                 SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
-                String localDir = ConfigConstrant.LOCAL_KEYTAB_TASK_DIR_PARENT + jobClient.getTaskId();
-                String localPath = handler.loadFromSftp(PrepareOperator.getFileName(tmpSql), flinkConfig.getRemoteDir(), localDir);
+                String localDir = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+
+                if (!new File(localDir).exists()) {
+                    new File(localDir).mkdirs();
+                }
+
+                String keytabFileName = PrepareOperator.getFileName(tmpSql);
+                String remoteDir = flinkConfig.getRemoteDir();
+
+                if (StringUtils.isEmpty(remoteDir)) {
+                    File keytabFile = new File(keytabFileName);
+                    keytabFileName = keytabFile.getName();
+                    remoteDir = keytabFile.getParent();
+                }
+
+                String localPath = handler.loadFromSftp(keytabFileName, remoteDir, localDir);
                 logger.info("Download file to :" + localPath);
             } else if (PrepareOperator.verific(tmpSql)) {
                 sqlItera.remove();
@@ -837,7 +847,8 @@ public class FlinkClient extends AbstractClient {
         }
 
         cacheFile.put(jobClient.getTaskId(), fileList);
-        jobClient.setSql(String.join(";", sqlList));
+        String newSql = String.join(";", sqlList);
+        jobClient.setSql(String.join(";", newSql));
     }
 
     @Override
@@ -859,8 +870,17 @@ public class FlinkClient extends AbstractClient {
                 logger.error("", e1);
             }
         }
-
         cacheFile.remove(jobClient.getTaskId());
+
+        String localDirStr = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+        File localDir = new File(localDirStr);
+        if (localDir.exists()){
+            try {
+                FileUtils.deleteDirectory(localDir);
+            } catch (IOException e) {
+                logger.error("Delete dir failed: " + e);
+            }
+        }
     }
 
     @Override
