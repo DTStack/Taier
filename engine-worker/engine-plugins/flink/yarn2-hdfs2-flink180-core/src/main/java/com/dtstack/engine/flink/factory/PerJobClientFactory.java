@@ -150,7 +150,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
             keytabs.add(file);
         }
 
-        String taskKeytabDirPath = keytabDirParent + jobClient.getTaskId();
+        String taskKeytabDirPath = keytabDirParent + File.separator + jobClient.getTaskId();
         File taskKeytabDir = new File(taskKeytabDirPath);
         File[] taskKeytabFiles = taskKeytabDir.listFiles();
         if (taskKeytabFiles != null && taskKeytabFiles.length > 0) {
