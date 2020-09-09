@@ -161,7 +161,7 @@ public class FlinkClientBuilder {
 
     public YarnClient buildYarnClient() {
         try {
-            KerberosUtils.login(flinkConfig, () -> {
+            return KerberosUtils.login(flinkConfig, () -> {
                 YarnClient yarnClient1 = YarnClient.createYarnClient();
                 yarnClient1.init(yarnConf);
                 yarnClient1.start();
@@ -171,7 +171,6 @@ public class FlinkClientBuilder {
         } catch (Exception e) {
             throw new RdosDefineException("build yarn client error", e);
         }
-        return null;
     }
 
     public Configuration getFlinkConfiguration() {

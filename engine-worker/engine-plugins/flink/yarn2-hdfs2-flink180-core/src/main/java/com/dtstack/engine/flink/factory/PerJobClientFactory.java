@@ -55,7 +55,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerJobClientFactory.class);
 
-    private static final String KEYTAB_DIR = "/keytab";
+    private static final String KEYTAB_DIR = "keytab";
     private static final String LOG_LEVEL_KEY = "logLevel";
 
     private static final String USER_DIR = System.getProperty("user.dir");
@@ -140,7 +140,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
     private List<File> getKeytabFilePath(JobClient jobClient) {
         List<File> keytabs = Lists.newLinkedList();
         String remoteDir = flinkConfig.getRemoteDir();
-        String keytabDirParent = USER_DIR + KEYTAB_DIR;
+        String keytabDirParent = USER_DIR + File.separator + KEYTAB_DIR;
         String clusterKeytabDirPath = keytabDirParent + remoteDir;
         File clusterKeytabDir = new File(clusterKeytabDirPath);
         File[] clusterKeytabFiles = clusterKeytabDir.listFiles();
