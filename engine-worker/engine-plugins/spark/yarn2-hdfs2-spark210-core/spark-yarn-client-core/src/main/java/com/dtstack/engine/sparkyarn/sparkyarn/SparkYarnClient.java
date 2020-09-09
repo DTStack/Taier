@@ -102,13 +102,7 @@ public class SparkYarnClient extends AbstractClient {
 
     public static final String SPARK_LOG4J_FILE_NAME = "log4j-spark.properties";
 
-    private static final String LOG4J_INFO = "info";
-
-    private static String sparkLog4jPath = "";
-
-    public static String getSparkLog4jPath() {
-        return sparkLog4jPath;
-    }
+    public static final String SPARK_LOCAL_LOG4J_KEY = "spark_local_log4j_key";
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -122,8 +116,6 @@ public class SparkYarnClient extends AbstractClient {
         parseWebAppAddr();
         logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
         yarnClient = KerberosUtils.login(sparkYarnConfig,this::getYarnClient,yarnConf);
-
-        sparkLog4jPath = userDir + File.separator + SPARK_CONF_DIR + File.separator + LOG4J_INFO + File.separator + SPARK_LOG4J_FILE_NAME;
 
         if (sparkYarnConfig.getMonitorAcceptedApp()) {
             AcceptedApplicationMonitor.start(yarnConf, sparkYarnConfig.getQueue(), sparkYarnConfig);
@@ -187,10 +179,6 @@ public class SparkYarnClient extends AbstractClient {
 
         Properties confProp = jobClient.getConfProperties();
         Boolean isCarbonSpark = MathUtil.getBoolean(confProp.get(IS_CARBON_SPARK_KEY), false);
-        String logLevel = MathUtil.getString(confProp.get(LOG_LEVEL_KEY));
-        if (StringUtils.isNotEmpty(logLevel)) {
-            sparkLog4jPath = userDir + File.separator + SPARK_CONF_DIR + File.separator + logLevel.toLowerCase() + File.separator + SPARK_LOG4J_FILE_NAME;
-        }
 
         List<String> argList = new ArrayList<>();
         argList.add("--jar");
@@ -209,6 +197,7 @@ public class SparkYarnClient extends AbstractClient {
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
         SparkConf sparkConf = buildBasicSparkConf();
         sparkConf.setAppName(appName);
+        sparkConf.set(SPARK_LOCAL_LOG4J_KEY, getSparkLog4jLocalFilePath(jobClient));
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
         setSparkLog4jConfiguration(sparkConf);
 
@@ -241,13 +230,6 @@ public class SparkYarnClient extends AbstractClient {
         if(Strings.isNullOrEmpty(appName)){
             return JobResult.createErrorResult("an application name must be set in your configuration");
         }
-
-        Properties confProp = jobClient.getConfProperties();
-        String logLevel = MathUtil.getString(confProp.get(LOG_LEVEL_KEY));
-        if (StringUtils.isNotEmpty(logLevel)) {
-            sparkLog4jPath = userDir + File.separator + SPARK_CONF_DIR + File.separator + logLevel.toLowerCase() + File.separator + SPARK_LOG4J_FILE_NAME;
-        }
-
         ApplicationId appId = null;
 
         List<String> argList = new ArrayList<>();
@@ -295,6 +277,7 @@ public class SparkYarnClient extends AbstractClient {
         SparkConf sparkConf = buildBasicSparkConf();
         sparkConf.set("spark.submit.pyFiles", pythonExtPath);
         sparkConf.setAppName(appName);
+        sparkConf.set(SPARK_LOCAL_LOG4J_KEY, getSparkLog4jLocalFilePath(jobClient));
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
         setSparkLog4jConfiguration(sparkConf);
 
@@ -330,7 +313,6 @@ public class SparkYarnClient extends AbstractClient {
 
         String logLevel = MathUtil.getString(confProp.get(LOG_LEVEL_KEY));
         if (StringUtils.isNotEmpty(logLevel)) {
-            sparkLog4jPath = userDir + File.separator + SPARK_CONF_DIR + File.separator + logLevel.toLowerCase() + File.separator + SPARK_LOG4J_FILE_NAME;
             paramsMap.put("logLevel", logLevel);
         }
 
@@ -363,6 +345,7 @@ public class SparkYarnClient extends AbstractClient {
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
         SparkConf sparkConf = buildBasicSparkConf();
         sparkConf.setAppName(jobClient.getJobName());
+        sparkConf.set(SPARK_LOCAL_LOG4J_KEY, getSparkLog4jLocalFilePath(jobClient));
         fillExtSparkConf(sparkConf, confProp);
         setSparkLog4jConfiguration(sparkConf);
 
@@ -397,6 +380,12 @@ public class SparkYarnClient extends AbstractClient {
         }
 
         return map;
+    }
+
+    private String getSparkLog4jLocalFilePath(JobClient jobClient) {
+        Properties confProp = jobClient.getConfProperties();
+        String logLevel = MathUtil.getString(confProp.get(LOG_LEVEL_KEY), "info");
+        return userDir + File.separator + SPARK_CONF_DIR + File.separator + logLevel.toLowerCase() + File.separator + SPARK_LOG4J_FILE_NAME;
     }
 
     private SparkConf buildBasicSparkConf(){
