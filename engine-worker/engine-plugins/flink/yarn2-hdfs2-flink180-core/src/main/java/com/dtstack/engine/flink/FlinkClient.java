@@ -815,13 +815,9 @@ public class FlinkClient extends AbstractClient {
                 }
 
                 String keytabFileName = PrepareOperator.getFileName(tmpSql);
-                String remoteDir = flinkConfig.getRemoteDir();
-
-                if (StringUtils.isEmpty(remoteDir)) {
-                    File keytabFile = new File(keytabFileName);
-                    keytabFileName = keytabFile.getName();
-                    remoteDir = keytabFile.getParent();
-                }
+                File keytabFile = new File(keytabFileName);
+                keytabFileName = keytabFile.getName();
+                String remoteDir = keytabFile.getParent();
 
                 String localPath = handler.loadFromSftp(keytabFileName, remoteDir, localDir);
                 logger.info("Download file to :" + localPath);
