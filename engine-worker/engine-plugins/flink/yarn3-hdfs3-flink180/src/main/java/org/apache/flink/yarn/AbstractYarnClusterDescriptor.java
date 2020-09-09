@@ -581,6 +581,11 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 shipFiles.add(new File(tmp.getValue().filePath));
             }
         }
+        String shipFileConf = System.getProperty("user.dir") + File.separator + "/shipFileConf";
+        File file = new File(shipFileConf);
+        if (file.exists() && file.isDirectory()) {
+            shipFiles.addAll(Arrays.asList(file.listFiles()));
+        }
         // flinkx get classpath
         jobGraph.getClasspaths().forEach(jarFile -> {
             try {

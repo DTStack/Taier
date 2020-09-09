@@ -19,6 +19,7 @@
 package com.dtstack.engine.flink.factory;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.flink.FlinkClientBuilder;
 import org.apache.flink.client.deployment.ClusterClientFactory;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
@@ -41,6 +42,8 @@ import java.util.List;
  * @author maqi
  */
 public abstract class AbstractClientFactory implements IClientFactory {
+
+    public FlinkClientBuilder flinkClientBuilder;
 
     public YarnClusterDescriptor getClusterDescriptor(Configuration configuration, YarnConfiguration yarnConfiguration) {
         ClusterClientFactory<ApplicationId> clusterClientFactory = new YarnClusterClientFactory();
