@@ -21,6 +21,9 @@ public class ConfigConstrant {
     public final static String CONTAINER = "container";
     public final static String SLOTS = "slots";
 
+    public static final String JOBMANAGER_COMPONEN = "jobmanager";
+    public static final String TASKMANAGER_COMPONEN = "taskmanager";
+
     /**
      * the minimum memory should be higher than the min heap cutoff
      */

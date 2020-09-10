@@ -133,8 +133,8 @@ public class ComponentService {
         componentTypeConfigMapping.put(EComponentType.YARN.getTypeCode(), Lists.newArrayList("yarn-site.xml","core-site.xml"));
         componentVersionMapping.put(EComponentType.FLINK.getName(), Lists.newArrayList(new Pair<>("1.8", "180"), new Pair<>("1.10", "110")));
         componentVersionMapping.put(EComponentType.SPARK.getName(), Lists.newArrayList(new Pair<>("2.1.X", "210"), new Pair<>("2.4.X", "240")));
-        componentVersionMapping.put(EComponentType.SPARK_THRIFT.getName(), Lists.newArrayList(new Pair<>("1.X", "1.x"), new Pair<>("2.X", "2.x")));
-        componentVersionMapping.put(EComponentType.HIVE_SERVER.getName(), Lists.newArrayList(new Pair<>("1.X", "1.x"), new Pair<>("2.X", "2.x")));
+        componentVersionMapping.put(EComponentType.SPARK_THRIFT.getName(), Lists.newArrayList(new Pair<>("1.X", "1.x"), new Pair<>("2.X", "2.x"),new Pair<>("2.1.1-cdh6.1.1","2.1.1-cdh6.1.1")));
+        componentVersionMapping.put(EComponentType.HIVE_SERVER.getName(), Lists.newArrayList(new Pair<>("1.X", "1.x"), new Pair<>("2.X", "2.x"),new Pair<>("2.1.1-cdh6.1.1","2.1.1-cdh6.1.1")));
         //-1 为hadoopversion
         componentVersionMapping.put("hadoopVersion", Lists.newArrayList(new Pair<>("hadoop2", "hadoop2"),
                 new Pair<>("hadoop3", "hadoop3"), new Pair<>("HW", "HW")));
@@ -1199,6 +1199,17 @@ public class ComponentService {
             if (CollectionUtils.isNotEmpty(defaultVersion)) {
                 version = defaultVersion.get(0).getValue();
             }
+        }
+        //hive也需要version
+        if (EComponentType.HIVE_SERVER.getTypeCode() == componentType || EComponentType.SPARK_THRIFT.getTypeCode() == componentType) {
+            pluginName = "hive";
+            if (version.contains("cdh")) {
+                //cdh为完整路径
+                pluginName = pluginName + version;
+            } else if (!version.equalsIgnoreCase("1.x")) {
+                pluginName = pluginName + version.charAt(0);
+            }
+            return pluginName;
         }
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("集群名称不能为空");

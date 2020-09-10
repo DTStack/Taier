@@ -4,11 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Account;
 import com.dtstack.engine.api.domain.AccountTenant;
+import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.api.dto.AccountDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.AccountTenantUnBandsVO;
 import com.dtstack.engine.api.vo.AccountTenantVo;
 import com.dtstack.engine.api.vo.AccountVo;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -18,15 +18,20 @@ import com.dtstack.engine.dao.AccountTenantDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.dao.UserDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.enums.AccountType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
-import com.dtstack.schedule.common.enums.*;
+import com.dtstack.schedule.common.enums.DataBaseType;
+import com.dtstack.schedule.common.enums.Deleted;
+import com.dtstack.schedule.common.enums.EntityStatus;
+import com.dtstack.schedule.common.enums.Sort;
 import com.dtstack.schedule.common.util.Base64Util;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,6 +93,19 @@ public class AccountService {
         bindAccountTenant(accountVo);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public void bindAccountList(@Param("accountList") List accountList,@Param("userId") Long userId ) throws Exception {
+        if (CollectionUtils.isEmpty(accountList)) {
+            throw new RdosDefineException("绑定用户列表不能为空");
+        }
+        List<AccountVo> list = JSON.parseArray(JSON.toJSONString(accountList), AccountVo.class);
+
+        for (AccountVo accountVo : list) {
+            accountVo.setUserId(userId);
+            bindAccount(accountVo);
+        }
+    }
+
     private void checkDataSourceConnect(AccountVo accountVo) throws SQLException {
         JSONObject jdbc = null;
         DataBaseType dataBaseType = null;
@@ -100,6 +118,9 @@ public class AccountService {
         } else if (MultiEngineType.GREENPLUM.getType() == accountVo.getEngineType()) {
             jdbc = JSONObject.parseObject(clusterService.greenplumInfo(accountVo.getBindTenantId(), null));
             dataBaseType = DataBaseType.Greenplum6;
+        } else if (MultiEngineType.HADOOP.getType() == accountVo.getEngineType()) {
+            //如果是HADOOP，则添加ldap,无需校验连通性
+            return;
         }
 
         if (Objects.isNull(jdbc)) {
@@ -126,10 +147,11 @@ public class AccountService {
 
     @Transactional
     public void bindAccountTenant(AccountVo accountVo) {
+        checkAccountVo(accountVo);
         Account dbAccountByName = new Account();
         dbAccountByName.setName(accountVo.getName());
-        dbAccountByName.setPassword(Base64Util.baseEncode(accountVo.getPassword()));
-        dbAccountByName.setType(getDataSourceTypeByMultiEngineType(accountVo.getEngineType()));
+        dbAccountByName.setPassword(StringUtils.isBlank(accountVo.getPassword()) ? "" : Base64Util.baseEncode(accountVo.getPassword()));
+        dbAccountByName.setType(getAccountTypeByMultiEngineType(accountVo.getEngineType()));
         dbAccountByName.setCreateUserId(accountVo.getUserId());
         dbAccountByName.setModifyUserId(accountVo.getUserId());
         accountDao.insert(dbAccountByName);
@@ -174,16 +196,18 @@ public class AccountService {
      * @param multiEngineType
      * @return
      */
-    private Integer getDataSourceTypeByMultiEngineType(Integer multiEngineType) {
+    private Integer getAccountTypeByMultiEngineType(Integer multiEngineType) {
         if (null == multiEngineType) {
             return null;
         }
         if (MultiEngineType.TIDB.getType() == multiEngineType) {
-            return DataSourceType.TiDB.getVal();
+            return AccountType.TiDB.getVal();
         } else if (MultiEngineType.ORACLE.getType() == multiEngineType) {
-            return DataSourceType.Oracle.getVal();
+            return AccountType.Oracle.getVal();
         } else if (MultiEngineType.GREENPLUM.getType() == multiEngineType) {
-            return DataSourceType.GREENPLUM6.getVal();
+            return AccountType.GREENPLUM6.getVal();
+        } else if (MultiEngineType.HADOOP.getType() == multiEngineType) {
+            return AccountType.LDAP.getVal();
         }
         return 0;
     }
@@ -215,7 +239,7 @@ public class AccountService {
         if (!account.getName().equals(accountTenantVo.getName())) {
             throw new RdosDefineException("解绑失败，请使用绑定时输入的数据库账号进行解绑");
         }
-        String oldPassWord = Base64Util.baseDecode(account.getPassword());
+        String oldPassWord = StringUtils.isBlank(account.getPassword()) ? "" : Base64Util.baseDecode(account.getPassword());
         if (!oldPassWord.equals(accountTenantVo.getPassword())) {
             throw new RdosDefineException("解绑失败,解绑账号密码错误");
         }
@@ -281,7 +305,7 @@ public class AccountService {
         Account newAccount = new Account();
         newAccount.setName(accountVO.getName());
         newAccount.setPassword(Base64Util.baseEncode(accountVO.getPassword()));
-        newAccount.setType(getDataSourceTypeByMultiEngineType(accountTenantVo.getEngineType()));
+        newAccount.setType(getAccountTypeByMultiEngineType(accountTenantVo.getEngineType()));
         newAccount.setCreateUserId(userId);
         newAccount.setModifyUserId(userId);
         accountDao.insert(newAccount);
@@ -317,7 +341,7 @@ public class AccountService {
         AccountDTO accountDTO = new AccountDTO();
         accountDTO.setTenantId(tenantId);
         accountDTO.setName(username);
-        accountDTO.setType(getDataSourceTypeByMultiEngineType(engineType));
+        accountDTO.setType(getAccountTypeByMultiEngineType(engineType));
         PageQuery<AccountDTO> pageQuery = new PageQuery<>(currentPage, pageSize, "gmt_modified", Sort.DESC.name());
         pageQuery.setModel(accountDTO);
         Integer count = accountTenantDao.generalCount(accountDTO);
@@ -363,7 +387,7 @@ public class AccountService {
         if (CollectionUtils.isEmpty(uicUsers)) {
             return new ArrayList(0);
         }
-        List<AccountDTO> tenantUser = accountTenantDao.getTenantUser(tenantId,getDataSourceTypeByMultiEngineType(engineType));
+        List<AccountDTO> tenantUser = accountTenantDao.getTenantUser(tenantId,getAccountTypeByMultiEngineType(engineType));
         List<Long> userInIds;
         if (CollectionUtils.isNotEmpty(tenantUser)) {
             userInIds = tenantUser.stream().map(AccountDTO::getDtuicUserId).collect(Collectors.toList());
@@ -378,5 +402,53 @@ public class AccountService {
 
         return userId1;
 
+    }
+
+    public AccountVo getAccountVo(@Param("dtUicUserId") Long dtUicTenantId, @Param("dtUicUserId") Long dtUicUserId, @Param("accountType") Integer accountType) {
+        AccountVo accountVo = new AccountVo();
+        Tenant tenant = tenantDao.getByDtUicTenantId(dtUicTenantId);
+        if (Objects.isNull(tenant)) {
+            return accountVo;
+        }
+
+        User user = userDao.getByDtUicUserId(dtUicUserId);
+        if (Objects.isNull(user)) {
+            return accountVo;
+        }
+
+        Account one = accountDao.getOne(tenant.getId(), user.getId(), accountType,null);
+        if (Objects.isNull(one)) {
+            return accountVo;
+        }
+
+        accountVo.setBindTenantId(dtUicTenantId);
+        accountVo.setAccountType(accountType);
+        accountVo.setBindUserId(dtUicUserId);
+        accountVo.setUsername(user.getUserName());
+        accountVo.setName(one.getName());
+        accountVo.setPassword(StringUtils.isBlank(one.getPassword()) ? "" : Base64Util.baseDecode(one.getPassword()));
+        return accountVo;
+    }
+
+    private void checkAccountVo(AccountVo accountVo) {
+        Integer accountType = getAccountTypeByMultiEngineType(accountVo.getEngineType());
+        if (accountType != AccountType.LDAP.getVal()) {
+            return;
+        }
+        //检查ldap 同一个租户下一个ldap name 只能被一个账号绑定
+        Tenant tenant = tenantDao.getByDtUicTenantId(accountVo.getBindTenantId());
+        if (Objects.isNull(tenant)) {
+            return;
+        }
+
+        User user = userDao.getByDtUicUserId(accountVo.getBindUserId());
+        if (Objects.isNull(user)) {
+            return;
+        }
+
+        Account one = accountDao.getOne(tenant.getId(), user.getId(), accountType,accountVo.getName());
+        if (Objects.nonNull(one)) {
+            throw new RdosDefineException("用户名" + accountVo.getName() + "已被账号" + user.getUserName() + "绑定");
+        }
     }
 }

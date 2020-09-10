@@ -20,6 +20,7 @@
         <module>sqlserver</module>
         <module>hive</module>
         <module>hive2</module>
+        <module>hive-2.1.1-cdh6.1.1</module>
         <module>postgresql</module>
         <module>impala</module>
         <module>tidb</module>

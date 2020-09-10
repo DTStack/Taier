@@ -84,7 +84,7 @@
             <if test="model.cycStartDay != null and model.cycEndDay != null">
                 AND bj.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} and cyc_time !='' limit 1)
                 AND bj.cyc_time <![CDATA[>=]]> #{model.cycStartDay}
-                AND bj.id <![CDATA[<]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<]]> #{model.cycEndDay} and cyc_time !='' ORDER BY id desc limit 1)
+                AND bj.id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<]]> #{model.cycEndDay} and cyc_time !='' ORDER BY id desc limit 1)
                 AND bj.cyc_time <![CDATA[<]]> #{model.cycEndDay}
             </if>
             <if test="model.jobNameRightLike != null">
@@ -301,8 +301,10 @@
             </if>
 
             <if test="model.cycStartDay != null and model.cycEndDay != null">
-                AND id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} limit 1)
-                AND id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<=]]> #{model.cycEndDay} ORDER BY id desc limit 1)
+                AND id >= (SELECT id FROM schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} AND cyc_time !='' LIMIT 1)
+                AND id <![CDATA[<=]]> (SELECT id FROM schedule_job WHERE cyc_time <![CDATA[<]]> #{model.cycEndDay} AND cyc_time !='' ORDER BY id DESC LIMIT 1)
+                AND cyc_time <![CDATA[>=]]> #{model.cycStartDay}
+                AND cyc_time <![CDATA[<]]> #{model.cycEndDay}
             </if>
 
             <if test="model.flowJobId != null">
@@ -500,10 +502,12 @@
         AND ts.app_type = #{appType}
         AND ts.task_type != 10
         <if test="startTime != null and startTime != ''">
-            AND ts.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{startTime} limit 1)
+            AND ts.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{startTime} AND cyc_time !='' LIMIT 1)
+            AND ts.cyc_time <![CDATA[>=]]> #{startTime}
         </if>
         <if test="endTime != null and endTime != ''">
-            AND ts.id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<=]]> #{endTime} ORDER BY id desc limit 1)
+            AND ts.id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<]]> #{endTime} AND cyc_time !='' ORDER BY id DESC LIMIT 1)
+            AND ts.cyc_time <![CDATA[<]]> #{endTime}
         </if>
         <if test="statuses != null">
             AND ts.status in
@@ -1525,11 +1529,11 @@
 	   INSERT INTO schedule_job
         (gmt_create, gmt_modified, tenant_id, project_id, dtuic_tenant_id, app_type, job_id, job_key, job_name, task_id,
         create_user_id, is_deleted, `type`, is_restart, business_date, cyc_time, dependency_type, flow_job_id,
-        status, task_type, max_retry_num, node_address, version_id, compute_type)
+        status, task_type, max_retry_num, node_address, version_id, compute_type,period_type)
 	   VALUES
 	   (now(), now(), #{tenantId}, #{projectId}, #{dtuicTenantId}, #{appType}, #{jobId}, #{jobKey}, #{jobName}, #{taskId},
 	   #{createUserId}, #{isDeleted}, #{type}, #{isRestart}, #{businessDate}, #{cycTime}, #{dependencyType}, #{flowJobId},
-	   #{status}, #{taskType}, #{maxRetryNum}, #{nodeAddress}, #{versionId}, #{computeType})
+	   #{status}, #{taskType}, #{maxRetryNum}, #{nodeAddress}, #{versionId}, #{computeType},#{periodType})
     </insert>
 
 

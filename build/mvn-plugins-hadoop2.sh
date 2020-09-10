@@ -8,7 +8,7 @@ then
 fi
 echo "Dependency ${hadoopversion} Building..."
 
-mvn -T 1C clean package -DskipTests -Dhadoop.version=${hadoopversion} -Dhivejdbc.version=1.1.1 -pl \
+mvn -T 1C clean package -DskipTests -Dhadoop.version=${hadoopversion} -pl \
 engine-worker/engine-plugins/dummy,\
 engine-worker/engine-plugins/flink/yarn2-hdfs2-flink180,\
 engine-worker/engine-plugins/flink/yarnHW-hdfsHW-flink180HW,\
@@ -29,6 +29,7 @@ engine-worker/engine-plugins/rdbs/oracle,\
 engine-worker/engine-plugins/rdbs/sqlserver,\
 engine-worker/engine-plugins/rdbs/hive,\
 engine-worker/engine-plugins/rdbs/hive2,\
+engine-worker/engine-plugins/rdbs/hive-2.1.1-cdh6.1.1,\
 engine-worker/engine-plugins/rdbs/postgresql,\
 engine-worker/engine-plugins/rdbs/impala,\
 engine-worker/engine-plugins/rdbs/tidb,\

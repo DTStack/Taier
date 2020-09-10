@@ -10,12 +10,12 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>hive2</artifactId>
+    <artifactId>hive2.1.1-cdh6.1.1</artifactId>
     <version>1.0.0</version>
 
     <properties>
-        <jar.name>hive2</jar.name>
-        <hivejdbc2.version>2.1.0</hivejdbc2.version>
+        <jar.name>hive2.1.1-cdh6.1.1</jar.name>
+        <hivejdbccdh611.version>2.1.1-cdh6.1.1</hivejdbccdh611.version>
     </properties>
 
     <dependencies>
@@ -28,19 +28,19 @@
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-jdbc</artifactId>
-            <version>${hivejdbc2.version}</version>
+            <version>${hivejdbccdh611.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-common</artifactId>
-            <version>${hivejdbc2.version}</version>
+            <version>${hivejdbccdh611.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-shims</artifactId>
-            <version>${hivejdbc2.version}</version>
+            <version>${hivejdbccdh611.version}</version>
         </dependency>
 
         <dependency>
@@ -105,10 +105,10 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../../../pluginLibs/hive2/"
+                                <copy todir="${basedir}/target/../../../../../pluginLibs/hive2.1.1-cdh6.1.1/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/hive2/"
+                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/hive2.1.1-cdh6.1.1/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
