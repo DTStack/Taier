@@ -183,8 +183,8 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     public boolean addGroupPriorityQueue(String jobResource, JobClient jobClient, boolean judgeBlock, boolean insert) {
         try {
             GroupPriorityQueue groupPriorityQueue = getGroupPriorityQueue(jobResource);
-            boolean rs = groupPriorityQueue.add(jobClient, judgeBlock);
-            if (!rs && insert) {
+            boolean rs = groupPriorityQueue.add(jobClient, judgeBlock, insert);
+            if (!rs) {
                 saveCache(jobClient, jobResource, EJobCacheStage.DB.getStage(), insert);
             }
             return rs;
