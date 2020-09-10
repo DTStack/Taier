@@ -13,6 +13,7 @@ import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.dao.QueueDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -42,8 +43,6 @@ public class EngineService {
 
     @Autowired
     private TenantDao tenantDao;
-
-    private static final long DEFAULT_KUBERNETES_PARENT_NODE = -2L;
 
     public List<QueueVO> getQueue( Long engineId){
         List<Queue> queueList = queueDao.listByEngineId(engineId);
@@ -137,8 +136,8 @@ public class EngineService {
             for (EngineVO engineVO : result) {
                 List<Queue> queues = queueDao.listByEngineIdWithLeaf(engineVO.getId());
                 engineVO.setResourceType(EComponentType.YARN.getName());
-                if (CollectionUtils.isNotEmpty(queues)) {
-                    if (queues.get(0).getParentQueueId() == DEFAULT_KUBERNETES_PARENT_NODE) {
+                if (engineVO.getEngineType() == MultiEngineType.HADOOP.getType()) {
+                    if (null != componentService.getComponentByClusterId(clusterId, EComponentType.KUBERNETES.getTypeCode())) {
                         engineVO.setResourceType(EComponentType.KUBERNETES.getName());
                     }
                 }
