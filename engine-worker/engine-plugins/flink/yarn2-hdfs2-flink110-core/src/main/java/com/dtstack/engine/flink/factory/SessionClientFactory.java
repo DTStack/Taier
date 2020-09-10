@@ -33,7 +33,6 @@ import com.dtstack.engine.flink.util.FileUtil;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
-import org.apache.flink.api.common.JobSubmissionResult;
 import org.apache.flink.client.ClientUtils;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
@@ -42,18 +41,18 @@ import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.client.program.ProgramMissingJobException;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
-import org.apache.flink.runtime.execution.Environment;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionType;
 import org.apache.flink.runtime.jobgraph.DistributionPattern;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.JobVertex;
 import org.apache.flink.runtime.jobgraph.ScheduleMode;
-import org.apache.flink.runtime.jobgraph.tasks.AbstractInvokable;
 import org.apache.flink.runtime.jobmanager.scheduler.SlotSharingGroup;
+import org.apache.flink.runtime.operators.DataSinkTask;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.flink.shaded.curator.org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.flink.streaming.runtime.tasks.OneInputStreamTask;
 import org.apache.flink.util.FlinkException;
 import org.apache.flink.yarn.YarnClusterDescriptor;
 import org.apache.flink.yarn.configuration.YarnConfigOptions;
@@ -534,57 +533,23 @@ public class SessionClientFactory extends AbstractClientFactory {
             }
         }
 
+
         private JobGraph createJobGraph() {
             SlotSharingGroup slotSharingGroup = new SlotSharingGroup();
 
             final JobVertex source = new JobVertex("source");
-            source.setInvokableClass(OneTimeFailingInvokable.class);
+            source.setInvokableClass(OneInputStreamTask.class);
             source.setSlotSharingGroup(slotSharingGroup);
 
             final JobVertex sink = new JobVertex("sink");
-            sink.setInvokableClass(NoOpInvokable.class);
+            sink.setInvokableClass(DataSinkTask.class);
             sink.setSlotSharingGroup(slotSharingGroup);
 
             sink.connectNewDataSetAsInput(source, DistributionPattern.POINTWISE, ResultPartitionType.PIPELINED);
-            JobGraph jobGraph = new JobGraph("DT idle detection", source, sink);
+            JobGraph jobGraph = new JobGraph("dtIdleDetection", source, sink);
 
             jobGraph.setScheduleMode(ScheduleMode.EAGER);
             return jobGraph;
-        }
-
-        /**
-         * Invokable which fails exactly once (one sub task of it).
-         */
-        public static final class OneTimeFailingInvokable extends AbstractInvokable {
-
-            private static final AtomicBoolean hasFailed = new AtomicBoolean(false);
-
-            /**
-             * Create an Invokable task and set its environment.
-             *
-             * @param environment The environment assigned to this invokable.
-             */
-            public OneTimeFailingInvokable(Environment environment) {
-                super(environment);
-            }
-
-            @Override
-            public void invoke() throws Exception {
-                if (hasFailed.compareAndSet(false, true)) {
-                    throw new FlinkException("One time failure.");
-                }
-            }
-        }
-
-        public class NoOpInvokable extends AbstractInvokable {
-
-            public NoOpInvokable(Environment environment) {
-                super(environment);
-            }
-
-            @Override
-            public void invoke() {
-            }
         }
 
     }
