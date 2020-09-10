@@ -87,7 +87,7 @@ public class GroupPriorityQueue {
             return true;
         }
 
-        jobDealer.saveCache(jobClient, jobResource, EJobCacheStage.PRIORITY.getStage());
+        jobDealer.saveCache(jobClient, jobResource, EJobCacheStage.PRIORITY.getStage(), true);
         queue.put(jobClient);
         logger.info("jobId:{} redirect add job to queue.", jobClient.getTaskId());
         return true;
