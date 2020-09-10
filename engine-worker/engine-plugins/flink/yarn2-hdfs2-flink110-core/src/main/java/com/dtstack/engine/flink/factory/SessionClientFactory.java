@@ -301,7 +301,11 @@ public class SessionClientFactory extends AbstractClientFactory {
             String flinkPluginRoot = flinkConfig.getFlinkPluginRoot();
             if (StringUtils.isNotBlank(flinkPluginRoot)) {
                 String syncPluginDir = flinkPluginRoot + SyncPluginInfo.FILE_SP + SyncPluginInfo.SYNC_PLUGIN_DIR_NAME;
-                List<File> pluginPaths = Arrays.stream(new File(syncPluginDir).listFiles())
+                File syncFile = new File(syncPluginDir);
+                if (!syncFile.exists()) {
+                    throw new RdosDefineException("syncPlugin path is null");
+                }
+                List<File> pluginPaths = Arrays.stream(syncFile.listFiles())
                         .filter(file -> !file.getName().endsWith("zip"))
                         .collect(Collectors.toList());
                 clusterDescriptor.addShipFiles(pluginPaths);
@@ -491,10 +495,10 @@ public class SessionClientFactory extends AbstractClientFactory {
         private void stopFlinkYarnSession() {
             if (sessionClientFactory.getClusterClient() != null) {
                 LOG.error("------- Flink yarn-session client shutdown ----");
-                clusterClientManager.getClusterClient().shutDownCluster();
+                sessionClientFactory.getClusterClient().shutDownCluster();
 
                 try {
-                    clusterClientManager.getClusterClient().close();
+                    sessionClientFactory.getClusterClient().close();
                 } catch (Exception ex) {
                     LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
                 }

@@ -493,10 +493,10 @@ public class SessionClientFactory extends AbstractClientFactory {
         private void stopFlinkYarnSession() {
             if (sessionClientFactory.getClusterClient() != null) {
                 LOG.error("------- Flink yarn-session client shutdown ----");
-                clusterClientManager.getClusterClient().shutDownCluster();
+                sessionClientFactory.getClusterClient().shutDownCluster();
 
                 try {
-                    clusterClientManager.getClusterClient().shutdown();
+                    sessionClientFactory.getClusterClient().shutdown();
                 } catch (Exception ex) {
                     LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
                 }
