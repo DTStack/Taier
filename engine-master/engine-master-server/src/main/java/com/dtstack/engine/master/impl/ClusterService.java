@@ -105,6 +105,9 @@ public class ClusterService {
     @Autowired
     private AccountDao accountDao;
 
+    @Autowired
+    private AccountService accountService;
+
 
     public void afterPropertiesSet() throws Exception {
         if (isDefaultClusterExist()) {
@@ -693,6 +696,12 @@ public class ClusterService {
                 jdbcUrl = jdbcUrl.replace("/%s", "");
                 pluginInfo.put("jdbcUrl", jdbcUrl);
                 pluginInfo.put("typeName", "hive");
+            } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK==type.getComponentType()) {
+                if (clusterVO.getDtUicUserId() != null && clusterVO.getDtUicTenantId() != null) {
+                    AccountVo accountVo = accountService.getAccountVo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId(), AccountType.LDAP.getVal());
+                    String ldapUserName = StringUtils.isBlank(accountVo.getName()) ? "" : accountVo.getName();
+                    pluginInfo.put("dtProxyUserName", ldapUserName);
+                }
             }
             pluginInfo.put(ConfigConstant.MD5_SUM_KEY, getZipFileMD5(clusterConfigJson));
             removeMd5FieldInHadoopConf(pluginInfo);

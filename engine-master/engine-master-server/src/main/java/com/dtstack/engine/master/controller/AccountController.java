@@ -6,6 +6,7 @@ import com.dtstack.engine.api.vo.AccountVo;
 import com.dtstack.engine.master.impl.AccountService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.dtstack.engine.master.router.DtRequestParam;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,12 @@ public class AccountController {
     @ApiOperation(value = "绑定数据库账号 到对应数栈账号下的集群")
     public void bindAccount(@RequestBody AccountVo accountVo) throws Exception {
         accountService.bindAccount(accountVo);
+    }
+
+    @RequestMapping(value = "/bindAccountList", method = {RequestMethod.POST})
+    @ApiOperation(value = "绑定数据库账号列表 到对应数栈账号下")
+    public void bindAccountList(@Param("accountList") List accountList, @Param("userId") Long userId) throws Exception {
+        accountService.bindAccountList(accountList, userId);
     }
 
     @RequestMapping(value="/unbindAccount", method = {RequestMethod.POST})
