@@ -28,6 +28,7 @@ import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.FileUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.configuration.Configuration;
@@ -37,16 +38,24 @@ import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
 import org.apache.flink.yarn.YarnClusterDescriptor;
 import org.apache.flink.yarn.configuration.YarnConfigOptions;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
+import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.YarnApplicationState;
+import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * Date: 2020/5/29
@@ -57,17 +66,14 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerJobClientFactory.class);
 
-    private static final String KERBEROS_DIR = "/kerberosPath/";
-
     private static final String LOG_LEVEL_KEY = "logLevel";
-
-    private static final String USER_DIR = System.getProperty("user.dir");
 
     private FlinkConfig flinkConfig;
     private Configuration flinkConfiguration;
     private YarnConfiguration yarnConf;
 
     private PerJobClientFactory(FlinkClientBuilder flinkClientBuilder) {
+        this.flinkClientBuilder = flinkClientBuilder;
         this.flinkConfig = flinkClientBuilder.getFlinkConfig();
         this.flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
         this.yarnConf = flinkClientBuilder.getYarnConf();
@@ -93,6 +99,31 @@ public class PerJobClientFactory extends AbstractClientFactory {
         return clusterDescriptor;
     }
 
+    public void deleteTaskIfExist(JobClient jobClient) {
+        try {
+            String taskName = jobClient.getJobName();
+            String queueName = flinkConfig.getQueue();
+            YarnClient yarnClient = flinkClientBuilder.getYarnClient();
+
+            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
+            enumSet.add(YarnApplicationState.ACCEPTED);
+            enumSet.add(YarnApplicationState.RUNNING);
+
+            List<ApplicationReport> existApps = yarnClient.getApplications(enumSet).stream().
+                    filter(report -> report.getQueue().endsWith(queueName))
+                    .filter(report -> report.getName().equals(taskName))
+                    .collect(Collectors.toList());
+
+            for (ApplicationReport report : existApps) {
+                ApplicationId appId = report.getApplicationId();
+                yarnClient.killApplication(appId);
+            }
+        } catch (Exception e) {
+            LOG.error("Delete task error " + e.getMessage());
+            throw new RdosDefineException("Delete task error");
+        }
+    }
+
     private Configuration appendJobConfigAndInitFs(JobClient jobClient, Configuration configuration) {
         Properties properties = jobClient.getConfProperties();
         if (properties != null) {
@@ -106,7 +137,8 @@ public class PerJobClientFactory extends AbstractClientFactory {
             setNoneHaModeConfig(configuration);
         } else {
             configuration.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
-            configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
+            String haClusterId = String.format("%s-%s", jobClient.getTaskId(), RandomStringUtils.randomAlphanumeric(8));
+            configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, haClusterId);
         }
 
         configuration.setString(YarnConfigOptions.APPLICATION_NAME, jobClient.getJobName());
