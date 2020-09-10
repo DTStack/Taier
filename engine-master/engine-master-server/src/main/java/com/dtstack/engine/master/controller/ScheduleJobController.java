@@ -375,8 +375,8 @@ public class ScheduleJobController {
         scheduleJobService.testTrigger(jobId);
     }
 
-    @RequestMapping(value="/getJobGraph", method = {RequestMethod.POST,RequestMethod.GET})
-    public String getJobGraph(@DtRequestParam("jobId") String jobId) {
+    @RequestMapping(value="/getJobGraphJSON", method = {RequestMethod.POST,RequestMethod.GET})
+    public String getJobGraphJSON(@DtRequestParam("jobId") String jobId) {
        return scheduleJobService.getJobGraphJSON(jobId);
     }
 }
