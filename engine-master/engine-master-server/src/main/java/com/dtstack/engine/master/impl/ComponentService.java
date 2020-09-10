@@ -22,6 +22,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MD5Util;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
@@ -31,7 +32,6 @@ import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.utils.FileUtil;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.utils.XmlFileUtil;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
@@ -331,28 +331,6 @@ public class ComponentService {
     public String getClusterLocalKerberosDir(Long clusterId) {
         return env.getLocalKerberosDir() + File.separator + getSftpClusterKey(clusterId);
     }
-
-    public void addComponentWithConfig(Long engineId, String confName, JSONObject config) {
-        EComponentType type = EComponentType.getByConfName(confName);
-
-        if (Objects.isNull(config)) {
-            config = new JSONObject();
-        }
-        Component component = componentDao.getByEngineIdAndComponentType(engineId, type.getTypeCode());
-        if (component == null) {
-            component = new Component();
-            component.setEngineId(engineId);
-            component.setComponentName(type.getName());
-            component.setComponentTypeCode(type.getTypeCode());
-            component.setComponentConfig(config.toJSONString());
-
-            componentDao.insert(component);
-        } else {
-            component.setComponentConfig(config.toJSONString());
-            componentDao.update(component);
-        }
-    }
-
 
     private File getFileWithSuffix(String dir, String suffix) {
         if (StringUtils.isBlank(suffix)) {
@@ -1434,17 +1412,20 @@ public class ComponentService {
         CountDownLatch countDownLatch = new CountDownLatch(components.size());
         for (Component component : components) {
             KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), component.getComponentTypeCode());
-            Map<String, String> finalSftpMap = sftpMap;
             try {
                 CompletableFuture.runAsync(() -> {
                     ComponentTestResult testResult = new ComponentTestResult();
                     try {
-                        testResult = this.testConnect(component.getComponentTypeCode(), component.getComponentConfig(), clusterName, component.getHadoopVersion(), component.getEngineId(), kerberosConfig, finalSftpMap);
+                        testResult = this.testConnect(component.getComponentTypeCode(), component.getComponentConfig(), clusterName, component.getHadoopVersion(), component.getEngineId(), kerberosConfig, sftpMap);
                         //测试联通性
                         if (EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
                             if (testResult.getResult()) {
                                 engineService.updateResource(component.getEngineId(), testResult.getClusterResourceDescription());
                                 queueService.updateQueue(component.getEngineId(), testResult.getClusterResourceDescription());
+                            }
+                        } else if (EComponentType.KUBERNETES.getTypeCode() == component.getComponentTypeCode()) {
+                            if (testResult.getResult()){
+                                queueService.updateNamespaces(component.getEngineId(),testResult.getClusterResourceDescription());
                             }
                         }
                     } catch (Exception e) {

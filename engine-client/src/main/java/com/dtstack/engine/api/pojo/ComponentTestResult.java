@@ -63,6 +63,16 @@ public class ComponentTestResult {
         private final int totalCores;
         private final List<QueueDescription> queueDescriptions;
 
+        private List<NameSpaceDescription> nameSpaceDescription;
+
+        public List<NameSpaceDescription> getNameSpaceDescription() {
+            return nameSpaceDescription;
+        }
+
+        public void setNameSpaceDescription(List<NameSpaceDescription> nameSpaceDescription) {
+            this.nameSpaceDescription = nameSpaceDescription;
+        }
+
         public ClusterResourceDescription(int totalNode, int totalMemory, int totalCores, List<QueueDescription> descriptions) {
             this.totalNode = totalNode;
             this.totalMemory = totalMemory;
@@ -143,4 +153,26 @@ public class ComponentTestResult {
             this.childQueues = childQueues;
         }
     }
+
+    public static class NameSpaceDescription{
+        private String name;
+        private String status;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+    }
+
 }
