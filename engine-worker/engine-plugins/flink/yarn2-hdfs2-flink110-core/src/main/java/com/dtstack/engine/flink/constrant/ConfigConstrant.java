@@ -36,6 +36,9 @@ public class ConfigConstrant {
     public static final String AKKA_CLIENT_TIMEOUT = "300 s";
     public static final String AKKA_TCP_TIMEOUT = "60 s";
 
+    public static final String JOBMANAGER_COMPONEN = "jobmanager";
+    public static final String TASKMANAGER_COMPONEN = "taskmanager";
+
     // ------------------------------------------------------------------------
     // Resource Configs
     // ------------------------------------------------------------------------
@@ -60,6 +63,7 @@ public class ConfigConstrant {
 
     public static final String DEFAULT_FLINK_PLUGIN_ROOT = "/opt/dtstack/flinkplugin";
     public static final String FLINK_PLUGIN_LOAD_MODE = "pluginLoadMode";
+
     public static final String FLINK_PLUGIN_CLASSPATH_LOAD = "classpath";
     public static final String FLINK_PLUGIN_SHIPFILE_LOAD = "shipfile";
 
