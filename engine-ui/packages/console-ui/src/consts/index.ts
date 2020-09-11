@@ -1092,3 +1092,8 @@ export const PHONE_REG = /^1[3|4|5|6|7|8|9]\d{9}$/
 export const EMAIL_COMMA = /^[a-z0-9@,.]+$/
 
 export const EMAIL_REG = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/
+
+export const RESOURCE_TYPE = {
+    YARN: 'YARN',
+    KUBERNETES: 'Kubernetes'
+}

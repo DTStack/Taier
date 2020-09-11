@@ -71,6 +71,7 @@ export default {
     GET_QUEUE: `${CONSOLE_BASE_URL}/engine/getQueue`,
     BIND_TENANT: `${CONSOLE_BASE_URL}/tenant/bindingTenant`,
     SWITCH_QUEUE: `${CONSOLE_BASE_URL}/tenant/bindingQueue`,
+    BIND_NAME_SPACE: `${CONSOLE_BASE_URL}/tenant/bindNamespace`,
     REFRESH_QUEUE: `${CONSOLE_BASE_URL}/component/refresh`,
 
     // TiDB 引擎账号绑定

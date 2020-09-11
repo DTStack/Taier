@@ -4,7 +4,7 @@ import { get } from 'lodash';
 
 import Api from '../../api/console';
 import { ENGIN_TYPE_TEXT } from '../../consts';
-import { isHadoopEngine, isTiDBEngine, isOracleEngine, isGreenPlumEngine } from '../../consts/clusterFunc';
+import { isHadoopEngine, isTiDBEngine, isOracleEngine, isGreenPlumEngine, isKubernetesEngine } from '../../consts/clusterFunc';
 import BindCommModal from '../../components/bindCommModal';
 import Resource from './resourceView';
 
@@ -82,8 +82,21 @@ class ResourceManage extends React.Component<any, any> {
         }
     }
     switchQueue (params: any) {
-        const { canSubmit, reqParams } = params;
-        if (canSubmit) {
+        const { reqParams, hasKubernetes } = params;
+        if (hasKubernetes) {
+            Api.bindNamespace({
+                clusterId: reqParams.clusterId,
+                namespace: reqParams.namespace
+            }).then((res: any) => {
+                if (res.code === 1) {
+                    this.setState({
+                        queueModal: false
+                    })
+                    message.success('切换队列成功')
+                    this.searchTenant()
+                }
+            })
+        } else {
             Api.switchQueue({ ...reqParams }).then((res: any) => {
                 if (res.code === 1) {
                     this.setState({
@@ -211,20 +224,50 @@ class ResourceManage extends React.Component<any, any> {
             }
         ]
     }
-    initOtherColumns = () => {
-        return [{
-            title: '租户',
-            dataIndex: 'tenantName',
-            render (text: any, record: any) {
-                return text
+    initKubernetesColumns = () => {
+        return [
+            {
+                title: '租户',
+                dataIndex: 'tenantName'
+            },
+            {
+                title: 'Namespace',
+                dataIndex: 'queue'
+            },
+            {
+                title: '操作',
+                dataIndex: 'action',
+                width: 200,
+                render: (text: any, record: any) => {
+                    return <a onClick={ () => { this.clickSwitchQueue(record) }}>
+                        切换Namespace
+                    </a>
+                }
             }
-        }]
+        ]
+    }
+    initDefaultColumns = () => {
+        return [
+            {
+                title: '租户',
+                dataIndex: 'tenantName',
+                render (text: any, record: any) {
+                    return text
+                }
+            }
+        ]
+    }
+
+    getColumn = (isHadoop: boolean, resourceType: string) => {
+        let column: any[] = this.initHadoopColumns()
+        if (!isHadoop) column = this.initDefaultColumns()
+        if (isHadoop && isKubernetesEngine(resourceType)) column = this.initKubernetesColumns()
+        return column
     }
     render () {
-        const hadoopColumns = this.initHadoopColumns();
-        const otherColumns = this.initOtherColumns()
         const { tableData, queryParams, total, loading, engineList, clusterList,
             tenantModal, queueModal, modalKey, editModalKey, clusterName } = this.state;
+        const kubernetesEngine = isKubernetesEngine(engineList[0] && engineList[0].resourceType);
         const pagination: any = {
             current: queryParams.currentPage,
             pageSize: PAGESIZE,
@@ -269,9 +312,9 @@ class ResourceManage extends React.Component<any, any> {
                         >
                             {
                                 engineList && engineList.map((item: any) => {
-                                    const { engineType } = item
+                                    const { engineType, resourceType } = item
                                     const isHadoop = isHadoopEngine(engineType);
-                                    const engineName = ENGIN_TYPE_TEXT[engineType];
+                                    const engineName = isHadoop && isKubernetesEngine(resourceType) ? 'Kubernetes' : ENGIN_TYPE_TEXT[engineType];
                                     return (
                                         <TabPane className='tab-pane-wrapper' tab={engineName} key={`${engineType}`}>
                                             <Tabs
@@ -301,8 +344,8 @@ class ResourceManage extends React.Component<any, any> {
                                                         <Table
                                                             className='dt-table-border'
                                                             loading={loading}
-                                                            rowKey={(record, index) => `${index}-${record.tenantId}`}
-                                                            columns={isHadoop ? hadoopColumns : otherColumns}
+                                                            rowKey={(record: any, index) => `${index}-${record.tenantName}`}
+                                                            columns={this.getColumn(isHadoop, resourceType)}
                                                             dataSource={tableData}
                                                             pagination={pagination}
                                                             onChange={this.handleTableChange}
@@ -339,7 +382,7 @@ class ResourceManage extends React.Component<any, any> {
                 />
                 <BindCommModal
                     key={modalKey}
-                    title='切换队列'
+                    title={kubernetesEngine ? '切换namespace' : '切换队列'}
                     visible={queueModal}
                     isBindTenant={false}
                     clusterList={clusterList}

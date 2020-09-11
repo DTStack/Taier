@@ -4,7 +4,7 @@ import {
     ENGINE_TYPE, validateFlinkParams, validateHiveParams,
     validateCarbonDataParams, validateSparkParams, validateDtYarnShellParams,
     validateLearningParams, validateHiveServerParams, validateLibraParams,
-    validateSftpDataParams, validateImpalaSqlParams
+    validateSftpDataParams, validateImpalaSqlParams, RESOURCE_TYPE
 } from './index';
 import { numOrStr } from 'typing';
 
@@ -473,4 +473,8 @@ export function isOracleEngine (engineType: numOrStr) {
 
 export function isGreenPlumEngine (engineType: numOrStr) {
     return engineType == ENGINE_TYPE.GREEN_PLUM;
+}
+
+export function isKubernetesEngine (resourceType: string): boolean {
+    return resourceType == RESOURCE_TYPE.KUBERNETES;
 }

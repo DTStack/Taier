@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { Modal, Form, Select, Icon, Tooltip } from 'antd';
+import { Modal, Form, Select, Icon, Tooltip, Input } from 'antd';
 import { debounce } from 'lodash';
 
 import API from 'dt-common/src/api';
 
-import { formItemLayout, ENGINE_TYPE } from '../../consts'
+import { formItemLayout, ENGINE_TYPE, RESOURCE_TYPE } from '../../consts'
 const Option = Select.Option;
 
 class BindCommModal extends React.Component<any, any> {
@@ -14,6 +14,7 @@ class BindCommModal extends React.Component<any, any> {
             queueList: [],
             tenantList: [],
             hasHadoop: false,
+            hasKubernetes: false,
             hasLibra: false,
             hasTiDB: false,
             hasOracle: false,
@@ -39,6 +40,7 @@ class BindCommModal extends React.Component<any, any> {
 
         const currentEngineList = (currentCluster[0] && currentCluster[0].engines) || [];
         const hadoopEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.HADOOP);
+        const kubernetesEngine = currentEngineList.filter((item: any) => item.resourceType == RESOURCE_TYPE.KUBERNETES);
         const libraEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.LIBRA);
         const tiDBEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.TI_DB);
         const oracleEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.ORACLE);
@@ -46,6 +48,7 @@ class BindCommModal extends React.Component<any, any> {
         const prestoEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.PRESTO);
 
         const hasHadoop = hadoopEngine.length >= 1;
+        const hasKubernetes = kubernetesEngine.length >= 1;
         const hasLibra = libraEngine.length >= 1;
         const hasTiDB = tiDBEngine.length > 0;
         const hasOracle = oracleEngine.length > 0;
@@ -55,6 +58,7 @@ class BindCommModal extends React.Component<any, any> {
         const queueList = hasHadoop && hadoopEngine[0] && hadoopEngine[0].queues;
         this.setState({
             hasHadoop,
+            hasKubernetes,
             hasLibra,
             hasTiDB,
             queueList,
@@ -88,6 +92,7 @@ class BindCommModal extends React.Component<any, any> {
             if (!err) {
                 params.canSubmit = true;
                 params.reqParams = isBindTenant ? reqParams : Object.assign(reqParams, { tenantId: tenantInfo.tenantId }); // 切换队列覆盖默认值name
+                params.hasKubernetes = this.state.hasKubernetes
             }
         })
         return params
@@ -108,7 +113,7 @@ class BindCommModal extends React.Component<any, any> {
         const { getFieldDecorator } = this.props.form;
         const { visible, onOk, onCancel, title, isBindTenant,
             disabled, clusterList, tenantInfo, clusterId } = this.props;
-        const { hasHadoop, queueList, tenantList } = this.state;
+        const { hasHadoop, queueList, tenantList, hasKubernetes } = this.state;
         const bindEnginName = this.getEnginName();
         return (
             <Modal
@@ -177,7 +182,26 @@ class BindCommModal extends React.Component<any, any> {
                             )}
                         </Form.Item>
                         {
-                            hasHadoop ? (
+                            hasKubernetes && (
+                                <div
+                                    className='border-item'
+                                >
+                                    <div className='engine-title'>Kubernetes</div>
+                                    <Form.Item
+                                        label='Namespace'
+                                        {...formItemLayout}
+                                    >
+                                        {getFieldDecorator('namespace', {
+                                            initialValue: tenantInfo?.queue || ''
+                                        })(
+                                            <Input />
+                                        )}
+                                    </Form.Item>
+                                </div>
+                            )
+                        }
+                        {
+                            hasHadoop && !hasKubernetes ? (
                                 <div
                                     className='border-item'
                                 >
