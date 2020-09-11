@@ -18,6 +18,7 @@ class BindCommModal extends React.Component<any, any> {
             hasTiDB: false,
             hasOracle: false,
             hasGreenPlum: false,
+            hasPresto: false,
             clusterId: props.clusterId
         }
     }
@@ -42,12 +43,14 @@ class BindCommModal extends React.Component<any, any> {
         const tiDBEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.TI_DB);
         const oracleEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.ORACLE);
         const greenPlumEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.GREEN_PLUM);
+        const prestoEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.PRESTO);
 
         const hasHadoop = hadoopEngine.length >= 1;
         const hasLibra = libraEngine.length >= 1;
         const hasTiDB = tiDBEngine.length > 0;
         const hasOracle = oracleEngine.length > 0;
         const hasGreenPlum = greenPlumEngine.length > 0;
+        const hasPresto = prestoEngine.length > 0;
 
         const queueList = hasHadoop && hadoopEngine[0] && hadoopEngine[0].queues;
         this.setState({
@@ -56,7 +59,8 @@ class BindCommModal extends React.Component<any, any> {
             hasTiDB,
             queueList,
             hasOracle,
-            hasGreenPlum
+            hasGreenPlum,
+            hasPresto
         })
     }
 
@@ -90,12 +94,13 @@ class BindCommModal extends React.Component<any, any> {
     }
 
     getEnginName () {
-        const { hasLibra, hasTiDB, hasOracle, hasGreenPlum } = this.state;
+        const { hasLibra, hasTiDB, hasOracle, hasGreenPlum, hasPresto } = this.state;
         let enginName = [];
         enginName = hasLibra ? [...enginName, 'Libra'] : enginName;
         enginName = hasTiDB ? [...enginName, 'TiDB'] : enginName;
         enginName = hasOracle ? [...enginName, 'Oracle'] : enginName;
         enginName = hasGreenPlum ? [...enginName, 'Greenplum'] : enginName;
+        enginName = hasPresto ? [...enginName, 'Presto'] : enginName;
         return enginName;
     }
 
