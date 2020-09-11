@@ -136,9 +136,9 @@ public class FlinkClusterClientManager {
             LOG.info("key={},value={},reason={}", notification.getKey(), notification.getValue(), notification.getCause());
             if (notification.getValue() != null) {
                 try {
-                    notification.getValue().shutDownCluster();
+                    notification.getValue().close();
                 } catch (Exception ex) {
-                    LOG.info("[ClusterClientCache] Could not properly shutdown cluster client.", ex);
+                    LOG.warn("[ClusterClientCache] Could not properly shutdown cluster client.", ex);
                 }
             }
         }

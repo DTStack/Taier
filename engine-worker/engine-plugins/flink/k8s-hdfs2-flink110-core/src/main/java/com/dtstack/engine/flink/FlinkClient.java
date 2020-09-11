@@ -359,10 +359,13 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
-        String applicationId = jobIdentifier.getApplicationId();
-        logger.info("cancel job applicationId is: {}", applicationId);
+        String clusterId = jobIdentifier.getApplicationId();
+        logger.info("cancel job clusterId is: {}", clusterId);
 
         ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+
+        // session mode
+        Boolean isSession = StringUtils.isBlank(clusterId) || clusterId.contains("flinksession");
         try {
             RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
             if (!RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
@@ -373,11 +376,12 @@ public class FlinkClient extends AbstractClient {
 
                 logger.info("Job[{}] Savepoint completed. Path:{}", jobID.toString(), savepointPath);
             }
+            if (!isSession) {
+                targetClusterClient.close();
+            }
         } catch (Exception e) {
             logger.error("Stop job error: {}", e.getMessage());
 
-            // session mode
-            Boolean isSession = StringUtils.isBlank(applicationId) || applicationId.contains("flinksession");
             if (isSession) {
                 logger.error("", e);
                 return JobResult.createErrorResult(e);
