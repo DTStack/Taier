@@ -2,7 +2,6 @@ package com.dtstack.engine.flink;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
-import com.dtstack.engine.flink.enums.Deploy;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -41,7 +40,7 @@ public class FlinkConfig extends BaseConfig {
 
     private String remotePluginRootDir;
 
-    private String clusterMode = Deploy.session.name(); // 集群运行模式: standalone or yarn
+    private String clusterMode;
 
     private String cluster;
 
@@ -63,11 +62,21 @@ public class FlinkConfig extends BaseConfig {
 
     private String flinkSessionName = "Flink session";
 
-    private boolean sessionStartAuto = true;
+    private boolean sessionStartAuto = false;
 
     private boolean flinkHighAvailability = false;
 
     private String pluginLoadMode = "shipfile";
+
+    private boolean monitorAcceptedApp = false;
+
+    public boolean getMonitorAcceptedApp() {
+        return monitorAcceptedApp;
+    }
+
+    public void setMonitorAcceptedApp(boolean monitorAcceptedApp) {
+        this.monitorAcceptedApp = monitorAcceptedApp;
+    }
 
     public String getTypeName() {
         return typeName;

@@ -10,6 +10,7 @@ import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.SFTPHandler;
 import org.apache.commons.lang3.StringUtils;
@@ -76,8 +77,8 @@ public class DummyClient extends AbstractClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
-        return true;
+    public JudgeResult judgeSlots(JobClient jobClient) {
+        return JudgeResult.ok();
     }
 
     @Override

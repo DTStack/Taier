@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JarFileInfo;
@@ -24,6 +25,8 @@ import com.dtstack.engine.flink.parser.AddJarOperator;
 import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.resource.FlinkSeesionResourceInfo;
+import com.dtstack.engine.flink.util.FlinkConfUtil;
+import com.dtstack.engine.flink.resource.FlinkK8sSeesionResourceInfo;
 import com.dtstack.engine.flink.util.FlinkRestParseUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.flink.util.HadoopConf;
@@ -66,6 +69,7 @@ import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -79,6 +83,17 @@ import static java.security.AccessController.doPrivileged;
 public class FlinkClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
+
+    //FIXME key值需要根据客户端传输名称调整
+    private static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
+
+    public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
+
+    private static final String TASKMANAGERS_URL_FORMAT = "%s/taskmanagers";
+
+    private static final String JOBMANAGER_LOG_URL_FORMAT = "%s/jobmanager/log";
+
+    private static final String TASKMANAGERS_KEY = "taskmanagers";
 
     private String tmpFileDirPath = "./tmp";
 
@@ -176,10 +191,8 @@ public class FlinkClient extends AbstractClient {
         logger.info("clusterClient monitorUrl is {}, run mode is {}", monitorUrl, taskRunMode.name());
         try {
             if (FlinkMode.isPerJob(taskRunMode)) {
-                PerJobClientFactory perJobClientFactory = flinkClusterClientManager.getPerJobClientFactory();
-                clusterClient = perJobClientFactory.getClusterClient(jobClient);
-
-                flinkClusterClientManager.addClient(clusterClient.getClusterId().toString(), clusterClient);
+                ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(tmpConfiguration, jobClient.getJobPriority(), jobClient.getConfProperties());
+                clusterClient = createClusterClientForPerJob(clusterSpecification, jobClient);
             } else {
                 clusterClient = flinkClusterClientManager.getClusterClient(null);
             }
@@ -539,10 +552,14 @@ public class FlinkClient extends AbstractClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public JudgeResult judgeSlots(JobClient jobClient) {
 
         try {
-            FlinkSeesionResourceInfo seesionResourceInfo = new FlinkSeesionResourceInfo();
+            FlinkK8sSeesionResourceInfo seesionResourceInfo = FlinkK8sSeesionResourceInfo.FlinkK8sSeesionResourceInfoBuilder()
+                    .withKubernetesClient(kubernetesClient)
+                    .withNamespace(flinkConfig.getNamespace())
+                    .withAllowPendingPodSize(0)
+                    .build();
             String groupName = jobClient.getGroupName();
             String[] contents = groupName.split("_");
             String namespace = contents[contents.length-1];
@@ -551,12 +568,12 @@ public class FlinkClient extends AbstractClient {
                 ResourceQuota resourceQuota = resourceQuotas.getItems().get(0);
                 return seesionResourceInfo.judgeSlotsInNamespace(jobClient, resourceQuota);
             } else {
-                seesionResourceInfo.getResource(kubernetesClient, null, 0);
+                seesionResourceInfo.getResource(kubernetesClient);
                 return seesionResourceInfo.judgeSlots(jobClient);
             }
         } catch (Exception e) {
             logger.error("judgeSlots error:{}", e);
-            return false;
+            return JudgeResult.notOk("judgeSlots error");
         }
     }
 

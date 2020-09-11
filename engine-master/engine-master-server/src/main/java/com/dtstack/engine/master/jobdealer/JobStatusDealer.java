@@ -14,8 +14,8 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.bo.JobCompletedInfo;
 import com.dtstack.engine.master.bo.JobStatusFrequency;
-import com.dtstack.engine.master.cache.ShardCache;
-import com.dtstack.engine.master.cache.ShardManager;
+import com.dtstack.engine.master.jobdealer.cache.ShardCache;
+import com.dtstack.engine.master.jobdealer.cache.ShardManager;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.google.common.collect.Maps;
@@ -160,7 +160,7 @@ public class JobStatusDealer implements Runnable {
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
 
-            logger.info("jobId:{} dealJob status:{}", jobId, rdosTaskStatus);
+            logger.info("------ jobId:{} dealJob status:{}", jobId, rdosTaskStatus);
 
             if (rdosTaskStatus != null) {
 
@@ -169,7 +169,7 @@ public class JobStatusDealer implements Runnable {
                 // 重试状态 先不更新状态
                 boolean isRestart = jobRestartDealer.checkAndRestart(status, jobId, engineTaskId, appId);
                 if (isRestart) {
-                    logger.info("jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
+                    logger.info("----- jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
                     return;
                 }
 
@@ -189,7 +189,7 @@ public class JobStatusDealer implements Runnable {
                     jobCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineType);
                 }
 
-                logger.info("jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
+                logger.info("------ jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
             }
         }
     }

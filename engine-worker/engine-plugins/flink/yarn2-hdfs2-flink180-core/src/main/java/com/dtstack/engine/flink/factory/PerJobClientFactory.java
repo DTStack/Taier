@@ -38,14 +38,20 @@ import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.configuration.YarnConfigOptions;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
+import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.YarnApplicationState;
+import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * Date: 2020/5/13
@@ -56,7 +62,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerJobClientFactory.class);
 
-    private static final String DIR = "/keytab/";
+    private static final String KERBEROS_DIR = "/kerberosPath/";
     private static final String LOG_LEVEL_KEY = "logLevel";
 
     private static final String USER_DIR = System.getProperty("user.dir");
@@ -93,15 +99,42 @@ public class PerJobClientFactory extends AbstractClientFactory {
                 classpaths.add(new File(jarFileInfo.getJarPath()).toURI().toURL());
             }
         }
-        List<File> keytabFilePath = getKeytabFilePath(jobClient);
+
+        if (flinkConfig.isOpenKerberos()) {
+            List<File> keytabFilePath = getKeytabFilePath();
+            clusterDescriptor.addShipFiles(keytabFilePath);
+        }
 
         clusterDescriptor.setName(jobClient.getJobName());
-        clusterDescriptor.addShipFiles(keytabFilePath);
         clusterDescriptor.setProvidedUserJarFiles(classpaths);
         clusterDescriptor.setQueue(flinkConfig.getQueue());
         return clusterDescriptor;
     }
 
+    public void deleteTaskIfExist(JobClient jobClient) {
+        try {
+            String taskName = jobClient.getJobName();
+            String queueName = flinkConfig.getQueue();
+            YarnClient yarnClient = flinkClientBuilder.getYarnClient();
+
+            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
+            enumSet.add(YarnApplicationState.ACCEPTED);
+            enumSet.add(YarnApplicationState.RUNNING);
+
+            List<ApplicationReport> existApps = yarnClient.getApplications(enumSet).stream().
+                    filter(report -> report.getQueue().endsWith(queueName))
+                    .filter(report -> report.getName().equals(taskName))
+                    .collect(Collectors.toList());
+
+            for (ApplicationReport report : existApps) {
+                ApplicationId appId = report.getApplicationId();
+                yarnClient.killApplication(appId);
+            }
+        } catch (Exception e) {
+            LOG.error("Delete task error " + e.getMessage());
+            throw new RdosDefineException("Delete task error");
+        }
+    }
 
     private Configuration appendConfigAndInitFs(JobClient jobClient, Configuration configuration) {
         Properties properties = jobClient.getConfProperties();
@@ -136,18 +169,18 @@ public class PerJobClientFactory extends AbstractClientFactory {
         return configuration;
     }
 
-
-    private List<File> getKeytabFilePath(JobClient jobClient) {
+    private List<File> getKeytabFilePath() {
         List<File> keytabs = Lists.newLinkedList();
-        String keytabDir = USER_DIR + DIR + jobClient.getTaskId();
+        String remoteDir = flinkConfig.getRemoteDir();
+        String keytabDir = USER_DIR + KERBEROS_DIR + remoteDir;
         File keytabDirName = new File(keytabDir);
         File[] files = keytabDirName.listFiles();
 
-        if (flinkConfig.isOpenKerberos() && keytabDirName.isDirectory() && files.length > 0) {
-            for (File file : files) {
-                keytabs.add(file);
-            }
-            return keytabs;
+        if (files == null || files.length == 0) {
+            throw new RdosDefineException("not find keytab file from " + keytabDir);
+        }
+        for (File file : files) {
+            keytabs.add(file);
         }
         return keytabs;
     }

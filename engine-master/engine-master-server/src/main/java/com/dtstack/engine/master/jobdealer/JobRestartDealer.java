@@ -3,15 +3,15 @@ package com.dtstack.engine.master.jobdealer;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
+import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.bo.EngineJobRetry;
-import com.dtstack.engine.master.cache.ShardCache;
+import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
@@ -220,12 +220,6 @@ public class JobRestartDealer {
             //重试任务更改在zk的状态，统一做状态清理
             shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.RESTARTING.getStatus());
 
-            //去掉重试日志的同步处理
-//            ScheduleJob batchJob = scheduleJobDao.getRdosJobByJobId(jobClient.getTaskId());
-//            if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
-//                jobDealer.getAndUpdateEngineLog(jobId, jobClient.getEngineTaskId(), jobClient.getApplicationId(),batchJob.getDtuicTenantId());
-//            }
-
             //重试的任务不置为失败，waitengine
             jobRetryRecord(jobClient);
 
@@ -259,11 +253,14 @@ public class JobRestartDealer {
      */
     private Integer getAlreadyRetryNum(String jobId){
         ScheduleJob rdosEngineBatchJob = scheduleJobDao.getRdosJobByJobId(jobId);
-        return rdosEngineBatchJob.getRetryNum() == null ? 0 : rdosEngineBatchJob.getRetryNum();
+        return rdosEngineBatchJob == null || rdosEngineBatchJob.getRetryNum() == null ? 0 : rdosEngineBatchJob.getRetryNum();
     }
 
     private void increaseJobRetryNum(String jobId){
         ScheduleJob rdosEngineBatchJob = scheduleJobDao.getRdosJobByJobId(jobId);
+        if (rdosEngineBatchJob == null) {
+            return;
+        }
         Integer retryNum = rdosEngineBatchJob.getRetryNum() == null ? 0 : rdosEngineBatchJob.getRetryNum();
         retryNum++;
         scheduleJobDao.updateRetryNum(jobId, retryNum);

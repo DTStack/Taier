@@ -2,8 +2,6 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.annotation.Forbidden;
-import com.dtstack.engine.api.annotation.Param;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ClusterDTO;
@@ -15,6 +13,8 @@ import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.ComponentVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.Pair;
+import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
+import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.exception.EngineAssert;
@@ -31,7 +31,7 @@ import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.utils.FileUtil;
-import com.dtstack.engine.master.utils.PublicUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.utils.XmlFileUtil;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
@@ -40,7 +40,6 @@ import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import com.dtstack.schedule.common.util.ZipUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kerby.kerberos.kerb.keytab.Keytab;
@@ -62,7 +61,7 @@ import java.util.stream.Collectors;
 import static com.dtstack.engine.common.constrant.ConfigConstant.MD5_SUM_KEY;
 
 @Service
-public class ComponentService implements com.dtstack.engine.api.service.ComponentService {
+public class ComponentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComponentService.class);
 
@@ -134,8 +133,8 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         componentTypeConfigMapping.put(EComponentType.YARN.getTypeCode(), Lists.newArrayList("yarn-site.xml","core-site.xml"));
         componentVersionMapping.put(EComponentType.FLINK.getName(), Lists.newArrayList(new Pair<>("1.8", "180"), new Pair<>("1.10", "110")));
         componentVersionMapping.put(EComponentType.SPARK.getName(), Lists.newArrayList(new Pair<>("2.1.X", "210"), new Pair<>("2.4.X", "240")));
-        componentVersionMapping.put(EComponentType.SPARK_THRIFT.getName(), Lists.newArrayList(new Pair<>("1.X", "1.x"), new Pair<>("2.X", "2.x")));
-        componentVersionMapping.put(EComponentType.HIVE_SERVER.getName(), Lists.newArrayList(new Pair<>("1.X", "1.x"), new Pair<>("2.X", "2.x")));
+        componentVersionMapping.put(EComponentType.SPARK_THRIFT.getName(), Lists.newArrayList(new Pair<>("1.X", "1.x"), new Pair<>("2.X", "2.x"),new Pair<>("2.1.1-cdh6.1.1","2.1.1-cdh6.1.1")));
+        componentVersionMapping.put(EComponentType.HIVE_SERVER.getName(), Lists.newArrayList(new Pair<>("1.X", "1.x"), new Pair<>("2.X", "2.x"),new Pair<>("2.1.1-cdh6.1.1","2.1.1-cdh6.1.1")));
         //-1 为hadoopversion
         componentVersionMapping.put("hadoopVersion", Lists.newArrayList(new Pair<>("hadoop2", "hadoop2"),
                 new Pair<>("hadoop3", "hadoop3"), new Pair<>("HW", "HW")));
@@ -148,21 +147,22 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      * }
      * }
      */
-    public String listConfigOfComponents(@Param("tenantId") Long dtUicTenantId, @Param("engineType") Integer engineType) {
-        JSONObject result = new JSONObject();
+    public List<ComponentsConfigOfComponentsVO> listConfigOfComponents(Long dtUicTenantId, Integer engineType) {
+        List<ComponentsConfigOfComponentsVO> componentsVOS = Lists.newArrayList();
+
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
         if (tenantId == null) {
-            return result.toJSONString();
+            return componentsVOS;
         }
 
         List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
         if (CollectionUtils.isEmpty(engineIds)) {
-            return result.toJSONString();
+            return componentsVOS;
         }
 
         List<Engine> engines = engineDao.listByEngineIds(engineIds);
         if (CollectionUtils.isEmpty(engines)) {
-            return result.toJSONString();
+            return componentsVOS;
         }
 
         Engine targetEngine = null;
@@ -174,18 +174,20 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         }
 
         if (targetEngine == null) {
-            return result.toJSONString();
+            return componentsVOS;
         }
 
         List<Component> componentList = componentDao.listByEngineId(targetEngine.getId());
         for (Component component : componentList) {
-            result.put(String.valueOf(component.getComponentTypeCode()), JSONObject.parseObject(component.getComponentConfig()));
+            ComponentsConfigOfComponentsVO componentsConfigOfComponentsVO = new ComponentsConfigOfComponentsVO();
+            componentsConfigOfComponentsVO.setComponentTypeCode(component.getComponentTypeCode());
+            componentsConfigOfComponentsVO.setComponentConfig(component.getComponentConfig());
+            componentsVOS.add(componentsConfigOfComponentsVO);
         }
-
-        return result.toJSONString();
+        return componentsVOS;
     }
 
-    public Component getOne(@Param("id") Long id) {
+    public Component getOne( Long id) {
         Component component = componentDao.getOne(id);
         if (component == null) {
             throw new RdosDefineException("组件不存在");
@@ -193,7 +195,6 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         return component;
     }
 
-    @Forbidden
     public String getSftpClusterKey(Long clusterId) {
         Cluster one = clusterDao.getOne(clusterId);
         if(Objects.isNull(one)){
@@ -202,7 +203,6 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         return AppType.CONSOLE.name() + "_" + one.getClusterName();
     }
 
-    @Forbidden
     public Map<String, Object> fillKerberosConfig(String allConfString, Long clusterId) {
         JSONObject allConf = JSONObject.parseObject(allConfString);
         allConf.putAll(KerberosConfigVerify.replaceFilePath(allConf, getClusterLocalKerberosDir(clusterId)));
@@ -216,7 +216,6 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
     /**
      * 更新缓存
      */
-    @Forbidden
     public void updateCache(Long engineId, Integer componentCode) {
         try {
             Set<Long> dtUicTenantIds = new HashSet<>();
@@ -224,7 +223,8 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
                     EComponentType.TIDB_SQL.getTypeCode() == componentCode ||
                             EComponentType.LIBRA_SQL.getTypeCode() == componentCode ||
                             EComponentType.GREENPLUM_SQL.getTypeCode() == componentCode ||
-                            EComponentType.ORACLE_SQL.getTypeCode() == componentCode)) {
+                            EComponentType.ORACLE_SQL.getTypeCode() == componentCode) ||
+                    EComponentType.PRESTO_SQL.getTypeCode() == componentCode) {
 
                 //tidb 和libra 没有queue
                 List<EngineTenantVO> tenantVOS = engineTenantDao.listEngineTenant(engineId);
@@ -259,8 +259,6 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         }
     }
 
-
-    @Forbidden
     public List<Component> listComponent(Long engineId) {
         return componentDao.listByEngineId(engineId);
     }
@@ -330,12 +328,10 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         }
     }
 
-    @Forbidden
     public String getClusterLocalKerberosDir(Long clusterId) {
         return env.getLocalKerberosDir() + File.separator + getSftpClusterKey(clusterId);
     }
 
-    @Forbidden
     public void addComponentWithConfig(Long engineId, String confName, JSONObject config) {
         EComponentType type = EComponentType.getByConfName(confName);
 
@@ -421,12 +417,11 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
     }
 
 
-    public KerberosConfig getKerberosConfig(@Param("clusterId") Long clusterId, @Param("componentType") Integer componentType) {
+    public KerberosConfig getKerberosConfig( Long clusterId,  Integer componentType) {
         KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType);
         return kerberosConfig;
     }
 
-    @Forbidden
     public Map<String, String> getSFTPConfig(Long clusterId) {
         Engine hadoopEngine = getEngineByClusterId(clusterId);
         Component sftpComponent = componentDao.getByEngineIdAndComponentType(hadoopEngine.getId(), EComponentType.SFTP.getTypeCode());
@@ -461,10 +456,10 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
 
 
     @Transactional(rollbackFor = Exception.class)
-    public ComponentVO addOrUpdateComponent(@Param("clusterId") Long clusterId, @Param("componentConfig") String componentConfig,
-                                            @Param("resources") List<Resource> resources, @Param("hadoopVersion") String hadoopVersion,
-                                            @Param("kerberosFileName") String kerberosFileName, @Param("componentTemplate") String componentTemplate,
-                                            @Param("componentCode") Integer componentCode) {
+    public ComponentVO addOrUpdateComponent( Long clusterId,  String componentConfig,
+                                             List<Resource> resources,  String hadoopVersion,
+                                             String kerberosFileName,  String componentTemplate,
+                                             Integer componentCode) {
         if (StringUtils.isBlank(componentConfig) && EComponentType.KUBERNETES.getTypeCode() != componentCode) {
             throw new RdosDefineException("组件信息不能为空");
         }
@@ -569,7 +564,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         return componentVO;
     }
 
-    private String uploadResourceToSftp(@Param("clusterId") Long clusterId, @Param("resources") List<Resource> resources, @Param("kerberosFileName") String kerberosFileName,
+    private String uploadResourceToSftp( Long clusterId,  List<Resource> resources,  String kerberosFileName,
                                       Map<String, String> sftpMap,
                                       Component addComponent, Component dbComponent) {
         //上传配置文件到sftp 供后续下载
@@ -625,7 +620,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      * @param instance
      * @param resource
      */
-    private void updateConfigToSftpPath(@Param("clusterId") Long clusterId, Map<String, String> sftpMap, SFTPHandler instance, Resource resource) {
+    private void updateConfigToSftpPath( Long clusterId, Map<String, String> sftpMap, SFTPHandler instance, Resource resource) {
         //上传xml到对应路径下 拼接confHdfsPath
         String confRemotePath = sftpMap.get("path") + File.separator;
         String buildPath = File.separator + buildConfRemoteDir(clusterId);
@@ -809,7 +804,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      * @param componentId
      */
     @Transactional(rollbackFor = Exception.class)
-    public void closeKerberos(@Param("componentId") Long componentId) {
+    public void closeKerberos( Long componentId) {
         kerberosDao.deleteByComponentId(componentId);
         Component updateComponent = new Component();
         updateComponent.setId(componentId);
@@ -817,7 +812,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         componentDao.update(updateComponent);
     }
 
-    public Map<String, Object> addOrCheckClusterWithName(@Param("clusterName") String clusterName) {
+    public ComponentsResultVO addOrCheckClusterWithName( String clusterName) {
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("集群名称不能为空");
         }
@@ -828,11 +823,11 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
             ClusterDTO clusterDTO = new ClusterDTO();
             clusterDTO.setClusterName(clusterName);
             ClusterVO clusterVO = clusterService.addCluster(clusterDTO);
-            Map<String, Object> result = new HashMap<>();
+            ComponentsResultVO componentsResultVO = new ComponentsResultVO();
             Long clusterId = clusterVO.getClusterId();
-            result.put("clusterId", clusterId);
+            componentsResultVO.setClusterId(clusterId);
             LOGGER.info("add cluster {} ", clusterId);
-            return result;
+            return componentsResultVO;
         }
         throw new RdosDefineException("集群名称已存在");
     }
@@ -848,7 +843,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      * @param resources
      * @return
      */
-    public List<Object> config(@Param("resources") List<Resource> resources, @Param("componentType") Integer componentType,@Param("autoDelete") Boolean autoDelete) {
+    public List<Object> config( List<Resource> resources,  Integer componentType, Boolean autoDelete) {
         List<Object> datas = new ArrayList<>();
         try {
             List<String> xmlName = componentTypeConfigMapping.get(componentType);
@@ -897,8 +892,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
             if (Objects.isNull(autoDelete) || true == autoDelete) {
                 for (Resource resource : resources) {
                     try {
-                        FileUtils.forceDelete(new File(System.getProperty("user.dir") + File.separator +
-                                resource.getUploadedFileName()));
+                        FileUtils.forceDelete(new File(resource.getUploadedFileName()));
                     } catch (IOException e) {
                         LOGGER.debug("delete config resource error {} ", resource.getUploadedFileName());
                     }
@@ -910,7 +904,6 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
     }
 
 
-    @Forbidden
     public String buildSftpPath(Long clusterId, Integer componentCode) {
         Cluster one = clusterDao.getOne(clusterId);
         if(Objects.isNull(one)){
@@ -923,7 +916,6 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
     /**
      * 测试单个组件联通性
      */
-    @Forbidden
     public ComponentTestResult testConnect(Integer componentType, String componentConfig, String clusterName,
                                             String hadoopVersion, Long engineId, KerberosConfig kerberosConfig, Map<String, String> sftpConfig) {
         if (EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))) {
@@ -1045,7 +1037,6 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      * @param componentCode
      * @return
      */
-    @Forbidden
     public String getLocalKerberosPath(Long clusterId, Integer componentCode) {
         Cluster one = clusterDao.getOne(clusterId);
         if(Objects.isNull(one)){
@@ -1061,8 +1052,8 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      * @param downloadType 0:kerberos配置文件 1:配置文件 2:模板文件
      * @return
      */
-    public File downloadFile(@Param("componentId") Long componentId, @Param("type") Integer downloadType, @Param("componentType") Integer componentType,
-                             @Param("hadoopVersion") String hadoopVersion, @Param("clusterName") String clusterName) {
+    public File downloadFile( Long componentId,  Integer downloadType,  Integer componentType,
+                              String hadoopVersion,  String clusterName) {
         String localDownLoadPath = "";
         String uploadFileName = "";
         if (Objects.isNull(componentId)) {
@@ -1152,7 +1143,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      * @param componentType
      * @return
      */
-    public List<ClientTemplate> loadTemplate(@Param("componentType") Integer componentType, @Param("clusterName") String clusterName, @Param("version") String version) {
+    public List<ClientTemplate> loadTemplate( Integer componentType,  String clusterName,  String version) {
         EComponentType component = EComponentType.getByCode(componentType);
         List<ClientTemplate> defaultPluginConfig = null;
         try {
@@ -1218,11 +1209,28 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      * @param version
      * @return
      */
-    @Forbidden
     public String convertComponentTypeToClient(String clusterName, Integer componentType, String version) {
         //普通rdb插件
         String pluginName = EComponentType.convertPluginNameByComponent(EComponentType.getByCode(componentType));
         if (StringUtils.isNotBlank(pluginName)) {
+            return pluginName;
+        }
+        //如果没传 给默认插件 version
+        if (StringUtils.isEmpty(version)) {
+            List<Pair<String, String>> defaultVersion = componentVersionMapping.get(EComponentType.getByCode(componentType).getName());
+            if (CollectionUtils.isNotEmpty(defaultVersion)) {
+                version = defaultVersion.get(0).getValue();
+            }
+        }
+        //hive也需要version
+        if (EComponentType.HIVE_SERVER.getTypeCode() == componentType || EComponentType.SPARK_THRIFT.getTypeCode() == componentType) {
+            pluginName = "hive";
+            if (version.contains("cdh")) {
+                //cdh为完整路径
+                pluginName = pluginName + version;
+            } else if (!version.equalsIgnoreCase("1.x")) {
+                pluginName = pluginName + version.charAt(0);
+            }
             return pluginName;
         }
         if (StringUtils.isBlank(clusterName)) {
@@ -1311,7 +1319,6 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      * @param hadoopVersion
      * @return
      */
-    @Forbidden
     private String formatHadoopVersion(String hadoopVersion) {
         if (StringUtils.isBlank(hadoopVersion)) {
             return "2";
@@ -1332,7 +1339,7 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      * @param componentIds
      */
     @Transactional(rollbackFor = Exception.class)
-    public void delete(@Param("componentIds") List<Integer> componentIds) {
+    public void delete( List<Integer> componentIds) {
         if (CollectionUtils.isEmpty(componentIds)) {
             return;
         }
@@ -1358,9 +1365,64 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         return componentVersionMapping;
     }
 
-    @Forbidden
     public Component getComponentByClusterId(Long clusterId, Integer componentType) {
         return componentDao.getByClusterIdAndComponentType(clusterId, componentType);
+    }
+
+    /**
+     * 刷新组件信息
+     * @param clusterName
+     * @return
+     */
+    public List<ComponentTestResult> refresh(String clusterName) {
+        List<ComponentTestResult> refreshResults = new ArrayList<>();
+        if (StringUtils.isBlank(clusterName)) {
+            throw new RdosDefineException("clusterName is null");
+        }
+        Cluster cluster = clusterDao.getByClusterName(clusterName);
+
+        List<Component> components = getComponents(cluster);
+        if (CollectionUtils.isEmpty(components)) {
+            return refreshResults;
+        }
+
+        Map<String, String> sftpMap = getSftpMap(components);
+        CountDownLatch countDownLatch = new CountDownLatch(components.size());
+        for (Component component : components) {
+            if (EComponentType.YARN.getTypeCode() != component.getComponentTypeCode()) {
+                continue;
+            }
+            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(
+                    cluster.getId(), component.getComponentTypeCode());
+            Map<String, String> finalSftpMap = sftpMap;
+            try {
+                CompletableFuture.runAsync(() -> {
+                    ComponentTestResult refreshResult = new ComponentTestResult();
+                    try {
+                        refreshResult = this.testConnect(component.getComponentTypeCode(),
+                                component.getComponentConfig(), clusterName, component.getHadoopVersion(),
+                                component.getEngineId(), kerberosConfig, finalSftpMap);
+
+                        if (refreshResult.getResult() && EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
+                            engineService.updateResource(component.getEngineId(), refreshResult.getClusterResourceDescription());
+                            queueService.updateQueue(component.getEngineId(), refreshResult.getClusterResourceDescription());
+                        }
+
+                    } catch (Exception e) {
+                        refreshResult.setResult(false);
+                        refreshResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+                        LOGGER.error("refres {}  error ", component.getComponentConfig(), e);
+                    } finally {
+                        refreshResult.setComponentTypeCode(component.getComponentTypeCode());
+                        refreshResults.add(refreshResult);
+                        countDownLatch.countDown();
+                    }
+                }, connectPool).get(env.getTestConnectTimeout(),TimeUnit.SECONDS);
+            } catch (Exception e) {
+                LOGGER.error("refres {}  e ", component.getComponentConfig(), e);
+            }
+        }
+        return refreshResults;
     }
 
     /**
@@ -1368,33 +1430,17 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
      * @param clusterName
      * @return
      */
-    public List<ComponentTestResult> testConnects(@Param("clusterName") String clusterName) {
-        Cluster cluster = null;
-        if (StringUtils.isNotBlank(clusterName)) {
-            cluster = clusterDao.getByClusterName(clusterName);
-        }
-        if (Objects.isNull(cluster)) {
-            throw new RdosDefineException("集群不存在");
-        }
-        List<ComponentTestResult> results = new ArrayList<>();
-        List<Engine> engines = engineDao.listByClusterId(cluster.getId());
-        if (CollectionUtils.isEmpty(engines)) {
-            return results;
-        }
-        List<Long> engineId = engines.stream().map(Engine::getId).collect(Collectors.toList());
+    public List<ComponentTestResult> testConnects(String clusterName) {
 
-        List<Component> components = componentDao.listByEngineIds(engineId);
-        if (CollectionUtils.isEmpty(components)) {
-            return new ArrayList<>(0);
+        if (StringUtils.isBlank(clusterName)) {
+            throw new RdosDefineException("clusterName is null");
         }
-        Optional<Component> componentOptional = components.stream().filter(c -> EComponentType.SFTP.getTypeCode() == c.getComponentTypeCode()).findFirst();
-        Map<String, String> sftpMap = null;
-        try {
-            if (componentOptional.isPresent()) {
-                sftpMap = (Map) JSONObject.parseObject(componentOptional.get().getComponentConfig(), Map.class);
-            }
-        } catch (Exception e) {
-        }
+        Cluster cluster = clusterDao.getByClusterName(clusterName);
+
+        List<Component> components = getComponents(cluster);
+
+        Map<String, String> sftpMap = getSftpMap(components);
+
         List<ComponentTestResult> testResults = new ArrayList<>(components.size());
         CountDownLatch countDownLatch = new CountDownLatch(components.size());
         for (Component component : components) {
@@ -1434,7 +1480,38 @@ public class ComponentService implements com.dtstack.engine.api.service.Componen
         return testResults;
     }
 
-    @Forbidden
+    private List<Component> getComponents(Cluster cluster){
+
+        if (Objects.isNull(cluster)) {
+            throw new RdosDefineException("集群不存在");
+        }
+        List<Engine> engines = engineDao.listByClusterId(cluster.getId());
+        if (CollectionUtils.isEmpty(engines)) {
+            return new ArrayList<>(0);
+        }
+        List<Long> engineId = engines.stream().map(Engine::getId).collect(Collectors.toList());
+
+        List<Component> components = componentDao.listByEngineIds(engineId);
+        if (CollectionUtils.isEmpty(components)) {
+            return new ArrayList<>(0);
+        }
+        return components;
+    }
+
+    private Map<String, String> getSftpMap(List<Component> components) {
+        Optional<Component> componentOptional = components.stream()
+                .filter(c -> EComponentType.SFTP.getTypeCode() == c.getComponentTypeCode())
+                .findFirst();
+        Map<String, String> sftpMap = null;
+        try {
+            if (componentOptional.isPresent()) {
+                sftpMap = (Map) JSONObject.parseObject(componentOptional.get().getComponentConfig(), Map.class);
+            }
+        } catch (Exception e) {
+        }
+        return sftpMap;
+    }
+
     public JSONObject getPluginInfoWithComponentType(Long dtuicTenantId,EComponentType componentType){
         ClusterVO cluster = clusterService.getClusterByTenant(dtuicTenantId);
 

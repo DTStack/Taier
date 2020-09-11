@@ -1,6 +1,7 @@
 package com.dtstack.engine.base.resource;
 
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.pojo.JudgeResult;
 
 
 /**
@@ -10,8 +11,6 @@ import com.dtstack.engine.common.JobClient;
  */
 public interface EngineResourceInfo {
 
-    String LIMIT_RESOURCE_ERROR = "LIMIT RESOURCE ERROR:";
-
-    boolean judgeSlots(JobClient jobClient);
+    JudgeResult judgeSlots(JobClient jobClient);
 
 }

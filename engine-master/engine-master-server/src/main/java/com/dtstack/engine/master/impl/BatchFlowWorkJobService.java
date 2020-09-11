@@ -1,10 +1,13 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.annotation.Forbidden;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.master.enums.JobPhaseStatus;
+import com.dtstack.engine.master.executor.AbstractJobExecutor;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +20,9 @@ import java.util.List;
  * create: 2019/10/22
  */
 @Service
-public class BatchFlowWorkJobService implements com.dtstack.engine.api.service.BatchFlowWorkJobService {
+public class BatchFlowWorkJobService {
+
+    private final Logger logger = LoggerFactory.getLogger(AbstractJobExecutor.class);
 
     /**
      * 任务状态从低到高排序
@@ -45,8 +50,7 @@ public class BatchFlowWorkJobService implements com.dtstack.engine.api.service.B
      *
      * @param jobId
      */
-    @Forbidden
-    public boolean checkRemoveAndUpdateFlowJobStatus(String jobId,Integer appType) {
+    public boolean checkRemoveAndUpdateFlowJobStatus(Long id,String jobId,Integer appType) {
 
         List<ScheduleJob> subJobs = batchJobService.getSubJobsAndStatusByFlowId(jobId);
         boolean canRemove = false;
@@ -115,7 +119,7 @@ public class BatchFlowWorkJobService implements com.dtstack.engine.api.service.B
                 bottleStatus = RdosTaskStatus.FROZEN.getStatus();
             }
         }
-
+        logger.error("jobId:{} bottleStatus:{}", jobId,bottleStatus);
         if (RdosTaskStatus.FINISHED.getStatus().equals(bottleStatus) || RdosTaskStatus.FAILED.getStatus().equals(bottleStatus)
                 || RdosTaskStatus.PARENTFAILED.getStatus().equals(bottleStatus) || RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)) {
             //更新结束时间时间
@@ -129,6 +133,11 @@ public class BatchFlowWorkJobService implements com.dtstack.engine.api.service.B
         } else {
             //更新工作流状态
             batchJobService.updateStatusByJobId(jobId, bottleStatus);
+        }
+
+        if (RdosTaskStatus.getStoppedStatus().contains(bottleStatus)) {
+            logger.error("jobId:{} is WORK_FLOW or ALGORITHM_LAB son is execution complete update phaseStatus to execute_over.", jobId);
+            batchJobService.updatePhaseStatusById(id, JobPhaseStatus.CREATE, JobPhaseStatus.EXECUTE_OVER);
         }
         return canRemove;
     }

@@ -4,9 +4,10 @@ package com.dtstack.engine.dtscript;
 import com.dtstack.engine.base.resource.AbstractYarnResourceInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.exception.ClientArgumentException;
-import com.dtstack.engine.common.exception.LimitResourceException;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.dtscript.client.ClientArguments;
 import com.google.common.collect.Lists;
+import org.apache.hadoop.yarn.client.api.YarnClient;
 
 import java.util.List;
 
@@ -20,9 +21,24 @@ import java.util.List;
  */
 public class DtScriptResourceInfo extends AbstractYarnResourceInfo {
 
+    private YarnClient yarnClient;
+    private String queueName;
+    private Integer yarnAccepterTaskNumber;
+
+    public DtScriptResourceInfo(YarnClient yarnClient, String queueName, Integer yarnAccepterTaskNumber) {
+        this.yarnClient = yarnClient;
+        this.queueName = queueName;
+        this.yarnAccepterTaskNumber = yarnAccepterTaskNumber;
+    }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public JudgeResult judgeSlots(JobClient jobClient) {
+
+        JudgeResult jr = getYarnSlots(yarnClient, queueName, yarnAccepterTaskNumber);
+        if (!jr.available()) {
+            return jr;
+        }
+
         ClientArguments clientArguments;
         try {
             String[] args = DtScriptUtil.buildPythonArgs(jobClient);
@@ -41,18 +57,44 @@ public class DtScriptResourceInfo extends AbstractYarnResourceInfo {
         return this.judgeResource(amCores, amMem, workerNum, workerCores, workerMem);
     }
 
-    private boolean judgeResource(int amCores, int amMem, int workerNum, int workerCores, int workerMem) {
+    private JudgeResult judgeResource(int amCores, int amMem, int workerNum, int workerCores, int workerMem) {
         if (workerNum == 0 || workerMem == 0 || workerCores == 0) {
-            throw new LimitResourceException("Yarn task resource configuration error，" +
+            return JudgeResult.limitError("Yarn task resource configuration error，" +
                     "instance：" + workerNum + ", coresPerInstance：" + workerCores + ", memPerInstance：" + workerMem);
-        }
-        if (totalFreeCore == 0 || totalFreeMem == 0) {
-            return false;
         }
 
         List<InstanceInfo> instanceInfos = Lists.newArrayList(
                 InstanceInfo.newRecord(1, amCores, amMem),
                 InstanceInfo.newRecord(workerNum, workerCores, workerMem));
         return judgeYarnResource(instanceInfos);
+    }
+
+    public static DtScriptResourceInfoBuilder DtScriptResourceInfoBuilder() {
+        return new DtScriptResourceInfoBuilder();
+    }
+
+    public static class DtScriptResourceInfoBuilder {
+        private YarnClient yarnClient;
+        private String queueName;
+        private Integer yarnAccepterTaskNumber;
+
+        public DtScriptResourceInfoBuilder withYarnClient(YarnClient yarnClient) {
+            this.yarnClient = yarnClient;
+            return this;
+        }
+
+        public DtScriptResourceInfoBuilder withQueueName(String queueName) {
+            this.queueName = queueName;
+            return this;
+        }
+
+        public DtScriptResourceInfoBuilder withYarnAccepterTaskNumber(Integer yarnAccepterTaskNumber) {
+            this.yarnAccepterTaskNumber = yarnAccepterTaskNumber;
+            return this;
+        }
+
+        public DtScriptResourceInfo build() {
+            return new DtScriptResourceInfo(yarnClient, queueName, yarnAccepterTaskNumber);
+        }
     }
 }

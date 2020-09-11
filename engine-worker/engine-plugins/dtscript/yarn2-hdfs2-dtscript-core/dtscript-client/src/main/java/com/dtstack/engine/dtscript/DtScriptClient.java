@@ -1,6 +1,7 @@
 package com.dtstack.engine.dtscript;
 
 import com.dtstack.engine.base.BaseConfig;
+import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -10,6 +11,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dtscript.client.Client;
 import com.google.common.collect.Lists;
@@ -21,7 +23,6 @@ import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
-import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,6 +99,10 @@ public class DtScriptClient extends AbstractClient {
         }
 
         client = new Client(conf, configMap);
+
+        if (conf.getBoolean("monitorAcceptedApp", false)) {
+            AcceptedApplicationMonitor.start(conf, queue, configMap);
+        }
     }
 
     @Override
@@ -131,40 +136,47 @@ public class DtScriptClient extends AbstractClient {
         }
 
         try {
-            ApplicationReport report = client.getApplicationReport(jobId);
-            YarnApplicationState applicationState = report.getYarnApplicationState();
-            switch(applicationState) {
-                case KILLED:
-                    return RdosTaskStatus.KILLED;
-                case NEW:
-                case NEW_SAVING:
-                    return RdosTaskStatus.CREATED;
-                case SUBMITTED:
-                    //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
-                    return RdosTaskStatus.WAITCOMPUTE;
-                case ACCEPTED:
-                    return RdosTaskStatus.SCHEDULED;
-                case RUNNING:
-                    return RdosTaskStatus.RUNNING;
-                case FINISHED:
-                    //state 为finished状态下需要兼顾判断finalStatus.
-                    FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
-                    if(finalApplicationStatus == FinalApplicationStatus.FAILED){
-                        return RdosTaskStatus.FAILED;
-                    }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
-                        return RdosTaskStatus.FINISHED;
-                    }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
-                        return RdosTaskStatus.KILLED;
-                    }else{
-                        return RdosTaskStatus.RUNNING;
-                    }
+            return KerberosUtils.login(configMap, () -> {
+                try {
+                    ApplicationReport report = client.getApplicationReport(jobId);
+                    YarnApplicationState applicationState = report.getYarnApplicationState();
+                    switch(applicationState) {
+                        case KILLED:
+                            return RdosTaskStatus.KILLED;
+                        case NEW:
+                        case NEW_SAVING:
+                            return RdosTaskStatus.CREATED;
+                        case SUBMITTED:
+                            //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
+                            return RdosTaskStatus.WAITCOMPUTE;
+                        case ACCEPTED:
+                            return RdosTaskStatus.SCHEDULED;
+                        case RUNNING:
+                            return RdosTaskStatus.RUNNING;
+                        case FINISHED:
+                            //state 为finished状态下需要兼顾判断finalStatus.
+                            FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
+                            if(finalApplicationStatus == FinalApplicationStatus.FAILED){
+                                return RdosTaskStatus.FAILED;
+                            }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
+                                return RdosTaskStatus.FINISHED;
+                            }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
+                                return RdosTaskStatus.KILLED;
+                            }else{
+                                return RdosTaskStatus.RUNNING;
+                            }
 
-                case FAILED:
-                    return RdosTaskStatus.FAILED;
-                default:
-                    throw new RdosDefineException("Unsupported application state");
-            }
-        } catch (YarnException e) {
+                        case FAILED:
+                            return RdosTaskStatus.FAILED;
+                        default:
+                            throw new RdosDefineException("Unsupported application state");
+                    }
+                } catch (Exception e1) {
+                    LOG.error("", e1);
+                    return RdosTaskStatus.NOTFOUND;
+                }
+            },conf);
+        } catch (Exception e) {
             LOG.error("", e);
             return RdosTaskStatus.NOTFOUND;
         }
@@ -235,14 +247,24 @@ public class DtScriptClient extends AbstractClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
-        DtScriptResourceInfo resourceInfo = new DtScriptResourceInfo();
+    public JudgeResult judgeSlots(JobClient jobClient) {
         try {
-            resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(DtYarnConfiguration.DT_APP_QUEUE), conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
-            return resourceInfo.judgeSlots(jobClient);
-        } catch (YarnException e) {
+            return KerberosUtils.login(configMap, () -> {
+                try {
+                    DtScriptResourceInfo resourceInfo = DtScriptResourceInfo.DtScriptResourceInfoBuilder()
+                            .withYarnClient(client.getYarnClient())
+                            .withQueueName(conf.get(DtYarnConfiguration.DT_APP_QUEUE))
+                            .withYarnAccepterTaskNumber(conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1))
+                            .build();
+                    return resourceInfo.judgeSlots(jobClient);
+                } catch (Exception e) {
+                    LOG.error("", e);
+                    return JudgeResult.notOk("judgeSlots error");
+                }
+            }, conf);
+        } catch (Exception e) {
             LOG.error("", e);
-            return false;
+            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
         }
     }
 

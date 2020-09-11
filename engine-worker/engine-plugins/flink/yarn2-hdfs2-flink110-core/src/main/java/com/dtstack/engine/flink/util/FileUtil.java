@@ -150,18 +150,8 @@ public class FileUtil {
         }
     }
 
-    public static void downloadKafkaKeyTab(String taskParams, FlinkConfig flinkConfig) {
+    public static void downloadKafkaKeyTab(Properties confProperties, FlinkConfig flinkConfig) {
         try {
-            Properties confProperties = new Properties();
-
-            DtStringUtil.splitIngoreBlank(taskParams.trim())
-                    .stream()
-                    .map(param -> param.split("="))
-                    .filter(kv -> kv.length == 2)
-                    .forEach((String[] pair) -> {
-                        confProperties.setProperty(pair[0].trim(), pair[1].trim());
-                    });
-
             String sftpKeytab = confProperties.getProperty(ConfigConstrant.KAFKA_SFTP_KEYTAB);
 
             if (StringUtils.isBlank(sftpKeytab)) {

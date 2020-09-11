@@ -16,3 +16,4 @@ entrance/dependency-reduced-pom.xml
 /lib/
 .DS_Store
 kerberosConfig/
+tmpK8sConf/
