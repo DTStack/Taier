@@ -121,8 +121,6 @@ public class SessionClientFactory extends AbstractClientFactory {
         initZkClient();
         this.lockPath = String.format("/yarn_session/%s", flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
         this.clusterClientLock = new InterProcessMutex(zkClient, lockPath);
-
-        startYarnSessionClientMonitor();
     }
 
     private void initZkClient() {
