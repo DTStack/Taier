@@ -288,10 +288,9 @@ public class FlinkClient extends AbstractClient {
 
             return Pair.create(jobExecutionResult.getJobID().toString(), null);
         } catch (Exception e) {
-            if (e.getMessage() != null && e.getMessage().contains(ExceptionInfoConstrant.FLINK_UNALE_TO_GET_CLUSTERCLIENT_STATUS_EXCEPTION)) {
-                if (flinkClusterClientManager.getIsClientOn()) {
-                    flinkClusterClientManager.setIsClientOn(false);
-                }
+            //累加失败次数
+            if (flinkClusterClientManager.getSessionClientFactory() != null) {
+                flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().incrSubmitError();
             }
             throw e;
         } finally {
@@ -672,7 +671,8 @@ public class FlinkClient extends AbstractClient {
             if (!judgeResult.available() || isPerJob){
                 return judgeResult;
             } else {
-                if (!flinkClusterClientManager.getIsClientOn()) {
+                if (flinkClusterClientManager.getSessionClientFactory()!=null&&
+                        !flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().isRunning()) {
                     logger.warn("wait flink client recover...");
                     return JudgeResult.notOk( "wait flink client recover");
                 }

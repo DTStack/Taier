@@ -388,6 +388,8 @@ public class SessionClientFactory extends AbstractClientFactory {
                                                 break;
                                             }
                                         }
+                                        //健康，则重置
+                                        sessionCheckInterval.sessionHealthCheckedInfo.reset();
                                     }
                                     break;
                                 default:
