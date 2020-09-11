@@ -69,7 +69,7 @@ public class FlinkConfig extends BaseConfig {
 
     private String pluginLoadMode = "shipfile";
 
-    private int checkSubmitJobGraphInterval = 10;
+    private int checkSubmitJobGraphInterval = 120;
 
     private long submitTimeout = 5;
 

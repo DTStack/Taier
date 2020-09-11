@@ -27,6 +27,7 @@ import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkClusterClientManager;
 import com.dtstack.engine.flink.FlinkConfig;
+import com.dtstack.engine.flink.NoOpInvokable;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.util.FileUtil;
@@ -46,12 +47,10 @@ import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.JobVertex;
 import org.apache.flink.runtime.jobgraph.ScheduleMode;
 import org.apache.flink.runtime.jobmanager.scheduler.SlotSharingGroup;
-import org.apache.flink.runtime.operators.DataSinkTask;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.flink.shaded.curator.org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.flink.streaming.runtime.tasks.OneInputStreamTask;
 import org.apache.flink.util.FlinkException;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.hadoop.service.Service;
@@ -524,7 +523,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                         "ExecutionEnvironment.execute()");
             }
             if (result.isJobExecutionResult()) {
-                LOG.info("Checked Program execution finished, Job with JobID:{} has finished.", result.getJobID());
+                LOG.info("Checked Program submitJob finished, Job with JobID:{} .", result.getJobID());
                 return result.getJobExecutionResult();
             } else {
                 LOG.info("Checked Program execution failed, retry to init ClusterClient.");
@@ -536,11 +535,11 @@ public class SessionClientFactory extends AbstractClientFactory {
             SlotSharingGroup slotSharingGroup = new SlotSharingGroup();
 
             final JobVertex source = new JobVertex("source");
-            source.setInvokableClass(OneInputStreamTask.class);
+            source.setInvokableClass(NoOpInvokable.class);
             source.setSlotSharingGroup(slotSharingGroup);
 
             final JobVertex sink = new JobVertex("sink");
-            sink.setInvokableClass(DataSinkTask.class);
+            sink.setInvokableClass(NoOpInvokable.class);
             sink.setSlotSharingGroup(slotSharingGroup);
 
             sink.connectNewDataSetAsInput(source, DistributionPattern.POINTWISE, ResultPartitionType.PIPELINED);
