@@ -20,6 +20,8 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.util.SFTPHandler;
+import com.dtstack.engine.common.util.UrlUtil;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
 import com.dtstack.engine.flink.entity.TaskmanagerInfo;
@@ -966,8 +968,8 @@ public class FlinkClient extends AbstractClient {
         JobResult jobResult = client.submitJob(jobClient);
         String appId = jobResult.getData("extid");
         String jobId = jobResult.getData("jobid");
-        System.out.println("submit success!, jobId: " + jobId + ", appId: " + appId);
-        System.out.println(jobResult.getJsonStr());
+        logger.info("submit success!, jobId: " + jobId + ", appId: " + appId);
+        logger.info(jobResult.getJsonStr());
         System.exit(0);
     }
 

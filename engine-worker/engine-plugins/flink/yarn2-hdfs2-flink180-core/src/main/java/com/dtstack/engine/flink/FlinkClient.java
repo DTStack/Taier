@@ -66,7 +66,6 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.security.action.GetPropertyAction;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -78,12 +77,9 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static java.security.AccessController.doPrivileged;
 
 /**
  * Date: 2017/2/20
@@ -972,8 +968,8 @@ public class FlinkClient extends AbstractClient {
         JobResult jobResult = client.submitJob(jobClient);
         String appId = jobResult.getData("extid");
         String jobId = jobResult.getData("jobid");
-        System.out.println("submit success!, jobId: " + jobId + ", appId: " + appId);
-        System.out.println(jobResult.getJsonStr());
+        logger.info("submit success!, jobId: " + jobId + ", appId: " + appId);
+        logger.info(jobResult.getJsonStr());
         System.exit(0);
     }
 

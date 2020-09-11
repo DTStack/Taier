@@ -16,14 +16,6 @@ import java.util.Map;
  */
 public class FlinkConfig {
 
-    private static final String DEFAULT_FLINK_PLUGIN_ROOT = "/opt/dtstack/flinkplugin";
-
-    public static final String FLINK_SESSION_PREFIX = "flinksession";
-
-    public static final String FLINK_PERJOB_PREFIX = "flinkperjob";
-
-    private static final String DEFAULT_JAR_TMP_DIR = "../tmp1100";
-
     private static List<String> ENGINE_FLINK_CONFIGS = null;
 
     static {
@@ -64,7 +56,7 @@ public class FlinkConfig {
 
     private int flinkSessionSlotCount;
 
-    private String flinkSessionName = FLINK_SESSION_PREFIX;
+    private String flinkSessionName = ConfigConstrant.FLINK_SESSION_PREFIX;
 
     private boolean sessionStartAuto = true;
 
@@ -232,7 +224,7 @@ public class FlinkConfig {
 
     public String getJarTmpDir() {
         if (Strings.isNullOrEmpty(jarTmpDir)) {
-            return DEFAULT_JAR_TMP_DIR;
+            return ConfigConstrant.DEFAULT_JAR_TMP_DIR;
         }
 
         return jarTmpDir;
@@ -240,7 +232,7 @@ public class FlinkConfig {
 
     public String getFlinkPluginRoot() {
         if(Strings.isNullOrEmpty(flinkPluginRoot)){
-            return DEFAULT_FLINK_PLUGIN_ROOT;
+            return ConfigConstrant.DEFAULT_FLINK_PLUGIN_ROOT;
         }
 
         return flinkPluginRoot;
