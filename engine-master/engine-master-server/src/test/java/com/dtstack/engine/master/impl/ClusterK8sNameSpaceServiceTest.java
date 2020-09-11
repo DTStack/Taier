@@ -128,7 +128,7 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
      * @see ComponentService#delete(List)
      * @see ComponentService#testConnects(String)
      * @see ClusterService#deleteCluster(Long)
-     * @see TenantService#bindingTenant(Long, Long, Long, String)
+     * @see TenantService#bindingTenant(Long, Long, Long, String,String)
      * @see TenantService#bindingQueue(Long, Long)
      * @see TenantService#pageQuery(Long, Integer, String, int, int)
      * @see ComponentService#listConfigOfComponents(Long, Integer)
@@ -165,7 +165,7 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
         Assert.assertTrue(componentTestResult.getResult());
 
 
-        queueService.updateNamespaces(engineId,"testK8s");
+        queueService.addNamespaces(engineId,"testK8s");
         List<Queue> queues = queueDao.listByEngineId(engineId);
         //添加测试租户
         Tenant tenant = DataCollection.getData().getTenant();
@@ -173,7 +173,7 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
         Assert.assertNotNull(tenant);
         Assert.assertNotNull(tenant.getId());
         //绑定租户
-        tenantService.bindingTenant(tenant.getDtUicTenantId(),clusterVO.getClusterId(),queues.get(0).getId(),"");
+        tenantService.bindingTenant(tenant.getDtUicTenantId(),clusterVO.getClusterId(),queues.get(0).getId(),"","testbb");
         //查询集群信息
         PageResult<List<EngineTenantVO>> engineTenants = tenantService.pageQuery(clusterVO.getClusterId(), MultiEngineType.HADOOP.getType(), tenant.getTenantName(), 10, 1);
         Assert.assertNotNull(engineTenants);

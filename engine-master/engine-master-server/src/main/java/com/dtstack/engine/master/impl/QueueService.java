@@ -9,7 +9,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -108,8 +107,7 @@ public class QueueService {
      * @param engineId
      * @param namespace
      */
-    @Transactional(rollbackFor = Exception.class)
-    public void updateNamespaces(Long engineId, String namespace) {
+    public Long addNamespaces(Long engineId, String namespace) {
         if(StringUtils.isBlank(namespace)){
             throw new RdosDefineException("namespace不能为空");
         }
@@ -135,5 +133,6 @@ public class QueueService {
         if (insert != 1) {
             throw new RdosDefineException("操作失败");
         }
+        return queue.getId();
     }
 }
