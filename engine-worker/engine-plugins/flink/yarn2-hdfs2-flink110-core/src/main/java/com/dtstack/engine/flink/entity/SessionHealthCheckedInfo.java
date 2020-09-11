@@ -12,7 +12,7 @@ public class SessionHealthCheckedInfo {
     /**
      * session 是否健康运行
      */
-    private volatile boolean running = true;
+    private volatile boolean running = false;
 
     private AtomicInteger submitErrorCount = new AtomicInteger(0);
 
