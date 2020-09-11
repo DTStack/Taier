@@ -310,7 +310,7 @@ class ResourceManage extends React.Component<any, any> {
                                                     </div>
                                                 </TabPane>
                                                 {
-                                                    isHadoopEngine(engineType) ? <TabPane tab="LDAP账号绑定" key='ldap'>
+                                                    isHadoopEngine(engineType) && !isKubernetesEngine(resourceType) ? <TabPane tab="LDAP账号绑定" key='ldap'>
                                                         <BindAccountPane
                                                             key={`${queryParams.clusterId}-${engineType}`}
                                                             engineType={parseInt(engineType, 10)}
