@@ -43,8 +43,6 @@ import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
-import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -55,8 +53,6 @@ import java.util.Properties;
 public class PerJobClientFactory extends AbstractClientFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerJobClientFactory.class);
-
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
     private FlinkClientBuilder flinkClientBuilder;
 
@@ -201,9 +197,6 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
     public static PerJobClientFactory createPerJobClientFactory(FlinkClientBuilder flinkClientBuilder) {
         PerJobClientFactory perJobClientFactory = new PerJobClientFactory(flinkClientBuilder);
-        if (Objects.isNull(dateFormat)) {
-            dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-        }
         return perJobClientFactory;
     }
 

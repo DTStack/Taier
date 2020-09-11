@@ -24,8 +24,6 @@ import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.parser.AddJarOperator;
 import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
-import com.dtstack.engine.flink.resource.FlinkSeesionResourceInfo;
-import com.dtstack.engine.flink.util.FlinkConfUtil;
 import com.dtstack.engine.flink.resource.FlinkK8sSeesionResourceInfo;
 import com.dtstack.engine.flink.util.FlinkRestParseUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
@@ -69,7 +67,6 @@ import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -83,17 +80,6 @@ import static java.security.AccessController.doPrivileged;
 public class FlinkClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
-
-    //FIXME key值需要根据客户端传输名称调整
-    private static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
-
-    public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
-
-    private static final String TASKMANAGERS_URL_FORMAT = "%s/taskmanagers";
-
-    private static final String JOBMANAGER_LOG_URL_FORMAT = "%s/jobmanager/log";
-
-    private static final String TASKMANAGERS_KEY = "taskmanagers";
 
     private String tmpFileDirPath = "./tmp";
 
@@ -191,8 +177,11 @@ public class FlinkClient extends AbstractClient {
         logger.info("clusterClient monitorUrl is {}, run mode is {}", monitorUrl, taskRunMode.name());
         try {
             if (FlinkMode.isPerJob(taskRunMode)) {
-                ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(tmpConfiguration, jobClient.getJobPriority(), jobClient.getConfProperties());
-                clusterClient = createClusterClientForPerJob(clusterSpecification, jobClient);
+                PerJobClientFactory perJobClientFactory = flinkClusterClientManager.getPerJobClientFactory();
+                clusterClient = perJobClientFactory.getClusterClient(jobClient);
+
+                flinkClusterClientManager.addClient(clusterClient.getClusterId().toString(), clusterClient);
+
             } else {
                 clusterClient = flinkClusterClientManager.getClusterClient(null);
             }
