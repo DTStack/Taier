@@ -17,7 +17,6 @@ import com.dtstack.engine.master.enums.EComponentScheduleType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
-import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +31,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -96,16 +94,6 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
 
         ComponentTestResult componentTestResult = new ComponentTestResult();
         componentTestResult.setResult(true);
-        ComponentTestResult.ClusterResourceDescription clusterResourceDescription = new ComponentTestResult.ClusterResourceDescription(0,0,0,null);
-        ComponentTestResult.NameSpaceDescription spaceDescription = new ComponentTestResult.NameSpaceDescription();
-        spaceDescription.setName("default");
-        spaceDescription.setStatus("ACTIVE");
-        ComponentTestResult.NameSpaceDescription spaceDescription2 = new ComponentTestResult.NameSpaceDescription();
-        spaceDescription2.setName("test");
-        spaceDescription2.setStatus("ACTIVE");
-        ArrayList<ComponentTestResult.NameSpaceDescription> nameSpaceDescriptions = Lists.newArrayList(spaceDescription, spaceDescription2);
-        clusterResourceDescription.setNameSpaceDescription(nameSpaceDescriptions);
-        componentTestResult.setClusterResourceDescription(clusterResourceDescription);
         when(ClientOperator.getInstance()).thenReturn(clientOperator);
 
         when(clientOperator.testConnect(any(),any())).thenReturn(componentTestResult);
@@ -176,7 +164,8 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
         Assert.assertNotNull(componentTestResult);
         Assert.assertTrue(componentTestResult.getResult());
 
-        queueService.updateNamespaces(engineId,componentTestResult.getClusterResourceDescription());
+
+        queueService.updateNamespaces(engineId,"testK8s");
         List<Queue> queues = queueDao.listByEngineId(engineId);
         //添加测试租户
         Tenant tenant = DataCollection.getData().getTenant();
@@ -185,9 +174,6 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
         Assert.assertNotNull(tenant.getId());
         //绑定租户
         tenantService.bindingTenant(tenant.getDtUicTenantId(),clusterVO.getClusterId(),queues.get(0).getId(),"");
-        //切换namespace
-        this.testUpdateQueue(engineId, tenant);
-
         //查询集群信息
         PageResult<List<EngineTenantVO>> engineTenants = tenantService.pageQuery(clusterVO.getClusterId(), MultiEngineType.HADOOP.getType(), tenant.getTenantName(), 10, 1);
         Assert.assertNotNull(engineTenants);
@@ -195,19 +181,6 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
         testGetAllCluster(clusterVO);
         testPageQuery(clusterVO);
 
-    }
-
-    private void testUpdateQueue(Long engineId, Tenant tenant) {
-        Queue queueb = new Queue();
-        queueb.setEngineId(engineId);
-        queueb.setQueueName("testK8s");
-        queueb.setMaxCapacity("0");
-        queueb.setCapacity("0");
-        queueb.setQueueState("RUNNING");
-        queueb.setParentQueueId(-2L);
-        queueb.setQueuePath("testK8s");
-        queueDao.insert(queueb);
-        tenantService.bindingQueue(queueb.getId(),tenant.getDtUicTenantId());
     }
 
 

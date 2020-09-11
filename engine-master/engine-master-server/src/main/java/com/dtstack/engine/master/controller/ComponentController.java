@@ -85,4 +85,10 @@ public class ComponentController {
     public List<ComponentTestResult> refresh(@DtRequestParam("clusterName") String clusterName) {
         return componentService.refresh(clusterName);
     }
+
+    @RequestMapping(value="/updateNamespace", method = {RequestMethod.POST})
+    @ApiOperation(value = "更新namespace")
+    public void updateNamespace(@DtRequestParam("engineId") Long engineId,@DtRequestParam("namespace") String namespace) {
+        componentService.updateNamespaces(engineId,namespace);
+    }
 }

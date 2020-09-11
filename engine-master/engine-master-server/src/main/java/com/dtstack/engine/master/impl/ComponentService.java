@@ -1434,10 +1434,6 @@ public class ComponentService {
                                 engineService.updateResource(component.getEngineId(), testResult.getClusterResourceDescription());
                                 queueService.updateQueue(component.getEngineId(), testResult.getClusterResourceDescription());
                             }
-                        } else if (EComponentType.KUBERNETES.getTypeCode() == component.getComponentTypeCode()) {
-                            if (testResult.getResult()){
-                                queueService.updateNamespaces(component.getEngineId(),testResult.getClusterResourceDescription());
-                            }
                         }
                     } catch (Exception e) {
                         testResult.setResult(false);
@@ -1515,4 +1511,37 @@ public class ComponentService {
         return pluginInfoObj;
     }
 
+    public void updateNamespaces(Long engineId, String namespace) {
+        if(org.apache.commons.lang.StringUtils.isBlank(namespace)){
+            throw new RdosDefineException("namespace不能为空");
+        }
+        Component component = componentDao.getByEngineIdAndComponentType(engineId, EComponentType.KUBERNETES.getTypeCode());
+        if (null == component) {
+            throw new RdosDefineException("kubernetes 组件为空");
+        }
+        Engine engine = engineDao.getOne(engineId);
+        if (null == engine) {
+            throw new RdosDefineException("引擎为空");
+        }
+        Long clusterId = engine.getClusterId();
+        Cluster cluster = clusterDao.getOne(clusterId);
+        if (null == cluster) {
+            throw new RdosDefineException("集群为空");
+        }
+        String clusterName = cluster.getClusterName();
+        String pluginType = this.convertComponentTypeToClient(clusterName, EComponentType.KUBERNETES.getTypeCode(), "");
+        Component sftpConfig = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
+        if (null == sftpConfig) {
+            throw new RdosDefineException("sftp配置为空");
+        }
+        Map sftpMap = JSONObject.parseObject(sftpConfig.getComponentConfig(), Map.class);
+        String pluginInfo = this.wrapperConfig(EComponentType.KUBERNETES.getTypeCode(), component.getComponentConfig(), sftpMap, null, clusterName);
+        JSONObject infoObject = JSONObject.parseObject(pluginInfo);
+        infoObject.put("namespace", namespace);
+        ComponentTestResult componentTestResult = workerOperator.testConnect(pluginType, infoObject.toJSONString());
+        if (null != componentTestResult && StringUtils.isNotBlank(componentTestResult.getErrorMsg())) {
+            throw new RdosDefineException(componentTestResult.getErrorMsg());
+        }
+        queueService.updateNamespaces(engineId,namespace);
+    }
 }

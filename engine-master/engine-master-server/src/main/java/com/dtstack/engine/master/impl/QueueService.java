@@ -6,6 +6,7 @@ import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.QueueDao;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -102,8 +103,18 @@ public class QueueService {
         }
     }
 
+    /**
+     * 添加k8s的namespace
+     * @param engineId
+     * @param namespace
+     */
     @Transactional(rollbackFor = Exception.class)
-    public void updateNamespaces(Long engineId, ComponentTestResult.ClusterResourceDescription clusterResourceDescription) {
+    public void updateNamespaces(Long engineId, String namespace) {
+        if(StringUtils.isBlank(namespace)){
+            throw new RdosDefineException("namespace不能为空");
+        }
+
+        //校验namespace的是否存在
         List<Queue> namespaces = queueDao.listByEngineId(engineId);
         if (CollectionUtils.isNotEmpty(namespaces)) {
             List<Long> namespaceIds = namespaces.stream().map(BaseEntity::getId).collect(Collectors.toList());
@@ -112,19 +123,17 @@ public class QueueService {
                 throw new RdosDefineException("操作失败");
             }
         }
-        for (ComponentTestResult.NameSpaceDescription nameSpaceDescription : clusterResourceDescription.getNameSpaceDescription()) {
-            Queue queue = new Queue();
-            queue.setQueueName(nameSpaceDescription.getName());
-            queue.setEngineId(engineId);
-            queue.setMaxCapacity("0");
-            queue.setCapacity("0");
-            queue.setQueueState(nameSpaceDescription.getStatus());
-            queue.setParentQueueId(DEFAULT_KUBERNETES_PARENT_NODE);
-            queue.setQueuePath(nameSpaceDescription.getName());
-            Integer insert = queueDao.insert(queue);
-            if (insert != 1) {
-                throw new RdosDefineException("操作失败");
-            }
+        Queue queue = new Queue();
+        queue.setQueueName(namespace);
+        queue.setEngineId(engineId);
+        queue.setMaxCapacity("0");
+        queue.setCapacity("0");
+        queue.setQueueState("ACTIVE");
+        queue.setParentQueueId(DEFAULT_KUBERNETES_PARENT_NODE);
+        queue.setQueuePath(namespace);
+        Integer insert = queueDao.insert(queue);
+        if (insert != 1) {
+            throw new RdosDefineException("操作失败");
         }
     }
 }

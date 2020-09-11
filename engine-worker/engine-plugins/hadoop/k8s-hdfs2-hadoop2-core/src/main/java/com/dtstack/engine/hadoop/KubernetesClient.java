@@ -11,19 +11,16 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.hadoop.util.HadoopConf;
-import io.fabric8.kubernetes.api.model.DoneableNamespace;
-import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.api.model.NamespaceList;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
-import io.fabric8.kubernetes.client.dsl.Resource;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 
 /**
  * @author yuebai
@@ -31,7 +28,6 @@ import java.util.*;
  */
 public class KubernetesClient extends AbstractClient {
 
-    private Config config;
 
     private static final Logger LOG = LoggerFactory.getLogger(KubernetesClient.class);
 
@@ -42,8 +38,6 @@ public class KubernetesClient extends AbstractClient {
 
     @Override
     public void init(Properties prop) throws Exception {
-        String configStr = PublicUtil.objToString(prop);
-        config = PublicUtil.jsonStrToObject(configStr, Config.class);
     }
 
     @Override
@@ -101,19 +95,7 @@ public class KubernetesClient extends AbstractClient {
             client = new DefaultKubernetesClient(kubernetes);
             client.getVersion();
             testResult.setResult(true);
-            NonNamespaceOperation<Namespace, NamespaceList, DoneableNamespace, Resource<Namespace, DoneableNamespace>> namespaces = client.namespaces();
-            NamespaceList list = namespaces.list();
-            List<ComponentTestResult.NameSpaceDescription> nameSpaces = new ArrayList<>();
-            ComponentTestResult.ClusterResourceDescription clusterResource = new ComponentTestResult.ClusterResourceDescription(0,0,0,null);
-            for (Namespace item : list.getItems()) {
-                ComponentTestResult.NameSpaceDescription nameSpace = new ComponentTestResult.NameSpaceDescription();
-                nameSpace.setName(item.getMetadata().getName());
-                nameSpace.setStatus(item.getStatus().getPhase());
-                nameSpaces.add(nameSpace);
-            }
-            clusterResource.setNameSpaceDescription(nameSpaces);
-            testResult.setClusterResourceDescription(clusterResource);
-
+            client.pods().inNamespace(allConfig.getNamespace());
         } finally {
             if (Objects.nonNull(client)) {
                 client.close();
