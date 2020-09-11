@@ -29,6 +29,8 @@ import com.dtstack.engine.flink.FlinkClusterClientManager;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.NoOpInvokable;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
+import com.dtstack.engine.flink.entity.SessionCheckInterval;
+import com.dtstack.engine.flink.entity.SessionHealthCheckedInfo;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.util.FileUtil;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
@@ -102,6 +104,8 @@ public class SessionClientFactory extends AbstractClientFactory {
     private boolean isDetached = true;
     private FlinkClusterClientManager flinkClusterClientManager;
     private ExecutorService yarnMonitorES;
+    private SessionHealthCheckedInfo sessionHealthCheckedInfo = new SessionHealthCheckedInfo();
+
 
     public SessionClientFactory(FlinkClusterClientManager flinkClusterClientManager, FlinkClientBuilder flinkClientBuilder) throws MalformedURLException {
         super(flinkClientBuilder);
@@ -191,6 +195,10 @@ public class SessionClientFactory extends AbstractClientFactory {
     @Override
     public ClusterClient<ApplicationId> getClusterClient() {
         return clusterClient;
+    }
+
+    public SessionHealthCheckedInfo getSessionHealthCheckedInfo() {
+        return sessionHealthCheckedInfo;
     }
 
     /**
@@ -330,9 +338,6 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         private static final Integer RETRY_WAIT = 10 * 1000;
 
-        private int checkSubmitJobGraphInterval = 120;
-        private AtomicLong checkSubmitJobGraph = new AtomicLong(0);
-
         private AtomicBoolean run = new AtomicBoolean(true);
 
         private FlinkClusterClientManager clusterClientManager;
@@ -340,6 +345,8 @@ public class SessionClientFactory extends AbstractClientFactory {
         private FlinkClientBuilder clientBuilder;
 
         private SessionClientFactory sessionClientFactory;
+
+        private SessionCheckInterval sessionCheckInterval;
 
         private YarnApplicationState lastAppState;
 
@@ -350,16 +357,16 @@ public class SessionClientFactory extends AbstractClientFactory {
             this.clientBuilder = clientBuilder;
             this.sessionClientFactory = yarnSessionClientFactory;
             this.lastAppState = YarnApplicationState.NEW;
-            this.checkSubmitJobGraphInterval = clientBuilder.getFlinkConfig().getCheckSubmitJobGraphInterval();
+            this.sessionCheckInterval = new SessionCheckInterval(clientBuilder.getFlinkConfig().getCheckSubmitJobGraphInterval(), yarnSessionClientFactory.sessionHealthCheckedInfo);
         }
 
         @Override
         public void run() {
             while (run.get()) {
                 try {
-                    if (clusterClientManager.getIsClientOn()) {
+                    if (sessionCheckInterval.sessionHealthCheckedInfo.isRunning()) {
                         if (clientBuilder.getYarnClient().isInState(Service.STATE.STARTED)) {
-                            ApplicationId applicationId = (ApplicationId) clusterClientManager.getClusterClient().getClusterId();
+                            ApplicationId applicationId = (ApplicationId) sessionClientFactory.getClusterClient().getClusterId();
                             ApplicationReport applicationReport = clientBuilder.getYarnClient().getApplicationReport(applicationId);
                             YarnApplicationState appState = applicationReport.getYarnApplicationState();
                             switch (appState) {
@@ -367,17 +374,17 @@ public class SessionClientFactory extends AbstractClientFactory {
                                 case KILLED:
                                 case FINISHED:
                                     LOG.error("-------Flink yarn-session appState:{}, prepare to stop Flink yarn-session client ----", appState.toString());
-                                    clusterClientManager.setIsClientOn(false);
+                                    sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                                     break;
                                 case RUNNING:
                                     if (lastAppState != appState) {
                                         LOG.info("YARN application has been deployed successfully.");
                                     }
-                                    if (checkSubmitJobGraphInterval > 0 && checkSubmitJobGraph.getAndIncrement() % checkSubmitJobGraphInterval == 0) {
+                                    if (sessionCheckInterval.doCheck()) {
                                         int checked = 0;
                                         while (!checkJobGraphWithStatus()) {
                                             if (checked++ > 3) {
-                                                clusterClientManager.setIsClientOn(false);
+                                                sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                                                 break;
                                             }
                                         }
@@ -394,7 +401,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                             lastAppState = appState;
                         } else {
                             LOG.error("Yarn client is no longer in state STARTED, prepare to stop Flink yarn-session client.");
-                            clusterClientManager.setIsClientOn(false);
+                            sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                         }
                     } else {
                         //retry时有一段等待时间，确保session正常运行。
@@ -402,7 +409,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                     }
                 } catch (Throwable t) {
                     LOG.error("YarnAppStatusMonitor check error:{}", t);
-                    clusterClientManager.setIsClientOn(false);
+                    sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                 } finally {
                     try {
                         Thread.sleep(CHECK_INTERVAL);
