@@ -81,7 +81,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -124,8 +123,6 @@ public class SessionClientFactory extends AbstractClientFactory {
         initZkClient();
         this.lockPath = String.format("/yarn_session/%s", flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
         this.clusterClientLock = new InterProcessMutex(zkClient, lockPath);
-
-        startYarnSessionClientMonitor();
     }
 
     private void initZkClient() {
@@ -151,7 +148,18 @@ public class SessionClientFactory extends AbstractClientFactory {
         yarnMonitorES.submit(new AppStatusMonitor(flinkClusterClientManager, flinkClientBuilder, this));
     }
 
-    public boolean startFlinkYarnSession() {
+    public ClusterClient<ApplicationId> startAndGetSessionClusterClient() {
+        boolean startRs = startFlinkYarnSession();
+        if (startRs) {
+            this.sessionHealthCheckedInfo.reset();
+        } else {
+            this.sessionHealthCheckedInfo.unHealth();
+        }
+        this.startYarnSessionClientMonitor();
+        return clusterClient;
+    }
+
+    private boolean startFlinkYarnSession() {
         try {
             if (this.clusterClientLock.acquire(5, TimeUnit.MINUTES)) {
                 ClusterClient<ApplicationId> retrieveClusterClient = null;

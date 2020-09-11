@@ -81,13 +81,7 @@ public class FlinkClusterClientManager {
                         throw new RdosDefineException(e);
                     }
                 }
-                boolean startRs = sessionClientFactory.startFlinkYarnSession();
-                if (startRs) {
-                    this.sessionClientFactory.getSessionHealthCheckedInfo().reset();
-                } else {
-                    this.sessionClientFactory.getSessionHealthCheckedInfo().unHealth();
-                }
-                clusterClient = sessionClientFactory.getClusterClient();
+                clusterClient = sessionClientFactory.startAndGetSessionClusterClient();
             }
             return null;
         },flinkClientBuilder.getYarnConf());

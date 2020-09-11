@@ -149,8 +149,18 @@ public class SessionClientFactory extends AbstractClientFactory {
         yarnMonitorES.submit(new AppStatusMonitor(flinkClusterClientManager, flinkClientBuilder, this));
     }
 
+    public ClusterClient<ApplicationId> startAndGetSessionClusterClient() {
+        boolean startRs = this.startFlinkYarnSession();
+        if (startRs) {
+            this.sessionHealthCheckedInfo.reset();
+        } else {
+            this.sessionHealthCheckedInfo.unHealth();
+        }
+        this.startYarnSessionClientMonitor();
+        return clusterClient;
+    }
 
-    public boolean startFlinkYarnSession() {
+    private boolean startFlinkYarnSession() {
         try {
             if (this.clusterClientLock.acquire(5, TimeUnit.MINUTES)) {
                 ClusterClient<ApplicationId> retrieveClusterClient = null;
