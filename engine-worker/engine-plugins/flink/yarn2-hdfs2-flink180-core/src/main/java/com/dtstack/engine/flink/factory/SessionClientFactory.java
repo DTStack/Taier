@@ -330,7 +330,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         private static final Integer RETRY_WAIT = 10 * 1000;
 
-        private int checkSubmitJobGraphInterval = 10;
+        private int checkSubmitJobGraphInterval = 120;
         private AtomicLong checkSubmitJobGraph = new AtomicLong(0);
 
         private AtomicBoolean run = new AtomicBoolean(true);
@@ -517,7 +517,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         }
 
         private JobExecutionResult submitCheckedJobGraph() throws ProgramMissingJobException, ProgramInvocationException {
-            JobSubmissionResult result = clusterClientManager.getClusterClient().submitJob(createJobGraph(), Thread.currentThread().getContextClassLoader());
+            JobSubmissionResult result = sessionClientFactory.getClusterClient().submitJob(createJobGraph(), Thread.currentThread().getContextClassLoader());
             if (null == result) {
                 throw new ProgramMissingJobException("No JobSubmissionResult returned, please make sure you called " +
                         "ExecutionEnvironment.execute()");

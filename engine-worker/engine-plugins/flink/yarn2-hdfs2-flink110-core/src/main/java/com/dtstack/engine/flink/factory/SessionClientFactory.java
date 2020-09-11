@@ -518,7 +518,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         }
 
         private JobExecutionResult submitCheckedJobGraph() throws ProgramMissingJobException, ProgramInvocationException, TimeoutException {
-            JobExecutionResult result = ClientUtils.submitJob(clusterClientManager.getClusterClient(), createJobGraph(), 1, TimeUnit.MINUTES);
+            JobExecutionResult result = ClientUtils.submitJob(sessionClientFactory.getClusterClient(), createJobGraph(), 1, TimeUnit.MINUTES);
             if (null == result) {
                 throw new ProgramMissingJobException("No JobSubmissionResult returned, please make sure you called " +
                         "ExecutionEnvironment.execute()");
