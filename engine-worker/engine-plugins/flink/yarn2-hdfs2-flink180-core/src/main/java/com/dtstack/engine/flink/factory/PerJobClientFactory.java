@@ -19,6 +19,7 @@
 package com.dtstack.engine.flink.factory;
 
 
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
@@ -34,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
+import org.apache.flink.configuration.SecurityOptions;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
@@ -48,9 +50,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -85,6 +85,11 @@ public class PerJobClientFactory extends AbstractClientFactory {
         Configuration newConf = new Configuration(flinkConfiguration);
         newConf = appendConfigAndInitFs(jobClient, newConf);
 
+        List<File> keytabFiles = null;
+        if (flinkConfig.isOpenKerberos()) {
+            keytabFiles = getKeytabFilesAndSetSecurityConfig(jobClient, newConf);
+        }
+
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, flinkClientBuilder.getYarnConf(), ".");
 
         List<URL> classpaths = getFlinkJarFile(flinkJarPath, clusterDescriptor);
@@ -95,9 +100,8 @@ public class PerJobClientFactory extends AbstractClientFactory {
             }
         }
 
-        if (flinkConfig.isOpenKerberos()) {
-            List<File> keytabFilePath = getKeytabFilePath(jobClient);
-            clusterDescriptor.addShipFiles(keytabFilePath);
+        if (CollectionUtils.isNotEmpty(keytabFiles)) {
+            clusterDescriptor.addShipFiles(keytabFiles);
         }
 
         clusterDescriptor.setName(jobClient.getJobName());
@@ -164,29 +168,49 @@ public class PerJobClientFactory extends AbstractClientFactory {
         return configuration;
     }
 
-    private List<File> getKeytabFilePath(JobClient jobClient) {
-        List<File> keytabs = Lists.newLinkedList();
+    private List<File> getKeytabFilesAndSetSecurityConfig(JobClient jobClient, Configuration config) {
+        Map<String, File> keytabs = new HashMap<>();
         String remoteDir = flinkConfig.getRemoteDir();
-        String clusterKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
-        File clusterKeytabDir = new File(clusterKeytabDirPath);
-        File[] clusterKeytabFiles = clusterKeytabDir.listFiles();
-        if (clusterKeytabFiles == null || clusterKeytabFiles.length == 0) {
-            throw new RdosDefineException("not find keytab file from " + clusterKeytabDirPath);
-        }
-        for (File file : clusterKeytabFiles) {
-            keytabs.add(file);
-        }
 
+        // 数据源keytab
         String taskKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
         File taskKeytabDir = new File(taskKeytabDirPath);
         File[] taskKeytabFiles = taskKeytabDir.listFiles();
         if (taskKeytabFiles != null && taskKeytabFiles.length > 0) {
             for (File file : taskKeytabFiles) {
-                keytabs.add(file);
+                String fileName = file.getName();
+                keytabs.put(fileName, file);
             }
         }
 
-        return keytabs;
+        // 任务提交keytab
+        String clusterKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
+        File clusterKeytabDir = new File(clusterKeytabDirPath);
+        File[] clusterKeytabFiles = clusterKeytabDir.listFiles();
+
+        if (clusterKeytabFiles == null || clusterKeytabFiles.length == 0) {
+            throw new RdosDefineException("not find keytab file from " + clusterKeytabDirPath);
+        }
+        for (File file : clusterKeytabFiles) {
+            String fileName = file.getName();
+            String keytabPath = file.getAbsolutePath();
+            String keytabFileName = flinkConfig.getPrincipalFile();
+
+            if (keytabs.containsKey(fileName) && StringUtils.endsWith(fileName, "keytab")) {
+                keytabPath = String.format("%s%s.keytab", keytabPath.split(".keytab")[0], RandomStringUtils.randomAlphanumeric(4));
+                file.renameTo(new File(keytabPath));
+            }
+
+            if (StringUtils.equals(fileName, keytabFileName)) {
+                String principal = KerberosUtils.getPrincipal(keytabPath);
+                config.setString(SecurityOptions.KERBEROS_LOGIN_KEYTAB, keytabPath);
+                config.setString(SecurityOptions.KERBEROS_LOGIN_PRINCIPAL, principal);
+            }
+            File newKeytabFile = new File(keytabPath);
+            keytabs.put(newKeytabFile.getName(), newKeytabFile);
+        }
+
+        return keytabs.entrySet().stream().map(entry -> entry.getValue()).collect(Collectors.toList());
     }
 
 

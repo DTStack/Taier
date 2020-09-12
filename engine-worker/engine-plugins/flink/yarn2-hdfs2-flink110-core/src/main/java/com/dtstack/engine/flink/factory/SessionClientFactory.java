@@ -18,7 +18,9 @@
 
 package com.dtstack.engine.flink.factory;
 
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkClusterClientManager;
@@ -27,12 +29,14 @@ import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.util.FileUtil;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.ClusterClientProvider;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
+import org.apache.flink.configuration.SecurityOptions;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.locks.InterProcessMutex;
@@ -52,12 +56,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -281,6 +280,11 @@ public class SessionClientFactory extends AbstractClientFactory {
             newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
         }
 
+        List<File> keytabFiles = null;
+        if (flinkConfig.isOpenKerberos()) {
+            keytabFiles = getKeytabFilesAndSetSecurityConfig(newConf);
+        }
+
         YarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf);
 
         if (StringUtils.isNotBlank(pluginLoadMode) && ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(pluginLoadMode)) {
@@ -297,10 +301,39 @@ public class SessionClientFactory extends AbstractClientFactory {
             }
         }
 
+        clusterDescriptor.addShipFiles(keytabFiles);
         List<URL> classpaths = getFlinkJarFile(flinkJarPath, clusterDescriptor);
         clusterDescriptor.setProvidedUserJarFiles(classpaths);
 
         return clusterDescriptor;
+    }
+
+    private List<File> getKeytabFilesAndSetSecurityConfig(Configuration config) {
+        Map<String, File> keytabs = new HashMap<>();
+        String remoteDir = flinkConfig.getRemoteDir();
+
+        // 任务提交keytab
+        String clusterKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
+        File clusterKeytabDir = new File(clusterKeytabDirPath);
+        File[] clusterKeytabFiles = clusterKeytabDir.listFiles();
+
+        if (clusterKeytabFiles == null || clusterKeytabFiles.length == 0) {
+            throw new RdosDefineException("not find keytab file from " + clusterKeytabDirPath);
+        }
+        for (File file : clusterKeytabFiles) {
+            String fileName = file.getName();
+            String keytabPath = file.getAbsolutePath();
+            String keytabFileName = flinkConfig.getPrincipalFile();
+
+            if (StringUtils.equals(fileName, keytabFileName)) {
+                String principal = KerberosUtils.getPrincipal(keytabPath);
+                config.setString(SecurityOptions.KERBEROS_LOGIN_KEYTAB, keytabPath);
+                config.setString(SecurityOptions.KERBEROS_LOGIN_PRINCIPAL, principal);
+            }
+            keytabs.put(file.getName(), file);
+        }
+
+        return keytabs.entrySet().stream().map(entry -> entry.getValue()).collect(Collectors.toList());
     }
 
     @Override
