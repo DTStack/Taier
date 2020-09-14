@@ -472,8 +472,8 @@ public class SessionClientFactory extends AbstractClientFactory {
                                 long cost = System.currentTimeMillis() - startTime;
                                 if (cost > 60000) {
                                     LOG.info("Yarn Session Job took more than 60 seconds.");
-                                } else if (cost > 600000){
-                                    LOG.info("Yarn Session Job took more than 600 seconds.");
+                                } else if (cost > 300000){
+                                    LOG.info("Yarn Session Job took more than 300 seconds.");
                                     checkResult = false;
                                     break loop;
                                 }
