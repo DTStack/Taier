@@ -15,6 +15,8 @@ public interface DtYarnConstants {
 
   String WORKER = "worker";
 
+  String PROXY_USER_NAME = "dtProxyUserName";
+
   enum Environment {
     HADOOP_USER_NAME("HADOOP_USER_NAME"),
 
