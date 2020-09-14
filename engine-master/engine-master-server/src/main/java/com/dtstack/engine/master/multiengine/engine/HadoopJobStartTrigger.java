@@ -241,7 +241,10 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         //替换系统参数
         job = jobParamReplace.paramReplace(job, taskParamsToReplace, scheduleJob.getCycTime());
 
-        Integer sourceType = (Integer) actionParam.getOrDefault("dataSourceType", DataSourceType.HIVE.getVal());
+        Integer sourceType = (Integer) actionParam.get("dataSourceType");
+        if (null == sourceType) {
+            throw new RdosDefineException("sourceType不能为空");
+        }
         String engineIdentity = (String) actionParam.get("engineIdentity");
         // 获取脏数据存储路径
         try {
@@ -275,11 +278,11 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
      * @param saveDirty
      * @param sqlText
      * @param taskName
-     * @param tableType
+     * @param sourceType
      * @return
      * @throws Exception
      */
-    public String replaceTablePath(boolean saveDirty, String sqlText, String taskName, Integer tableType, String db, Long dtuicTenantId) throws Exception {
+    public String replaceTablePath(boolean saveDirty, String sqlText, String taskName, Integer sourceType, String db, Long dtuicTenantId) throws Exception {
         if (StringUtils.isBlank(db)) {
             return sqlText;
         }
@@ -306,7 +309,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 Long time = Timestamp.valueOf(LocalDateTime.now()).getTime();
                 String alterSql = String.format(ADD_PART_TEMP, tableName, taskName, time);
                 String location = "";
-                if (ETableType.IMPALA.getType() == tableType) {
+                if (DataSourceType.IMPALA.getVal() == sourceType) {
                     String jdbcInfo = clusterService.impalaInfo(dtuicTenantId, true);
                     JSONObject jdbcInfoObject = JSONObject.parseObject(jdbcInfo);
                     JSONObject pluginInfo = new JSONObject();
@@ -314,16 +317,17 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     pluginInfo.put("username", jdbcInfoObject.getString("username"));
                     pluginInfo.put("password", jdbcInfoObject.getString("password"));
                     workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
-                    location = this.getTableLocation(pluginInfo, db, tableName, String.format("DESCRIBE formatted %s", tableName));
-                } else if (ETableType.HIVE.getType() == tableType) {
+                    location = this.getTableLocation(pluginInfo, db, DataBaseType.Impala.getTypeName(), String.format("DESCRIBE formatted %s", tableName));
+                } else if (DataSourceType.HIVE.getVal() == sourceType || DataSourceType.HIVE1X.getVal() == sourceType) {
                     String jdbcInfo = clusterService.hiveInfo(dtuicTenantId, true);
                     JSONObject jdbcInfoObject = JSONObject.parseObject(jdbcInfo);
                     JSONObject pluginInfo = new JSONObject();
                     pluginInfo.put("jdbcUrl", jdbcInfoObject.getString("jdbcUrl"));
                     pluginInfo.put("username", jdbcInfoObject.getString("username"));
                     pluginInfo.put("password", jdbcInfoObject.getString("password"));
-                    workerOperator.executeQuery(DataBaseType.HIVE.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
-                    location = this.getTableLocation(pluginInfo, db, tableName, String.format("desc formatted %s", tableName));
+                    String engineType = DataSourceType.HIVE.getVal() == sourceType ? "hive2" : "hive";
+                    workerOperator.executeQuery(engineType, pluginInfo.toJSONString(), alterSql, db);
+                    location = this.getTableLocation(pluginInfo, db,engineType, String.format("desc formatted %s", tableName));
                 }
                 String partName = String.format("task_name=%s/time=%s", taskName, time);
                 path = location + "/" + partName;
@@ -337,9 +341,9 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         return sqlObject.toJSONString();
     }
 
-    public String getTableLocation(JSONObject pluginInfo, String dbName, String tableName,String sql) throws Exception {
+    public String getTableLocation(JSONObject pluginInfo, String dbName, String engineType,String sql) throws Exception {
         String location = null;
-        List<List<Object>> result = workerOperator.executeQuery(DataBaseType.Impala.getTypeName(),pluginInfo.toJSONString(), sql,dbName);
+        List<List<Object>> result = workerOperator.executeQuery(engineType, pluginInfo.toJSONString(), sql,dbName);
         Iterator var6 = result.iterator();
 
         while(var6.hasNext()) {
