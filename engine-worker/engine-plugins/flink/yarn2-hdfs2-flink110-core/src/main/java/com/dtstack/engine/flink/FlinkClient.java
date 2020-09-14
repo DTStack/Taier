@@ -855,9 +855,6 @@ public class FlinkClient extends AbstractClient {
     @Override
     public void afterSubmitFunc(JobClient jobClient) {
         List<String> fileList = cacheFile.get(jobClient.getTaskId());
-        if(CollectionUtils.isEmpty(fileList)){
-            return;
-        }
 
         //清理包含下载下来的临时jar文件
         for(String path : fileList){
@@ -866,7 +863,6 @@ public class FlinkClient extends AbstractClient {
                 if(file.exists()){
                     file.delete();
                 }
-
             }catch (Exception e1){
                 logger.error("", e1);
             }

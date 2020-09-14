@@ -30,6 +30,7 @@ import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.FileUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.program.ClusterClient;
@@ -48,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -78,7 +80,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
         return null;
     }
 
-    public AbstractYarnClusterDescriptor createPerJobClusterDescriptor(JobClient jobClient) throws MalformedURLException {
+    public AbstractYarnClusterDescriptor createPerJobClusterDescriptor(JobClient jobClient) throws Exception {
         String flinkJarPath = flinkConfig.getFlinkJarPath();
         FileUtil.checkFileExist(flinkJarPath);
 
@@ -168,7 +170,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
         return configuration;
     }
 
-    private List<File> getKeytabFilesAndSetSecurityConfig(JobClient jobClient, Configuration config) {
+    private List<File> getKeytabFilesAndSetSecurityConfig(JobClient jobClient, Configuration config) throws IOException {
         Map<String, File> keytabs = new HashMap<>();
         String remoteDir = flinkConfig.getRemoteDir();
 
@@ -197,8 +199,9 @@ public class PerJobClientFactory extends AbstractClientFactory {
             String keytabFileName = flinkConfig.getPrincipalFile();
 
             if (keytabs.containsKey(fileName) && StringUtils.endsWith(fileName, "keytab")) {
-                keytabPath = String.format("%s%s.keytab", keytabPath.split(".keytab")[0], RandomStringUtils.randomAlphanumeric(4));
-                file.renameTo(new File(keytabPath));
+                String newFileName = String.format("%s-%s", RandomStringUtils.randomAlphanumeric(4), fileName);
+                keytabPath = String.format("%s/%s", taskKeytabDirPath, newFileName);
+                FileUtils.copyFile(file, new File(keytabPath));
             }
 
             if (StringUtils.equals(fileName, keytabFileName)) {
