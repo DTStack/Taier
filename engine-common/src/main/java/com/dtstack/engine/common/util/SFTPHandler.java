@@ -266,6 +266,29 @@ public class SFTPHandler {
     }
 
 
+    /**
+     * 强制下载最新文件
+     * @param fileName
+     * @param remoteDir
+     * @param localDir
+     * @return
+     */
+    public String loadOverrideFromSftp(String fileName, String remoteDir, String localDir,boolean isEnd) {
+        String remoteFile = remoteDir + File.separator + fileName;
+        String localFile = localDir + File.separator + fileName;
+        try {
+            downloadFile(remoteFile, localFile);
+            return localFile;
+        } catch (Exception e) {
+            logger.error("load file error: ", e);
+            return fileName;
+        } finally {
+            if(isEnd){
+                close();
+            }
+        }
+    }
+
     public String loadFromSftp(String fileName, String remoteDir, String localDir,boolean isEnd){
         String remoteFile = remoteDir + File.separator + fileName;
         String localFile = localDir + File.separator + fileName;
