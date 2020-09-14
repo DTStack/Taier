@@ -128,7 +128,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             // 构造savepoint参数
             String savepointArgs = null;
             if (isRestore(job)) {
-                String savepointPath = this.getSavepointPath(taskShade.getTenantId());
+                String savepointPath = this.getSavepointPath(taskShade.getDtuicTenantId());
                 savepointArgs = this.buildSyncTaskExecArgs(savepointPath, taskParams);
 
                 taskParams += String.format(" \n %s=%s", KEY_OPEN_CHECKPOINT, Boolean.TRUE.toString());
@@ -529,8 +529,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
      * @param tenantId 租户id
      * @return checkpoint存储路径
      */
-    private String getSavepointPath(Long tenantId) {
-        String clusterInfoStr = clusterService.clusterInfo(tenantId);
+    private String getSavepointPath(Long dtuicTenantId) {
+        String clusterInfoStr = clusterService.clusterInfo(dtuicTenantId);
         JSONObject clusterJson = JSONObject.parseObject(clusterInfoStr);
         JSONObject flinkConf = clusterJson.getJSONObject("flinkConf");
         if (!flinkConf.containsKey(KEY_SAVEPOINT)) {
