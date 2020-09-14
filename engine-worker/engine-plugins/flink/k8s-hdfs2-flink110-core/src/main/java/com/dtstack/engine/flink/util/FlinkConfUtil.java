@@ -18,7 +18,7 @@ public class FlinkConfUtil {
     private final static int TASKMANAGER_HEAP_MB = 1568;
     private final static int TASKMANAGER_NUMBEROFTASKSLOTS = 1;
 
-    public static ClusterSpecification createClusterSpecification(Configuration configuration, int priority, Properties confProperties) {
+    public static ClusterSpecification createClusterSpecification(Configuration configuration, Properties confProperties) {
         int jobmanagerMemoryMb = JOBMANAGER_HEAP_MB;
         int taskmanagerMemoryMb = TASKMANAGER_HEAP_MB;
         int numberOfTaskSlots = TASKMANAGER_NUMBEROFTASKSLOTS;
@@ -46,13 +46,6 @@ public class FlinkConfUtil {
             taskmanagerMemoryMb = configuration.getInteger(TaskManagerOptions.TASK_MANAGER_HEAP_MEMORY_MB, TASKMANAGER_HEAP_MB);
             numberOfTaskSlots = configuration.getInteger(ConfigConstants.TASK_MANAGER_NUM_TASK_SLOTS, TASKMANAGER_NUMBEROFTASKSLOTS);
         }
-
-        // JobManager Memory
-        configJobmanagerMemory(configuration, jobmanagerMemoryMb);
-        // Task Managers memory
-        configTaskmanagerMemory(configuration, taskmanagerMemoryMb);
-        configTaskmanagerNumberOfTaskSlots(configuration, numberOfTaskSlots);
-
         return new ClusterSpecification.ClusterSpecificationBuilder()
                 .setMasterMemoryMB(jobmanagerMemoryMb)
                 .setTaskManagerMemoryMB(taskmanagerMemoryMb)
@@ -72,6 +65,13 @@ public class FlinkConfUtil {
 
     private static void configTaskmanagerNumberOfTaskSlots(Configuration configuration, int slots) {
         configuration.set(TaskManagerOptions.NUM_TASK_SLOTS, slots);
+    }
+
+    public static void setResourceConfig(Configuration configuration, Properties confProperties) {
+        ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(configuration, confProperties);
+        configJobmanagerMemory(configuration, clusterSpecification.getMasterMemoryMB());
+        configTaskmanagerMemory(configuration, clusterSpecification.getTaskManagerMemoryMB());
+        configTaskmanagerNumberOfTaskSlots(configuration, clusterSpecification.getSlotsPerTaskManager());
     }
 
 }

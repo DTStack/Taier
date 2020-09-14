@@ -678,8 +678,16 @@ public class HadoopClient extends AbstractClient {
     }
 
     private void fillUser(JSONObject queueInfo) {
+        boolean existUser = false;
         JSONObject queueUsers = queueInfo.getJSONObject("users");
         if (queueUsers == null) {
+            existUser = false;
+        } else {
+            JSONArray users = queueUsers.getJSONArray("user");
+            existUser = users == null ? false : true;
+        }
+
+        if (!existUser) {
             JSONObject userJSONObject = new JSONObject();
             userJSONObject.put("username", "admin");
             userJSONObject.put("resourcesUsed", queueInfo.getJSONObject("resourcesUsed"));

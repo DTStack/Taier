@@ -29,8 +29,6 @@ public class Base64Util {
      * @author toutian
      */
     public static String baseDecode(String encode) {
-        new String(Base64.getDecoder().decode(encode), StandardCharsets.UTF_8);
-
         return new String(Base64.getDecoder().decode(encode.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
     }
 
