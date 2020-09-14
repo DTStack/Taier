@@ -314,7 +314,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     pluginInfo.put("username", jdbcInfoObject.getString("username"));
                     pluginInfo.put("password", jdbcInfoObject.getString("password"));
                     workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
-                    location = this.getTableLocation(pluginInfo, db, tableName, String.format("DESCRIBE formatted %s", tableName));
+                    location = this.getTableLocation(pluginInfo, db, DataBaseType.Impala.getTypeName(), String.format("DESCRIBE formatted %s", tableName));
                 } else if (ETableType.HIVE.getType() == tableType) {
                     String jdbcInfo = clusterService.hiveInfo(dtuicTenantId, true);
                     JSONObject jdbcInfoObject = JSONObject.parseObject(jdbcInfo);
@@ -323,7 +323,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     pluginInfo.put("username", jdbcInfoObject.getString("username"));
                     pluginInfo.put("password", jdbcInfoObject.getString("password"));
                     workerOperator.executeQuery(DataBaseType.HIVE.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
-                    location = this.getTableLocation(pluginInfo, db, tableName, String.format("desc formatted %s", tableName));
+                    location = this.getTableLocation(pluginInfo, db, DataBaseType.HIVE.getTypeName(), String.format("desc formatted %s", tableName));
                 }
                 String partName = String.format("task_name=%s/time=%s", taskName, time);
                 path = location + "/" + partName;
@@ -337,9 +337,9 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         return sqlObject.toJSONString();
     }
 
-    public String getTableLocation(JSONObject pluginInfo, String dbName, String tableName,String sql) throws Exception {
+    public String getTableLocation(JSONObject pluginInfo, String dbName, String engineType,String sql) throws Exception {
         String location = null;
-        List<List<Object>> result = workerOperator.executeQuery(DataBaseType.Impala.getTypeName(),pluginInfo.toJSONString(), sql,dbName);
+        List<List<Object>> result = workerOperator.executeQuery(engineType, pluginInfo.toJSONString(), sql,dbName);
         Iterator var6 = result.iterator();
 
         while(var6.hasNext()) {
