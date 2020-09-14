@@ -2,6 +2,7 @@ package com.dtstack.engine.common.http;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -9,6 +10,7 @@ import java.util.concurrent.Callable;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.RetryUtil;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
@@ -25,6 +27,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -138,17 +141,26 @@ public class PoolHttpClient {
 
 
 	private static String getRequest(String url) throws IOException {
-		return getRequest(url, null);
+		return getRequest(url, (Map<String, Object>) null);
 	}
 
-	private static String getRequest(String url,Map<String,Object> cookies) throws IOException {
+	private static String getRequest(String url, Map<String,Object> cookies) throws IOException {
+		Header[] headers = new Header[1];
+		if (cookies != null && cookies.size() > 0) {
+			Header header = new BasicHeader("Cookie", getCookieFormat(cookies));
+			headers[0] = header;
+		}
+		return getRequest(url, headers);
+	}
+
+	private static String getRequest(String url, Header[] headers) throws IOException {
 		String respBody = null;
 		HttpGet httpGet = null;
 		CloseableHttpResponse response = null;
 		try {
 			httpGet = new HttpGet(url);
-			if(cookies!=null&&cookies.size()>0){
-				httpGet.setHeader("Cookie", getCookieFormat(cookies));
+			if(headers != null && headers.length > 0){
+				httpGet.setHeaders(headers);
 			}
 			response = httpClient.execute(httpGet);
 			int statusCode = response.getStatusLine().getStatusCode();
@@ -198,10 +210,23 @@ public class PoolHttpClient {
 	}
 
 	public static String get(String url, Map<String,Object> cookies, int retryNumber) throws Exception{
+		try {
+			Header[] headers = new Header[1];
+			if (cookies != null && cookies.size() > 0) {
+				Header header = new BasicHeader("Cookie", getCookieFormat(cookies));
+				headers[0] = header;
+			}
+			return get(url, DEFAULT_RETRY_TIMES, headers);
+		} catch (Exception e) {
+			throw new IOException(e);
+		}
+	}
+
+	public static String get(String url, int retryNumber, Header[] headers) throws Exception {
 		return RetryUtil.executeWithRetry(new Callable<String>() {
 			@Override
 			public String call() throws Exception{
-				return getRequest(url, cookies);
+				return getRequest(url, headers);
 			}
 		}, retryNumber, SLEEP_TIME_MILLI_SECOND,false);
 	}

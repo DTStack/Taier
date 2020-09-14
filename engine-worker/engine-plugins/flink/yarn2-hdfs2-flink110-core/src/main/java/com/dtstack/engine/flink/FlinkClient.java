@@ -32,11 +32,7 @@ import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.resource.FlinkPerJobResourceInfo;
 import com.dtstack.engine.flink.resource.FlinkYarnSeesionResourceInfo;
-import com.dtstack.engine.flink.util.FileUtil;
-import com.dtstack.engine.flink.util.FlinkConfUtil;
-import com.dtstack.engine.flink.util.FlinkRestParseUtil;
-import com.dtstack.engine.flink.util.FlinkUtil;
-import com.dtstack.engine.flink.util.HadoopConf;
+import com.dtstack.engine.flink.util.*;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.worker.enums.ClassLoaderType;
 import com.google.common.base.Strings;
@@ -71,22 +67,21 @@ import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.security.action.GetPropertyAction;
 
 import java.io.*;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static java.security.AccessController.doPrivileged;
 
 /**
  *
@@ -690,7 +685,8 @@ public class FlinkClient extends AbstractClient {
 
         List<String> result = Lists.newArrayList();
         try {
-            String response = PoolHttpClient.get(amRootURl);
+            YarnConfiguration yarnConfig = hadoopConf.getYarnConfiguration();
+            String response = ApplicationWSParser.getDataFromYarnRest(yarnConfig, amRootURl);
             if (!StringUtils.isEmpty(response)) {
                 ApplicationWSParser applicationWsParser = new ApplicationWSParser(response);
                 String amStatue = applicationWsParser.getParamContent(ApplicationWSParser.AM_STATUE);
@@ -732,7 +728,8 @@ public class FlinkClient extends AbstractClient {
         try {
             String logPreURL = UrlUtil.getHttpRootUrl(amContainerLogsURL);
             logger.info("jobmanager container logs URL is: {}, logPreURL is {} :", amContainerLogsURL, logPreURL);
-            ApplicationWSParser.RollingBaseInfo amLogInfo = applicationWSParser.parseContainerLogBaseInfo(amContainerLogsURL, logPreURL, ConfigConstrant.JOBMANAGER_COMPONEN);
+            YarnConfiguration yarnConfig = hadoopConf.getYarnConfiguration();
+            ApplicationWSParser.RollingBaseInfo amLogInfo = applicationWSParser.parseContainerLogBaseInfo(amContainerLogsURL, logPreURL, ConfigConstrant.JOBMANAGER_COMPONEN, yarnConfig);
             return Optional.ofNullable(JSONObject.toJSONString(amLogInfo));
         } catch (Exception e) {
             logger.error(" parse am Log error !", e);
@@ -743,13 +740,14 @@ public class FlinkClient extends AbstractClient {
     private List<String> parseContainersLog(ApplicationWSParser applicationWSParser, String user, String containerLogUrlFormat, String trackingUrl) throws IOException {
         List<String> taskmanagerInfoStr = Lists.newArrayList();
         try {
+            YarnConfiguration yarnConfig = hadoopConf.getYarnConfiguration();
             List<TaskmanagerInfo> taskmanagerInfos = getContainersNameAndHost(trackingUrl);
             for (TaskmanagerInfo info : taskmanagerInfos) {
                 String[] nameAndHost = parseContainerNameAndHost(info);
                 String containerLogUrl = buildContainerLogUrl(containerLogUrlFormat, nameAndHost, user);
                 String preUrl =  UrlUtil.getHttpRootUrl(containerLogUrl);
                 logger.info("taskmanager container logs URL is: {},  preURL is :{}", containerLogUrl, preUrl);
-                ApplicationWSParser.RollingBaseInfo rollingBaseInfo = applicationWSParser.parseContainerLogBaseInfo(containerLogUrl, preUrl, ConfigConstrant.TASKMANAGER_COMPONEN);
+                ApplicationWSParser.RollingBaseInfo rollingBaseInfo = applicationWSParser.parseContainerLogBaseInfo(containerLogUrl, preUrl, ConfigConstrant.TASKMANAGER_COMPONEN, yarnConfig);
                 rollingBaseInfo.setOtherInfo(JSONObject.toJSONString(info));
                 taskmanagerInfoStr.add(JSONObject.toJSONString(rollingBaseInfo));
             }

@@ -79,7 +79,8 @@ public class ConfigConstrant {
     // Restful Url Format Configs
     // ------------------------------------------------------------------------
 
-    public static final int HTTP_MAX_RETRY = 2;
+    public static final int HTTP_MAX_RETRY = 3;
+    public static final String HTTP_AUTHENTICATION_TOKEN_KEY = "http.authentication.token";
     public static final String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
     public static final String TASKMANAGERS_URL_FORMAT = "%s/taskmanagers";
     public static final String JOBMANAGER_LOG_URL_FORMAT = "%s/jobmanager/log";

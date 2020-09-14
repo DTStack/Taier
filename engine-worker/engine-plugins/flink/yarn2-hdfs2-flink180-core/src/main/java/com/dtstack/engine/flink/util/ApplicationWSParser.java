@@ -1,11 +1,16 @@
-package com.dtstack.engine.common.util;
+package com.dtstack.engine.flink.util;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.http.HttpClient;
+import com.dtstack.engine.common.http.PoolHttpClient;
+import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
-import java.io.IOException;
+
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -41,8 +46,8 @@ public class ApplicationWSParser {
     }
 
 
-    public RollingBaseInfo parseContainerLogBaseInfo(String containerLogsURL, String preURL, String componen) throws IOException {
-        String amContainerPreViewHttp = HttpClient.get(containerLogsURL);
+    public RollingBaseInfo parseContainerLogBaseInfo(String containerLogsURL, String preURL, String componen, Configuration yarnConfig) throws Exception {
+        String amContainerPreViewHttp = ApplicationWSParser.getDataFromYarnRest(yarnConfig, containerLogsURL);
         org.jsoup.nodes.Document document = Jsoup.parse(amContainerPreViewHttp);
         Elements el = document.getElementsByClass("content");
         if (el.size() < 1) {
@@ -171,4 +176,17 @@ public class ApplicationWSParser {
             this.otherInfo = otherInfo;
         }
     }
+
+    public static String getDataFromYarnRest(Configuration yarnConfig, String url) throws Exception {
+        String token = yarnConfig.get(ConfigConstrant.HTTP_AUTHENTICATION_TOKEN_KEY);
+        Header[] headers = new Header[1];
+        if (StringUtils.isNotEmpty(token)) {
+            String authKey = "Authorization";
+            String authValue = String.format("Bearer %s", token);
+            headers[0] = new BasicHeader(authKey, authValue);
+        }
+        return PoolHttpClient.get(url, ConfigConstrant.HTTP_MAX_RETRY, headers);
+    }
+
+
 }
