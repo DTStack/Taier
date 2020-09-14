@@ -1009,16 +1009,14 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         tmpConfigurationFile.deleteOnExit();
         BootstrapTools.writeConfiguration(configuration, tmpConfigurationFile);
 
-        String flinkConfigKey = "flink-conf.yaml";
         Path remotePathConf = setupSingleLocalResource(
-                flinkConfigKey,
+                "flink-conf.yaml",
                 fs,
                 appId,
                 new Path(tmpConfigurationFile.getAbsolutePath()),
                 localResources,
                 homeDir,
                 "");
-        envShipFileList.append(flinkConfigKey).append("=").append(remotePathConf).append(",");
 
         paths.add(remotePathJar);
         classPathBuilder.append("flink.jar").append(File.pathSeparator);
