@@ -56,12 +56,12 @@ public class KerberosUtils {
 
         logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, config.getSftpConf());
         SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
-        String keytabPath = handler.loadFromSftp(fileName, remoteDir, localDir, false);
+        String keytabPath = handler.loadOverrideFromSftp(fileName, remoteDir, localDir, false);
 
         String krb5ConfName = config.getKrbName();
         String krb5ConfPath = "";
         if (StringUtils.isNotBlank(krb5ConfName)) {
-            krb5ConfPath = handler.loadFromSftp(krb5ConfName, config.getRemoteDir(), localDir, true);
+            krb5ConfPath = handler.loadOverrideFromSftp(krb5ConfName, config.getRemoteDir(), localDir, true);
         }
 
         try {

@@ -439,7 +439,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             config.put("openKerberos", "true");
             config.put("remoteDir", hadoopConfig.getString("remoteDir"));
             config.put("principalFile", hadoopConfig.getString("principalFile"));
-            config.put("krbName", hadoopConfig.getString("krbName"));
+            //krb5.conf的文件名
+            config.put("krbName", hadoopConfig.getString("java.security.krb5.conf"));
             config.put("yarnConf", hadoopConfig);
             pluginInfo.put("sftpConf", hadoopConfig.getJSONObject("sftpConf"));
         }
