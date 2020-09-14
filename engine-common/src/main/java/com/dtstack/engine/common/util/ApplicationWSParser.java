@@ -41,7 +41,7 @@ public class ApplicationWSParser {
     }
 
 
-    public RollingBaseInfo parseContainerLogBaseInfo(String containerLogsURL, String preURL) throws IOException {
+    public RollingBaseInfo parseContainerLogBaseInfo(String containerLogsURL, String preURL, String componen) throws IOException {
         String amContainerPreViewHttp = HttpClient.get(containerLogsURL);
         org.jsoup.nodes.Document document = Jsoup.parse(amContainerPreViewHttp);
         Elements el = document.getElementsByClass("content");
@@ -55,6 +55,8 @@ public class ApplicationWSParser {
         }
 
         RollingBaseInfo rollingBaseInfo = new RollingBaseInfo();
+        rollingBaseInfo.setTypeName(componen);
+
         for (int i = 0; i < afs.size(); i++) {
             String logURL = afs.get(i).attr("href");
             //截取url参数部分
@@ -65,14 +67,10 @@ public class ApplicationWSParser {
 
             String infoTotalBytes = "0";
             String logName = "";
-            String logTypeName = "";
 
             Matcher matcher = ERR_INFO_BYTE_PATTERN.matcher(jobErrByteStr);
             if (matcher.find()) {
                 logName = matcher.group(1);
-                String[] split = logName.split("\\.");
-                logTypeName = split.length > 0 ? split[0] : "";
-                rollingBaseInfo.setTypeName(logTypeName);
 
                 infoTotalBytes = matcher.group(2);
             }

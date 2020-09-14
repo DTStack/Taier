@@ -17,6 +17,7 @@
     <properties>
         <jar.name>spark-yarn-client</jar.name>
         <pluginDir.name>yarn3-hdfs3-spark240</pluginDir.name>
+        <hivejdbccdh611.version>2.1.1-cdh6.1.1</hivejdbccdh611.version>
     </properties>
 
     <dependencies>
@@ -42,13 +43,13 @@
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-common</artifactId>
-            <version>${hivejdbc.version}</version>
+            <version>${hivejdbccdh611.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-shims</artifactId>
-            <version>${hivejdbc.version}</version>
+            <version>${hivejdbccdh611.version}</version>
         </dependency>
 
 

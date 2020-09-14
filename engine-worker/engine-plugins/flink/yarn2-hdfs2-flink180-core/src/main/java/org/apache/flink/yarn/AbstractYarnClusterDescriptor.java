@@ -585,6 +585,12 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 shipFiles.add(new File(tmp.getValue().filePath));
             }
         }
+
+        String shipFileConf = System.getProperty("user.dir") + File.separator + "/shipFileConf";
+        File file = new File(shipFileConf);
+        if (file.exists() && file.isDirectory()) {
+            shipFiles.addAll(Arrays.asList(file.listFiles()));
+        }
         // flinkx get classpath
         jobGraph.getClasspaths().forEach(jarFile -> {
             try {
@@ -1003,14 +1009,16 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         tmpConfigurationFile.deleteOnExit();
         BootstrapTools.writeConfiguration(configuration, tmpConfigurationFile);
 
+        String flinkConfigKey = "flink-conf.yaml";
         Path remotePathConf = setupSingleLocalResource(
-                "flink-conf.yaml",
+                flinkConfigKey,
                 fs,
                 appId,
                 new Path(tmpConfigurationFile.getAbsolutePath()),
                 localResources,
                 homeDir,
                 "");
+        envShipFileList.append(flinkConfigKey).append("=").append(remotePathConf).append(",");
 
         paths.add(remotePathJar);
         classPathBuilder.append("flink.jar").append(File.pathSeparator);
