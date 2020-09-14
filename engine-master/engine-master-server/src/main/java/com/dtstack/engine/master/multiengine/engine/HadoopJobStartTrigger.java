@@ -241,10 +241,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         //替换系统参数
         job = jobParamReplace.paramReplace(job, taskParamsToReplace, scheduleJob.getCycTime());
 
-        Integer sourceType = (Integer) actionParam.get("dataSourceType");
-        if (null == sourceType) {
-            throw new RdosDefineException("sourceType不能为空");
-        }
+        //TODO 数据资产任务值为空 需要设置默认值
+        Integer sourceType = (Integer) actionParam.getOrDefault("dataSourceType", DataSourceType.HIVE.getVal());
         String engineIdentity = (String) actionParam.get("engineIdentity");
         // 获取脏数据存储路径
         try {
