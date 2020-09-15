@@ -145,10 +145,10 @@ public class PoolHttpClient {
 	}
 
 	private static String getRequest(String url, Map<String,Object> cookies) throws IOException {
-		Header[] headers = new Header[1];
+		Header[] headers = {};
 		if (cookies != null && cookies.size() > 0) {
 			Header header = new BasicHeader("Cookie", getCookieFormat(cookies));
-			headers[0] = header;
+			headers = new Header[]{header};
 		}
 		return getRequest(url, headers);
 	}
@@ -211,10 +211,10 @@ public class PoolHttpClient {
 
 	public static String get(String url, Map<String,Object> cookies, int retryNumber) throws Exception{
 		try {
-			Header[] headers = new Header[1];
+			Header[] headers = {};
 			if (cookies != null && cookies.size() > 0) {
 				Header header = new BasicHeader("Cookie", getCookieFormat(cookies));
-				headers[0] = header;
+				headers = new Header[]{header};
 			}
 			return get(url, retryNumber, headers);
 		} catch (Exception e) {

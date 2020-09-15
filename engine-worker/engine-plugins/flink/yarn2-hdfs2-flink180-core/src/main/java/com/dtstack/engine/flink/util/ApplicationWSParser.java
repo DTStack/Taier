@@ -179,11 +179,11 @@ public class ApplicationWSParser {
 
     public static String getDataFromYarnRest(Configuration yarnConfig, String url) throws Exception {
         String token = yarnConfig.get(ConfigConstrant.HTTP_AUTHENTICATION_TOKEN_KEY);
-        Header[] headers = new Header[1];
+        Header[] headers = {};
         if (StringUtils.isNotEmpty(token)) {
             String authKey = "Authorization";
             String authValue = String.format("Bearer %s", token);
-            headers[0] = new BasicHeader(authKey, authValue);
+            headers = new Header[]{new BasicHeader(authKey, authValue)};
         }
         return PoolHttpClient.get(url, ConfigConstrant.HTTP_MAX_RETRY, headers);
     }
