@@ -147,9 +147,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 scheduleJob = scheduleBatchJob.getScheduleJob();
 
                 logger.info("jobId:{} scheduleType:{} take job from queue.", scheduleJob.getJobId(), getScheduleType());
-                Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
-                ScheduleTaskShade batchTask = this.taskCache().computeIfAbsent(taskIdUnique, k -> batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType()));
-                startAndClear(scheduleBatchJob, batchTask);
+                startAndClear(scheduleBatchJob);
             } catch (Exception e) {
                 logger.error("happens error:", e);
                 try {
@@ -164,7 +162,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         }
     }
 
-    private void startAndClear(ScheduleBatchJob scheduleBatchJob, ScheduleTaskShade batchTask) {
+    private void startAndClear(ScheduleBatchJob scheduleBatchJob) {
         this.start(scheduleBatchJob);
         this.errorJobCache.remove(scheduleBatchJob.getJobKey());
         this.notStartCache.remove(scheduleBatchJob.getJobKey());
@@ -300,6 +298,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         }
 
         logger.info("jobId:{} checkRunInfo.status:{} errMsg:{} status:{} update status.", scheduleBatchJob.getJobId(), checkRunInfo.getStatus(), errMsg, status);
+        startAndClear(scheduleBatchJob);
         batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), status, errMsg);
         return Boolean.FALSE;
     }
