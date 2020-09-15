@@ -216,7 +216,7 @@ public class PoolHttpClient {
 				Header header = new BasicHeader("Cookie", getCookieFormat(cookies));
 				headers[0] = header;
 			}
-			return get(url, DEFAULT_RETRY_TIMES, headers);
+			return get(url, retryNumber, headers);
 		} catch (Exception e) {
 			throw new IOException(e);
 		}
