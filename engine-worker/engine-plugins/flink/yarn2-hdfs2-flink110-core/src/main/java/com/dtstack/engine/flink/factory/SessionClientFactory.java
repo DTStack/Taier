@@ -73,7 +73,6 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(SessionClientFactory.class);
 
-    private YarnClusterDescriptor yarnSessionDescriptor;
     private ClusterSpecification yarnSessionSpecification;
     private ClusterClient<ApplicationId> clusterClient;
     private FlinkConfig flinkConfig;
@@ -93,12 +92,11 @@ public class SessionClientFactory extends AbstractClientFactory {
         this.flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
         this.flinkClientBuilder = flinkClientBuilder;
 
-        this.sessionAppNameSuffix = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
         // add session  name
+        this.sessionAppNameSuffix = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
         flinkConfiguration.setString(YarnConfigOptions.APPLICATION_NAME, flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + sessionAppNameSuffix);
 
         this.yarnSessionSpecification = FlinkConfUtil.createClusterSpecification(flinkConfiguration, 0, null);
-        this.yarnSessionDescriptor = createYarnSessionClusterDescriptor();
 
         initZkClient();
         this.lockPath = String.format("/yarn_session/%s", flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
@@ -148,6 +146,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
                 if (flinkConfig.getSessionStartAuto()) {
                     try {
+                        YarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
                         clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification).getClusterClient();
                         return true;
                     } catch (FlinkException e) {
