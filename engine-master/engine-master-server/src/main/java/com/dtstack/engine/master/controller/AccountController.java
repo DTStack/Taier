@@ -3,14 +3,16 @@ package com.dtstack.engine.master.controller;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.AccountTenantVo;
 import com.dtstack.engine.api.vo.AccountVo;
+import com.dtstack.engine.api.vo.AccountVoLists;
 import com.dtstack.engine.master.impl.AccountService;
+import com.dtstack.engine.master.router.DtRequestParam;
+import com.dtstack.engine.master.router.util.CookieUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.dtstack.engine.master.router.DtRequestParam;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -30,20 +32,20 @@ public class AccountController {
 
     @RequestMapping(value = "/bindAccountList", method = {RequestMethod.POST})
     @ApiOperation(value = "绑定数据库账号列表 到对应数栈账号下")
-    public void bindAccountList(@Param("accountList") List accountList, @Param("userId") Long userId) throws Exception {
-        accountService.bindAccountList(accountList, userId);
+    public void bindAccountList(@RequestBody AccountVoLists accountVoLists,HttpServletRequest request) throws Exception {
+        accountService.bindAccountList(accountVoLists.getAccountList(),CookieUtil.getUserId(request.getCookies()));
     }
 
     @RequestMapping(value="/unbindAccount", method = {RequestMethod.POST})
     @ApiOperation(value = "解绑数据库账号")
-    public void unbindAccount(@RequestBody AccountTenantVo accountTenantVo, @RequestParam("userId") Long userId) throws Exception {
-        accountService.unbindAccount(accountTenantVo, userId);
+    public void unbindAccount(@RequestBody AccountTenantVo accountTenantVo, HttpServletRequest request) throws Exception {
+        accountService.unbindAccount(accountTenantVo, CookieUtil.getUserId(request.getCookies()));
     }
 
     @RequestMapping(value="/updateBindAccount", method = {RequestMethod.POST})
     @ApiOperation(value = "更改数据库账号")
-    public void updateBindAccount(@RequestBody AccountTenantVo accountTenantVo, @RequestParam("userId") Long userId) throws Exception {
-        accountService.updateBindAccount(accountTenantVo, userId);
+    public void updateBindAccount(@RequestBody AccountTenantVo accountTenantVo, HttpServletRequest request) throws Exception {
+        accountService.updateBindAccount(accountTenantVo, CookieUtil.getUserId(request.getCookies()));
     }
 
     @RequestMapping(value="/pageQuery", method = {RequestMethod.POST})
@@ -55,8 +57,8 @@ public class AccountController {
 
     @RequestMapping(value="/getTenantUnBandList", method = {RequestMethod.POST})
     @ApiOperation(value = "获取租户未绑定用户列表")
-    public List<Map<String, Object>> getTenantUnBandList(@DtRequestParam("dtuicTenantId") Long dtuicTenantId, @DtRequestParam("dtToken") String dtToken, @DtRequestParam("userId") Long userId, @DtRequestParam("engineType")Integer engineType) {
-        return accountService.getTenantUnBandList(dtuicTenantId, dtToken, userId, engineType);
+    public List<Map<String, Object>> getTenantUnBandList(@DtRequestParam("dtuicTenantId") Long dtuicTenantId, @DtRequestParam("dtToken") String dtToken, HttpServletRequest request, @DtRequestParam("engineType")Integer engineType) {
+        return accountService.getTenantUnBandList(dtuicTenantId, dtToken, CookieUtil.getUserId(request.getCookies()), engineType);
     }
 
 }

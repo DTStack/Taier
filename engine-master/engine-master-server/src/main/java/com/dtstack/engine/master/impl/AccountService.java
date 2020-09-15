@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Account;
 import com.dtstack.engine.api.domain.AccountTenant;
@@ -94,12 +93,10 @@ public class AccountService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void bindAccountList(@Param("accountList") List accountList,@Param("userId") Long userId ) throws Exception {
-        if (CollectionUtils.isEmpty(accountList)) {
+    public void bindAccountList(List<AccountVo> list,Long userId) throws Exception {
+        if (CollectionUtils.isEmpty(list)) {
             throw new RdosDefineException("绑定用户列表不能为空");
         }
-        List<AccountVo> list = JSON.parseArray(JSON.toJSONString(accountList), AccountVo.class);
-
         for (AccountVo accountVo : list) {
             accountVo.setUserId(userId);
             bindAccount(accountVo);
@@ -446,9 +443,17 @@ public class AccountService {
             return;
         }
 
-        Account one = accountDao.getOne(tenant.getId(), user.getId(), accountType,accountVo.getName());
+        //检查同租户下用户是否已被绑定
+        Account one = accountDao.getOne(tenant.getId(), user.getId(), accountType, null);
         if (Objects.nonNull(one)) {
-            throw new RdosDefineException("用户名" + accountVo.getName() + "已被账号" + user.getUserName() + "绑定");
+            throw new RdosDefineException("用户"+ user.getUserName() + "已绑定");
         }
+
+        //检查同租户下用户名是否被绑定
+        Account exit = accountDao.getOne(tenant.getId(), null, accountType, accountVo.getName());
+        if (Objects.nonNull(exit)) {
+            throw new RdosDefineException("用户名"+ accountVo.getName() + "已绑定");
+        }
+
     }
 }
