@@ -18,12 +18,16 @@
 
 package org.apache.flink.client.program;
 
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.worker.enums.ClassLoaderType;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.Plan;
 import org.apache.flink.runtime.execution.librarycache.FlinkUserCodeClassLoaders;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -140,21 +144,35 @@ public class JobWithJars {
 			return parent;
 		}
 		URL[] urls = new URL[jars.size() + classpaths.size()];
+		String[] md5s = new String[urls.length];
 		for (int i = 0; i < jars.size(); i++) {
 			urls[i] = jars.get(i);
 		}
 		for (int i = 0; i < classpaths.size(); i++) {
 			urls[i + jars.size()] = classpaths.get(i);
 		}
+
+		Arrays.sort(urls, Comparator.comparing(URL::toString));
+
+		for (int i = 0; i < urls.length; ++i) {
+			try (FileInputStream inputStream = new FileInputStream(urls[i].getPath())){
+				md5s[i] = DigestUtils.md5Hex(inputStream);
+			} catch (Exception e) {
+				throw new RdosDefineException("Exceptions appears when read file:" + e);
+			}
+		}
+
 		switch (classLoaderType) {
 			case CHILD_FIRST_CACHE:
-				Arrays.sort(urls, Comparator.comparing(URL::toString));
 				String jarsKeyChild = StringUtils.join(urls, "_");
-				return cacheClassLoader.computeIfAbsent(jarsKeyChild, k -> FlinkUserCodeClassLoaders.childFirst(urls, parent, new String[]{}));
+				String md5KeyChild = StringUtils.join(md5s, "_");
+				String keyChild = jarsKeyChild + "_" + md5KeyChild;
+				return cacheClassLoader.computeIfAbsent(keyChild, k -> FlinkUserCodeClassLoaders.childFirst(urls, parent, new String[]{}));
 			case PARENT_FIRST_CACHE:
-				Arrays.sort(urls, Comparator.comparing(URL::toString));
 				String jarsKeyParent = StringUtils.join(urls, "_");
-				return cacheClassLoader.computeIfAbsent(jarsKeyParent, k -> FlinkUserCodeClassLoaders.parentFirst(urls, parent));
+				String md5KeyParent = StringUtils.join(md5s, "_");
+				String keyParent = jarsKeyParent + "_" + md5KeyParent;
+				return cacheClassLoader.computeIfAbsent(keyParent, k -> FlinkUserCodeClassLoaders.parentFirst(urls, parent));
 			case CHILD_FIRST:
 				return FlinkUserCodeClassLoaders.childFirst(urls, parent, new String[]{});
 			case PARENT_FIRST:
