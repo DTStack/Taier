@@ -320,7 +320,6 @@ public class HadoopClient extends AbstractClient {
         while (sqlItera.hasNext()){
             String tmpSql = sqlItera.next();
             if(AddJarOperator.verific(tmpSql)){
-                sqlItera.remove();
                 JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
 
                 String addFilePath = jarFileInfo.getJarPath();
@@ -343,7 +342,6 @@ public class HadoopClient extends AbstractClient {
         }
 
         cacheFile.put(jobClient.getTaskId(), fileList);
-        jobClient.setSql(String.join(";", sqlList));
     }
 
     @Override
