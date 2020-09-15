@@ -87,6 +87,7 @@ public class JobGraphUtil {
         JSONObject markInfoJSON = JSONObject.parseObject(latencyMarkerInfo);
         Collection<Object> values = markInfoJSON.values();
         data.put("taskVertices",values);
+        data.put("startTime",System.currentTimeMillis());
         return data.toJSONString();
     }
 
