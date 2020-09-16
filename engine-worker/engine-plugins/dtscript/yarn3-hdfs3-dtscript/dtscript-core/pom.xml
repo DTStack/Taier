@@ -16,6 +16,7 @@
     <properties>
         <jar.name>dtscript-core</jar.name>
         <pluginDir.name>yarn3-hdfs3-dtscript</pluginDir.name>
+        <hadoop.version>3.0.0</hadoop.version>
     </properties>
 
     <dependencies>
