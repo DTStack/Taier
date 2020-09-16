@@ -91,7 +91,10 @@ class BindCommModal extends React.Component<any, any> {
         validateFields((err: any) => {
             if (!err) {
                 params.canSubmit = true;
-                params.reqParams = isBindTenant ? reqParams : Object.assign(reqParams, { tenantId: tenantInfo.tenantId }); // 切换队列覆盖默认值name
+                params.reqParams = isBindTenant ? reqParams : Object.assign(reqParams, {
+                    tenantId: tenantInfo.tenantId,
+                    queueId: tenantInfo.queueId
+                }); // 切换队列覆盖默认值name
                 params.hasKubernetes = this.state.hasKubernetes
             }
         })

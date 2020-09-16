@@ -86,7 +86,8 @@ class ResourceManage extends React.Component<any, any> {
         if (hasKubernetes) {
             Api.bindNamespace({
                 clusterId: reqParams.clusterId,
-                namespace: reqParams.namespace
+                namespace: reqParams.namespace,
+                queueId: reqParams.queueId
             }).then((res: any) => {
                 if (res.code === 1) {
                     this.setState({

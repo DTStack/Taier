@@ -78,8 +78,8 @@ class BindAccountModal extends React.Component<IProps, any> {
                 return {
                     ...table,
                     password: '',
-                    username: selectedUser.userName,
-                    emali: selectedUser.userName
+                    username: selectedUser?.userName,
+                    emali: selectedUser?.userName
                 }
             })
             onOk(newTableData)
