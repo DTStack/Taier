@@ -135,12 +135,14 @@ public class PluginWrapper{
 
         if (MultiEngineType.TIDB.getName().equalsIgnoreCase((String) actionParam.get("engineType"))) {
             //TiDB 没有currentSchema
+            String currentSchema = paramsJson.getString("currentSchema");
+            if(StringUtils.isBlank(currentSchema)){
+                throw new RdosDefineException("tidb currentSchema 不允许为空");
+            }
             if (dbUrl.endsWith(paramsJson.getString("currentSchema"))) {
                 pluginInfoJson.put("jdbcUrl", dbUrl);
                 return;
-            }
-
-            if (!dbUrl.endsWith(paramsJson.getString("currentSchema")) && dbUrl.endsWith("/")) {
+            } else if (dbUrl.endsWith("/")) {
                 pluginInfoJson.put("jdbcUrl", dbUrl + paramsJson.getString("currentSchema"));
                 return;
             }
