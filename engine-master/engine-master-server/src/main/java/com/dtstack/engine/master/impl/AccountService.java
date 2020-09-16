@@ -30,7 +30,6 @@ import com.dtstack.schedule.common.util.Base64Util;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -401,7 +400,7 @@ public class AccountService {
 
     }
 
-    public AccountVo getAccountVo(@Param("dtUicUserId") Long dtUicTenantId, @Param("dtUicUserId") Long dtUicUserId, @Param("accountType") Integer accountType) {
+    public AccountVo getAccountVo(Long dtUicTenantId, Long dtUicUserId,Integer accountType) {
         AccountVo accountVo = new AccountVo();
         Tenant tenant = tenantDao.getByDtUicTenantId(dtUicTenantId);
         if (Objects.isNull(tenant)) {
