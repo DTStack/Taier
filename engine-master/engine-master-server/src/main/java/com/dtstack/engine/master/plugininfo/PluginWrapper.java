@@ -135,15 +135,17 @@ public class PluginWrapper{
 
         if (MultiEngineType.TIDB.getName().equalsIgnoreCase((String) actionParam.get("engineType"))) {
             //TiDB 没有currentSchema
+            if (dbUrl.endsWith(paramsJson.getString("currentSchema"))) {
+                pluginInfoJson.put("jdbcUrl", dbUrl);
+                return;
+            }
+
             if (!dbUrl.endsWith(paramsJson.getString("currentSchema")) && dbUrl.endsWith("/")) {
                 pluginInfoJson.put("jdbcUrl", dbUrl + paramsJson.getString("currentSchema"));
                 return;
-            } else if (dbUrl.endsWith(paramsJson.getString("currentSchema"))) {
-                pluginInfoJson.put("jdbcUrl", dbUrl);
-                return;
-            } else {
-                throw new RdosDefineException("tidb jdbcUrl 参数不合法 需要 / 结尾");
             }
+
+            throw new RdosDefineException("tidb jdbcUrl 参数不合法 需要 / 结尾");
         }
 
         if (MultiEngineType.PRESTO.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
