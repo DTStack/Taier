@@ -585,6 +585,12 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 shipFiles.add(new File(tmp.getValue().filePath));
             }
         }
+
+        String shipFileConf = System.getProperty("user.dir") + File.separator + "/shipFileConf";
+        File file = new File(shipFileConf);
+        if (file.exists() && file.isDirectory()) {
+            shipFiles.addAll(Arrays.asList(file.listFiles()));
+        }
         // flinkx get classpath
         jobGraph.getClasspaths().forEach(jarFile -> {
             try {
@@ -862,6 +868,11 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         Set<File> systemShipFiles = new HashSet<>(shipFiles.size());
         for (File file : shipFiles) {
             systemShipFiles.add(file.getAbsoluteFile());
+        }
+        String shipFileConf = System.getProperty("user.dir") + File.separator + "/shipFileConf";
+        File file = new File(shipFileConf);
+        if (file.exists() && file.isDirectory()) {
+            systemShipFiles.addAll(Arrays.asList(file.listFiles()));
         }
 
         String logLevel = flinkConfiguration.getString("logLevel", "info").toLowerCase();
