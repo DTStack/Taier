@@ -80,10 +80,10 @@
                             <tasks>
                                 <copy file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../../../../pluginLibs/yarn2-hdfs2-learning/"
+                                <copy todir="${basedir}/target/../../../../../../pluginLibs/yarn3-hdfs3-learning/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../../../pluginLibs/yarn2-hdfs2-learning/"
+                                    <fileset dir="${basedir}/target/../../../../../../pluginLibs/yarn3-hdfs3-learning/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
