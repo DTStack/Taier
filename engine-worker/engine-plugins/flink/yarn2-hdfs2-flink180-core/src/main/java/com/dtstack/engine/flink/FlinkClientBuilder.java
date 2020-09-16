@@ -88,13 +88,6 @@ public class FlinkClientBuilder {
         flinkConfiguration = config;
     }
 
-    public void setSecurityConfig() {
-        String keytabPath = flinkConfig.getPrincipalPath();
-        String principal = flinkConfig.getPrincipalName();
-        flinkConfiguration.setString(SecurityOptions.KERBEROS_LOGIN_KEYTAB, keytabPath);
-        flinkConfiguration.setString(SecurityOptions.KERBEROS_LOGIN_PRINCIPAL, principal);
-    }
-
     public static HadoopConf initHadoopConf(FlinkConfig flinkConfig) {
         HadoopConf customerConf = new HadoopConf();
         customerConf.initHadoopConf(flinkConfig.getHadoopConf());

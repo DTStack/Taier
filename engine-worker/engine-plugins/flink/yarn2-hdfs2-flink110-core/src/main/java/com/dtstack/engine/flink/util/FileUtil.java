@@ -1,5 +1,6 @@
 package com.dtstack.engine.flink.util;
 
+import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.SFTPHandler;
@@ -150,8 +151,9 @@ public class FileUtil {
         }
     }
 
-    public static void downloadKafkaKeyTab(Properties confProperties, FlinkConfig flinkConfig) {
+    public static void downloadKafkaKeyTab(JobClient jobClient, FlinkConfig flinkConfig) {
         try {
+            Properties confProperties = jobClient.getConfProperties();
             String sftpKeytab = confProperties.getProperty(ConfigConstrant.KAFKA_SFTP_KEYTAB);
 
             if (StringUtils.isBlank(sftpKeytab)) {
@@ -159,11 +161,16 @@ public class FileUtil {
                 return;
             }
 
-            String localKeytab = confProperties.getProperty(ConfigConstrant.SECURITY_KERBEROS_LOGIN_KEYTAB);
-            if (StringUtils.isNotBlank(localKeytab) && !(new File(localKeytab).exists())) {
-                SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
-                handler.downloadFile(sftpKeytab, localKeytab);
+            String taskKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+            File taskKeytabDir = new File(taskKeytabDirPath);
+            if (!taskKeytabDir.exists()) {
+                taskKeytabDir.mkdirs();
             }
+
+            File kafkaKeytabFile = new File(sftpKeytab);
+            String localKafkaKeytab = String.format("%s/%s", taskKeytabDirPath, kafkaKeytabFile.getName());
+            SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
+            handler.downloadFile(sftpKeytab, localKafkaKeytab);
         } catch (Exception e) {
             logger.error("Download keytab from sftp failed", e);
         }
