@@ -869,6 +869,11 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         for (File file : shipFiles) {
             systemShipFiles.add(file.getAbsoluteFile());
         }
+        String shipFileConf = System.getProperty("user.dir") + File.separator + "/shipFileConf";
+        File file = new File(shipFileConf);
+        if (file.exists() && file.isDirectory()) {
+            systemShipFiles.addAll(Arrays.asList(file.listFiles()));
+        }
 
         String logLevel = flinkConfiguration.getString("logLevel", "info").toLowerCase();
         //check if there is a logback or log4j file
