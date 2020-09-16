@@ -42,4 +42,8 @@ public class ConfigConstant {
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
 
+    public static final String SQL_CHECKPOINT_TIMEOUT = "sql.checkpoint.timeout";
+    public static final String FLINK_CHECKPOINT_TIMEOUT = "flink.checkpoint.timeout";
+    public static final Long DEFAULT_CHECKPOINT_TIMEOUT = 600000L;
+
 }
