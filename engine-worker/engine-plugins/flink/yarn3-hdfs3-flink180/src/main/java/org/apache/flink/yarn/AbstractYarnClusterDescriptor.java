@@ -870,14 +870,15 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
             systemShipFiles.add(file.getAbsoluteFile());
         }
 
+        String logLevel = flinkConfiguration.getString("logLevel", "info").toLowerCase();
         //check if there is a logback or log4j file
-        File logbackFile = new File(configurationDirectory + File.separator + FLINK_LOG_DIR + File.separator + CONFIG_FILE_LOGBACK_NAME);
+        File logbackFile = new File(configurationDirectory + File.separator + FLINK_LOG_DIR + File.separator + logLevel + File.separator + CONFIG_FILE_LOGBACK_NAME);
         final boolean hasLogback = logbackFile.exists();
         if (hasLogback) {
             systemShipFiles.add(logbackFile);
         }
 
-        File log4jFile = new File(configurationDirectory + File.separator + FLINK_LOG_DIR + File.separator + CONFIG_FILE_LOG4J_NAME);
+        File log4jFile = new File(configurationDirectory + File.separator + FLINK_LOG_DIR + File.separator + logLevel + File.separator + CONFIG_FILE_LOG4J_NAME);
         final boolean hasLog4j = log4jFile.exists();
         if (hasLog4j) {
             systemShipFiles.add(log4jFile);
