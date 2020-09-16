@@ -134,8 +134,10 @@ public class PluginWrapper{
 
         if(MultiEngineType.TIDB.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
             //TiDB 没有currentSchema
-            pluginInfoJson.put("jdbcUrl", dbUrl  + paramsJson.getString("currentSchema"));
-            return;
+            if(!dbUrl.contains(paramsJson.getString("currentSchema"))){
+                pluginInfoJson.put("jdbcUrl", dbUrl  + paramsJson.getString("currentSchema"));
+                return;
+            }
         }
 
         if (MultiEngineType.PRESTO.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
@@ -196,12 +198,12 @@ public class PluginWrapper{
         return org.apache.commons.lang3.StringUtils.join(paramsList, PARAMS_DELIM);
     }
 
-
-    /**
+/*
+    *//**
      * 回写任务执行的插件信息 到cache表
      * @param jobId
      * @param pluginInfo
-     */
+     *//*
     public void savePluginInfoToDB(String jobId, String pluginInfo) {
         if (StringUtils.isEmpty(jobId) || StringUtils.isEmpty(pluginInfo)) {
             return;
@@ -220,7 +222,7 @@ public class PluginWrapper{
         }
         dbPluginInfo.put(PLUGIN_INFO, JSONObject.parseObject(pluginInfo,Map.class));
         engineJobCacheDao.updateJobInfo(dbPluginInfo.toJSONString(), jobId);
-    }
+    }*/
 
     public String getPluginInfo(String taskParams, Integer computeType, String engineType, Long tenantId, Long userId) {
         try {
