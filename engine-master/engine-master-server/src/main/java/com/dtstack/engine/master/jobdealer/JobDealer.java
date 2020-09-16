@@ -147,10 +147,14 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
 
         //加入节点的优先级队列
-        this.addGroupPriorityQueue(jobResource, jobClient, true);
+        this.addGroupPriorityQueue(jobResource, jobClient, true, true);
     }
 
-    public void addSubmitJobVast(List<JobClient> jobClients) {
+    /**
+     * job cache 表已经存在
+     * @param jobClients
+     */
+    private void addSubmitJobVast(List<JobClient> jobClients) {
         List<String> taskIds = jobClients.stream().map(JobClient::getTaskId).collect(Collectors.toList());
         updateCacheBatch(taskIds, EJobCacheStage.DB.getStage());
         scheduleJobDao.updateJobStatusByJobIds(taskIds, RdosTaskStatus.WAITENGINE.getStatus());
@@ -160,7 +164,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                 updateJobStatus(jobClient.getTaskId(), jobStatus);
             });
             //加入节点的优先级队列
-            this.addGroupPriorityQueue(jobComputeResourcePlain.getJobResource(jobClient), jobClient, true);
+            this.addGroupPriorityQueue(jobComputeResourcePlain.getJobResource(jobClient), jobClient, true, false);
         }
     }
 
@@ -176,12 +180,12 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         }
     }
 
-    public boolean addGroupPriorityQueue(String jobResource, JobClient jobClient, boolean judgeBlock) {
+    public boolean addGroupPriorityQueue(String jobResource, JobClient jobClient, boolean judgeBlock, boolean insert) {
         try {
             GroupPriorityQueue groupPriorityQueue = getGroupPriorityQueue(jobResource);
-            boolean rs = groupPriorityQueue.add(jobClient, judgeBlock);
+            boolean rs = groupPriorityQueue.add(jobClient, judgeBlock, insert);
             if (!rs) {
-                saveCache(jobClient, jobResource, EJobCacheStage.DB.getStage());
+                saveCache(jobClient, jobResource, EJobCacheStage.DB.getStage(), insert);
             }
             return rs;
         } catch (Exception e) {
@@ -211,9 +215,13 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         LOG.info("jobId:{} update job status:{}.", jobId, status);
     }
 
-    public void saveCache(JobClient jobClient, String jobResource, int stage) {
+    public void saveCache(JobClient jobClient, String jobResource, int stage, boolean insert) {
         String nodeAddress = environmentContext.getLocalAddress();
-        engineJobCacheDao.insert(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
+        if (insert) {
+            engineJobCacheDao.insert(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
+        } else {
+            engineJobCacheDao.updateStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), null);
+        }
     }
 
     private void updateCacheBatch(List<String> taskIds, int stage) {

@@ -60,34 +60,35 @@ public class GroupPriorityQueue {
     private GroupPriorityQueue() {
     }
 
-    public boolean add(JobClient jobClient, boolean judgeBlock) {
+    public boolean add(JobClient jobClient, boolean judgeBlock, boolean insert) {
         if (judgeBlock) {
             if (isBlocked()) {
                 logger.info("jobId:{} unable add to queue, because queue is blocked.", jobClient.getTaskId());
                 return false;
             }
-            return addInner(jobClient);
+            return addInner(jobClient, insert);
         } else {
-            return addRedirect(jobClient);
+            return addRedirect(jobClient, insert);
         }
     }
 
-    private boolean addInner(JobClient jobClient) {
+    private boolean addInner(JobClient jobClient, boolean insert) {
         if (this.priorityQueueSize() >= getQueueSizeLimited()) {
             blocked.set(true);
             logger.info("jobId:{} unable add to queue, because over QueueSizeLimited.", jobClient.getTaskId());
             return false;
         }
-        return addRedirect(jobClient);
+        return addRedirect(jobClient, insert);
     }
 
-    private boolean addRedirect(JobClient jobClient) {
+    private boolean addRedirect(JobClient jobClient, boolean insert) {
         if (queue.contains(jobClient)) {
             logger.info("jobId:{} unable add to queue, because jobId already exist.", jobClient.getTaskId());
             return true;
         }
 
-        jobDealer.saveCache(jobClient, jobResource, EJobCacheStage.PRIORITY.getStage());
+        jobDealer.saveCache(jobClient, jobResource, EJobCacheStage.PRIORITY.getStage(), insert);
+
         queue.put(jobClient);
         logger.info("jobId:{} redirect add job to queue.", jobClient.getTaskId());
         return true;
@@ -174,7 +175,7 @@ public class GroupPriorityQueue {
                             jobDealer.updateJobStatus(jobClient.getTaskId(), jobStatus);
                         });
 
-                        boolean addInner = this.addInner(jobClient);
+                        boolean addInner = this.addInner(jobClient, false);
                         logger.info("jobId:{} load from db, {} emit job to queue.", jobClient.getTaskId(), addInner ? "success" : "failed");
                         if (!addInner) {
                             empty = false;
