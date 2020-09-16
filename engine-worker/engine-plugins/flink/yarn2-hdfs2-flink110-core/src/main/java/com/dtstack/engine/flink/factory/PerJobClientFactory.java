@@ -82,10 +82,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
         Configuration newConf = new Configuration(flinkConfiguration);
         newConf = appendJobConfigAndInitFs(jobClient, newConf);
 
-        List<File> keytabFiles = null;
-        if (flinkConfig.isOpenKerberos()) {
-            keytabFiles = getKeytabFilesAndSetSecurityConfig(jobClient, newConf);
-        }
+        List<File> keytabFiles = getKeytabFilesAndSetSecurityConfig(jobClient, newConf);
 
         YarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf);
         List<URL> classpaths = getFlinkJarFile(flinkJarPath, clusterDescriptor);
@@ -195,29 +192,27 @@ public class PerJobClientFactory extends AbstractClientFactory {
         File clusterKeytabDir = new File(clusterKeytabDirPath);
         File[] clusterKeytabFiles = clusterKeytabDir.listFiles();
 
-        if (clusterKeytabFiles == null || clusterKeytabFiles.length == 0) {
-            throw new RdosDefineException("not find keytab file from " + clusterKeytabDirPath);
-        }
-        for (File file : clusterKeytabFiles) {
-            String fileName = file.getName();
-            String keytabPath = file.getAbsolutePath();
-            String keytabFileName = flinkConfig.getPrincipalFile();
+        if (clusterKeytabFiles != null && clusterKeytabFiles.length > 0) {
+            for (File file : clusterKeytabFiles) {
+                String fileName = file.getName();
+                String keytabPath = file.getAbsolutePath();
+                String keytabFileName = flinkConfig.getPrincipalFile();
 
-            if (keytabs.containsKey(fileName) && StringUtils.endsWith(fileName, "keytab")) {
-                String newFileName = String.format("%s-%s", RandomStringUtils.randomAlphanumeric(4), fileName);
-                keytabPath = String.format("%s/%s", taskKeytabDirPath, newFileName);
-                FileUtils.copyFile(file, new File(keytabPath));
+                if (keytabs.containsKey(fileName) && StringUtils.endsWith(fileName, "keytab")) {
+                    String newFileName = String.format("%s-%s", RandomStringUtils.randomAlphanumeric(4), fileName);
+                    keytabPath = String.format("%s/%s", taskKeytabDirPath, newFileName);
+                    FileUtils.copyFile(file, new File(keytabPath));
+                }
+
+                if (StringUtils.equals(fileName, keytabFileName)) {
+                    String principal = KerberosUtils.getPrincipal(keytabPath);
+                    config.setString(SecurityOptions.KERBEROS_LOGIN_KEYTAB, keytabPath);
+                    config.setString(SecurityOptions.KERBEROS_LOGIN_PRINCIPAL, principal);
+                }
+                File newKeytabFile = new File(keytabPath);
+                keytabs.put(newKeytabFile.getName(), newKeytabFile);
             }
-
-            if (StringUtils.equals(fileName, keytabFileName)) {
-                String principal = KerberosUtils.getPrincipal(keytabPath);
-                config.setString(SecurityOptions.KERBEROS_LOGIN_KEYTAB, keytabPath);
-                config.setString(SecurityOptions.KERBEROS_LOGIN_PRINCIPAL, principal);
-            }
-            File newKeytabFile = new File(keytabPath);
-            keytabs.put(newKeytabFile.getName(), newKeytabFile);
         }
-
         return keytabs.entrySet().stream().map(entry -> entry.getValue()).collect(Collectors.toList());
     }
 
