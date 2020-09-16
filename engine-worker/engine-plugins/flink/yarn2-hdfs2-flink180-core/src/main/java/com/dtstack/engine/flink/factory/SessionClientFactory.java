@@ -28,6 +28,7 @@ import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.util.FileUtil;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
@@ -306,8 +307,9 @@ public class SessionClientFactory extends AbstractClientFactory {
                 clusterDescriptor.addShipFiles(pluginPaths);
             }
         }
-
-        clusterDescriptor.addShipFiles(keytabFiles);
+        if(CollectionUtils.isNotEmpty(keytabFiles)){
+            clusterDescriptor.addShipFiles(keytabFiles);
+        }
         List<URL> classpaths = getFlinkJarFile(flinkJarPath, clusterDescriptor);
         clusterDescriptor.setProvidedUserJarFiles(classpaths);
         clusterDescriptor.setQueue(flinkConfig.getQueue());
