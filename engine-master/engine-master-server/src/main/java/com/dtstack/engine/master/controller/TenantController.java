@@ -62,7 +62,7 @@ public class TenantController {
 
     @RequestMapping(value="/bindNamespace", method = {RequestMethod.POST})
     @ApiOperation(value = "更新namespace")
-    public void bindNamespace(@DtRequestParam("clusterId") Long clusterId,@DtRequestParam("namespace") String namespace) {
-        componentService.updateNamespaces(clusterId,namespace);
+    public void bindNamespace(@DtRequestParam("clusterId") Long clusterId,@DtRequestParam("namespace") String namespace,@DtRequestParam("queueId") Long queueId) {
+        componentService.updateNamespaces(clusterId,namespace,queueId);
     }
 }
