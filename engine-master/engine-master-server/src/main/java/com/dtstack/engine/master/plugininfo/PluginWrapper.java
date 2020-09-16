@@ -139,11 +139,11 @@ public class PluginWrapper{
             if(StringUtils.isBlank(currentSchema)){
                 throw new RdosDefineException("tidb currentSchema 不允许为空");
             }
-            if (dbUrl.endsWith(paramsJson.getString("currentSchema"))) {
+            if (dbUrl.endsWith(currentSchema)) {
                 pluginInfoJson.put("jdbcUrl", dbUrl);
                 return;
             } else if (dbUrl.endsWith("/")) {
-                pluginInfoJson.put("jdbcUrl", dbUrl + paramsJson.getString("currentSchema"));
+                pluginInfoJson.put("jdbcUrl", dbUrl + currentSchema);
                 return;
             }
 
