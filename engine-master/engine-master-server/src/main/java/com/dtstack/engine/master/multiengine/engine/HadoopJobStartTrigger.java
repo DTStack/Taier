@@ -176,7 +176,9 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                                     String taskExeArgs,String uploadPath) throws UnsupportedEncodingException {
         //替换jobId
         taskExeArgs = taskExeArgs.replace(TaskConstant.JOB_ID, scheduleJob.getJobId());
-        taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
+        if(StringUtils.isNotBlank(uploadPath)){
+            taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
+        }
 
         //替换组件的exeArgs中的cmd参数
         if (taskExeArgs.contains(TaskConstant.LAUNCH)) {

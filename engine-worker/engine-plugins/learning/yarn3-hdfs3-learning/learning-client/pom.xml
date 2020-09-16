@@ -2,153 +2,84 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>plugins.flink</artifactId>
         <groupId>com.dtstack.engine</groupId>
+        <artifactId>plugins.learning.yarn3-hdfs3-learning</artifactId>
         <version>1.0.0</version>
         <relativePath>..</relativePath>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.flink.yarn2-hdfs2-flink180</artifactId>
-    <name>plugins.flink.yarn2-hdfs2-flink180</name>
+    <artifactId>plugins.learning.yarn3-hdfs3-learning.learning-client</artifactId>
+    <name>plugins.learning.yarn3-hdfs3-learning.learning-client</name>
 
-    <url>http://maven.apache.org</url>
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <flink.version>1.8.3</flink.version>
-        <gson.version>2.7</gson.version>
-        <!-- 插件包所在文件夹名称 -->
-        <pluginDir.name>yarn2-hdfs2-flink180</pluginDir.name>
+        <jar.name>learning-client</jar.name>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.flink.yarn2-hdfs2-flink180-core</artifactId>
-            <version>1.0.0</version>
-        </dependency>
 
-        <!-- engine  -->
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-common</artifactId>
+            <artifactId>plugins.learning.yarn2-hdfs2-learning-core.learning-client</artifactId>
             <version>1.0.0</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-worker-server</artifactId>
+            <artifactId>plugins.learning.yarn2-hdfs2-learning.learning-core</artifactId>
             <version>1.0.0</version>
-            <scope>provided</scope>
         </dependency>
 
-        <!-- flink  -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-java</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-clients_2.11</artifactId>
-            <version>${flink.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.flink</groupId>
-                    <artifactId>flink-java</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-planner_2.11</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-common</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-streaming-java_2.11</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-streaming-scala_2.11</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-cep-scala_2.11</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-yarn_2.11</artifactId>
-            <version>${flink.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>flink-shaded-hadoop2</artifactId>
-                    <groupId>org.apache.flink</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-runtime_2.11</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-statebackend-rocksdb_2.11</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-
-        <!-- hadoop  -->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop3.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-hdfs</artifactId>
-            <version>${hadoop.version}</version>
+            <artifactId>hadoop-yarn-api</artifactId>
+            <version>${hadoop3.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-common</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop3.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-yarn-client</artifactId>
-            <version>${hadoop.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop3.version}</version>
         </dependency>
-    </dependencies>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-mapreduce-client-app</artifactId>
+            <version>${hadoop3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-mapreduce-client-common</artifactId>
+            <version>${hadoop3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-mapreduce-client-hs</artifactId>
+            <version>${hadoop3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-yarn-client</artifactId>
+            <version>${hadoop3.version}</version>
+        </dependency>
 
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
 
     <build>
         <resources>
@@ -161,13 +92,6 @@
         </resources>
 
         <plugins>
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -214,14 +138,6 @@
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
                                     <resource>mapred-site.xml</resource>
                                 </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/services/org.apache.hadoop.security.SecurityInfo</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/services/org.apache.hadoop.fs.FileSystem</resource>
-                                </transformer>
                             </transformers>
 
                             <artifactSet>
@@ -229,7 +145,7 @@
                                     <exclude>org.slf4j:slf4j-log4j12</exclude>
                                     <exclude>log4j:log4j</exclude>
                                     <exclude>org.slf4j:slf4j-api</exclude>
-                                    <exclude>netty-all:io.netty</exclude>
+                                    <exclude>com.dtstack:learning</exclude>
                                 </excludes>
                             </artifactSet>
                             <filters>
@@ -246,6 +162,21 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${basedir}/../target</directory>
+                            <includes>
+                                <include>${project.name}-${project.version}.jar</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.2</version>
@@ -260,13 +191,13 @@
                         <configuration>
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${pluginDir.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../../../pluginLibs/${pluginDir.name}/"
-                                      file="${basedir}/target/${pluginDir.name}-${git.branch}.jar"/>
+                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
+                                <copy todir="${basedir}/target/../../../../../../pluginLibs/yarn2-hdfs2-learning/"
+                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/${pluginDir.name}/"
-                                             includes="${pluginDir.name}-*.jar"
-                                             excludes="${pluginDir.name}-${git.branch}.jar"/>
+                                    <fileset dir="${basedir}/target/../../../../../../pluginLibs/yarn2-hdfs2-learning/"
+                                             includes="${jar.name}-*.jar"
+                                             excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>
@@ -274,8 +205,6 @@
                 </executions>
             </plugin>
         </plugins>
-
     </build>
-
 
 </project>

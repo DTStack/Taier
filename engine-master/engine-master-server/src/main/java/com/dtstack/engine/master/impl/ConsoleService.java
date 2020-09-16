@@ -324,7 +324,7 @@ public class ConsoleService {
                     GroupPriorityQueue groupPriorityQueue = jobDealer.getGroupPriorityQueue(engineJobCache.getJobResource());
                     groupPriorityQueue.remove(jobClient);
                 }
-                return jobDealer.addGroupPriorityQueue(engineJobCache.getJobResource(), jobClient, false);
+                return jobDealer.addGroupPriorityQueue(engineJobCache.getJobResource(), jobClient, false, false);
             }
         } catch (Exception e) {
             logger.error("{}", e);

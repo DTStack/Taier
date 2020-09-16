@@ -14,6 +14,7 @@ import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flink.client.program.ClusterClient;
+import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.YarnClusterDescriptor;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.util.ConverterUtils;
@@ -117,20 +118,28 @@ public class FlinkClusterClientManager {
         String applicationId = jobIdentifier.getApplicationId();
         String taskId = jobIdentifier.getTaskId();
 
-        ClusterClient clusterClient;
-        try {
-            clusterClient = perJobClientCache.get(applicationId, () -> {
-                JobClient jobClient = new JobClient();
-                jobClient.setTaskId(taskId);
-                jobClient.setJobName("taskId-" + taskId);
-                YarnClusterDescriptor perJobYarnClusterDescriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
-                return perJobYarnClusterDescriptor.retrieve(ConverterUtils.toApplicationId(applicationId)).getClusterClient();
-            });
+        ClusterClient clusterClient = null;
 
-        } catch (ExecutionException e) {
-            throw new RuntimeException("get yarn cluster client exception:", e);
+        try {
+            clusterClient = KerberosUtils.login(flinkConfig, () -> {
+                try {
+                    return perJobClientCache.get(applicationId, () -> {
+                        JobClient jobClient = new JobClient();
+                        jobClient.setTaskId(taskId);
+                        jobClient.setJobName("taskId-" + taskId);
+                        YarnClusterDescriptor perJobYarnClusterDescriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
+                        return perJobYarnClusterDescriptor.retrieve(ConverterUtils.toApplicationId(applicationId)).getClusterClient();
+                    });
+                } catch (ExecutionException e) {
+                    LOG.error("Get perJobClient exception:", e);
+                    return null;
+                }
+            }, flinkClientBuilder.getYarnConf());
+        } catch (Exception e) {
+            LOG.error("Get perJobClient exception:", e);
         }
 
+        Preconditions.checkNotNull(clusterClient, "Get perJobClient is null!");
         return clusterClient;
     }
 

@@ -82,9 +82,9 @@
                 </foreach>
             </if>
             <if test="model.cycStartDay != null and model.cycEndDay != null">
-                AND bj.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} and cyc_time !='' limit 1)
+                AND bj.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} and cyc_time !='' ORDER BY id ASC limit 1)
                 AND bj.cyc_time <![CDATA[>=]]> #{model.cycStartDay}
-                AND bj.id <![CDATA[<]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<]]> #{model.cycEndDay} and cyc_time !='' ORDER BY id desc limit 1)
+                AND bj.id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<]]> #{model.cycEndDay} and cyc_time !='' ORDER BY id desc limit 1)
                 AND bj.cyc_time <![CDATA[<]]> #{model.cycEndDay}
             </if>
             <if test="model.jobNameRightLike != null">
@@ -301,8 +301,10 @@
             </if>
 
             <if test="model.cycStartDay != null and model.cycEndDay != null">
-                AND id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} limit 1)
-                AND id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<=]]> #{model.cycEndDay} ORDER BY id desc limit 1)
+                AND id >= (SELECT id FROM schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} AND cyc_time !='' LIMIT 1)
+                AND id <![CDATA[<=]]> (SELECT id FROM schedule_job WHERE cyc_time <![CDATA[<]]> #{model.cycEndDay} AND cyc_time !='' ORDER BY id DESC LIMIT 1)
+                AND cyc_time <![CDATA[>=]]> #{model.cycStartDay}
+                AND cyc_time <![CDATA[<]]> #{model.cycEndDay}
             </if>
 
             <if test="model.flowJobId != null">
@@ -500,10 +502,12 @@
         AND ts.app_type = #{appType}
         AND ts.task_type != 10
         <if test="startTime != null and startTime != ''">
-            AND ts.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{startTime} limit 1)
+            AND ts.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{startTime} AND cyc_time !='' LIMIT 1)
+            AND ts.cyc_time <![CDATA[>=]]> #{startTime}
         </if>
         <if test="endTime != null and endTime != ''">
-            AND ts.id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<=]]> #{endTime} ORDER BY id desc limit 1)
+            AND ts.id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<]]> #{endTime} AND cyc_time !='' ORDER BY id DESC LIMIT 1)
+            AND ts.cyc_time <![CDATA[<]]> #{endTime}
         </if>
         <if test="statuses != null">
             AND ts.status in
