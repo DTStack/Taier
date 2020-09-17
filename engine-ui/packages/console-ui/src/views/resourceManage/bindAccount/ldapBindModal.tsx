@@ -155,7 +155,7 @@ class BindAccountModal extends React.Component<IProps, any> {
             >
                 <Alert
                     style={{ border: 0 }}
-                    message="产品账号绑定LDAP账号后任务提交至Yarn上将对接用"
+                    message="产品账号绑定LDAP账号后任务提交至Yarn上将对接用户"
                     type="info"
                     showIcon
                 />

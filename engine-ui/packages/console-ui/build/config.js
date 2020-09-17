@@ -7,7 +7,7 @@ module.exports = {
         host: '0.0.0.0',
         proxy: {
             '/dt-common': {
-                target: 'http://dev.insight.dtstack.cn/', // 开发环境
+                target: 'http://v4.insight.dtstack.cn/', // 开发环境
                 // ignorePath: true,
                 // pathRewrite:{"/dt-common": "/portal"},
                 changeOrigin: true,
