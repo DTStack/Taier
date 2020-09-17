@@ -16,7 +16,7 @@
     <url>http://maven.apache.org</url>
     <properties>
         <pluginDir.name>k8s-hdfs2-flink110</pluginDir.name>
-        <flink.version>1.10.0</flink.version>
+        <flink.version>1.10.1</flink.version>
         <kubernetes.client.version>4.9.0</kubernetes.client.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -135,19 +135,19 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.hadoop</groupId>

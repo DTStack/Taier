@@ -159,7 +159,7 @@ public class KubernetesConfigOptions {
     public static final ConfigOption<String> FLINK_LOG_FILE_NAME =
         key("logFileName")
             .stringType()
-            .defaultValue("log4j-roll.properties")
+            .defaultValue("log4j.properties")
             .withDescription("The task run log file name.");
 
     /**
