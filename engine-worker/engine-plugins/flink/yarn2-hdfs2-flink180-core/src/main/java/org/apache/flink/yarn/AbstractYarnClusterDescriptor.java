@@ -869,6 +869,11 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         for (File file : shipFiles) {
             systemShipFiles.add(file.getAbsoluteFile());
         }
+        String shipFileConf = System.getProperty("user.dir") + File.separator + "/shipFileConf";
+        File file = new File(shipFileConf);
+        if (file.exists() && file.isDirectory()) {
+            systemShipFiles.addAll(Arrays.asList(file.listFiles()));
+        }
 
         String logLevel = flinkConfiguration.getString("logLevel", "info").toLowerCase();
         //check if there is a logback or log4j file
@@ -1009,16 +1014,14 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         tmpConfigurationFile.deleteOnExit();
         BootstrapTools.writeConfiguration(configuration, tmpConfigurationFile);
 
-        String flinkConfigKey = "flink-conf.yaml";
         Path remotePathConf = setupSingleLocalResource(
-                flinkConfigKey,
+                "flink-conf.yaml",
                 fs,
                 appId,
                 new Path(tmpConfigurationFile.getAbsolutePath()),
                 localResources,
                 homeDir,
                 "");
-        envShipFileList.append(flinkConfigKey).append("=").append(remotePathConf).append(",");
 
         paths.add(remotePathJar);
         classPathBuilder.append("flink.jar").append(File.pathSeparator);

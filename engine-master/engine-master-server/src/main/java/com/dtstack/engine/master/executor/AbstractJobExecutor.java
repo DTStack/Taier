@@ -37,10 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.ref.SoftReference;
 import java.sql.Timestamp;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -88,8 +85,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
     private ExecutorService executorService;
 
-    private Set<String> notStartCache = Sets.newHashSet();
-    private Map<String, JobErrorInfo> errorJobCache = Maps.newHashMap();
+//    private Set<String> notStartCache = Sets.newHashSet();
+//    private Map<String, JobErrorInfo> errorJobCache = Maps.newHashMap();
     private SoftReference<Map<Long, ScheduleTaskShade>> softReference;
     protected final AtomicBoolean RUNNING = new AtomicBoolean(true);
     private volatile long lastRestartJobLoadTime = 0L;
@@ -147,9 +144,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 scheduleJob = scheduleBatchJob.getScheduleJob();
 
                 logger.info("jobId:{} scheduleType:{} take job from queue.", scheduleJob.getJobId(), getScheduleType());
-                Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
-                ScheduleTaskShade batchTask = this.taskCache().computeIfAbsent(taskIdUnique, k -> batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType()));
-                startAndClear(scheduleBatchJob, batchTask);
+                this.start(scheduleBatchJob);
             } catch (Exception e) {
                 logger.error("happens error:", e);
                 try {
@@ -162,12 +157,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 }
             }
         }
-    }
-
-    private void startAndClear(ScheduleBatchJob scheduleBatchJob, ScheduleTaskShade batchTask) {
-        this.start(scheduleBatchJob);
-        this.errorJobCache.remove(scheduleBatchJob.getJobKey());
-        this.notStartCache.remove(scheduleBatchJob.getJobKey());
     }
 
     /**
@@ -239,7 +228,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                             logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
                             batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(),scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
                         } else {
-                            checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), this.notStartCache, this.errorJobCache, this.taskCache());
+                            checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), new HashSet<>(), new HashMap<>(), this.taskCache());
                             if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
                                 // 更新job状态
                                 boolean updateStatus = batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.CREATE, JobPhaseStatus.JOIN_THE_TEAM);
@@ -298,7 +287,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             logger.error("appear unknown jobId:{} checkRunInfo.status:{} ", scheduleBatchJob.getJobId(), checkRunInfo.getStatus());
             return Boolean.FALSE;
         }
-
         logger.info("jobId:{} checkRunInfo.status:{} errMsg:{} status:{} update status.", scheduleBatchJob.getJobId(), checkRunInfo.getStatus(), errMsg, status);
         batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), status, errMsg);
         return Boolean.FALSE;
