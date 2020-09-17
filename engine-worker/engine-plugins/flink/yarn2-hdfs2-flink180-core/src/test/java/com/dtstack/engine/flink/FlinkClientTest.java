@@ -233,7 +233,7 @@ public class FlinkClientTest {
 
 		JobClient jobClient = YarnMockUtil.mockJobClient("session", null);
 
-		when(flinkClusterClientManager.getIsClientOn()).thenReturn(true);
+		when(flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().isRunning()).thenReturn(true);
 		String webInterfaceURL = "http://dtstack01:8088";
 		ClusterClient clusterClient = PowerMockito.mock(ClusterClient.class);
 		when(clusterClient.getWebInterfaceURL()).thenReturn(webInterfaceURL);

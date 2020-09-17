@@ -33,6 +33,7 @@ engine-worker/engine-plugins/spark/k8s-hdfs2-spark240/spark-sql-proxy,\
 engine-worker/engine-plugins/dtscript/yarn3-hdfs3-dtscript/dtscript-client,\
 engine-worker/engine-plugins/dtscript/yarn2-hdfs2-dtscript/dtscript-client,\
 engine-worker/engine-plugins/learning/yarn2-hdfs2-learning/learning-client,\
+engine-worker/engine-plugins/learning/yarn3-hdfs3-learning/learning-client,\
 engine-worker/engine-plugins/hadoop/yarn3-hdfs3-hadoop3,\
 engine-worker/engine-plugins/hadoop/yarn2-hdfs2-hadoop2,\
 engine-worker/engine-plugins/hadoop/k8s-hdfs2-hadoop2,\

@@ -110,7 +110,7 @@ public class AccountServiceTest extends AbstractTest {
         Assert.assertNotNull(tenant);
         Assert.assertNotNull(tenant.getId());
         //绑定租户
-        tenantService.bindingTenant(tenant.getDtUicTenantId(), dbCluster.getClusterId(), null, "");
+        tenantService.bindingTenant(tenant.getDtUicTenantId(), dbCluster.getClusterId(), null, "","");
 
         User user = DataCollection.getData().getUser();
         AccountVo accountVo = new AccountVo();
