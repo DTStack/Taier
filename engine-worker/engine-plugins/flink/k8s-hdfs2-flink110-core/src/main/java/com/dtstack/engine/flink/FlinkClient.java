@@ -20,10 +20,10 @@ import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
 import com.dtstack.engine.flink.enums.FlinkMode;
+import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.parser.AddJarOperator;
 import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
-import com.dtstack.engine.flink.util.FlinkConfUtil;
 import com.dtstack.engine.flink.resource.FlinkK8sSeesionResourceInfo;
 import com.dtstack.engine.flink.util.FlinkRestParseUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
@@ -44,9 +44,6 @@ import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.cache.DistributedCache;
 import org.apache.flink.client.ClientUtils;
-import org.apache.flink.client.deployment.ClusterDeploymentException;
-import org.apache.flink.client.deployment.ClusterDescriptor;
-import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.PackagedProgramUtils;
@@ -55,7 +52,6 @@ import org.apache.flink.configuration.HistoryServerOptions;
 import org.apache.flink.kubernetes.kubeclient.FlinkKubeClient;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
-import org.apache.flink.runtime.messages.Acknowledge;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.function.FunctionUtils;
 import org.slf4j.Logger;
@@ -71,7 +67,6 @@ import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -85,17 +80,6 @@ import static java.security.AccessController.doPrivileged;
 public class FlinkClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
-
-    //FIXME key值需要根据客户端传输名称调整
-    private static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
-
-    public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
-
-    private static final String TASKMANAGERS_URL_FORMAT = "%s/taskmanagers";
-
-    private static final String JOBMANAGER_LOG_URL_FORMAT = "%s/jobmanager/log";
-
-    private static final String TASKMANAGERS_KEY = "taskmanagers";
 
     private String tmpFileDirPath = "./tmp";
 
@@ -193,8 +177,11 @@ public class FlinkClient extends AbstractClient {
         logger.info("clusterClient monitorUrl is {}, run mode is {}", monitorUrl, taskRunMode.name());
         try {
             if (FlinkMode.isPerJob(taskRunMode)) {
-                ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(tmpConfiguration, jobClient.getApplicationPriority(), jobClient.getConfProperties());
-                clusterClient = createClusterClientForPerJob(clusterSpecification, jobClient);
+                PerJobClientFactory perJobClientFactory = flinkClusterClientManager.getPerJobClientFactory();
+                clusterClient = perJobClientFactory.getClusterClient(jobClient);
+
+                flinkClusterClientManager.addClient(clusterClient.getClusterId().toString(), clusterClient);
+
             } else {
                 clusterClient = flinkClusterClientManager.getClusterClient(null);
             }
@@ -262,36 +249,6 @@ public class FlinkClient extends AbstractClient {
         return programArgs;
     }
 
-
-    private ClusterClient createClusterClientForPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws ClusterDeploymentException {
-        ClusterDescriptor<String> clusterDescriptor = null;
-        ClusterClient<String> clusterClient = null;
-        String projobClusterId = String.format("%s-%s-%s", FlinkConfig.FLINK_PERJOB_PREFIX, jobClient.getTaskId(), jobClient.getGenerateTime());
-        try {
-            clusterDescriptor = flinkClusterClientManager.getPerJobClientFactory().createPerjobClusterDescriptor(jobClient, projobClusterId);
-            if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
-                flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
-            }
-            clusterClient = clusterDescriptor.deploySessionCluster(clusterSpecification).getClusterClient();
-
-            flinkClusterClientManager.addClient(clusterClient.getClusterId(), clusterClient);
-            return clusterClient;
-        } catch (Exception e) {
-            try {
-                if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
-                    flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
-                }
-                if (clusterDescriptor != null) {
-                    clusterDescriptor.close();
-                }
-            } catch (Exception e1) {
-                logger.info("Could not properly close the kubernetes cluster descriptor.", e1);
-            }
-            throw new RdosDefineException(e);
-        }
-    }
-
-
     private Pair<String, String> submitFlinkJob(ClusterClient clusterClient, JobGraph jobGraph, FlinkMode taskRunMode) throws Exception {
         try {
             JobExecutionResult jobExecutionResult = ClientUtils.submitJob(clusterClient, jobGraph, flinkConfig.getSubmitTimeout(), TimeUnit.MINUTES);
@@ -302,7 +259,6 @@ public class FlinkClient extends AbstractClient {
             if (!FlinkMode.isPerJob(taskRunMode) && flinkClusterClientManager.getIsClientOn()) {
                 logger.info("submit job error,flink session init ..");
                 flinkClusterClientManager.setIsClientOn(false);
-                flinkClusterClientManager.initClusterClient();
             }
             throw e;
         } finally {
@@ -333,8 +289,8 @@ public class FlinkClient extends AbstractClient {
 
         String externalPath = jobClient.getExternalPath();
         boolean allowNonRestoredState = false;
-        if (jobClient.getConfProperties().containsKey(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY)) {
-            String allowNonRestored = (String) jobClient.getConfProperties().get(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY);
+        if (jobClient.getConfProperties().containsKey(ConfigConstrant.FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY)) {
+            String allowNonRestored = (String) jobClient.getConfProperties().get(ConfigConstrant.FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY);
             allowNonRestoredState = BooleanUtils.toBoolean(allowNonRestored);
         }
 
@@ -403,34 +359,31 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
-        String applicationId = jobIdentifier.getApplicationId();
-        logger.info("cancel job applicationId is: {}", applicationId);
+        String clusterId = jobIdentifier.getApplicationId();
+        logger.info("cancel job clusterId is: {}", clusterId);
 
         ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+
+        // session mode
+        Boolean isSession = StringUtils.isBlank(clusterId) || clusterId.contains("flinksession");
         try {
             RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
             if (!RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
                 JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
 
-                CompletableFuture cancel = targetClusterClient.cancel(jobID);;
-                Object ack = cancel.get(2, TimeUnit.MINUTES);
+                String savepointPath = targetClusterClient.stopWithSavepoint(jobID, true, null)
+                        .get(jobIdentifier.getTimeout(), TimeUnit.MILLISECONDS).toString();
 
-                if (ack instanceof Acknowledge) {
-                    logger.info("cancel job success, applicationId is {}", applicationId);
-                }
-
+                logger.info("Job[{}] Savepoint completed. Path:{}", jobID.toString(), savepointPath);
+            }
+            if (!isSession) {
+                targetClusterClient.close();
             }
         } catch (Exception e) {
-            // session mode
-            if (targetClusterClient == flinkClusterClientManager.getClusterClient()) {
-                logger.error("", e);
-                return JobResult.createErrorResult(e);
-            }
+            logger.error("Stop job error: {}", e.getMessage());
 
-            try {
-                targetClusterClient.shutDownCluster();
-            } catch (Exception ec) {
-                logger.error("shutDownCluster error", ec);
+            if (isSession) {
+                logger.error("", e);
                 return JobResult.createErrorResult(e);
             }
         }
@@ -449,7 +402,7 @@ public class FlinkClient extends AbstractClient {
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
         String jobId = jobIdentifier.getEngineJobId();
-        String applicationId = jobIdentifier.getApplicationId();
+        String clusterId = jobIdentifier.getApplicationId();
 
         if (StringUtils.isBlank(jobId)) {
             logger.warn("jobIdentifier:{} is blank.", jobIdentifier);
@@ -460,7 +413,7 @@ public class FlinkClient extends AbstractClient {
             String reqUrl = "";
             String response = "";
             FlinkKubeClient flinkKubeClient = flinkClientBuilder.getFlinkKubeClient();
-            if (flinkKubeClient.getInternalService(applicationId) == null) {
+            if (flinkKubeClient.getInternalService(clusterId) == null) {
                 String jobHistoryURL = getJobHistoryURL();
                 reqUrl = jobHistoryURL + "/jobs/" + jobId;
                 Long refreshInterval = flinkClientBuilder.getFlinkConfiguration()
@@ -487,9 +440,11 @@ public class FlinkClient extends AbstractClient {
                     String state = (String) stateObj;
                     state = StringUtils.upperCase(state);
                     RdosTaskStatus rdosTaskStatus =  RdosTaskStatus.getTaskStatus(state);
-                    Boolean isFlinkSessionTask = applicationId.startsWith(FlinkConfig.FLINK_SESSION_PREFIX);
+                    Boolean isFlinkSessionTask = clusterId.startsWith(ConfigConstrant.FLINK_SESSION_PREFIX);
                     if (RdosTaskStatus.isStopped(rdosTaskStatus.getStatus()) && !isFlinkSessionTask) {
-                        clusterClient.shutDownCluster();
+                        if (flinkClientBuilder.getFlinkKubeClient().getInternalService(clusterId) != null) {
+                            flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(clusterId);
+                        }
                     }
                     return rdosTaskStatus;
 
@@ -598,8 +553,10 @@ public class FlinkClient extends AbstractClient {
                     .withNamespace(flinkConfig.getNamespace())
                     .withAllowPendingPodSize(0)
                     .build();
-
-            ResourceQuotaList resourceQuotas = kubernetesClient.resourceQuotas().inNamespace(flinkConfig.getNamespace()).list();
+            String groupName = jobClient.getGroupName();
+            String[] contents = groupName.split("_");
+            String namespace = contents[contents.length-1];
+            ResourceQuotaList resourceQuotas = kubernetesClient.resourceQuotas().inNamespace(namespace).list();
             if (resourceQuotas != null && resourceQuotas.getItems().size() > 0) {
                 ResourceQuota resourceQuota = resourceQuotas.getItems().get(0);
                 return seesionResourceInfo.judgeSlotsInNamespace(jobClient, resourceQuota);
@@ -709,7 +666,7 @@ public class FlinkClient extends AbstractClient {
         }
 
         try {
-            return getMessageByHttp(String.format(FLINK_CP_URL_FORMAT, jobId), reqURL);
+            return getMessageByHttp(String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, jobId), reqURL);
         } catch (IOException e) {
             logger.error("", e);
             return null;
@@ -799,12 +756,12 @@ public class FlinkClient extends AbstractClient {
 
     private String getJobmanagerLogInfo(String webInterfaceUrl) throws IOException {
         JSONObject jobmanager = new JSONObject();
-        jobmanager.put("typeName", "jobmanager");
-        String jobmanagerUrl = String.format(JOBMANAGER_LOG_URL_FORMAT, webInterfaceUrl);
+        jobmanager.put("typeName", ConfigConstrant.JOBMANAGER_COMPONENT);
+        String jobmanagerUrl = String.format(ConfigConstrant.JOBMANAGER_LOG_URL_FORMAT, webInterfaceUrl);
         String jobmanagerMsg = PoolHttpClient.get(jobmanagerUrl);
 
         JSONObject logInfo = new JSONObject();
-        logInfo.put("name", "jobmanager.log");
+        logInfo.put("name", ConfigConstrant.JOBMANAGER_LOG_NAME);
         Integer totalBytes = jobmanagerMsg.length();
         logInfo.put("totalBytes", String.valueOf(totalBytes));
         logInfo.put("url", jobmanagerUrl);
@@ -819,31 +776,31 @@ public class FlinkClient extends AbstractClient {
     private List<String> getTaskmanagersLogInfo(String webInterfaceUrl) throws IOException {
         List<String> taskmanagerLogs = new ArrayList<>();
 
-        String taskmanagersUrl = String.format(TASKMANAGERS_URL_FORMAT, webInterfaceUrl);
+        String taskmanagersUrl = String.format(ConfigConstrant.TASKMANAGERS_URL_FORMAT, webInterfaceUrl);
         String taskmanagersMsg = PoolHttpClient.get(taskmanagersUrl);
         JSONObject taskmanagers = JSONObject.parseObject(taskmanagersMsg);
-        if (!taskmanagers.containsKey(TASKMANAGERS_KEY)) {
+        if (!taskmanagers.containsKey(ConfigConstrant.TASKMANAGERS_KEY)) {
             logger.error("Get the taskmanagers but does not include the taskmanagers field! " + taskmanagersMsg);
             throw new RdosDefineException("Does not include the taskmanagers field.");
         }
-        JSONArray taskmanagersInfo = taskmanagers.getJSONArray(TASKMANAGERS_KEY);
+        JSONArray taskmanagersInfo = taskmanagers.getJSONArray(ConfigConstrant.TASKMANAGERS_KEY);
         for(Object taskmanager : taskmanagersInfo) {
             JSONObject logInfo = new JSONObject();
 
             JSONObject taskmanagerJson = (JSONObject)taskmanager;
             String taskmanagerId = taskmanagerJson.getString("id");
-            String logUrl = String.format("%s/taskmanagers/%s/log", webInterfaceUrl, taskmanagerId);
+            String logUrl = String.format(ConfigConstrant.TASKMANAGER_LOG_URL_FORMAT, webInterfaceUrl, taskmanagerId);
 
             JSONObject taskmanagerLogInfo = new JSONObject();
             taskmanagerLogInfo.put("url", logUrl);
-            taskmanagerLogInfo.put("name", "taskmanager.log");
+            taskmanagerLogInfo.put("name", ConfigConstrant.TASKMANAGER_LOG_NAME);
             Integer totalBytes = PoolHttpClient.get(logUrl).length();
             taskmanagerLogInfo.put("totalBytes", String.valueOf(totalBytes));
 
             List<JSONObject> logInfos = new ArrayList<>();
             logInfos.add(taskmanagerLogInfo);
 
-            logInfo.put("typeName", "taskmanager");
+            logInfo.put("typeName", ConfigConstrant.TASKMANAGER_COMPONENT);
             logInfo.put("otherInfo", JSONObject.toJSONString(taskmanagerJson));
             logInfo.put("logs", logInfos);
 
