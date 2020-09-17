@@ -70,6 +70,10 @@
         <appender-ref ref="flinkAppender" />
     </logger>
 
+    <logger name="com.dtstack.engine.flink.factory.SessionClientFactory" level="info" additivity="false">
+        <appender-ref ref="flinkAppender" />
+    </logger>
+
     <logger name="com.dtstack.engine.master.router" level="info" additivity="false">
         <appender-ref ref="request" />
     </logger>
