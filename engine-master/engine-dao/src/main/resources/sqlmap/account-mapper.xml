@@ -65,10 +65,12 @@
         from console_account a left JOIN
         console_account_tenant at on a.id = at.account_id
         where
-        at.user_id = #{userId}
+        a.is_deleted = 0
         AND at.tenant_id = #{tenantId}
         AND a.type = #{accountType}
-        AND a.is_deleted = 0
+        <if test="userId !=null">
+            AND at.user_id = #{userId}
+        </if>
         <if test="name !=null ">
             AND a.name = #{name}
         </if>

@@ -91,7 +91,7 @@
 
     <select id="generalQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="com.dtstack.engine.api.dto.AccountDTO">
         SELECT ca.name AS name,cat.*,cu.user_name,
-               (SELECT user_name FROM console_user WHERE id = cat.modify_user_id ) AS modifyUserName
+               (SELECT user_name FROM console_user WHERE dtuic_user_id = cat.modify_user_id ) AS modifyUserName
         FROM console_account_tenant cat
         LEFT JOIN console_account ca ON cat.account_id = ca.id
         LEFT JOIN console_dtuic_tenant ct ON cat.tenant_id = ct.id

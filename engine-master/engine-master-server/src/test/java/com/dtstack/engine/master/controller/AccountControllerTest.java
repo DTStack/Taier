@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.api.vo.AccountVo;
@@ -49,6 +48,6 @@ public class AccountControllerTest extends AbstractTest {
         secondVo.setEngineType(MultiEngineType.HADOOP.getType());
 
         ArrayList<AccountVo> accountVos = Lists.newArrayList(firstVo, secondVo);
-        accountController.bindAccountList(accountVos,1L);
+//        accountController.bindAccountList(accountVos,1L);
     }
 }
