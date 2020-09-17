@@ -23,6 +23,7 @@ import com.dtstack.schedule.common.enums.Sort;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -144,8 +145,8 @@ public class TenantService {
             }
 
             engineTenantVO.setQueue(queue.getQueuePath());
-            engineTenantVO.setMaxCapacity(Double.valueOf(queue.getMaxCapacity()).intValue() * 100 + "%");
-            engineTenantVO.setMinCapacity(Double.valueOf(queue.getCapacity()).intValue() * 100 + "%");
+            engineTenantVO.setMaxCapacity(NumberUtils.toInt(queue.getMaxCapacity(),0) * 100 + "%");
+            engineTenantVO.setMinCapacity(NumberUtils.toInt(queue.getCapacity(),0) * 100 + "%");
         }
     }
 
