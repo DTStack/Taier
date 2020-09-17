@@ -58,4 +58,19 @@
         <include refid="update_fragment"/>
         WHERE id = #{id}
     </update>
+
+
+    <select id="getOne" resultType="com.dtstack.engine.api.domain.Account">
+        select a.*
+        from console_account a left JOIN
+        console_account_tenant at on a.id = at.account_id
+        where
+        at.user_id = #{userId}
+        AND at.tenant_id = #{tenantId}
+        AND a.type = #{accountType}
+        AND a.is_deleted = 0
+        <if test="name !=null ">
+            AND a.name = #{name}
+        </if>
+    </select>
 </mapper>
