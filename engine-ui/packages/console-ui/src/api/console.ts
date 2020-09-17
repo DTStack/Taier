@@ -203,6 +203,9 @@ export default {
     switchQueue (params: any) {
         return http.post(req.SWITCH_QUEUE, params);
     },
+    bindNamespace (params: any) {
+        return http.post(req.BIND_NAME_SPACE, params);
+    },
 
     /**
      * 告警通道

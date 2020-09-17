@@ -1,12 +1,15 @@
 import * as React from 'react';
-import { Select, Table, Input, Button, message } from 'antd';
+import { Select, Table, Input, Button, message, Popconfirm } from 'antd';
 import { get } from 'lodash';
 import utils from 'dt-common/src/utils';
 
 import Api from '../../../api/console';
-import AccountApi, { IAccount } from '../../../api/account';
+import AccountApi from '../../../api/account';
 import { ENGIN_TYPE_TEXT } from '../../../consts';
 import BindAccountModal from './bindModal';
+import LdapBindModal from './ldapBindModal';
+import { isHadoopEngine } from '../../../consts/clusterFunc';
+import { giveMeAKey } from './help';
 
 const Option = Select.Option;
 const Search = Input.Search;
@@ -126,21 +129,26 @@ class BindAccountTable extends React.Component<IProps, IState> {
         })
     }
 
-    onUnBindAccount = async (account: IAccount) => {
-        const res = await AccountApi.unbindAccount({
+    onUnBindAccount = async (account: any) => {
+        const { engineType } = this.props;
+        let params: any = {
             id: account.bindUserId,
             name: account.name,
-            password: account.password
-        });
+            password: account.password || ''
+        }
+        if (isHadoopEngine(engineType)) {
+            params = { ...params, id: account.id }
+        }
+        const res = await AccountApi.unbindAccount(params);
         if (res.code === 1) {
             message.success('解绑成功！');
-            this.showHideBindModal(null);
+            !isHadoopEngine(engineType) && this.showHideBindModal(null);
             this.handleTableChange({ current: 1 })
             this.fetchUnbindUsers();
         }
     }
 
-    onBindAccountUpdate = async (account: IAccount) => {
+    onBindAccountUpdate = async (account: any) => {
         const { queryParams, modalData } = this.state;
         const { engineType } = this.props;
         const isEdit = modalData;
@@ -149,14 +157,22 @@ class BindAccountTable extends React.Component<IProps, IState> {
             this.handleTableChange({ current: 1 })
             this.fetchUnbindUsers();
         }
-        account.bindTenantId = queryParams.dtuicTenantId;
-        account.engineType = engineType;
         let res = { code: 0 };
         if (isEdit) {
+            account.bindTenantId = queryParams.dtuicTenantId;
+            account.engineType = engineType;
             res = await AccountApi.updateBindAccount(account);
-        } else {
+        } else if (!isEdit && !isHadoopEngine(engineType)) {
+            account.bindTenantId = queryParams.dtuicTenantId;
+            account.engineType = engineType;
             res = await AccountApi.bindAccount(account);
+        } else {
+            const params = account.map((a: any) => {
+                return { ...a, bindTenantId: queryParams.dtuicTenantId, engineType: engineType }
+            });
+            res = await AccountApi.ldapBindAccount({ accountList: params });
         }
+
         if (res.code === 1) {
             message.success('绑定成功！');
             handOk();
@@ -164,6 +180,7 @@ class BindAccountTable extends React.Component<IProps, IState> {
     }
 
     initColumns = () => {
+        const { engineType } = this.props;
         return [
             {
                 title: '产品账号',
@@ -173,7 +190,7 @@ class BindAccountTable extends React.Component<IProps, IState> {
                 }
             },
             {
-                title: '数据库账号',
+                title: isHadoopEngine(engineType) ? 'LDAP账号' : '数据库账号',
                 dataIndex: 'name',
                 render (text: any, record: any) {
                     return text
@@ -197,6 +214,19 @@ class BindAccountTable extends React.Component<IProps, IState> {
                 title: '操作',
                 dataIndex: 'deal',
                 render: (text: any, record: any) => {
+                    if (isHadoopEngine(engineType)) {
+                        return <span>
+                            <a onClick={ () => { this.showHideBindModal(record) }}>编辑</a>
+                            <span className="ant-divider" ></span>
+                            <Popconfirm
+                                title="确认删除该LDAP账号绑定？"
+                                okText="确定" cancelText="取消"
+                                onConfirm={() => { this.onUnBindAccount(record) }}
+                            >
+                                <a style={{ color: '#FF5F5C' }}>删除</a>
+                            </Popconfirm>
+                        </span>
+                    }
                     return <a onClick={ () => { this.showHideBindModal(record) }}>
                         修改绑定
                     </a>
@@ -235,7 +265,7 @@ class BindAccountTable extends React.Component<IProps, IState> {
                 </Select>
                 <Search
                     style={{ width: '200px', marginBottom: '20px', marginLeft: '10px' }}
-                    placeholder='按产品账号、数据库账号搜索'
+                    placeholder={`按产品账号、${isHadoopEngine(engineType) ? 'LDAP' : '数据库'}账号搜索`}
                     value={queryParams.username}
                     onChange={(e: any) => {
                         this.updateQueryParams({ username: e.target.value, currentPage: 1 });
@@ -254,16 +284,26 @@ class BindAccountTable extends React.Component<IProps, IState> {
                     pagination={pagination}
                     onChange={this.handleTableChange}
                 />
-                <BindAccountModal
-                    visible={visible}
-                    data={modalData}
-                    userList={modalData ? tableData : unbindUserList}
-                    title={modalData ? '编辑账号' : '绑定账号'}
-                    onOk={this.onBindAccountUpdate}
-                    onUnbind={this.onUnBindAccount}
-                    onCancel={() => this.showHideBindModal(null)}
-                    engineText={ENGIN_TYPE_TEXT[engineType]}
-                />
+                {
+                    !isHadoopEngine(engineType) ? <BindAccountModal
+                        visible={visible}
+                        data={modalData}
+                        userList={modalData ? tableData : unbindUserList}
+                        title={modalData ? '编辑账号' : '绑定账号'}
+                        onOk={this.onBindAccountUpdate}
+                        onUnbind={this.onUnBindAccount}
+                        onCancel={() => this.showHideBindModal(null)}
+                        engineText={ENGIN_TYPE_TEXT[engineType]}
+                    /> : <LdapBindModal
+                        key={giveMeAKey()}
+                        visible={visible}
+                        data={modalData}
+                        userList={unbindUserList}
+                        title={modalData ? '编辑账号' : '绑定账号'}
+                        onOk={this.onBindAccountUpdate}
+                        onCancel={() => this.showHideBindModal(null)}
+                    />
+                }
             </div>
         )
     }
