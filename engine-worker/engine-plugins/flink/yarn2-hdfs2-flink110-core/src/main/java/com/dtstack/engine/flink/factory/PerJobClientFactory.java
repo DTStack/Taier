@@ -208,6 +208,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
                     String principal = KerberosUtils.getPrincipal(keytabPath);
                     config.setString(SecurityOptions.KERBEROS_LOGIN_KEYTAB, keytabPath);
                     config.setString(SecurityOptions.KERBEROS_LOGIN_PRINCIPAL, principal);
+                    continue;
                 }
                 File newKeytabFile = new File(keytabPath);
                 keytabs.put(newKeytabFile.getName(), newKeytabFile);
