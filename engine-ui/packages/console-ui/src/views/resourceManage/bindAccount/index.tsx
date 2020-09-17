@@ -7,7 +7,7 @@ import Api from '../../../api/console';
 import AccountApi from '../../../api/account';
 import { ENGIN_TYPE_TEXT } from '../../../consts';
 import BindAccountModal from './bindModal';
-import LdapBindModal from './LdapBindModal';
+import LdapBindModal from './ldapBindModal';
 import { isHadoopEngine } from '../../../consts/clusterFunc';
 import { giveMeAKey } from './help';
 
