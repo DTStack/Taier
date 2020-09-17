@@ -5,6 +5,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.enums.ClusterMode;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.HadoopConf;
+import com.sun.istack.NotNull;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
 import org.apache.flink.configuration.SecurityOptions;
@@ -156,6 +157,7 @@ public class FlinkClientBuilder {
         }
     }
 
+    @NotNull
     public FlinkConfig getFlinkConfig() {
         return flinkConfig;
     }
