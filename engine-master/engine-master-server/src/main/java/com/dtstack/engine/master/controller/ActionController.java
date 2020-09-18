@@ -51,6 +51,10 @@ public class ActionController {
         return actionService.stop(jobIds);
     }
 
+    public Boolean forceStop(@DtRequestParam(value = "jobIds") List<String> jobIds, @DtRequestParam("isForce") boolean isForce){
+        return actionService.forceStop(jobIds, isForce);
+    }
+
     @RequestMapping(value="/status", method = {RequestMethod.POST})
     @ApiOperation(value = "查询单个Job的状态")
     @ApiImplicitParams({

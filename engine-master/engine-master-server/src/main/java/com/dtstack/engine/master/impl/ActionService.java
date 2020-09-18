@@ -142,6 +142,10 @@ public class ActionService {
         return true;
     }
 
+    public Boolean forceStop(List<String> jobIds, boolean isForce) {
+        return false;
+    }
+
     private void checkParam(ParamAction paramAction) throws Exception{
 
         if(StringUtils.isBlank(paramAction.getTaskId())){
@@ -539,4 +543,5 @@ public class ActionService {
         vo.setRetryNum(scheduleJob.getRetryNum());
         return vo;
     }
+
 }

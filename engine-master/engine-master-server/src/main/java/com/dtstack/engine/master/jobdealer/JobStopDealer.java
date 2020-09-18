@@ -99,7 +99,8 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
     private static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EScheduleJobType.WORK_FLOW.getVal(), EScheduleJobType.ALGORITHM_LAB.getVal());
 
-    public int addStopJobs(List<ScheduleJob> jobs) {
+    public int addStopJobs(List<ScheduleJob> jobs,boolean isForce){
+
         if (CollectionUtils.isEmpty(jobs)) {
             return 0;
         }
@@ -138,7 +139,10 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         }
 
         return jobs.size();
+    }
 
+    public int addStopJobs(List<ScheduleJob> jobs) {
+        return addStopJobs(jobs, false);
     }
 
     private boolean checkJobCanStop(Integer status) {
