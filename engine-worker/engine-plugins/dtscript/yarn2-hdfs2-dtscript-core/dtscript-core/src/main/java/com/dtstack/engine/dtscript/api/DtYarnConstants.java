@@ -15,12 +15,18 @@ public interface DtYarnConstants {
 
   String WORKER = "worker";
 
+  String PROXY_USER_NAME = "dtProxyUserName";
+
+  String GPU = "yarn.io/gpu";
+
   enum Environment {
     HADOOP_USER_NAME("HADOOP_USER_NAME"),
 
     APP_TYPE("APP_TYPE"),
 
     XLEARNING_CONTAINER_MAX_MEMORY("XLEARNING_MAX_MEM"),
+
+    XLEARNING_CONTAIENR_GPU_NUM("GPU_NUM"),
 
     XLEARNING_TF_ROLE("TF_ROLE"),
 

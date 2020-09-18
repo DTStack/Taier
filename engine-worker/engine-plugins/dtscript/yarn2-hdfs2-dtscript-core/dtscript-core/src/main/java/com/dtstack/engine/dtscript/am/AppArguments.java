@@ -40,6 +40,8 @@ public class AppArguments {
 
     int workerVcores;
 
+    long workerGCores;
+
     int containerMemory = 512;
 
     int workerNum;
@@ -101,6 +103,7 @@ public class AppArguments {
 
         workerMemory = conf.getInt(DtYarnConfiguration.LEARNING_WORKER_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_WORKER_MEMORY);
         workerVcores = conf.getInt(DtYarnConfiguration.LEARNING_WORKER_VCORES, DtYarnConfiguration.DEFAULT_LEARNING_WORKER_VCORES);
+        workerGCores = conf.getLong(DtYarnConfiguration.LEARNING_WORKER_GPU, DtYarnConfiguration.DEFAULT_LEARNING_WORKER_GPU);
         workerNum = conf.getInt(DtYarnConfiguration.DT_WORKER_NUM, DtYarnConfiguration.DEFAULT_DT_WORKER_NUM);
         appPriority = conf.getInt(DtYarnConfiguration.APP_PRIORITY, DtYarnConfiguration.DEFAULT_LEARNING_APP_PRIORITY);
         exclusive = conf.getBoolean(DtYarnConfiguration.APP_NODEMANAGER_EXCLUSIVE, DtYarnConfiguration.DEFAULT_APP_NODEMANAGER_EXCLUSIVE);

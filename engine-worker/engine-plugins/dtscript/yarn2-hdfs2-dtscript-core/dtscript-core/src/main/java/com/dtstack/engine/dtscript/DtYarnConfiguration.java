@@ -46,6 +46,10 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final int DEFAULT_LEARNING_WORKER_VCORES = 1;
 
+    public static final String LEARNING_WORKER_GPU = "xlearning.worker.gcores";
+
+    public static final long DEFAULT_LEARNING_WORKER_GPU = 0;
+
     public static final int DEFAULT_LEARNING_APP_MEMORY = 512;
 
     public static final String DT_WORKER_NUM = "dt.worker.num";
