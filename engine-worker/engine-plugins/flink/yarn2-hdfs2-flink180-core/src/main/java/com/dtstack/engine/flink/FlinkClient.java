@@ -826,13 +826,9 @@ public class FlinkClient extends AbstractClient {
                 }
 
                 String keytabFileName = PrepareOperator.getFileName(tmpSql);
-                String remoteDir = flinkConfig.getRemoteDir();
-
-                if (StringUtils.isEmpty(remoteDir)) {
-                    File keytabFile = new File(keytabFileName);
-                    keytabFileName = keytabFile.getName();
-                    remoteDir = keytabFile.getParent();
-                }
+                File keytabFile = new File(keytabFileName);
+                keytabFileName = keytabFile.getName();
+                String remoteDir = keytabFile.getParent();
 
                 String localPath = handler.loadFromSftp(keytabFileName, remoteDir, localDir);
                 logger.info("Download file to :" + localPath);
@@ -870,9 +866,6 @@ public class FlinkClient extends AbstractClient {
     @Override
     public void afterSubmitFunc(JobClient jobClient) {
         List<String> fileList = cacheFile.get(jobClient.getTaskId());
-        if (CollectionUtils.isEmpty(fileList)) {
-            return;
-        }
 
         //清理包含下载下来的临时jar文件
         for (String path : fileList) {
