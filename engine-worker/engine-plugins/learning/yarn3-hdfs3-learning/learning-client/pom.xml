@@ -27,7 +27,7 @@
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.learning.yarn2-hdfs2-learning.learning-core</artifactId>
+            <artifactId>plugins.learning.yarn3-hdfs3-learning.learning-core</artifactId>
             <version>1.0.0</version>
         </dependency>
 
