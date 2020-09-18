@@ -2,8 +2,6 @@ package com.dtstack.engine.common.util;
 
 import com.alibaba.fastjson.JSONObject;
 
-import java.util.Collection;
-
 /**
  * @author yuebai
  * @date 2020-09-08
@@ -85,8 +83,9 @@ public class JobGraphUtil {
         JSONObject data = new JSONObject();
         data.put("jobId",applicationId);
         JSONObject markInfoJSON = JSONObject.parseObject(latencyMarkerInfo);
-        Collection<Object> values = markInfoJSON.values();
-        data.put("taskVertices",values);
+        if (null != markInfoJSON) {
+            data.put("taskVertices", markInfoJSON.values());
+        }
         data.put("startTime",System.currentTimeMillis());
         return data.toJSONString();
     }

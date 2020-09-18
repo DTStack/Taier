@@ -104,6 +104,7 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
         ReflectionTestUtils.setField(tenantService,"engineTenantDao", engineTenantDao);
         ReflectionTestUtils.setField(tenantService,"engineDao", engineDao);
         ReflectionTestUtils.setField(tenantService,"consoleCache", consoleCache);
+        ReflectionTestUtils.setField(tenantService,"queueService", queueService);
         doNothing().when(tenantService).checkClusterCanUse(any());
 
     }
