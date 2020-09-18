@@ -867,20 +867,21 @@ public class FlinkClient extends AbstractClient {
     public void afterSubmitFunc(JobClient jobClient) {
         List<String> fileList = cacheFile.get(jobClient.getTaskId());
 
-        //清理包含下载下来的临时jar文件
-        for (String path : fileList) {
-            try {
-                File file = new File(path);
-                if (file.exists()) {
-                    file.delete();
+        if (CollectionUtils.isNotEmpty(fileList)) {
+            //清理包含下载下来的临时jar文件
+            for (String path : fileList) {
+                try {
+                    File file = new File(path);
+                    if (file.exists()) {
+                        file.delete();
+                    }
+
+                } catch (Exception e1) {
+                    logger.error("", e1);
                 }
-
-            } catch (Exception e1) {
-                logger.error("", e1);
             }
+            cacheFile.remove(jobClient.getTaskId());
         }
-
-        cacheFile.remove(jobClient.getTaskId());
 
         String localDirStr = USER_DIR + KEYTAB_DIR + jobClient.getTaskId();
         File localDir = new File(localDirStr);
