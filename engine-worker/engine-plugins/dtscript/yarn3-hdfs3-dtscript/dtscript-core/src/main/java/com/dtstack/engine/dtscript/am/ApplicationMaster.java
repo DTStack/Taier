@@ -84,8 +84,9 @@ public class ApplicationMaster extends CompositeService {
     private ApplicationMaster(String name) {
         super(name);
         Path jobConfPath = new Path(DtYarnConstants.LEARNING_JOB_CONFIGURATION);
+        LOG.info("hadoop.job.ugi: " + conf.get("hadoop.job.ugi"));
         LOG.info("user.dir: " + System.getProperty("user.dir"));
-        System.setProperty(DtYarnConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.job.ugi").split(",")[0]);
+//        System.setProperty(DtYarnConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.job.ugi").split(",")[0]);
         LOG.info("user.name: " + System.getProperty("user.name"));
         LOG.info("HADOOP_USER_NAME: " + System.getProperty(DtYarnConstants.Environment.HADOOP_USER_NAME.toString()));
 

@@ -79,10 +79,13 @@ public class Client {
 
         YarnConfiguration conf = new YarnConfiguration((YarnConfiguration) this.conf);
         String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
+        LOG.info("Got appSubmitterUserName: " + appSubmitterUserName);
         if (conf.get("hadoop.job.ugi") == null) {
             UserGroupInformation ugi = UserGroupInformation.createRemoteUser(appSubmitterUserName);
             conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
         }
+        LOG.info("Got hadoop.job.ugi: " + conf.get("hadoop.job.ugi"));
+
         conf.set("ipc.client.fallback-to-simple-auth-allowed", "true");
 
         if (clientArguments.nodes != null) {
@@ -96,7 +99,12 @@ public class Client {
         conf.set(DtYarnConfiguration.DT_WORKER_NUM, String.valueOf(clientArguments.workerNum));
         conf.set(DtYarnConfiguration.APP_PRIORITY, String.valueOf(clientArguments.priority));
         conf.setBoolean(DtYarnConfiguration.DTSCRIPT_USER_CLASSPATH_FIRST, clientArguments.userClasspathFirst);
-        conf.set(DtYarnConfiguration.APP_MAX_ATTEMPTS, String.valueOf(clientArguments.maxAppAttempts));
+
+        int appAttempts = clientArguments.maxAppAttempts;
+        if (appAttempts > conf.getInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS, YarnConfiguration.DEFAULT_RM_AM_MAX_ATTEMPTS)) {
+            appAttempts = conf.getInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS, YarnConfiguration.DEFAULT_RM_AM_MAX_ATTEMPTS);
+        }
+        conf.set(DtYarnConfiguration.APP_MAX_ATTEMPTS, String.valueOf(appAttempts));
 
         conf.setBoolean(DtYarnConfiguration.APP_NODEMANAGER_EXCLUSIVE, clientArguments.exclusive);
 
