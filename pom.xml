@@ -63,6 +63,9 @@
                 <configuration>
                     <!--once就表示单线程挨个执行Junit test-->
                     <forkMode>once</forkMode>
+                    <excludes>
+                        <exclude>com/dtstack/engine/master/temp/**</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>

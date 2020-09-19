@@ -1,6 +1,7 @@
 package com.dtstack.engine.common.util;
 
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author yuebai
@@ -80,6 +81,9 @@ public class JobGraphUtil {
      * @return
      */
     public static String formatJSON(String applicationId,String latencyMarkerInfo){
+        if(StringUtils.isBlank(latencyMarkerInfo)){
+            return null;
+        }
         JSONObject data = new JSONObject();
         data.put("jobId",applicationId);
         JSONObject markInfoJSON = JSONObject.parseObject(latencyMarkerInfo);
