@@ -82,7 +82,7 @@ public class StreamTaskServiceTest extends AbstractTest {
 		EngineJobCheckpoint engineJobCheckpoint = DataCollection.getData().getEngineJobCheckpoint();
 
 		EngineJobCheckpoint resJobCheckpoint = streamTaskService.getByTaskIdAndEngineTaskId(
-			engineJobCheckpoint.getTaskId(), engineJobCheckpoint.getCheckpointId());
+			engineJobCheckpoint.getTaskId(), engineJobCheckpoint.getTaskEngineId());
 		Assert.assertNotNull(resJobCheckpoint);
 	}
 
@@ -104,9 +104,10 @@ public class StreamTaskServiceTest extends AbstractTest {
 	public void testGetTaskIdsByStatus() {
 		ScheduleJob streamJob = DataCollection.getData().getScheduleJobStream();
 
-		List<String> taskIds = streamTaskService.getTaskIdsByStatus(streamJob.getStatus());
+		Integer status = streamJob.getStatus();
+		List<String> taskIds = streamTaskService.getTaskIdsByStatus(status);
 		Assert.assertNotNull(taskIds);
-		Assert.assertTrue(taskIds.contains(streamJob.getTaskId()));
+		Assert.assertTrue(taskIds.contains(streamJob.getJobId()));
 	}
 
 	@Test
@@ -117,7 +118,7 @@ public class StreamTaskServiceTest extends AbstractTest {
 
 		Integer taskStatus = streamTaskService.getTaskStatus(streamJob.getJobId());
 		Assert.assertNotNull(taskStatus);
-		Assert.assertTrue(taskStatus == 14);
+		Assert.assertTrue(taskStatus == 4);
 	}
 
 	@Test
