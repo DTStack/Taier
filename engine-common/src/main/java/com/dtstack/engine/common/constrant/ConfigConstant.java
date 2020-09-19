@@ -41,6 +41,8 @@ public class ConfigConstant {
     public static final String JDBCURL = "jdbcUrl";
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
+    public static final String MINIDLE = "minIdle";
+    public static final String MAXACTIVE = "maxActive";
 
     public static final String SQL_CHECKPOINT_TIMEOUT = "sql.checkpoint.timeout";
     public static final String FLINK_CHECKPOINT_TIMEOUT = "flink.checkpoint.timeout";
