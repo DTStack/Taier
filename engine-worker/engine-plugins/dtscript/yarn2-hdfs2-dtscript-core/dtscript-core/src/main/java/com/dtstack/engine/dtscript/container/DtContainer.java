@@ -61,8 +61,6 @@ public class DtContainer {
 
     private Map<String, String> envs;
 
-    private String role;
-
     private ContainerStatusNotifier containerStatusNotifier;
 
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -74,6 +72,8 @@ public class DtContainer {
     private final AbstractAppType appType;
 
     private final Map<String, Object> containerInfo;
+
+    private int heartbeatInterval;
 
     private DtContainer() throws IOException {
         containerInfo = new HashMap<>();
@@ -89,8 +89,9 @@ public class DtContainer {
         containerId = new DtContainerId(ConverterUtils.toContainerId(System
                 .getenv(ApplicationConstants.Environment.CONTAINER_ID.name())));
         LOG.info("sub container id: " + containerId);
+
+        this.heartbeatInterval = this.conf.getInt(DtYarnConfiguration.DTSCRIPT_CONTAINER_HEARTBEAT_INTERVAL, DtYarnConfiguration.DEFAULT_DTSCRIPT_CONTAINER_HEARTBEAT_INTERVAL);
         this.envs = System.getenv();
-        this.role = envs.get(DtYarnConstants.Environment.XLEARNING_TF_ROLE.toString());
         if (envs.containsKey(DtYarnConstants.Environment.APP_TYPE.toString())) {
             String applicationType = envs.get(DtYarnConstants.Environment.APP_TYPE.toString()).toUpperCase();
             appType = AbstractAppType.fromString(applicationType);
@@ -108,9 +109,7 @@ public class DtContainer {
         try {
             LOG.info("appMasterHost:" + appMasterHost + ", port:" + appMasterPort);
             amClient = RPC.getProxy(ApplicationContainerProtocol.class,
-                    ApplicationContainerProtocol.versionID,
-                    addr,
-                    conf);
+                    ApplicationContainerProtocol.versionID, addr, conf);
             LocalRemotePath[] localRemotePaths = amClient.getOutputLocation();
             LOG.info("get localRemotePaths:" + localRemotePaths.length);
 
@@ -189,39 +188,22 @@ public class DtContainer {
 
         printContainerInfo();
 
-        LOG.info("container_wait_for_begin");
-        process.waitFor();
-        int exitValue = process.exitValue();
-        LOG.info("container_wait_for_end exitValue: " + exitValue);
-        String log = readFile(logDir + "/dterror.log");
-
-        ReturnValue rValue = new ReturnValue(exitValue, log);
-        return rValue;
-
-    }
-
-    private void printInfo(InputStream inputStream) {
-
-        InputStreamReader isr = new InputStreamReader(inputStream);
-        //用缓冲器读行
-        BufferedReader br = new BufferedReader(isr);
-        String line;
-        //直到读完为止
-
-        try {
-            while ((line = br.readLine()) != null) {
-                LOG.info(line);
-            }
-
-        } catch (Exception e) {
-            LOG.warn("exception:", e);
-        } finally {
+        int code = -1;
+        while (code == -1 && !containerStatusNotifier.getCompleted()) {
+            Utilities.sleep(heartbeatInterval);
             try {
-                inputStream.close();
-            } catch (IOException e) {
-                LOG.warn("exception:", e);
+                code = process.exitValue();
+            } catch (IllegalThreadStateException e) {
+                LOG.debug("XLearning Process is running");
             }
         }
+
+        LOG.info("container exitValue: " + code);
+
+        String log = readFile(logDir + "/dterror.log");
+        ReturnValue rValue = new ReturnValue(code, log);
+        return rValue;
+
     }
 
     private String getFirstLogFile(String logFile) {
@@ -250,7 +232,7 @@ public class DtContainer {
         containerStatusNotifier.setContainersFinishTime(now.toString());
         containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.FAILED);
 
-        Utilities.sleep(3000);
+        Utilities.sleep(heartbeatInterval);
 
         System.exit(1);
     }
@@ -261,7 +243,7 @@ public class DtContainer {
         containerStatusNotifier.setContainersFinishTime(now.toString());
         containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.SUCCEEDED);
 
-        Utilities.sleep(3000);
+        Utilities.sleep(heartbeatInterval);
 
         System.exit(0);
     }
@@ -312,7 +294,7 @@ public class DtContainer {
         }
     }
 
-    public static String readFile(String filePath) throws IOException {
+    private String readFile(String filePath) throws IOException {
 
         LOG.info("start read file");
         StringBuffer sb = new StringBuffer();

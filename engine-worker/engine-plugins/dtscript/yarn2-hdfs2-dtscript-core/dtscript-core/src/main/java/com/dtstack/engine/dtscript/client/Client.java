@@ -88,15 +88,15 @@ public class Client {
         if (clientArguments.nodes != null) {
             conf.set(DtYarnConfiguration.CONTAINER_REQUEST_NODES, clientArguments.nodes);
         }
-        conf.set(DtYarnConfiguration.LEARNING_AM_MEMORY, String.valueOf(clientArguments.amMem));
-        conf.set(DtYarnConfiguration.LEARNING_AM_CORES, String.valueOf(clientArguments.amCores));
-        conf.set(DtYarnConfiguration.LEARNING_WORKER_MEMORY, String.valueOf(clientArguments.workerMemory));
-        conf.set(DtYarnConfiguration.LEARNING_WORKER_VCORES, String.valueOf(clientArguments.workerVcores));
-        conf.set(DtYarnConfiguration.LEARNING_WORKER_GPU, String.valueOf(clientArguments.workerGCores));
+        conf.set(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, String.valueOf(clientArguments.amMem));
+        conf.set(DtYarnConfiguration.DTSCRIPT_AM_CORES, String.valueOf(clientArguments.amCores));
+        conf.set(DtYarnConfiguration.DTSCRIPT_WORKER_MEMORY, String.valueOf(clientArguments.workerMemory));
+        conf.set(DtYarnConfiguration.DTSCRIPT_WORKER_VCORES, String.valueOf(clientArguments.workerVcores));
+        conf.set(DtYarnConfiguration.DTSCRIPT_WORKER_GPU, String.valueOf(clientArguments.workerGCores));
         conf.set(DtYarnConfiguration.DT_WORKER_NUM, String.valueOf(clientArguments.workerNum));
         conf.set(DtYarnConfiguration.APP_PRIORITY, String.valueOf(clientArguments.priority));
-        conf.setBoolean(DtYarnConfiguration.LEARNING_USER_CLASSPATH_FIRST, clientArguments.userClasspathFirst);
-        conf.set(DtYarnConfiguration.CONTAINER_MAX_ATTEMPTS, String.valueOf(clientArguments.maxAppAttempts));
+        conf.setBoolean(DtYarnConfiguration.DTSCRIPT_USER_CLASSPATH_FIRST, clientArguments.userClasspathFirst);
+        conf.set(DtYarnConfiguration.APP_MAX_ATTEMPTS, String.valueOf(clientArguments.maxAppAttempts));
 
         conf.setBoolean(DtYarnConfiguration.APP_NODEMANAGER_EXCLUSIVE, clientArguments.exclusive);
 
@@ -160,7 +160,7 @@ public class Client {
         StringBuilder classPathEnv = new StringBuilder("${CLASSPATH}:./*");
 
         for (String cp : conf.getStrings(DtYarnConfiguration.YARN_APPLICATION_CLASSPATH,
-                DtYarnConfiguration.DEFAULT_XLEARNING_APPLICATION_CLASSPATH)) {
+                DtYarnConfiguration.DEFAULT_DTSCRIPT_APPLICATION_CLASSPATH)) {
             classPathEnv.append(':');
             classPathEnv.append(cp.trim());
         }
@@ -224,8 +224,8 @@ public class Client {
         List<String> appMasterArgs = new ArrayList<>(20);
         appMasterArgs.add("${JAVA_HOME}" + "/bin/java");
         appMasterArgs.add("-cp " + "${CLASSPATH}");
-        appMasterArgs.add("-Xms" + conf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY) + "m");
-        appMasterArgs.add("-Xmx" + conf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY) + "m");
+        appMasterArgs.add("-Xms" + conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY) + "m");
+        appMasterArgs.add("-Xmx" + conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY) + "m");
         appMasterArgs.add(ApplicationMaster.class.getName());
         appMasterArgs.add("1>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR
                 + "/" + ApplicationConstants.STDOUT);
@@ -247,8 +247,8 @@ public class Client {
         applicationContext.setApplicationType(clientArguments.appType.name());
         applicationContext.setMaxAppAttempts(clientArguments.maxAppAttempts);
         Resource capability = Records.newRecord(Resource.class);
-        capability.setMemory(conf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY));
-        capability.setVirtualCores(conf.getInt(DtYarnConfiguration.LEARNING_AM_CORES, DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES));
+        capability.setMemory(conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY));
+        capability.setVirtualCores(conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_CORES, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_CORES));
         applicationContext.setResource(capability);
         ByteBuffer tokenBuffer = SecurityUtil.getDelegationTokens(conf, getYarnClient());
         ContainerLaunchContext amContainer = ContainerLaunchContext.newInstance(
@@ -258,7 +258,7 @@ public class Client {
         applicationContext.setAMContainerSpec(amContainer);
 
         Priority priority = Records.newRecord(Priority.class);
-        priority.setPriority(conf.getInt(DtYarnConfiguration.APP_PRIORITY, DtYarnConfiguration.DEFAULT_LEARNING_APP_PRIORITY));
+        priority.setPriority(conf.getInt(DtYarnConfiguration.APP_PRIORITY, DtYarnConfiguration.DEFAULT_DTSCRIPT_APP_PRIORITY));
         applicationContext.setPriority(priority);
         applicationContext.setQueue(conf.get(DtYarnConfiguration.DT_APP_QUEUE, DtYarnConfiguration.DEFAULT_DT_APP_QUEUE));
         String nodeLabels = conf.get(DtYarnConfiguration.NODE_LABEL);
@@ -277,8 +277,8 @@ public class Client {
         int maxVCores = newApplication.getMaximumResourceCapability().getVirtualCores();
         LOG.info("Max vcores capability of resources in this cluster " + maxVCores);
 
-        int amMem = conf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY);
-        int amCores = conf.getInt(DtYarnConfiguration.LEARNING_AM_CORES, DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES);
+        int amMem = conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY);
+        int amCores = conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_CORES, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_CORES);
         if (amMem > maxMem) {
             throw new RequestOverLimitException("AM memory requested " + amMem +
                     " above the max threshold of yarn cluster " + maxMem);
@@ -301,8 +301,8 @@ public class Client {
         LOG.info("Apply for am vcores " + amCores);
 
         int workerNum = conf.getInt(DtYarnConfiguration.DT_WORKER_NUM, DtYarnConfiguration.DEFAULT_DT_WORKER_NUM);
-        int workerMemory = conf.getInt(DtYarnConfiguration.LEARNING_WORKER_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_WORKER_MEMORY);
-        int workerVcores = conf.getInt(DtYarnConfiguration.LEARNING_WORKER_VCORES, DtYarnConfiguration.DEFAULT_LEARNING_WORKER_VCORES);
+        int workerMemory = conf.getInt(DtYarnConfiguration.DTSCRIPT_WORKER_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_WORKER_MEMORY);
+        int workerVcores = conf.getInt(DtYarnConfiguration.DTSCRIPT_WORKER_VCORES, DtYarnConfiguration.DEFAULT_DTSCRIPT_WORKER_VCORES);
         if (workerNum < 1) {
             throw new IllegalArgumentException(
                     "Invalid no. of worker specified, exiting."
