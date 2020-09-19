@@ -317,6 +317,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     String jdbcInfo = clusterService.hiveInfo(dtuicTenantId, true);
                     JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
                     String engineType = DataSourceType.HIVE.getVal() == sourceType ? DataBaseType.HIVE.getTypeName() : DataBaseType.HIVE1X.getTypeName();
+                    pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, engineType);
                     workerOperator.executeQuery(engineType, pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db,engineType, String.format("desc formatted %s", tableName));
                 }
