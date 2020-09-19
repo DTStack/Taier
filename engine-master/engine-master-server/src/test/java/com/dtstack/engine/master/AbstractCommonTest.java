@@ -13,5 +13,5 @@ import org.springframework.test.context.ContextConfiguration;
 @RunWith(DtCommonSpringRunner.class)
 @ContextConfiguration(classes = {EnvironmentContext.class, MasterServerBeanConfig.class, CacheConfig.class, MybatisConfig.class})
 @SpringBootTest
-public class AbstractCommonTest {
+public abstract class AbstractCommonTest {
 }
