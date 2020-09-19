@@ -68,6 +68,8 @@ public class FlinkConfig extends BaseConfig {
 
     private String pluginLoadMode = "shipfile";
 
+    private int checkSubmitJobGraphInterval = 120;
+
     private boolean monitorAcceptedApp = false;
 
     public boolean getMonitorAcceptedApp() {
@@ -255,6 +257,14 @@ public class FlinkConfig extends BaseConfig {
 
     public static void setEngineFlinkConfigs(List<String> engineFlinkConfigs) {
         ENGINE_FLINK_CONFIGS = engineFlinkConfigs;
+    }
+
+    public int getCheckSubmitJobGraphInterval() {
+        return checkSubmitJobGraphInterval;
+    }
+
+    public void setCheckSubmitJobGraphInterval(int checkSubmitJobGraphInterval) {
+        this.checkSubmitJobGraphInterval = checkSubmitJobGraphInterval;
     }
 
     private static List<String> initEngineFlinkConfigFields() {

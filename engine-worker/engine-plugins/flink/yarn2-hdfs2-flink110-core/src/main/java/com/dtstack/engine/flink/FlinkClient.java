@@ -20,20 +20,19 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.util.SFTPHandler;
+import com.dtstack.engine.common.util.UrlUtil;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
 import com.dtstack.engine.flink.entity.TaskmanagerInfo;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
+import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.parser.PrepareOperator;
 import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.resource.FlinkPerJobResourceInfo;
 import com.dtstack.engine.flink.resource.FlinkYarnSeesionResourceInfo;
-import com.dtstack.engine.flink.util.FileUtil;
-import com.dtstack.engine.flink.util.FlinkConfUtil;
-import com.dtstack.engine.flink.util.FlinkRestParseUtil;
-import com.dtstack.engine.flink.util.FlinkUtil;
-import com.dtstack.engine.flink.util.HadoopConf;
+import com.dtstack.engine.flink.util.*;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.worker.enums.ClassLoaderType;
 import com.google.common.base.Strings;
@@ -232,6 +231,7 @@ public class FlinkClient extends AbstractClient {
                 clusterSpecification.setClassLoaderType(ClassLoaderType.getClassLoaderType(jobClient.getJobType()));
 
                 runResult = runJobByPerJob(clusterSpecification, jobClient);
+                jobGraph = clusterSpecification.getJobGraph();
                 packagedProgram = clusterSpecification.getProgram();
             } else {
                 Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
@@ -244,7 +244,7 @@ public class FlinkClient extends AbstractClient {
 
                 runResult = runJobByYarnSession(jobGraph);
             }
-            return JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond());
+            return JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond(), JobGraphBuildUtil.buildLatencyMarker(jobGraph));
         } catch (Throwable e) {
             return JobResult.createErrorResult(e);
         } finally {
@@ -259,7 +259,9 @@ public class FlinkClient extends AbstractClient {
      */
     private Pair<String, String> runJobByPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws Exception{
         logger.info("--------job:{} run by PerJob mode-----.", jobClient.getTaskId());
-        YarnClusterDescriptor descriptor = flinkClusterClientManager.getPerJobClientFactory().createPerJobClusterDescriptor(jobClient);
+        PerJobClientFactory perJobClientFactory = flinkClusterClientManager.getPerJobClientFactory();
+        YarnClusterDescriptor descriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
+        perJobClientFactory.deleteTaskIfExist(jobClient);
         ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, new JobGraph(),true).getClusterClient();
 
         String applicationId = clusterClient.getClusterId().toString();
@@ -285,10 +287,9 @@ public class FlinkClient extends AbstractClient {
 
             return Pair.create(jobExecutionResult.getJobID().toString(), null);
         } catch (Exception e) {
-            if (e.getMessage() != null && e.getMessage().contains(ExceptionInfoConstrant.FLINK_UNALE_TO_GET_CLUSTERCLIENT_STATUS_EXCEPTION)) {
-                if (flinkClusterClientManager.getIsClientOn()) {
-                    flinkClusterClientManager.setIsClientOn(false);
-                }
+            //累加失败次数
+            if (flinkClusterClientManager.getSessionClientFactory() != null) {
+                flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().incrSubmitError();
             }
             throw e;
         } finally {
@@ -587,9 +588,6 @@ public class FlinkClient extends AbstractClient {
             String reqUrl = String.format("%s%s", getReqUrl(), path);
             return PoolHttpClient.get(reqUrl, null, MAX_RETRY_NUMBER);
         } catch (Exception e) {
-            if(flinkClusterClientManager.getIsClientOn()){
-                flinkClusterClientManager.setIsClientOn(false);
-            }
             throw new RdosDefineException(ErrorCode.HTTP_CALL_ERROR, e);
         }
     }
@@ -672,7 +670,8 @@ public class FlinkClient extends AbstractClient {
             if (!judgeResult.available() || isPerJob){
                 return judgeResult;
             } else {
-                if (!flinkClusterClientManager.getIsClientOn()) {
+                if (flinkClusterClientManager.getSessionClientFactory()!=null&&
+                        !flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().isRunning()) {
                     logger.warn("wait flink client recover...");
                     return JudgeResult.notOk( "wait flink client recover");
                 }
@@ -742,7 +741,7 @@ public class FlinkClient extends AbstractClient {
         try {
             String logPreURL = UrlUtil.getHttpRootUrl(amContainerLogsURL);
             logger.info("jobmanager container logs URL is: {}, logPreURL is {} :", amContainerLogsURL, logPreURL);
-            ApplicationWSParser.RollingBaseInfo amLogInfo = applicationWSParser.parseContainerLogBaseInfo(amContainerLogsURL, logPreURL);
+            ApplicationWSParser.RollingBaseInfo amLogInfo = applicationWSParser.parseContainerLogBaseInfo(amContainerLogsURL, logPreURL, ConfigConstrant.JOBMANAGER_COMPONEN);
             return Optional.ofNullable(JSONObject.toJSONString(amLogInfo));
         } catch (Exception e) {
             logger.error(" parse am Log error !", e);
@@ -759,7 +758,7 @@ public class FlinkClient extends AbstractClient {
                 String containerLogUrl = buildContainerLogUrl(containerLogUrlFormat, nameAndHost, user);
                 String preUrl =  UrlUtil.getHttpRootUrl(containerLogUrl);
                 logger.info("taskmanager container logs URL is: {},  preURL is :{}", containerLogUrl, preUrl);
-                ApplicationWSParser.RollingBaseInfo rollingBaseInfo = applicationWSParser.parseContainerLogBaseInfo(containerLogUrl, preUrl);
+                ApplicationWSParser.RollingBaseInfo rollingBaseInfo = applicationWSParser.parseContainerLogBaseInfo(containerLogUrl, preUrl, ConfigConstrant.TASKMANAGER_COMPONEN);
                 rollingBaseInfo.setOtherInfo(JSONObject.toJSONString(info));
                 taskmanagerInfoStr.add(JSONObject.toJSONString(rollingBaseInfo));
             }
@@ -958,8 +957,8 @@ public class FlinkClient extends AbstractClient {
         JobResult jobResult = client.submitJob(jobClient);
         String appId = jobResult.getData("extid");
         String jobId = jobResult.getData("jobid");
-        System.out.println("submit success!, jobId: " + jobId + ", appId: " + appId);
-        System.out.println(jobResult.getJsonStr());
+        logger.info("submit success!, jobId: " + jobId + ", appId: " + appId);
+        logger.info(jobResult.getJsonStr());
         System.exit(0);
     }
 

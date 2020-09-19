@@ -320,7 +320,6 @@ public class HadoopClient extends AbstractClient {
         while (sqlItera.hasNext()){
             String tmpSql = sqlItera.next();
             if(AddJarOperator.verific(tmpSql)){
-                sqlItera.remove();
                 JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
 
                 String addFilePath = jarFileInfo.getJarPath();
@@ -343,7 +342,6 @@ public class HadoopClient extends AbstractClient {
         }
 
         cacheFile.put(jobClient.getTaskId(), fileList);
-        jobClient.setSql(String.join(";", sqlList));
     }
 
     @Override
@@ -425,7 +423,7 @@ public class HadoopClient extends AbstractClient {
         List<ComponentTestResult.QueueDescription> descriptions = new ArrayList<>(queueInfos.size());
         parentPath = StringUtils.isBlank(parentPath) ? "" : parentPath + ".";
         for (QueueInfo queueInfo : queueInfos) {
-            String queuePath = parentPath + queueInfo.getQueueName();
+            String queuePath = queueInfo.getQueueName().startsWith(parentPath) ? queueInfo.getQueueName() : parentPath + queueInfo.getQueueName();
             ComponentTestResult.QueueDescription queueDescription = new ComponentTestResult.QueueDescription();
             queueDescription.setQueueName(queueInfo.getQueueName());
             queueDescription.setCapacity(String.valueOf(queueInfo.getCapacity()));
@@ -680,8 +678,16 @@ public class HadoopClient extends AbstractClient {
     }
 
     private void fillUser(JSONObject queueInfo) {
+        boolean existUser = false;
         JSONObject queueUsers = queueInfo.getJSONObject("users");
         if (queueUsers == null) {
+            existUser = false;
+        } else {
+            JSONArray users = queueUsers.getJSONArray("user");
+            existUser = users == null ? false : true;
+        }
+
+        if (!existUser) {
             JSONObject userJSONObject = new JSONObject();
             userJSONObject.put("username", "admin");
             userJSONObject.put("resourcesUsed", queueInfo.getJSONObject("resourcesUsed"));

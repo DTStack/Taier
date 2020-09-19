@@ -24,11 +24,17 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
+import com.dtstack.engine.flink.util.FlinkConfUtil;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.client.deployment.ClusterDeploymentException;
 import org.apache.flink.client.deployment.ClusterDescriptor;
+import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.configuration.ResourceManagerOptions;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.kubernetes.KubernetesClusterDescriptor;
@@ -36,7 +42,6 @@ import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.MalformedURLException;
 import java.util.Properties;
 
 /**
@@ -45,39 +50,43 @@ import java.util.Properties;
  * @author maqi
  */
 public class PerJobClientFactory extends AbstractClientFactory {
+
     private static final Logger LOG = LoggerFactory.getLogger(PerJobClientFactory.class);
 
-    private final static String TASKID_MASTER_KEY = "TASK_ID";
+    private FlinkClientBuilder flinkClientBuilder;
 
-    private final static String FLINKX_HOSTS_ENV = "FLINKX_HOSTS";
-
-    private final static String FLINKX_HOSTS_CONFIG_KEY = "flinkx.hosts";
-
-    private FlinkConfig flinkConfig;
-    private Configuration flinkConfiguration;
+    private PerJobClientFactory() {
+    }
 
     private PerJobClientFactory(FlinkClientBuilder flinkClientBuilder) {
-        this.flinkConfig = flinkClientBuilder.getFlinkConfig();
-        this.flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
+        this.flinkClientBuilder = flinkClientBuilder;
     }
 
     public ClusterDescriptor<String> createPerjobClusterDescriptor(JobClient jobClient, String projobClusterId) {
+
+        FlinkConfig flinkConfig = flinkClientBuilder.getFlinkConfig();
+        Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
         Configuration newConf = new Configuration(flinkConfiguration);
 
-        String taskIdMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + TASKID_MASTER_KEY;
+        // set log env
+        String taskIdMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.TASKID_KEY;
         newConf.setString(taskIdMasterKey, jobClient.getTaskId());
-        String taskIdTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + TASKID_MASTER_KEY;
+        String taskIdTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + ConfigConstrant.TASKID_KEY;
         newConf.setString(taskIdTaskMangerKey, jobClient.getTaskId());
 
-        String flinkxHostsMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + FLINKX_HOSTS_ENV;
-        newConf.setString(flinkxHostsMasterKey, newConf.getString(FLINKX_HOSTS_CONFIG_KEY, ""));
-        String flinkxHostsTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + FLINKX_HOSTS_ENV;
-        newConf.setString(flinkxHostsTaskMangerKey, newConf.getString(FLINKX_HOSTS_CONFIG_KEY, ""));
+        String flinkxHostsMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.FLINKX_HOSTS_ENV;
+        newConf.setString(flinkxHostsMasterKey, newConf.getString(ConfigConstrant.FLINKX_HOSTS_CONFIG_KEY, ""));
+        String flinkxHostsTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + ConfigConstrant.FLINKX_HOSTS_ENV;
+        newConf.setString(flinkxHostsTaskMangerKey, newConf.getString(ConfigConstrant.FLINKX_HOSTS_CONFIG_KEY, ""));
 
-
+        // set job config
         newConf = appendJobConfigAndInitFs(jobClient.getConfProperties(), newConf);
 
+        // set cluster id
         newConf.setString(KubernetesConfigOptions.CLUSTER_ID, projobClusterId);
+
+        // set resource config
+        FlinkConfUtil.setResourceConfig(newConf, jobClient.getConfProperties());
 
         if (!flinkConfig.getFlinkHighAvailability() && ComputeType.BATCH == jobClient.getComputeType()) {
             setNoneHaModeConfig(newConf);
@@ -116,8 +125,73 @@ public class PerJobClientFactory extends AbstractClientFactory {
     }
 
     @Override
-    public ClusterClient getClusterClient() {
-        return null;
+    public ClusterClient getClusterClient(JobClient jobClient) {
+
+        String taskName = getEffectiveTaskName(jobClient);
+        String salt = RandomStringUtils.randomAlphanumeric(8).toLowerCase();
+        String projobClusterId = String.format("%s-%s", taskName, salt);
+
+        try (
+                ClusterDescriptor<String> clusterDescriptor = createPerjobClusterDescriptor(jobClient, projobClusterId);
+        ) {
+
+            deleteJobIfExist(flinkClientBuilder.getKubernetesClient(), jobClient, taskName);
+
+            Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
+            ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(flinkConfiguration, jobClient.getConfProperties());
+            ClusterClient clusterClient = clusterDescriptor.deploySessionCluster(clusterSpecification).getClusterClient();
+            return clusterClient;
+        } catch (ClusterDeploymentException e) {
+            if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
+                flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
+            }
+            throw new RdosDefineException(e);
+        }
+    }
+
+    private String getEffectiveTaskName(JobClient jobClient) {
+        String taskName = jobClient.getJobName();
+        String taskId = jobClient.getTaskId();
+        if (StringUtils.isNotEmpty(taskName)) {
+            taskName = StringUtils.lowerCase(taskName);
+            taskName = StringUtils.splitByWholeSeparator(taskName, taskId)[0];
+            taskName = taskName.replaceAll("\\p{P}", "");
+            taskName = String.format("%s-%s", taskName, taskId);
+            Integer taskNameLength = taskName.length();
+            if (taskNameLength > ConfigConstrant.TASKNAME_MAX_LENGTH) {
+                taskName = taskName.substring(taskNameLength - ConfigConstrant.TASKNAME_MAX_LENGTH, taskNameLength);
+            }
+        }
+        return taskName;
+    }
+
+    private void deleteJobIfExist(KubernetesClient kubernetesClient, JobClient jobClient, String effectiveTaskName) {
+        String namespace = flinkClientBuilder.getFlinkConfig().getNamespace();
+        ServiceList services = kubernetesClient.services().inNamespace(namespace).list();
+        for (Service service : services.getItems()) {
+            String serviceName = service.getMetadata().getName();
+            if (StringUtils.isEmpty(serviceName)) {
+                continue;
+            }
+            String regex = String.format("(%s)-[0-9a-z]{8}", effectiveTaskName);
+            Boolean isEffective = serviceName.matches(regex);
+            if (StringUtils.startsWith(serviceName, effectiveTaskName) && isEffective) {
+                flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(serviceName);
+            }
+        }
+    }
+
+    @Override
+    public ClusterClient retrieveClusterClient(String clusterId, JobClient jobClient) {
+
+        try (
+                ClusterDescriptor<String> clusterDescriptor = createPerjobClusterDescriptor(jobClient, clusterId);
+        ) {
+            return clusterDescriptor.retrieve(clusterId).getClusterClient();
+        } catch (Exception e) {
+            throw new RdosDefineException(e);
+        }
+
     }
 
     public static PerJobClientFactory createPerJobClientFactory(FlinkClientBuilder flinkClientBuilder) {
@@ -125,4 +199,11 @@ public class PerJobClientFactory extends AbstractClientFactory {
         return perJobClientFactory;
     }
 
+    public FlinkClientBuilder getFlinkClientBuilder() {
+        return flinkClientBuilder;
+    }
+
+    public void setFlinkClientBuilder(FlinkClientBuilder flinkClientBuilder) {
+        this.flinkClientBuilder = flinkClientBuilder;
+    }
 }

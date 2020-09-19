@@ -14,6 +14,7 @@ import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flink.client.program.ClusterClient;
+import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.YarnClusterDescriptor;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.util.ConverterUtils;
@@ -22,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * company: www.dtstack.com
@@ -40,11 +40,6 @@ public class FlinkClusterClientManager {
     private SessionClientFactory sessionClientFactory;
 
     private PerJobClientFactory perJobClientFactory;
-
-    /**
-     * 客户端是否处于可用状态
-     */
-    private AtomicBoolean isClientOn = new AtomicBoolean(false);
 
     /**
      * 常驻的yarnSessionClient，engine使用flink 1.8后，可以考虑废弃yarnSessionClient。
@@ -86,9 +81,7 @@ public class FlinkClusterClientManager {
                         throw new RdosDefineException(e);
                     }
                 }
-                boolean clientOn = sessionClientFactory.startFlinkYarnSession();
-                this.setIsClientOn(clientOn);
-                clusterClient = sessionClientFactory.getClusterClient();
+                clusterClient = sessionClientFactory.startAndGetSessionClusterClient();
             }
             return null;
         },flinkClientBuilder.getYarnConf());
@@ -103,7 +96,7 @@ public class FlinkClusterClientManager {
 
     public ClusterClient getClusterClient(JobIdentifier jobIdentifier) {
         if (jobIdentifier == null || StringUtils.isBlank(jobIdentifier.getApplicationId())) {
-            if (!isClientOn.get()) {
+            if (sessionClientFactory != null && !sessionClientFactory.getSessionHealthCheckedInfo().isRunning()) {
                 throw new RdosDefineException("No flink session found on yarn cluster. getClusterClient failed...");
             }
             return clusterClient;
@@ -117,33 +110,33 @@ public class FlinkClusterClientManager {
         String applicationId = jobIdentifier.getApplicationId();
         String taskId = jobIdentifier.getTaskId();
 
-        ClusterClient clusterClient;
-        try {
-            clusterClient = perJobClientCache.get(applicationId, () -> {
-                JobClient jobClient = new JobClient();
-                jobClient.setTaskId(taskId);
-                jobClient.setJobName("taskId-" + taskId);
-                YarnClusterDescriptor perJobYarnClusterDescriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
-                return perJobYarnClusterDescriptor.retrieve(ConverterUtils.toApplicationId(applicationId)).getClusterClient();
-            });
+        ClusterClient clusterClient = null;
 
-        } catch (ExecutionException e) {
-            throw new RuntimeException("get yarn cluster client exception:", e);
+        try {
+            clusterClient = KerberosUtils.login(flinkConfig, () -> {
+                try {
+                    return perJobClientCache.get(applicationId, () -> {
+                        JobClient jobClient = new JobClient();
+                        jobClient.setTaskId(taskId);
+                        jobClient.setJobName("taskId-" + taskId);
+                        YarnClusterDescriptor perJobYarnClusterDescriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
+                        return perJobYarnClusterDescriptor.retrieve(ConverterUtils.toApplicationId(applicationId)).getClusterClient();
+                    });
+                } catch (ExecutionException e) {
+                    LOG.error("Get perJobClient exception:", e);
+                    return null;
+                }
+            }, flinkClientBuilder.getYarnConf());
+        } catch (Exception e) {
+            LOG.error("Get perJobClient exception:", e);
         }
 
+        Preconditions.checkNotNull(clusterClient, "Get perJobClient is null!");
         return clusterClient;
     }
 
     public void addClient(String applicationId, ClusterClient<ApplicationId> clusterClient) {
         perJobClientCache.put(applicationId, clusterClient);
-    }
-
-    public boolean getIsClientOn() {
-        return isClientOn.get();
-    }
-
-    public void setIsClientOn(boolean isClientOn) {
-        this.isClientOn.set(isClientOn);
     }
 
     /**

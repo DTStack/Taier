@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,7 +47,7 @@ import static com.dtstack.engine.master.impl.ComponentService.TYPE_NAME;
 import static java.lang.String.format;
 
 @Service
-public class ClusterService {
+public class ClusterService implements InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterService.class);
 
@@ -105,7 +106,11 @@ public class ClusterService {
     @Autowired
     private AccountDao accountDao;
 
+    @Autowired
+    private AccountService accountService;
 
+
+    @Override
     public void afterPropertiesSet() throws Exception {
         if (isDefaultClusterExist()) {
             return;
@@ -253,6 +258,7 @@ public class ClusterService {
         Queue queue = getQueue(tenantId, cluster.getClusterId());
 
         pluginJson.put(QUEUE, queue == null ? "" : queue.getQueueName());
+        pluginJson.put(NAMESPACE, queue == null ? "" : queue.getQueueName());
         pluginJson.put(CLUSTER, cluster.getClusterName());
         pluginJson.put(TENANT_ID, tenantId);
         setComponentSftpDir(cluster.getClusterId(), clusterConfigJson, pluginJson,type);
@@ -693,6 +699,12 @@ public class ClusterService {
                 jdbcUrl = jdbcUrl.replace("/%s", "");
                 pluginInfo.put("jdbcUrl", jdbcUrl);
                 pluginInfo.put("typeName", "hive");
+            } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK==type.getComponentType()) {
+                if (clusterVO.getDtUicUserId() != null && clusterVO.getDtUicTenantId() != null) {
+                    AccountVo accountVo = accountService.getAccountVo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId(), AccountType.LDAP.getVal());
+                    String ldapUserName = StringUtils.isBlank(accountVo.getName()) ? "" : accountVo.getName();
+                    pluginInfo.put("dtProxyUserName", ldapUserName);
+                }
             }
             pluginInfo.put(ConfigConstant.MD5_SUM_KEY, getZipFileMD5(clusterConfigJson));
             removeMd5FieldInHadoopConf(pluginInfo);
@@ -863,7 +875,7 @@ public class ClusterService {
             SchedulingVo schedulingVo = new SchedulingVo();
             schedulingVo.setSchedulingCode(value.getType());
             schedulingVo.setSchedulingName(value.getName());
-            schedulingVo.setComponents(ComponentVO.toVOS(scheduleType.get(value),Objects.isNull(removeTypeName) ? true : removeTypeName));
+            schedulingVo.setComponents(ComponentVO.toVOS(scheduleType.get(value), Objects.isNull(removeTypeName) || removeTypeName));
             schedulingVos.add(schedulingVo);
         }
         clusterVO.setScheduling(schedulingVos);

@@ -25,6 +25,7 @@ import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
 import com.dtstack.engine.flink.entity.TaskmanagerInfo;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
+import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.parser.PrepareOperator;
 import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
@@ -101,8 +102,6 @@ public class FlinkClient extends AbstractClient {
 
     private static int MAX_RETRY_NUMBER = 2;
 
-    private static String MONITOR_ACCEPTED_APP_KEY = "monitorAcceptedApp";
-
     private String tmpFileDirPath = "./tmp";
 
     private static final Path TMPDIR = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
@@ -164,20 +163,20 @@ public class FlinkClient extends AbstractClient {
     @Override
     protected JobResult processSubmitJobWithType(JobClient jobClient) {
         try {
-            return KerberosUtils.login(flinkConfig,()->{
-                 EJobType jobType = jobClient.getJobType();
-                 JobResult jobResult = null;
-                 if (EJobType.MR.equals(jobType)) {
-                     jobResult = submitJobWithJar(jobClient);
-                 } else if (EJobType.SQL.equals(jobType)) {
-                     jobResult = submitSqlJob(jobClient);
-                 } else if (EJobType.SYNC.equals(jobType)) {
-                     jobResult = submitSyncJob(jobClient);
-                 }
-                 return jobResult;
-             },hadoopConf.getYarnConfiguration());
+            return KerberosUtils.login(flinkConfig, () -> {
+                EJobType jobType = jobClient.getJobType();
+                JobResult jobResult = null;
+                if (EJobType.MR.equals(jobType)) {
+                    jobResult = submitJobWithJar(jobClient);
+                } else if (EJobType.SQL.equals(jobType)) {
+                    jobResult = submitSqlJob(jobClient);
+                } else if (EJobType.SYNC.equals(jobType)) {
+                    jobResult = submitSyncJob(jobClient);
+                }
+                return jobResult;
+            }, hadoopConf.getYarnConfiguration());
         } catch (Exception e) {
-            logger.error("can not submit a job process SubmitJobWithType error," ,e);
+            logger.error("can not submit a job process SubmitJobWithType error,", e);
             return JobResult.createErrorResult(e);
         }
     }
@@ -264,7 +263,9 @@ public class FlinkClient extends AbstractClient {
      */
     private Pair<String, String> runJobByPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws Exception {
         logger.info("--------job:{} run by PerJob mode-----.", jobClient.getTaskId());
-        AbstractYarnClusterDescriptor descriptor = flinkClusterClientManager.getPerJobClientFactory().createPerJobClusterDescriptor(jobClient);
+        PerJobClientFactory perJobClientFactory = flinkClusterClientManager.getPerJobClientFactory();
+        AbstractYarnClusterDescriptor descriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
+        perJobClientFactory.deleteTaskIfExist(jobClient);
         ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, new JobGraph(), true);
 
         String applicationId = clusterClient.getClusterId().toString();
@@ -296,10 +297,9 @@ public class FlinkClient extends AbstractClient {
 
             return Pair.create(result.getJobID().toString(), null);
         } catch (Exception e) {
-            if (flinkClusterClientManager.getIsClientOn()) {
-                logger.info("submit job error,flink session init ..");
-                flinkClusterClientManager.setIsClientOn(false);
-                flinkClusterClientManager.initClusterClient();
+            //累加失败次数
+            if (flinkClusterClientManager.getSessionClientFactory() != null) {
+                flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().incrSubmitError();
             }
             throw e;
         } finally {
@@ -377,6 +377,7 @@ public class FlinkClient extends AbstractClient {
      * 1: 不再对操作顺序做限制
      * 2：不再限制输入源数量
      * 3：不再限制输出源数量
+     *
      * @param jobClient
      * @return
      * @throws IOException
@@ -456,6 +457,7 @@ public class FlinkClient extends AbstractClient {
 
     /**
      * 直接调用rest api直接返回
+     *
      * @param jobIdentifier
      * @return
      */
@@ -505,6 +507,7 @@ public class FlinkClient extends AbstractClient {
 
     /**
      * per-job模式其实获取的任务状态是yarn-application状态
+     *
      * @param applicationId
      * @return
      */
@@ -677,26 +680,28 @@ public class FlinkClient extends AbstractClient {
 
             JudgeResult judgeResult = perJobResourceInfo.judgeSlots(jobClient);
 
-            if (!judgeResult.available() || isPerJob){
+            if (!judgeResult.available() || isPerJob) {
                 return judgeResult;
             } else {
-                if (!flinkClusterClientManager.getIsClientOn()) {
-                    logger.warn("wait flink client recover...");
-                    return JudgeResult.notOk( "wait flink client recover");
+                if (flinkClusterClientManager.getSessionClientFactory()!=null&&
+                        !flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().isRunning()) {
+                    logger.warn("wait flink session client recover...");
+                    return JudgeResult.notOk("wait flink session client recover");
                 }
                 FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
                 String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
                 yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
                 return yarnSeesionResourceInfo.judgeSlots(jobClient);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error("judgeSlots error:{}", e);
-            return JudgeResult.notOk( "judgeSlots error");
+            return JudgeResult.notOk("judgeSlots error");
         }
     }
 
     /**
-     *  获取Flink任务执行时的container日志URL及字节大小
+     * 获取Flink任务执行时的container日志URL及字节大小
+     *
      * @return
      */
     @Override
@@ -741,7 +746,8 @@ public class FlinkClient extends AbstractClient {
     }
 
     /**
-     *  parse am log
+     * parse am log
+     *
      * @param applicationWSParser
      * @return
      */
@@ -749,7 +755,7 @@ public class FlinkClient extends AbstractClient {
         try {
             String logPreURL = UrlUtil.getHttpRootUrl(amContainerLogsURL);
             logger.info("jobmanager container logs URL is: {}, logPreURL is {} :", amContainerLogsURL, logPreURL);
-            ApplicationWSParser.RollingBaseInfo amLogInfo = applicationWSParser.parseContainerLogBaseInfo(amContainerLogsURL, logPreURL);
+            ApplicationWSParser.RollingBaseInfo amLogInfo = applicationWSParser.parseContainerLogBaseInfo(amContainerLogsURL, logPreURL, ConfigConstrant.JOBMANAGER_COMPONEN);
             return Optional.ofNullable(JSONObject.toJSONString(amLogInfo));
         } catch (Exception e) {
             logger.error(" parse am Log error !", e);
@@ -764,9 +770,9 @@ public class FlinkClient extends AbstractClient {
             for (TaskmanagerInfo info : taskmanagerInfos) {
                 String[] nameAndHost = parseContainerNameAndHost(info);
                 String containerLogUrl = buildContainerLogUrl(containerLogUrlFormat, nameAndHost, user);
-                String preUrl =  UrlUtil.getHttpRootUrl(containerLogUrl);
+                String preUrl = UrlUtil.getHttpRootUrl(containerLogUrl);
                 logger.info("taskmanager container logs URL is: {},  preURL is :{}", containerLogUrl, preUrl);
-                ApplicationWSParser.RollingBaseInfo rollingBaseInfo = applicationWSParser.parseContainerLogBaseInfo(containerLogUrl, preUrl);
+                ApplicationWSParser.RollingBaseInfo rollingBaseInfo = applicationWSParser.parseContainerLogBaseInfo(containerLogUrl, preUrl, ConfigConstrant.TASKMANAGER_COMPONEN);
                 rollingBaseInfo.setOtherInfo(JSONObject.toJSONString(info));
                 taskmanagerInfoStr.add(JSONObject.toJSONString(rollingBaseInfo));
             }
@@ -883,7 +889,7 @@ public class FlinkClient extends AbstractClient {
 
         String localDirStr = USER_DIR + DIR + jobClient.getTaskId();
         File localDir = new File(localDirStr);
-        if (localDir.exists()){
+        if (localDir.exists()) {
             try {
                 FileUtils.deleteDirectory(localDir);
             } catch (IOException e) {
@@ -930,7 +936,8 @@ public class FlinkClient extends AbstractClient {
     }
 
     /**
-     *  shipfile模式下，插件包在flinksession启动时,已经全部上传
+     * shipfile模式下，插件包在flinksession启动时,已经全部上传
+     *
      * @param packagedProgram
      */
     private void clearClassPathShipfileLoadMode(PackagedProgram packagedProgram) {
@@ -961,7 +968,7 @@ public class FlinkClient extends AbstractClient {
         File paramsFile = new File(filePath);
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(paramsFile)));
         String request = reader.readLine();
-        Map params =  PublicUtil.jsonStrToObject(request, Map.class);
+        Map params = PublicUtil.jsonStrToObject(request, Map.class);
         ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
         JobClient jobClient = new JobClient(paramAction);
 
@@ -976,8 +983,8 @@ public class FlinkClient extends AbstractClient {
         JobResult jobResult = client.submitJob(jobClient);
         String appId = jobResult.getData("extid");
         String jobId = jobResult.getData("jobid");
-        System.out.println("submit success!, jobId: " + jobId + ", appId: " + appId);
-        System.out.println(jobResult.getJsonStr());
+        logger.info("submit success!, jobId: " + jobId + ", appId: " + appId);
+        logger.info(jobResult.getJsonStr());
         System.exit(0);
     }
 
