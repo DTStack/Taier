@@ -395,7 +395,7 @@ public class ClientArguments {
         userPath = "";
         priority = DtYarnConfiguration.DEFAULT_DTSCRIPT_APP_PRIORITY;
         queue = "default";
-        userClasspathFirst = DtYarnConfiguration.DEFAULT_LEARNING_USER_CLASSPATH_FIRST;
+        userClasspathFirst = DtYarnConfiguration.DEFAULT_DTSCRIPT_USER_CLASSPATH_FIRST;
         exclusive = DtYarnConfiguration.DEFAULT_APP_NODEMANAGER_EXCLUSIVE;
         maxAppAttempts = 3;
         logLevel = Level.INFO.toString();
