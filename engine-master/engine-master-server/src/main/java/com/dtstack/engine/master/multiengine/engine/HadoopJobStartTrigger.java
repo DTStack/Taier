@@ -309,21 +309,14 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 String location = "";
                 if (DataSourceType.IMPALA.getVal() == sourceType) {
                     String jdbcInfo = clusterService.impalaInfo(dtuicTenantId, true);
-                    JSONObject jdbcInfoObject = JSONObject.parseObject(jdbcInfo);
-                    JSONObject pluginInfo = new JSONObject();
-                    pluginInfo.put("jdbcUrl", jdbcInfoObject.getString("jdbcUrl"));
-                    pluginInfo.put("username", jdbcInfoObject.getString("username"));
-                    pluginInfo.put("password", jdbcInfoObject.getString("password"));
+                    JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
+                    pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataBaseType.Impala.getTypeName());
                     workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, DataBaseType.Impala.getTypeName(), String.format("DESCRIBE formatted %s", tableName));
                 } else if (DataSourceType.HIVE.getVal() == sourceType || DataSourceType.HIVE1X.getVal() == sourceType) {
                     String jdbcInfo = clusterService.hiveInfo(dtuicTenantId, true);
-                    JSONObject jdbcInfoObject = JSONObject.parseObject(jdbcInfo);
-                    JSONObject pluginInfo = new JSONObject();
-                    pluginInfo.put("jdbcUrl", jdbcInfoObject.getString("jdbcUrl"));
-                    pluginInfo.put("username", jdbcInfoObject.getString("username"));
-                    pluginInfo.put("password", jdbcInfoObject.getString("password"));
-                    String engineType = DataSourceType.HIVE.getVal() == sourceType ? "hive2" : "hive";
+                    JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
+                    String engineType = DataSourceType.HIVE.getVal() == sourceType ? DataBaseType.HIVE.getTypeName() : DataBaseType.HIVE1X.getTypeName();
                     workerOperator.executeQuery(engineType, pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db,engineType, String.format("desc formatted %s", tableName));
                 }
