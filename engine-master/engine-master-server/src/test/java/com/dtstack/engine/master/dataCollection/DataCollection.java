@@ -168,6 +168,7 @@ public interface DataCollection {
         sj.setProjectId(-101L);
         sj.setJobName("Test job2");
         sj.setEngineLog("");
+        sj.setAppType(1);
         return sj;
     }
 
