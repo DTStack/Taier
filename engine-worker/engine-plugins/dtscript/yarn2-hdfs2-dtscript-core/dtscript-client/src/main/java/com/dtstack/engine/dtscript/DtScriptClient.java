@@ -104,10 +104,11 @@ public class DtScriptClient extends AbstractClient {
         //初始化代理用户
         String proxyUser = conf.get(DtYarnConstants.PROXY_USER_NAME);
         if (StringUtils.isNotBlank(proxyUser)) {
-            LOG.info("ugi proxyUser is {}",proxyUser);
-            client = UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<Client>) () -> new Client(conf,configMap));
+            LOG.info("ugi proxyUser is {}", proxyUser);
+            System.setProperty(DtYarnConfiguration.HADOOP_PROXY_USER, proxyUser);
+            client = UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<Client>) () -> new Client(conf, configMap));
         } else {
-            client = new Client(conf,configMap);
+            client = new Client(conf, configMap);
         }
 
         if (conf.getBoolean("monitorAcceptedApp", false)) {
@@ -243,13 +244,7 @@ public class DtScriptClient extends AbstractClient {
                 try {
                     String[] args = DtScriptUtil.buildPythonArgs(jobClient);
                     System.out.println(Arrays.asList(args));
-                    String proxyUser = conf.get(DtYarnConstants.PROXY_USER_NAME);
-                    if (StringUtils.isNotBlank(proxyUser)) {
-                        LOG.info("submit job {} ugi proxyUser {} ",jobClient.getTaskId(),proxyUser);
-                        return JobResult.createSuccessResult(UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<String>) () -> client.submit(args)));
-                    } else {
-                        return JobResult.createSuccessResult(client.submit(args));
-                    }
+                    return JobResult.createSuccessResult(client.submit(args));
                 } catch (Exception e) {
                     LOG.info("", e);
                     return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
