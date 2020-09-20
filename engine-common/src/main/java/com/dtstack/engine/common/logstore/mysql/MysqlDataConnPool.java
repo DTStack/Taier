@@ -4,6 +4,7 @@ import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.google.common.base.Strings;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,6 +105,8 @@ public class MysqlDataConnPool {
         jdbcUrl = dbConfig.get(ConfigConstant.JDBCURL);
         username = dbConfig.get(ConfigConstant.USERNAME);
         password = dbConfig.get(ConfigConstant.PASSWORD);
+        minIdle = NumberUtils.toInt(dbConfig.get(ConfigConstant.MINIDLE),minIdle);
+        maxActive = NumberUtils.toInt(dbConfig.get(ConfigConstant.MAXACTIVE),maxActive);
 
         dataSource.setDriverClassName(DRIVER_NAME);
         dataSource.setUrl(jdbcUrl);

@@ -25,7 +25,7 @@ public class KerberosUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(KerberosUtils.class);
 
-    private static final String USER_DIR = System.getProperty("user.dir") + File.separator + "kerberosPath";
+    private static final String USER_DIR = System.getProperty("user.dir") + File.separator + "keytab";
     private static final String KRB5_CONF = "java.security.krb5.conf";
     private static final String KERBEROS_AUTH = "hadoop.security.authentication";
     private static final String SECURITY_TO_LOCAL = "hadoop.security.auth_to_local";
@@ -56,12 +56,12 @@ public class KerberosUtils {
 
         logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, config.getSftpConf());
         SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
-        String keytabPath = handler.loadFromSftp(fileName, remoteDir, localDir, false);
+        String keytabPath = handler.loadOverrideFromSftp(fileName, remoteDir, localDir, false);
 
         String krb5ConfName = config.getKrbName();
         String krb5ConfPath = "";
         if (StringUtils.isNotBlank(krb5ConfName)) {
-            krb5ConfPath = handler.loadFromSftp(krb5ConfName, config.getRemoteDir(), localDir, true);
+            krb5ConfPath = handler.loadOverrideFromSftp(krb5ConfName, config.getRemoteDir(), localDir, true);
         }
 
         try {

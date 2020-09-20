@@ -32,11 +32,7 @@ import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.resource.FlinkPerJobResourceInfo;
 import com.dtstack.engine.flink.resource.FlinkYarnSeesionResourceInfo;
-import com.dtstack.engine.flink.util.FileUtil;
-import com.dtstack.engine.flink.util.FlinkConfUtil;
-import com.dtstack.engine.flink.util.FlinkRestParseUtil;
-import com.dtstack.engine.flink.util.FlinkUtil;
-import com.dtstack.engine.flink.util.HadoopConf;
+import com.dtstack.engine.flink.util.*;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.worker.enums.ClassLoaderType;
 import com.google.common.base.Strings;
@@ -48,6 +44,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.Charsets;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
@@ -70,22 +67,21 @@ import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.security.action.GetPropertyAction;
 
 import java.io.*;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static java.security.AccessController.doPrivileged;
 
 /**
  *
@@ -97,23 +93,7 @@ public class FlinkClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
-    //FIXME key值需要根据客户端传输名称调整
-    private static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
-
-    public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
-
-    private static int MAX_RETRY_NUMBER = 2;
-
     private String tmpFileDirPath = "./tmp";
-
-    private static final String USER_DIR = System.getProperty("user.dir");
-
-    private static final String DIR = "/keytab/";
-    private static final String APPLICATION_REST_API_TMP = "%s/ws/v1/cluster/apps/%s";
-    private static final String CONTAINER_LOG_URL_TMP = "%s/node/containerlogs/%s/%s";
-    private static final String TASK_MANAGERS_KEY = "taskmanagers";
-
-    private static final Path tmpdir = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
 
     private Properties flinkExtProp;
 
@@ -186,8 +166,7 @@ public class FlinkClient extends AbstractClient {
 
     private JobResult submitJobWithJar(JobClient jobClient, List<URL> classPaths, List<String> programArgList) {
         if (flinkConfig.isOpenKerberos()){
-            FileUtil.downloadKafkaKeyTab(jobClient.getConfProperties(), flinkConfig);
-            flinkClientBuilder.setSecurityConfig();
+            FileUtil.downloadKafkaKeyTab(jobClient, flinkConfig);
         }
 
         if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
@@ -270,7 +249,7 @@ public class FlinkClient extends AbstractClient {
         String applicationId = clusterClient.getClusterId().toString();
         String flinkJobId = clusterSpecification.getJobGraph().getJobID().toString();
 
-        delFilesFromDir(tmpdir, applicationId);
+        delFilesFromDir(ConfigConstrant.IO_TMPDIR, applicationId);
 
         flinkClusterClientManager.addClient(applicationId, clusterClient);
 
@@ -290,14 +269,13 @@ public class FlinkClient extends AbstractClient {
 
             return Pair.create(jobExecutionResult.getJobID().toString(), null);
         } catch (Exception e) {
-            if (e.getMessage() != null && e.getMessage().contains(ExceptionInfoConstrant.FLINK_UNALE_TO_GET_CLUSTERCLIENT_STATUS_EXCEPTION)) {
-                if (flinkClusterClientManager.getIsClientOn()) {
-                    flinkClusterClientManager.setIsClientOn(false);
-                }
+            //累加失败次数
+            if (flinkClusterClientManager.getSessionClientFactory() != null) {
+                flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().incrSubmitError();
             }
             throw e;
         } finally {
-            delFilesFromDir(tmpdir, "flink-jobgraph");
+            delFilesFromDir(ConfigConstrant.IO_TMPDIR, "flink-jobgraph");
         }
     }
 
@@ -336,8 +314,8 @@ public class FlinkClient extends AbstractClient {
 
         String externalPath = jobClient.getExternalPath();
         boolean allowNonRestoredState = false;
-        if(jobClient.getConfProperties().containsKey(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY)){
-            String allowNonRestored = (String) jobClient.getConfProperties().get(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY);
+        if(jobClient.getConfProperties().containsKey(ConfigConstrant.FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY)){
+            String allowNonRestored = (String) jobClient.getConfProperties().get(ConfigConstrant.FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY);
             allowNonRestoredState = BooleanUtils.toBoolean(allowNonRestored);
         }
 
@@ -601,11 +579,8 @@ public class FlinkClient extends AbstractClient {
     public String getMessageByHttp(String path) {
         try {
             String reqUrl = String.format("%s%s", getReqUrl(), path);
-            return PoolHttpClient.get(reqUrl, null, MAX_RETRY_NUMBER);
+            return PoolHttpClient.get(reqUrl, null, ConfigConstrant.HTTP_MAX_RETRY);
         } catch (Exception e) {
-            if(flinkClusterClientManager.getIsClientOn()){
-                flinkClusterClientManager.setIsClientOn(false);
-            }
             throw new RdosDefineException(ErrorCode.HTTP_CALL_ERROR, e);
         }
     }
@@ -688,7 +663,8 @@ public class FlinkClient extends AbstractClient {
             if (!judgeResult.available() || isPerJob){
                 return judgeResult;
             } else {
-                if (!flinkClusterClientManager.getIsClientOn()) {
+                if (flinkClusterClientManager.getSessionClientFactory()!=null&&
+                        !flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().isRunning()) {
                     logger.warn("wait flink client recover...");
                     return JudgeResult.notOk( "wait flink client recover");
                 }
@@ -712,11 +688,12 @@ public class FlinkClient extends AbstractClient {
     public List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier) {
         String jobMaster = getJobMaster(jobIdentifier);
         String rootURL = UrlUtil.getHttpRootUrl(jobMaster);
-        String amRootURl = String.format(APPLICATION_REST_API_TMP, rootURL, jobIdentifier.getApplicationId());
+        String amRootURl = String.format(ConfigConstrant.YARN_APPLICATION_URL_FORMAT, rootURL, jobIdentifier.getApplicationId());
 
         List<String> result = Lists.newArrayList();
         try {
-            String response = PoolHttpClient.get(amRootURl);
+            YarnConfiguration yarnConfig = hadoopConf.getYarnConfiguration();
+            String response = ApplicationWSParser.getDataFromYarnRest(yarnConfig, amRootURl);
             if (!StringUtils.isEmpty(response)) {
                 ApplicationWSParser applicationWsParser = new ApplicationWSParser(response);
                 String amStatue = applicationWsParser.getParamContent(ApplicationWSParser.AM_STATUE);
@@ -746,7 +723,7 @@ public class FlinkClient extends AbstractClient {
     private String buildContainerLogUrl(String containerHostPortFormat, String[] nameAndHost, String user) {
         logger.debug("buildContainerLogUrl name:{},host{},user{} ", nameAndHost[0], nameAndHost[1], user);
         String containerUlrPre = String.format(containerHostPortFormat, nameAndHost[1]);
-        return String.format(CONTAINER_LOG_URL_TMP, containerUlrPre, nameAndHost[0], user);
+        return String.format(ConfigConstrant.YARN_CONTAINER_LOG_URL_FORMAT, containerUlrPre, nameAndHost[0], user);
     }
 
     /**
@@ -758,7 +735,8 @@ public class FlinkClient extends AbstractClient {
         try {
             String logPreURL = UrlUtil.getHttpRootUrl(amContainerLogsURL);
             logger.info("jobmanager container logs URL is: {}, logPreURL is {} :", amContainerLogsURL, logPreURL);
-            ApplicationWSParser.RollingBaseInfo amLogInfo = applicationWSParser.parseContainerLogBaseInfo(amContainerLogsURL, logPreURL, ConfigConstrant.JOBMANAGER_COMPONEN);
+            YarnConfiguration yarnConfig = hadoopConf.getYarnConfiguration();
+            ApplicationWSParser.RollingBaseInfo amLogInfo = applicationWSParser.parseContainerLogBaseInfo(amContainerLogsURL, logPreURL, ConfigConstrant.JOBMANAGER_COMPONEN, yarnConfig);
             return Optional.ofNullable(JSONObject.toJSONString(amLogInfo));
         } catch (Exception e) {
             logger.error(" parse am Log error !", e);
@@ -769,13 +747,14 @@ public class FlinkClient extends AbstractClient {
     private List<String> parseContainersLog(ApplicationWSParser applicationWSParser, String user, String containerLogUrlFormat, String trackingUrl) throws IOException {
         List<String> taskmanagerInfoStr = Lists.newArrayList();
         try {
+            YarnConfiguration yarnConfig = hadoopConf.getYarnConfiguration();
             List<TaskmanagerInfo> taskmanagerInfos = getContainersNameAndHost(trackingUrl);
             for (TaskmanagerInfo info : taskmanagerInfos) {
                 String[] nameAndHost = parseContainerNameAndHost(info);
                 String containerLogUrl = buildContainerLogUrl(containerLogUrlFormat, nameAndHost, user);
                 String preUrl =  UrlUtil.getHttpRootUrl(containerLogUrl);
                 logger.info("taskmanager container logs URL is: {},  preURL is :{}", containerLogUrl, preUrl);
-                ApplicationWSParser.RollingBaseInfo rollingBaseInfo = applicationWSParser.parseContainerLogBaseInfo(containerLogUrl, preUrl, ConfigConstrant.TASKMANAGER_COMPONEN);
+                ApplicationWSParser.RollingBaseInfo rollingBaseInfo = applicationWSParser.parseContainerLogBaseInfo(containerLogUrl, preUrl, ConfigConstrant.TASKMANAGER_COMPONEN, yarnConfig);
                 rollingBaseInfo.setOtherInfo(JSONObject.toJSONString(info));
                 taskmanagerInfoStr.add(JSONObject.toJSONString(rollingBaseInfo));
             }
@@ -789,10 +768,10 @@ public class FlinkClient extends AbstractClient {
     private List<TaskmanagerInfo> getContainersNameAndHost(String trackingUrl) throws IOException {
         List<TaskmanagerInfo> containersNameAndHost = Lists.newArrayList();
         try {
-            String taskManagerUrl = trackingUrl + "/" + TASK_MANAGERS_KEY;
+            String taskManagerUrl = String.format(ConfigConstrant.TASKMANAGERS_URL_FORMAT, trackingUrl);
             String taskManagersInfo = HttpClient.get(taskManagerUrl);
             JSONObject response = JSONObject.parseObject(taskManagersInfo);
-            JSONArray taskManagers = response.getJSONArray(TASK_MANAGERS_KEY);
+            JSONArray taskManagers = response.getJSONArray(ConfigConstrant.TASKMANAGERS_KEY);
 
             containersNameAndHost = IntStream.range(0, taskManagers.size())
                     .mapToObj(taskManagers::getJSONObject)
@@ -834,8 +813,18 @@ public class FlinkClient extends AbstractClient {
             if (PrepareOperator.verificKeytab(tmpSql)) {
                 sqlItera.remove();
                 SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
-                String localDir = USER_DIR + DIR + jobClient.getTaskId();
-                String localPath = handler.loadFromSftp(PrepareOperator.getFileName(tmpSql), flinkConfig.getRemoteDir(), localDir);
+                String localDir = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+
+                if (!new File(localDir).exists()) {
+                    new File(localDir).mkdirs();
+                }
+
+                String keytabFileName = PrepareOperator.getFileName(tmpSql);
+                File keytabFile = new File(keytabFileName);
+                keytabFileName = keytabFile.getName();
+                String remoteDir = keytabFile.getParent();
+
+                String localPath = handler.loadFromSftp(keytabFileName, remoteDir, localDir);
                 logger.info("Download file to :" + localPath);
             } else if (PrepareOperator.verific(tmpSql)) {
                 sqlItera.remove();
@@ -864,30 +853,39 @@ public class FlinkClient extends AbstractClient {
         }
 
         cacheFile.put(jobClient.getTaskId(), fileList);
-        jobClient.setSql(String.join(";", sqlList));
+        String newSql = String.join(";", sqlList);
+        jobClient.setSql(String.join(";", newSql));
     }
 
     @Override
     public void afterSubmitFunc(JobClient jobClient) {
         List<String> fileList = cacheFile.get(jobClient.getTaskId());
-        if(CollectionUtils.isEmpty(fileList)){
-            return;
-        }
 
-        //清理包含下载下来的临时jar文件
-        for(String path : fileList){
-            try{
-                File file = new File(path);
-                if(file.exists()){
-                    file.delete();
+        if(null != fileList){
+            //清理包含下载下来的临时jar文件
+            for(String path : fileList){
+                try{
+                    File file = new File(path);
+                    if(file.exists()){
+                        file.delete();
+                    }
+                }catch (Exception e1){
+                    logger.error("", e1);
                 }
-
-            }catch (Exception e1){
-                logger.error("", e1);
             }
         }
 
         cacheFile.remove(jobClient.getTaskId());
+
+        String localDirStr = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+        File localDir = new File(localDirStr);
+        if (localDir.exists()){
+            try {
+                FileUtils.deleteDirectory(localDir);
+            } catch (IOException e) {
+                logger.error("Delete dir failed: " + e);
+            }
+        }
     }
 
     @Override
@@ -907,7 +905,7 @@ public class FlinkClient extends AbstractClient {
         }
 
         try {
-            return getMessageByHttp(String.format(FLINK_CP_URL_FORMAT, jobId), reqURL);
+            return getMessageByHttp(String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, jobId), reqURL);
         } catch (IOException e) {
             logger.error("", e);
             return null;

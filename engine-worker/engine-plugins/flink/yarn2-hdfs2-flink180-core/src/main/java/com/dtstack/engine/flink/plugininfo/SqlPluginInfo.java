@@ -1,10 +1,12 @@
 package com.dtstack.engine.flink.plugininfo;
 
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.flink.FlinkConfig;
+import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
@@ -29,12 +31,6 @@ import java.util.List;
 public class SqlPluginInfo {
 
     private static final Logger logger = LoggerFactory.getLogger(SqlPluginInfo.class);
-
-    private static final String SQLPLUGIN = "sqlplugin";
-
-    private static final String CORE = "core";
-
-    private static String SP = File.separator;
 
     private String localSqlRootJar;
 
@@ -68,7 +64,7 @@ public class SqlPluginInfo {
     }
 
     public String getJarFileDirPath(String type){
-        String jarPath = localSqlRootJar + SP + type;
+        String jarPath = localSqlRootJar + ConfigConstrant.SP + type;
         File jarFile = new File(jarPath);
 
         if(!jarFile.exists()){
@@ -99,7 +95,7 @@ public class SqlPluginInfo {
     }
 
     public String getSqlPluginDir(String pluginRoot){
-        return pluginRoot + SP + SQLPLUGIN;
+        return pluginRoot + ConfigConstrant.SP + ConfigConstrant.SQLPLUGIN_DIR;
     }
 
     public List<String> buildExeArgs(JobClient jobClient) throws IOException {
@@ -144,7 +140,7 @@ public class SqlPluginInfo {
             File[] jarFiles = pluginDir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
-                    return name.toLowerCase().startsWith(CORE) && name.toLowerCase().endsWith(".jar");
+                    return name.toLowerCase().startsWith(ConfigConstrant.FLINKSQl_CORE_JAR_PREFIX) && name.toLowerCase().endsWith(".jar");
                 }
             });
 

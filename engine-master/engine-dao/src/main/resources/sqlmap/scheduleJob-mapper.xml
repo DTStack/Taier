@@ -1085,7 +1085,7 @@
     </select>
 
     <select id="listTaskExeInfo" resultType="java.util.HashMap">
-        select a.exec_start_time as execStartTime, a.job_id as jobId, ifnull(a.type, 0) as type,
+        select a.exec_start_time as execStartTime, a.exec_end_time as execEndTime,  a.job_id as jobId, ifnull(a.type, 0) as type,
                ifnull(a.status, 0) as status, a.exec_time as execTime from schedule_job a
         where a.task_id = #{taskId} and a.project_id = #{projectId} and a.app_type = #{appType}
         order by a.exec_start_time desc limit #{limitNum};

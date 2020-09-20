@@ -18,8 +18,6 @@ import java.util.Map;
  */
 public class FlinkConfig extends BaseConfig {
 
-    private static final String DEFAULT_FLINK_PLUGIN_ROOT = "/opt/dtstack/flinkplugin";
-
     private static final String DEFAULT_JAR_TMP_DIR = "../tmp110";
 
     private static List<String> ENGINE_FLINK_CONFIGS = null;
@@ -68,6 +66,8 @@ public class FlinkConfig extends BaseConfig {
     private boolean flinkHighAvailability = false;
 
     private String pluginLoadMode = "shipfile";
+
+    private int checkSubmitJobGraphInterval = 120;
 
     private long submitTimeout = 5;
 
@@ -232,7 +232,7 @@ public class FlinkConfig extends BaseConfig {
 
     public String getFlinkPluginRoot() {
         if(Strings.isNullOrEmpty(flinkPluginRoot)){
-            return DEFAULT_FLINK_PLUGIN_ROOT;
+            return ConfigConstrant.DEFAULT_FLINK_PLUGIN_ROOT;
         }
 
         return flinkPluginRoot;
@@ -268,6 +268,14 @@ public class FlinkConfig extends BaseConfig {
 
     public static void setEngineFlinkConfigs(List<String> engineFlinkConfigs) {
         ENGINE_FLINK_CONFIGS = engineFlinkConfigs;
+    }
+
+    public int getCheckSubmitJobGraphInterval() {
+        return checkSubmitJobGraphInterval;
+    }
+
+    public void setCheckSubmitJobGraphInterval(int checkSubmitJobGraphInterval) {
+        this.checkSubmitJobGraphInterval = checkSubmitJobGraphInterval;
     }
 
     private static List<String> initEngineFlinkConfigFields() {
