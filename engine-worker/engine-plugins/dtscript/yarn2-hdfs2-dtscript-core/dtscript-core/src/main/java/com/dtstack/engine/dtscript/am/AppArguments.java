@@ -46,6 +46,8 @@ public class AppArguments {
 
     int workerNum;
 
+    int appMaxAttempts;
+
     int appPriority;
 
     String learningAppType;
@@ -101,11 +103,12 @@ public class AppArguments {
 
         nodes = conf.getStrings(DtYarnConfiguration.CONTAINER_REQUEST_NODES, (String[]) null);
 
-        workerMemory = conf.getInt(DtYarnConfiguration.LEARNING_WORKER_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_WORKER_MEMORY);
-        workerVcores = conf.getInt(DtYarnConfiguration.LEARNING_WORKER_VCORES, DtYarnConfiguration.DEFAULT_LEARNING_WORKER_VCORES);
-        workerGCores = conf.getLong(DtYarnConfiguration.LEARNING_WORKER_GPU, DtYarnConfiguration.DEFAULT_LEARNING_WORKER_GPU);
+        workerMemory = conf.getInt(DtYarnConfiguration.DTSCRIPT_WORKER_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_WORKER_MEMORY);
+        workerVcores = conf.getInt(DtYarnConfiguration.DTSCRIPT_WORKER_VCORES, DtYarnConfiguration.DEFAULT_DTSCRIPT_WORKER_VCORES);
+        workerGCores = conf.getLong(DtYarnConfiguration.DTSCRIPT_WORKER_GPU, DtYarnConfiguration.DEFAULT_DTSCRIPT_WORKER_GPU);
         workerNum = conf.getInt(DtYarnConfiguration.DT_WORKER_NUM, DtYarnConfiguration.DEFAULT_DT_WORKER_NUM);
-        appPriority = conf.getInt(DtYarnConfiguration.APP_PRIORITY, DtYarnConfiguration.DEFAULT_LEARNING_APP_PRIORITY);
+        appMaxAttempts = conf.getInt(DtYarnConfiguration.APP_MAX_ATTEMPTS, DtYarnConfiguration.DEFAULT_APP_MAX_ATTEMPTS);
+        appPriority = conf.getInt(DtYarnConfiguration.APP_PRIORITY, DtYarnConfiguration.DEFAULT_DTSCRIPT_APP_PRIORITY);
         exclusive = conf.getBoolean(DtYarnConfiguration.APP_NODEMANAGER_EXCLUSIVE, DtYarnConfiguration.DEFAULT_APP_NODEMANAGER_EXCLUSIVE);
 
         assert (envs.containsKey(DtYarnConstants.Environment.APP_JAR_LOCATION.toString()));
