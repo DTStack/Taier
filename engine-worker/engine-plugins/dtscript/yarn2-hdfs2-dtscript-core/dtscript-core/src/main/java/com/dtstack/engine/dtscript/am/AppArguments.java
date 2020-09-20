@@ -46,6 +46,8 @@ public class AppArguments {
 
     int workerNum;
 
+    int appMaxAttempts;
+
     int appPriority;
 
     String learningAppType;
@@ -105,6 +107,7 @@ public class AppArguments {
         workerVcores = conf.getInt(DtYarnConfiguration.DTSCRIPT_WORKER_VCORES, DtYarnConfiguration.DEFAULT_DTSCRIPT_WORKER_VCORES);
         workerGCores = conf.getLong(DtYarnConfiguration.DTSCRIPT_WORKER_GPU, DtYarnConfiguration.DEFAULT_DTSCRIPT_WORKER_GPU);
         workerNum = conf.getInt(DtYarnConfiguration.DT_WORKER_NUM, DtYarnConfiguration.DEFAULT_DT_WORKER_NUM);
+        appMaxAttempts = conf.getInt(DtYarnConfiguration.APP_MAX_ATTEMPTS, DtYarnConfiguration.DEFAULT_APP_MAX_ATTEMPTS);
         appPriority = conf.getInt(DtYarnConfiguration.APP_PRIORITY, DtYarnConfiguration.DEFAULT_DTSCRIPT_APP_PRIORITY);
         exclusive = conf.getBoolean(DtYarnConfiguration.APP_NODEMANAGER_EXCLUSIVE, DtYarnConfiguration.DEFAULT_APP_NODEMANAGER_EXCLUSIVE);
 

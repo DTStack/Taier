@@ -76,9 +76,9 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final String APP_PRIORITY = "yarn.app.priority";
 
-    public static final String APP_MAX_ATTEMPTS = "container.maxattempts";
+    public static final String APP_MAX_ATTEMPTS = "app.maxattempts";
 
-    public static final int DEFAULT_APP_MAX_ATTEMPTS = 0;
+    public static final int DEFAULT_APP_MAX_ATTEMPTS = 3;
 
     public static final int DEFAULT_DTSCRIPT_APP_PRIORITY = 3;
 

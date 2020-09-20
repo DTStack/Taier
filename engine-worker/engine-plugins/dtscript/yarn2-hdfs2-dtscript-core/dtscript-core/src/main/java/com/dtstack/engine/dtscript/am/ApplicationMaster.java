@@ -81,6 +81,8 @@ public class ApplicationMaster extends CompositeService {
 
     long heartBeatInterval;
 
+    final String APP_SUCCESS = "Application is success.";
+
     private ApplicationMaster(String name) {
         super(name);
         Path jobConfPath = new Path(DtYarnConstants.LEARNING_JOB_CONFIGURATION);
@@ -115,7 +117,7 @@ public class ApplicationMaster extends CompositeService {
                 + applicationAttemptID.getApplicationId().getClusterTimestamp()
                 + ", attemptId=" + applicationAttemptID.getAttemptId());
 
-        if (applicationAttemptID.getAttemptId() > 1 && (conf.getInt(DtYarnConfiguration.APP_MAX_ATTEMPTS, DtYarnConfiguration.DEFAULT_APP_MAX_ATTEMPTS) > 1)) {
+        if (applicationAttemptID.getAttemptId() > 1 && appArguments.appMaxAttempts > 1) {
             int maxMem = conf.getInt(DtYarnConfiguration.DTSCRIPT_MAX_WORKER_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_MAX_WORKER_MEMORY);
             LOG.info("maxMem : " + maxMem);
             int newWorkerMemory = appArguments.workerMemory + (applicationAttemptID.getAttemptId() - 1) * (int) Math.ceil(appArguments.workerMemory * conf.getDouble(DtYarnConfiguration.DTSCRIPT_WORKER_MEM_AUTO_SCALE, DtYarnConfiguration.DEFAULT_DTSCRIPT_WORKER_MEM_AUTO_SCALE));
@@ -274,13 +276,14 @@ public class ApplicationMaster extends CompositeService {
 
         boolean finalSuccess = containerListener.isAllWorkerContainersSucceeded();
 
-        if (finalSuccess) {
-            unregister(FinalApplicationStatus.SUCCEEDED, "Application is success.");
-            return true;
-        } else {
-            unregister(FinalApplicationStatus.FAILED, containerListener.getFailedMsg());
-            return false;
+        if (!finalSuccess && applicationAttemptID.getAttemptId() < appArguments.appMaxAttempts) {
+            throw new RuntimeException("Application Failed, retry starting. Note that container memory will auto scale if user config the setting.");
         }
+
+        unregister(finalSuccess ? FinalApplicationStatus.SUCCEEDED : FinalApplicationStatus.FAILED,
+                finalSuccess ? APP_SUCCESS : containerListener.getFailedMsg());
+
+        return finalSuccess;
     }
 
     private List<Container> handleRmCallbackOfContainerRequest(int workerNum, AMRMClient.ContainerRequest request, int allocateInterval) {
@@ -451,16 +454,7 @@ public class ApplicationMaster extends CompositeService {
         try {
             appMaster = new ApplicationMaster();
             appMaster.init();
-            boolean tag;
-            try {
-                tag = appMaster.run();
-            } catch (Throwable t) {
-                tag = false;
-                String stackTrace = DebugUtil.stackTrace(t);
-                appMaster.unregister(FinalApplicationStatus.FAILED, stackTrace);
-                LOG.error(stackTrace);
-            }
-
+            boolean tag = appMaster.run();
             if (tag) {
                 LOG.info("Application completed successfully.");
                 System.exit(0);
