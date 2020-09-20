@@ -23,6 +23,7 @@ import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
+import com.dtstack.schedule.common.enums.ForceCancelFlag;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,7 +44,8 @@ import java.util.concurrent.*;
  * @author sishu.yss
  */
 @Service
-public class ActionService {
+public class
+ActionService {
 
     private static final Logger logger = LoggerFactory.getLogger(ActionService.class);
 
@@ -137,13 +139,13 @@ public class ActionService {
      * @throws Exception
      */
     public Boolean stop(List<String> jobIds) {
-        List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.getRdosJobByJobIds(jobIds));
-        jobStopDealer.addStopJobs(jobs);
-        return true;
+        return stop(jobIds, ForceCancelFlag.NO.getFlag());
     }
 
-    public Boolean forceStop(List<String> jobIds, boolean isForce) {
-        return false;
+    public Boolean stop(List<String> jobIds, Integer isForce) {
+        List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.getRdosJobByJobIds(jobIds));
+        jobStopDealer.addStopJobs(jobs, isForce);
+        return true;
     }
 
     private void checkParam(ParamAction paramAction) throws Exception{
