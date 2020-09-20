@@ -45,11 +45,11 @@ public class ContainerStatusNotifier implements Runnable {
         this.protocol = protocol;
         this.conf = conf;
         this.containerId = xlearningContainerId;
-        this.heartbeatRequest.setContainerUserDir(System.getProperty("user.dir"));
         // 自定义 CustomThreadFactory 对线程设置为守护线程
         this.scheduledExecutorService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(containerId.toString() + "heartbeat"));
         this.heartbeatRequest = new HeartbeatRequest();
         this.heartbeatResponse = new HeartbeatResponse();
+        this.heartbeatRequest.setContainerUserDir(System.getProperty("user.dir"));
         this.isCompleted = false;
         this.heartbeatInterval = this.conf.getInt(DtYarnConfiguration.DTSCRIPT_CONTAINER_HEARTBEAT_INTERVAL, DtYarnConfiguration.DEFAULT_DTSCRIPT_CONTAINER_HEARTBEAT_INTERVAL);
         this.heartbeatRetryMax = this.conf.getInt(DtYarnConfiguration.DTSCRIPT_CONTAINER_HEARTBEAT_RETRY, DtYarnConfiguration.DEFAULT_DTSCRIPT_CONTAINER_HEARTBEAT_RETRY);

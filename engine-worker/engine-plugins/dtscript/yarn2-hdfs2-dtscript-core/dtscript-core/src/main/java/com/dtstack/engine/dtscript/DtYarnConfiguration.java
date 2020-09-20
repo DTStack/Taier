@@ -114,7 +114,7 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final String DTSCRIPT_CONTAINER_HEARTBEAT_TIMEOUT = "dtscript.container.heartbeat.timeout";
 
-    public static final long DEFAULT_DTSCRIPT_CONTAINER_HEARTBEAT_TIMEOUT = 5 * 60 * 1000;
+    public static final long DEFAULT_DTSCRIPT_CONTAINER_HEARTBEAT_TIMEOUT = 2 * 60 * 1000;
 
     public static final String DTSCRIPT_LOCALRESOURCE_TIMEOUT = "dtscript.localresource.timeout";
 

@@ -130,8 +130,8 @@ public class DtContainer {
         }
 
         containerStatusNotifier = new ContainerStatusNotifier(amClient, conf, containerId);
-        containerStatusNotifier.start();
         containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.INITIALIZING);
+        containerStatusNotifier.start();
     }
 
     public Configuration getConf() {

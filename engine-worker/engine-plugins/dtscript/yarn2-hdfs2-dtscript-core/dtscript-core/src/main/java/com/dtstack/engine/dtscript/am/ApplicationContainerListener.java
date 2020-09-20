@@ -42,7 +42,7 @@ public class ApplicationContainerListener
 
     private volatile boolean isFinished = false;
 
-    private volatile boolean failed = false;
+    private volatile boolean emergencyFailed = false;
 
     public String getFailedMsg() {
         return failedMsg;
@@ -102,7 +102,7 @@ public class ApplicationContainerListener
     }
 
     public boolean isTrainCompleted() {
-        if (failed) {
+        if (emergencyFailed) {
             return true;
         }
 
@@ -133,7 +133,7 @@ public class ApplicationContainerListener
     }
 
     public boolean isAllWorkerContainersSucceeded() {
-        if (failed) {
+        if (emergencyFailed) {
             return false;
         }
 
@@ -182,8 +182,8 @@ public class ApplicationContainerListener
 
         ContainerEntity containerEntity = allContainers.get(containerId);
         if (containerEntity == null) {
-            failed = true;
-            failedMsg = "containerId:" + containerId + " is not found, allContainers: " + allContainers + "; " + heartbeatRequest.getErrMsg();
+            emergencyFailed = true;
+            failedMsg = "Emergency Failed!!! containerId:" + containerId + " is not found, allContainers: " + allContainers + "; " + heartbeatRequest.getErrMsg();
             LOG.error(failedMsg);
             return new HeartbeatResponse(true, System.currentTimeMillis());
         }
@@ -193,21 +193,11 @@ public class ApplicationContainerListener
         }
 
         if (containerEntity.getDtContainerStatus() != currentContainerStatus) {
-            LOG.debug("Received heartbeat from container " + containerId.toString() + ", Update status " + containerEntity.getDtContainerStatus().toString() + " to " + currentContainerStatus.toString());
+            LOG.info("Received heartbeat from container " + containerId.toString() + ", Update status " + containerEntity.getDtContainerStatus().toString() + " to " + currentContainerStatus.toString());
             containerEntity.setDtContainerStatus(currentContainerStatus);
             if (currentContainerStatus.equals(DtContainerStatus.SUCCEEDED) || currentContainerStatus.equals(DtContainerStatus.FAILED)) {
                 LOG.info("container " + containerId.toString() + " is " + currentContainerStatus);
             }
-
-//                if(status == DtContainerStatus.TIMEOUT) {
-//                    failed = true;
-//                    failedMsg = "container timeout. " + heartbeatRequest.getErrMsg();
-//                    LOG.error(failedMsg);
-//                } else if((status == DtContainerStatus.FAILED) && oldEntity.getAttempts() >= maxAttempts) {
-//                    failed = true;
-//                    failedMsg = "container max attempts exceed. \n" + heartbeatRequest.getErrMsg();
-//                    LOG.error(failedMsg);
-//                }
         }
 
         return new HeartbeatResponse(isFinished, System.currentTimeMillis());
