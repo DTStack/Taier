@@ -193,6 +193,7 @@ public interface DataCollection {
         sj.setEngineLog("");
         sj.setSourceType(-1);
         sj.setApplicationId("application_9527");
+        sj.setComputeType(ComputeType.STREAM.getType());
         return sj;
     }
 
