@@ -130,6 +130,10 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     /** app master */
 
+    public static final String DTSCRIPT_APPMASTER_EXTRA_JAVA_OPTS = "dtscript.appmaster.extra.java.opts";
+
+    public static final String DEFAULT_DTSCRIPT_APPMASTER_EXTRA_JAVA_OPTS = "";
+
     public static final String DTSCRIPT_CONTAINER_EXTRA_JAVA_OPTS = "dtscript.container.extra.java.opts";
 
     public static final String DEFAULT_DTSCRIPT_CONTAINER_EXTRA_JAVA_OPTS = "";
