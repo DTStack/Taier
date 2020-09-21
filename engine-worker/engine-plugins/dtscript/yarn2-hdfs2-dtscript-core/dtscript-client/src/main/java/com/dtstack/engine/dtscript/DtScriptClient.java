@@ -13,14 +13,12 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.dtscript.api.DtYarnConstants;
 import com.dtstack.engine.dtscript.client.Client;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
@@ -30,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.security.PrivilegedExceptionAction;
 import java.util.*;
 
 /**
@@ -101,14 +98,7 @@ public class DtScriptClient extends AbstractClient {
             conf.set(DtYarnConfiguration.DT_APP_QUEUE, queue);
         }
 
-        //初始化代理用户
-        String proxyUser = conf.get(DtYarnConstants.PROXY_USER_NAME);
-        if (StringUtils.isNotBlank(proxyUser)) {
-            LOG.info("ugi proxyUser is {}", proxyUser);
-            client = UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<Client>) () -> new Client(conf, configMap));
-        } else {
-            client = new Client(conf, configMap);
-        }
+        client = new Client(conf, configMap);
 
         if (conf.getBoolean("monitorAcceptedApp", false)) {
             AcceptedApplicationMonitor.start(conf, queue, configMap);
@@ -243,18 +233,8 @@ public class DtScriptClient extends AbstractClient {
                 try {
                     String[] args = DtScriptUtil.buildPythonArgs(jobClient);
                     System.out.println(Arrays.asList(args));
-                    String proxyUser = conf.get(DtYarnConstants.PROXY_USER_NAME);
-                    if (StringUtils.isNotBlank(proxyUser)) {
-                        LOG.info("submit job {} ugi proxyUser {} ", jobClient.getTaskId(), proxyUser);
-                        return JobResult.createSuccessResult(UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<String>) () -> {
-                            Client proxyClient = new Client(conf, configMap);
-                            UserGroupInformation proxyUserUGI = UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getLoginUser());
-                            UserGroupInformation.setLoginUser(proxyUserUGI);
-                            return proxyClient.submit(args);
-                        }));
-                    } else {
-                        return JobResult.createSuccessResult(client.submit(args));
-                    }
+                    String jobId = client.submit(args);
+                    return JobResult.createSuccessResult(jobId);
                 } catch (Exception e) {
                     LOG.info("", e);
                     return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
