@@ -108,7 +108,7 @@ public class FlinkClientTest {
 
 	}
 
-	@Test
+	/*@Test
 	public void testInit() throws Exception {
 		Properties prop = new Properties();
 		prop.put("jarTmpDir", "test/tmp");
@@ -151,7 +151,7 @@ public class FlinkClientTest {
 		Assert.assertNotNull(flinkClusterClientManagerField.get(flinkClient));
 
 	}
-
+*/
 	@Test
 	public void testBeforeSubmitFunc() throws Exception {
 
