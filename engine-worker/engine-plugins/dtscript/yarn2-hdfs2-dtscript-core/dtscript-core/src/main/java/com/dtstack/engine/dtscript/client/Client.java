@@ -3,6 +3,7 @@ package com.dtstack.engine.dtscript.client;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.util.KerberosUtils;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.am.ApplicationMaster;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
@@ -68,9 +69,20 @@ public class Client {
                 UserGroupInformation ugi = UserGroupInformation.createRemoteUser(appSubmitterUserName);
                 conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
             }
+            String proxyUser = conf.get(DtYarnConstants.PROXY_USER_NAME);
+            if (StringUtils.isNotBlank(proxyUser)) {
+                LOG.info("client proxyUser is " + proxyUser);
+                try {
+                    UserGroupInformation.setLoginUser(UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getLoginUser()));
+                } catch (IOException e) {
+                    throw new RdosDefineException("create proxy user error", e);
+                }
+            }
             this.yarnClient = getYarnClient();
             Path appJarSrc = new Path(JobConf.findContainingJar(ApplicationMaster.class));
             this.appJarSrc = appJarSrc;
+
+
             return null;
         }, conf);
     }

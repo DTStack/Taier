@@ -163,6 +163,8 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final String NODE_LABEL = "nodeLabel";
 
+    public static final String HADOOP_PROXY_USER = "HADOOP_PROXY_USER";
+
 
     public DtYarnConfiguration() {
     }
