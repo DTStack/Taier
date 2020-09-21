@@ -33,8 +33,6 @@ public class FlinkUtil {
 
     private static final String URL_SPLITE = "/";
 
-    private static String fileSP = File.separator;
-
 
     public static PackagedProgram buildProgram(String fromPath, String toPath, List<URL> classpaths, EJobType jobType,
                                                String entryPointClass, String[] programArgs,
@@ -60,7 +58,7 @@ public class FlinkUtil {
 
     public static String getTmpFileName(String fileUrl, String toPath){
         String name = fileUrl.substring(fileUrl.lastIndexOf(URL_SPLITE) + 1);
-        String tmpFileName = toPath  + fileSP + name;
+        String tmpFileName = toPath  + ConfigConstrant.SP + name;
         return tmpFileName;
     }
 

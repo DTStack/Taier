@@ -577,6 +577,8 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
         if (file.exists() && file.isDirectory()) {
             shipFiles.addAll(Arrays.asList(file.listFiles()));
         }
+
+
 		// flinkx get classpath
 		jobGraph.getClasspaths().forEach(jarFile -> {
 			try {

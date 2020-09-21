@@ -4,11 +4,9 @@ import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.http.PoolHttpClient;
-import com.dtstack.engine.common.util.ApplicationWSParser;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.dataCollection.DataCollection;
-import org.apache.commons.math3.util.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -34,7 +32,7 @@ import static org.mockito.Mockito.when;
  * @author xiuzhu
  */
 
-@PrepareForTest({PoolHttpClient.class, WorkerOperator.class, ApplicationWSParser.class})
+@PrepareForTest({PoolHttpClient.class, WorkerOperator.class})
 public class StreamTaskServiceTest extends AbstractTest {
 
 	@Mock
@@ -52,12 +50,6 @@ public class StreamTaskServiceTest extends AbstractTest {
 
 		PowerMockito.mockStatic(PoolHttpClient.class);
 		when(PoolHttpClient.get(any())).thenReturn("{\"app\":{\"amContainerLogs\":\"http://dtstack01:8088/ws/v1/cluster/apps/application_9527\"}}");
-
-		PowerMockito.mockStatic(ApplicationWSParser.class);
-//		when(ApplicationWSParser.parserAmContainerPreViewHttp(any(), any()))
-//			.thenReturn(new Pair<>("http://dtstack01:8088/app/log", "1024"));
-//		when(ApplicationWSParser.getAmContainerLogsUrl(any()))
-//			.thenReturn("http://dtstack01:8088/app/container/log");
 
 	}
 
