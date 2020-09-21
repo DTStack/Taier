@@ -2,19 +2,22 @@ package com.dtstack.engine.common.client;
 
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ClientTemplate;
-import com.dtstack.engine.common.pojo.ClusterResource;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Reason:
@@ -117,8 +120,24 @@ public class ClientOperator {
         JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getTaskId());
         checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
         LOG.info("stop job jobClient {} ",jobClient);
+
+        jobIdentifier.setTimeout(getCheckoutTimeout(jobClient));
         IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return client.cancelJob(jobIdentifier);
+    }
+
+    public Long getCheckoutTimeout(JobClient jobClient) {
+        Long timeout = ConfigConstant.DEFAULT_CHECKPOINT_TIMEOUT;
+        Properties taskProps = jobClient.getConfProperties();
+        if (taskProps == null || taskProps.size() == 0) {
+            return timeout;
+        }
+        if (taskProps.containsKey(ConfigConstant.SQL_CHECKPOINT_TIMEOUT)) {
+            timeout = Long.valueOf(taskProps.getProperty(ConfigConstant.SQL_CHECKPOINT_TIMEOUT));
+        } else if (taskProps.containsKey(ConfigConstant.FLINK_CHECKPOINT_TIMEOUT)) {
+            timeout = Long.valueOf(taskProps.getProperty(ConfigConstant.FLINK_CHECKPOINT_TIMEOUT));
+        }
+        return timeout;
     }
 
     public List<String> containerInfos(JobClient jobClient) throws Exception {
@@ -134,7 +153,7 @@ public class ClientOperator {
         }
     }
 
-    public boolean judgeSlots(JobClient jobClient) throws ClientAccessException {
+    public JudgeResult judgeSlots(JobClient jobClient) throws ClientAccessException {
         IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return clusterClient.judgeSlots(jobClient);
     }

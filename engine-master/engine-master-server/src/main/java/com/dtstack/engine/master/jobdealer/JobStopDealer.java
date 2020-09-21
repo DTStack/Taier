@@ -2,6 +2,7 @@ package com.dtstack.engine.master.jobdealer;
 
 
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.CustomThreadRunsPolicy;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
@@ -10,7 +11,6 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.StoppedJob;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.pojo.ParamAction;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
@@ -21,7 +21,7 @@ import com.dtstack.engine.api.domain.EngineJobStopRecord;
 import com.dtstack.engine.common.enums.StoppedStatus;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.cache.ShardCache;
+import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -108,15 +108,12 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
             throw new RdosDefineException("please don't stop too many tasks at once, limit:" + JOB_STOP_LIMIT);
         }
 
-        int stopCount = 0;
         List<ScheduleJob> needSendStopJobs = new ArrayList<>(jobs.size());
         List<Long> unSubmitJob = new ArrayList<>(jobs.size());
         for (ScheduleJob job : jobs) {
-            if (checkJobCanStop(job.getStatus())) {
-                stopCount++;
-                if (RdosTaskStatus.UNSUBMIT.getStatus().equals(job.getStatus()) || SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
-                    unSubmitJob.add(job.getId());
-                }
+            if (RdosTaskStatus.UNSUBMIT.getStatus().equals(job.getStatus()) || SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
+                unSubmitJob.add(job.getId());
+            } else {
                 needSendStopJobs.add(job);
             }
         }
@@ -140,7 +137,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
             scheduleJobDao.updateJobStatusByIds(RdosTaskStatus.CANCELED.getStatus(), unSubmitJob);
         }
 
-        return stopCount;
+        return jobs.size();
 
     }
 
@@ -181,11 +178,10 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         public void run() {
             long tmpStartId = 0L;
             Timestamp operatorExpired = new Timestamp(System.currentTimeMillis() + OPERATOR_EXPIRED_INTERVAL);
-            Timestamp lessThanOperatorExpired = new Timestamp(System.currentTimeMillis());
             while (true) {
                 try {
                     //根据条件判断是否有数据存在
-                    List<EngineJobStopRecord> jobStopRecords = engineJobStopRecordDao.listStopJob(tmpStartId, lessThanOperatorExpired);
+                    List<EngineJobStopRecord> jobStopRecords = engineJobStopRecordDao.listStopJob(tmpStartId);
                     if (jobStopRecords.isEmpty()) {
                         break;
                     }

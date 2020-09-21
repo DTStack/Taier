@@ -18,6 +18,7 @@
 
 package com.dtstack.engine.flink.factory;
 
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
@@ -26,27 +27,31 @@ import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.FileUtil;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
+import org.apache.flink.configuration.SecurityOptions;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
 import org.apache.flink.yarn.YarnClusterDescriptor;
 import org.apache.flink.yarn.configuration.YarnConfigOptions;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
+import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.YarnApplicationState;
+import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Date: 2020/5/29
@@ -57,28 +62,25 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerJobClientFactory.class);
 
-    private static final String KEYTAB_DIR = "keytab";
-
-    private static final String LOG_LEVEL_KEY = "logLevel";
-
-    private static final String USER_DIR = System.getProperty("user.dir");
-
     private FlinkConfig flinkConfig;
     private Configuration flinkConfiguration;
     private YarnConfiguration yarnConf;
 
     private PerJobClientFactory(FlinkClientBuilder flinkClientBuilder) {
+        this.flinkClientBuilder = flinkClientBuilder;
         this.flinkConfig = flinkClientBuilder.getFlinkConfig();
         this.flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
         this.yarnConf = flinkClientBuilder.getYarnConf();
     }
 
-    public YarnClusterDescriptor createPerJobClusterDescriptor(JobClient jobClient) throws MalformedURLException {
+    public YarnClusterDescriptor createPerJobClusterDescriptor(JobClient jobClient) throws Exception {
         String flinkJarPath = flinkConfig.getFlinkJarPath();
         FileUtil.checkFileExist(flinkJarPath);
 
         Configuration newConf = new Configuration(flinkConfiguration);
         newConf = appendJobConfigAndInitFs(jobClient, newConf);
+
+        List<File> keytabFiles = getKeytabFilesAndSetSecurityConfig(jobClient, newConf);
 
         YarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf);
         List<URL> classpaths = getFlinkJarFile(flinkJarPath, clusterDescriptor);
@@ -88,13 +90,39 @@ public class PerJobClientFactory extends AbstractClientFactory {
                 classpaths.add(new File(jarFileInfo.getJarPath()).toURI().toURL());
             }
         }
-        if (flinkConfig.isOpenKerberos()) {
-            List<File> keytabFilePath = getKeytabFilePath(jobClient);
-            clusterDescriptor.addShipFiles(keytabFilePath);
+
+        if (CollectionUtils.isNotEmpty(keytabFiles)) {
+            clusterDescriptor.addShipFiles(keytabFiles);
         }
 
         clusterDescriptor.setProvidedUserJarFiles(classpaths);
         return clusterDescriptor;
+    }
+
+
+    public void deleteTaskIfExist(JobClient jobClient) {
+        try {
+            String taskName = jobClient.getJobName();
+            String queueName = flinkConfig.getQueue();
+            YarnClient yarnClient = flinkClientBuilder.getYarnClient();
+
+            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
+            enumSet.add(YarnApplicationState.ACCEPTED);
+            enumSet.add(YarnApplicationState.RUNNING);
+
+            List<ApplicationReport> existApps = yarnClient.getApplications(enumSet).stream().
+                    filter(report -> report.getQueue().endsWith(queueName))
+                    .filter(report -> report.getName().equals(taskName))
+                    .collect(Collectors.toList());
+
+            for (ApplicationReport report : existApps) {
+                ApplicationId appId = report.getApplicationId();
+                yarnClient.killApplication(appId);
+            }
+        } catch (Exception e) {
+            LOG.error("Delete task error " + e.getMessage());
+            throw new RdosDefineException("Delete task error");
+        }
     }
 
     private Configuration appendJobConfigAndInitFs(JobClient jobClient, Configuration configuration) {
@@ -102,7 +130,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
         if (properties != null) {
             properties.stringPropertyNames()
                     .stream()
-                    .filter(key -> key.toString().contains(".") || key.toString().equalsIgnoreCase(LOG_LEVEL_KEY))
+                    .filter(key -> key.toString().contains(".") || key.toString().equalsIgnoreCase(ConfigConstrant.LOG_LEVEL_KEY))
                     .forEach(key -> configuration.setString(key.toString(), properties.getProperty(key)));
         }
 
@@ -110,7 +138,8 @@ public class PerJobClientFactory extends AbstractClientFactory {
             setNoneHaModeConfig(configuration);
         } else {
             configuration.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
-            configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
+            String haClusterId = String.format("%s-%s", jobClient.getTaskId(), RandomStringUtils.randomAlphanumeric(8));
+            configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, haClusterId);
         }
 
         configuration.setString(YarnConfigOptions.APPLICATION_NAME, jobClient.getJobName());
@@ -130,36 +159,54 @@ public class PerJobClientFactory extends AbstractClientFactory {
         return configuration;
     }
 
-    private List<File> getKeytabFilePath(JobClient jobClient) {
-        List<File> keytabs = Lists.newLinkedList();
+    @Override
+    public ClusterClient getClusterClient() {
+        return null;
+    }
+
+    private List<File> getKeytabFilesAndSetSecurityConfig(JobClient jobClient, Configuration config) throws IOException {
+        Map<String, File> keytabs = new HashMap<>();
         String remoteDir = flinkConfig.getRemoteDir();
-        String keytabDirParent = USER_DIR + File.separator + KEYTAB_DIR;
-        String clusterKeytabDirPath = keytabDirParent + remoteDir;
-        File clusterKeytabDir = new File(clusterKeytabDirPath);
-        File[] clusterKeytabFiles = clusterKeytabDir.listFiles();
 
-        if (clusterKeytabFiles == null || clusterKeytabFiles.length == 0) {
-            throw new RdosDefineException("not find keytab file from " + clusterKeytabDirPath);
-        }
-        for (File file : clusterKeytabFiles) {
-            keytabs.add(file);
-        }
-
-        String taskKeytabDirPath = keytabDirParent + File.separator + jobClient.getTaskId();
+        // 数据源keytab
+        String taskKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
         File taskKeytabDir = new File(taskKeytabDirPath);
         File[] taskKeytabFiles = taskKeytabDir.listFiles();
         if (taskKeytabFiles != null && taskKeytabFiles.length > 0) {
             for (File file : taskKeytabFiles) {
-                keytabs.add(file);
+                String fileName = file.getName();
+                keytabs.put(fileName, file);
             }
         }
 
-        return keytabs;
-    }
+        // 任务提交keytab
+        String clusterKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
+        File clusterKeytabDir = new File(clusterKeytabDirPath);
+        File[] clusterKeytabFiles = clusterKeytabDir.listFiles();
 
-    @Override
-    public ClusterClient getClusterClient() {
-        return null;
+        if (clusterKeytabFiles != null && clusterKeytabFiles.length > 0) {
+            for (File file : clusterKeytabFiles) {
+                String fileName = file.getName();
+                String keytabPath = file.getAbsolutePath();
+                String keytabFileName = flinkConfig.getPrincipalFile();
+
+                if (keytabs.containsKey(fileName) && StringUtils.endsWith(fileName, "keytab")) {
+                    String newFileName = String.format("%s-%s", RandomStringUtils.randomAlphanumeric(4), fileName);
+                    keytabPath = String.format("%s/%s", taskKeytabDirPath, newFileName);
+                    FileUtils.copyFile(file, new File(keytabPath));
+                }
+
+                if (StringUtils.equals(fileName, keytabFileName)) {
+                    String principal = KerberosUtils.getPrincipal(keytabPath);
+                    config.setString(SecurityOptions.KERBEROS_LOGIN_KEYTAB, keytabPath);
+                    config.setString(SecurityOptions.KERBEROS_LOGIN_PRINCIPAL, principal);
+                    continue;
+                }
+                File newKeytabFile = new File(keytabPath);
+                keytabs.put(newKeytabFile.getName(), newKeytabFile);
+            }
+        }
+        return keytabs.entrySet().stream().map(entry -> entry.getValue()).collect(Collectors.toList());
     }
 
     public static PerJobClientFactory createPerJobClientFactory(FlinkClientBuilder flinkClientBuilder) {

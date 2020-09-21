@@ -26,6 +26,7 @@ import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.sparkk8s.config.SparkK8sConfig;
@@ -41,7 +42,6 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.spark.deploy.k8s.ExtendConfig;
-import org.mortbay.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -184,13 +184,17 @@ public class SparkK8sClient extends AbstractClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public JudgeResult judgeSlots(JobClient jobClient) {
         try {
-            SparkK8sResourceInfo sparkResourceInfo = new SparkK8sResourceInfo();
-            return sparkResourceInfo.judgeSlots(k8sClient, 2);
+            SparkK8sResourceInfo sparkResourceInfo = SparkK8sResourceInfo.SparkK8sResourceInfoBuilder()
+                    .withKubernetesClient(k8sClient)
+                    .withNamespace(null)
+                    .withAllowPendingPodSize(2)
+                    .build();
+            return sparkResourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
-            LOG.error("judgeSlots error:{}", e);
-            return false;
+            LOG.error("judgeSlots error:{}",jobClient.getTaskId(), e);
+            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
         }
     }
 

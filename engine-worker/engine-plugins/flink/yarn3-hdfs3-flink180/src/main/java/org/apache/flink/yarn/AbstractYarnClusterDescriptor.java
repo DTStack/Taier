@@ -934,17 +934,6 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
             }
         }
 
-        //适配cdh 7.1.3 增加额外的 flink-conf.yaml 文件 start
-        File tmpFileDir =  new File(System.getProperty("user.dir") + File.separator + "tmp180");
-        if (!tmpFileDir.exists()) {
-            tmpFileDir.mkdirs();
-        }
-        File tmpConfigurationFile2 = new File(tmpFileDir, "flink-conf.yaml");
-        tmpConfigurationFile2.deleteOnExit();
-        BootstrapTools.writeConfiguration(configuration, tmpConfigurationFile2);
-        systemShipFiles.add(tmpConfigurationFile2);
-        //适配cdh 7.1.3 增加额外的 flink-conf.yaml 文件 end
-
         // local resource map for Yarn
         final Map<String, LocalResource> localResources = new HashMap<>(2 + systemShipFiles.size() + userJarFiles.size());
         // list of remote paths (after upload)
@@ -1016,17 +1005,18 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
         // Upload the flink configuration
         // write out configuration file
-//        File tmpFileDir =  new File(System.getProperty("user.dir") + File.separator + "tmp180");
-//        if (!tmpFileDir.exists()) {
-//            tmpFileDir.mkdirs();
-//        }
+        File tmpFileDir =  new File(System.getProperty("user.dir") + File.separator + "tmp180");
+        if (!tmpFileDir.exists()) {
+            tmpFileDir.mkdirs();
+        }
 
         File tmpConfigurationFile = File.createTempFile(appId + "-flink-conf.yaml", null , tmpFileDir);
         tmpConfigurationFile.deleteOnExit();
         BootstrapTools.writeConfiguration(configuration, tmpConfigurationFile);
 
+        String flinkConfigKey = "flink-conf.yaml";
         Path remotePathConf = setupSingleLocalResource(
-                "flink-conf.yaml",
+                flinkConfigKey,
                 fs,
                 appId,
                 new Path(tmpConfigurationFile.getAbsolutePath()),

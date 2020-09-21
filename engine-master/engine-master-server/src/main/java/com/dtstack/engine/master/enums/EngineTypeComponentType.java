@@ -19,7 +19,7 @@
 package com.dtstack.engine.master.enums;
 
 
-import com.dtstack.schedule.common.enums.ScheduleEngineType;
+import com.dtstack.engine.api.enums.ScheduleEngineType;
 
 public enum EngineTypeComponentType {
 
@@ -35,7 +35,8 @@ public enum EngineTypeComponentType {
     TIDB_SQL(ScheduleEngineType.TIDB, EComponentType.TIDB_SQL),
     ORACLE_SQL(ScheduleEngineType.ORACLE, EComponentType.ORACLE_SQL),
     KUBERNETES(ScheduleEngineType.KUBERNETES, EComponentType.KUBERNETES),
-    GREENPLUM_SQL(ScheduleEngineType.GREENPLUM, EComponentType.GREENPLUM_SQL);
+    GREENPLUM_SQL(ScheduleEngineType.GREENPLUM, EComponentType.GREENPLUM_SQL),
+    PRESTO_SQL(ScheduleEngineType.Presto, EComponentType.PRESTO_SQL);
 
     private ScheduleEngineType scheduleEngineType;
 
@@ -96,6 +97,8 @@ public enum EngineTypeComponentType {
                 return EngineTypeComponentType.KUBERNETES;
             case "greenplum":
                 return EngineTypeComponentType.GREENPLUM_SQL;
+            case "presto":
+                return EngineTypeComponentType.PRESTO_SQL;
             default:
                 throw new UnsupportedOperationException("未知引擎类型:" + engineName);
         }

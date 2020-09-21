@@ -17,6 +17,7 @@ import org.apache.flink.runtime.util.HadoopUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.Properties;
 
 
@@ -28,14 +29,6 @@ import java.util.Properties;
 public class FlinkClientBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlinkClientBuilder.class);
-
-    private final static String AKKA_ASK_TIMEOUT = "50 s";
-
-    private final static String AKKA_CLIENT_TIMEOUT = "300 s";
-
-    private final static String AKKA_TCP_TIMEOUT = "60 s";
-
-    private final static String JVM_OPTIONS = "-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing";
 
     private FlinkConfig flinkConfig;
 
@@ -50,26 +43,18 @@ public class FlinkClientBuilder {
         this.hadoopConf = hadoopConf;
         this.flinkConfiguration = initFlinkGlobalConfiguration(extProp);
 
-        String defaultClusterId = flinkConfig.getFlinkSessionName() + ConfigConstrant.CLUSTER_ID_SPLIT
-                + flinkConfig.getCluster() + ConfigConstrant.CLUSTER_ID_SPLIT + flinkConfig.getNamespace();
-        String k8sClusterId = flinkConfiguration.getString(KubernetesConfigOptions.CLUSTER_ID, defaultClusterId);
-
         this.flinkConfiguration.set(KubernetesConfigOptions.NAMESPACE, flinkConfig.getNamespace());
-
-        // k8s集群名称不支持下划线，转为中划线
-        k8sClusterId = StringUtils.replaceChars(k8sClusterId, ConfigConstrant.SPLIT, ConfigConstrant.CLUSTER_ID_SPLIT);
-        flinkConfiguration.setString(KubernetesConfigOptions.CLUSTER_ID, k8sClusterId.toLowerCase());
-
         this.flinkKubeClient = KubeClientFactory.fromConfiguration(flinkConfiguration);
+
     }
 
     private Configuration initFlinkGlobalConfiguration(Properties extProp) {
         Configuration config = new Configuration();
-        config.setString("akka.client.timeout", AKKA_CLIENT_TIMEOUT);
-        config.setString("akka.ask.timeout", AKKA_ASK_TIMEOUT);
-        config.setString("akka.tcp.timeout", AKKA_TCP_TIMEOUT);
+        config.setString("akka.client.timeout", ConfigConstrant.AKKA_CLIENT_TIMEOUT);
+        config.setString("akka.ask.timeout", ConfigConstrant.AKKA_ASK_TIMEOUT);
+        config.setString("akka.tcp.timeout", ConfigConstrant.AKKA_TCP_TIMEOUT);
         // JVM Param
-        config.setString(CoreOptions.FLINK_JVM_OPTIONS, JVM_OPTIONS);
+        config.setString(CoreOptions.FLINK_JVM_OPTIONS, ConfigConstrant.JVM_OPTIONS);
 
         // hadoop
         config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));
@@ -92,7 +77,8 @@ public class FlinkClientBuilder {
 
         if (extProp != null) {
             extProp.forEach((key, value) -> {
-                if (!FlinkConfig.getEngineFlinkConfigs().contains(key.toString())) {
+                String v = value == null? "": value.toString();
+                if (Objects.nonNull(key) && StringUtils.isNotEmpty(v)) {
                     config.setString(key.toString(), value.toString());
                 }
             });
@@ -131,6 +117,9 @@ public class FlinkClientBuilder {
     }
 
     public FlinkKubeClient getFlinkKubeClient() {
+        if (null == flinkKubeClient) {
+            this.flinkKubeClient = KubeClientFactory.fromConfiguration(flinkConfiguration);
+        }
         return flinkKubeClient;
     }
 

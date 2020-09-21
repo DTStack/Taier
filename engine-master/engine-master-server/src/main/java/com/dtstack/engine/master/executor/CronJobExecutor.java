@@ -19,8 +19,8 @@ public class CronJobExecutor extends AbstractJobExecutor {
     private final Logger logger = LoggerFactory.getLogger(CronJobExecutor.class);
 
     @Override
-    public Integer getScheduleType() {
-        return EScheduleType.NORMAL_SCHEDULE.getType();
+    public EScheduleType getScheduleType() {
+        return EScheduleType.NORMAL_SCHEDULE;
     }
 
     @Override

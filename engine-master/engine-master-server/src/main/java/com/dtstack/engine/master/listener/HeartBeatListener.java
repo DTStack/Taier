@@ -3,7 +3,7 @@ package com.dtstack.engine.master.listener;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.master.data.BrokerHeartNode;
+import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

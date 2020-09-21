@@ -16,7 +16,13 @@ public class JobStatusFrequency {
     private Long createTime;
 
     public JobStatusFrequency(Integer status){
-        createTime = System.currentTimeMillis();
+        this.createTime = System.currentTimeMillis();
+        this.status = status;
+        this.num = 0;
+    }
+
+    public void resetJobStatus(Integer status) {
+        this.createTime = System.currentTimeMillis();
         this.status = status;
         this.num = 0;
     }

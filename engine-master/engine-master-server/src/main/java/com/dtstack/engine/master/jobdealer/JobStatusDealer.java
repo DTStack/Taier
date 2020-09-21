@@ -14,8 +14,8 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.bo.JobCompletedInfo;
 import com.dtstack.engine.master.bo.JobStatusFrequency;
-import com.dtstack.engine.master.cache.ShardCache;
-import com.dtstack.engine.master.cache.ShardManager;
+import com.dtstack.engine.master.jobdealer.cache.ShardCache;
+import com.dtstack.engine.master.jobdealer.cache.ShardManager;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.google.common.collect.Maps;
@@ -199,6 +199,7 @@ public class JobStatusDealer implements Runnable {
         //如果状态为NotFound，则对频次进行判断
         if (statusPair.getStatus() == RdosTaskStatus.NOTFOUND.getStatus().intValue()) {
             if (statusPair.getNum() >= NOT_FOUND_LIMIT_TIMES || System.currentTimeMillis() - statusPair.getCreateTime() >= NOT_FOUND_LIMIT_INTERVAL) {
+                logger.info(" job id {}  check not found status had try max , change status to {} ", jobId, RdosTaskStatus.FAILED.getStatus());
                 return RdosTaskStatus.FAILED;
             }
         }
@@ -224,8 +225,7 @@ public class JobStatusDealer implements Runnable {
         if (statusFrequency.getStatus().equals(status)) {
             statusFrequency.setNum(statusFrequency.getNum() + 1);
         } else {
-            statusFrequency.setNum(0);
-            statusFrequency.setStatus(status);
+            statusFrequency.resetJobStatus(status);
         }
         return statusFrequency;
     }

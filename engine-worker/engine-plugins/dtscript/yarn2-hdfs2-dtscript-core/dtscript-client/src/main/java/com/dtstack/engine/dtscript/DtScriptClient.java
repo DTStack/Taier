@@ -1,6 +1,7 @@
 package com.dtstack.engine.dtscript;
 
 import com.dtstack.engine.base.BaseConfig;
+import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -10,6 +11,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dtscript.client.Client;
 import com.google.common.collect.Lists;
@@ -21,7 +23,6 @@ import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
-import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,6 +99,10 @@ public class DtScriptClient extends AbstractClient {
         }
 
         client = new Client(conf, configMap);
+
+        if (conf.getBoolean("monitorAcceptedApp", false)) {
+            AcceptedApplicationMonitor.start(conf, queue, configMap);
+        }
     }
 
     @Override
@@ -242,22 +247,25 @@ public class DtScriptClient extends AbstractClient {
     }
 
     @Override
-    public boolean judgeSlots(JobClient jobClient) {
+    public JudgeResult judgeSlots(JobClient jobClient) {
         try {
             return KerberosUtils.login(configMap, () -> {
-                DtScriptResourceInfo resourceInfo = new DtScriptResourceInfo();
                 try {
-                    resourceInfo.getYarnSlots(client.getYarnClient(), conf.get(DtYarnConfiguration.DT_APP_QUEUE), conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER, 1));
+                    DtScriptResourceInfo resourceInfo = DtScriptResourceInfo.DtScriptResourceInfoBuilder()
+                            .withYarnClient(client.getYarnClient())
+                            .withQueueName(conf.get(DtYarnConfiguration.DT_APP_QUEUE))
+                            .withYarnAccepterTaskNumber(conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1))
+                            .build();
                     return resourceInfo.judgeSlots(jobClient);
-                } catch (YarnException e) {
+                } catch (Exception e) {
                     LOG.error("", e);
-                    return false;
+                    return JudgeResult.notOk("judgeSlots error");
                 }
             }, conf);
         } catch (Exception e) {
-            LOG.info("get judgeSlots {} error", jobClient.getTaskId(), e);
+            LOG.error("", e);
+            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
         }
-        return false;
     }
 
     @Override

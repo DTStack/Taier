@@ -12,36 +12,24 @@ import java.util.regex.Pattern;
  */
 
 public enum EngineType {
-    //
     Flink('0'),
     Spark('1'),
     Datax('2'),
-    //
     Learning('3'),
-    //
     DtScript('4'),
-    //
     Mysql('5'),
-    //
     Oracle('6'),
-    //
     Sqlserver('7'),
-    //
     Maxcompute('8'),
-    //
     Hadoop('9'),
-    //
     Hive('a'),
-    //
     PostgreSQL('b'),
-    //
     Kylin('c'),
-    //
     Impala('d'),
-
     TiDB('e'),
     GreenPlum('f'),
-    Dummy('g'),;
+    Dummy('g'),
+    Presto('h');
     private char val;
 
     EngineType(char val) {
@@ -89,6 +77,8 @@ public enum EngineType {
                 return EngineType.GreenPlum;
             case "dummy":
                 return EngineType.Dummy;
+            case "presto":
+                return EngineType.Presto;
             default:
                 throw new UnsupportedOperationException("unsupported operation exception");
         }
@@ -129,15 +119,6 @@ public enum EngineType {
 
         return false;
     }
-
-//    public static boolean isDataX(String engineType) {
-//        engineType = engineType.toLowerCase();
-//        if (engineType.startsWith("datax")) {
-//            return true;
-//        }
-//
-//        return false;
-//    }
 
     public static boolean isMysql(String engineType) {
         engineType = engineType.toLowerCase();

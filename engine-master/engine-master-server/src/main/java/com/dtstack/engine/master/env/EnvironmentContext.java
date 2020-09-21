@@ -78,7 +78,11 @@ public class EnvironmentContext {
     }
 
     public int getCheckTimeout() {
-        return Integer.parseInt(environment.getProperty("check.timeout", "10000"));
+        return Integer.parseInt(environment.getProperty("check.timeout", "30000"));
+    }
+
+    public int getMaxWait() {
+        return Integer.parseInt(environment.getProperty("max.wait", "10000"));
     }
 
     /**
@@ -101,7 +105,7 @@ public class EnvironmentContext {
     }
 
     public String getHttpAddress() {
-        return environment.getProperty("http.address", "0.0.0.0");
+        return environment.getProperty("http.address", AddressUtil.getOneIp());
     }
 
     /**
@@ -392,5 +396,21 @@ public class EnvironmentContext {
 
     public Integer getScheduleJobScope() {
         return Integer.valueOf(environment.getProperty("job.back.scope", "1000*60"));
+    }
+
+    public Integer getJobExecutorPoolCorePoolSize(){
+        return Integer.valueOf(environment.getProperty("job.executor.pool.core.size", "10"));
+    }
+
+    public Integer getJobExecutorPoolMaximumPoolSize(){
+        return Integer.valueOf(environment.getProperty("job.executor.pool.maximum.size", "10"));
+    }
+
+    public Long getJobExecutorPoolKeepAliveTime(){
+        return Long.valueOf(environment.getProperty("job.executor.pool.keep.alive.time", "1000"));
+    }
+
+    public Integer getJobExecutorPoolQueueSize(){
+        return Integer.valueOf(environment.getProperty("job.executor.pool.queue.size", "1000"));
     }
 }

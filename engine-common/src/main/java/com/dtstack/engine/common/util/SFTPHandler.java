@@ -293,8 +293,8 @@ public class SFTPHandler {
         String remoteFile = remoteDir + File.separator + fileName;
         String localFile = localDir + File.separator + fileName;
         try {
-            if (new File(fileName).exists()){
-                return fileName;
+            if (new File(localFile).exists()){
+                return localFile;
             } else {
                 downloadFile(remoteFile, localFile);
                 return localFile;

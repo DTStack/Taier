@@ -22,7 +22,7 @@ public interface EngineJobCacheDao {
 
     EngineJobCache getOne(@Param("jobId")String jobId);
 
-    int updateStage(@Param("jobId") String jobId, @Param("stage") Integer stage,@Param("nodeAddress") String nodeAddress, @Param("jobPriority") Long jobPriority);
+    int updateStage(@Param("jobId") String jobId, @Param("stage") Integer stage,@Param("nodeAddress") String nodeAddress, @Param("jobPriority") Long jobPriority, @Param("waitReason") String waitReason);
 
     int updateStageBatch(@Param("jobIds") List<String> jobIds, @Param("stage") Integer stage,@Param("nodeAddress") String nodeAddress);
 
@@ -51,4 +51,6 @@ public interface EngineJobCacheDao {
     List<EngineJobCache> listByJobResource(@Param("jobResource") String jobResource, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress, @Param("start") Integer start, @Param("pageSize") Integer pageSize);
 
     Integer deleteByJobIds(@Param("jobIds") List<String> jobIds);
+
+    Integer updateJobInfo(@Param("jobInfo") String jobInfo, @Param("jobId") String jobId);
 }

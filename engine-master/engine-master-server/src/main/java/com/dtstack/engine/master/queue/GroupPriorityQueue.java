@@ -1,7 +1,9 @@
 package com.dtstack.engine.master.queue;
 
+import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.pojo.ParamAction;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.queue.comparator.JobClientComparator;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
@@ -12,7 +14,6 @@ import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.JobSubmitDealer;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.queue.OrderLinkedBlockingQueue;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import org.springframework.context.ApplicationContext;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -52,42 +54,43 @@ public class GroupPriorityQueue {
     private JobPartitioner jobPartitioner;
     private WorkerOperator workerOperator;
 
-    private OrderLinkedBlockingQueue<JobClient> queue = null;
+    private PriorityBlockingQueue<JobClient> queue = null;
     private JobSubmitDealer jobSubmitDealer = null;
 
     private GroupPriorityQueue() {
     }
 
-    public boolean add(JobClient jobClient, boolean judgeBlock) throws InterruptedException {
+    public boolean add(JobClient jobClient, boolean judgeBlock, boolean insert) {
         if (judgeBlock) {
             if (isBlocked()) {
                 logger.info("jobId:{} unable add to queue, because queue is blocked.", jobClient.getTaskId());
                 return false;
             }
-            return addInner(jobClient);
+            return addInner(jobClient, insert);
         } else {
-            return addRedirect(jobClient);
+            return addRedirect(jobClient, insert);
         }
     }
 
-    private boolean addInner(JobClient jobClient) throws InterruptedException {
+    private boolean addInner(JobClient jobClient, boolean insert) {
         if (this.priorityQueueSize() >= getQueueSizeLimited()) {
             blocked.set(true);
             logger.info("jobId:{} unable add to queue, because over QueueSizeLimited.", jobClient.getTaskId());
             return false;
         }
-        return addRedirect(jobClient);
+        return addRedirect(jobClient, insert);
     }
 
-    private boolean addRedirect(JobClient jobClient) throws InterruptedException {
+    private boolean addRedirect(JobClient jobClient, boolean insert) {
         if (queue.contains(jobClient)) {
             logger.info("jobId:{} unable add to queue, because jobId already exist.", jobClient.getTaskId());
             return true;
         }
 
+        jobDealer.saveCache(jobClient, jobResource, EJobCacheStage.PRIORITY.getStage(), insert);
+
         queue.put(jobClient);
         logger.info("jobId:{} redirect add job to queue.", jobClient.getTaskId());
-        jobDealer.updateCache(jobClient, EJobCacheStage.PRIORITY.getStage());
         return true;
     }
 
@@ -95,12 +98,12 @@ public class GroupPriorityQueue {
         return jobSubmitDealer.tryPutRestartJob(jobClient);
     }
 
-    public OrderLinkedBlockingQueue<JobClient> getQueue() {
+    public PriorityBlockingQueue<JobClient> getQueue() {
         return queue;
     }
 
-    public boolean remove(String jobId) {
-        if (queue.remove(jobId)) {
+    public boolean remove(JobClient jobClient) {
+        if (queue.remove(jobClient)) {
             return true;
         }
         return false;
@@ -172,7 +175,7 @@ public class GroupPriorityQueue {
                             jobDealer.updateJobStatus(jobClient.getTaskId(), jobStatus);
                         });
 
-                        boolean addInner = this.addInner(jobClient);
+                        boolean addInner = this.addInner(jobClient, false);
                         logger.info("jobId:{} load from db, {} emit job to queue.", jobClient.getTaskId(), addInner ? "success" : "failed");
                         if (!addInner) {
                             empty = false;
@@ -255,7 +258,7 @@ public class GroupPriorityQueue {
 
         checkParams();
 
-        this.queue = new OrderLinkedBlockingQueue<>(queueSizeLimited * 2);
+        this.queue = new PriorityBlockingQueue<>(queueSizeLimited * 2, new JobClientComparator());
         this.jobSubmitDealer = new JobSubmitDealer(environmentContext.getLocalAddress(), this, applicationContext);
 
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_AcquireJob"));

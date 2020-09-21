@@ -2,7 +2,6 @@ package com.dtstack.engine.flink;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
-import com.dtstack.engine.flink.enums.Deploy;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -18,8 +17,6 @@ import java.util.Map;
  *
  */
 public class FlinkConfig extends BaseConfig {
-
-    private static final String DEFAULT_FLINK_PLUGIN_ROOT = "/opt/dtstack/flinkplugin";
 
     private static final String DEFAULT_JAR_TMP_DIR = "../tmp180";
 
@@ -41,7 +38,7 @@ public class FlinkConfig extends BaseConfig {
 
     private String remotePluginRootDir;
 
-    private String clusterMode = Deploy.session.name(); // 集群运行模式: standalone or yarn
+    private String clusterMode;
 
     private String cluster;
 
@@ -68,6 +65,18 @@ public class FlinkConfig extends BaseConfig {
     private boolean flinkHighAvailability = false;
 
     private String pluginLoadMode = "shipfile";
+
+    private int checkSubmitJobGraphInterval = 120;
+
+    private boolean monitorAcceptedApp = false;
+
+    public boolean getMonitorAcceptedApp() {
+        return monitorAcceptedApp;
+    }
+
+    public void setMonitorAcceptedApp(boolean monitorAcceptedApp) {
+        this.monitorAcceptedApp = monitorAcceptedApp;
+    }
 
     public String getTypeName() {
         return typeName;
@@ -210,7 +219,7 @@ public class FlinkConfig extends BaseConfig {
 
     public String getFlinkPluginRoot() {
         if(Strings.isNullOrEmpty(flinkPluginRoot)){
-            return DEFAULT_FLINK_PLUGIN_ROOT;
+            return ConfigConstrant.DEFAULT_FLINK_PLUGIN_ROOT;
         }
 
         return flinkPluginRoot;
@@ -246,6 +255,14 @@ public class FlinkConfig extends BaseConfig {
 
     public static void setEngineFlinkConfigs(List<String> engineFlinkConfigs) {
         ENGINE_FLINK_CONFIGS = engineFlinkConfigs;
+    }
+
+    public int getCheckSubmitJobGraphInterval() {
+        return checkSubmitJobGraphInterval;
+    }
+
+    public void setCheckSubmitJobGraphInterval(int checkSubmitJobGraphInterval) {
+        this.checkSubmitJobGraphInterval = checkSubmitJobGraphInterval;
     }
 
     private static List<String> initEngineFlinkConfigFields() {

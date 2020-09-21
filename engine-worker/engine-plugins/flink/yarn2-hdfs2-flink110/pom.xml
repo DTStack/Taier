@@ -17,7 +17,7 @@
     <properties>
         <pluginDir.name>yarn2-hdfs2-flink110</pluginDir.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <flink.version>1.10.0</flink.version>
+        <flink.version>1.10.1</flink.version>
     </properties>
 
     <dependencies>
@@ -132,6 +132,16 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
             <version>${hadoop.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>httpcore</artifactId>
+                    <groupId>org.apache.httpcomponents</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>httpclient</artifactId>
+                    <groupId>org.apache.httpcomponents</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

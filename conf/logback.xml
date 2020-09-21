@@ -70,6 +70,10 @@
         <appender-ref ref="flinkAppender" />
     </logger>
 
+    <logger name="com.dtstack.engine.flink.factory.SessionClientFactory" level="info" additivity="false">
+        <appender-ref ref="flinkAppender" />
+    </logger>
+
     <logger name="com.dtstack.engine.master.router" level="info" additivity="false">
         <appender-ref ref="request" />
     </logger>
@@ -89,10 +93,7 @@
     <logger name="com.dtstack.engine.master.executor" level="info" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
-    <logger name="com.dtstack.engine.master.job" level="info" additivity="false">
-        <appender-ref ref="schedule" />
-    </logger>
-    <logger name="com.dtstack.engine.master.parser" level="info" additivity="false">
+    <logger name="com.dtstack.engine.master.multiengine" level="info" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
     <logger name="com.dtstack.engine.master.scheduler" level="info" additivity="false">

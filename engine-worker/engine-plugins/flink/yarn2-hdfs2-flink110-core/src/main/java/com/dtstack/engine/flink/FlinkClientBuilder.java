@@ -2,10 +2,12 @@ package com.dtstack.engine.flink;
 
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.flink.enums.Deploy;
+import com.dtstack.engine.flink.enums.ClusterMode;
+import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.HadoopConf;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
+import org.apache.flink.configuration.SecurityOptions;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.util.HadoopUtils;
 import org.apache.flink.yarn.configuration.YarnConfigOptions;
@@ -29,14 +31,6 @@ public class FlinkClientBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlinkClientBuilder.class);
 
-    private final static String AKKA_ASK_TIMEOUT = "50 s";
-
-    private final static String AKKA_CLIENT_TIMEOUT = "300 s";
-
-    private final static String AKKA_TCP_TIMEOUT = "60 s";
-
-    private static String jvm_options = "-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing";
-
     private FlinkConfig flinkConfig;
 
     private org.apache.hadoop.conf.Configuration hadoopConf;
@@ -49,12 +43,11 @@ public class FlinkClientBuilder {
 
     public static FlinkClientBuilder create(FlinkConfig flinkConfig, org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf) throws Exception {
         FlinkClientBuilder builder = new FlinkClientBuilder();
-        builder.flinkConfig = flinkConfig;
         builder.hadoopConf = hadoopConf;
         builder.yarnConf = yarnConf;
 
         KerberosUtils.login(flinkConfig, () -> {
-            if (Deploy.session.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
+            if (!ClusterMode.STANDALONE.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
                 try {
                     builder.yarnClient = initYarnClient(yarnConf);
                 } catch (Exception e) {
@@ -63,18 +56,19 @@ public class FlinkClientBuilder {
                 }
             }
             return null;
-        },yarnConf);
+        }, yarnConf);
+        builder.flinkConfig = flinkConfig;
 
         return builder;
     }
 
     public void initFlinkGlobalConfiguration(Properties extProp) {
         Configuration config = new Configuration();
-        config.setString("akka.client.timeout", AKKA_CLIENT_TIMEOUT);
-        config.setString("akka.ask.timeout", AKKA_ASK_TIMEOUT);
-        config.setString("akka.tcp.timeout", AKKA_TCP_TIMEOUT);
+        config.setString("akka.client.timeout", ConfigConstrant.AKKA_CLIENT_TIMEOUT);
+        config.setString("akka.ask.timeout", ConfigConstrant.AKKA_ASK_TIMEOUT);
+        config.setString("akka.tcp.timeout", ConfigConstrant.AKKA_TCP_TIMEOUT);
         // JVM Param
-        config.setString(CoreOptions.FLINK_JVM_OPTIONS, jvm_options);
+        config.setString(CoreOptions.FLINK_JVM_OPTIONS, ConfigConstrant.JVM_OPTIONS);
         config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));
         // yarn queue
         config.setString(YarnConfigOptions.APPLICATION_QUEUE, flinkConfig.getQueue());

@@ -1,12 +1,12 @@
 package com.dtstack.engine.common.util;
 
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NetUtils {
 
-    private static final Log LOG = LogFactory.getLog(NetUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NetUtils.class);
 
     public static int getAvailablePortRange(String hostname, int portStart, int portEnd) {
         while (true) {
