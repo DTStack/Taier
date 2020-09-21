@@ -199,6 +199,7 @@ public class JobStatusDealer implements Runnable {
         //如果状态为NotFound，则对频次进行判断
         if (statusPair.getStatus() == RdosTaskStatus.NOTFOUND.getStatus().intValue()) {
             if (statusPair.getNum() >= NOT_FOUND_LIMIT_TIMES || System.currentTimeMillis() - statusPair.getCreateTime() >= NOT_FOUND_LIMIT_INTERVAL) {
+                logger.info(" job id {}  check not found status had try max , change status to {} ", jobId, RdosTaskStatus.FAILED.getStatus());
                 return RdosTaskStatus.FAILED;
             }
         }

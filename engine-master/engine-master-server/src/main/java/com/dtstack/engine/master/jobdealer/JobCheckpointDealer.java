@@ -137,25 +137,30 @@ public class JobCheckpointDealer implements InitializingBean {
      * @param taskInfo
      * @param engineJobId
      */
-    public void updateCheckpointImmediately(JobCheckpointInfo taskInfo, String engineJobId, int status) throws ExecutionException, InterruptedException {
-        String taskId = taskInfo.getJobIdentifier().getTaskId();
-        if (getCheckpointInterval(taskId) > 0) {
-            updateJobCheckpoints(taskInfo.getJobIdentifier());
-            subtractionCheckpointRecord(engineJobId);
+    public void updateCheckpointImmediately(JobCheckpointInfo taskInfo, String engineJobId, int status) {
+        String taskId = "";
+        try {
+            taskId = taskInfo.getJobIdentifier().getTaskId();
+            if (getCheckpointInterval(taskId) > 0) {
+                updateJobCheckpoints(taskInfo.getJobIdentifier());
+                subtractionCheckpointRecord(engineJobId);
 
-            if (RdosTaskStatus.RUNNING.getStatus().equals(status)) {
-                taskInfo.refreshExpired();
-                delayBlockingQueue.put(taskInfo);
-            }
-
-            if (RdosTaskStatus.getStoppedStatus().contains(status)) {
-                if (isCheckpointStopClean(taskId)) {
-                    engineJobCheckpointDao.cleanAllCheckpointByTaskEngineId(engineJobId);
+                if (RdosTaskStatus.RUNNING.getStatus().equals(status)) {
+                    taskInfo.refreshExpired();
+                    delayBlockingQueue.put(taskInfo);
                 }
-                taskEngineIdAndRetainedNum.remove(engineJobId);
-                checkpointConfigCache.invalidate(taskId);
-                checkpointJobMap.remove(engineJobId);
+
+                if (RdosTaskStatus.getStoppedStatus().contains(status)) {
+                    if (isCheckpointStopClean(taskId)) {
+                        engineJobCheckpointDao.cleanAllCheckpointByTaskEngineId(engineJobId);
+                    }
+                    taskEngineIdAndRetainedNum.remove(engineJobId);
+                    checkpointConfigCache.invalidate(taskId);
+                    checkpointJobMap.remove(engineJobId);
+                }
             }
+        } catch (Exception e) {
+            logger.error(" taskId {}  engineJobId {}  updateCheckpointImmediately error", taskId, engineJobId, e);
         }
     }
 
