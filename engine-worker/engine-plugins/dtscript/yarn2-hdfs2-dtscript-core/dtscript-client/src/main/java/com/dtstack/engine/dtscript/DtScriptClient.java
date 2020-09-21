@@ -105,7 +105,6 @@ public class DtScriptClient extends AbstractClient {
         String proxyUser = conf.get(DtYarnConstants.PROXY_USER_NAME);
         if (StringUtils.isNotBlank(proxyUser)) {
             LOG.info("ugi proxyUser is {}", proxyUser);
-            System.setProperty(DtYarnConfiguration.HADOOP_PROXY_USER, proxyUser);
             client = UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<Client>) () -> new Client(conf, configMap));
         } else {
             client = new Client(conf, configMap);
@@ -244,12 +243,23 @@ public class DtScriptClient extends AbstractClient {
                 try {
                     String[] args = DtScriptUtil.buildPythonArgs(jobClient);
                     System.out.println(Arrays.asList(args));
-                    return JobResult.createSuccessResult(client.submit(args));
+                    String proxyUser = conf.get(DtYarnConstants.PROXY_USER_NAME);
+                    if (StringUtils.isNotBlank(proxyUser)) {
+                        LOG.info("submit job {} ugi proxyUser {} ", jobClient.getTaskId(), proxyUser);
+                        return JobResult.createSuccessResult(UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<String>) () -> {
+                            Client proxyClient = new Client(conf, configMap);
+                            UserGroupInformation proxyUserUGI = UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getLoginUser());
+                            UserGroupInformation.setLoginUser(proxyUserUGI);
+                            return proxyClient.submit(args);
+                        }));
+                    } else {
+                        return JobResult.createSuccessResult(client.submit(args));
+                    }
                 } catch (Exception e) {
                     LOG.info("", e);
                     return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
                 }
-            },conf);
+            }, conf);
         } catch (Exception e) {
             LOG.info("", e);
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
