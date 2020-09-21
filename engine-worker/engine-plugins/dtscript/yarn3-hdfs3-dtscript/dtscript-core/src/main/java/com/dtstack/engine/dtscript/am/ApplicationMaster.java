@@ -197,7 +197,7 @@ public class ApplicationMaster extends CompositeService {
         Priority priority = Records.newRecord(Priority.class);
         priority.setPriority(appArguments.appPriority);
         Resource workerCapability = Records.newRecord(Resource.class);
-        workerCapability.setMemory(appArguments.workerMemory+appArguments.containerMemory);
+        workerCapability.setMemory(appArguments.workerMemory);
         workerCapability.setVirtualCores(appArguments.workerVcores);
         if (appArguments.workerGCores > 0) {
             workerCapability.setResourceValue(DtYarnConstants.GPU, appArguments.workerGCores);
@@ -251,7 +251,7 @@ public class ApplicationMaster extends CompositeService {
         int interval = conf.getInt(DtYarnConfiguration.DTSCRIPT_ALLOCATE_INTERVAL, DtYarnConfiguration.DEFAULT_DTSCRIPT_ALLOCATE_INTERVAL);
         amrmAsync.setHeartbeatInterval(interval);
 
-        List<String> workerContainerLaunchCommands = buildContainerLaunchCommand(appArguments.containerMemory);
+        List<String> workerContainerLaunchCommands = buildContainerLaunchCommand(appArguments.workerMemory);
         Map<String, LocalResource> containerLocalResource = buildContainerLocalResource();
         Map<String, String> workerContainerEnv = new ContainerEnvBuilder(DtYarnConstants.WORKER, this).build();
 

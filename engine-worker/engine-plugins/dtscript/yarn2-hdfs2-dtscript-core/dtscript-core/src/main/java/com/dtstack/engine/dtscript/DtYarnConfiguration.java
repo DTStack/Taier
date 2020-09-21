@@ -146,6 +146,10 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final double DEFAULT_DTSCRIPT_CONTAINER_MAX_FAILURES_RATE = 1;
 
+    public static final String DTSCRIPT_CONTAINER_RESERVED_MEMORY = "dtscript.container.reserved.memory";
+
+    public static final int DEFAULT_DTSCRIPT_CONTAINER_RESERVED_MEMORY = 500;
+
     /**
      * am在向rm申请资源时，在同一个nm上不能申请2次以上; app独占nm
      */

@@ -42,8 +42,6 @@ public class AppArguments {
 
     long workerGCores;
 
-    int containerMemory = 512;
-
     int workerNum;
 
     int appMaxAttempts;
