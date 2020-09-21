@@ -233,7 +233,7 @@ public class FlinkClientTest {
 
 		JobClient jobClient = YarnMockUtil.mockJobClient("session", null);
 
-		when(flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().isRunning()).thenReturn(true);
+		//when(flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().isRunning()).thenReturn(true);
 		String webInterfaceURL = "http://dtstack01:8088";
 		ClusterClient clusterClient = PowerMockito.mock(ClusterClient.class);
 		when(clusterClient.getWebInterfaceURL()).thenReturn(webInterfaceURL);
@@ -412,6 +412,7 @@ public class FlinkClientTest {
 		YarnClusterDescriptor yarnClusterDescriptor = YarnMockUtil.mockYarnClusterDescriptor(clusterClient);
 
 		PerJobClientFactory perJobClientFactory = PowerMockito.mock(PerJobClientFactory.class);
+		when(flinkClusterClientManager.getPerJobClientFactory()).thenReturn(perJobClientFactory);
 		when(perJobClientFactory.createPerJobClusterDescriptor(any(JobClient.class)))
 				.thenReturn(yarnClusterDescriptor);
 		PowerMockito.mockStatic(PerJobClientFactory.class);
