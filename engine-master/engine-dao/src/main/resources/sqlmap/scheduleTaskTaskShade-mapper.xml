@@ -55,7 +55,10 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_task_shade
-        WHERE task_id = #{childTaskId} and is_deleted = 0 AND app_type = #{appType}
+        WHERE task_id = #{childTaskId} and is_deleted = 0
+        <if test="appType != null">
+            AND app_type = #{appType}
+        </if>
     </select>
 
     <delete id="deleteByTaskId">
