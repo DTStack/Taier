@@ -84,10 +84,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     protected BatchFlowWorkJobService batchFlowWorkJobService;
 
     private ExecutorService executorService;
-
-//    private Set<String> notStartCache = Sets.newHashSet();
-//    private Map<String, JobErrorInfo> errorJobCache = Maps.newHashMap();
-    private SoftReference<Map<Long, ScheduleTaskShade>> softReference;
     protected final AtomicBoolean RUNNING = new AtomicBoolean(true);
     private volatile long lastRestartJobLoadTime = 0L;
 
@@ -159,36 +155,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         }
     }
 
-    /**
-     * 缓存task
-     *
-     * @return
-     */
-    private Map<Long, ScheduleTaskShade> taskCache() {
-        if (this.softReference == null) {
-            this.softReference = new SoftReference<>(Maps.newHashMap());
-        }
-
-        if (this.softReference.get() == null) {
-            this.softReference = new SoftReference<>(Maps.newHashMap());
-        }
-        return this.softReference.get();
-    }
-
-    public void removeTaskCache(Long taskId, Integer appType) {
-        if (null == taskId || null == appType) {
-            return;
-        }
-        if (null == this.softReference) {
-            return;
-        }
-        Map<Long, ScheduleTaskShade> taskShadeMap = this.softReference.get();
-        if (null != taskShadeMap) {
-            taskShadeMap.remove(jobRichOperator.getTaskIdUnique(appType, taskId));
-            logger.info("scheduleType:{} remove cache {} appType {} ", getScheduleType(), taskId, appType);
-        }
-    }
-
 
     private void emitJob2Queue() {
         String nodeAddress = zkService.getLocalAddress();
@@ -208,8 +174,9 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                         JobCheckRunInfo checkRunInfo;
 
                         Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
-                        ScheduleTaskShade batchTask = this.taskCache().computeIfAbsent(taskIdUnique, k -> batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType()));
-
+                        ScheduleTaskShade batchTask =  batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType());
+                        Map<Long, ScheduleTaskShade> taskCache = Maps.newHashMap();
+                        taskCache.put(taskIdUnique,batchTask);
                         if (batchTask == null) {
                             String errMsg = JobCheckStatus.NO_TASK.getMsg();
                             batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.SUBMITFAILD.getStatus(), errMsg);
@@ -228,7 +195,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                             logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
                             batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(),scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
                         } else {
-                            checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), new HashSet<>(), new HashMap<>(), this.taskCache());
+                            checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), new HashSet<>(), new HashMap<>(), taskCache);
                             if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
                                 // 更新job状态
                                 boolean updateStatus = batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.CREATE, JobPhaseStatus.JOIN_THE_TEAM);
