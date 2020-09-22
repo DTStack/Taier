@@ -27,7 +27,6 @@ import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.FileUtil;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -50,7 +49,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -101,12 +99,6 @@ public class PerJobClientFactory extends AbstractClientFactory {
         return clusterDescriptor;
     }
 
-    public void setSecurityConfig() {
-        String keytabPath = flinkConfig.getPrincipalPath();
-        String principal = flinkConfig.getPrincipalName();
-        flinkConfiguration.setString(SecurityOptions.KERBEROS_LOGIN_KEYTAB, keytabPath);
-        flinkConfiguration.setString(SecurityOptions.KERBEROS_LOGIN_PRINCIPAL, principal);
-    }
 
     public void deleteTaskIfExist(JobClient jobClient) {
         try {
