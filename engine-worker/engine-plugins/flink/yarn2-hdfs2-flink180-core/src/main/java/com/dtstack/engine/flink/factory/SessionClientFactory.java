@@ -419,14 +419,23 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     }
                                     if (sessionCheckInterval.doCheck()) {
                                         int checked = 0;
-                                        while (!checkJobGraphWithStatus()) {
+                                        boolean checkRs = checkJobGraphWithStatus();
+                                        while (!checkRs) {
                                             if (checked++ > 3) {
                                                 sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                                                 break;
+                                            } else {
+                                                try {
+                                                    Thread.sleep(3 * CHECK_INTERVAL);
+                                                } catch (Exception e) {
+                                                    LOG.error("", e);
+                                                }
                                             }
                                         }
-                                        //健康，则重置
-                                        sessionCheckInterval.sessionHealthCheckedInfo.reset();
+                                        if (checkRs) {
+                                            //健康，则重置
+                                            sessionCheckInterval.sessionHealthCheckedInfo.reset();
+                                        }
                                     }
                                     break;
                                 default:
