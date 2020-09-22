@@ -163,24 +163,31 @@ public class FlinkClientTest {
 
 	public void testInit() throws Exception{
 
-		Properties prop = new Properties();
-		prop.put("jarTmpDir", "test/tmp");
-		prop.put("clusterMode", "test");
+		MemberModifier.field(FlinkClient.class, "flicnkConfig")
+				.set(flinkClient, new FlinkConfig());
+		MemberModifier.field(FlinkClient.class, "hadoopConf")
+				.set(flinkClient, new HadoopConf());
+		MemberModifier.field(FlinkClient.class, "cacheFile")
+				.set(flinkClient, Maps.newConcurrentMap());
+
 		String sqlPluginRootDir = temporaryFolder.newFolder("sqlPluginDir").getAbsolutePath();
+		temporaryFolder.newFolder("sqlPluginDir", "sqlplugin");
+		temporaryFolder.newFile("sqlPluginDir/sqlplugin/core-test.jar").getAbsolutePath();
+
+		Properties prop = new Properties();
 		prop.put("remotePluginRootDir", sqlPluginRootDir);
 		prop.put("flinkPluginRoot", sqlPluginRootDir);
-		prop.put("monitorAddress", "monitorAddress");
-		prop.put("hadoopConf", new HashMap<>());
-		prop.put("yarnConf", new HashMap<>());
-		temporaryFolder.newFolder("sqlPluginDir", "sqlplugin");
+		String propStr = PublicUtil.objToString(prop);
+		SqlPluginInfo sqlPluginInfo = SqlPluginInfo.create(PublicUtil.jsonStrToObject(propStr, FlinkConfig.class));
+		MemberModifier.field(FlinkClient.class, "sqlPluginInfo")
+				.set(flinkClient, sqlPluginInfo);
 
-		FlinkConfig flinkConfig = new FlinkConfig();
-		YarnConfiguration yarnConf = new YarnConfiguration();
+		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
+		YarnMockUtil.mockPackagedProgram();
+		ClusterSpecification clusterSpecification = YarnMockUtil.mockClusterSpecification();
 
-		PowerMockito.mockStatic(FlinkClientBuilder.class);
-//		PowerMockito.when(FlinkClientBuilder.create(flinkConfig, pr, yarnConf))
-
-		flinkClient.init(prop);
+		when(flinkClusterClientManager.getClusterClient()).thenReturn(clusterClient);
+		when(flinkClientBuilder.getFlinkConfiguration()).thenReturn(new Configuration());
 
 
 	}
