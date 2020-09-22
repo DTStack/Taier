@@ -97,6 +97,8 @@ public class SessionClientFactory extends AbstractClientFactory {
     private String sessionAppNameSuffix;
 
     private boolean isDetached = true;
+    private AtomicBoolean startMonitor = new AtomicBoolean(false);
+    private volatile boolean isCurrentStartSession = false;
     private FlinkClusterClientManager flinkClusterClientManager;
     private ExecutorService yarnMonitorES;
     private SessionHealthCheckedInfo sessionHealthCheckedInfo = new SessionHealthCheckedInfo();
@@ -147,7 +149,9 @@ public class SessionClientFactory extends AbstractClientFactory {
         } else {
             this.sessionHealthCheckedInfo.unHealth();
         }
-        this.startYarnSessionClientMonitor();
+        if (isCurrentStartSession && startMonitor.compareAndSet(false, true)) {
+            this.startYarnSessionClientMonitor();
+        }
         return clusterClient;
     }
 
@@ -173,6 +177,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                         yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + sessionAppNameSuffix);
                         clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
                         clusterClient.setDetached(true);
+                        isCurrentStartSession = true;
                         return true;
                     } catch (FlinkException e) {
                         LOG.info("Couldn't deploy Yarn session cluster, ", e);
@@ -565,6 +570,7 @@ public class SessionClientFactory extends AbstractClientFactory {
             } catch (Exception ex) {
                 LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
             }
+            sessionClientFactory.isCurrentStartSession = true;
         }
 
         public void setRun(boolean run) {
@@ -577,13 +583,8 @@ public class SessionClientFactory extends AbstractClientFactory {
                 throw new ProgramMissingJobException("No JobSubmissionResult returned, please make sure you called " +
                         "ExecutionEnvironment.execute()");
             }
-            if (result.isJobExecutionResult()) {
-                LOG.info("Checked Program submitJob finished, Job with JobID:{} .", result.getJobID());
-                return result.getJobExecutionResult();
-            } else {
-                LOG.info("Checked Program execution failed, retry to init ClusterClient.");
-                return null;
-            }
+            LOG.info("Checked Program submitJob finished, Job with JobID:{} .", result.getJobID());
+            return result.getJobExecutionResult();
         }
 
         private JobGraph createJobGraph() {

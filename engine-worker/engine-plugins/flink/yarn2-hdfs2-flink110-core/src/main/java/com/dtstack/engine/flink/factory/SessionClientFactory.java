@@ -98,6 +98,8 @@ public class SessionClientFactory extends AbstractClientFactory {
     private Configuration flinkConfiguration;
     private String sessionAppNameSuffix;
 
+    private AtomicBoolean startMonitor = new AtomicBoolean(false);
+    private volatile boolean isCurrentStartSession = false;
     private FlinkClusterClientManager flinkClusterClientManager;
     private ExecutorService yarnMonitorES;
     private FlinkClientBuilder flinkClientBuilder;
@@ -150,7 +152,9 @@ public class SessionClientFactory extends AbstractClientFactory {
         } else {
             this.sessionHealthCheckedInfo.unHealth();
         }
-        this.startYarnSessionClientMonitor();
+        if (isCurrentStartSession && startMonitor.compareAndSet(false, true)) {
+            this.startYarnSessionClientMonitor();
+        }
         return clusterClient;
     }
 
@@ -174,6 +178,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                     try {
                         YarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
                         clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification).getClusterClient();
+                        isCurrentStartSession = true;
                         return true;
                     } catch (FlinkException e) {
                         LOG.info("Couldn't deploy Yarn session cluster, ", e);
@@ -566,6 +571,7 @@ public class SessionClientFactory extends AbstractClientFactory {
             } catch (Exception ex) {
                 LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
             }
+            sessionClientFactory.isCurrentStartSession = true;
         }
 
         public void setRun(boolean run) {
