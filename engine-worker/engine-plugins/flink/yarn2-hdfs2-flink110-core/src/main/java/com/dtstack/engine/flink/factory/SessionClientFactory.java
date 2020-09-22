@@ -437,6 +437,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                                     LOG.error("", e);
                                                 }
                                             }
+                                            checkRs = checkJobGraphWithStatus();
                                         }
                                         if (checkRs) {
                                             //健康，则重置
