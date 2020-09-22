@@ -98,6 +98,8 @@ public class SessionClientFactory extends AbstractClientFactory {
     private Configuration flinkConfiguration;
     private String sessionAppNameSuffix;
 
+    private AtomicBoolean startMonitor = new AtomicBoolean(false);
+    private volatile boolean isCurrentStartSession = false;
     private FlinkClusterClientManager flinkClusterClientManager;
     private ExecutorService yarnMonitorES;
     private FlinkClientBuilder flinkClientBuilder;
@@ -150,7 +152,9 @@ public class SessionClientFactory extends AbstractClientFactory {
         } else {
             this.sessionHealthCheckedInfo.unHealth();
         }
-        this.startYarnSessionClientMonitor();
+        if (startMonitor.compareAndSet(false, true)) {
+            this.startYarnSessionClientMonitor();
+        }
         return clusterClient;
     }
 
@@ -174,6 +178,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                     try {
                         YarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
                         clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification).getClusterClient();
+                        isCurrentStartSession = true;
                         return true;
                     } catch (FlinkException e) {
                         LOG.info("Couldn't deploy Yarn session cluster, ", e);
@@ -418,16 +423,26 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     if (lastAppState != appState) {
                                         LOG.info("YARN application has been deployed successfully.");
                                     }
-                                    if (sessionCheckInterval.doCheck()) {
+                                    if (sessionClientFactory.isCurrentStartSession && sessionCheckInterval.doCheck()) {
                                         int checked = 0;
-                                        while (!checkJobGraphWithStatus()) {
+                                        boolean checkRs = checkJobGraphWithStatus();
+                                        while (!checkRs) {
                                             if (checked++ > 3) {
                                                 sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                                                 break;
+                                            } else {
+                                                try {
+                                                    Thread.sleep(3 * CHECK_INTERVAL);
+                                                } catch (Exception e) {
+                                                    LOG.error("", e);
+                                                }
                                             }
+                                            checkRs = checkJobGraphWithStatus();
                                         }
-                                        //健康，则重置
-                                        sessionCheckInterval.sessionHealthCheckedInfo.reset();
+                                        if (checkRs) {
+                                            //健康，则重置
+                                            sessionCheckInterval.sessionHealthCheckedInfo.reset();
+                                        }
                                     }
                                     break;
                                 default:
@@ -557,6 +572,7 @@ public class SessionClientFactory extends AbstractClientFactory {
             } catch (Exception ex) {
                 LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
             }
+            sessionClientFactory.isCurrentStartSession = false;
         }
 
         public void setRun(boolean run) {
