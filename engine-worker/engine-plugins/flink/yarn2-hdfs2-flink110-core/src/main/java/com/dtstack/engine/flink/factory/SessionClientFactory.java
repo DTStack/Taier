@@ -152,7 +152,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         } else {
             this.sessionHealthCheckedInfo.unHealth();
         }
-        if (isCurrentStartSession && startMonitor.compareAndSet(false, true)) {
+        if (startMonitor.compareAndSet(false, true)) {
             this.startYarnSessionClientMonitor();
         }
         return clusterClient;
@@ -423,7 +423,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     if (lastAppState != appState) {
                                         LOG.info("YARN application has been deployed successfully.");
                                     }
-                                    if (sessionCheckInterval.doCheck()) {
+                                    if (sessionClientFactory.isCurrentStartSession && sessionCheckInterval.doCheck()) {
                                         int checked = 0;
                                         boolean checkRs = checkJobGraphWithStatus();
                                         while (!checkRs) {
@@ -572,7 +572,7 @@ public class SessionClientFactory extends AbstractClientFactory {
             } catch (Exception ex) {
                 LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
             }
-            sessionClientFactory.isCurrentStartSession = true;
+            sessionClientFactory.isCurrentStartSession = false;
         }
 
         public void setRun(boolean run) {
