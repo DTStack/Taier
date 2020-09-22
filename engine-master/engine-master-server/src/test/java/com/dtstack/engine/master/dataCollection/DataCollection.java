@@ -134,6 +134,7 @@ public interface DataCollection {
         sj.setTaskId(-2001L);
         sj.setJobName("Test job1");
         sj.setEngineLog("");
+        sj.setAppType(1);
         return sj;
     }
 
@@ -167,6 +168,7 @@ public interface DataCollection {
         sj.setProjectId(-101L);
         sj.setJobName("Test job2");
         sj.setEngineLog("");
+        sj.setAppType(1);
         return sj;
     }
 
@@ -191,6 +193,7 @@ public interface DataCollection {
         sj.setEngineLog("");
         sj.setSourceType(-1);
         sj.setApplicationId("application_9527");
+        sj.setComputeType(ComputeType.STREAM.getType());
         return sj;
     }
 
@@ -271,6 +274,7 @@ public interface DataCollection {
         scheduleTaskShade.setProjectId(-101L);
         scheduleTaskShade.setTenantId(15L);
         scheduleTaskShade.setTaskId(-2001L);
+        scheduleTaskShade.setFlowId(0L);
 
         return scheduleTaskShade;
     }

@@ -28,6 +28,16 @@ public class Config extends BaseConfig {
 
     private Map<String,Object> kubernetesConf;
 
+    private String namespace;
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
+
     public Map<String, Object> getKubernetesConf() {
         return kubernetesConf;
     }

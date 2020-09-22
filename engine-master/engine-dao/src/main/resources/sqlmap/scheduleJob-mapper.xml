@@ -558,7 +558,7 @@
         taskType,
         bj.exec_time AS execTime,bj.is_deleted as isDeleted,bj.create_user_id AS createUserId
         FROM schedule_job bj
-        WHERE bj.is_deleted = 0
+        WHERE bj.is_deleted = 0 AND bj.app_type = #{appType}
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
             AND bj.dtuic_tenant_id = #{dtuicTenantId}
         </if>
@@ -807,6 +807,7 @@
             #{status}
         </foreach>
         AND bj.is_deleted = 0
+        AND bj.app_type = #{appType}
     </select>
 
     <select id="listJobIdByTaskIdAndStatus" resultType="java.lang.String">
@@ -832,6 +833,7 @@
             #{status}
         </foreach>
         AND bj.is_deleted = 0 AND bj.is_deleted = 0
+        AND bj.app_type = #{appType}
         order by ${pageQuery.orderBy} ${pageQuery.sort} limit #{pageQuery.start} , #{pageQuery.pageSize}
     </select>
 
@@ -1085,7 +1087,7 @@
     </select>
 
     <select id="listTaskExeInfo" resultType="java.util.HashMap">
-        select a.exec_start_time as execStartTime, a.job_id as jobId, ifnull(a.type, 0) as type,
+        select a.exec_start_time as execStartTime, a.exec_end_time as execEndTime,  a.job_id as jobId, ifnull(a.type, 0) as type,
                ifnull(a.status, 0) as status, a.exec_time as execTime from schedule_job a
         where a.task_id = #{taskId} and a.project_id = #{projectId} and a.app_type = #{appType}
         order by a.exec_start_time desc limit #{limitNum};
@@ -1563,7 +1565,7 @@
     <update id="updateJobSubmitSuccess">
 	   update schedule_job
 	   set log_info = #{submitLog}, engine_job_id=#{engineId}, application_id=#{appId},
-	    gmt_modified=now(), exec_start_time=now()
+	    gmt_modified=now(), exec_start_time=now(),job_graph = #{jobGraph}
 	   where job_id=#{jobId};
    </update>
 
@@ -1664,4 +1666,8 @@
     <update id="updateJobStatusAndPhaseStatus">
         update schedule_job set gmt_modified=now(),status=#{status},`phase_status` = #{phaseStatus} where job_id=#{jobId};
     </update>
+
+    <select id="getJobGraph" resultType="java.lang.String">
+        select job_graph from schedule_job where job_id = #{jobId}
+    </select>
 </mapper>

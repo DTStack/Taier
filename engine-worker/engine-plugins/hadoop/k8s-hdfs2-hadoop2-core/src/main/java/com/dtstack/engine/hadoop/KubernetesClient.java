@@ -1,5 +1,6 @@
 package com.dtstack.engine.hadoop;
 
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -7,7 +8,6 @@ import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.hadoop.util.HadoopConf;
@@ -28,6 +28,7 @@ import java.util.Properties;
  */
 public class KubernetesClient extends AbstractClient {
 
+
     private static final Logger LOG = LoggerFactory.getLogger(KubernetesClient.class);
 
     @Override
@@ -37,7 +38,6 @@ public class KubernetesClient extends AbstractClient {
 
     @Override
     public void init(Properties prop) throws Exception {
-
     }
 
     @Override
@@ -54,6 +54,7 @@ public class KubernetesClient extends AbstractClient {
     public String getJobMaster(JobIdentifier jobIdentifier) {
         return null;
     }
+
 
     /**
      * 测试hdfs 和 k8s的联通性
@@ -94,6 +95,7 @@ public class KubernetesClient extends AbstractClient {
             client = new DefaultKubernetesClient(kubernetes);
             client.getVersion();
             testResult.setResult(true);
+            client.pods().inNamespace(allConfig.getNamespace());
         } finally {
             if (Objects.nonNull(client)) {
                 client.close();

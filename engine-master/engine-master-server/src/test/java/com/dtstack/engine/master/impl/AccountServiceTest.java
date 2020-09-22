@@ -110,7 +110,7 @@ public class AccountServiceTest extends AbstractTest {
         Assert.assertNotNull(tenant);
         Assert.assertNotNull(tenant.getId());
         //绑定租户
-        tenantService.bindingTenant(tenant.getDtUicTenantId(), dbCluster.getClusterId(), null, "");
+        tenantService.bindingTenant(tenant.getDtUicTenantId(), dbCluster.getClusterId(), null, "","");
 
         User user = DataCollection.getData().getUser();
         AccountVo accountVo = new AccountVo();
@@ -132,10 +132,12 @@ public class AccountServiceTest extends AbstractTest {
         accountTenantVo.setName("testModify");
         accountTenantVo.setPassword("modify");
         accountTenantVo.setEngineType(MultiEngineType.TIDB.getType());
+        accountTenantVo.setModifyDtUicUserId(-1L);
         //修改账号信息
-        accountService.updateBindAccount(accountTenantVo,-1L);
-        //解绑账号信息
-        accountService.unbindAccount(accountTenantVo,-1L);
+        accountService.updateBindAccount(accountTenantVo);
+        //解绑账号信
+        accountTenantVo.setModifyDtUicUserId(-1L);
+        accountService.unbindAccount(accountTenantVo);
         List<Map<String, Object>> tenantUnBandList = accountService.getTenantUnBandList(tenant.getDtUicTenantId(), "", user.getDtuicUserId(), MultiEngineType.TIDB.getType());
         Assert.assertNotNull(tenantUnBandList);
     }

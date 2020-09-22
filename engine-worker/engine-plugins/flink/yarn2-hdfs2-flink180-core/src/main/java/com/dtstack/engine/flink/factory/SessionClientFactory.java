@@ -18,20 +18,39 @@
 
 package com.dtstack.engine.flink.factory;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkClusterClientManager;
 import com.dtstack.engine.flink.FlinkConfig;
+import com.dtstack.engine.flink.NoOpInvokable;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
-import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
+import com.dtstack.engine.flink.entity.SessionCheckInterval;
+import com.dtstack.engine.flink.entity.SessionHealthCheckedInfo;
 import com.dtstack.engine.flink.util.FileUtil;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.api.common.JobExecutionResult;
+import org.apache.flink.api.common.JobSubmissionResult;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
+import org.apache.flink.client.program.ProgramInvocationException;
+import org.apache.flink.client.program.ProgramMissingJobException;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
+import org.apache.flink.runtime.io.network.partition.ResultPartitionType;
+import org.apache.flink.runtime.jobgraph.DistributionPattern;
+import org.apache.flink.runtime.jobgraph.JobGraph;
+import org.apache.flink.runtime.jobgraph.JobVertex;
+import org.apache.flink.runtime.jobgraph.ScheduleMode;
+import org.apache.flink.runtime.jobmanager.scheduler.SlotSharingGroup;
+import org.apache.flink.configuration.SecurityOptions;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.locks.InterProcessMutex;
@@ -50,12 +69,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -66,13 +80,13 @@ import java.util.stream.Collectors;
 /**
  * Date: 2020/5/12
  * Company: www.dtstack.com
+ *
  * @author maqi
  */
 public class SessionClientFactory extends AbstractClientFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(SessionClientFactory.class);
 
-    private AbstractYarnClusterDescriptor yarnSessionDescriptor;
     private ClusterSpecification yarnSessionSpecification;
     private ClusterClient<ApplicationId> clusterClient;
     private FlinkConfig flinkConfig;
@@ -85,6 +99,8 @@ public class SessionClientFactory extends AbstractClientFactory {
     private boolean isDetached = true;
     private FlinkClusterClientManager flinkClusterClientManager;
     private ExecutorService yarnMonitorES;
+    private SessionHealthCheckedInfo sessionHealthCheckedInfo = new SessionHealthCheckedInfo();
+
 
     public SessionClientFactory(FlinkClusterClientManager flinkClusterClientManager, FlinkClientBuilder flinkClientBuilder) throws MalformedURLException {
         super(flinkClientBuilder);
@@ -93,15 +109,11 @@ public class SessionClientFactory extends AbstractClientFactory {
         this.flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
 
         this.sessionAppNameSuffix = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
-        this.yarnSessionDescriptor = createYarnSessionClusterDescriptor();
-        this.yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + sessionAppNameSuffix);
         this.yarnSessionSpecification = FlinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
 
         initZkClient();
         this.lockPath = String.format("/yarn_session/%s", flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
         this.clusterClientLock = new InterProcessMutex(zkClient, lockPath);
-
-        startYarnSessionClientMonitor();
     }
 
     private void initZkClient() {
@@ -128,15 +140,25 @@ public class SessionClientFactory extends AbstractClientFactory {
         yarnMonitorES.submit(new AppStatusMonitor(flinkClusterClientManager, flinkClientBuilder, this));
     }
 
+    public ClusterClient<ApplicationId> startAndGetSessionClusterClient() {
+        boolean startRs = this.startFlinkYarnSession();
+        if (startRs) {
+            this.sessionHealthCheckedInfo.reset();
+        } else {
+            this.sessionHealthCheckedInfo.unHealth();
+        }
+        this.startYarnSessionClientMonitor();
+        return clusterClient;
+    }
 
-    public boolean startFlinkYarnSession() {
+    private boolean startFlinkYarnSession() {
         try {
             if (this.clusterClientLock.acquire(5, TimeUnit.MINUTES)) {
                 ClusterClient<ApplicationId> retrieveClusterClient = null;
                 try {
                     retrieveClusterClient = initYarnClusterClient();
                 } catch (Exception e) {
-                    LOG.error("{}", e);
+                    LOG.error("", e);
                 }
 
                 if (retrieveClusterClient != null) {
@@ -147,11 +169,13 @@ public class SessionClientFactory extends AbstractClientFactory {
 
                 if (flinkConfig.getSessionStartAuto()) {
                     try {
+                        AbstractYarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
+                        yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + sessionAppNameSuffix);
                         clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
                         clusterClient.setDetached(true);
                         return true;
                     } catch (FlinkException e) {
-                        LOG.info("Couldn't deploy Yarn session cluster, {}", e);
+                        LOG.info("Couldn't deploy Yarn session cluster, ", e);
                         throw e;
                     }
                 }
@@ -171,17 +195,13 @@ public class SessionClientFactory extends AbstractClientFactory {
     }
 
 
-    public void stopFlinkYarnSession() {
-        try {
-            clusterClient.shutdown();
-        } catch (Exception ex) {
-            LOG.info("[YarnSessionClientFactory] Could not properly shutdown cluster client.", ex);
-        }
-    }
-
     @Override
     public ClusterClient<ApplicationId> getClusterClient() {
         return clusterClient;
+    }
+
+    public SessionHealthCheckedInfo getSessionHealthCheckedInfo() {
+        return sessionHealthCheckedInfo;
     }
 
     /**
@@ -190,6 +210,9 @@ public class SessionClientFactory extends AbstractClientFactory {
     public ClusterClient<ApplicationId> initYarnClusterClient() {
         Configuration newConf = new Configuration(flinkConfiguration);
         ApplicationId applicationId = acquireAppIdAndSetClusterId(newConf);
+        if (applicationId == null) {
+            throw new RdosDefineException("No flink session found on yarn cluster.");
+        }
 
         if (!flinkConfig.getFlinkHighAvailability()) {
             setNoneHaModeConfig(newConf);
@@ -259,10 +282,6 @@ public class SessionClientFactory extends AbstractClientFactory {
                 }
 
             }
-
-            if (applicationId == null) {
-                throw new RdosDefineException("No flink session found on yarn cluster.");
-            }
             return applicationId;
         } catch (Exception e) {
             LOG.error("", e);
@@ -286,6 +305,11 @@ public class SessionClientFactory extends AbstractClientFactory {
             newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
         }
 
+        List<File> keytabFiles = null;
+        if (flinkConfig.isOpenKerberos()) {
+            keytabFiles = getKeytabFilesAndSetSecurityConfig(newConf);
+        }
+
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".");
 
         if (StringUtils.isNotBlank(pluginLoadMode) && ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(pluginLoadMode)) {
@@ -294,7 +318,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
             String flinkPluginRoot = flinkConfig.getFlinkPluginRoot();
             if (StringUtils.isNotBlank(flinkPluginRoot)) {
-                String syncPluginDir = flinkPluginRoot + SyncPluginInfo.FILE_SP + SyncPluginInfo.SYNC_PLUGIN_DIR_NAME;
+                String syncPluginDir = flinkPluginRoot + ConfigConstrant.SP + ConfigConstrant.SYNCPLUGIN_DIR;
                 File syncFile = new File(syncPluginDir);
                 if (!syncFile.exists()) {
                     throw new RdosDefineException("syncPlugin path is null");
@@ -305,13 +329,42 @@ public class SessionClientFactory extends AbstractClientFactory {
                 clusterDescriptor.addShipFiles(pluginPaths);
             }
         }
-
+        if(CollectionUtils.isNotEmpty(keytabFiles)){
+            clusterDescriptor.addShipFiles(keytabFiles);
+        }
         List<URL> classpaths = getFlinkJarFile(flinkJarPath, clusterDescriptor);
         clusterDescriptor.setProvidedUserJarFiles(classpaths);
         clusterDescriptor.setQueue(flinkConfig.getQueue());
         return clusterDescriptor;
     }
 
+    private List<File> getKeytabFilesAndSetSecurityConfig(Configuration config) {
+        Map<String, File> keytabs = new HashMap<>();
+        String remoteDir = flinkConfig.getRemoteDir();
+
+        // 任务提交keytab
+        String clusterKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
+        File clusterKeytabDir = new File(clusterKeytabDirPath);
+        File[] clusterKeytabFiles = clusterKeytabDir.listFiles();
+
+        if (clusterKeytabFiles == null || clusterKeytabFiles.length == 0) {
+            throw new RdosDefineException("not find keytab file from " + clusterKeytabDirPath);
+        }
+        for (File file : clusterKeytabFiles) {
+            String fileName = file.getName();
+            String keytabPath = file.getAbsolutePath();
+            String keytabFileName = flinkConfig.getPrincipalFile();
+
+            if (StringUtils.equals(fileName, keytabFileName)) {
+                String principal = KerberosUtils.getPrincipal(keytabPath);
+                config.setString(SecurityOptions.KERBEROS_LOGIN_KEYTAB, keytabPath);
+                config.setString(SecurityOptions.KERBEROS_LOGIN_PRINCIPAL, principal);
+            }
+            keytabs.put(file.getName(), file);
+        }
+
+        return keytabs.entrySet().stream().map(entry -> entry.getValue()).collect(Collectors.toList());
+    }
 
     static class AppStatusMonitor implements Runnable {
 
@@ -330,9 +383,9 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         private SessionClientFactory sessionClientFactory;
 
-        private YarnApplicationState lastAppState;
+        private SessionCheckInterval sessionCheckInterval;
 
-        private String attemptId;
+        private YarnApplicationState lastAppState;
 
         private long startTime = System.currentTimeMillis();
 
@@ -341,15 +394,16 @@ public class SessionClientFactory extends AbstractClientFactory {
             this.clientBuilder = clientBuilder;
             this.sessionClientFactory = yarnSessionClientFactory;
             this.lastAppState = YarnApplicationState.NEW;
+            this.sessionCheckInterval = new SessionCheckInterval(clientBuilder.getFlinkConfig().getCheckSubmitJobGraphInterval(), yarnSessionClientFactory.sessionHealthCheckedInfo);
         }
 
         @Override
         public void run() {
             while (run.get()) {
                 try {
-                    if (clusterClientManager.getIsClientOn()) {
+                    if (sessionCheckInterval.sessionHealthCheckedInfo.isRunning()) {
                         if (clientBuilder.getYarnClient().isInState(Service.STATE.STARTED)) {
-                            ApplicationId applicationId = (ApplicationId) clusterClientManager.getClusterClient().getClusterId();
+                            ApplicationId applicationId = (ApplicationId) sessionClientFactory.getClusterClient().getClusterId();
                             ApplicationReport applicationReport = clientBuilder.getYarnClient().getApplicationReport(applicationId);
                             YarnApplicationState appState = applicationReport.getYarnApplicationState();
                             switch (appState) {
@@ -357,15 +411,22 @@ public class SessionClientFactory extends AbstractClientFactory {
                                 case KILLED:
                                 case FINISHED:
                                     LOG.error("-------Flink yarn-session appState:{}, prepare to stop Flink yarn-session client ----", appState.toString());
-                                    clusterClientManager.setIsClientOn(false);
+                                    sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                                     break;
                                 case RUNNING:
                                     if (lastAppState != appState) {
                                         LOG.info("YARN application has been deployed successfully.");
                                     }
-                                    if (isDifferentAttemptId(applicationReport)) {
-                                        LOG.error("AttemptId has changed, prepare to stop Flink yarn-session client.");
-                                        clusterClientManager.setIsClientOn(false);
+                                    if (sessionCheckInterval.doCheck()) {
+                                        int checked = 0;
+                                        while (!checkJobGraphWithStatus()) {
+                                            if (checked++ > 3) {
+                                                sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
+                                                break;
+                                            }
+                                        }
+                                        //健康，则重置
+                                        sessionCheckInterval.sessionHealthCheckedInfo.reset();
                                     }
                                     break;
                                 default:
@@ -379,7 +440,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                             lastAppState = appState;
                         } else {
                             LOG.error("Yarn client is no longer in state STARTED, prepare to stop Flink yarn-session client.");
-                            clusterClientManager.setIsClientOn(false);
+                            sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                         }
                     } else {
                         //retry时有一段等待时间，确保session正常运行。
@@ -387,7 +448,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                     }
                 } catch (Throwable t) {
                     LOG.error("YarnAppStatusMonitor check error:{}", t);
-                    clusterClientManager.setIsClientOn(false);
+                    sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                 } finally {
                     try {
                         Thread.sleep(CHECK_INTERVAL);
@@ -398,18 +459,75 @@ public class SessionClientFactory extends AbstractClientFactory {
             }
         }
 
+        private boolean checkJobGraphWithStatus() {
+            boolean checkResult = false;
+            try {
+                JobExecutionResult executionResult = submitCheckedJobGraph();
+                if (null != executionResult) {
+                    final long startTime = System.currentTimeMillis();
+                    RdosTaskStatus lastAppState = RdosTaskStatus.SUBMITTING;
+                    loop:
+                    while (true) {
+                        RdosTaskStatus jobStatus = RdosTaskStatus.SUBMITTING;
+                        try {
+                            String reqUrl = sessionClientFactory.getClusterClient().getWebInterfaceURL() + "/jobs/" + executionResult.getJobID().toString();
+                            String response = PoolHttpClient.get(reqUrl);
+                            if (response != null) {
+                                JSONObject statusJson = JSON.parseObject(response);
+                                String status = statusJson.getString("state");
+                                jobStatus = RdosTaskStatus.getTaskStatus(status.toUpperCase());
+                            }
+                        } catch (Exception e) {
+                            LOG.error("", e);
+                        }
+                        if (null == jobStatus) {
+                            checkResult = false;
+                            break;
+                        }
+
+                        LOG.debug("JobID: {} status: {}", executionResult.getJobID(), jobStatus);
+                        switch (jobStatus) {
+                            case FAILED:
+                                LOG.info("YARN Session Job is failed.");
+                                checkResult = false;
+                                break loop;
+                            case FINISHED:
+                                LOG.info("YARN Session Job has been finished successfully.");
+                                checkResult = true;
+                                break loop;
+                            default:
+                                if (jobStatus != lastAppState) {
+                                    LOG.info("Yarn Session Job, current state " + jobStatus);
+                                }
+                                long cost = System.currentTimeMillis() - startTime;
+                                if (cost > 60000) {
+                                    LOG.info("Yarn Session Job took more than 60 seconds.");
+                                } else if (cost > 300000){
+                                    LOG.info("Yarn Session Job took more than 600 seconds.");
+                                    checkResult = false;
+                                    break loop;
+                                }
+
+                        }
+                        lastAppState = jobStatus;
+                        Thread.sleep(3000);
+                    }
+                }
+            } catch (Exception e) {
+                LOG.error("", e);
+                checkResult = false;
+            }
+            return checkResult;
+        }
+
         private void retry() {
             //重试
             try {
-                if (sessionClientFactory.getClusterClient() != null) {
-                    LOG.error("------- Flink yarn-session client shutdown ----");
-                    sessionClientFactory.stopFlinkYarnSession();
-                }
+                stopFlinkYarnSession();
                 LOG.warn("-- retry Flink yarn-session client ----");
                 startTime = System.currentTimeMillis();
                 this.lastAppState = YarnApplicationState.NEW;
                 clusterClientManager.initClusterClient();
-                attemptId = null;
 
                 Thread.sleep(RETRY_WAIT);
             } catch (Exception e) {
@@ -417,25 +535,65 @@ public class SessionClientFactory extends AbstractClientFactory {
             }
         }
 
+        private void stopFlinkYarnSession() {
+            if (sessionClientFactory.getClusterClient() != null) {
+                LOG.error("------- Flink yarn-session client shutdown ----");
+                sessionClientFactory.getClusterClient().shutDownCluster();
+
+                try {
+                    sessionClientFactory.getClusterClient().shutdown();
+                } catch (Exception ex) {
+                    LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
+                }
+            }
+
+            try {
+                Configuration newConf = new Configuration(sessionClientFactory.flinkConfiguration);
+                ApplicationId applicationId = sessionClientFactory.acquireAppIdAndSetClusterId(newConf);
+                if (applicationId != null){
+                    clientBuilder.getYarnClient().killApplication(applicationId);
+                }
+            } catch (Exception ex) {
+                LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
+            }
+        }
+
         public void setRun(boolean run) {
             this.run = new AtomicBoolean(run);
         }
 
-        private boolean isDifferentAttemptId(ApplicationReport applicationReport) {
-            String appId = applicationReport.getCurrentApplicationAttemptId().getApplicationId().toString();
-            String attemptIdStr = String.valueOf(applicationReport.getCurrentApplicationAttemptId().getAttemptId());
-            String currentAttemptId = appId + attemptIdStr;
-            if (attemptId == null) {
-                attemptId = currentAttemptId;
-                return false;
+        private JobExecutionResult submitCheckedJobGraph() throws ProgramMissingJobException, ProgramInvocationException {
+            JobSubmissionResult result = sessionClientFactory.getClusterClient().submitJob(createJobGraph(), Thread.currentThread().getContextClassLoader());
+            if (null == result) {
+                throw new ProgramMissingJobException("No JobSubmissionResult returned, please make sure you called " +
+                        "ExecutionEnvironment.execute()");
             }
-            if (!attemptId.equals(currentAttemptId)) {
-                attemptId = currentAttemptId;
-                return true;
+            if (result.isJobExecutionResult()) {
+                LOG.info("Checked Program submitJob finished, Job with JobID:{} .", result.getJobID());
+                return result.getJobExecutionResult();
+            } else {
+                LOG.info("Checked Program execution failed, retry to init ClusterClient.");
+                return null;
             }
-            return false;
         }
 
+        private JobGraph createJobGraph() {
+            SlotSharingGroup slotSharingGroup = new SlotSharingGroup();
+
+            final JobVertex source = new JobVertex("source");
+            source.setInvokableClass(NoOpInvokable.class);
+            source.setSlotSharingGroup(slotSharingGroup);
+
+            final JobVertex sink = new JobVertex("sink");
+            sink.setInvokableClass(NoOpInvokable.class);
+            sink.setSlotSharingGroup(slotSharingGroup);
+
+            sink.connectNewDataSetAsInput(source, DistributionPattern.POINTWISE, ResultPartitionType.PIPELINED);
+            JobGraph jobGraph = new JobGraph("dtIdleDetection", source, sink);
+
+            jobGraph.setScheduleMode(ScheduleMode.EAGER);
+            return jobGraph;
+        }
 
     }
 

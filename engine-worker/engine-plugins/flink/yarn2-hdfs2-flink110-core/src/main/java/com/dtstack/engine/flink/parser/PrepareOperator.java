@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 public class PrepareOperator {
 	
 	private static Pattern pattern = Pattern.compile("(?i)\\s*add\\s+jar\\s+with\\s+(\\S+)(\\s+AS\\s+(\\S+))?");
-	private static Pattern keytabPattern = Pattern.compile("(?i)\\s*add\\s+file\\s+(\\S+)?");
+	private static Pattern keytabPattern = Pattern.compile("(?i)\\s*add\\s+file\\s+with\\s+(\\S+)?");
 
 	public static JarFileInfo parseSql(String sql) {
 

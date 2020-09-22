@@ -65,11 +65,6 @@ public class ClusterService implements InitializingBean {
     private final static List<String> BASE_CONFIG = Lists.newArrayList(EComponentType.HDFS.getConfName(),
             EComponentType.YARN.getConfName(), EComponentType.SPARK_THRIFT.getConfName(), EComponentType.SFTP.getConfName(),EComponentType.KUBERNETES.getConfName());
 
-    private Cache<String, JSONObject> pluginInfoCache = CacheBuilder.newBuilder()
-            .maximumSize(1000)
-            .expireAfterWrite(10, TimeUnit.MINUTES)
-            .build();
-
     @Autowired
     private ClusterDao clusterDao;
 
@@ -105,6 +100,10 @@ public class ClusterService implements InitializingBean {
 
     @Autowired
     private AccountDao accountDao;
+
+    @Autowired
+    private AccountService accountService;
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -219,13 +218,6 @@ public class ClusterService implements InitializingBean {
      * 对外接口
      */
     public JSONObject pluginInfoJSON( Long dtUicTenantId,  String engineTypeStr, Long dtUicUserId,Integer deployMode) {
-        //缓存是否存在
-        String keyFormat = String.format("%s.%s.%s.%s", dtUicTenantId, engineTypeStr, dtUicUserId, deployMode);
-        JSONObject cacheInfo = pluginInfoCache.getIfPresent(keyFormat);
-        if (Objects.nonNull(cacheInfo)) {
-            return cacheInfo;
-        }
-
         if (EngineType.Dummy.name().equalsIgnoreCase(engineTypeStr)) {
             JSONObject dummy = new JSONObject();
             dummy.put(TYPE_NAME, EngineType.Dummy.name().toLowerCase());
@@ -254,10 +246,10 @@ public class ClusterService implements InitializingBean {
         Queue queue = getQueue(tenantId, cluster.getClusterId());
 
         pluginJson.put(QUEUE, queue == null ? "" : queue.getQueueName());
+        pluginJson.put(NAMESPACE, queue == null ? "" : queue.getQueueName());
         pluginJson.put(CLUSTER, cluster.getClusterName());
         pluginJson.put(TENANT_ID, tenantId);
         setComponentSftpDir(cluster.getClusterId(), clusterConfigJson, pluginJson,type);
-        pluginInfoCache.put(keyFormat,pluginJson);
         return pluginJson;
     }
 
@@ -694,6 +686,12 @@ public class ClusterService implements InitializingBean {
                 jdbcUrl = jdbcUrl.replace("/%s", "");
                 pluginInfo.put("jdbcUrl", jdbcUrl);
                 pluginInfo.put("typeName", "hive");
+            } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK==type.getComponentType()) {
+                if (clusterVO.getDtUicUserId() != null && clusterVO.getDtUicTenantId() != null) {
+                    AccountVo accountVo = accountService.getAccountVo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId(), AccountType.LDAP.getVal());
+                    String ldapUserName = StringUtils.isBlank(accountVo.getName()) ? "" : accountVo.getName();
+                    pluginInfo.put("dtProxyUserName", ldapUserName);
+                }
             }
             pluginInfo.put(ConfigConstant.MD5_SUM_KEY, getZipFileMD5(clusterConfigJson));
             removeMd5FieldInHadoopConf(pluginInfo);
@@ -883,14 +881,6 @@ public class ClusterService implements InitializingBean {
         }
 
         return result;
-    }
-
-    /**
-     * 清除缓存
-     */
-    public void clearPluginInfoCache(){
-        pluginInfoCache.invalidateAll();
-        LOGGER.info("-------clear plugin info cache success-----");
     }
 
     public String pluginInfoForType(Long dtUicTenantId, Boolean fullKerberos, Integer pluginType) {

@@ -4,7 +4,6 @@ import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.api.ApplicationContext;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
 import com.dtstack.engine.dtscript.common.SecurityUtil;
-import com.dtstack.engine.dtscript.container.ContainerEntity;
 import com.dtstack.engine.dtscript.container.DtContainer;
 import com.dtstack.engine.dtscript.container.DtContainerId;
 import com.dtstack.engine.dtscript.util.DebugUtil;
@@ -13,7 +12,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -29,15 +27,14 @@ import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.api.records.LocalResourceType;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
-import org.apache.hadoop.yarn.api.records.ResourceRequest;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -46,7 +43,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Vector;
 
 
@@ -79,17 +75,59 @@ public class ApplicationMaster extends CompositeService {
 
     String appMasterHostname;
 
+    Map<String, String> envs;
+
+    ApplicationAttemptId applicationAttemptID;
+
+    long heartBeatInterval;
+
+    final String APP_SUCCESS = "Application is success.";
 
     private ApplicationMaster(String name) {
         super(name);
         Path jobConfPath = new Path(DtYarnConstants.LEARNING_JOB_CONFIGURATION);
+        LOG.info("hadoop.job.ugi: " + conf.get("hadoop.job.ugi"));
         LOG.info("user.dir: " + System.getProperty("user.dir"));
+//        System.setProperty(DtYarnConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.job.ugi").split(",")[0]);
         LOG.info("user.name: " + System.getProperty("user.name"));
+        LOG.info("HADOOP_USER_NAME: " + System.getProperty(DtYarnConstants.Environment.HADOOP_USER_NAME.toString()));
+
         conf.addResource(jobConfPath);
+        envs = System.getenv();
         applicationContext = new RunningAppContext(this);
         messageService = new ApplicationMessageService(this.applicationContext, conf);
         appArguments = new AppArguments(this);
         containerListener = new ApplicationContainerListener(applicationContext, conf);
+
+        heartBeatInterval = conf.getLong(DtYarnConfiguration.DTSCRIPT_CONTAINER_HEARTBEAT_INTERVAL, DtYarnConfiguration.DEFAULT_DTSCRIPT_CONTAINER_HEARTBEAT_INTERVAL);
+
+
+        if (envs.containsKey(ApplicationConstants.Environment.CONTAINER_ID.toString())) {
+            ContainerId containerId = ConverterUtils
+                    .toContainerId(envs.get(ApplicationConstants.Environment.CONTAINER_ID.toString()));
+            applicationAttemptID = containerId.getApplicationAttemptId();
+        } else {
+            throw new IllegalArgumentException(
+                    "Application Attempt Id is not available in environment");
+        }
+
+        LOG.info("Application appId="
+                + applicationAttemptID.getApplicationId().getId()
+                + ", clustertimestamp="
+                + applicationAttemptID.getApplicationId().getClusterTimestamp()
+                + ", attemptId=" + applicationAttemptID.getAttemptId());
+
+        if (applicationAttemptID.getAttemptId() > 1 && appArguments.appMaxAttempts > 1) {
+            int maxMem = conf.getInt(DtYarnConfiguration.DTSCRIPT_MAX_WORKER_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_MAX_WORKER_MEMORY);
+            LOG.info("maxMem : " + maxMem);
+            int newWorkerMemory = appArguments.workerMemory + (applicationAttemptID.getAttemptId() - 1) * (int) Math.ceil(appArguments.workerMemory * conf.getDouble(DtYarnConfiguration.DTSCRIPT_WORKER_MEM_AUTO_SCALE, DtYarnConfiguration.DEFAULT_DTSCRIPT_WORKER_MEM_AUTO_SCALE));
+            LOG.info("Auto Scale the Worker Memory from " + appArguments.workerMemory + " to " + newWorkerMemory);
+            if (newWorkerMemory > maxMem) {
+                newWorkerMemory = maxMem;
+                LOG.info("MaxMem of Worker Memory:" + maxMem + " set workerMemory: " + newWorkerMemory);
+            }
+            appArguments.workerMemory = newWorkerMemory;
+        }
     }
 
     private ApplicationMaster() {
@@ -159,8 +197,11 @@ public class ApplicationMaster extends CompositeService {
         Priority priority = Records.newRecord(Priority.class);
         priority.setPriority(appArguments.appPriority);
         Resource workerCapability = Records.newRecord(Resource.class);
-        workerCapability.setMemory(appArguments.workerMemory+appArguments.containerMemory);
+        workerCapability.setMemory(appArguments.workerMemory);
         workerCapability.setVirtualCores(appArguments.workerVcores);
+//        if (appArguments.workerGCores > 0) {
+//            workerCapability.setResourceValue(DtYarnConstants.GPU, appArguments.workerGCores);
+//        }
         if (appArguments.nodes == null){
             return new AMRMClient.ContainerRequest(workerCapability, null, null, priority, true);
         } else {
@@ -176,7 +217,7 @@ public class ApplicationMaster extends CompositeService {
         vargs.add("-server -XX:+UseConcMarkSweepGC -XX:-UseCompressedClassPointers -XX:+DisableExplicitGC -XX:-OmitStackTraceInFastThrow");
         vargs.add("-Xmx" + containerMemory + "m");
         vargs.add("-Xms" + containerMemory + "m");
-        String javaOpts = conf.get(DtYarnConfiguration.XLEARNING_CONTAINER_EXTRA_JAVA_OPTS, DtYarnConfiguration.DEFAULT_XLEARNING_CONTAINER_JAVA_OPTS_EXCEPT_MEMORY);
+        String javaOpts = conf.get(DtYarnConfiguration.DTSCRIPT_CONTAINER_EXTRA_JAVA_OPTS, DtYarnConfiguration.DEFAULT_DTSCRIPT_CONTAINER_EXTRA_JAVA_OPTS);
         if (!StringUtils.isBlank(javaOpts)) {
             vargs.add(javaOpts);
         }
@@ -207,12 +248,15 @@ public class ApplicationMaster extends CompositeService {
         AMRMClient.ContainerRequest workerContainerRequest = buildContainerRequest();
         LOG.info("ContainerRequest:" + workerContainerRequest.toString() + " nodes:" + workerContainerRequest.getNodes() + " racks:" + workerContainerRequest.getRacks());
 
-        List<String> workerContainerLaunchCommands = buildContainerLaunchCommand(appArguments.containerMemory);
+        int interval = conf.getInt(DtYarnConfiguration.DTSCRIPT_ALLOCATE_INTERVAL, DtYarnConfiguration.DEFAULT_DTSCRIPT_ALLOCATE_INTERVAL);
+        amrmAsync.setHeartbeatInterval(interval);
+
+        List<String> workerContainerLaunchCommands = buildContainerLaunchCommand(appArguments.workerMemory);
         Map<String, LocalResource> containerLocalResource = buildContainerLocalResource();
         Map<String, String> workerContainerEnv = new ContainerEnvBuilder(DtYarnConstants.WORKER, this).build();
 
 
-        List<Container> acquiredWorkerContainers = handleRmCallbackOfContainerRequest(appArguments.workerNum, workerContainerRequest);
+        List<Container> acquiredWorkerContainers = handleRmCallbackOfContainerRequest(appArguments.workerNum, workerContainerRequest, interval);
 
         int i = 0;
         for (Container container : acquiredWorkerContainers) {
@@ -220,54 +264,30 @@ public class ApplicationMaster extends CompositeService {
                     + " on " + container.getNodeId().getHost() + ":" + container.getNodeId().getPort());
             launchContainer(containerLocalResource, workerContainerEnv,
                     workerContainerLaunchCommands, container, i);
-            containerListener.registerContainer(true, i++, new DtContainerId(container.getId()), container.getNodeId());
+            containerListener.registerContainer(new DtContainerId(container.getId()), container.getNodeId());
         }
 
-        while (!containerListener.isFinished()) {
-            Utilities.sleep(1000);
-            List<ContainerEntity> failedEntities = containerListener.getFailedContainerEntities();
-
-            if (failedEntities.isEmpty()) {
-                continue;
-            }
-
-            for (ContainerEntity containerEntity : failedEntities) {
-                ContainerId containerId = containerEntity.getContainerId().getContainerId();
-                LOG.info("Canceling container: " + containerId.toString() + " nodeHost: " + containerEntity.getNodeHost());
-                amrmAsync.releaseAssignedContainer(containerId);
-                rmCallbackHandler.removeLaunchFailed(containerEntity.getNodeHost());
-                clearContainerInfo(containerId);
-            }
-
-            //失败后重试
-            acquiredWorkerContainers = handleRmCallbackOfContainerRequest(failedEntities.size(), workerContainerRequest);
-
-            for (ContainerEntity containerEntity : failedEntities) {
-                Container container = acquiredWorkerContainers.remove(0);
-                LOG.warn("Retry Launching worker container " + container.getId()
-                        + " on " + container.getNodeId().getHost() + ":" + container.getNodeId().getPort());
-                launchContainer(containerLocalResource, workerContainerEnv,
-                        workerContainerLaunchCommands, container, containerEntity.getLane());
-                containerListener.registerContainer(false, containerEntity.getLane(), new DtContainerId(container.getId()), container.getNodeId());
-            }
+        while (!containerListener.isTrainCompleted()) {
+            Utilities.sleep(heartBeatInterval);
         }
 
-        if (containerListener.isFailed()) {
-            unregister(FinalApplicationStatus.FAILED, containerListener.getFailedMsg());
-            return false;
-        } else {
-            unregister(FinalApplicationStatus.SUCCEEDED, "Task is success.");
-            return true;
+        LOG.info("Worker container completed");
+        containerListener.setFinished();
+
+        boolean finalSuccess = containerListener.isAllWorkerContainersSucceeded();
+
+        if (!finalSuccess && applicationAttemptID.getAttemptId() < appArguments.appMaxAttempts) {
+            throw new RuntimeException("Application Failed, retry starting. Note that container memory will auto scale if user config the setting.");
         }
 
+        unregister(finalSuccess ? FinalApplicationStatus.SUCCEEDED : FinalApplicationStatus.FAILED,
+                finalSuccess ? APP_SUCCESS : containerListener.getFailedMsg());
+
+        return finalSuccess;
     }
 
-    public List<Container> handleRmCallbackOfContainerRequest(int workerNum, AMRMClient.ContainerRequest request) {
+    private List<Container> handleRmCallbackOfContainerRequest(int workerNum, AMRMClient.ContainerRequest request, int allocateInterval) {
         rmCallbackHandler.setNeededWorkerContainersCount(workerNum);
-        rmCallbackHandler.resetAllocatedWorkerContainerNumber();
-        rmCallbackHandler.resetAcquiredWorkerContainers();
-
-        clearAmRmRequests(request);
 
         for (int i = 0; i < workerNum; ++i) {
             amrmAsync.addContainerRequest(request);
@@ -277,6 +297,7 @@ public class ApplicationMaster extends CompositeService {
 
         //对独占的nm，向rm进行updateBlacklist操作
         long startAllocatedTimeStamp = System.currentTimeMillis();
+        int workerReleaseCount = 0;
         while (rmCallbackHandler.getAllocatedWorkerContainerNumber() < workerNum) {
             List<Container> releaseContainers = rmCallbackHandler.getReleaseContainers();
             List<String> blackHosts = rmCallbackHandler.getBlackHosts();
@@ -290,20 +311,23 @@ public class ApplicationMaster extends CompositeService {
             } catch (IllegalAccessException e) {
                 LOG.error("IllegalAccessException : " + e);
             }
-            if (releaseContainers.size() != 0) {
-                for (Container container : releaseContainers) {
-                    LOG.info("Releaseing container: " + container.getId().toString());
-                    amrmAsync.releaseAssignedContainer(container.getId());
-                    amrmAsync.addContainerRequest(request);
+            synchronized (releaseContainers) {
+                if (releaseContainers.size() != 0) {
+                    for (Container container : releaseContainers) {
+                        LOG.info("Releaseing Black-Host container: " + container.getId().toString());
+                        amrmAsync.releaseAssignedContainer(container.getId());
+                        amrmAsync.addContainerRequest(request);
+                        workerReleaseCount++;
+                    }
+                    releaseContainers.clear();
                 }
-                rmCallbackHandler.removeReleaseContainers(releaseContainers);
             }
             if ((System.currentTimeMillis() - startAllocatedTimeStamp) > conf.getInt(YarnConfiguration.RM_CONTAINER_ALLOC_EXPIRY_INTERVAL_MS, YarnConfiguration.DEFAULT_RM_CONTAINER_ALLOC_EXPIRY_INTERVAL_MS)) {
                 String failMessage = "Container waiting except the allocated expiry time. Maybe the Cluster available resources are not satisfied the user need. Please resubmit !";
                 LOG.error(failMessage);
                 throw new RuntimeException("Container waiting except the allocated expiry time.");
             }
-            Utilities.sleep(1000);
+            Utilities.sleep(allocateInterval);
         }
 
         List<Container> acquiredWorkerContainers = rmCallbackHandler.getAcquiredWorkerContainer();
@@ -313,45 +337,27 @@ public class ApplicationMaster extends CompositeService {
             while (acquiredWorkerContainers.size() > workerNum) {
                 Container releaseContainer = acquiredWorkerContainers.remove(0);
                 amrmAsync.releaseAssignedContainer(releaseContainer.getId());
-                LOG.info("Release container " + releaseContainer.getId().toString());
+                LOG.info("Release Needless container " + releaseContainer.getId().toString());
             }
         }
 
         LOG.info("Total " + acquiredWorkerContainers.size() + " worker containers has allocated.");
-        return acquiredWorkerContainers;
-    }
-
-    private void clearAmRmRequests(AMRMClient.ContainerRequest request) {
-        try {
-            Field amrmField = amrmAsync.getClass().getSuperclass().getDeclaredField("client");
-            amrmField.setAccessible(true);
-            Object amrm = amrmField.get(amrmAsync);
-
-            Field remoteRequestsTableField = amrm.getClass().getDeclaredField("remoteRequestsTable");
-            remoteRequestsTableField.setAccessible(true);
-            Map<Priority, Map<String, TreeMap<Resource, Object>>> remoteRequestsTable = (Map) remoteRequestsTableField.get(amrm);
-
-            if (remoteRequestsTable != null) {
-                Map<String, TreeMap<Resource, Object>> remoteRequests = remoteRequestsTable.get(request.getPriority());
-                if (remoteRequests != null) {
-                    TreeMap<Resource, Object> reqMap = remoteRequests.get("*");
-                    if (reqMap != null) {
-                        Object resourceRequestInfo = reqMap.get(request.getCapability());
-                        if (resourceRequestInfo != null) {
-                            Field remoteRequestField = resourceRequestInfo.getClass().getDeclaredField("remoteRequest");
-                            remoteRequestField.setAccessible(true);
-                            ResourceRequest resourceRequest = (ResourceRequest) remoteRequestField.get(resourceRequestInfo);
-                            if (resourceRequest != null) {
-                                LOG.info("clearAMRMRequests reset resourceRequest numContainers:" + resourceRequest.getNumContainers() + " to 0");
-                                resourceRequest.setNumContainers(0);
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            LOG.error(e);
+        for (int i = 0; i < workerNum + workerReleaseCount; i++) {
+            amrmAsync.removeContainerRequest(request);
         }
+
+        // 再次check
+        List<Container> releaseContainersTotal = rmCallbackHandler.getReleaseContainers();
+        synchronized (releaseContainersTotal) {
+            if (releaseContainersTotal.size() != 0) {
+                for (Container container : releaseContainersTotal) {
+                    LOG.info("Check And Release container: " + container.getId().toString());
+                    amrmAsync.releaseAssignedContainer(container.getId());
+                }
+                releaseContainersTotal.clear();
+            }
+        }
+        return acquiredWorkerContainers;
     }
 
     private Map<String, LocalResource> buildContainerLocalResource() {
@@ -443,34 +449,12 @@ public class ApplicationMaster extends CompositeService {
 
     }
 
-
-    private void clearContainerInfo(ContainerId containerId) {
-        Path cIdPath = Utilities.getRemotePath((YarnConfiguration) conf, containerId.getApplicationAttemptId().getApplicationId(), "containers/" + containerId.toString());
-        try {
-            FileSystem dfs = cIdPath.getFileSystem(conf);
-            if (dfs.exists(cIdPath)) {
-                dfs.delete(cIdPath);
-            }
-        } catch (Exception e) {
-            LOG.info(DebugUtil.stackTrace(e));
-        }
-    }
-
     public static void main(String[] args) {
         ApplicationMaster appMaster;
         try {
             appMaster = new ApplicationMaster();
             appMaster.init();
-            boolean tag;
-            try {
-                tag = appMaster.run();
-            } catch (Throwable t) {
-                tag = false;
-                String stackTrace = DebugUtil.stackTrace(t);
-                appMaster.unregister(FinalApplicationStatus.FAILED, stackTrace);
-                LOG.error(stackTrace);
-            }
-
+            boolean tag = appMaster.run();
             if (tag) {
                 LOG.info("Application completed successfully.");
                 System.exit(0);

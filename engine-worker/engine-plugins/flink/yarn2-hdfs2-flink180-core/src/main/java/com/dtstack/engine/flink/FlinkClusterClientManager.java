@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import java.net.MalformedURLException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * company: www.dtstack.com
@@ -42,11 +41,6 @@ public class FlinkClusterClientManager {
     private SessionClientFactory sessionClientFactory;
 
     private PerJobClientFactory perJobClientFactory;
-
-    /**
-     * 客户端是否处于可用状态
-     */
-    private AtomicBoolean isClientOn = new AtomicBoolean(false);
 
     /**
      * 常驻的yarnSessionClient，engine使用flink 1.8后，可以考虑废弃yarnSessionClient。
@@ -88,9 +82,7 @@ public class FlinkClusterClientManager {
                         throw new RdosDefineException(e);
                     }
                 }
-                boolean clientOn = sessionClientFactory.startFlinkYarnSession();
-                this.setIsClientOn(clientOn);
-                clusterClient = sessionClientFactory.getClusterClient();
+                clusterClient = sessionClientFactory.startAndGetSessionClusterClient();
             }
             return null;
         },flinkClientBuilder.getYarnConf());
@@ -105,7 +97,7 @@ public class FlinkClusterClientManager {
 
     public ClusterClient getClusterClient(JobIdentifier jobIdentifier) {
         if (jobIdentifier == null || StringUtils.isBlank(jobIdentifier.getApplicationId())) {
-            if (!isClientOn.get()) {
+            if (sessionClientFactory != null && !sessionClientFactory.getSessionHealthCheckedInfo().isRunning()) {
                 throw new RdosDefineException("No flink session found on yarn cluster. getClusterClient failed...");
             }
             return clusterClient;
@@ -145,14 +137,6 @@ public class FlinkClusterClientManager {
 
     public void addClient(String applicationId, ClusterClient<ApplicationId> clusterClient) {
         perJobClientCache.put(applicationId, clusterClient);
-    }
-
-    public boolean getIsClientOn() {
-        return isClientOn.get();
-    }
-
-    public void setIsClientOn(boolean isClientOn) {
-        this.isClientOn.set(isClientOn);
     }
 
     /**

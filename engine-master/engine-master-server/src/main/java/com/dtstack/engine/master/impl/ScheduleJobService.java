@@ -924,7 +924,7 @@ public class ScheduleJobService {
         ScheduleTaskShade task = batchTaskShadeService.getBatchTaskById(taskId, appType);
 
         PageQuery pageQuery = new PageQuery(1, 20, "business_date", Sort.DESC.name());
-        List<Map<String, String>> jobs = scheduleJobDao.listTaskExeTimeInfo(task.getTaskId(), FINISH_STATUS, pageQuery);
+        List<Map<String, String>> jobs = scheduleJobDao.listTaskExeTimeInfo(task.getTaskId(), FINISH_STATUS, pageQuery,appType);
         List<ScheduleRunDetailVO> details = null;
         if (CollectionUtils.isNotEmpty(jobs)) {
             details = new ArrayList<>(jobs.size());
@@ -2760,5 +2760,9 @@ public class ScheduleJobService {
 
     public Long getListMinId(String nodeAddress,Integer scheduleType, String left, String right) {
         return scheduleJobDao.getListMinId(nodeAddress, scheduleType, left, right, JobPhaseStatus.CREATE.getCode());
+    }
+
+    public String getJobGraphJSON(String jobId) {
+        return scheduleJobDao.getJobGraph(jobId);
     }
 }

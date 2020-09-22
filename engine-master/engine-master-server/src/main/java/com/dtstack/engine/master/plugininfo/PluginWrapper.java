@@ -6,6 +6,7 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.enums.ScheduleEngineType;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
@@ -132,10 +133,21 @@ public class PluginWrapper{
             return;
         }
 
-        if(MultiEngineType.TIDB.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
+        if (MultiEngineType.TIDB.getName().equalsIgnoreCase((String) actionParam.get("engineType"))) {
             //TiDB 没有currentSchema
-            pluginInfoJson.put("jdbcUrl", dbUrl  + paramsJson.getString("currentSchema"));
-            return;
+            String currentSchema = paramsJson.getString("currentSchema");
+            if(StringUtils.isBlank(currentSchema)){
+                throw new RdosDefineException("tidb currentSchema 不允许为空");
+            }
+            if (dbUrl.endsWith(currentSchema)) {
+                pluginInfoJson.put("jdbcUrl", dbUrl);
+                return;
+            } else if (dbUrl.endsWith("/")) {
+                pluginInfoJson.put("jdbcUrl", dbUrl + currentSchema);
+                return;
+            }
+
+            throw new RdosDefineException("tidb jdbcUrl 参数不合法 需要 / 结尾");
         }
 
         if (MultiEngineType.PRESTO.getName().equalsIgnoreCase((String)actionParam.get("engineType"))){
@@ -196,12 +208,12 @@ public class PluginWrapper{
         return org.apache.commons.lang3.StringUtils.join(paramsList, PARAMS_DELIM);
     }
 
-
-    /**
+/*
+    *//**
      * 回写任务执行的插件信息 到cache表
      * @param jobId
      * @param pluginInfo
-     */
+     *//*
     public void savePluginInfoToDB(String jobId, String pluginInfo) {
         if (StringUtils.isEmpty(jobId) || StringUtils.isEmpty(pluginInfo)) {
             return;
@@ -220,7 +232,7 @@ public class PluginWrapper{
         }
         dbPluginInfo.put(PLUGIN_INFO, JSONObject.parseObject(pluginInfo,Map.class));
         engineJobCacheDao.updateJobInfo(dbPluginInfo.toJSONString(), jobId);
-    }
+    }*/
 
     public String getPluginInfo(String taskParams, Integer computeType, String engineType, Long tenantId, Long userId) {
         try {
