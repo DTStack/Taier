@@ -12,6 +12,7 @@ import com.dtstack.engine.flink.enums.FlinkYarnMode;
 import com.dtstack.engine.flink.factory.AbstractClientFactory;
 import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
+import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.util.FileUtil;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
@@ -29,6 +30,7 @@ import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.api.records.impl.pb.ApplicationReportPBImpl;
 import org.apache.hadoop.yarn.api.records.impl.pb.NodeReportPBImpl;
 import org.apache.hadoop.yarn.client.api.YarnClient;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -45,6 +47,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -152,6 +155,38 @@ public class FlinkClientTest {
 
 	}
 */
+
+	/**
+	 * flink client init test
+	 */
+	@Test
+
+	public void testInit() throws Exception{
+
+		Properties prop = new Properties();
+		prop.put("jarTmpDir", "test/tmp");
+		prop.put("clusterMode", "test");
+		String sqlPluginRootDir = temporaryFolder.newFolder("sqlPluginDir").getAbsolutePath();
+		prop.put("remotePluginRootDir", sqlPluginRootDir);
+		prop.put("flinkPluginRoot", sqlPluginRootDir);
+		prop.put("monitorAddress", "monitorAddress");
+		prop.put("hadoopConf", new HashMap<>());
+		prop.put("yarnConf", new HashMap<>());
+		temporaryFolder.newFolder("sqlPluginDir", "sqlplugin");
+
+		FlinkConfig flinkConfig = new FlinkConfig();
+		YarnConfiguration yarnConf = new YarnConfiguration();
+
+		PowerMockito.mockStatic(FlinkClientBuilder.class);
+//		PowerMockito.when(FlinkClientBuilder.create(flinkConfig, pr, yarnConf))
+
+		flinkClient.init(prop);
+
+
+	}
+
+
+
 	@Test
 	public void testBeforeSubmitFunc() throws Exception {
 
