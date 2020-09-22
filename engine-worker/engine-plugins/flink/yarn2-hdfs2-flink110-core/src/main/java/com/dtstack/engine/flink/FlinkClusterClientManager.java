@@ -68,9 +68,9 @@ public class FlinkClusterClientManager {
     }
 
     public void initClusterClient() throws Exception {
-        KerberosUtils.login(flinkConfig, () -> {
+        clusterClient = KerberosUtils.login(flinkConfig, () -> {
             if (flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.STANDALONE.name())) {
-                clusterClient = new StandaloneClientFactory(flinkClientBuilder.getFlinkConfiguration()).getClusterClient();
+                return new StandaloneClientFactory(flinkClientBuilder.getFlinkConfiguration()).getClusterClient();
             } else if (flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.SESSION.name())) {
                 if (null == sessionClientFactory) {
                     try {
@@ -81,10 +81,10 @@ public class FlinkClusterClientManager {
                         throw new RdosDefineException(e);
                     }
                 }
-                clusterClient = sessionClientFactory.startAndGetSessionClusterClient();
+                return sessionClientFactory.startAndGetSessionClusterClient();
             }
             return null;
-        },flinkClientBuilder.getYarnConf());
+        }, flinkClientBuilder.getYarnConf());
     }
 
     /**

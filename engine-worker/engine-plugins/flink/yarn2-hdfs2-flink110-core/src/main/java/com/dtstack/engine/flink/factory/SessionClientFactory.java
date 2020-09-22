@@ -400,6 +400,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         @Override
         public void run() {
+            FlinkConfig flinkConfig = clientBuilder.getFlinkConfig();
             while (run.get()) {
                 try {
                     if (sessionCheckInterval.sessionHealthCheckedInfo.isRunning()) {
