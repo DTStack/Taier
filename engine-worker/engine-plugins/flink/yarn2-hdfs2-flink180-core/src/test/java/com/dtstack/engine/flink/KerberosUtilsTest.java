@@ -32,6 +32,9 @@ import static org.mockito.Mockito.when;
 @PowerMockIgnore("javax.net.ssl.*")
 public class KerberosUtilsTest {
 
+    @Test
+    public void testLogin() throws Exception {}
+
 	/*@Test
 	public void testLogin() throws Exception {
 		File file = PowerMockito.mock(File.class);
