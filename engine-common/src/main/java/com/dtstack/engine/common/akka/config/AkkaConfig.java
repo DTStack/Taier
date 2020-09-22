@@ -191,6 +191,16 @@ public class AkkaConfig {
         return getValueWithDefault(keyName, StringUtils.EMPTY);
     }
 
+    public static String getWorkerMinActive() {
+        String keyName = ConfigConstant.MINIDLE;
+        return getValueWithDefault(keyName, StringUtils.EMPTY);
+    }
+
+    public static String getWorkerMaxActive() {
+        String keyName = ConfigConstant.MAXACTIVE;
+        return getValueWithDefault(keyName, StringUtils.EMPTY);
+    }
+
 
     public static Integer getAkkaAskConcurrent() {
         String keyName = ConfigConstant.AKKA_ASK_CONCURRENT;
