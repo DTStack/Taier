@@ -125,7 +125,7 @@ session:
     yarn.application-attempts: 0
     high-availability: ZOOKEEPER
 
-    checkSubmitJobGraphInterval: 120
+    checkSubmitJobGraphInterval: 0
 
 standalone:
   dependencyKey: deploymode
