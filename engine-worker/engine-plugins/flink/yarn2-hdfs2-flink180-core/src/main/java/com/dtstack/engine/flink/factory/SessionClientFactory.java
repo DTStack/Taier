@@ -477,15 +477,15 @@ public class SessionClientFactory extends AbstractClientFactory {
         private boolean checkJobGraphWithStatus() {
             boolean checkResult = false;
             try {
-                JobExecutionResult executionResult = submitCheckedJobGraph();
-                if (null != executionResult) {
+                JobSubmissionResult submissionResult = submitCheckedJobGraph();
+                if (null != submissionResult) {
                     final long startTime = System.currentTimeMillis();
                     RdosTaskStatus lastAppState = RdosTaskStatus.SUBMITTING;
                     loop:
                     while (true) {
                         RdosTaskStatus jobStatus = RdosTaskStatus.SUBMITTING;
                         try {
-                            String reqUrl = sessionClientFactory.getClusterClient().getWebInterfaceURL() + "/jobs/" + executionResult.getJobID().toString();
+                            String reqUrl = sessionClientFactory.getClusterClient().getWebInterfaceURL() + "/jobs/" + submissionResult.getJobID().toString();
                             String response = PoolHttpClient.get(reqUrl);
                             if (response != null) {
                                 JSONObject statusJson = JSON.parseObject(response);
@@ -500,7 +500,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                             break;
                         }
 
-                        LOG.debug("JobID: {} status: {}", executionResult.getJobID(), jobStatus);
+                        LOG.debug("JobID: {} status: {}", submissionResult.getJobID(), jobStatus);
                         switch (jobStatus) {
                             case FAILED:
                                 LOG.info("YARN Session Job is failed.");
@@ -578,14 +578,14 @@ public class SessionClientFactory extends AbstractClientFactory {
             this.run = new AtomicBoolean(run);
         }
 
-        private JobExecutionResult submitCheckedJobGraph() throws ProgramMissingJobException, ProgramInvocationException {
+        private JobSubmissionResult submitCheckedJobGraph() throws ProgramMissingJobException, ProgramInvocationException {
             JobSubmissionResult result = sessionClientFactory.getClusterClient().submitJob(createJobGraph(), Thread.currentThread().getContextClassLoader());
             if (null == result) {
                 throw new ProgramMissingJobException("No JobSubmissionResult returned, please make sure you called " +
                         "ExecutionEnvironment.execute()");
             }
             LOG.info("Checked Program submitJob finished, Job with JobID:{} .", result.getJobID());
-            return result.getJobExecutionResult();
+            return result;
         }
 
         private JobGraph createJobGraph() {
