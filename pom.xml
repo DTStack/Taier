@@ -62,7 +62,10 @@
                 <version>2.19</version>
                 <configuration>
                     <!--once就表示单线程挨个执行Junit test-->
-                    <forkMode>once</forkMode>
+<!--                    <forkMode>once</forkMode>-->
+                    <forkCount>1</forkCount>
+                    <reuseForks>true</reuseForks>
+                    <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
                     <excludes>
                         <exclude>com/dtstack/engine/master/temp/*.java</exclude>
                         <exclude>**/Abstract*.java</exclude>
