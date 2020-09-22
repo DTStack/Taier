@@ -2,6 +2,7 @@ package com.dtstack.engine.rdbs.common.executor;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.logstore.LogStoreFactory;
 import com.dtstack.engine.common.util.DateUtil;
@@ -18,13 +19,8 @@ import java.sql.Statement;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,6 +55,8 @@ public class RdbsExeQueue {
 
     private ExecutorService jobExecutor;
 
+    private ExecutorService tidbDDLJobExecutor;
+
     private ExecutorService monitorExecutor;
 
     /**
@@ -77,6 +75,8 @@ public class RdbsExeQueue {
 
     private StatusUpdateDealer statusUpdateDealer;
 
+    private static final Pattern SINGLE_SQL = Pattern.compile("(?i)^\\s*(truncate|create|drop)\\s+.*");
+
     public RdbsExeQueue(AbstractConnFactory connFactory, Integer maxPoolSize, Integer minPoolSize) {
         this.connFactory = connFactory;
         if (maxPoolSize != null) {
@@ -91,6 +91,9 @@ public class RdbsExeQueue {
         queue = new ArrayBlockingQueue<>(1);
         jobExecutor = new ThreadPoolExecutor(minSize, maxSize, 0, TimeUnit.MILLISECONDS, queue,
                 new CustomThreadFactory("rdb-job-exe"));
+
+        tidbDDLJobExecutor = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(100),
+                new CustomThreadFactory("tidb-ddl-rdb-job-exe"));
 
         monitorExecutor = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(1), new CustomThreadFactory("monitor-exe"));
@@ -432,7 +435,23 @@ public class RdbsExeQueue {
 
                     RdbsExe rdbsExe = new RdbsExe(taskName, sql, jobId, jobClient.getTaskParams());
                     try {
-                        jobExecutor.submit(rdbsExe);
+                        boolean tidbDDLCheck = false;
+                        if (EngineType.TiDB.name().equalsIgnoreCase(jobClient.getEngineType())) {
+                            try {
+                                //TiDB 有些SQL 并发操作会有  Table '(Schema ID 1673).(Table ID 5949)' doesn't exist
+                                Matcher matcher = SINGLE_SQL.matcher(jobClient.getSql());
+                                if (matcher.find()) {
+                                    tidbDDLCheck = true;
+                                }
+                            } catch (Exception e) {
+                                LOG.error("", e);
+                            }
+                        }
+                        if (tidbDDLCheck) {
+                            tidbDDLJobExecutor.submit(rdbsExe);
+                        } else {
+                            jobExecutor.submit(rdbsExe);
+                        }
                         threadCache.put(jobId, rdbsExe);
                     } catch (RejectedExecutionException e) {
                         //等待继续执行---说明当时执行队列处于满状态-->先等2s

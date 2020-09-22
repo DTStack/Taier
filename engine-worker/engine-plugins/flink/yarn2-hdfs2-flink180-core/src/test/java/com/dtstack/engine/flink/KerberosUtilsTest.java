@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 @PowerMockIgnore("javax.net.ssl.*")
 public class KerberosUtilsTest {
 
-	@Test
+	/*@Test
 	public void testLogin() throws Exception {
 		File file = PowerMockito.mock(File.class);
 		PowerMockito.whenNew(File.class).withArguments(anyString()).thenReturn(file);
@@ -67,6 +67,6 @@ public class KerberosUtilsTest {
 		KerberosUtils.login(flinkConfig, () -> {
 			return null;
 		}, new Configuration());
-	}
+	}*/
 
 }
