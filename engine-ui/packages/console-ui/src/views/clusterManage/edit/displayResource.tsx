@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Form, Select, Icon } from 'antd';
 import utils from 'dt-common/src/utils';
 import {
-    COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEYS, COMPONEMT_CONFIG_KEY_ENUM
+    COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEY_ENUM
 } from '../../../consts';
 import dealData from './dealData';
 
@@ -268,17 +268,17 @@ class DisplayResource extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.HIVE_SERVER:
                 return (
                     <React.Fragment>
-                        {this.renderCompsVersion(COMPONEMT_CONFIG_KEYS.HIVE_SERVER)}
-                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.HIVE_SERVER)}
-                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.HIVE_SERVER)}
+                        {this.renderCompsVersion(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderParamsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                     </React.Fragment>
                 )
             case COMPONENT_TYPE_VALUE.LEARNING:
             case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
                 return (
                     <React.Fragment>
-                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEYS.IMPALA_SQL)}
-                        {this.renderParamsFile(COMPONEMT_CONFIG_KEYS.IMPALA_SQL)}
+                        {this.renderKerberosFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderParamsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                     </React.Fragment>
                 )
             }
