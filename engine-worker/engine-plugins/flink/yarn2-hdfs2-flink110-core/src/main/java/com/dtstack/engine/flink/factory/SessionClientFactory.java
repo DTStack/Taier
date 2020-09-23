@@ -99,7 +99,6 @@ public class SessionClientFactory extends AbstractClientFactory {
     private String sessionAppNameSuffix;
 
     private AtomicBoolean startMonitor = new AtomicBoolean(false);
-    private volatile boolean isCurrentStartSession = false;
     private FlinkClusterClientManager flinkClusterClientManager;
     private ExecutorService yarnMonitorES;
     private FlinkClientBuilder flinkClientBuilder;
@@ -178,7 +177,6 @@ public class SessionClientFactory extends AbstractClientFactory {
                     try {
                         YarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
                         clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification).getClusterClient();
-                        isCurrentStartSession = true;
                         return true;
                     } catch (FlinkException e) {
                         LOG.info("Couldn't deploy Yarn session cluster, ", e);
@@ -423,7 +421,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     if (lastAppState != appState) {
                                         LOG.info("YARN application has been deployed successfully.");
                                     }
-                                    if (sessionClientFactory.isCurrentStartSession && sessionCheckInterval.doCheck()) {
+                                    if (sessionCheckInterval.doCheck()) {
                                         int checked = 0;
                                         boolean checkRs = checkJobGraphWithStatus();
                                         while (!checkRs) {
@@ -572,7 +570,6 @@ public class SessionClientFactory extends AbstractClientFactory {
             } catch (Exception ex) {
                 LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
             }
-            sessionClientFactory.isCurrentStartSession = false;
         }
 
         public void setRun(boolean run) {
