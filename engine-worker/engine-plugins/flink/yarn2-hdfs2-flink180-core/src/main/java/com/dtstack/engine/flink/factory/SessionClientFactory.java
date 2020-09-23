@@ -98,7 +98,6 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     private boolean isDetached = true;
     private AtomicBoolean startMonitor = new AtomicBoolean(false);
-    private volatile boolean isCurrentStartSession = false;
     private FlinkClusterClientManager flinkClusterClientManager;
     private ExecutorService yarnMonitorES;
     private SessionHealthCheckedInfo sessionHealthCheckedInfo = new SessionHealthCheckedInfo();
@@ -177,7 +176,6 @@ public class SessionClientFactory extends AbstractClientFactory {
                         yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + sessionAppNameSuffix);
                         clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
                         clusterClient.setDetached(true);
-                        isCurrentStartSession = true;
                         return true;
                     } catch (FlinkException e) {
                         LOG.info("Couldn't deploy Yarn session cluster, ", e);
@@ -422,7 +420,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     if (lastAppState != appState) {
                                         LOG.info("YARN application has been deployed successfully.");
                                     }
-                                    if (sessionClientFactory.isCurrentStartSession && sessionCheckInterval.doCheck()) {
+                                    if (sessionCheckInterval.doCheck()) {
                                         int checked = 0;
                                         boolean checkRs = checkJobGraphWithStatus();
                                         while (!checkRs) {
@@ -571,7 +569,6 @@ public class SessionClientFactory extends AbstractClientFactory {
             } catch (Exception ex) {
                 LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
             }
-            sessionClientFactory.isCurrentStartSession = false;
         }
 
         public void setRun(boolean run) {
