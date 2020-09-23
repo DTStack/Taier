@@ -47,6 +47,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.joda.time.DateTime;
@@ -537,6 +538,14 @@ public class ScheduleJobService {
         Collections.sort(scheduleJobs, new Comparator<ScheduleJob>() {
 
             public int compare(ScheduleJob o1, ScheduleJob o2) {
+                if (!NumberUtils.isNumber(o1.getCycTime())) {
+                    return 1;
+                }
+
+                if (!NumberUtils.isNumber(o2.getCycTime())) {
+                    return -1;
+                }
+
                 if (Long.parseLong(o1.getCycTime()) < Long.parseLong(o2.getCycTime())) {
                     return 1;
                 }

@@ -20,6 +20,7 @@ package com.dtstack.engine.flink.factory;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -31,9 +32,9 @@ import com.dtstack.engine.flink.NoOpInvokable;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.entity.SessionCheckInterval;
 import com.dtstack.engine.flink.entity.SessionHealthCheckedInfo;
-import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.util.FileUtil;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobSubmissionResult;
@@ -49,6 +50,7 @@ import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.JobVertex;
 import org.apache.flink.runtime.jobgraph.ScheduleMode;
 import org.apache.flink.runtime.jobmanager.scheduler.SlotSharingGroup;
+import org.apache.flink.configuration.SecurityOptions;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.locks.InterProcessMutex;
@@ -67,18 +69,12 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -91,7 +87,6 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(SessionClientFactory.class);
 
-    private AbstractYarnClusterDescriptor yarnSessionDescriptor;
     private ClusterSpecification yarnSessionSpecification;
     private ClusterClient<ApplicationId> clusterClient;
     private FlinkConfig flinkConfig;
@@ -102,6 +97,7 @@ public class SessionClientFactory extends AbstractClientFactory {
     private String sessionAppNameSuffix;
 
     private boolean isDetached = true;
+    private AtomicBoolean startMonitor = new AtomicBoolean(false);
     private FlinkClusterClientManager flinkClusterClientManager;
     private ExecutorService yarnMonitorES;
     private SessionHealthCheckedInfo sessionHealthCheckedInfo = new SessionHealthCheckedInfo();
@@ -114,8 +110,6 @@ public class SessionClientFactory extends AbstractClientFactory {
         this.flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
 
         this.sessionAppNameSuffix = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
-        this.yarnSessionDescriptor = createYarnSessionClusterDescriptor();
-        this.yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + sessionAppNameSuffix);
         this.yarnSessionSpecification = FlinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
 
         initZkClient();
@@ -154,7 +148,9 @@ public class SessionClientFactory extends AbstractClientFactory {
         } else {
             this.sessionHealthCheckedInfo.unHealth();
         }
-        this.startYarnSessionClientMonitor();
+        if (startMonitor.compareAndSet(false, true)) {
+            this.startYarnSessionClientMonitor();
+        }
         return clusterClient;
     }
 
@@ -176,6 +172,8 @@ public class SessionClientFactory extends AbstractClientFactory {
 
                 if (flinkConfig.getSessionStartAuto()) {
                     try {
+                        AbstractYarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
+                        yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + sessionAppNameSuffix);
                         clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
                         clusterClient.setDetached(true);
                         return true;
@@ -310,6 +308,11 @@ public class SessionClientFactory extends AbstractClientFactory {
             newConf.removeConfig(HighAvailabilityOptions.HA_CLUSTER_ID);
         }
 
+        List<File> keytabFiles = null;
+        if (flinkConfig.isOpenKerberos()) {
+            keytabFiles = getKeytabFilesAndSetSecurityConfig(newConf);
+        }
+
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".");
 
         if (StringUtils.isNotBlank(pluginLoadMode) && ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(pluginLoadMode)) {
@@ -318,7 +321,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
             String flinkPluginRoot = flinkConfig.getFlinkPluginRoot();
             if (StringUtils.isNotBlank(flinkPluginRoot)) {
-                String syncPluginDir = flinkPluginRoot + SyncPluginInfo.FILE_SP + SyncPluginInfo.SYNC_PLUGIN_DIR_NAME;
+                String syncPluginDir = flinkPluginRoot + ConfigConstrant.SP + ConfigConstrant.SYNCPLUGIN_DIR;
                 File syncFile = new File(syncPluginDir);
                 if (!syncFile.exists()) {
                     throw new RdosDefineException("syncPlugin path is null");
@@ -329,13 +332,42 @@ public class SessionClientFactory extends AbstractClientFactory {
                 clusterDescriptor.addShipFiles(pluginPaths);
             }
         }
-
+        if(CollectionUtils.isNotEmpty(keytabFiles)){
+            clusterDescriptor.addShipFiles(keytabFiles);
+        }
         List<URL> classpaths = getFlinkJarFile(flinkJarPath, clusterDescriptor);
         clusterDescriptor.setProvidedUserJarFiles(classpaths);
         clusterDescriptor.setQueue(flinkConfig.getQueue());
         return clusterDescriptor;
     }
 
+    private List<File> getKeytabFilesAndSetSecurityConfig(Configuration config) {
+        Map<String, File> keytabs = new HashMap<>();
+        String remoteDir = flinkConfig.getRemoteDir();
+
+        // 任务提交keytab
+        String clusterKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
+        File clusterKeytabDir = new File(clusterKeytabDirPath);
+        File[] clusterKeytabFiles = clusterKeytabDir.listFiles();
+
+        if (clusterKeytabFiles == null || clusterKeytabFiles.length == 0) {
+            throw new RdosDefineException("not find keytab file from " + clusterKeytabDirPath);
+        }
+        for (File file : clusterKeytabFiles) {
+            String fileName = file.getName();
+            String keytabPath = file.getAbsolutePath();
+            String keytabFileName = flinkConfig.getPrincipalFile();
+
+            if (StringUtils.equals(fileName, keytabFileName)) {
+                String principal = KerberosUtils.getPrincipal(keytabPath);
+                config.setString(SecurityOptions.KERBEROS_LOGIN_KEYTAB, keytabPath);
+                config.setString(SecurityOptions.KERBEROS_LOGIN_PRINCIPAL, principal);
+            }
+            keytabs.put(file.getName(), file);
+        }
+
+        return keytabs.entrySet().stream().map(entry -> entry.getValue()).collect(Collectors.toList());
+    }
 
     static class AppStatusMonitor implements Runnable {
 
@@ -390,14 +422,24 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     }
                                     if (sessionCheckInterval.doCheck()) {
                                         int checked = 0;
-                                        while (!checkJobGraphWithStatus()) {
+                                        boolean checkRs = checkJobGraphWithStatus();
+                                        while (!checkRs) {
                                             if (checked++ > 3) {
                                                 sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                                                 break;
+                                            } else {
+                                                try {
+                                                    Thread.sleep(3 * CHECK_INTERVAL);
+                                                } catch (Exception e) {
+                                                    LOG.error("", e);
+                                                }
                                             }
+                                            checkRs = checkJobGraphWithStatus();
                                         }
-                                        //健康，则重置
-                                        sessionCheckInterval.sessionHealthCheckedInfo.reset();
+                                        if (checkRs) {
+                                            //健康，则重置
+                                            sessionCheckInterval.sessionHealthCheckedInfo.reset();
+                                        }
                                     }
                                     break;
                                 default:
@@ -433,15 +475,15 @@ public class SessionClientFactory extends AbstractClientFactory {
         private boolean checkJobGraphWithStatus() {
             boolean checkResult = false;
             try {
-                JobExecutionResult executionResult = submitCheckedJobGraph();
-                if (null != executionResult) {
+                JobSubmissionResult submissionResult = submitCheckedJobGraph();
+                if (null != submissionResult) {
                     final long startTime = System.currentTimeMillis();
                     RdosTaskStatus lastAppState = RdosTaskStatus.SUBMITTING;
                     loop:
                     while (true) {
                         RdosTaskStatus jobStatus = RdosTaskStatus.SUBMITTING;
                         try {
-                            String reqUrl = sessionClientFactory.getClusterClient().getWebInterfaceURL() + "/jobs/" + executionResult.getJobID().toString();
+                            String reqUrl = sessionClientFactory.getClusterClient().getWebInterfaceURL() + "/jobs/" + submissionResult.getJobID().toString();
                             String response = PoolHttpClient.get(reqUrl);
                             if (response != null) {
                                 JSONObject statusJson = JSON.parseObject(response);
@@ -456,7 +498,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                             break;
                         }
 
-                        LOG.debug("JobID: {} status: {}", executionResult.getJobID(), jobStatus);
+                        LOG.debug("JobID: {} status: {}", submissionResult.getJobID(), jobStatus);
                         switch (jobStatus) {
                             case FAILED:
                                 LOG.info("YARN Session Job is failed.");
@@ -533,19 +575,14 @@ public class SessionClientFactory extends AbstractClientFactory {
             this.run = new AtomicBoolean(run);
         }
 
-        private JobExecutionResult submitCheckedJobGraph() throws ProgramMissingJobException, ProgramInvocationException {
+        private JobSubmissionResult submitCheckedJobGraph() throws ProgramMissingJobException, ProgramInvocationException {
             JobSubmissionResult result = sessionClientFactory.getClusterClient().submitJob(createJobGraph(), Thread.currentThread().getContextClassLoader());
             if (null == result) {
                 throw new ProgramMissingJobException("No JobSubmissionResult returned, please make sure you called " +
                         "ExecutionEnvironment.execute()");
             }
-            if (result.isJobExecutionResult()) {
-                LOG.info("Checked Program submitJob finished, Job with JobID:{} .", result.getJobID());
-                return result.getJobExecutionResult();
-            } else {
-                LOG.info("Checked Program execution failed, retry to init ClusterClient.");
-                return null;
-            }
+            LOG.info("Checked Program submitJob finished, Job with JobID:{} .", result.getJobID());
+            return result;
         }
 
         private JobGraph createJobGraph() {
