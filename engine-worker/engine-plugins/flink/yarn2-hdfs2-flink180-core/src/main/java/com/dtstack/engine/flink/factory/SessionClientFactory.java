@@ -34,9 +34,9 @@ import com.dtstack.engine.flink.entity.SessionCheckInterval;
 import com.dtstack.engine.flink.entity.SessionHealthCheckedInfo;
 import com.dtstack.engine.flink.util.FileUtil;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobSubmissionResult;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
@@ -44,11 +44,14 @@ import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.client.program.ProgramMissingJobException;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
+import org.apache.flink.runtime.checkpoint.CheckpointRetentionPolicy;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionType;
 import org.apache.flink.runtime.jobgraph.DistributionPattern;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.JobVertex;
 import org.apache.flink.runtime.jobgraph.ScheduleMode;
+import org.apache.flink.runtime.jobgraph.tasks.CheckpointCoordinatorConfiguration;
+import org.apache.flink.runtime.jobgraph.tasks.JobCheckpointingSettings;
 import org.apache.flink.runtime.jobmanager.scheduler.SlotSharingGroup;
 import org.apache.flink.configuration.SecurityOptions;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
@@ -495,6 +498,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                         }
                         if (null == jobStatus) {
                             checkResult = false;
+                            jobStatus = RdosTaskStatus.FAILED;
                             break;
                         }
 
@@ -513,7 +517,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     LOG.info("Yarn Session Job, current state " + jobStatus);
                                 }
                                 long cost = System.currentTimeMillis() - startTime;
-                                if (cost > 60000) {
+                                if (cost > 60000 && cost < 300000) {
                                     LOG.info("Yarn Session Job took more than 60 seconds.");
                                 } else if (cost > 300000){
                                     LOG.info("Yarn Session Job took more than 600 seconds.");
@@ -600,6 +604,21 @@ public class SessionClientFactory extends AbstractClientFactory {
             JobGraph jobGraph = new JobGraph("dtIdleDetection", source, sink);
 
             jobGraph.setScheduleMode(ScheduleMode.EAGER);
+
+            JobCheckpointingSettings settings = new JobCheckpointingSettings(
+                    Lists.newArrayList(source.getID()),
+                    Lists.newArrayList(source.getID(), sink.getID()),
+                    Lists.newArrayList(source.getID(), sink.getID()),
+                    new CheckpointCoordinatorConfiguration(
+                            1000L,
+                            60000L,
+                            10L,
+                            1,
+                            CheckpointRetentionPolicy.NEVER_RETAIN_AFTER_TERMINATION,
+                            true),
+                    null,
+                    null);
+            jobGraph.setSnapshotSettings(settings);
             return jobGraph;
         }
 
