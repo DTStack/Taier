@@ -46,8 +46,15 @@ import org.apache.flink.configuration.CheckpointingOptions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.configuration.SecurityOptions;
+import org.apache.flink.runtime.checkpoint.CheckpointRetentionPolicy;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionType;
 import org.apache.flink.runtime.jobgraph.*;
+import org.apache.flink.runtime.jobgraph.DistributionPattern;
+import org.apache.flink.runtime.jobgraph.JobGraph;
+import org.apache.flink.runtime.jobgraph.JobVertex;
+import org.apache.flink.runtime.jobgraph.ScheduleMode;
+import org.apache.flink.runtime.jobgraph.tasks.CheckpointCoordinatorConfiguration;
+import org.apache.flink.runtime.jobgraph.tasks.JobCheckpointingSettings;
 import org.apache.flink.runtime.jobmanager.scheduler.SlotSharingGroup;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
@@ -96,7 +103,6 @@ public class SessionClientFactory extends AbstractClientFactory {
     private String sessionAppNameSuffix;
 
     private AtomicBoolean startMonitor = new AtomicBoolean(false);
-    private volatile boolean isCurrentStartSession = false;
     private FlinkClusterClientManager flinkClusterClientManager;
     private ExecutorService yarnMonitorES;
     private FlinkClientBuilder flinkClientBuilder;
@@ -175,7 +181,6 @@ public class SessionClientFactory extends AbstractClientFactory {
                     try {
                         YarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
                         clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification).getClusterClient();
-                        isCurrentStartSession = true;
                         return true;
                     } catch (FlinkException e) {
                         LOG.info("Couldn't deploy Yarn session cluster, ", e);
@@ -420,7 +425,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     if (lastAppState != appState) {
                                         LOG.info("YARN application has been deployed successfully.");
                                     }
-                                    if (sessionClientFactory.isCurrentStartSession && sessionCheckInterval.doCheck()) {
+                                    if (sessionCheckInterval.doCheck()) {
                                         int checked = 0;
                                         boolean checkRs = checkJobGraphWithStatus();
                                         while (!checkRs) {
@@ -492,6 +497,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                             }
                         } catch (Exception e) {
                             LOG.error("", e);
+                            jobStatus = RdosTaskStatus.FAILED;
                         }
                         if (null == jobStatus) {
                             checkResult = false;
@@ -513,7 +519,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     LOG.info("Yarn Session Job, current state " + jobStatus);
                                 }
                                 long cost = System.currentTimeMillis() - startTime;
-                                if (cost > 60000) {
+                                if (cost > 60000 && cost < 300000) {
                                     LOG.info("Yarn Session Job took more than 60 seconds.");
                                 } else if (cost > 300000){
                                     LOG.info("Yarn Session Job took more than 300 seconds.");
@@ -569,7 +575,6 @@ public class SessionClientFactory extends AbstractClientFactory {
             } catch (Exception ex) {
                 LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
             }
-            sessionClientFactory.isCurrentStartSession = false;
         }
 
         public void setRun(boolean run) {
@@ -595,26 +600,6 @@ public class SessionClientFactory extends AbstractClientFactory {
             LOG.info("Checked Program submitJob finished, Job with JobID:{} .", result.getJobID());
             return result.getJobExecutionResult();
         }
-
-
-        private JobGraph createJobGraph() {
-            SlotSharingGroup slotSharingGroup = new SlotSharingGroup();
-
-            final JobVertex source = new JobVertex("source");
-            source.setInvokableClass(NoOpInvokable.class);
-            source.setSlotSharingGroup(slotSharingGroup);
-
-            final JobVertex sink = new JobVertex("sink");
-            sink.setInvokableClass(NoOpInvokable.class);
-            sink.setSlotSharingGroup(slotSharingGroup);
-
-            sink.connectNewDataSetAsInput(source, DistributionPattern.POINTWISE, ResultPartitionType.PIPELINED);
-            JobGraph jobGraph = new JobGraph("dtIdleDetection", source, sink);
-
-            jobGraph.setScheduleMode(ScheduleMode.EAGER);
-            return jobGraph;
-        }
-
     }
 
 }

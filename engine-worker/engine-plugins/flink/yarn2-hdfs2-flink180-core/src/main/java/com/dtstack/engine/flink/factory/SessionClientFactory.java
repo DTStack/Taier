@@ -38,23 +38,28 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobSubmissionResult;
-import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
-import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.client.program.ProgramMissingJobException;
 import org.apache.flink.configuration.CheckpointingOptions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.runtime.jobgraph.*;
+import org.apache.flink.runtime.checkpoint.CheckpointRetentionPolicy;
+import org.apache.flink.runtime.io.network.partition.ResultPartitionType;
+import org.apache.flink.runtime.jobgraph.DistributionPattern;
+import org.apache.flink.runtime.jobgraph.JobGraph;
+import org.apache.flink.runtime.jobgraph.JobVertex;
+import org.apache.flink.runtime.jobgraph.ScheduleMode;
+import org.apache.flink.runtime.jobgraph.tasks.CheckpointCoordinatorConfiguration;
+import org.apache.flink.runtime.jobgraph.tasks.JobCheckpointingSettings;
+import org.apache.flink.runtime.jobmanager.scheduler.SlotSharingGroup;
 import org.apache.flink.configuration.SecurityOptions;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.flink.shaded.curator.org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.FlinkException;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.hadoop.service.Service;
@@ -98,7 +103,6 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     private boolean isDetached = true;
     private AtomicBoolean startMonitor = new AtomicBoolean(false);
-    private volatile boolean isCurrentStartSession = false;
     private FlinkClusterClientManager flinkClusterClientManager;
     private ExecutorService yarnMonitorES;
     private SessionHealthCheckedInfo sessionHealthCheckedInfo = new SessionHealthCheckedInfo();
@@ -177,7 +181,6 @@ public class SessionClientFactory extends AbstractClientFactory {
                         yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + sessionAppNameSuffix);
                         clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
                         clusterClient.setDetached(true);
-                        isCurrentStartSession = true;
                         return true;
                     } catch (FlinkException e) {
                         LOG.info("Couldn't deploy Yarn session cluster, ", e);
@@ -422,7 +425,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     if (lastAppState != appState) {
                                         LOG.info("YARN application has been deployed successfully.");
                                     }
-                                    if (sessionClientFactory.isCurrentStartSession && sessionCheckInterval.doCheck()) {
+                                    if (sessionCheckInterval.doCheck()) {
                                         int checked = 0;
                                         boolean checkRs = checkJobGraphWithStatus();
                                         while (!checkRs) {
@@ -497,6 +500,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                         }
                         if (null == jobStatus) {
                             checkResult = false;
+                            jobStatus = RdosTaskStatus.FAILED;
                             break;
                         }
 
@@ -515,7 +519,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     LOG.info("Yarn Session Job, current state " + jobStatus);
                                 }
                                 long cost = System.currentTimeMillis() - startTime;
-                                if (cost > 60000) {
+                                if (cost > 60000 && cost < 300000) {
                                     LOG.info("Yarn Session Job took more than 60 seconds.");
                                 } else if (cost > 300000){
                                     LOG.info("Yarn Session Job took more than 600 seconds.");
@@ -571,7 +575,6 @@ public class SessionClientFactory extends AbstractClientFactory {
             } catch (Exception ex) {
                 LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
             }
-            sessionClientFactory.isCurrentStartSession = false;
         }
 
         public void setRun(boolean run) {
@@ -596,7 +599,6 @@ public class SessionClientFactory extends AbstractClientFactory {
             LOG.info("Checked Program submitJob finished, Job with JobID:{} .", result.getJobID());
             return result;
         }
-
     }
 
 }
