@@ -70,8 +70,8 @@ public class AccountController {
     @RequestMapping(value="/pageQuery", method = {RequestMethod.POST})
     @ApiOperation(value = "分页查询")
     public PageResult<List<AccountVo>> pageQuery(@DtRequestParam("dtuicTenantId") Long dtuicTenantId, @DtRequestParam("username") String username, @DtRequestParam("currentPage") Integer currentPage,
-                                                 @DtRequestParam("pageSize") Integer pageSize, @DtRequestParam("engineType") Integer engineType) {
-        return accountService.pageQuery(dtuicTenantId, username, currentPage, pageSize, engineType);
+                                                 @DtRequestParam("pageSize") Integer pageSize, @DtRequestParam("engineType") Integer engineType,@DtRequestParam("dtuicUserId") Long dtuicUserId) {
+        return accountService.pageQuery(dtuicTenantId, username, currentPage, pageSize, engineType,dtuicUserId);
     }
 
     @RequestMapping(value="/getTenantUnBandList", method = {RequestMethod.POST})
@@ -79,5 +79,7 @@ public class AccountController {
     public List<Map<String, Object>> getTenantUnBandList(@DtRequestParam("dtuicTenantId") Long dtuicTenantId, @DtRequestParam("dtToken") String dtToken, HttpServletRequest request, @DtRequestParam("engineType")Integer engineType) {
         return accountService.getTenantUnBandList(dtuicTenantId, dtToken, CookieUtil.getUserId(request.getCookies()), engineType);
     }
+
+
 
 }

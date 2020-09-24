@@ -340,7 +340,7 @@ public class AccountService {
      * @return
      */
     public PageResult<List<AccountVo>> pageQuery( Long dtuicTenantId,  String username,  Integer currentPage,
-                                                  Integer pageSize,  Integer engineType) {
+                                                  Integer pageSize,  Integer engineType,Long dtuicUserId) {
         if (Objects.isNull(dtuicTenantId)) {
             throw new RdosDefineException("绑定参数不能为空");
         }
@@ -348,6 +348,7 @@ public class AccountService {
         AccountDTO accountDTO = new AccountDTO();
         accountDTO.setTenantId(tenantId);
         accountDTO.setName(username);
+        accountDTO.setDtuicUserId(dtuicUserId);
         accountDTO.setType(getAccountTypeByMultiEngineType(engineType));
         PageQuery<AccountDTO> pageQuery = new PageQuery<>(currentPage, pageSize, "gmt_modified", Sort.DESC.name());
         pageQuery.setModel(accountDTO);
