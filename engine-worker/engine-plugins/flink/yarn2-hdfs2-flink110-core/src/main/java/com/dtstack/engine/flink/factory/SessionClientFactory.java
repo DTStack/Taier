@@ -34,23 +34,20 @@ import com.dtstack.engine.flink.entity.SessionCheckInterval;
 import com.dtstack.engine.flink.entity.SessionHealthCheckedInfo;
 import com.dtstack.engine.flink.util.FileUtil;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
+import com.dtstack.engine.flink.util.FlinkUtil;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.client.ClientUtils;
 import org.apache.flink.client.deployment.ClusterSpecification;
-import org.apache.flink.client.program.ClusterClient;
-import org.apache.flink.client.program.ClusterClientProvider;
-import org.apache.flink.client.program.ProgramInvocationException;
-import org.apache.flink.client.program.ProgramMissingJobException;
+import org.apache.flink.client.program.*;
+import org.apache.flink.configuration.CheckpointingOptions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.configuration.SecurityOptions;
 import org.apache.flink.runtime.io.network.partition.ResultPartitionType;
-import org.apache.flink.runtime.jobgraph.DistributionPattern;
-import org.apache.flink.runtime.jobgraph.JobGraph;
-import org.apache.flink.runtime.jobgraph.JobVertex;
-import org.apache.flink.runtime.jobgraph.ScheduleMode;
+import org.apache.flink.runtime.jobgraph.*;
 import org.apache.flink.runtime.jobmanager.scheduler.SlotSharingGroup;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
@@ -579,8 +576,18 @@ public class SessionClientFactory extends AbstractClientFactory {
             this.run = new AtomicBoolean(run);
         }
 
-        private JobExecutionResult submitCheckedJobGraph() throws ProgramMissingJobException, ProgramInvocationException, TimeoutException {
-            JobExecutionResult result = ClientUtils.submitJob(sessionClientFactory.getClusterClient(), createJobGraph(), 1, TimeUnit.MINUTES);
+        private JobExecutionResult submitCheckedJobGraph() throws Exception, TimeoutException {
+            List<URL> classPaths = Lists.newArrayList();
+            String jarPath = String.format("%s/opt/%s", ConfigConstrant.USER_DIR, ConfigConstrant.SESSION_CHECK_JAR_NAME);
+            String mainClass = ConfigConstrant.SESSION_CHECK_MAIN_CLASS;
+            String checkpoint = sessionClientFactory.flinkConfiguration.getString(CheckpointingOptions.CHECKPOINTS_DIRECTORY);
+            String[] programArgs = {checkpoint};
+
+            PackagedProgram packagedProgram = FlinkUtil.buildProgram(jarPath, "./tmp", classPaths,
+                    null, mainClass, programArgs, SavepointRestoreSettings.none(),
+                    null, sessionClientFactory.flinkConfiguration);
+            JobGraph jobGraph = PackagedProgramUtils.createJobGraph(packagedProgram, sessionClientFactory.flinkConfiguration, 1, false);
+            JobExecutionResult result = ClientUtils.submitJob(sessionClientFactory.getClusterClient(), jobGraph, 1, TimeUnit.MINUTES);
             if (null == result) {
                 throw new ProgramMissingJobException("No JobSubmissionResult returned, please make sure you called " +
                         "ExecutionEnvironment.execute()");
