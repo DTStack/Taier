@@ -97,6 +97,7 @@ public class SessionClientFactory extends AbstractClientFactory {
     private String sessionAppNameSuffix;
 
     private boolean isDetached = true;
+    private AtomicBoolean startMonitor = new AtomicBoolean(false);
     private FlinkClusterClientManager flinkClusterClientManager;
     private ExecutorService yarnMonitorES;
     private SessionHealthCheckedInfo sessionHealthCheckedInfo = new SessionHealthCheckedInfo();
@@ -147,7 +148,9 @@ public class SessionClientFactory extends AbstractClientFactory {
         } else {
             this.sessionHealthCheckedInfo.unHealth();
         }
-        this.startYarnSessionClientMonitor();
+        if (startMonitor.compareAndSet(false, true)) {
+            this.startYarnSessionClientMonitor();
+        }
         return clusterClient;
     }
 
@@ -419,14 +422,24 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     }
                                     if (sessionCheckInterval.doCheck()) {
                                         int checked = 0;
-                                        while (!checkJobGraphWithStatus()) {
+                                        boolean checkRs = checkJobGraphWithStatus();
+                                        while (!checkRs) {
                                             if (checked++ > 3) {
                                                 sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                                                 break;
+                                            } else {
+                                                try {
+                                                    Thread.sleep(3 * CHECK_INTERVAL);
+                                                } catch (Exception e) {
+                                                    LOG.error("", e);
+                                                }
                                             }
+                                            checkRs = checkJobGraphWithStatus();
                                         }
-                                        //健康，则重置
-                                        sessionCheckInterval.sessionHealthCheckedInfo.reset();
+                                        if (checkRs) {
+                                            //健康，则重置
+                                            sessionCheckInterval.sessionHealthCheckedInfo.reset();
+                                        }
                                     }
                                     break;
                                 default:
@@ -462,15 +475,15 @@ public class SessionClientFactory extends AbstractClientFactory {
         private boolean checkJobGraphWithStatus() {
             boolean checkResult = false;
             try {
-                JobExecutionResult executionResult = submitCheckedJobGraph();
-                if (null != executionResult) {
+                JobSubmissionResult submissionResult = submitCheckedJobGraph();
+                if (null != submissionResult) {
                     final long startTime = System.currentTimeMillis();
                     RdosTaskStatus lastAppState = RdosTaskStatus.SUBMITTING;
                     loop:
                     while (true) {
                         RdosTaskStatus jobStatus = RdosTaskStatus.SUBMITTING;
                         try {
-                            String reqUrl = sessionClientFactory.getClusterClient().getWebInterfaceURL() + "/jobs/" + executionResult.getJobID().toString();
+                            String reqUrl = sessionClientFactory.getClusterClient().getWebInterfaceURL() + "/jobs/" + submissionResult.getJobID().toString();
                             String response = PoolHttpClient.get(reqUrl);
                             if (response != null) {
                                 JSONObject statusJson = JSON.parseObject(response);
@@ -485,7 +498,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                             break;
                         }
 
-                        LOG.debug("JobID: {} status: {}", executionResult.getJobID(), jobStatus);
+                        LOG.debug("JobID: {} status: {}", submissionResult.getJobID(), jobStatus);
                         switch (jobStatus) {
                             case FAILED:
                                 LOG.info("YARN Session Job is failed.");
@@ -562,19 +575,14 @@ public class SessionClientFactory extends AbstractClientFactory {
             this.run = new AtomicBoolean(run);
         }
 
-        private JobExecutionResult submitCheckedJobGraph() throws ProgramMissingJobException, ProgramInvocationException {
+        private JobSubmissionResult submitCheckedJobGraph() throws ProgramMissingJobException, ProgramInvocationException {
             JobSubmissionResult result = sessionClientFactory.getClusterClient().submitJob(createJobGraph(), Thread.currentThread().getContextClassLoader());
             if (null == result) {
                 throw new ProgramMissingJobException("No JobSubmissionResult returned, please make sure you called " +
                         "ExecutionEnvironment.execute()");
             }
-            if (result.isJobExecutionResult()) {
-                LOG.info("Checked Program submitJob finished, Job with JobID:{} .", result.getJobID());
-                return result.getJobExecutionResult();
-            } else {
-                LOG.info("Checked Program execution failed, retry to init ClusterClient.");
-                return null;
-            }
+            LOG.info("Checked Program submitJob finished, Job with JobID:{} .", result.getJobID());
+            return result;
         }
 
         private JobGraph createJobGraph() {

@@ -98,6 +98,7 @@ public class SessionClientFactory extends AbstractClientFactory {
     private Configuration flinkConfiguration;
     private String sessionAppNameSuffix;
 
+    private AtomicBoolean startMonitor = new AtomicBoolean(false);
     private FlinkClusterClientManager flinkClusterClientManager;
     private ExecutorService yarnMonitorES;
     private FlinkClientBuilder flinkClientBuilder;
@@ -150,7 +151,9 @@ public class SessionClientFactory extends AbstractClientFactory {
         } else {
             this.sessionHealthCheckedInfo.unHealth();
         }
-        this.startYarnSessionClientMonitor();
+        if (startMonitor.compareAndSet(false, true)) {
+            this.startYarnSessionClientMonitor();
+        }
         return clusterClient;
     }
 
@@ -420,14 +423,24 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     }
                                     if (sessionCheckInterval.doCheck()) {
                                         int checked = 0;
-                                        while (!checkJobGraphWithStatus()) {
+                                        boolean checkRs = checkJobGraphWithStatus();
+                                        while (!checkRs) {
                                             if (checked++ > 3) {
                                                 sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                                                 break;
+                                            } else {
+                                                try {
+                                                    Thread.sleep(3 * CHECK_INTERVAL);
+                                                } catch (Exception e) {
+                                                    LOG.error("", e);
+                                                }
                                             }
+                                            checkRs = checkJobGraphWithStatus();
                                         }
-                                        //健康，则重置
-                                        sessionCheckInterval.sessionHealthCheckedInfo.reset();
+                                        if (checkRs) {
+                                            //健康，则重置
+                                            sessionCheckInterval.sessionHealthCheckedInfo.reset();
+                                        }
                                     }
                                     break;
                                 default:

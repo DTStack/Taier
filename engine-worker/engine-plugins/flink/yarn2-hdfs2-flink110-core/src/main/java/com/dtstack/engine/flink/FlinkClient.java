@@ -67,8 +67,6 @@ import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -854,7 +852,7 @@ public class FlinkClient extends AbstractClient {
 
         cacheFile.put(jobClient.getTaskId(), fileList);
         String newSql = String.join(";", sqlList);
-        jobClient.setSql(String.join(";", newSql));
+        jobClient.setSql(newSql);
     }
 
     @Override
