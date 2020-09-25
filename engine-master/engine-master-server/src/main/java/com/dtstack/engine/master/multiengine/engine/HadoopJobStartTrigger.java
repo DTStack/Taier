@@ -372,7 +372,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
             String partition = parameter.getString("partition");
             Map<String, String> split = new HashMap<>();
-            if (StringUtils.countMatches(partition, "/") == 1) {
+            //(etl_date='2020-09-17'/etl_hour='23')
+            if (StringUtils.countMatches(partition, "/") == 1 && StringUtils.countMatches(partition, "=") == 1) {
                 //pt=2020/04 分区中带/
                 String[] splits = partition.split("=");
                 split.put(splits[0], splits[1]);
