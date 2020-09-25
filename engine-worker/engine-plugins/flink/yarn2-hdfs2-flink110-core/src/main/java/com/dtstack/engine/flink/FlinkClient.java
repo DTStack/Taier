@@ -393,13 +393,13 @@ public class FlinkClient extends AbstractClient {
 
                         if (StringUtils.isEmpty(appId)) {
                             // yarn session job cancel
-                            targetClusterClient.cancel(jobId);
+                            targetClusterClient.cancelWithSavepoint((jobId), null);
                         } else {
                             // per job cancel
                             if(jobIdentifier.isForceCancel()){
                                 return killApplication(jobIdentifier);
                             }
-                            CompletableFuture completableFuture = targetClusterClient.cancelWithSavepoint(jobId, null);
+                            CompletableFuture completableFuture = targetClusterClient.stopWithSavepoint(jobId, true,null);
                             Object ask = completableFuture.get(2, TimeUnit.MINUTES);
                             logger.info("flink job savepoint path {}", ask.toString());
                         }

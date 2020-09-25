@@ -402,7 +402,7 @@ public class FlinkClient extends AbstractClient {
 
                         if (StringUtils.isEmpty(appId)) {
                             // yarn session job cancel
-                            targetClusterClient.cancel(jobId);
+                            targetClusterClient.cancelWithSavepoint((jobId), null);
                         } else {
                             // per job cancel
                             if(jobIdentifier.isForceCancel()){
