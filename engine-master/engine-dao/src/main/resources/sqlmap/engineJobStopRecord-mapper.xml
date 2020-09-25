@@ -16,7 +16,7 @@
     </update>
 
     <select id="listStopJob" parameterType="java.util.HashMap" resultType="EngineJobStopRecord">
-        select id,task_id,task_type,engine_type,compute_type,job_resource,version,gmt_create,gmt_modified,is_deleted
+        select id,task_id,task_type,engine_type,compute_type,job_resource,version,gmt_create,gmt_modified,is_deleted,force_cancel_flag
         from schedule_engine_job_stop_record where id > #{startId} and operator_expired &lt; now() and is_deleted =0
         order by id asc limit 100;
     </select>
