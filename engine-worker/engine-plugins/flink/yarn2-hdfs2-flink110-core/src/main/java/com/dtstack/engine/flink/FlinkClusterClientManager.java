@@ -150,7 +150,7 @@ public class FlinkClusterClientManager {
             if (notification.getValue() != null) {
                 try {
                     if (notification.getValue() != FlinkClusterClientManager.this.clusterClient) {
-                        notification.getValue().shutDownCluster();
+                        notification.getValue().close();
                     }
                 } catch (Exception ex) {
                     LOG.info("[ClusterClientCache] Could not properly shutdown cluster client.", ex);
