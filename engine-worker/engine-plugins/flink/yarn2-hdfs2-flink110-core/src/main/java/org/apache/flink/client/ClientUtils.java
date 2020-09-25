@@ -18,6 +18,8 @@
 
 package org.apache.flink.client;
 
+import com.dtstack.engine.common.exception.RdosDefineException;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.client.program.ClusterClient;
@@ -38,6 +40,7 @@ import org.apache.flink.util.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -77,6 +80,7 @@ public enum ClientUtils {
 			Configuration configuration,
 			boolean cache) {
 		URL[] urls = new URL[jars.size() + classpaths.size()];
+
 		for (int i = 0; i < jars.size(); i++) {
 			urls[i] = jars.get(i);
 		}
@@ -91,8 +95,16 @@ public enum ClientUtils {
 		final URLClassLoader classLoader = FlinkUserCodeClassLoaders.create(resolveOrder, urls, parent, alwaysParentFirstLoaderPatterns);
 		if (cache) {
 			Arrays.sort(urls, Comparator.comparing(URL::toString));
-			String jarsKeyParent = StringUtils.join(urls, "_");
-			return cacheClassLoader.computeIfAbsent(jarsKeyParent, k -> classLoader);
+			String[] jarMd5s = new String[urls.length];
+			for (int i = 0; i < urls.length; ++i) {
+				try (FileInputStream inputStream = new FileInputStream(urls[i].getPath())){
+					jarMd5s[i] = DigestUtils.md5Hex(inputStream);
+				} catch (Exception e) {
+					throw new RdosDefineException("Exceptions appears when read file:" + e);
+				}
+			}
+			String md5KeyParent = StringUtils.join(jarMd5s, "_");
+			return cacheClassLoader.computeIfAbsent(md5KeyParent, k -> classLoader);
 		} else {
 			return classLoader;
 		}
