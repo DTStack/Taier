@@ -129,7 +129,7 @@ public class KerberosUtils {
         try {
             keytab = Keytab.loadKeytab(new File(filePath));
         } catch (IOException e) {
-            logger.error("Principal {} parse error e!", filePath);
+            logger.error("Principal {} parse error e: {}!", filePath, e.getMessage());
             throw new RdosDefineException("keytab文件解析异常", e);
         }
         List<PrincipalName> principals = keytab.getPrincipals();
