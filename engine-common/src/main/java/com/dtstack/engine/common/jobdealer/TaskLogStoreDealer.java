@@ -37,6 +37,9 @@ public class TaskLogStoreDealer implements Runnable {
         dbConfig.put(ConfigConstant.JDBCURL, AkkaConfig.getWorkerLogstoreJdbcUrl());
         dbConfig.put(ConfigConstant.USERNAME, AkkaConfig.getWorkerLogstoreUsername());
         dbConfig.put(ConfigConstant.PASSWORD, AkkaConfig.getWorkerLogstorePassword());
+        dbConfig.put(ConfigConstant.MINIDLE, AkkaConfig.getWorkerMinActive());
+        dbConfig.put(ConfigConstant.MAXACTIVE, AkkaConfig.getWorkerMaxActive());
+
         logStore = LogStoreFactory.getLogStore(dbConfig);
 
         this.scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
