@@ -4,6 +4,7 @@ package com.dtstack.engine.flink.util;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
@@ -41,6 +42,7 @@ public class HadoopConf {
                 configuration.setBoolean(key, (boolean) value);
             }
         });
+        configuration.setBoolean(CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_KEY, true);
     }
 
     public void initYarnConf(Map<String, Object> conf){
@@ -54,6 +56,7 @@ public class HadoopConf {
                 yarnConfiguration.setBoolean(key, (boolean) value);
             }
         });
+        yarnConfiguration.setBoolean(CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_KEY, true);
     }
 
     public Configuration getConfiguration(){
