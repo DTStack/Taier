@@ -1555,7 +1555,7 @@ public class ComponentService {
                 queueDao.update(queue);
             }
         } else {
-            throw new RdosDefineException("绑定失败");
+            throw new RdosDefineException("namespace为空 绑定失败");
         }
 
     }

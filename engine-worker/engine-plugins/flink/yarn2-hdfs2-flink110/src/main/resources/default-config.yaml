@@ -126,7 +126,7 @@ session:
     high-availability: ZOOKEEPER
 
     monitorAcceptedApp: false
-    checkSubmitJobGraphInterval: 120
+    checkSubmitJobGraphInterval: 0
 
 standalone:
   dependencyKey: deploymode

@@ -30,6 +30,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -37,6 +38,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.ref.SoftReference;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -85,8 +89,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
     private ExecutorService executorService;
 
-//    private Set<String> notStartCache = Sets.newHashSet();
-//    private Map<String, JobErrorInfo> errorJobCache = Maps.newHashMap();
     private SoftReference<Map<Long, ScheduleTaskShade>> softReference;
     protected final AtomicBoolean RUNNING = new AtomicBoolean(true);
     private volatile long lastRestartJobLoadTime = 0L;
@@ -122,7 +124,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         List<ScheduleBatchJob> listExecJobs = getScheduleBatchJobList(scheduleJobs);
 
         //添加需要重跑的数据
-        List<ScheduleBatchJob> restartJobList = getRestartDataJob();
+        List<ScheduleBatchJob> restartJobList = getRestartDataJob(cycStartTime);
         listExecJobs.addAll(restartJobList);
         return listExecJobs;
     }
@@ -306,14 +308,25 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         }
     }
 
-    protected List<ScheduleBatchJob> getRestartDataJob() {
+    protected List<ScheduleBatchJob> getRestartDataJob(String cycStartTime) {
         int status = RdosTaskStatus.UNSUBMIT.getStatus();
-        long loadTime = System.currentTimeMillis();
-        Timestamp lasTime = lastRestartJobLoadTime == 0L ? null : new Timestamp(lastRestartJobLoadTime);
+        Timestamp lasTime = null;
+        if (!StringUtils.isBlank(cycStartTime)) {
+            DateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+            try {
+                Date parse = sdf.parse(cycStartTime);
+                if (null != parse) {
+                    lasTime = new Timestamp(parse.getTime());
+                }
+            } catch (ParseException e) {
+                logger.error("getRestartDataJob {} error ",cycStartTime,e);
+            }
+        }
+        if (null == lasTime) {
+            lasTime = new Timestamp(DateTime.now().withTime(0,0,0,0).getMillis());
+        }
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listRestartBatchJobList(getScheduleType().getType(), status, lasTime);
-        List<ScheduleBatchJob> scheduleBatchJobs = getScheduleBatchJobList(scheduleJobs);
-        lastRestartJobLoadTime = loadTime;
-        return scheduleBatchJobs;
+        return getScheduleBatchJobList(scheduleJobs);
     }
 
     protected List<ScheduleBatchJob> getScheduleBatchJobList(List<ScheduleJob> scheduleJobs) {
