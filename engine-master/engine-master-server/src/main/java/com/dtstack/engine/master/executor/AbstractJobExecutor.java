@@ -30,6 +30,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -37,6 +38,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.ref.SoftReference;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -84,6 +88,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     protected BatchFlowWorkJobService batchFlowWorkJobService;
 
     private ExecutorService executorService;
+
+    private SoftReference<Map<Long, ScheduleTaskShade>> softReference;
     protected final AtomicBoolean RUNNING = new AtomicBoolean(true);
     private volatile long lastRestartJobLoadTime = 0L;
 
@@ -118,7 +124,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         List<ScheduleBatchJob> listExecJobs = getScheduleBatchJobList(scheduleJobs);
 
         //添加需要重跑的数据
-        List<ScheduleBatchJob> restartJobList = getRestartDataJob();
+        List<ScheduleBatchJob> restartJobList = getRestartDataJob(cycStartTime);
         listExecJobs.addAll(restartJobList);
         return listExecJobs;
     }
@@ -155,6 +161,36 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         }
     }
 
+    /**
+     * 缓存task
+     *
+     * @return
+     */
+    private Map<Long, ScheduleTaskShade> taskCache() {
+        if (this.softReference == null) {
+            this.softReference = new SoftReference<>(Maps.newHashMap());
+        }
+
+        if (this.softReference.get() == null) {
+            this.softReference = new SoftReference<>(Maps.newHashMap());
+        }
+        return this.softReference.get();
+    }
+
+    public void removeTaskCache(Long taskId, Integer appType) {
+        if (null == taskId || null == appType) {
+            return;
+        }
+        if (null == this.softReference) {
+            return;
+        }
+        Map<Long, ScheduleTaskShade> taskShadeMap = this.softReference.get();
+        if (null != taskShadeMap) {
+            taskShadeMap.remove(jobRichOperator.getTaskIdUnique(appType, taskId));
+            logger.info("scheduleType:{} remove cache {} appType {} ", getScheduleType(), taskId, appType);
+        }
+    }
+
 
     private void emitJob2Queue() {
         String nodeAddress = zkService.getLocalAddress();
@@ -174,9 +210,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                         JobCheckRunInfo checkRunInfo;
 
                         Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
-                        ScheduleTaskShade batchTask =  batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType());
-                        Map<Long, ScheduleTaskShade> taskCache = Maps.newHashMap();
-                        taskCache.put(taskIdUnique,batchTask);
+                        ScheduleTaskShade batchTask = this.taskCache().computeIfAbsent(taskIdUnique, k -> batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType()));
+
                         if (batchTask == null) {
                             String errMsg = JobCheckStatus.NO_TASK.getMsg();
                             batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.SUBMITFAILD.getStatus(), errMsg);
@@ -195,7 +230,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                             logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
                             batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(),scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
                         } else {
-                            checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), new HashSet<>(), new HashMap<>(), taskCache);
+                            checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), new HashSet<>(), new HashMap<>(), this.taskCache());
                             if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
                                 // 更新job状态
                                 boolean updateStatus = batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.CREATE, JobPhaseStatus.JOIN_THE_TEAM);
@@ -273,14 +308,25 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         }
     }
 
-    protected List<ScheduleBatchJob> getRestartDataJob() {
+    protected List<ScheduleBatchJob> getRestartDataJob(String cycStartTime) {
         int status = RdosTaskStatus.UNSUBMIT.getStatus();
-        long loadTime = System.currentTimeMillis();
-        Timestamp lasTime = lastRestartJobLoadTime == 0L ? null : new Timestamp(lastRestartJobLoadTime);
+        Timestamp lasTime = null;
+        if (!StringUtils.isBlank(cycStartTime)) {
+            DateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+            try {
+                Date parse = sdf.parse(cycStartTime);
+                if (null != parse) {
+                    lasTime = new Timestamp(parse.getTime());
+                }
+            } catch (ParseException e) {
+                logger.error("getRestartDataJob {} error ",cycStartTime,e);
+            }
+        }
+        if (null == lasTime) {
+            lasTime = new Timestamp(DateTime.now().withTime(0,0,0,0).getMillis());
+        }
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listRestartBatchJobList(getScheduleType().getType(), status, lasTime);
-        List<ScheduleBatchJob> scheduleBatchJobs = getScheduleBatchJobList(scheduleJobs);
-        lastRestartJobLoadTime = loadTime;
-        return scheduleBatchJobs;
+        return getScheduleBatchJobList(scheduleJobs);
     }
 
     protected List<ScheduleBatchJob> getScheduleBatchJobList(List<ScheduleJob> scheduleJobs) {

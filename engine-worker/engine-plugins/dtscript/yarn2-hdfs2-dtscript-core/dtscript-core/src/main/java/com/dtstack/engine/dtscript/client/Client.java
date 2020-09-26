@@ -11,24 +11,13 @@ import com.dtstack.engine.dtscript.common.exceptions.RequestOverLimitException;
 import com.dtstack.engine.dtscript.util.Utilities;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.GetNewApplicationResponse;
-import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.hadoop.yarn.api.records.ApplicationReport;
-import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
-import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
-import org.apache.hadoop.yarn.api.records.LocalResource;
-import org.apache.hadoop.yarn.api.records.LocalResourceType;
-import org.apache.hadoop.yarn.api.records.Priority;
-import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.client.api.YarnClientApplication;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -42,15 +31,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Client {
 
     private static final Logger LOG = LoggerFactory.getLogger(Client.class);
+    private static final String HDFS_SUPER_GROUP = "dfs.permissions.superusergroup";
 
     private DtYarnConfiguration conf;
     private FileSystem dfs;
@@ -68,9 +54,22 @@ public class Client {
                 UserGroupInformation ugi = UserGroupInformation.createRemoteUser(appSubmitterUserName);
                 conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
             }
+            String proxyUser = conf.get(DtYarnConstants.PROXY_USER_NAME);
+            String superGroup = conf.get(HDFS_SUPER_GROUP);
+            if(StringUtils.isNotBlank(superGroup)){
+                if (StringUtils.isNotBlank(proxyUser)) {
+                    UserGroupInformation hadoopUserNameUGI = UserGroupInformation.createRemoteUser(superGroup);
+                    UserGroupInformation.setLoginUser(UserGroupInformation.createProxyUser(proxyUser, hadoopUserNameUGI));
+                } else {
+                    UserGroupInformation.setLoginUser(UserGroupInformation.createRemoteUser(superGroup));
+                }
+            }
+
             this.yarnClient = getYarnClient();
             Path appJarSrc = new Path(JobConf.findContainingJar(ApplicationMaster.class));
             this.appJarSrc = appJarSrc;
+
+
             return null;
         }, conf);
     }

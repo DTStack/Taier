@@ -123,7 +123,7 @@ public class AccountServiceTest extends AbstractTest {
         accountVo.setBindUserId(user.getDtuicUserId());
         //账号绑定
         accountService.bindAccount(accountVo);
-        PageResult<List<AccountVo>> listPageResult = accountService.pageQuery(tenant.getDtUicTenantId(), user.getUserName(), 1, 10, MultiEngineType.TIDB.getType());
+        PageResult<List<AccountVo>> listPageResult = accountService.pageQuery(tenant.getDtUicTenantId(), user.getUserName(), 1, 10, MultiEngineType.TIDB.getType(),null);
         Assert.assertNotNull(listPageResult);
         Assert.assertNotNull(listPageResult.getData());
 
