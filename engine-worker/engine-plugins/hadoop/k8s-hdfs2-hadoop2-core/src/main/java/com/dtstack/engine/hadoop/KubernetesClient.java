@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -91,7 +92,7 @@ public class KubernetesClient extends AbstractClient {
 
     private ComponentTestResult testKubernetesConnect(ComponentTestResult testResult, Config allConfig) throws Exception {
         io.fabric8.kubernetes.client.KubernetesClient client = null;
-        ConfigMap configMap = new ConfigMap();
+        ConfigMap configMap = null;
         try {
             Map<String, Object> conf = allConfig.getKubernetesConf();
             String kubernetesConf = (String) conf.get("kubernetesConf");
@@ -102,8 +103,15 @@ public class KubernetesClient extends AbstractClient {
 
             ObjectMeta meta = new ObjectMetaBuilder()
                     .withNamespace(allConfig.getNamespace())
+                    .withName("test-configmap")
                     .build();
+            Map<String, String> data = new HashMap<>();
+            data.put("test-key1", "test1");
+            data.put("test-key2", "test2");
+            configMap = new ConfigMap();
+            configMap.setApiVersion(client.getApiVersion());
             configMap.setMetadata(meta);
+            configMap.setData(data);
             client.configMaps().create(configMap);
         } catch (Exception e) {
             if (e.getMessage().contains(allConfig.getNamespace()) && e.getMessage().contains("not found")) {
