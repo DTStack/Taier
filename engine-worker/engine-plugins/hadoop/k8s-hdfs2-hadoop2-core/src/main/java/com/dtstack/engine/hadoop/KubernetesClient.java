@@ -11,6 +11,9 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.hadoop.util.HadoopConf;
+import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -88,6 +91,7 @@ public class KubernetesClient extends AbstractClient {
 
     private ComponentTestResult testKubernetesConnect(ComponentTestResult testResult, Config allConfig) throws Exception {
         io.fabric8.kubernetes.client.KubernetesClient client = null;
+        ConfigMap configMap = new ConfigMap();
         try {
             Map<String, Object> conf = allConfig.getKubernetesConf();
             String kubernetesConf = (String) conf.get("kubernetesConf");
@@ -95,9 +99,24 @@ public class KubernetesClient extends AbstractClient {
             client = new DefaultKubernetesClient(kubernetes);
             client.getVersion();
             testResult.setResult(true);
-            client.pods().inNamespace(allConfig.getNamespace());
+
+            ObjectMeta meta = new ObjectMetaBuilder()
+                    .withNamespace(allConfig.getNamespace())
+                    .build();
+            configMap.setMetadata(meta);
+            client.configMaps().create(configMap);
+        } catch (Exception e) {
+            if (e.getMessage().contains(allConfig.getNamespace()) && e.getMessage().contains("not found")) {
+                throw new RdosDefineException(String.format("namespace %s 不存在", allConfig.getNamespace()));
+            }
+            throw e;
         } finally {
             if (Objects.nonNull(client)) {
+                try {
+                    client.configMaps().delete(configMap);
+                } catch (Exception e) {
+                    LOG.error("delete namespace {} config error", allConfig.getNamespace(), e);
+                }
                 client.close();
             }
         }
