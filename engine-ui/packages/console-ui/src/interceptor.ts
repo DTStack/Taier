@@ -6,6 +6,11 @@ import localDb from 'dt-common/src/utils/localDb'
 
 import UserApi from 'dt-common/src/api/user'
 
+const maxHeightStyle: any = {
+    maxHeight: '500px',
+    overflowY: 'auto'
+}
+
 export function authBeforeFormate (response: any) {
     switch (response.status) {
         case 402:
@@ -44,7 +49,13 @@ export function authAfterFormated (response: any) {
             return Promise.reject(response);
         default:
             if (response.message) {
-                message.error(response.message, 3) // 异常消息默认显示5s
+                setTimeout(() => {
+                    notification['error']({
+                        message: '异常',
+                        description: response.message,
+                        style: { ...maxHeightStyle, wordBreak: 'break-all' }
+                    });
+                }, 0)
             }
             return response
     }
