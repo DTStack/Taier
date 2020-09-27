@@ -33,12 +33,17 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.kubernetes.KubernetesClusterDescriptor;
 import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
+import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
+import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.locks.InterProcessMutex;
+import org.apache.flink.shaded.curator.org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.flink.util.FlinkException;
 import org.apache.flink.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Date: 2020/6/1
@@ -53,6 +58,8 @@ public class SessionClientFactory extends AbstractClientFactory {
     private FlinkClientBuilder flinkClientBuilder;
     private FlinkConfig flinkConfig;
 
+    private InterProcessMutex clusterClientLock;
+
     public SessionClientFactory(FlinkClientBuilder flinkClientBuilder) {
 
         this.flinkClientBuilder = flinkClientBuilder;
@@ -61,27 +68,61 @@ public class SessionClientFactory extends AbstractClientFactory {
         String defaultClusterId = flinkConfig.getFlinkSessionName() + ConfigConstrant.CLUSTER_ID_SPLIT
                 + flinkConfig.getCluster() + ConfigConstrant.CLUSTER_ID_SPLIT + flinkConfig.getNamespace();
         sessionClusterId = StringUtils.replaceChars(defaultClusterId, ConfigConstrant.SPLIT, ConfigConstrant.CLUSTER_ID_SPLIT);
+
+        initZkClientLock();
+    }
+
+    private void initZkClientLock() {
+        String zkAddress = flinkClientBuilder.getFlinkConfiguration().getValue(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM);
+        if (StringUtils.isBlank(zkAddress)) {
+            throw new RdosDefineException("zkAddress is error");
+        }
+        String lockPath = String.format("/kubernetes_session/%s", flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getNamespace());
+
+        CuratorFramework zkClient = CuratorFrameworkFactory.builder()
+                .connectString(zkAddress).retryPolicy(new ExponentialBackoffRetry(1000, 3))
+                .connectionTimeoutMs(1000)
+                .sessionTimeoutMs(1000).build();
+        zkClient.start();
+        this.clusterClientLock = new InterProcessMutex(zkClient, lockPath);
+        LOG.warn("connector zk success...");
     }
 
     @Override
     public ClusterClient getClusterClient(JobClient jobClient) {
-        Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
-
-        ClusterDescriptor kubernetesClusterDescriptor = createSessionClusterDescriptor();
-        ClusterClient<String> retrieveClusterClient = retrieveClusterClient(sessionClusterId, null);
-        if (Objects.nonNull(retrieveClusterClient)) {
-            return retrieveClusterClient;
-        }
 
         try {
-            ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(flinkConfiguration, null);
-            ClusterClient<String> clusterClient = kubernetesClusterDescriptor.deploySessionCluster(clusterSpecification).getClusterClient();
-            Preconditions.checkNotNull(clusterClient, "clusterClient is null");
-            return clusterClient;
-        } catch (FlinkException e) {
-            LOG.info("Couldn't deploy session on Kubernetes cluster, {}", e);
+            if (this.clusterClientLock.acquire(5, TimeUnit.MINUTES)) {
+                Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
+
+                ClusterDescriptor kubernetesClusterDescriptor = createSessionClusterDescriptor();
+                ClusterClient<String> retrieveClusterClient = retrieveClusterClient(sessionClusterId, null);
+                if (Objects.nonNull(retrieveClusterClient)) {
+                    return retrieveClusterClient;
+                }
+
+                try {
+                    ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(flinkConfiguration, null);
+                    ClusterClient<String> clusterClient = kubernetesClusterDescriptor.deploySessionCluster(clusterSpecification).getClusterClient();
+                    return clusterClient;
+                } catch (FlinkException e) {
+                    LOG.info("Couldn't deploy session on Kubernetes cluster, {}", e);
+                    throw new RdosDefineException(e);
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("Couldn't deploy kubernetes session cluster:{}", e);
             throw new RdosDefineException(e);
+        } finally {
+            if (this.clusterClientLock.isAcquiredInThisProcess()) {
+                try {
+                    this.clusterClientLock.release();
+                } catch (Exception e) {
+                    LOG.error("release clusterClientLock error:{}", e);
+                }
+            }
         }
+        return null;
     }
 
     @Override

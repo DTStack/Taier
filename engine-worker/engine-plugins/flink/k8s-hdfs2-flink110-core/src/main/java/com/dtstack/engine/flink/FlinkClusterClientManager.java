@@ -90,10 +90,9 @@ public class FlinkClusterClientManager {
 
         FlinkConfig flinkConfig = flinkClientBuilder.getFlinkConfig();
         if (flinkConfig.getSessionStartAuto()) {
-            synchronized (SessionClientFactory.class) {
-                clusterClient = sessionClientFactory.getClusterClient(null);
-            }
+            clusterClient = sessionClientFactory.getClusterClient(null);
         }
+        Preconditions.checkNotNull(clusterClient, "clusterClient is null");
         return clusterClient;
     }
 
