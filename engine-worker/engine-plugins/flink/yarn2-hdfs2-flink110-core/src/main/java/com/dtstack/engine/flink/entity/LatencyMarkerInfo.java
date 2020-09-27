@@ -3,6 +3,7 @@ package com.dtstack.engine.flink.entity;
 import org.apache.flink.api.java.tuple.Tuple2;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class LatencyMarkerInfo {
@@ -126,6 +127,7 @@ public class LatencyMarkerInfo {
         private List<Tuple2> subJobVertices;
         private int maxParallelism;
         private int parallelism;
+        private Map<String,String> inputShipStrategyName;
 
         public Builder setParallelism(int parallelism) {
             this.parallelism = parallelism;
@@ -162,6 +164,11 @@ public class LatencyMarkerInfo {
             return this;
         }
 
+        public Builder setInputShipStrategyName(Map<String,String> inputShipStrategyName) {
+            this.inputShipStrategyName = inputShipStrategyName;
+            return this;
+        }
+
         public LatencyMarkerInfo build() {
             LatencyMarkerInfo latencyMarkerInfo = new LatencyMarkerInfo(jobVertexName, jobVertexId, inputs, output,parallelism,maxParallelism);
             List<SubJobVertices> subJobVerticesList = this.subJobVertices.stream()
@@ -180,6 +187,8 @@ public class LatencyMarkerInfo {
                 ", inputs=" + inputs +
                 ", output=" + output +
                 ", subJobVertices=" + subJobVertices +
+                ", maxParallelism=" + maxParallelism +
+                ", parallelism=" + parallelism +
                 '}';
     }
 }
