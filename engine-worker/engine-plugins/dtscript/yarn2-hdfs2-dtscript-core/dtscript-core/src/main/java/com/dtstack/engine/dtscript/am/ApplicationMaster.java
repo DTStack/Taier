@@ -213,7 +213,7 @@ public class ApplicationMaster extends CompositeService {
         List<String> containerLaunchcommands = new ArrayList<>();
         LOG.info("Setting up container command");
         Vector<CharSequence> vargs = new Vector<>(10);
-        vargs.add("${JAVA_HOME}" + "/bin/java");
+        vargs.add(conf.get(DtYarnConfiguration.JAVA_PATH,"${JAVA_HOME}" + "/bin/java"));
         vargs.add("-server -XX:+UseConcMarkSweepGC -XX:-UseCompressedClassPointers -XX:+DisableExplicitGC -XX:-OmitStackTraceInFastThrow");
         vargs.add("-Xmx" + containerMemory + "m");
         vargs.add("-Xms" + containerMemory + "m");
