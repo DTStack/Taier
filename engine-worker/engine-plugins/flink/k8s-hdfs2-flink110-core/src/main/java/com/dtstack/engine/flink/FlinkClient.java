@@ -551,9 +551,14 @@ public class FlinkClient extends AbstractClient {
                     .withNamespace(flinkConfig.getNamespace())
                     .withAllowPendingPodSize(0)
                     .build();
-            String groupName = jobClient.getGroupName();
-            String[] contents = groupName.split("_");
-            String namespace = contents[contents.length-1];
+
+            String pluginInfo = jobClient.getPluginInfo();
+            Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
+            String namespace = null;
+            if (properties.containsKey("namespace")) {
+                namespace = properties.getProperty("namespace");
+            }
+            Preconditions.checkNotNull(namespace, "namespace is null");
             ResourceQuotaList resourceQuotas = kubernetesClient.resourceQuotas().inNamespace(namespace).list();
             if (resourceQuotas != null && resourceQuotas.getItems().size() > 0) {
                 ResourceQuota resourceQuota = resourceQuotas.getItems().get(0);
