@@ -255,8 +255,8 @@ public class FlinkClient extends AbstractClient {
             return Pair.create(jobExecutionResult.getJobID().toString(), clusterClient.getClusterId().toString());
         } catch (Exception e) {
             if (!FlinkMode.isPerJob(taskRunMode) && flinkClusterClientManager.getIsClientOn()) {
-                logger.info("submit job error,flink session init ..");
-                flinkClusterClientManager.setIsClientOn(false);
+                logger.error("submit job error,flink session init ..");
+                // flinkClusterClientManager.setIsClientOn(false);
             }
             throw e;
         } finally {
