@@ -96,7 +96,11 @@ public class SessionClientFactory extends AbstractClientFactory {
                 Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
 
                 ClusterDescriptor kubernetesClusterDescriptor = createSessionClusterDescriptor();
-                ClusterClient<String> retrieveClusterClient = retrieveClusterClient(sessionClusterId, null);
+                ClusterClient<String> retrieveClusterClient = null;
+                try {
+                    retrieveClusterClient = retrieveClusterClient(sessionClusterId, null);
+                } catch (Exception e) {
+                }
                 if (Objects.nonNull(retrieveClusterClient)) {
                     return retrieveClusterClient;
                 }
