@@ -25,7 +25,8 @@ public class KerberosUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(KerberosUtils.class);
 
-    private static final String USER_DIR = System.getProperty("user.dir") + File.separator + "keytab";
+    private static final String USER_DIR = System.getProperty("user.dir");
+    private static final String LOCAL_KEYTAB_DIR = USER_DIR + "/keytab";
     private static final String KRB5_CONF = "java.security.krb5.conf";
     private static final String KERBEROS_AUTH = "hadoop.security.authentication";
     private static final String SECURITY_TO_LOCAL = "hadoop.security.auth_to_local";
@@ -47,7 +48,7 @@ public class KerberosUtils {
 
         String fileName = config.getPrincipalFile();
         String remoteDir = config.getRemoteDir();
-        String localDir = USER_DIR + remoteDir;
+        String localDir = LOCAL_KEYTAB_DIR + remoteDir;
 
         File path = new File(localDir);
         if (!path.exists()) {
@@ -129,7 +130,7 @@ public class KerberosUtils {
         try {
             keytab = Keytab.loadKeytab(new File(filePath));
         } catch (IOException e) {
-            logger.error("Principal {} parse error e!", filePath);
+            logger.error("Principal {} parse error e: {}!", filePath, e.getMessage());
             throw new RdosDefineException("keytab文件解析异常", e);
         }
         List<PrincipalName> principals = keytab.getPrincipals();
@@ -146,7 +147,7 @@ public class KerberosUtils {
     public static String getKeytabPath(BaseConfig config) {
         String fileName = config.getPrincipalFile();
         String remoteDir = config.getRemoteDir();
-        String localDir = USER_DIR + remoteDir;
+        String localDir = LOCAL_KEYTAB_DIR + remoteDir;
 
         File path = new File(localDir);
         if (!path.exists()) {

@@ -5,8 +5,10 @@ import com.dtstack.engine.flink.entity.LatencyMarkerInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.runtime.jobgraph.JobEdge;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.JobVertex;
+import org.apache.flink.util.AbstractID;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,6 +44,10 @@ public class JobGraphBuildUtil {
                     .map(e -> e.getSourceId().toHexString())
                     .collect(Collectors.toList());
 
+            Map<String, String> inputShipStrategyName = jobVertex.getInputs()
+                    .stream()
+                    .collect(Collectors.toMap(e -> e.getSourceId().toHexString(), JobEdge::getShipStrategyName));
+
             List<String> output = jobVertex.getProducedDataSets()
                     .stream()
                     .map(e -> e.getId().toHexString())
@@ -52,7 +58,7 @@ public class JobGraphBuildUtil {
 
             List<String> subJobVertexIDs = Lists.reverse(jobVertex.getOperatorIDs()
                     .stream()
-                    .map(e -> e.toString())
+                    .map(AbstractID::toString)
                     .collect(Collectors.toList()));
 
             List<Tuple2> subJobVertices = zipVertexIDAndName(subJobVertexIDs, Arrays.asList(subJobVertexNames));
@@ -65,6 +71,7 @@ public class JobGraphBuildUtil {
                     .setParallelism(jobVertex.getParallelism())
                     .setMaxParallelism(jobVertex.getMaxParallelism())
                     .setSubJobVertex(subJobVertices)
+                    .setInputShipStrategyName(inputShipStrategyName)
                     .build();
 
             latencyMarker.put(jobVertexID, latencyMarkerInfo);
