@@ -4,14 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.dtstack.engine</groupId>
-        <artifactId>plugins.learning.yarn2-hdfs2-learning</artifactId>
+        <artifactId>plugins.learning.yarn3-hdfs3-learning</artifactId>
         <version>1.0.0</version>
         <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.learning.yarn2-hdfs2-learning.learning-core</artifactId>
-    <name>plugins.learning.yarn2-hdfs2-learning.learning-core</name>
+    <artifactId>plugins.learning.yarn3-hdfs3-learning.learning-core</artifactId>
+    <name>plugins.learning.yarn3-hdfs3-learning.learning-core</name>
 
     <properties>
         <jar.name>learning-core</jar.name>
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>com.dtstack</groupId>
             <artifactId>learning</artifactId>
-            <version>${learning2.version}</version>
+            <version>${learning3.version}</version>
         </dependency>
 
     </dependencies>

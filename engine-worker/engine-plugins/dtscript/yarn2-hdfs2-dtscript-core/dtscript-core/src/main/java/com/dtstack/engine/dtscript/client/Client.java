@@ -91,6 +91,7 @@ public class Client {
         conf.set(DtYarnConfiguration.LEARNING_AM_CORES, String.valueOf(clientArguments.amCores));
         conf.set(DtYarnConfiguration.LEARNING_WORKER_MEMORY, String.valueOf(clientArguments.workerMemory));
         conf.set(DtYarnConfiguration.LEARNING_WORKER_VCORES, String.valueOf(clientArguments.workerVcores));
+        conf.set(DtYarnConfiguration.LEARNING_WORKER_GPU, String.valueOf(clientArguments.workerGCores));
         conf.set(DtYarnConfiguration.DT_WORKER_NUM, String.valueOf(clientArguments.workerNum));
         conf.set(DtYarnConfiguration.APP_PRIORITY, String.valueOf(clientArguments.priority));
         conf.setBoolean(DtYarnConfiguration.LEARNING_USER_CLASSPATH_FIRST, clientArguments.userClasspathFirst);
