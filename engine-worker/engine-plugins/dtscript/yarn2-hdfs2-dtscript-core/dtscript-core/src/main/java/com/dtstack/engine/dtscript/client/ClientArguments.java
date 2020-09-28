@@ -25,6 +25,7 @@ import java.util.Properties;
 public class ClientArguments {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientArguments.class);
+    private static final String PREFIX_CONF = "--conf-";
 
     private Options allOptions;
     String appName;
@@ -531,16 +532,18 @@ public class ClientArguments {
     private void cliParser(String[] args) throws ParseException, IOException, ClassNotFoundException {
         List<String> argsList = new ArrayList<>();
         confs = new Properties();
-        final String prefix = "--conf-";
+        if (args == null) {
+            args = new String[0];
+        }
         for (int i = 0; i < args.length; i += 2) {
             String s = args[i];
-            if (!(s.startsWith(prefix))) {
-                argsList.add(s);
-                argsList.add(args[i+1]);
-            } else {
-                String key = s.substring(prefix.length()).replace('-', '.');
+            if (s.startsWith(PREFIX_CONF)) {
+                String key = s.substring(PREFIX_CONF.length()).replace('-', '.');
                 String value = args[i+1];
                 confs.setProperty(key, value);
+            } else {
+                argsList.add(s);
+                argsList.add(args[i+1]);
             }
         }
         String[] argsParser = new String[argsList.size()];
