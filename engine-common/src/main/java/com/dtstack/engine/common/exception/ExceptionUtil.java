@@ -64,7 +64,7 @@ public class ExceptionUtil {
                 }
             }
         }
-        return null;
+        return "";
     }
 
     public static String stackTrack() {

@@ -138,7 +138,7 @@ public class FlinkUtil {
                 return true;
             }
         } catch (Throwable e) {
-            logger.error("download file from SFTP error, fromPath:{} toPath:{} ", e);
+            logger.error("download file from SFTP error, fromPath:{} toPath:{} ", fromPath,toPath,e);
         } finally {
             if (handler != null) {
                 handler.close();

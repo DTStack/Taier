@@ -17,6 +17,26 @@ public class AccountTenantVo extends BaseEntity {
 
     private Integer engineType;
 
+    private String modifyUserName;
+
+    private Long modifyDtUicUserId;
+
+    public String getModifyUserName() {
+        return modifyUserName;
+    }
+
+    public void setModifyUserName(String modifyUserName) {
+        this.modifyUserName = modifyUserName;
+    }
+
+    public Long getModifyDtUicUserId() {
+        return modifyDtUicUserId;
+    }
+
+    public void setModifyDtUicUserId(Long modifyDtUicUserId) {
+        this.modifyDtUicUserId = modifyDtUicUserId;
+    }
+
     public Integer getEngineType() {
         return engineType;
     }

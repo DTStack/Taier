@@ -3,6 +3,7 @@ package com.dtstack.engine.master.impl;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
+import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -108,4 +109,20 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
 
 	}
 
+	@Test
+	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
+	@Rollback
+	public void frozenTask() {
+		ScheduleTaskShade sts = DataCollection.getData().getScheduleTaskShade();
+		ArrayList<Long> taskIdList = Lists.newArrayList(sts.getTaskId());
+		scheduleTaskShadeService.frozenTask(taskIdList,sts.getScheduleStatus(),sts.getProjectId(),sts.getCreateUserId(),sts.getAppType());
+	}
+
+	@Test
+	@Transactional(isolation = Isolation.READ_UNCOMMITTED)
+	@Rollback
+	public void queryTasks(){
+		ScheduleTaskShade sts = DataCollection.getData().getScheduleTaskShade();
+		scheduleTaskShadeService.queryTasks(sts.getDtuicTenantId(),sts.getProjectId(),sts.getName(),null, null, null, null, null, null, null, null, null, null);
+	}
 }

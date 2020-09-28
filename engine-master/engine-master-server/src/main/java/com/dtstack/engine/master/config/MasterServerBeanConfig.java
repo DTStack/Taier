@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.config;
 
+import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.master.akka.AkkaMasterServerImpl;
 import com.dtstack.engine.master.akka.MasterServer;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -20,6 +21,9 @@ public class MasterServerBeanConfig {
 
     @Bean
     public MasterServer serverStart() {
+        if (AkkaConfig.isLocalMode()) {
+            return null;
+        }
         MasterServer masterServer = new AkkaMasterServerImpl(environmentContext);
         return masterServer;
     }
