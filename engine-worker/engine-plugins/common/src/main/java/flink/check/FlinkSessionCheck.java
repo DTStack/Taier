@@ -1,4 +1,4 @@
-package com.dtstack.engine.flink.check;
+package flink.check;
 
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
@@ -10,7 +10,6 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
@@ -169,7 +168,7 @@ public class FlinkSessionCheck {
 
         private static Map<Character, Long>[] maps = (Map<Character, Long>[]) new Map<?,?>[1];
 
-        private HashMap<Character, Long> counts = new java.util.HashMap<Character, Long>();
+        private HashMap<Character, Long> counts = new HashMap<Character, Long>();
 
         @Override
         public void invoke(PrefixCount value) throws Exception {

@@ -9,7 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>session-check</artifactId>
+    <artifactId>common</artifactId>
+    <name>plugins.common</name>
 
     <url>http://maven.apache.org</url>
     <properties>
@@ -79,15 +80,11 @@
                         </goals>
                         <configuration>
                             <tasks>
+                                <mkdir dir="${project.basedir}/opt}"/>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../../../pluginLibs/${pluginDir.name}/"
-                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
-                                <delete>
-                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/${pluginDir.name}/"
-                                             includes="${jar.name}-*.jar"
-                                             excludes="${jar.name}-${git.branch}.jar"/>
-                                </delete>
+                                      tofile="${basedir}/target/${pluginDir.name}.jar"/>
+                                <copy todir="${project.basedir}/opt/${pluginDir.name}/"
+                                      file="${basedir}/target/${pluginDir.name}.jar"/>
                             </tasks>
                         </configuration>
                     </execution>
@@ -107,4 +104,5 @@
             <url>http://nexus.dev.dtstack.cn/nexus/content/repositories/dtstack-snapshot/</url>
         </snapshotRepository>
     </distributionManagement>
+
 </project>
