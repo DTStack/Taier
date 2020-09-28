@@ -161,6 +161,9 @@ public class ApplicationMaster extends CompositeService {
         Resource workerCapability = Records.newRecord(Resource.class);
         workerCapability.setMemory(appArguments.workerMemory+appArguments.containerMemory);
         workerCapability.setVirtualCores(appArguments.workerVcores);
+        if (appArguments.workerGCores > 0) {
+            workerCapability.setResourceValue(DtYarnConstants.GPU, appArguments.workerGCores);
+        }
         if (appArguments.nodes == null){
             return new AMRMClient.ContainerRequest(workerCapability, null, null, priority, true);
         } else {
