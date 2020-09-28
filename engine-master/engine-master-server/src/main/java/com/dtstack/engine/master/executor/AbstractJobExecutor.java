@@ -171,44 +171,47 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 while (CollectionUtils.isNotEmpty(listExecJobs)) {
                     for (ScheduleBatchJob scheduleBatchJob : listExecJobs) {
                         // 节点检查是否能进入队列
-                        JobCheckRunInfo checkRunInfo;
 
-                        Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
-                        ScheduleTaskShade batchTask =  batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType());
-                        Map<Long, ScheduleTaskShade> taskCache = Maps.newHashMap();
-                        taskCache.put(taskIdUnique,batchTask);
-                        if (batchTask == null) {
-                            String errMsg = JobCheckStatus.NO_TASK.getMsg();
-                            batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.SUBMITFAILD.getStatus(), errMsg);
-                            logger.warn("jobId:{} scheduleType:{} submit failed for taskId:{} already deleted.", scheduleBatchJob.getJobId(), getScheduleType(), scheduleBatchJob.getTaskId());
-                            continue;
-                        }
+                        try {
+                            ScheduleTaskShade batchTask = batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType());
 
-                        Integer type = batchTask.getTaskType();
-                        Integer status = batchJobService.getStatusById(scheduleBatchJob.getId());
-
-                        if (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
-                            logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB so immediate put queue.", scheduleBatchJob.getJobId(), getScheduleType());
-                            if (status != null && status.equals(RdosTaskStatus.UNSUBMIT.getStatus())) {
-                                putScheduleJob(scheduleBatchJob);
+                            if (batchTask == null) {
+                                String errMsg = JobCheckStatus.NO_TASK.getMsg();
+                                batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.SUBMITFAILD.getStatus(), errMsg);
+                                logger.warn("jobId:{} scheduleType:{} submit failed for taskId:{} already deleted.", scheduleBatchJob.getJobId(), getScheduleType(), scheduleBatchJob.getTaskId());
+                                continue;
                             }
-                            logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
-                            batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(),scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
-                        } else {
-                            checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), new HashSet<>(), new HashMap<>(), taskCache);
-                            if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
-                                // 更新job状态
-                                boolean updateStatus = batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.CREATE, JobPhaseStatus.JOIN_THE_TEAM);
-                                if (updateStatus) {
-                                    logger.info("jobId:{} scheduleType:{} nodeAddress:{} JobPhaseStatus:{} update success", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, JobPhaseStatus.JOIN_THE_TEAM);
+
+                            Integer type = batchTask.getTaskType();
+                            Integer status = batchJobService.getStatusById(scheduleBatchJob.getId());
+
+                            if (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
+                                logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB so immediate put queue.", scheduleBatchJob.getJobId(), getScheduleType());
+                                if (status != null && status.equals(RdosTaskStatus.UNSUBMIT.getStatus())) {
                                     putScheduleJob(scheduleBatchJob);
                                 }
+                                logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
+                                batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(),scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
+                            } else {
+                                JobCheckRunInfo checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(),batchTask);
+                                if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
+                                    // 更新job状态
+                                    boolean updateStatus = batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.CREATE, JobPhaseStatus.JOIN_THE_TEAM);
+                                    if (updateStatus) {
+                                        logger.info("jobId:{} scheduleType:{} nodeAddress:{} JobPhaseStatus:{} update success", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, JobPhaseStatus.JOIN_THE_TEAM);
+                                        putScheduleJob(scheduleBatchJob);
+                                    }
+                                }
                             }
-                        }
 
-                        //重跑任务不记录id
-                        if (Restarted.RESTARTED.getStatus() != scheduleBatchJob.getIsRestart()) {
-                            startId = scheduleBatchJob.getId();
+                            //重跑任务不记录id
+                            if (Restarted.RESTARTED.getStatus() != scheduleBatchJob.getIsRestart()) {
+                                startId = scheduleBatchJob.getId();
+                            }
+                        } catch (Exception e) {
+                            logger.error("jobId:{} scheduleType:{} nodeAddress:{} emitJob2Queue error:", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, e);
+                            Integer status = RdosTaskStatus.FAILED.getStatus();
+                            batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), status,e.getMessage());
                         }
                     }
                     listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight(),Boolean.FALSE);
