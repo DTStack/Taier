@@ -165,6 +165,8 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final String HADOOP_PROXY_USER = "HADOOP_PROXY_USER";
 
+    public static final String JAVA_PATH = "java.path";
+
 
     public DtYarnConfiguration() {
     }
