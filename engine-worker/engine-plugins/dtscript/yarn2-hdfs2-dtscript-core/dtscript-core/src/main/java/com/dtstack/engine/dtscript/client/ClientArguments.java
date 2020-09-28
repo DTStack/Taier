@@ -17,6 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 public class ClientArguments {
@@ -526,7 +529,23 @@ public class ClientArguments {
     }
 
     private void cliParser(String[] args) throws ParseException, IOException, ClassNotFoundException {
-        CommandLine commandLine = new BasicParser().parse(allOptions, args);
+        List<String> argsList = new ArrayList<>();
+        confs = new Properties();
+        final String prefix = "--conf-";
+        for (int i = 0; i < args.length; i += 2) {
+            String s = args[i];
+            if (!(s.startsWith(prefix))) {
+                argsList.add(s);
+                argsList.add(args[i+1]);
+            } else {
+                String key = s.substring(prefix.length()).replace('-', '.');
+                String value = args[i+1];
+                confs.setProperty(key, value);
+            }
+        }
+        String[] argsParser = new String[argsList.size()];
+        argsList.toArray(argsParser);
+        CommandLine commandLine = new BasicParser().parse(allOptions, argsParser);
         if (commandLine.getOptions().length == 0 || commandLine.hasOption("help")) {
             printUsage(allOptions);
             LOG.error("args length is 0");
