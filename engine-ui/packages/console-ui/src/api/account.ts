@@ -19,11 +19,11 @@ export default {
     },
 
     bindAccount (params: IAccount) {
-        return http.post(req.ACCOUNT_BIND, params)
+        return http.postWithDefaultHeader(req.ACCOUNT_BIND, params)
     },
 
     updateBindAccount (params: IAccount) {
-        return http.post(req.UPDATE_ACCOUNT_BIND, params)
+        return http.postWithDefaultHeader(req.UPDATE_ACCOUNT_BIND, params)
     },
 
     getBindAccounts (params: { dtuicTenantId: numOrStr; username: string; engineType: numOrStr }) {
@@ -31,6 +31,6 @@ export default {
     },
 
     unbindAccount (params: { id: numOrStr; name: string; password: string }) {
-        return http.post(req.ACCOUNT_UNBIND, params)
+        return http.postWithDefaultHeader(req.ACCOUNT_UNBIND, params)
     }
 }
