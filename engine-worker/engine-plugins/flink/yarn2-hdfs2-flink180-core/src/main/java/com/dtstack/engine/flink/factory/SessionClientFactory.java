@@ -574,7 +574,8 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         private JobSubmissionResult submitCheckedJobGraph() throws Exception {
             List<URL> classPaths = Lists.newArrayList();
-            String jarPath = String.format("%s/opt/%s", ConfigConstrant.USER_DIR, ConfigConstrant.SESSION_CHECK_JAR_NAME);
+            String jarPath = String.format("%s/pluginLibs/flink/%s", ConfigConstrant.USER_DIR, ConfigConstrant.SESSION_CHECK_JAR_NAME);
+            LOG.info("The session check jar is in : " + jarPath);
             String mainClass = ConfigConstrant.SESSION_CHECK_MAIN_CLASS;
             String checkpoint = sessionClientFactory.flinkConfiguration.getString(CheckpointingOptions.CHECKPOINTS_DIRECTORY);
             String[] programArgs = {checkpoint};

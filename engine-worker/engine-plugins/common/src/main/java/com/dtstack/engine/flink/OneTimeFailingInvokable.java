@@ -1,4 +1,4 @@
-package flink;
+package com.dtstack.engine.flink;
 
 import org.apache.flink.runtime.execution.Environment;
 import org.apache.flink.runtime.jobgraph.tasks.AbstractInvokable;
