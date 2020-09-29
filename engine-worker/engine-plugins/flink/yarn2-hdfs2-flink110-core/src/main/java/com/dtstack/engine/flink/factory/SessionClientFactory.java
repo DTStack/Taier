@@ -576,7 +576,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         private JobExecutionResult submitCheckedJobGraph() throws Exception, TimeoutException {
             List<URL> classPaths = Lists.newArrayList();
             FlinkConfig flinkConfig = clientBuilder.getFlinkConfig();
-            String jarPath = String.format("%s/%s/%s", ConfigConstrant.USER_DIR, flinkConfig.getSessionCheckJarPath(), ConfigConstrant.SESSION_CHECK_JAR_NAME);
+            String jarPath = String.format("%s%s/%s", ConfigConstrant.USER_DIR, flinkConfig.getSessionCheckJarPath(), ConfigConstrant.SESSION_CHECK_JAR_NAME);
             LOG.info("The session check jar is in : " + jarPath);
             String mainClass = ConfigConstrant.SESSION_CHECK_MAIN_CLASS;
             String checkpoint = sessionClientFactory.flinkConfiguration.getString(CheckpointingOptions.CHECKPOINTS_DIRECTORY);
