@@ -26,7 +26,6 @@
         <module>odps</module>
         <module>rdbs</module>
         <module>spark</module>
-        <module>common</module>
     </modules>
 
     <build>

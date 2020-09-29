@@ -25,6 +25,7 @@
         <module>yarn3-hdfs3-flink110</module>
         <module>k8s-hdfs2-flink110-core</module>
         <module>k8s-hdfs2-flink110</module>
+        <module>common</module>
     </modules>
 
     <build>
