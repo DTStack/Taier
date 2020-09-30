@@ -349,6 +349,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                 String principal = KerberosUtils.getPrincipal(keytabPath);
                 config.setString(SecurityOptions.KERBEROS_LOGIN_KEYTAB, keytabPath);
                 config.setString(SecurityOptions.KERBEROS_LOGIN_PRINCIPAL, principal);
+                continue;
             }
             keytabs.put(file.getName(), file);
         }
