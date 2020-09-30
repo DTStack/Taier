@@ -973,6 +973,7 @@ public class ComponentService {
                 jdbcUrl = jdbcUrl.replace("/%s", "/");
             }
 
+            dataInfo.put("jdbcUrl", jdbcUrl);
             dataInfo.put("username", dataInfo.getString("username"));
             dataInfo.put("password", dataInfo.getString("password"));
             if (Objects.nonNull(kerberosConfig)) {
