@@ -394,6 +394,7 @@ class ResourceManage extends React.Component<any, any> {
                     title={kubernetesEngine ? '切换namespace' : '切换队列'}
                     visible={queueModal}
                     isBindTenant={false}
+                    isBindNamespace={kubernetesEngine}
                     clusterList={clusterList}
                     tenantInfo={this.state.tenantInfo}
                     clusterId={queryParams.clusterId}
