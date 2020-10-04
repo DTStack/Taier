@@ -35,6 +35,7 @@ public class ApplicationWSParser {
     public static final String TRACKING_URL = "trackingUrl";
 
     private static final Pattern ERR_INFO_BYTE_PATTERN = Pattern.compile("(?<name>[^:]+):+\\s+[a-zA-Z\\s]+(\\d+)\\s*bytes");
+    private static final String LOG_FILE_REGEX = "[a-zA-Z]+\\.(log|err|out)";
 
     public final Map<String, String> amParams;
 
@@ -83,7 +84,9 @@ public class ApplicationWSParser {
                 infoTotalBytes = matcher.group(2);
             }
 
-            rollingBaseInfo.addLogBaseInfo(new LogBaseInfo(logName, logURL, infoTotalBytes));
+            if (logName.matches(LOG_FILE_REGEX)) {
+                rollingBaseInfo.addLogBaseInfo(new LogBaseInfo(logName, logURL, infoTotalBytes));
+            }
         }
         return rollingBaseInfo;
     }
