@@ -1465,6 +1465,12 @@ public class ComponentService {
                 },connectPool).get(env.getTestConnectTimeout(),TimeUnit.SECONDS);
             } catch (Exception e) {
                 LOGGER.error("test connect {}  e ", component.getComponentConfig(), e);
+                countDownLatch.countDown();
+                ComponentTestResult testResult = new ComponentTestResult();
+                testResult.setResult(false);
+                testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+                testResult.setComponentTypeCode(component.getComponentTypeCode());
+                testResults.add(testResult);
             }
         }
         try {
