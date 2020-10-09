@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Account;
 import com.dtstack.engine.api.domain.AccountTenant;
@@ -8,9 +7,9 @@ import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.api.dto.AccountDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.AccountTenantUnBandsVO;
 import com.dtstack.engine.api.vo.AccountTenantVo;
 import com.dtstack.engine.api.vo.AccountVo;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.AccountDao;
@@ -111,13 +110,17 @@ public class AccountService {
                 throw new RdosDefineException("请先绑定GREENPLUMe组件");
             }
         }
+
+        if(null == dataBaseType){
+            throw new RdosDefineException("不支持的数据源类型");
+        }
         JSONObject pluginInfo = new JSONObject();
         pluginInfo.put("jdbcUrl", jdbc.getString("jdbcUrl"));
         pluginInfo.put("username", accountVo.getName());
         pluginInfo.put("password", accountVo.getPassword());
-        pluginInfo.put("driverClassName", dataBaseType.getDriverClassName());
+        pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,dataBaseType.getTypeName());
         try {
-            workerOperator.executeQuery(DataBaseType.TiDB.getTypeName().toLowerCase(), pluginInfo.toJSONString(), "show databases", "");
+            workerOperator.executeQuery(dataBaseType.getTypeName().toLowerCase(), pluginInfo.toJSONString(), "show databases", "");
         } catch (Exception e) {
             throw new RdosDefineException("测试联通性失败 :" + ExceptionUtil.getErrorMessage(e));
         }
