@@ -1,4 +1,4 @@
-package main.com.dtstack.learning.AM;
+package com.dtstack.learning.AM;
 
 import com.dtstack.learning.AM.ApplicationContainerListener;
 import com.dtstack.learning.AM.ApplicationMessageService;
