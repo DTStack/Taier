@@ -27,7 +27,7 @@ public class JobPartitioner {
 
     public Map<String, Integer> getDefaultStrategy(List<String> aliveNodes, int jobSize) {
         Map<String, Integer> jobSizeInfo = new HashMap<String, Integer>(aliveNodes.size());
-        int size = jobSize / aliveNodes.size() + 1;
+        int size = (jobSize / aliveNodes.size()) + 1;
         for (String aliveNode : aliveNodes) {
             jobSizeInfo.put(aliveNode, size);
         }
@@ -58,6 +58,9 @@ public class JobPartitioner {
                 nodeSort.put(queueInfoEntry.getKey(), queueInfo.getSize());
             }
         }
+        if (nodeSort.isEmpty()) {
+            return getDefaultStrategy(aliveNodes, jobSize);
+        }
         int avg = (total / nodeSort.size()) + 1;
         for (Map.Entry<String, Integer> entry : nodeSort.entrySet()) {
             entry.setValue(avg - entry.getValue());
@@ -85,7 +88,10 @@ public class JobPartitioner {
                 nodeSort.put(groupInfoEntry.getKey(), groupInfo.getSize());
             }
         }
-        int avg = total / nodeSort.size() + 1;
+        if (nodeSort.isEmpty()) {
+            return getDefaultStrategy(aliveNodes, jobSize);
+        }
+        int avg = (total / nodeSort.size()) + 1;
         for (Map.Entry<String, Integer> entry : nodeSort.entrySet()) {
             entry.setValue(avg - entry.getValue());
         }
