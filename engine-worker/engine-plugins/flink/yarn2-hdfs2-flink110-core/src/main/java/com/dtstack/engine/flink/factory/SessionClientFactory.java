@@ -28,30 +28,25 @@ import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkClusterClientManager;
 import com.dtstack.engine.flink.FlinkConfig;
-import com.dtstack.engine.flink.NoOpInvokable;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.entity.SessionCheckInterval;
 import com.dtstack.engine.flink.entity.SessionHealthCheckedInfo;
 import com.dtstack.engine.flink.util.FileUtil;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
+import com.dtstack.engine.flink.util.FlinkUtil;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.client.ClientUtils;
 import org.apache.flink.client.deployment.ClusterSpecification;
-import org.apache.flink.client.program.ClusterClient;
-import org.apache.flink.client.program.ClusterClientProvider;
-import org.apache.flink.client.program.ProgramInvocationException;
-import org.apache.flink.client.program.ProgramMissingJobException;
+import org.apache.flink.client.program.*;
+import org.apache.flink.configuration.CheckpointingOptions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.configuration.SecurityOptions;
-import org.apache.flink.runtime.io.network.partition.ResultPartitionType;
-import org.apache.flink.runtime.jobgraph.DistributionPattern;
+import org.apache.flink.runtime.jobgraph.*;
 import org.apache.flink.runtime.jobgraph.JobGraph;
-import org.apache.flink.runtime.jobgraph.JobVertex;
-import org.apache.flink.runtime.jobgraph.ScheduleMode;
-import org.apache.flink.runtime.jobmanager.scheduler.SlotSharingGroup;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.locks.InterProcessMutex;
@@ -65,6 +60,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.kerby.config.Conf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -403,7 +399,6 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         @Override
         public void run() {
-            FlinkConfig flinkConfig = clientBuilder.getFlinkConfig();
             while (run.get()) {
                 try {
                     if (sessionCheckInterval.sessionHealthCheckedInfo.isRunning()) {
@@ -494,6 +489,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                             }
                         } catch (Exception e) {
                             LOG.error("", e);
+                            jobStatus = RdosTaskStatus.FAILED;
                         }
                         if (null == jobStatus) {
                             checkResult = false;
@@ -515,7 +511,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     LOG.info("Yarn Session Job, current state " + jobStatus);
                                 }
                                 long cost = System.currentTimeMillis() - startTime;
-                                if (cost > 60000) {
+                                if (cost > 60000 && cost < 300000) {
                                     LOG.info("Yarn Session Job took more than 60 seconds.");
                                 } else if (cost > 300000){
                                     LOG.info("Yarn Session Job took more than 300 seconds.");
@@ -577,8 +573,20 @@ public class SessionClientFactory extends AbstractClientFactory {
             this.run = new AtomicBoolean(run);
         }
 
-        private JobExecutionResult submitCheckedJobGraph() throws ProgramMissingJobException, ProgramInvocationException, TimeoutException {
-            JobExecutionResult result = ClientUtils.submitJob(sessionClientFactory.getClusterClient(), createJobGraph(), 1, TimeUnit.MINUTES);
+        private JobExecutionResult submitCheckedJobGraph() throws Exception, TimeoutException {
+            List<URL> classPaths = Lists.newArrayList();
+            FlinkConfig flinkConfig = clientBuilder.getFlinkConfig();
+            String jarPath = String.format("%s%s/%s", ConfigConstrant.USER_DIR, flinkConfig.getSessionCheckJarPath(), ConfigConstrant.SESSION_CHECK_JAR_NAME);
+            LOG.info("The session check jar is in : " + jarPath);
+            String mainClass = ConfigConstrant.SESSION_CHECK_MAIN_CLASS;
+            String checkpoint = sessionClientFactory.flinkConfiguration.getString(CheckpointingOptions.CHECKPOINTS_DIRECTORY);
+            String[] programArgs = {checkpoint};
+
+            PackagedProgram packagedProgram = FlinkUtil.buildProgram(jarPath, "./tmp", classPaths,
+                    null, mainClass, programArgs, SavepointRestoreSettings.none(),
+                    null, sessionClientFactory.flinkConfiguration);
+            JobGraph jobGraph = PackagedProgramUtils.createJobGraph(packagedProgram, sessionClientFactory.flinkConfiguration, 1, false);
+            JobExecutionResult result = ClientUtils.submitJob(sessionClientFactory.getClusterClient(), jobGraph, 1, TimeUnit.MINUTES);
             if (null == result) {
                 throw new ProgramMissingJobException("No JobSubmissionResult returned, please make sure you called " +
                         "ExecutionEnvironment.execute()");
@@ -586,26 +594,6 @@ public class SessionClientFactory extends AbstractClientFactory {
             LOG.info("Checked Program submitJob finished, Job with JobID:{} .", result.getJobID());
             return result.getJobExecutionResult();
         }
-
-
-        private JobGraph createJobGraph() {
-            SlotSharingGroup slotSharingGroup = new SlotSharingGroup();
-
-            final JobVertex source = new JobVertex("source");
-            source.setInvokableClass(NoOpInvokable.class);
-            source.setSlotSharingGroup(slotSharingGroup);
-
-            final JobVertex sink = new JobVertex("sink");
-            sink.setInvokableClass(NoOpInvokable.class);
-            sink.setSlotSharingGroup(slotSharingGroup);
-
-            sink.connectNewDataSetAsInput(source, DistributionPattern.POINTWISE, ResultPartitionType.PIPELINED);
-            JobGraph jobGraph = new JobGraph("dtIdleDetection", source, sink);
-
-            jobGraph.setScheduleMode(ScheduleMode.EAGER);
-            return jobGraph;
-        }
-
     }
 
 }
