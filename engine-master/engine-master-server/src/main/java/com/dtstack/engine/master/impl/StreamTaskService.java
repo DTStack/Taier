@@ -57,6 +57,13 @@ public class StreamTaskService {
         return engineJobCheckpointDao.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
     }
 
+    /**
+     * 查询checkPoint
+     */
+    public EngineJobCheckpoint getSavePoint( String taskId){
+        return engineJobCheckpointDao.findLatestSavepointByTaskId(taskId);
+    }
+
     public EngineJobCheckpoint getByTaskIdAndEngineTaskId( String taskId,  String engineTaskId){
         return engineJobCheckpointDao.getByTaskIdAndEngineTaskId(taskId, engineTaskId);
     }

@@ -47,10 +47,16 @@ public class ActionController {
     @ApiImplicitParams({
             @ApiImplicitParam(name="jobIds",value="请求停止任务的相关信息，jobIds",required=true, paramType="body")
     })
+    public Boolean stop(@DtRequestParam(value = "jobIds") List<String> jobIds) throws Exception {
+        return actionService.stop(jobIds);
+    }
+
+    @RequestMapping(value="/forceStop", method = {RequestMethod.POST})
+    @ApiOperation(value = "停止任务")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="jobIds",value="请求停止任务的相关信息，jobIds",required=true, paramType="body")
+    })
     public Boolean stop(@DtRequestParam(value = "jobIds") List<String> jobIds, @DtRequestParam("isForce") Integer isForce) throws Exception {
-        if(null == isForce){
-            return actionService.stop(jobIds);
-        }
         return actionService.stop(jobIds, isForce);
     }
 
