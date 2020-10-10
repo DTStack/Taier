@@ -214,7 +214,7 @@ public interface ScheduleJobDao {
 
     void updateJobStatusAndExecTime(@Param("jobId") String jobId, @Param("status") int status);
 
-    void updateJobSubmitSuccess(@Param("jobId") String jobId, @Param("engineId") String engineId, @Param("appId") String appId, @Param("submitLog") String submitLog);
+    void updateJobSubmitSuccess(@Param("jobId") String jobId, @Param("engineId") String engineId, @Param("appId") String appId, @Param("submitLog") String submitLog,@Param("jobGraph") String jobGraph);
 
     ScheduleJob getRdosJobByJobId(@Param("jobId") String jobId);
 
@@ -243,4 +243,6 @@ public interface ScheduleJobDao {
     Integer updateListPhaseStatus(@Param("ids") List<Long> ids, @Param("update") Integer update);
 
     Integer updateJobStatusAndPhaseStatus(@Param("jobId") String jobId, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus);
+
+    String getJobGraph(@Param("jobId") String jobId);
 }

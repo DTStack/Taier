@@ -39,8 +39,11 @@ public class ContainerEnvBuilder {
         final ApplicationAttemptId applicationAttemptId = applicationMaster.appArguments.applicationAttemptID;
         final ApplicationContainerListener containerListener = applicationMaster.containerListener;
 
+
         LOG.info("Setting environments for the Container");
         Map<String, String> containerEnv = new HashMap<>();
+
+        containerEnv.put(DtYarnConstants.Environment.XLEARNING_CONTAIENR_GPU_NUM.toString(), String.valueOf(applicationMaster.appArguments.workerGCores));
 
         containerEnv.put(DtYarnConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.job.ugi").split(",")[0]);
         containerEnv.put(DtYarnConstants.Environment.DT_EXEC_CMD.toString(), cmd);

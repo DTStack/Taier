@@ -212,6 +212,7 @@ public class FlinkClient extends AbstractClient {
                 clusterSpecification.setClassLoaderType(ClassLoaderType.getClassLoaderType(jobClient.getJobType()));
 
                 runResult = runJobByPerJob(clusterSpecification, jobClient);
+                jobGraph = clusterSpecification.getJobGraph();
                 packagedProgram = clusterSpecification.getProgram();
             } else {
                 Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
@@ -224,7 +225,7 @@ public class FlinkClient extends AbstractClient {
 
                 runResult = runJobByYarnSession(jobGraph);
             }
-            return JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond());
+            return JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond(), JobGraphBuildUtil.buildLatencyMarker(jobGraph));
         } catch (Throwable e) {
             return JobResult.createErrorResult(e);
         } finally {
