@@ -73,7 +73,7 @@ public class ConfigConstrant {
 
     public static final String KAFKA_SFTP_KEYTAB = "kafka.sftp.keytab";
     public static final String SECURITY_KERBEROS_LOGIN_KEYTAB= "security.kerberos.login.keytab";
-    public static final String LOCAL_KEYTAB_DIR_PARENT = USER_DIR + "/keytab";
+    public static final String LOCAL_KEYTAB_DIR_PARENT = USER_DIR + "/kerberos/keytab";
 
     // ------------------------------------------------------------------------
     // Restful Url Format Configs
