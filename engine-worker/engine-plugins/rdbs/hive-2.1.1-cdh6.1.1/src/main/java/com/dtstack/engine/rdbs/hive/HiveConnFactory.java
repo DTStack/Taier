@@ -1,11 +1,15 @@
 package com.dtstack.engine.rdbs.hive;
 
 
+import com.dtstack.engine.base.util.KerberosUtils;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -16,6 +20,8 @@ import java.util.List;
 import java.util.Properties;
 
 public class HiveConnFactory extends AbstractConnFactory {
+
+    private static final Logger LOG = LoggerFactory.getLogger(HiveConnFactory.class);
 
     private String hiveSubType;
 
@@ -56,32 +62,43 @@ public class HiveConnFactory extends AbstractConnFactory {
     }
     @Override
     public Connection getConnByTaskParams(String taskParams, String jobName) throws ClassNotFoundException, SQLException, IOException {
-        Properties properties =  new Properties();
-        Connection conn;
+        try {
+            return KerberosUtils.login(baseConfig,()->{
+                Properties properties =  new Properties();
+                Connection conn;
 
-        properties.setProperty(HIVE_JOBNAME_PROPERTY , jobName);
+                properties.setProperty(HIVE_JOBNAME_PROPERTY , jobName);
 
-        if (StringUtils.isNotEmpty(taskParams)) {
-            for (String str : taskParams.split("\n")) {
-                if (str.startsWith("#")) {
-                    continue;
+                if (StringUtils.isNotEmpty(taskParams)) {
+                    for (String str : taskParams.split("\n")) {
+                        if (str.startsWith("#")) {
+                            continue;
+                        }
+                        String[] keyAndVal = str.split("=");
+                        if (keyAndVal.length > 1) {
+                            String newKey = keyAndVal[0].startsWith(HIVE_CONF_PREFIX) ? keyAndVal[0] : HIVE_CONF_PREFIX + keyAndVal[0];
+                            properties.setProperty(newKey, keyAndVal[1]);
+                        }
+                    }
                 }
-                String[] keyAndVal = str.split("=");
-                if (keyAndVal.length > 1) {
-                    String newKey = keyAndVal[0].startsWith(HIVE_CONF_PREFIX) ? keyAndVal[0] : HIVE_CONF_PREFIX + keyAndVal[0];
-                    properties.setProperty(newKey, keyAndVal[1]);
-                }
-            }
-        }
 
-        if (getUsername() == null) {
-            conn = DriverManager.getConnection(jdbcUrl, properties);
-        } else {
-            properties.setProperty(HIVE_USER, getUsername());
-            properties.setProperty(HIVE_PASSWORD, getPassword());
-            conn = DriverManager.getConnection(jdbcUrl, properties);
+                try {
+                    if (getUsername() == null) {
+                        conn = DriverManager.getConnection(jdbcUrl, properties);
+                    } else {
+                        properties.setProperty(HIVE_USER, getUsername());
+                        properties.setProperty(HIVE_PASSWORD, getPassword());
+                        conn = DriverManager.getConnection(jdbcUrl, properties);
+                    }
+                } catch (SQLException e) {
+                    throw new RdosDefineException(e);
+                }
+                return conn;
+            },yarnConf);
+        } catch (Exception e) {
+            LOG.error("getConnByTaskParams error {}",jobName,e);
+            throw new RdosDefineException(e);
         }
-        return conn;
     }
 
     @Override
