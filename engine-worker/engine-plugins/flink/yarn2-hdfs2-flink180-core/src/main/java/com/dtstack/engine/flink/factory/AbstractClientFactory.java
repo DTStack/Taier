@@ -54,11 +54,15 @@ public abstract class AbstractClientFactory implements IClientFactory {
             Configuration configuration,
             YarnConfiguration yarnConfiguration,
             String configurationDirectory) {
+
+        YarnClient yarnClient = YarnClient.createYarnClient();
+        yarnClient.init(yarnConfiguration);
+        yarnClient.start();
         return new YarnClusterDescriptor(
                 configuration,
                 yarnConfiguration,
                 configurationDirectory,
-                getYarnClient(),
+                yarnClient,
                 true);
     }
 
