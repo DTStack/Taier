@@ -432,6 +432,10 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         }
     }
 
+    private boolean isSecurityEnabled() {
+        return flinkConfiguration.getBoolean("openKerberos", false);
+    }
+
     /**
      * This method will block until the ApplicationMaster/JobManager have been deployed on YARN.
      *
@@ -451,7 +455,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         // ------------------ Check if configuration is valid --------------------
         validateClusterSpecification(clusterSpecification);
 
-        if (UserGroupInformation.isSecurityEnabled()) {
+        if (isSecurityEnabled()) {
             // note: UGI::hasKerberosCredentials inaccurately reports false
             // for logins based on a keytab (fixed in Hadoop 2.6.1, see HADOOP-10786),
             // so we check only in ticket cache scenario.
@@ -1119,7 +1123,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 hasKrb5,
                 clusterSpecification.getMasterMemoryMB());
 
-        if (UserGroupInformation.isSecurityEnabled()) {
+        if (isSecurityEnabled()) {
             // set HDFS delegation tokens when security is enabled
             LOG.info("Adding delegation token to the AM container..");
             Utils.setTokensFor(amContainer, paths, yarnConfiguration);
