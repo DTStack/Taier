@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.HadoopKerberosName;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.kerby.kerberos.kerb.keytab.Keytab;
 import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
 import org.slf4j.Logger;
@@ -118,6 +119,9 @@ public class KerberosUtils {
         */
         if (Objects.isNull(allConfig.get(SECURITY_TO_LOCAL))) {
             allConfig.set(KERBEROS_AUTH, KERBEROS_AUTH_TYPE);
+        } else {
+            allConfig.set(KERBEROS_AUTH, "simple");
+            //allConfig = removeKerberosAuth(allConfig);
         }
         UserGroupInformation.setConfiguration(allConfig);
         try {
@@ -128,6 +132,22 @@ public class KerberosUtils {
             logger.error("{}", keytabPath, e);
             throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
         }
+    }
+
+    private static Configuration removeKerberosAuth(Configuration allConfig) {
+        Configuration config = new YarnConfiguration();
+        allConfig.forEach(key -> {
+            String newkey = String.valueOf(key);
+            if (!StringUtils.equals(newkey, KERBEROS_AUTH)) {
+                Object value = allConfig.get(newkey);
+                if (value instanceof String){
+                    config.set(newkey, (String) value);
+                } else if (value instanceof Boolean){
+                    config.setBoolean(newkey, (boolean) value);
+                }
+            }
+        });
+        return config;
     }
 
     public static String getPrincipal(String filePath) {
