@@ -1450,6 +1450,12 @@ public class ComponentService {
                 }, connectPool).get(env.getTestConnectTimeout(), TimeUnit.SECONDS);
             } catch (Exception e) {
                 LOGGER.error("test connect {}  e ", component.getComponentConfig(), e);
+                countDownLatch.countDown();
+                ComponentTestResult testResult = new ComponentTestResult();
+                testResult.setResult(false);
+                testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+                testResult.setComponentTypeCode(component.getComponentTypeCode());
+                testResults.add(testResult);
             }
         }
         try {
@@ -1555,7 +1561,7 @@ public class ComponentService {
                 queueDao.update(queue);
             }
         } else {
-            throw new RdosDefineException("绑定失败");
+            throw new RdosDefineException("namespace为空 绑定失败");
         }
 
     }

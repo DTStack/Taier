@@ -139,8 +139,6 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             if (savepointArgs != null) {
                 taskExeArgs += " " + savepointArgs;
             }
-        } else if (taskShade.getTaskType().equals(EScheduleJobType.TENSORFLOW_1_X.getVal()) || taskShade.getTaskType().equals(EScheduleJobType.KERAS.getVal())) {
-            taskExeArgs = this.buildTensorflowOrKeras(actionParam, taskShade, scheduleJob, taskParamsToReplace);
         } else if (taskShade.getEngineType().equals(ScheduleEngineType.Learning.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.Shell.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.DtScript.getVal())
@@ -200,28 +198,6 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             LOG.info(" replaceTaskExeArgs job {} exeArgs {} ", scheduleJob.getJobId(), taskExeArgs);
         }
         actionParam.put("exeArgs", taskExeArgs);
-    }
-
-    private String buildTensorflowOrKeras(Map<String, Object> actionParam, ScheduleTaskShade taskShade, ScheduleJob scheduleJob, List<ScheduleTaskParamShade> taskParamsToReplace) {
-        String taskExeArgs;
-        //tensorflow 参数
-        //--files ${uploadPath} --python-version 3 --launch-cmd ${launch} --app-type tensorflow --app-name dddd
-        String exeArgs = (String) actionParam.get("exeArgs");
-        String launchCmd = (String) actionParam.getOrDefault(TaskConstant.LAUNCH_CMD, "python ${file}");
-        //分为资源上传 和 hdfs上传
-        String fileName = "";
-        if (launchCmd.contains(TaskConstant.FILE_NAME) || launchCmd.contains(TaskConstant.UPLOADPATH)) {
-            String uploadPath = this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
-                    taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
-            fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/") + 1);
-            exeArgs = exeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
-        }
-        launchCmd = jobParamReplace.paramReplace(launchCmd, taskParamsToReplace, scheduleJob.getCycTime());
-        //替换参数 base64 生成launchCmd
-        String launchString = Base64Util.baseEncode(launchCmd.replace(TaskConstant.FILE_NAME, fileName));
-        taskExeArgs = exeArgs.replace(TaskConstant.LAUNCH, launchString);
-        LOG.info(" TensorFlow job {} fileName {} exeArgs {} ", scheduleJob.getJobId(), fileName, taskExeArgs);
-        return taskExeArgs;
     }
 
     /**
@@ -590,6 +566,9 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                         taskName, System.currentTimeMillis());
             } else if (taskType.equals(EScheduleJobType.KERAS.getVal())){
                 fileName = String.format("keras_%s_%s_%s_%s.py", tenantId, projectId,
+                        taskName, System.currentTimeMillis());
+            } else if (taskType.equals(EScheduleJobType.PYTORCH.getVal())) {
+                fileName = String.format("pytorch_%s_%s_%s_%s.py", tenantId, projectId,
                         taskName, System.currentTimeMillis());
             }
 

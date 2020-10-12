@@ -786,6 +786,8 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public void beforeSubmitFunc(JobClient jobClient) {
+        logger.info("Job[{}] submit before", jobClient.getTaskId());
+
         String sql = jobClient.getSql();
         List<String> sqlArr = DtStringUtil.splitIgnoreQuota(sql, ';');
         if(sqlArr.size() == 0){

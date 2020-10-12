@@ -39,6 +39,10 @@ public class ConfigConstrant {
     public static final String JOBMANAGER_COMPONEN = "jobmanager";
     public static final String TASKMANAGER_COMPONEN = "taskmanager";
 
+    public static final String  SESSION_CHECK_JAR_NAME= "dt-flink-check.jar";
+    public static final String  SESSION_CHECK_MAIN_CLASS= "com.dtstack.engine.flink.check.FlinkSessionCheck";
+    public static final String DEFAULT_SESSION_CHECK_PATH = "/pluginLibs/flinkcommon";
+
     // ------------------------------------------------------------------------
     // Resource Configs
     // ------------------------------------------------------------------------
