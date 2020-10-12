@@ -131,7 +131,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     private void startYarnSessionClientMonitor() {
         yarnMonitorES = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
+                new LinkedBlockingQueue<>(), new CustomThreadFactory(sessionAppNameSuffix + "_yarnsession_monitor"));
 
         //启动守护线程---用于获取当前application状态和更新flink对应的application
         yarnMonitorES.submit(new AppStatusMonitor(flinkClusterClientManager, flinkClientBuilder, this));
@@ -548,11 +548,14 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         private void stopFlinkYarnSession() {
             if (sessionClientFactory.getClusterClient() != null) {
-                LOG.error("------- Flink yarn-session client shutdown ----");
+                LOG.info("------- Flink yarn-session client shutdownCluster. ----");
                 sessionClientFactory.getClusterClient().shutDownCluster();
+                LOG.info("------- Flink yarn-session client shutdownCluster over. ----");
 
                 try {
+                    LOG.info("------- Flink yarn-session client shutdown ----");
                     sessionClientFactory.getClusterClient().shutdown();
+                    LOG.info("------- Flink yarn-session client shutdown over. ----");
                 } catch (Exception ex) {
                     LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
                 }
@@ -562,7 +565,11 @@ public class SessionClientFactory extends AbstractClientFactory {
                 Configuration newConf = new Configuration(sessionClientFactory.flinkConfiguration);
                 ApplicationId applicationId = sessionClientFactory.acquireAppIdAndSetClusterId(newConf);
                 if (applicationId != null){
+                    LOG.info("------- Flink yarn-session application kill. ----");
                     clientBuilder.getYarnClient().killApplication(applicationId);
+                    LOG.info("------- Flink yarn-session application kill over. ----");
+                } else {
+                    LOG.info("------- Flink yarn-session compatible application not exist. ----");
                 }
             } catch (Exception ex) {
                 LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
