@@ -188,18 +188,16 @@ public class SessionClientFactory extends AbstractClientFactory {
                 return true;
             }
 
-            if(leaderLatch.hasLeadership()) {
-                if (flinkConfig.getSessionStartAuto()) {
-                    try {
-                        AbstractYarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
-                        yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + sessionAppNameSuffix);
-                        clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
-                        clusterClient.setDetached(true);
-                        return true;
-                    } catch (FlinkException e) {
-                        LOG.info("Couldn't deploy Yarn session cluster, ", e);
-                        throw e;
-                    }
+            if(leaderLatch.hasLeadership() && flinkConfig.getSessionStartAuto()){
+                try {
+                    AbstractYarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
+                    yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + sessionAppNameSuffix);
+                    clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
+                    clusterClient.setDetached(true);
+                    return true;
+                } catch (FlinkException e) {
+                    LOG.info("Couldn't deploy Yarn session cluster, ", e);
+                    throw e;
                 }
             }
 
@@ -470,9 +468,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                         }
                     } else {
                         //retry时有一段等待时间，确保session正常运行。
-                        if(sessionClientFactory.leaderLatch.hasLeadership()){
-                            retry();
-                        }
+                        retry();
                     }
                 } catch (Throwable t) {
                     LOG.error("YarnAppStatusMonitor check error:{}", t);
@@ -553,7 +549,9 @@ public class SessionClientFactory extends AbstractClientFactory {
         private void retry() {
             //重试
             try {
-                stopFlinkYarnSession();
+                if(this.sessionClientFactory.leaderLatch.hasLeadership()){
+                    stopFlinkYarnSession();
+                }
                 LOG.warn("-- retry Flink yarn-session client ----");
                 startTime = System.currentTimeMillis();
                 this.lastAppState = YarnApplicationState.NEW;
