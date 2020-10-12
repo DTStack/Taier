@@ -85,16 +85,16 @@ public class StreamTaskService {
     /**
      * 获取任务的状态
      */
-    public Integer getTaskStatus( String taskId){
+    public Integer getTaskStatus(String taskId) {
         Integer status = null;
-        if (StringUtils.isNotEmpty(taskId)){
-        	ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
-            if (scheduleJob != null){
+        if (StringUtils.isNotEmpty(taskId)) {
+            ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
+            if (scheduleJob != null) {
                 status = scheduleJob.getStatus();
             }
         }
 
-        return status;
+        return RdosTaskStatus.getShowStatus(status);
     }
 
     /**
