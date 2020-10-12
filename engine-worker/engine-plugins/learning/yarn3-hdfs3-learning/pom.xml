@@ -10,29 +10,37 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.learning.yarn2-hdfs2-learning-core</artifactId>
-    <name>plugins.learning.yarn2-hdfs2-learning-core</name>
+    <artifactId>plugins.learning.yarn3-hdfs3-learning</artifactId>
+    <name>plugins.learning.yarn3-hdfs3-learning</name>
     <packaging>pom</packaging>
 
     <properties>
-        <learning.version>4.0.0</learning.version>
         <junit.version>4.11</junit.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <learning3.version>4.0.0-gpu-SNAPSHOT</learning3.version>
     </properties>
 
     <url>http://maven.apache.org</url>
+
     <modules>
         <module>learning-core</module>
         <module>learning-client</module>
     </modules>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>2.5</version>
-            </plugin>
-        </plugins>
-    </build>
+    <dependencies>
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-common</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-worker-server</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
 </project>
