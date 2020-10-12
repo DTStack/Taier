@@ -45,7 +45,7 @@ public class FlinkClusterClientManager {
     /**
      * 常驻的yarnSessionClient，engine使用flink 1.8后，可以考虑废弃yarnSessionClient。
      */
-    private ClusterClient clusterClient;
+    private volatile ClusterClient clusterClient;
 
     /**
      * 用于缓存连接perjob对应application的ClusterClient
@@ -69,9 +69,9 @@ public class FlinkClusterClientManager {
     }
 
     public void initClusterClient() throws Exception {
-        KerberosUtils.login(flinkConfig, () -> {
+        clusterClient = KerberosUtils.login(flinkConfig, () -> {
             if (flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.STANDALONE.name())) {
-                clusterClient = new StandaloneClientFactory(flinkClientBuilder.getFlinkConfiguration(), flinkConfig).getClusterClient();
+                return new StandaloneClientFactory(flinkClientBuilder.getFlinkConfiguration(), flinkConfig).getClusterClient();
             } else if (flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.SESSION.name())) {
                 if (null == sessionClientFactory) {
                     try {
@@ -82,10 +82,10 @@ public class FlinkClusterClientManager {
                         throw new RdosDefineException(e);
                     }
                 }
-                clusterClient = sessionClientFactory.startAndGetSessionClusterClient();
+                return sessionClientFactory.startAndGetSessionClusterClient();
             }
             return null;
-        },flinkClientBuilder.getYarnConf());
+        }, flinkClientBuilder.getYarnConf());
     }
 
     /**
