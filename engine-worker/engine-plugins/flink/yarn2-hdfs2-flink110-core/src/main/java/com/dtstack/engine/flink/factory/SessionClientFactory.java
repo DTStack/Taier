@@ -130,8 +130,8 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         this.zkClient = CuratorFrameworkFactory.builder()
                 .connectString(zkAddress).retryPolicy(new ExponentialBackoffRetry(1000, 3))
-                .connectionTimeoutMs(5000)
-                .sessionTimeoutMs(5000).build();
+                .connectionTimeoutMs(flinkConfig.getZkConnectionTimeout())
+                .sessionTimeoutMs(flinkConfig.getZkSessionTimeout()).build();
         this.zkClient.start();
 
         try {

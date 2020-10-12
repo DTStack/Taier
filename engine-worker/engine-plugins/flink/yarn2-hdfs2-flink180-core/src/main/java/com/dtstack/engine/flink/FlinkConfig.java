@@ -70,6 +70,26 @@ public class FlinkConfig extends BaseConfig {
 
     private boolean monitorAcceptedApp = false;
 
+    private int zkConnectionTimeout = 5000;
+
+    private int zkSessionTimeout = 5000;
+
+    public int getZkConnectionTimeout() {
+        return zkConnectionTimeout;
+    }
+
+    public void setZkConnectionTimeout(int zkConnectionTimeout) {
+        this.zkConnectionTimeout = zkConnectionTimeout;
+    }
+
+    public int getZkSessionTimeout() {
+        return zkSessionTimeout;
+    }
+
+    public void setZkSessionTimeout(int zkSessionTimeout) {
+        this.zkSessionTimeout = zkSessionTimeout;
+    }
+
     private String sessionCheckJarPath;
 
     public String getSessionCheckJarPath() {
