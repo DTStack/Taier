@@ -131,7 +131,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     private void startYarnSessionClientMonitor() {
         yarnMonitorES = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
+                new LinkedBlockingQueue<>(), new CustomThreadFactory(sessionAppNameSuffix + "_yarnsession_monitor"));
 
         //启动守护线程---用于获取当前application状态和更新flink对应的application
         yarnMonitorES.submit(new AppStatusMonitor(flinkClusterClientManager, flinkClientBuilder, this));
