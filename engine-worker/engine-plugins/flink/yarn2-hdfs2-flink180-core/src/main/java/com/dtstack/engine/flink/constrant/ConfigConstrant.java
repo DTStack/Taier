@@ -40,6 +40,7 @@ public class ConfigConstrant {
     public static final String  SESSION_CHECK_MAIN_CLASS= "com.dtstack.engine.flink.check.FlinkSessionCheck";
     public static final String DEFAULT_SESSION_CHECK_PATH = "/pluginLibs/flinkcommon";
 
+
     // ------------------------------------------------------------------------
     // Resource Configs
     // ------------------------------------------------------------------------
