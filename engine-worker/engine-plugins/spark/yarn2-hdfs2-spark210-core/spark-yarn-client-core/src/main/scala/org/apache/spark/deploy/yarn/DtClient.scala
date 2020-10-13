@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets
 import java.util.zip.{ZipEntry, ZipOutputStream}
 import java.util.{Properties, UUID}
 
+import com.dtstack.engine.sparkyarn.sparkyarn.SparkYarnClient
 import com.google.common.base.Objects
 import com.google.common.io.Files
 import org.apache.hadoop.conf.Configuration
@@ -516,6 +517,11 @@ private[spark] class DtClient(
       } else {
         (true, trimmedPath)
       }
+    }
+
+    val log4jLocalPath = sparkConf.get(SparkYarnClient.SPARK_LOCAL_LOG4J_KEY, "")
+    if (!"".equals(log4jLocalPath)) {
+        distribute(log4jLocalPath, destName = Some(SparkYarnClient.SPARK_LOG4J_FILE_NAME))
     }
 
     // If we passed in a keytab, make sure we copy the keytab to the staging directory on
