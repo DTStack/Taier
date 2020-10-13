@@ -48,7 +48,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_task_shade
-        WHERE parent_task_id = #{parentTaskId} and is_deleted = 0
+        WHERE parent_task_id = #{parentTaskId} and is_deleted = 0 AND app_type = #{appType}
     </select>
 
     <select id="listParentTask" resultType="ScheduleTaskTaskShade">
@@ -56,11 +56,14 @@
         <include refid="select_content_fragment"/>
         FROM schedule_task_task_shade
         WHERE task_id = #{childTaskId} and is_deleted = 0
+        <if test="appType != null">
+            AND app_type = #{appType}
+        </if>
     </select>
 
     <delete id="deleteByTaskId">
         DELETE FROM schedule_task_task_shade
-        WHERE task_id = #{taskId}
+        WHERE task_id = #{taskId} AND app_type = #{appType}
     </delete>
 
     <insert id="insert" parameterType="ScheduleTaskTaskShade" useGeneratedKeys="true" keyProperty="id">
@@ -89,7 +92,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_task_shade
-        WHERE task_id = #{taskId} and parent_task_id = #{parentTaskId} AND is_deleted = 0
+        WHERE task_id = #{taskId} and parent_task_id = #{parentTaskId} AND is_deleted = 0 AND app_type = #{appType}
     </select>
 
 </mapper>

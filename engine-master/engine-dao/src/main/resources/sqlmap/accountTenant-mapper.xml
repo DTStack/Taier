@@ -83,6 +83,9 @@
         <if test="model.type != null">
             AND ca.type = #{model.type}
         </if>
+        <if test="model.dtuicUserId != null">
+            AND cu.dtuic_user_id = #{model.dtuicUserId}
+        </if>
         <if test="model.name != null">
             AND (ca.name LIKE '%${model.name}%' OR cu.user_name LIKE '%${model.name}%')
         </if>
@@ -91,7 +94,7 @@
 
     <select id="generalQuery" parameterType="com.dtstack.engine.api.pager.PageQuery" resultType="com.dtstack.engine.api.dto.AccountDTO">
         SELECT ca.name AS name,cat.*,cu.user_name,
-               (SELECT user_name FROM console_user WHERE id = cat.modify_user_id ) AS modifyUserName
+               (SELECT user_name FROM console_user WHERE dtuic_user_id = cat.modify_user_id ) AS modifyUserName
         FROM console_account_tenant cat
         LEFT JOIN console_account ca ON cat.account_id = ca.id
         LEFT JOIN console_dtuic_tenant ct ON cat.tenant_id = ct.id
@@ -105,6 +108,9 @@
         </if>
         <if test="model.name != null">
             AND (ca.name LIKE '%${model.name}%' OR cu.user_name LIKE '%${model.name}%')
+        </if>
+        <if test="model.dtuicUserId != null">
+            AND cu.dtuic_user_id = #{model.dtuicUserId}
         </if>
         <include refid="page_condition"/>
     </select>

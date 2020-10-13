@@ -33,6 +33,7 @@ public class ClientArguments {
     int workerVcores;
     long workerGCores;
     int workerNum;
+    int workerReservedMemory;
     int psMemory;
     int psVcores;
     int psNum;
@@ -128,6 +129,14 @@ public class ClientArguments {
 
     public void setWorkerNum(int workerNum) {
         this.workerNum = workerNum;
+    }
+
+    public int getWorkerReservedMemory() {
+        return workerReservedMemory;
+    }
+
+    public void setWorkerReservedMemory(int workerReservedMemory) {
+        this.workerReservedMemory = workerReservedMemory;
     }
 
     public int getAppMem() {
@@ -375,14 +384,15 @@ public class ClientArguments {
         appName = "";
         appType = new DummyType();
         nodes = null;
-        amMem = DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY;
-        amCores = DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES;
-        workerMemory = DtYarnConfiguration.DEFAULT_LEARNING_WORKER_MEMORY;
-        workerVcores = DtYarnConfiguration.DEFAULT_LEARNING_WORKER_VCORES;
-        workerGCores = DtYarnConfiguration.DEFAULT_LEARNING_WORKER_GPU;
+        amMem = DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY;
+        amCores = DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_CORES;
+        workerMemory = DtYarnConfiguration.DEFAULT_DTSCRIPT_WORKER_MEMORY;
+        workerVcores = DtYarnConfiguration.DEFAULT_DTSCRIPT_WORKER_VCORES;
+        workerGCores = DtYarnConfiguration.DEFAULT_DTSCRIPT_WORKER_GPU;
         workerNum = DtYarnConfiguration.DEFAULT_DT_WORKER_NUM;
-        appMem = DtYarnConfiguration.DEFAULT_LEARNING_APP_MEMORY;
-        pythonVersion = DtYarnConfiguration.DEFAULT_LEARNING_PYTHON_VERSION;
+        workerReservedMemory = DtYarnConfiguration.DEFAULT_DTSCRIPT_CONTAINER_RESERVED_MEMORY;
+        appMem = DtYarnConfiguration.DEFAULT_DTSCRIPT_APP_MEMORY;
+        pythonVersion = DtYarnConfiguration.DEFAULT_DTSCRIPT_PYTHON_VERSION;
         files = null;
         cacheFiles = "";
         libJars = null;
@@ -393,11 +403,11 @@ public class ClientArguments {
         jvmOpts = "-server -XX:+UseConcMarkSweepGC -XX:MaxDirectMemorySize=128m -XX:MaxMetaspaceSize=128m -XX:-UseCompressedClassPointers -XX:+DisableExplicitGC -XX:-OmitStackTraceInFastThrow -XX:OnOutOfMemoryError='kill %p'";
         appMasterJar = "";
         userPath = "";
-        priority = DtYarnConfiguration.DEFAULT_LEARNING_APP_PRIORITY;
+        priority = DtYarnConfiguration.DEFAULT_DTSCRIPT_APP_PRIORITY;
         queue = "default";
-        userClasspathFirst = DtYarnConfiguration.DEFAULT_LEARNING_USER_CLASSPATH_FIRST;
+        userClasspathFirst = DtYarnConfiguration.DEFAULT_DTSCRIPT_USER_CLASSPATH_FIRST;
         exclusive = DtYarnConfiguration.DEFAULT_APP_NODEMANAGER_EXCLUSIVE;
-        maxAppAttempts = 3;
+        maxAppAttempts = DtYarnConfiguration.DEFAULT_APP_MAX_ATTEMPTS;
         logLevel = Level.INFO.toString();
         nodeLabel = "";
 
@@ -425,6 +435,8 @@ public class ClientArguments {
                 "Amount of gpu cores to be requested to run worker");
         allOptions.addOption("workerNum", "worker-num", true,
                 "No. of containers on which the worker needs to be executed");
+        allOptions.addOption("workerReservedMemory", "worker-reserved-memory", true,
+                "Amount of memory reserved to run worker");
 
         allOptions.addOption("appMemory", "app-memory", true,
                 "Amount of memory in MB to be requested to run the app");
@@ -564,6 +576,10 @@ public class ClientArguments {
         if (commandLine.hasOption("worker-num")) {
             String workerNumStr = commandLine.getOptionValue("worker-num");
             workerNum = Integer.parseInt(workerNumStr);
+        }
+
+        if (commandLine.hasOption("worker-reserved-memory")) {
+            workerReservedMemory = getNormalizedMem(commandLine.getOptionValue("worker-reserved-memory"));
         }
 
         if (commandLine.hasOption("app-memory")) {
