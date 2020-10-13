@@ -145,8 +145,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
             setNoneHaModeConfig(configuration);
         } else {
             configuration.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
-            String haClusterId = String.format("%s-%s", jobClient.getTaskId(), RandomStringUtils.randomAlphanumeric(8));
-            configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, haClusterId);
+            configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
         }
 
         configuration.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
