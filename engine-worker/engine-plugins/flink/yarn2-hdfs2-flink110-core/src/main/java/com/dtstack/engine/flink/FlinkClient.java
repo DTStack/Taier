@@ -401,7 +401,7 @@ public class FlinkClient extends AbstractClient {
                                 return killApplication(jobIdentifier);
                             }
                             CompletableFuture completableFuture = targetClusterClient.stopWithSavepoint(jobId, true,null);
-                            Object ask = completableFuture.get(2, TimeUnit.MINUTES);
+                            Object ask = completableFuture.get(jobIdentifier.getTimeout(), TimeUnit.MINUTES);
                             logger.info("flink job savepoint path {}", ask.toString());
                         }
                     }
