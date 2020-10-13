@@ -17,9 +17,11 @@
     <properties>
         <junit.version>4.11</junit.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <learning2.version>4.0.0</learning2.version>
     </properties>
 
     <url>http://maven.apache.org</url>
+
     <modules>
         <module>learning-core</module>
         <module>learning-client</module>

@@ -11,6 +11,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <zookeeper.version>3.4.6</zookeeper.version>
         <hadoop.version>2.7.3</hadoop.version>
+        <hadoop3.version>3.1.3</hadoop3.version>
         <spring.version>5.2.3.RELEASE</spring.version>
         <fastjson>2.9.6</fastjson>
     </properties>

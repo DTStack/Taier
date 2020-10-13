@@ -24,6 +24,12 @@
             <version>1.0.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.dtstack</groupId>
+            <artifactId>learning</artifactId>
+            <version>${learning2.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>

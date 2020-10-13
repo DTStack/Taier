@@ -28,28 +28,24 @@ import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkClusterClientManager;
 import com.dtstack.engine.flink.FlinkConfig;
-import com.dtstack.engine.flink.NoOpInvokable;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.entity.SessionCheckInterval;
 import com.dtstack.engine.flink.entity.SessionHealthCheckedInfo;
 import com.dtstack.engine.flink.util.FileUtil;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
+import com.dtstack.engine.flink.util.FlinkUtil;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobSubmissionResult;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
-import org.apache.flink.client.program.ProgramInvocationException;
+import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramMissingJobException;
+import org.apache.flink.configuration.CheckpointingOptions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
-import org.apache.flink.runtime.io.network.partition.ResultPartitionType;
-import org.apache.flink.runtime.jobgraph.DistributionPattern;
-import org.apache.flink.runtime.jobgraph.JobGraph;
-import org.apache.flink.runtime.jobgraph.JobVertex;
-import org.apache.flink.runtime.jobgraph.ScheduleMode;
-import org.apache.flink.runtime.jobmanager.scheduler.SlotSharingGroup;
+import org.apache.flink.runtime.jobgraph.*;
 import org.apache.flink.configuration.SecurityOptions;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
@@ -362,6 +358,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                 String principal = KerberosUtils.getPrincipal(keytabPath);
                 config.setString(SecurityOptions.KERBEROS_LOGIN_KEYTAB, keytabPath);
                 config.setString(SecurityOptions.KERBEROS_LOGIN_PRINCIPAL, principal);
+                continue;
             }
             keytabs.put(file.getName(), file);
         }
@@ -492,6 +489,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                             }
                         } catch (Exception e) {
                             LOG.error("", e);
+                            jobStatus = RdosTaskStatus.FAILED;
                         }
                         if (null == jobStatus) {
                             checkResult = false;
@@ -513,7 +511,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     LOG.info("Yarn Session Job, current state " + jobStatus);
                                 }
                                 long cost = System.currentTimeMillis() - startTime;
-                                if (cost > 60000) {
+                                if (cost > 60000 && cost < 300000) {
                                     LOG.info("Yarn Session Job took more than 60 seconds.");
                                 } else if (cost > 300000){
                                     LOG.info("Yarn Session Job took more than 600 seconds.");
@@ -575,8 +573,17 @@ public class SessionClientFactory extends AbstractClientFactory {
             this.run = new AtomicBoolean(run);
         }
 
-        private JobSubmissionResult submitCheckedJobGraph() throws ProgramMissingJobException, ProgramInvocationException {
-            JobSubmissionResult result = sessionClientFactory.getClusterClient().submitJob(createJobGraph(), Thread.currentThread().getContextClassLoader());
+        private JobSubmissionResult submitCheckedJobGraph() throws Exception {
+            List<URL> classPaths = Lists.newArrayList();
+            String jarPath = String.format("%s/opt/%s", ConfigConstrant.USER_DIR, ConfigConstrant.SESSION_CHECK_JAR_NAME);
+            String mainClass = ConfigConstrant.SESSION_CHECK_MAIN_CLASS;
+            String checkpoint = sessionClientFactory.flinkConfiguration.getString(CheckpointingOptions.CHECKPOINTS_DIRECTORY);
+            String[] programArgs = {checkpoint};
+
+            PackagedProgram packagedProgram = FlinkUtil.buildProgram(jarPath, "./tmp", classPaths,
+                    null, mainClass, programArgs, SavepointRestoreSettings.none(), null);
+
+            JobSubmissionResult result = sessionClientFactory.getClusterClient().run(packagedProgram, 1);
             if (null == result) {
                 throw new ProgramMissingJobException("No JobSubmissionResult returned, please make sure you called " +
                         "ExecutionEnvironment.execute()");
@@ -584,25 +591,6 @@ public class SessionClientFactory extends AbstractClientFactory {
             LOG.info("Checked Program submitJob finished, Job with JobID:{} .", result.getJobID());
             return result;
         }
-
-        private JobGraph createJobGraph() {
-            SlotSharingGroup slotSharingGroup = new SlotSharingGroup();
-
-            final JobVertex source = new JobVertex("source");
-            source.setInvokableClass(NoOpInvokable.class);
-            source.setSlotSharingGroup(slotSharingGroup);
-
-            final JobVertex sink = new JobVertex("sink");
-            sink.setInvokableClass(NoOpInvokable.class);
-            sink.setSlotSharingGroup(slotSharingGroup);
-
-            sink.connectNewDataSetAsInput(source, DistributionPattern.POINTWISE, ResultPartitionType.PIPELINED);
-            JobGraph jobGraph = new JobGraph("dtIdleDetection", source, sink);
-
-            jobGraph.setScheduleMode(ScheduleMode.EAGER);
-            return jobGraph;
-        }
-
     }
 
 }
