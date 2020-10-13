@@ -402,25 +402,20 @@ public class FlinkClient extends AbstractClient {
 
                         if (StringUtils.isEmpty(appId)) {
                             // yarn session job cancel
-                            targetClusterClient.cancelWithSavepoint((jobId), null);
+                            targetClusterClient.cancelWithSavepoint(jobId, null);
                         } else {
                             // per job cancel
                             if(jobIdentifier.isForceCancel()){
                                 return killApplication(jobIdentifier);
                             }
                             String savepoint = targetClusterClient.cancelWithSavepoint(jobId, null);
-                            logger.info("flink job savepoint path {}", savepoint);
+                            logger.info("jobId: {},flink job savepoint path {}", jobId, savepoint);
                         }
                     }
                     return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
                 } catch (Exception e) {
-                    logger.error("jobId:{} engineJobId:{} applicationId:{} cancelJob error, try to cancel with yarnClient.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), e);
-
-                    if (StringUtils.isEmpty(appId)) {
-                        return JobResult.createErrorResult(e);
-                    }
-
-                    return killApplication(jobIdentifier);
+                    logger.error("jobId:{} engineJobId:{} applicationId:{} cancelJob error.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), e);
+                    return JobResult.createErrorResult(e);
                 }
             }, hadoopConf.getYarnConfiguration());
         } catch (Exception exception) {
