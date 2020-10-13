@@ -402,7 +402,7 @@ public class FlinkClient extends AbstractClient {
                             }
                             CompletableFuture completableFuture = targetClusterClient.stopWithSavepoint(jobId, true,null);
                             Object ask = completableFuture.get(jobIdentifier.getTimeout(), TimeUnit.MINUTES);
-                            logger.info("flink job savepoint path {}", ask.toString());
+                            logger.info("jobId: {},flink job savepoint path {}", jobId, ask.toString());
                         }
                     }
                     return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
