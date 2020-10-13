@@ -26,7 +26,7 @@ public class FlinkSessionCheck {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
-        env.enableCheckpointing(1000);
+        env.enableCheckpointing(2000);
         env.getConfig().disableSysoutLogging();
         env.setRestartStrategy(RestartStrategies.fixedDelayRestart(Integer.MAX_VALUE, 0L));
         env.setStateBackend(new RocksDBStateBackend(checkpoint, true));
