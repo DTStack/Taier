@@ -932,6 +932,10 @@ public class ScheduleJobService {
 
         ScheduleTaskShade task = batchTaskShadeService.getBatchTaskById(taskId, appType);
 
+        if (task ==null ) {
+            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+        }
+
         PageQuery pageQuery = new PageQuery(1, 20, "business_date", Sort.DESC.name());
         List<Map<String, String>> jobs = scheduleJobDao.listTaskExeTimeInfo(task.getTaskId(), FINISH_STATUS, pageQuery,appType);
         List<ScheduleRunDetailVO> details = null;
@@ -2571,6 +2575,9 @@ public class ScheduleJobService {
         List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByJobKey(scheduleJob.getJobKey());
         scheduleBatchJob.setJobJobList(scheduleJobJobs);
         ScheduleTaskShade batchTaskById = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), scheduleJob.getAppType());
+        if (batchTaskById == null) {
+            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+        }
         Map<Long, ScheduleTaskShade> taskShadeMap = new HashMap<>();
         taskShadeMap.put(scheduleJob.getTaskId(), batchTaskById);
         try {

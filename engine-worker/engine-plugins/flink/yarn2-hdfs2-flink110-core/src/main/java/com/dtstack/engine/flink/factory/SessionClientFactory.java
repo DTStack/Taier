@@ -60,6 +60,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.kerby.config.Conf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -399,7 +400,6 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         @Override
         public void run() {
-            FlinkConfig flinkConfig = clientBuilder.getFlinkConfig();
             while (run.get()) {
                 try {
                     if (sessionCheckInterval.sessionHealthCheckedInfo.isRunning()) {
@@ -576,7 +576,9 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         private JobExecutionResult submitCheckedJobGraph() throws Exception, TimeoutException {
             List<URL> classPaths = Lists.newArrayList();
-            String jarPath = String.format("%s/opt/%s", ConfigConstrant.USER_DIR, ConfigConstrant.SESSION_CHECK_JAR_NAME);
+            FlinkConfig flinkConfig = clientBuilder.getFlinkConfig();
+            String jarPath = String.format("%s%s/%s", ConfigConstrant.USER_DIR, flinkConfig.getSessionCheckJarPath(), ConfigConstrant.SESSION_CHECK_JAR_NAME);
+            LOG.info("The session check jar is in : " + jarPath);
             String mainClass = ConfigConstrant.SESSION_CHECK_MAIN_CLASS;
             String checkpoint = sessionClientFactory.flinkConfiguration.getString(CheckpointingOptions.CHECKPOINTS_DIRECTORY);
             String[] programArgs = {checkpoint};
