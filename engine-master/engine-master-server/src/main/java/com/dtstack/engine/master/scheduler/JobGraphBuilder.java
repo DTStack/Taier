@@ -164,19 +164,23 @@ public class JobGraphBuilder {
                     jobGraphBuildPool.execute(() -> {
                         try {
                             for (ScheduleTaskShade task : batchTaskShades) {
-                                List<ScheduleBatchJob> jobRunBeans = RetryUtil.executeWithRetry(() -> {
-                                    String cronJobName = CRON_JOB_NAME + "_" + task.getName();
-                                    return buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
-                                            true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId());
-                                }, environmentContext.getBuildJobErrorRetry(), 200, false);
-                                synchronized (allJobs) {
-                                    allJobs.addAll(jobRunBeans);
-                                }
-
-                                if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
-                                    for (ScheduleBatchJob jobRunBean : jobRunBeans) {
-                                        flowJobId.put(this.buildFlowReplaceId(task.getTaskId(), jobRunBean.getCycTime(), task.getAppType()), jobRunBean.getJobId());
+                                try {
+                                    List<ScheduleBatchJob> jobRunBeans = RetryUtil.executeWithRetry(() -> {
+                                        String cronJobName = CRON_JOB_NAME + "_" + task.getName();
+                                        return buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
+                                                true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId());
+                                    }, environmentContext.getBuildJobErrorRetry(), 200, false);
+                                    synchronized (allJobs) {
+                                        allJobs.addAll(jobRunBeans);
                                     }
+
+                                    if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
+                                        for (ScheduleBatchJob jobRunBean : jobRunBeans) {
+                                            flowJobId.put(this.buildFlowReplaceId(task.getTaskId(), jobRunBean.getCycTime(), task.getAppType()), jobRunBean.getJobId());
+                                        }
+                                    }
+                                } catch (Throwable e) {
+                                    logger.error("build task failure taskId:{} apptype:{}",task.getTaskId(),task.getAppType(), e);
                                 }
                             }
                             logger.info("batch-number:{} done!!! allJobs size:{}", batchIdx, allJobs.size());
