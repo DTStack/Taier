@@ -511,7 +511,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                             break;
                         }
 
-                        LOG.debug("JobID: {} status: {}", submissionResult.getJobID(), jobStatus);
+                        LOG.info("JobID: {} status: {}", submissionResult.getJobID(), jobStatus);
                         switch (jobStatus) {
                             case FAILED:
                                 LOG.info("YARN Session Job is failed.");
