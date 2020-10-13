@@ -17,11 +17,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 public class ClientArguments {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientArguments.class);
+    private static final String PREFIX_CONF = "--conf-";
 
     private Options allOptions;
     String appName;
@@ -526,7 +530,25 @@ public class ClientArguments {
     }
 
     private void cliParser(String[] args) throws ParseException, IOException, ClassNotFoundException {
-        CommandLine commandLine = new BasicParser().parse(allOptions, args);
+        List<String> argsList = new ArrayList<>();
+        confs = new Properties();
+        if (args == null) {
+            args = new String[0];
+        }
+        for (int i = 0; i < args.length; i += 2) {
+            String s = args[i];
+            if (s.startsWith(PREFIX_CONF)) {
+                String key = s.substring(PREFIX_CONF.length()).replace('-', '.');
+                String value = args[i+1];
+                confs.setProperty(key, value);
+            } else {
+                argsList.add(s);
+                argsList.add(args[i+1]);
+            }
+        }
+        String[] argsParser = new String[argsList.size()];
+        argsList.toArray(argsParser);
+        CommandLine commandLine = new BasicParser().parse(allOptions, argsParser);
         if (commandLine.getOptions().length == 0 || commandLine.hasOption("help")) {
             printUsage(allOptions);
             LOG.error("args length is 0");

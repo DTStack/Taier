@@ -229,7 +229,7 @@ public class Client {
 
         LOG.info("Building application master launch command");
         List<String> appMasterArgs = new ArrayList<>(20);
-        appMasterArgs.add("${JAVA_HOME}" + "/bin/java");
+        appMasterArgs.add(conf.get(DtYarnConfiguration.JAVA_PATH,"${JAVA_HOME}" + "/bin/java"));
         appMasterArgs.add("-cp " + "${CLASSPATH}");
         appMasterArgs.add("-Xms" + conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY) + "m");
         appMasterArgs.add("-Xmx" + conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY) + "m");

@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.lang.ref.SoftReference;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -86,8 +85,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     protected BatchFlowWorkJobService batchFlowWorkJobService;
 
     private ExecutorService executorService;
-
-    private SoftReference<Map<Long, ScheduleTaskShade>> softReference;
     protected final AtomicBoolean RUNNING = new AtomicBoolean(true);
     private volatile long lastRestartJobLoadTime = 0L;
 
