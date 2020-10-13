@@ -263,9 +263,6 @@ public class ScheduleTaskShadeService {
 
     public ScheduleTaskShade getBatchTaskById( Long taskId, Integer appType) {
         ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId, appType);
-        if (taskShade == null || Deleted.DELETED.getStatus().equals(taskShade.getIsDeleted())) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-        }
         return taskShade;
     }
 
