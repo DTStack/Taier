@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.lang.ref.SoftReference;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
