@@ -57,6 +57,13 @@ public class StreamTaskService {
         return engineJobCheckpointDao.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
     }
 
+    /**
+     * 查询checkPoint
+     */
+    public EngineJobCheckpoint getSavePoint( String taskId){
+        return engineJobCheckpointDao.findLatestSavepointByTaskId(taskId);
+    }
+
     public EngineJobCheckpoint getByTaskIdAndEngineTaskId( String taskId,  String engineTaskId){
         return engineJobCheckpointDao.getByTaskIdAndEngineTaskId(taskId, engineTaskId);
     }
@@ -78,16 +85,16 @@ public class StreamTaskService {
     /**
      * 获取任务的状态
      */
-    public Integer getTaskStatus( String taskId){
+    public Integer getTaskStatus(String taskId) {
         Integer status = null;
-        if (StringUtils.isNotEmpty(taskId)){
-        	ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
-            if (scheduleJob != null){
+        if (StringUtils.isNotEmpty(taskId)) {
+            ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
+            if (scheduleJob != null) {
                 status = scheduleJob.getStatus();
             }
         }
 
-        return status;
+        return RdosTaskStatus.getShowStatus(status);
     }
 
     /**
