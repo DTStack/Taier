@@ -2,6 +2,7 @@ package com.dtstack.engine.base.util;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.SFTPHandler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -12,11 +13,11 @@ import org.apache.hadoop.security.HadoopKerberosName;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.kerby.kerberos.kerb.keytab.Keytab;
 import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.PrivilegedExceptionAction;
@@ -28,6 +29,7 @@ public class KerberosUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(KerberosUtils.class);
 
+    private static ObjectMapper objectMapper = new ObjectMapper();
     private static final String USER_DIR = System.getProperty("user.dir");
     private static final String LOCAL_KEYTAB_DIR = USER_DIR + "/kerberos/keytab";
     private static final String LOCAL_KRB5_DIR = USER_DIR + "/kerberos/krb5";
@@ -35,6 +37,7 @@ public class KerberosUtils {
     private static final String KERBEROS_AUTH = "hadoop.security.authentication";
     private static final String SECURITY_TO_LOCAL = "hadoop.security.auth_to_local";
     private static final String KERBEROS_AUTH_TYPE = "kerberos";
+    private static final String MODIFIED_TIME_KEY = "modifiedTime";
 
     /**
      * @param config        任务外层配置
@@ -168,42 +171,91 @@ public class KerberosUtils {
             }
         }
 
-        Map<String, Map<String, String>> newContent = readKrb5(localKrb5Path);
-        Map<String, Map<String, String>> remoteKrb5Content = readKrb5(krb5ConfPath);
-        Map<String, Map<String, String>> localKrb5Content = readKrb5(localKrb5Path);
+        boolean isMerge = false;
+        for (int i=0; i < 3; i++) {
+            try{
+                Map<String, HashMap<String, String>> remoteKrb5Content = readKrb5(krb5ConfPath);
+                Map<String, HashMap<String, String>> localKrb5Content = readKrb5(localKrb5Path);
+
+                String modifiedTime = localKrb5Content.get(MODIFIED_TIME_KEY).get(MODIFIED_TIME_KEY);
+                Set<String> mapKeys = mergeKrb5ContentKey(remoteKrb5Content, localKrb5Content);
+                String localKrb5ContentStr = objectMapper.writeValueAsString(localKrb5Content);
+                if (StringUtils.isEmpty(localKrb5ContentStr)) {
+                    throw new RdosDefineException("krb5.conf is null!");
+                }
+                Map<String, HashMap<String, String>> newContent = (Map<String, HashMap<String, String>>)objectMapper.readValue(localKrb5ContentStr, Map.class);
+
+                for (String key: mapKeys) {
+                    newContent.merge(key, remoteKrb5Content.get(key), new BiFunction() {
+                        @Override
+                        public Map<String, String> apply(Object oldValue, Object newValue) {
+                            Map<String, String> oldMap = (Map<String, String>) oldValue;
+                            Map<String, String> newMap = (Map<String, String>) newValue;
+                            oldMap.putAll(newMap);
+                            return oldMap;
+                        }
+                    });
+                }
+
+                if (!localKrb5Content.equals(newContent)) {
+                    writeKrb5(localKrb5Path, newContent, modifiedTime);
+                }
+                isMerge = true;
+                break;
+            } catch (Exception e) {
+                logger.error("merge krb5.conf fail!, {}", e.getMessage());
+            }
+        }
+
+        if (!isMerge) {
+            throw new RdosDefineException("Merge krb5.conf fail!");
+        }
+
+        return localKrb5Path;
+    }
+
+    private static Set<String> mergeKrb5ContentKey(Map<String, HashMap<String, String>> remoteKrb5Content, Map<String, HashMap<String, String>> localKrb5Content) {
+        remoteKrb5Content.remove(MODIFIED_TIME_KEY);
+        localKrb5Content.remove(MODIFIED_TIME_KEY);
 
         Set<String> mapKeys = new HashSet<>();
         mapKeys.addAll(remoteKrb5Content.keySet());
         mapKeys.addAll(localKrb5Content.keySet());
-
-        for (String key: mapKeys) {
-            newContent.merge(key, remoteKrb5Content.get(key), new BiFunction() {
-                @Override
-                public Map<String, String> apply(Object oldValue, Object newValue) {
-                    Map<String, String> oldMap = (Map<String, String>) oldValue;
-                    Map<String, String> newMap = (Map<String, String>) newValue;
-                    oldMap.putAll(newMap);
-                    return oldMap;
-                }
-            });
-        }
-
-        if (!localKrb5Content.equals(newContent)) {
-            writeKrb5(localKrb5Path, newContent);
-        }
-        return localKrb5Path;
+        return mapKeys;
     }
 
-    public static Map<String, Map<String, String>> readKrb5(String krb5Path) throws Exception {
+    public static Map<String, HashMap<String, String>> readKrb5(String krb5Path) throws Exception {
 
-        Map<String, Map<String, String>> krb5Contents = new HashMap<>();
+        Map<String, HashMap<String, String>> krb5Contents = new HashMap<>();
 
         String section = "";
         boolean flag = true;
         String currentKey = "";
         StringBuffer content = new StringBuffer();
 
-        List<String> lines = Files.readAllLines(Paths.get(krb5Path));
+        List<String> lines = new ArrayList<>();
+        File krb5File = new File(krb5Path);
+
+        try(
+                InputStreamReader inputReader = new InputStreamReader(new FileInputStream(krb5File));
+                BufferedReader br = new BufferedReader(inputReader);
+                ){
+            long modifiedTime = krb5File.lastModified();
+            krb5Contents.put(MODIFIED_TIME_KEY, new HashMap<String, String>(){{
+                put(MODIFIED_TIME_KEY, String.valueOf(modifiedTime));
+            }});
+            for (;;) {
+                String line = br.readLine();
+                if (line == null) {
+                    break;
+                }
+                lines.add(line);
+            }
+        } catch (Exception e){
+            logger.error("krb5.conf read error: {}", e.getMessage());
+            throw new RdosDefineException("krb5.conf read error");
+        }
+
         for (String line : lines) {
             line = StringUtils.trim(line);
             if (StringUtils.isNotEmpty(line) && !StringUtils.startsWith(line, "#") && !StringUtils.startsWith(line, ";")) {
@@ -245,7 +297,14 @@ public class KerberosUtils {
         return krb5Contents;
     }
 
-    public static void writeKrb5(String filePath, Map<String, Map<String, String>> krb5) throws Exception {
+    public static void writeKrb5(String filePath, Map<String, HashMap<String, String>> krb5, String modifiedTime) throws Exception {
+
+        File file = new File(filePath);
+        String newModifiedTime = String.valueOf(file.lastModified());
+        if (!StringUtils.equals(newModifiedTime, modifiedTime)) {
+            throw new RdosDefineException("krb5.conf modified time changed!");
+        }
+
         StringBuffer content = new StringBuffer();
         for (String key : krb5.keySet()) {
             String keyStr = String.format("[%s]", key);
