@@ -16,7 +16,7 @@
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <flink.version>1.8.1</flink.version>
+        <flink.version>1.8.3</flink.version>
         <!-- 插件包所在文件夹名称 -->
         <pluginDir.name>yarn3-hdfs3-flink180</pluginDir.name>
     </properties>
