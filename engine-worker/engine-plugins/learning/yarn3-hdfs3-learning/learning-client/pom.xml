@@ -3,37 +3,31 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>plugins.dtscript.yarn3-hdfs3-dtscript</artifactId>
         <groupId>com.dtstack.engine</groupId>
+        <artifactId>plugins.learning.yarn3-hdfs3-learning</artifactId>
         <version>1.0.0</version>
         <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>plugins.dtscript.yarn3-hdfs3-dtscript.dtscript-client</artifactId>
-    <name>plugins.dtscript.yarn3-hdfs3-dtscript.dtscript-client</name>
+    <artifactId>plugins.learning.yarn3-hdfs3-learning.learning-client</artifactId>
+    <name>plugins.learning.yarn3-hdfs3-learning.learning-client</name>
 
     <properties>
-        <jar.name>dtscript-client</jar.name>
-        <pluginDir.name>yarn3-hdfs3-dtscript</pluginDir.name>
+        <jar.name>learning-client</jar.name>
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.dtscript.yarn2-hdfs2-dtscript-core.dtscript-client</artifactId>
+            <artifactId>plugins.learning.yarn2-hdfs2-learning-core.learning-client</artifactId>
             <version>1.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.dtscript.yarn3-hdfs3-dtscript.dtscript-core</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.dtscript.yarn2-hdfs2-dtscript-core.dtscript-core</artifactId>
+            <artifactId>plugins.learning.yarn2-hdfs2-learning.learning-core</artifactId>
             <version>1.0.0</version>
         </dependency>
 
@@ -42,47 +36,47 @@
             <artifactId>hadoop-common</artifactId>
             <version>${hadoop3.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-api</artifactId>
             <version>${hadoop3.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-common</artifactId>
             <version>${hadoop3.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
             <version>${hadoop3.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-app</artifactId>
             <version>${hadoop3.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-common</artifactId>
             <version>${hadoop3.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-hs</artifactId>
             <version>${hadoop3.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-client</artifactId>
             <version>${hadoop3.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
@@ -151,7 +145,7 @@
                                     <exclude>org.slf4j:slf4j-log4j12</exclude>
                                     <exclude>log4j:log4j</exclude>
                                     <exclude>org.slf4j:slf4j-api</exclude>
-                                    <exclude>com.dtstack.rdos:dt-yarn-shell-core</exclude>
+                                    <exclude>com.dtstack:learning</exclude>
                                 </excludes>
                             </artifactSet>
                             <filters>
@@ -169,21 +163,20 @@
                 </executions>
             </plugin>
 
-            <!--<plugin>-->
-                <!--<artifactId>maven-clean-plugin</artifactId>-->
-                <!--<version>2.5</version>-->
-                <!--<configuration>-->
-                    <!--<filesets>-->
-                        <!--<fileset>-->
-                            <!--<directory>${basedir}/../target</directory>-->
-                            <!--<includes>-->
-                                <!--<include>${project.name}-${project.version}.jar</include>-->
-                            <!--</includes>-->
-                        <!--</fileset>-->
-                    <!--</filesets>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
-
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${basedir}/../target</directory>
+                            <includes>
+                                <include>${project.name}-${project.version}.jar</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.2</version>
@@ -199,10 +192,10 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../../../../pluginLibs/${pluginDir.name}/"
+                                <copy todir="${basedir}/target/../../../../../../pluginLibs/yarn2-hdfs2-learning/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../../../pluginLibs/${pluginDir.name}/"
+                                    <fileset dir="${basedir}/target/../../../../../../pluginLibs/yarn2-hdfs2-learning/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>

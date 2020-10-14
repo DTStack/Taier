@@ -1,0 +1,11 @@
+yarn:
+  controls: group
+  optional:
+    python3.path: /data/anaconda3/bin/python3
+    python2.path: /data/anaconda2/bin/python2
+    history.address:
+    history.webapp.address:
+    history.webapp.https.address:
+
+
+
