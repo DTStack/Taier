@@ -400,7 +400,7 @@ public class FlinkClient extends AbstractClient {
                             if(jobIdentifier.isForceCancel()){
                                 return killApplication(jobIdentifier);
                             }
-                            CompletableFuture completableFuture = targetClusterClient.stopWithSavepoint(jobId, true,null);
+                            CompletableFuture completableFuture = targetClusterClient.cancelWithSavepoint(jobId, "");
                             Object ask = completableFuture.get(jobIdentifier.getTimeout(), TimeUnit.MILLISECONDS);
                             logger.info("jobId: {},flink job savepoint path {}", jobId, ask.toString());
                         }
