@@ -129,6 +129,7 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final String NODE_LABEL = "nodeLabel";
 
+    public static final String JAVA_PATH = "java.path";
 
     public DtYarnConfiguration() {
     }
