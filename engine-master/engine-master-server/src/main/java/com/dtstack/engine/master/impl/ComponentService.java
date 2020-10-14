@@ -969,12 +969,11 @@ public class ComponentService {
 
             if (EComponentType.SPARK_THRIFT.getTypeCode() == componentType ||
                     EComponentType.HIVE_SERVER.getTypeCode() == componentType) {
-                if (!jdbcUrl.contains(";principal=") && jdbcUrl.endsWith("%s")) {
-                    //数据库连接不带%s
-                    dataInfo.put("jdbcUrl", jdbcUrl.substring(0, jdbcUrl.lastIndexOf("/")));
-                }
+                //数据库连接不带%s
+                jdbcUrl = jdbcUrl.replace("/%s", "/");
             }
 
+            dataInfo.put("jdbcUrl", jdbcUrl);
             dataInfo.put("username", dataInfo.getString("username"));
             dataInfo.put("password", dataInfo.getString("password"));
             if (Objects.nonNull(kerberosConfig)) {
