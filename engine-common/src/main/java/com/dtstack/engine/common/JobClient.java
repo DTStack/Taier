@@ -1,5 +1,6 @@
 package com.dtstack.engine.common;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.ComputeType;
@@ -189,13 +190,10 @@ public class JobClient extends OrderObject {
 
 
     public void setPluginWrapperInfo(Map pluginInfoMap) {
-        if (Objects.nonNull(pluginInfoMap)) {
-            try {
-                this.pluginInfo = PublicUtil.objToString(pluginInfoMap);
-            } catch (IOException e) {
-                logger.error("", e);
-            }
+        if (null == pluginInfoMap) {
+            throw new RdosDefineException("pluginInfo map must not be null.");
         }
+        this.pluginInfo = JSONObject.toJSONString(pluginInfoMap);
     }
 
     public long getTenantId() {
