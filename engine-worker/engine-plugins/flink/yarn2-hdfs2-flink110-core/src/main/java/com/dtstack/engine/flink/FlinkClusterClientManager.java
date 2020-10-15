@@ -44,7 +44,7 @@ public class FlinkClusterClientManager {
     /**
      * 常驻的yarnSessionClient，engine使用flink 1.8后，可以考虑废弃yarnSessionClient。
      */
-    private ClusterClient clusterClient;
+    private volatile ClusterClient clusterClient;
 
     /**
      * 用于缓存连接perjob对应application的ClusterClient
