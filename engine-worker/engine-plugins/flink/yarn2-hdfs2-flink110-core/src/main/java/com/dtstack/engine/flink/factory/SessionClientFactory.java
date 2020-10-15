@@ -143,11 +143,13 @@ public class SessionClientFactory extends AbstractClientFactory {
                     @Override
                     public void isLeader() {
                         isLeader.set(true);
+                        LOG.info(">>>My monitor role is Leader.");
                     }
 
                     @Override
                     public void notLeader() {
                         isLeader.set(false);
+                        LOG.info(">>>My monitor role is Follower.");
                     }
                 });
                 this.leaderLatch.start();

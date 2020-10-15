@@ -7,7 +7,6 @@ import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.HadoopConf;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
-import org.apache.flink.configuration.SecurityOptions;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.util.HadoopUtils;
 import org.apache.flink.yarn.configuration.YarnConfigOptions;
@@ -18,6 +17,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 
 /**
  * 根据不同的配置创建对应的client
@@ -115,42 +119,52 @@ public class FlinkClientBuilder {
 
     public YarnClient getYarnClient() {
         try {
-            if (yarnClient == null) {
-                synchronized (this) {
-                    if (yarnClient == null) {
-                        return buildYarnClient();
-                    }
-                }
-            } else {
-                //判断下是否可用
-                yarnClient.getAllQueues();
-            }
-        } catch (Throwable e) {
-            LOG.error("getYarnClient error:{}", e);
-            synchronized (this) {
-                if (yarnClient != null) {
-                    boolean flag = true;
+            return CompletableFuture.supplyAsync(new Supplier<YarnClient>() {
+                @Override
+                public YarnClient get() {
                     try {
-                        //判断下是否可用
-                        yarnClient.getAllQueues();
-                    } catch (Throwable e1) {
-                        LOG.error("getYarnClient error:{}", e1);
-                        flag = false;
-                    }
-                    if (!flag) {
-                        try {
-                            yarnClient.stop();
-                        } finally {
-                            yarnClient = null;
+                        if (yarnClient == null) {
+                            synchronized (this) {
+                                if (yarnClient == null) {
+                                    return buildYarnClient();
+                                }
+                            }
+                        } else {
+                            //判断下是否可用
+                            yarnClient.getAllQueues();
+                        }
+                    } catch (Throwable e) {
+                        LOG.error("getYarnClient error:{}", e);
+                        synchronized (this) {
+                            if (yarnClient != null) {
+                                boolean flag = true;
+                                try {
+                                    //判断下是否可用
+                                    yarnClient.getAllQueues();
+                                } catch (Throwable e1) {
+                                    LOG.error("getYarnClient error:{}", e1);
+                                    flag = false;
+                                }
+                                if (!flag) {
+                                    try {
+                                        yarnClient.stop();
+                                    } finally {
+                                        yarnClient = null;
+                                    }
+                                }
+                            }
+                            if (yarnClient == null) {
+                                return buildYarnClient();
+                            }
                         }
                     }
+                    return yarnClient;
                 }
-                if (yarnClient == null) {
-                    return buildYarnClient();
-                }
-            }
+            }).get(2, TimeUnit.MINUTES);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            LOG.error("Async getYarnClient error:{}", e);
+            throw new RdosDefineException("Async getYarnClient error.");
         }
-        return yarnClient;
     }
 
     public YarnClient buildYarnClient() {
