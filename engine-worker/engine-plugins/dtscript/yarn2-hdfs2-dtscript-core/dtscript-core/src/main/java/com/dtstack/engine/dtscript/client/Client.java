@@ -3,6 +3,7 @@ package com.dtstack.engine.dtscript.client;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.util.KerberosUtils;
+import com.dtstack.engine.base.util.YarnClientUtils;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.am.ApplicationMaster;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
@@ -39,8 +40,9 @@ public class Client {
     private static final String HDFS_SUPER_GROUP = "dfs.permissions.superusergroup";
 
     private DtYarnConfiguration conf;
+    private BaseConfig baseConfig;
     private FileSystem dfs;
-    private YarnClient yarnClient;
+    private volatile YarnClient yarnClient;
     private volatile Path appJarSrc;
 
 
@@ -48,6 +50,7 @@ public class Client {
 
     public Client(DtYarnConfiguration conf, BaseConfig allConfig) throws Exception {
         this.conf = conf;
+        this.baseConfig = allConfig;
         KerberosUtils.login(allConfig, () -> {
             String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
             if (conf.get("hadoop.job.ugi") == null) {
@@ -355,48 +358,7 @@ public class Client {
     }
 
     public YarnClient getYarnClient() {
-        try {
-            if (yarnClient == null) {
-                synchronized (this) {
-                    if (yarnClient == null) {
-                        YarnClient yarnClient1 = YarnClient.createYarnClient();
-                        yarnClient1.init(conf);
-                        yarnClient1.start();
-                        yarnClient = yarnClient1;
-                    }
-                }
-            } else {
-                //判断下是否可用
-                yarnClient.getAllQueues();
-            }
-        } catch (Throwable e) {
-            LOG.error("getYarnClient error:{}", e);
-            synchronized (this) {
-                if (yarnClient != null) {
-                    boolean flag = true;
-                    try {
-                        //判断下是否可用
-                        yarnClient.getAllQueues();
-                    } catch (Throwable e1) {
-                        LOG.error("getYarnClient error:{}", e1);
-                        flag = false;
-                    }
-                    if (!flag) {
-                        try {
-                            yarnClient.stop();
-                        } finally {
-                            yarnClient = null;
-                        }
-                    }
-                }
-                if (yarnClient == null) {
-                    YarnClient yarnClient1 = YarnClient.createYarnClient();
-                    yarnClient1.init(conf);
-                    yarnClient1.start();
-                    yarnClient = yarnClient1;
-                }
-            }
-        }
+        yarnClient = YarnClientUtils.getYarnClient(yarnClient, baseConfig, conf);
         return yarnClient;
     }
 

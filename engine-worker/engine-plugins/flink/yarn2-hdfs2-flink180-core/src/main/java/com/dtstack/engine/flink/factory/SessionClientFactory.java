@@ -50,6 +50,7 @@ import org.apache.flink.configuration.SecurityOptions;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.leader.LeaderLatch;
+import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.leader.LeaderLatchListener;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.flink.shaded.curator.org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.flink.util.FlinkException;
@@ -88,6 +89,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     private ClusterSpecification yarnSessionSpecification;
     private volatile ClusterClient<ApplicationId> clusterClient;
+    private AtomicBoolean isLeader = new AtomicBoolean(false);
     private FlinkConfig flinkConfig;
     private InterProcessMutex clusterClientLock;
     private String lockPath;
@@ -133,6 +135,19 @@ public class SessionClientFactory extends AbstractClientFactory {
         try {
             if(null == this.leaderLatch){
                 this.leaderLatch = getLeaderLatch();
+                this.leaderLatch.addListener(new LeaderLatchListener() {
+                    @Override
+                    public void isLeader() {
+                        isLeader.set(true);
+                        LOG.info(">>>My monitor role is Leader.");
+                    }
+
+                    @Override
+                    public void notLeader() {
+                        isLeader.set(false);
+                        LOG.info(">>>My monitor role is Follower.");
+                    }
+                });
                 this.leaderLatch.start();
             }
         } catch (Exception e) {
@@ -188,7 +203,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                 return true;
             }
 
-            if(leaderLatch.hasLeadership() && flinkConfig.getSessionStartAuto()){
+            if(isLeader.get()&& flinkConfig.getSessionStartAuto()){
                 try {
                     AbstractYarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
                     yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + sessionAppNameSuffix);
@@ -431,7 +446,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     if (lastAppState != appState) {
                                         LOG.info("YARN application has been deployed successfully.");
                                     }
-                                    if (sessionClientFactory.leaderLatch.hasLeadership() && sessionCheckInterval.doCheck()) {
+                                    if (sessionClientFactory.isLeader.get() && sessionCheckInterval.doCheck()) {
                                         int checked = 0;
                                         boolean checkRs = checkJobGraphWithStatus();
                                         while (!checkRs) {
@@ -440,7 +455,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                                 break;
                                             } else {
                                                 try {
-                                                    Thread.sleep(3 * CHECK_INTERVAL);
+                                                    Thread.sleep(6 * CHECK_INTERVAL);
                                                 } catch (Exception e) {
                                                     LOG.error("", e);
                                                 }
@@ -476,7 +491,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                 } finally {
                     try {
                         Thread.sleep(CHECK_INTERVAL);
-                        LOG.debug("Is Leader ? "+ sessionClientFactory.leaderLatch.hasLeadership());
+                        LOG.debug("Is Leader ? "+ sessionClientFactory.isLeader.get());
                     } catch (Exception e) {
                         LOG.error("", e);
                     }
@@ -549,7 +564,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         private void retry() {
             //重试
             try {
-                if(this.sessionClientFactory.leaderLatch.hasLeadership()){
+                if(sessionClientFactory.isLeader.get()){
                     stopFlinkYarnSession();
                 }
                 LOG.warn("-- retry Flink yarn-session client ----");

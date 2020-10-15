@@ -111,7 +111,10 @@
                 AND bj.app_type = #{model.appType}
             </if>
             <if test="model.execStartDay != null and model.execEndDay != null">
-                AND exec_start_time &gt;= #{model.execStartDay} and exec_start_time &lt;= #{model.execEndDay}
+                AND bj.exec_start_time &gt;= #{model.execStartDay} and bj.exec_start_time &lt;= #{model.execEndDay}
+            </if>
+            <if test="model.bizEndDay != null and model.bizStartDay != null">
+                AND bj.business_date &gt;= #{model.bizStartDay} and bj.business_date &lt;= #{model.bizEndDay}
             </if>
         </trim>
     </sql>
