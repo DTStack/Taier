@@ -1,6 +1,7 @@
 package com.dtstack.engine.flink;
 
 import com.dtstack.engine.base.util.KerberosUtils;
+import com.dtstack.engine.base.util.YarnClientUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.enums.ClusterMode;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
@@ -104,57 +105,8 @@ public class FlinkClientBuilder {
     }
 
     public YarnClient getYarnClient() {
-        try {
-            if (yarnClient == null) {
-                synchronized (this) {
-                    if (yarnClient == null) {
-                        return buildYarnClient();
-                    }
-                }
-            } else {
-                //判断下是否可用
-                yarnClient.getAllQueues();
-            }
-        } catch (Throwable e) {
-            LOG.error("getYarnClient error:{}", e);
-            synchronized (this) {
-                if (yarnClient != null) {
-                    boolean flag = true;
-                    try {
-                        //判断下是否可用
-                        yarnClient.getAllQueues();
-                    } catch (Throwable e1) {
-                        LOG.error("getYarnClient error:{}", e1);
-                        flag = false;
-                    }
-                    if (!flag) {
-                        try {
-                            yarnClient.stop();
-                        } finally {
-                            yarnClient = null;
-                        }
-                    }
-                }
-                if (yarnClient == null) {
-                    return buildYarnClient();
-                }
-            }
-        }
+        yarnClient = YarnClientUtils.getYarnClient(yarnClient, flinkConfig, yarnConf);
         return yarnClient;
-    }
-
-    public YarnClient buildYarnClient() {
-        try {
-            return KerberosUtils.login(flinkConfig, () -> {
-                YarnClient yarnClient1 = YarnClient.createYarnClient();
-                yarnClient1.init(yarnConf);
-                yarnClient1.start();
-                yarnClient = yarnClient1;
-                return yarnClient;
-            }, yarnConf);
-        } catch (Exception e) {
-            throw new RdosDefineException("build yarn client error!",e);
-        }
     }
 
     @NotNull
