@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.TenantResourceDao">
+
+    <sql id="select_content_fragment">
+      id,tenante_id,dt_uic_tenant_id,task_type,engine_type,resource_limit,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="tenantId != null">
+                tenant_id = #{tenantId},
+            </if>
+            <if test="dtUicTenantId != null">
+                dt_uic_tenant_id = #{dtUicTenantId},
+            </if>
+            <if test="taskType != null">
+                task_type = #{taskType},
+            </if>
+            <if test="engineType != null and engineType!=''">
+                engine_type = #{engineType},
+            </if>
+            <if test="resourceLimit != null and resourceLimit!=''">
+                resource_limit = #{resourceLimit},
+            </if>
+
+            gmt_modified =now()
+        </set>
+    </sql>
+
+    <insert id="insert" parameterType="TenantResource" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO console_tenant_resource
+        (tenant_id,dt_uic_tenant_id,task_type,engine_type,resouce_limit)
+        VALUES (#{tenantId},#{dtUicTenantId},#{taskType},#{engineType},#{resourceLimit})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM console_tenant_resource
+        WHERE tenant_id = #{tenantId}
+        and dt_uic_tenant_id = #{dtUicTenantId}
+    </delete>
+
+    <select id="selectByUicTenantIdAndTaskType" resultType="TenantResource">
+        SELECT
+        <include refid="select_content_fragment" />
+        FROM console_tenant_resource
+        where dt_uic_tenant_id = #{dtUicTenantId}
+        and task_type = #{taskType}
+        and is_deleted = 0;
+
+    </select>
+
+    <select id="selectByUicTenantId" parameterType="java.lang.Integer" resultType="TenantResource">
+        SELECT
+        <include refid="select_content_fragment" />
+        FROM console_tenant_resource
+        where dt_uic_tenant_id = #{dtUicTenantId}
+        and is_deleted = 0;
+    </select>
+
+</mapper>

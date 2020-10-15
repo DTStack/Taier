@@ -1,16 +1,15 @@
 package com.dtstack.engine.master.scheduler;
 
+import com.dtstack.engine.api.domain.TenantResource;
+import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.dao.TenantResourceDao;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.Expired;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.schedule.common.enums.Restarted;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.common.enums.DependencyType;
-import com.dtstack.engine.common.enums.EScheduleStatus;
-import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.enums.JobCheckStatus;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.api.domain.ScheduleJob;
@@ -64,6 +63,9 @@ public class JobRichOperator {
     private ScheduleJobDao scheduleJobDao;
 
     @Autowired
+    private TenantResourceDao tenantResourceDao;
+
+    @Autowired
     private ScheduleJobJobDao scheduleJobJobDao;
 
     @Autowired
@@ -85,7 +87,7 @@ public class JobRichOperator {
      */
     public JobCheckRunInfo checkJobCanRun(ScheduleBatchJob scheduleBatchJob, Integer status, Integer scheduleType,
                                           Set<String> notStartCache, Map<String, JobErrorInfo> errorJobCache,
-                                          Map<Long, ScheduleTaskShade> taskCache) throws ParseException {
+                                          Map<Long, ScheduleTaskShade> taskCache) throws ParseException, IOException {
 
         ScheduleTaskShade batchTaskShade = getTaskShadeFromCache(taskCache,scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
 
@@ -150,11 +152,22 @@ public class JobRichOperator {
      * @param batchTaskShade
      * @return
      */
-    private JobCheckRunInfo checkStatusByTaskShade(ScheduleBatchJob scheduleBatchJob, Integer status, Integer scheduleType,ScheduleTaskShade batchTaskShade) {
+    private JobCheckRunInfo checkStatusByTaskShade(ScheduleBatchJob scheduleBatchJob, Integer status, Integer scheduleType,ScheduleTaskShade batchTaskShade) throws IOException {
         if (batchTaskShade == null || batchTaskShade.getIsDeleted().equals(Deleted.DELETED.getStatus())) {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TASK_DELETE);
         }
 
+        if(scheduleBatchJob.getScheduleJob().getComputeType().equals(ComputeType.BATCH.getType())){
+            //离线任务才需要校验资源
+            //获取租户id
+            Long dtuicTenantId = scheduleBatchJob.getScheduleJob().getDtuicTenantId();
+            Integer taskType = scheduleBatchJob.getScheduleJob().getTaskType();
+            //根据租户id和任务类型查找资源限制
+            TenantResource tenantResource = tenantResourceDao.selectByUicTenantIdAndTaskType(dtuicTenantId,taskType);
+            if(Objects.nonNull(tenantResource)){
+               return checkTaskResourceLimit(taskType,batchTaskShade,tenantResource);
+            }
+        }
         if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.NOT_UNSUBMIT);
         }
@@ -180,6 +193,123 @@ public class JobRichOperator {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TIME_OVER_EXPIRE);
         }
         return null;
+    }
+
+    /**
+    * @author zyd
+    * @Description 校验当前任务的参数是否超出资源限制
+    * @Date 3:25 下午 2020/10/15
+    * @Param [batchTaskShade, tenantResource]
+    * @retrun com.dtstack.engine.master.scheduler.JobCheckRunInfo
+    **/
+    private JobCheckRunInfo checkTaskResourceLimit(Integer taskType,ScheduleTaskShade batchTaskShade,
+                                                   TenantResource tenantResource) throws IOException {
+
+        //当前任务的任务参数
+        String taskParams = batchTaskShade.getTaskParams();
+        Properties taskProperties = PublicUtil.stringToProperties(taskParams);
+        String resourceLimit = tenantResource.getResourceLimit();
+        Properties limitProperties = PublicUtil.stringToProperties(resourceLimit);
+        JobCheckStatus jobCheckStatus = JobCheckStatus.CAN_EXE;
+        if(EScheduleJobType.SPARK_SQL.getType().equals(taskType) || EScheduleJobType.SPARK.getType().equals(taskType)
+                                || EScheduleJobType.SPARK_PYTHON.getType().equals(taskType)){
+            //spark类型的任务
+            String driverCores = taskProperties.getProperty("driver.cores");
+            String driverCoresLimit = limitProperties.getProperty("driver.cores");
+            if(StringUtils.isNotBlank(driverCores) && StringUtils.isNotBlank(driverCoresLimit)){
+                if(Integer.parseInt(driverCores) > Integer.parseInt(driverCores)){
+                    //driver核数超过限制
+                    jobCheckStatus = JobCheckStatus.RESOURCE_OVER_LIMIT;
+                    logger.error("spark类型任务，task{} driverCores:{} (限制:{})",batchTaskShade.getTaskId(),driverCores,driverCoresLimit);
+                }
+            }
+            String driverMemory = taskProperties.getProperty("driver.memory");
+            String driverMemoryLimit = limitProperties.getProperty("driver.memory");
+            if(StringUtils.isNotBlank(driverMemory) && StringUtils.isNotBlank(driverMemoryLimit)){
+                if(Integer.parseInt(driverMemory) > Integer.parseInt(driverMemoryLimit)){
+                    //driver内存大小超过限制
+                    jobCheckStatus = JobCheckStatus.RESOURCE_OVER_LIMIT;
+                    logger.error("spark类型任务，task{} driverMemory:{} (限制:{})",batchTaskShade.getTaskId(),driverMemory,driverMemoryLimit);
+                }
+            }
+            String executorInstances = taskProperties.getProperty("executor.instances");
+            String executorInstancesLimit = limitProperties.getProperty("executor.instances");
+            if(StringUtils.isNotBlank(driverMemory) && StringUtils.isNotBlank(driverMemoryLimit)){
+                if(Integer.parseInt(executorInstances) > Integer.parseInt(executorInstancesLimit)){
+                    //executor实例数超过限制
+                    jobCheckStatus = JobCheckStatus.RESOURCE_OVER_LIMIT;
+                    logger.error("spark类型任务，task{} executorInstances:{} (限制:{})",batchTaskShade.getTaskId(),executorInstances,executorInstancesLimit);
+                }
+            }
+            String executorCores = taskProperties.getProperty("executor.cores");
+            String executorCoresLimit = limitProperties.getProperty("executor.cores");
+            if(StringUtils.isNotBlank(executorCores) && StringUtils.isNotBlank(executorCoresLimit)){
+                if(Integer.parseInt(executorCores) > Integer.parseInt(executorCoresLimit)){
+                    //executor核数超过限制
+                    jobCheckStatus = JobCheckStatus.RESOURCE_OVER_LIMIT;
+                    logger.error("spark类型任务，task{} executorCores:{} (限制:{})",batchTaskShade.getTaskId(),executorCores,executorCoresLimit);
+                }
+            }
+            String executorMemory = taskProperties.getProperty("executor.memory");
+            String executorMemoryLimit = limitProperties.getProperty("executor.memory");
+            if(StringUtils.isNotBlank(executorCores) && StringUtils.isNotBlank(executorCoresLimit)){
+                if(Integer.parseInt(executorMemory) > Integer.parseInt(executorMemoryLimit)){
+                    //executor核数超过限制
+                    jobCheckStatus = JobCheckStatus.RESOURCE_OVER_LIMIT;
+                    logger.error("spark类型任务，task{} executorCores:{} (限制:{})",batchTaskShade.getTaskId(),executorMemory,executorMemoryLimit);
+                }
+            }
+        }else if(EScheduleJobType.SYNC.getType().equals(taskType)){
+            //flink，数据同步类型任务
+            String jobManagerMemory = taskProperties.getProperty("jobmanager.memory.mb");
+            String jobManagerMemoryLimit = limitProperties.getProperty("jobmanager.memory.mb");
+            if(StringUtils.isNotBlank(jobManagerMemory) && StringUtils.isNotBlank(jobManagerMemoryLimit)){
+                if(Integer.parseInt(jobManagerMemory) > Integer.parseInt(jobManagerMemoryLimit)){
+                    //工作管理器内存大小超过限制
+                    jobCheckStatus = JobCheckStatus.RESOURCE_OVER_LIMIT;
+                    logger.error("flink数据同步类型任务，task{} jobManagerMemory:{} (限制:{})",batchTaskShade.getTaskId(),jobManagerMemory,jobManagerMemoryLimit);
+                }
+            }
+            String taskManagerMemory = taskProperties.getProperty("taskmanager.memory.mb");
+            String taskManagerMemoryLimit = limitProperties.getProperty("taskmanager.memory.mb");
+            if(StringUtils.isNotBlank(taskManagerMemory) && StringUtils.isNotBlank(taskManagerMemoryLimit)){
+                if(Integer.parseInt(taskManagerMemory) > Integer.parseInt(taskManagerMemoryLimit)){
+                    //任务管理器内存大小超过限制
+                    jobCheckStatus = JobCheckStatus.RESOURCE_OVER_LIMIT;
+                    logger.error("flink数据同步类型任务，task{} taskManagerMemory:{} (限制:{})",batchTaskShade.getTaskId(),taskManagerMemory,taskManagerMemoryLimit);
+                }
+            }
+        }else if(EScheduleJobType.PYTHON.getType().equals(taskType) || EScheduleJobType.SHELL.getType().equals(taskType)){
+            //dtscript类型的任务
+            String workerMemory = taskProperties.getProperty("worker.memory");
+            String workerMemoryLimit = limitProperties.getProperty("worker.memory");
+            if(StringUtils.isNotBlank(workerMemory) && StringUtils.isNotBlank(workerMemoryLimit)){
+                if(Integer.parseInt(workerMemory) > Integer.parseInt(workerMemoryLimit)){
+                    //工作内存大小超过限制
+                    jobCheckStatus = JobCheckStatus.RESOURCE_OVER_LIMIT;
+                    logger.error("dtscript数据同步类型任务，task{} workerMemory:{} (限制:{})",batchTaskShade.getTaskId(),workerMemory,workerMemoryLimit);
+                }
+            }
+            String workerCores = taskProperties.getProperty("worker.cores");
+            String workerCoresLimit = limitProperties.getProperty("worker.cores");
+            if(StringUtils.isNotBlank(workerCores) && StringUtils.isNotBlank(workerCoresLimit)){
+                if(Integer.parseInt(workerCores) > Integer.parseInt(workerCoresLimit)){
+                    //工作核数超过限制
+                    jobCheckStatus = JobCheckStatus.RESOURCE_OVER_LIMIT;
+                    logger.error("dtscript数据同步类型任务，task{} workerCores:{} (限制:{})",batchTaskShade.getTaskId(),workerCores,workerCoresLimit);
+                }
+            }
+            String workerNum = taskProperties.getProperty("worker.num");
+            String workerNumLimit = limitProperties.getProperty("worker.num");
+            if(StringUtils.isNotBlank(workerNum) && StringUtils.isNotBlank(workerNumLimit)){
+                if(Integer.parseInt(workerNum) > Integer.parseInt(workerNumLimit)){
+                    //worker数量超过限制
+                    jobCheckStatus = JobCheckStatus.RESOURCE_OVER_LIMIT;
+                    logger.error("dtscript数据同步类型任务，task{} workerNum:{} (限制:{})",batchTaskShade.getTaskId(),workerNum,workerNum);
+                }
+            }
+        }
+        return JobCheckRunInfo.createCheckInfo(jobCheckStatus);
     }
 
 

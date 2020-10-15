@@ -130,7 +130,7 @@ public class ClusterServiceTest extends AbstractTest {
      * @see ComponentService#testConnects(java.lang.String)
      * @see ClusterService#deleteCluster(java.lang.Long)
      * @see TenantService#bindingTenant(java.lang.Long, java.lang.Long, java.lang.Long, java.lang.String)
-     * @see TenantService#bindingQueue(java.lang.Long, java.lang.Long)
+     * @see TenantService#bindingQueue(java.lang.Long, java.lang.Long,java.lang.String)
      * @see TenantService#pageQuery(java.lang.Long, java.lang.Integer, java.lang.String, int, int)
      * @see ComponentService#listConfigOfComponents(java.lang.Long, java.lang.Integer)
      * @see ComponentService#getKerberosConfig(java.lang.Long, java.lang.Integer)
@@ -250,7 +250,7 @@ public class ClusterServiceTest extends AbstractTest {
         queueb.setParentQueueId(-1L);
         queueb.setQueuePath("default");
         queueDao.insert(queueb);
-        tenantService.bindingQueue(queueb.getId(),tenant.getDtUicTenantId());
+        tenantService.bindingQueue(queueb.getId(),tenant.getDtUicTenantId(),null);
     }
 
     private Queue testInsertQueue(Long engineId) {

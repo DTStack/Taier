@@ -1,25 +1,23 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.Engine;
-import com.dtstack.engine.api.domain.EngineTenant;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.tenant.TenantAdminVO;
+import com.dtstack.engine.api.vo.tenant.TenantResourceVO;
 import com.dtstack.engine.api.vo.tenant.UserTenantVO;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.dao.ClusterDao;
-import com.dtstack.engine.dao.EngineDao;
-import com.dtstack.engine.dao.EngineTenantDao;
-import com.dtstack.engine.dao.QueueDao;
-import com.dtstack.engine.dao.TenantDao;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -28,9 +26,11 @@ import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.router.login.domain.TenantAdmin;
 import com.dtstack.engine.master.router.login.domain.UserTenant;
 import com.dtstack.fasterxml.jackson.databind.util.BeanUtil;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.Sort;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -38,11 +38,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 
 /**
@@ -60,6 +57,9 @@ public class TenantService {
 
     @Autowired
     private TenantDao tenantDao;
+
+    @Autowired
+    private TenantResourceDao tenantResourceDao;
 
     @Autowired
     private QueueDao queueDao;
@@ -325,7 +325,7 @@ public class TenantService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void bindingQueue( Long queueId,
-                              Long dtUicTenantId) {
+                              Long dtUicTenantId,String taskTypeResourceJson) {
         Queue queue = queueDao.getOne(queueId);
         if (queue == null) {
             throw new RdosDefineException("队列不存在", ErrorCode.DATA_NOT_FIND);
@@ -335,7 +335,83 @@ public class TenantService {
         if(tenantId == null){
             throw new RdosDefineException("租户不存在", ErrorCode.DATA_NOT_FIND);
         }
+        try {
+            //修改租户各个任务资源限制
+            updateTenantTaskResource(tenantId,dtUicTenantId,taskTypeResourceJson);
+            updateTenantQueue(tenantId, dtUicTenantId, queue.getEngineId(), queueId);
+        } catch (Exception e) {
+            throw new RdosDefineException("切换队列失败");
+        }
+    }
 
-        updateTenantQueue(tenantId, dtUicTenantId, queue.getEngineId(), queueId);
+    /**
+    * @author zyd
+    * @Description 修改租户的任务资源限制
+    * @Date 11:14 上午 2020/10/15
+    * @Param [tenantId, dtUicTenantId, taskTypeResourceMap]
+    * @retrun void
+    **/
+    private void updateTenantTaskResource(Long tenantId, Long dtUicTenantId, String taskTypeResourceJson) {
+
+        //先删除原来的资源限制
+        tenantResourceDao.delete(tenantId,dtUicTenantId);
+        //再插入新添加的任务资源限制
+        if(StringUtils.isBlank(taskTypeResourceJson)){
+            return;
+        }
+        JSONArray jsonArray = JSON.parseArray(taskTypeResourceJson);
+        TenantResource tenantResource = new TenantResource();
+        tenantResource.setTenantId(tenantId.intValue());
+        tenantResource.setDtUicTenantId(dtUicTenantId.intValue());
+        for (Object obj : jsonArray) {
+            JSONObject jsonObj = (JSONObject) obj;
+            Integer taskType = jsonObj.getInteger("taskType");
+            tenantResource.setTaskType(taskType);
+            EScheduleJobType eJobType = EScheduleJobType.getEJobType(taskType);
+            if(Objects.isNull(eJobType)){
+                throw new RdosDefineException("传入任务类型错误");
+            }else{
+                tenantResource.setEngineType(eJobType.name());
+            }
+            tenantResource.setResourceLimit(jsonObj.getString("resourceParams"));
+            tenantResourceDao.insert(tenantResource);
+        }
+    }
+
+
+    /**
+    * @author zyd
+    * @Description 根据租户id查询租户设置的任务资源限制信息
+    * @Date 5:26 下午 2020/10/15
+    * @Param [dtUicTenantId]
+    * @retrun java.util.List<com.dtstack.engine.api.vo.tenant.TenantResourceVO>
+    **/
+    public List<TenantResourceVO> queryTaskResourceLimits(Long dtUicTenantId) {
+
+        try {
+            List<TenantResource> tenantResources = tenantResourceDao.selectByUicTenantId(dtUicTenantId);
+            List<TenantResourceVO> tenantResourceVOS = convertTenantResourceToVO(tenantResources);
+            return tenantResourceVOS;
+        } catch (IOException e) {
+            throw new RdosDefineException("查询失败");
+        }
+    }
+
+    private List<TenantResourceVO> convertTenantResourceToVO(List<TenantResource> tenantResources) throws IOException {
+
+        List<TenantResourceVO> tenantResourceVOS = new ArrayList<>();
+        if(CollectionUtils.isEmpty(tenantResources)){
+            return tenantResourceVOS;
+        }else{
+            for (TenantResource tenantResource : tenantResources) {
+                TenantResourceVO tenantResourceVO = new TenantResourceVO();
+                BeanUtils.copyProperties(tenantResource,tenantResourceVO);
+                String resourceLimit = tenantResource.getResourceLimit();
+                Map<String, Object> objectMap = PublicUtil.strToMap(resourceLimit);
+                tenantResourceVO.setResourceLimit(objectMap);
+                tenantResourceVOS.add(tenantResourceVO);
+            }
+            return tenantResourceVOS;
+        }
     }
 }
