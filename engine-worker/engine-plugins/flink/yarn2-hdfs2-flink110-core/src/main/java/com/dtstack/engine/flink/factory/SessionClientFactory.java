@@ -90,7 +90,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
 
     private ClusterSpecification yarnSessionSpecification;
-    private ClusterClient<ApplicationId> clusterClient;
+    private volatile ClusterClient<ApplicationId> clusterClient;
     private FlinkConfig flinkConfig;
     private InterProcessMutex clusterClientLock;
     private String lockPath;
