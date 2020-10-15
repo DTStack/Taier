@@ -3,6 +3,7 @@ package com.dtstack.engine.sparkyarn.sparkyarn;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
+import com.dtstack.engine.base.util.YarnClientUtils;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -91,7 +92,7 @@ public class SparkYarnClient extends AbstractClient {
 
     private YarnConfiguration yarnConf;
 
-    private YarnClient yarnClient;
+    private volatile YarnClient yarnClient;
 
     private Properties sparkExtProp;
 
@@ -654,48 +655,7 @@ public class SparkYarnClient extends AbstractClient {
     }
 
     public YarnClient getYarnClient(){
-        try{
-            if(yarnClient == null){
-                synchronized (this){
-                    if(yarnClient == null){
-                        YarnClient yarnClient1 = YarnClient.createYarnClient();
-                        yarnClient1.init(yarnConf);
-                        yarnClient1.start();
-                        yarnClient = yarnClient1;
-                    }
-                }
-            }else{
-                //判断下是否可用
-                yarnClient.getAllQueues();
-            }
-        }catch(Throwable e){
-            logger.error("getYarnClient error:{}",e);
-            synchronized (this){
-                if(yarnClient != null){
-                    boolean flag = true;
-                    try{
-                        //判断下是否可用
-                        yarnClient.getAllQueues();
-                    }catch(Throwable e1){
-                        logger.error("getYarnClient error:{}",e1);
-                        flag = false;
-                    }
-                    if(!flag){
-                        try{
-                            yarnClient.stop();
-                        }finally {
-                            yarnClient = null;
-                        }
-                    }
-                }
-                if(yarnClient == null){
-                    YarnClient yarnClient1 = YarnClient.createYarnClient();
-                    yarnClient1.init(yarnConf);
-                    yarnClient1.start();
-                    yarnClient = yarnClient1;
-                }
-            }
-        }
+        yarnClient = YarnClientUtils.getYarnClient(yarnClient, sparkYarnConfig, yarnConf);
         return yarnClient;
     }
 }

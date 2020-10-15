@@ -1,9 +1,10 @@
 package com.dtstack.engine.flink;
 
 import com.dtstack.engine.base.util.KerberosUtils;
+import com.dtstack.engine.base.util.YarnClientUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.flink.enums.ClusterMode;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
+import com.dtstack.engine.flink.enums.ClusterMode;
 import com.dtstack.engine.flink.util.HadoopConf;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
@@ -16,12 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Supplier;
+import java.util.Properties;
 
 /**
  * 根据不同的配置创建对应的client
@@ -41,7 +37,7 @@ public class FlinkClientBuilder {
 
     private YarnConfiguration yarnConf;
 
-    private YarnClient yarnClient;
+    private volatile YarnClient yarnClient;
 
     private Configuration flinkConfiguration;
 
@@ -118,68 +114,10 @@ public class FlinkClientBuilder {
     }
 
     public YarnClient getYarnClient() {
-        try {
-            return CompletableFuture.supplyAsync(new Supplier<YarnClient>() {
-                @Override
-                public YarnClient get() {
-                    try {
-                        if (yarnClient == null) {
-                            synchronized (this) {
-                                if (yarnClient == null) {
-                                    return buildYarnClient();
-                                }
-                            }
-                        } else {
-                            //判断下是否可用
-                            yarnClient.getAllQueues();
-                        }
-                    } catch (Throwable e) {
-                        LOG.error("getYarnClient error:{}", e);
-                        synchronized (this) {
-                            if (yarnClient != null) {
-                                boolean flag = true;
-                                try {
-                                    //判断下是否可用
-                                    yarnClient.getAllQueues();
-                                } catch (Throwable e1) {
-                                    LOG.error("getYarnClient error:{}", e1);
-                                    flag = false;
-                                }
-                                if (!flag) {
-                                    try {
-                                        yarnClient.stop();
-                                    } finally {
-                                        yarnClient = null;
-                                    }
-                                }
-                            }
-                            if (yarnClient == null) {
-                                return buildYarnClient();
-                            }
-                        }
-                    }
-                    return yarnClient;
-                }
-            }).get(2, TimeUnit.MINUTES);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            LOG.error("Async getYarnClient error:{}", e);
-            throw new RdosDefineException("Async getYarnClient error.");
-        }
+        yarnClient =  YarnClientUtils.getYarnClient(yarnClient, flinkConfig, yarnConf);
+        return yarnClient;
     }
 
-    public YarnClient buildYarnClient() {
-        try {
-            return KerberosUtils.login(flinkConfig, () -> {
-                YarnClient yarnClient1 = YarnClient.createYarnClient();
-                yarnClient1.init(yarnConf);
-                yarnClient1.start();
-                yarnClient = yarnClient1;
-                return yarnClient;
-            },yarnConf);
-        } catch (Exception e) {
-            throw new RdosDefineException("build yarn client error", e);
-        }
-    }
 
     public Configuration getFlinkConfiguration() {
         if (flinkConfiguration == null) {

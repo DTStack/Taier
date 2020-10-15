@@ -91,7 +91,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     private ClusterSpecification yarnSessionSpecification;
     private volatile ClusterClient<ApplicationId> clusterClient;
-    private volatile AtomicBoolean isLeader = new AtomicBoolean(false);
+    private AtomicBoolean isLeader = new AtomicBoolean(false);
     private FlinkConfig flinkConfig;
     private InterProcessMutex clusterClientLock;
     private String lockPath;
@@ -494,7 +494,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                 } finally {
                     try {
                         Thread.sleep(CHECK_INTERVAL);
-                        LOG.info("Is Leader ? "+ sessionClientFactory.isLeader.get());
+                        LOG.debug("Is Leader ? "+ sessionClientFactory.isLeader.get());
                     } catch (Exception e) {
                         LOG.error("", e);
                     }
