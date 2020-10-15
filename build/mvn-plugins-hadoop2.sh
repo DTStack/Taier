@@ -10,6 +10,7 @@ echo "Dependency ${hadoopversion} Building..."
 
 mvn -T 1C clean package -DskipTests -Dhadoop.version=${hadoopversion} -pl \
 engine-worker/engine-plugins/dummy,\
+engine-worker/engine-plugins/flink/common,\
 engine-worker/engine-plugins/flink/yarn2-hdfs2-flink180,\
 engine-worker/engine-plugins/flink/yarnHW-hdfsHW-flink180HW,\
 engine-worker/engine-plugins/flink/k8s-hdfs2-flink110,\

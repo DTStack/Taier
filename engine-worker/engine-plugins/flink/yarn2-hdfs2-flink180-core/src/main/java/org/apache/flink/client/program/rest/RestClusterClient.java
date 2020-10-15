@@ -599,10 +599,10 @@ public class RestClusterClient<T> extends ClusterClient<T> implements NewCluster
     @Override
     public void shutDownCluster() {
         try {
-            sendRequest(ShutdownHeaders.getInstance()).get();
+            sendRequest(ShutdownHeaders.getInstance()).get(5, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        } catch (ExecutionException e) {
+        } catch (Exception e) {
             log.error("Error while shutting down cluster", e);
         }
     }
