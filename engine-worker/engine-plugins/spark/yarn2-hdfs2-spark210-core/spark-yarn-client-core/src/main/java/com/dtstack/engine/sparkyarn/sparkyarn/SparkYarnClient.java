@@ -3,7 +3,6 @@ package com.dtstack.engine.sparkyarn.sparkyarn;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
-import com.dtstack.engine.base.util.YarnClientUtils;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -83,8 +82,6 @@ public class SparkYarnClient extends AbstractClient {
 
     private static final String CLUSTER_INFO_WS_FORMAT = "%s/ws/v1/cluster";
 
-    private YarnClientUtils yarnClientUtils = new YarnClientUtils();
-
     /**如果请求 CLUSTER_INFO_WS_FORMAT 返回信息包含该特征则表示是alive*/
     private static final String ALIVE_WEB_FLAG = "clusterInfo";
 
@@ -94,13 +91,12 @@ public class SparkYarnClient extends AbstractClient {
 
     private YarnConfiguration yarnConf;
 
-    private volatile YarnClient yarnClient;
+    private YarnClient yarnClient;
 
     private Properties sparkExtProp;
 
     @Override
     public void init(Properties prop) throws Exception {
-
         this.sparkExtProp = prop;
         String propStr = PublicUtil.objToString(prop);
         sparkYarnConfig = PublicUtil.jsonStrToObject(propStr, SparkYarnConfig.class);
@@ -658,7 +654,48 @@ public class SparkYarnClient extends AbstractClient {
     }
 
     public YarnClient getYarnClient(){
-        yarnClient = yarnClientUtils.getYarnClient(yarnClient, sparkYarnConfig, yarnConf);
+        try{
+            if(yarnClient == null){
+                synchronized (this){
+                    if(yarnClient == null){
+                        YarnClient yarnClient1 = YarnClient.createYarnClient();
+                        yarnClient1.init(yarnConf);
+                        yarnClient1.start();
+                        yarnClient = yarnClient1;
+                    }
+                }
+            }else{
+                //判断下是否可用
+                yarnClient.getAllQueues();
+            }
+        }catch(Throwable e){
+            logger.error("getYarnClient error:{}",e);
+            synchronized (this){
+                if(yarnClient != null){
+                    boolean flag = true;
+                    try{
+                        //判断下是否可用
+                        yarnClient.getAllQueues();
+                    }catch(Throwable e1){
+                        logger.error("getYarnClient error:{}",e1);
+                        flag = false;
+                    }
+                    if(!flag){
+                        try{
+                            yarnClient.stop();
+                        }finally {
+                            yarnClient = null;
+                        }
+                    }
+                }
+                if(yarnClient == null){
+                    YarnClient yarnClient1 = YarnClient.createYarnClient();
+                    yarnClient1.init(yarnConf);
+                    yarnClient1.start();
+                    yarnClient = yarnClient1;
+                }
+            }
+        }
         return yarnClient;
     }
 }
