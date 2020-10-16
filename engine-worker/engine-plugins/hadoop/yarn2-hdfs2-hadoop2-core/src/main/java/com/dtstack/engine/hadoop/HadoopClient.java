@@ -8,7 +8,6 @@ import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.base.resource.EngineResourceInfo;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
-import com.dtstack.engine.base.util.YarnClientUtils;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -63,7 +62,7 @@ public class HadoopClient extends AbstractClient {
     private static final String QUEUE = "queue";
     private EngineResourceInfo resourceInfo;
     private Configuration conf = new Configuration();
-    private volatile YarnClient yarnClient;
+    private YarnClient yarnClient;
     private Config config;
     private Map<String, List<String>> cacheFile = Maps.newConcurrentMap();
     private static final String APP_TYPE = "Apache Flink";
@@ -72,7 +71,6 @@ public class HadoopClient extends AbstractClient {
     private static final String YARN_RM_WEB_KEY_PREFIX = "yarn.resourcemanager.webapp.address.";
     private static final String YARN_SCHEDULER_FORMAT = "http://%s/ws/v1/cluster/scheduler";
     private static final long ONE_MEGABYTE = 1024*1024;
-    private YarnClientUtils yarnClientUtils = new YarnClientUtils();
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -262,7 +260,48 @@ public class HadoopClient extends AbstractClient {
 
 
     public YarnClient getYarnClient(){
-        yarnClient = yarnClientUtils.getYarnClient(yarnClient, config ,conf);
+        try{
+            if(yarnClient == null){
+                synchronized (this){
+                    if(yarnClient == null){
+                        YarnClient yarnClient1 = YarnClient.createYarnClient();
+                        yarnClient1.init(conf);
+                        yarnClient1.start();
+                        yarnClient = yarnClient1;
+                    }
+                }
+            }else{
+                //判断下是否可用
+                yarnClient.getAllQueues();
+            }
+        }catch(Throwable e){
+            LOG.error("getYarnClient error:{}",e);
+            synchronized (this){
+                if(yarnClient != null){
+                    boolean flag = true;
+                    try{
+                        //判断下是否可用
+                        yarnClient.getAllQueues();
+                    }catch(Throwable e1){
+                        LOG.error("getYarnClient error:{}",e1);
+                        flag = false;
+                    }
+                    if(!flag){
+                        try{
+                            yarnClient.stop();
+                        }finally {
+                            yarnClient = null;
+                        }
+                    }
+                }
+                if(yarnClient == null){
+                    YarnClient yarnClient1 = YarnClient.createYarnClient();
+                    yarnClient1.init(conf);
+                    yarnClient1.start();
+                    yarnClient = yarnClient1;
+                }
+            }
+        }
         return yarnClient;
     }
 
