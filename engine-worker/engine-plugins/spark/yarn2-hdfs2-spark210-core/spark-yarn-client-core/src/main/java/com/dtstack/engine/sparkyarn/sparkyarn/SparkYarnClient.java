@@ -83,6 +83,8 @@ public class SparkYarnClient extends AbstractClient {
 
     private static final String CLUSTER_INFO_WS_FORMAT = "%s/ws/v1/cluster";
 
+    private YarnClientUtils yarnClientUtils = new YarnClientUtils();
+
     /**如果请求 CLUSTER_INFO_WS_FORMAT 返回信息包含该特征则表示是alive*/
     private static final String ALIVE_WEB_FLAG = "clusterInfo";
 
@@ -98,6 +100,7 @@ public class SparkYarnClient extends AbstractClient {
 
     @Override
     public void init(Properties prop) throws Exception {
+
         this.sparkExtProp = prop;
         String propStr = PublicUtil.objToString(prop);
         sparkYarnConfig = PublicUtil.jsonStrToObject(propStr, SparkYarnConfig.class);
@@ -655,7 +658,7 @@ public class SparkYarnClient extends AbstractClient {
     }
 
     public YarnClient getYarnClient(){
-        yarnClient = YarnClientUtils.getYarnClient(yarnClient, sparkYarnConfig, yarnConf);
+        yarnClient = yarnClientUtils.getYarnClient(yarnClient, sparkYarnConfig, yarnConf);
         return yarnClient;
     }
 }

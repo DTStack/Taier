@@ -34,6 +34,8 @@ public class FlinkClientBuilder {
 
     private FlinkConfig flinkConfig;
 
+    private YarnClientUtils yarnClientUtils = new YarnClientUtils();
+
     private org.apache.hadoop.conf.Configuration hadoopConf;
 
     private YarnConfiguration yarnConf;
@@ -105,7 +107,7 @@ public class FlinkClientBuilder {
     }
 
     public YarnClient getYarnClient() {
-        yarnClient = YarnClientUtils.getYarnClient(yarnClient, flinkConfig, yarnConf);
+        yarnClient = yarnClientUtils.getYarnClient(yarnClient, flinkConfig, yarnConf);
         return yarnClient;
     }
 

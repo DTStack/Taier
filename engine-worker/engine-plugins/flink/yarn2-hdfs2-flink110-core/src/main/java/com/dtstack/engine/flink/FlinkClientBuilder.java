@@ -31,6 +31,8 @@ public class FlinkClientBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlinkClientBuilder.class);
 
+    private YarnClientUtils yarnClientUtils = new YarnClientUtils();
+
     private FlinkConfig flinkConfig;
 
     private org.apache.hadoop.conf.Configuration hadoopConf;
@@ -114,7 +116,8 @@ public class FlinkClientBuilder {
     }
 
     public YarnClient getYarnClient() {
-        yarnClient =  YarnClientUtils.getYarnClient(yarnClient, flinkConfig, yarnConf);
+
+        yarnClient =  yarnClientUtils.getYarnClient(yarnClient, flinkConfig, yarnConf);
         return yarnClient;
     }
 
