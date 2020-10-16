@@ -36,7 +36,7 @@ public class FlinkClientBuilder {
 
     private YarnConfiguration yarnConf;
 
-    private YarnClient yarnClient;
+    private volatile YarnClient yarnClient;
 
     private Configuration flinkConfiguration;
 
