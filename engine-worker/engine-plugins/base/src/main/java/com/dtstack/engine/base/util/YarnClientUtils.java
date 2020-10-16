@@ -24,7 +24,7 @@ public class YarnClientUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(YarnClientUtils.class);
 
-    public static YarnClient getYarnClient(YarnClient yarnClient, BaseConfig baseConfig, Configuration yarnConf) {
+    public YarnClient getYarnClient(YarnClient yarnClient, BaseConfig baseConfig, Configuration yarnConf) {
         try {
             if (yarnClient == null) {
                 return buildYarnClient(baseConfig, yarnConf);
@@ -47,7 +47,7 @@ public class YarnClientUtils {
         return buildYarnClient(baseConfig, yarnConf);
     }
 
-    public static YarnClient buildYarnClient(BaseConfig baseConfig, Configuration yarnConf) {
+    public YarnClient buildYarnClient(BaseConfig baseConfig, Configuration yarnConf) {
         try {
             LOG.debug("build yarn client.");
             return KerberosUtils.login(baseConfig, () -> {
