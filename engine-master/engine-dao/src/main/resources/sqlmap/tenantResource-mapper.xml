@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.TenantResourceDao">
 
     <sql id="select_content_fragment">
-      id,tenante_id,dt_uic_tenant_id,task_type,engine_type,resource_limit,gmt_create,gmt_modified,is_deleted
+      id,tenant_id,dt_uic_tenant_id,task_type,engine_type,resource_limit,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <sql id="update_fragment">
@@ -33,7 +33,7 @@
 
     <insert id="insert" parameterType="TenantResource" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO console_tenant_resource
-        (tenant_id,dt_uic_tenant_id,task_type,engine_type,resouce_limit)
+        (tenant_id,dt_uic_tenant_id,task_type,engine_type,resource_limit)
         VALUES (#{tenantId},#{dtUicTenantId},#{taskType},#{engineType},#{resourceLimit})
     </insert>
 
@@ -47,7 +47,7 @@
         SELECT
         <include refid="select_content_fragment" />
         FROM console_tenant_resource
-        where dt_uic_tenant_id = #{dtUicTenantId}
+        WHERE dt_uic_tenant_id = #{dtUicTenantId}
         and task_type = #{taskType}
         and is_deleted = 0;
 

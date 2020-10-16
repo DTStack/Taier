@@ -315,7 +315,6 @@ public class TenantService {
         if(result == 0){
             throw new RdosDefineException("更新引擎队列失败");
         }
-
         //缓存刷新
         consoleCache.publishRemoveMessage(dtUicTenantId.toString());
     }
@@ -340,6 +339,7 @@ public class TenantService {
             updateTenantTaskResource(tenantId,dtUicTenantId,taskTypeResourceJson);
             updateTenantQueue(tenantId, dtUicTenantId, queue.getEngineId(), queueId);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RdosDefineException("切换队列失败");
         }
     }
@@ -351,7 +351,8 @@ public class TenantService {
     * @Param [tenantId, dtUicTenantId, taskTypeResourceMap]
     * @retrun void
     **/
-    private void updateTenantTaskResource(Long tenantId, Long dtUicTenantId, String taskTypeResourceJson) {
+    @Transactional(rollbackFor = Exception.class)
+    public void updateTenantTaskResource(Long tenantId, Long dtUicTenantId, String taskTypeResourceJson) {
 
         //先删除原来的资源限制
         tenantResourceDao.delete(tenantId,dtUicTenantId);
@@ -371,7 +372,7 @@ public class TenantService {
             if(Objects.isNull(eJobType)){
                 throw new RdosDefineException("传入任务类型错误");
             }else{
-                tenantResource.setEngineType(eJobType.name());
+                tenantResource.setEngineType(eJobType.getName());
             }
             tenantResource.setResourceLimit(jsonObj.getString("resourceParams"));
             tenantResourceDao.insert(tenantResource);
@@ -412,6 +413,29 @@ public class TenantService {
                 tenantResourceVOS.add(tenantResourceVO);
             }
             return tenantResourceVOS;
+        }
+    }
+
+    /**
+    * @author zyd
+    * @Description 根据租户id和taskType获取资源限制信息
+    * @Date 9:56 上午 2020/10/16
+    * @Param [dtUicTenantId, taskType]
+    * @retrun java.lang.String
+    **/
+    public String queryResourceLimitByTenantIdAndTaskType(Long dtUicTenantId, Integer taskType) {
+
+        TenantResource tenantResource = null;
+        try {
+            tenantResource = tenantResourceDao.selectByUicTenantIdAndTaskType(dtUicTenantId, taskType);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RdosDefineException("查找资源限制失败");
+        }
+        if(Objects.nonNull(tenantResource)){
+            return tenantResource.getResourceLimit();
+        }else{
+            return "";
         }
     }
 }
