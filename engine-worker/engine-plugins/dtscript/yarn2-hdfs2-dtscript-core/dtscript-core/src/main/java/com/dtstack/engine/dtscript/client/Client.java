@@ -56,7 +56,7 @@ public class Client {
     private DtYarnConfiguration conf;
     private BaseConfig baseConfig;
     private FileSystem dfs;
-    private static YarnClientUtils yarnClientUtils = new YarnClientUtils();
+    private YarnClientUtils yarnClientUtils = new YarnClientUtils();
     private volatile YarnClient yarnClient;
     private volatile Path appJarSrc;
 
@@ -66,9 +66,7 @@ public class Client {
     public Client(DtYarnConfiguration conf, BaseConfig allConfig) throws Exception {
         this.conf = conf;
         this.baseConfig = allConfig;
-        if (yarnClientUtils == null){
-            yarnClientUtils = new YarnClientUtils();
-        }
+
         KerberosUtils.login(allConfig, () -> {
             String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
             if (conf.get("hadoop.job.ugi") == null) {

@@ -72,15 +72,11 @@ public class HadoopClient extends AbstractClient {
     private static final String YARN_RM_WEB_KEY_PREFIX = "yarn.resourcemanager.webapp.address.";
     private static final String YARN_SCHEDULER_FORMAT = "http://%s/ws/v1/cluster/scheduler";
     private static final long ONE_MEGABYTE = 1024*1024;
-    private static YarnClientUtils yarnClientUtils = new YarnClientUtils();
+    private YarnClientUtils yarnClientUtils = new YarnClientUtils();
 
     @Override
     public void init(Properties prop) throws Exception {
         LOG.info("hadoop client init...");
-
-        if(yarnClientUtils == null){
-            yarnClientUtils = new YarnClientUtils();
-        }
 
         String configStr = PublicUtil.objToString(prop);
         config = PublicUtil.jsonStrToObject(configStr, Config.class);

@@ -34,7 +34,7 @@ public class FlinkClientBuilder {
 
     private FlinkConfig flinkConfig;
 
-    private static YarnClientUtils yarnClientUtils = new YarnClientUtils();
+    private YarnClientUtils yarnClientUtils = new YarnClientUtils();
 
     private org.apache.hadoop.conf.Configuration hadoopConf;
 
@@ -48,10 +48,6 @@ public class FlinkClientBuilder {
         FlinkClientBuilder builder = new FlinkClientBuilder();
         builder.hadoopConf = hadoopConf;
         builder.yarnConf = yarnConf;
-
-        if(yarnClientUtils == null){
-            yarnClientUtils = new YarnClientUtils();
-        }
 
         KerberosUtils.login(flinkConfig, ()->{
             if (!ClusterMode.STANDALONE.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {

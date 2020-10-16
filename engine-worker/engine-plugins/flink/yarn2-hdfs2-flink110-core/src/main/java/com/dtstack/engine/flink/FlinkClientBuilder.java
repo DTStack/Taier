@@ -31,7 +31,7 @@ public class FlinkClientBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlinkClientBuilder.class);
 
-    private static YarnClientUtils yarnClientUtils = new YarnClientUtils();
+    private YarnClientUtils yarnClientUtils = new YarnClientUtils();
 
     private FlinkConfig flinkConfig;
 
@@ -47,10 +47,6 @@ public class FlinkClientBuilder {
         FlinkClientBuilder builder = new FlinkClientBuilder();
         builder.hadoopConf = hadoopConf;
         builder.yarnConf = yarnConf;
-
-        if(yarnClientUtils == null){
-            yarnClientUtils = new YarnClientUtils();
-        }
 
         KerberosUtils.login(flinkConfig, () -> {
             if (!ClusterMode.STANDALONE.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
