@@ -92,4 +92,10 @@ public class ConfigConstrant {
     public static final String TASKMANAGER_LOG_URL_FORMAT = "%s/taskmanagers/%s/log";
     public static final String TASKMANAGERS_KEY = "taskmanagers";
 
+    // ------------------------------------------------------------------------
+    // Kubernetes Configs
+    // ------------------------------------------------------------------------
+
+    public final static String KUBERNETES_HOST_ALIASES_ENV = "KUBERNETES_HOST_ALIASES";
+
 }

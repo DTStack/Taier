@@ -69,16 +69,8 @@ public class PerJobClientFactory extends AbstractClientFactory {
         Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
         Configuration newConf = new Configuration(flinkConfiguration);
 
-        // set log env
-        String taskIdMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.TASKID_KEY;
-        newConf.setString(taskIdMasterKey, jobClient.getTaskId());
-        String taskIdTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + ConfigConstrant.TASKID_KEY;
-        newConf.setString(taskIdTaskMangerKey, jobClient.getTaskId());
-
-        String flinkxHostsMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.FLINKX_HOSTS_ENV;
-        newConf.setString(flinkxHostsMasterKey, newConf.getString(ConfigConstrant.FLINKX_HOSTS_CONFIG_KEY, ""));
-        String flinkxHostsTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + ConfigConstrant.FLINKX_HOSTS_ENV;
-        newConf.setString(flinkxHostsTaskMangerKey, newConf.getString(ConfigConstrant.FLINKX_HOSTS_CONFIG_KEY, ""));
+        // set env
+        setContainerEnv(newConf, jobClient);
 
         // set job config
         newConf = appendJobConfigAndInitFs(jobClient.getConfProperties(), newConf);
@@ -102,6 +94,28 @@ public class PerJobClientFactory extends AbstractClientFactory {
         }
 
         return clusterDescriptor;
+    }
+
+
+    private Configuration setContainerEnv(Configuration config, JobClient jobClient) {
+        // set log env
+        String taskIdMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.TASKID_KEY;
+        config.setString(taskIdMasterKey, jobClient.getTaskId());
+        String taskIdTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + ConfigConstrant.TASKID_KEY;
+        config.setString(taskIdTaskMangerKey, jobClient.getTaskId());
+
+        String flinkxHostsMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.FLINKX_HOSTS_ENV;
+        config.setString(flinkxHostsMasterKey, config.getString(ConfigConstrant.FLINKX_HOSTS_CONFIG_KEY, ""));
+        String flinkxHostsTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + ConfigConstrant.FLINKX_HOSTS_ENV;
+        config.setString(flinkxHostsTaskMangerKey, config.getString(ConfigConstrant.FLINKX_HOSTS_CONFIG_KEY, ""));
+
+        // set host env
+        if (config.contains(KubernetesConfigOptions.KUBERNETES_HOST_ALIASES)) {
+            String hostAliasesKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.KUBERNETES_HOST_ALIASES_ENV;
+            config.setString(hostAliasesKey, config.getString(KubernetesConfigOptions.KUBERNETES_HOST_ALIASES));
+        }
+
+        return config;
     }
 
     private Configuration appendJobConfigAndInitFs(Properties properties, Configuration configuration) {
