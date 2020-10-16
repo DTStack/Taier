@@ -5,7 +5,6 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.util.PluginInfoUtil;
 import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
-import org.apache.directory.api.util.Strings;
 import sun.misc.BASE64Decoder;
 
 import java.io.IOException;
@@ -46,7 +45,7 @@ public class LearningUtil {
                 });
 
         //pluginInfo --> --remote-dfs-config
-        if(Strings.isNotEmpty(jobClient.getPluginInfo())){
+        if(StringUtils.isNotEmpty(jobClient.getPluginInfo())){
             argList.add("--remote-dfs-config");
             Object hdfsConf = PluginInfoUtil.getSpecKeyConf(jobClient.getPluginInfo(), PluginInfoUtil.HADOOP_CONF_KEY);
             argList.add(new Gson().toJson(hdfsConf));

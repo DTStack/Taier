@@ -969,12 +969,11 @@ public class ComponentService {
 
             if (EComponentType.SPARK_THRIFT.getTypeCode() == componentType ||
                     EComponentType.HIVE_SERVER.getTypeCode() == componentType) {
-                if (!jdbcUrl.contains(";principal=") && jdbcUrl.endsWith("%s")) {
-                    //数据库连接不带%s
-                    dataInfo.put("jdbcUrl", jdbcUrl.substring(0, jdbcUrl.lastIndexOf("/")));
-                }
+                //数据库连接不带%s
+                jdbcUrl = jdbcUrl.replace("/%s", "/");
             }
 
+            dataInfo.put("jdbcUrl", jdbcUrl);
             dataInfo.put("username", dataInfo.getString("username"));
             dataInfo.put("password", dataInfo.getString("password"));
             if (Objects.nonNull(kerberosConfig)) {
@@ -1466,6 +1465,12 @@ public class ComponentService {
                 },connectPool).get(env.getTestConnectTimeout(),TimeUnit.SECONDS);
             } catch (Exception e) {
                 LOGGER.error("test connect {}  e ", component.getComponentConfig(), e);
+                countDownLatch.countDown();
+                ComponentTestResult testResult = new ComponentTestResult();
+                testResult.setResult(false);
+                testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+                testResult.setComponentTypeCode(component.getComponentTypeCode());
+                testResults.add(testResult);
             }
         }
         try {

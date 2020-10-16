@@ -18,25 +18,26 @@ import com.dtstack.engine.master.impl.BatchFlowWorkJobService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
-import com.dtstack.engine.master.scheduler.JobErrorInfo;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.Restarted;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.lang.ref.SoftReference;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -84,10 +85,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     protected BatchFlowWorkJobService batchFlowWorkJobService;
 
     private ExecutorService executorService;
-
-//    private Set<String> notStartCache = Sets.newHashSet();
-//    private Map<String, JobErrorInfo> errorJobCache = Maps.newHashMap();
-    private SoftReference<Map<Long, ScheduleTaskShade>> softReference;
     protected final AtomicBoolean RUNNING = new AtomicBoolean(true);
     private volatile long lastRestartJobLoadTime = 0L;
 
@@ -122,7 +119,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         List<ScheduleBatchJob> listExecJobs = getScheduleBatchJobList(scheduleJobs);
 
         //添加需要重跑的数据
-        List<ScheduleBatchJob> restartJobList = getRestartDataJob();
+        List<ScheduleBatchJob> restartJobList = getRestartDataJob(cycStartTime);
         listExecJobs.addAll(restartJobList);
         return listExecJobs;
     }
@@ -159,36 +156,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         }
     }
 
-    /**
-     * 缓存task
-     *
-     * @return
-     */
-    private Map<Long, ScheduleTaskShade> taskCache() {
-        if (this.softReference == null) {
-            this.softReference = new SoftReference<>(Maps.newHashMap());
-        }
-
-        if (this.softReference.get() == null) {
-            this.softReference = new SoftReference<>(Maps.newHashMap());
-        }
-        return this.softReference.get();
-    }
-
-    public void removeTaskCache(Long taskId, Integer appType) {
-        if (null == taskId || null == appType) {
-            return;
-        }
-        if (null == this.softReference) {
-            return;
-        }
-        Map<Long, ScheduleTaskShade> taskShadeMap = this.softReference.get();
-        if (null != taskShadeMap) {
-            taskShadeMap.remove(jobRichOperator.getTaskIdUnique(appType, taskId));
-            logger.info("scheduleType:{} remove cache {} appType {} ", getScheduleType(), taskId, appType);
-        }
-    }
-
 
     private void emitJob2Queue() {
         String nodeAddress = zkService.getLocalAddress();
@@ -205,43 +172,50 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 while (CollectionUtils.isNotEmpty(listExecJobs)) {
                     for (ScheduleBatchJob scheduleBatchJob : listExecJobs) {
                         // 节点检查是否能进入队列
-                        JobCheckRunInfo checkRunInfo;
+                        try {
+                            JobCheckRunInfo checkRunInfo;
 
-                        Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
-                        ScheduleTaskShade batchTask = this.taskCache().computeIfAbsent(taskIdUnique, k -> batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType()));
-
-                        if (batchTask == null) {
-                            String errMsg = JobCheckStatus.NO_TASK.getMsg();
-                            batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.SUBMITFAILD.getStatus(), errMsg);
-                            logger.warn("jobId:{} scheduleType:{} submit failed for taskId:{} already deleted.", scheduleBatchJob.getJobId(), getScheduleType(), scheduleBatchJob.getTaskId());
-                            continue;
-                        }
-
-                        Integer type = batchTask.getTaskType();
-                        Integer status = batchJobService.getStatusById(scheduleBatchJob.getId());
-
-                        if (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
-                            logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB so immediate put queue.", scheduleBatchJob.getJobId(), getScheduleType());
-                            if (status != null && status.equals(RdosTaskStatus.UNSUBMIT.getStatus())) {
-                                putScheduleJob(scheduleBatchJob);
+                            Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
+                            ScheduleTaskShade batchTask =  batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType());
+                            Map<Long, ScheduleTaskShade> taskCache = Maps.newHashMap();
+                            taskCache.put(taskIdUnique,batchTask);
+                            if (batchTask == null) {
+                                String errMsg = JobCheckStatus.NO_TASK.getMsg();
+                                batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.SUBMITFAILD.getStatus(), errMsg);
+                                logger.warn("jobId:{} scheduleType:{} submit failed for taskId:{} already deleted.", scheduleBatchJob.getJobId(), getScheduleType(), scheduleBatchJob.getTaskId());
+                                continue;
                             }
-                            logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
-                            batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(),scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
-                        } else {
-                            checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), new HashSet<>(), new HashMap<>(), this.taskCache());
-                            if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
-                                // 更新job状态
-                                boolean updateStatus = batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.CREATE, JobPhaseStatus.JOIN_THE_TEAM);
-                                if (updateStatus) {
-                                    logger.info("jobId:{} scheduleType:{} nodeAddress:{} JobPhaseStatus:{} update success", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, JobPhaseStatus.JOIN_THE_TEAM);
+
+                            Integer type = batchTask.getTaskType();
+                            Integer status = batchJobService.getStatusById(scheduleBatchJob.getId());
+
+                            if (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
+                                logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB so immediate put queue.", scheduleBatchJob.getJobId(), getScheduleType());
+                                if (status != null && status.equals(RdosTaskStatus.UNSUBMIT.getStatus())) {
                                     putScheduleJob(scheduleBatchJob);
                                 }
+                                logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
+                                batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(),scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
+                            } else {
+                                checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), new HashSet<>(), new HashMap<>(), taskCache);
+                                if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
+                                    // 更新job状态
+                                    boolean updateStatus = batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.CREATE, JobPhaseStatus.JOIN_THE_TEAM);
+                                    if (updateStatus) {
+                                        logger.info("jobId:{} scheduleType:{} nodeAddress:{} JobPhaseStatus:{} update success", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, JobPhaseStatus.JOIN_THE_TEAM);
+                                        putScheduleJob(scheduleBatchJob);
+                                    }
+                                }
                             }
-                        }
 
-                        //重跑任务不记录id
-                        if (Restarted.RESTARTED.getStatus() != scheduleBatchJob.getIsRestart()) {
-                            startId = scheduleBatchJob.getId();
+                            //重跑任务不记录id
+                            if (Restarted.RESTARTED.getStatus() != scheduleBatchJob.getIsRestart()) {
+                                startId = scheduleBatchJob.getId();
+                            }
+                        } catch (Exception e) {
+                            logger.error("jobId:{} scheduleType:{} nodeAddress:{} emitJob2Queue error:", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, e);
+                            Integer status = RdosTaskStatus.FAILED.getStatus();
+                            batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), status,e.getMessage());
                         }
                     }
                     listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight(),Boolean.FALSE);
@@ -306,14 +280,25 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         }
     }
 
-    protected List<ScheduleBatchJob> getRestartDataJob() {
+    protected List<ScheduleBatchJob> getRestartDataJob(String cycStartTime) {
         int status = RdosTaskStatus.UNSUBMIT.getStatus();
-        long loadTime = System.currentTimeMillis();
-        Timestamp lasTime = lastRestartJobLoadTime == 0L ? null : new Timestamp(lastRestartJobLoadTime);
+        Timestamp lasTime = null;
+        if (!StringUtils.isBlank(cycStartTime)) {
+            DateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+            try {
+                Date parse = sdf.parse(cycStartTime);
+                if (null != parse) {
+                    lasTime = new Timestamp(parse.getTime());
+                }
+            } catch (ParseException e) {
+                logger.error("getRestartDataJob {} error ",cycStartTime,e);
+            }
+        }
+        if (null == lasTime) {
+            lasTime = new Timestamp(DateTime.now().withTime(0,0,0,0).getMillis());
+        }
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listRestartBatchJobList(getScheduleType().getType(), status, lasTime);
-        List<ScheduleBatchJob> scheduleBatchJobs = getScheduleBatchJobList(scheduleJobs);
-        lastRestartJobLoadTime = loadTime;
-        return scheduleBatchJobs;
+        return getScheduleBatchJobList(scheduleJobs);
     }
 
     protected List<ScheduleBatchJob> getScheduleBatchJobList(List<ScheduleJob> scheduleJobs) {

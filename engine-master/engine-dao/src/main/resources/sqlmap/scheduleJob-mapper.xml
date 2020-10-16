@@ -111,7 +111,10 @@
                 AND bj.app_type = #{model.appType}
             </if>
             <if test="model.execStartDay != null and model.execEndDay != null">
-                AND exec_start_time &gt;= #{model.execStartDay} and exec_start_time &lt;= #{model.execEndDay}
+                AND bj.exec_start_time &gt;= #{model.execStartDay} and bj.exec_start_time &lt;= #{model.execEndDay}
+            </if>
+            <if test="model.bizEndDay != null and model.bizStartDay != null">
+                AND bj.business_date &gt;= #{model.bizStartDay} and bj.business_date &lt;= #{model.bizEndDay}
             </if>
         </trim>
     </sql>
@@ -1563,7 +1566,7 @@
     <update id="updateJobSubmitSuccess">
 	   update schedule_job
 	   set log_info = #{submitLog}, engine_job_id=#{engineId}, application_id=#{appId},
-	    gmt_modified=now(), exec_start_time=now()
+	    gmt_modified=now(), exec_start_time=now(),job_graph = #{jobGraph}
 	   where job_id=#{jobId};
    </update>
 
@@ -1664,4 +1667,8 @@
     <update id="updateJobStatusAndPhaseStatus">
         update schedule_job set gmt_modified=now(),status=#{status},`phase_status` = #{phaseStatus} where job_id=#{jobId};
     </update>
+
+    <select id="getJobGraph" resultType="java.lang.String">
+        select job_graph from schedule_job where job_id = #{jobId}
+    </select>
 </mapper>

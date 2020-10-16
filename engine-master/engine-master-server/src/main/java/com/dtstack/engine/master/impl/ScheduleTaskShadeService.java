@@ -62,7 +62,6 @@ public class ScheduleTaskShadeService {
             //更新提交时间
             batchTaskShadeDTO.setGmtModified(new Timestamp(System.currentTimeMillis()));
             scheduleTaskShadeDao.update(batchTaskShadeDTO);
-            this.removeTaskCache(batchTaskShadeDTO.getTaskId(),batchTaskShadeDTO.getAppType());
         } else {
             if (null == batchTaskShadeDTO.getProjectScheduleStatus()) {
                 batchTaskShadeDTO.setProjectScheduleStatus(EProjectScheduleStatus.NORMAL.getStatus());
@@ -87,7 +86,6 @@ public class ScheduleTaskShadeService {
     public void deleteTask( Long taskId,  long modifyUserId, Integer appType) {
         scheduleTaskShadeDao.delete(taskId, modifyUserId,appType);
         scheduleTaskTaskShadeService.clearDataByTaskId(taskId,appType);
-        this.removeTaskCache(taskId,appType);
     }
 
     public List<ScheduleTaskShade> listTaskByType(Long projectId, Integer taskType, String taskName) {
@@ -380,13 +378,16 @@ public class ScheduleTaskShadeService {
                         flowVo = vosCopy.get(voIndex.get(flowId));
                         flowVo.setRelatedTasks(Lists.newArrayList(vo));
                         iterator.remove();
+                        record.put(flowId, flowVo);
                     } else {
-                        ScheduleTaskShade flow = scheduleTaskShadeDao.getOne(flowId,appType);
-                        flowVo = new com.dtstack.engine.master.vo.ScheduleTaskVO(flow, true);
-                        flowVo.setRelatedTasks(Lists.newArrayList(vo));
-                        vos.set(vos.indexOf(vo), flowVo);
+                        ScheduleTaskShade flow = scheduleTaskShadeDao.getOne(flowId, appType);
+                        if (flow != null) {
+                            flowVo = new com.dtstack.engine.master.vo.ScheduleTaskVO(flow, true);
+                            flowVo.setRelatedTasks(Lists.newArrayList(vo));
+                            vos.set(vos.indexOf(vo), flowVo);
+                            record.put(flowId, flowVo);
+                        }
                     }
-                    record.put(flowId, flowVo);
                 }
             }
         }
@@ -414,9 +415,6 @@ public class ScheduleTaskShadeService {
                            Long projectId, Long userId,
                            Integer appType) {
         scheduleTaskShadeDao.batchUpdateTaskScheduleStatus(taskIdList, scheduleStatus, appType);
-        for (Long taskId : taskIdList) {
-            this.removeTaskCache(taskId, appType);
-        }
     }
 
 
@@ -522,13 +520,4 @@ public class ScheduleTaskShadeService {
         return scheduleTaskShadeDao.getById(id);
     }
 
-    /**
-     * 更新调度中的taskCache
-     * @param taskId
-     * @param appType
-     */
-    public void removeTaskCache(Long taskId,Integer appType){
-        cronJobExecutor.removeTaskCache(taskId,appType);
-        fillJobExecutor.removeTaskCache(taskId,appType);
-    }
 }
