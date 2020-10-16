@@ -191,6 +191,9 @@ public class KerberosUtils {
                         public Map<String, String> apply(Object oldValue, Object newValue) {
                             Map<String, String> oldMap = (Map<String, String>) oldValue;
                             Map<String, String> newMap = (Map<String, String>) newValue;
+                            if (oldMap == null) {
+                                return newMap;
+                            }
                             oldMap.putAll(newMap);
                             return oldMap;
                         }
