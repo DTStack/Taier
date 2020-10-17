@@ -3,7 +3,6 @@ package com.dtstack.engine.dtscript.client;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.util.KerberosUtils;
-import com.dtstack.engine.base.util.YarnClientUtils;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.am.ApplicationMaster;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
@@ -12,24 +11,13 @@ import com.dtstack.engine.dtscript.common.exceptions.RequestOverLimitException;
 import com.dtstack.engine.dtscript.util.Utilities;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.GetNewApplicationResponse;
-import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.hadoop.yarn.api.records.ApplicationReport;
-import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
-import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
-import org.apache.hadoop.yarn.api.records.LocalResource;
-import org.apache.hadoop.yarn.api.records.LocalResourceType;
-import org.apache.hadoop.yarn.api.records.Priority;
-import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.client.api.YarnClientApplication;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -43,20 +31,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Client {
 
     private static final Logger LOG = LoggerFactory.getLogger(Client.class);
 
     private DtYarnConfiguration conf;
-    private BaseConfig baseConfig;
     private FileSystem dfs;
-    private volatile YarnClient yarnClient;
+    private YarnClient yarnClient;
     private volatile Path appJarSrc;
 
 
@@ -64,7 +47,6 @@ public class Client {
 
     public Client(DtYarnConfiguration conf, BaseConfig allConfig) throws Exception {
         this.conf = conf;
-        this.baseConfig = allConfig;
         KerberosUtils.login(allConfig, () -> {
             String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
             if (conf.get("hadoop.job.ugi") == null) {
@@ -345,7 +327,48 @@ public class Client {
     }
 
     public YarnClient getYarnClient() {
-        yarnClient = YarnClientUtils.getYarnClient(yarnClient, baseConfig, conf);
+        try {
+            if (yarnClient == null) {
+                synchronized (this) {
+                    if (yarnClient == null) {
+                        YarnClient yarnClient1 = YarnClient.createYarnClient();
+                        yarnClient1.init(conf);
+                        yarnClient1.start();
+                        yarnClient = yarnClient1;
+                    }
+                }
+            } else {
+                //判断下是否可用
+                yarnClient.getAllQueues();
+            }
+        } catch (Throwable e) {
+            LOG.error("getYarnClient error:{}", e);
+            synchronized (this) {
+                if (yarnClient != null) {
+                    boolean flag = true;
+                    try {
+                        //判断下是否可用
+                        yarnClient.getAllQueues();
+                    } catch (Throwable e1) {
+                        LOG.error("getYarnClient error:{}", e1);
+                        flag = false;
+                    }
+                    if (!flag) {
+                        try {
+                            yarnClient.stop();
+                        } finally {
+                            yarnClient = null;
+                        }
+                    }
+                }
+                if (yarnClient == null) {
+                    YarnClient yarnClient1 = YarnClient.createYarnClient();
+                    yarnClient1.init(conf);
+                    yarnClient1.start();
+                    yarnClient = yarnClient1;
+                }
+            }
+        }
         return yarnClient;
     }
 
