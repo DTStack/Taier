@@ -43,7 +43,7 @@ if [[ $KUBERNETES_HOST_ALIASES != "" ]]; then
     echo -e $host_msg >> /opt/flink/log/*.log
 
     sudo chmod 666 /etc/hosts
-    sudo echo -e $KUBERNETES_HOST_ALIASES >> /etc/hosts
+    sudo echo -e "$KUBERNETES_HOST_ALIASES" >> /etc/hosts
     cat /etc/hosts
 fi
 
