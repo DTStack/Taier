@@ -140,7 +140,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
         // set sftp files path env
         Properties confProps = jobClient.getConfProperties();
-        if (confProps.containsKey(ConfigConstrant.KEY_SFTPFILES_PATH)) {
+        if (confProps != null && confProps.containsKey(ConfigConstrant.KEY_SFTPFILES_PATH)) {
             String sftpFilesPath = confProps.getProperty(ConfigConstrant.KEY_SFTPFILES_PATH);
             config.setString(buildMasterEnvKey(ConfigConstrant.SFTPFILES_PATH_ENV), sftpFilesPath);
             config.setString(buildTaskManagerEnvKey(ConfigConstrant.SFTPFILES_PATH_ENV), sftpFilesPath);
@@ -152,7 +152,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
         return ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + env;
     }
     private String buildTaskManagerEnvKey(String env){
-        return ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + env;
+        return ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + env;
     }
 
     private Configuration appendJobConfigAndInitFs(Properties properties, Configuration configuration) {

@@ -43,7 +43,7 @@ if [[ $KUBERNETES_HOST_ALIASES != "" ]]; then
     echo -e $host_msg >> /opt/flink/log/*.log
 
     sudo chmod 666 /etc/hosts
-    sudo echo -e $KUBERNETES_HOST_ALIASES >> /etc/hosts
+    sudo echo -e "$KUBERNETES_HOST_ALIASES" >> /etc/hosts
     cat /etc/hosts
 fi
 
@@ -55,7 +55,9 @@ if [[ $SFTPFILES_PATH != "" ]]; then
     echo -e $sftp_files_msg
     local_jar_dir=$FLINK_HOME/plugins
     if [[ *$KUBERNETES_HOST_ALIASES* =~ ";" ]]; then
+        echo "host aliases contain ';'"
     else
+        echo "host aliases dose not contain ';'"
         SFTPFILES_PATH="$SFTPFILES_PATH;"
     fi
     y=1
@@ -79,7 +81,8 @@ if [[ $SFTPFILES_PATH != "" ]]; then
                 send "mget $file_path \r"
                 expect "sftp>"
                 send "bye\r"
-            EOF
+                expect eof
+EOF
             ((y++))
         fi
         if [[ $y == 1000 ]]; then
@@ -95,6 +98,7 @@ fi
 FLINK_CLASSPATH=`manglePathList $(constructFlinkClassPath):$INTERNAL_HADOOP_CLASSPATHS`
 # FLINK_CLASSPATH will be used by KubernetesUtils.java to generate jobmanager and taskmanager start command.
 export FLINK_CLASSPATH
+
 
 sed -i "s/flinkx_hosts/$FLINKX_HOSTS/g" /opt/filebeat/conf/filebeat-dtstack.yml
 
