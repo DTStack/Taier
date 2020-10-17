@@ -111,11 +111,14 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
         // set host env
         if (config.contains(KubernetesConfigOptions.KUBERNETES_HOST_ALIASES)) {
+            String hostAliases = config.getString(KubernetesConfigOptions.KUBERNETES_HOST_ALIASES);
+            hostAliases = hostAliases.replaceAll("[;；]", "\n");
+
             String hostAliasesMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.KUBERNETES_HOST_ALIASES_ENV;
-            config.setString(hostAliasesMasterKey, config.getString(KubernetesConfigOptions.KUBERNETES_HOST_ALIASES));
+            config.setString(hostAliasesMasterKey, hostAliases);
 
             String hostAliasesTaskManagerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + ConfigConstrant.KUBERNETES_HOST_ALIASES_ENV;
-            config.setString(hostAliasesTaskManagerKey, config.getString(KubernetesConfigOptions.KUBERNETES_HOST_ALIASES));
+            config.setString(hostAliasesTaskManagerKey, hostAliases);
         }
 
         return config;

@@ -36,36 +36,14 @@ monitor_filebeat(){
 }
 
 # set hostAliases form env KUBERNETES_HOST_ALIASES
-echo "host aliases: $KUBERNETES_HOST_ALIASES"
+echo -e "host aliases: $KUBERNETES_HOST_ALIASES"
 if [[ $KUBERNETES_HOST_ALIASES != "" ]]; then
     host_msg="\n----------set host-----------\n $KUBERNETES_HOST_ALIASES \n"
     echo -e $host_msg
     echo -e $host_msg >> /opt/flink/log/*.log
-    is_aliases=false
-    if [[ *$KUBERNETES_HOST_ALIASES* =~ ";" ]]; then
-        echo -e "host aliases format success \n"
-        is_aliases=true
-    else
-        error_msg="\n host aliases format error, Does not contain ‘;’ \h"
-        echo -e $error_msg
-        echo -e $error_msg >> /opt/flink/log/*.log
-    fi
 
     sudo chmod 666 /etc/hosts
-    i=1
-    while($is_aliases); do
-        host=`echo $KUBERNETES_HOST_ALIASES | cut -d ";" -f $i`
-        if [ "$host" == "" ]; then
-            break;
-        else
-            echo $host
-            sudo echo -e $host >> /etc/hosts
-            ((i++))
-        fi
-        if [[ $i == 1000 ]]; then
-            break;
-        fi
-    done
+    sudo echo -e $KUBERNETES_HOST_ALIASES >> /etc/hosts
     cat /etc/hosts
 fi
 
