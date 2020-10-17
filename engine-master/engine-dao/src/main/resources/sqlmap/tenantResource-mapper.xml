@@ -53,7 +53,7 @@
 
     </select>
 
-    <select id="selectByUicTenantId" parameterType="java.lang.Integer" resultType="TenantResource">
+    <select id="selectByUicTenantId" parameterType="java.lang.Long" resultType="TenantResource">
         SELECT
         <include refid="select_content_fragment" />
         FROM console_tenant_resource

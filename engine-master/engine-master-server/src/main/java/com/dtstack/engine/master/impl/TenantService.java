@@ -391,29 +391,28 @@ public class TenantService {
 
         try {
             List<TenantResource> tenantResources = tenantResourceDao.selectByUicTenantId(dtUicTenantId);
-            List<TenantResourceVO> tenantResourceVOS = convertTenantResourceToVO(tenantResources);
-            return tenantResourceVOS;
-        } catch (IOException e) {
+            return convertTenantResourceToVO(tenantResources);
+        } catch (Exception e) {
+            e.printStackTrace();
             throw new RdosDefineException("查询失败");
         }
     }
 
     private List<TenantResourceVO> convertTenantResourceToVO(List<TenantResource> tenantResources) throws IOException {
 
-        List<TenantResourceVO> tenantResourceVOS = new ArrayList<>();
-        if(CollectionUtils.isEmpty(tenantResources)){
-            return tenantResourceVOS;
-        }else{
+        List<TenantResourceVO> tenantResourceVos = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(tenantResources)) {
             for (TenantResource tenantResource : tenantResources) {
                 TenantResourceVO tenantResourceVO = new TenantResourceVO();
-                BeanUtils.copyProperties(tenantResource,tenantResourceVO);
+                BeanUtils.copyProperties(tenantResource, tenantResourceVO);
                 String resourceLimit = tenantResource.getResourceLimit();
-                Map<String, Object> objectMap = PublicUtil.strToMap(resourceLimit);
+                Properties properties = PublicUtil.stringToProperties(resourceLimit);
+                Map<String, Object> objectMap = PublicUtil.objectToMap(properties);
                 tenantResourceVO.setResourceLimit(objectMap);
-                tenantResourceVOS.add(tenantResourceVO);
+                tenantResourceVos.add(tenantResourceVO);
             }
-            return tenantResourceVOS;
         }
+        return tenantResourceVos;
     }
 
     /**
