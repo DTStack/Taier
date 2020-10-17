@@ -12,3 +12,6 @@ CREATE TABLE `console_tenant_resource`
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8 COMMENT '租户资源限制表';
+
+ALTER TABLE `console_tenant_resource` ADD UNIQUE `idx_uic_tenantid_tasktype`
+USING BTREE (`dt_uic_tenant_id`, `task_type`) comment  `添加uic租户id和任务类型的联合唯一索引` ;
