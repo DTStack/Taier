@@ -61,14 +61,14 @@ public class TenantController {
 
     @ApiOperation(value = "获取租户的设置了任务资源限制的信息列表")
     @RequestMapping(value="/queryTaskResourceLimits", method = {RequestMethod.POST})
-    public List<TenantResourceVO> queryTaskResourceLimits(@DtRequestParam("tenantId") Long dtUicTenantId
+    public List<TenantResourceVO> queryTaskResourceLimits(@DtRequestParam("dtUicTenantId") Long dtUicTenantId
     ) {
         return tenantService.queryTaskResourceLimits(dtUicTenantId);
     }
 
     @ApiOperation(value = "根据租户id和taskType获取资源限制信息")
     @RequestMapping(value="/queryResourceLimitByTenantIdAndTaskType", method = {RequestMethod.POST})
-    public String queryResourceLimitByTenantIdAndTaskType(@DtRequestParam("tenantId") Long dtUicTenantId,
+    public String queryResourceLimitByTenantIdAndTaskType(@DtRequestParam("dtUicTenantId") Long dtUicTenantId,
                                                                          @DtRequestParam("taskType") Integer taskType) {
         return tenantService.queryResourceLimitByTenantIdAndTaskType(dtUicTenantId,taskType);
     }
