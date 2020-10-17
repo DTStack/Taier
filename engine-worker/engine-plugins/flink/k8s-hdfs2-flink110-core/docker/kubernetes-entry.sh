@@ -39,18 +39,19 @@ monitor_filebeat(){
 echo "host aliases: $KUBERNETES_HOST_ALIASES"
 if [[ $KUBERNETES_HOST_ALIASES != "" ]]; then
     host_msg="\n----------set host-----------\n $KUBERNETES_HOST_ALIASES \n"
-    echo $host_msg
+    echo -e $host_msg
     echo -e $host_msg >> /opt/flink/log/*.log
     is_aliases=false
     if [[ *$KUBERNETES_HOST_ALIASES* =~ ";" ]]; then
-        echo "host aliases format success \n"
+        echo -e "host aliases format success \n"
         is_aliases=true
     else
         error_msg="\n host aliases format error, Does not contain ‘;’ \h"
-        echo $error_msg
+        echo -e $error_msg
         echo -e $error_msg >> /opt/flink/log/*.log
     fi
 
+    sudo chmod 666 /etc/hosts
     i=1
     while($is_aliases); do
         host=`echo $KUBERNETES_HOST_ALIASES | cut -d ";" -f $i`
@@ -58,13 +59,14 @@ if [[ $KUBERNETES_HOST_ALIASES != "" ]]; then
             break;
         else
             echo $host
-            echo -e $host >> /etc/hosts
+            sudo echo -e $host >> /etc/hosts
             ((i++))
         fi
         if [[ $i == 1000 ]]; then
             break;
         fi
     done
+    cat /etc/hosts
 fi
 
 # get Flink config
@@ -73,6 +75,7 @@ fi
 FLINK_CLASSPATH=`manglePathList $(constructFlinkClassPath):$INTERNAL_HADOOP_CLASSPATHS`
 # FLINK_CLASSPATH will be used by KubernetesUtils.java to generate jobmanager and taskmanager start command.
 export FLINK_CLASSPATH
+
 
 sed -i "s/flinkx_hosts/$FLINKX_HOSTS/g" /opt/filebeat/conf/filebeat-dtstack.yml
 
@@ -89,4 +92,3 @@ filebeat_command="/opt/filebeat/bin/filebeat -c /opt/filebeat/conf/filebeat-dtst
 command="$filebeat_command & $@"
 echo "Start command: $command"
 exec /opt/filebeat/bin/filebeat -c /opt/filebeat/conf/filebeat-dtstack.yml & "$@" & monitor_filebeat
-
