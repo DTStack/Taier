@@ -146,8 +146,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
     public ClusterClient getClusterClient(JobClient jobClient) {
 
         String taskName = getEffectiveTaskName(jobClient);
-        String salt = RandomStringUtils.randomAlphanumeric(8).toLowerCase();
-        String projobClusterId = String.format("%s-%s", taskName, salt);
+        String projobClusterId = taskName;
 
         try (
                 ClusterDescriptor<String> clusterDescriptor = createPerjobClusterDescriptor(jobClient, projobClusterId);
@@ -173,7 +172,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
         if (Strings.isNotEmpty(taskName)) {
             taskName = StringUtils.lowerCase(taskName);
             taskName = StringUtils.splitByWholeSeparator(taskName, taskId)[0];
-            taskName = taskName.replaceAll("\\p{P}", "");
+            taskName = taskName.replaceAll("\\p{P}", "-");
             taskName = String.format("%s-%s", taskName, taskId);
             Integer taskNameLength = taskName.length();
             if (taskNameLength > ConfigConstrant.TASKNAME_MAX_LENGTH) {
