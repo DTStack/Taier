@@ -2,12 +2,11 @@ package com.dtstack.engine.flink;
 
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.flink.enums.ClusterMode;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
+import com.dtstack.engine.flink.enums.ClusterMode;
 import com.dtstack.engine.flink.util.HadoopConf;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
-import org.apache.flink.configuration.SecurityOptions;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.util.HadoopUtils;
 import org.apache.flink.yarn.configuration.YarnConfigOptions;
@@ -17,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Properties;
 
 /**
  * 根据不同的配置创建对应的client
@@ -37,7 +36,7 @@ public class FlinkClientBuilder {
 
     private YarnConfiguration yarnConf;
 
-    private YarnClient yarnClient;
+    private volatile YarnClient yarnClient;
 
     private Configuration flinkConfiguration;
 

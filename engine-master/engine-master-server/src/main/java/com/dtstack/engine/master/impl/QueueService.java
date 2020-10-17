@@ -1,10 +1,12 @@
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.api.domain.BaseEntity;
 import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.QueueDao;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,23 +19,11 @@ import java.util.stream.Collectors;
 public class QueueService {
 
     private final static long ROOT_QUEUE_ID = -1L;
-    private final static String DEFAULT_QUEUE_NAME = "default";
+
+    private static final long DEFAULT_KUBERNETES_PARENT_NODE = -2L;
 
     @Autowired
     private QueueDao queueDao;
-
-    public void addDefaultQueue(Long engineId){
-        Queue queue = new Queue();
-        queue.setEngineId(engineId);
-        queue.setQueueName(DEFAULT_QUEUE_NAME);
-        queue.setCapacity("1.0");
-        queue.setMaxCapacity("1.0");
-        queue.setQueueState("RUNNING");
-        queue.setParentQueueId(-1L);
-        queue.setQueuePath(DEFAULT_QUEUE_NAME);
-
-        queueDao.insert(queue);
-    }
 
     public void updateQueue(Long engineId, ComponentTestResult.ClusterResourceDescription description){
         List<Queue> queues = queueDao.listByEngineId(engineId);
@@ -47,7 +37,7 @@ public class QueueService {
 
             updateAddQueue(existQueueMap, engineId, ROOT_QUEUE_ID, description.getQueueDescriptions());
             if (!existQueueMap.isEmpty()) {
-                Integer delete = queueDao.deleteByIds(existQueueMap.values().stream().map(q -> q.getId()).collect(Collectors.toList()), engineId);
+                Integer delete = queueDao.deleteByIds(existQueueMap.values().stream().map(BaseEntity::getId).collect(Collectors.toList()), engineId);
                 if (delete != existQueueMap.size()) {
                     throw new RdosDefineException("操作失败");
                 }
@@ -110,5 +100,39 @@ public class QueueService {
                 updateAddQueue(existQueueMap, engineId, queue.getId(), queueDescription.getChildQueues());
             }
         }
+    }
+
+    /**
+     * 添加k8s的namespace
+     * @param engineId
+     * @param namespace
+     */
+    public Long addNamespaces(Long engineId, String namespace) {
+        if(StringUtils.isBlank(namespace)){
+            throw new RdosDefineException("namespace不能为空");
+        }
+
+        //校验namespace的是否存在
+        List<Queue> namespaces = queueDao.listByEngineId(engineId);
+        if (CollectionUtils.isNotEmpty(namespaces)) {
+            List<Long> namespaceIds = namespaces.stream().map(BaseEntity::getId).collect(Collectors.toList());
+            Integer delete = queueDao.deleteByIds(namespaceIds, engineId);
+            if (delete != namespaces.size()) {
+                throw new RdosDefineException("操作失败");
+            }
+        }
+        Queue queue = new Queue();
+        queue.setQueueName(namespace);
+        queue.setEngineId(engineId);
+        queue.setMaxCapacity("0");
+        queue.setCapacity("0");
+        queue.setQueueState("ACTIVE");
+        queue.setParentQueueId(DEFAULT_KUBERNETES_PARENT_NODE);
+        queue.setQueuePath(namespace);
+        Integer insert = queueDao.insert(queue);
+        if (insert != 1) {
+            throw new RdosDefineException("操作失败");
+        }
+        return queue.getId();
     }
 }

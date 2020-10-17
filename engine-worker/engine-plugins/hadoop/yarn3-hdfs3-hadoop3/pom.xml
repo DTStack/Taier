@@ -16,7 +16,6 @@
 
     <properties>
         <pluginDir.name>yarn3-hdfs3-hadoop3</pluginDir.name>
-        <hadoop.version>3.0.0</hadoop.version>
     </properties>
 
     <dependencies>
@@ -37,7 +36,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop3.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>xml-apis</artifactId>
@@ -49,31 +48,31 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop3.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop3.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop3.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-common</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop3.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-api</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop3.version}</version>
         </dependency>
 
 

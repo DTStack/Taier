@@ -70,6 +70,16 @@ public class FlinkConfig {
 
     private String kubernetesConfigName;
 
+    private String clusterMode;
+
+    public String getClusterMode() {
+        return clusterMode;
+    }
+
+    public void setClusterMode(String clusterMode) {
+        this.clusterMode = clusterMode;
+    }
+
     public String getKubernetesConfigName() {
         return kubernetesConfigName;
     }

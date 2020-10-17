@@ -73,7 +73,40 @@ public class FlinkConfig extends BaseConfig {
 
     private String krbName;
 
+    private int zkConnectionTimeout = 5000;
+
+    private int zkSessionTimeout = 5000;
+
+    public int getZkConnectionTimeout() {
+        return zkConnectionTimeout;
+    }
+
+    public void setZkConnectionTimeout(int zkConnectionTimeout) {
+        this.zkConnectionTimeout = zkConnectionTimeout;
+    }
+
+    public int getZkSessionTimeout() {
+        return zkSessionTimeout;
+    }
+
+    public void setZkSessionTimeout(int zkSessionTimeout) {
+        this.zkSessionTimeout = zkSessionTimeout;
+    }
+
     private boolean monitorAcceptedApp = false;
+
+    private String sessionCheckJarPath;
+
+    public String getSessionCheckJarPath() {
+        if(Strings.isNullOrEmpty(sessionCheckJarPath)){
+            return ConfigConstrant.DEFAULT_SESSION_CHECK_PATH;
+        }
+        return sessionCheckJarPath;
+    }
+
+    public void setSessionCheckJarPath(String sessionCheckJarPath) {
+        this.sessionCheckJarPath = sessionCheckJarPath;
+    }
 
     public boolean getMonitorAcceptedApp() {
         return monitorAcceptedApp;

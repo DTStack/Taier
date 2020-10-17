@@ -263,9 +263,6 @@ public class ScheduleTaskShadeService {
 
     public ScheduleTaskShade getBatchTaskById( Long taskId, Integer appType) {
         ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId, appType);
-        if (taskShade == null || Deleted.DELETED.getStatus().equals(taskShade.getIsDeleted())) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-        }
         return taskShade;
     }
 
@@ -378,13 +375,16 @@ public class ScheduleTaskShadeService {
                         flowVo = vosCopy.get(voIndex.get(flowId));
                         flowVo.setRelatedTasks(Lists.newArrayList(vo));
                         iterator.remove();
+                        record.put(flowId, flowVo);
                     } else {
-                        ScheduleTaskShade flow = scheduleTaskShadeDao.getOne(flowId,appType);
-                        flowVo = new com.dtstack.engine.master.vo.ScheduleTaskVO(flow, true);
-                        flowVo.setRelatedTasks(Lists.newArrayList(vo));
-                        vos.set(vos.indexOf(vo), flowVo);
+                        ScheduleTaskShade flow = scheduleTaskShadeDao.getOne(flowId, appType);
+                        if (flow != null) {
+                            flowVo = new com.dtstack.engine.master.vo.ScheduleTaskVO(flow, true);
+                            flowVo.setRelatedTasks(Lists.newArrayList(vo));
+                            vos.set(vos.indexOf(vo), flowVo);
+                            record.put(flowId, flowVo);
+                        }
                     }
-                    record.put(flowId, flowVo);
                 }
             }
         }
