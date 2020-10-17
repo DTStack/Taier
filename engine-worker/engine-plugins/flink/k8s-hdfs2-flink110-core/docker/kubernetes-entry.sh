@@ -36,37 +36,57 @@ monitor_filebeat(){
 }
 
 # set hostAliases form env KUBERNETES_HOST_ALIASES
-echo "host aliases: $KUBERNETES_HOST_ALIASES"
+echo -e "host aliases: $KUBERNETES_HOST_ALIASES"
 if [[ $KUBERNETES_HOST_ALIASES != "" ]]; then
     host_msg="\n----------set host-----------\n $KUBERNETES_HOST_ALIASES \n"
     echo -e $host_msg
     echo -e $host_msg >> /opt/flink/log/*.log
-    is_aliases=false
-    if [[ *$KUBERNETES_HOST_ALIASES* =~ ";" ]]; then
-        echo -e "host aliases format success \n"
-        is_aliases=true
-    else
-        error_msg="\n host aliases format error, Does not contain ‘;’ \h"
-        echo -e $error_msg
-        echo -e $error_msg >> /opt/flink/log/*.log
-    fi
 
     sudo chmod 666 /etc/hosts
-    i=1
-    while($is_aliases); do
-        host=`echo $KUBERNETES_HOST_ALIASES | cut -d ";" -f $i`
-        if [ "$host" == "" ]; then
+    sudo echo -e $KUBERNETES_HOST_ALIASES >> /etc/hosts
+    cat /etc/hosts
+fi
+
+
+# download file
+echo -e "sftp files path: $SFTPFILES_PATH"
+if [[ $SFTPFILES_PATH != "" ]]; then
+    sftp_files_msg="\n----------download file start-----------\n $SFTPFILES_PATH \n"
+    echo -e $sftp_files_msg
+    local_jar_dir=$FLINK_HOME/plugins
+    if [[ *$KUBERNETES_HOST_ALIASES* =~ ";" ]]; then
+    else
+        SFTPFILES_PATH="$SFTPFILES_PATH;"
+    fi
+    y=1
+    while(true); do
+        file_path=`echo $SFTPFILES_PATH | cut -d ";" -f $y`
+        if [ "$file_path" == "" ]; then
             break;
         else
-            echo $host
-            sudo echo -e $host >> /etc/hosts
-            ((i++))
+            expect <<- EOF
+                set timeout 120
+                spawn sftp  -P $SFTP_PORT $SFTP_USERNAME@$SFTP_HOST
+
+                expect {
+                    "(yes/no)?" {send "yes\r"; exp_continue }
+                    "*assword:" {send "$SFTP_PASSWORD\r"}
+                }
+                expect "sftp>"
+                send "lcd $local_jar_dir \r"
+                expect "sftp>"
+                set timeout -1
+                send "mget $file_path \r"
+                expect "sftp>"
+                send "bye\r"
+            EOF
+            ((y++))
         fi
-        if [[ $i == 1000 ]]; then
+        if [[ $y == 1000 ]]; then
             break;
         fi
     done
-    cat /etc/hosts
+    echo -e "\n----------download file end-----------\n"
 fi
 
 # get Flink config
@@ -75,7 +95,6 @@ fi
 FLINK_CLASSPATH=`manglePathList $(constructFlinkClassPath):$INTERNAL_HADOOP_CLASSPATHS`
 # FLINK_CLASSPATH will be used by KubernetesUtils.java to generate jobmanager and taskmanager start command.
 export FLINK_CLASSPATH
-
 
 sed -i "s/flinkx_hosts/$FLINKX_HOSTS/g" /opt/filebeat/conf/filebeat-dtstack.yml
 
@@ -92,3 +111,4 @@ filebeat_command="/opt/filebeat/bin/filebeat -c /opt/filebeat/conf/filebeat-dtst
 command="$filebeat_command & $@"
 echo "Start command: $command"
 exec /opt/filebeat/bin/filebeat -c /opt/filebeat/conf/filebeat-dtstack.yml & "$@" & monitor_filebeat
+

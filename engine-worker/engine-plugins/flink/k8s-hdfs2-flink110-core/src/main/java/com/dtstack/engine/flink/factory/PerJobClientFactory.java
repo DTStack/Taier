@@ -109,8 +109,11 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
         // set host env
         if (config.contains(KubernetesConfigOptions.KUBERNETES_HOST_ALIASES)) {
-            config.setString(buildMasterEnvKey(ConfigConstrant.KUBERNETES_HOST_ALIASES_ENV), config.getString(KubernetesConfigOptions.KUBERNETES_HOST_ALIASES));
-            config.setString(buildTaskManagerEnvKey(ConfigConstrant.KUBERNETES_HOST_ALIASES_ENV), config.getString(KubernetesConfigOptions.KUBERNETES_HOST_ALIASES));
+            String hostAliases = config.getString(KubernetesConfigOptions.KUBERNETES_HOST_ALIASES);
+            hostAliases = hostAliases.replaceAll("[;；]", "\n");
+
+            config.setString(buildMasterEnvKey(ConfigConstrant.KUBERNETES_HOST_ALIASES_ENV), hostAliases);
+            config.setString(buildTaskManagerEnvKey(ConfigConstrant.KUBERNETES_HOST_ALIASES_ENV), hostAliases);
         }
 
         // set sftp env
