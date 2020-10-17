@@ -96,6 +96,24 @@ public class ConfigConstrant {
     // Kubernetes Configs
     // ------------------------------------------------------------------------
 
-    public final static String KUBERNETES_HOST_ALIASES_ENV = "KUBERNETES_HOST_ALIASES";
+    public static final String KUBERNETES_HOST_ALIASES_ENV = "KUBERNETES_HOST_ALIASES";
+
+    // ------------------------------------------------------------------------
+    // Sftp Configs
+    // ------------------------------------------------------------------------
+
+    public static final String KEY_USERNAME = "username";
+    public static final String KEY_PASSWORD = "password";
+    public static final String KEY_HOST = "host";
+    public static final String KEY_PORT = "port";
+    public static final String KEY_SFTPFILES_PATH = "sftpFilesPath";
+
+    public static final String SFTP_USERNAME_ENV = "SFTP_USERNAME";
+    public static final String SFTP_PASSWORD_ENV = "SFTP_PASSWORD";
+    public static final String SFTP_HOST_ENV = "SFTP_HOST";
+    public static final String SFTP_PORT_ENV = "SFTP_PORT";
+    public static final String SFTPFILES_PATH_ENV = "SFTPFILES_PATH";
+
+    public static final String DEFAULT_PORT = "22";
 
 }
