@@ -435,27 +435,27 @@ public class ScheduleJobService {
             batchJobDTO.setSearchType(1);
         }
         pageQuery.setModel(batchJobDTO);
+        int count = 0;
+        List<com.dtstack.engine.api.vo.ScheduleJobVO> result = new ArrayList<>();
 
         if (StringUtils.isNotBlank(vo.getTaskName()) || Objects.nonNull(vo.getOwnerId())) {
             List<ScheduleTaskShade> batchTaskShades = scheduleTaskShadeDao.listByNameLikeWithSearchType(vo.getProjectId(), vo.getTaskName(),
                     vo.getAppType(), vo.getOwnerId(), vo.getProjectIds(), batchJobDTO.getSearchType());
             if (CollectionUtils.isNotEmpty(batchTaskShades)) {
                 batchJobDTO.setTaskIds(batchTaskShades.stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList()));
+            } else {
+                return new PageResult<>(result, count, pageQuery);
             }
         }
         batchJobDTO.setPageQuery(true);
 
-        List<com.dtstack.engine.api.vo.ScheduleJobVO> result = new ArrayList<>();
-
-        int count = 0;
         if (AppType.DATASCIENCE.getType() == vo.getAppType()) {
             batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
             count = queryScienceJob(batchJobDTO, queryAll, pageQuery, result);
         } else {
             count = queryNormalJob(batchJobDTO, queryAll, pageQuery, result);
         }
-
-
+        
         return new PageResult<>(result, count, pageQuery);
     }
 
