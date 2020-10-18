@@ -55,7 +55,7 @@ public class Client {
 
     private DtYarnConfiguration conf;
     private FileSystem dfs;
-    private YarnClient yarnClient;
+    private volatile YarnClient yarnClient;
     private volatile Path appJarSrc;
     private BaseConfig allConfig;
 

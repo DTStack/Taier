@@ -62,7 +62,7 @@ public class HadoopClient extends AbstractClient {
     private static final String QUEUE = "queue";
     private EngineResourceInfo resourceInfo = new HadoopResourceInfo();
     private Configuration conf = new Configuration();
-    private YarnClient yarnClient;
+    private volatile YarnClient yarnClient;
     private Config config;
     private Map<String, List<String>> cacheFile = Maps.newConcurrentMap();
     private static final String APP_TYPE = "Apache Flink";

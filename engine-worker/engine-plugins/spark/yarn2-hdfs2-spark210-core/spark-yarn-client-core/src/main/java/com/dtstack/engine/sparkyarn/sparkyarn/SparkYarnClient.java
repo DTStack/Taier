@@ -91,7 +91,7 @@ public class SparkYarnClient extends AbstractClient {
 
     private YarnConfiguration yarnConf;
 
-    private YarnClient yarnClient;
+    private volatile YarnClient yarnClient;
 
     private Properties sparkExtProp;
 
