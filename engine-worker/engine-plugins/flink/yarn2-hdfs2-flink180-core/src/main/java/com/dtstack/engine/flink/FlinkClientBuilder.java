@@ -8,7 +8,6 @@ import com.dtstack.engine.flink.util.HadoopConf;
 import com.sun.istack.NotNull;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
-import org.apache.flink.configuration.SecurityOptions;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.util.HadoopUtils;
 import org.apache.hadoop.yarn.client.api.YarnClient;
@@ -16,7 +15,6 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Properties;
 
 /**
@@ -46,17 +44,10 @@ public class FlinkClientBuilder {
         builder.hadoopConf = hadoopConf;
         builder.yarnConf = yarnConf;
 
-        KerberosUtils.login(flinkConfig, ()->{
-            if (!ClusterMode.STANDALONE.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
-                try {
-                    builder.yarnClient = initYarnClient(yarnConf);
-                } catch (Exception e) {
-                    LOG.error("init yarn client error", e);
-                    throw new RdosDefineException(e);
-                }
-            }
-            return null;
-        }, yarnConf);
+        if (!ClusterMode.STANDALONE.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
+            builder.yarnClient = KerberosUtils.login(flinkConfig, ()-> initYarnClient(yarnConf), yarnConf);
+        }
+
         builder.flinkConfig = flinkConfig;
 
         return builder;
@@ -96,19 +87,20 @@ public class FlinkClientBuilder {
         return customerConf;
     }
 
-    private static YarnClient initYarnClient(YarnConfiguration yarnConf) throws IOException {
+    private static YarnClient initYarnClient(YarnConfiguration yarnConf) {
         YarnClient yarnClient = YarnClient.createYarnClient();
         yarnClient.init(yarnConf);
         yarnClient.start();
         return yarnClient;
     }
 
-    public YarnClient getYarnClient() {
+    public YarnClient getYarnClient(){
         try {
             if (yarnClient == null) {
                 synchronized (this) {
                     if (yarnClient == null) {
-                        return buildYarnClient();
+                        LOG.info("buildYarnClient!");
+                        yarnClient = buildYarnClient();
                     }
                 }
             } else {
@@ -116,36 +108,16 @@ public class FlinkClientBuilder {
                 yarnClient.getAllQueues();
             }
         } catch (Throwable e) {
-            LOG.error("getYarnClient error:{}", e);
-            synchronized (this) {
-                if (yarnClient != null) {
-                    boolean flag = true;
-                    try {
-                        //判断下是否可用
-                        yarnClient.getAllQueues();
-                    } catch (Throwable e1) {
-                        LOG.error("getYarnClient error:{}", e1);
-                        flag = false;
-                    }
-                    if (!flag) {
-                        try {
-                            yarnClient.stop();
-                        } finally {
-                            yarnClient = null;
-                        }
-                    }
-                }
-                if (yarnClient == null) {
-                    return buildYarnClient();
-                }
-            }
+            LOG.info("buildYarnClient![backup]");
+            yarnClient = buildYarnClient();
         }
         return yarnClient;
     }
 
-    public YarnClient buildYarnClient() {
+    private YarnClient buildYarnClient() {
         try {
             return KerberosUtils.login(flinkConfig, () -> {
+                LOG.info("buildYarnClient, init YarnClient!");
                 YarnClient yarnClient1 = YarnClient.createYarnClient();
                 yarnClient1.init(yarnConf);
                 yarnClient1.start();
@@ -153,7 +125,8 @@ public class FlinkClientBuilder {
                 return yarnClient;
             }, yarnConf);
         } catch (Exception e) {
-            throw new RdosDefineException("build yarn client error!",e);
+            LOG.error("initSecurity happens error", e);
+            throw new RdosDefineException(e);
         }
     }
 

@@ -3,6 +3,7 @@ package com.dtstack.engine.dtscript.client;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.util.KerberosUtils;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.am.ApplicationMaster;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
@@ -56,12 +57,14 @@ public class Client {
     private FileSystem dfs;
     private YarnClient yarnClient;
     private volatile Path appJarSrc;
+    private BaseConfig allConfig;
 
 
     private static FsPermission JOB_FILE_PERMISSION = FsPermission.createImmutable((short) 0644);
 
     public Client(DtYarnConfiguration conf, BaseConfig allConfig) throws Exception {
         this.conf = conf;
+        this.allConfig = allConfig;
         KerberosUtils.login(allConfig, () -> {
             String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
             if (conf.get("hadoop.job.ugi") == null) {
@@ -340,15 +343,13 @@ public class Client {
         return getYarnClient().getApplicationReport(appId);
     }
 
-    public YarnClient getYarnClient() {
+    public YarnClient getYarnClient(){
         try {
             if (yarnClient == null) {
                 synchronized (this) {
                     if (yarnClient == null) {
-                        YarnClient yarnClient1 = YarnClient.createYarnClient();
-                        yarnClient1.init(conf);
-                        yarnClient1.start();
-                        yarnClient = yarnClient1;
+                        LOG.info("buildYarnClient!");
+                        yarnClient = buildYarnClient();
                     }
                 }
             } else {
@@ -356,34 +357,26 @@ public class Client {
                 yarnClient.getAllQueues();
             }
         } catch (Throwable e) {
-            LOG.error("getYarnClient error:{}", e);
-            synchronized (this) {
-                if (yarnClient != null) {
-                    boolean flag = true;
-                    try {
-                        //判断下是否可用
-                        yarnClient.getAllQueues();
-                    } catch (Throwable e1) {
-                        LOG.error("getYarnClient error:{}", e1);
-                        flag = false;
-                    }
-                    if (!flag) {
-                        try {
-                            yarnClient.stop();
-                        } finally {
-                            yarnClient = null;
-                        }
-                    }
-                }
-                if (yarnClient == null) {
-                    YarnClient yarnClient1 = YarnClient.createYarnClient();
-                    yarnClient1.init(conf);
-                    yarnClient1.start();
-                    yarnClient = yarnClient1;
-                }
-            }
+            LOG.info("buildYarnClient![backup]");
+            yarnClient = buildYarnClient();
         }
         return yarnClient;
+    }
+
+    private YarnClient buildYarnClient() {
+        try {
+            return KerberosUtils.login(allConfig, () -> {
+                LOG.info("buildYarnClient, init YarnClient!");
+                YarnClient yarnClient1 = YarnClient.createYarnClient();
+                yarnClient1.init(conf);
+                yarnClient1.start();
+                yarnClient = yarnClient1;
+                return yarnClient;
+            }, conf);
+        } catch (Exception e) {
+            LOG.error("initSecurity happens error", e);
+            throw new RdosDefineException(e);
+        }
     }
 
     public FileSystem getFileSystem() throws IOException {

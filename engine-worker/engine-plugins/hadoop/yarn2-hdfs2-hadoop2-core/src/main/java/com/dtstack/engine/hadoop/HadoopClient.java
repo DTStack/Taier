@@ -60,7 +60,7 @@ public class HadoopClient extends AbstractClient {
     private static final String HDFS_PREFIX = "hdfs://";
     private static final String HADOOP_USER_NAME = "HADOOP_USER_NAME";
     private static final String QUEUE = "queue";
-    private EngineResourceInfo resourceInfo;
+    private EngineResourceInfo resourceInfo = new HadoopResourceInfo();
     private Configuration conf = new Configuration();
     private YarnClient yarnClient;
     private Config config;
@@ -94,17 +94,8 @@ public class HadoopClient extends AbstractClient {
 
         setHadoopUserName(config);
 
-        try {
-            LOG.info("start init security!");
-            KerberosUtils.login(config, () -> {
-                yarnClient = getYarnClient();
-                resourceInfo = new HadoopResourceInfo();
-                return null;
-            }, conf);
-        } catch (Exception e) {
-            LOG.error("initSecurity happens error", e);
-            throw new IOException("InitSecurity happens error", e);
-        }
+        yarnClient = getYarnClient();
+
         LOG.info("UGI info: " + UserGroupInformation.getCurrentUser());
 
     }
@@ -258,51 +249,40 @@ public class HadoopClient extends AbstractClient {
         UserGroupInformation.afterSetHadoopUserName(config.getHadoopUserName());
     }
 
-
     public YarnClient getYarnClient(){
-        try{
-            if(yarnClient == null){
-                synchronized (this){
-                    if(yarnClient == null){
-                        YarnClient yarnClient1 = YarnClient.createYarnClient();
-                        yarnClient1.init(conf);
-                        yarnClient1.start();
-                        yarnClient = yarnClient1;
+        try {
+            if (yarnClient == null) {
+                synchronized (this) {
+                    if (yarnClient == null) {
+                        LOG.info("buildYarnClient!");
+                        yarnClient = buildYarnClient();
                     }
                 }
-            }else{
+            } else {
                 //判断下是否可用
                 yarnClient.getAllQueues();
             }
-        }catch(Throwable e){
-            LOG.error("getYarnClient error:{}",e);
-            synchronized (this){
-                if(yarnClient != null){
-                    boolean flag = true;
-                    try{
-                        //判断下是否可用
-                        yarnClient.getAllQueues();
-                    }catch(Throwable e1){
-                        LOG.error("getYarnClient error:{}",e1);
-                        flag = false;
-                    }
-                    if(!flag){
-                        try{
-                            yarnClient.stop();
-                        }finally {
-                            yarnClient = null;
-                        }
-                    }
-                }
-                if(yarnClient == null){
-                    YarnClient yarnClient1 = YarnClient.createYarnClient();
-                    yarnClient1.init(conf);
-                    yarnClient1.start();
-                    yarnClient = yarnClient1;
-                }
-            }
+        } catch (Throwable e) {
+            LOG.info("buildYarnClient![backup]");
+            yarnClient = buildYarnClient();
         }
         return yarnClient;
+    }
+
+    private YarnClient buildYarnClient() {
+        try {
+            return KerberosUtils.login(config, () -> {
+                LOG.info("buildYarnClient, init YarnClient!");
+                YarnClient yarnClient1 = YarnClient.createYarnClient();
+                yarnClient1.init(conf);
+                yarnClient1.start();
+                yarnClient = yarnClient1;
+                return yarnClient;
+            }, conf);
+        } catch (Exception e) {
+            LOG.error("initSecurity happens error", e);
+            throw new RdosDefineException(e);
+        }
     }
 
     @Override
