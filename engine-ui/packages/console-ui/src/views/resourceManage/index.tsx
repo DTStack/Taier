@@ -36,9 +36,7 @@ class ResourceManage extends React.Component<any, any> {
         tenantInfo: '',
         isHaveHadoop: false,
         isHaveLibra: false,
-        queueList: [], // hadoop资源队列
-        modalKey: '',
-        editModalKey: null
+        queueList: [] // hadoop资源队列
     }
 
     private requestEnd: boolean = true; // 请求结束
@@ -161,11 +159,10 @@ class ResourceManage extends React.Component<any, any> {
         }, this.searchTenant)
     }
     showTenant () {
-        this.setState({ tenantModal: true, editModalKey: Math.random() })
+        this.setState({ tenantModal: true })
     }
     clickSwitchQueue = (record: any) => {
         this.setState({
-            modalKey: Math.random(),
             queueModal: true,
             tenantInfo: record
         })
@@ -205,7 +202,7 @@ class ResourceManage extends React.Component<any, any> {
                 dataIndex: 'deal',
                 render: (text: any, record: any) => {
                     return <a onClick={ () => { this.clickSwitchQueue(record) }}>
-                        切换队列
+                        资源管理
                     </a>
                 }
             }
@@ -224,7 +221,7 @@ class ResourceManage extends React.Component<any, any> {
         const hadoopColumns = this.initHadoopColumns();
         const otherColumns = this.initOtherColumns()
         const { tableData, queryParams, total, loading, engineList, clusterList,
-            tenantModal, queueModal, modalKey, editModalKey, clusterName } = this.state;
+            tenantModal, queueModal, clusterName, tenantInfo } = this.state;
         const pagination: any = {
             current: queryParams.currentPage,
             pageSize: PAGESIZE,
@@ -252,7 +249,7 @@ class ResourceManage extends React.Component<any, any> {
                         </Form>
                     </Col>
                     <Col span={ 12 } >
-                        <Button className='terent-button' type='primary' onClick={() => { this.setState({ editModalKey: Math.random(), tenantModal: true }) }}>绑定新租户</Button>
+                        <Button className='terent-button' type='primary' onClick={() => { this.setState({ tenantModal: true }) }}>绑定新租户</Button>
                     </Col>
                 </Row>
                 <div className="resource-content">
@@ -329,7 +326,6 @@ class ResourceManage extends React.Component<any, any> {
                     </Card>
                 </div>
                 <BindCommModal
-                    key={editModalKey}
                     title='绑定新租户'
                     visible={tenantModal}
                     clusterList={clusterList}
@@ -338,8 +334,7 @@ class ResourceManage extends React.Component<any, any> {
                     onOk={this.bindTenant.bind(this)}
                 />
                 <BindCommModal
-                    key={modalKey}
-                    title='切换队列'
+                    title={`资源管理 (${tenantInfo.tenantName ?? ''})`}
                     visible={queueModal}
                     isBindTenant={false}
                     clusterList={clusterList}

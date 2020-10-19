@@ -30,6 +30,8 @@ interface ItemType {
     layout?: {};
     getFieldDecorator: any;
     children: React.ReactNode;
+    topSolt?: React.ReactNode;
+    bottomSolt?: React.ReactNode;
     [propName: string]: any;
 }
 
