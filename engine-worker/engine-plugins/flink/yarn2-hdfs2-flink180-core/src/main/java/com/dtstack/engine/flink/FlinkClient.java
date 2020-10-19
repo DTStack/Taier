@@ -493,7 +493,14 @@ public class FlinkClient extends AbstractClient {
     public RdosTaskStatus getPerJobStatus(String applicationId) {
         ApplicationId appId = ConverterUtils.toApplicationId(applicationId);
         try {
-            ApplicationReport report = flinkClientBuilder.getYarnClient().getApplicationReport(appId);
+            ApplicationReport report = KerberosUtils.login(flinkConfig, () -> {
+                try {
+                    return flinkClientBuilder.getYarnClient().getApplicationReport(appId);
+                } catch (Exception e) {
+                    logger.error("Get applicationState fail! error: {}", e.getMessage());
+                    throw new RdosDefineException("Get applicationState fail!");
+                }
+            }, hadoopConf.getYarnConfiguration());
             YarnApplicationState applicationState = report.getYarnApplicationState();
             switch (applicationState) {
                 case KILLED:
@@ -528,8 +535,8 @@ public class FlinkClient extends AbstractClient {
                 default:
                     throw new RdosDefineException("Unsupported application state");
             }
-        } catch (YarnException | IOException e) {
-            logger.error("", e);
+        } catch (Exception e) {
+            logger.error("Get applicationState fail! error: {}", e.getMessage());
             return RdosTaskStatus.NOTFOUND;
         }
     }
@@ -554,7 +561,15 @@ public class FlinkClient extends AbstractClient {
 
         String url = null;
         try {
-            url = flinkClientBuilder.getYarnClient().getApplicationReport(applicationId).getTrackingUrl();
+            url = KerberosUtils.login(flinkConfig, () -> {
+                try {
+                    ApplicationReport report = flinkClientBuilder.getYarnClient().getApplicationReport(applicationId);
+                    return report.getTrackingUrl();
+                } catch (Exception e) {
+                    logger.error("Get jobMaster fail! error: {}", e.getMessage());
+                    throw new RdosDefineException("Get jobMaster fail!");
+                }
+            }, hadoopConf.getYarnConfiguration());
             url = StringUtils.substringBefore(url.split("//")[1], "/");
         } catch (Exception e) {
             logger.error("Getting URL failed" + e);
@@ -651,13 +666,14 @@ public class FlinkClient extends AbstractClient {
         boolean isPerJob = ComputeType.STREAM == jobClient.getComputeType() || FlinkYarnMode.isPerJob(taskRunMode);
 
         try {
-            FlinkPerJobResourceInfo perJobResourceInfo = FlinkPerJobResourceInfo.FlinkPerJobResourceInfoBuilder()
-                    .withYarnClient(flinkClientBuilder.getYarnClient())
-                    .withQueueName(flinkConfig.getQueue())
-                    .withYarnAccepterTaskNumber(flinkConfig.getYarnAccepterTaskNumber())
-                    .build();
-
-            JudgeResult judgeResult = perJobResourceInfo.judgeSlots(jobClient);
+            JudgeResult judgeResult = KerberosUtils.login(flinkConfig, () -> {
+                FlinkPerJobResourceInfo perJobResourceInfo = FlinkPerJobResourceInfo.FlinkPerJobResourceInfoBuilder()
+                        .withYarnClient(flinkClientBuilder.getYarnClient())
+                        .withQueueName(flinkConfig.getQueue())
+                        .withYarnAccepterTaskNumber(flinkConfig.getYarnAccepterTaskNumber())
+                        .build();
+                return perJobResourceInfo.judgeSlots(jobClient);
+            }, hadoopConf.getYarnConfiguration());
 
             if (!judgeResult.available() || isPerJob) {
                 return judgeResult;

@@ -344,7 +344,9 @@ public class HadoopClient extends AbstractClient {
                 //测试hdfs联通性
                 return this.checkHdfsConnect(allConfig);
             }
-            return KerberosUtils.login(allConfig, () -> testYarnConnect(testResult, allConfig),conf);
+            return KerberosUtils.login(allConfig,
+                    () -> testYarnConnect(testResult, allConfig),
+                    KerberosUtils.convertMapConfToConfiguration(allConfig.getYarnConf()));
 
         } catch (Exception e) {
             LOG.error("test yarn connect error", e);
