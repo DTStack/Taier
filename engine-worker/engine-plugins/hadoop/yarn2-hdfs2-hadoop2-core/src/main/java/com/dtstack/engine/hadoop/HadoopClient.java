@@ -523,6 +523,11 @@ public class HadoopClient extends AbstractClient {
                             totalMem, usedMem, totalCores, usedCores);
 
                     clusterResource.setNodes(clusterNodes);
+                    String webAddress = getYarnWebAddress(yarnClient);
+                    String schedulerUrl = String.format(YARN_SCHEDULER_FORMAT, webAddress);
+                    String schedulerInfoMsg = PoolHttpClient.get(schedulerUrl, null);
+                    JSONObject schedulerInfo = JSONObject.parseObject(schedulerInfoMsg);
+                    clusterResource.setScheduleInfo(schedulerInfo.getJSONObject("schedulerInfo"));
                     clusterResource.setQueues(getQueueResource(yarnClient));
                     clusterResource.setResourceMetrics(metrics);
 
