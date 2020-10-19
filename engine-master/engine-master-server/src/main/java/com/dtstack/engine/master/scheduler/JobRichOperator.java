@@ -55,7 +55,7 @@ public class JobRichOperator {
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
-    private static final long COUNT_BITS = Long.SIZE - 8;
+    private static final long COUNT_BITS = Long.SIZE - 8L;
 
     @Autowired
     private EnvironmentContext environmentContext;

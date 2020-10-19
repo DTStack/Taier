@@ -308,7 +308,10 @@ public class ConsoleService {
         try {
             EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
             //只支持DB、PRIORITY两种调整顺序
-            if (Objects.nonNull(engineJobCache) && EJobCacheStage.DB.getStage() == engineJobCache.getStage() || EJobCacheStage.PRIORITY.getStage() == engineJobCache.getStage()) {
+            if(Objects.isNull(engineJobCache)){
+                return false;
+            } else if (EJobCacheStage.DB.getStage() == engineJobCache.getStage() ||
+                    EJobCacheStage.PRIORITY.getStage() == engineJobCache.getStage()) {
                 ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
                 JobClient jobClient = new JobClient(paramAction);
                 jobClient.setCallBack((jobStatus) -> {

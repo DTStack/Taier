@@ -54,15 +54,24 @@ public class DummyClient extends AbstractClient {
 
     public DummyClient() {
         for (String componentType : commonConfigFiles.keySet()) {
+            InputStream resourceAsStream = null;
             try {
                 String configYaml = findPluginConfig(this.getClass(), commonConfigFiles.get(componentType));
-                InputStream resourceAsStream = !StringUtils.isEmpty(configYaml) ? new FileInputStream(configYaml) :
+                resourceAsStream = !StringUtils.isEmpty(configYaml) ? new FileInputStream(configYaml) :
                         this.getClass().getClassLoader().getResourceAsStream(commonConfigFiles.get(componentType));
                 defaultPlugins = new YamlConfigParser().parse(resourceAsStream);
                 logger.info("=======DummyClient============{}", defaultPlugins);
                 defaultConfigs.put(componentType,defaultPlugins);
             } catch (Exception e) {
                 logger.error("dummy client init default config error ", e);
+            }finally {
+                if(resourceAsStream!=null){
+                    try {
+                        resourceAsStream.close();
+                    } catch (IOException e) {
+                        logger.error("close resource error ", e);
+                    }
+                }
             }
         }
 

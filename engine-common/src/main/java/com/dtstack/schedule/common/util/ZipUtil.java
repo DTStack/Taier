@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -190,7 +191,7 @@ public class ZipUtil {
      * @param zipPath           待解压缩的ZIP文件名
      * @param descDir 目标目录
      */
-    public static List<File> upzipFile(String zipPath, String descDir) {
+    public static List<File> upzipFile(String zipPath, String descDir) throws IOException {
         return upzipFile(new File(zipPath), descDir);
     }
 
@@ -202,10 +203,12 @@ public class ZipUtil {
      * @return
      */
     @SuppressWarnings("rawtypes")
-    public static List<File> upzipFile(File zipFile, String descDir) {
-        List<File> _list = new ArrayList<File>();
+    public static List<File> upzipFile(File zipFile, String descDir) throws IOException {
+        List<File> _list = new ArrayList<>();
+        ZipFile _zipFile = null;
+        OutputStream _out = null;
         try {
-            ZipFile _zipFile = new ZipFile(zipFile, "GBK");
+            _zipFile = new ZipFile(zipFile, "GBK");
             for (Enumeration entries = _zipFile.getEntries(); entries.hasMoreElements(); ) {
                 org.apache.tools.zip.ZipEntry entry = (org.apache.tools.zip.ZipEntry) entries.nextElement();
                 File _file = new File(descDir + File.separator + entry.getName());
@@ -217,7 +220,7 @@ public class ZipUtil {
                         _parent.mkdirs();
                     }
                     InputStream _in = _zipFile.getInputStream(entry);
-                    OutputStream _out = new FileOutputStream(_file);
+                    _out = new FileOutputStream(_file);
                     int len = 0;
                     while ((len = _in.read(_byte)) > 0) {
                         _out.write(_byte, 0, len);
@@ -229,6 +232,14 @@ public class ZipUtil {
                 }
             }
         } catch (IOException e) {
+            throw new IOException("解压缩文件失败");
+        }finally {
+            if(Objects.nonNull(_zipFile)){
+                _zipFile.close();
+            }
+            if(Objects.nonNull(_out)){
+                _out.close();
+            }
         }
         return _list;
     }

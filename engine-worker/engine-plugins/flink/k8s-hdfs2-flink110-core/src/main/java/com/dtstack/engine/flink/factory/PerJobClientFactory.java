@@ -142,7 +142,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
             ClusterClient clusterClient = clusterDescriptor.deploySessionCluster(clusterSpecification).getClusterClient();
             return clusterClient;
         } catch (ClusterDeploymentException e) {
-            if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
+            if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId).isPresent()) {
                 flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
             }
             throw new RdosDefineException(e);

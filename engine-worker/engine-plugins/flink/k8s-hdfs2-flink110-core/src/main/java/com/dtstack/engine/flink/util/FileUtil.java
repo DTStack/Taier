@@ -61,7 +61,11 @@ public class FileUtil {
         return false;
     }
 
-    public static boolean downLoadFileFromHttp(String urlStr, String dstFileName){
+    public static boolean downLoadFileFromHttp(String urlStr, String dstFileName) {
+
+        FileOutputStream fout = null;
+        HttpURLConnection httpURLConnection = null;
+        BufferedInputStream bfInputStream = null;
         try {
             File outFile = new File(dstFileName);
             //如果当前文件存在则删除,覆盖最新的文件
@@ -71,11 +75,11 @@ public class FileUtil {
             Files.createParentDirs(outFile);//如果父目录不存在则创建
             outFile.createNewFile();
 
-            FileOutputStream fout = new FileOutputStream(outFile);
+            fout = new FileOutputStream(outFile);
             URL url = new URL(urlStr);
-            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.connect();
-            BufferedInputStream bfInputStream = new BufferedInputStream(httpURLConnection.getInputStream());
+            bfInputStream = new BufferedInputStream(httpURLConnection.getInputStream());
 
             byte[] buf = new byte[BUFFER_SIZE];
             int readSize = -1;
@@ -83,16 +87,30 @@ public class FileUtil {
                 fout.write(buf, 0, readSize);
             }
 
-            //释放资源
-            fout.close();
-            bfInputStream.close();
-            httpURLConnection.disconnect();
             logger.info("download from remote url:{} success,dest file name is {}.", urlStr, dstFileName);
         } catch (IOException e) {
             logger.error("download from remote url:" + urlStr +"failure.", e);
             throw new RdosDefineException("download from remote url:" + urlStr +"failure." + e.getMessage());
+        }finally {
+            //释放资源
+            if(fout!=null) {
+                try {
+                    fout.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(bfInputStream!=null) {
+                try {
+                    bfInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(httpURLConnection!=null) {
+                httpURLConnection.disconnect();
+            }
         }
-
         return true;
     }
 

@@ -49,6 +49,7 @@ import org.apache.flink.client.program.PackagedProgramUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HistoryServerOptions;
 import org.apache.flink.kubernetes.kubeclient.FlinkKubeClient;
+import org.apache.flink.kubernetes.kubeclient.resources.KubernetesService;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.Preconditions;
@@ -411,7 +412,7 @@ public class FlinkClient extends AbstractClient {
             String reqUrl = "";
             String response = "";
             FlinkKubeClient flinkKubeClient = flinkClientBuilder.getFlinkKubeClient();
-            if (flinkKubeClient.getInternalService(clusterId) == null) {
+            if (!flinkKubeClient.getInternalService(clusterId).isPresent()) {
                 String jobHistoryURL = getJobHistoryURL();
                 reqUrl = jobHistoryURL + "/jobs/" + jobId;
                 Long refreshInterval = flinkClientBuilder.getFlinkConfiguration()
@@ -440,7 +441,7 @@ public class FlinkClient extends AbstractClient {
                     RdosTaskStatus rdosTaskStatus =  RdosTaskStatus.getTaskStatus(state);
                     Boolean isFlinkSessionTask = clusterId.startsWith(ConfigConstrant.FLINK_SESSION_PREFIX);
                     if (RdosTaskStatus.isStopped(rdosTaskStatus.getStatus()) && !isFlinkSessionTask) {
-                        if (flinkClientBuilder.getFlinkKubeClient().getInternalService(clusterId) != null) {
+                        if (flinkClientBuilder.getFlinkKubeClient().getInternalService(clusterId).isPresent()) {
                             flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(clusterId);
                         }
                     }

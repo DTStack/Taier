@@ -716,7 +716,11 @@ public class JobGraphBuilder {
     public static String getPrePeriodJobTriggerDateStr(String batchJobCycTime, ScheduleCron cron) {
         DateTime triggerDate = new DateTime(DateUtil.getTimestamp(batchJobCycTime, dtfFormatString));
         Date preTriggerDate = getPreJob(triggerDate.toDate(), cron);
-        return DateUtil.getFormattedDate(preTriggerDate.getTime(), dtfFormatString);
+        if(Objects.nonNull(preTriggerDate)) {
+            return DateUtil.getFormattedDate(preTriggerDate.getTime(), dtfFormatString);
+        }else{
+            return null;
+        }
     }
 
     /**

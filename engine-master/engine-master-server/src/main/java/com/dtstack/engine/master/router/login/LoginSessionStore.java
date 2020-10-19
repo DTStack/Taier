@@ -27,7 +27,7 @@ public class LoginSessionStore {
         T session = sessionUtil.getUser(token, clazz);
         if (session == null) {
             token = token.intern();
-            synchronized (token) {
+            synchronized (this) {
                 session = sessionUtil.getUser(token, clazz);
                 if (session == null) {
                     DtUicUserConnect.getInfo(token, environmentContext.getDtUicUrl(), dtUicUserHandler);

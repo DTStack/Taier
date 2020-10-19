@@ -354,17 +354,13 @@ public class Client {
         return getYarnClient().getApplicationReport(appId);
     }
 
-    public YarnClient getYarnClient() {
+    public synchronized YarnClient getYarnClient() {
         try {
             if (yarnClient == null) {
-                synchronized (this) {
-                    if (yarnClient == null) {
-                        YarnClient yarnClient1 = YarnClient.createYarnClient();
-                        yarnClient1.init(conf);
-                        yarnClient1.start();
-                        yarnClient = yarnClient1;
-                    }
-                }
+                YarnClient yarnClient1 = YarnClient.createYarnClient();
+                yarnClient1.init(conf);
+                yarnClient1.start();
+                yarnClient = yarnClient1;
             } else {
                 //判断下是否可用
                 yarnClient.getAllQueues();
@@ -445,15 +441,32 @@ public class Client {
             if (!file.getPath().getName().startsWith("container")) {
                 continue;
             }
-            FSDataInputStream inputStream = getFileSystem().open(file.getPath());
-            InputStreamReader isr = new InputStreamReader(inputStream, "UTF-8");
-            BufferedReader br = new BufferedReader(isr);
-            StringBuilder lineString = new StringBuilder();
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                lineString.append(line);
+            FSDataInputStream inputStream = null;
+            InputStreamReader isr = null;
+            BufferedReader br = null;
+            try {
+                inputStream = getFileSystem().open(file.getPath());
+                isr = new InputStreamReader(inputStream, "UTF-8");
+                br = new BufferedReader(isr);
+                StringBuilder lineString = new StringBuilder();
+                String line = null;
+                while ((line = br.readLine()) != null) {
+                    lineString.append(line);
+                }
+                infos.add(lineString.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if(inputStream!=null){
+                    inputStream.close();
+                }
+                if(isr !=null){
+                    isr.close();
+                }
+                if(br !=null){
+                    br.close();
+                }
             }
-            infos.add(lineString.toString());
         }
         return infos;
     }

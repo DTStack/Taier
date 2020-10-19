@@ -132,7 +132,7 @@ public class SessionClientFactory extends AbstractClientFactory {
     @Override
     public ClusterClient retrieveClusterClient(String clusterId, JobClient jobClient) {
         try {
-            if (flinkClientBuilder.getFlinkKubeClient().getInternalService(clusterId) == null) {
+            if (!flinkClientBuilder.getFlinkKubeClient().getInternalService(clusterId).isPresent()) {
                 return null;
             }
             ClusterDescriptor kubernetesClusterDescriptor = createSessionClusterDescriptor();

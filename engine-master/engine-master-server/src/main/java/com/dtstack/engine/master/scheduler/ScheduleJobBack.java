@@ -135,6 +135,9 @@ public class ScheduleJobBack {
             if (rs != null) {
                 rs.close();
             }
+            if(statement !=null){
+                statement.close();
+            }
         }
     }
 

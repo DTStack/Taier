@@ -83,10 +83,12 @@ public class FlinkClientBuilder {
                 }
             });
         }
-
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            String hadoopConfString = objectMapper.writeValueAsString(extProp.get("hadoopConf"));
+            String hadoopConfString = "";
+            if(extProp!=null) {
+                hadoopConfString = objectMapper.writeValueAsString(extProp.get("hadoopConf"));
+            }
             config.setString(HadoopUtils.HADOOP_CONF_STRING, hadoopConfString);
             FileSystem.initialize(config);
         } catch (Exception e) {

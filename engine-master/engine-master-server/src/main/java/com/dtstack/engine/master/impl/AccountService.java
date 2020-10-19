@@ -125,10 +125,14 @@ public class AccountService {
             }
         }
         JSONObject pluginInfo = new JSONObject();
-        pluginInfo.put("jdbcUrl", jdbc.getString("jdbcUrl"));
+        if(Objects.nonNull(jdbc)) {
+            pluginInfo.put("jdbcUrl", jdbc.getString("jdbcUrl"));
+        }
         pluginInfo.put("username", accountVo.getName());
         pluginInfo.put("password", accountVo.getPassword());
-        pluginInfo.put("driverClassName", dataBaseType.getDriverClassName());
+        if(Objects.nonNull(dataBaseType)) {
+            pluginInfo.put("driverClassName", dataBaseType.getDriverClassName());
+        }
         try {
             workerOperator.executeQuery(DataBaseType.TiDB.getTypeName().toLowerCase(), pluginInfo.toJSONString(), "show databases", "");
         } catch (Exception e) {

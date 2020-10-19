@@ -6,16 +6,12 @@ import java.util.Random;
 public class RandomUtils {
     private static Random random;
 
-    //双重校验锁获取一个Random单例
-    public static Random getRandom() {
-        if (random == null) {
-            synchronized (RandomUtils.class) {
-                if (random == null) {
-                    random = new Random();
-                }
-            }
-        }
 
+    //双重校验锁获取一个Random单例
+    public static synchronized Random getRandom() {
+        if (random == null) {
+                random = new Random();
+            }
         return random;
     }
 

@@ -1,6 +1,10 @@
 package com.dtstack.engine.api.enums;
 
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Objects;
+
 /**
  * Reason:
  * Date: 2017/2/20
@@ -130,7 +134,11 @@ public enum ScheduleEngineType {
 
     public static String getEngineName(int val) {
         ScheduleEngineType scheduleEngineType = getEngineType(val);
-        return scheduleEngineType.getEngineName().toLowerCase();
+        if(Objects.nonNull(scheduleEngineType) && StringUtils.isNoneBlank(scheduleEngineType.getEngineName())){
+            return scheduleEngineType.getEngineName().toLowerCase();
+        }else{
+            return null;
+        }
     }
 
     public static ScheduleEngineType getByEScriptType(Integer scriptType) {

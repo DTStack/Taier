@@ -450,7 +450,7 @@ public class ApplicationMaster extends CompositeService {
     }
 
     public static void main(String[] args) {
-        ApplicationMaster appMaster;
+        ApplicationMaster appMaster = null;
         try {
             appMaster = new ApplicationMaster();
             appMaster.init();
@@ -465,6 +465,14 @@ public class ApplicationMaster extends CompositeService {
         } catch (Exception e) {
             LOG.fatal("Error running ApplicationMaster", e);
             System.exit(1);
+        }finally {
+            if(appMaster!=null){
+                try {
+                    appMaster.close();
+                } catch (IOException e) {
+                    LOG.info("exception: " + DebugUtil.stackTrace(e));
+                }
+            }
         }
     }
 }
