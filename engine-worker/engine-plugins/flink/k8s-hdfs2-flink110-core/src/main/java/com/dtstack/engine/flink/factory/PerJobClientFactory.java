@@ -206,7 +206,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
             taskName = StringUtils.lowerCase(taskName);
             taskName = StringUtils.splitByWholeSeparator(taskName, taskId)[0];
             taskName = taskName.replaceAll("\\p{P}", "-");
-            taskName = String.format("%s-%s", taskName, taskId);
+            taskName = String.format("%s%s", taskName, taskId);
             Integer taskNameLength = taskName.length();
             if (taskNameLength > ConfigConstrant.TASKNAME_MAX_LENGTH) {
                 taskName = taskName.substring(taskNameLength - ConfigConstrant.TASKNAME_MAX_LENGTH, taskNameLength);
