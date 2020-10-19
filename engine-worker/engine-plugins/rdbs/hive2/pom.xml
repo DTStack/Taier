@@ -15,7 +15,8 @@
 
     <properties>
         <jar.name>hive2</jar.name>
-        <hivejdbc2.version>2.1.0</hivejdbc2.version>
+        <hive.jdbc2.version>2.1.0</hive.jdbc2.version>
+        <hive.shims2.version>2.1.0</hive.shims2.version>
     </properties>
 
     <dependencies>
@@ -28,19 +29,19 @@
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-jdbc</artifactId>
-            <version>${hivejdbc2.version}</version>
+            <version>${hive.jdbc2.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-common</artifactId>
-            <version>${hivejdbc2.version}</version>
+            <version>${hive.shims2.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-shims</artifactId>
-            <version>${hivejdbc2.version}</version>
+            <version>${hive.shims2.version}</version>
         </dependency>
 
         <dependency>
