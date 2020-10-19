@@ -2,16 +2,13 @@ package com.dtstack.engine.base.util;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.SFTPHandler;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.HadoopKerberosName;
 import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.kerby.kerberos.kerb.keytab.Keytab;
 import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -122,12 +119,12 @@ public class KerberosUtils {
         */
         if (Objects.isNull(allConfig.get(SECURITY_TO_LOCAL))) {
             allConfig.set(KERBEROS_AUTH, KERBEROS_AUTH_TYPE);
-        } else {
-            allConfig.set(KERBEROS_AUTH, "simple");
-            //allConfig = removeKerberosAuth(allConfig);
         }
-        UserGroupInformation.setConfiguration(allConfig);
+
         try {
+            sun.security.krb5.Config.refresh();
+            UserGroupInformation.setConfiguration(allConfig);
+
             UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
             logger.info("userGroupInformation current user = {} ugi user  = {} ", UserGroupInformation.getCurrentUser(), ugi.getUserName());
             return ugi.doAs((PrivilegedExceptionAction<T>) supplier::get);
@@ -135,22 +132,6 @@ public class KerberosUtils {
             logger.error("{}", keytabPath, e);
             throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
         }
-    }
-
-    private static Configuration removeKerberosAuth(Configuration allConfig) {
-        Configuration config = new YarnConfiguration();
-        allConfig.forEach(key -> {
-            String newkey = String.valueOf(key);
-            if (!StringUtils.equals(newkey, KERBEROS_AUTH)) {
-                Object value = allConfig.get(newkey);
-                if (value instanceof String){
-                    config.set(newkey, (String) value);
-                } else if (value instanceof Boolean){
-                    config.setBoolean(newkey, (boolean) value);
-                }
-            }
-        });
-        return config;
     }
 
     public static String getPrincipal(String filePath) {
@@ -203,9 +184,15 @@ public class KerberosUtils {
                 if (StringUtils.isEmpty(localKrb5ContentStr)) {
                     throw new RdosDefineException("krb5.conf is null!");
                 }
-                Map<String, HashMap<String, String>> newContent = (Map<String, HashMap<String, String>>)objectMapper.readValue(localKrb5ContentStr, Map.class);
+                Map<String, HashMap<String, String>> newContent = (HashMap<String, HashMap<String, String>>)objectMapper.readValue(localKrb5ContentStr, HashMap.class);
 
                 for (String key: mapKeys) {
+
+                    HashMap<String, String> remoteKrb5Section = remoteKrb5Content.get(key);
+                    if (remoteKrb5Section == null) {
+                        continue;
+                    }
+
                     newContent.merge(key, remoteKrb5Content.get(key), new BiFunction() {
                         @Override
                         public Map<String, String> apply(Object oldValue, Object newValue) {
@@ -213,9 +200,12 @@ public class KerberosUtils {
                             Map<String, String> newMap = (Map<String, String>) newValue;
                             if (oldMap == null) {
                                 return newMap;
+                            } else if (newMap == null) {
+                                return oldMap;
+                            } else {
+                                oldMap.putAll(newMap);
+                                return oldMap;
                             }
-                            oldMap.putAll(newMap);
-                            return oldMap;
                         }
                     });
                 }
