@@ -36,6 +36,7 @@ import java.util.*;
 public class Client {
 
     private static final Logger LOG = LoggerFactory.getLogger(Client.class);
+    private static final String HDFS_SUPER_GROUP = "dfs.permissions.superusergroup";
 
     private DtYarnConfiguration conf;
     private FileSystem dfs;
@@ -53,8 +54,22 @@ public class Client {
                 UserGroupInformation ugi = UserGroupInformation.createRemoteUser(appSubmitterUserName);
                 conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
             }
+            String proxyUser = conf.get(DtYarnConstants.PROXY_USER_NAME);
+            String superGroup = conf.get(HDFS_SUPER_GROUP);
+            if(StringUtils.isNotBlank(superGroup)){
+                if (StringUtils.isNotBlank(proxyUser)) {
+                    UserGroupInformation hadoopUserNameUGI = UserGroupInformation.createRemoteUser(superGroup);
+                    UserGroupInformation.setLoginUser(UserGroupInformation.createProxyUser(proxyUser, hadoopUserNameUGI));
+                } else {
+                    UserGroupInformation.setLoginUser(UserGroupInformation.createRemoteUser(superGroup));
+                }
+            }
+
+            this.yarnClient = getYarnClient();
             Path appJarSrc = new Path(JobConf.findContainingJar(ApplicationMaster.class));
             this.appJarSrc = appJarSrc;
+
+
             return null;
         }, conf);
     }
@@ -206,7 +221,7 @@ public class Client {
 
         LOG.info("Building application master launch command");
         List<String> appMasterArgs = new ArrayList<>(20);
-        appMasterArgs.add(conf.get(DtYarnConfiguration.JAVA_PATH,"${JAVA_HOME}" + "/bin/java"));
+        appMasterArgs.add("${JAVA_HOME}" + "/bin/java");
         appMasterArgs.add("-cp " + "${CLASSPATH}");
         appMasterArgs.add("-Xms" + conf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY) + "m");
         appMasterArgs.add("-Xmx" + conf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY) + "m");
