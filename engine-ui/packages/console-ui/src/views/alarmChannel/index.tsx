@@ -36,7 +36,7 @@ const AlarmChannel: React.FC = (props: any) => {
                 setLoading(false);
             }
             getAlarmRuleList().then();
-        }, [query])
+        }, [query, pagination])
         return [{ loading, alarmList }]
     }
     const refreshTable = () => {
