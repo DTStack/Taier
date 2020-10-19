@@ -9,7 +9,7 @@ import API from 'dt-common/src/api';
 import { formItemLayout, ENGINE_TYPE } from '../../consts'
 const Option = Select.Option;
 
-const CustomModal = (props) => {
+const CustomModal: React.FC = (props: any) => {
     const { form: { getFieldDecorator }, visible, onOk, onCancel, title, isBindTenant,
         disabled, tenantInfo, clusterId } = props
     const [env, setEnv] = useState({
@@ -22,44 +22,40 @@ const CustomModal = (props) => {
     const [queueList, setQueueList] = useState([])
     const [tenantList, setTenantList] = useState([])
 
+    // 切换集群
     useEffect(() => {
         if (clusterId) {
-            handleChangeCluster(clusterId)
+            const { clusterList } = props;
+            props.form.resetFields(['queueId']);
+            let currentCluster: any;
+            currentCluster = clusterList.filter((clusItem: any) => clusItem.clusterId == clusterId); // 选中当前集群
+
+            const currentEngineList = (currentCluster[0] && currentCluster[0].engines) || [];
+            const hadoopEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.HADOOP);
+            const libraEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.LIBRA);
+            const tiDBEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.TI_DB);
+            const oracleEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.ORACLE);
+            const greenPlumEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.GREEN_PLUM);
+
+            const hasHadoop = hadoopEngine.length >= 1;
+            const hasLibra = libraEngine.length >= 1;
+            const hasTiDB = tiDBEngine.length > 0;
+            const hasOracle = oracleEngine.length > 0;
+            const hasGreenPlum = greenPlumEngine.length > 0;
+
+            const queueList = hasHadoop && hadoopEngine[0] && hadoopEngine[0].queues;
+
+            setEnv({
+                hasHadoop,
+                hasLibra,
+                hasTiDB,
+                hasOracle,
+                hasGreenPlum
+            })
+
+            setQueueList(queueList)
         }
-    }, [clusterId])
-
-    // 切换集群
-    const handleChangeCluster = (value: any) => {
-        const { clusterList } = props;
-        props.form.resetFields(['queueId']);
-        let currentCluster: any;
-        currentCluster = clusterList.filter((clusItem: any) => clusItem.clusterId == value); // 选中当前集群
-
-        const currentEngineList = (currentCluster[0] && currentCluster[0].engines) || [];
-        const hadoopEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.HADOOP);
-        const libraEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.LIBRA);
-        const tiDBEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.TI_DB);
-        const oracleEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.ORACLE);
-        const greenPlumEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.GREEN_PLUM);
-
-        const hasHadoop = hadoopEngine.length >= 1;
-        const hasLibra = libraEngine.length >= 1;
-        const hasTiDB = tiDBEngine.length > 0;
-        const hasOracle = oracleEngine.length > 0;
-        const hasGreenPlum = greenPlumEngine.length > 0;
-
-        const queueList = hasHadoop && hadoopEngine[0] && hadoopEngine[0].queues;
-
-        setEnv({
-            hasHadoop,
-            hasLibra,
-            hasTiDB,
-            hasOracle,
-            hasGreenPlum
-        })
-
-        setQueueList(queueList)
-    }
+    }, [clusterId, props])
 
     const onSearchTenantUser = (value: string) => {
         API.getFullTenants(value).then((res: any) => {
