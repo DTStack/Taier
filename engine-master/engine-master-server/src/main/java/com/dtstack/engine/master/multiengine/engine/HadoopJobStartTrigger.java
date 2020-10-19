@@ -142,7 +142,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         } else if (taskShade.getEngineType().equals(ScheduleEngineType.Learning.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.Shell.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.DtScript.getVal())
-                || taskShade.getEngineType().equals(ScheduleEngineType.Spark.getVal())
+                || (taskShade.getEngineType().equals(ScheduleEngineType.Spark.getVal()) && !taskShade.getTaskType().equals(EScheduleJobType.SPARK.getVal()))
                 || taskShade.getEngineType().equals(ScheduleEngineType.Python2.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.Python3.getVal())) {
             //提交
