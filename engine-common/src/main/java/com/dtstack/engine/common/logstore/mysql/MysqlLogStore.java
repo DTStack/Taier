@@ -194,7 +194,7 @@ public class MysqlLogStore extends AbstractLogStore {
         } finally {
             closeDBResources(resultSet, preparedStatement, null, connection);
         }
-        return 0;
+        return RdosTaskStatus.FAILED.getStatus();
     }
 
     @Override

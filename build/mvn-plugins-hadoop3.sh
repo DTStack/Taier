@@ -12,6 +12,7 @@ engine-worker/engine-plugins/dummy,\
 engine-worker/engine-plugins/hadoop/yarn3-hdfs3-hadoop3,\
 engine-worker/engine-plugins/dtscript/yarn3-hdfs3-dtscript/dtscript-client,\
 engine-worker/engine-plugins/learning/yarn3-hdfs3-learning/learning-client,\
+engine-worker/engine-plugins/flink/common,\
 engine-worker/engine-plugins/flink/yarn3-hdfs3-flink180,\
 engine-worker/engine-plugins/spark/yarn3-hdfs3-spark210/spark-yarn-client,\
 engine-worker/engine-plugins/spark/yarn3-hdfs3-spark210/spark-sql-proxy,\
