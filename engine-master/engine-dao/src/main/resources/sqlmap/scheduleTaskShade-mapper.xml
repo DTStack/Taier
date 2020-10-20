@@ -229,7 +229,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_shade
-        WHERE task_id = #{taskId} AND is_deleted = 0 and app_type = #{appType}
+        WHERE task_id = #{taskId} AND is_deleted = 0 and app_type = #{appType} LIMIT 1
     </select>
 
     <select id="listTaskByStatus" resultType="ScheduleTaskShade">
@@ -667,6 +667,7 @@
         <if test="isDeleted != null">
             AND is_deleted = #{isDeleted}
         </if>
+        LIMIT 1
     </select>
 
 
