@@ -6,6 +6,7 @@ import Api from '../../api/console';
 import { ENGIN_TYPE_TEXT } from '../../consts';
 import { isHadoopEngine, isTiDBEngine, isOracleEngine, isGreenPlumEngine } from '../../consts/clusterFunc';
 import BindCommModal from '../../components/bindCommModal';
+import ResourceManageModal from '../../components/resourceManageModal';
 import Resource from './resourceView';
 
 import BindAccountPane from './bindAccount';
@@ -33,6 +34,7 @@ class ResourceManage extends React.Component<any, any> {
         total: 0,
         tenantModal: false,
         queueModal: false,
+        manageModal: false,
         tenantInfo: '',
         isHaveHadoop: false,
         isHaveLibra: false,
@@ -92,6 +94,9 @@ class ResourceManage extends React.Component<any, any> {
                 }
             })
         }
+    }
+    sourceManage (params: any) {
+        console.log(params) // jest for test
     }
     initList = async () => {
         const res = await Api.getAllCluster();
@@ -163,7 +168,7 @@ class ResourceManage extends React.Component<any, any> {
     }
     clickSwitchQueue = (record: any) => {
         this.setState({
-            queueModal: true,
+            manageModal: true,
             tenantInfo: record
         })
     }
@@ -221,7 +226,7 @@ class ResourceManage extends React.Component<any, any> {
         const hadoopColumns = this.initHadoopColumns();
         const otherColumns = this.initOtherColumns()
         const { tableData, queryParams, total, loading, engineList, clusterList,
-            tenantModal, queueModal, clusterName, tenantInfo } = this.state;
+            tenantModal, queueModal, manageModal, clusterName, tenantInfo } = this.state;
         const pagination: any = {
             current: queryParams.currentPage,
             pageSize: PAGESIZE,
@@ -334,7 +339,7 @@ class ResourceManage extends React.Component<any, any> {
                     onOk={this.bindTenant.bind(this)}
                 />
                 <BindCommModal
-                    title={`资源管理 (${tenantInfo.tenantName ?? ''})`}
+                    title='切换队列'
                     visible={queueModal}
                     isBindTenant={false}
                     clusterList={clusterList}
@@ -348,6 +353,22 @@ class ResourceManage extends React.Component<any, any> {
                         })
                     }}
                     onOk={this.switchQueue.bind(this)}
+                />
+                <ResourceManageModal
+                    title={`资源管理 (${tenantInfo.tenantName ?? ''})`}
+                    visible={manageModal}
+                    isBindTenant={false}
+                    clusterList={clusterList}
+                    tenantInfo={this.state.tenantInfo}
+                    clusterId={queryParams.clusterId}
+                    disabled={true}
+                    onCancel={() => {
+                        this.setState({
+                            manageModal: false,
+                            tenantInfo: ''
+                        })
+                    }}
+                    onOk={this.sourceManage.bind(this)}
                 />
             </div>
         )
