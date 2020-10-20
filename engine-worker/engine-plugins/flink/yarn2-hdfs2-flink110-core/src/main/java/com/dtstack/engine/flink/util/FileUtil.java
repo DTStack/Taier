@@ -152,6 +152,7 @@ public class FileUtil {
     }
 
     public static void downloadKafkaKeyTab(JobClient jobClient, FlinkConfig flinkConfig) {
+        SFTPHandler handler = null;
         try {
             Properties confProperties = jobClient.getConfProperties();
             String sftpKeytab = confProperties.getProperty(ConfigConstrant.KAFKA_SFTP_KEYTAB);
@@ -169,10 +170,14 @@ public class FileUtil {
 
             File kafkaKeytabFile = new File(sftpKeytab);
             String localKafkaKeytab = String.format("%s/%s", taskKeytabDirPath, kafkaKeytabFile.getName());
-            SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
+            handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
             handler.downloadFile(sftpKeytab, localKafkaKeytab);
         } catch (Exception e) {
             logger.error("Download keytab from sftp failed", e);
+        } finally {
+            if (handler != null) {
+                handler.close();
+            }
         }
     }
 
