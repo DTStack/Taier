@@ -157,7 +157,7 @@ public class JobRichOperator {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TASK_DELETE);
         }
 
-        if(scheduleBatchJob.getScheduleJob().getComputeType().equals(ComputeType.BATCH.getType())){
+        if(ComputeType.BATCH.getType().equals(scheduleBatchJob.getScheduleJob().getComputeType())){
             //离线任务才需要校验资源
             //获取租户id
             Long dtuicTenantId = scheduleBatchJob.getScheduleJob().getDtuicTenantId();
