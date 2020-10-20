@@ -1,5 +1,8 @@
 package com.dtstack.engine.master.scheduler;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.Expired;
@@ -29,6 +32,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -451,9 +455,32 @@ public class JobRichOperator {
         }
         //判断task任务是否配置了允许过期（暂时允许全部任务过期 不做判断）
         //超过时间限制
-        if (StringUtils.isNotBlank(scheduleBatchJob.getScheduleJob().getNextCycTime())) {
+        String nextCycTime1 = scheduleBatchJob.getScheduleJob().getNextCycTime();
+        if (StringUtils.isNotBlank(nextCycTime1)) {
             LocalDateTime nextCycTime = LocalDateTime.parse(scheduleBatchJob.getScheduleJob().getNextCycTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             if(nextCycTime.isBefore(LocalDateTime.now())){
+                // 判断是否开启延迟至第二天后自动取消
+                String scheduleConf = batchTaskShade.getScheduleConf();
+                if (StringUtils.isNotBlank(scheduleConf)) {
+                    JSONObject jsonObject = JSON.parseObject(scheduleConf);
+                    Boolean isLastInstance = jsonObject.getBoolean("isLastInstance");
+                    // 判断当前实例是否是最后一个实例,且设置了执行最后一个任务
+                    if (isLastInstance != null && isLastInstance ) {
+                        // cycTime 和 nextCycTime 是不是同一天
+                        String cycTime = scheduleBatchJob.getScheduleJob().getCycTime();
+                        Date cycDate = DateUtil.parseDate(cycTime, "yyyyMMddHHmmss");
+                        Date nextCycDate = DateUtil.parseDate(nextCycTime1, "yyyy-MM-dd HH:mm:ss");
+
+                        DateTime nextCycDateTime = new DateTime(nextCycDate);
+                        DateTime cycDateTime = new DateTime(cycDate);
+
+                        if (nextCycDateTime.getDayOfMonth() != cycDateTime.getDayOfMonth()) {
+                            // 不是同一天 说明这个任务是今天执行的最后一个任务
+                            return false;
+                        }
+                    }
+                }
+
                 //如果超过过期时间限制 每天最后一次周期不允许过期
                 return nextCycTime.getDayOfYear() == LocalDateTime.now().getDayOfYear();
             }
@@ -648,5 +675,4 @@ public class JobRichOperator {
         String startTime = sdf.format(calendar.getTime());
         return new ImmutablePair<>(startTime, endTime);
     }
-
 }
