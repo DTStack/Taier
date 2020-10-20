@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.AlertGateDao">
+
+    <sql id="baseField">
+        id,alert_gate_name,alert_gate_type,alert_gate_code,alert_gate_status,alert_gate_json,alert_gate_source,file_path,is_deleted,gmt_created,gmt_modified
+    </sql>
+
+    <update id="update" parameterType="com.dtstack.engine.api.domain.po.AlertGatePO">
+        update dt_alert_gate
+
+        <set>
+            <if test="alertGateName != null">alert_gate_name=#{alertGateName},</if>
+            <if test="alertGateType != null">alert_gate_type=#{alertGateType},</if>
+            <if test="alertGateCode != null">alert_gate_code=#{alertGateCode},</if>
+            <if test="alertGateStatus != null">alert_gate_status=#{alertGateStatus},</if>
+            <if test="alertGateJson != null">alert_gate_json=#{alertGateJson},</if>
+            <if test="alertGateSource != null">alert_gate_source=#{alertGateSource},</if>
+            <if test="filePath != null and filePath != '' ">file_path=#{filePath},</if>
+            <if test="isDeleted != null">is_deleted=#{isDeleted},</if>
+        </set>
+
+        where id = #{id}
+    </update>
+
+    <insert id="insert" parameterType="com.dtstack.engine.api.domain.po.AlertGatePO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO dt_alert_gate
+        (alert_gate_name,alert_gate_type,alert_gate_code,alert_gate_status,alert_gate_json,alert_gate_source,file_path,is_deleted,gmt_created,gmt_modified)
+        VALUES
+        (#{alertGateName},#{alertGateType},#{alertGateCode},#{alertGateStatus},#{alertGateJson},#{alertGateSource},#{filePath},#{isDeleted},now(),now())
+    </insert>
+
+    <update id="delete">
+        update dt_alert_gate
+        set is_deleted = 1
+        where id = #{gateId}
+    </update>
+
+    <select id="list" resultType="com.dtstack.engine.api.domain.po.AlertGatePO">
+        select <include refid="baseField"/>
+        FROM dt_alert_gate
+        WHERE is_deleted = 0
+        <if test="alertGateType != null">AND alert_gate_type=#{alertGateType}</if>
+        <if test="alertGateCode != null">AND alert_gate_code=#{alertGateCode}</if>
+        <if test="alertGateStatus != null">AND alert_gate_status=#{alertGateStatus}</if>
+        <if test="alertGateSource != null">AND alert_gate_source=#{alertGateSource}</if>
+        order by id desc
+    </select>
+
+    <select id="get" resultType="com.dtstack.engine.api.domain.po.AlertGatePO">
+        select <include refid="baseField"/>
+        FROM dt_alert_gate
+        WHERE is_deleted = 0
+
+        <if test="id != null">AND id = #{id}</if>
+        <if test="alertGateType != null">AND alert_gate_type=#{alertGateType}</if>
+        <if test="alertGateCode != null">AND alert_gate_code=#{alertGateCode}</if>
+        <if test="alertGateStatus != null">AND alert_gate_status=#{alertGateStatus}</if>
+        <if test="alertGateSource != null">AND alert_gate_source=#{alertGateSource}</if>
+
+        limit 1
+    </select>
+
+</mapper>

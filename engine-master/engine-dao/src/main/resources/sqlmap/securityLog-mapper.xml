@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.SecurityLogDao">
+
+    <sql id="select_content_fragment">
+        id,tenant_id,operator,operator_id,app_tag,action,gmt_create,operation,operation_object
+    </sql>
+
+
+    <insert id="insert" parameterType="com.dtstack.engine.api.domain.SecurityLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO console_security_log(tenant_id,operator,operator_id,app_tag,action,operation,operation_object)
+        VALUES (#{tenantId},#{operator},#{operatorId},#{appTag},#{action},#{operation},#{operationObject})
+    </insert>
+
+
+    <select id="list" resultType="com.dtstack.engine.api.domain.SecurityLog">
+        SELECT <include refid="select_content_fragment"/>
+        FROM console_security_log
+
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="id != null and id > 0">
+                AND id = #{id}
+            </if>
+            <if test="appTag != null and appTag != ''">
+                AND app_tag = #{appTag}
+            </if>
+            <if test="operator != null and operator != ''">
+                AND operator like '%${operator}%'
+            </if>
+            <if test="startTime != null">
+                AND gmt_create &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND gmt_create &lt;= #{endTime}
+            </if>
+            <if test="tenantId != null">
+                AND tenant_id = #{tenantId}
+            </if>
+            <if test="operation != null">
+                AND operation = #{operation}
+            </if>
+            <if test="operationObject != null">
+                AND operation_object like '%${operationObject}%'
+            </if>
+        </trim>
+
+    </select>
+
+
+    <select id="query" resultType="com.dtstack.engine.api.domain.SecurityLog">
+        select <include refid="select_content_fragment"/>
+        FROM console_security_log
+        WHERE id = #{id}
+    </select>
+
+</mapper>

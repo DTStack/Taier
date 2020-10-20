@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.NotifySendRecordDao">
+
+    <insert id="insert" parameterType="com.dtstack.engine.api.domain.NotifySendRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO dt_notify_send_record(tenant_id,project_id,app_type,notify_record_id,content_id,user_id,send_type,send_status)
+        VALUES (#{tenantId},#{projectId},#{appType},#{notifyRecordId},#{contentId},#{userId},#{sendType},#{sendStatus})
+    </insert>
+
+    <update id="updateByIdAndStatus">
+        UPDATE
+        dt_notify_send_record
+        SET send_status = #{status}
+        WHERE
+        id = #{id} AND is_deleted = 0
+    </update>
+
+</mapper>

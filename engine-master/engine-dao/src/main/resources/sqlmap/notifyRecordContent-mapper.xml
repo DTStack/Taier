@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.NotifyRecordContentDao">
+
+    <insert id="insert" parameterType="com.dtstack.engine.api.domain.NotifyRecordContent" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO dt_notify_record_content(tenant_id,project_id,app_type,content,status)
+        VALUES (#{tenantId},#{projectId},#{appType},#{content},#{status})
+    </insert>
+
+    <select id="getContent" resultType="java.lang.String">
+        SELECT
+        content
+        FROM dt_notify_record_content
+        WHERE tenant_id = #{tenantId}
+<!--        <if test="projectId != null and projectId !=0">-->
+<!--            AND project_id = #{projectId}-->
+<!--        </if>-->
+        AND app_type = #{appType} AND id = #{contentId} AND is_deleted = 0
+    </select>
+
+</mapper>

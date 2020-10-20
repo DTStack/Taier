@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.NotifyRecordReadDao">
+
+    <insert id="insert" parameterType="com.dtstack.engine.api.domain.NotifyRecordRead" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO dt_notify_record_read(tenant_id,project_id,app_type,notify_record_id,content_id,user_id,read_status)
+        VALUES (#{tenantId},#{projectId},#{appType},#{notifyRecordId},#{contentId},#{userId},#{readStatus})
+    </insert>
+
+    <update id="updateReadStatus">
+        UPDATE
+        dt_notify_record_read
+        SET read_status = #{readStatus}
+        WHERE tenant_id = #{tenantId}
+<!--        <if test="projectId != null and projectId !=0">-->
+<!--            AND project_id = #{projectId}-->
+<!--        </if>-->
+        AND user_id = #{userId} AND app_type = #{appType}
+        <if test="readIds != null">
+            AND id in
+            <foreach item="readId" index="index" collection="readIds" open="(" separator="," close=")">
+                #{readId}
+            </foreach>
+        </if>
+        AND is_deleted = 0
+    </update>
+
+    <select id="countByUserId" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM dt_notify_record_read recordRead
+        LEFT JOIN dt_notify_record_content recordContent
+        on recordRead.content_id = recordContent.id
+        WHERE recordRead.tenant_id = #{tenantId}
+<!--        <if test="projectId != null and projectId !=0">-->
+<!--            AND recordRead.project_id = #{projectId}-->
+<!--        </if>-->
+        AND recordRead.user_id = #{userId} AND recordRead.app_type = #{appType}
+        <if test="readStatus != null">
+            AND recordRead.read_status = #{readStatus}
+        </if>
+        AND recordRead.is_deleted = 0
+        limit 1
+    </select>
+
+    <select id="listByUserId" resultType="com.dtstack.engine.api.dto.NotifyRecordReadDTO">
+        SELECT
+        recordRead.id,recordRead.tenant_id,recordRead.project_id,recordRead.app_type,recordRead.notify_record_id,recordRead.content_id,
+        recordRead.user_id,recordRead.read_status,recordRead.gmt_create,recordRead.gmt_modified,recordRead.is_deleted,
+        recordContent.content,recordContent.status,date_format(recordRead.gmt_create, '%Y-%m-%d %H:%i:%S') AS gmtCreateFormat
+        FROM dt_notify_record_read recordRead
+        LEFT JOIN dt_notify_record_content recordContent
+        on recordRead.content_id = recordContent.id
+        WHERE recordRead.tenant_id = #{tenantId}
+<!--        <if test="projectId != null and projectId !=0">-->
+<!--            AND recordRead.project_id = #{projectId}-->
+<!--        </if>-->
+        AND recordRead.user_id = #{userId} AND recordRead.app_type = #{appType}
+        <if test="readStatus != null">
+            AND recordRead.read_status = #{readStatus}
+        </if>
+        AND recordRead.is_deleted = 0
+    </select>
+
+    <update id="delete">
+        UPDATE
+        dt_notify_record_read
+        SET is_deleted = 1
+        WHERE tenant_id = #{tenantId}
+<!--        <if test="projectId != null and projectId !=0">-->
+<!--            AND project_id = #{projectId}-->
+<!--        </if>-->
+        AND user_id = #{userId} AND app_type = #{appType}
+        <if test="readIds != null">
+            AND id in
+            <foreach item="readId" index="index" collection="readIds" open="(" separator="," close=")">
+                #{readId}
+            </foreach>
+        </if>
+        AND is_deleted = 0
+    </update>
+
+    <select id="getOne" resultType="com.dtstack.engine.api.dto.NotifyRecordReadDTO">
+        SELECT
+        recordRead.id,recordRead.tenant_id,recordRead.project_id,recordRead.app_type,recordRead.notify_record_id,recordRead.content_id,
+        recordRead.user_id,recordRead.read_status,recordRead.gmt_create,recordRead.gmt_modified,recordRead.is_deleted,
+        recordContent.content,recordContent.status,date_format(recordRead.gmt_create, '%Y-%m-%d %H:%i:%S') AS gmtCreateFormat
+        FROM dt_notify_record_read recordRead
+        LEFT JOIN dt_notify_record_content recordContent
+        on recordRead.content_id = recordContent.id
+        WHERE recordRead.tenant_id = #{tenantId}
+<!--        <if test="projectId != null and projectId !=0">-->
+<!--            AND recordRead.project_id = #{projectId}-->
+<!--        </if>-->
+        AND recordRead.user_id = #{userId} AND recordRead.app_type = #{appType}
+        AND recordRead.id = #{readId} AND recordRead.is_deleted = 0
+    </select>
+
+</mapper>
