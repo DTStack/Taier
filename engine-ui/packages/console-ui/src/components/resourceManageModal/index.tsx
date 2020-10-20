@@ -3,8 +3,9 @@ import { Modal, Form, Select, Icon, Tooltip, Input, message } from 'antd';
 
 import FormItem from '../publicForm'
 
+import { useEnv } from '../customHooks'
 import Api from '../../api/console'
-import { formItemLayout, ENGINE_TYPE, specFormItemLayout } from '../../consts'
+import { formItemLayout, specFormItemLayout } from '../../consts'
 const Option = Select.Option;
 
 const DynamicForm = (props: any) => {
@@ -57,17 +58,7 @@ const CustomModal: React.FC = (props: any) => {
                 }
             })
             const { clusterList } = props;
-            props.form.resetFields(['queueId']);
-            let currentCluster: any;
-            currentCluster = clusterList.filter((clusItem: any) => clusItem.clusterId == clusterId); // 选中当前集群
-
-            const currentEngineList = (currentCluster[0] && currentCluster[0].engines) || [];
-            const hadoopEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.HADOOP);
-
-            const hasHadoop = hadoopEngine.length >= 1;
-
-            const queueList = hasHadoop && hadoopEngine[0] && hadoopEngine[0].queues;
-
+            const {queueList}=useEnv(clusterId,props?.form,clusterList)
             setQueueList(queueList)
         }
         return () => {
