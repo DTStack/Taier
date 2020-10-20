@@ -91,7 +91,7 @@ public class SparkYarnClient extends AbstractClient {
 
     private YarnConfiguration yarnConf;
 
-    private YarnClient yarnClient;
+    private volatile YarnClient yarnClient;
 
     private Properties sparkExtProp;
 
@@ -106,7 +106,8 @@ public class SparkYarnClient extends AbstractClient {
         System.setProperty(SPARK_YARN_MODE, "true");
         parseWebAppAddr();
         logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
-        yarnClient = KerberosUtils.login(sparkYarnConfig,this::getYarnClient,yarnConf);
+
+        yarnClient = this.getYarnClient();
 
         if (sparkYarnConfig.getMonitorAcceptedApp()) {
             AcceptedApplicationMonitor.start(yarnConf, sparkYarnConfig.getQueue(), sparkYarnConfig);
@@ -657,45 +658,38 @@ public class SparkYarnClient extends AbstractClient {
         try{
             if(yarnClient == null){
                 synchronized (this){
-                    if(yarnClient == null){
-                        YarnClient yarnClient1 = YarnClient.createYarnClient();
-                        yarnClient1.init(yarnConf);
-                        yarnClient1.start();
-                        yarnClient = yarnClient1;
+                    synchronized (this) {
+                        if (yarnClient == null) {
+                            logger.info("buildYarnClient!");
+                            yarnClient = buildYarnClient();
+                        }
                     }
                 }
-            }else{
+            } else {
                 //判断下是否可用
                 yarnClient.getAllQueues();
             }
         }catch(Throwable e){
-            logger.error("getYarnClient error:{}",e);
-            synchronized (this){
-                if(yarnClient != null){
-                    boolean flag = true;
-                    try{
-                        //判断下是否可用
-                        yarnClient.getAllQueues();
-                    }catch(Throwable e1){
-                        logger.error("getYarnClient error:{}",e1);
-                        flag = false;
-                    }
-                    if(!flag){
-                        try{
-                            yarnClient.stop();
-                        }finally {
-                            yarnClient = null;
-                        }
-                    }
-                }
-                if(yarnClient == null){
-                    YarnClient yarnClient1 = YarnClient.createYarnClient();
-                    yarnClient1.init(yarnConf);
-                    yarnClient1.start();
-                    yarnClient = yarnClient1;
-                }
-            }
+            logger.info("buildYarnClient![backup]");
+            yarnClient = buildYarnClient();
         }
         return yarnClient;
     }
+
+    private YarnClient buildYarnClient() {
+        try {
+            return KerberosUtils.login(sparkYarnConfig, () -> {
+                logger.info("buildYarnClient, init YarnClient!");
+                YarnClient yarnClient1 = YarnClient.createYarnClient();
+                yarnClient1.init(yarnConf);
+                yarnClient1.start();
+                yarnClient = yarnClient1;
+                return yarnClient;
+            }, yarnConf);
+        } catch (Exception e) {
+            logger.error("initSecurity happens error", e);
+            throw new RdosDefineException(e);
+        }
+    }
+
 }
