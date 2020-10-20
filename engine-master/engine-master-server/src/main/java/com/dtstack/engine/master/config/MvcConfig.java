@@ -6,6 +6,7 @@ import com.dtstack.engine.master.router.DtArgumentResolver;
 import com.dtstack.engine.master.router.login.LoginInterceptor;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -25,6 +26,9 @@ import java.util.List;
  */
 @Configuration
 public class MvcConfig extends DelegatingWebMvcConfiguration {
+
+    @Value("${engine.console.upload.path:/upload}")
+    private String uploadPath;
 
     @Autowired
     private DtArgumentResolver dtArgumentResolver;
@@ -74,6 +78,11 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
         registry.addResourceHandler("/webjars/**").addResourceLocations(
                 "classpath:/META-INF/resources/webjars/");
         super.addResourceHandlers(registry);
+    }
+
+    public String getPluginPath(boolean isTmp,String gateSource) {
+        String tmp = isTmp ? "/tmp" : "/normal";
+        return uploadPath + tmp + "/" + gateSource;
     }
 }
 
