@@ -398,7 +398,7 @@ public class TenantService {
         }
     }
 
-    private List<TenantResourceVO> convertTenantResourceToVO(List<TenantResource> tenantResources) throws IOException {
+    private List<TenantResourceVO> convertTenantResourceToVO(List<TenantResource> tenantResources) throws Exception {
 
         List<TenantResourceVO> tenantResourceVos = new ArrayList<>();
         if (!CollectionUtils.isEmpty(tenantResources)) {
@@ -406,9 +406,10 @@ public class TenantService {
                 TenantResourceVO tenantResourceVO = new TenantResourceVO();
                 BeanUtils.copyProperties(tenantResource, tenantResourceVO);
                 String resourceLimit = tenantResource.getResourceLimit();
-                Properties properties = PublicUtil.stringToProperties(resourceLimit);
-                Map<String, Object> objectMap = PublicUtil.objectToMap(properties);
-                tenantResourceVO.setResourceLimit(objectMap);
+                if(StringUtils.isNotEmpty(resourceLimit)) {
+                    Map<String, Object> objectMap = JSONObject.parseObject(resourceLimit);
+                    tenantResourceVO.setResourceLimit(objectMap);
+                }
                 tenantResourceVos.add(tenantResourceVO);
             }
         }
