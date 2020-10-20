@@ -47,13 +47,56 @@ if [[ $KUBERNETES_HOST_ALIASES != "" ]]; then
     cat /etc/hosts
 fi
 
+# download file
+echo -e "sftp files path: $SFTPFILES_PATH"
+if [[ $SFTPFILES_PATH != "" ]]; then
+    sftp_files_msg="\n----------download file start-----------\n $SFTPFILES_PATH \n"
+    echo -e $sftp_files_msg
+    local_jar_dir=$FLINK_HOME/lib
+    if [[ *$SFTPFILES_PATH* =~ ";" ]]; then
+        echo "host aliases contain ';'"
+    else
+        echo "host aliases dose not contain ';'"
+        SFTPFILES_PATH="$SFTPFILES_PATH;"
+    fi
+    y=1
+    while(true); do
+        file_path=`echo $SFTPFILES_PATH | cut -d ";" -f $y`
+        if [ "$file_path" == "" ]; then
+            break;
+        else
+            expect <<- EOF
+                set timeout 120
+                spawn sftp  -P $SFTP_PORT $SFTP_USERNAME@$SFTP_HOST
+
+                expect {
+                    "(yes/no)?" {send "yes\r"; exp_continue }
+                    "*assword:" {send "$SFTP_PASSWORD\r"}
+                }
+                expect "sftp>"
+                send "lcd $local_jar_dir \r"
+                expect "sftp>"
+                set timeout -1
+                send "mget $file_path \r"
+                expect "sftp>"
+                send "bye\r"
+                expect eof
+EOF
+            ((y++))
+        fi
+        if [[ $y == 1000 ]]; then
+            break;
+        fi
+    done
+    echo -e "\n----------download file end-----------\n"
+fi
+
 # get Flink config
 . /opt/flink/bin/config.sh
 
 FLINK_CLASSPATH=`manglePathList $(constructFlinkClassPath):$INTERNAL_HADOOP_CLASSPATHS`
 # FLINK_CLASSPATH will be used by KubernetesUtils.java to generate jobmanager and taskmanager start command.
 export FLINK_CLASSPATH
-
 
 sed -i "s/flinkx_hosts/$FLINKX_HOSTS/g" /opt/filebeat/conf/filebeat-dtstack.yml
 

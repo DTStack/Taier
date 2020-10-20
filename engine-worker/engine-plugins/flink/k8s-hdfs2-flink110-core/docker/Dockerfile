@@ -26,7 +26,7 @@ ARG flinkplugin=/data/insight_plugin/flinkplugin
 # Install requirements
 ENV GOSU_VERSION 1.11
 
-RUN yum -y install sudo && \
+RUN yum -y install sudo expect openssh-clients && \
     chmod 755 /etc/sudoers && \
     echo "flink	ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
     chmod 440 /etc/sudoers
