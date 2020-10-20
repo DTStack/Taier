@@ -70,9 +70,6 @@ public class PerJobClientFactory extends AbstractClientFactory {
         Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
         Configuration newConf = new Configuration(flinkConfiguration);
 
-        // set env
-        setContainerEnv(newConf, jobClient);
-
         // set job config
         newConf = appendJobConfigAndInitFs(jobClient.getConfProperties(), newConf);
 
@@ -85,6 +82,9 @@ public class PerJobClientFactory extends AbstractClientFactory {
         if (!flinkConfig.getFlinkHighAvailability() && ComputeType.BATCH == jobClient.getComputeType()) {
             setNoneHaModeConfig(newConf);
         }
+
+        // set env
+        setContainerEnv(newConf, jobClient);
 
         KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
 
