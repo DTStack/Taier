@@ -316,8 +316,7 @@ public class SFTPHandler {
         long fileTimeout;
         if ((fileTimeout = MapUtils.getLong(sftpConfig, FILE_TIMEOUT, 0L)) != 0L && (lastModifyTime = fileLastModifyMap.get(localFile)) != null) {
             if (System.currentTimeMillis() - lastModifyTime <= fileTimeout) {
-                File[] files = localFileDir.listFiles();
-                if (files != null && files.length > 0) {
+                if (localFileDir.exists()) {
                     return localFile;
                 }
             }
