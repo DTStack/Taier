@@ -718,17 +718,13 @@ public class SparkYarnClient extends AbstractClient {
         jobClient.setSql(String.join(";", sqlList));
     }
 
-    public YarnClient getYarnClient(){
+    public synchronized YarnClient getYarnClient(){
         try{
             if(yarnClient == null){
-                synchronized (this){
-                    if(yarnClient == null){
-                        YarnClient yarnClient1 = YarnClient.createYarnClient();
-                        yarnClient1.init(yarnConf);
-                        yarnClient1.start();
-                        yarnClient = yarnClient1;
-                    }
-                }
+            YarnClient yarnClient1 = YarnClient.createYarnClient();
+            yarnClient1.init(yarnConf);
+            yarnClient1.start();
+            yarnClient = yarnClient1;
             }else{
                 //判断下是否可用
                 yarnClient.getAllQueues();

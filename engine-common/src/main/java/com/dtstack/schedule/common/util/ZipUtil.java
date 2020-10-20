@@ -1,5 +1,6 @@
 package com.dtstack.schedule.common.util;
 
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import org.apache.tools.zip.ZipFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,13 +89,13 @@ public class ZipUtil {
                 baos.close();
             }
         } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex.getStackTrace());
+            LOG.error("ZipUtil.deCompress error:{}", ExceptionUtil.getErrorMessage(ex));
         } finally {
             if (null != bis) {
                 try {
                     bis.close();
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
+                    LOG.error("ZipUtil.deCompress error:{}", ExceptionUtil.getErrorMessage(e));
                 }
             }
 
@@ -102,7 +103,7 @@ public class ZipUtil {
                 try {
                     zip.close();
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
+                    LOG.error("ZipUtil.deCompress error:{}", ExceptionUtil.getErrorMessage(e));
                 }
             }
 
@@ -110,7 +111,7 @@ public class ZipUtil {
                 try {
                     baos.close();
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
+                    LOG.error("ZipUtil.deCompress error:{}", ExceptionUtil.getErrorMessage(e));
                 }
             }
         }
@@ -142,10 +143,10 @@ public class ZipUtil {
                 }
                 _zipOut.close();
             } else {
-                System.out.println("target file[" + zip + "] is not .zip type file");
+                LOG.info("target file[" + zip + "] is not .zip type file");
             }
-        } catch (FileNotFoundException e) {
         } catch (IOException e) {
+            LOG.error("ZipUtil.zipFile error:{}",ExceptionUtil.getErrorMessage(e));
         }
     }
 

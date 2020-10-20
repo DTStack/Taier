@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.scheduler;
 
 import com.dtstack.engine.api.vo.Pair;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -74,7 +75,7 @@ public class ScheduleJobBack {
             Date curDate = dateFormat.parse(dayFormat.format(new Date()) + " " + time);
             return curDate.getTime();
         } catch (ParseException e) {
-            e.printStackTrace();
+            log.error("ScheduleJobBack.getTimeMillis error:{}", ExceptionUtil.getErrorMessage(e));
         }
         return 0;
     }

@@ -1,5 +1,9 @@
 package com.dtstack.engine.common.util;
 
+import com.dtstack.engine.common.exception.ExceptionUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.ref.SoftReference;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -31,6 +35,8 @@ public class DateUtil {
     private static final String TIME_FORMAT_KEY = "timeFormatter";
     private static final String YEAR_FORMAT_KEY = "yearFormatter";
     private static final String START_TIME = "1970-01-01";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DateUtil.class);
 
     private static final ThreadLocal<SoftReference<Map<String, SimpleDateFormat>>>
             THREADLOCAL_FORMATS = new ThreadLocal<SoftReference<Map<String, SimpleDateFormat>>>();
@@ -918,7 +924,7 @@ public class DateUtil {
             Date date = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
             return date.getTime();
         } catch (ParseException e) {
-            e.printStackTrace();
+            LOGGER.error("DateUtil.calTodayMills error:{}",e.getMessage());
         }
         return 0L;
     }
@@ -988,7 +994,7 @@ public class DateUtil {
             Date date = simpleDateFormat.parse(formattedDate);
             return date.getTime();
         } catch (ParseException e) {
-            e.printStackTrace();
+            LOGGER.error("DateUtil.getTimestamp error:{}", ExceptionUtil.getErrorMessage(e));
         }
         return 0L;
     }

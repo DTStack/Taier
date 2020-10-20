@@ -15,6 +15,7 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.common.util.DateUtil;
@@ -2584,7 +2585,7 @@ public class ScheduleJobService {
             JobCheckRunInfo jobCheckRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, scheduleJob.getStatus(), scheduleJob.getType(), new HashSet<>(), new HashMap<>(), taskShadeMap);
             return JSONObject.toJSONString(jobCheckRunInfo);
         } catch (ParseException e) {
-            e.printStackTrace();
+            logger.error("ScheduleJobService.testCheckCanRun error:{}", ExceptionUtil.getErrorMessage(e));
         }
         return "";
     }

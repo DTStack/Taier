@@ -49,7 +49,7 @@ public final class Utilities {
         }
       }
     } else {
-      LOG.info("input list size: 0" +"fileStatus is null");
+      LOG.info("input list size: 0,fileStatus is null");
     }
     return fileStatuses;
   }

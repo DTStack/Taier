@@ -444,7 +444,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                                 break;
                                             } else {
                                                 try {
-                                                    Thread.sleep(3 * CHECK_INTERVAL);
+                                                    Thread.sleep(3L * CHECK_INTERVAL);
                                                 } catch (Exception e) {
                                                     LOG.error("", e);
                                                 }

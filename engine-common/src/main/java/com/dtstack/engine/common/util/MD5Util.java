@@ -1,5 +1,9 @@
 package com.dtstack.engine.common.util;
 
+import com.dtstack.engine.common.exception.ExceptionUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,6 +20,9 @@ import java.security.NoSuchAlgorithmException;
  * Time: 10:32
  */
 public class MD5Util {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MD5Util.class);
+
     /**
      * 获得字符串的md5值
      *
@@ -27,10 +34,8 @@ public class MD5Util {
         try {
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             bytes = md5.digest(str.getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+        } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
+            LOGGER.error("MD5Util.getMd5String error:{}", ExceptionUtil.getErrorMessage(e));
         }
         return HexUtil.bytes2Hex(bytes);
 
@@ -66,23 +71,21 @@ public class MD5Util {
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             md5.update(byteBuffer);
             ret = HexUtil.bytes2Hex(md5.digest());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+        } catch (IOException |NoSuchAlgorithmException e) {
+            LOGGER.error("MD5Util.getFileMd5String error:{}",ExceptionUtil.getErrorMessage(e));
         } finally {
             if (in != null) {
                 try {
                     in.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LOGGER.error("MD5Util.getFileMd5String error:{}",ExceptionUtil.getErrorMessage(e));
                 }
             }
             if (ch != null) {
                 try {
                     ch.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LOGGER.error("MD5Util.getFileMd5String error:{}",ExceptionUtil.getErrorMessage(e));
                 }
             }
         }

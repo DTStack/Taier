@@ -1,5 +1,6 @@
 package com.dtstack.learning.AM;
 
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.learning.AM.ApplicationContainerListener;
 import com.dtstack.learning.AM.ApplicationMessageService;
 import com.dtstack.learning.AM.ApplicationWebService;
@@ -719,7 +720,7 @@ public class ApplicationMaster extends CompositeService {
               }
             }
           } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("ApplicationMaster.buildInputFileStatus error:{}", e);
           }
           input2FileStatus.put(inputPathTuple[1], fileStatus);
           this.inputPath.append(inputPathTuple[1]).append(",");
@@ -1765,8 +1766,7 @@ public class ApplicationMaster extends CompositeService {
                 LOG.info(mxnetSchedulerStdoutLog);
               }
             } catch (Exception e) {
-              LOG.warn("Exception in thread mxnetSchedulerRedirectThread");
-              e.printStackTrace();
+              LOG.warn("Exception in thread mxnetSchedulerRedirectThread",e);
             }
           }
         });
@@ -1784,8 +1784,7 @@ public class ApplicationMaster extends CompositeService {
                 LOG.debug(mxnetSchedulerStderrLog);
               }
             } catch (Exception e) {
-              LOG.warn("Error in thread mxnetSchedulerStderrRedirectThread");
-              e.printStackTrace();
+              LOG.warn("Error in thread mxnetSchedulerStderrRedirectThread",e);
             }
           }
         });
@@ -1866,8 +1865,7 @@ public class ApplicationMaster extends CompositeService {
                 LOG.info(xgboostSchedulerStdoutLog);
               }
             } catch (Exception e) {
-              LOG.warn("Exception in thread xgboostSchedulerRedirectThread");
-              e.printStackTrace();
+              LOG.warn("Exception in thread xgboostSchedulerRedirectThread",e);
             }
           }
         });
@@ -1885,8 +1883,7 @@ public class ApplicationMaster extends CompositeService {
                 LOG.info(xgboostSchedulerStderrLog);
               }
             } catch (Exception e) {
-              LOG.warn("Error in thread xgboostSchedulerStderrRedirectThread");
-              e.printStackTrace();
+              LOG.warn("Error in thread xgboostSchedulerStderrRedirectThread",e);
             }
           }
         });
@@ -1978,8 +1975,7 @@ public class ApplicationMaster extends CompositeService {
                 LOG.info(xflowSchedulerStdoutLog);
               }
             } catch (Exception e) {
-              LOG.warn("Exception in thread xflowSchedulerRedirectThread");
-              e.printStackTrace();
+              LOG.warn("Exception in thread xflowSchedulerRedirectThread",e);
             }
           }
         });
@@ -1997,8 +1993,7 @@ public class ApplicationMaster extends CompositeService {
                 LOG.info(xflowSchedulerStderrLog);
               }
             } catch (Exception e) {
-              LOG.warn("Error in thread xflowSchedulerStderrRedirectThread");
-              e.printStackTrace();
+              LOG.warn("Error in thread xflowSchedulerStderrRedirectThread",e);
             }
           }
         });

@@ -1,5 +1,6 @@
 package com.dtstack.engine.sparkk8s.utils;
 
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.sparkk8s.config.SparkK8sConfig;
@@ -149,7 +150,11 @@ public class SparkConfigUtil {
         if (!new File(localConfigPath).exists()) {
             SFTPHandler handler = SFTPHandler.getInstance(sparkK8sConfig.getSftpConf());
             handler.downloadFile(remoteConfigPath, localConfigPath);
-            ZipUtil.upzipFile(localConfigPath, localConfigParentDir);
+            try {
+                ZipUtil.upzipFile(localConfigPath, localConfigParentDir);
+            } catch (IOException e) {
+                LOG.error("SparkConfigUtil.downloadK8sConfig error:{}", ExceptionUtil.getErrorMessage(e));
+            }
         }
 
         String configName = getConfigNameFromTmpDir(tmpConfigDir);
@@ -240,7 +245,7 @@ public class SparkConfigUtil {
                 file.delete();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("SparkConfigUtil.deleteFile error:{}",ExceptionUtil.getErrorMessage(e));
         }
     }
 
