@@ -149,6 +149,10 @@ public class SparkConfigUtil {
         if (!new File(localConfigPath).exists()) {
             SFTPHandler handler = SFTPHandler.getInstance(sparkK8sConfig.getSftpConf());
             handler.downloadFile(remoteConfigPath, localConfigPath);
+            try {
+                handler.close();
+            } catch (Exception e) {
+            }
             ZipUtil.upzipFile(localConfigPath, localConfigParentDir);
         }
 
