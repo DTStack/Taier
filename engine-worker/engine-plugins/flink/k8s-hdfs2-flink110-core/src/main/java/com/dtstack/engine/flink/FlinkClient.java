@@ -731,6 +731,10 @@ public class FlinkClient extends AbstractClient {
             if (StringUtils.isNotBlank(localKeytab) && !(new File(localKeytab).exists())) {
                 SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
                 handler.downloadFile(sftpKeytab, localKeytab);
+                try {
+                    handler.close();
+                } catch (Exception e) {
+                }
             }
         } catch (Exception e) {
             logger.error("Download keytab from sftp failed", e);

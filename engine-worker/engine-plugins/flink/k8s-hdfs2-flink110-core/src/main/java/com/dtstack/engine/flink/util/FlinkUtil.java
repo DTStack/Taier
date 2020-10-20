@@ -209,6 +209,10 @@ public class FlinkUtil {
             SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
             handler.downloadFile(remoteConfigPath, localConfigPath);
             ZipUtil.upzipFile(localConfigPath, localConfigParentDir);
+            try {
+                handler.close();
+            } catch (Exception e) {
+            }
         }
 
         String configName = getConfigNameFromTmpDir(tmpConfigDir);
