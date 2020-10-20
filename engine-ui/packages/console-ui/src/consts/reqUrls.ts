@@ -72,7 +72,7 @@ export default {
     BIND_TENANT: `${CONSOLE_BASE_URL}/tenant/bindingTenant`,
     SWITCH_QUEUE: `${CONSOLE_BASE_URL}/tenant/bindingQueue`,
     REFRESH_QUEUE: `${CONSOLE_BASE_URL}/component/refresh`,
-
+    TASK_RESOURCE: `${CONSOLE_BASE_URL}/console/getTaskResourceTemplate`,
     // TiDB 引擎账号绑定
     ACCOUNT_UNBIND_LIST: `${CONSOLE_BASE_URL}/account/getTenantUnBandList`,
     ACCOUNT_BIND: `${CONSOLE_BASE_URL}/account/bindAccount`,

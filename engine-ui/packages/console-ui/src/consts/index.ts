@@ -730,6 +730,16 @@ export const notExtKeysTidbSql: any = [
     'queryTimeout', 'checkTimeout'
 ]
 
+export const sourcetype: string[] = [
+    'executor.memory',
+    'driver.memory',
+    'executor.cores',
+    'jobmanager.memory.mb',
+    'taskmanager.memory.mb',
+    'worker.memory',
+    'executor.memory'
+]
+
 export const formItemLayout: any = { // 表单常用布局
     labelCol: {
         xs: { span: 24 },
@@ -761,7 +771,18 @@ export const longLabelFormLayout: any = {
     }
 }
 
-export const tailFormItemLayout: any = { // 表单末尾布局
+export const specFormItemLayout: any = { // 表单末尾布局
+    labelCol: {
+        xs: { span: 24 },
+        sm: { span: 9 }
+    },
+    wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 13 }
+    }
+}
+
+export const tailFormItemLayout: any = { // 表单行label居中对齐
     wrapperCol: {
         xs: {
             span: 24,
