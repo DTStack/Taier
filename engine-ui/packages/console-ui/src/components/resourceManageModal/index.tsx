@@ -239,5 +239,4 @@ const areEqual = (prevprops, nextprops) => {
     if (prevprops.visible !== nextprops.visible) return false
     return true
 }
-
-export default Form.create<any>()(React.memo(CustomModal, areEqual));
+export default Form.create<any>()(CustomModal);

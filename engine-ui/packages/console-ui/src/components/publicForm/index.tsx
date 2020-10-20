@@ -43,7 +43,7 @@ export default function RenderFormItem (props: ItemType) {
           {topSolt}
           {getFieldDecorator(name || 'default', {
               ...fieldDecoratorOptions
-          })(<>{children}</>)}
+          })(children)}
           {bottomSolt}
       </FormItem>
     </>
