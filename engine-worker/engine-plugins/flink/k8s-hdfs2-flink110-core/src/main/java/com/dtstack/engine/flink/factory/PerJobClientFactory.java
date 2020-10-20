@@ -42,6 +42,7 @@ import org.apache.flink.kubernetes.KubernetesClusterDescriptor;
 import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.math.Ordering;
 
 import java.util.Properties;
 
@@ -126,10 +127,16 @@ public class PerJobClientFactory extends AbstractClientFactory {
     private Configuration appendJobConfigAndInitFs(Properties properties, Configuration configuration) {
         if (properties != null) {
             properties.forEach((key, value) -> {
+                String newValue = value == null? "" : value.toString();
+                if (StringUtils.equals(key.toString(), KubernetesConfigOptions.KUBERNETES_HOST_ALIASES.key())) {
+                    if (StringUtils.isNotEmpty(configuration.get(KubernetesConfigOptions.KUBERNETES_HOST_ALIASES))) {
+                        newValue = String.format("%s;%s", newValue, configuration.get(KubernetesConfigOptions.KUBERNETES_HOST_ALIASES));
+                    }
+                }
                 Boolean isLogLevel = key.toString().equalsIgnoreCase(KubernetesConfigOptions.FLINK_LOG_LEVEL.key());
                 Boolean isLogFileName = key.toString().equalsIgnoreCase(KubernetesConfigOptions.FLINK_LOG_FILE_NAME.key());
                 if (key.toString().contains(".") || isLogLevel || isLogFileName) {
-                    configuration.setString(key.toString(), value.toString());
+                    configuration.setString(key.toString(), newValue);
                 }
             });
         }
