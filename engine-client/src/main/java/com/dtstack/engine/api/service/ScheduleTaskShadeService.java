@@ -178,7 +178,7 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
 
 
     @RequestLine("POST /node/scheduleTaskShade/checkResourceLimit")
-    public List<String> checkResourceLimit(@Param("dtuicTenantId") Long dtuicTenantId,
+    List<String> checkResourceLimit(@Param("dtuicTenantId") Long dtuicTenantId,
                                            @Param("taskType") Integer taskType,
                                            @Param("resourceParams") String resourceParams);
 }
