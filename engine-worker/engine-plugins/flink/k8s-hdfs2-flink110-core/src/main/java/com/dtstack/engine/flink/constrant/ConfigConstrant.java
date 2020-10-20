@@ -38,7 +38,7 @@ public class ConfigConstrant {
     public final static String JOBMANAGER_LOG_NAME = "jobmanager.log";
     public final static String TASKMANAGER_LOG_NAME = "taskmanager.log";
 
-    public final static Integer TASKNAME_MAX_LENGTH = 34;
+    public final static Integer TASKNAME_MAX_LENGTH = 42;
 
     // ------------------------------------------------------------------------
     // Resource Configs
@@ -91,5 +91,11 @@ public class ConfigConstrant {
     public static final String JOBMANAGER_LOG_URL_FORMAT = "%s/jobmanager/log";
     public static final String TASKMANAGER_LOG_URL_FORMAT = "%s/taskmanagers/%s/log";
     public static final String TASKMANAGERS_KEY = "taskmanagers";
+
+    // ------------------------------------------------------------------------
+    // Kubernetes Configs
+    // ------------------------------------------------------------------------
+
+    public final static String KUBERNETES_HOST_ALIASES_ENV = "KUBERNETES_HOST_ALIASES";
 
 }

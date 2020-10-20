@@ -42,6 +42,7 @@ import org.apache.flink.kubernetes.KubernetesClusterDescriptor;
 import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.math.Ordering;
 
 import java.util.Properties;
 
@@ -69,17 +70,6 @@ public class PerJobClientFactory extends AbstractClientFactory {
         Configuration flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
         Configuration newConf = new Configuration(flinkConfiguration);
 
-        // set log env
-        String taskIdMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.TASKID_KEY;
-        newConf.setString(taskIdMasterKey, jobClient.getTaskId());
-        String taskIdTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + ConfigConstrant.TASKID_KEY;
-        newConf.setString(taskIdTaskMangerKey, jobClient.getTaskId());
-
-        String flinkxHostsMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.FLINKX_HOSTS_ENV;
-        newConf.setString(flinkxHostsMasterKey, newConf.getString(ConfigConstrant.FLINKX_HOSTS_CONFIG_KEY, ""));
-        String flinkxHostsTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + ConfigConstrant.FLINKX_HOSTS_ENV;
-        newConf.setString(flinkxHostsTaskMangerKey, newConf.getString(ConfigConstrant.FLINKX_HOSTS_CONFIG_KEY, ""));
-
         // set job config
         newConf = appendJobConfigAndInitFs(jobClient.getConfProperties(), newConf);
 
@@ -93,6 +83,9 @@ public class PerJobClientFactory extends AbstractClientFactory {
             setNoneHaModeConfig(newConf);
         }
 
+        // set env
+        setContainerEnv(newConf, jobClient);
+
         KubernetesClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf);
 
         // plugin dependent on shipfile
@@ -104,13 +97,46 @@ public class PerJobClientFactory extends AbstractClientFactory {
         return clusterDescriptor;
     }
 
+
+    private Configuration setContainerEnv(Configuration config, JobClient jobClient) {
+        // set log env
+        String taskIdMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.TASKID_KEY;
+        config.setString(taskIdMasterKey, jobClient.getTaskId());
+        String taskIdTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + ConfigConstrant.TASKID_KEY;
+        config.setString(taskIdTaskMangerKey, jobClient.getTaskId());
+
+        String flinkxHostsMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.FLINKX_HOSTS_ENV;
+        config.setString(flinkxHostsMasterKey, config.getString(ConfigConstrant.FLINKX_HOSTS_CONFIG_KEY, ""));
+        String flinkxHostsTaskMangerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + ConfigConstrant.FLINKX_HOSTS_ENV;
+        config.setString(flinkxHostsTaskMangerKey, config.getString(ConfigConstrant.FLINKX_HOSTS_CONFIG_KEY, ""));
+
+        // set host env
+        if (config.contains(KubernetesConfigOptions.KUBERNETES_HOST_ALIASES)) {
+            String hostAliases = config.getString(KubernetesConfigOptions.KUBERNETES_HOST_ALIASES);
+
+            String hostAliasesMasterKey = ResourceManagerOptions.CONTAINERIZED_MASTER_ENV_PREFIX + ConfigConstrant.KUBERNETES_HOST_ALIASES_ENV;
+            config.setString(hostAliasesMasterKey, hostAliases);
+
+            String hostAliasesTaskManagerKey = ResourceManagerOptions.CONTAINERIZED_TASK_MANAGER_ENV_PREFIX + ConfigConstrant.KUBERNETES_HOST_ALIASES_ENV;
+            config.setString(hostAliasesTaskManagerKey, hostAliases);
+        }
+
+        return config;
+    }
+
     private Configuration appendJobConfigAndInitFs(Properties properties, Configuration configuration) {
         if (properties != null) {
             properties.forEach((key, value) -> {
+                String newValue = value == null? "" : value.toString();
+                if (StringUtils.equals(key.toString(), KubernetesConfigOptions.KUBERNETES_HOST_ALIASES.key())) {
+                    if (StringUtils.isNotEmpty(configuration.get(KubernetesConfigOptions.KUBERNETES_HOST_ALIASES))) {
+                        newValue = String.format("%s;%s", newValue, configuration.get(KubernetesConfigOptions.KUBERNETES_HOST_ALIASES));
+                    }
+                }
                 Boolean isLogLevel = key.toString().equalsIgnoreCase(KubernetesConfigOptions.FLINK_LOG_LEVEL.key());
                 Boolean isLogFileName = key.toString().equalsIgnoreCase(KubernetesConfigOptions.FLINK_LOG_FILE_NAME.key());
                 if (key.toString().contains(".") || isLogLevel || isLogFileName) {
-                    configuration.setString(key.toString(), value.toString());
+                    configuration.setString(key.toString(), newValue);
                 }
             });
         }
@@ -129,8 +155,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
     public ClusterClient getClusterClient(JobClient jobClient) {
 
         String taskName = getEffectiveTaskName(jobClient);
-        String salt = RandomStringUtils.randomAlphanumeric(8).toLowerCase();
-        String projobClusterId = String.format("%s-%s", taskName, salt);
+        String projobClusterId = taskName;
 
         try (
                 ClusterDescriptor<String> clusterDescriptor = createPerjobClusterDescriptor(jobClient, projobClusterId);
@@ -156,8 +181,8 @@ public class PerJobClientFactory extends AbstractClientFactory {
         if (Strings.isNotEmpty(taskName)) {
             taskName = StringUtils.lowerCase(taskName);
             taskName = StringUtils.splitByWholeSeparator(taskName, taskId)[0];
-            taskName = taskName.replaceAll("\\p{P}", "");
-            taskName = String.format("%s-%s", taskName, taskId);
+            taskName = taskName.replaceAll("\\p{P}", "-");
+            taskName = String.format("%s%s", taskName, taskId);
             Integer taskNameLength = taskName.length();
             if (taskNameLength > ConfigConstrant.TASKNAME_MAX_LENGTH) {
                 taskName = taskName.substring(taskNameLength - ConfigConstrant.TASKNAME_MAX_LENGTH, taskNameLength);

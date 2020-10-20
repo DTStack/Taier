@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 ################################################################################
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
@@ -23,6 +23,30 @@
 bin=`dirname "$0"`
 bin=`cd "$bin"; pwd`
 
+monitor_filebeat(){
+    while true
+    do
+        sleep 60s
+        filebeat=`ps aux | grep filebeat | grep -v grep`
+        if [[ $filebeat == "" ]]; then
+            msg="\n----------------------------------------\nWarning, filebeat failed !!! \n----------------------------------------\n"
+            echo -e $msg >> /opt/flink/log/*.log
+        fi
+    done
+}
+
+# set hostAliases form env KUBERNETES_HOST_ALIASES
+echo -e "host aliases: $KUBERNETES_HOST_ALIASES"
+if [[ $KUBERNETES_HOST_ALIASES != "" ]]; then
+    host_msg="\n----------set host-----------\n $KUBERNETES_HOST_ALIASES \n"
+    echo -e $host_msg
+    echo -e $host_msg >> /opt/flink/log/*.log
+    KUBERNETES_HOST_ALIASES=${KUBERNETES_HOST_ALIASES//;/\\n}
+    sudo chmod 666 /etc/hosts
+    sudo echo -e "$KUBERNETES_HOST_ALIASES" >> /etc/hosts
+    cat /etc/hosts
+fi
+
 # get Flink config
 . /opt/flink/bin/config.sh
 
@@ -41,10 +65,8 @@ fi
 sed -i "s/component_value/$component/g" /opt/filebeat/conf/filebeat-dtstack.yml
 sed -i "s/taskId_value/$TASK_ID/g" /opt/filebeat/conf/filebeat-dtstack.yml
 
-
-
 filebeat_command="/opt/filebeat/bin/filebeat -c /opt/filebeat/conf/filebeat-dtstack.yml"
 
 command="$filebeat_command & $@"
 echo "Start command: $command"
-exec gosu flink /opt/filebeat/bin/filebeat -c /opt/filebeat/conf/filebeat-dtstack.yml & "$@"
+exec /opt/filebeat/bin/filebeat -c /opt/filebeat/conf/filebeat-dtstack.yml & "$@" & monitor_filebeat
