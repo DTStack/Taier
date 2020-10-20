@@ -312,7 +312,7 @@ public class SFTPHandler {
         String localFile = localDir + File.separator + fileName;
 
         File localFileDir = new File(localFile);
-        Long lastModifyTime = null;
+        Long lastModifyTime;
         long fileTimeout;
         if ((fileTimeout = MapUtils.getLong(sftpConfig, FILE_TIMEOUT, 0L)) != 0L && (lastModifyTime = fileLastModifyMap.get(localFile)) != null) {
             if (System.currentTimeMillis() - lastModifyTime <= fileTimeout) {
