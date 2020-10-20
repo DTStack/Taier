@@ -655,6 +655,7 @@ public class SparkYarnClient extends AbstractClient {
     }
 
     public YarnClient getYarnClient(){
+        long startTime = System.currentTimeMillis();
         try{
             if(yarnClient == null){
                 synchronized (this){
@@ -669,9 +670,12 @@ public class SparkYarnClient extends AbstractClient {
                 //判断下是否可用
                 yarnClient.getAllQueues();
             }
-        }catch(Throwable e){
-            logger.info("buildYarnClient![backup]");
+        } catch (Throwable e){
+            logger.error("buildYarnClient![backup]", e);
             yarnClient = buildYarnClient();
+        } finally {
+            long endTime= System.currentTimeMillis();
+            logger.info("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
         }
         return yarnClient;
     }

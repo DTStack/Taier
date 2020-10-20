@@ -105,6 +105,7 @@ public class FlinkClientBuilder {
     }
 
     public YarnClient getYarnClient() {
+        long startTime = System.currentTimeMillis();
         try {
             if (yarnClient == null) {
                 synchronized (this) {
@@ -119,8 +120,11 @@ public class FlinkClientBuilder {
                 yarnClient.getAllQueues();
             }
         } catch (Throwable e) {
-            LOG.info("buildYarnClient![backup]", e);
+            LOG.error("buildYarnClient![backup]", e);
             yarnClient = buildYarnClient();
+        } finally {
+            long endTime= System.currentTimeMillis();
+            LOG.info("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
         }
         return yarnClient;
     }
