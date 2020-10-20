@@ -13,6 +13,7 @@ import com.dtstack.sdk.core.feign.Body;
 import com.dtstack.sdk.core.feign.Headers;
 import com.dtstack.sdk.core.feign.Param;
 import com.dtstack.sdk.core.feign.RequestLine;
+import io.swagger.annotations.ApiOperation;
 
 import java.util.List;
 import java.util.Map;
@@ -174,4 +175,10 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
     ApiResponse<List<ScheduleTaskShadeCountTaskVO>> countTaskByTypes(@Param("tenantId") Long tenantId, @Param("dtuicTenantId") Long dtuicTenantId,
                                                             @Param("projectIds") List<Long> projectIds, @Param("appType") Integer appType,
                                                             @Param("taskTypes") List<Integer> taskTypes);
+
+
+    @RequestLine("POST /node/scheduleTaskShade/checkResourceLimit")
+    List<String> checkResourceLimit(@Param("dtuicTenantId") Long dtuicTenantId,
+                                           @Param("taskType") Integer taskType,
+                                           @Param("resourceParams") String resourceParams);
 }
