@@ -60,9 +60,9 @@ public class HadoopClient extends AbstractClient {
     private static final String HDFS_PREFIX = "hdfs://";
     private static final String HADOOP_USER_NAME = "HADOOP_USER_NAME";
     private static final String QUEUE = "queue";
-    private EngineResourceInfo resourceInfo;
+    private EngineResourceInfo resourceInfo = new HadoopResourceInfo();
     private Configuration conf = new Configuration();
-    private YarnClient yarnClient;
+    private volatile YarnClient yarnClient;
     private Config config;
     private Map<String, List<String>> cacheFile = Maps.newConcurrentMap();
     private static final String APP_TYPE = "Apache Flink";
@@ -94,17 +94,8 @@ public class HadoopClient extends AbstractClient {
 
         setHadoopUserName(config);
 
-        try {
-            LOG.info("start init security!");
-            KerberosUtils.login(config, () -> {
-                yarnClient = getYarnClient();
-                resourceInfo = new HadoopResourceInfo();
-                return null;
-            }, conf);
-        } catch (Exception e) {
-            LOG.error("initSecurity happens error", e);
-            throw new IOException("InitSecurity happens error", e);
-        }
+        yarnClient = buildYarnClient();
+
         LOG.info("UGI info: " + UserGroupInformation.getCurrentUser());
 
     }
@@ -121,18 +112,24 @@ public class HadoopClient extends AbstractClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
-
-        String jobId = jobIdentifier.getEngineJobId();
-
         try {
-            getYarnClient().killApplication(generateApplicationId(jobId));
-        } catch (YarnException | IOException e) {
+            return KerberosUtils.login(config, ()->{
+                String jobId = jobIdentifier.getEngineJobId();
+
+                try {
+                    getYarnClient().killApplication(generateApplicationId(jobId));
+                } catch (YarnException | IOException e) {
+                    return JobResult.createErrorResult(e);
+                }
+
+                JobResult jobResult = JobResult.newInstance(false);
+                jobResult.setData("jobid", jobId);
+                return jobResult;
+            },conf);
+        } catch (Exception e) {
+            LOG.error("cancelJob error:", e);
             return JobResult.createErrorResult(e);
         }
-
-        JobResult jobResult = JobResult.newInstance(false);
-        jobResult.setData("jobid", jobId);
-        return jobResult;
     }
 
     private ApplicationId generateApplicationId(String jobId) {
@@ -142,45 +139,51 @@ public class HadoopClient extends AbstractClient {
 
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
-
-        String jobId = jobIdentifier.getEngineJobId();
-        ApplicationId appId = generateApplicationId(jobId);
-
         try {
-            ApplicationReport report = getYarnClient().getApplicationReport(appId);
-            YarnApplicationState applicationState = report.getYarnApplicationState();
-            switch(applicationState) {
-                case KILLED:
-                    return RdosTaskStatus.KILLED;
-                case NEW:
-                case NEW_SAVING:
-                    return RdosTaskStatus.CREATED;
-                case SUBMITTED:
-                    //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
-                    return RdosTaskStatus.WAITCOMPUTE;
-                case ACCEPTED:
-                    return RdosTaskStatus.SCHEDULED;
-                case RUNNING:
-                    return RdosTaskStatus.RUNNING;
-                case FINISHED:
-                    //state 为finished状态下需要兼顾判断finalStatus.
-                    FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
-                    if(finalApplicationStatus == FinalApplicationStatus.FAILED){
-                        return RdosTaskStatus.FAILED;
-                    }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
-                        return RdosTaskStatus.FINISHED;
-                    }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
-                        return RdosTaskStatus.KILLED;
-                    }else{
-                        return RdosTaskStatus.RUNNING;
-                    }
+            return KerberosUtils.login(config, ()->{
+                String jobId = jobIdentifier.getEngineJobId();
+                ApplicationId appId = generateApplicationId(jobId);
 
-                case FAILED:
-                    return RdosTaskStatus.FAILED;
-                default:
-                    throw new RdosDefineException("Unsupported application state");
-            }
-        } catch (YarnException e) {
+                try {
+                    ApplicationReport report = getYarnClient().getApplicationReport(appId);
+                    YarnApplicationState applicationState = report.getYarnApplicationState();
+                    switch(applicationState) {
+                        case KILLED:
+                            return RdosTaskStatus.KILLED;
+                        case NEW:
+                        case NEW_SAVING:
+                            return RdosTaskStatus.CREATED;
+                        case SUBMITTED:
+                            //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
+                            return RdosTaskStatus.WAITCOMPUTE;
+                        case ACCEPTED:
+                            return RdosTaskStatus.SCHEDULED;
+                        case RUNNING:
+                            return RdosTaskStatus.RUNNING;
+                        case FINISHED:
+                            //state 为finished状态下需要兼顾判断finalStatus.
+                            FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
+                            if(finalApplicationStatus == FinalApplicationStatus.FAILED){
+                                return RdosTaskStatus.FAILED;
+                            }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
+                                return RdosTaskStatus.FINISHED;
+                            }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
+                                return RdosTaskStatus.KILLED;
+                            }else{
+                                return RdosTaskStatus.RUNNING;
+                            }
+
+                        case FAILED:
+                            return RdosTaskStatus.FAILED;
+                        default:
+                            throw new RdosDefineException("Unsupported application state");
+                    }
+                } catch (Exception e) {
+                    return RdosTaskStatus.NOTFOUND;
+                }
+            }, conf);
+        } catch (Exception e) {
+            LOG.error("", e);
             return RdosTaskStatus.NOTFOUND;
         }
     }
@@ -231,23 +234,31 @@ public class HadoopClient extends AbstractClient {
         try {
             return resourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
-            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
+            LOG.error("JudgeSlots error:", e);
+            return JudgeResult.notOk("judgeSlots error");
         }
     }
 
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
-
-        String jobId = jobIdentifier.getEngineJobId();
-
         try {
-            ApplicationReport applicationReport = getYarnClient().getApplicationReport(generateApplicationId(jobId));
-            return applicationReport.getDiagnostics();
+            return KerberosUtils.login(config, ()-> {
+                String jobId = jobIdentifier.getEngineJobId();
+
+                try {
+                    ApplicationReport applicationReport = getYarnClient().getApplicationReport(generateApplicationId(jobId));
+                    return applicationReport.getDiagnostics();
+                } catch (Exception e) {
+                    LOG.error("", e);
+                }
+
+                return StringUtils.EMPTY;
+            }, conf);
         } catch (Exception e) {
             LOG.error("", e);
+            return StringUtils.EMPTY;
         }
 
-        return null;
     }
 
     private void setHadoopUserName(Config config){
@@ -258,52 +269,52 @@ public class HadoopClient extends AbstractClient {
         UserGroupInformation.afterSetHadoopUserName(config.getHadoopUserName());
     }
 
-
     public YarnClient getYarnClient(){
-        try{
-            if(yarnClient == null){
-                synchronized (this){
-                    if(yarnClient == null){
+        long startTime = System.currentTimeMillis();
+        try {
+            if (yarnClient == null) {
+                synchronized (this) {
+                    if (yarnClient == null) {
+                        LOG.info("buildYarnClient!");
                         YarnClient yarnClient1 = YarnClient.createYarnClient();
                         yarnClient1.init(conf);
                         yarnClient1.start();
                         yarnClient = yarnClient1;
                     }
                 }
-            }else{
+            } else {
                 //判断下是否可用
                 yarnClient.getAllQueues();
             }
-        }catch(Throwable e){
-            LOG.error("getYarnClient error:{}",e);
-            synchronized (this){
-                if(yarnClient != null){
-                    boolean flag = true;
-                    try{
-                        //判断下是否可用
-                        yarnClient.getAllQueues();
-                    }catch(Throwable e1){
-                        LOG.error("getYarnClient error:{}",e1);
-                        flag = false;
-                    }
-                    if(!flag){
-                        try{
-                            yarnClient.stop();
-                        }finally {
-                            yarnClient = null;
-                        }
-                    }
-                }
-                if(yarnClient == null){
-                    YarnClient yarnClient1 = YarnClient.createYarnClient();
-                    yarnClient1.init(conf);
-                    yarnClient1.start();
-                    yarnClient = yarnClient1;
-                }
-            }
+        } catch (Throwable e) {
+            LOG.error("buildYarnClient![backup]", e);
+            YarnClient yarnClient1 = YarnClient.createYarnClient();
+            yarnClient1.init(conf);
+            yarnClient1.start();
+            yarnClient = yarnClient1;
+        } finally {
+            long endTime= System.currentTimeMillis();
+            LOG.info("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
         }
         return yarnClient;
     }
+
+    private YarnClient buildYarnClient() {
+        try {
+            return KerberosUtils.login(config, () -> {
+                LOG.info("buildYarnClient, init YarnClient!");
+                YarnClient yarnClient1 = YarnClient.createYarnClient();
+                yarnClient1.init(conf);
+                yarnClient1.start();
+                yarnClient = yarnClient1;
+                return yarnClient;
+            }, conf);
+        } catch (Exception e) {
+            LOG.error("initSecurity happens error", e);
+            throw new RdosDefineException(e);
+        }
+    }
+
 
     @Override
     public void beforeSubmitFunc(JobClient jobClient) {
