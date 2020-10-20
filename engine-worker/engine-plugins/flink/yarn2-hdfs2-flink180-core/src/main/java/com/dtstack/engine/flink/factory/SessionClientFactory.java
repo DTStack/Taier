@@ -458,13 +458,13 @@ public class SessionClientFactory extends AbstractClientFactory {
                                 retry();
                             }
                         } catch (Throwable e) {
-                            LOG.error("YarnAppStatusMonitor check error:{}", e);
+                            LOG.error("YarnAppStatusMonitor check error:", e);
                             sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                         }
                         return null;
                     }, clientBuilder.getYarnConf());
                 } catch (Throwable t) {
-                    LOG.error("YarnAppStatusMonitor check error:{}", t);
+                    LOG.error("YarnAppStatusMonitor check error:", t);
                 } finally {
                     try {
                         Thread.sleep(CHECK_INTERVAL);
