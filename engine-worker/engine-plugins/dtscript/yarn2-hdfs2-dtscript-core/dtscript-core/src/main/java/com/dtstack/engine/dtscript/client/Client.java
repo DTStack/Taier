@@ -3,7 +3,6 @@ package com.dtstack.engine.dtscript.client;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.util.KerberosUtils;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.am.ApplicationMaster;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
@@ -329,14 +328,17 @@ public class Client {
         return getYarnClient().getApplicationReport(appId);
     }
 
-    public YarnClient getYarnClient() {
+    public YarnClient getYarnClient(){
         long startTime = System.currentTimeMillis();
         try {
             if (yarnClient == null) {
                 synchronized (this) {
                     if (yarnClient == null) {
                         LOG.info("buildYarnClient!");
-                        yarnClient = buildYarnClient();
+                        YarnClient yarnClient1 = YarnClient.createYarnClient();
+                        yarnClient1.init(conf);
+                        yarnClient1.start();
+                        yarnClient = yarnClient1;
                     }
                 }
             } else {
@@ -345,30 +347,16 @@ public class Client {
             }
         } catch (Throwable e) {
             LOG.error("buildYarnClient![backup]", e);
-            yarnClient = buildYarnClient();
+            YarnClient yarnClient1 = YarnClient.createYarnClient();
+            yarnClient1.init(conf);
+            yarnClient1.start();
+            yarnClient = yarnClient1;
         } finally {
             long endTime= System.currentTimeMillis();
             LOG.info("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
         }
         return yarnClient;
     }
-
-    private YarnClient buildYarnClient() {
-        try {
-            return KerberosUtils.login(allConfig, () -> {
-                LOG.info("buildYarnClient, init YarnClient!");
-                YarnClient yarnClient1 = YarnClient.createYarnClient();
-                yarnClient1.init(conf);
-                yarnClient1.start();
-                yarnClient = yarnClient1;
-                return yarnClient;
-            }, conf);
-        } catch (Exception e) {
-            LOG.error("initSecurity happens error", e);
-            throw new RdosDefineException(e);
-        }
-    }
-
 
     public FileSystem getFileSystem() throws IOException {
         try {

@@ -5,6 +5,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.enums.ClusterMode;
 import com.dtstack.engine.flink.util.HadoopConf;
+import com.sun.istack.NotNull;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
 import org.apache.flink.core.fs.FileSystem;
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Properties;
 
 /**
- * 根据不同的配置创建对应的client
+ *  客户端需要的配置信息及YarnClient
  * Date: 2018/5/3
  * Company: www.dtstack.com
  *
@@ -39,18 +40,13 @@ public class FlinkClientBuilder {
 
     private Configuration flinkConfiguration;
 
-    public static FlinkClientBuilder create(FlinkConfig flinkConfig, org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf) throws Exception {
-        FlinkClientBuilder builder = new FlinkClientBuilder();
-        builder.hadoopConf = hadoopConf;
-        builder.yarnConf = yarnConf;
-
+    public FlinkClientBuilder(FlinkConfig flinkConfig, org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf) {
+        this.hadoopConf = hadoopConf;
+        this.yarnConf = yarnConf;
+        this.flinkConfig = flinkConfig;
         if (!ClusterMode.STANDALONE.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
-            builder.yarnClient = KerberosUtils.login(flinkConfig, ()-> initYarnClient(yarnConf), yarnConf);
+            this.yarnClient = buildYarnClient();
         }
-
-        builder.flinkConfig = flinkConfig;
-
-        return builder;
     }
 
     public void initFlinkGlobalConfiguration(Properties extProp) {
@@ -89,30 +85,21 @@ public class FlinkClientBuilder {
         return customerConf;
     }
 
-    private static YarnClient initYarnClient(YarnConfiguration yarnConf) {
-        YarnClient yarnClient = YarnClient.createYarnClient();
-        yarnClient.init(yarnConf);
-        yarnClient.start();
-        return yarnClient;
-    }
-
-    public FlinkConfig getFlinkConfig() {
-        return flinkConfig;
-    }
-
-    public YarnConfiguration getYarnConf() {
-        return yarnConf;
-    }
-
-    public YarnClient getYarnClient() {
+    /**
+     * KerberosUtils.login 的地方才可以直接调用此方法，否则使用 buildYarnClient
+     * @return
+     */
+    public YarnClient getYarnClient(){
         long startTime = System.currentTimeMillis();
         try {
             if (yarnClient == null) {
                 synchronized (this) {
                     if (yarnClient == null) {
                         LOG.info("buildYarnClient!");
-                        yarnClient = buildYarnClient();
-
+                        YarnClient yarnClient1 = YarnClient.createYarnClient();
+                        yarnClient1.init(yarnConf);
+                        yarnClient1.start();
+                        yarnClient = yarnClient1;
                     }
                 }
             } else {
@@ -121,7 +108,10 @@ public class FlinkClientBuilder {
             }
         } catch (Throwable e) {
             LOG.error("buildYarnClient![backup]", e);
-            yarnClient = buildYarnClient();
+            YarnClient yarnClient1 = YarnClient.createYarnClient();
+            yarnClient1.init(yarnConf);
+            yarnClient1.start();
+            yarnClient = yarnClient1;
         } finally {
             long endTime= System.currentTimeMillis();
             LOG.info("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
@@ -129,6 +119,10 @@ public class FlinkClientBuilder {
         return yarnClient;
     }
 
+    /**
+     * 创建YarnClient 增加KerberosUtils 逻辑
+     * @return
+     */
     private YarnClient buildYarnClient() {
         try {
             return KerberosUtils.login(flinkConfig, () -> {
@@ -136,13 +130,21 @@ public class FlinkClientBuilder {
                 YarnClient yarnClient1 = YarnClient.createYarnClient();
                 yarnClient1.init(yarnConf);
                 yarnClient1.start();
-                yarnClient = yarnClient1;
-                return yarnClient;
-            },yarnConf);
+                return yarnClient1;
+            }, yarnConf);
         } catch (Exception e) {
-            LOG.error("initSecurity happens error", e);
+            LOG.error("buildYarnClient initSecurity happens error", e);
             throw new RdosDefineException(e);
         }
+    }
+
+    @NotNull
+    public FlinkConfig getFlinkConfig() {
+        return flinkConfig;
+    }
+
+    public YarnConfiguration getYarnConf() {
+        return yarnConf;
     }
 
     public Configuration getFlinkConfiguration() {
