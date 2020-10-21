@@ -1,5 +1,6 @@
 package com.dtstack.engine.dtscript.container;
 
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.common.SecurityUtil;
 import com.dtstack.engine.dtscript.common.type.AbstractAppType;
@@ -294,21 +295,38 @@ public class DtContainer {
         }
     }
 
-    private String readFile(String filePath) throws IOException {
+    private String readFile(String filePath){
 
         LOG.info("start read file");
         StringBuffer sb = new StringBuffer();
-        InputStream is = new FileInputStream(filePath);
         String line;
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is, DtYarnConfiguration.UTF8));
-        line = reader.readLine();
-        while (line != null) {
-            sb.append(line);
-            sb.append("\n");
+        InputStream is = null;
+        BufferedReader reader = null;
+        try {
+            is = new FileInputStream(filePath);
+            reader = new BufferedReader(new InputStreamReader(is, DtYarnConfiguration.UTF8));
             line = reader.readLine();
+            while (line != null) {
+                sb.append(line);
+                sb.append("\n");
+                line = reader.readLine();
+            }
+        } catch (IOException e) {
+            LOG.error("read file failed");
+            throw new RdosDefineException("", e);
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                    if (is != null) {
+                        is.close();
+                    }
+                }
+            } catch (IOException e) {
+                LOG.error("close resource error", e);
+                throw new RdosDefineException("", e);
+            }
         }
-        reader.close();
-        is.close();
         LOG.info("end read file");
         return sb.toString();
     }
