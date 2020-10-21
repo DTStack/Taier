@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,6 +32,8 @@ public class KerberosUtils {
     private static final String KERBEROS_AUTH = "hadoop.security.authentication";
     private static final String SECURITY_TO_LOCAL = "hadoop.security.auth_to_local";
     private static final String KERBEROS_AUTH_TYPE = "kerberos";
+    private static final String TIME_FILE = ".lock";
+    private static final String KEYTAB_FILE = ".keytab";
 
     /**
      * @param config        任务外层配置
@@ -51,23 +54,37 @@ public class KerberosUtils {
         String localDir = LOCAL_KEYTAB_DIR + remoteDir;
 
         File path = new File(localDir);
-        if (!path.exists()) {
-            path.mkdirs();
-        }
 
-        logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, config.getSftpConf());
-        SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
-        String keytabPath = handler.loadOverrideFromSftp(fileName, remoteDir, localDir, false);
+        //本地文件是否和服务器时间一致 一致使用本地缓存
+        boolean isOverrideDownLoad = checkLocalCache(config.getKerberosFileTimestamp(), path);
 
-        String krb5ConfName = config.getKrbName();
+        String keytabPath = "";
         String krb5ConfPath = "";
-        if (StringUtils.isNotBlank(krb5ConfName)) {
-            krb5ConfPath = handler.loadOverrideFromSftp(krb5ConfName, config.getRemoteDir(), localDir, true);
+        String krb5ConfName = config.getKrbName();
+        if (isOverrideDownLoad) {
+            logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, config.getSftpConf());
+            SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
+
+            keytabPath = handler.loadOverrideFromSftp(fileName, remoteDir, localDir, false);
+            if (StringUtils.isNotBlank(krb5ConfName)) {
+                krb5ConfPath = handler.loadOverrideFromSftp(krb5ConfName, config.getRemoteDir(), localDir, true);
+            }
+            try {
+                handler.close();
+            } catch (Exception e) {
+            }
+            //删除本地时间戳标示文件 更新最新时间
+            writeTimeLockFile(config.getKerberosFileTimestamp(),localDir);
+        } else {
+            //走本地缓存
+            keytabPath = localDir + File.separator + fileName;
+            if (StringUtils.isNotBlank(krb5ConfName)) {
+                krb5ConfPath = localDir + File.separator + config.getKrbName();
+            }
         }
 
-        try {
-            handler.close();
-        } catch (Exception e) {
+        if (!new File(keytabPath).exists()) {
+            throw new RdosDefineException(keytabPath + "keytab 文件不存在");
         }
 
         String principal = KerberosUtils.getPrincipal(keytabPath);
@@ -82,6 +99,54 @@ public class KerberosUtils {
                 krb5ConfPath,
                 supplier
         );
+    }
+
+    private static void writeTimeLockFile(Timestamp timestamp, String localFile) {
+        if (null == timestamp) {
+            return;
+        }
+        File file = new File(localFile);
+        if (!file.exists()) {
+            return;
+        }
+        if (null != file.listFiles()) {
+            for (File listFile : file.listFiles()) {
+                if (listFile.getName().endsWith(TIME_FILE)) {
+                    logger.info("fileName:{},timestamp {}  localDir:{},delete {}", listFile.getName(), timestamp, listFile, listFile.delete());
+                }
+            }
+        }
+        File timeFile = new File(localFile + File.separator + timestamp.getTime() + TIME_FILE);
+        try {
+            logger.info("fileName:{},timestamp {}  localDir:{},delete {}", timeFile.getName(), timestamp.getTime(), localFile, timeFile.createNewFile());
+        } catch (IOException e) {
+            logger.error("create time lock file  {} error ", timeFile.getName(), e);
+        }
+    }
+
+    private static boolean checkLocalCache(Timestamp dbUploadTime, File path) {
+        boolean isOverrideDownLoad = true;
+        if (!path.exists()) {
+            path.mkdirs();
+        } else if (null != dbUploadTime) {
+            File[] files = path.listFiles();
+            boolean isContainKeytabFile = false;
+            if (null != files && files.length > 0) {
+                for (File file : files) {
+                    if (file.getName().endsWith(TIME_FILE) && file.getName().contains(dbUploadTime.getTime() + "")) {
+                        isOverrideDownLoad = false;
+                    }
+                    if (file.getName().contains(KEYTAB_FILE)) {
+                        isContainKeytabFile = true;
+                    }
+                }
+                if (!isContainKeytabFile && !isOverrideDownLoad) {
+                    //只有lock文件 没有keytab文件
+                    isOverrideDownLoad = true;
+                }
+            }
+        }
+        return isOverrideDownLoad;
     }
 
     /**

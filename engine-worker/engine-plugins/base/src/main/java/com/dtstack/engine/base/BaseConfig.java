@@ -1,5 +1,6 @@
 package com.dtstack.engine.base;
 
+import java.sql.Timestamp;
 import java.util.Map;
 
 /**
@@ -21,6 +22,16 @@ public class BaseConfig {
     private String principalPath;
 
     private String principalName;
+
+    private Timestamp kerberosFileTimestamp;
+
+    public Timestamp getKerberosFileTimestamp() {
+        return kerberosFileTimestamp;
+    }
+
+    public void setKerberosFileTimestamp(Timestamp kerberosFileTimestamp) {
+        this.kerberosFileTimestamp = kerberosFileTimestamp;
+    }
 
     public String getPrincipalPath() {
         return principalPath;
