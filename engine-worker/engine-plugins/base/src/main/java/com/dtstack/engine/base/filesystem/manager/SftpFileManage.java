@@ -239,7 +239,7 @@ public class SftpFileManage implements IFileManage {
                     }
                     downloadDir(ftpFilePath, localFilePath);
                 } else {
-                    downloadFile(ftpFilePath, localFilePath, true);
+                    downloadFile(ftpFilePath, localFilePath, false);
                 }
             }
 

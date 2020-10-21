@@ -171,6 +171,7 @@ public class FilesystemManager {
             }
 
             downLoadSuccess = fileManage.downloadDir(remoteDir, localDir);
+            fileManage.close();
             if (downLoadSuccess) {
                 LOG.info("download file success fileManage is :{}", fileManage.getClass().getSimpleName());
                 break;
