@@ -2,6 +2,8 @@ package com.dtstack.engine.base;
 
 import com.dtstack.engine.common.sftp.SftpConfig;
 
+import java.sql.Timestamp;
+
 /**
  * @author yuebai
  * @date 2020-06-15
@@ -28,6 +30,16 @@ public class BaseConfig {
 
     public void setSftpConf(SftpConfig sftpConf) {
         this.sftpConf = sftpConf;
+    }
+
+    private Timestamp kerberosFileTimestamp;
+
+    public Timestamp getKerberosFileTimestamp() {
+        return kerberosFileTimestamp;
+    }
+
+    public void setKerberosFileTimestamp(Timestamp kerberosFileTimestamp) {
+        this.kerberosFileTimestamp = kerberosFileTimestamp;
     }
 
     public String getPrincipalPath() {
