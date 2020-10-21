@@ -113,7 +113,7 @@ public class FlinkClusterClientManagerTest {
 		PowerMockito.mockStatic(CuratorFrameworkFactory.class);
 		when(CuratorFrameworkFactory.builder()).thenReturn(builder);
 
-		FlinkClusterClientManager clusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
+		FlinkClusterClientManager clusterClientManager = new FlinkClusterClientManager(flinkClientBuilder);
 		Assert.assertNotNull(clusterClientManager);
 	}
 

@@ -8,6 +8,8 @@ import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.Expired;
 import com.dtstack.schedule.common.enums.Restarted;
+import com.dtstack.schedule.common.enums.*;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -170,7 +172,8 @@ public class JobRichOperator {
 
         //正常调度---判断当前任务是不是处于暂停状态--暂停状态直接返回冻结
         if (scheduleType == EScheduleType.NORMAL_SCHEDULE.getType()
-                && batchTaskShade.getScheduleStatus().equals(EScheduleStatus.PAUSE.getVal())) {
+                && (batchTaskShade.getScheduleStatus().equals(EScheduleStatus.PAUSE.getVal()) ||
+                batchTaskShade.getProjectScheduleStatus().equals(EProjectScheduleStatus.PAUSE.getStatus()))) {
             //查询缓存
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TASK_PAUSE);
         }
