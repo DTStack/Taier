@@ -280,6 +280,8 @@ public class ClusterService implements InitializingBean {
             config.put("remoteDir",kerberosConfig.getRemotePath());
             config.put("krbName",kerberosConfig.getKrbName());
             config.put("openKerberos","true");
+            config.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
+            pluginJson.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
             pluginJson.put("config",config);
         }
     }
