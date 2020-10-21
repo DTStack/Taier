@@ -12,7 +12,6 @@ export default {
     GET_RESOURCE_USER_LIST: `${CONSOLE_BASE_URL}/tenant/listByQueueId`, // 获取资源已绑定的租户
     BIND_USER_TO_RESOURCE: `${CONSOLE_BASE_URL}/tenant/addToQueue`, // 绑定用户到资源队列
     CONFIRM_SWITCH_QUEUE: `${CONSOLE_BASE_URL}/tenant/updateQueueId`, // 确认切换队列
-
     // 集群
     GET_RESOURCE_LIST: `${CONSOLE_BASE_URL}/cluster/pageQueue`, // 查看资源列表
     GET_CLUSTER_LIST: `${CONSOLE_BASE_URL}/cluster/pageQuery`, // 查看集群列表
@@ -71,6 +70,7 @@ export default {
     GET_QUEUE: `${CONSOLE_BASE_URL}/engine/getQueue`,
     BIND_TENANT: `${CONSOLE_BASE_URL}/tenant/bindingTenant`,
     SWITCH_QUEUE: `${CONSOLE_BASE_URL}/tenant/bindingQueue`,
+    GET_TASKLIMITS: `${CONSOLE_BASE_URL}/tenant/queryTaskResourceLimits`,
     REFRESH_QUEUE: `${CONSOLE_BASE_URL}/component/refresh`,
     TASK_RESOURCE: `${CONSOLE_BASE_URL}/console/getTaskResourceTemplate`,
     // TiDB 引擎账号绑定

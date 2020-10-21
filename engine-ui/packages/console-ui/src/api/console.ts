@@ -207,6 +207,9 @@ export default {
     switchQueue (params: any) {
         return http.post(req.SWITCH_QUEUE, params);
     },
+    queryTaskResourceLimits (params: any) {
+        return http.post(req.GET_TASKLIMITS, params)
+    },
 
     /**
      * 告警通道
