@@ -561,7 +561,7 @@
         taskType,
         bj.exec_time AS execTime,bj.is_deleted as isDeleted,bj.create_user_id AS createUserId
         FROM schedule_job bj
-        WHERE bj.is_deleted = 0
+        WHERE bj.is_deleted = 0 AND bj.app_type = #{appType}
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
             AND bj.dtuic_tenant_id = #{dtuicTenantId}
         </if>
@@ -810,6 +810,7 @@
             #{status}
         </foreach>
         AND bj.is_deleted = 0
+        AND bj.app_type = #{appType}
     </select>
 
     <select id="listJobIdByTaskIdAndStatus" resultType="java.lang.String">
@@ -835,6 +836,7 @@
             #{status}
         </foreach>
         AND bj.is_deleted = 0 AND bj.is_deleted = 0
+        AND bj.app_type = #{appType}
         order by ${pageQuery.orderBy} ${pageQuery.sort} limit #{pageQuery.start} , #{pageQuery.pageSize}
     </select>
 
