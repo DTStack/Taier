@@ -116,20 +116,6 @@
             <if test="model.bizEndDay != null and model.bizStartDay != null">
                 AND bj.business_date &gt;= #{model.bizStartDay} and bj.business_date &lt;= #{model.bizEndDay}
             </if>
-            <choose>
-                <when test="model.taskNameLike != null and  model.searchType==1" >
-                    AND bj.job_name LIKE '%${model.taskNameLike}%'
-                </when>
-                <when test="model.taskNameLike != null and  model.searchType==2" >
-                    AND bj.job_name =#{model.taskNameLike}
-                </when>
-                <when test="model.taskNameLike != null and  model.searchType==3" >
-                    AND bj.job_name LIKE '${model.taskNameLike}%'
-                </when>
-                <when test="model.taskNameLike != null and  model.searchType==4" >
-                    AND bj.job_name LIKE '%${model.taskNameLike}'
-                </when>
-            </choose>
         </trim>
     </sql>
 
