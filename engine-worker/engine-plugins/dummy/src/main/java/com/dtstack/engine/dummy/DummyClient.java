@@ -11,6 +11,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
+import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.SFTPHandler;
 import org.apache.commons.lang3.StringUtils;
@@ -110,12 +111,13 @@ public class DummyClient extends AbstractClient {
     public ComponentTestResult testConnect(String pluginInfo) {
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
-            Map config = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
-            if ("sftp".equalsIgnoreCase(String.valueOf(config.get(COMPONENT_TYPE)))) {
+            SftpConfig sftpConfig = PublicUtil.jsonStrToObject(pluginInfo, SftpConfig.class);
+            //非sftp, test Result 为 false
+            if (StringUtils.isNotBlank(sftpConfig.getHost())) {
                 SFTPHandler instance = null;
                 try {
-                    instance = SFTPHandler.getInstance(config);
-                    String path = (String) config.get("path");
+                    instance = SFTPHandler.getInstance(sftpConfig);
+                    String path = sftpConfig.getPath();
                     if (StringUtils.isBlank(path)) {
                         componentTestResult.setErrorMsg("SFTP组件path配置不能为空");
                         componentTestResult.setResult(false);
@@ -129,6 +131,8 @@ public class DummyClient extends AbstractClient {
                         instance.close();
                     }
                 }
+            } else {
+                componentTestResult.setErrorMsg("SFTP组件配置错误");
             }
         } catch (Exception e) {
             componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));

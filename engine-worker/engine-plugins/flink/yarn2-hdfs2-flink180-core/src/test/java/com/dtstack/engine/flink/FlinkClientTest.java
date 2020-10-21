@@ -6,6 +6,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
+import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
@@ -159,9 +160,7 @@ public class FlinkClientTest {
 		JobClient jobClient = YarnMockUtil.mockJobClient("session", absolutePath);
 
 		FlinkConfig flinkConfig = new FlinkConfig();
-		Map<String, String> map = new HashMap<>();
-		map.put("test", "test");
-		flinkConfig.setSftpConf(map);
+		flinkConfig.setSftpConf(new SftpConfig());
 		MemberModifier.field(FlinkClient.class, "flinkConfig")
 			.set(flinkClient, flinkConfig);
 		MemberModifier.field(FlinkClient.class, "cacheFile")

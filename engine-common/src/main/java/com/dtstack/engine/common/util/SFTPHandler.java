@@ -1,16 +1,15 @@
 package com.dtstack.engine.common.util;
 
+import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.sftp.SftpFactory;
 import com.dtstack.engine.common.sftp.SftpPool;
 import com.dtstack.engine.common.sftp.SftpPoolConfig;
 import com.google.common.collect.Maps;
 import com.jcraft.jsch.*;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.*;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
@@ -20,44 +19,6 @@ public class SFTPHandler {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SFTPHandler.class);
 
-    public static final String KEY_USERNAME = "username";
-    private static final String KEY_PASSWORD = "password";
-    private static final String KEY_HOST = "host";
-    private static final String KEY_PORT = "port";
-    private static final String KEY_TIMEOUT = "timeout";
-    private static final String KEY_ISUSEPOOL = "isUsePool";
-    private static final String MAX_TOTAL = "maxTotal";
-    private static final String MAX_IDLE = "maxIdle";
-    private static final String MIN_IDLE = "minIdle";
-    private static final String MAX_WAIT_MILLIS = "maxWaitMillis";
-    private static final String MIN_EVICTABLE_IDLE_TIME = "minEvictableIdleTimeMillis";
-    private static final String SOFT_MIN_EVICTABLE_IDLE_TIME = "softMinEvictableIdleTimeMillis";
-    private static final String TIME_BETWEEN_EVICTION_RUNS = "timeBetweenEvictionRunsMillis";
-    public static final String KEY_RSA = "rsaPath";
-    public static final String KEY_AUTHENTICATION = "auth";
-    private static final int DEFAULT_TIME_OUT = 0;
-    private static final String DEFAULT_PORT = "22";
-    private static final String STRING_EMPTY = "";
-    private static final String FILE_TIMEOUT = "fileTimeout";
-
-    //有引用 勿删
-    public static final String DEFAULT_RSA_PATH_TEMPLATE = "/%s/.ssh/id_rsa";
-
-    public static final String CONSOLE_HADOOP_CONFIG = "/console/hadoop_config";
-    public static final String STREAM_RESOURCE = "/stream/resource";
-    public static final String BATCH_EXECUTEFILE = "/batch/execute_file";
-
-    //SftpPoolConfig
-    private static final int MAX_TOTAL_VALUE = 8;
-    private static final int MAX_IDLE_VALUE = 8;
-    private static final int MIN_IDLE_VALUE = 1;
-    private static final long MAX_WAIT_MILLIS_VALUE = 1000L * 60L * 60L;
-    private static final long MIN_EVICTABLE_IDLE_TIME_VALUE = -1;
-    private static final long SOFT_MIN_EVICTABLE_IDLE_TIME_VALUE = 1000L * 60L * 30L;
-    private static final long TIME_BETWEEN_EVICTION_RUNS_VALUE = 1000L * 60L * 5L;
-    private static final boolean ISUSEPOOL_VALUE = true;
-
-
     private static final String KEYWORD_FILE_NOT_EXISTS = "No such file";
 
     private static Map<String, SftpPool> sftpPoolMap = Maps.newConcurrentMap();
@@ -65,28 +26,18 @@ public class SFTPHandler {
 
     private ChannelSftp channelSftp;
     private SftpPool sftpPool;
-    private Map<String, String> sftpConfig;
+    private SftpConfig sftpConfig;
 
-    private SFTPHandler(ChannelSftp channelSftp, SftpPool sftpPool, Map<String, String> sftpConfig) {
+    private SFTPHandler(ChannelSftp channelSftp, SftpPool sftpPool, SftpConfig sftpConfig) {
         this.channelSftp = channelSftp;
         this.sftpPool = sftpPool;
         this.sftpConfig = sftpConfig;
     }
 
-    public static SFTPHandler getInstance(String host, int port, String username, String password, Integer timeout) {
-        return getInstance(new HashMap<String, String>() {{
-            put(KEY_HOST, host);
-            put(KEY_PORT, String.valueOf(port));
-            put(KEY_USERNAME, username);
-            put(KEY_PASSWORD, password);
-            put(MAX_WAIT_MILLIS, timeout == null ? null : timeout.toString());
-        }});
-    }
-
-    public static SFTPHandler getInstance(Map<String, String> sftpConfig){
+    public static SFTPHandler getInstance(SftpConfig sftpConfig) {
         checkConfig(sftpConfig);
 
-        boolean isUsePool = MapUtils.getBoolean(sftpConfig, KEY_ISUSEPOOL, ISUSEPOOL_VALUE);
+        boolean isUsePool = sftpConfig.getIsUsePool();
 
         ChannelSftp channelSftp = null;
         SftpPool sftpPool = null;
@@ -104,14 +55,14 @@ public class SFTPHandler {
         return new SFTPHandler(channelSftp, sftpPool, sftpConfig);
     }
 
-    private static SftpPool getSftpPool(Map<String, String> sftpConfig) {
+    private static SftpPool getSftpPool(SftpConfig sftpConfig) {
         String sftpPoolKey = getSftpPoolKey(sftpConfig);
         SftpPool sftpPool = sftpPoolMap.computeIfAbsent(sftpPoolKey, k -> {
             SftpPool sftpPool1 = null;
             //先检测sftp主机验证能否通过，再缓存
             SftpFactory sftpFactory = new SftpFactory(sftpConfig);
             ChannelSftp channelSftpTest = sftpFactory.create();
-            if(channelSftpTest != null) {
+            if (channelSftpTest != null) {
                 //释放资源，防止内存泄漏
                 try {
                     channelSftpTest.disconnect();
@@ -119,24 +70,14 @@ public class SFTPHandler {
                 } catch (JSchException e) {
                     logger.error("channelSftpTest获取Session异常", e);
                 }
-                int maxTotal = MapUtils.getInteger(sftpConfig, MAX_TOTAL, MAX_TOTAL_VALUE);
-                int maxIdle = MapUtils.getInteger(sftpConfig, MAX_IDLE, MAX_IDLE_VALUE);
-                int minIdle = MapUtils.getInteger(sftpConfig, MIN_IDLE, MIN_IDLE_VALUE);
-                long maxWaitMillis = MapUtils.getLongValue(sftpConfig, MAX_WAIT_MILLIS, MAX_WAIT_MILLIS_VALUE);
-                long minEvictableIdleTimeMillis = MapUtils.getLongValue(sftpConfig, MIN_EVICTABLE_IDLE_TIME, MIN_EVICTABLE_IDLE_TIME_VALUE);
-                long softMinEvictableIdleTimeMillis = MapUtils.getLongValue(sftpConfig, SOFT_MIN_EVICTABLE_IDLE_TIME, SOFT_MIN_EVICTABLE_IDLE_TIME_VALUE);
-                long timeBetweenEvictionRunsMillis = MapUtils.getLongValue(sftpConfig, TIME_BETWEEN_EVICTION_RUNS, TIME_BETWEEN_EVICTION_RUNS_VALUE);
-                SftpPoolConfig sftpPoolConfig = new SftpPoolConfig(maxTotal, maxIdle, minIdle);
-                sftpPoolConfig.setMaxWaitMillis(maxWaitMillis); //从idle队列里面取对象时，阻塞时最大等待时长
-                sftpPoolConfig.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis); //处于idle状态超过此值时，会被destory
-                sftpPoolConfig.setSoftMinEvictableIdleTimeMillis(softMinEvictableIdleTimeMillis); //处于idle状态超过此值时，会被destory, 保留minIdle个空闲连接数。默认为-1
-                sftpPoolConfig.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis); //evict线程每次间隔时间
+                SftpPoolConfig sftpPoolConfig = new SftpPoolConfig(sftpConfig.getMaxTotal(), sftpConfig.getMaxIdle(), sftpConfig.getMinIdle());
+                sftpPoolConfig.setMaxWaitMillis(sftpConfig.getMaxWaitMillis()); //从idle队列里面取对象时，阻塞时最大等待时长
+                sftpPoolConfig.setMinEvictableIdleTimeMillis(sftpConfig.getMinEvictableIdleTimeMillis()); //处于idle状态超过此值时，会被destory
+                sftpPoolConfig.setSoftMinEvictableIdleTimeMillis(sftpConfig.getSoftMinEvictableIdleTimeMillis()); //处于idle状态超过此值时，会被destory, 保留minIdle个空闲连接数。默认为-1
+                sftpPoolConfig.setTimeBetweenEvictionRunsMillis(sftpConfig.getTimeBetweenEvictionRunsMillis()); //evict线程每次间隔时间
                 sftpPool1 = new SftpPool(sftpFactory, sftpPoolConfig);
             } else {
-                String message = String.format("SFTPHandler连接sftp失败 : [%s]",
-                        "message:host =" + MapUtils.getString(sftpConfig, KEY_HOST) +
-                                ",username = " + MapUtils.getString(sftpConfig, KEY_USERNAME));
-                logger.error(message);
+                logger.info("SFTPHandler连接sftp失败, host:{} username:{} .", sftpConfig.getHost(), sftpConfig.getUsername());
             }
             return sftpPool1;
         });
@@ -144,36 +85,41 @@ public class SFTPHandler {
 
     }
 
-    private static String getSftpPoolKey(Map<String, String> sftpConfig) {
-        return MapUtils.getString(sftpConfig, KEY_HOST, STRING_EMPTY).trim() +
-                MapUtils.getString(sftpConfig, KEY_PORT, DEFAULT_PORT).trim() +
-                MapUtils.getString(sftpConfig, KEY_USERNAME, STRING_EMPTY).trim() +
-                MapUtils.getString(sftpConfig, KEY_PASSWORD, STRING_EMPTY).trim();
+    private static String getSftpPoolKey(SftpConfig sftpConfig) {
+        return sftpConfig.getHost() + sftpConfig.getPort() + sftpConfig.getUsername() + sftpConfig.getPath();
     }
 
-    private static void checkConfig(Map<String, String> sftpConfig){
-        if(sftpConfig == null || sftpConfig.isEmpty()){
+    private static void checkConfig(SftpConfig sftpConfig) {
+        if (sftpConfig == null) {
             throw new IllegalArgumentException("The config of sftp is null");
         }
-
-        if(StringUtils.isEmpty(sftpConfig.get(KEY_HOST))){
+        if (StringUtils.isBlank(sftpConfig.getHost())) {
             throw new IllegalArgumentException("The host of sftp is null");
+        }
+        if (sftpConfig.getPort() == null) {
+            throw new IllegalArgumentException("The port of sftp is null");
+        }
+        if (StringUtils.isBlank(sftpConfig.getUsername())) {
+            throw new IllegalArgumentException("The username of sftp is null");
+        }
+        if (StringUtils.isBlank(sftpConfig.getPath())) {
+            throw new IllegalArgumentException("The path of sftp is null");
         }
     }
 
-    private static void setSessionTimeout(Map<String, String> sftpConfig, ChannelSftp channelSftp){
+    private static void setSessionTimeout(SftpConfig sftpConfig, ChannelSftp channelSftp) {
         Session sessionSftp;
         try {
             sessionSftp = channelSftp.getSession();
-            sessionSftp.setTimeout(MapUtils.getIntValue(sftpConfig, KEY_TIMEOUT, DEFAULT_TIME_OUT));
+            sessionSftp.setTimeout(sftpConfig.getTimeout());
         } catch (JSchException e) {
             logger.error("获取sessionSftp异常", e);
             throw new RuntimeException("获取sessionSftp异常, 请检查sessionSftp是否正常", e);
         }
     }
 
-    public void downloadFile(String ftpPath, String localPath){
-        if(!isFileExist(ftpPath)){
+    public void downloadFile(String ftpPath, String localPath) {
+        if (!isFileExist(ftpPath)) {
             throw new RuntimeException("File not exist on sftp:" + ftpPath);
         }
 
@@ -181,10 +127,10 @@ public class SFTPHandler {
         try {
             os = new FileOutputStream(new File(localPath));
             channelSftp.get(ftpPath, os);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("download file from sftp error", e);
         } finally {
-            if(os != null){
+            if (os != null) {
                 try {
                     os.flush();
                     os.close();
@@ -197,7 +143,7 @@ public class SFTPHandler {
 
     /**
      * 下载目录
-     *
+     * <p>
      * 覆盖本地路径
      *
      * @param ftpDir
@@ -208,9 +154,9 @@ public class SFTPHandler {
         int sum = 0;
         try {
             File localDirPath = new File(localDir);
-            if(!localDirPath.exists()){
+            if (!localDirPath.exists()) {
                 boolean mkdirs = localDirPath.mkdirs();
-                logger.info("local file path {}  mkdir {} :",localDir, mkdirs);
+                logger.info("local file path {}  mkdir {} :", localDir, mkdirs);
             }
             try {
                 Vector files = channelSftp.ls(ftpDir);
@@ -227,7 +173,7 @@ public class SFTPHandler {
                     boolean isdir = attrs.isDir();
                     String localFilePath = localDir + "/" + filename;
                     String ftpFilePath;
-                    if (channelSftp.stat(ftpDir).isDir()){
+                    if (channelSftp.stat(ftpDir).isDir()) {
                         ftpFilePath = ftpDir + "/" + filename;
                     } else {
                         ftpFilePath = ftpDir;
@@ -254,11 +200,11 @@ public class SFTPHandler {
         }
     }
 
-    public boolean isFileExist(String ftpPath){
+    public boolean isFileExist(String ftpPath) {
         try {
             channelSftp.lstat(ftpPath);
             return true;
-        } catch (SftpException e){
+        } catch (SftpException e) {
             if (e.getMessage().contains(KEYWORD_FILE_NOT_EXISTS)) {
                 return false;
             } else {
@@ -267,7 +213,7 @@ public class SFTPHandler {
         }
     }
 
-    public void close(){
+    public void close() {
         if (sftpPool != null) {
             sftpPool.returnObject(channelSftp);
         } else {
@@ -281,17 +227,17 @@ public class SFTPHandler {
 
     }
 
-    public String loadFromSftp(String fileName, String remoteDir, String localDir){
+    public String loadFromSftp(String fileName, String remoteDir, String localDir) {
         String remoteFile = remoteDir + File.separator + fileName;
         String localFile = localDir + File.separator + fileName;
         try {
-            if (new File(fileName).exists()){
+            if (new File(fileName).exists()) {
                 return fileName;
             } else {
                 downloadFile(remoteFile, localFile);
                 return localFile;
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error("load file error: ", e);
             return fileName;
         } finally {
@@ -302,19 +248,20 @@ public class SFTPHandler {
 
     /**
      * 强制下载最新文件
+     *
      * @param fileName
      * @param remoteDir
      * @param localDir
      * @return
      */
-    public String loadOverrideFromSftp(String fileName, String remoteDir, String localDir,boolean isEnd) {
+    public String loadOverrideFromSftp(String fileName, String remoteDir, String localDir, boolean isEnd) {
         String remoteFile = remoteDir + File.separator + fileName;
         String localFile = localDir + File.separator + fileName;
 
         File localFileDir = new File(localFile);
         Long lastModifyTime;
         long fileTimeout;
-        if ((fileTimeout = MapUtils.getLong(sftpConfig, FILE_TIMEOUT, 0L)) != 0L && (lastModifyTime = fileLastModifyMap.get(localFile)) != null) {
+        if ((fileTimeout = sftpConfig.getFileTimeout()) != 0L && (lastModifyTime = fileLastModifyMap.get(localFile)) != null) {
             if (System.currentTimeMillis() - lastModifyTime <= fileTimeout) {
                 if (localFileDir.exists()) {
                     return localFile;
@@ -329,27 +276,27 @@ public class SFTPHandler {
             logger.error("load file error: ", e);
             return fileName;
         } finally {
-            if(isEnd){
+            if (isEnd) {
                 close();
             }
         }
     }
 
-    public String loadFromSftp(String fileName, String remoteDir, String localDir,boolean isEnd){
+    public String loadFromSftp(String fileName, String remoteDir, String localDir, boolean isEnd) {
         String remoteFile = remoteDir + File.separator + fileName;
         String localFile = localDir + File.separator + fileName;
         try {
-            if (new File(localFile).exists()){
+            if (new File(localFile).exists()) {
                 return localFile;
             } else {
                 downloadFile(remoteFile, localFile);
                 return localFile;
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error("load file error: ", e);
             return fileName;
         } finally {
-            if(isEnd){
+            if (isEnd) {
                 close();
             }
         }
@@ -396,7 +343,7 @@ public class SFTPHandler {
         logger.info("路径：baseDir=" + baseDir);
         try {
             //检查路径
-            if(!mkdir(baseDir)){
+            if (!mkdir(baseDir)) {
                 logger.error("创建sftp服务器路径失败:" + baseDir);
                 return false;
             }
@@ -427,10 +374,10 @@ public class SFTPHandler {
         StringBuilder currPath = new StringBuilder();
         for (String dir : split) {
             currPath.append("/").append(dir).toString();
-            try{
+            try {
                 channelSftp.cd(currPath.toString());
-            }catch(SftpException sException){
-                if(ChannelSftp.SSH_FX_NO_SUCH_FILE == sException.id){
+            } catch (SftpException sException) {
+                if (ChannelSftp.SSH_FX_NO_SUCH_FILE == sException.id) {
                     try {
                         channelSftp.mkdir(currPath.toString());
                     } catch (SftpException e) {
@@ -489,7 +436,7 @@ public class SFTPHandler {
         return true;
     }
 
-    public void deleteFile(String path){
+    public void deleteFile(String path) {
         if (this.isFileExist(path)) {
             try {
                 channelSftp.rm(path);

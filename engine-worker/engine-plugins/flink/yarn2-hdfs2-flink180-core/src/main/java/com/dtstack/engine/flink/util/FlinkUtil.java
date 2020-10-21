@@ -1,5 +1,6 @@
 package com.dtstack.engine.flink.util;
 
+import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.worker.enums.ClassLoaderType;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
@@ -62,10 +63,10 @@ public class FlinkUtil {
         return tmpFileName;
     }
 
-    public static File downloadJar(String fromPath, String toPath, Configuration hadoopConf, Map<String, String> sftpConf) throws FileNotFoundException {
+    public static File downloadJar(String fromPath, String toPath, Configuration hadoopConf, SftpConfig sftpConf) throws FileNotFoundException {
         String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
         Boolean downLoadFlag = false;
-        if (sftpConf != null && !sftpConf.isEmpty()){
+        if (sftpConf != null && StringUtils.isNotBlank(sftpConf.getHost())){
             downLoadFlag = downloadFileFromSftp(fromPath, toPath, sftpConf);
         }
         if(!downLoadFlag) {
@@ -88,7 +89,7 @@ public class FlinkUtil {
         return jarFile;
     }
 
-    private static boolean downloadFileFromSftp(String fromPath, String toPath, Map<String, String> sftpConf) {
+    private static boolean downloadFileFromSftp(String fromPath, String toPath, SftpConfig sftpConf) {
         //从Sftp下载文件到目录下
         SFTPHandler handler = null;
         try {

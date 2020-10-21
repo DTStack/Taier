@@ -1,11 +1,13 @@
 package com.dtstack.engine.sparkyarn.sparkext;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.sparkyarn.sparkyarn.SparkYarnConfig;
 import com.dtstack.engine.sparkyarn.sparkyarn.util.FileUtil;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.yarn.ClientArguments;
@@ -95,7 +97,7 @@ public class ClientExt extends DtCDHClient {
         }
 
         boolean downloadFlag = false;
-        if (sparkYarnConfig.getSftpConf() != null && !sparkYarnConfig.getSftpConf().isEmpty()) {
+        if (sparkYarnConfig.getSftpConf() != null && StringUtils.isNotBlank(sparkYarnConfig.getSftpConf().getHost())) {
             downloadFlag = this.downloadFileFromSftp(confFileDirName);
         }
         if (!downloadFlag){
@@ -138,12 +140,12 @@ public class ClientExt extends DtCDHClient {
 
     private boolean downloadFileFromSftp(String confFileDirName) {
         //从Sftp下载文件到目录下
-        Map<String, String> sftpConf = sparkYarnConfig.getSftpConf();
+        SftpConfig sftpConfig = sparkYarnConfig.getSftpConf();
         String sftpPath = sparkYarnConfig.getConfHdfsPath();
 
         SFTPHandler handler = null;
         try {
-            handler = SFTPHandler.getInstance(sftpConf);
+            handler = SFTPHandler.getInstance(sftpConfig);
             int files = handler.downloadDir(sftpPath, confFileDirName);
             LOG.info("download file from SFTP, fromPath:{} toPath:{} fileSize:{}", sftpPath, confFileDirName, files);
             if (files > 0) {

@@ -15,6 +15,7 @@ import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.*;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -497,15 +498,13 @@ public class ClusterService implements InitializingBean {
     }
 
     private <T> T fullKerberosFilePath(Long dtUicTenantId, T data,Component component) {
-        Map<String, String> sftp = JSONObject.parseObject(this.sftpInfo(dtUicTenantId),Map.class);
-        if (MapUtils.isEmpty(sftp)) {
-            return data;
-        } else {
+        SftpConfig sftpConfig = JSONObject.parseObject(this.sftpInfo(dtUicTenantId), SftpConfig.class);
+        if (StringUtils.isNotBlank(sftpConfig.getHost())) {
             JSONObject dataMap = this.getJsonObject(data);
-            this.accordToKerberosFile(sftp, dataMap,component);
+            this.accordToKerberosFile(sftpConfig, dataMap,component);
             data = this.convertJsonOverBack(data, dataMap);
-            return data;
         }
+        return data;
     }
 
     private <T> T convertJsonOverBack(T data, JSONObject dataMap) {
@@ -539,7 +538,7 @@ public class ClusterService implements InitializingBean {
      * @param sftp
      * @param dataMap
      */
-    private void accordToKerberosFile(Map<String, String> sftp, JSONObject dataMap, Component component) {
+    private void accordToKerberosFile(SftpConfig sftpConfig, JSONObject dataMap, Component component) {
         try {
             JSONObject configJsonObject = dataMap.getJSONObject("kerberosConfig");
             if (Objects.isNull(configJsonObject)) {
@@ -560,7 +559,7 @@ public class ClusterService implements InitializingBean {
             String remoteSftpKerberosPath = componentService.buildSftpPath(kerberosConfig.getClusterId(), component.getComponentTypeCode()) +
                    File.separator +  ComponentService.KERBEROS_PATH;
             String localKerberosPath = componentService.getLocalKerberosPath(kerberosConfig.getClusterId(), component.getComponentTypeCode());
-            KerberosConfigVerify.downloadKerberosFromSftp(remoteSftpKerberosPath, localKerberosPath, sftp);
+            KerberosConfigVerify.downloadKerberosFromSftp(remoteSftpKerberosPath, localKerberosPath, sftpConfig);
             File file = new File(localKerberosPath);
             Preconditions.checkState(file.exists() && file.isDirectory(), "console kerberos local path not exist");
             File keytabFile = Arrays.stream(file.listFiles()).filter((obj) -> obj.getName().endsWith("keytab"))

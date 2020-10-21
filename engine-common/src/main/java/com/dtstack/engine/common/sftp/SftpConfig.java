@@ -6,19 +6,24 @@ package com.dtstack.engine.common.sftp;
  * create: 2020/10/21
  */
 public class SftpConfig {
-    
+
     private String host;
     private Integer port;
     private String username;
     private String path;
-    private Integer maxTotal;
-    private Integer maxIdle;
-    private Integer minIdle;
+    private Integer maxTotal = 16;
+    private Integer maxIdle = 16;
+    private Integer minIdle = 16;
+    private Integer timeout = 0;
     private boolean isUsePool;
-    private Long fileTimeout;
+    private Long fileTimeout = 300000L;
     private Integer auth;
     private String password;
     private String rsaPath;
+    private Long maxWaitMillis = 1000L * 60L * 60L;
+    private Long minEvictableIdleTimeMillis =  -1L;
+    private Long softMinEvictableIdleTimeMillis =  1000L * 60L * 30L;
+    private Long timeBetweenEvictionRunsMillis =  1000L * 60L * 5L;
 
     public String getHost() {
         return host;
@@ -76,12 +81,20 @@ public class SftpConfig {
         this.minIdle = minIdle;
     }
 
-    public boolean isUsePool() {
+    public boolean getIsUsePool() {
         return isUsePool;
     }
 
-    public void setUsePool(boolean usePool) {
-        isUsePool = usePool;
+    public Integer getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(Integer timeout) {
+        this.timeout = timeout;
+    }
+
+    public void setIsUsePool(boolean isUsePool) {
+        this.isUsePool = isUsePool;
     }
 
     public Long getFileTimeout() {
@@ -115,4 +128,45 @@ public class SftpConfig {
     public void setRsaPath(String rsaPath) {
         this.rsaPath = rsaPath;
     }
+
+    public boolean isUsePool() {
+        return isUsePool;
+    }
+
+    public void setUsePool(boolean usePool) {
+        isUsePool = usePool;
+    }
+
+    public Long getMaxWaitMillis() {
+        return maxWaitMillis;
+    }
+
+    public void setMaxWaitMillis(Long maxWaitMillis) {
+        this.maxWaitMillis = maxWaitMillis;
+    }
+
+    public Long getMinEvictableIdleTimeMillis() {
+        return minEvictableIdleTimeMillis;
+    }
+
+    public void setMinEvictableIdleTimeMillis(Long minEvictableIdleTimeMillis) {
+        this.minEvictableIdleTimeMillis = minEvictableIdleTimeMillis;
+    }
+
+    public Long getSoftMinEvictableIdleTimeMillis() {
+        return softMinEvictableIdleTimeMillis;
+    }
+
+    public void setSoftMinEvictableIdleTimeMillis(Long softMinEvictableIdleTimeMillis) {
+        this.softMinEvictableIdleTimeMillis = softMinEvictableIdleTimeMillis;
+    }
+
+    public Long getTimeBetweenEvictionRunsMillis() {
+        return timeBetweenEvictionRunsMillis;
+    }
+
+    public void setTimeBetweenEvictionRunsMillis(Long timeBetweenEvictionRunsMillis) {
+        this.timeBetweenEvictionRunsMillis = timeBetweenEvictionRunsMillis;
+    }
+
 }

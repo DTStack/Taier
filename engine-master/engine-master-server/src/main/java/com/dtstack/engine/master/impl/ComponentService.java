@@ -21,6 +21,7 @@ import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.dao.*;
@@ -540,10 +541,10 @@ public class ComponentService {
         }
 
         String md5Key = "";
-        Map<String, String> sftpMap = Objects.isNull(sftpComponent) ? new HashMap<>() : JSONObject.parseObject(sftpComponent.getComponentConfig(), Map.class);
+        SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
         if (CollectionUtils.isNotEmpty(resources)) {
             //上传配置文件到sftp 供后续下载
-            md5Key = uploadResourceToSftp(clusterId, resources, kerberosFileName, sftpMap, addComponent, dbComponent);
+            md5Key = uploadResourceToSftp(clusterId, resources, kerberosFileName, sftpConfig, addComponent, dbComponent);
         }
         addComponent.setComponentConfig(this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion,md5Key));
 
@@ -561,18 +562,18 @@ public class ComponentService {
     }
 
     private String uploadResourceToSftp( Long clusterId,  List<Resource> resources,  String kerberosFileName,
-                                      Map<String, String> sftpMap,
+                                         SftpConfig sftpConfig,
                                       Component addComponent, Component dbComponent) {
         //上传配置文件到sftp 供后续下载
         SFTPHandler instance = null;
         String md5sum = "";
         try {
-            instance = SFTPHandler.getInstance(sftpMap);
+            instance = SFTPHandler.getInstance(sftpConfig);
         } catch (Exception e) {
             LOGGER.error("update component resource to sftp error", e);
             throw new RdosDefineException("请检查sftp配置");
         }
-        String remoteDir = sftpMap.get("path") + File.separator + this.buildSftpPath(clusterId, addComponent.getComponentTypeCode());
+        String remoteDir = sftpConfig.getPath() + File.separator + this.buildSftpPath(clusterId, addComponent.getComponentTypeCode());
         for (Resource resource : resources) {
             if (!resource.getFileName().equalsIgnoreCase(kerberosFileName) || StringUtils.isBlank(kerberosFileName)) {
                 addComponent.setUploadFileName(resource.getFileName());
@@ -585,10 +586,10 @@ public class ComponentService {
                     if(addComponent.getComponentTypeCode() == EComponentType.HDFS.getTypeCode()){
                         String xmlZipLocation = resource.getUploadedFileName();
                         md5sum = MD5Util.getFileMd5String(new File(xmlZipLocation));
-                        this.updateConfigToSftpPath(clusterId, sftpMap, instance, resource);
+                        this.updateConfigToSftpPath(clusterId, sftpConfig, instance, resource);
                     }
                     if(addComponent.getComponentTypeCode() == EComponentType.YARN.getTypeCode()){
-                        this.updateConfigToSftpPath(clusterId, sftpMap, instance, resource);
+                        this.updateConfigToSftpPath(clusterId, sftpConfig, instance, resource);
                     }
                 }
             } catch (Exception e) {
@@ -616,9 +617,9 @@ public class ComponentService {
      * @param instance
      * @param resource
      */
-    private void updateConfigToSftpPath( Long clusterId, Map<String, String> sftpMap, SFTPHandler instance, Resource resource) {
+    private void updateConfigToSftpPath( Long clusterId, SftpConfig sftpConfig, SFTPHandler instance, Resource resource) {
         //上传xml到对应路径下 拼接confHdfsPath
-        String confRemotePath = sftpMap.get("path") + File.separator;
+        String confRemotePath = sftpConfig.getPath() + File.separator;
         String buildPath = File.separator + buildConfRemoteDir(clusterId);
         String confPath = System.getProperty("user.dir") + buildPath;
         File localFile = new File(confPath);
@@ -1075,12 +1076,12 @@ public class ComponentService {
             if (Objects.isNull(sftpComponent)) {
                 throw new RdosDefineException("sftp组件不存在");
             }
-            Map<String, String> map = JSONObject.parseObject(sftpComponent.getComponentConfig(), Map.class);
-            String remoteDir = map.get("path") + File.separator + this.buildSftpPath(clusterId, component.getComponentTypeCode());
+            SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
+            String remoteDir = sftpConfig.getPath() + File.separator + this.buildSftpPath(clusterId, component.getComponentTypeCode());
             localDownLoadPath = downloadLocation + File.separator + component.getId();
             SFTPHandler handler = null;
             try {
-                 handler = SFTPHandler.getInstance(map);
+                 handler = SFTPHandler.getInstance(sftpConfig);
                 if (DownloadType.Kerberos.getCode() == downloadType) {
                     remoteDir = remoteDir + File.separator + KERBEROS_PATH;
                     localDownLoadPath = localDownLoadPath + File.separator + KERBEROS_PATH;

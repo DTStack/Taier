@@ -1,6 +1,7 @@
 package com.dtstack.engine.sparkk8s.utils;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.sparkk8s.config.SparkK8sConfig;
 import com.dtstack.schedule.common.util.Xml2JsonUtil;
@@ -183,7 +184,7 @@ public class SparkConfigUtil {
         }
 
         boolean downloadFlag = false;
-        if (sparkK8sConfig.getSftpConf() != null && !sparkK8sConfig.getSftpConf().isEmpty()) {
+        if (sparkK8sConfig.getSftpConf() != null && StringUtils.isNotBlank(sparkK8sConfig.getSftpConf().getHost())) {
             downloadFlag = downloadFileFromSftp(sparkK8sConfig, confFileDirName);
         }
 
@@ -195,12 +196,12 @@ public class SparkConfigUtil {
 
     private static boolean downloadFileFromSftp(SparkK8sConfig sparkK8sConfig, String confFileDirName) {
         //从Sftp下载文件到目录下
-        Map<String, String> sftpConf = sparkK8sConfig.getSftpConf();
+        SftpConfig sftpConfig = sparkK8sConfig.getSftpConf();
         String hdfsSftpPath = sparkK8sConfig.getConfHdfsPath();
 
         SFTPHandler handler = null;
         try {
-            handler = SFTPHandler.getInstance(sftpConf);
+            handler = SFTPHandler.getInstance(sftpConfig);
             int files = handler.downloadDir(hdfsSftpPath, confFileDirName);
             LOG.info("download file from SFTP, fileSize: " + files);
             if (files > 0) {

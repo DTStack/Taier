@@ -2,6 +2,7 @@ package com.dtstack.schedule.common.kerberos;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import com.dtstack.schedule.common.util.ZipUtil;
@@ -132,14 +133,14 @@ public class KerberosConfigVerify {
      * @return
      * @throws SftpException
      */
-    public static void downloadKerberosFromSftp(String sourceKey, String localKerberosConf, Map<String, String> sftpMap) throws SftpException {
+    public static void downloadKerberosFromSftp(String sourceKey, String localKerberosConf, SftpConfig sftpConfig) throws SftpException {
         //需要读取配置文件
         //本地kerberos文件
         String localTimeLock = getLocalTimeLock(localKerberosConf);
         SFTPHandler handler = null;
         try {
-            handler = SFTPHandler.getInstance(sftpMap);
-            String sourceSftpPath = sftpMap.get("path") + SEPARATE + sourceKey;
+            handler = SFTPHandler.getInstance(sftpConfig);
+            String sourceSftpPath = sftpConfig.getPath() + SEPARATE + sourceKey;
             //sftp服务器kerberos文件
             String timeLock = getSftpTimeLock(handler, sourceSftpPath, localTimeLock);
 
