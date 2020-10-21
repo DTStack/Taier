@@ -22,6 +22,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MD5Util;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
@@ -31,7 +32,6 @@ import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.utils.FileUtil;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.utils.XmlFileUtil;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
@@ -985,6 +985,7 @@ public class ComponentService {
                 config.put("remoteDir", kerberosConfig.getRemotePath());
                 config.put("principalFile", kerberosConfig.getName());
                 config.put("krbName", kerberosConfig.getKrbName());
+                config.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
                 //补充yarn参数
                 Cluster cluster = clusterDao.getByClusterName(clusterName);
                 if(Objects.nonNull(cluster)){
