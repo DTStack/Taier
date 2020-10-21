@@ -19,7 +19,7 @@ import java.util.Properties;
  * author: yuemo
  * create: 2020-01-19
  */
-public class SftpFactory extends BasePooledObjectFactory<ChannelSftp> {
+public class SftpFactory extends BasePooledObjectFactory<ChannelSftp>  {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SftpFactory.class);
 

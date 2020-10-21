@@ -31,8 +31,8 @@ import java.util.ServiceLoader;
  * Company: www.dtstack.com
  * @author maqi
  */
-public class FileManageFactoryServiceLoader {
-    private static final Logger LOG = LoggerFactory.getLogger(FileManageFactoryServiceLoader.class);
+public class FilesystemManageFactoryServiceLoader {
+    private static final Logger LOG = LoggerFactory.getLogger(FilesystemManageFactoryServiceLoader.class);
 
     public static List<IFileManageFactory> findFileManageFactory(Class fileManageFactoryClass) {
         return findFileManageFactory(fileManageFactoryClass, fileManageFactoryClass.getClassLoader());

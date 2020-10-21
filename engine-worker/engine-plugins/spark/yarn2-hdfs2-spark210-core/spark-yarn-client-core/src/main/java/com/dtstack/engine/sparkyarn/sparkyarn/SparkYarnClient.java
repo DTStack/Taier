@@ -1,5 +1,8 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
+import com.dtstack.engine.base.filesystem.FileConfig;
+import com.dtstack.engine.base.filesystem.FilesystemManager;
+import com.dtstack.engine.base.filesystem.manager.IFileManage;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
@@ -95,6 +98,8 @@ public class SparkYarnClient extends AbstractClient {
 
     private Properties sparkExtProp;
 
+    private FilesystemManager filesystemManager;
+
     @Override
     public void init(Properties prop) throws Exception {
         this.sparkExtProp = prop;
@@ -107,6 +112,8 @@ public class SparkYarnClient extends AbstractClient {
         parseWebAppAddr();
         logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
         yarnClient = this.getYarnClient();
+
+        this.filesystemManager = new FilesystemManager(yarnConf, sparkYarnConfig.getSftpConf());
 
         if (sparkYarnConfig.getMonitorAcceptedApp()) {
             AcceptedApplicationMonitor.start(yarnConf, sparkYarnConfig.getQueue(), sparkYarnConfig);
@@ -193,7 +200,7 @@ public class SparkYarnClient extends AbstractClient {
         ApplicationId appId = null;
 
         try {
-            ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
+            ClientExt clientExt = ClientExtFactory.getClientExt(filesystemManager, clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
             appId = clientExt.submitApplication(jobClient.getApplicationPriority());
             return JobResult.createSuccessResult(appId.toString());
@@ -271,7 +278,7 @@ public class SparkYarnClient extends AbstractClient {
 
         try {
             ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
-            ClientExt clientExt = new ClientExt(clientArguments, yarnConf, sparkConf);
+            ClientExt clientExt = new ClientExt(filesystemManager, clientArguments, yarnConf, sparkConf);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
             appId = clientExt.submitApplication(jobClient.getApplicationPriority());
             return JobResult.createSuccessResult(appId.toString());
@@ -338,7 +345,7 @@ public class SparkYarnClient extends AbstractClient {
         ApplicationId appId = null;
 
         try {
-            ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
+            ClientExt clientExt = ClientExtFactory.getClientExt(filesystemManager, clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
             appId = clientExt.submitApplication(jobClient.getApplicationPriority());
             return JobResult.createSuccessResult(appId.toString());

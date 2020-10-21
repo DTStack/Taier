@@ -18,8 +18,8 @@
 
 package com.dtstack.engine.base.filesystem;
 
+import com.dtstack.engine.common.sftp.SftpConfig;
 import org.apache.hadoop.conf.Configuration;
-import java.util.Map;
 
 /**
  *
@@ -29,10 +29,11 @@ import java.util.Map;
  * @author maqi
  */
 public class FileConfig {
-    private Configuration hdfsConfig;
-    private Map<String, String> sftpConfig;
 
-    public FileConfig(Configuration hdfsConfig, Map<String, String> sftpConfig) {
+    private Configuration hdfsConfig;
+    private SftpConfig sftpConfig;
+
+    public FileConfig(Configuration hdfsConfig, SftpConfig sftpConfig) {
         this.hdfsConfig = hdfsConfig;
         this.sftpConfig = sftpConfig;
     }
@@ -45,11 +46,11 @@ public class FileConfig {
         this.hdfsConfig = hdfsConfig;
     }
 
-    public Map<String, String> getSftpConfig() {
+    public SftpConfig getSftpConfig() {
         return sftpConfig;
     }
 
-    public void setSftpConfig(Map<String, String> sftpConfig) {
+    public void setSftpConfig(SftpConfig sftpConfig) {
         this.sftpConfig = sftpConfig;
     }
 }

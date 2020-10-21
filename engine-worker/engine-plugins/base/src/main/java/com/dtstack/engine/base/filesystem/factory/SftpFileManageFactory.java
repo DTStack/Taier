@@ -22,6 +22,7 @@ package com.dtstack.engine.base.filesystem.factory;
 import com.dtstack.engine.base.filesystem.FileConfig;
 import com.dtstack.engine.base.filesystem.manager.IFileManage;
 import com.dtstack.engine.base.filesystem.manager.SftpFileManage;
+import com.dtstack.engine.common.sftp.SftpConfig;
 
 import java.util.Map;
 
@@ -34,7 +35,7 @@ import java.util.Map;
 public class SftpFileManageFactory implements IFileManageFactory<FileConfig> {
     @Override
     public IFileManage createFileManage(FileConfig config) {
-        Map<String, String> sftpConfig = config.getSftpConfig();
+        SftpConfig sftpConfig = config.getSftpConfig();
         return SftpFileManage.getInstance(sftpConfig);
     }
 }

@@ -20,8 +20,10 @@ package com.dtstack.engine.base.filesystem;
 
 import com.dtstack.engine.base.filesystem.factory.IFileManageFactory;
 import com.dtstack.engine.base.filesystem.manager.IFileManage;
+import com.dtstack.engine.common.sftp.SftpConfig;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,24 +32,38 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 /**
- * Date: 2020/7/20
+ * Date: 2020/10/21
  * Company: www.dtstack.com
- * @author maqi
+ * @author toutian
  */
-public class FileManagesUtils {
-    private static final Logger LOG = LoggerFactory.getLogger(FileManagesUtils.class);
+public class FilesystemManager {
 
-    private static final String URL_SPLITE = "/";
+    private static final Logger LOG = LoggerFactory.getLogger(FilesystemManager.class);
+
+    private static final String URL_SPLIT = "/";
 
     private static String fileSP = File.separator;
+
+    private List<IFileManage> fileManages;
+
+    private FileConfig fileConfig;
+
+    public FilesystemManager(FileConfig config) {
+        this.fileManages = getFileManage(config);
+    }
+
+    public FilesystemManager(Configuration configuration, SftpConfig sftpConfig) {
+        this.fileConfig = new FileConfig(configuration, sftpConfig);
+        this.fileManages = getFileManage(fileConfig);
+    }
 
     /**
      * 创建可用的的文件管理器
      * @param config
      * @return
      */
-    public static List<IFileManage> getFileManage(FileConfig config) {
-        List<IFileManageFactory> fileManageFactory = FileManageFactoryServiceLoader.findFileManageFactory(IFileManageFactory.class);
+    private List<IFileManage> getFileManage(FileConfig config) {
+        List<IFileManageFactory> fileManageFactory = FilesystemManageFactoryServiceLoader.findFileManageFactory(IFileManageFactory.class);
 
         List<IFileManage> fileManages = Lists.newArrayList();
         for (IFileManageFactory factory : fileManageFactory) {
@@ -71,8 +87,8 @@ public class FileManagesUtils {
      * @return
      * @throws FileNotFoundException
      */
-    public static File downloadJar(List<IFileManage> fileManages, String remoteJarPath, String localPath) throws FileNotFoundException {
-        return downloadJar(fileManages, remoteJarPath, localPath, true, false, false);
+    public File downloadJar(String remoteJarPath, String localPath) throws FileNotFoundException {
+        return downloadJar(remoteJarPath, localPath, true, false, false);
     }
 
     /**
@@ -84,8 +100,8 @@ public class FileManagesUtils {
      * @return
      * @throws FileNotFoundException
      */
-    public static File downloadJar(List<IFileManage> fileManages, String remoteJarPath, String localPath, boolean isLocalDir) throws FileNotFoundException {
-        return downloadJar(fileManages, remoteJarPath, localPath, isLocalDir, false, false);
+    public File downloadJar(String remoteJarPath, String localPath, boolean isLocalDir) throws FileNotFoundException {
+        return downloadJar(remoteJarPath, localPath, isLocalDir, false, false);
     }
 
     /**
@@ -98,8 +114,8 @@ public class FileManagesUtils {
      * @return
      * @throws FileNotFoundException
      */
-    public static File downloadJar(List<IFileManage> fileManages, String remoteJarPath, String localPath, boolean isLocalDir, boolean alwaysPullNew) throws FileNotFoundException {
-        return downloadJar(fileManages, remoteJarPath, localPath, isLocalDir, alwaysPullNew, false);
+    public File downloadJar(String remoteJarPath, String localPath, boolean isLocalDir, boolean alwaysPullNew) throws FileNotFoundException {
+        return downloadJar(remoteJarPath, localPath, isLocalDir, alwaysPullNew, false);
     }
 
     /**
@@ -112,7 +128,7 @@ public class FileManagesUtils {
      * @param isEnd          文件下载后是否归还连接
      * @return
      */
-    public static File downloadJar(List<IFileManage> fileManages, String remoteJarPath, String localPath, boolean isLocalDir, boolean alwaysPullNew, boolean isEnd) throws FileNotFoundException {
+    public File downloadJar(String remoteJarPath, String localPath, boolean isLocalDir, boolean alwaysPullNew, boolean isEnd) throws FileNotFoundException {
         LOG.info("download file remoteJarPath:{},localPath:{},isLocalDir:{},alwaysPullNew:{}", remoteJarPath, localPath, isLocalDir, alwaysPullNew);
         boolean downLoadSuccess = false;
         String localJarPath = isLocalDir ? getTmpFileName(remoteJarPath, localPath) : localPath;
@@ -144,7 +160,7 @@ public class FileManagesUtils {
      *  使用文件管理器下载文件夹内容
      * @return
      */
-    public static boolean downloadDir(List<IFileManage> fileManages, String remoteDir, String localDir) {
+    public boolean downloadDir(String remoteDir, String localDir) {
         LOG.info("download dir remoteDir:{}, localDir:{},alwaysPullNew:{}", remoteDir, localDir);
 
         boolean downLoadSuccess = false;
@@ -168,7 +184,7 @@ public class FileManagesUtils {
      * @param localJarPath
      * @return
      */
-    public static File getLocalJarFile(String localJarPath) throws FileNotFoundException {
+    public File getLocalJarFile(String localJarPath) throws FileNotFoundException {
         File jarFile = new File(localJarPath);
         if (!jarFile.exists()) {
             throw new FileNotFoundException("JAR file does not exist: " + localJarPath);
@@ -185,8 +201,8 @@ public class FileManagesUtils {
      * @param toPath
      * @return
      */
-    public static String getTmpFileName(String fileUrl, String toPath) {
-        String name = fileUrl.substring(fileUrl.lastIndexOf(URL_SPLITE) + 1);
+    public String getTmpFileName(String fileUrl, String toPath) {
+        String name = fileUrl.substring(fileUrl.lastIndexOf(URL_SPLIT) + 1);
         String tmpFileName = toPath + fileSP + name;
         return tmpFileName;
     }

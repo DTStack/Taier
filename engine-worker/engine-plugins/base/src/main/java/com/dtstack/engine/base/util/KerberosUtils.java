@@ -109,8 +109,9 @@ public class KerberosUtils {
         if (!file.exists()) {
             return;
         }
-        if (null != file.listFiles()) {
-            for (File listFile : file.listFiles()) {
+        File[] files = file.listFiles();
+        if (null != files) {
+            for (File listFile : files) {
                 if (listFile.getName().endsWith(TIME_FILE)) {
                     logger.info("fileName:{},timestamp {}  localDir:{},delete {}", listFile.getName(), timestamp, listFile, listFile.delete());
                 }
