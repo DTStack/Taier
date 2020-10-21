@@ -78,7 +78,7 @@ public class FlinkClusterClientManager {
                 }
             }
             this.clusterClient = sessionClientFactory.startAndGetSessionClusterClient();
-            return this.clusterClient;
+            return clusterClient;
         }
         return null;
     }
