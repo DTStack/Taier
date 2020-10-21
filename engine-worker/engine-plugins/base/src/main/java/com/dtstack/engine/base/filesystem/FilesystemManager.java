@@ -87,7 +87,7 @@ public class FilesystemManager {
      * @return
      * @throws FileNotFoundException
      */
-    public File downloadJar(String remoteJarPath, String localPath) throws FileNotFoundException {
+    public File downloadJar(String remoteJarPath, String localPath) {
         return downloadJar(remoteJarPath, localPath, true, false, false);
     }
 
@@ -100,7 +100,7 @@ public class FilesystemManager {
      * @return
      * @throws FileNotFoundException
      */
-    public File downloadJar(String remoteJarPath, String localPath, boolean isLocalDir) throws FileNotFoundException {
+    public File downloadJar(String remoteJarPath, String localPath, boolean isLocalDir) {
         return downloadJar(remoteJarPath, localPath, isLocalDir, false, false);
     }
 
@@ -114,7 +114,7 @@ public class FilesystemManager {
      * @return
      * @throws FileNotFoundException
      */
-    public File downloadJar(String remoteJarPath, String localPath, boolean isLocalDir, boolean alwaysPullNew) throws FileNotFoundException {
+    public File downloadJar(String remoteJarPath, String localPath, boolean isLocalDir, boolean alwaysPullNew) {
         return downloadJar(remoteJarPath, localPath, isLocalDir, alwaysPullNew, false);
     }
 
@@ -128,7 +128,7 @@ public class FilesystemManager {
      * @param isEnd          文件下载后是否归还连接
      * @return
      */
-    public File downloadJar(String remoteJarPath, String localPath, boolean isLocalDir, boolean alwaysPullNew, boolean isEnd) throws FileNotFoundException {
+    public File downloadJar(String remoteJarPath, String localPath, boolean isLocalDir, boolean alwaysPullNew, boolean isEnd) {
         LOG.info("download file remoteJarPath:{},localPath:{},isLocalDir:{},alwaysPullNew:{}", remoteJarPath, localPath, isLocalDir, alwaysPullNew);
         boolean downLoadSuccess = false;
         String localJarPath = isLocalDir ? getTmpFileName(remoteJarPath, localPath) : localPath;
@@ -184,12 +184,12 @@ public class FilesystemManager {
      * @param localJarPath
      * @return
      */
-    public File getLocalJarFile(String localJarPath) throws FileNotFoundException {
+    public File getLocalJarFile(String localJarPath) {
         File jarFile = new File(localJarPath);
         if (!jarFile.exists()) {
-            throw new FileNotFoundException("JAR file does not exist: " + localJarPath);
+            throw new RuntimeException("JAR file does not exist: " + localJarPath);
         } else if (!jarFile.isFile()) {
-            throw new FileNotFoundException("JAR file is not a file: " + localJarPath);
+            throw new RuntimeException("JAR file is not a file: " + localJarPath);
         }
         return jarFile;
     }

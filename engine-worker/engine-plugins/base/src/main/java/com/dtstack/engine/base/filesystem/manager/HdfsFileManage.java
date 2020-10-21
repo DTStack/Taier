@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Vector;
@@ -80,66 +79,46 @@ public class HdfsFileManage implements IFileManage {
     public boolean downloadFile(String remotePath, String localPath, boolean isEnd) {
         Pair<String, String> pair = parseHdfsUri(remotePath);
         if (pair == null) {
-            LOG.error("can't parse hdfs url from given uriStr:{}", remotePath);
+            LOG.info("can't parse hdfs url from given uriStr:{}", remotePath);
             return false;
         }
 
         String hdfsUri = pair.getLeft();
         String hdfsFilePathStr = pair.getRight();
-        InputStream is = null;
-        FileSystem fs = null;
-        try {
-            URI uri = new URI(hdfsUri);
-            fs = FileSystem.get(uri, hadoopConf);
+        try (FileSystem fs = FileSystem.get(new URI(hdfsUri), hadoopConf)) {
             Path hdfsFilePath = new Path(hdfsFilePathStr);
             if (!fs.exists(hdfsFilePath)) {
                 return false;
             }
 
+
             File file = new File(localPath);
-            if (!file.getParentFile().exists()) {
+            if(!file.getParentFile().exists()){
                 Files.createParentDirs(file);
             }
 
-            is = fs.open(hdfsFilePath);//读取文件
-            IOUtils.copyBytes(is, new FileOutputStream(file), BUFFER_SIZE, true);//保存到本地
-
+            //读取文件
+            InputStream is = fs.open(hdfsFilePath);
+            //保存到本地
+            IOUtils.copyBytes(is, new FileOutputStream(file), BUFFER_SIZE, true);
+            return true;
         } catch (Exception e) {
             LOG.error("downloadFile from hdfs error:", e);
             return false;
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    LOG.error("hdfs InputStream close error:", e);
-                }
-            }
-
-            if (fs != null) {
-                try {
-                    fs.close();
-                } catch (IOException e) {
-                    LOG.error("hdfs FileSystem close error:", e);
-                }
-            }
         }
-        return true;
     }
 
     @Override
     public boolean downloadDir(String remotePath, String localPath) {
-        FileSystem fs = null;
-        try {
-            fs = FileSystem.get(hadoopConf);
+        try (FileSystem fs = FileSystem.get(hadoopConf)) {
             Path path = new Path(remotePath);
             if (!fs.exists(path)) {
-                LOG.error("hdfs not exists  dir {}", path);
+                LOG.info("hdfs not exists" + path);
                 return false;
             }
 
             if (!fs.isDirectory(path)) {
-                LOG.error("transfer must be directory");
+                LOG.info("transfer must be directory");
                 return false;
             }
 
@@ -150,20 +129,12 @@ public class HdfsFileManage implements IFileManage {
                 String localDstFileName = localPath + fileSP + fileName;
                 downloadFile(subPath, localDstFileName, true);
             }
+            return true;
         } catch (Exception e) {
             LOG.error("downloadDir from hdfs error:", e);
             clearDownloadFile(localPath);
             return false;
-        } finally {
-            if (fs != null) {
-                try {
-                    fs.close();
-                } catch (IOException e) {
-                    LOG.error("hdfs FileSystem close error:", e);
-                }
-            }
         }
-        return true;
     }
 
     @Override

@@ -99,34 +99,6 @@ public class ClientExt extends DtCDHClient {
 
         boolean downLoadSuccess = filesystemManager.downloadDir(remotePath, confFileDirName);
         LOG.info("downloadDir status is: {} ", downLoadSuccess);
-
-//        try {
-//            Files.createParentDirs(dirFile);
-//        } catch (IOException e) {
-//            throw new RdosDefineException(String.format("can not create dir '%s' on engine", dirFile.getParent()));
-//        }
-//
-//        if (dirFile.exists()) {
-//            File[] files = dirFile.listFiles();
-//            if (files != null && files.length > 0) {
-//                return confFileDirName;
-//            }
-//        } else {
-//            if (!dirFile.mkdir()) {
-//                throw new RdosDefineException(String.format("can not create dir '%s' on engine", confFileDirName));
-//            }
-//        }
-//
-//        boolean downloadFlag = false;
-//        if (sparkYarnConfig.getSftpConf() != null && StringUtils.isNotBlank(sparkYarnConfig.getSftpConf().getHost())) {
-//            downloadFlag = this.downloadFileFromSftp(confFileDirName);
-//        }
-//        if (!downloadFlag){
-//            downloadFlag = this.downloadFileFromHdfs(confFileDirName);
-//        }
-//        if (!downloadFlag){
-//            throw new RuntimeException("----download file exception---");
-//        }
         return confFileDirName;
     }
 
@@ -138,54 +110,5 @@ public class ClientExt extends DtCDHClient {
             hadoopConfFiles.put(fileName, file);
         }
     }
-
-//    private boolean downloadFileFromHdfs(String confFileDirName) {
-//        String hdfsPath = sparkYarnConfig.getConfHdfsPath();
-//        try {
-//            Map<String, String> files = FileUtil.downLoadDirFromHdfs(hdfsPath, confFileDirName, hadoopConf);
-//            LOG.info("download file from Hdfs, fileSize: " + files.size());
-//            if (!files.isEmpty()) {
-//                return true;
-//            }
-//        } catch (Exception e) {
-//            LOG.error("", e);
-//            try {
-//                //下载失败后文件可能没有成功下载或下载不全，直接删除该目录
-//                FileUtil.deleteFile(confFileDirName);
-//            } catch (Exception e1) {
-//                LOG.error("", e1);
-//            }
-//        }
-//        return false;
-//    }
-//
-//    private boolean downloadFileFromSftp(String confFileDirName) {
-//        //从Sftp下载文件到目录下
-//        SftpConfig sftpConf = sparkYarnConfig.getSftpConf();
-//        String sftpPath = sparkYarnConfig.getConfHdfsPath();
-//
-//        SFTPHandler handler = null;
-//        try {
-//            handler = SFTPHandler.getInstance(sftpConf);
-//            int files = handler.downloadDir(sftpPath, confFileDirName);
-//            LOG.info("download file from SFTP, fromPath:{} toPath:{} fileSize:{}", sftpPath, confFileDirName, files);
-//            if (files > 0) {
-//                return true;
-//            }
-//        } catch (Throwable e) {
-//            LOG.error("download file from SFTP error, fromPath:{} toPath:{}", sftpPath, confFileDirName, e);
-//            try {
-//                //下载失败后文件可能没有成功下载或下载不全，直接删除该目录
-//                FileUtil.deleteFile(confFileDirName);
-//            } catch (Exception e1) {
-//                LOG.error("", e1);
-//            }
-//        } finally {
-//            if (handler != null) {
-//                handler.close();
-//            }
-//        }
-//        return false;
-//    }
 
 }

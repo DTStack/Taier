@@ -75,14 +75,14 @@ public class SftpFileManage implements IFileManage {
         boolean isUsePool = sftpConfig.getIsUsePool();
 
         ChannelSftp channelSftp = null;
-        com.dtstack.engine.common.sftp.SftpPool sftpPool = null;
+       SftpPool sftpPool = null;
         if (isUsePool) {
             LOG.info("get channelSftp from SftpPool!");
             sftpPool = getSftpPool(sftpConfig);
             channelSftp = sftpPool.borrowObject();
         } else {
             LOG.info("get channelSftp from native!");
-            com.dtstack.engine.common.sftp.SftpFactory sftpFactory = new com.dtstack.engine.common.sftp.SftpFactory(sftpConfig);
+           SftpFactory sftpFactory = new SftpFactory(sftpConfig);
             channelSftp = sftpFactory.create();
         }
 
@@ -197,6 +197,12 @@ public class SftpFileManage implements IFileManage {
         }
     }
 
+    /**
+     * download 后自动释放连接
+     * @param remoteDir
+     * @param localDir
+     * @return
+     */
     @Override
     public boolean downloadDir(String remoteDir, String localDir) {
         try {
@@ -204,10 +210,6 @@ public class SftpFileManage implements IFileManage {
             if (!localDirPath.exists()) {
                 boolean mkdirs = localDirPath.mkdirs();
                 LOG.info("local file path {}  mkdir {} :", localDir, mkdirs);
-            }
-
-            if (channelSftp.isClosed()) {
-                channelSftp = sftpPool.borrowObject();
             }
 
             Vector files = channelSftp.ls(remoteDir);
@@ -237,7 +239,7 @@ public class SftpFileManage implements IFileManage {
                     }
                     downloadDir(ftpFilePath, localFilePath);
                 } else {
-                    downloadFile(ftpFilePath, localFilePath, false);
+                    downloadFile(ftpFilePath, localFilePath, true);
                 }
             }
 
@@ -411,7 +413,16 @@ public class SftpFileManage implements IFileManage {
 
     @Override
     public void close() {
-        sftpPool.returnObject(channelSftp);
+        if (sftpPool != null) {
+            sftpPool.returnObject(channelSftp);
+        } else {
+            try {
+                channelSftp.disconnect();
+                channelSftp.getSession().disconnect();
+            } catch (Exception e) {
+                LOG.error("close channelSftp error: {}", e.getMessage());
+            }
+        }
     }
 
 }
