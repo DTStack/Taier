@@ -96,7 +96,10 @@ class ResourceManage extends React.Component<any, any> {
         }
     }
     sourceManage (params: any) {
-        console.log(params) // jest for test
+        this.setState({
+            manageModal: false,
+            tenantInfo: ''
+        }, () => this.initList())
     }
     initList = async () => {
         const res = await Api.getAllCluster();
@@ -206,7 +209,7 @@ class ResourceManage extends React.Component<any, any> {
                 title: '操作',
                 dataIndex: 'deal',
                 render: (text: any, record: any) => {
-                    return <a onClick={ () => { this.clickSwitchQueue(record) }}>
+                    return <a onClick={() => { this.clickSwitchQueue(record) }}>
                         资源管理
                     </a>
                 }
@@ -236,7 +239,7 @@ class ResourceManage extends React.Component<any, any> {
         return (
             <div className='resource-wrapper'>
                 <Row>
-                    <Col span= { 12 } >
+                    <Col span={12} >
                         <Form className="m-form-inline" layout="inline">
                             <FormItem
                                 label='集群'
@@ -253,7 +256,7 @@ class ResourceManage extends React.Component<any, any> {
                             </FormItem>
                         </Form>
                     </Col>
-                    <Col span={ 12 } >
+                    <Col span={12} >
                         <Button className='terent-button' type='primary' onClick={() => { this.setState({ tenantModal: true }) }}>绑定新租户</Button>
                     </Col>
                 </Row>
@@ -297,7 +300,7 @@ class ResourceManage extends React.Component<any, any> {
                                                                 this.setState({
                                                                     queryParams: Object.assign(this.state.queryParams, { tenantName: e.target.value })
                                                                 })
-                                                            } }
+                                                            }}
                                                             onSearch={this.changeTenantName}
                                                         />
                                                         <Table
@@ -362,6 +365,9 @@ class ResourceManage extends React.Component<any, any> {
                     tenantInfo={this.state.tenantInfo}
                     clusterId={queryParams.clusterId}
                     disabled={true}
+                    tenantId={tenantInfo?.tenantId}
+                    queue={tenantInfo?.queue}
+                    queueId={tenantInfo?.queueId}
                     onCancel={() => {
                         this.setState({
                             manageModal: false,

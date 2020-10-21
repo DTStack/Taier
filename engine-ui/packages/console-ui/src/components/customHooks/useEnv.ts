@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ENGINE_TYPE } from '../../consts'
 
-function useEnv ({ clusterId, form, clusterList,visible }) {
+function useEnv ({ clusterId, form, clusterList, visible }) {
     const [queueList, setQueueList] = useState([])
     const [env, setEnv] = useState({
         hasHadoop: false,
@@ -10,7 +10,7 @@ function useEnv ({ clusterId, form, clusterList,visible }) {
         hasOracle: false,
         hasGreenPlum: false
     })
-    if(visible) form?.resetFields(['queueId']);
+    if (visible) { form.resetFields(['queueId']); }
 
     useEffect(() => {
         if (!clusterId) return
@@ -31,8 +31,7 @@ function useEnv ({ clusterId, form, clusterList,visible }) {
         })
 
         setQueueList(hadoopEngine?.[0]?.queues || [])
-        
-    }, [ clusterList])
+    }, [clusterId, clusterList])
     return { env, queueList }
 }
 export default useEnv

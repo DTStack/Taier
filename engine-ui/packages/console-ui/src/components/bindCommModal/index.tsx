@@ -1,52 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Modal, Form, Select, Icon, Tooltip } from 'antd';
 import { debounce } from 'lodash';
-
-import FormItem from '../publicForm'
 
 import API from 'dt-common/src/api';
 
 import { useEnv } from '../customHooks'
 
-import { formItemLayout, ENGINE_TYPE } from '../../consts'
+import { formItemLayout } from '../../consts'
+
 const Option = Select.Option;
+const FormItem = Form.Item
 
 const CustomModal: React.FC = (props: any) => {
-    const { form: { getFieldDecorator }, visible, onOk, onCancel, title, isBindTenant,
-        disabled, tenantInfo, clusterId } = props
-    const [env, setEnv] = useState({
-        hasHadoop: false,
-        hasLibra: false,
-        hasTiDB: false,
-        hasOracle: false,
-        hasGreenPlum: false
-    })
-    const [queueList, setQueueList] = useState([])
+    const { form, form: { getFieldDecorator }, visible, onOk, onCancel, title, isBindTenant,
+        disabled, tenantInfo, clusterId, clusterList } = props
     const [tenantList, setTenantList] = useState([])
+    const prevVisible = useRef(null)
+    const { env, queueList } = useEnv({ clusterId, visible: prevVisible.current !== visible && visible === true, form, clusterList })
 
     // 切换集群
     useEffect(() => {
-        if (clusterId) {
-            const { clusterList } = props;
-            const {
-                hasHadoop,
-                hasLibra,
-                hasTiDB,
-                hasOracle,
-                hasGreenPlum, 
-                queueList
-            } = useEnv(clusterId, props?.form, clusterList)
-
-            setEnv({
-                hasHadoop,
-                hasLibra,
-                hasTiDB,
-                hasOracle,
-                hasGreenPlum
-            })
-            setQueueList(queueList)
-        }
-    }, [clusterId, props])
+        // form?.resetFields(['queueId']);
+        prevVisible.current = visible
+    }, [visible])
 
     const onSearchTenantUser = (value: string) => {
         API.getFullTenants(value).then((res: any) => {
@@ -105,21 +81,16 @@ const CustomModal: React.FC = (props: any) => {
                 }
                 <Form>
                     <FormItem
-                        name='tenantId'
-                        getFieldDecorator={getFieldDecorator}
-                        formOptions={{
-                            label: '租户',
-                            ...formItemLayout
-                        }}
-                        fieldDecoratorOptions={{
+                        label='租户'
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('tenantId', {
                             rules: [{
                                 required: true,
                                 message: '租户不可为空！'
                             }],
                             initialValue: tenantInfo && `${tenantInfo.tenantName}`
-                        }}
-                    >
-                        <Select
+                        })(<Select
                             allowClear
                             showSearch
                             placeholder='请搜索要绑定的租户'
@@ -131,7 +102,9 @@ const CustomModal: React.FC = (props: any) => {
                             {tenantList && tenantList.map((tenantItem: any) => {
                                 return <Option key={`${tenantItem.tenantId}`} value={`${tenantItem.tenantId}`} title={tenantItem.tenantName}>{tenantItem.tenantName}</Option>
                             })}
-                        </Select>
+                        </Select>)
+                        }
+
                     </FormItem>
                     {
                         hasHadoop ? (
@@ -140,35 +113,31 @@ const CustomModal: React.FC = (props: any) => {
                             >
                                 <div className='engine-title'>Hadoop</div>
                                 <FormItem
-                                    name='queueId'
-                                    getFieldDecorator={getFieldDecorator}
-                                    formOptions={{
-                                        label: (
-                                            <span>
-                                                资源队列&nbsp;
-                                                <Tooltip title="指Yarn上分配的资源队列，若下拉列表中无全部队列，请前往“多集群管理”页面的具体集群中刷新集群">
-                                                    <Icon type="question-circle-o" />
-                                                </Tooltip>
-                                            </span>
-                                        ),
-                                        ...formItemLayout
-                                    }}
-                                    fieldDecoratorOptions={{
+                                    label={
+                                        (<span>
+                                            资源队列&nbsp;
+                                            <Tooltip title="指Yarn上分配的资源队列，若下拉列表中无全部队列，请前往“多集群管理”页面的具体集群中刷新集群">
+                                                <Icon type="question-circle-o" />
+                                            </Tooltip>
+                                        </span>)
+                                    }
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator('queueId', {
                                         rules: [{
                                             required: true,
                                             message: '租户不可为空！'
                                         }],
                                         initialValue: tenantInfo && `${tenantInfo.tenantName}`
-                                    }}
-                                >
-                                    <Select
+                                    })(<Select
                                         allowClear
                                         placeholder='请选择资源队列'
                                     >
                                         {queueList.map((item: any) => {
                                             return <Option key={`${item.queueId}`} value={`${item.queueId}`}>{item.queueName}</Option>
                                         })}
-                                    </Select>
+                                    </Select>)
+                                    }
                                 </FormItem>
                             </div>
                         ) : null
@@ -187,9 +156,9 @@ const CustomModal: React.FC = (props: any) => {
         </Modal>
     )
 }
-const areEqual = (prevprops, nextprops) => {
-    if (prevprops.visible !== nextprops.visible) return false
-    return true
-}
+// const areEqual = (prevprops, nextprops) => {
+//     if (prevprops.visible !== nextprops.visible) return false
+//     return true
+// }
 
-export default Form.create<any>()(React.memo(CustomModal, areEqual));
+export default Form.create<any>()(CustomModal);
