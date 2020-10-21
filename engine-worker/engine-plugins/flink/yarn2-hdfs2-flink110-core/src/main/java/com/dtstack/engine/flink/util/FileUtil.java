@@ -132,8 +132,9 @@ public class FileUtil {
             return null;
         }
         JsonParser jsonParser = new JsonParser();
-        return (JsonObject) jsonParser.parse(
-                new InputStreamReader(is, StandardCharsets.UTF_8));
+        try (InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+            return (JsonObject) jsonParser.parse(reader);
+        }
     }
 
     public static boolean downLoadFileFromHdfs(String uriStr, String dstFileName, Configuration hadoopConf) throws URISyntaxException, IOException {
