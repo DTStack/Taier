@@ -35,6 +35,7 @@ public class KerberosUtils {
     private static final String KERBEROS_AUTH = "hadoop.security.authentication";
     private static final String SECURITY_TO_LOCAL = "hadoop.security.auth_to_local";
     private static final String KERBEROS_AUTH_TYPE = "kerberos";
+    private static final String SECURITY_TO_LOCAL_DEFAULT = "RULE:[1:$1] RULE:[2:$1]";
     private static final String MODIFIED_TIME_KEY = "modifiedTime";
 
     /**
@@ -104,20 +105,12 @@ public class KerberosUtils {
         if (StringUtils.isNotEmpty(krb5Conf)) {
             System.setProperty(KRB5_CONF, krb5Conf);
         }
-        /*如果需要走/etc/krb5.conf认证  在allConfig添加hadoop.security.authentication kerberos 即可
-            case KERBEROS:
-            case KERBEROS_SSL:
-          如果krb5.conf 不在对应的/etc/下 需要手动指定目录的  在配置文件中hadoop.security.auth_to_local
-          需要手动配置rules
-          <property>
-            <name>hadoop.security.auth_to_local</name>
-            <value>
-            RULE:[1:$1@$0](^.*@DTSTACK\.COM)s/^(.*)@DTSTACK\.COM/$1/g
-            RULE:[2:$1@$0](^.*@DTSTACK\.COM)s/^(.*)@DTSTACK\.COM/$1/g
-            </value>
-          </property>
-        */
-        if (Objects.isNull(allConfig.get(SECURITY_TO_LOCAL))) {
+
+        if (StringUtils.isEmpty(allConfig.get(SECURITY_TO_LOCAL))) {
+            allConfig.set(SECURITY_TO_LOCAL, SECURITY_TO_LOCAL_DEFAULT);
+        }
+
+        if (!StringUtils.equals(allConfig.get(KERBEROS_AUTH), KERBEROS_AUTH_TYPE)) {
             allConfig.set(KERBEROS_AUTH, KERBEROS_AUTH_TYPE);
         }
 
