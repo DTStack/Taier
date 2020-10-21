@@ -543,6 +543,9 @@ public class ScheduleTaskShadeService {
 
         TenantResource tenantResource = tenantResourceDao.selectByUicTenantIdAndTaskType(dtuicTenantId,taskType);
         List<String> exceedMessage = new ArrayList<>();
+        if(Objects.isNull(tenantResource)){
+            return exceedMessage;
+        }
         try {
             Properties taskProperties = PublicUtil.stringToProperties(resourceParams);
             String resourceLimit = tenantResource.getResourceLimit();
