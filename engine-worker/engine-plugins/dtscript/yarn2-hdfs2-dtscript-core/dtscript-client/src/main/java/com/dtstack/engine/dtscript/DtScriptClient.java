@@ -120,13 +120,20 @@ public class DtScriptClient extends AbstractClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
-        String jobId = jobIdentifier.getEngineJobId();
         try {
-            client.kill(jobId);
-            return JobResult.createSuccessResult(jobId);
+            return KerberosUtils.login(configMap, ()->{
+                String jobId = jobIdentifier.getEngineJobId();
+                try {
+                    client.kill(jobId);
+                    return JobResult.createSuccessResult(jobId);
+                } catch (Exception e) {
+                    LOG.error("", e);
+                    return JobResult.createErrorResult(e.getMessage());
+                }
+            }, conf);
         } catch (Exception e) {
-            LOG.error("", e);
-            return JobResult.createErrorResult(e.getMessage());
+            LOG.error("cancelJob error:", e);
+            return JobResult.createErrorResult(e);
         }
     }
 
@@ -273,16 +280,25 @@ public class DtScriptClient extends AbstractClient {
 
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
-        String jobId = jobIdentifier.getEngineJobId();
-        Map<String,Object> jobLog = new HashMap<>();
         try {
-            ApplicationReport applicationReport = client.getApplicationReport(jobId);
-            jobLog.put("msg_info", applicationReport.getDiagnostics());
+            return KerberosUtils.login(configMap, ()-> {
+                String jobId = jobIdentifier.getEngineJobId();
+                Map<String,Object> jobLog = new HashMap<>();
+                try {
+                    ApplicationReport applicationReport = client.getApplicationReport(jobId);
+                    jobLog.put("msg_info", applicationReport.getDiagnostics());
+                } catch (Exception e) {
+                    LOG.error("", e);
+                    jobLog.put("msg_info", e.getMessage());
+                }
+                return GSON.toJson(jobLog, Map.class);
+            }, conf);
         } catch (Exception e) {
             LOG.error("", e);
+            Map<String,Object> jobLog = new HashMap<>();
             jobLog.put("msg_info", e.getMessage());
+            return GSON.toJson(jobLog, Map.class);
         }
-        return GSON.toJson(jobLog, Map.class);
     }
 
     @Override
