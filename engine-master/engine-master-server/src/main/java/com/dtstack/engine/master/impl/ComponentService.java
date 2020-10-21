@@ -949,6 +949,7 @@ public class ComponentService {
         JSONObject dataInfo = new JSONObject();
         dataInfo.put("componentName", EComponentType.getByCode(componentType).getName().toLowerCase());
         if (Objects.nonNull(kerberosConfig)) {
+            dataInfo.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
             //开启了kerberos
             dataInfo.put("openKerberos", kerberosConfig.getOpenKerberos());
             dataInfo.put("remoteDir", kerberosConfig.getRemotePath());

@@ -10,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.HadoopKerberosName;
 import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.security.authentication.util.KerberosName;
 import org.apache.hadoop.util.Time;
 import org.apache.kerby.kerberos.kerb.keytab.Keytab;
 import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
@@ -28,6 +27,10 @@ import java.nio.file.Paths;
 import java.security.PrivilegedExceptionAction;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class KerberosUtils {
@@ -46,6 +49,8 @@ public class KerberosUtils {
     private static final String MODIFIED_TIME_KEY = "modifiedTime";
 
     private static Map<String, UserGroupInformation> ugiMap = Maps.newConcurrentMap();
+    private static final String TIME_FILE = ".lock";
+    private static final String KEYTAB_FILE = ".keytab";
 
     /**
      * @param config        任务外层配置
@@ -63,12 +68,15 @@ public class KerberosUtils {
 
         String fileName = config.getPrincipalFile();
         String remoteDir = config.getRemoteDir();
-        String localDir = String.format("%s/%s", LOCAL_KEYTAB_DIR, UUID.randomUUID());
+        String localDir = String.format("%s/%s", LOCAL_KEYTAB_DIR, remoteDir);
 
         File path = new File(localDir);
         if (!path.exists()) {
             path.mkdirs();
         }
+
+        //本地文件是否和服务器时间一致 一致使用本地缓存
+        boolean isOverrideDownLoad = checkLocalCache(config.getKerberosFileTimestamp(), path);
 
         try {
             logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, config.getSftpConf());
@@ -106,7 +114,63 @@ public class KerberosUtils {
                     logger.error("Delete dir failed: " + e);
                 }
             }
+            //删除本地时间戳标示文件 更新最新时间
+            writeTimeLockFile(config.getKerberosFileTimestamp(),localDir);
+
+            //走本地缓存
+            keytabPath = localDir + File.separator + fileName;
+            if (StringUtils.isNotBlank(krb5ConfName)) {
+                krb5ConfPath = localDir + File.separator + config.getKrbName();
+            }
         }
+    }
+
+    private static void writeTimeLockFile(Timestamp timestamp, String localFile) {
+        if (null == timestamp) {
+            return;
+        }
+        File file = new File(localFile);
+        if (!file.exists()) {
+            return;
+        }
+        if (null != file.listFiles()) {
+            for (File listFile : file.listFiles()) {
+                if (listFile.getName().endsWith(TIME_FILE)) {
+                    logger.info("fileName:{},timestamp {}  localDir:{},delete {}", listFile.getName(), timestamp, listFile, listFile.delete());
+                }
+            }
+        }
+        File timeFile = new File(localFile + File.separator + timestamp.getTime() + TIME_FILE);
+        try {
+            logger.info("fileName:{},timestamp {}  localDir:{},delete {}", timeFile.getName(), timestamp.getTime(), localFile, timeFile.createNewFile());
+        } catch (IOException e) {
+            logger.error("create time lock file  {} error ", timeFile.getName(), e);
+        }
+    }
+
+    private static boolean checkLocalCache(Timestamp dbUploadTime, File path) {
+        boolean isOverrideDownLoad = true;
+        if (!path.exists()) {
+            path.mkdirs();
+        } else if (null != dbUploadTime) {
+            File[] files = path.listFiles();
+            boolean isContainKeytabFile = false;
+            if (null != files && files.length > 0) {
+                for (File file : files) {
+                    if (file.getName().endsWith(TIME_FILE) && file.getName().contains(dbUploadTime.getTime() + "")) {
+                        isOverrideDownLoad = false;
+                    }
+                    if (file.getName().contains(KEYTAB_FILE)) {
+                        isContainKeytabFile = true;
+                    }
+                }
+                if (!isContainKeytabFile && !isOverrideDownLoad) {
+                    //只有lock文件 没有keytab文件
+                    isOverrideDownLoad = true;
+                }
+            }
+        }
+        return isOverrideDownLoad;
     }
 
     /**
