@@ -7,6 +7,7 @@ import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.enums.DbType;
 import com.dtstack.engine.api.enums.EComponentApiType;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.param.SecurityLogParam;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.service.*;
 import com.dtstack.engine.api.vo.ClusterVO;
@@ -21,6 +22,8 @@ import com.dtstack.engine.api.vo.engine.EngineSupportVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
+import com.dtstack.engine.api.vo.template.TaskTemplateResultVO;
+import com.dtstack.engine.api.vo.template.TaskTemplateVO;
 import com.dtstack.engine.api.vo.tenant.UserTenantVO;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightApi;
@@ -58,6 +61,38 @@ public class DAGScheduleXTest {
             ArrayList<Long> taskIdList = Lists.newArrayList(1L, 2L);
             ApiResponse<Void> response = apiClient.frozenTask(taskIdList,1,1L,1L,1);
             System.out.println(JSON.toJSONString(response));
+        } catch (Exception e) {
+            fail("Have exception, message: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testStart19() {
+        try {
+            DtInsightApi api = builder.buildApi();
+            TaskParamService apiClient = api.getApiClient(TaskParamService.class);
+            TaskTemplateVO taskTemplateVO = new TaskTemplateVO();
+            taskTemplateVO.setComputeType(1);
+            taskTemplateVO.setEngineType(5);
+            taskTemplateVO.setTaskType(0);
+            ApiResponse<TaskTemplateResultVO> computeType = apiClient.getEngineParamTmplByComputeType(taskTemplateVO);
+            System.out.println(JSON.toJSONString(computeType));
+        } catch (Exception e) {
+            fail("Have exception, message: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testStart20() {
+        try {
+            DtInsightApi api = builder.buildApi();
+            SecurityLogApiClient apiClient = api.getApiClient(SecurityLogApiClient.class);
+            SecurityLogParam securityLogParam = new SecurityLogParam();
+            securityLogParam.setId(0L);
+            securityLogParam.setSign("B985723079A86B2DAB6DFA1A9F0CB92C455C0A40E4A7BC5AE4E7494C917979DBBF7BA51CAA379EDC51A4EDC94897D369CA440CA55ACB08164AD01AAEC3C70044BA090D1165E378776F2781392C3A588E944E53EF0165FE25DBFFFC7758E3E7C8B3E682302086CD28E8F32CBDEF58CD5F1198963CF9EA4D56570C114D829AA8EFD48448A09D94C2F6C77D1FD9A47158B9F12E1B275EF06B2DB78AC4AA8ECAA038");
+            securityLogParam.setIsDeleted(0);
+            ApiResponse<Void> voidApiResponse = apiClient.addSecurityLog(securityLogParam);
+
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
         }

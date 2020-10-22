@@ -36,7 +36,7 @@
     </build>
     <groupId>com.dtstack.engine</groupId>
     <artifactId>sdk-engine-client</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.6-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
