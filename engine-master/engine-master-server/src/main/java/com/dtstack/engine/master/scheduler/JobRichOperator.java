@@ -170,8 +170,8 @@ public class JobRichOperator {
 
         //正常调度---判断当前任务是不是处于暂停状态--暂停状态直接返回冻结
         if (scheduleType == EScheduleType.NORMAL_SCHEDULE.getType()
-                && (batchTaskShade.getScheduleStatus().equals(EScheduleStatus.PAUSE.getVal()) ||
-                batchTaskShade.getProjectScheduleStatus().equals(EProjectScheduleStatus.PAUSE.getStatus()))) {
+                && (EScheduleStatus.PAUSE.getVal().equals(batchTaskShade.getScheduleStatus()) ||
+                EProjectScheduleStatus.PAUSE.getStatus().equals(batchTaskShade.getProjectScheduleStatus()))) {
             //查询缓存
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TASK_PAUSE);
         }
