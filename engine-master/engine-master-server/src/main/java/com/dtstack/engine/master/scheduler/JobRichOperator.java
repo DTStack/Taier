@@ -159,12 +159,10 @@ public class JobRichOperator {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TASK_DELETE);
         }
 
-        if(ComputeType.BATCH.getType().equals(scheduleBatchJob.getScheduleJob().getComputeType())){
-            //离线任务才需要校验资源
-            //获取租户id
-            Long dtuicTenantId = scheduleBatchJob.getScheduleJob().getDtuicTenantId();
-            Integer taskType = scheduleBatchJob.getScheduleJob().getTaskType();
-            return checkTaskResourceLimit(dtuicTenantId,taskType,batchTaskShade);
+        if(ComputeType.BATCH.getType().equals(scheduleBatchJob.getScheduleJob().getComputeType()) &&
+                checkTaskResourceLimit(scheduleBatchJob,batchTaskShade)){
+
+            return JobCheckRunInfo.createCheckInfo(JobCheckStatus.RESOURCE_OVER_LIMIT);
         }
         if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.NOT_UNSUBMIT);
@@ -201,16 +199,16 @@ public class JobRichOperator {
     * @Param [batchTaskShade, tenantResource]
     * @retrun com.dtstack.engine.master.scheduler.JobCheckRunInfo
     **/
-    private JobCheckRunInfo checkTaskResourceLimit(Long dtuicTenantId,Integer taskType,ScheduleTaskShade batchTaskShade) throws IOException {
+    private Boolean checkTaskResourceLimit(ScheduleBatchJob scheduleBatchJob ,ScheduleTaskShade batchTaskShade) throws IOException {
 
+        //离线任务才需要校验资源
+        //获取租户id
+        Long dtuicTenantId = scheduleBatchJob.getScheduleJob().getDtuicTenantId();
+        Integer taskType = scheduleBatchJob.getScheduleJob().getTaskType();
         String taskParams = batchTaskShade.getTaskParams();
         List<String> exceedMessage = shadeService.checkResourceLimit
                 (dtuicTenantId, taskType, taskParams, batchTaskShade.getTaskId());
-        JobCheckStatus jobCheckStatus = JobCheckStatus.CAN_EXE;
-        if(CollectionUtils.isNotEmpty(exceedMessage)){
-            jobCheckStatus = JobCheckStatus.RESOURCE_OVER_LIMIT;
-        }
-        return JobCheckRunInfo.createCheckInfo(jobCheckStatus);
+        return CollectionUtils.isNotEmpty(exceedMessage);
     }
 
 
