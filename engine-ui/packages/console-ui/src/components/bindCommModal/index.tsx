@@ -185,9 +185,9 @@ const CustomModal: React.FC = (props: any) => {
         </Modal>
     )
 }
-// const areEqual = (prevprops, nextprops) => {
-//     if (prevprops.visible !== nextprops.visible) return false
-//     return true
-// }
+const areEqual = (prevprops, nextprops) => {
+    if (prevprops?.visible !== nextprops?.visible || nextprops?.visible === true) return false
+    return true
+}
 
-export default Form.create<any>()(CustomModal);
+export default Form.create<any>()(React.memo(CustomModal, areEqual));
