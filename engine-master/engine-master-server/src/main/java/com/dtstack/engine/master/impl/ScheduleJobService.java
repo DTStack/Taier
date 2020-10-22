@@ -2578,10 +2578,8 @@ public class ScheduleJobService {
         if (batchTaskById == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
-        Map<Long, ScheduleTaskShade> taskShadeMap = new HashMap<>();
-        taskShadeMap.put(scheduleJob.getTaskId(), batchTaskById);
         try {
-            JobCheckRunInfo jobCheckRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, scheduleJob.getStatus(), scheduleJob.getType(), new HashSet<>(), new HashMap<>(), taskShadeMap);
+            JobCheckRunInfo jobCheckRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, scheduleJob.getStatus(), scheduleJob.getType(),batchTaskById);
             return JSONObject.toJSONString(jobCheckRunInfo);
         } catch (Exception e) {
             e.printStackTrace();
