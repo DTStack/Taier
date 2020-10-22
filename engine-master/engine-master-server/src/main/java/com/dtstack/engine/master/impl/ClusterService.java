@@ -708,8 +708,9 @@ public class ClusterService implements InitializingBean {
                 String jdbcUrl = pluginInfo.getString("jdbcUrl");
                 jdbcUrl = jdbcUrl.replace("/%s", "");
                 pluginInfo.put("jdbcUrl", jdbcUrl);
-                pluginInfo.put("typeName", componentService.convertComponentTypeToClient(clusterVO.getClusterName(),
-                        EComponentType.HIVE_SERVER.getTypeCode(), hiveServer.getHadoopVersion()));
+                String typeName = componentService.convertComponentTypeToClient(clusterVO.getClusterName(),
+                        EComponentType.HIVE_SERVER.getTypeCode(), hiveServer.getHadoopVersion());
+                pluginInfo.put("typeName",typeName);
             }
             pluginInfo.put(ConfigConstant.MD5_SUM_KEY, getZipFileMD5(clusterConfigJson));
             removeMd5FieldInHadoopConf(pluginInfo);
