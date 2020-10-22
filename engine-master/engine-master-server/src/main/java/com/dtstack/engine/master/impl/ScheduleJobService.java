@@ -1714,6 +1714,8 @@ public class ScheduleJobService {
         pageQuery.setModel(batchJobDTO);
 
 
+
+
         batchJobDTO.setPageQuery(true);
         //根据有无条件来判断是否只查询父节点
         if (StringUtils.isNotEmpty(batchJobDTO.getTaskNameLike()) ||
@@ -1727,6 +1729,15 @@ public class ScheduleJobService {
         ScheduleFillDataJobDetailVO scheduleFillDataJobDetailVO = new ScheduleFillDataJobDetailVO();
         scheduleFillDataJobDetailVO.setFillDataJobName(fillJobName);
 
+        if (StringUtils.isNotBlank(vo.getTaskName()) || Objects.nonNull(vo.getOwnerId())) {
+            List<ScheduleTaskShade> batchTaskShades = scheduleTaskShadeDao.listByNameLikeWithSearchType(vo.getProjectId(), vo.getTaskName(),
+                    appType, vo.getOwnerId(), vo.getProjectIds(), batchJobDTO.getSearchType());
+            if (CollectionUtils.isNotEmpty(batchTaskShades)) {
+                batchJobDTO.setTaskIds(batchTaskShades.stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList()));
+            } else {
+                return new PageResult<>(scheduleFillDataJobDetailVO, 0, pageQuery);
+            }
+        }
 
         Integer totalCount = scheduleJobDao.countByFillData(batchJobDTO);
         if (totalCount > 0) {
