@@ -164,19 +164,23 @@ public class JobGraphBuilder {
                     jobGraphBuildPool.execute(() -> {
                         try {
                             for (ScheduleTaskShade task : batchTaskShades) {
-                                List<ScheduleBatchJob> jobRunBeans = RetryUtil.executeWithRetry(() -> {
-                                    String cronJobName = CRON_JOB_NAME + "_" + task.getName();
-                                    return buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
-                                            true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId());
-                                }, environmentContext.getBuildJobErrorRetry(), 200, false);
-                                synchronized (allJobs) {
-                                    allJobs.addAll(jobRunBeans);
-                                }
-
-                                if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
-                                    for (ScheduleBatchJob jobRunBean : jobRunBeans) {
-                                        flowJobId.put(this.buildFlowReplaceId(task.getTaskId(), jobRunBean.getCycTime(), task.getAppType()), jobRunBean.getJobId());
+                                try {
+                                    List<ScheduleBatchJob> jobRunBeans = RetryUtil.executeWithRetry(() -> {
+                                        String cronJobName = CRON_JOB_NAME + "_" + task.getName();
+                                        return buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
+                                                true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId());
+                                    }, environmentContext.getBuildJobErrorRetry(), 200, false);
+                                    synchronized (allJobs) {
+                                        allJobs.addAll(jobRunBeans);
                                     }
+
+                                    if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
+                                        for (ScheduleBatchJob jobRunBean : jobRunBeans) {
+                                            flowJobId.put(this.buildFlowReplaceId(task.getTaskId(), jobRunBean.getCycTime(), task.getAppType()), jobRunBean.getJobId());
+                                        }
+                                    }
+                                } catch (Throwable e) {
+                                    logger.error("build task failure taskId:{} apptype:{}",task.getTaskId(),task.getAppType(), e);
                                 }
                             }
                             logger.info("batch-number:{} done!!! allJobs size:{}", batchIdx, allJobs.size());
@@ -456,7 +460,7 @@ public class JobGraphBuilder {
             scheduleJob.setBusinessDate(businessDate);
 
             //任务流中的子任务，起始节点将任务流节点作为父任务加入
-            if (task.getFlowId() > 0 && !whetherHasParentTask(task.getTaskId())) {
+            if (task.getFlowId() > 0 && !whetherHasParentTask(task.getTaskId(),task.getAppType())) {
                 List<String> keys = getJobKeys(Lists.newArrayList(task.getFlowId()), scheduleJob, scheduleCron, keyPreStr);
                 scheduleBatchJob.addBatchJobJob(createNewJobJob(scheduleJob, jobKey, keys.get(0), timestampNow));
             }
@@ -590,7 +594,7 @@ public class JobGraphBuilder {
      */
     public List<String> getDependencyJobKeys(EScheduleType scheduleType, ScheduleJob scheduleJob, ScheduleCron scheduleCron, String keyPreStr) {
 
-        List<ScheduleTaskTaskShade> taskTasks = taskTaskShadeService.getAllParentTask(scheduleJob.getTaskId());
+        List<ScheduleTaskTaskShade> taskTasks = taskTaskShadeService.getAllParentTask(scheduleJob.getTaskId(),scheduleJob.getAppType());
         List<Long> pIdList = Lists.newArrayList();
         for (ScheduleTaskTaskShade batchTaskTask : taskTasks) {
             if (batchTaskTask.getParentTaskId() != -1) {
@@ -665,8 +669,8 @@ public class JobGraphBuilder {
      * @param taskId
      * @return true-有父任务，false-无
      */
-    private boolean whetherHasParentTask(Long taskId) {
-        List<ScheduleTaskTaskShade> taskTasks = taskTaskShadeService.getAllParentTask(taskId);
+    private boolean whetherHasParentTask(Long taskId,Integer appType) {
+        List<ScheduleTaskTaskShade> taskTasks = taskTaskShadeService.getAllParentTask(taskId,appType);
         return CollectionUtils.isNotEmpty(taskTasks);
     }
 

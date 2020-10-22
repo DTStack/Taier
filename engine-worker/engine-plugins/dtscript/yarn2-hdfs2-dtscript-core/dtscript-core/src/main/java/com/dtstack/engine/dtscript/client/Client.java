@@ -11,24 +11,13 @@ import com.dtstack.engine.dtscript.common.exceptions.RequestOverLimitException;
 import com.dtstack.engine.dtscript.util.Utilities;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.GetNewApplicationResponse;
-import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.hadoop.yarn.api.records.ApplicationReport;
-import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
-import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
-import org.apache.hadoop.yarn.api.records.LocalResource;
-import org.apache.hadoop.yarn.api.records.LocalResourceType;
-import org.apache.hadoop.yarn.api.records.Priority;
-import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.client.api.YarnClientApplication;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -42,11 +31,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Client {
 
@@ -54,14 +39,16 @@ public class Client {
 
     private DtYarnConfiguration conf;
     private FileSystem dfs;
-    private YarnClient yarnClient;
+    private volatile YarnClient yarnClient;
     private volatile Path appJarSrc;
+    private BaseConfig allConfig;
 
 
     private static FsPermission JOB_FILE_PERMISSION = FsPermission.createImmutable((short) 0644);
 
     public Client(DtYarnConfiguration conf, BaseConfig allConfig) throws Exception {
         this.conf = conf;
+        this.allConfig = allConfig;
         KerberosUtils.login(allConfig, () -> {
             String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
             if (conf.get("hadoop.job.ugi") == null) {
@@ -91,6 +78,7 @@ public class Client {
         conf.set(DtYarnConfiguration.LEARNING_AM_CORES, String.valueOf(clientArguments.amCores));
         conf.set(DtYarnConfiguration.LEARNING_WORKER_MEMORY, String.valueOf(clientArguments.workerMemory));
         conf.set(DtYarnConfiguration.LEARNING_WORKER_VCORES, String.valueOf(clientArguments.workerVcores));
+        conf.set(DtYarnConfiguration.LEARNING_WORKER_GPU, String.valueOf(clientArguments.workerGCores));
         conf.set(DtYarnConfiguration.DT_WORKER_NUM, String.valueOf(clientArguments.workerNum));
         conf.set(DtYarnConfiguration.APP_PRIORITY, String.valueOf(clientArguments.priority));
         conf.setBoolean(DtYarnConfiguration.LEARNING_USER_CLASSPATH_FIRST, clientArguments.userClasspathFirst);
@@ -220,7 +208,7 @@ public class Client {
 
         LOG.info("Building application master launch command");
         List<String> appMasterArgs = new ArrayList<>(20);
-        appMasterArgs.add("${JAVA_HOME}" + "/bin/java");
+        appMasterArgs.add(conf.get(DtYarnConfiguration.JAVA_PATH,"${JAVA_HOME}" + "/bin/java"));
         appMasterArgs.add("-cp " + "${CLASSPATH}");
         appMasterArgs.add("-Xms" + conf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY) + "m");
         appMasterArgs.add("-Xmx" + conf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY) + "m");
@@ -340,11 +328,13 @@ public class Client {
         return getYarnClient().getApplicationReport(appId);
     }
 
-    public YarnClient getYarnClient() {
+    public YarnClient getYarnClient(){
+        long startTime = System.currentTimeMillis();
         try {
             if (yarnClient == null) {
                 synchronized (this) {
                     if (yarnClient == null) {
+                        LOG.info("buildYarnClient!");
                         YarnClient yarnClient1 = YarnClient.createYarnClient();
                         yarnClient1.init(conf);
                         yarnClient1.start();
@@ -356,32 +346,14 @@ public class Client {
                 yarnClient.getAllQueues();
             }
         } catch (Throwable e) {
-            LOG.error("getYarnClient error:{}", e);
-            synchronized (this) {
-                if (yarnClient != null) {
-                    boolean flag = true;
-                    try {
-                        //判断下是否可用
-                        yarnClient.getAllQueues();
-                    } catch (Throwable e1) {
-                        LOG.error("getYarnClient error:{}", e1);
-                        flag = false;
-                    }
-                    if (!flag) {
-                        try {
-                            yarnClient.stop();
-                        } finally {
-                            yarnClient = null;
-                        }
-                    }
-                }
-                if (yarnClient == null) {
-                    YarnClient yarnClient1 = YarnClient.createYarnClient();
-                    yarnClient1.init(conf);
-                    yarnClient1.start();
-                    yarnClient = yarnClient1;
-                }
-            }
+            LOG.error("buildYarnClient![backup]", e);
+            YarnClient yarnClient1 = YarnClient.createYarnClient();
+            yarnClient1.init(conf);
+            yarnClient1.start();
+            yarnClient = yarnClient1;
+        } finally {
+            long endTime= System.currentTimeMillis();
+            LOG.info("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
         }
         return yarnClient;
     }
@@ -422,6 +394,7 @@ public class Client {
         }
         return dfs;
     }
+
 
     public List<String> getContainerInfos(String jobId) throws IOException {
         Path remotePath = new Path(conf.get(DtYarnConfiguration.CONTAINER_STAGING_DIR, DtYarnConfiguration.DEFAULT_CONTAINER_STAGING_DIR), jobId);

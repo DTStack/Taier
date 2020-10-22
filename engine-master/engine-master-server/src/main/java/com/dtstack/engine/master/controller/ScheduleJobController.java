@@ -8,6 +8,7 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -259,6 +260,9 @@ public class ScheduleJobController {
 
     @RequestMapping(value="/generalCount", method = {RequestMethod.POST})
     public Integer generalCount(@RequestBody ScheduleJobDTO query) {
+        if (query.getBizEndDay()==null || query.getBizStartDay()==null) {
+            throw new RdosDefineException("业务时间必须必传");
+        }
         return scheduleJobService.generalCount(query);
     }
 
@@ -373,5 +377,10 @@ public class ScheduleJobController {
     @RequestMapping(value="/testTrigger", method = {RequestMethod.POST})
     public void testTrigger(@DtRequestParam("jobId") String jobId) {
         scheduleJobService.testTrigger(jobId);
+    }
+
+    @RequestMapping(value="/getJobGraphJSON", method = {RequestMethod.POST,RequestMethod.GET})
+    public String getJobGraphJSON(@DtRequestParam("jobId") String jobId) {
+       return scheduleJobService.getJobGraphJSON(jobId);
     }
 }

@@ -21,7 +21,7 @@ public enum DataBaseType {
     PostgreSQL("postgresql", "org.postgresql.Driver"),
     RDBMS("rdbms", "com.alibaba.rdbms.plugin.rdbms.util.DataBaseType"),
     DB2("db2", "com.ibm.db2.jcc.DB2Driver"),
-    HIVE("hive", "org.apache.hive.jdbc.HiveDriver"),
+    HIVE("hive2", "org.apache.hive.jdbc.HiveDriver"),
     CarbonData("carbonData", "org.apache.hive.jdbc.HiveDriver"),
     Spark("Spark", "org.apache.hive.jdbc.HiveDriver"),
     ADS("ads","com.mysql.jdbc.Driver"),

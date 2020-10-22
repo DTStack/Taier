@@ -945,7 +945,7 @@ public class ComponentService {
      * @param componentConfig
      * @return
      */
-    private String wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig,String clusterName) {
+    public String wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig,String clusterName) {
         JSONObject dataInfo = new JSONObject();
         dataInfo.put("componentName", EComponentType.getByCode(componentType).getName().toLowerCase());
         if (Objects.nonNull(kerberosConfig)) {
@@ -969,12 +969,11 @@ public class ComponentService {
 
             if (EComponentType.SPARK_THRIFT.getTypeCode() == componentType ||
                     EComponentType.HIVE_SERVER.getTypeCode() == componentType) {
-                if (!jdbcUrl.contains(";principal=") && jdbcUrl.endsWith("%s")) {
-                    //数据库连接不带%s
-                    dataInfo.put("jdbcUrl", jdbcUrl.substring(0, jdbcUrl.lastIndexOf("/")));
-                }
+                //数据库连接不带%s
+                jdbcUrl = jdbcUrl.replace("/%s", "/");
             }
 
+            dataInfo.put("jdbcUrl", jdbcUrl);
             dataInfo.put("username", dataInfo.getString("username"));
             dataInfo.put("password", dataInfo.getString("password"));
             if (Objects.nonNull(kerberosConfig)) {
@@ -1077,27 +1076,33 @@ public class ComponentService {
                 throw new RdosDefineException("sftp组件不存在");
             }
             Map<String, String> map = JSONObject.parseObject(sftpComponent.getComponentConfig(), Map.class);
-            SFTPHandler instance = SFTPHandler.getInstance(map);
             String remoteDir = map.get("path") + File.separator + this.buildSftpPath(clusterId, component.getComponentTypeCode());
             localDownLoadPath = downloadLocation + File.separator + component.getId();
-            if (DownloadType.Kerberos.getCode() == downloadType) {
-                remoteDir = remoteDir + File.separator + KERBEROS_PATH;
-                localDownLoadPath = localDownLoadPath + File.separator + KERBEROS_PATH;
-                instance.downloadDir(remoteDir, localDownLoadPath);
-            } else {
-                //一种是 上传配置文件的需要到sftp下载
-                //一种是  全部手动填写的 如flink
-                if (Objects.isNull(component.getUploadFileName())) {
-                    try {
-                        localDownLoadPath = localDownLoadPath + ".json";
-                        FileUtils.write(new File(localDownLoadPath), component.getComponentConfig());
-                    } catch (IOException e) {
-                        LOGGER.error("write upload file {} error", component.getComponentConfig(), e);
-                    }
+            SFTPHandler handler = null;
+            try {
+                 handler = SFTPHandler.getInstance(map);
+                if (DownloadType.Kerberos.getCode() == downloadType) {
+                    remoteDir = remoteDir + File.separator + KERBEROS_PATH;
+                    localDownLoadPath = localDownLoadPath + File.separator + KERBEROS_PATH;
+                    handler.downloadDir(remoteDir, localDownLoadPath);
                 } else {
-                    instance.downloadDir(remoteDir + File.separator + component.getUploadFileName(), localDownLoadPath);
+                    //一种是 上传配置文件的需要到sftp下载
+                    //一种是  全部手动填写的 如flink
+                    if (Objects.isNull(component.getUploadFileName())) {
+                        try {
+                            localDownLoadPath = localDownLoadPath + ".json";
+                            FileUtils.write(new File(localDownLoadPath), component.getComponentConfig());
+                        } catch (IOException e) {
+                            LOGGER.error("write upload file {} error", component.getComponentConfig(), e);
+                        }
+                    } else {
+                        handler.downloadDir(remoteDir + File.separator + component.getUploadFileName(), localDownLoadPath);
+                    }
                 }
-
+            } finally {
+                if (handler != null) {
+                    handler.close();
+                }
             }
             uploadFileName = component.getUploadFileName();
         }
@@ -1466,6 +1471,12 @@ public class ComponentService {
                 },connectPool).get(env.getTestConnectTimeout(),TimeUnit.SECONDS);
             } catch (Exception e) {
                 LOGGER.error("test connect {}  e ", component.getComponentConfig(), e);
+                countDownLatch.countDown();
+                ComponentTestResult testResult = new ComponentTestResult();
+                testResult.setResult(false);
+                testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+                testResult.setComponentTypeCode(component.getComponentTypeCode());
+                testResults.add(testResult);
             }
         }
         try {

@@ -44,7 +44,7 @@ public class FlinkClusterClientManager {
     /**
      * 常驻的yarnSessionClient，engine使用flink 1.8后，可以考虑废弃yarnSessionClient。
      */
-    private ClusterClient clusterClient;
+    private volatile ClusterClient clusterClient;
 
     /**
      * 用于缓存连接perjob对应application的ClusterClient
@@ -54,37 +54,33 @@ public class FlinkClusterClientManager {
             .expireAfterAccess(10, TimeUnit.MINUTES)
             .build();
 
-    private FlinkClusterClientManager() {
-    }
-
-    public static FlinkClusterClientManager createWithInit(FlinkClientBuilder flinkClientBuilder) throws Exception {
+    public FlinkClusterClientManager(FlinkClientBuilder flinkClientBuilder) throws Exception {
         LOG.warn("Start init FlinkClusterClientManager");
-        FlinkClusterClientManager manager = new FlinkClusterClientManager();
-        manager.flinkClientBuilder = flinkClientBuilder;
-        manager.flinkConfig = flinkClientBuilder.getFlinkConfig();
-        manager.perJobClientFactory = PerJobClientFactory.createPerJobClientFactory(flinkClientBuilder);
-        manager.initClusterClient();
-        return manager;
+        this.flinkClientBuilder = flinkClientBuilder;
+        this.flinkConfig = flinkClientBuilder.getFlinkConfig();
+        this.perJobClientFactory = PerJobClientFactory.createPerJobClientFactory(flinkClientBuilder);
+        if (!flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.PER_JOB.name())) {
+            this.clusterClient = KerberosUtils.login(flinkConfig, () -> this.initClusterClient(), flinkClientBuilder.getYarnConf());
+        }
     }
 
-    public void initClusterClient() throws Exception {
-        clusterClient = KerberosUtils.login(flinkConfig, () -> {
-            if (flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.STANDALONE.name())) {
-                return new StandaloneClientFactory(flinkClientBuilder.getFlinkConfiguration()).getClusterClient();
-            } else if (flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.SESSION.name())) {
-                if (null == sessionClientFactory) {
-                    try {
-                        this.sessionClientFactory = new SessionClientFactory(this, flinkClientBuilder);
-                        LOG.warn("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor");
-                    } catch (Exception e) {
-                        LOG.error("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor error", e);
-                        throw new RdosDefineException(e);
-                    }
+    public ClusterClient initClusterClient() {
+        if (flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.STANDALONE.name())) {
+            return new StandaloneClientFactory(flinkClientBuilder.getFlinkConfiguration()).getClusterClient();
+        } else if (flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.SESSION.name())) {
+            if (null == sessionClientFactory) {
+                try {
+                    sessionClientFactory = new SessionClientFactory(this, flinkClientBuilder);
+                    LOG.warn("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor");
+                } catch (Exception e) {
+                    LOG.error("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor error", e);
+                    throw new RdosDefineException(e);
                 }
-                return sessionClientFactory.startAndGetSessionClusterClient();
             }
-            return null;
-        }, flinkClientBuilder.getYarnConf());
+            this.clusterClient = sessionClientFactory.startAndGetSessionClusterClient();
+            return clusterClient;
+        }
+        return null;
     }
 
     /**

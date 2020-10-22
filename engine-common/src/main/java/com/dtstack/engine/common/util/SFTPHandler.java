@@ -25,6 +25,7 @@ public class SFTPHandler {
     private static final String KEY_HOST = "host";
     private static final String KEY_PORT = "port";
     private static final String KEY_TIMEOUT = "timeout";
+    private static final String KEY_ISUSEPOOL = "isUsePool";
     private static final String MAX_TOTAL = "maxTotal";
     private static final String MAX_IDLE = "maxIdle";
     private static final String MIN_IDLE = "minIdle";
@@ -37,6 +38,8 @@ public class SFTPHandler {
     private static final int DEFAULT_TIME_OUT = 0;
     private static final String DEFAULT_PORT = "22";
     private static final String STRING_EMPTY = "";
+    private static final String FILE_TIMEOUT = "fileTimeout";
+
     //有引用 勿删
     public static final String DEFAULT_RSA_PATH_TEMPLATE = "/%s/.ssh/id_rsa";
 
@@ -52,18 +55,22 @@ public class SFTPHandler {
     private static final long MIN_EVICTABLE_IDLE_TIME_VALUE = -1;
     private static final long SOFT_MIN_EVICTABLE_IDLE_TIME_VALUE = 1000L * 60L * 30L;
     private static final long TIME_BETWEEN_EVICTION_RUNS_VALUE = 1000L * 60L * 5L;
+    private static final boolean ISUSEPOOL_VALUE = true;
 
 
     private static final String KEYWORD_FILE_NOT_EXISTS = "No such file";
 
     private static Map<String, SftpPool> sftpPoolMap = Maps.newConcurrentMap();
+    private static Map<String, Long> fileLastModifyMap = Maps.newConcurrentMap();
 
     private ChannelSftp channelSftp;
     private SftpPool sftpPool;
+    private Map<String, String> sftpConfig;
 
-    private SFTPHandler(ChannelSftp channelSftp, SftpPool sftpPool) {
+    private SFTPHandler(ChannelSftp channelSftp, SftpPool sftpPool, Map<String, String> sftpConfig) {
         this.channelSftp = channelSftp;
         this.sftpPool = sftpPool;
+        this.sftpConfig = sftpConfig;
     }
 
     public static SFTPHandler getInstance(String host, int port, String username, String password, Integer timeout) {
@@ -78,8 +85,27 @@ public class SFTPHandler {
 
     public static SFTPHandler getInstance(Map<String, String> sftpConfig){
         checkConfig(sftpConfig);
-        String sftpPoolKey = getSftpPoolKey(sftpConfig);
 
+        boolean isUsePool = MapUtils.getBoolean(sftpConfig, KEY_ISUSEPOOL, ISUSEPOOL_VALUE);
+
+        ChannelSftp channelSftp = null;
+        SftpPool sftpPool = null;
+        if (isUsePool) {
+            logger.info("get channelSftp from SftpPool!");
+            sftpPool = getSftpPool(sftpConfig);
+            channelSftp = sftpPool.borrowObject();
+        } else {
+            logger.info("get channelSftp from native!");
+            SftpFactory sftpFactory = new SftpFactory(sftpConfig);
+            channelSftp = sftpFactory.create();
+        }
+
+        setSessionTimeout(sftpConfig, channelSftp);
+        return new SFTPHandler(channelSftp, sftpPool, sftpConfig);
+    }
+
+    private static SftpPool getSftpPool(Map<String, String> sftpConfig) {
+        String sftpPoolKey = getSftpPoolKey(sftpConfig);
         SftpPool sftpPool = sftpPoolMap.computeIfAbsent(sftpPoolKey, k -> {
             SftpPool sftpPool1 = null;
             //先检测sftp主机验证能否通过，再缓存
@@ -114,10 +140,8 @@ public class SFTPHandler {
             }
             return sftpPool1;
         });
+        return sftpPool;
 
-        ChannelSftp channelSftp = sftpPool.borrowObject();
-        setSessionTimeout(sftpConfig, channelSftp);
-        return new SFTPHandler(channelSftp, sftpPool);
     }
 
     private static String getSftpPoolKey(Map<String, String> sftpConfig) {
@@ -244,7 +268,17 @@ public class SFTPHandler {
     }
 
     public void close(){
-        sftpPool.returnObject(channelSftp);
+        if (sftpPool != null) {
+            sftpPool.returnObject(channelSftp);
+        } else {
+            try {
+                channelSftp.disconnect();
+                channelSftp.getSession().disconnect();
+            } catch (Exception e) {
+                logger.error("close channelSftp error: {}", e.getMessage());
+            }
+        }
+
     }
 
     public String loadFromSftp(String fileName, String remoteDir, String localDir){
@@ -276,8 +310,20 @@ public class SFTPHandler {
     public String loadOverrideFromSftp(String fileName, String remoteDir, String localDir,boolean isEnd) {
         String remoteFile = remoteDir + File.separator + fileName;
         String localFile = localDir + File.separator + fileName;
+
+        File localFileDir = new File(localFile);
+        Long lastModifyTime;
+        long fileTimeout;
+        if ((fileTimeout = MapUtils.getLong(sftpConfig, FILE_TIMEOUT, 0L)) != 0L && (lastModifyTime = fileLastModifyMap.get(localFile)) != null) {
+            if (System.currentTimeMillis() - lastModifyTime <= fileTimeout) {
+                if (localFileDir.exists()) {
+                    return localFile;
+                }
+            }
+        }
         try {
             downloadFile(remoteFile, localFile);
+            fileLastModifyMap.put(localFile, new File(localFile).lastModified());
             return localFile;
         } catch (Exception e) {
             logger.error("load file error: ", e);

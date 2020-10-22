@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
@@ -28,6 +29,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -271,6 +273,14 @@ public class ClusterService implements InitializingBean {
             pluginJson.fluentPut("openKerberos", Objects.nonNull(openKerberos) && openKerberos > 0)
                     .fluentPut("remoteDir", remotePath)
                     .fluentPut("principalFile", kerberosConfig.getName()).fluentPut("krbName",kerberosConfig.getKrbName());
+            JSONObject config = new JSONObject();
+            config.put("yarnConf",pluginJson.getJSONObject("hadoopConf"));
+            config.put("sftpConf",pluginJson.getJSONObject("sftpConf"));
+            config.put("principalFile",kerberosConfig.getName());
+            config.put("remoteDir",kerberosConfig.getRemotePath());
+            config.put("krbName",kerberosConfig.getKrbName());
+            config.put("openKerberos","true");
+            pluginJson.put("config",config);
         }
     }
 
@@ -458,14 +468,28 @@ public class ClusterService implements InitializingBean {
         Component component = componentDao.getByClusterIdAndComponentType(cluster.getId(),componentType.getTypeCode());
         KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(),componentType.getTypeCode());
         JSONObject configObj = config.getJSONObject(key);
-
         if (configObj != null) {
             //返回版本
-            configObj.put("version",component.getHadoopVersion());
+            configObj.put("version", component.getHadoopVersion());
+            // TODO 维持各个应用原来数据接口
             addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
             if (Objects.nonNull(fullKerberos) && fullKerberos) {
                 //将sftp中keytab配置转换为本地路径
                 this.fullKerberosFilePath(dtUicTenantId, configObj,component);
+            }
+
+            if(BooleanUtils.isTrue(fullKerberos)){
+                Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode());
+                Map sftpMap = null;
+                try {
+                    sftpMap = PublicUtil.strToObject(sftpComponent.getComponentConfig(), Map.class);
+                } catch (Exception e) {
+                    throw new RdosDefineException("sftp 配置不能为空");
+                }
+                //填充信息
+                JSONObject componentInfo = JSONObject.parseObject(componentService.wrapperConfig(componentType.getTypeCode(), component.getComponentConfig(),
+                        sftpMap, kerberosConfig, cluster.getClusterName()));
+                configObj.putAll(componentInfo);
             }
             return configObj.toJSONString();
         }

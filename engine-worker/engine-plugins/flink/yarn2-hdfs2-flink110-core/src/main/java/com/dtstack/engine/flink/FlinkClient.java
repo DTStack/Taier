@@ -125,10 +125,10 @@ public class FlinkClient extends AbstractClient {
         sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
 
         hadoopConf = FlinkClientBuilder.initHadoopConf(flinkConfig);
-        flinkClientBuilder = FlinkClientBuilder.create(flinkConfig, hadoopConf.getConfiguration(), hadoopConf.getYarnConfiguration());
+        flinkClientBuilder = new FlinkClientBuilder(flinkConfig, hadoopConf.getConfiguration(), hadoopConf.getYarnConfiguration());
         flinkClientBuilder.initFlinkGlobalConfiguration(flinkExtProp);
 
-        flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
+        flinkClusterClientManager = new FlinkClusterClientManager(flinkClientBuilder);
 
         if (flinkConfig.getMonitorAcceptedApp()) {
             AcceptedApplicationMonitor.start(hadoopConf.getYarnConfiguration(), flinkConfig.getQueue(), flinkConfig);
@@ -212,6 +212,7 @@ public class FlinkClient extends AbstractClient {
                 clusterSpecification.setClassLoaderType(ClassLoaderType.getClassLoaderType(jobClient.getJobType()));
 
                 runResult = runJobByPerJob(clusterSpecification, jobClient);
+                jobGraph = clusterSpecification.getJobGraph();
                 packagedProgram = clusterSpecification.getProgram();
             } else {
                 Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
@@ -224,7 +225,7 @@ public class FlinkClient extends AbstractClient {
 
                 runResult = runJobByYarnSession(jobGraph);
             }
-            return JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond());
+            return JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond(), JobGraphBuildUtil.buildLatencyMarker(jobGraph));
         } catch (Throwable e) {
             return JobResult.createErrorResult(e);
         } finally {
@@ -480,45 +481,52 @@ public class FlinkClient extends AbstractClient {
      * @param applicationId
      * @return
      */
-    public RdosTaskStatus getPerJobStatus(String applicationId){
-        ApplicationId appId = ConverterUtils.toApplicationId(applicationId);
+    public RdosTaskStatus getPerJobStatus(String applicationId) {
         try {
-            ApplicationReport report = flinkClientBuilder.getYarnClient().getApplicationReport(appId);
-            YarnApplicationState applicationState = report.getYarnApplicationState();
-            switch(applicationState) {
-                case KILLED:
-                    return RdosTaskStatus.KILLED;
-                case NEW:
-                case NEW_SAVING:
-                    return RdosTaskStatus.CREATED;
-                case SUBMITTED:
-                    //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
-                    return RdosTaskStatus.WAITCOMPUTE;
-                case ACCEPTED:
-                    return RdosTaskStatus.SCHEDULED;
-                case RUNNING:
-                    return RdosTaskStatus.RUNNING;
-                case FINISHED:
-                    //state 为finished状态下需要兼顾判断finalStatus.
-                    FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
-                    if(finalApplicationStatus == FinalApplicationStatus.FAILED){
-                        return RdosTaskStatus.FAILED;
-                    }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
-                        return RdosTaskStatus.FINISHED;
-                    }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
-                        return RdosTaskStatus.KILLED;
-                    }else if(finalApplicationStatus == FinalApplicationStatus.UNDEFINED){
-                        return RdosTaskStatus.FAILED;
-                    }else{
-                        return RdosTaskStatus.RUNNING;
-                    }
+            return KerberosUtils.login(flinkConfig, () -> {
+                ApplicationId appId = ConverterUtils.toApplicationId(applicationId);
+                try {
+                    ApplicationReport report = flinkClientBuilder.getYarnClient().getApplicationReport(appId);
+                    YarnApplicationState applicationState = report.getYarnApplicationState();
+                    switch (applicationState) {
+                        case KILLED:
+                            return RdosTaskStatus.KILLED;
+                        case NEW:
+                        case NEW_SAVING:
+                            return RdosTaskStatus.CREATED;
+                        case SUBMITTED:
+                            //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
+                            return RdosTaskStatus.WAITCOMPUTE;
+                        case ACCEPTED:
+                            return RdosTaskStatus.SCHEDULED;
+                        case RUNNING:
+                            return RdosTaskStatus.RUNNING;
+                        case FINISHED:
+                            //state 为finished状态下需要兼顾判断finalStatus.
+                            FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
+                            if (finalApplicationStatus == FinalApplicationStatus.FAILED) {
+                                return RdosTaskStatus.FAILED;
+                            } else if (finalApplicationStatus == FinalApplicationStatus.SUCCEEDED) {
+                                return RdosTaskStatus.FINISHED;
+                            } else if (finalApplicationStatus == FinalApplicationStatus.KILLED) {
+                                return RdosTaskStatus.KILLED;
+                            } else if (finalApplicationStatus == FinalApplicationStatus.UNDEFINED) {
+                                return RdosTaskStatus.FAILED;
+                            } else {
+                                return RdosTaskStatus.RUNNING;
+                            }
 
-                case FAILED:
-                    return RdosTaskStatus.FAILED;
-                default:
-                    throw new RdosDefineException("Unsupported application state");
-            }
-        } catch (YarnException | IOException e) {
+                        case FAILED:
+                            return RdosTaskStatus.FAILED;
+                        default:
+                            throw new RdosDefineException("Unsupported application state");
+                    }
+                } catch (YarnException | IOException e) {
+                    logger.error("", e);
+                    return RdosTaskStatus.NOTFOUND;
+                }
+            }, hadoopConf.getYarnConfiguration());
+        } catch (Exception e) {
             logger.error("", e);
             return RdosTaskStatus.NOTFOUND;
         }
@@ -538,16 +546,24 @@ public class FlinkClient extends AbstractClient {
 
 
     @Override
-    public String getJobMaster(JobIdentifier jobIdentifier){
-        ApplicationId applicationId = (ApplicationId) flinkClusterClientManager.getClusterClient(jobIdentifier).getClusterId();
-        String url = null;
+    public String getJobMaster(JobIdentifier jobIdentifier) {
         try {
-            url = flinkClientBuilder.getYarnClient().getApplicationReport(applicationId).getTrackingUrl();
-            url = StringUtils.substringBefore(url.split("//")[1], "/");
-        } catch (Exception e){
-            logger.error("Getting URL failed" + e);
+            return KerberosUtils.login(flinkConfig, () -> {
+                ApplicationId applicationId = (ApplicationId) flinkClusterClientManager.getClusterClient(jobIdentifier).getClusterId();
+
+                String url = null;
+                try {
+                    url = flinkClientBuilder.getYarnClient().getApplicationReport(applicationId).getTrackingUrl();
+                    url = StringUtils.substringBefore(url.split("//")[1], "/");
+                } catch (Exception e) {
+                    logger.error("Getting URL failed" + e);
+                }
+                return url;
+            }, hadoopConf.getYarnConfiguration());
+        } catch (Exception e) {
+            logger.error("", e);
+            return null;
         }
-        return url;
     }
 
     private JobResult submitSyncJob(JobClient jobClient) {
@@ -602,7 +618,7 @@ public class FlinkClient extends AbstractClient {
             String except = getExceptionInfo(exceptPath, reqURL);
             retMap.put("exception", except);
             return FlinkRestParseUtil.parseEngineLog(retMap);
-        } catch(RdosDefineException e){
+        } catch (RdosDefineException | IOException e) {
             //http 请求失败时返回空日志
             logger.error("", e);
             return null;
@@ -639,21 +655,23 @@ public class FlinkClient extends AbstractClient {
         boolean isPerJob = ComputeType.STREAM == jobClient.getComputeType() || FlinkYarnMode.isPerJob(taskRunMode);
 
         try {
-            FlinkPerJobResourceInfo perJobResourceInfo = FlinkPerJobResourceInfo.FlinkPerJobResourceInfoBuilder()
-                    .withYarnClient(flinkClientBuilder.getYarnClient())
-                    .withQueueName(flinkConfig.getQueue())
-                    .withYarnAccepterTaskNumber(flinkConfig.getYarnAccepterTaskNumber())
-                    .build();
+            JudgeResult judgeResult = KerberosUtils.login(flinkConfig, () -> {
+                FlinkPerJobResourceInfo perJobResourceInfo = FlinkPerJobResourceInfo.FlinkPerJobResourceInfoBuilder()
+                        .withYarnClient(flinkClientBuilder.getYarnClient())
+                        .withQueueName(flinkConfig.getQueue())
+                        .withYarnAccepterTaskNumber(flinkConfig.getYarnAccepterTaskNumber())
+                        .build();
 
-            JudgeResult judgeResult = perJobResourceInfo.judgeSlots(jobClient);
+                return perJobResourceInfo.judgeSlots(jobClient);
+            }, hadoopConf.getYarnConfiguration());
 
             if (!judgeResult.available() || isPerJob){
                 return judgeResult;
             } else {
                 if (flinkClusterClientManager.getSessionClientFactory()!=null&&
                         !flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().isRunning()) {
-                    logger.warn("wait flink client recover...");
-                    return JudgeResult.notOk( "wait flink client recover");
+                    logger.warn("wait flink session client recover...");
+                    return JudgeResult.notOk("wait flink session client recover");
                 }
                 FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
                 String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
@@ -662,7 +680,7 @@ public class FlinkClient extends AbstractClient {
             }
         } catch (Exception e){
             logger.error("judgeSlots error:{}", e);
-            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
+            return JudgeResult.notOk("judgeSlots error");
         }
     }
 
@@ -785,6 +803,8 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public void beforeSubmitFunc(JobClient jobClient) {
+        logger.info("Job[{}] submit before", jobClient.getTaskId());
+
         String sql = jobClient.getSql();
         List<String> sqlArr = DtStringUtil.splitIgnoreQuota(sql, ';');
         if(sqlArr.size() == 0){
