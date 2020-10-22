@@ -55,6 +55,9 @@ public class ClusterServiceTest extends AbstractTest {
     private ComponentService componentService;
 
     @Autowired
+    private TenantResourceDao tenantResourceDao;
+
+    @Autowired
     private EngineDao engineDao;
 
     @Autowired
@@ -105,6 +108,7 @@ public class ClusterServiceTest extends AbstractTest {
         ReflectionTestUtils.setField(tenantService,"engineTenantDao", engineTenantDao);
         ReflectionTestUtils.setField(tenantService,"engineDao", engineDao);
         ReflectionTestUtils.setField(tenantService,"consoleCache", consoleCache);
+        ReflectionTestUtils.setField(tenantService,"tenantResourceDao", tenantResourceDao);
         doNothing().when(tenantService).checkClusterCanUse(any());
 
     }
