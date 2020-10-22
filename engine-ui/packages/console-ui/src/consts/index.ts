@@ -739,7 +739,6 @@ export const notExtKeysTidbSql: any = [
 export const sourcetype: string[] = [
     'executor.memory',
     'driver.memory',
-    'executor.cores',
     'jobmanager.memory.mb',
     'taskmanager.memory.mb',
     'worker.memory',
