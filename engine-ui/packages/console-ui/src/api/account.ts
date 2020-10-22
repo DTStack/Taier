@@ -22,6 +22,12 @@ export default {
         return http.postWithDefaultHeader(req.ACCOUNT_BIND, params)
     },
 
+    ldapBindAccount (params: {
+        accountList: any[];
+    }) {
+        return http.postWithDefaultHeader(req.LDAP_ACCOUNT_BIND, params)
+    },
+
     updateBindAccount (params: IAccount) {
         return http.postWithDefaultHeader(req.UPDATE_ACCOUNT_BIND, params)
     },

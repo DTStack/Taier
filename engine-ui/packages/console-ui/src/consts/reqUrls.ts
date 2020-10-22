@@ -69,6 +69,7 @@ export default {
     SEARCH_TENANT: `${CONSOLE_BASE_URL}/tenant/pageQuery`,
     GET_QUEUE: `${CONSOLE_BASE_URL}/engine/getQueue`,
     BIND_TENANT: `${CONSOLE_BASE_URL}/tenant/bindingTenant`,
+    LDAP_ACCOUNT_BIND: `${CONSOLE_BASE_URL}/account/bindAccountList`,
     SWITCH_QUEUE: `${CONSOLE_BASE_URL}/tenant/bindingQueue`,
     GET_TASKLIMITS: `${CONSOLE_BASE_URL}/tenant/queryTaskResourceLimits`,
     REFRESH_QUEUE: `${CONSOLE_BASE_URL}/component/refresh`,

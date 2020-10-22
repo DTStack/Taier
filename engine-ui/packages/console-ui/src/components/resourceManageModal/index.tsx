@@ -8,6 +8,7 @@ import { formItemLayout, specFormItemLayout, sourcetype } from '../../consts'
 const Option = Select.Option;
 const FormItem = Form.Item
 const { confirm } = Modal
+
 const DynamicForm = (props: any) => {
     const { getFieldDecorator, lineList, taskTypeName, deleteItem, type, initialList } = props
     const lineTitle = Object.keys(lineList)
@@ -254,7 +255,7 @@ const CustomModal: React.FC = (props: any) => {
     )
 }
 // const areEqual = (prevprops, nextprops) => {
-//     if (prevprops.visible !== nextprops.visible) return false
+//     if (prevprops.visible !== nextprops.visible || prevprops.form !== nextprops.form ) return false
 //     return true
 // }
 

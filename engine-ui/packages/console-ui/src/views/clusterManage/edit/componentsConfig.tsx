@@ -290,8 +290,8 @@ class ComponentsConfig extends React.Component<any, any> {
         )
     }
     renderComponentsConfig = () => {
-        const { components } = this.props;
-        switch (components.componentTypeCode) {
+        const { componentTypeCode = '' } = this.props?.components
+        switch (componentTypeCode) {
             case COMPONENT_TYPE_VALUE.YARN:
                 return this.renderYarnOrHdfsConfig()
             case COMPONENT_TYPE_VALUE.HDFS:
@@ -299,41 +299,28 @@ class ComponentsConfig extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.KUBERNETES:
                 return this.renderKubernetsConfig()
             case COMPONENT_TYPE_VALUE.SFTP:
-                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.SFTP)
             case COMPONENT_TYPE_VALUE.TIDB_SQL:
-                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.TIDB_SQL)
             case COMPONENT_TYPE_VALUE.LIBRA_SQL:
-                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.LIBRA_SQL)
             case COMPONENT_TYPE_VALUE.ORACLE_SQL:
-                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.ORACLE_SQL)
             case COMPONENT_TYPE_VALUE.IMPALA_SQL:
-                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.IMPALA_SQL)
             case COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL:
-                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.GREEN_PLUM_SQL)
-            case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
-                return (
-                    <React.Fragment>
-                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.SPARK_THRIFT_SERVER)}
-                        {this.renderCustomParam(COMPONEMT_CONFIG_KEYS.SPARK_THRIFT_SERVER)}
-                        {this.renderAddCustomParam()}
-                    </React.Fragment>
-                )
-            case COMPONENT_TYPE_VALUE.HIVE_SERVER:
-                return (
-                    <React.Fragment>
-                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.HIVE_SERVER)}
-                        {this.renderCustomParam(COMPONEMT_CONFIG_KEYS.HIVE_SERVER)}
-                        {this.renderAddCustomParam()}
-                    </React.Fragment>
-                )
             case COMPONENT_TYPE_VALUE.FLINK:
-                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.FLINK)
             case COMPONENT_TYPE_VALUE.SPARK:
-                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.SPARK)
             case COMPONENT_TYPE_VALUE.LEARNING:
-                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.LEARNING)
             case COMPONENT_TYPE_VALUE.DTYARNSHELL:
-                return this.rendeConfigForm(COMPONEMT_CONFIG_KEYS.DTYARNSHELL)
+            case COMPONENT_TYPE_VALUE.PRESTO_SQL: {
+                return this.rendeConfigForm(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])
+            }
+            case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
+            case COMPONENT_TYPE_VALUE.HIVE_SERVER: {
+                return (
+                    <React.Fragment>
+                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderCustomParam(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderAddCustomParam()}
+                    </React.Fragment>
+                )
+            }
             default:
                 return null;
         }

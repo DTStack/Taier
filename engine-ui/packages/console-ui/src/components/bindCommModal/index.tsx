@@ -52,12 +52,13 @@ const CustomModal: React.FC = (props: any) => {
     }
 
     const getEnginName = () => {
-        const { hasLibra, hasTiDB, hasOracle, hasGreenPlum } = env;
+        const { hasLibra, hasTiDB, hasOracle, hasGreenPlum, hasPresto } = env;
         let enginName = [];
         enginName = hasLibra ? [...enginName, 'Libra'] : enginName;
         enginName = hasTiDB ? [...enginName, 'TiDB'] : enginName;
         enginName = hasOracle ? [...enginName, 'Oracle'] : enginName;
         enginName = hasGreenPlum ? [...enginName, 'Greenplum'] : enginName;
+        enginName = hasPresto ? [...enginName, 'Presto'] : enginName;
         return enginName;
     }
 

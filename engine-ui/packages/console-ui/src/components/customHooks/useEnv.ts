@@ -8,12 +8,14 @@ function useEnv ({ clusterId, form, clusterList, visible }) {
         hasLibra: false,
         hasTiDB: false,
         hasOracle: false,
-        hasGreenPlum: false
+        hasGreenPlum: false,
+        hasPresto: false
     })
     if (visible) { form.resetFields(['queueId']); }
 
     useEffect(() => {
         if (!clusterId) return
+
         const currentCluster = clusterList.filter((clusItem: any) => clusItem?.clusterId == clusterId); // 选中当前集群
         const currentEngineList = currentCluster?.[0]?.engines || [];
         const hadoopEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.HADOOP);
@@ -21,13 +23,15 @@ function useEnv ({ clusterId, form, clusterList, visible }) {
         const tiDBEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.TI_DB);
         const oracleEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.ORACLE);
         const greenPlumEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.GREEN_PLUM);
+        const prestoEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.PRESTO);
 
         setEnv({
             hasHadoop: hadoopEngine.length >= 1,
             hasLibra: libraEngine.length >= 1,
             hasTiDB: tiDBEngine.length > 0,
             hasOracle: oracleEngine.length > 0,
-            hasGreenPlum: greenPlumEngine.length > 0
+            hasGreenPlum: greenPlumEngine.length > 0,
+            hasPresto: prestoEngine.length > 0
         })
 
         setQueueList(hadoopEngine?.[0]?.queues || [])

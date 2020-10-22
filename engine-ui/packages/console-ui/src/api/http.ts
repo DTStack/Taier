@@ -18,17 +18,17 @@ class Http {
         return this.request(url, options)
     }
 
-    postAsFormData (url: any, params: any) {
-        let options: any = { method: 'POST' }
-        if (params) options.body = this.buildFormData(params)
-        return this.request(url, options)
-    }
-
     // account 相关接口需要设置默认请求头
     postWithDefaultHeader (url: any, body: any) { // POST请求
         let options: any = { method: 'POST' }
         options.headers = this.defaultHeader()
         if (body) options.body = JSON.stringify(body)
+        return this.request(url, options)
+    }
+
+    postAsFormData (url: any, params: any) {
+        let options: any = { method: 'POST' }
+        if (params) options.body = this.buildFormData(params)
         return this.request(url, options)
     }
 
