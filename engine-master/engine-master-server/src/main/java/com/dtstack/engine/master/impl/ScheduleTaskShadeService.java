@@ -16,6 +16,7 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.common.util.UnitConvertUtil;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
@@ -556,7 +557,7 @@ public class ScheduleTaskShadeService {
                 String driverCores = taskProperties.getProperty("driver.cores");
                 Integer driverCoresLimit = jsonObject.getInteger("driver.cores");
                 if(StringUtils.isNotBlank(driverCores) && driverCoresLimit!=null){
-                    if(Integer.parseInt(driverCores) > driverCoresLimit){
+                    if(UnitConvertUtil.getNormalizedMem(driverCores) > driverCoresLimit){
                         //driver核数超过限制
                         LOG.error("spark类型任务，task{} driverCores:{} (限制:{})",taskId,driverCores,driverCoresLimit);
                         exceedMessage.add("driverCores: "+driverCores+" (限制: "+driverCoresLimit+")");
@@ -565,7 +566,7 @@ public class ScheduleTaskShadeService {
                 String driverMemory = taskProperties.getProperty("driver.memory");
                 Integer driverMemoryLimit = jsonObject.getInteger("driver.memory");
                 if(StringUtils.isNotBlank(driverMemory) && driverMemoryLimit!=null){
-                    if(Integer.parseInt(driverMemory) > driverMemoryLimit){
+                    if(UnitConvertUtil.getNormalizedMem(driverMemory) > driverMemoryLimit){
                         //driver内存大小超过限制
                         LOG.error("spark类型任务，task{} driverMemory:{} (限制:{})",taskId,driverMemory,driverMemoryLimit);
                         exceedMessage.add("driverMemory: "+driverMemory+" (限制: "+driverMemoryLimit+")");
@@ -573,8 +574,8 @@ public class ScheduleTaskShadeService {
                 }
                 String executorInstances = taskProperties.getProperty("executor.instances");
                 Integer executorInstancesLimit = jsonObject.getInteger("executor.instances");
-                if(StringUtils.isNotBlank(driverMemory) && driverMemoryLimit!=null){
-                    if(Integer.parseInt(executorInstances) > executorInstancesLimit){
+                if(StringUtils.isNotBlank(executorInstances) && executorInstancesLimit!=null){
+                    if(UnitConvertUtil.getNormalizedMem(executorInstances) > executorInstancesLimit){
                         //executor实例数超过限制
                         LOG.error("spark类型任务，task{} executorInstances:{} (限制:{})",taskId,executorInstances,executorInstancesLimit);
                         exceedMessage.add("executorInstances: "+executorInstances+" (限制: "+executorInstancesLimit+")");
@@ -583,7 +584,7 @@ public class ScheduleTaskShadeService {
                 String executorCores = taskProperties.getProperty("executor.cores");
                 Integer executorCoresLimit = jsonObject.getInteger("executor.cores");
                 if(StringUtils.isNotBlank(executorCores) && executorCoresLimit!=null){
-                    if(Integer.parseInt(executorCores) > executorCoresLimit){
+                    if(UnitConvertUtil.getNormalizedMem(executorCores) > executorCoresLimit){
                         //executor核数超过限制
                         LOG.error("spark类型任务，task{} executorCores:{} (限制:{})",taskId,executorCores,executorCoresLimit);
                         exceedMessage.add("executorCores: "+executorCores+" (限制: "+executorCoresLimit+")");
@@ -591,10 +592,10 @@ public class ScheduleTaskShadeService {
                 }
                 String executorMemory = taskProperties.getProperty("executor.memory");
                 Integer executorMemoryLimit = jsonObject.getInteger("executor.memory");
-                if(StringUtils.isNotBlank(executorCores) && executorCoresLimit!=null){
-                    if(Integer.parseInt(executorMemory) > executorMemoryLimit){
+                if(StringUtils.isNotBlank(executorMemory) && executorMemoryLimit!=null){
+                    if(UnitConvertUtil.getNormalizedMem(executorMemory) > executorMemoryLimit){
                         //executor核数超过限制
-                        LOG.error("spark类型任务，task{} executorCores:{} (限制:{})",taskId,executorMemory,executorMemoryLimit);
+                        LOG.error("spark类型任务，task{} executorMemory:{} (限制:{})",taskId,executorMemory,executorMemoryLimit);
                         exceedMessage.add("executorMemory: "+executorMemory+" (限制: "+executorMemoryLimit+")");
                     }
                 }
@@ -603,7 +604,7 @@ public class ScheduleTaskShadeService {
                 String jobManagerMemory = taskProperties.getProperty("jobmanager.memory.mb");
                 Integer jobManagerMemoryLimit = jsonObject.getInteger("jobmanager.memory.mb");
                 if(StringUtils.isNotBlank(jobManagerMemory) && jobManagerMemoryLimit !=null){
-                    if(Integer.parseInt(jobManagerMemory) > jobManagerMemoryLimit){
+                    if(UnitConvertUtil.getNormalizedMem(jobManagerMemory) > jobManagerMemoryLimit){
                         //工作管理器内存大小超过限制
                         LOG.error("flink数据同步类型任务，task{} jobManagerMemory:{} (限制:{})",taskId,jobManagerMemory,jobManagerMemoryLimit);
                         exceedMessage.add("jobManagerMemory: "+jobManagerMemory+" (限制: "+jobManagerMemoryLimit+")");
@@ -612,7 +613,7 @@ public class ScheduleTaskShadeService {
                 String taskManagerMemory = taskProperties.getProperty("taskmanager.memory.mb");
                 Integer taskManagerMemoryLimit = jsonObject.getInteger("taskmanager.memory.mb");
                 if(StringUtils.isNotBlank(taskManagerMemory) && taskManagerMemoryLimit!=null){
-                    if(Integer.parseInt(taskManagerMemory) > taskManagerMemoryLimit){
+                    if(UnitConvertUtil.getNormalizedMem(taskManagerMemory) > taskManagerMemoryLimit){
                         //任务管理器内存大小超过限制
                         LOG.error("flink数据同步类型任务，task{} taskManagerMemory:{} (限制:{})",taskId,taskManagerMemory,taskManagerMemoryLimit);
                         exceedMessage.add("taskManagerMemory: "+taskManagerMemory+" (限制: "+taskManagerMemoryLimit+")");
@@ -623,7 +624,7 @@ public class ScheduleTaskShadeService {
                 String workerMemory = taskProperties.getProperty("worker.memory");
                 Integer workerMemoryLimit = jsonObject.getInteger("worker.memory");
                 if(StringUtils.isNotBlank(workerMemory) && workerMemoryLimit!=null){
-                    if(Integer.parseInt(workerMemory) > workerMemoryLimit){
+                    if(UnitConvertUtil.getNormalizedMem(workerMemory) > workerMemoryLimit){
                         //工作内存大小超过限制
                         LOG.error("dtscript数据同步类型任务，task{} workerMemory:{} (限制:{})",taskId,workerMemory,workerMemoryLimit);
                         exceedMessage.add("workerMemory: "+workerMemory+" (限制: "+workerMemoryLimit+")");
@@ -632,7 +633,7 @@ public class ScheduleTaskShadeService {
                 String workerCores = taskProperties.getProperty("worker.cores");
                 Integer workerCoresLimit = jsonObject.getInteger("worker.cores");
                 if(StringUtils.isNotBlank(workerCores) && workerCoresLimit!=null ){
-                    if(Integer.parseInt(workerCores) > workerCoresLimit){
+                    if(UnitConvertUtil.getNormalizedMem(workerCores) > workerCoresLimit){
                         //工作核数超过限制
                         LOG.error("dtscript数据同步类型任务，task{} workerCores:{} (限制:{})",taskId,workerCores,workerCoresLimit);
                         exceedMessage.add("workerCores: "+workerCores+" (限制: "+workerCoresLimit+")");
@@ -641,9 +642,9 @@ public class ScheduleTaskShadeService {
                 String workerNum = taskProperties.getProperty("worker.num");
                 Integer workerNumLimit = jsonObject.getInteger("worker.num");
                 if(StringUtils.isNotBlank(workerNum) && workerNumLimit!=null ){
-                    if(Integer.parseInt(workerNum) > workerNumLimit){
+                    if(UnitConvertUtil.getNormalizedMem(workerNum) > workerNumLimit){
                         //worker数量超过限制
-                        LOG.error("dtscript数据同步类型任务，task{} workerNum:{} (限制:{})",taskId,workerNum,workerNum);
+                        LOG.error("dtscript数据同步类型任务，task{} workerNum:{} (限制:{})",taskId,workerNum,workerNumLimit);
                         exceedMessage.add("workerNum: "+workerNum+" (限制: "+workerNumLimit+")");
                     }
                 }

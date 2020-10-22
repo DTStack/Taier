@@ -250,7 +250,8 @@ public class ClusterServiceTest extends AbstractTest {
         queueb.setParentQueueId(-1L);
         queueb.setQueuePath("default");
         queueDao.insert(queueb);
-        tenantService.bindingQueue(queueb.getId(),tenant.getDtUicTenantId(),null);
+        String taskTypeResourceJson = "[{\"taskType\":2,\"resourceParams\":{\"cores\":1,\"memory\":250}},{\"taskType\":3,\"resourceParams\":{\"cores\":1,\"memory\":251}}]";
+        tenantService.bindingQueue(queueb.getId(),tenant.getDtUicTenantId(),taskTypeResourceJson);
     }
 
     private Queue testInsertQueue(Long engineId) {
