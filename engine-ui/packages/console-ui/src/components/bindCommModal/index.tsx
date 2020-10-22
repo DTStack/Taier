@@ -13,9 +13,10 @@ const FormItem = Form.Item
 
 const CustomModal: React.FC = (props: any) => {
     const { form, form: { getFieldDecorator }, visible, onOk, onCancel, title, isBindTenant,
-        disabled, tenantInfo, clusterId, clusterList } = props
+        disabled, tenantInfo, clusterId: Id, clusterList } = props
     const [tenantList, setTenantList] = useState([])
     const prevVisible = useRef(null)
+    const [clusterId, setclusterId] = useState(Id)
     const { env, queueList } = useEnv({ clusterId, visible: prevVisible.current !== visible && visible === true, form, clusterList })
 
     // 切换集群
@@ -30,6 +31,10 @@ const CustomModal: React.FC = (props: any) => {
                 setTenantList(res.data || [])
             }
         })
+    }
+
+    const handleChangeCluster = (e) => {
+        setclusterId(e)
     }
 
     const debounceSearchTenant = debounce(onSearchTenantUser, 1000);
@@ -107,6 +112,29 @@ const CustomModal: React.FC = (props: any) => {
                         }
 
                     </FormItem>
+                    <Form.Item
+                        label="集群"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('clusterId', {
+                            rules: [{
+                                required: true,
+                                message: '集群不可为空！'
+                            }],
+                            initialValue: clusterId && `${clusterId}`
+                        })(
+                            <Select
+                                allowClear
+                                placeholder='请选择集群'
+                                disabled={disabled}
+                                onChange={handleChangeCluster}
+                            >
+                                {clusterList.map((clusterItem: any) => {
+                                    return <Option key={`${clusterItem.clusterId}`} value={`${clusterItem.clusterId}`}>{clusterItem.clusterName}</Option>
+                                })}
+                            </Select>
+                        )}
+                    </Form.Item>
                     {
                         hasHadoop ? (
                             <div
