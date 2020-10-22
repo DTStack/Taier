@@ -579,6 +579,7 @@ public class FlinkClient extends AbstractClient {
         List<String> sqlList = Lists.newArrayList(sqlArr);
         Iterator<String> sqlItera = sqlList.iterator();
         List<String> fileList = Lists.newArrayList();
+        List<String> sftpFiles = Lists.newArrayList();
 
         while (sqlItera.hasNext()) {
             String tmpSql = sqlItera.next();
@@ -586,6 +587,7 @@ public class FlinkClient extends AbstractClient {
                 sqlItera.remove();
                 JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
                 String addFilePath = jarFileInfo.getJarPath();
+                sftpFiles.add(addFilePath);
                 File tmpFile = null;
                 try {
                     tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf, flinkConfig.getSftpConf());
@@ -609,6 +611,11 @@ public class FlinkClient extends AbstractClient {
                     break;
                 }
             }
+        }
+        if (CollectionUtils.isNotEmpty(sftpFiles)) {
+            String sftpFileStr = String.join(";", sftpFiles);
+            Properties confProps = jobClient.getConfProperties();
+            confProps.setProperty(ConfigConstrant.KEY_SFTPFILES_PATH, sftpFileStr);
         }
 
         cacheFile.put(jobClient.getTaskId(), fileList);
@@ -641,10 +648,7 @@ public class FlinkClient extends AbstractClient {
                 logger.error("", e1);
             }
         }
-
         cacheFile.remove(jobClient.getTaskId());
-
-        //FlinkUtil.deleteK8sConfig(jobClient);
     }
 
     @Override
