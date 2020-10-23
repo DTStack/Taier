@@ -167,7 +167,7 @@ public class ZipUtil {
                 file.delete();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("", e);
         }
     }
 

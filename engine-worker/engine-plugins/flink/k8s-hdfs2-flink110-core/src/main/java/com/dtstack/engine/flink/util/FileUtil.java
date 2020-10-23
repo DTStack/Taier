@@ -97,14 +97,14 @@ public class FileUtil {
                 try {
                     fout.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error("", e);
                 }
             }
             if(bfInputStream!=null) {
                 try {
                     bfInputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error("", e);
                 }
             }
             if(httpURLConnection!=null) {
