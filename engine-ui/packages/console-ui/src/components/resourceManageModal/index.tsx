@@ -55,12 +55,13 @@ const CustomModal: React.FC = (props: any) => {
     // 切换集群
     useEffect(() => {
         if (prevVisible.current !== visible) {
-            if (visible === true) {
+            if (visible) {
                 Api.queryTaskResourceLimits({ dtUicTenantId: tenantId }).then((res: any) => {
-                    if (res.code === 1) {
+                    const { code, data } = res
+                    if (code === 1) {
                         const union = []
                         const biginitial = {}
-                        res.data.forEach(item => {
+                        Array.isArray(data) && data.forEach(item => {
                             union.push(item.taskType)
                             biginitial[`${item.taskType}`] = item.resourceLimit
                             // setInitialList({...initialList,[`${item.taskType}`]:item.resourceLimit})
