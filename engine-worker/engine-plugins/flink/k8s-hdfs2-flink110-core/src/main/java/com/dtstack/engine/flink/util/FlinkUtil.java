@@ -211,7 +211,8 @@ public class FlinkUtil {
             handler.downloadFile(remoteConfigPath, localConfigPath);
             try {
                 ZipUtil.upzipFile(localConfigPath, localConfigParentDir);
-            } catch (IOException e) {
+                handler.close();
+            } catch (Exception e) {
                 logger.error("FlinkUtil.downloadK8sConfig error:{}", ExceptionUtil.getErrorMessage(e));
             }
         }

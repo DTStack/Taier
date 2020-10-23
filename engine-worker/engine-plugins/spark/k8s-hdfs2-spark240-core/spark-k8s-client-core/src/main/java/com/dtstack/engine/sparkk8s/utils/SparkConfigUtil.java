@@ -68,7 +68,7 @@ public class SparkConfigUtil {
     }
 
     public static void replaceBasicSparkConf(SparkConf sparkConf, Properties confProperties) {
-        if (!Objects.isNull(confProperties)) {
+        if (null != confProperties) {
             for (Map.Entry<Object, Object> param : confProperties.entrySet()) {
                 String key = (String) param.getKey();
                 String val = (String) param.getValue();
@@ -151,9 +151,10 @@ public class SparkConfigUtil {
             SFTPHandler handler = SFTPHandler.getInstance(sparkK8sConfig.getSftpConf());
             handler.downloadFile(remoteConfigPath, localConfigPath);
             try {
+                handler.close();
                 ZipUtil.upzipFile(localConfigPath, localConfigParentDir);
-            } catch (IOException e) {
-                LOG.error("SparkConfigUtil.downloadK8sConfig error:{}", ExceptionUtil.getErrorMessage(e));
+            } catch (Exception e) {
+                ZipUtil.upzipFile(localConfigPath, localConfigParentDir);
             }
         }
 

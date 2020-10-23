@@ -29,6 +29,8 @@ public class JobIdentifier implements Serializable {
 
     private Long timeout;
 
+    private Boolean forceCancel;
+
     public JobIdentifier(String engineJobId, String applicationId, String taskId, Long tenantId, String engineType, Integer deployMode, Long userId,String pluginInfo) {
         this.engineJobId = engineJobId;
         this.applicationId = applicationId;
@@ -40,14 +42,33 @@ public class JobIdentifier implements Serializable {
         this.pluginInfo = pluginInfo;
     }
 
+    public JobIdentifier(String engineJobId, String applicationId, String taskId, Boolean forceCancel){
+        this.engineJobId = engineJobId;
+        this.applicationId = applicationId;
+        this.taskId = taskId;
+        this.forceCancel = forceCancel;
+    }
+
     public JobIdentifier(String engineJobId, String applicationId, String taskId){
         this.engineJobId = engineJobId;
         this.applicationId = applicationId;
         this.taskId = taskId;
     }
 
+    public static JobIdentifier createInstance(String jobId, String applicationId, String taskId, Boolean forceCancel){
+        return new JobIdentifier(jobId, applicationId, taskId, forceCancel);
+    }
+
     public static JobIdentifier createInstance(String jobId, String applicationId, String taskId){
         return new JobIdentifier(jobId, applicationId, taskId);
+    }
+
+    public Boolean isForceCancel() {
+        return forceCancel;
+    }
+
+    public void setForceCancel(Boolean forceCancel) {
+        forceCancel = forceCancel;
     }
 
     public Long getTimeout() {

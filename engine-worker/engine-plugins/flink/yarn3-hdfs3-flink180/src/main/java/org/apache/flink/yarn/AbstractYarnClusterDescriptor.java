@@ -1023,6 +1023,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 localResources,
                 homeDir,
                 "");
+        envShipFileList.append(flinkConfigKey).append("=").append(remotePathConf).append(",");
 
         paths.add(remotePathJar);
         classPathBuilder.append("flink.jar").append(File.pathSeparator);

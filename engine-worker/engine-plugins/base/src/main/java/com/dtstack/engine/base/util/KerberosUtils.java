@@ -42,7 +42,7 @@ public class KerberosUtils {
      */
     public static <T> T login(BaseConfig config, Supplier<T> supplier, Configuration configuration) throws Exception {
 
-        if (Objects.isNull(config) || !config.isOpenKerberos()) {
+        if (null == config || !config.isOpenKerberos()) {
             return supplier.get();
         }
 
@@ -111,7 +111,7 @@ public class KerberosUtils {
             </value>
           </property>
         */
-        if (Objects.isNull(allConfig.get(SECURITY_TO_LOCAL))) {
+        if (null == allConfig.get(SECURITY_TO_LOCAL)) {
             allConfig.set(KERBEROS_AUTH, KERBEROS_AUTH_TYPE);
         }
         UserGroupInformation.setConfiguration(allConfig);

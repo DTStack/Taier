@@ -64,7 +64,7 @@ public class JobComputeResourcePlain {
     private void buildJobClientGroupName(JobClient jobClient){
 
         ClusterVO cluster = clusterService.getClusterByTenant(jobClient.getTenantId());
-        if(Objects.isNull(cluster)){
+        if(null == cluster){
             return;
         }
         String clusterName = cluster.getClusterName();
@@ -76,7 +76,7 @@ public class JobComputeResourcePlain {
 
         if (StringUtils.isNotEmpty(namespace)) {
             groupName = String.format("%s_%s", clusterName, namespace);
-        } else if (!Objects.isNull(queue)) {
+        } else if (null != queue) {
             groupName = String.format("%s_%s", clusterName, queue.getQueueName());
         }
         jobClient.setGroupName(groupName);

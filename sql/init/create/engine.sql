@@ -374,8 +374,8 @@ CREATE TABLE `schedule_job`
   `plugin_info_id`  int(11)      DEFAULT NULL COMMENT '插件信息',
   `retry_task_params` text       DEFAULT NULL COMMENT '重试任务参数',
   `compute_type`    tinyint(1)   NOT NULL DEFAULT '1' COMMENT '计算类型STREAM(0), BATCH(1)',
-  `phase_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '运行状态: CREATE(0):创建,JOIN_THE_TEAM(1):入队,LEAVE_THE_TEAM(2):出队',
-  `job_graph` TEXT DEFAULT NULL COMMENT 'jobGraph构建json',
+  `phase_status`    tinyint(1) NOT NULL DEFAULT '0' COMMENT '运行状态: CREATE(0):创建,JOIN_THE_TEAM(1):入队,LEAVE_THE_TEAM(2):出队',
+  `job_graph`       TEXT DEFAULT NULL COMMENT 'jobGraph构建json',
   PRIMARY KEY (`id`),
   KEY `index_task_id` (`task_id`),
   UNIQUE KEY `index_job_id` (`job_id`(128),`is_deleted`),
@@ -444,4 +444,21 @@ CREATE TABLE `schedule_job_graph_trigger`
   UNIQUE KEY `index_trigger_time` (`trigger_time`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
+
+CREATE TABLE `console_tenant_resource` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `dt_uic_tenant_id` int(11) NOT NULL COMMENT 'uic租户id',
+  `task_type` tinyint(2) NOT NULL COMMENT '任务类型',
+  `engine_type` varchar(256) NOT NULL COMMENT '任务类型名称',
+  `resource_limit` text NOT NULL COMMENT '资源限制',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` int(10) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_uic_tenantid_tasktype` (`dt_uic_tenant_id`,`task_type`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8 COMMENT='租户资源限制表'
+
+
+
 
