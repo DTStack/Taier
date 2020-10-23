@@ -406,11 +406,6 @@ public class FlinkClient extends AbstractClient {
                     return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
                 } catch (Exception e) {
 
-                    if (RdosTaskStatus.NOTFOUND == rdosTaskStatus) {
-                        logger.info("jobId:{} engineJobId:{} applicationId:{} cancenJob error, because job status is not found.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId());
-                        JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
-                    }
-
                     logger.error("jobId:{} engineJobId:{} applicationId:{} cancelJob error, try to cancel with yarnClient.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), e);
 
                     if (StringUtils.isEmpty(appId)) {
