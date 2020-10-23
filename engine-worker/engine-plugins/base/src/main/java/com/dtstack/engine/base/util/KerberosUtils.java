@@ -3,19 +3,27 @@ package com.dtstack.engine.base.util;
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.SFTPHandler;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.HadoopKerberosName;
+import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.util.Time;
 import org.apache.kerby.kerberos.kerb.keytab.Keytab;
 import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.security.auth.Subject;
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.kerberos.KerberosTicket;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.PrivilegedExceptionAction;
@@ -37,6 +45,8 @@ public class KerberosUtils {
     private static final String KERBEROS_AUTH_TYPE = "kerberos";
     private static final String SECURITY_TO_LOCAL_DEFAULT = "RULE:[1:$1] RULE:[2:$1]";
     private static final String MODIFIED_TIME_KEY = "modifiedTime";
+
+    private static Map<String, UserGroupInformation> ugiMap = Maps.newConcurrentMap();
 
     /**
      * @param config        任务外层配置
@@ -70,7 +80,7 @@ public class KerberosUtils {
         if (StringUtils.isNotBlank(krb5ConfName)) {
             krb5ConfPath = handler.loadOverrideFromSftp(krb5ConfName, config.getRemoteDir(), localDir, true);
         }
-        krb5ConfPath = mergeKrb5(krb5ConfPath);
+        //krb5ConfPath = mergeKrb5(krb5ConfPath);
         try {
             handler.close();
         } catch (Exception e) {
@@ -115,16 +125,58 @@ public class KerberosUtils {
         }
 
         try {
-            sun.security.krb5.Config.refresh();
-            UserGroupInformation.setConfiguration(allConfig);
+            String threadName = Thread.currentThread().getName();
+            UserGroupInformation ugi = ugiMap.computeIfAbsent(threadName, k -> {
+                try {
+                    sun.security.krb5.Config.refresh();
+                    UserGroupInformation.setConfiguration(allConfig);
+                    return UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
+                }
+            });
+            KerberosTicket ticket = getTGT(ugi);
+            if (!checkTGT(ticket)) {
+                sun.security.krb5.Config.refresh();
+                UserGroupInformation.setConfiguration(allConfig);
+                ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
+                ugiMap.put(threadName, ugi);
+            }
 
-            UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
             logger.info("userGroupInformation current user = {} ugi user  = {} ", UserGroupInformation.getCurrentUser(), ugi.getUserName());
             return ugi.doAs((PrivilegedExceptionAction<T>) supplier::get);
         } catch (Exception e) {
             logger.error("{}", keytabPath, e);
             throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
         }
+    }
+
+    private static boolean checkTGT(KerberosTicket ticket) {
+        long start = ticket.getStartTime().getTime();
+        long end = ticket.getEndTime().getTime();
+        boolean expired = Time.now() < start + (long) ((end - start) * 0.80f);
+        if (ticket != null && expired) {
+            return true;
+        }
+        return false;
+    }
+
+    private static KerberosTicket getTGT(UserGroupInformation ugi) throws Exception {
+        Class<? extends UserGroupInformation> ugiClass = ugi.getClass();
+        Field subjectField = ugiClass.getDeclaredField("subject");
+        subjectField.setAccessible(true);
+        Subject subject = (Subject)subjectField.get(ugi);
+
+        Set<KerberosTicket> tickets = subject
+                .getPrivateCredentials(KerberosTicket.class);
+        for (KerberosTicket ticket : tickets) {
+            KerberosPrincipal principal = ticket.getServer();
+            String krbtgt = "krbtgt/" + principal.getRealm() + "@" + principal.getRealm();
+            if (principal != null && StringUtils.equals(principal.getName(), krbtgt)) {
+                return ticket;
+            }
+        }
+        return null;
     }
 
     public static String getPrincipal(String filePath) {
