@@ -135,9 +135,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             ScheduleJob scheduleJob = null;
             try {
                 ScheduleBatchJob scheduleBatchJob = scheduleJobQueue.take();
-                if (Objects.isNull(scheduleBatchJob)) {
-                    continue;
-                }
                 scheduleJob = scheduleBatchJob.getScheduleJob();
 
                 logger.info("jobId:{} scheduleType:{} take job from queue.", scheduleJob.getJobId(), getScheduleType());

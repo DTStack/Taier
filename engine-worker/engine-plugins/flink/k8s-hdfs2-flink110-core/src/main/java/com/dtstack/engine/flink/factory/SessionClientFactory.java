@@ -101,7 +101,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                     retrieveClusterClient = retrieveClusterClient(sessionClusterId, null);
                 } catch (Exception e) {
                 }
-                if (Objects.nonNull(retrieveClusterClient)) {
+                if (null != retrieveClusterClient) {
                     return retrieveClusterClient;
                 }
 
@@ -137,7 +137,7 @@ public class SessionClientFactory extends AbstractClientFactory {
             }
             ClusterDescriptor kubernetesClusterDescriptor = createSessionClusterDescriptor();
             ClusterClientProvider<String> clusterClientProvider = kubernetesClusterDescriptor.retrieve(clusterId);
-            if (Objects.isNull(clusterClientProvider)) {
+            if (null == clusterClientProvider) {
                 return null;
             }
             ClusterClient<String> clusterClient = clusterClientProvider.getClusterClient();

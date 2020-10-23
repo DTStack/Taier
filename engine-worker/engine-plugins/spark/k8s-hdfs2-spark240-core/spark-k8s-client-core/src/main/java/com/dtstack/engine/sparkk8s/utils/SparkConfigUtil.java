@@ -67,7 +67,7 @@ public class SparkConfigUtil {
     }
 
     public static void replaceBasicSparkConf(SparkConf sparkConf, Properties confProperties) {
-        if (!Objects.isNull(confProperties)) {
+        if (null != confProperties) {
             for (Map.Entry<Object, Object> param : confProperties.entrySet()) {
                 String key = (String) param.getKey();
                 String val = (String) param.getValue();

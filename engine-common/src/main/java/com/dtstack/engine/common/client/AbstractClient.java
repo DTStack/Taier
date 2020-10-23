@@ -48,7 +48,7 @@ public abstract class AbstractClient implements IClient {
             String configYaml = findPluginConfig(this.getClass(), PLUGIN_DEFAULT_CONFIG_NAME);
             InputStream resourceAsStream = !StringUtils.isEmpty(configYaml) ? new FileInputStream(configYaml) :
                     this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
-            if (Objects.isNull(resourceAsStream)) {
+            if (null == resourceAsStream) {
                 logger.info("plugin client default-config.yaml not exist!");
                 return;
             }

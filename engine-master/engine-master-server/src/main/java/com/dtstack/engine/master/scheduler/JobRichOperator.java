@@ -342,7 +342,7 @@ public class JobRichOperator {
                     if (isEndStatus(childJobStatus)) {
                         jobCheckRunInfo.setStatus(JobCheckStatus.CHILD_PRE_NOT_SUCCESS);
                         ScheduleTaskShade childPreTask = batchTaskShadeService.getBatchTaskById(childJobPreJob.getTaskId(),childJobPreJob.getAppType());
-                        jobCheckRunInfo.setExtInfo(String.format("(依赖下游任务的上一周期(%s)",Objects.nonNull(childPreTask) ? childPreTask.getName() : ""));
+                        jobCheckRunInfo.setExtInfo(String.format("(依赖下游任务的上一周期(%s)",null != childPreTask ? childPreTask.getName() : ""));
                         logger.info("get JobKey {} child job {} prePeriod status is {}  but not success", jobKey, childJobPreJob.getJobId(), childJobStatus);
                         return jobCheckRunInfo;
                     }
@@ -373,7 +373,7 @@ public class JobRichOperator {
             EScheduleType scheduleType = JobGraphBuilder.parseScheduleTypeFromJobKey(jobKey);
             ScheduleJob dbBatchJob = batchJobService.getJobByJobKeyAndType(prePeriodJobKey, scheduleType.getType());
             //上一个周期任务为空 直接返回
-            if (Objects.isNull(dbBatchJob)) {
+            if (null == dbBatchJob) {
                 return null;
             }
             List<ScheduleJobJob> batchJobJobs = scheduleJobJobDao.listByParentJobKey(dbBatchJob.getJobKey());
@@ -419,7 +419,7 @@ public class JobRichOperator {
             return false;
         }
         //重跑不走
-        if (Objects.nonNull(scheduleBatchJob.getScheduleJob()) && Restarted.RESTARTED.getStatus() == scheduleBatchJob.getScheduleJob().getIsRestart()) {
+        if (null != scheduleBatchJob.getScheduleJob() && Restarted.RESTARTED.getStatus() == scheduleBatchJob.getScheduleJob().getIsRestart()) {
             return false;
         }
         //判断task任务是否配置了允许过期（暂时允许全部任务过期 不做判断）
@@ -558,7 +558,7 @@ public class JobRichOperator {
         }
         Long taskShadeId = MathUtil.getLongVal(fields[fields.length - 2]);
         ScheduleTaskShade batchTaskShade = batchTaskShadeService.getById(taskShadeId);
-        return Objects.isNull(batchTaskShade) ? null : batchTaskShade.getTaskId();
+        return null == batchTaskShade ? null : batchTaskShade.getTaskId();
     }
 
     private String getJobTriggerTimeFromJobKey(String jobKey) {
