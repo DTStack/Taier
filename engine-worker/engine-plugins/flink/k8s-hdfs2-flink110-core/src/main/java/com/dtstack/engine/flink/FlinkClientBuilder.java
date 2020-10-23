@@ -75,14 +75,16 @@ public class FlinkClientBuilder {
 
         LOG.info("hadoop env info, {}:{} {}:{}", ConfigConstrant.HADOOP_CONF_DIR, hadoopConfDir, ConfigConstrant.HADOOP_USER_NAME, hadoopUserName);
 
-        if (extProp != null) {
-            extProp.forEach((key, value) -> {
-                String v = value == null? "": value.toString();
-                if (null != key && StringUtils.isNotEmpty(v)) {
-                    config.setString(key.toString(), value.toString());
-                }
-            });
+        if (extProp == null) {
+            throw new RdosDefineException("extProp should not be null.");
         }
+
+        extProp.forEach((key, value) -> {
+            String v = value == null? "": value.toString();
+            if (Objects.nonNull(key) && StringUtils.isNotEmpty(v)) {
+                config.setString(key.toString(), value.toString());
+            }
+        });
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();

@@ -153,9 +153,8 @@ public class SyncPluginInfo {
             programArgList.set(i + 1, job);
         } catch (Exception e) {
             LOG.error("", e);
-        } finally {
-            return urlList;
         }
+        return urlList;
     }
 
 }

@@ -71,6 +71,11 @@ public class FileUtil {
     }
 
     public static boolean downLoadFileFromHttp(String urlStr, String dstFileName){
+
+        FileOutputStream fout = null;
+        BufferedInputStream bfInputStream = null;
+        HttpURLConnection httpURLConnection = null;
+
         try {
             File outFile = new File(dstFileName);
             //如果当前文件存在则删除,覆盖最新的文件
@@ -81,11 +86,12 @@ public class FileUtil {
             Files.createParentDirs(outFile);
             outFile.createNewFile();
 
-            FileOutputStream fout = new FileOutputStream(outFile);
+            fout = new FileOutputStream(outFile);
             URL url = new URL(urlStr);
-            HttpURLConnection httpUrlConnection = (HttpURLConnection) url.openConnection();
-            httpUrlConnection.connect();
-            BufferedInputStream bfInputStream = new BufferedInputStream(httpUrlConnection.getInputStream());
+
+            httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.connect();
+            bfInputStream = new BufferedInputStream(httpURLConnection.getInputStream());
 
             byte[] buf = new byte[BUFFER_SIZE];
             int readSize = -1;
@@ -93,14 +99,26 @@ public class FileUtil {
                 fout.write(buf, 0, readSize);
             }
 
-            //释放资源
-            fout.close();
-            bfInputStream.close();
-            httpUrlConnection.disconnect();
             logger.info("download from remote url:{} success,dest file name is {}.", urlStr, dstFileName);
         } catch (IOException e) {
             logger.error("download from remote url:" + urlStr +"failure.", e);
             throw new RdosDefineException("download from remote url:" + urlStr +"failure." + e.getMessage());
+        } finally {
+            //释放资源
+            if(bfInputStream != null){
+                try {
+                    bfInputStream.close();
+                    if (fout != null) {
+                        fout.close();
+                    }
+                } catch (IOException e) {
+                    logger.error("close resource error", e);
+                }
+            }
+
+            if (httpURLConnection != null){
+                httpURLConnection.disconnect();
+            }
         }
 
         return true;
