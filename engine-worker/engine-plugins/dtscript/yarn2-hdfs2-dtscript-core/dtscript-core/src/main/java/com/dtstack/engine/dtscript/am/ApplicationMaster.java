@@ -88,7 +88,7 @@ public class ApplicationMaster extends CompositeService {
         Path jobConfPath = new Path(DtYarnConstants.LEARNING_JOB_CONFIGURATION);
         LOG.info("hadoop.job.ugi: " + conf.get("hadoop.job.ugi"));
         LOG.info("user.dir: " + System.getProperty("user.dir"));
-//        System.setProperty(DtYarnConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.job.ugi").split(",")[0]);
+
         LOG.info("user.name: " + System.getProperty("user.name"));
         LOG.info("HADOOP_USER_NAME: " + System.getProperty(DtYarnConstants.Environment.HADOOP_USER_NAME.toString()));
 
@@ -199,9 +199,7 @@ public class ApplicationMaster extends CompositeService {
         Resource workerCapability = Records.newRecord(Resource.class);
         workerCapability.setMemory(appArguments.workerMemory);
         workerCapability.setVirtualCores(appArguments.workerVcores);
-//        if (appArguments.workerGCores > 0) {
-//            workerCapability.setResourceValue(DtYarnConstants.GPU, appArguments.workerGCores);
-//        }
+
         if (appArguments.nodes == null){
             return new AMRMClient.ContainerRequest(workerCapability, null, null, priority, true);
         } else {
@@ -427,7 +425,7 @@ public class ApplicationMaster extends CompositeService {
                                  Map<String, String> containerEnv,
                                  List<String> containerLaunchcommands,
                                  Container container, int index) throws IOException {
-        System.out.println("container nodeId: " + container.getNodeId().toString());
+        LOG.info("container nodeId: " + container.getNodeId().toString());
         LOG.info("Setting up launch context for containerID="
                 + container.getId());
 
@@ -450,9 +448,7 @@ public class ApplicationMaster extends CompositeService {
     }
 
     public static void main(String[] args) {
-        ApplicationMaster appMaster = null;
-        try {
-            appMaster = new ApplicationMaster();
+        try (ApplicationMaster appMaster = new ApplicationMaster()) {
             appMaster.init();
             boolean tag = appMaster.run();
             if (tag) {
@@ -465,14 +461,7 @@ public class ApplicationMaster extends CompositeService {
         } catch (Exception e) {
             LOG.fatal("Error running ApplicationMaster", e);
             System.exit(1);
-        }finally {
-            if(appMaster!=null){
-                try {
-                    appMaster.close();
-                } catch (IOException e) {
-                    LOG.info("exception: " + DebugUtil.stackTrace(e));
-                }
-            }
         }
+
     }
 }

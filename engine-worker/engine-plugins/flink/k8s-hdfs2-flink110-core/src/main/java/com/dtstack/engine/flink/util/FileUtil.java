@@ -61,11 +61,11 @@ public class FileUtil {
         return false;
     }
 
-    public static boolean downLoadFileFromHttp(String urlStr, String dstFileName) {
+    public static boolean downLoadFileFromHttp(String urlStr, String dstFileName){
 
         FileOutputStream fout = null;
-        HttpURLConnection httpURLConnection = null;
         BufferedInputStream bfInputStream = null;
+        HttpURLConnection httpURLConnection = null;
         try {
             File outFile = new File(dstFileName);
             //如果当前文件存在则删除,覆盖最新的文件
@@ -91,23 +91,20 @@ public class FileUtil {
         } catch (IOException e) {
             logger.error("download from remote url:" + urlStr +"failure.", e);
             throw new RdosDefineException("download from remote url:" + urlStr +"failure." + e.getMessage());
-        }finally {
+        } finally {
             //释放资源
-            if(fout!=null) {
-                try {
-                    fout.close();
-                } catch (IOException e) {
-                    logger.error("", e);
-                }
-            }
-            if(bfInputStream!=null) {
+            if(bfInputStream != null){
                 try {
                     bfInputStream.close();
+                    if (fout != null) {
+                        fout.close();
+                    }
                 } catch (IOException e) {
-                    logger.error("", e);
+                    logger.error("close resource error", e);
                 }
             }
-            if(httpURLConnection!=null) {
+
+            if (httpURLConnection != null){
                 httpURLConnection.disconnect();
             }
         }

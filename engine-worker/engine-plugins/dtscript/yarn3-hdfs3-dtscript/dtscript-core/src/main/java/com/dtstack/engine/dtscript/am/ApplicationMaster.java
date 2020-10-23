@@ -450,9 +450,7 @@ public class ApplicationMaster extends CompositeService {
     }
 
     public static void main(String[] args) {
-        ApplicationMaster appMaster;
-        try {
-            appMaster = new ApplicationMaster();
+        try (ApplicationMaster appMaster = new ApplicationMaster()) {
             appMaster.init();
             boolean tag = appMaster.run();
             if (tag) {
