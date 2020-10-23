@@ -36,6 +36,7 @@ import java.util.*;
 public class Client {
 
     private static final Logger LOG = LoggerFactory.getLogger(Client.class);
+    private static final String HDFS_SUPER_GROUP = "dfs.permissions.superusergroup";
 
     private DtYarnConfiguration conf;
     private FileSystem dfs;
@@ -53,8 +54,22 @@ public class Client {
                 UserGroupInformation ugi = UserGroupInformation.createRemoteUser(appSubmitterUserName);
                 conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
             }
+            String proxyUser = conf.get(DtYarnConstants.PROXY_USER_NAME);
+            if(StringUtils.isNotBlank(proxyUser)){
+                String superGroup = conf.get(HDFS_SUPER_GROUP);
+                if (StringUtils.isNotBlank(superGroup)) {
+                    UserGroupInformation hadoopUserNameUGI = UserGroupInformation.createRemoteUser(superGroup);
+                    UserGroupInformation.setLoginUser(UserGroupInformation.createProxyUser(proxyUser, hadoopUserNameUGI));
+                } else {
+                    UserGroupInformation.setLoginUser(UserGroupInformation.createRemoteUser(superGroup));
+                }
+            }
+
+            this.yarnClient = getYarnClient();
             Path appJarSrc = new Path(JobConf.findContainingJar(ApplicationMaster.class));
             this.appJarSrc = appJarSrc;
+
+
             return null;
         }, conf);
     }

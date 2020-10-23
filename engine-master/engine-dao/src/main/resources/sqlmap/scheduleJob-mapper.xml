@@ -1598,7 +1598,7 @@
     </update>
 
     <select id="getByName" parameterType="java.lang.String" resultType="ScheduleJob">
-        select * from schedule_job where job_name = #{jobName} and is_deleted=0;
+        select * from schedule_job where job_name = #{jobName} and is_deleted=0 LIMIT 1;
     </select>
 
     <update id="updateRetryNum">

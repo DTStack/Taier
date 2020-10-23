@@ -92,7 +92,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_task_shade
-        WHERE task_id = #{taskId} and parent_task_id = #{parentTaskId} AND is_deleted = 0 AND app_type = #{appType}
+        WHERE task_id = #{taskId} and parent_task_id = #{parentTaskId} AND is_deleted = 0 AND app_type = #{appType} LIMIT 1
     </select>
 
 </mapper>
