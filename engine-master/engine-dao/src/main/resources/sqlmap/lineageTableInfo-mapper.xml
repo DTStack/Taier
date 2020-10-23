@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.LineageTableInfoDao">
+
+    <sql id="select_content_fragment">
+      id,tenant_id,real_source_id,source_id,source_name,source_key,app_type,source_type,db_name,table_name,table_key,is_manual,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <sql id="select_where_fragment">
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="model.id != null and model.id > 0">
+                AND id = #{model.id}
+            </if>
+        </trim>
+    </sql>
+
+</mapper>

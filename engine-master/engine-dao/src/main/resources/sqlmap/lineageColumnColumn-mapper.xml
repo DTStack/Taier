@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.LineageColumnColumnDao">
+
+    <sql id="select_content_fragment">
+      id,tenant_id,app_type,input_table_id,input_column_name,result_table_id,result_column_name,column_lineage_key,is_manual,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <sql id="select_where_fragment">
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="model.appType != null and model.appType > 0">
+                AND app_type = #{model.appType}
+            </if>
+            <if test="model.inputTableId != null">
+                AND input_table_id like '%${model.inputTableId}%'
+            </if>
+            <if test="model.isDeleted != null">
+                AND is_deleted = #{model.isDeleted}
+            </if>
+        </trim>
+    </sql>
+
+</mapper>
