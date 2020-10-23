@@ -15,6 +15,7 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.common.util.DateUtil;
@@ -731,7 +732,7 @@ public class ScheduleJobService {
                 batchJobDTO.setTaskIds(batchTaskShades.stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList()));
             }
         }
-        List<Map<Integer, Long>> statusCount = scheduleJobDao.getJobsStatusStatistics(batchJobDTO);
+        List<Map<String, Integer>> statusCount = scheduleJobDao.getJobsStatusStatistics(batchJobDTO);
 
         Map<String, Long> attachment = Maps.newHashMap();
         long totalNum = 0;
@@ -741,7 +742,7 @@ public class ScheduleJobService {
             String statusName = RdosTaskStatus.getCode(entry.getKey());
             List<Integer> statuses = entry.getValue();
             long num = 0;
-            for (Map<Integer, Long> statusCountMap : statusCount) {
+            for (Map<String, Integer> statusCountMap : statusCount) {
                 if (statuses.contains(statusCountMap.get("status"))) {
                     num += statusCountMap.get("count");
                 }
@@ -1145,7 +1146,7 @@ public class ScheduleJobService {
             throw new RdosDefineException(ErrorCode.JOB_CAN_NOT_STOP);
         }
 
-        if (status.equals(RdosTaskStatus.UNSUBMIT.getStatus())) {
+        if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
             //stopSubmittedJob(Lists.newArrayList(scheduleJob), dtuicTenantId, appType);
             jobStopDealer.addStopJobs(Lists.newArrayList(scheduleJob));
             //return stopUnsubmitJob(scheduleJob);
@@ -1990,15 +1991,15 @@ public class ScheduleJobService {
 
         ScheduleTaskForFillDataDTO taskShade = taskShadeMap.get(scheduleJob.getTaskId());
         Integer taskType = 0;
+        String taskName = "";
         if (taskShade != null) {
             taskType = taskShade.getTaskType();
+            taskName = taskShade.getName();
         }
-
         ScheduleTaskVO batchTaskVO = new ScheduleTaskVO();
-
         String exeTime = DateUtil.getTimeDifference(scheduleJob.getExecTime() == null ? 0L : scheduleJob.getExecTime() * 1000);
         Integer showStatus = RdosTaskStatus.getShowStatusWithoutStop(status);
-        ScheduleFillDataJobDetailVO.FillDataRecord record = new ScheduleFillDataJobDetailVO.FillDataRecord(scheduleJob.getId(), bizDayVO, taskShade.getName(),
+        ScheduleFillDataJobDetailVO.FillDataRecord record = new ScheduleFillDataJobDetailVO.FillDataRecord(scheduleJob.getId(), bizDayVO, taskName,
                 taskType, showStatus, cycTimeVO, exeStartTimeVO, exeTime, null);
 
         record.setJobId(scheduleJob.getJobId());
@@ -2581,8 +2582,8 @@ public class ScheduleJobService {
         try {
             JobCheckRunInfo jobCheckRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, scheduleJob.getStatus(), scheduleJob.getType(),batchTaskById);
             return JSONObject.toJSONString(jobCheckRunInfo);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (ParseException e) {
+            logger.error("ScheduleJobService.testCheckCanRun error:{}", ExceptionUtil.getErrorMessage(e));
         }
         return "";
     }

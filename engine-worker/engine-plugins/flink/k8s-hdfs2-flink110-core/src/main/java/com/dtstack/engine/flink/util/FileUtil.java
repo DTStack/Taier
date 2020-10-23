@@ -108,7 +108,6 @@ public class FileUtil {
                 httpURLConnection.disconnect();
             }
         }
-
         return true;
     }
 

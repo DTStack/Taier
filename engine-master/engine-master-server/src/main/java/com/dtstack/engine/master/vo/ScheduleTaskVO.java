@@ -2,10 +2,13 @@ package com.dtstack.engine.master.vo;
 
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
 import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 /**
@@ -14,6 +17,8 @@ import org.springframework.beans.BeanUtils;
  * create: 2019/10/22
  */
 public class ScheduleTaskVO extends com.dtstack.engine.api.vo.ScheduleTaskVO {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ScheduleTaskVO.class);
 
     public ScheduleTaskVO() {
     }
@@ -57,7 +62,7 @@ public class ScheduleTaskVO extends com.dtstack.engine.api.vo.ScheduleTaskVO {
                     taskPeriodType = "月任务";
                 }
             } catch (Throwable e) {
-                e.printStackTrace();
+                LOG.error("ScheduleTaskVO.init error:{}", ExceptionUtil.getErrorMessage(e));
             }
         }
     }

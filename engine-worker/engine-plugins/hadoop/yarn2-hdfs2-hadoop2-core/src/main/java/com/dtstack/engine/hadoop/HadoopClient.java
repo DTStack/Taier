@@ -70,7 +70,7 @@ public class HadoopClient extends AbstractClient {
     private static final String FLINK_URL_FORMAT = "http://%s/proxy/%s/taskmanagers";
     private static final String YARN_RM_WEB_KEY_PREFIX = "yarn.resourcemanager.webapp.address.";
     private static final String YARN_SCHEDULER_FORMAT = "http://%s/ws/v1/cluster/scheduler";
-    private static final long ONE_MEGABYTE = 1024*1024;
+    private static final long ONE_MEGABYTE = 1024*1024L;
 
     @Override
     public void init(Properties prop) throws Exception {

@@ -391,7 +391,7 @@ public class EnvironmentContext {
     }
 
     public long getConsoleStopExpireTime() {
-        return Long.parseLong(environment.getProperty("consoleStopExpireTime", Long.toString(60 * 1000 * 24)));
+        return Long.parseLong(environment.getProperty("consoleStopExpireTime", Long.toString(60 * 1000L * 24)));
     }
 
     public Integer getScheduleJobScope() {

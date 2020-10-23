@@ -13,4 +13,6 @@ import org.springframework.test.context.ContextConfiguration;
 @ContextConfiguration(classes = {EnvironmentContext.class, CacheConfig.class, MybatisConfig.class})
 @SpringBootTest
 public abstract class AbstractCommonTest {
+
+
 }

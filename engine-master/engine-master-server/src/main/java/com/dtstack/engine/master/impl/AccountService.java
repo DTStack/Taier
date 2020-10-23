@@ -123,12 +123,11 @@ public class AccountService {
                 throw new RdosDefineException("请先绑定Oracle组件");
             } else if (MultiEngineType.GREENPLUM.getType() == accountVo.getEngineType()) {
                 throw new RdosDefineException("请先绑定GREENPLUMe组件");
+            }else{
+                throw new RdosDefineException("请先绑定相应组件");
             }
         }
 
-        if(null == dataBaseType){
-            throw new RdosDefineException("不支持的数据源类型");
-        }
         JSONObject pluginInfo = new JSONObject();
         pluginInfo.put("jdbcUrl", jdbc.getString("jdbcUrl"));
         pluginInfo.put("username", accountVo.getName());

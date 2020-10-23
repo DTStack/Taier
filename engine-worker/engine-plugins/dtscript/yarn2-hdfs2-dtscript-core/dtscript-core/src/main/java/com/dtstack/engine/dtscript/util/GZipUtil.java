@@ -1,5 +1,6 @@
 package com.dtstack.engine.dtscript.util;
 
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,13 +30,13 @@ public class GZipUtil {
             gzip = new GZIPOutputStream(bos);
             gzip.write(data);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("GZipUtil.compress error:{}", ExceptionUtil.getErrorMessage(e));
         } finally {
             if (null != bos) {
                 try {
                     bos.close();
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
+                    LOG.error("GZipUtil.compress error:{}", ExceptionUtil.getErrorMessage(e));
                 }
             }
 
@@ -43,7 +44,7 @@ public class GZipUtil {
                 try {
                     gzip.close();
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
+                    LOG.error("GZipUtil.compress error:{}", ExceptionUtil.getErrorMessage(e));
                 }
             }
         }
@@ -59,21 +60,18 @@ public class GZipUtil {
             gis = new GZIPInputStream(bis);
             backData = IOUtils.toByteArray(gis);
         } catch (IOException e) {
-            LOG.error(e.getMessage(), e.getStackTrace());
+            LOG.error("GZipUtil.deCompress error:{}", ExceptionUtil.getErrorMessage(e));
         } finally {
-            if (null != bis) {
                 try {
                     bis.close();
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
+                    LOG.error("GZipUtil.deCompress error:{}", ExceptionUtil.getErrorMessage(e));
                 }
-            }
-
             if (null != gis) {
                 try {
                     gis.close();
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
+                    LOG.error("GZipUtil.deCompress error:{}", ExceptionUtil.getErrorMessage(e));
                 }
             }
         }

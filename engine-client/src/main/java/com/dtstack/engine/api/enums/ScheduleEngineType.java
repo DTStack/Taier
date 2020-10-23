@@ -117,36 +117,4 @@ public enum ScheduleEngineType {
         }
         return null;
     }
-
-    public static ScheduleEngineType getEngineType(int val) {
-        for (ScheduleEngineType type : ScheduleEngineType.values()) {
-            if (type.val == val) {
-                return type;
-            }
-        }
-
-        return null;
-    }
-
-    public static String getEngineName(int val) {
-        ScheduleEngineType scheduleEngineType = getEngineType(val);
-        return scheduleEngineType.getEngineName().toLowerCase();
-    }
-
-    public static ScheduleEngineType getByEScriptType(Integer scriptType) {
-        return getByPythonVersion(++scriptType);
-    }
-
-    public static ScheduleEngineType getByPythonVersion(Integer version) {
-        ScheduleEngineType scheduleEngineType;
-        if (version.equals(2)) {
-            scheduleEngineType = Python2;
-        } else if (version.equals(3)) {
-            scheduleEngineType = Python3;
-        } else {
-            throw new UnsupportedOperationException("python不支持2.x和3.x之外的版本类型");
-        }
-        return scheduleEngineType;
-    }
-
 }
