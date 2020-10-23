@@ -488,6 +488,10 @@ public class FlinkClient extends AbstractClient {
     public String getJobLog(JobIdentifier jobIdentifier) {
 
         String jobId = jobIdentifier.getEngineJobId();
+        if (StringUtils.isBlank(jobId)) {
+            logger.warn("get jobLog jobId {} is null ", jobIdentifier.getTaskId());
+            return null;
+        }
         String applicationId = jobIdentifier.getApplicationId();
 
         RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
