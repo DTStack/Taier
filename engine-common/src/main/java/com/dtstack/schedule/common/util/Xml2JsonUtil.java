@@ -74,7 +74,6 @@ public class Xml2JsonUtil {
             fc.close();
             fis.close();
         } catch (IOException e) {
-            e.printStackTrace();
             throw new IOException("读取文件失败");
         } finally {
             try {
@@ -85,7 +84,6 @@ public class Xml2JsonUtil {
                     fc.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
             }
         }
         return str;

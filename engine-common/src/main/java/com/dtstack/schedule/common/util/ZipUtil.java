@@ -5,23 +5,16 @@ import org.apache.tools.zip.ZipFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 /**
  * @company: www.dtstack.com
@@ -34,98 +27,6 @@ public class ZipUtil {
     private static final Logger LOG = LoggerFactory.getLogger(ZipUtil.class);
 
     private static byte[] _byte = new byte[1024];
-
-    public static byte[] compress(byte[] rowData) {
-        byte[] backData = null;
-        ZipOutputStream zip = null;
-        ByteArrayOutputStream bos = null;
-        try {
-            bos = new ByteArrayOutputStream();
-            zip = new ZipOutputStream(bos, StandardCharsets.UTF_8);
-            ZipEntry entry = new ZipEntry("zip");
-            entry.setSize(rowData.length);
-            zip.putNextEntry(entry);
-            zip.write(rowData);
-        } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex.getStackTrace());
-        } finally {
-            if (null != zip) {
-                try {
-                    zip.close();
-                    zip.closeEntry();
-                } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
-                }
-            }
-            if (null != bos) {
-                backData = bos.toByteArray();
-                try {
-                    bos.close();
-                } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
-                }
-            }
-        }
-        return backData;
-    }
-
-    public static byte[] deCompress(byte[] rowData) {
-        byte[] backData = null;
-        ZipInputStream zip = null;
-        ByteArrayInputStream bis = null;
-        ByteArrayOutputStream baos = null;
-        try {
-            bis = new ByteArrayInputStream(rowData);
-            zip = new ZipInputStream(bis, StandardCharsets.UTF_8);
-            while (zip.getNextEntry() != null) {
-                byte[] buf = new byte[1024];
-                int num = -1;
-                baos = new ByteArrayOutputStream();
-                while ((num = zip.read(buf, 0, buf.length)) != -1) {
-                    baos.write(buf, 0, num);
-                }
-                backData = baos.toByteArray();
-                baos.flush();
-                baos.close();
-            }
-        } catch (Exception ex) {
-            LOG.error("ZipUtil.deCompress error:{}", ExceptionUtil.getErrorMessage(ex));
-        } finally {
-            if (null != bis) {
-                try {
-                    bis.close();
-                } catch (IOException e) {
-                    LOG.error("ZipUtil.deCompress error:{}", ExceptionUtil.getErrorMessage(e));
-                }
-            }
-
-            if (null != zip) {
-                try {
-                    zip.close();
-                } catch (IOException e) {
-                    LOG.error("ZipUtil.deCompress error:{}", ExceptionUtil.getErrorMessage(e));
-                }
-            }
-
-            if (null != baos) {
-                try {
-                    baos.close();
-                } catch (IOException e) {
-                    LOG.error("ZipUtil.deCompress error:{}", ExceptionUtil.getErrorMessage(e));
-                }
-            }
-        }
-        return backData;
-    }
-
-    public static String compress(String rowData) {
-        return new String(Base64Util.baseEncode(compress(rowData.getBytes(StandardCharsets.UTF_8))), StandardCharsets.UTF_8);
-    }
-
-    public static String deCompress(String rowData) {
-        return new String(deCompress(Base64Util.baseDecode(rowData.getBytes(StandardCharsets.UTF_8))), StandardCharsets.UTF_8);
-    }
-
 
     /**
      * 压缩文件或路径

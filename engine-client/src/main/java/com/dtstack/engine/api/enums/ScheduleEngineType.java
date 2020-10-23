@@ -117,23 +117,4 @@ public enum ScheduleEngineType {
         }
         return null;
     }
-
-
-
-    public static ScheduleEngineType getByEScriptType(Integer scriptType) {
-        return getByPythonVersion(++scriptType);
-    }
-
-    public static ScheduleEngineType getByPythonVersion(Integer version) {
-        ScheduleEngineType scheduleEngineType;
-        if (version.equals(2)) {
-            scheduleEngineType = Python2;
-        } else if (version.equals(3)) {
-            scheduleEngineType = Python3;
-        } else {
-            throw new UnsupportedOperationException("python不支持2.x和3.x之外的版本类型");
-        }
-        return scheduleEngineType;
-    }
-
 }
