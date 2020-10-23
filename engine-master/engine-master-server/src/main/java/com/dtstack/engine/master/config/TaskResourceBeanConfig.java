@@ -61,6 +61,7 @@ public class TaskResourceBeanConfig {
         Map<String,String> map3 = new HashMap<>(4);
         map3.put("worker.memory","每个worker所占内存，比如512m");
         map3.put("worker.cores","每个worker所占的cpu核的数量");
+        map3.put("worker.num","worker数量");
         template5.setParams(map3);
         templateList.add(template5);
         //3.2 设置shell类型任务

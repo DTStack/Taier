@@ -472,7 +472,7 @@ public class HadoopClient extends AbstractClient {
                     LOG.error("submit file {} to hdfs error", hdfsPath,e);
                     throw new RdosDefineException("上传文件失败", e);
                 } finally {
-                    if (Objects.nonNull(fs)) {
+                    if (null != fs) {
                         try {
                             fs.close();
                         } catch (IOException e) {
@@ -493,7 +493,7 @@ public class HadoopClient extends AbstractClient {
         //测试hdfs联通性
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
-            if (Objects.isNull(testConnectConf)) {
+            if (null == testConnectConf) {
                 componentTestResult.setResult(false);
                 componentTestResult.setErrorMsg("配置信息不能你为空");
                 return componentTestResult;
@@ -510,7 +510,7 @@ public class HadoopClient extends AbstractClient {
                     componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
                     return componentTestResult;
                 } finally {
-                    if (Objects.nonNull(fs)) {
+                    if (null != fs) {
                         try {
                             fs.close();
                         } catch (IOException e) {
@@ -578,7 +578,7 @@ public class HadoopClient extends AbstractClient {
                 } catch (Exception e) {
                     LOG.error("close reource error ", e);
                 } finally {
-                    if (Objects.nonNull(resourceClient)) {
+                    if (null != resourceClient) {
                         try {
                             resourceClient.close();
                         } catch (IOException e) {

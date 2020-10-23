@@ -380,7 +380,7 @@ public class TenantService {
             Integer taskType = jsonObj.getInteger("taskType");
             tenantResource.setTaskType(taskType);
             EScheduleJobType eJobType = EScheduleJobType.getEJobType(taskType);
-            if(Objects.isNull(eJobType)){
+            if(null == eJobType){
                 throw new RdosDefineException("传入任务类型错误");
             }else{
                 tenantResource.setEngineType(eJobType.getName());
@@ -443,7 +443,7 @@ public class TenantService {
             e.printStackTrace();
             throw new RdosDefineException("查找资源限制失败");
         }
-        if(Objects.nonNull(tenantResource)){
+        if(null != tenantResource){
             return tenantResource.getResourceLimit();
         }else{
             return "";

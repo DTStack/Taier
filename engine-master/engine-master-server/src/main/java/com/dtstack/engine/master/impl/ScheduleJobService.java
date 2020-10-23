@@ -195,7 +195,7 @@ public class ScheduleJobService {
      */
     public PageResult getStatusJobList( Long projectId,  Long tenantId,  Integer appType,
                                         Long dtuicTenantId,  Integer status,  int pageSize,  int pageIndex) {
-        if (Objects.isNull(status) || Objects.isNull(dtuicTenantId)) {
+        if (null == status || null == dtuicTenantId) {
             return null;
         }
         List<Integer> statusCode = RdosTaskStatus.getCollectionStatus(status);
@@ -436,7 +436,7 @@ public class ScheduleJobService {
         }
         pageQuery.setModel(batchJobDTO);
 
-        if (StringUtils.isNotBlank(vo.getTaskName()) || Objects.nonNull(vo.getOwnerId())) {
+        if (StringUtils.isNotBlank(vo.getTaskName()) || null != vo.getOwnerId()) {
             List<ScheduleTaskShade> batchTaskShades = scheduleTaskShadeDao.listByNameLikeWithSearchType(vo.getProjectId(), vo.getTaskName(),
                     vo.getAppType(), vo.getOwnerId(), vo.getProjectIds(), batchJobDTO.getSearchType());
             if (CollectionUtils.isNotEmpty(batchTaskShades)) {
@@ -725,7 +725,7 @@ public class ScheduleJobService {
         }
         //需要查询工作流的子节点
         batchJobDTO.setNeedQuerySonNode(true);
-        if (StringUtils.isNotBlank(vo.getTaskName()) || Objects.nonNull(vo.getOwnerId())) {
+        if (StringUtils.isNotBlank(vo.getTaskName()) || null != vo.getOwnerId()) {
             List<ScheduleTaskShade> batchTaskShades = scheduleTaskShadeDao.listByNameLike(vo.getProjectId(), vo.getTaskName(), vo.getAppType(), vo.getOwnerId(),vo.getProjectIds());
             if (CollectionUtils.isNotEmpty(batchTaskShades)) {
                 batchJobDTO.setTaskIds(batchTaskShades.stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList()));
@@ -762,7 +762,7 @@ public class ScheduleJobService {
 
     private Map<Integer, List<Integer>> getStatusMap(Boolean splitFiledFlag) {
         Map<Integer, List<Integer>> statusMap;
-        if (Objects.nonNull(splitFiledFlag) && splitFiledFlag) {
+        if (null != splitFiledFlag && splitFiledFlag) {
             statusMap = RdosTaskStatus.getStatusFailedDetail();
         } else {
             statusMap = RdosTaskStatus.getCollectionStatus();
@@ -866,8 +866,8 @@ public class ScheduleJobService {
         if (CollectionUtils.isNotEmpty(vo.getTaskIds())) {
             batchJobDTO.setTaskIds(vo.getTaskIds());
         }
-        if (Objects.nonNull(vo.getTaskId())) {
-            if (Objects.isNull(batchJobDTO.getTaskIds())) {
+        if (null != vo.getTaskId()) {
+            if (null == batchJobDTO.getTaskIds()) {
                 batchJobDTO.setTaskIds(new ArrayList<>());
             }
             batchJobDTO.getTaskIds().add(vo.getTaskId());
@@ -982,11 +982,11 @@ public class ScheduleJobService {
 
 
     public Integer updateStatusWithExecTime(ScheduleJob updateJob) {
-        if(Objects.isNull(updateJob) || Objects.isNull(updateJob.getJobId()) || Objects.isNull(updateJob.getAppType())){
+        if(null == updateJob || null == updateJob.getJobId() || null == updateJob.getAppType()){
             return 0;
         }
         ScheduleJob job = scheduleJobDao.getByJobId(updateJob.getJobId(), Deleted.NORMAL.getStatus());
-        if (Objects.nonNull(job.getExecStartTime()) && Objects.nonNull(updateJob.getExecEndTime())){
+        if (null != job.getExecStartTime() && null != updateJob.getExecEndTime()){
             updateJob.setExecTime((updateJob.getExecEndTime().getTime()-job.getExecStartTime().getTime())/1000);
         }
         return scheduleJobDao.updateStatusWithExecTime(updateJob);
@@ -994,7 +994,7 @@ public class ScheduleJobService {
 
     public void testTrigger( String jobId) {
         ScheduleJob rdosJobByJobId = scheduleJobDao.getRdosJobByJobId(jobId);
-        if (Objects.nonNull(rdosJobByJobId)) {
+        if (null != rdosJobByJobId) {
             try {
                 this.sendTaskStartTrigger(rdosJobByJobId);
             } catch (Exception e) {
@@ -1043,9 +1043,9 @@ public class ScheduleJobService {
 
         String extInfoByTaskId = scheduleTaskShadeDao.getExtInfoByTaskId(scheduleJob.getTaskId(), scheduleJob.getAppType());
         JSONObject extObject = JSONObject.parseObject(extInfoByTaskId);
-        if (Objects.nonNull(extObject)) {
+        if (null != extObject) {
             JSONObject info = extObject.getJSONObject(TaskConstant.INFO);
-            if (Objects.nonNull(info)) {
+            if (null != info) {
                 Integer multiEngineType = info.getInteger("multiEngineType");
                 String ldapUserName = info.getString("ldapUserName");
                 if (StringUtils.isNotBlank(ldapUserName)) {
@@ -1061,7 +1061,7 @@ public class ScheduleJobService {
                 actionParam.put("taskType",EScheduleJobType.getEngineJobType(batchTask.getTaskType()));
                 actionParam.put("appType", batchTask.getAppType());
                 Object tenantId = actionParam.get("tenantId");
-                if(Objects.isNull(tenantId)){
+                if(null == tenantId){
                     actionParam.put("tenantId",batchTask.getDtuicTenantId());
                 }
                 // 出错重试配置,兼容之前的任务，没有这个参数则默认重试
@@ -2281,7 +2281,7 @@ public class ScheduleJobService {
         }
         Integer updateSize = 0;
         for (ScheduleJob job : scheduleJobs) {
-            if (Objects.nonNull(job.getStatus())) {
+            if (null != job.getStatus()) {
                 //更新状态 日志信息也要更新
                 job.setLogInfo("");
             }
@@ -2317,7 +2317,7 @@ public class ScheduleJobService {
 
     public Integer getJobStatus(String jobId){
         ScheduleJob job = scheduleJobDao.getRdosJobByJobId(jobId);
-        if (Objects.isNull(job)) {
+        if (null == job) {
             throw new RdosDefineException("job not exist");
         }
         return job.getStatus();
@@ -2338,7 +2338,7 @@ public class ScheduleJobService {
     public List<ScheduleJob> getSameDayChildJob( String batchJob,
                                                  boolean isOnlyNextChild,  Integer appType) {
         ScheduleJob job = JSONObject.parseObject(batchJob, ScheduleJob.class);
-        if (Objects.isNull(job)) {
+        if (null == job) {
             return new ArrayList<>();
         }
         return this.getAllChildJobWithSameDay(job, isOnlyNextChild, appType);
@@ -2467,7 +2467,7 @@ public class ScheduleJobService {
                             .collect(Collectors.toMap(ScheduleTaskShade::getTaskId, batchTaskShade -> batchTaskShade));
                     for (ScheduleJob subJob : subJobs) {
                         ScheduleTaskShade subTaskShade = shadeMap.get(subJob.getTaskId());
-                        if (Objects.isNull(subTaskShade)) {
+                        if (null == subTaskShade) {
                             continue;
                         }
                         if (EScheduleJobType.VIRTUAL.getType().intValue() != subTaskShade.getTaskType()) {
@@ -2475,7 +2475,7 @@ public class ScheduleJobService {
                             if (dtuicTenantId != null) {
                                 subNodeDownloadLog.put(subTaskShade.getName(), String.format(DOWNLOAD_LOG, subJob.getJobId(), subTaskShade.getTaskType()));
                                 ActionLogVO logInfoFromEngine = this.getLogInfoFromEngine(subJob.getJobId());
-                                if (Objects.nonNull(logInfoFromEngine)) {
+                                if (null != logInfoFromEngine) {
                                     subTaskLogInfo.append(subTaskShade.getName()).
                                             append("\n====================\n").
                                             append(logInfoFromEngine.getLogInfo()).
@@ -2567,7 +2567,7 @@ public class ScheduleJobService {
      */
     public String testCheckCanRun(String jobId){
         ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, Deleted.NORMAL.getStatus());
-        if (Objects.isNull(scheduleJob)) {
+        if (null == scheduleJob) {
             return "任务不存在";
         }
 
@@ -2578,10 +2578,8 @@ public class ScheduleJobService {
         if (batchTaskById == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
-        Map<Long, ScheduleTaskShade> taskShadeMap = new HashMap<>();
-        taskShadeMap.put(scheduleJob.getTaskId(), batchTaskById);
         try {
-            JobCheckRunInfo jobCheckRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, scheduleJob.getStatus(), scheduleJob.getType(), new HashSet<>(), new HashMap<>(), taskShadeMap);
+            JobCheckRunInfo jobCheckRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, scheduleJob.getStatus(), scheduleJob.getType(),batchTaskById);
             return JSONObject.toJSONString(jobCheckRunInfo);
         } catch (Exception e) {
             e.printStackTrace();
@@ -2598,11 +2596,11 @@ public class ScheduleJobService {
     public void createTodayTaskShade( Long taskId,  Integer appType) {
         try {
             //如果appType为空的话则为离线
-            if (Objects.isNull(appType)) {
+            if (null == appType) {
                 throw new RdosDefineException("appType不能为空");
             }
             ScheduleTaskShade testTask = batchTaskShadeService.getBatchTaskById(taskId, appType);
-            if (Objects.isNull(testTask)) {
+            if (null == testTask) {
                 throw new RdosDefineException("任务不存在");
             }
             List<ScheduleTaskShade> taskShades = new ArrayList<>();
@@ -2721,13 +2719,13 @@ public class ScheduleJobService {
      */
 
     public List<ScheduleJob> syncBatchJob(QueryJobDTO dto) {
-        if (Objects.isNull(dto) || Objects.isNull(dto.getAppType())) {
+        if (null == dto || null == dto.getAppType()) {
             return new ArrayList<>();
         }
-        if (Objects.isNull(dto.getCurrentPage())) {
+        if (null == dto.getCurrentPage()) {
             dto.setCurrentPage(1);
         }
-        if (Objects.isNull(dto.getPageSize())) {
+        if (null == dto.getPageSize()) {
             dto.setPageSize(50);
         }
         if (-1L == dto.getProjectId()) {

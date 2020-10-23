@@ -119,7 +119,7 @@ public class KubernetesClient extends AbstractClient {
             }
             throw e;
         } finally {
-            if (Objects.nonNull(client)) {
+            if (null != client) {
                 try {
                     client.configMaps().delete(configMap);
                 } catch (Exception e) {
@@ -135,7 +135,7 @@ public class KubernetesClient extends AbstractClient {
         //测试hdfs联通性
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
-            if (Objects.isNull(testConnectConf)) {
+            if (null == testConnectConf) {
                 componentTestResult.setResult(false);
                 componentTestResult.setErrorMsg("配置信息不能你为空");
                 return componentTestResult;
@@ -152,7 +152,7 @@ public class KubernetesClient extends AbstractClient {
                     componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
                     return componentTestResult;
                 } finally {
-                    if (Objects.nonNull(fs)) {
+                    if (null != fs) {
                         try {
                             fs.close();
                         } catch (IOException e) {
