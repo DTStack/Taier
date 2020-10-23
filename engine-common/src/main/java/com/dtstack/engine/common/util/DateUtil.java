@@ -70,30 +70,6 @@ public class DateUtil {
         return formatterMap;
     });
 
-    public static java.sql.Date columnToDate(Object column) {
-        if(Objects.isNull(column)){
-            return null;
-        }
-        if(column instanceof String) {
-            if(Objects.isNull(stringToDate((String)column))){
-                return null;
-            }else{
-                return new java.sql.Date(stringToDate((String) column).getTime());
-            }
-        } else if (column instanceof Integer) {
-            Integer rawData = (Integer) column;
-            return new java.sql.Date(rawData.longValue());
-        } else if (column instanceof Long) {
-            Long rawData = (Long) column;
-            return new java.sql.Date(rawData.longValue());
-        } else if (column instanceof java.sql.Date) {
-            return (java.sql.Date) column;
-        } else if(column instanceof java.sql.Timestamp) {
-            Timestamp ts = (Timestamp) column;
-            return new java.sql.Date(ts.getTime());
-        }
-        throw new IllegalArgumentException("Can't convert " + column.getClass().getName() + " to Date");
-    }
 
     public static Date stringToDate(String strDate)  {
         if(strDate == null || strDate.trim().length() == 0) {

@@ -114,7 +114,6 @@ public class AccountService {
             //如果是HADOOP，则添加ldap,无需校验连通性
             return;
         }
-
         if (Objects.isNull(jdbc)) {
             if (MultiEngineType.TIDB.getType() == accountVo.getEngineType()) {
                 throw new RdosDefineException("请先绑定TiDB组件");
@@ -122,17 +121,15 @@ public class AccountService {
                 throw new RdosDefineException("请先绑定Oracle组件");
             } else if (MultiEngineType.GREENPLUM.getType() == accountVo.getEngineType()) {
                 throw new RdosDefineException("请先绑定GREENPLUMe组件");
+            }else{
+                throw new RdosDefineException("请先绑定相应组件");
             }
         }
         JSONObject pluginInfo = new JSONObject();
-        if(Objects.nonNull(jdbc)) {
-            pluginInfo.put("jdbcUrl", jdbc.getString("jdbcUrl"));
-        }
+        pluginInfo.put("jdbcUrl", jdbc.getString("jdbcUrl"));
         pluginInfo.put("username", accountVo.getName());
         pluginInfo.put("password", accountVo.getPassword());
-        if(Objects.nonNull(dataBaseType)) {
-            pluginInfo.put("driverClassName", dataBaseType.getDriverClassName());
-        }
+        pluginInfo.put("driverClassName", dataBaseType.getDriverClassName());
         try {
             workerOperator.executeQuery(DataBaseType.TiDB.getTypeName().toLowerCase(), pluginInfo.toJSONString(), "show databases", "");
         } catch (Exception e) {

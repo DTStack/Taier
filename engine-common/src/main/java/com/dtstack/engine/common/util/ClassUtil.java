@@ -56,38 +56,7 @@ public class ClassUtil {
         throw new RdosDefineException("not support for type " + str);
     }
 
-    public static Object convertType(Object field, String fromType, String toType) {
-        fromType = fromType.toUpperCase();
-        toType = toType.toUpperCase();
-        String rowData = field.toString();
 
-        switch(toType) {
-            case "TINYINT":
-                return Byte.valueOf(rowData);
-            case "SMALLINT":
-                return Short.valueOf(rowData);
-            case "INT":
-                return Integer.valueOf(rowData);
-            case "BIGINT":
-                return Long.valueOf(rowData);
-            case "FLOAT":
-                return Float.valueOf(rowData);
-            case "DOUBLE":
-                return Double.valueOf(rowData);
-            case "STRING":
-                return rowData;
-            case "BOOLEAN":
-                return Boolean.valueOf(rowData);
-            case "DATE":
-                return DateUtil.columnToDate(field);
-            case "TIMESTAMP":
-                Date d = DateUtil.columnToDate(field);
-                return new Timestamp(d.getTime());
-            default:
-                throw new RuntimeException("Can't convert from " + fromType + " to " + toType);
-        }
-
-    }
 
     public static String getTypeFromClass(Class<?> clz) {
 

@@ -719,7 +719,7 @@ public class JobGraphBuilder {
         if(Objects.nonNull(preTriggerDate)) {
             return DateUtil.getFormattedDate(preTriggerDate.getTime(), dtfFormatString);
         }else{
-            return null;
+            throw new RdosDefineException("找不到运行时间");
         }
     }
 
