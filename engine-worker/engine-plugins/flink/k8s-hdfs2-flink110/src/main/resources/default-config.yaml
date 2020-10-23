@@ -58,6 +58,8 @@ perjob:
     gatewayJobName: pushgateway
     high-availability: ZOOKEEPER
 
+    kubernetes.host.aliases:
+
 session:
   dependencyKey: deploymode
   dependencyValue: session
