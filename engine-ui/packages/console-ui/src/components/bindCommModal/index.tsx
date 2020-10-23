@@ -12,18 +12,20 @@ const Option = Select.Option;
 const FormItem = Form.Item
 
 const CustomModal: React.FC = (props: any) => {
-    const { form, form: { getFieldDecorator }, visible, onOk, onCancel, title, isBindTenant,
+    const { form, form: { getFieldDecorator, resetFields }, visible, onOk, onCancel, title, isBindTenant,
         disabled, tenantInfo, clusterId: Id, clusterList } = props
     const [tenantList, setTenantList] = useState([])
     const prevVisible = useRef(null)
-    const [clusterId, setclusterId] = useState(Id)
-    const { env, queueList } = useEnv({ clusterId, visible: prevVisible.current !== visible && visible === true, form, clusterList })
-
+    const [clusterId, setClusterId] = useState(Id)
+    const { env, queueList } = useEnv({ clusterId, visible, form, clusterList })
     // 切换集群
     useEffect(() => {
-        // form?.resetFields(['queueId']);
         prevVisible.current = visible
-    }, [visible])
+        if (visible === false) {
+            resetFields()
+            setClusterId(undefined)
+        }
+    }, [visible, resetFields])
 
     const onSearchTenantUser = (value: string) => {
         API.getFullTenants(value).then((res: any) => {
@@ -34,7 +36,7 @@ const CustomModal: React.FC = (props: any) => {
     }
 
     const handleChangeCluster = (e) => {
-        setclusterId(e)
+        setClusterId(e)
     }
 
     const debounceSearchTenant = debounce(onSearchTenantUser, 1000);

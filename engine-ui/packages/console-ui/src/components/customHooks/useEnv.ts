@@ -11,7 +11,6 @@ function useEnv ({ clusterId, form, clusterList, visible }) {
         hasGreenPlum: false,
         hasPresto: false
     })
-    if (visible) { form.resetFields(['queueId']); }
 
     useEffect(() => {
         if (!clusterId) return
@@ -24,18 +23,29 @@ function useEnv ({ clusterId, form, clusterList, visible }) {
         const oracleEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.ORACLE);
         const greenPlumEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.GREEN_PLUM);
         const prestoEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.PRESTO);
-
-        setEnv({
-            hasHadoop: hadoopEngine.length >= 1,
-            hasLibra: libraEngine.length >= 1,
-            hasTiDB: tiDBEngine.length > 0,
-            hasOracle: oracleEngine.length > 0,
-            hasGreenPlum: greenPlumEngine.length > 0,
-            hasPresto: prestoEngine.length > 0
-        })
-
-        setQueueList(hadoopEngine?.[0]?.queues || [])
-    }, [clusterId, clusterList])
+        if (visible) {
+            setEnv({
+                hasHadoop: hadoopEngine.length >= 1,
+                hasLibra: libraEngine.length >= 1,
+                hasTiDB: tiDBEngine.length > 0,
+                hasOracle: oracleEngine.length > 0,
+                hasGreenPlum: greenPlumEngine.length > 0,
+                hasPresto: prestoEngine.length > 0
+            })
+            setQueueList(hadoopEngine?.[0]?.queues || [])
+        } else {
+            form.resetFields(['queueId']);
+            setEnv({
+                hasHadoop: false,
+                hasLibra: false,
+                hasTiDB: false,
+                hasOracle: false,
+                hasGreenPlum: false,
+                hasPresto: false
+            })
+            setQueueList([])
+        }
+    }, [clusterId, clusterList, visible, form])
     return { env, queueList }
 }
 export default useEnv
