@@ -389,9 +389,8 @@ public class FlinkClient extends AbstractClient {
         try {
             return KerberosUtils.login(flinkConfig, () -> {
                 String appId = jobIdentifier.getApplicationId();
-                RdosTaskStatus rdosTaskStatus = null;
                 try {
-                    rdosTaskStatus = getJobStatus(jobIdentifier);
+                    RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
 
                     if (rdosTaskStatus != null && !RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
                         ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
@@ -408,7 +407,6 @@ public class FlinkClient extends AbstractClient {
                     }
                     return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
                 } catch (Exception e) {
-
                     logger.error("jobId:{} engineJobId:{} applicationId:{} cancelJob error, try to cancel with yarnClient.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), e);
 
                     if (StringUtils.isEmpty(appId)) {
