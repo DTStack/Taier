@@ -90,7 +90,7 @@ public class FlinkClusterClientManager {
             LOG.warn("Can not retrieve ClusterClient!");
         }
 
-        if (Objects.nonNull(clusterClient)) {
+        if (null != clusterClient) {
             return clusterClient;
         }
 

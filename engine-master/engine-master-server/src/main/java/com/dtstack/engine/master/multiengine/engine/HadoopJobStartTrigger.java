@@ -402,7 +402,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         if (DataSourceType.HIVE.getVal() != sourceType && DataSourceType.HIVE1X.getVal() != sourceType) {
             return pluginInfo;
         }
-        if (Objects.isNull(hadoopConfig)) {
+        if (null == hadoopConfig) {
             throw new RdosDefineException("hadoop配置不能为空");
         }
         JSONObject config = new JSONObject();
@@ -437,7 +437,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             try {
                 JSONObject reader = (JSONObject) JSONPath.eval(jsonJob, "$.job.content[0].reader");
                 Object increCol = JSONPath.eval(reader, "$.parameter.increColumn");
-                if (Objects.nonNull(increCol) && Objects.nonNull(job.getExecStartTime()) && Objects.nonNull(job.getExecEndTime())) {
+                if (null != increCol && null != job.getExecStartTime() && null != job.getExecEndTime()) {
                     String lastEndLocation = this.queryLastLocation(dtuicTenantId, job.getEngineJobId(), job.getExecStartTime().getTime(), job.getExecEndTime().getTime(),taskparams,job.getComputeType());
                     LOG.info("last job {} applicationId {} startTime {} endTim {} location {}", job.getJobId(), job.getEngineJobId(), job.getExecStartTime(), job.getExecEndTime(), lastEndLocation);
                     reader.getJSONObject("parameter").put("startLocation", lastEndLocation);

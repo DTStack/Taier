@@ -78,7 +78,7 @@ public class FlinkClientBuilder {
         if (extProp != null) {
             extProp.forEach((key, value) -> {
                 String v = value == null? "": value.toString();
-                if (Objects.nonNull(key) && StringUtils.isNotEmpty(v)) {
+                if (null != key && StringUtils.isNotEmpty(v)) {
                     config.setString(key.toString(), value.toString());
                 }
             });

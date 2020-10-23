@@ -105,7 +105,7 @@ public class ScheduleJobJobService {
         for (ScheduleJob scheduleJob : jobs) {
             keyJobMap.put(scheduleJob.getJobKey(), scheduleJob);
             taskIds.add(scheduleJob.getTaskId());
-            if (Objects.isNull(appType) && Objects.nonNull(scheduleJob.getAppType())) {
+            if (null == appType && null != scheduleJob.getAppType()) {
                 appType = scheduleJob.getAppType();
             }
         }
