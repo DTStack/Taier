@@ -18,6 +18,7 @@ import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.security.krb5.KrbException;
 
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -112,10 +113,6 @@ public class KerberosUtils {
      * @return
      */
     private static <T> T loginKerberosWithCallBack(Configuration allConfig, String keytabPath, String principal, String krb5Conf, Supplier<T> supplier) {
-        if (StringUtils.isNotEmpty(krb5Conf)) {
-            System.setProperty(KRB5_CONF, krb5Conf);
-        }
-
         if (StringUtils.isEmpty(allConfig.get(SECURITY_TO_LOCAL))) {
             allConfig.set(SECURITY_TO_LOCAL, SECURITY_TO_LOCAL_DEFAULT);
         }
@@ -127,19 +124,11 @@ public class KerberosUtils {
         try {
             String threadName = Thread.currentThread().getName();
             UserGroupInformation ugi = ugiMap.computeIfAbsent(threadName, k -> {
-                try {
-                    sun.security.krb5.Config.refresh();
-                    UserGroupInformation.setConfiguration(allConfig);
-                    return UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
-                } catch (Exception e) {
-                    throw new RdosDefineException(e);
-                }
+                return createUGI(krb5Conf, allConfig, principal, keytabPath);
             });
             KerberosTicket ticket = getTGT(ugi);
             if (!checkTGT(ticket)) {
-                sun.security.krb5.Config.refresh();
-                UserGroupInformation.setConfiguration(allConfig);
-                ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
+                ugi = createUGI(krb5Conf, allConfig, principal, keytabPath);
                 ugiMap.put(threadName, ugi);
             }
 
@@ -148,6 +137,21 @@ public class KerberosUtils {
         } catch (Exception e) {
             logger.error("{}", keytabPath, e);
             throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
+        }
+    }
+
+    private static UserGroupInformation createUGI(String krb5Conf, Configuration config, String principal, String keytabPath) {
+        try {
+            synchronized (principal) {
+                if (StringUtils.isNotEmpty(krb5Conf)) {
+                    System.setProperty(KRB5_CONF, krb5Conf);
+                }
+                sun.security.krb5.Config.refresh();
+                UserGroupInformation.setConfiguration(config);
+                return UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
+            }
+        } catch (Exception e) {
+            throw new RdosDefineException(e);
         }
     }
 
