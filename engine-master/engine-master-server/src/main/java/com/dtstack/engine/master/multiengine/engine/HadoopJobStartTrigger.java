@@ -425,14 +425,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         pluginInfo.put("username", username);
         pluginInfo.put("password", password);
         pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,DataSourceType.getBaseType(sourceType).getTypeName());
-        if (DataSourceType.HIVE.getVal() != sourceType && DataSourceType.HIVE1X.getVal() != sourceType) {
-            return pluginInfo;
-        }
-        if (Objects.isNull(hadoopConfig)) {
-            throw new RdosDefineException("hadoop配置不能为空");
-        }
         JSONObject config = new JSONObject();
-        if ("kerberos".equalsIgnoreCase(hadoopConfig.getString("hadoop.security.authentication"))) {
+        if (null != hadoopConfig && "kerberos".equalsIgnoreCase(hadoopConfig.getString("hadoop.security.authentication"))) {
             //开启了kerberos 用数据同步中job 中配置项
             pluginInfo.put("openKerberos", "true");
             config.put("openKerberos", "true");
