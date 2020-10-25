@@ -1,7 +1,9 @@
 package com.dtstack.engine.flink;
 
 import com.dtstack.engine.base.util.KerberosUtils;
+import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.enums.ClusterMode;
 import com.dtstack.engine.flink.util.HadoopConf;
@@ -16,6 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  *  客户端需要的配置信息及YarnClient
@@ -38,6 +45,10 @@ public class FlinkClientBuilder {
     private volatile YarnClient yarnClient;
 
     private Configuration flinkConfiguration;
+
+    private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(3, 3,
+            0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory("flink_yarnclient"));
 
     public FlinkClientBuilder(FlinkConfig flinkConfig, org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf) {
         this.hadoopConf = hadoopConf;
@@ -100,8 +111,14 @@ public class FlinkClientBuilder {
                     }
                 }
             } else {
-                //判断下是否可用
-                yarnClient.getAllQueues();
+                //异步超时判断下是否可用，kerberos 开启下会出现hang死情况
+                RetryUtil.asyncExecuteWithRetry(() -> yarnClient.getAllQueues(),
+                        1,
+                        0,
+                        false,
+                        30000L,
+                        threadPoolExecutor);
+
             }
         } catch (Throwable e) {
             LOG.error("buildYarnClient![backup]", e);
