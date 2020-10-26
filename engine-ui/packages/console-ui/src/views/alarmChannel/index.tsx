@@ -19,11 +19,11 @@ const AlarmChannel: React.FC = (props: any) => {
     const useAlarmList = (query, pagination) => {
         const [loading, setLoading] = useState<boolean>(false);
         const [alarmList, setAlarmList] = useState<any[]>([])
+        const { currentPage, pageSize } = pagination;
+        const { alertGateType } = params;
         useEffect(() => {
             const getAlarmRuleList = async () => {
                 setLoading(true);
-                const { currentPage, pageSize } = pagination;
-                const { alertGateType } = params;
                 let res = await Api.getAlarmRuleList({
                     currentPage: currentPage,
                     pageSize: pageSize,
@@ -36,7 +36,7 @@ const AlarmChannel: React.FC = (props: any) => {
                 setLoading(false);
             }
             getAlarmRuleList().then();
-        }, [query, pagination])
+        }, [currentPage, alertGateType, pageSize])
         return [{ loading, alarmList }]
     }
     const refreshTable = () => {
