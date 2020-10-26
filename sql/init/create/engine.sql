@@ -244,7 +244,7 @@ CREATE TABLE `console_account`
   `id`             int(11)      NOT NULL AUTO_INCREMENT,
   `name`           varchar(24)  NOT NULL COMMENT '用户名',
   `password`       varchar(256) NOT NULL COMMENT '密码',
-  `type`           tinyint(1)   NOT NULL COMMENT '账号类型',
+  `type`           tinyint(11)   NOT NULL COMMENT '账号类型',
   `gmt_create`     datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `gmt_modified`   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted`     tinyint(1)   NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
