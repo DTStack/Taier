@@ -194,6 +194,10 @@ export default {
     searchTenant (params: any) {
         return http.post(req.SEARCH_TENANT, params);
     },
+    getTaskResourceTemplate (params?: any) {
+        return http.post(req.TASK_RESOURCE, params);
+    },
+
     getQueue (params: any) {
         return http.post(req.GET_QUEUE, params);
     },
@@ -202,6 +206,9 @@ export default {
     },
     switchQueue (params: any) {
         return http.post(req.SWITCH_QUEUE, params);
+    },
+    queryTaskResourceLimits (params: any) {
+        return http.post(req.GET_TASKLIMITS, params)
     },
 
     /**
