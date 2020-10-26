@@ -154,7 +154,7 @@ public class SparkConfigUtil {
                 handler.close();
                 ZipUtil.upzipFile(localConfigPath, localConfigParentDir);
             } catch (Exception e) {
-                ZipUtil.upzipFile(localConfigPath, localConfigParentDir);
+                LOG.error("SparkConfigUtil.downloadK8sConfig error:{}", ExceptionUtil.getErrorMessage(e));
             }
         }
 
