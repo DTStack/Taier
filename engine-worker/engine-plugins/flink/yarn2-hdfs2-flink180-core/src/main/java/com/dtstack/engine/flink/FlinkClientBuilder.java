@@ -46,9 +46,7 @@ public class FlinkClientBuilder {
 
     private Configuration flinkConfiguration;
 
-    private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(3, 3,
-            0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory("flink_yarnclient"));
+    private ThreadPoolExecutor threadPoolExecutor;
 
     public FlinkClientBuilder(FlinkConfig flinkConfig, org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf) {
         this.hadoopConf = hadoopConf;
@@ -57,6 +55,9 @@ public class FlinkClientBuilder {
         if (!ClusterMode.STANDALONE.name().equalsIgnoreCase(flinkConfig.getClusterMode())) {
             this.yarnClient = buildYarnClient();
         }
+        this.threadPoolExecutor = new ThreadPoolExecutor(this.flinkConfig.getAsyncCheckYarnClientThreadNum(), this.flinkConfig.getAsyncCheckYarnClientThreadNum(),
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory("flink_yarnclient"));
     }
 
     public void initFlinkGlobalConfiguration(Properties extProp) {

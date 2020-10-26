@@ -54,6 +54,8 @@ public class FlinkConfig extends BaseConfig {
 
     private String yarnAccepterTaskNumber;
 
+    private String asyncCheckYarnClientThreadNum;
+
     private Map<String, String> kerberosConfig;
 
     private int flinkSessionSlotCount;
@@ -103,6 +105,13 @@ public class FlinkConfig extends BaseConfig {
         this.sessionCheckJarPath = sessionCheckJarPath;
     }
 
+    public int getAsyncCheckYarnClientThreadNum() {
+        return StringUtils.isBlank(asyncCheckYarnClientThreadNum) ? 3: NumberUtils.toInt(asyncCheckYarnClientThreadNum,3);
+    }
+
+    public void setAsyncCheckYarnClientThreadNum(String asyncCheckYarnClientThreadNum) {
+        this.asyncCheckYarnClientThreadNum = asyncCheckYarnClientThreadNum;
+    }
 
     public boolean getMonitorAcceptedApp() {
         return monitorAcceptedApp;

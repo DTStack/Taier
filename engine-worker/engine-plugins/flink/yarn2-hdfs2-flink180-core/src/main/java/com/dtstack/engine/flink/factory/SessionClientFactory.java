@@ -452,7 +452,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                                 int checked = 0;
                                                 boolean checkRs = checkJobGraphWithStatus();
                                                 while (!checkRs) {
-                                                    if (checked++ > 3) {
+                                                    if (checked++ >= 3) {
                                                         sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                                                         break;
                                                     } else {
