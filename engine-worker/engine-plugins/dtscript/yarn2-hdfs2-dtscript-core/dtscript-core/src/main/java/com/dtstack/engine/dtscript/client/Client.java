@@ -55,14 +55,12 @@ public class Client {
                 conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
             }
             String proxyUser = conf.get(DtYarnConstants.PROXY_USER_NAME);
-            if(StringUtils.isNotBlank(proxyUser)){
-                String superGroup = conf.get(HDFS_SUPER_GROUP);
-                if (StringUtils.isNotBlank(superGroup)) {
-                    UserGroupInformation hadoopUserNameUGI = UserGroupInformation.createRemoteUser(superGroup);
-                    UserGroupInformation.setLoginUser(UserGroupInformation.createProxyUser(proxyUser, hadoopUserNameUGI));
-                } else {
-                    UserGroupInformation.setLoginUser(UserGroupInformation.createRemoteUser(superGroup));
-                }
+            String superGroup = conf.get(HDFS_SUPER_GROUP);
+            if (StringUtils.isNotBlank(proxyUser) && StringUtils.isNotBlank(superGroup)) {
+                UserGroupInformation hadoopUserNameUGI = UserGroupInformation.createRemoteUser(superGroup);
+                UserGroupInformation.setLoginUser(UserGroupInformation.createProxyUser(proxyUser, hadoopUserNameUGI));
+            } else if (StringUtils.isNotBlank(superGroup)) {
+                UserGroupInformation.setLoginUser(UserGroupInformation.createRemoteUser(superGroup));
             }
 
             this.yarnClient = getYarnClient();
