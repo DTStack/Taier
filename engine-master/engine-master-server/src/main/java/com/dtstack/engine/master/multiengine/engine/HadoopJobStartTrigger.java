@@ -388,7 +388,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 formattedMap.put(key, value);
             }
             // fileName  需要处理引号
-            parameter.put("fileName",Joiner.on("").withKeyValueSeparator("=").join(formattedMap));
+            parameter.put("fileName", partition);
             String join = Joiner.on("',").withKeyValueSeparator("='").join(formattedMap);
             partition = join + "'";
             String sql = String.format("alter table %s add if not exists partition (%s)", table, partition);
