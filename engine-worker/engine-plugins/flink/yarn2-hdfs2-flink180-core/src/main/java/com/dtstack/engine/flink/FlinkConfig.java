@@ -54,7 +54,7 @@ public class FlinkConfig extends BaseConfig {
 
     private String yarnAccepterTaskNumber;
 
-    private String asyncCheckYarnClientThreadNum;
+    private int asyncCheckYarnClientThreadNum = 3;
 
     private Map<String, String> kerberosConfig;
 
@@ -106,10 +106,10 @@ public class FlinkConfig extends BaseConfig {
     }
 
     public int getAsyncCheckYarnClientThreadNum() {
-        return StringUtils.isBlank(asyncCheckYarnClientThreadNum) ? 3: NumberUtils.toInt(asyncCheckYarnClientThreadNum,3);
+        return asyncCheckYarnClientThreadNum;
     }
 
-    public void setAsyncCheckYarnClientThreadNum(String asyncCheckYarnClientThreadNum) {
+    public void setAsyncCheckYarnClientThreadNum(int asyncCheckYarnClientThreadNum) {
         this.asyncCheckYarnClientThreadNum = asyncCheckYarnClientThreadNum;
     }
 
