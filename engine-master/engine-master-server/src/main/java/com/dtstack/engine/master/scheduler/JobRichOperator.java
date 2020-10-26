@@ -3,17 +3,16 @@ package com.dtstack.engine.master.scheduler;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.util.DateUtil;
+import com.dtstack.engine.api.domain.TenantResource;
+import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.dao.TenantResourceDao;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.Expired;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.schedule.common.enums.Restarted;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.common.enums.DependencyType;
-import com.dtstack.engine.common.enums.EScheduleStatus;
-import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.enums.JobCheckStatus;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.api.domain.ScheduleJob;
@@ -65,6 +64,9 @@ public class JobRichOperator {
     private EnvironmentContext environmentContext;
 
     @Autowired
+    private ScheduleTaskShadeService shadeService;
+
+    @Autowired
     private ScheduleJobDao scheduleJobDao;
 
     @Autowired
@@ -89,7 +91,7 @@ public class JobRichOperator {
      */
     public JobCheckRunInfo checkJobCanRun(ScheduleBatchJob scheduleBatchJob, Integer status, Integer scheduleType,
                                           Set<String> notStartCache, Map<String, JobErrorInfo> errorJobCache,
-                                          Map<Long, ScheduleTaskShade> taskCache) throws ParseException {
+                                          Map<Long, ScheduleTaskShade> taskCache) throws ParseException, IOException {
 
         ScheduleTaskShade batchTaskShade = getTaskShadeFromCache(taskCache,scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
 
@@ -154,11 +156,16 @@ public class JobRichOperator {
      * @param batchTaskShade
      * @return
      */
-    private JobCheckRunInfo checkStatusByTaskShade(ScheduleBatchJob scheduleBatchJob, Integer status, Integer scheduleType,ScheduleTaskShade batchTaskShade) {
+    private JobCheckRunInfo checkStatusByTaskShade(ScheduleBatchJob scheduleBatchJob, Integer status, Integer scheduleType,ScheduleTaskShade batchTaskShade) throws IOException {
         if (batchTaskShade == null || batchTaskShade.getIsDeleted().equals(Deleted.DELETED.getStatus())) {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TASK_DELETE);
         }
 
+        if(ComputeType.BATCH.getType().equals(scheduleBatchJob.getScheduleJob().getComputeType()) &&
+                checkTaskResourceLimit(scheduleBatchJob,batchTaskShade)){
+
+            return JobCheckRunInfo.createCheckInfo(JobCheckStatus.RESOURCE_OVER_LIMIT);
+        }
         if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.NOT_UNSUBMIT);
         }
@@ -184,6 +191,25 @@ public class JobRichOperator {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TIME_OVER_EXPIRE);
         }
         return null;
+    }
+
+    /**
+    * @author zyd
+    * @Description 校验当前任务的参数是否超出资源限制
+    * @Date 3:25 下午 2020/10/15
+    * @Param [batchTaskShade, tenantResource]
+    * @retrun com.dtstack.engine.master.scheduler.JobCheckRunInfo
+    **/
+    private Boolean checkTaskResourceLimit(ScheduleBatchJob scheduleBatchJob ,ScheduleTaskShade batchTaskShade) throws IOException {
+
+        //离线任务才需要校验资源
+        //获取租户id
+        Long dtuicTenantId = scheduleBatchJob.getScheduleJob().getDtuicTenantId();
+        Integer taskType = scheduleBatchJob.getScheduleJob().getTaskType();
+        String taskParams = batchTaskShade.getTaskParams();
+        List<String> exceedMessage = shadeService.checkResourceLimit
+                (dtuicTenantId, taskType, taskParams, batchTaskShade.getTaskId());
+        return CollectionUtils.isNotEmpty(exceedMessage);
     }
 
 

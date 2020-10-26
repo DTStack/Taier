@@ -2576,7 +2576,7 @@ public class ScheduleJobService {
         try {
             JobCheckRunInfo jobCheckRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, scheduleJob.getStatus(), scheduleJob.getType(), new HashSet<>(), new HashMap<>(), taskShadeMap);
             return JSONObject.toJSONString(jobCheckRunInfo);
-        } catch (ParseException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return "";
