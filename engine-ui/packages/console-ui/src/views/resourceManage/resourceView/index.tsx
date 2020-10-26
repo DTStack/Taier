@@ -3,9 +3,10 @@
 import * as React from 'react'
 import { Table } from 'antd'
 import Api from '../../../api/console'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, findKey } from 'lodash'
 import Chart from '../../../components/chart'
-import { pieOption, ALARM_DEFAULT, ALARM_HIGHT } from './constant'
+import { pieOption, ALARM_DEFAULT, ALARM_HIGHT,
+    SCHEDULE_TYPE } from './constant'
 
 interface ResouceProps {
     type: string;
@@ -78,7 +79,8 @@ class Resource extends React.Component<any, any> {
         nodesListSource: [],
         queuesListSource: [],
         target: '',
-        resourceMetrics: {}
+        resourceMetrics: {},
+        type: SCHEDULE_TYPE.Capacity
     }
 
     componentDidMount () {
@@ -92,9 +94,24 @@ class Resource extends React.Component<any, any> {
             clusterName: clusterName
         }).then((res: any) => {
             if (res.code == 1) {
+                let type = SCHEDULE_TYPE.Capacity;
+                let queuesListSource = res.data.queues || [];
+                switch (res.data.scheduleInfo.type) {
+                    case SCHEDULE_TYPE.Fair:
+                        queuesListSource = res.data?.scheduleInfo?.rootQueue?.childQueues
+                        type = SCHEDULE_TYPE.Fair
+                        break
+                    case SCHEDULE_TYPE.FIFO:
+                        queuesListSource = [{ ...res.data?.scheduleInfo }]
+                        type = SCHEDULE_TYPE.FIFO
+                        break
+                    default:
+                        break
+                }
                 this.setState({
+                    queuesListSource,
+                    type,
                     nodesListSource: res.data.nodes || [],
-                    queuesListSource: res.data.queues || [],
                     resourceMetrics: res.data.resourceMetrics || {}
                 })
             }
@@ -151,7 +168,8 @@ class Resource extends React.Component<any, any> {
     }
 
     initQueuesColumns = () => {
-        return [
+        const { type } = this.state
+        let colums = [
             {
                 title: '资源队列',
                 dataIndex: 'queueName',
@@ -191,6 +209,83 @@ class Resource extends React.Component<any, any> {
                 width: 150
             }
         ]
+        switch (type) {
+            case SCHEDULE_TYPE.Fair:
+                colums = [
+                    {
+                        title: '资源队列',
+                        dataIndex: 'queueName',
+                        render (_, record: any) {
+                            return record.queueName;
+                        }
+                    },
+                    {
+                        title: '已使资源数',
+                        dataIndex: 'usedResources',
+                        render (text: any) {
+                            return (
+                                <span>
+                                    memory:<span style={{ margin: 5 }}>{text.memory},&nbsp;</span>
+                                    vCores:<span style={{ margin: 5 }}>{text.vCores}</span>
+                                </span>
+                            )
+                        }
+                    },
+                    {
+                        title: '最大资源数',
+                        dataIndex: 'maxResources',
+                        render (text: any) {
+                            return (
+                                <span>
+                                    memory:<span style={{ margin: 5 }}>{text.memory},&nbsp;</span>
+                                    vCores:<span style={{ margin: 5 }}>{text.vCores}</span>
+                                </span>
+                            )
+                        }
+                    },
+                    {
+                        title: '最小资源数',
+                        dataIndex: 'minResources',
+                        render (text: any) {
+                            return (
+                                <span>
+                                    memory:<span style={{ margin: 5 }}>{text.memory},&nbsp;</span>
+                                    vCores:<span style={{ margin: 5 }}>{text.vCores}</span>
+                                </span>
+                            )
+                        }
+                    }
+                ]
+                break
+            case SCHEDULE_TYPE.FIFO:
+                colums = [
+                    {
+                        title: '容量',
+                        dataIndex: 'capacity',
+                        render (_, record: any) {
+                            return record.capacity;
+                        }
+                    },
+                    {
+                        title: '已使用容量',
+                        dataIndex: 'usedCapacity',
+                        render (_, record: any) {
+                            return record.usedCapacity;
+                        }
+                    },
+                    {
+                        title: '节点数量',
+                        dataIndex: 'numNodes',
+                        render (_, record: any) {
+                            return record.numNodes;
+                        }
+                    }
+                ]
+                break
+            default:
+                break
+        }
+        return colums;
     }
 
     initDetailtColumns = () => {
@@ -205,7 +300,7 @@ class Resource extends React.Component<any, any> {
                 render (text: any) {
                     return (
                         <span>
-                            memory:<span style={{ margin: 5 }}>{text.memory},</span>
+                            memory:<span style={{ margin: 5 }}>{text.memory},&nbsp;</span>
                             vCores:<span style={{ margin: 5 }}>{text.vCores}</span>
                         </span>
                     )
@@ -217,7 +312,7 @@ class Resource extends React.Component<any, any> {
                 render (text: any) {
                     return (
                         <span>
-                            memory:<span style={{ margin: 5 }}>{text.memory},</span>
+                            memory:<span style={{ margin: 5 }}>{text.memory},&nbsp;</span>
                             vCores:<span style={{ margin: 5 }}>{text.vCores}</span>
                         </span>
                     )
@@ -229,7 +324,7 @@ class Resource extends React.Component<any, any> {
                 render (text: any) {
                     return (
                         <span>
-                            memory:<span style={{ margin: 5 }}>{text.memory},</span>
+                            memory:<span style={{ margin: 5 }}>{text.memory},&nbsp;</span>
                             vCores:<span style={{ margin: 5 }}>{text.vCores}</span>
                         </span>
                     )
@@ -241,7 +336,7 @@ class Resource extends React.Component<any, any> {
                 render (text: any) {
                     return (
                         <span>
-                            memory:<span style={{ margin: 5 }}>{text.memory},</span>
+                            memory:<span style={{ margin: 5 }}>{text.memory},&nbsp;</span>
                             vCores:<span style={{ margin: 5 }}>{text.vCores}</span>
                         </span>
                     )
@@ -254,9 +349,10 @@ class Resource extends React.Component<any, any> {
         const columnsNodes = this.initNodesColumns()
         const columnsQueues = this.initQueuesColumns()
         const columnsDetail = this.initDetailtColumns()
-        const { nodesListSource, target, queuesListSource } = this.state;
+        const { nodesListSource, target, queuesListSource, type } = this.state;
         const { usedCores, totalCores, usedMem, totalMem,
             memRate, coresRate } = this.state.resourceMetrics
+        console.log(this.state)
         return (
             <div>
                 <div className="c-resourceView__container">
@@ -282,9 +378,10 @@ class Resource extends React.Component<any, any> {
                     data={nodesListSource}
                     title='Yarn-NodeManager资源使用' />
                 <RenderTable
+                    key={type}
                     columns={columnsQueues}
                     data={queuesListSource}
-                    title='各资源队列资源使用' />
+                    title={`各资源队列资源使用（调度方式：${findKey(SCHEDULE_TYPE, (val) => val === type)}）`} />
                 { target ? <RenderTable
                     columns={columnsDetail}
                     data={target.users}
