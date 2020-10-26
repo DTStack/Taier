@@ -1,5 +1,8 @@
 package com.dtstack.engine.dao;
 
+import com.dtstack.engine.api.domain.LineageRealDataSource;
+import org.apache.ibatis.annotations.Param;
+
 /**
  * @author chener
  * @Classname LineageRealDataSourceDao
@@ -8,4 +11,11 @@ package com.dtstack.engine.dao;
  * @Created chener@dtstack.com
  */
 public interface LineageRealDataSourceDao {
+    Integer addRealDataSource(LineageRealDataSource lineageRealDataSource);
+
+    Integer updateRealDataSource(LineageRealDataSource lineageRealDataSource);
+
+    Integer deleteRealDataSource(@Param("id")Long id);
+
+    LineageRealDataSource getOne(@Param("id")Long id);
 }

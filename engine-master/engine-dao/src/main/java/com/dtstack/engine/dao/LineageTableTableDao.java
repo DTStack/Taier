@@ -1,5 +1,10 @@
 package com.dtstack.engine.dao;
 
+import com.dtstack.engine.api.domain.LineageTableTable;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
 /**
  * @author chener
  * @Classname LineageTableTableDao
@@ -8,4 +13,13 @@ package com.dtstack.engine.dao;
  * @Created chener@dtstack.com
  */
 public interface LineageTableTableDao {
+
+    Integer batchInsertTableTable(LineageTableTable lineageTableTable);
+
+    Integer deleteByUniqueKey(@Param("uniqueKey")String uniqueKey);
+
+    List<LineageTableTable> queryTableInputList(@Param("appType")Integer appType,@Param("tableId")Long tableId);
+
+    List<LineageTableTable> queryTableResultList(@Param("appType")Integer appType,@Param("tableId")Long tableId);
+
 }

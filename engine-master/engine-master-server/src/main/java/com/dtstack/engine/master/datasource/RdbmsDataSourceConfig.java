@@ -2,7 +2,10 @@ package com.dtstack.engine.master.datasource;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.master.utils.JdbcUrlUtil;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.Map;
 
 /**
  * @author chener
@@ -45,7 +48,11 @@ public class RdbmsDataSourceConfig extends DataSourceConfig {
 
     @Override
     public String getConfigJson() {
-        return JSONObject.toJSONString(this);
+        Map<String,String> configMap = new HashedMap();
+        configMap.put("jdbc",getJdbc());
+        configMap.put("user",getUser());
+        configMap.put("pass",getPass());
+        return JSONObject.toJSONString(configMap);
     }
 
     @Override

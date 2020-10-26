@@ -28,6 +28,9 @@ public class LineageTableTable extends TenantEntity {
     @ApiModelProperty(notes = "是否手动维护")
     private Integer isManual;
 
+    @ApiModelProperty(notes = "血缘批次唯一码")
+    private String uniqueKey;
+
     public Integer getAppType() {
         return appType;
     }
@@ -66,5 +69,13 @@ public class LineageTableTable extends TenantEntity {
 
     public void setIsManual(Integer isManual) {
         this.isManual = isManual;
+    }
+
+    public String getUniqueKey() {
+        return uniqueKey;
+    }
+
+    public void setUniqueKey(String uniqueKey) {
+        this.uniqueKey = uniqueKey;
     }
 }

@@ -13,5 +13,8 @@
             </if>
         </trim>
     </sql>
+    <insert id="insertDataSource">
+
+    </insert>
 
 </mapper>
