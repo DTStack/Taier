@@ -95,6 +95,18 @@ public class FlinkConfig extends BaseConfig {
 
     private boolean monitorAcceptedApp = false;
 
+    private String sessionCheckJarPath;
+
+    public String getSessionCheckJarPath() {
+        if(Strings.isNullOrEmpty(sessionCheckJarPath)){
+            return ConfigConstrant.DEFAULT_SESSION_CHECK_PATH;
+        }
+        return sessionCheckJarPath;
+    }
+
+    public void setSessionCheckJarPath(String sessionCheckJarPath) {
+        this.sessionCheckJarPath = sessionCheckJarPath;
+    }
 
     public boolean getMonitorAcceptedApp() {
         return monitorAcceptedApp;
