@@ -2599,7 +2599,7 @@ public class ScheduleJobService {
      * @throws Exception
      */
     @Transactional(rollbackFor = Exception.class)
-    public void createTodayTaskShade( Long taskId,  Integer appType) {
+    public void createTodayTaskShade( Long taskId,  Integer appType,String date) {
         try {
             //如果appType为空的话则为离线
             if (Objects.isNull(appType)) {
@@ -2619,13 +2619,16 @@ public class ScheduleJobService {
                     taskShades.addAll(flowWorkSubTasks);
                 }
             }
+            if(StringUtils.isBlank(date)){
+                date = new DateTime().toString("yyyy-MM-dd");
+            }
             Map<String, String> flowJobId = new ConcurrentHashMap<>();
             List<ScheduleBatchJob> allJobs = new ArrayList<>();
 
             for (ScheduleTaskShade task : taskShades) {
                 try {
                     List<ScheduleBatchJob> cronTrigger = jobGraphBuilder.buildJobRunBean(task, "cronTrigger", EScheduleType.NORMAL_SCHEDULE,
-                            true, true, new DateTime().toString("yyyy-MM-dd"), "cronJob" + "_" + task.getName(),
+                            true, true, date, "cronJob" + "_" + task.getName(),
                             null, task.getProjectId(), task.getTenantId());
 
                     synchronized (allJobs) {
