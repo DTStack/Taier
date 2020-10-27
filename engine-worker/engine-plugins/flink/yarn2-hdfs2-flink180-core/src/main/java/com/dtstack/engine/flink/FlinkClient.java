@@ -533,7 +533,8 @@ public class FlinkClient extends AbstractClient {
             }, hadoopConf.getYarnConfiguration());
         } catch (Exception e) {
             logger.error("", e);
-            return RdosTaskStatus.NOTFOUND;
+            //防止因为kerberos 认证不过出现notfound最后变为failed
+            return RdosTaskStatus.RUNNING;
         }
     }
 

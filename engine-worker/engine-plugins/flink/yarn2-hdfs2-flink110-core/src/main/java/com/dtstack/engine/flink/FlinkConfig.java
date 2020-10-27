@@ -54,6 +54,7 @@ public class FlinkConfig extends BaseConfig {
 
     private String yarnAccepterTaskNumber;
 
+    private int asyncCheckYarnClientThreadNum = 3;
 
     private Map<String, String> kerberosConfig;
 
@@ -91,6 +92,14 @@ public class FlinkConfig extends BaseConfig {
 
     public void setZkSessionTimeout(int zkSessionTimeout) {
         this.zkSessionTimeout = zkSessionTimeout;
+    }
+
+    public int getAsyncCheckYarnClientThreadNum() {
+        return asyncCheckYarnClientThreadNum;
+    }
+
+    public void setAsyncCheckYarnClientThreadNum(int asyncCheckYarnClientThreadNum) {
+        this.asyncCheckYarnClientThreadNum = asyncCheckYarnClientThreadNum;
     }
 
     private String sessionCheckJarPath;

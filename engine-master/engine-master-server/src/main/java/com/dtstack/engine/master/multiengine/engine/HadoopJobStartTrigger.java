@@ -261,7 +261,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
         // 查找上一次同步位置
         if (scheduleJob.getType() == EScheduleType.NORMAL_SCHEDULE.getType()) {
-            job = getLastSyncLocation(taskShade.getTaskId(), job, scheduleJob.getCycTime(),taskShade.getDtuicTenantId(),taskShade.getAppType(),taskShade.getTaskParams());
+            job = getLastSyncLocation(taskShade.getTaskId(), job, scheduleJob.getCycTime(),taskShade.getDtuicTenantId(),taskShade.getAppType(),taskShade.getTaskParams(),
+                    scheduleJob.getJobId());
         } else {
             job = removeIncreConf(job);
         }
@@ -450,49 +451,56 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
      *
      * @return
      */
-    private String getLastSyncLocation(Long taskId, String jobContent, String cycTime,Long dtuicTenantId,Integer appType,String taskparams) {
+    private String getLastSyncLocation(Long taskId, String jobContent, String cycTime, Long dtuicTenantId, Integer appType, String taskparams, String jobId) {
         JSONObject jsonJob = JSONObject.parseObject(jobContent);
 
         Timestamp time = new Timestamp(dayFormatterAll.parseDateTime(cycTime).toDate().getTime());
         // 查找上一次成功的job
-        ScheduleJob job =  scheduleJobDao.getByTaskIdAndStatusOrderByIdLimit(taskId, RdosTaskStatus.FINISHED.getStatus(), time, appType);
+        ScheduleJob job = scheduleJobDao.getByTaskIdAndStatusOrderByIdLimit(taskId, RdosTaskStatus.FINISHED.getStatus(), time, appType);
         if (job != null && StringUtils.isNotEmpty(job.getEngineJobId())) {
             try {
                 JSONObject reader = (JSONObject) JSONPath.eval(jsonJob, "$.job.content[0].reader");
                 Object increCol = JSONPath.eval(reader, "$.parameter.increColumn");
                 if (Objects.nonNull(increCol) && Objects.nonNull(job.getExecStartTime()) && Objects.nonNull(job.getExecEndTime())) {
-                    String lastEndLocation = this.queryLastLocation(dtuicTenantId, job.getEngineJobId(), job.getExecStartTime().getTime(), job.getExecEndTime().getTime(),taskparams,job.getComputeType());
-                    LOG.info("last job {} applicationId {} startTime {} endTim {} location {}", job.getJobId(), job.getEngineJobId(), job.getExecStartTime(), job.getExecEndTime(), lastEndLocation);
+                    String lastEndLocation = this.queryLastLocation(dtuicTenantId, job.getEngineJobId(), job.getExecStartTime().getTime(), job.getExecEndTime().getTime(), taskparams, job.getComputeType(), jobId);
+                    LOG.info("job {} last job {} applicationId {} startTime {} endTime {} location {}", job, job.getJobId(), job.getEngineJobId(), job.getExecStartTime(), job.getExecEndTime(), lastEndLocation);
                     reader.getJSONObject("parameter").put("startLocation", lastEndLocation);
                 }
 
             } catch (Exception e) {
-                LOG.warn("上游任务没有增量配置:{}", job.getEngineLog());
+                LOG.error("get sync job {} lastSyncLocation error ", job.getJobId(), e);
             }
         }
 
         return jsonJob.toJSONString();
     }
 
-    public String queryLastLocation(Long dtUicTenantId, String jobId, long startTime, long endTime, String taskParam,Integer computeType) {
+    public String queryLastLocation(Long dtUicTenantId, String engineJobId, long startTime, long endTime, String taskParam,Integer computeType,String jobId) {
         endTime = endTime + 1000 * 60;
         List<ComponentsConfigOfComponentsVO> componentsConfigOfComponentsVOS = componentService.listConfigOfComponents(dtUicTenantId, MultiEngineType.HADOOP.getType());
-        JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(componentsConfigOfComponentsVOS));
-        JSONObject flinkJsonObject = jsonObject.getJSONObject(EComponentType.FLINK.getTypeCode() + "");
-        EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam,computeType);
-        JSONObject flinkConfig = flinkJsonObject.getJSONObject(eDeployMode.getMode());
-        String prometheusHost = flinkConfig.getString("prometheusHost");
-        String prometheusPort = flinkConfig.getString("prometheusPort");
-        LOG.info("last job {} deployMode {} prometheus host {} port {}", jobId, eDeployMode.getType(), prometheusHost, prometheusPort);
-        //prometheus的配置信息 从控制台获取
-        PrometheusMetricQuery prometheusMetricQuery = new PrometheusMetricQuery(String.format("%s:%s", prometheusHost, prometheusPort));
-        IMetric numReadMetric = MetricBuilder.buildMetric("endLocation", jobId, startTime, endTime, prometheusMetricQuery);
-        if (numReadMetric != null) {
-            String startLocation = String.valueOf(numReadMetric.getMetric());
-            if (StringUtils.isEmpty(startLocation) || "0".equalsIgnoreCase(startLocation)) {
-                return null;
+        if (CollectionUtils.isEmpty(componentsConfigOfComponentsVOS)) {
+            return null;
+        }
+        Optional<ComponentsConfigOfComponentsVO> flinkComponent = componentsConfigOfComponentsVOS.stream().filter(c -> c.getComponentTypeCode() == EComponentType.FLINK.getTypeCode()).findFirst();
+        if(flinkComponent.isPresent()){
+            ComponentsConfigOfComponentsVO componentsVO = flinkComponent.get();
+            JSONObject flinkJsonObject = JSONObject.parseObject(componentsVO.getComponentConfig());
+            EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam,computeType);
+            JSONObject flinkConfig = flinkJsonObject.getJSONObject(eDeployMode.getMode());
+            String prometheusHost = flinkConfig.getString("prometheusHost");
+            String prometheusPort = flinkConfig.getString("prometheusPort");
+            LOG.info("last job {} deployMode {} prometheus host {} port {}", jobId, eDeployMode.getType(), prometheusHost, prometheusPort);
+            //prometheus的配置信息 从控制台获取
+            PrometheusMetricQuery prometheusMetricQuery = new PrometheusMetricQuery(String.format("%s:%s", prometheusHost, prometheusPort));
+            IMetric numReadMetric = MetricBuilder.buildMetric("endLocation", engineJobId, startTime, endTime, prometheusMetricQuery);
+            if (numReadMetric != null) {
+                String startLocation = String.valueOf(numReadMetric.getMetric());
+                LOG.info("job {} deployMode {} startLocation [{}]", jobId, eDeployMode.getType(),startLocation);
+                if (StringUtils.isEmpty(startLocation) || "0".equalsIgnoreCase(startLocation)) {
+                    return null;
+                }
+                return String.valueOf(numReadMetric.getMetric());
             }
-            return String.valueOf(numReadMetric.getMetric());
         }
         return null;
     }
