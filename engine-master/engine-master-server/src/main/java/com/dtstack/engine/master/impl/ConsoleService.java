@@ -494,7 +494,7 @@ public class ConsoleService {
         }
     }
 
-    private Component getYarnComponent(Long clusterId) {
+    public Component getYarnComponent(Long clusterId) {
         List<Engine> engines = engineDao.listByClusterId(clusterId);
         if (CollectionUtils.isEmpty(engines)) {
             return null;
