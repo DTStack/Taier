@@ -21,9 +21,9 @@ public class SftpConfig {
     private String password;
     private String rsaPath;
     private Long maxWaitMillis = 1000L * 60L * 60L;
-    private Long minEvictableIdleTimeMillis =  -1L;
-    private Long softMinEvictableIdleTimeMillis =  1000L * 60L * 30L;
-    private Long timeBetweenEvictionRunsMillis =  1000L * 60L * 5L;
+    private Long minEvictableIdleTimeMillis = -1L;
+    private Long softMinEvictableIdleTimeMillis = 1000L * 60L * 30L;
+    private Long timeBetweenEvictionRunsMillis = 1000L * 60L * 5L;
 
     public String getHost() {
         return host;
@@ -169,4 +169,54 @@ public class SftpConfig {
         this.timeBetweenEvictionRunsMillis = timeBetweenEvictionRunsMillis;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SftpConfig that = (SftpConfig) o;
+
+        if (isUsePool != that.isUsePool) return false;
+        if (host != null ? !host.equals(that.host) : that.host != null) return false;
+        if (port != null ? !port.equals(that.port) : that.port != null) return false;
+        if (username != null ? !username.equals(that.username) : that.username != null) return false;
+        if (path != null ? !path.equals(that.path) : that.path != null) return false;
+        if (maxTotal != null ? !maxTotal.equals(that.maxTotal) : that.maxTotal != null) return false;
+        if (maxIdle != null ? !maxIdle.equals(that.maxIdle) : that.maxIdle != null) return false;
+        if (minIdle != null ? !minIdle.equals(that.minIdle) : that.minIdle != null) return false;
+        if (timeout != null ? !timeout.equals(that.timeout) : that.timeout != null) return false;
+        if (fileTimeout != null ? !fileTimeout.equals(that.fileTimeout) : that.fileTimeout != null) return false;
+        if (auth != null ? !auth.equals(that.auth) : that.auth != null) return false;
+        if (password != null ? !password.equals(that.password) : that.password != null) return false;
+        if (rsaPath != null ? !rsaPath.equals(that.rsaPath) : that.rsaPath != null) return false;
+        if (maxWaitMillis != null ? !maxWaitMillis.equals(that.maxWaitMillis) : that.maxWaitMillis != null)
+            return false;
+        if (minEvictableIdleTimeMillis != null ? !minEvictableIdleTimeMillis.equals(that.minEvictableIdleTimeMillis) : that.minEvictableIdleTimeMillis != null)
+            return false;
+        if (softMinEvictableIdleTimeMillis != null ? !softMinEvictableIdleTimeMillis.equals(that.softMinEvictableIdleTimeMillis) : that.softMinEvictableIdleTimeMillis != null)
+            return false;
+        return timeBetweenEvictionRunsMillis != null ? timeBetweenEvictionRunsMillis.equals(that.timeBetweenEvictionRunsMillis) : that.timeBetweenEvictionRunsMillis == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = host != null ? host.hashCode() : 0;
+        result = 31 * result + (port != null ? port.hashCode() : 0);
+        result = 31 * result + (username != null ? username.hashCode() : 0);
+        result = 31 * result + (path != null ? path.hashCode() : 0);
+        result = 31 * result + (maxTotal != null ? maxTotal.hashCode() : 0);
+        result = 31 * result + (maxIdle != null ? maxIdle.hashCode() : 0);
+        result = 31 * result + (minIdle != null ? minIdle.hashCode() : 0);
+        result = 31 * result + (timeout != null ? timeout.hashCode() : 0);
+        result = 31 * result + (isUsePool ? 1 : 0);
+        result = 31 * result + (fileTimeout != null ? fileTimeout.hashCode() : 0);
+        result = 31 * result + (auth != null ? auth.hashCode() : 0);
+        result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + (rsaPath != null ? rsaPath.hashCode() : 0);
+        result = 31 * result + (maxWaitMillis != null ? maxWaitMillis.hashCode() : 0);
+        result = 31 * result + (minEvictableIdleTimeMillis != null ? minEvictableIdleTimeMillis.hashCode() : 0);
+        result = 31 * result + (softMinEvictableIdleTimeMillis != null ? softMinEvictableIdleTimeMillis.hashCode() : 0);
+        result = 31 * result + (timeBetweenEvictionRunsMillis != null ? timeBetweenEvictionRunsMillis.hashCode() : 0);
+        return result;
+    }
 }

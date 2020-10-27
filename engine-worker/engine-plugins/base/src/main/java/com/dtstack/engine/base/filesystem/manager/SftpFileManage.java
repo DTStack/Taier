@@ -56,7 +56,9 @@ public class SftpFileManage implements IFileManage {
 
     private static final String KEYWORD_FILE_NOT_EXISTS = "No such file";
 
-    private static Map<String, SftpPool> sftpPoolMap = Maps.newConcurrentMap();
+    private Map<String, SftpPool> sftpPoolMap = Maps.newConcurrentMap();
+    private Map<String, Long> fileLastModifyMap = Maps.newConcurrentMap();
+
 
     private SftpFactory sftpFactory;
     private SftpPool sftpPool;
@@ -164,6 +166,27 @@ public class SftpFileManage implements IFileManage {
 
     public boolean downloadFile(String remotePath, String localPath) {
         return downloadFile(remotePath, localPath, true);
+    }
+
+    public String cacheOverloadFile(String fileName, String remoteDir, String localDir) {
+        String remoteFile = remoteDir + File.separator + fileName;
+        String localFile = localDir + File.separator + fileName;
+
+        Long lastModifyTime;
+        long fileTimeout;
+        if ((fileTimeout = sftpConfig.getFileTimeout()) != 0L && (lastModifyTime = fileLastModifyMap.get(localFile)) != null) {
+            if (System.currentTimeMillis() - lastModifyTime <= fileTimeout) {
+                return localFile;
+            }
+        }
+        try {
+            downloadFile(remoteFile, localFile);
+            fileLastModifyMap.put(localFile, new File(localFile).lastModified());
+            return localFile;
+        } catch (Exception e) {
+            LOG.error("load file error: ", e);
+            return null;
+        }
     }
 
     @Override
