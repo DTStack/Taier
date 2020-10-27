@@ -38,4 +38,3 @@ engine-worker/engine-plugins/rdbs/greenplum,\
 engine-worker/engine-plugins/rdbs/presto,\
 engine-entrance \
 -am
-
