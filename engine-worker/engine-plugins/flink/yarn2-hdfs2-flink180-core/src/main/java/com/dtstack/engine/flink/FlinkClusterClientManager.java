@@ -80,7 +80,8 @@ public class FlinkClusterClientManager {
                     throw new RdosDefineException(e);
                 }
             }
-            return sessionClientFactory.startAndGetSessionClusterClient();
+            this.clusterClient = sessionClientFactory.startAndGetSessionClusterClient();
+            return clusterClient;
         }
         return null;
     }

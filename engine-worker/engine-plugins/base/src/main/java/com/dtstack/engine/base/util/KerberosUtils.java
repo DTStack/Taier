@@ -20,6 +20,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 public class KerberosUtils {
@@ -35,6 +36,8 @@ public class KerberosUtils {
     private static final String TIME_FILE = ".lock";
     private static final String KEYTAB_FILE = ".keytab";
 
+    private static Map<String, String> principalMap = new ConcurrentHashMap<>();
+
     /**
      * @param config        任务外层配置
      * @param supplier
@@ -43,7 +46,7 @@ public class KerberosUtils {
      * @return
      * @throws Exception
      */
-    public static <T> T login(BaseConfig config, Supplier<T> supplier, Configuration configuration) throws Exception {
+    public static synchronized <T> T login(BaseConfig config, Supplier<T> supplier, Configuration configuration) throws Exception {
 
         if (Objects.isNull(config) || !config.isOpenKerberos()) {
             return supplier.get();
@@ -160,7 +163,7 @@ public class KerberosUtils {
      * @param <T>
      * @return
      */
-    private static <T> T loginKerberosWithCallBack(Configuration allConfig, String keytabPath, String principal, String krb5Conf, Supplier<T> supplier) {
+    private static synchronized <T> T loginKerberosWithCallBack(Configuration allConfig, String keytabPath, String principal, String krb5Conf, Supplier<T> supplier) {
         if (StringUtils.isNotEmpty(krb5Conf)) {
             System.setProperty(KRB5_CONF, krb5Conf);
         }
@@ -191,23 +194,26 @@ public class KerberosUtils {
         }
     }
 
-    public static String getPrincipal(String filePath) {
-        Keytab keytab = null;
-        try {
-            keytab = Keytab.loadKeytab(new File(filePath));
-        } catch (IOException e) {
-            logger.error("Principal {} parse error e: {}!", filePath, e.getMessage());
-            throw new RdosDefineException("keytab文件解析异常", e);
-        }
-        List<PrincipalName> principals = keytab.getPrincipals();
-        String principal = "";
-        if (principals.size() != 0) {
-            principal = principals.get(0).getName();
-        } else {
-            logger.error("Principal must not be null!");
-        }
-        logger.info("filePath:{} principal:{}", filePath, principal);
-        return principal;
+    public static synchronized String getPrincipal(String filePath) {
+        String nowPrincipal = principalMap.computeIfAbsent(filePath, k -> {
+            Keytab keytab = null;
+            try {
+                keytab = Keytab.loadKeytab(new File(filePath));
+            } catch (IOException e) {
+                logger.error("Principal {} parse error e: {}!", filePath, e.getMessage());
+                throw new RdosDefineException("keytab文件解析异常", e);
+            }
+            List<PrincipalName> principals = keytab.getPrincipals();
+            String principal = "";
+            if (principals.size() != 0) {
+                principal = principals.get(0).getName();
+            } else {
+                logger.error("Principal must not be null!");
+            }
+            logger.info("getPrincipal filePath:{} principal:{}", filePath, principal);
+            return principal;
+        });
+        return nowPrincipal;
     }
 
     public static String getKeytabPath(BaseConfig config) {
