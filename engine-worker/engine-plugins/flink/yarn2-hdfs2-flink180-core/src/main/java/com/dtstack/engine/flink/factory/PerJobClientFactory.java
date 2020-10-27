@@ -182,6 +182,10 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
         // 任务提交keytab
         String clusterKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId() + ConfigConstrant.SP + UUID.randomUUID();
+        File path = new File(clusterKeytabDirPath);
+        if (!path.exists()) {
+            path.mkdirs();
+        }
         String keytabName = flinkConfig.getPrincipalFile();
         SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
         handler.loadOverrideFromSftp(keytabName, remoteDir, clusterKeytabDirPath, false);

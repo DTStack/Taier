@@ -19,6 +19,7 @@ import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.sparkyarn.sparkyarn.parser.AddJarOperator;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExt;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExtFactory;
@@ -28,7 +29,9 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -43,6 +46,7 @@ import org.apache.spark.deploy.yarn.ClientArguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
@@ -81,6 +85,8 @@ public class SparkYarnClient extends AbstractClient {
     private static final String PYTHON_RUNNER_DEPENDENCY_RES_KEY = "extRefResource";
 
     private static final String CLUSTER_INFO_WS_FORMAT = "%s/ws/v1/cluster";
+
+    private static final String USER_DIR = System.getProperty("user.dir");
 
     /**如果请求 CLUSTER_INFO_WS_FORMAT 返回信息包含该特征则表示是alive*/
     private static final String ALIVE_WEB_FLAG = "clusterInfo";
@@ -186,7 +192,7 @@ public class SparkYarnClient extends AbstractClient {
         }
 
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
-        SparkConf sparkConf = buildBasicSparkConf();
+        SparkConf sparkConf = buildBasicSparkConf(jobClient);
         sparkConf.setAppName(appName);
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
 
@@ -264,7 +270,7 @@ public class SparkYarnClient extends AbstractClient {
             pythonExtPath = pythonExtPath + "," + dependencyResource;
         }
 
-        SparkConf sparkConf = buildBasicSparkConf();
+        SparkConf sparkConf = buildBasicSparkConf(jobClient);
         sparkConf.set("spark.submit.pyFiles", pythonExtPath);
         sparkConf.setAppName(appName);
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
@@ -331,7 +337,7 @@ public class SparkYarnClient extends AbstractClient {
         argList.add(sqlExeJson);
 
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
-        SparkConf sparkConf = buildBasicSparkConf();
+        SparkConf sparkConf = buildBasicSparkConf(jobClient);
         sparkConf.setAppName(jobClient.getJobName());
         fillExtSparkConf(sparkConf, confProp);
 
@@ -368,7 +374,7 @@ public class SparkYarnClient extends AbstractClient {
         return map;
     }
 
-    private SparkConf buildBasicSparkConf(){
+    private SparkConf buildBasicSparkConf(JobClient jobClient){
 
         SparkConf sparkConf = new SparkConf();
         sparkConf.remove("spark.jars");
@@ -377,8 +383,24 @@ public class SparkYarnClient extends AbstractClient {
         sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
         sparkConf.set("security", "false");
 
+        String taskId = jobClient.getTaskId();
         if (sparkYarnConfig.isOpenKerberos()){
-            String keytab = KerberosUtils.getKeytabPath(sparkYarnConfig);
+
+            String fileName = sparkYarnConfig.getPrincipalFile();
+            String remoteDir = sparkYarnConfig.getRemoteDir();
+            String localKeytabDir = USER_DIR + "/kerberos/keytab";
+            String localDir = String.format("%s/%s", localKeytabDir, taskId);
+
+            File path = new File(localDir);
+            if (!path.exists()) {
+                path.mkdirs();
+            }
+
+            logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, sparkYarnConfig.getSftpConf());
+            SFTPHandler handler = SFTPHandler.getInstance(sparkYarnConfig.getSftpConf());
+            String keytab = handler.loadOverrideFromSftp(fileName, remoteDir, localDir, true);
+            logger.info("keytabPath:{}", keytab);
+
             String principal = KerberosUtils.getPrincipal(keytab);
             sparkConf.set("spark.yarn.keytab", keytab);
             sparkConf.set("spark.yarn.principal", principal);
@@ -669,6 +691,20 @@ public class SparkYarnClient extends AbstractClient {
         }
 
         jobClient.setSql(String.join(";", sqlList));
+    }
+
+    @Override
+    public void afterSubmitFunc(JobClient jobClient) {
+        String localKeytabDir = USER_DIR + "/kerberos/keytab";
+        String localDir = String.format("%s/%s", localKeytabDir, jobClient.getTaskId());
+        File localDirFile = new File(localDir);
+        if (localDirFile.exists()){
+            try {
+                FileUtils.deleteDirectory(localDirFile);
+            } catch (IOException e) {
+                logger.error("Delete dir failed: " + e);
+            }
+        }
     }
 
     public YarnClient getYarnClient(){

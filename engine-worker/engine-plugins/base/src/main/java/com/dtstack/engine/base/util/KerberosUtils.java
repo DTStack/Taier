@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.HadoopKerberosName;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.security.authentication.util.KerberosName;
 import org.apache.hadoop.util.Time;
 import org.apache.kerby.kerberos.kerb.keytab.Keytab;
 import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
@@ -128,6 +129,7 @@ public class KerberosUtils {
             });
             KerberosTicket ticket = getTGT(ugi);
             if (!checkTGT(ticket)) {
+                logger.info("Relogin after the ticket expired, principal {}", principal);
                 ugi = createUGI(krb5Conf, allConfig, principal, keytabPath);
                 ugiMap.put(threadName, ugi);
             }
