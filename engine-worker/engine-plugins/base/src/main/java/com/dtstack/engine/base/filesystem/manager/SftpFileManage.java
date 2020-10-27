@@ -23,7 +23,6 @@ import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.sftp.SftpFactory;
 import com.dtstack.engine.common.sftp.SftpPool;
 import com.dtstack.engine.common.sftp.SftpPoolConfig;
-import com.dtstack.engine.common.util.SFTPHandler;
 import com.google.common.collect.Maps;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSchException;
@@ -44,8 +43,9 @@ import java.util.Vector;
 /**
  * Date: 2020/7/20
  * Company: www.dtstack.com
- *
+ * <p>
  * 参考 @com.dtstack.engine.common.util.SFTPHandler
+ *
  * @author maqi
  */
 public class SftpFileManage implements IFileManage {
@@ -58,39 +58,38 @@ public class SftpFileManage implements IFileManage {
 
     private static Map<String, SftpPool> sftpPoolMap = Maps.newConcurrentMap();
 
-    private ChannelSftp channelSftp;
+    private SftpFactory sftpFactory;
     private SftpPool sftpPool;
     private SftpConfig sftpConfig;
 
 
-    private SftpFileManage(ChannelSftp channelSftp, SftpPool sftpPool, SftpConfig sftpConfig) {
-        this.channelSftp = channelSftp;
-        this.sftpPool = sftpPool;
+    public SftpFileManage(SftpConfig sftpConfig) {
         this.sftpConfig = sftpConfig;
-    }
-
-    public static SftpFileManage getInstance(SftpConfig sftpConfig) {
         checkConfig(sftpConfig);
-
         boolean isUsePool = sftpConfig.getIsUsePool();
 
-        ChannelSftp channelSftp = null;
-       SftpPool sftpPool = null;
         if (isUsePool) {
             LOG.info("get channelSftp from SftpPool!");
-            sftpPool = getSftpPool(sftpConfig);
-            channelSftp = sftpPool.borrowObject();
+            this.sftpPool = getSftpPool(sftpConfig);
         } else {
             LOG.info("get channelSftp from native!");
-           SftpFactory sftpFactory = new SftpFactory(sftpConfig);
-            channelSftp = sftpFactory.create();
+            this.sftpFactory = new SftpFactory(sftpConfig);
         }
-
-        setSessionTimeout(sftpConfig, channelSftp);
-        return new SftpFileManage(channelSftp, sftpPool, sftpConfig);
     }
 
-    private static SftpPool getSftpPool(SftpConfig sftpConfig) {
+    public ChannelSftp getChannelSftp() {
+        ChannelSftp channelSftp = null;
+        boolean isUsePool = sftpConfig.getIsUsePool();
+        if (isUsePool) {
+            channelSftp = sftpPool.borrowObject();
+        } else {
+            channelSftp = sftpFactory.create();
+        }
+        setSessionTimeout(sftpConfig, channelSftp);
+        return channelSftp;
+    }
+
+    private SftpPool getSftpPool(SftpConfig sftpConfig) {
         String sftpPoolKey = getSftpPoolKey(sftpConfig);
         SftpPool sftpPool = sftpPoolMap.computeIfAbsent(sftpPoolKey, k -> {
             SftpPool sftpPool1 = null;
@@ -120,11 +119,11 @@ public class SftpFileManage implements IFileManage {
 
     }
 
-    private static String getSftpPoolKey(SftpConfig sftpConfig) {
+    private String getSftpPoolKey(SftpConfig sftpConfig) {
         return sftpConfig.getHost() + sftpConfig.getPort() + sftpConfig.getUsername() + sftpConfig.getPath();
     }
 
-    private static void checkConfig(SftpConfig sftpConfig) {
+    private void checkConfig(SftpConfig sftpConfig) {
         if (sftpConfig == null) {
             throw new IllegalArgumentException("The config of sftp is null");
         }
@@ -142,7 +141,7 @@ public class SftpFileManage implements IFileManage {
         }
     }
 
-    private static void setSessionTimeout(SftpConfig sftpConfig, ChannelSftp channelSftp) {
+    private void setSessionTimeout(SftpConfig sftpConfig, ChannelSftp channelSftp) {
         Session sessionSftp;
         try {
             sessionSftp = channelSftp.getSession();
@@ -169,11 +168,15 @@ public class SftpFileManage implements IFileManage {
 
     @Override
     public boolean downloadFile(String remotePath, String localPath, boolean isEnd) {
-        if (!isFileExist(remotePath)) {
+        ChannelSftp channelSftp = getChannelSftp();
+        if (!isFileExist(channelSftp, remotePath)) {
             LOG.info("File not exist on sftp:" + remotePath);
             return false;
         }
+        return downloadFile(remotePath, localPath, channelSftp, true);
+    }
 
+    private boolean downloadFile(String remotePath, String localPath, ChannelSftp channelSftp, boolean isEnd) {
         OutputStream os = null;
         try {
             os = new FileOutputStream(new File(localPath));
@@ -192,26 +195,28 @@ public class SftpFileManage implements IFileManage {
                 }
             }
             if (isEnd) {
-                close();
+                close(channelSftp);
             }
         }
     }
 
     /**
      * download 后自动释放连接
+     *
      * @param remoteDir
      * @param localDir
      * @return
      */
     @Override
     public boolean downloadDir(String remoteDir, String localDir) {
+        ChannelSftp channelSftp = null;
         try {
             File localDirPath = new File(localDir);
             if (!localDirPath.exists()) {
                 boolean mkdirs = localDirPath.mkdirs();
                 LOG.info("local file path {}  mkdir {} :", localDir, mkdirs);
             }
-
+            channelSftp = getChannelSftp();
             Vector files = channelSftp.ls(remoteDir);
             if (files == null) {
                 return false;
@@ -239,7 +244,7 @@ public class SftpFileManage implements IFileManage {
                     }
                     downloadDir(ftpFilePath, localFilePath);
                 } else {
-                    downloadFile(ftpFilePath, localFilePath, false);
+                    downloadFile(ftpFilePath, localFilePath, channelSftp,false);
                 }
             }
 
@@ -248,29 +253,33 @@ public class SftpFileManage implements IFileManage {
             LOG.error("sftp downloadDir error {}", e);
             clearDownloadFile(localDir);
             return false;
+        } finally {
+            close(channelSftp);
         }
     }
 
     @Override
-    public boolean uploadFile(String remotePath, String localPath, boolean isEnd) {
+    public boolean uploadFile(String remotePath, String localPath) {
         File file = new File(localPath);
         if (!file.exists() || !file.isFile()) {
             throw new RuntimeException("该路径不存在或不是文件路径");
         }
 
-        return uploadFile(remotePath, file.getParent(), file.getName(), isEnd);
+        return uploadFile(remotePath, file.getParent(), file.getName(), true);
     }
 
 
     @Override
     public boolean uploadFile(String remotePath, String localPath, String fileName, boolean isEnd) {
         LOG.info("路径：localPath=" + localPath);
+        ChannelSftp channelSftp = null;
         try {
             //检查路径
             if (!mkdir(remotePath)) {
                 LOG.error("创建sftp服务器路径失败:" + remotePath);
                 return false;
             }
+            channelSftp = getChannelSftp();
             String dst = remotePath + "/" + fileName;
             String src = localPath + "/" + fileName;
             LOG.info("开始上传，本地服务器路径：[" + src + "]目标服务器路径：[" + dst + "]");
@@ -281,8 +290,8 @@ public class SftpFileManage implements IFileManage {
             LOG.error("上传失败", e);
             return false;
         } finally {
-            if (!isEnd) {
-                close();
+            if (isEnd) {
+                close(channelSftp);
             }
         }
     }
@@ -308,24 +317,37 @@ public class SftpFileManage implements IFileManage {
 
     @Override
     public boolean deleteFile(String remotePath) {
-        if (this.isFileExist(remotePath)) {
-            try {
-                channelSftp.rm(remotePath);
-                return true;
-            } catch (SftpException e) {
-                LOG.error("", e);
-                throw new RuntimeException("删除sftp路径失败，sftpPath=" + remotePath);
+        ChannelSftp channelSftp = null;
+        try {
+            channelSftp = getChannelSftp();
+            if (this.isFileExist(channelSftp, remotePath)) {
+                try {
+                    channelSftp.rm(remotePath);
+                    return true;
+                } catch (SftpException e) {
+                    LOG.error("", e);
+                    throw new RuntimeException("删除sftp路径失败，sftpPath=" + remotePath);
+                }
             }
+            return true;
+        } catch (Exception e) {
+            LOG.error("删除失败", e);
+            return false;
+        } finally {
+            close(channelSftp);
         }
-        return true;
     }
 
     @Override
     public boolean deleteDir(String remotePath) {
+        ChannelSftp channelSftp = null;
         try {
+            channelSftp = getChannelSftp();
             channelSftp.cd(remotePath);
         } catch (SftpException e) {
             LOG.info("", e);
+            //释放连接
+            close(channelSftp);
             return false;
         }
 
@@ -351,10 +373,12 @@ public class SftpFileManage implements IFileManage {
         } catch (SftpException e) {
             LOG.error("", e);
             throw new RuntimeException("删除sftp路径失败，sftpPath=" + remotePath);
+        } finally {
+            close(channelSftp);
         }
     }
 
-    public boolean isFileExist(String sftpPath) {
+    private boolean isFileExist(ChannelSftp channelSftp, String sftpPath) {
         try {
             channelSftp.lstat(sftpPath);
             return true;
@@ -371,20 +395,28 @@ public class SftpFileManage implements IFileManage {
     public boolean mkdir(String path) {
         String[] split = path.split("/");
         StringBuilder currPath = new StringBuilder();
-        for (String dir : split) {
-            currPath.append("/").append(dir).toString();
-            try {
-                channelSftp.cd(currPath.toString());
-            } catch (SftpException sException) {
-                if (ChannelSftp.SSH_FX_NO_SUCH_FILE == sException.id) {
-                    try {
-                        channelSftp.mkdir(currPath.toString());
-                    } catch (SftpException e) {
-                        LOG.error("sftp isExist error {}", e);
-                        return false;
+        ChannelSftp channelSftp = null;
+        try {
+            channelSftp = getChannelSftp();
+            for (String dir : split) {
+                currPath.append("/").append(dir).toString();
+                try {
+                    channelSftp.cd(currPath.toString());
+                } catch (SftpException sException) {
+                    if (ChannelSftp.SSH_FX_NO_SUCH_FILE == sException.id) {
+                        try {
+                            channelSftp.mkdir(currPath.toString());
+                        } catch (SftpException e) {
+                            LOG.error("sftp isExist error {}", e);
+                            return false;
+                        }
                     }
                 }
             }
+        } catch (Exception e) {
+            LOG.error("", e);
+        } finally {
+            close(channelSftp);
         }
 
         return true;
@@ -392,28 +424,43 @@ public class SftpFileManage implements IFileManage {
 
     @Override
     public boolean renamePath(String oldPth, String newPath) {
+        ChannelSftp channelSftp = null;
         try {
+            channelSftp = getChannelSftp();
             channelSftp.rename(oldPth, newPath);
         } catch (SftpException e) {
             LOG.error("renamePath {} to {} error", oldPth, newPath, e);
             return false;
+        } finally {
+            close(channelSftp);
         }
         return true;
     }
 
     @Override
     public Vector listFile(String remotePath) {
+        ChannelSftp channelSftp = null;
         try {
-            return channelSftp.ls(remotePath);
+            channelSftp = getChannelSftp();
+            Vector vector = channelSftp.ls(remotePath);
+            return vector;
         } catch (SftpException e) {
             LOG.error("listFile  error", e);
             throw new RdosDefineException(e);
+        } finally {
+            close(channelSftp);
         }
     }
 
     @Override
     public void close() {
-        if (sftpPool != null) {
+    }
+
+    public void close(ChannelSftp channelSftp) {
+        if (null == channelSftp){
+            return;
+        }
+        if (null != sftpPool) {
             sftpPool.returnObject(channelSftp);
         } else {
             try {

@@ -53,10 +53,9 @@ public interface IFileManage {
      * 上传文件
      * @param remotePath
      * @param localPath
-     * @param isEnd
      * @return
      */
-    boolean uploadFile(String remotePath, String localPath, boolean isEnd);
+    boolean uploadFile(String remotePath, String localPath);
 
     /**
      * 上传文件到指定目录

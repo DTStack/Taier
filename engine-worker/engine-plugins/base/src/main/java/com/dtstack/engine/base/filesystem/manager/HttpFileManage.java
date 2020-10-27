@@ -101,7 +101,7 @@ public class HttpFileManage implements IFileManage {
     }
 
     @Override
-    public boolean uploadFile(String remotePath, String localPath, boolean isEnd) {
+    public boolean uploadFile(String remotePath, String localPath) {
         return false;
     }
 

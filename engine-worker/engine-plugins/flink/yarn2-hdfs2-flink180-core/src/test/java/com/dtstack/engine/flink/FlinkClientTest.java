@@ -8,7 +8,6 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
 import com.dtstack.engine.flink.factory.AbstractClientFactory;
 import com.dtstack.engine.flink.factory.PerJobClientFactory;
@@ -60,7 +59,7 @@ import static org.mockito.Mockito.when;
  */
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({SFTPHandler.class, FlinkClientBuilder.class,
+@PrepareForTest({FlinkClientBuilder.class,
 	FlinkClusterClientManager.class, PoolHttpClient.class,
 	FileSystem.class, FileUtil.class, PublicUtil.class,
 	FlinkConfUtil.class, FlinkUtil.class, PerJobClientFactory.class,
@@ -95,11 +94,11 @@ public class FlinkClientTest {
 		when(file.getParentFile()).thenReturn(file);
 		when(file.getAbsolutePath()).thenReturn("hdfs://user/tmp/tmpJar.jar");
 
-		PowerMockito.mockStatic(SFTPHandler.class);
-		SFTPHandler sftpHandler = PowerMockito.mock(SFTPHandler.class);
-		when(SFTPHandler.getInstance(any())).thenReturn(sftpHandler);
-		when(sftpHandler.loadFromSftp(any(), any(), any())).thenReturn("test/path");
-		when(sftpHandler.downloadDir(any(), any())).thenReturn(1);
+//		PowerMockito.mockStatic(SFTPHandler.class);
+//		SFTPHandler sftpHandler = PowerMockito.mock(SFTPHandler.class);
+//		when(SFTPHandler.getInstance(any())).thenReturn(sftpHandler);
+//		when(sftpHandler.loadFromSftp(any(), any(), any())).thenReturn("test/path");
+//		when(sftpHandler.downloadDir(any(), any())).thenReturn(1);
 
 		FileSystem fs = PowerMockito.mock(FileSystem.class);
 		when(fs.exists(any())).thenReturn(true);

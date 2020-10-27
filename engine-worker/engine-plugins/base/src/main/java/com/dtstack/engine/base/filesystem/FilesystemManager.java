@@ -20,8 +20,10 @@ package com.dtstack.engine.base.filesystem;
 
 import com.dtstack.engine.base.filesystem.factory.IFileManageFactory;
 import com.dtstack.engine.base.filesystem.manager.IFileManage;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.sftp.SftpConfig;
 import com.google.common.collect.Lists;
+import com.jcraft.jsch.SftpException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -30,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Date: 2020/10/21
@@ -206,6 +209,21 @@ public class FilesystemManager {
         String name = fileUrl.substring(fileUrl.lastIndexOf(URL_SPLIT) + 1);
         String tmpFileName = toPath + fileSP + name;
         return tmpFileName;
+    }
+
+    public Vector listFile(String remotePath) {
+        for (IFileManage fileManage : fileManages) {
+            if (fileManage.filterPrefix()) {
+                String prefix = fileManage.getPrefix();
+                remotePath = remotePath.startsWith(prefix) ? StringUtils.substringAfter(remotePath, prefix) : remotePath;
+            }
+
+            Vector listFile = fileManage.listFile(remotePath);
+            if (null != listFile) {
+                return listFile;
+            }
+        }
+        return null;
     }
 
 }

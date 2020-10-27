@@ -36,6 +36,6 @@ public class SftpFileManageFactory implements IFileManageFactory<FileConfig> {
     @Override
     public IFileManage createFileManage(FileConfig config) {
         SftpConfig sftpConfig = config.getSftpConfig();
-        return SftpFileManage.getInstance(sftpConfig);
+        return new SftpFileManage(sftpConfig);
     }
 }

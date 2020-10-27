@@ -3,6 +3,7 @@ package com.dtstack.engine.dummy;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.AbstractClient;
@@ -13,7 +14,6 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.util.SFTPHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Vector;
 
 /**
  * 用于流程上压测的dummy插件
@@ -112,27 +113,12 @@ public class DummyClient extends AbstractClient {
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
             SftpConfig sftpConfig = PublicUtil.jsonStrToObject(pluginInfo, SftpConfig.class);
-            //非sftp, test Result 为 false
-            if (StringUtils.isNotBlank(sftpConfig.getHost())) {
-                SFTPHandler instance = null;
-                try {
-                    instance = SFTPHandler.getInstance(sftpConfig);
-                    String path = sftpConfig.getPath();
-                    if (StringUtils.isBlank(path)) {
-                        componentTestResult.setErrorMsg("SFTP组件path配置不能为空");
-                        componentTestResult.setResult(false);
-                    } else {
-                        //测试路径是否存在
-                        instance.listFile(path);
-                        componentTestResult.setResult(true);
-                    }
-                } finally {
-                    if (instance != null) {
-                        instance.close();
-                    }
-                }
-            } else {
-                componentTestResult.setErrorMsg("SFTP组件配置错误");
+            // check sftpConfig 准确性
+            FilesystemManager filesystemManager = new FilesystemManager(null, sftpConfig);
+            //测试路径是否存在
+            Vector res = filesystemManager.listFile(sftpConfig.getPath());
+            if (null != res) {
+                componentTestResult.setResult(true);
             }
         } catch (Exception e) {
             componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
