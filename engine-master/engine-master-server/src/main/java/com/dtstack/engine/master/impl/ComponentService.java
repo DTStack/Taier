@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
@@ -8,6 +9,7 @@ import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.dto.ComponentDTO;
 import com.dtstack.engine.api.dto.Resource;
 import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.ComponentVO;
@@ -75,6 +77,14 @@ public class ComponentService {
 
     private static final String KERBEROS_CONFIG = "kerberosConfig";
 
+    private static final String HADOOP3_SIGNAL = "hadoop3";
+
+    private static final String GPU_EXEC_SIGNAL = "yarn.nodemanager.resource-plugins.gpu.path-to-discovery-executables";
+
+    private static final String GPU_RESOURCE_PLUGINS_SIGNAL = "yarn.nodemanager.resource-plugins";
+
+    private static final String GPU_ALLOWED_SIGNAL = "yarn.nodemanager.resource-plugins.gpu.allowed-gpu-devices";
+
     @Autowired
     private ComponentDao componentDao;
 
@@ -107,6 +117,9 @@ public class ComponentService {
 
     @Autowired
     private ClusterService clusterService;
+
+    @Autowired
+    private ConsoleService consoleService;
 
     @Autowired
     private KerberosDao kerberosDao;
@@ -1408,6 +1421,60 @@ public class ComponentService {
             }
         }
         return refreshResults;
+    }
+
+    public Boolean isYarnSupportGpus(String clusterName) {
+        if (StringUtils.isBlank(clusterName)) {
+            throw new RdosDefineException("clusterName is null");
+        }
+        Cluster cluster = clusterDao.getByClusterName(clusterName);
+        Component yarnComponent = consoleService.getYarnComponent(cluster.getId());
+
+        if (yarnComponent == null) {
+            return false;
+        }
+        if (!HADOOP3_SIGNAL.equals(yarnComponent.getHadoopVersion())) {
+            return false;
+        }
+        JSONObject yarnConf = JSONObject.parseObject(yarnComponent.getComponentConfig());
+        if (!"yarn.io/gpu".equals(yarnConf.getString(GPU_RESOURCE_PLUGINS_SIGNAL))) {
+            return false;
+        }
+        if (StringUtils.isBlank(yarnConf.getString(GPU_EXEC_SIGNAL))) {
+            return false;
+        }
+        if (!"true".equals(yarnConf.getString(GPU_ALLOWED_SIGNAL)) && !"auto".equals(yarnConf.getString(GPU_ALLOWED_SIGNAL))) {
+            return false;
+        }
+
+
+        ClusterResource resource = consoleService.getResources(yarnComponent, cluster);
+        List<JSONObject> queues = resource.getQueues();
+        if (queues != null && queues.size() > 0) {
+            for (JSONObject object: queues) {
+                try {
+                    JSONArray resources = object.getJSONObject("resources").getJSONArray("resourceUsagesByPartition");
+                    for (int i = 0; i < resources.size(); ++i) {
+                        JSONObject ele = resources.getJSONObject(i);
+                        if (ele.containsKey("used")) {
+                            JSONArray info = ele.getJSONObject("used").getJSONObject("resourceInformations")
+                                    .getJSONArray("resourceInformation");
+                            for (int j = 0; j < info.size(); ++j) {
+                                JSONObject jsonEle = info.getJSONObject(j);
+                                if ("yarn.io/gpu".equals(jsonEle.getString("name"))) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                } catch (Exception e) {
+                    return false;
+                }
+
+            }
+        }
+        return false;
     }
 
     /**
