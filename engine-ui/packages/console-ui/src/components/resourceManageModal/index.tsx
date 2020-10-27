@@ -31,9 +31,9 @@ const DynamicForm = (props: any) => {
                             {getFieldDecorator(`${type} ${item.replace(/(\.)/g, '-')}`, {
                                 initialValue: initialList?.[item] || undefined
                             })(
-                                <Input style={{ width: '90%' }} placeholder={lineList[item]} />
+                                <Input placeholder={lineList[item]} />
                             )}
-                            <span style={{ marginLeft: 10 }} >{sourcetype.includes(item) ? 'm' : ''}</span>
+                            <span style={{ position: 'absolute'}} >{sourcetype.includes(item) ? 'm' : ''}</span>
                         </FormItem>
                     ))
                 }

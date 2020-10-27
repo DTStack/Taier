@@ -776,14 +776,14 @@ export const longLabelFormLayout: any = {
     }
 }
 
-export const specFormItemLayout: any = { // 表单末尾布局
+export const specFormItemLayout: any = { // 表单对称布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 9 }
+        sm: { span: 8 }
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 13 }
+        sm: { span: 14 }
     }
 }
 
