@@ -452,7 +452,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                                 int checked = 0;
                                                 boolean checkRs = checkJobGraphWithStatus();
                                                 while (!checkRs) {
-                                                    if (checked++ > 3) {
+                                                    if (checked++ >= 3) {
                                                         sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                                                         break;
                                                     } else {
@@ -498,7 +498,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                 } finally {
                     try {
                         Thread.sleep(CHECK_INTERVAL);
-                        LOG.debug("Is Leader ? "+ sessionClientFactory.isLeader.get());
+                        LOG.info("SessionAppName is "+ sessionClientFactory.sessionAppNameSuffix +" and Current role is : "+ sessionClientFactory.isLeader.get());
                     } catch (Exception e) {
                         LOG.error("", e);
                     }
