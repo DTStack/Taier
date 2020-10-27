@@ -28,7 +28,6 @@ import com.dtstack.engine.master.scheduler.JobParamReplace;
 import com.dtstack.schedule.common.enums.DataBaseType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
-import com.dtstack.schedule.common.enums.ETableType;
 import com.dtstack.schedule.common.metric.batch.IMetric;
 import com.dtstack.schedule.common.metric.batch.MetricBuilder;
 import com.dtstack.schedule.common.metric.prometheus.PrometheusMetricQuery;
@@ -422,15 +421,12 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         pluginInfo.put("jdbcUrl", jdbcUrl);
         pluginInfo.put("username", username);
         pluginInfo.put("password", password);
-        pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,DataSourceType.getBaseType(sourceType).getTypeName());
-        if (DataSourceType.HIVE.getVal() != sourceType && DataSourceType.HIVE1X.getVal() != sourceType) {
-            return pluginInfo;
-        }
-        if (Objects.isNull(hadoopConfig)) {
-            throw new RdosDefineException("hadoop配置不能为空");
-        }
+        pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataSourceType.getBaseType(sourceType).getTypeName());
         JSONObject config = new JSONObject();
-        if ("kerberos".equalsIgnoreCase(hadoopConfig.getString("hadoop.security.authentication"))) {
+        boolean isOpenKerberos = "kerberos".equalsIgnoreCase(hadoopConfig.getString("hadoop.security.authentication"))
+                || "kerberos".equalsIgnoreCase(hadoopConfig.getString("hive.server2.authentication"))
+                || "kerberos".equalsIgnoreCase(hadoopConfig.getString("hive.server.authentication"));
+        if (isOpenKerberos) {
             //开启了kerberos 用数据同步中job 中配置项
             pluginInfo.put("openKerberos", "true");
             config.put("openKerberos", "true");
