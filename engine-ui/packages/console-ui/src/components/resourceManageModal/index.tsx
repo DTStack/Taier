@@ -33,7 +33,7 @@ const DynamicForm = (props: any) => {
                             })(
                                 <Input placeholder={lineList[item]} />
                             )}
-                            <span style={{ position: 'absolute'}} >{sourcetype.includes(item) ? 'm' : ''}</span>
+                            <span style={{ position: 'absolute', right: -20 }} >{sourcetype.includes(item) ? 'm' : ''}</span>
                         </FormItem>
                     ))
                 }
