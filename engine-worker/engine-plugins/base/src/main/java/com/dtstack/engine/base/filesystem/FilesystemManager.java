@@ -20,10 +20,8 @@ package com.dtstack.engine.base.filesystem;
 
 import com.dtstack.engine.base.filesystem.factory.IFileManageFactory;
 import com.dtstack.engine.base.filesystem.manager.IFileManage;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.sftp.SftpConfig;
 import com.google.common.collect.Lists;
-import com.jcraft.jsch.SftpException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -70,13 +68,9 @@ public class FilesystemManager {
 
         List<IFileManage> fileManages = Lists.newArrayList();
         for (IFileManageFactory factory : fileManageFactory) {
-            try {
-                IFileManage fileManage = factory.createFileManage(config);
-                if (null != fileManage) {
-                    fileManages.add(fileManage);
-                }
-            } catch (Exception e) {
-                LOG.error("createFileManage error ", e);
+            IFileManage fileManage = factory.createFileManage(config);
+            if (null != fileManage) {
+                fileManages.add(fileManage);
             }
         }
         return fileManages;
@@ -84,32 +78,29 @@ public class FilesystemManager {
 
     /**
      *   远程文件下载到本地文件夹，优先使用本地已有文件
-     * @param fileManages
      * @param remoteJarPath
      * @param localPath
      * @return
      * @throws FileNotFoundException
      */
-    public File downloadJar(String remoteJarPath, String localPath) {
-        return downloadJar(remoteJarPath, localPath, true, false, false);
+    public File downloadFile(String remoteJarPath, String localPath) {
+        return downloadFile(remoteJarPath, localPath, false, false, true);
     }
 
     /**
      * 远程文件下载到本地文件夹/文件，优先使用本地已有文件
-     * @param fileManages
      * @param remoteJarPath
      * @param localPath
      * @param isLocalDir
      * @return
      * @throws FileNotFoundException
      */
-    public File downloadJar(String remoteJarPath, String localPath, boolean isLocalDir) {
-        return downloadJar(remoteJarPath, localPath, isLocalDir, false, false);
+    public File downloadFile(String remoteJarPath, String localPath, boolean isLocalDir) {
+        return downloadFile(remoteJarPath, localPath, isLocalDir, false, true);
     }
 
     /**
      * 远程文件下载到本地文件夹/文件，优先使用本地已有文件
-     * @param fileManages
      * @param remoteJarPath
      * @param localPath
      * @param isLocalDir
@@ -117,13 +108,12 @@ public class FilesystemManager {
      * @return
      * @throws FileNotFoundException
      */
-    public File downloadJar(String remoteJarPath, String localPath, boolean isLocalDir, boolean alwaysPullNew) {
-        return downloadJar(remoteJarPath, localPath, isLocalDir, alwaysPullNew, false);
+    public File downloadFile(String remoteJarPath, String localPath, boolean isLocalDir, boolean alwaysPullNew) {
+        return downloadFile(remoteJarPath, localPath, isLocalDir, alwaysPullNew, true);
     }
 
     /**
      *  使用文件管理器下载文件，返回本地文件
-     * @param fileManages
      * @param remoteJarPath  远程jar完整路径
      * @param localPath     本地临时文件夹/文件
      * @param isLocalDir    tmpFileDirPath是否为本地文件夹
@@ -131,7 +121,7 @@ public class FilesystemManager {
      * @param isEnd          文件下载后是否归还连接
      * @return
      */
-    public File downloadJar(String remoteJarPath, String localPath, boolean isLocalDir, boolean alwaysPullNew, boolean isEnd) {
+    public File downloadFile(String remoteJarPath, String localPath, boolean isLocalDir, boolean alwaysPullNew, boolean isEnd) {
         LOG.info("download file remoteJarPath:{},localPath:{},isLocalDir:{},alwaysPullNew:{}", remoteJarPath, localPath, isLocalDir, alwaysPullNew);
         boolean downLoadSuccess = false;
         String localJarPath = isLocalDir ? getTmpFileName(remoteJarPath, localPath) : localPath;
@@ -191,9 +181,9 @@ public class FilesystemManager {
     public File getLocalJarFile(String localJarPath) {
         File jarFile = new File(localJarPath);
         if (!jarFile.exists()) {
-            throw new RuntimeException("JAR file does not exist: " + localJarPath);
+            throw new RuntimeException("File does not exist: " + localJarPath);
         } else if (!jarFile.isFile()) {
-            throw new RuntimeException("JAR file is not a file: " + localJarPath);
+            throw new RuntimeException("File is not a file: " + localJarPath);
         }
         return jarFile;
     }

@@ -1,24 +1,21 @@
 package com.dtstack.engine.flink.util;
 
-import com.dtstack.engine.common.sftp.SftpConfig;
-import com.dtstack.engine.worker.enums.ClassLoaderType;
+import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
+import com.dtstack.engine.worker.enums.ClassLoaderType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
-import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -32,18 +29,16 @@ public class FlinkUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkUtil.class);
 
-    private static final String URL_SPLITE = "/";
-
 
     public static PackagedProgram buildProgram(String fromPath, String toPath, List<URL> classpaths, EJobType jobType,
                                                String entryPointClass, String[] programArgs,
-                                               SavepointRestoreSettings spSetting, Configuration hadoopConf)
+                                               SavepointRestoreSettings spSetting, FilesystemManager filesystemManager)
             throws FileNotFoundException, ProgramInvocationException {
         if (fromPath == null) {
             throw new IllegalArgumentException("The program JAR file was not specified.");
         }
 
-        File jarFile = downloadJar(fromPath, toPath, hadoopConf, null);
+        File jarFile = downloadJar(fromPath, toPath, filesystemManager);
 
         ClassLoaderType classLoaderType = ClassLoaderType.getClassLoaderType(jobType);
 
@@ -57,58 +52,12 @@ public class FlinkUtil {
         return program;
     }
 
-    public static String getTmpFileName(String fileUrl, String toPath){
-        String name = fileUrl.substring(fileUrl.lastIndexOf(URL_SPLITE) + 1);
-        String tmpFileName = toPath  + ConfigConstrant.SP + name;
-        return tmpFileName;
-    }
+    public static File downloadJar(String remotePath, String localPath, FilesystemManager filesystemManager) throws FileNotFoundException {
 
-    public static File downloadJar(String fromPath, String toPath, Configuration hadoopConf, SftpConfig sftpConf) throws FileNotFoundException {
-        String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
-        Boolean downLoadFlag = false;
-        if (sftpConf != null && StringUtils.isNotBlank(sftpConf.getHost())){
-            downLoadFlag = downloadFileFromSftp(fromPath, toPath, sftpConf);
-        }
-        if(!downLoadFlag) {
-            downLoadFlag = FileUtil.downLoadFile(fromPath, localJarPath, hadoopConf);
-        }
-        if (!downLoadFlag) {
-            //如果download不成功，并且本地文件存在则从本地读取
-            File localFile = new File(fromPath);
-            if(localFile.exists()){
-                return localFile;
-            }
-            throw new FileNotFoundException("JAR file does not exist: fromPath: " + fromPath);
-        }
-        File jarFile = new File(localJarPath);
-        if (!jarFile.exists()) {
-            throw new FileNotFoundException("JAR file does not exist: " + jarFile + ", fromPath: " + fromPath);
-        } else if (!jarFile.isFile()) {
-            throw new FileNotFoundException("JAR file is not a file: " + jarFile + ", fromPath: " + fromPath);
-        }
-        return jarFile;
+        File downloadFile = filesystemManager.downloadFile(remotePath, localPath);
+        logger.info("downloadFile remotePath:{} localPath:{} status is: {} ", remotePath, localPath);
+        return downloadFile;
     }
-
-    private static boolean downloadFileFromSftp(String fromPath, String toPath, SftpConfig sftpConf) {
-        //从Sftp下载文件到目录下
-        SFTPHandler handler = null;
-        try {
-            handler = SFTPHandler.getInstance(sftpConf);
-            int files = handler.downloadDir(fromPath, toPath);
-            logger.info("download file from SFTP, fromPath:{} toPath:{} fileSize:{}", fromPath, toPath, files);
-            if (files > 0) {
-                return true;
-            }
-        } catch (Throwable e) {
-            logger.error("download file from SFTP error, fromPath:{} toPath:{} ", e);
-        } finally {
-            if (handler != null) {
-                handler.close();
-            }
-        }
-        return false;
-    }
-
 
     /**
      *

@@ -98,7 +98,7 @@ public class ClientExt extends DtCDHClient {
 
 
         boolean downLoadSuccess = filesystemManager.downloadDir(remotePath, confFileDirName);
-        LOG.info("downloadDir status is: {} ", downLoadSuccess);
+        LOG.info("downloadDir remotePath:{} confFileDirName:{} status is: {} ", remotePath, confFileDirName, downLoadSuccess);
         return confFileDirName;
     }
 

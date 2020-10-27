@@ -1,10 +1,8 @@
 package com.dtstack.engine.flink.util;
 
+import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.DtStringUtil;
-import com.dtstack.engine.common.util.SFTPHandler;
-import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.io.Files;
 import org.apache.commons.lang3.StringUtils;
@@ -22,11 +20,9 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 /**
  * http,hdfs文件下载
@@ -134,36 +130,6 @@ public class FileUtil {
         return true;
     }
 
-    public static void downloadKafkaKeyTab(JobClient jobClient, FlinkConfig flinkConfig) {
-        SFTPHandler handler = null;
-        try {
-            Properties confProperties = jobClient.getConfProperties();
-            String sftpKeytab = confProperties.getProperty(ConfigConstrant.KAFKA_SFTP_KEYTAB);
-
-            if (StringUtils.isBlank(sftpKeytab)) {
-                logger.info("flink task submission has enabled keberos authentication, but kafka has not !!!");
-                return;
-            }
-
-            String taskKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
-            File taskKeytabDir = new File(taskKeytabDirPath);
-            if (!taskKeytabDir.exists()) {
-                taskKeytabDir.mkdirs();
-            }
-
-            File kafkaKeytabFile = new File(sftpKeytab);
-            String localKafkaKeytab = String.format("%s/%s", taskKeytabDirPath, kafkaKeytabFile.getName());
-            handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
-            handler.downloadFile(sftpKeytab, localKafkaKeytab);
-        } catch (Exception e) {
-            logger.error("Download keytab from sftp failed", e);
-        } finally {
-            if (handler != null) {
-                handler.close();
-            }
-        }
-    }
-
     private static Pair<String, String> parseHdfsUri(String path){
         Matcher matcher = pattern.matcher(path);
         if(matcher.find() && matcher.groupCount() == 2){
@@ -175,13 +141,34 @@ public class FileUtil {
         }
     }
 
-
     public static void checkFileExist(String filePath) {
         if (StringUtils.isNotBlank(filePath)) {
             if (!new File(filePath).exists()) {
                 throw new RdosDefineException(String.format("The file jar %s  path is not exist ", filePath));
             }
         }
+    }
+
+    public static void downloadKafkaKeyTab(JobClient jobClient, FilesystemManager filesystemManager) {
+        Properties confProperties = jobClient.getConfProperties();
+        String sftpKeytab = confProperties.getProperty(ConfigConstrant.KAFKA_SFTP_KEYTAB);
+
+        if (StringUtils.isBlank(sftpKeytab)) {
+            logger.info("flink task submission has enabled keberos authentication, but kafka has not !!!");
+            return;
+        }
+
+        String taskKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+        File taskKeytabDir = new File(taskKeytabDirPath);
+        if (!taskKeytabDir.exists()) {
+            taskKeytabDir.mkdirs();
+        }
+
+        File kafkaKeytabFile = new File(sftpKeytab);
+        String localKafkaKeytab = String.format("%s/%s", taskKeytabDirPath, kafkaKeytabFile.getName());
+        File downloadKafkaKeytabFile = filesystemManager.downloadFile(sftpKeytab, localKafkaKeytab);
+        logger.info("Download Kafka keytab file to :" + downloadKafkaKeytabFile.toPath());
+
     }
 
 }

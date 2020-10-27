@@ -20,6 +20,7 @@ package com.dtstack.engine.flink.factory;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -51,7 +52,6 @@ import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrame
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.leader.LeaderLatch;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.leader.LeaderLatchListener;
-import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.flink.shaded.curator.org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.flink.util.FlinkException;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
@@ -91,8 +91,6 @@ public class SessionClientFactory extends AbstractClientFactory {
     private volatile ClusterClient<ApplicationId> clusterClient;
     private AtomicBoolean isLeader = new AtomicBoolean(false);
     private FlinkConfig flinkConfig;
-    private InterProcessMutex clusterClientLock;
-    private String lockPath;
     private CuratorFramework zkClient;
     private LeaderLatch leaderLatch;
     private Configuration flinkConfiguration;
@@ -115,8 +113,6 @@ public class SessionClientFactory extends AbstractClientFactory {
         this.yarnSessionSpecification = FlinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
 
         initZkClient();
-        this.lockPath = String.format("/yarn_session/%s", flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
-        this.clusterClientLock = new InterProcessMutex(zkClient, lockPath);
     }
 
     private void initZkClient() {
@@ -159,8 +155,8 @@ public class SessionClientFactory extends AbstractClientFactory {
     }
 
     public LeaderLatch getLeaderLatch() {
-        String YARN_MONITOR_PATH = String.format("%s/%s-%s", SESSION_CHECK_LEADER_ELECTION, this.sessionAppNameSuffix, FLINK_VERSION);
-        LeaderLatch ll = new LeaderLatch(this.zkClient, YARN_MONITOR_PATH);
+        String localPath = String.format("%s/%s-%s", SESSION_CHECK_LEADER_ELECTION, this.sessionAppNameSuffix, FLINK_VERSION);
+        LeaderLatch ll = new LeaderLatch(this.zkClient, localPath);
         return ll;
     }
 
@@ -418,12 +414,16 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         private long startTime = System.currentTimeMillis();
 
+        private FilesystemManager filesystemManager;
+
         public AppStatusMonitor(FlinkClusterClientManager clusterClientManager, FlinkClientBuilder clientBuilder, SessionClientFactory yarnSessionClientFactory) {
             this.clusterClientManager = clusterClientManager;
             this.clientBuilder = clientBuilder;
             this.sessionClientFactory = yarnSessionClientFactory;
             this.lastAppState = YarnApplicationState.NEW;
             this.sessionCheckInterval = new SessionCheckInterval(clientBuilder.getFlinkConfig().getCheckSubmitJobGraphInterval(), yarnSessionClientFactory.sessionHealthCheckedInfo);
+            //查找本地路径
+            this.filesystemManager = new FilesystemManager(null, null);
         }
 
         @Override
@@ -629,7 +629,7 @@ public class SessionClientFactory extends AbstractClientFactory {
             String[] programArgs = {checkpoint};
 
             PackagedProgram packagedProgram = FlinkUtil.buildProgram(jarPath, "./tmp", classPaths,
-                    null, mainClass, programArgs, SavepointRestoreSettings.none(), null);
+                    null, mainClass, programArgs, SavepointRestoreSettings.none(), filesystemManager);
 
             JobSubmissionResult result = sessionClientFactory.getClusterClient().run(packagedProgram, 1);
 
