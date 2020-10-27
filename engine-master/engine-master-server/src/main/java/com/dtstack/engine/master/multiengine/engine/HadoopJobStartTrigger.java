@@ -12,6 +12,7 @@ import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
@@ -402,7 +403,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 }, 3, 2000, false, Lists.newArrayList(SocketTimeoutException.class));
             } catch (Exception e) {
                 LOG.error("create partition error", e);
-                throw new RdosDefineException("create partition error:" + e.getMessage());
+                throw new RdosDefineException("create partition error:" + ExceptionUtil.getErrorMessage(e));
             }
         }
         return jobJSON.toJSONString();
