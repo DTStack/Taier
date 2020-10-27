@@ -8,9 +8,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.HadoopKerberosName;
-import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.Time;
 import org.apache.kerby.kerberos.kerb.keytab.Keytab;
@@ -18,7 +16,6 @@ import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.security.krb5.KrbException;
 
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -65,41 +62,50 @@ public class KerberosUtils {
 
         String fileName = config.getPrincipalFile();
         String remoteDir = config.getRemoteDir();
-        String localDir = LOCAL_KEYTAB_DIR + remoteDir;
+        String localDir = String.format("%s/%s", LOCAL_KEYTAB_DIR, UUID.randomUUID());
 
         File path = new File(localDir);
         if (!path.exists()) {
             path.mkdirs();
         }
 
-        logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, config.getSftpConf());
-        SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
-        String keytabPath = handler.loadOverrideFromSftp(fileName, remoteDir, localDir, false);
-
-        String krb5ConfName = config.getKrbName();
-        String krb5ConfPath = "";
-        if (StringUtils.isNotBlank(krb5ConfName)) {
-            krb5ConfPath = handler.loadOverrideFromSftp(krb5ConfName, config.getRemoteDir(), localDir, true);
-        }
-        //krb5ConfPath = mergeKrb5(krb5ConfPath);
         try {
-            handler.close();
+            logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, config.getSftpConf());
+            SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
+            String keytabPath = handler.loadOverrideFromSftp(fileName, remoteDir, localDir, false);
+
+            String krb5ConfName = config.getKrbName();
+            String krb5ConfPath = "";
+            if (StringUtils.isNotBlank(krb5ConfName)) {
+                krb5ConfPath = handler.loadOverrideFromSftp(krb5ConfName, config.getRemoteDir(), localDir, true);
+            }
+            //krb5ConfPath = mergeKrb5(krb5ConfPath);
+
+            String principal = config.getPrincipal();
+            if (StringUtils.isEmpty(principal)) {
+                principal = KerberosUtils.getPrincipal(keytabPath);
+            }
+
+            logger.info("kerberos login, principal:{}, keytabPath:{}, krb5ConfPath:{}", principal, keytabPath, krb5ConfPath);
+            return KerberosUtils.loginKerberosWithCallBack(
+                    configuration,
+                    keytabPath,
+                    principal,
+                    krb5ConfPath,
+                    supplier
+            );
         } catch (Exception e) {
+            throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
+        } finally {
+            File file = new File(localDir);
+            if (file.exists()){
+                try {
+                    FileUtils.deleteDirectory(file);
+                } catch (IOException e) {
+                    logger.error("Delete dir failed: " + e);
+                }
+            }
         }
-
-        String principal = config.getPrincipal();
-        if (StringUtils.isEmpty(principal)) {
-            principal = KerberosUtils.getPrincipal(keytabPath);
-        }
-
-        logger.info("kerberos login, principal:{}, keytabPath:{}, krb5ConfPath:{}", principal, keytabPath, krb5ConfPath);
-        return KerberosUtils.loginKerberosWithCallBack(
-                configuration,
-                keytabPath,
-                principal,
-                krb5ConfPath,
-                supplier
-        );
     }
 
     /**
@@ -113,13 +119,7 @@ public class KerberosUtils {
      * @return
      */
     private static <T> T loginKerberosWithCallBack(Configuration allConfig, String keytabPath, String principal, String krb5Conf, Supplier<T> supplier) {
-        if (StringUtils.isEmpty(allConfig.get(SECURITY_TO_LOCAL))) {
-            allConfig.set(SECURITY_TO_LOCAL, SECURITY_TO_LOCAL_DEFAULT);
-        }
 
-        if (!StringUtils.equals(allConfig.get(KERBEROS_AUTH), KERBEROS_AUTH_TYPE)) {
-            allConfig.set(KERBEROS_AUTH, KERBEROS_AUTH_TYPE);
-        }
 
         try {
             String threadName = Thread.currentThread().getName();
@@ -145,6 +145,12 @@ public class KerberosUtils {
             synchronized (principal) {
                 if (StringUtils.isNotEmpty(krb5Conf)) {
                     System.setProperty(KRB5_CONF, krb5Conf);
+                }
+                if (StringUtils.isEmpty(config.get(SECURITY_TO_LOCAL))) {
+                    config.set(SECURITY_TO_LOCAL, SECURITY_TO_LOCAL_DEFAULT);
+                }
+                if (!StringUtils.equals(config.get(KERBEROS_AUTH), KERBEROS_AUTH_TYPE)) {
+                    config.set(KERBEROS_AUTH, KERBEROS_AUTH_TYPE);
                 }
                 sun.security.krb5.Config.refresh();
                 UserGroupInformation.setConfiguration(config);
@@ -383,7 +389,7 @@ public class KerberosUtils {
     public static String getKeytabPath(BaseConfig config) {
         String fileName = config.getPrincipalFile();
         String remoteDir = config.getRemoteDir();
-        String localDir = LOCAL_KEYTAB_DIR + remoteDir;
+        String localDir = String.format("%s/%s", LOCAL_KEYTAB_DIR, UUID.randomUUID());
 
         File path = new File(localDir);
         if (!path.exists()) {
@@ -392,7 +398,7 @@ public class KerberosUtils {
 
         logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, config.getSftpConf());
         SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
-        String keytabPath = handler.loadFromSftp(fileName, remoteDir, localDir);
+        String keytabPath = handler.loadOverrideFromSftp(fileName, remoteDir, localDir, true);
         logger.info("keytabPath:{}", keytabPath);
         return keytabPath;
     }

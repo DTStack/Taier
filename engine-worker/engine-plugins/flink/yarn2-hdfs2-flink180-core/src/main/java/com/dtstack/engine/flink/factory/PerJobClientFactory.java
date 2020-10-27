@@ -24,6 +24,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
@@ -180,7 +181,15 @@ public class PerJobClientFactory extends AbstractClientFactory {
         }
 
         // 任务提交keytab
-        String clusterKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
+        String clusterKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId() + ConfigConstrant.SP + UUID.randomUUID();
+        String keytabName = flinkConfig.getPrincipalFile();
+        SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
+        handler.loadOverrideFromSftp(keytabName, remoteDir, clusterKeytabDirPath, false);
+
+        String krb5ConfName = flinkConfig.getKrbName();
+        if (StringUtils.isNotBlank(krb5ConfName)) {
+            handler.loadOverrideFromSftp(krb5ConfName, flinkConfig.getRemoteDir(), clusterKeytabDirPath, true);
+        }
         File clusterKeytabDir = new File(clusterKeytabDirPath);
         File[] clusterKeytabFiles = clusterKeytabDir.listFiles();
 
