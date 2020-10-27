@@ -391,8 +391,8 @@ public class FlinkClient extends AbstractClient {
                 String appId = jobIdentifier.getApplicationId();
                 try {
                     RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
-                    //NOTFOUND 视为已经job已经结束
-                    if (RdosTaskStatus.NOTFOUND != rdosTaskStatus && !RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
+
+                    if (rdosTaskStatus != null && !RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
                         ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
                         JobID jobId = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
 
