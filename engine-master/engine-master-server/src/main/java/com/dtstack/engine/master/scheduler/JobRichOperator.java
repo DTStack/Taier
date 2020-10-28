@@ -188,7 +188,7 @@ public class JobRichOperator {
     * @Param [batchTaskShade, tenantResource]
     * @retrun com.dtstack.engine.master.scheduler.JobCheckRunInfo
     **/
-    private List<String> checkTaskResourceLimit(ScheduleBatchJob scheduleBatchJob ,ScheduleTaskShade batchTaskShade) throws IOException {
+    private List<String> checkTaskResourceLimit(ScheduleBatchJob scheduleBatchJob ,ScheduleTaskShade batchTaskShade)  {
 
         //离线任务才需要校验资源
         //获取租户id
