@@ -143,7 +143,7 @@ public class HdfsFileManage implements IFileManage {
     }
 
     @Override
-    public boolean uploadFile(String remotePath, String localPath, String fileName, boolean isEnd) {
+    public boolean uploadFile(String remotePath, String localPath, String fileName) {
         return false;
     }
 
