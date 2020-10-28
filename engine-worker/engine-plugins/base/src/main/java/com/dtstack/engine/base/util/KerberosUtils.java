@@ -49,6 +49,7 @@ public class KerberosUtils {
     private static final String MODIFIED_TIME_KEY = "modifiedTime";
 
     private static Map<String, UserGroupInformation> ugiMap = Maps.newConcurrentMap();
+    private static Map<String, String> segment = Maps.newConcurrentMap();
     private static final String TIME_FILE = ".lock";
     private static final String KEYTAB_FILE = ".keytab";
 
@@ -69,25 +70,52 @@ public class KerberosUtils {
         String fileName = config.getPrincipalFile();
         String remoteDir = config.getRemoteDir();
         String localDir = String.format("%s/%s", LOCAL_KEYTAB_DIR, remoteDir);
+        String localUUIDDir = String.format("%s/%s", LOCAL_KEYTAB_DIR, UUID.randomUUID());
 
-        File path = new File(localDir);
-        if (!path.exists()) {
-            path.mkdirs();
+        File localDirPath = new File(localDir);
+        if (!localDirPath.exists()) {
+            localDirPath.mkdirs();
         }
 
-        //本地文件是否和服务器时间一致 一致使用本地缓存
-        boolean isOverrideDownLoad = checkLocalCache(config.getKerberosFileTimestamp(), path);
+        File localUUIDDirPath = new File(localUUIDDir);
+        if (!localUUIDDirPath.exists()) {
+            localUUIDDirPath.mkdirs();
+        }
+
+        logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, config.getSftpConf());
 
         try {
-            logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, config.getSftpConf());
-            SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
-            String keytabPath = handler.loadOverrideFromSftp(fileName, remoteDir, localDir, false);
-
-            String krb5ConfName = config.getKrbName();
+            String keytabPath = "";
             String krb5ConfPath = "";
-            if (StringUtils.isNotBlank(krb5ConfName)) {
-                krb5ConfPath = handler.loadOverrideFromSftp(krb5ConfName, config.getRemoteDir(), localDir, true);
+            String krb5ConfName = config.getKrbName();
+            String segmentName = segment.computeIfAbsent(remoteDir, key -> {return new String(remoteDir);});
+            synchronized (segmentName) {
+                //本地文件是否和服务器时间一致 一致使用本地缓存
+                boolean isOverrideDownLoad = checkLocalCache(config.getKerberosFileTimestamp(), localDirPath);
+                if (isOverrideDownLoad) {
+                    SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
+                    keytabPath = handler.loadOverrideFromSftp(fileName, remoteDir, localDir, false);
+                    if (StringUtils.isNotBlank(krb5ConfName)) {
+                        krb5ConfPath = handler.loadOverrideFromSftp(krb5ConfName, config.getRemoteDir(), localDir, true);
+                    }
+                    try {
+                        handler.close();
+                    } catch (Exception e) {
+                    }
+
+                    writeTimeLockFile(config.getKerberosFileTimestamp(),localDir);
+                } else {
+                    keytabPath = localDir + File.separator + fileName;
+                    if (StringUtils.isNotBlank(krb5ConfName)) {
+                        krb5ConfPath = localDir + File.separator + config.getKrbName();
+                    }
+                }
+                FileUtils.copyFile(new File(keytabPath), new File(String.format("%s/%s", localUUIDDir, fileName)));
+                if (StringUtils.isNotEmpty(krb5ConfPath)) {
+                    FileUtils.copyFile(new File(krb5ConfPath), new File(String.format("%s/%s", localUUIDDir, config.getKrbName())));
+                }
             }
+
             //krb5ConfPath = mergeKrb5(krb5ConfPath);
 
             String principal = config.getPrincipal();
@@ -104,7 +132,7 @@ public class KerberosUtils {
                     supplier
             );
         } catch (Exception e) {
-            throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
+            throw new RdosDefineException(e.getMessage());
         } finally {
             File file = new File(localDir);
             if (file.exists()){
@@ -114,14 +142,39 @@ public class KerberosUtils {
                     logger.error("Delete dir failed: " + e);
                 }
             }
-            //删除本地时间戳标示文件 更新最新时间
-            writeTimeLockFile(config.getKerberosFileTimestamp(),localDir);
+        }
+    }
 
-            //走本地缓存
-            keytabPath = localDir + File.separator + fileName;
-            if (StringUtils.isNotBlank(krb5ConfName)) {
-                krb5ConfPath = localDir + File.separator + config.getKrbName();
+    /**
+     * @see HadoopKerberosName#setConfiguration(org.apache.hadoop.conf.Configuration)
+     * @param allConfig
+     * @param keytabPath
+     * @param principal
+     * @param krb5Conf
+     * @param supplier
+     * @param <T>
+     * @return
+     */
+    private static <T> T loginKerberosWithCallBack(Configuration allConfig, String keytabPath, String principal, String krb5Conf, Supplier<T> supplier) {
+
+
+        try {
+            String threadName = Thread.currentThread().getName();
+            UserGroupInformation ugi = ugiMap.computeIfAbsent(threadName, k -> {
+                return createUGI(krb5Conf, allConfig, principal, keytabPath);
+            });
+            KerberosTicket ticket = getTGT(ugi);
+            if (!checkTGT(ticket)) {
+                logger.info("Relogin after the ticket expired, principal {}", principal);
+                ugi = createUGI(krb5Conf, allConfig, principal, keytabPath);
+                ugiMap.put(threadName, ugi);
             }
+
+            logger.info("userGroupInformation current user = {} ugi user  = {} ", UserGroupInformation.getCurrentUser(), ugi.getUserName());
+            return ugi.doAs((PrivilegedExceptionAction<T>) supplier::get);
+        } catch (Exception e) {
+            logger.error("{}", keytabPath, e);
+            throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
         }
     }
 
@@ -173,42 +226,10 @@ public class KerberosUtils {
         return isOverrideDownLoad;
     }
 
-    /**
-     * @see HadoopKerberosName#setConfiguration(org.apache.hadoop.conf.Configuration)
-     * @param allConfig
-     * @param keytabPath
-     * @param principal
-     * @param krb5Conf
-     * @param supplier
-     * @param <T>
-     * @return
-     */
-    private static <T> T loginKerberosWithCallBack(Configuration allConfig, String keytabPath, String principal, String krb5Conf, Supplier<T> supplier) {
-
-
-        try {
-            String threadName = Thread.currentThread().getName();
-            UserGroupInformation ugi = ugiMap.computeIfAbsent(threadName, k -> {
-                return createUGI(krb5Conf, allConfig, principal, keytabPath);
-            });
-            KerberosTicket ticket = getTGT(ugi);
-            if (!checkTGT(ticket)) {
-                logger.info("Relogin after the ticket expired, principal {}", principal);
-                ugi = createUGI(krb5Conf, allConfig, principal, keytabPath);
-                ugiMap.put(threadName, ugi);
-            }
-
-            logger.info("userGroupInformation current user = {} ugi user  = {} ", UserGroupInformation.getCurrentUser(), ugi.getUserName());
-            return ugi.doAs((PrivilegedExceptionAction<T>) supplier::get);
-        } catch (Exception e) {
-            logger.error("{}", keytabPath, e);
-            throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
-        }
-    }
-
     private static UserGroupInformation createUGI(String krb5Conf, Configuration config, String principal, String keytabPath) {
         try {
-            synchronized (principal) {
+            String segmentName = segment.computeIfAbsent(principal, key -> {return new String(principal);});
+            synchronized (segmentName) {
                 if (StringUtils.isNotEmpty(krb5Conf)) {
                     System.setProperty(KRB5_CONF, krb5Conf);
                 }
