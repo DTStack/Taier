@@ -58,6 +58,9 @@ public class JobRichOperator {
     private EnvironmentContext environmentContext;
 
     @Autowired
+    private ScheduleTaskShadeService shadeService;
+
+    @Autowired
     private ScheduleJobDao scheduleJobDao;
 
     @Autowired
@@ -138,11 +141,14 @@ public class JobRichOperator {
             return Boolean.FALSE;
         }
 
-        if(ComputeType.BATCH.getType().equals(scheduleBatchJob.getScheduleJob().getComputeType())
-                && checkTaskResourceLimit(scheduleBatchJob,batchTaskShade)){
+        if(ComputeType.BATCH.getType().equals(scheduleBatchJob.getScheduleJob().getComputeType())){
 
-            checkRunInfo.setStatus(JobCheckStatus.RESOURCE_OVER_LIMIT);
-            return Boolean.FALSE;
+            List<String> errorMessage = checkTaskResourceLimit(scheduleBatchJob, batchTaskShade);
+            if(CollectionUtils.isNotEmpty(errorMessage)) {
+                checkRunInfo.setStatus(JobCheckStatus.RESOURCE_OVER_LIMIT);
+                checkRunInfo.setExtInfo(JobCheckStatus.RESOURCE_OVER_LIMIT.getMsg()+errorMessage.toString());
+                return Boolean.FALSE;
+            }
         }
         if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
             checkRunInfo.setStatus(JobCheckStatus.NOT_UNSUBMIT);
@@ -182,15 +188,15 @@ public class JobRichOperator {
     * @Param [batchTaskShade, tenantResource]
     * @retrun com.dtstack.engine.master.scheduler.JobCheckRunInfo
     **/
-    private boolean checkTaskResourceLimit(ScheduleBatchJob scheduleBatchJob ,ScheduleTaskShade batchTaskShade) {
+    private List<String> checkTaskResourceLimit(ScheduleBatchJob scheduleBatchJob ,ScheduleTaskShade batchTaskShade)  {
 
         //离线任务才需要校验资源
         //获取租户id
         Long dtuicTenantId = scheduleBatchJob.getScheduleJob().getDtuicTenantId();
         Integer taskType = scheduleBatchJob.getScheduleJob().getTaskType();
         String taskParams = batchTaskShade.getTaskParams();
-        List<String> exceedMessage = batchTaskShadeService.checkResourceLimit(dtuicTenantId, taskType, taskParams, batchTaskShade.getTaskId());
-        return CollectionUtils.isNotEmpty(exceedMessage);
+        return shadeService.checkResourceLimit
+                (dtuicTenantId, taskType, taskParams, batchTaskShade.getTaskId());
     }
 
 
