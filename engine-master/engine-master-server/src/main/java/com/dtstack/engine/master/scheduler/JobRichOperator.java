@@ -157,10 +157,12 @@ public class JobRichOperator {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TASK_DELETE);
         }
 
-        if(ComputeType.BATCH.getType().equals(scheduleBatchJob.getScheduleJob().getComputeType()) &&
-                checkTaskResourceLimit(scheduleBatchJob,batchTaskShade)){
+        if(ComputeType.BATCH.getType().equals(scheduleBatchJob.getScheduleJob().getComputeType())){
 
-            return JobCheckRunInfo.createCheckInfo(JobCheckStatus.RESOURCE_OVER_LIMIT);
+            List<String> errorMessage = checkTaskResourceLimit(scheduleBatchJob, batchTaskShade);
+            if(CollectionUtils.isNotEmpty(errorMessage)) {
+                return JobCheckRunInfo.createCheckInfo(JobCheckStatus.RESOURCE_OVER_LIMIT,errorMessage.toString());
+            }
         }
         if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.NOT_UNSUBMIT);
@@ -196,16 +198,15 @@ public class JobRichOperator {
     * @Param [batchTaskShade, tenantResource]
     * @retrun com.dtstack.engine.master.scheduler.JobCheckRunInfo
     **/
-    private Boolean checkTaskResourceLimit(ScheduleBatchJob scheduleBatchJob ,ScheduleTaskShade batchTaskShade) throws IOException {
+    private List<String> checkTaskResourceLimit(ScheduleBatchJob scheduleBatchJob ,ScheduleTaskShade batchTaskShade) throws IOException {
 
         //离线任务才需要校验资源
         //获取租户id
         Long dtuicTenantId = scheduleBatchJob.getScheduleJob().getDtuicTenantId();
         Integer taskType = scheduleBatchJob.getScheduleJob().getTaskType();
         String taskParams = batchTaskShade.getTaskParams();
-        List<String> exceedMessage = shadeService.checkResourceLimit
+        return shadeService.checkResourceLimit
                 (dtuicTenantId, taskType, taskParams, batchTaskShade.getTaskId());
-        return CollectionUtils.isNotEmpty(exceedMessage);
     }
 
 
