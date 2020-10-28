@@ -76,7 +76,7 @@ public class HdfsFileManage implements IFileManage {
     }
 
     @Override
-    public boolean downloadFile(String remotePath, String localPath, boolean isEnd) {
+    public boolean downloadFile(String remotePath, String localPath) {
         Pair<String, String> pair = parseHdfsUri(remotePath);
         if (pair == null) {
             LOG.info("can't parse hdfs url from given uriStr:{}", remotePath);
@@ -127,7 +127,7 @@ public class HdfsFileManage implements IFileManage {
                 String subPath = status.getPath().toString();
                 String fileName = status.getPath().getName();
                 String localDstFileName = localPath + fileSP + fileName;
-                downloadFile(subPath, localDstFileName, true);
+                downloadFile(subPath, localDstFileName);
             }
             return true;
         } catch (Exception e) {

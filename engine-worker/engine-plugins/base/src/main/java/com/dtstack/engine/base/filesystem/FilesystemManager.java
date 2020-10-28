@@ -139,7 +139,7 @@ public class FilesystemManager {
                 remoteJarPath = remoteJarPath.startsWith(prefix) ? StringUtils.substringAfter(remoteJarPath, prefix) : remoteJarPath;
             }
 
-            downLoadSuccess = fileManage.downloadFile(remoteJarPath, localJarPath, isEnd);
+            downLoadSuccess = fileManage.downloadFile(remoteJarPath, localJarPath);
             if (downLoadSuccess) {
                 LOG.info("download file success fileManage is :{}", fileManage.getClass().getSimpleName());
                 break;

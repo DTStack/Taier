@@ -40,7 +40,7 @@ public interface IFileManage {
      * @param remotePath
      * @param localPath
      */
-    boolean downloadFile(String remotePath, String localPath, boolean isEnd);
+    boolean downloadFile(String remotePath, String localPath);
 
     /**
      *  下载目录

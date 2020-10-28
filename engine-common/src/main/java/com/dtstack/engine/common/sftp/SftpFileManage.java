@@ -150,10 +150,6 @@ public class SftpFileManage {
         }
     }
 
-    public boolean downloadFile(String remotePath, String localPath) {
-        return downloadFile(remotePath, localPath, true);
-    }
-
     public String cacheOverloadFile(String fileName, String remoteDir, String localDir) {
         String remoteFile = remoteDir + File.separator + fileName;
         String localFile = localDir + File.separator + fileName;
@@ -175,16 +171,20 @@ public class SftpFileManage {
         }
     }
 
-    public boolean downloadFile(String remotePath, String localPath, boolean isEnd) {
+    public boolean downloadFile(String remotePath, String localPath) {
         ChannelSftp channelSftp = getChannelSftp();
         if (!isFileExist(channelSftp, remotePath)) {
             LOG.info("File not exist on sftp:" + remotePath);
             return false;
         }
-        return downloadFile(remotePath, localPath, channelSftp, true);
+        try {
+            return downloadFile(remotePath, localPath, channelSftp);
+        } finally {
+            close(channelSftp);
+        }
     }
 
-    private boolean downloadFile(String remotePath, String localPath, ChannelSftp channelSftp, boolean isEnd) {
+    private boolean downloadFile(String remotePath, String localPath, ChannelSftp channelSftp) {
         OutputStream os = null;
         try {
             os = new FileOutputStream(new File(localPath));
@@ -201,9 +201,6 @@ public class SftpFileManage {
                 } catch (IOException e) {
                     LOG.error("", e);
                 }
-            }
-            if (isEnd) {
-                close(channelSftp);
             }
         }
     }
@@ -251,7 +248,7 @@ public class SftpFileManage {
                     }
                     downloadDir(ftpFilePath, localFilePath);
                 } else {
-                    downloadFile(ftpFilePath, localFilePath, channelSftp,false);
+                    downloadFile(ftpFilePath, localFilePath, channelSftp);
                 }
             }
 
