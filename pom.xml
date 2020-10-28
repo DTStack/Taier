@@ -23,6 +23,7 @@
         <module>engine-worker</module>
         <module>engine-entrance</module>
         <module>engine-sql</module>
+        <module>lineage-service</module>
     </modules>
 
     <dependencyManagement>

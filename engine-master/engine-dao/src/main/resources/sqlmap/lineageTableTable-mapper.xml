@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.engine.dao.LineageTableTableDao">
+<mapper namespace="com.dtstack.lineage.dao.LineageTableTableDao">
 
     <sql id="select_content_fragment">
-      id,tenant_id,app_type,input_table_id,result_table_id,table_lineage_key,is_manual,gmt_create,gmt_modified,is_deleted
+      id,tenant_id,input_table_id,result_table_id,table_lineage_key,unique_key,is_manual,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <sql id="select_where_fragment">
@@ -13,5 +13,26 @@
             </if>
         </trim>
     </sql>
+
+    <insert id="batchInsertTableTable" parameterType="com.dtstack.engine.api.domain.LineageTableTable" useGeneratedKeys="true" keyProperty="id">
+        insert into lineage_table_table(tenant_id,input_table_id,result_table_id,table_lineage_key,is_manual)
+        values
+        <foreach collection="list" item="item" open="" close="" separator=",">
+        (#{tenantId},#{appType},#{inputTableId},#{resultTableId},#{tableLineageKey},#{isManual})
+        </foreach>
+        on duplicate key update gmt_modified=values(gmt_modified)
+    </insert>
+
+    <delete id="deleteByUniqueKey">
+        update lineage_table_table set is_deleted = 1 where unique_key = #{uniqueKey}
+    </delete>
+
+    <select id="queryTableInputList" resultType="com.dtstack.engine.api.domain.LineageTableTable">
+        select tt.* from lineage_table_table tt join lineage_table_table_app_ref ref on tt.id = ref.lineage_table_table_id where tt.input_table_id = #{tableId} and ref.app_type = #{appType}
+    </select>
+
+    <select id="queryTableResultList" resultType="com.dtstack.engine.api.domain.LineageTableTable">
+        select tt.* from lineage_table_table tt join lineage_table_table_app_ref ref on tt.id = ref.lineage_table_table_id where tt.result_table_id = #{tableId} and ref.app_type = #{appType}
+    </select>
 
 </mapper>

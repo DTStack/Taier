@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.engine.dao.LineageRealDataSourceDao">
+<mapper namespace="com.dtstack.lineage.dao.LineageRealDataSourceDao">
 
     <sql id="select_content_fragment">
       id,source_name,source_key,source_type,data_jason,kerberos_conf,open_kerberos,gmt_create,gmt_modified,is_deleted

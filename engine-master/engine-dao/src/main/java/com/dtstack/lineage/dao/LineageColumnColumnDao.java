@@ -1,4 +1,4 @@
-package com.dtstack.engine.dao;
+package com.dtstack.lineage.dao;
 
 import com.dtstack.engine.api.domain.LineageColumnColumn;
 import org.apache.ibatis.annotations.Param;
@@ -16,7 +16,7 @@ public interface LineageColumnColumnDao {
 
     Integer batchInsertColumnColumn(List<LineageColumnColumn> columnColumns);
 
-    Integer deleteByuniqueKey(@Param("uniqueKey")String uniqueKey);
+    Integer deleteByUniqueKey(@Param("uniqueKey")String uniqueKey);
 
     List<LineageColumnColumn> queryColumnInputList(@Param("appType")Integer appType,@Param("tableId")Long tableId,@Param("columnName")String columnName);
 

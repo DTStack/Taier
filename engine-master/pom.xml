@@ -18,6 +18,7 @@
     <modules>
         <module>engine-dao</module>
         <module>engine-master-server</module>
+        <module>lineage-service</module>
     </modules>
 
     <build>

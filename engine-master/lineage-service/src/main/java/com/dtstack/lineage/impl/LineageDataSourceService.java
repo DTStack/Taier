@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.impl;
+package com.dtstack.lineage.impl;
 
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.domain.LineageRealDataSource;

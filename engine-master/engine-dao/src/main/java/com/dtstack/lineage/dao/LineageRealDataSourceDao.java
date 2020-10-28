@@ -1,4 +1,4 @@
-package com.dtstack.engine.dao;
+package com.dtstack.lineage.dao;
 
 import com.dtstack.engine.api.domain.LineageRealDataSource;
 import org.apache.ibatis.annotations.Param;

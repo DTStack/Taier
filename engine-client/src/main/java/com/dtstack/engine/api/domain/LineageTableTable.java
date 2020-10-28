@@ -6,15 +6,12 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * @author chener
  * @Classname LineageTableTable
- * @Description TODO
+ * @Description 存储纯粹的血缘关系
  * @Date 2020/10/22 20:15
  * @Created chener@dtstack.com
  */
 @ApiModel
 public class LineageTableTable extends TenantEntity {
-
-    @ApiModelProperty(notes = "应用类型")
-    private Integer appType;
 
     @ApiModelProperty(notes = "输入表id")
     private Integer inputTableId;
@@ -30,14 +27,6 @@ public class LineageTableTable extends TenantEntity {
 
     @ApiModelProperty(notes = "血缘批次唯一码")
     private String uniqueKey;
-
-    public Integer getAppType() {
-        return appType;
-    }
-
-    public void setAppType(Integer appType) {
-        this.appType = appType;
-    }
 
     public Integer getInputTableId() {
         return inputTableId;

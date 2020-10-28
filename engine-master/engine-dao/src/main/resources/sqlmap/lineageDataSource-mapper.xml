@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.engine.dao.LineageDataSourceDao">
+<mapper namespace="com.dtstack.lineage.dao.LineageDataSourceDao">
 
     <sql id="select_content_fragment">
       id,tenant_id,real_source_id,source_name,source_key,app_type,source_type,data_jason,kerberos_conf,open_kerberos,app_source_id,inner_source,component_id,gmt_create,gmt_modified,is_deleted
@@ -13,8 +13,69 @@
             </if>
         </trim>
     </sql>
-    <insert id="insertDataSource">
 
+    <sql id="update_fragment">
+        <set>
+            <if test="sourceName!=null">
+                source_name = #{sourceName},
+            </if>
+            <if test="sourceKey!=null">
+                source_key = #{sourceKey},
+            </if>
+            <if test="app_type!=null">
+                app_type = #{appType},
+            </if>
+            <if test="dataJason!=null">
+                data_jason = #{dataJason},
+            </if>
+            <if test="source_type!=null">
+                source_type = #{sourceType},
+            </if>
+            <if test="app_source_id!=null">
+                app_source_id = #{appSourceId},
+            </if>
+            <if test="kerberosConf!=null">
+                kerberos_conf = #{kerberosConf},
+            </if>
+            <if test="openKerberos!=null">
+                open_kerberos = #{openKerberos},
+            </if>
+            <if test="inner_source!=null">
+                inner_source = #{innerSource},
+            </if>
+            <if test="component_id!=null">
+                component_id = #{componentId},
+            </if>
+            <if test="isDeleted!=null">
+                is_deleted = #{isDeleted},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified},
+            </if>
+        </set>
+    </sql>
+
+    <insert id="insertDataSource" parameterType="com.dtstack.engine.api.domain.LineageDataSource" useGeneratedKeys="true" keyProperty="id">
+        insert into lineage_data_source(tenant_id,real_source_id,source_name,source_key,app_type,source_type,data_jason,kerberos_conf,open_kerberos,app_source_id,inner_source,component_id)
+        values
+         (#{tenantId},#{realSourceId},#{sourceName},#{sourceKey},#{appType},#{sourceType},#{dataJson},#{kerberosConf},#{openKerberos},#{appSourceId},#{innerSource},#{componentId})
     </insert>
+
+    <update id="updateDataSource" parameterType="com.dtstack.engine.api.domain.LineageDataSource">
+        update lineage_real_data_source
+        <include refid="update_fragment"/>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDataSource">
+        update lineage_real_data_source set is_deleted = 1 where id = #{id}
+    </delete>
+
+    <select id="getOne" resultType="com.dtstack.engine.api.domain.LineageDataSource">
+        select <include refid="select_content_fragment"/> where id = #{id}
+    </select>
 
 </mapper>

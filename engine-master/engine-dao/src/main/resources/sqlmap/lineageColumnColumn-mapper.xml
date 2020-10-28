@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.engine.dao.LineageColumnColumnDao">
+<mapper namespace="com.dtstack.lineage.dao.LineageColumnColumnDao">
 
     <sql id="select_content_fragment">
       id,tenant_id,app_type,input_table_id,input_column_name,result_table_id,result_column_name,column_lineage_key,is_manual,gmt_create,gmt_modified,is_deleted
@@ -19,5 +19,26 @@
             </if>
         </trim>
     </sql>
+
+    <insert id="batchInsertColumnColumn" parameterType="com.dtstack.engine.api.domain.LineageColumnColumn"
+            useGeneratedKeys="true" keyProperty="id">
+        insert into lineage_table_table(tenant_id,app_type,input_table_id,input_column_name,result_table_id,result_column_name,column_lineage_key,is_manual)
+        values
+        <foreach collection="list" item="item" open="" close="" separator=",">
+            (#{tenantId},#{appType},#{inputTableId},#{inputColumnName},#{resultTableId},#{resultColumnName},#{columnLineageKey},#{isManual})
+        </foreach>
+        on duplicate key update gmt_modified=values(gmt_modified)
+    </insert>
+
+    <delete id="deleteByUniqueKey">
+        update lineage_table_table set is_deletede = 1 where unique_key = #{uniqueKey}
+    </delete>
+
+    <select id="queryColumnInputList" resultType="com.dtstack.engine.api.domain.LineageColumnColumn">
+        select <include refid="select_content_fragment"/> where input_table_id = #{tableId} and input_column_name = #{columnName} and app_type = #{appType}
+    </select>
+    <select id="queryColumnResultList" resultType="com.dtstack.engine.api.domain.LineageColumnColumn">
+        select <include refid="select_content_fragment"/> where result_table_id = #{tableId} and result_column_name = #{columnName} and app_type = #{appType}
+    </select>
 
 </mapper>

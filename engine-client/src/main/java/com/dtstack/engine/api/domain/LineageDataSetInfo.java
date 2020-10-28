@@ -6,12 +6,12 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * @author chener
  * @Classname LineageTableInfo
- * @Description TODO
+ * @Description 数据集，通常为表
  * @Date 2020/10/22 20:14
  * @Created chener@dtstack.com
  */
 @ApiModel
-public class LineageTableInfo extends TenantEntity {
+public class LineageDataSetInfo extends TenantEntity {
 
     @ApiModelProperty(notes = "应用类型")
     private Integer appType;
@@ -31,10 +31,16 @@ public class LineageTableInfo extends TenantEntity {
     @ApiModelProperty(notes = "数据源定位码")
     private String sourceKey;
 
-    @ApiModelProperty(notes = "数据库名称")
+    @ApiModelProperty(notes = "数据集类型 0 表，1 文件")
+    private String setType;
+
+    @ApiModelProperty(notes = "一般数据集类型为表，该字段为数据库名称;当数据集类型为文件时，该字段可以取文件名，或者其他定义")
     private String dbName;
 
-    @ApiModelProperty(notes = "表名称")
+    @ApiModelProperty(notes = "一般情况下，schema=db，SQLserver不同。SQLserver表结构为db.schema.table")
+    private String schemaName;
+
+    @ApiModelProperty(notes = "一般数据集类型为表，该字段为表名称；当数据集类型为文件时，该字段可以由文件描述的数据集模型名定义")
     private String tableName;
 
     @ApiModelProperty(notes = "表定位码")
@@ -91,12 +97,28 @@ public class LineageTableInfo extends TenantEntity {
         this.sourceKey = sourceKey;
     }
 
+    public String getSetType() {
+        return setType;
+    }
+
+    public void setSetType(String setType) {
+        this.setType = setType;
+    }
+
     public String getDbName() {
         return dbName;
     }
 
     public void setDbName(String dbName) {
         this.dbName = dbName;
+    }
+
+    public String getSchemaName() {
+        return schemaName;
+    }
+
+    public void setSchemaName(String schemaName) {
+        this.schemaName = schemaName;
     }
 
     public String getTableName() {
