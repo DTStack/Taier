@@ -275,8 +275,8 @@ public class ClusterService implements InitializingBean {
                     .fluentPut("remoteDir", remotePath)
                     .fluentPut("principalFile", kerberosConfig.getName()).fluentPut("krbName",kerberosConfig.getKrbName());
             JSONObject config = new JSONObject();
-            config.put("yarnConf",pluginJson.getJSONObject("hadoopConf"));
-            config.put("sftpConf",pluginJson.getJSONObject("sftpConf"));
+            config.put("yarnConf",clusterConfigJson.getJSONObject("hadoopConf"));
+            config.put("sftpConf",sftpConfig);
             config.put("principalFile",kerberosConfig.getName());
             config.put("remoteDir",kerberosConfig.getRemotePath());
             config.put("krbName",kerberosConfig.getKrbName());
