@@ -3,7 +3,7 @@ package com.dtstack.engine.dummy;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.base.filesystem.FilesystemManager;
+import com.dtstack.engine.base.filesystem.manager.SftpFileManage;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.AbstractClient;
@@ -114,9 +114,9 @@ public class DummyClient extends AbstractClient {
         try {
             SftpConfig sftpConfig = PublicUtil.jsonStrToObject(pluginInfo, SftpConfig.class);
             // check sftpConfig 准确性
-            FilesystemManager filesystemManager = new FilesystemManager(null, sftpConfig);
+            SftpFileManage sftpFileManage = new SftpFileManage(sftpConfig);
             //测试路径是否存在
-            Vector res = filesystemManager.listFile(sftpConfig.getPath());
+            Vector res = sftpFileManage.listFile(sftpConfig.getPath());
             if (null != res) {
                 componentTestResult.setResult(true);
             }
