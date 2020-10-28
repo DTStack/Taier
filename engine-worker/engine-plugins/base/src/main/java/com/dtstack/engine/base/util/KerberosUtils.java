@@ -138,10 +138,10 @@ public class KerberosUtils {
         } catch (Exception e) {
             throw new RdosDefineException(e.getMessage());
         } finally {
-            File file = new File(localDir);
-            if (file.exists()){
+            File uuidDir = new File(localUUIDDir);
+            if (uuidDir.exists()){
                 try {
-                    FileUtils.deleteDirectory(file);
+                    FileUtils.deleteDirectory(uuidDir);
                 } catch (IOException e) {
                     logger.error("Delete dir failed: " + e);
                 }
