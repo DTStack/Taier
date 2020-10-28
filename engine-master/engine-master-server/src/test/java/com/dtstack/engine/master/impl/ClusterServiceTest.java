@@ -182,7 +182,7 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNotNull(tenant);
         Assert.assertNotNull(tenant.getId());
         //绑定租户
-        tenantService.bindingTenant(tenant.getDtUicTenantId(),clusterVO.getClusterId(),queue.getId(),"");
+        tenantService.bindingTenant(tenant.getDtUicTenantId(),clusterVO.getClusterId(),queue.getId(),"","");
         //切换队列
         this.testUpdateQueue(engineId, tenant);
 
@@ -191,10 +191,8 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNotNull(engineTenants);
         Assert.assertNotNull(engineTenants.getData());
         //查询集群组件信息
-        JSONObject componentsJson = JSONObject.parseObject(JSON.toJSONString(componentService.listConfigOfComponents(tenant.getDtUicTenantId(), MultiEngineType.HADOOP.getType())));
+        JSONArray componentsJson = JSONObject.parseArray(JSON.toJSONString(componentService.listConfigOfComponents(tenant.getDtUicTenantId(), MultiEngineType.HADOOP.getType())));
         Assert.assertNotNull(componentsJson);
-
-        Assert.assertNotNull(componentsJson.getJSONObject(String.valueOf(EComponentType.YARN.getTypeCode())));
 
         //查询kerberos配置信息
         KerberosConfig kerberosConfig = componentService.getKerberosConfig(clusterVO.getId(), EComponentType.YARN.getTypeCode());

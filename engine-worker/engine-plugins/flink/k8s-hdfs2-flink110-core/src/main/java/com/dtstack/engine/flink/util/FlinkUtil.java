@@ -3,6 +3,7 @@ package com.dtstack.engine.flink.util;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.FlinkConfig;
@@ -208,7 +209,12 @@ public class FlinkUtil {
         if (!new File(localConfigPath).exists()) {
             SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
             handler.downloadFile(remoteConfigPath, localConfigPath);
-            ZipUtil.upzipFile(localConfigPath, localConfigParentDir);
+            try {
+                ZipUtil.upzipFile(localConfigPath, localConfigParentDir);
+                handler.close();
+            } catch (Exception e) {
+                logger.error("FlinkUtil.downloadK8sConfig error:{}", ExceptionUtil.getErrorMessage(e));
+            }
         }
 
         String configName = getConfigNameFromTmpDir(tmpConfigDir);

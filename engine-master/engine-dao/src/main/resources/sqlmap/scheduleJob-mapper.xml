@@ -111,7 +111,10 @@
                 AND bj.app_type = #{model.appType}
             </if>
             <if test="model.execStartDay != null and model.execEndDay != null">
-                AND exec_start_time &gt;= #{model.execStartDay} and exec_start_time &lt;= #{model.execEndDay}
+                AND bj.exec_start_time &gt;= #{model.execStartDay} and bj.exec_start_time &lt;= #{model.execEndDay}
+            </if>
+            <if test="model.bizEndDay != null and model.bizStartDay != null">
+                AND bj.business_date &gt;= #{model.bizStartDay} and bj.business_date &lt;= #{model.bizEndDay}
             </if>
         </trim>
     </sql>
@@ -434,6 +437,9 @@
             <if test="phaseStatus != null">
                 phase_status = #{phaseStatus},
             </if>
+            <if test="versionId != null">
+                version_id = #{versionId},
+            </if>
         </set>
     </sql>
 
@@ -558,7 +564,7 @@
         taskType,
         bj.exec_time AS execTime,bj.is_deleted as isDeleted,bj.create_user_id AS createUserId
         FROM schedule_job bj
-        WHERE bj.is_deleted = 0
+        WHERE bj.is_deleted = 0 AND bj.app_type = #{appType}
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
             AND bj.dtuic_tenant_id = #{dtuicTenantId}
         </if>
@@ -807,6 +813,7 @@
             #{status}
         </foreach>
         AND bj.is_deleted = 0
+        AND bj.app_type = #{appType}
     </select>
 
     <select id="listJobIdByTaskIdAndStatus" resultType="java.lang.String">
@@ -832,6 +839,7 @@
             #{status}
         </foreach>
         AND bj.is_deleted = 0 AND bj.is_deleted = 0
+        AND bj.app_type = #{appType}
         order by ${pageQuery.orderBy} ${pageQuery.sort} limit #{pageQuery.start} , #{pageQuery.pageSize}
     </select>
 

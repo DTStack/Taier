@@ -1,5 +1,6 @@
 package com.dtstack.engine.sparkyarn.sparkyarn.util;
 
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -150,7 +151,7 @@ public class FileUtil {
                 file.delete();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("FileUtil.deleteFile error:{}", ExceptionUtil.getErrorMessage(e));
         }
     }
 

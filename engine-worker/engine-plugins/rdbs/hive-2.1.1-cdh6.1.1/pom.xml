@@ -15,7 +15,8 @@
 
     <properties>
         <jar.name>hive2.1.1-cdh6.1.1</jar.name>
-        <hivejdbccdh611.version>2.1.1-cdh6.1.1</hivejdbccdh611.version>
+        <hive.jdbc.cdh611.version>2.1.0</hive.jdbc.cdh611.version>
+        <hive.shims.cdh611.version>2.1.1-cdh6.1.1</hive.shims.cdh611.version>
     </properties>
 
     <dependencies>
@@ -28,25 +29,25 @@
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-jdbc</artifactId>
-            <version>${hivejdbccdh611.version}</version>
+            <version>${hive.jdbc.cdh611.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-common</artifactId>
-            <version>${hivejdbccdh611.version}</version>
+            <version>${hive.shims.cdh611.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-shims</artifactId>
-            <version>${hivejdbccdh611.version}</version>
+            <version>${hive.shims.cdh611.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop3.version}</version>
         </dependency>
     </dependencies>
 

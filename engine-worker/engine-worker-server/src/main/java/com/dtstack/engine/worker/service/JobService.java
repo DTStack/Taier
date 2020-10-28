@@ -104,7 +104,7 @@ public class JobService extends AbstractActor {
                 })
                 .match(MessageRollingLogBaseInfo.class, msg -> {
                     List<String> rollingLogBaseInfo = ClientOperator.getInstance().getRollingLogBaseInfo(msg.getEngineType(), msg.getPluginInfo(), msg.getJobIdentifier());
-                    if (null == rollingLogBaseInfo && rollingLogBaseInfo.size() == 0) {
+                    if (null == rollingLogBaseInfo || rollingLogBaseInfo.size() == 0) {
                         rollingLogBaseInfo = new ArrayList<>();
                     }
                     sender().tell(rollingLogBaseInfo, getSelf());

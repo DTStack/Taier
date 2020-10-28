@@ -1,5 +1,6 @@
 package com.dtstack.engine.hadoop;
 
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -7,10 +8,12 @@ import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.hadoop.util.HadoopConf;
+import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -18,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -28,6 +32,7 @@ import java.util.Properties;
  */
 public class KubernetesClient extends AbstractClient {
 
+
     private static final Logger LOG = LoggerFactory.getLogger(KubernetesClient.class);
 
     @Override
@@ -37,7 +42,6 @@ public class KubernetesClient extends AbstractClient {
 
     @Override
     public void init(Properties prop) throws Exception {
-
     }
 
     @Override
@@ -54,6 +58,7 @@ public class KubernetesClient extends AbstractClient {
     public String getJobMaster(JobIdentifier jobIdentifier) {
         return null;
     }
+
 
     /**
      * 测试hdfs 和 k8s的联通性
@@ -87,6 +92,7 @@ public class KubernetesClient extends AbstractClient {
 
     private ComponentTestResult testKubernetesConnect(ComponentTestResult testResult, Config allConfig) throws Exception {
         io.fabric8.kubernetes.client.KubernetesClient client = null;
+        ConfigMap configMap = null;
         try {
             Map<String, Object> conf = allConfig.getKubernetesConf();
             String kubernetesConf = (String) conf.get("kubernetesConf");
@@ -94,8 +100,31 @@ public class KubernetesClient extends AbstractClient {
             client = new DefaultKubernetesClient(kubernetes);
             client.getVersion();
             testResult.setResult(true);
+
+            ObjectMeta meta = new ObjectMetaBuilder()
+                    .withNamespace(allConfig.getNamespace())
+                    .withName("test-configmap")
+                    .build();
+            Map<String, String> data = new HashMap<>();
+            data.put("test-key1", "test1");
+            data.put("test-key2", "test2");
+            configMap = new ConfigMap();
+            configMap.setApiVersion(client.getApiVersion());
+            configMap.setMetadata(meta);
+            configMap.setData(data);
+            client.configMaps().create(configMap);
+        } catch (Exception e) {
+            if (e.getMessage().contains(allConfig.getNamespace()) && e.getMessage().contains("not found")) {
+                throw new RdosDefineException(String.format("namespace %s 不存在", allConfig.getNamespace()));
+            }
+            throw e;
         } finally {
-            if (Objects.nonNull(client)) {
+            if (null != client) {
+                try {
+                    client.configMaps().delete(configMap);
+                } catch (Exception e) {
+                    LOG.error("delete namespace {} config error", allConfig.getNamespace(), e);
+                }
                 client.close();
             }
         }
@@ -106,7 +135,7 @@ public class KubernetesClient extends AbstractClient {
         //测试hdfs联通性
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
-            if (Objects.isNull(testConnectConf)) {
+            if (null == testConnectConf) {
                 componentTestResult.setResult(false);
                 componentTestResult.setErrorMsg("配置信息不能你为空");
                 return componentTestResult;
@@ -123,7 +152,7 @@ public class KubernetesClient extends AbstractClient {
                     componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
                     return componentTestResult;
                 } finally {
-                    if (Objects.nonNull(fs)) {
+                    if (null != fs) {
                         try {
                             fs.close();
                         } catch (IOException e) {

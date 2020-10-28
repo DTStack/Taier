@@ -25,10 +25,7 @@ import org.springframework.data.redis.listener.Topic;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisSentinelPool;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author toutian
@@ -76,7 +73,14 @@ public class CacheConfig {
             for (RedisNode sn : nodes) {
                 sentinelConfig.sentinel(sn.getHost(), sn.getPort());
             }
-            JedisSentinelPool sentinelPool = new JedisSentinelPool("mymaster", getSentinelAddress());
+            JedisSentinelPool sentinelPool = null;
+            try {
+                sentinelPool = new JedisSentinelPool("mymaster", getSentinelAddress());
+            } finally {
+                if(Objects.nonNull(sentinelPool)) {
+                    sentinelPool.close();
+                }
+            }
             logger.info("redis sentinel master = {}", String.valueOf(sentinelPool.getCurrentHostMaster()));
         }
         return sentinelConfig;

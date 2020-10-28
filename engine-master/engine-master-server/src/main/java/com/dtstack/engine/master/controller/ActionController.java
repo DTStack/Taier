@@ -51,6 +51,15 @@ public class ActionController {
         return actionService.stop(jobIds);
     }
 
+    @RequestMapping(value="/forceStop", method = {RequestMethod.POST})
+    @ApiOperation(value = "停止任务")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="jobIds",value="请求停止任务的相关信息，jobIds",required=true, paramType="body")
+    })
+    public Boolean stop(@DtRequestParam(value = "jobIds") List<String> jobIds, @DtRequestParam("isForce") Integer isForce) throws Exception {
+        return actionService.stop(jobIds, isForce);
+    }
+
     @RequestMapping(value="/status", method = {RequestMethod.POST})
     @ApiOperation(value = "查询单个Job的状态")
     @ApiImplicitParams({
@@ -97,7 +106,7 @@ public class ActionController {
             @ApiImplicitParam(name="jobId",value="查询的job的jobId值",required=true, dataType = "String"),
             @ApiImplicitParam(name="computeType",value="查询的job的computeType值",required=true, dataType = "int")
     })
-    public String logFromEs(String jobId, Integer computeType) throws Exception {
+    public String logFromEs(@DtRequestParam("jobId") String jobId, @DtRequestParam("computeType") Integer computeType) throws Exception {
         return actionService.logFromEs(jobId, computeType);
     }
 

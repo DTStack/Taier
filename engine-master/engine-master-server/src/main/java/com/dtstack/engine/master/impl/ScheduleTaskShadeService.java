@@ -83,7 +83,7 @@ public class ScheduleTaskShadeService {
             if (null == batchTaskShadeDTO.getNodePid()) {
                 batchTaskShadeDTO.setNodePid(0L);
             }
-            if (Objects.isNull(batchTaskShadeDTO.getDtuicTenantId()) || batchTaskShadeDTO.getDtuicTenantId() <= 0) {
+            if (null == batchTaskShadeDTO.getDtuicTenantId() || batchTaskShadeDTO.getDtuicTenantId() <= 0) {
                 throw new RdosDefineException("租户dtuicTenantId 不能为空");
             }
             if (null == batchTaskShadeDTO.getFlowId()) {
@@ -201,7 +201,7 @@ public class ScheduleTaskShadeService {
     public ScheduleTaskShade getByName( long projectId,
                                         String name,  Integer appType, Long flowId) {
         //如果appType没传那就默认为ide
-        if (Objects.isNull(appType)){
+        if (null == appType){
             appType = 1;
         }
         return scheduleTaskShadeDao.getByName(projectId, name,appType,flowId);
@@ -277,9 +277,6 @@ public class ScheduleTaskShadeService {
 
     public ScheduleTaskShade getBatchTaskById( Long taskId, Integer appType) {
         ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId, appType);
-        if (taskShade == null || Deleted.DELETED.getStatus().equals(taskShade.getIsDeleted())) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-        }
         return taskShade;
     }
 
@@ -392,13 +389,16 @@ public class ScheduleTaskShadeService {
                         flowVo = vosCopy.get(voIndex.get(flowId));
                         flowVo.setRelatedTasks(Lists.newArrayList(vo));
                         iterator.remove();
+                        record.put(flowId, flowVo);
                     } else {
-                        ScheduleTaskShade flow = scheduleTaskShadeDao.getOne(flowId,appType);
-                        flowVo = new com.dtstack.engine.master.vo.ScheduleTaskVO(flow, true);
-                        flowVo.setRelatedTasks(Lists.newArrayList(vo));
-                        vos.set(vos.indexOf(vo), flowVo);
+                        ScheduleTaskShade flow = scheduleTaskShadeDao.getOne(flowId, appType);
+                        if (flow != null) {
+                            flowVo = new com.dtstack.engine.master.vo.ScheduleTaskVO(flow, true);
+                            flowVo.setRelatedTasks(Lists.newArrayList(vo));
+                            vos.set(vos.indexOf(vo), flowVo);
+                            record.put(flowId, flowVo);
+                        }
                     }
-                    record.put(flowId, flowVo);
                 }
             }
         }
@@ -470,7 +470,7 @@ public class ScheduleTaskShadeService {
 
 
     public ScheduleTaskShade findTaskId( Long taskId, Integer isDeleted,  Integer appType) {
-        if(Objects.isNull(taskId)){
+        if(null == taskId){
             return null;
         }
         List<ScheduleTaskShade> batchTaskShades = scheduleTaskShadeDao.listByTaskIds(Lists.newArrayList(taskId), isDeleted,appType);
@@ -510,7 +510,7 @@ public class ScheduleTaskShadeService {
      */
     public void info( Long taskId, Integer appType,String info) {
         JSONObject extInfo = JSONObject.parseObject(scheduleTaskShadeDao.getExtInfoByTaskId(taskId, appType));
-        if (Objects.isNull(extInfo)) {
+        if (null == extInfo) {
             extInfo = new JSONObject();
         }
         extInfo.put(TaskConstant.INFO, info);
@@ -544,7 +544,7 @@ public class ScheduleTaskShadeService {
 
         TenantResource tenantResource = tenantResourceDao.selectByUicTenantIdAndTaskType(dtuicTenantId,taskType);
         List<String> exceedMessage = new ArrayList<>();
-        if(Objects.isNull(tenantResource)){
+        if(null == tenantResource){
             return exceedMessage;
         }
         try {

@@ -139,7 +139,7 @@ public abstract class AbstractConfigParser implements IPluginConfigParser<InputS
                     ClientTemplate sonClientTemplate = this.parseKeyValueToVo(sonKey, sonMap, true, required);
                     sonClientTemplate.setRequired(null);
                     templateVo.setType(EFrontType.RADIO.name());
-                    if (Objects.isNull(templateVo.getValues())) {
+                    if (null == templateVo.getValues()) {
                         templateVo.setValues(new ArrayList<>());
                     }
                     templateVo.getValues().add(sonClientTemplate);
@@ -152,7 +152,7 @@ public abstract class AbstractConfigParser implements IPluginConfigParser<InputS
             if (defaultValue instanceof Map) {
 
                 Map<String, Object> defaultMap = (Map<String, Object>) defaultValue;
-                if (Objects.nonNull(defaultMap.get("controls"))) {
+                if (null != defaultMap.get("controls")) {
                     //设置了控件类型
                     Object controlsValues = defaultMap.get("values");
                     templateVo.setType(String.valueOf(defaultMap.get("controls")).toUpperCase());

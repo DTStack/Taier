@@ -139,12 +139,10 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             if (savepointArgs != null) {
                 taskExeArgs += " " + savepointArgs;
             }
-        } else if (taskShade.getTaskType().equals(EScheduleJobType.TENSORFLOW_1_X.getVal()) || taskShade.getTaskType().equals(EScheduleJobType.KERAS.getVal())) {
-            taskExeArgs = this.buildTensorflowOrKeras(actionParam, taskShade, scheduleJob, taskParamsToReplace);
         } else if (taskShade.getEngineType().equals(ScheduleEngineType.Learning.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.Shell.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.DtScript.getVal())
-                || taskShade.getEngineType().equals(ScheduleEngineType.Spark.getVal())
+                || (taskShade.getEngineType().equals(ScheduleEngineType.Spark.getVal()) && !taskShade.getTaskType().equals(EScheduleJobType.SPARK.getVal()))
                 || taskShade.getEngineType().equals(ScheduleEngineType.Python2.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.Python3.getVal())) {
             //提交
@@ -202,28 +200,6 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         actionParam.put("exeArgs", taskExeArgs);
     }
 
-    private String buildTensorflowOrKeras(Map<String, Object> actionParam, ScheduleTaskShade taskShade, ScheduleJob scheduleJob, List<ScheduleTaskParamShade> taskParamsToReplace) {
-        String taskExeArgs;
-        //tensorflow 参数
-        //--files ${uploadPath} --python-version 3 --launch-cmd ${launch} --app-type tensorflow --app-name dddd
-        String exeArgs = (String) actionParam.get("exeArgs");
-        String launchCmd = (String) actionParam.getOrDefault(TaskConstant.LAUNCH_CMD, "python ${file}");
-        //分为资源上传 和 hdfs上传
-        String fileName = "";
-        if (launchCmd.contains(TaskConstant.FILE_NAME) || launchCmd.contains(TaskConstant.UPLOADPATH)) {
-            String uploadPath = this.uploadSqlTextToHdfs(scheduleJob.getDtuicTenantId(), taskShade.getSqlText(), taskShade.getTaskType(),
-                    taskShade.getName(), taskShade.getTenantId(), taskShade.getProjectId(), taskParamsToReplace, scheduleJob.getCycTime());
-            fileName = uploadPath.substring(StringUtils.lastIndexOf(uploadPath, "/") + 1);
-            exeArgs = exeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
-        }
-        launchCmd = jobParamReplace.paramReplace(launchCmd, taskParamsToReplace, scheduleJob.getCycTime());
-        //替换参数 base64 生成launchCmd
-        String launchString = Base64Util.baseEncode(launchCmd.replace(TaskConstant.FILE_NAME, fileName));
-        taskExeArgs = exeArgs.replace(TaskConstant.LAUNCH, launchString);
-        LOG.info(" TensorFlow job {} fileName {} exeArgs {} ", scheduleJob.getJobId(), fileName, taskExeArgs);
-        return taskExeArgs;
-    }
-
     /**
      * 替换数据同步中部分信息
      * @param actionParam
@@ -262,7 +238,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
         // 查找上一次同步位置
         if (scheduleJob.getType() == EScheduleType.NORMAL_SCHEDULE.getType()) {
-            job = getLastSyncLocation(taskShade.getTaskId(), job, scheduleJob.getCycTime(),taskShade.getDtuicTenantId(),taskShade.getAppType(),taskShade.getTaskParams());
+            job = getLastSyncLocation(taskShade.getTaskId(), job, scheduleJob.getCycTime(),taskShade.getDtuicTenantId(),taskShade.getAppType(),taskShade.getTaskParams(),
+                    scheduleJob.getJobId());
         } else {
             job = removeIncreConf(job);
         }
@@ -309,21 +286,15 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 String location = "";
                 if (DataSourceType.IMPALA.getVal() == sourceType) {
                     String jdbcInfo = clusterService.impalaInfo(dtuicTenantId, true);
-                    JSONObject jdbcInfoObject = JSONObject.parseObject(jdbcInfo);
-                    JSONObject pluginInfo = new JSONObject();
-                    pluginInfo.put("jdbcUrl", jdbcInfoObject.getString("jdbcUrl"));
-                    pluginInfo.put("username", jdbcInfoObject.getString("username"));
-                    pluginInfo.put("password", jdbcInfoObject.getString("password"));
+                    JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
+                    pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataBaseType.Impala.getTypeName());
                     workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, DataBaseType.Impala.getTypeName(), String.format("DESCRIBE formatted %s", tableName));
                 } else if (DataSourceType.HIVE.getVal() == sourceType || DataSourceType.HIVE1X.getVal() == sourceType) {
                     String jdbcInfo = clusterService.hiveInfo(dtuicTenantId, true);
-                    JSONObject jdbcInfoObject = JSONObject.parseObject(jdbcInfo);
-                    JSONObject pluginInfo = new JSONObject();
-                    pluginInfo.put("jdbcUrl", jdbcInfoObject.getString("jdbcUrl"));
-                    pluginInfo.put("username", jdbcInfoObject.getString("username"));
-                    pluginInfo.put("password", jdbcInfoObject.getString("password"));
-                    String engineType = DataSourceType.HIVE.getVal() == sourceType ? "hive2" : "hive";
+                    JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
+                    String engineType = DataSourceType.HIVE.getVal() == sourceType ? DataBaseType.HIVE.getTypeName() : DataBaseType.HIVE1X.getTypeName();
+                    pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, engineType);
                     workerOperator.executeQuery(engineType, pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db,engineType, String.format("desc formatted %s", tableName));
                 }
@@ -429,14 +400,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         pluginInfo.put("username", username);
         pluginInfo.put("password", password);
         pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,DataSourceType.getBaseType(sourceType).getTypeName());
-        if (DataSourceType.HIVE.getVal() != sourceType && DataSourceType.HIVE1X.getVal() != sourceType) {
-            return pluginInfo;
-        }
-        if (Objects.isNull(hadoopConfig)) {
-            throw new RdosDefineException("hadoop配置不能为空");
-        }
         JSONObject config = new JSONObject();
-        if ("kerberos".equalsIgnoreCase(hadoopConfig.getString("hadoop.security.authentication"))) {
+        if (hadoopConfig != null && "kerberos".equalsIgnoreCase(hadoopConfig.getString("hadoop.security.authentication"))) {
             //开启了kerberos 用数据同步中job 中配置项
             pluginInfo.put("openKerberos", "true");
             config.put("openKerberos", "true");
@@ -457,49 +422,56 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
      *
      * @return
      */
-    private String getLastSyncLocation(Long taskId, String jobContent, String cycTime,Long dtuicTenantId,Integer appType,String taskparams) {
+    private String getLastSyncLocation(Long taskId, String jobContent, String cycTime, Long dtuicTenantId, Integer appType, String taskparams, String jobId) {
         JSONObject jsonJob = JSONObject.parseObject(jobContent);
 
         Timestamp time = new Timestamp(dayFormatterAll.parseDateTime(cycTime).toDate().getTime());
         // 查找上一次成功的job
-        ScheduleJob job =  scheduleJobDao.getByTaskIdAndStatusOrderByIdLimit(taskId, RdosTaskStatus.FINISHED.getStatus(), time, appType);
+        ScheduleJob job = scheduleJobDao.getByTaskIdAndStatusOrderByIdLimit(taskId, RdosTaskStatus.FINISHED.getStatus(), time, appType);
         if (job != null && StringUtils.isNotEmpty(job.getEngineJobId())) {
             try {
                 JSONObject reader = (JSONObject) JSONPath.eval(jsonJob, "$.job.content[0].reader");
                 Object increCol = JSONPath.eval(reader, "$.parameter.increColumn");
-                if (Objects.nonNull(increCol) && Objects.nonNull(job.getExecStartTime()) && Objects.nonNull(job.getExecEndTime())) {
-                    String lastEndLocation = this.queryLastLocation(dtuicTenantId, job.getEngineJobId(), job.getExecStartTime().getTime(), job.getExecEndTime().getTime(),taskparams,job.getComputeType());
-                    LOG.info("last job {} applicationId {} startTime {} endTim {} location {}", job.getJobId(), job.getEngineJobId(), job.getExecStartTime(), job.getExecEndTime(), lastEndLocation);
+                if (null != increCol && null != job.getExecStartTime() && null != job.getExecEndTime()) {
+                    String lastEndLocation = this.queryLastLocation(dtuicTenantId, job.getEngineJobId(), job.getExecStartTime().getTime(), job.getExecEndTime().getTime(), taskparams, job.getComputeType(), jobId);
+                    LOG.info("job {} last job {} applicationId {} startTime {} endTime {} location {}", job, job.getJobId(), job.getEngineJobId(), job.getExecStartTime(), job.getExecEndTime(), lastEndLocation);
                     reader.getJSONObject("parameter").put("startLocation", lastEndLocation);
                 }
 
             } catch (Exception e) {
-                LOG.warn("上游任务没有增量配置:{}", job.getEngineLog());
+                LOG.error("get sync job {} lastSyncLocation error ", job.getJobId(), e);
             }
         }
 
         return jsonJob.toJSONString();
     }
 
-    public String queryLastLocation(Long dtUicTenantId, String jobId, long startTime, long endTime, String taskParam,Integer computeType) {
+    public String queryLastLocation(Long dtUicTenantId, String engineJobId, long startTime, long endTime, String taskParam,Integer computeType,String jobId) {
         endTime = endTime + 1000 * 60;
         List<ComponentsConfigOfComponentsVO> componentsConfigOfComponentsVOS = componentService.listConfigOfComponents(dtUicTenantId, MultiEngineType.HADOOP.getType());
-        JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(componentsConfigOfComponentsVOS));
-        JSONObject flinkJsonObject = jsonObject.getJSONObject(EComponentType.FLINK.getTypeCode() + "");
-        EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam,computeType);
-        JSONObject flinkConfig = flinkJsonObject.getJSONObject(eDeployMode.getMode());
-        String prometheusHost = flinkConfig.getString("prometheusHost");
-        String prometheusPort = flinkConfig.getString("prometheusPort");
-        LOG.info("last job {} deployMode {} prometheus host {} port {}", jobId, eDeployMode.getType(), prometheusHost, prometheusPort);
-        //prometheus的配置信息 从控制台获取
-        PrometheusMetricQuery prometheusMetricQuery = new PrometheusMetricQuery(String.format("%s:%s", prometheusHost, prometheusPort));
-        IMetric numReadMetric = MetricBuilder.buildMetric("endLocation", jobId, startTime, endTime, prometheusMetricQuery);
-        if (numReadMetric != null) {
-            String startLocation = String.valueOf(numReadMetric.getMetric());
-            if (StringUtils.isEmpty(startLocation) || "0".equalsIgnoreCase(startLocation)) {
-                return null;
+        if (CollectionUtils.isEmpty(componentsConfigOfComponentsVOS)) {
+            return null;
+        }
+        Optional<ComponentsConfigOfComponentsVO> flinkComponent = componentsConfigOfComponentsVOS.stream().filter(c -> c.getComponentTypeCode() == EComponentType.FLINK.getTypeCode()).findFirst();
+        if(flinkComponent.isPresent()){
+            ComponentsConfigOfComponentsVO componentsVO = flinkComponent.get();
+            JSONObject flinkJsonObject = JSONObject.parseObject(componentsVO.getComponentConfig());
+            EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam,computeType);
+            JSONObject flinkConfig = flinkJsonObject.getJSONObject(eDeployMode.getMode());
+            String prometheusHost = flinkConfig.getString("prometheusHost");
+            String prometheusPort = flinkConfig.getString("prometheusPort");
+            LOG.info("last job {} deployMode {} prometheus host {} port {}", jobId, eDeployMode.getType(), prometheusHost, prometheusPort);
+            //prometheus的配置信息 从控制台获取
+            PrometheusMetricQuery prometheusMetricQuery = new PrometheusMetricQuery(String.format("%s:%s", prometheusHost, prometheusPort));
+            IMetric numReadMetric = MetricBuilder.buildMetric("endLocation", engineJobId, startTime, endTime, prometheusMetricQuery);
+            if (numReadMetric != null) {
+                String startLocation = String.valueOf(numReadMetric.getMetric());
+                LOG.info("job {} deployMode {} startLocation [{}]", jobId, eDeployMode.getType(),startLocation);
+                if (StringUtils.isEmpty(startLocation) || "0".equalsIgnoreCase(startLocation)) {
+                    return null;
+                }
+                return String.valueOf(numReadMetric.getMetric());
             }
-            return String.valueOf(numReadMetric.getMetric());
         }
         return null;
     }
@@ -590,6 +562,9 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                         taskName, System.currentTimeMillis());
             } else if (taskType.equals(EScheduleJobType.KERAS.getVal())){
                 fileName = String.format("keras_%s_%s_%s_%s.py", tenantId, projectId,
+                        taskName, System.currentTimeMillis());
+            } else if (taskType.equals(EScheduleJobType.PYTORCH.getVal())) {
+                fileName = String.format("pytorch_%s_%s_%s_%s.py", tenantId, projectId,
                         taskName, System.currentTimeMillis());
             }
 

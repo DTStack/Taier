@@ -1,6 +1,7 @@
 package com.dtstack.engine.dtscript.common.type;
 
 import ch.qos.logback.classic.Level;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.client.ClientArguments;
 import com.dtstack.engine.dtscript.util.Base64Util;
@@ -9,6 +10,8 @@ import com.dtstack.engine.dtscript.util.NetUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,6 +22,8 @@ import java.util.Map;
 
 
 public class JLogstashType extends AbstractAppType {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JLogstashType.class);
 
     @Override
     public String buildCmd(ClientArguments clientArguments, YarnConfiguration conf) {
@@ -48,8 +53,8 @@ public class JLogstashType extends AbstractAppType {
         List<String> jlogstashArgs = new ArrayList<>(20);
         jlogstashArgs.add(javaHome + "java");
         jlogstashArgs.add(clientArguments.getJvmOpts());
-        jlogstashArgs.add("-Xms" + clientArguments.getWorkerMemory() + "m");
-        jlogstashArgs.add("-Xmx" + clientArguments.getWorkerMemory() + "m");
+        jlogstashArgs.add("-Xms" + (clientArguments.getWorkerMemory() - clientArguments.getWorkerReservedMemory()) + "m");
+        jlogstashArgs.add("-Xmx" + (clientArguments.getWorkerMemory() - clientArguments.getWorkerReservedMemory())  + "m");
         jlogstashArgs.add("-cp " + root + "/jlogstash*.jar");
         jlogstashArgs.add("com.dtstack.jlogstash.JlogstashMain");
         jlogstashArgs.add("-l stdout");
@@ -139,7 +144,7 @@ public class JLogstashType extends AbstractAppType {
                 cmd = StringUtils.join(args, " ");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("JLogstashType.cmdContainerExtra error:{}", ExceptionUtil.getErrorMessage(e));
         }
         return super.cmdContainerExtra(cmd, conf, containerInfo);
     }

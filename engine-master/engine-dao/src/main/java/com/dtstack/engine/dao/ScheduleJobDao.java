@@ -51,7 +51,7 @@ public interface ScheduleJobDao {
 
     List<String> listJobIdByTaskIdAndStatus(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("statuses") List<Integer> status);
 
-    List<Map<String, String>> listTaskExeTimeInfo(@Param("taskId") Long taskId, @Param("statuses") List<Integer> status, @Param("pageQuery") PageQuery pageQuery);
+    List<Map<String, String>> listTaskExeTimeInfo(@Param("taskId") Long taskId, @Param("statuses") List<Integer> status, @Param("pageQuery") PageQuery pageQuery, @Param("appType") Integer appType);
 
     ScheduleJob getByJobId(@Param("jobId") String jobId, @Param("isDeleted") Integer isDeleted);
 
@@ -76,7 +76,7 @@ public interface ScheduleJobDao {
     List<ScheduleJob> minOrHourJobQuery(PageQuery<ScheduleJobDTO> pageQuery);
 
 
-    List<Map<Integer, Long>> getJobsStatusStatistics(@Param("model") ScheduleJobDTO object);
+    List<Map<String, Integer>> getJobsStatusStatistics(@Param("model") ScheduleJobDTO object);
 
     Integer batchInsert(Collection batchJobs);
 

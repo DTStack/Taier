@@ -7,6 +7,7 @@ import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.tenant.TenantAdminVO;
@@ -30,6 +31,7 @@ import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.Sort;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +83,9 @@ public class TenantService {
 
     @Autowired
     private ComponentService componentService;
+
+    @Autowired
+    private QueueService queueService;
 
     public PageResult<List<EngineTenantVO>> pageQuery( Long clusterId,
                                                        Integer engineType,
@@ -150,8 +155,8 @@ public class TenantService {
             }
 
             engineTenantVO.setQueue(queue.getQueuePath());
-            engineTenantVO.setMaxCapacity(queue.getMaxCapacity());
-            engineTenantVO.setMinCapacity(queue.getCapacity());
+            engineTenantVO.setMaxCapacity(NumberUtils.toInt(queue.getMaxCapacity(),0) * 100 + "%");
+            engineTenantVO.setMinCapacity(NumberUtils.toInt(queue.getCapacity(),0) * 100 + "%");
         }
     }
 
@@ -203,7 +208,7 @@ public class TenantService {
 
     @Transactional(rollbackFor = Exception.class)
     public void bindingTenant( Long dtUicTenantId,  Long clusterId,
-                               Long queueId,  String dtToken) throws Exception {
+                               Long queueId,  String dtToken,String namespace) throws Exception {
         Cluster cluster = clusterDao.getOne(clusterId);
         EngineAssert.assertTrue(cluster != null, "集群不存在", ErrorCode.DATA_NOT_FIND);
 
@@ -214,8 +219,14 @@ public class TenantService {
 
         List<Engine> engineList = engineDao.listByClusterId(clusterId);
         Engine hadoopEngine = addEngineTenant(tenant.getId(), engineList);
-
-        if(queueId != null && hadoopEngine != null){
+        if(null == hadoopEngine){
+            return;
+        }
+        if(StringUtils.isNotBlank(namespace)){
+            //k8s
+           queueId = queueService.addNamespaces(hadoopEngine.getId(),namespace);
+        }
+        if(queueId != null){
             updateTenantQueue(tenant.getId(), dtUicTenantId, hadoopEngine.getId(), queueId);
         }
 
@@ -305,7 +316,7 @@ public class TenantService {
         return tenant;
     }
 
-    private void updateTenantQueue(Long tenantId, Long dtUicTenantId, Long engineId, Long queueId){
+    public void updateTenantQueue(Long tenantId, Long dtUicTenantId, Long engineId, Long queueId){
         Integer childCount = queueDao.countByParentQueueId(queueId);
         if (childCount != 0) {
             throw new RdosDefineException("所选队列存在子队列，选择正确的子队列", ErrorCode.DATA_NOT_FIND);
@@ -339,7 +350,7 @@ public class TenantService {
             updateTenantTaskResource(tenantId,dtUicTenantId,taskTypeResourceJson);
             updateTenantQueue(tenantId, dtUicTenantId, queue.getEngineId(), queueId);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("", e);
             throw new RdosDefineException("切换队列失败");
         }
     }
@@ -369,7 +380,7 @@ public class TenantService {
             Integer taskType = jsonObj.getInteger("taskType");
             tenantResource.setTaskType(taskType);
             EScheduleJobType eJobType = EScheduleJobType.getEJobType(taskType);
-            if(Objects.isNull(eJobType)){
+            if(null == eJobType){
                 throw new RdosDefineException("传入任务类型错误");
             }else{
                 tenantResource.setEngineType(eJobType.getName());
@@ -393,7 +404,7 @@ public class TenantService {
             List<TenantResource> tenantResources = tenantResourceDao.selectByUicTenantId(dtUicTenantId);
             return convertTenantResourceToVO(tenantResources);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("", e);
             throw new RdosDefineException("查询失败");
         }
     }
@@ -429,10 +440,10 @@ public class TenantService {
         try {
             tenantResource = tenantResourceDao.selectByUicTenantIdAndTaskType(dtUicTenantId, taskType);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("", e);
             throw new RdosDefineException("查找资源限制失败");
         }
-        if(Objects.nonNull(tenantResource)){
+        if(null != tenantResource){
             return tenantResource.getResourceLimit();
         }else{
             return "";

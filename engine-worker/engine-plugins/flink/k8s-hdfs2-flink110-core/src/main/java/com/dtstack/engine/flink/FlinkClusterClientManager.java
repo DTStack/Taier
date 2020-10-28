@@ -82,18 +82,27 @@ public class FlinkClusterClientManager {
     private ClusterClient getSessionJobClient() {
 
         String sessionClusterId = sessionClientFactory.getSessionClusterId();
-        ClusterClient clusterClient = sessionClientFactory.retrieveClusterClient(sessionClusterId, null);
 
-        if (Objects.nonNull(clusterClient)) {
+        ClusterClient clusterClient = null;
+        try {
+            clusterClient = sessionClientFactory.retrieveClusterClient(sessionClusterId, null);
+        } catch (Exception e) {
+            LOG.warn("Can not retrieve ClusterClient!");
+        }
+
+        if (null != clusterClient) {
             return clusterClient;
         }
 
         FlinkConfig flinkConfig = flinkClientBuilder.getFlinkConfig();
         if (flinkConfig.getSessionStartAuto()) {
-            synchronized (SessionClientFactory.class) {
+            try {
                 clusterClient = sessionClientFactory.getClusterClient(null);
+            } catch (Exception e) {
+                LOG.error("Create ClusterClient error! e:{}", e.getMessage());
             }
         }
+        Preconditions.checkNotNull(clusterClient, "clusterClient is null");
         return clusterClient;
     }
 

@@ -50,6 +50,7 @@ import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.leader.LeaderLatch;
+import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.leader.LeaderLatchListener;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.flink.shaded.curator.org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.flink.util.FlinkException;
@@ -61,6 +62,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.kerby.config.Conf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,6 +92,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     private ClusterSpecification yarnSessionSpecification;
     private volatile ClusterClient<ApplicationId> clusterClient;
+    private AtomicBoolean isLeader = new AtomicBoolean(false);
     private FlinkConfig flinkConfig;
     private InterProcessMutex clusterClientLock;
     private String lockPath;
@@ -103,6 +106,7 @@ public class SessionClientFactory extends AbstractClientFactory {
     private ExecutorService yarnMonitorES;
     private FlinkClientBuilder flinkClientBuilder;
     private SessionHealthCheckedInfo sessionHealthCheckedInfo = new SessionHealthCheckedInfo();
+
 
     public SessionClientFactory(FlinkClusterClientManager flinkClusterClientManager, FlinkClientBuilder flinkClientBuilder) throws MalformedURLException {
         this.flinkConfig = flinkClientBuilder.getFlinkConfig();
@@ -129,7 +133,8 @@ public class SessionClientFactory extends AbstractClientFactory {
         lockPath = String.format("/yarn_session/%s", flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue());
 
         this.zkClient = CuratorFrameworkFactory.builder()
-                .connectString(zkAddress).retryPolicy(new ExponentialBackoffRetry(1000, 3))
+                .connectString(zkAddress)
+                .retryPolicy(new ExponentialBackoffRetry(1000, 3))
                 .connectionTimeoutMs(flinkConfig.getZkConnectionTimeout())
                 .sessionTimeoutMs(flinkConfig.getZkSessionTimeout()).build();
         this.zkClient.start();
@@ -137,6 +142,19 @@ public class SessionClientFactory extends AbstractClientFactory {
         try {
             if(null == this.leaderLatch){
                 this.leaderLatch = getLeaderLatch();
+                this.leaderLatch.addListener(new LeaderLatchListener() {
+                    @Override
+                    public void isLeader() {
+                        isLeader.set(true);
+                        LOG.info(">>>My monitor role is Leader.");
+                    }
+
+                    @Override
+                    public void notLeader() {
+                        isLeader.set(false);
+                        LOG.info(">>>My monitor role is Follower.");
+                    }
+                });
                 this.leaderLatch.start();
             }
         } catch (Exception e) {
@@ -179,7 +197,6 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     private boolean startFlinkYarnSession() {
         try {
-
             ClusterClient<ApplicationId> retrieveClusterClient = null;
             try {
                 retrieveClusterClient = initYarnClusterClient();
@@ -193,7 +210,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                 return true;
             }
 
-            if(leaderLatch.hasLeadership() && flinkConfig.getSessionStartAuto()){
+            if(isLeader.get()&& flinkConfig.getSessionStartAuto()){
                 try {
                     YarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
                     clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification).getClusterClient();
@@ -207,14 +224,11 @@ public class SessionClientFactory extends AbstractClientFactory {
         } catch (Exception e) {
             LOG.error("Couldn't deploy Yarn session cluster:{}", e);
         }
-
         return false;
     }
 
     public ClusterClient<ApplicationId> initYarnClusterClient() {
-
         Configuration newConf = new Configuration(flinkConfiguration);
-
         ApplicationId applicationId = acquireAppIdAndSetClusterId(newConf);
         if (applicationId == null) {
             throw new RdosDefineException("No flink session found on yarn cluster.");
@@ -249,9 +263,10 @@ public class SessionClientFactory extends AbstractClientFactory {
             enumSet.add(YarnApplicationState.ACCEPTED);
 
             YarnClient yarnClient = flinkClientBuilder.getYarnClient();
-            if (Objects.isNull(yarnClient)) {
+            if (null == yarnClient) {
                 throw new RdosDefineException("getYarnClient error, Yarn Client is null!");
             }
+
             List<ApplicationReport> reportList = yarnClient.getApplications(set, enumSet);
 
             int maxMemory = -1;
@@ -288,7 +303,6 @@ public class SessionClientFactory extends AbstractClientFactory {
                 }
 
             }
-
             return applicationId;
         } catch (Exception e) {
             LOG.error("", e);
@@ -418,68 +432,75 @@ public class SessionClientFactory extends AbstractClientFactory {
         public void run() {
             while (run.get()) {
                 try {
-                    if (sessionCheckInterval.sessionHealthCheckedInfo.isRunning()) {
-                        if (clientBuilder.getYarnClient().isInState(Service.STATE.STARTED)) {
-                            ApplicationId applicationId = (ApplicationId) sessionClientFactory.getClusterClient().getClusterId();
-                            ApplicationReport applicationReport = clientBuilder.getYarnClient().getApplicationReport(applicationId);
-                            YarnApplicationState appState = applicationReport.getYarnApplicationState();
-                            switch (appState) {
-                                case FAILED:
-                                case KILLED:
-                                case FINISHED:
-                                    LOG.error("-------Flink yarn-session appState:{}, prepare to stop Flink yarn-session client ----", appState.toString());
-                                    sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
-                                    break;
-                                case RUNNING:
-                                    if (lastAppState != appState) {
-                                        LOG.info("YARN application has been deployed successfully.");
-                                    }
-                                    if (sessionClientFactory.leaderLatch.hasLeadership() && sessionCheckInterval.doCheck()) {
-                                        int checked = 0;
-                                        boolean checkRs = checkJobGraphWithStatus();
-                                        while (!checkRs) {
-                                            if (checked++ > 3) {
-                                                sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
-                                                break;
-                                            } else {
-                                                try {
-                                                    Thread.sleep(3 * CHECK_INTERVAL);
-                                                } catch (Exception e) {
-                                                    LOG.error("", e);
+                    KerberosUtils.login(clientBuilder.getFlinkConfig(), () -> {
+                        try {
+                            if (sessionCheckInterval.sessionHealthCheckedInfo.isRunning()) {
+                                if (clientBuilder.getYarnClient().isInState(Service.STATE.STARTED)) {
+                                    ApplicationId applicationId = (ApplicationId) sessionClientFactory.getClusterClient().getClusterId();
+                                    ApplicationReport applicationReport = clientBuilder.getYarnClient().getApplicationReport(applicationId);
+                                    YarnApplicationState appState = applicationReport.getYarnApplicationState();
+                                    switch (appState) {
+                                        case FAILED:
+                                        case KILLED:
+                                        case FINISHED:
+                                            LOG.error("-------Flink yarn-session appState:{}, prepare to stop Flink yarn-session client ----", appState.toString());
+                                            sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
+                                            break;
+                                        case RUNNING:
+                                            if (lastAppState != appState) {
+                                                LOG.info("YARN application has been deployed successfully.");
+                                            }
+                                            if (sessionClientFactory.isLeader.get() && sessionCheckInterval.doCheck()) {
+                                                int checked = 0;
+                                                boolean checkRs = checkJobGraphWithStatus();
+                                                while (!checkRs) {
+                                                    if (checked++ >= 3) {
+                                                        sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
+                                                        break;
+                                                    } else {
+                                                        try {
+                                                            Thread.sleep(6L * CHECK_INTERVAL);
+                                                        } catch (Exception e) {
+                                                            LOG.error("", e);
+                                                        }
+                                                    }
+                                                    checkRs = checkJobGraphWithStatus();
+                                                }
+                                                if (checkRs) {
+                                                    //健康，则重置
+                                                    sessionCheckInterval.sessionHealthCheckedInfo.reset();
                                                 }
                                             }
-                                            checkRs = checkJobGraphWithStatus();
-                                        }
-                                        if (checkRs) {
-                                            //健康，则重置
-                                            sessionCheckInterval.sessionHealthCheckedInfo.reset();
-                                        }
+                                            break;
+                                        default:
+                                            if (appState != lastAppState) {
+                                                LOG.info("Deploying cluster, current state " + appState);
+                                            }
+                                            if (System.currentTimeMillis() - startTime > 60000) {
+                                                LOG.info("Deployment took more than 60 seconds. Please check if the requested resources are available in the YARN cluster");
+                                            }
                                     }
-                                    break;
-                                default:
-                                    if (appState != lastAppState) {
-                                        LOG.info("Deploying cluster, current state " + appState);
-                                    }
-                                    if (System.currentTimeMillis() - startTime > 60000) {
-                                        LOG.info("Deployment took more than 60 seconds. Please check if the requested resources are available in the YARN cluster");
-                                    }
+                                    lastAppState = appState;
+                                } else {
+                                    LOG.error("Yarn client is no longer in state STARTED, prepare to stop Flink yarn-session client.");
+                                    sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
+                                }
+                            } else {
+                                //retry时有一段等待时间，确保session正常运行。
+                                retry();
                             }
-                            lastAppState = appState;
-                        } else {
-                            LOG.error("Yarn client is no longer in state STARTED, prepare to stop Flink yarn-session client.");
+                        } catch (Throwable e) {
+                            LOG.error("YarnAppStatusMonitor check error:", e);
                             sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                         }
-                    } else {
-                        //retry时有一段等待时间，确保session正常运行。
-                        retry();
-                    }
+                        return null;
+                    }, clientBuilder.getYarnConf());
                 } catch (Throwable t) {
-                    LOG.error("YarnAppStatusMonitor check error:{}", t);
-                    sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
+                    LOG.error("YarnAppStatusMonitor check error:", t);
                 } finally {
                     try {
                         Thread.sleep(CHECK_INTERVAL);
-                        LOG.debug("Is Leader ? "+ sessionClientFactory.leaderLatch.hasLeadership());
+                        LOG.info("SessionAppName is "+ sessionClientFactory.sessionAppNameSuffix +" and Current role is : "+ sessionClientFactory.isLeader.get());
                     } catch (Exception e) {
                         LOG.error("", e);
                     }
@@ -552,7 +573,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         private void retry() {
             //重试
             try {
-                if(this.sessionClientFactory.leaderLatch.hasLeadership()){
+                if(sessionClientFactory.isLeader.get()){
                     stopFlinkYarnSession();
                 }
                 LOG.warn("-- retry Flink yarn-session client ----");
@@ -577,7 +598,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                     sessionClientFactory.getClusterClient().close();
                     LOG.info("------- Flink yarn-session client shutdown over. ----");
                 } catch (Exception ex) {
-                    LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
+                    LOG.error("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
                 }
             }
 
@@ -592,7 +613,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                     LOG.info("------- Flink yarn-session compatible application not exist. ----");
                 }
             } catch (Exception ex) {
-                LOG.info("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
+                LOG.error("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
             }
         }
 

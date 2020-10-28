@@ -857,7 +857,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         final Path homeDir = fs.getHomeDirectory();
 
         // hard coded check for the GoogleHDFS client because its not overriding the getScheme() method.
-        if (!fs.getClass().getSimpleName().equals("GoogleHadoopFileSystem") &&
+        if (!"GoogleHadoopFileSystem".equals(fs.getClass().getSimpleName()) &&
                 fs.getScheme().startsWith("file")) {
             LOG.warn("The file system scheme is '" + fs.getScheme() + "'. This indicates that the "
                     + "specified Hadoop configuration path is wrong and the system is using the default Hadoop configuration values."
@@ -1023,6 +1023,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 localResources,
                 homeDir,
                 "");
+        envShipFileList.append(flinkConfigKey).append("=").append(remotePathConf).append(",");
 
         paths.add(remotePathJar);
         classPathBuilder.append("flink.jar").append(File.pathSeparator);

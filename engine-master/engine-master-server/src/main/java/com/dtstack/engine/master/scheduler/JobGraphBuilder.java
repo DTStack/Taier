@@ -164,19 +164,23 @@ public class JobGraphBuilder {
                     jobGraphBuildPool.execute(() -> {
                         try {
                             for (ScheduleTaskShade task : batchTaskShades) {
-                                List<ScheduleBatchJob> jobRunBeans = RetryUtil.executeWithRetry(() -> {
-                                    String cronJobName = CRON_JOB_NAME + "_" + task.getName();
-                                    return buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
-                                            true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId());
-                                }, environmentContext.getBuildJobErrorRetry(), 200, false);
-                                synchronized (allJobs) {
-                                    allJobs.addAll(jobRunBeans);
-                                }
-
-                                if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
-                                    for (ScheduleBatchJob jobRunBean : jobRunBeans) {
-                                        flowJobId.put(this.buildFlowReplaceId(task.getTaskId(), jobRunBean.getCycTime(), task.getAppType()), jobRunBean.getJobId());
+                                try {
+                                    List<ScheduleBatchJob> jobRunBeans = RetryUtil.executeWithRetry(() -> {
+                                        String cronJobName = CRON_JOB_NAME + "_" + task.getName();
+                                        return buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
+                                                true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId());
+                                    }, environmentContext.getBuildJobErrorRetry(), 200, false);
+                                    synchronized (allJobs) {
+                                        allJobs.addAll(jobRunBeans);
                                     }
+
+                                    if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
+                                        for (ScheduleBatchJob jobRunBean : jobRunBeans) {
+                                            flowJobId.put(this.buildFlowReplaceId(task.getTaskId(), jobRunBean.getCycTime(), task.getAppType()), jobRunBean.getJobId());
+                                        }
+                                    }
+                                } catch (Throwable e) {
+                                    logger.error("build task failure taskId:{} apptype:{}",task.getTaskId(),task.getAppType(), e);
                                 }
                             }
                             logger.info("batch-number:{} done!!! allJobs size:{}", batchIdx, allJobs.size());
@@ -418,7 +422,7 @@ public class JobGraphBuilder {
                     }
                 }
                 ScheduleTaskShade flowTaskShade = batchTaskShadeService.getBatchTaskById(task.getFlowId(), task.getAppType());
-                if (Objects.isNull(flowTaskShade)) {
+                if (null == flowTaskShade) {
                     scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
                 } else {
                     scheduleJob.setFlowJobId(this.buildFlowReplaceId(flowTaskShade.getTaskId(),flowJobTime,flowTaskShade.getAppType()));
@@ -456,7 +460,7 @@ public class JobGraphBuilder {
             scheduleJob.setBusinessDate(businessDate);
 
             //任务流中的子任务，起始节点将任务流节点作为父任务加入
-            if (task.getFlowId() > 0 && !whetherHasParentTask(task.getTaskId())) {
+            if (task.getFlowId() > 0 && !whetherHasParentTask(task.getTaskId(),task.getAppType())) {
                 List<String> keys = getJobKeys(Lists.newArrayList(task.getFlowId()), scheduleJob, scheduleCron, keyPreStr);
                 scheduleBatchJob.addBatchJobJob(createNewJobJob(scheduleJob, jobKey, keys.get(0), timestampNow));
             }
@@ -590,7 +594,7 @@ public class JobGraphBuilder {
      */
     public List<String> getDependencyJobKeys(EScheduleType scheduleType, ScheduleJob scheduleJob, ScheduleCron scheduleCron, String keyPreStr) {
 
-        List<ScheduleTaskTaskShade> taskTasks = taskTaskShadeService.getAllParentTask(scheduleJob.getTaskId());
+        List<ScheduleTaskTaskShade> taskTasks = taskTaskShadeService.getAllParentTask(scheduleJob.getTaskId(),scheduleJob.getAppType());
         List<Long> pIdList = Lists.newArrayList();
         for (ScheduleTaskTaskShade batchTaskTask : taskTasks) {
             if (batchTaskTask.getParentTaskId() != -1) {
@@ -638,7 +642,7 @@ public class JobGraphBuilder {
 
 
                 //如果父任务在当前任务业务日期不同，则查询父任务是有已生成
-                if (Objects.nonNull(jobCycTime) && Objects.nonNull(fatherCycTime) && fatherCycTime.getDayOfYear() != jobCycTime.getDayOfYear()) {
+                if (fatherCycTime.getDayOfYear() != jobCycTime.getDayOfYear()) {
                     //判断父任务是否生成
                     ScheduleJob pScheduleJob = batchJobService.getJobByJobKeyAndType(pjobKey, EScheduleType.NORMAL_SCHEDULE.getType());
                     if (pScheduleJob == null) {
@@ -665,8 +669,8 @@ public class JobGraphBuilder {
      * @param taskId
      * @return true-有父任务，false-无
      */
-    private boolean whetherHasParentTask(Long taskId) {
-        List<ScheduleTaskTaskShade> taskTasks = taskTaskShadeService.getAllParentTask(taskId);
+    private boolean whetherHasParentTask(Long taskId,Integer appType) {
+        List<ScheduleTaskTaskShade> taskTasks = taskTaskShadeService.getAllParentTask(taskId,appType);
         return CollectionUtils.isNotEmpty(taskTasks);
     }
 
@@ -695,7 +699,7 @@ public class JobGraphBuilder {
         //现在task中 taskId + appType 才是唯一
         //现在采用taskShade表的id
         ScheduleTaskShade shade = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), scheduleJob.getAppType());
-        if (Objects.nonNull(shade)) {
+        if (null != shade) {
             return generateJobKey(keyPreStr, shade.getId(), preTriggerDateStr);
         }
         return null;
@@ -712,7 +716,11 @@ public class JobGraphBuilder {
     public static String getPrePeriodJobTriggerDateStr(String batchJobCycTime, ScheduleCron cron) {
         DateTime triggerDate = new DateTime(DateUtil.getTimestamp(batchJobCycTime, dtfFormatString));
         Date preTriggerDate = getPreJob(triggerDate.toDate(), cron);
-        return DateUtil.getFormattedDate(preTriggerDate.getTime(), dtfFormatString);
+        if(null != preTriggerDate) {
+            return DateUtil.getFormattedDate(preTriggerDate.getTime(), dtfFormatString);
+        }else{
+            throw new RdosDefineException("找不到运行时间");
+        }
     }
 
     /**
