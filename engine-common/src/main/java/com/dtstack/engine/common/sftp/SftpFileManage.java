@@ -173,11 +173,11 @@ public class SftpFileManage {
 
     public boolean downloadFile(String remotePath, String localPath) {
         ChannelSftp channelSftp = getChannelSftp();
-        if (!isFileExist(channelSftp, remotePath)) {
-            LOG.info("File not exist on sftp:" + remotePath);
-            return false;
-        }
         try {
+            if (!isFileExist(channelSftp, remotePath)) {
+                LOG.info("File not exist on sftp:" + remotePath);
+                return false;
+            }
             return downloadFile(remotePath, localPath, channelSftp);
         } finally {
             close(channelSftp);
@@ -276,7 +276,7 @@ public class SftpFileManage {
         ChannelSftp channelSftp = null;
         try {
             //检查路径
-            if (!mkdir(remotePath)) {
+            if (!this.mkdir(remotePath)) {
                 LOG.error("创建sftp服务器路径失败:" + remotePath);
                 return false;
             }
@@ -318,13 +318,7 @@ public class SftpFileManage {
         try {
             channelSftp = getChannelSftp();
             if (this.isFileExist(channelSftp, remotePath)) {
-                try {
-                    channelSftp.rm(remotePath);
-                    return true;
-                } catch (SftpException e) {
-                    LOG.error("", e);
-                    throw new RuntimeException("删除sftp路径失败，sftpPath=" + remotePath);
-                }
+                channelSftp.rm(remotePath);
             }
             return true;
         } catch (Exception e) {
