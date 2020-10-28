@@ -81,8 +81,7 @@ public class KerberosUtils {
         if (!localUUIDDirPath.exists()) {
             localUUIDDirPath.mkdirs();
         }
-
-        logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, config.getSftpConf());
+        logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localUUIDDir, config.getSftpConf());
 
         try {
             String keytabPath = "";
@@ -110,10 +109,15 @@ public class KerberosUtils {
                         krb5ConfPath = localDir + File.separator + config.getKrbName();
                     }
                 }
-                FileUtils.copyFile(new File(keytabPath), new File(String.format("%s/%s", localUUIDDir, fileName)));
+                String newKeytabPath = String.format("%s/%s", localUUIDDir, fileName);
+                String newKrb5ConfPath = "";
+                FileUtils.copyFile(new File(keytabPath), new File(newKeytabPath));
                 if (StringUtils.isNotEmpty(krb5ConfPath)) {
-                    FileUtils.copyFile(new File(krb5ConfPath), new File(String.format("%s/%s", localUUIDDir, config.getKrbName())));
+                    newKrb5ConfPath = String.format("%s/%s", localUUIDDir, config.getKrbName());
+                    FileUtils.copyFile(new File(krb5ConfPath), new File(newKrb5ConfPath));
                 }
+                keytabPath = newKeytabPath;
+                krb5ConfPath = newKrb5ConfPath;
             }
 
             //krb5ConfPath = mergeKrb5(krb5ConfPath);
