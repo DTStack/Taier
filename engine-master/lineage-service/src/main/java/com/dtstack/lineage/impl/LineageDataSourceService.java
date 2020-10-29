@@ -2,19 +2,25 @@ package com.dtstack.lineage.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.domain.LineageRealDataSource;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.dao.ComponentDao;
+import com.dtstack.engine.dao.EngineTenantDao;
+import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.lineage.bo.RdbmsDataSourceConfig;
 import com.dtstack.lineage.dao.LineageDataSourceDao;
 import com.dtstack.lineage.dao.LineageRealDataSourceDao;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -33,6 +39,15 @@ public class LineageDataSourceService {
 
     @Autowired
     private LineageRealDataSourceDao lineageRealDataSourceDao;
+
+    @Autowired
+    private TenantDao tenantDao;
+
+    @Autowired
+    private EngineTenantDao engineTenantDao;
+
+    @Autowired
+    private ComponentDao componentDao;
 
     /**
      * 新增或删除数据源
@@ -68,7 +83,21 @@ public class LineageDataSourceService {
         //TODO
         //生成sourceKey
         String sourceKey = generateSourceKey(dataSourceDTO.getDataJson());
-       Integer id =   addRealDataSource(dataSourceDTO,sourceKey);
+        //插入物理数据愿
+        Long realSourceId =   addRealDataSource(dataSourceDTO,sourceKey);
+        //插入逻辑数据源
+        //查询组件
+        Long tenantId = tenantDao.getIdByDtUicTenantId(dataSourceDTO.getDtUicTenantId());
+        List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
+//        Component component =  componentDao.getByEngineIdsAndComponentType(engineIds,dataSourceDTO.getSourceType());
+        LineageDataSource dataSource = new LineageDataSource();
+        BeanUtils.copyProperties(dataSourceDTO,dataSource);
+//        dataSource.setComponentId();
+//        dataSource.setInnerSource();
+        dataSource.setOpenKerberos(null == dataSourceDTO.getKerberosConf() ? 0:1);
+        dataSource.setSourceKey(sourceKey);
+        dataSource.setRealSourceId(realSourceId);
+        dataSource.setTenantId(dataSourceDTO.getDtUicTenantId());
     }
 
     private String generateSourceKey(String dataJson) {
@@ -85,11 +114,13 @@ public class LineageDataSourceService {
         return sourceKey;
     }
 
-    private Integer addRealDataSource(DataSourceDTO dataSourceDTO,String sourceKey) {
+    private Long addRealDataSource(DataSourceDTO dataSourceDTO,String sourceKey) {
         //TODO
         //先根据sourceKey查询物理数据源是否存在
         LineageRealDataSource oneBySourceKey = lineageRealDataSourceDao.getOneBySourceKey(sourceKey);
+        Long realSourceId;
         if(null == oneBySourceKey){
+            //不存在则新增
             LineageRealDataSource realDataSource = new LineageRealDataSource();
             realDataSource.setDataJason(dataSourceDTO.getDataJson());
             realDataSource.setKerberosConf(dataSourceDTO.getKerberosConf());
@@ -97,10 +128,13 @@ public class LineageDataSourceService {
             realDataSource.setSourceKey(sourceKey);
             realDataSource.setSourceName(dataSourceDTO.getSourceName());
             realDataSource.setSourceType(dataSourceDTO.getSourceType());
+            lineageRealDataSourceDao.addRealDataSource(realDataSource);
+            realSourceId = realDataSource.getId();
 
+        }else{
+            realSourceId = oneBySourceKey.getId();
         }
-
-        return null;
+        return realSourceId;
     }
 
     /**
