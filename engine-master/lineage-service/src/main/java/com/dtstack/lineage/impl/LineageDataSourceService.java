@@ -6,6 +6,7 @@ import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.domain.LineageRealDataSource;
 import com.dtstack.engine.api.dto.DataSourceDTO;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.EngineTenantDao;
@@ -43,8 +44,6 @@ public class LineageDataSourceService {
     @Autowired
     private TenantDao tenantDao;
 
-    @Autowired
-    private EngineTenantDao engineTenantDao;
 
     @Autowired
     private ComponentDao componentDao;
@@ -54,50 +53,65 @@ public class LineageDataSourceService {
      * @param dataSourceDTO 数据源信息
      */
     public void addOrUpdateDataSource(DataSourceDTO dataSourceDTO){
-        //TODO
         //如果存在数据源则更新
         //更新后更新物理数据源
         //如果不存在数据源则添加
         //添加后添加物理数据源，如果物理数据源已经存在，检查配置是否更新。注意：如果两个应用使用了相同的物理数据源但是使用了不同的账号，依旧算同一个物理数据源
-        if (Objects.isNull(dataSourceDTO.getDataSourceId())){
-            addDataSource(dataSourceDTO);
-        }else {
-            //更新数据源
-            LineageDataSource one = lineageDataSourceDao.getOne(dataSourceDTO.getDataSourceId());
-            if (Objects.isNull(one)){
-                throw new RdosDefineException("数据源不存在");
+        try {
+            if (Objects.isNull(dataSourceDTO.getDataSourceId())){
+                addDataSource(dataSourceDTO);
+            }else {
+                //更新数据源
+                LineageDataSource one = lineageDataSourceDao.getOne(dataSourceDTO.getDataSourceId());
+                if (Objects.isNull(one)){
+                    throw new RdosDefineException("数据源不存在");
+                }
+                if (!one.getAppType().equals(dataSourceDTO.getAppType())){
+                    throw new RdosDefineException("数据源不存在");
+                }
+                String sourceKey = generateSourceKey(dataSourceDTO.getDataJson());
+                if(!one.getSourceKey().equals(sourceKey)){
+                    throw new RdosDefineException("jdbc.url中ip和端口不能修改");
+                }
+                updateDataSource(dataSourceDTO,sourceKey,one.getRealSourceId());
             }
-            if (!one.getAppType().equals(dataSourceDTO.getAppType())){
-                throw new RdosDefineException("数据源不存在");
-            }
-            //更新数据源配置信息,通常用于更新数据源
-            if (StringUtils.isNotEmpty(dataSourceDTO.getDataJson())){
-
-            }
-            one.setDataJason(dataSourceDTO.getDataJson());
-//            lineageDataSourceDao.updateDataSource();
+        } catch (Exception e) {
+            logger.error("新增或修改数据源异常,e:{}", ExceptionUtil.getErrorMessage(e));
+            throw new RdosDefineException("新增或修改数据愿异常");
         }
     }
 
+    private void updateDataSource(DataSourceDTO dataSourceDTO,String sourceKey,Long realSourceId) {
+
+        LineageDataSource dataSource = convertLineageDataSource(dataSourceDTO, sourceKey, realSourceId);
+        lineageDataSourceDao.updateDataSource(dataSource);
+
+    }
+
     private void addDataSource(DataSourceDTO dataSourceDTO) {
-        //TODO
         //生成sourceKey
         String sourceKey = generateSourceKey(dataSourceDTO.getDataJson());
         //插入物理数据愿
-        Long realSourceId =   addRealDataSource(dataSourceDTO,sourceKey);
+        Long realSourceId =  addRealDataSource(dataSourceDTO,sourceKey);
         //插入逻辑数据源
         //查询组件
+        LineageDataSource dataSource = convertLineageDataSource(dataSourceDTO, sourceKey, realSourceId);
+        lineageDataSourceDao.insertDataSource(dataSource);
+    }
+
+    private LineageDataSource convertLineageDataSource(DataSourceDTO dataSourceDTO, String sourceKey, Long realSourceId) {
         Long tenantId = tenantDao.getIdByDtUicTenantId(dataSourceDTO.getDtUicTenantId());
-        List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
-//        Component component =  componentDao.getByEngineIdsAndComponentType(engineIds,dataSourceDTO.getSourceType());
+        Integer componentId =  componentDao.getIdByTenantIdComponentType(tenantId, dataSourceDTO.getSourceType());
         LineageDataSource dataSource = new LineageDataSource();
         BeanUtils.copyProperties(dataSourceDTO,dataSource);
-//        dataSource.setComponentId();
-//        dataSource.setInnerSource();
+        dataSource.setComponentId(componentId);
+        //有组件则为内部数据源1，否则为外部数据源0
+        dataSource.setInnerSource(null == componentId ? 1 : 0);
         dataSource.setOpenKerberos(null == dataSourceDTO.getKerberosConf() ? 0:1);
         dataSource.setSourceKey(sourceKey);
         dataSource.setRealSourceId(realSourceId);
         dataSource.setTenantId(dataSourceDTO.getDtUicTenantId());
+        return dataSource;
     }
 
     private String generateSourceKey(String dataJson) {
