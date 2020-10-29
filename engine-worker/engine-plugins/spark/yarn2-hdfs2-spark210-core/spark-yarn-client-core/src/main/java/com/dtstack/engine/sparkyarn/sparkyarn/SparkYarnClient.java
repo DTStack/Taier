@@ -3,10 +3,7 @@ package com.dtstack.engine.sparkyarn.sparkyarn;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
-import com.dtstack.engine.common.JarFileInfo;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.JobParam;
+import com.dtstack.engine.common.*;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
@@ -19,7 +16,7 @@ import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.util.SFTPHandler;
+import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.sparkyarn.sparkyarn.parser.AddJarOperator;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExt;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExtFactory;
@@ -31,7 +28,6 @@ import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -39,11 +35,9 @@ import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.yarn.ClientArguments;
-import org.apache.zookeeper.server.util.KerberosUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +45,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by softfly on 17/8/10.
@@ -102,6 +99,8 @@ public class SparkYarnClient extends AbstractClient {
 
     private Properties sparkExtProp;
 
+    private ThreadPoolExecutor threadPoolExecutor;
+
     @Override
     public void init(Properties prop) throws Exception {
         this.sparkExtProp = prop;
@@ -113,11 +112,15 @@ public class SparkYarnClient extends AbstractClient {
         System.setProperty(SPARK_YARN_MODE, "true");
         parseWebAppAddr();
         logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
-        yarnClient = this.getYarnClient();
+        yarnClient = this.buildYarnClient();
 
         if (sparkYarnConfig.getMonitorAcceptedApp()) {
             AcceptedApplicationMonitor.start(yarnConf, sparkYarnConfig.getQueue(), sparkYarnConfig);
         }
+
+        this.threadPoolExecutor = new ThreadPoolExecutor(sparkYarnConfig.getAsyncCheckYarnClientThreadNum(), sparkYarnConfig.getAsyncCheckYarnClientThreadNum(),
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory("spark_yarnclient"));
     }
 
     private void initYarnConf(SparkYarnConfig sparkConfig){
@@ -523,7 +526,7 @@ public class SparkYarnClient extends AbstractClient {
             }, yarnConf);
         } catch (Exception e) {
             logger.error("", e);
-            return RdosTaskStatus.NOTFOUND;
+            return RdosTaskStatus.RUNNING;
         }
     }
 
@@ -708,8 +711,13 @@ public class SparkYarnClient extends AbstractClient {
                     }
                 }
             } else {
-                //判断下是否可用
-                yarnClient.getAllQueues();
+                //异步超时判断下是否可用，kerberos 开启下会出现hang死情况
+                RetryUtil.asyncExecuteWithRetry(() -> yarnClient.getAllQueues(),
+                        1,
+                        0,
+                        false,
+                        30000L,
+                        threadPoolExecutor);
             }
         } catch (Throwable e) {
             logger.error("buildYarnClient![backup]", e);
