@@ -706,10 +706,16 @@ public class ClusterService implements InitializingBean {
                 pluginInfo.put(entry.getKey(), entry.getValue());
             }
             if (EComponentType.HIVE_SERVER == type.getComponentType()) {
+                Component hiveServer = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.HIVE_SERVER.getTypeCode());
+                if (null == hiveServer) {
+                    throw new RdosDefineException("hive组件不能为空");
+                }
                 String jdbcUrl = pluginInfo.getString("jdbcUrl");
                 jdbcUrl = jdbcUrl.replace("/%s", "");
                 pluginInfo.put("jdbcUrl", jdbcUrl);
-                pluginInfo.put("typeName", "hive");
+                String typeName = componentService.convertComponentTypeToClient(clusterVO.getClusterName(),
+                        EComponentType.HIVE_SERVER.getTypeCode(), hiveServer.getHadoopVersion());
+                pluginInfo.put("typeName",typeName);
             } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK==type.getComponentType()) {
                 if (clusterVO.getDtUicUserId() != null && clusterVO.getDtUicTenantId() != null) {
                     AccountVo accountVo = accountService.getAccountVo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId(), AccountType.LDAP.getVal());
