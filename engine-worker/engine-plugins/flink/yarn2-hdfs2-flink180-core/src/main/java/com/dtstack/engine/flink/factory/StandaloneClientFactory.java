@@ -105,11 +105,11 @@ public class StandaloneClientFactory implements IClientFactory {
         config.setString(JobManagerOptions.ADDRESS, jobMgrHost);
         config.setInteger(JobManagerOptions.PORT, jobMgrPort);
 
-        StandaloneClusterDescriptor descriptor = new StandaloneClusterDescriptor(config);
+
         RestClusterClient<StandaloneClusterId> clusterClient = null;
-        try {
+        try (StandaloneClusterDescriptor descriptor = new StandaloneClusterDescriptor(config)){
             clusterClient = descriptor.retrieve(null);
-        } catch (ClusterRetrieveException e) {
+        } catch (Exception e) {
             throw new RdosDefineException("Couldn't retrieve standalone cluster");
         }
         clusterClient.setDetached(isDetached);
