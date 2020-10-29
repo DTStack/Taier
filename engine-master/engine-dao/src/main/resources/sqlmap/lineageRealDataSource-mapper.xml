@@ -64,5 +64,13 @@
         where id = #{id}
     </select>
 
+    <select id="getOneBySourceKey" resultType="com.dtstack.engine.api.domain.LineageRealDataSource">
+        select
+        <include refid="select_content_fragment"/>
+        from lineage_real_data_source
+        where source_key = #{sourceKey}
+        and is_deleted = 0
+    </select>
+
 
 </mapper>
