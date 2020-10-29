@@ -380,6 +380,7 @@ public class Client {
                         YarnClient yarnClient1 = YarnClient.createYarnClient();
                         yarnClient1.init(conf);
                         yarnClient1.start();
+                        yarnClient = yarnClient1;
                     }
                 }
             } else {
@@ -396,6 +397,7 @@ public class Client {
             YarnClient yarnClient1 = YarnClient.createYarnClient();
             yarnClient1.init(conf);
             yarnClient1.start();
+            yarnClient = yarnClient1;
         } finally {
             long endTime= System.currentTimeMillis();
             LOG.info("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
