@@ -6,7 +6,6 @@ import com.dtstack.engine.common.util.SFTPHandler;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.HadoopKerberosName;
@@ -14,7 +13,6 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.Time;
 import org.apache.kerby.kerberos.kerb.keytab.Keytab;
 import org.apache.kerby.kerberos.kerb.type.base.PrincipalName;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,11 +21,8 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.kerberos.KerberosTicket;
 import java.io.*;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.PrivilegedExceptionAction;
 import java.util.*;
-import java.util.function.BiFunction;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
@@ -38,16 +33,13 @@ public class KerberosUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(KerberosUtils.class);
 
-    private static ObjectMapper objectMapper = new ObjectMapper();
     private static final String USER_DIR = System.getProperty("user.dir");
     private static final String LOCAL_KEYTAB_DIR = USER_DIR + "/kerberos/keytab";
-    private static final String LOCAL_KRB5_DIR = USER_DIR + "/kerberos/krb5";
     private static final String KRB5_CONF = "java.security.krb5.conf";
     private static final String KERBEROS_AUTH = "hadoop.security.authentication";
     private static final String SECURITY_TO_LOCAL = "hadoop.security.auth_to_local";
     private static final String KERBEROS_AUTH_TYPE = "kerberos";
     private static final String SECURITY_TO_LOCAL_DEFAULT = "RULE:[1:$1] RULE:[2:$1]";
-    private static final String MODIFIED_TIME_KEY = "modifiedTime";
 
     private static Map<String, UserGroupInformation> ugiMap = Maps.newConcurrentMap();
     private static Map<String, String> segment = Maps.newConcurrentMap();
@@ -70,7 +62,7 @@ public class KerberosUtils {
 
         String fileName = config.getPrincipalFile();
         String remoteDir = config.getRemoteDir();
-        String localDir = String.format("%s/%s", LOCAL_KEYTAB_DIR, remoteDir);
+        String localDir = LOCAL_KEYTAB_DIR + remoteDir;
 
         File localDirPath = new File(localDir);
         if (!localDirPath.exists()) {
@@ -204,7 +196,7 @@ public class KerberosUtils {
             if (StringUtils.isNotEmpty(krb5Conf)) {
                 System.setProperty(KRB5_CONF, krb5Conf);
             }
-            if (StringUtils.isEmpty(config.get(SECURITY_TO_LOCAL))) {
+            if (StringUtils.isEmpty(config.get(SECURITY_TO_LOCAL)) || "DEFAULT".equals(config.get(SECURITY_TO_LOCAL))) {
                 config.set(SECURITY_TO_LOCAL, SECURITY_TO_LOCAL_DEFAULT);
             }
             if (!StringUtils.equals(config.get(KERBEROS_AUTH), KERBEROS_AUTH_TYPE)) {
@@ -214,6 +206,7 @@ public class KerberosUtils {
             UserGroupInformation.setConfiguration(config);
             return UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
         } catch (Exception e) {
+            logger.error("Create ugi error, {}", e.getMessage());
             throw new RdosDefineException(e);
         }
     }
