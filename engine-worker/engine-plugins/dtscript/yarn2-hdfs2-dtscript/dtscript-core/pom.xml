@@ -30,7 +30,8 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
             <version>${hadoop2.version}</version>
-            <scope>provided</scope>
+            <!--  解决core包独立出包不可运行 -->
+            <!--<scope>provided</scope>-->
         </dependency>
 
         <dependency>
@@ -104,10 +105,24 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/java/</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources/</directory>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>2.5</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -121,7 +136,15 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
+
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.dtstack.engine.dtscript.am.ApplicationMaster</mainClass>
+                                </transformer>
+                            </transformers>
+
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
