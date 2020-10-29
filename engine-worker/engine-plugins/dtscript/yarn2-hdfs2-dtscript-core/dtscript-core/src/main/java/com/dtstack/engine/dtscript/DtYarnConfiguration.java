@@ -150,6 +150,10 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final int DEFAULT_DTSCRIPT_CONTAINER_RESERVED_MEMORY = 500;
 
+    public static final String DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM = "asyncCheckYarnClientThreadNum";
+
+    public static final int DEFAULT_DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM = 3;
+
     /**
      * am在向rm申请资源时，在同一个nm上不能申请2次以上; app独占nm
      */

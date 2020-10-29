@@ -3,6 +3,8 @@ package com.dtstack.engine.dtscript.client;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.util.KerberosUtils;
+import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.am.ApplicationMaster;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
@@ -32,6 +34,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class Client {
 
@@ -40,14 +45,19 @@ public class Client {
 
     private DtYarnConfiguration conf;
     private FileSystem dfs;
-    private YarnClient yarnClient;
+    private volatile YarnClient yarnClient;
     private volatile Path appJarSrc;
-
+    private ThreadPoolExecutor threadPoolExecutor;
 
     private static FsPermission JOB_FILE_PERMISSION = FsPermission.createImmutable((short) 0644);
 
     public Client(DtYarnConfiguration conf, BaseConfig allConfig) throws Exception {
         this.conf = conf;
+        this.threadPoolExecutor = new ThreadPoolExecutor(
+                conf.getInt(DtYarnConfiguration.DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM, DtYarnConfiguration.DEFAULT_DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM),
+                conf.getInt(DtYarnConfiguration.DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM, DtYarnConfiguration.DEFAULT_DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM),
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory("dtscript_yarnclient"));
         KerberosUtils.login(allConfig, () -> {
             String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
             if (conf.get("hadoop.job.ugi") == null) {
@@ -360,48 +370,35 @@ public class Client {
         return getYarnClient().getApplicationReport(appId);
     }
 
-    public YarnClient getYarnClient() {
+    public YarnClient getYarnClient(){
+        long startTime = System.currentTimeMillis();
         try {
             if (yarnClient == null) {
                 synchronized (this) {
                     if (yarnClient == null) {
+                        LOG.info("buildYarnClient!");
                         YarnClient yarnClient1 = YarnClient.createYarnClient();
                         yarnClient1.init(conf);
                         yarnClient1.start();
-                        yarnClient = yarnClient1;
                     }
                 }
             } else {
-                //判断下是否可用
-                yarnClient.getAllQueues();
+                //异步超时判断下是否可用，kerberos 开启下会出现hang死情况
+                RetryUtil.asyncExecuteWithRetry(() -> yarnClient.getAllQueues(),
+                        1,
+                        0,
+                        false,
+                        30000L,
+                        threadPoolExecutor);
             }
         } catch (Throwable e) {
-            LOG.error("getYarnClient error:{}", e);
-            synchronized (this) {
-                if (yarnClient != null) {
-                    boolean flag = true;
-                    try {
-                        //判断下是否可用
-                        yarnClient.getAllQueues();
-                    } catch (Throwable e1) {
-                        LOG.error("getYarnClient error:{}", e1);
-                        flag = false;
-                    }
-                    if (!flag) {
-                        try {
-                            yarnClient.stop();
-                        } finally {
-                            yarnClient = null;
-                        }
-                    }
-                }
-                if (yarnClient == null) {
-                    YarnClient yarnClient1 = YarnClient.createYarnClient();
-                    yarnClient1.init(conf);
-                    yarnClient1.start();
-                    yarnClient = yarnClient1;
-                }
-            }
+            LOG.error("buildYarnClient![backup]", e);
+            YarnClient yarnClient1 = YarnClient.createYarnClient();
+            yarnClient1.init(conf);
+            yarnClient1.start();
+        } finally {
+            long endTime= System.currentTimeMillis();
+            LOG.info("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
         }
         return yarnClient;
     }
@@ -442,6 +439,7 @@ public class Client {
         }
         return dfs;
     }
+
 
     public List<String> getContainerInfos(String jobId) throws IOException {
         Path remotePath = new Path(conf.get(DtYarnConfiguration.CONTAINER_STAGING_DIR, DtYarnConfiguration.DEFAULT_CONTAINER_STAGING_DIR), jobId);
