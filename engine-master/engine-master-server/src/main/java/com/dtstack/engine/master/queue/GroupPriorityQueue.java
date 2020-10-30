@@ -1,19 +1,18 @@
 package com.dtstack.engine.master.queue;
 
+import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.queue.comparator.JobClientComparator;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.JobSubmitDealer;
-import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.JobClient;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -21,13 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -114,7 +107,7 @@ public class GroupPriorityQueue {
     }
 
     private long priorityQueueSize() {
-        return queue.size() + jobSubmitDealer.getDelayJobQueueSize();
+        return queue.size() + (long)jobSubmitDealer.getDelayJobQueueSize();
     }
 
     public String getJobResource() {

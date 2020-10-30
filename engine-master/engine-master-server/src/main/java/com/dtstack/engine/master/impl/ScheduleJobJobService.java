@@ -69,7 +69,7 @@ public class ScheduleJobJobService {
                 ScheduleJob flowJob = scheduleJobDao.getByJobId(job.getFlowJobId(), Deleted.NORMAL.getStatus());
                 //工作流下全部实例,层级level使用int最大值
                 com.dtstack.engine.master.vo.ScheduleJobVO subJobVO = displayOffSpringForFlowWork(flowJob);
-                if (subJobVO != null) {
+                if(null != subJobVO) {
                     subJobVO.setProjectId(flowJob.getProjectId());
                 }
                 return subJobVO;
@@ -107,7 +107,7 @@ public class ScheduleJobJobService {
         for (ScheduleJob scheduleJob : jobs) {
             keyJobMap.put(scheduleJob.getJobKey(), scheduleJob);
             taskIds.add(scheduleJob.getTaskId());
-            if (Objects.isNull(appType) && Objects.nonNull(scheduleJob.getAppType())) {
+            if (null == appType && null != scheduleJob.getAppType()) {
                 appType = scheduleJob.getAppType();
             }
         }

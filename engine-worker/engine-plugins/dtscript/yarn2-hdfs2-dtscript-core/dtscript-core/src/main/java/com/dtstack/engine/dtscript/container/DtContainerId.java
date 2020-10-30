@@ -49,6 +49,6 @@ public class DtContainerId implements Writable {
   @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
   public boolean equals(Object obj) {
     DtContainerId other = (DtContainerId) obj;
-    return this.toString().equals(other.toString());
+    return other!=null && this.toString().equals(other.toString());
   }
 }

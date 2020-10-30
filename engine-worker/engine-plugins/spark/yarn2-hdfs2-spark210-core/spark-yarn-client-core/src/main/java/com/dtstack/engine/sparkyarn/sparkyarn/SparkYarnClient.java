@@ -43,8 +43,10 @@ import org.apache.spark.deploy.yarn.ClientArguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.security.PrivilegedExceptionAction;
 import java.util.*;
 
 /**
@@ -94,6 +96,14 @@ public class SparkYarnClient extends AbstractClient {
     private volatile YarnClient yarnClient;
 
     private Properties sparkExtProp;
+
+    private static String userDir = System.getProperty("user.dir");
+
+    private static final String SPARK_CONF_DIR = "sparkconf";
+
+    public static final String SPARK_LOG4J_FILE_NAME = "log4j-spark.properties";
+
+    public static final String SPARK_LOCAL_LOG4J_KEY = "spark_local_log4j_key";
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -188,14 +198,23 @@ public class SparkYarnClient extends AbstractClient {
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
         SparkConf sparkConf = buildBasicSparkConf();
         sparkConf.setAppName(appName);
+        setSparkLog4jLocalFilePath(sparkConf, jobClient);
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
+        setSparkLog4jConfiguration(sparkConf);
 
         ApplicationId appId = null;
 
         try {
+
             ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
-            appId = clientExt.submitApplication(jobClient.getApplicationPriority());
+            String proxyUserName = sparkYarnConfig.getDtProxyUserName();
+            if (StringUtils.isNotBlank(proxyUserName)) {
+                logger.info("ugi proxyUser is {}", proxyUserName);
+                appId = UserGroupInformation.createProxyUser(proxyUserName, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<ApplicationId>) () -> clientExt.submitApplication(jobClient.getApplicationPriority()));
+            } else {
+                appId = clientExt.submitApplication(jobClient.getApplicationPriority());
+            }
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             logger.info("", ex);
@@ -219,7 +238,6 @@ public class SparkYarnClient extends AbstractClient {
         if(Strings.isNullOrEmpty(appName)){
             return JobResult.createErrorResult("an application name must be set in your configuration");
         }
-
         ApplicationId appId = null;
 
         List<String> argList = new ArrayList<>();
@@ -267,13 +285,22 @@ public class SparkYarnClient extends AbstractClient {
         SparkConf sparkConf = buildBasicSparkConf();
         sparkConf.set("spark.submit.pyFiles", pythonExtPath);
         sparkConf.setAppName(appName);
+        setSparkLog4jLocalFilePath(sparkConf, jobClient);
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
+        setSparkLog4jConfiguration(sparkConf);
 
         try {
             ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
             ClientExt clientExt = new ClientExt(clientArguments, yarnConf, sparkConf);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
-            appId = clientExt.submitApplication(jobClient.getApplicationPriority());
+
+            String proxyUserName = sparkYarnConfig.getDtProxyUserName();
+            if (StringUtils.isNotBlank(proxyUserName)) {
+                logger.info("ugi proxyUser is {}", proxyUserName);
+                appId = UserGroupInformation.createProxyUser(proxyUserName, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<ApplicationId>) () -> clientExt.submitApplication(jobClient.getApplicationPriority()));
+            } else {
+                appId = clientExt.submitApplication(jobClient.getApplicationPriority());
+            }
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             logger.info("", ex);
@@ -333,14 +360,22 @@ public class SparkYarnClient extends AbstractClient {
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
         SparkConf sparkConf = buildBasicSparkConf();
         sparkConf.setAppName(jobClient.getJobName());
+        setSparkLog4jLocalFilePath(sparkConf, jobClient);
         fillExtSparkConf(sparkConf, confProp);
+        setSparkLog4jConfiguration(sparkConf);
 
         ApplicationId appId = null;
 
         try {
             ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
-            appId = clientExt.submitApplication(jobClient.getApplicationPriority());
+            String proxyUserName = sparkYarnConfig.getDtProxyUserName();
+            if (StringUtils.isNotBlank(proxyUserName)) {
+                logger.info("ugi proxyUser is {}", proxyUserName);
+                appId = UserGroupInformation.createProxyUser(proxyUserName, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<ApplicationId>) () -> clientExt.submitApplication(jobClient.getApplicationPriority()));
+            } else {
+                appId = clientExt.submitApplication(jobClient.getApplicationPriority());
+            }
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
@@ -368,6 +403,16 @@ public class SparkYarnClient extends AbstractClient {
         return map;
     }
 
+    private void setSparkLog4jLocalFilePath(SparkConf sparkConf, JobClient jobClient) {
+        Properties confProp = jobClient.getConfProperties();
+        String logLevel = MathUtil.getString(confProp.get(LOG_LEVEL_KEY), "info");
+        String path = userDir + File.separator + SPARK_CONF_DIR + File.separator + logLevel.toLowerCase() + File.separator + SPARK_LOG4J_FILE_NAME;
+        File file = new File(path);
+        if (file.exists()) {
+            sparkConf.set(SPARK_LOCAL_LOG4J_KEY, path);
+        }
+    }
+
     private SparkConf buildBasicSparkConf(){
 
         SparkConf sparkConf = new SparkConf();
@@ -392,6 +437,26 @@ public class SparkYarnClient extends AbstractClient {
             });
         }
         return sparkConf;
+    }
+
+    private void setSparkLog4jConfiguration(SparkConf sparkConf) {
+        String localPath = sparkConf.get(SPARK_LOCAL_LOG4J_KEY, "");
+        if (StringUtils.isBlank(localPath)) {
+            return;
+        }
+        String configuration = "-Dlog4j.configuration=" + SPARK_LOG4J_FILE_NAME;
+        String driverExtraJavaOptions = sparkConf.get("spark.driver.extraJavaOptions", "");
+        if (StringUtils.isBlank(driverExtraJavaOptions)) {
+            sparkConf.set("spark.driver.extraJavaOptions", configuration);
+        } else {
+            sparkConf.set("spark.driver.extraJavaOptions", driverExtraJavaOptions + " " + configuration);
+        }
+        String executorExtraJavaOptions = sparkConf.get("spark.executor.extraJavaOptions", "");
+        if (StringUtils.isBlank(executorExtraJavaOptions)) {
+            sparkConf.set("spark.executor.extraJavaOptions", configuration);
+        } else {
+            sparkConf.set("spark.executor.extraJavaOptions", executorExtraJavaOptions + " " + configuration);
+        }
     }
 
     /**

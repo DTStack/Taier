@@ -23,6 +23,7 @@ import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
+import com.dtstack.schedule.common.enums.ForceCancelFlag;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,7 +44,8 @@ import java.util.concurrent.*;
  * @author sishu.yss
  */
 @Service
-public class ActionService {
+public class
+ActionService {
 
     private static final Logger logger = LoggerFactory.getLogger(ActionService.class);
 
@@ -114,7 +116,7 @@ public class ActionService {
                 if (StringUtils.isNotBlank(taskId)) {
                     logger.error("Job taskId：" + taskId + " submit error ", e);
                     ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
-                    if (scheduleJob == null && Objects.nonNull(paramActionExt)) {
+                    if (scheduleJob == null) {
                         //新job 任务
                         scheduleJob = buildScheduleJob(paramActionExt);
                         scheduleJob.setStatus(RdosTaskStatus.SUBMITFAILD.getStatus());
@@ -137,8 +139,12 @@ public class ActionService {
      * @throws Exception
      */
     public Boolean stop(List<String> jobIds) {
+        return stop(jobIds, ForceCancelFlag.NO.getFlag());
+    }
+
+    public Boolean stop(List<String> jobIds, Integer isForce) {
         List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.getRdosJobByJobIds(jobIds));
-        jobStopDealer.addStopJobs(jobs);
+        jobStopDealer.addStopJobs(jobs, isForce);
         return true;
     }
 
@@ -539,4 +545,5 @@ public class ActionService {
         vo.setRetryNum(scheduleJob.getRetryNum());
         return vo;
     }
+
 }

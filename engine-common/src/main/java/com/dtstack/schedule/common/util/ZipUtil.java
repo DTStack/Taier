@@ -1,25 +1,20 @@
 package com.dtstack.schedule.common.util;
 
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import org.apache.tools.zip.ZipFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
+import java.util.Objects;
 
 /**
  * @company: www.dtstack.com
@@ -32,98 +27,6 @@ public class ZipUtil {
     private static final Logger LOG = LoggerFactory.getLogger(ZipUtil.class);
 
     private static byte[] _byte = new byte[1024];
-
-    public static byte[] compress(byte[] rowData) {
-        byte[] backData = null;
-        ZipOutputStream zip = null;
-        ByteArrayOutputStream bos = null;
-        try {
-            bos = new ByteArrayOutputStream();
-            zip = new ZipOutputStream(bos, StandardCharsets.UTF_8);
-            ZipEntry entry = new ZipEntry("zip");
-            entry.setSize(rowData.length);
-            zip.putNextEntry(entry);
-            zip.write(rowData);
-        } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex.getStackTrace());
-        } finally {
-            if (null != zip) {
-                try {
-                    zip.close();
-                    zip.closeEntry();
-                } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
-                }
-            }
-            if (null != bos) {
-                backData = bos.toByteArray();
-                try {
-                    bos.close();
-                } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
-                }
-            }
-        }
-        return backData;
-    }
-
-    public static byte[] deCompress(byte[] rowData) {
-        byte[] backData = null;
-        ZipInputStream zip = null;
-        ByteArrayInputStream bis = null;
-        ByteArrayOutputStream baos = null;
-        try {
-            bis = new ByteArrayInputStream(rowData);
-            zip = new ZipInputStream(bis, StandardCharsets.UTF_8);
-            while (zip.getNextEntry() != null) {
-                byte[] buf = new byte[1024];
-                int num = -1;
-                baos = new ByteArrayOutputStream();
-                while ((num = zip.read(buf, 0, buf.length)) != -1) {
-                    baos.write(buf, 0, num);
-                }
-                backData = baos.toByteArray();
-                baos.flush();
-                baos.close();
-            }
-        } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex.getStackTrace());
-        } finally {
-            if (null != bis) {
-                try {
-                    bis.close();
-                } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
-                }
-            }
-
-            if (null != zip) {
-                try {
-                    zip.close();
-                } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
-                }
-            }
-
-            if (null != baos) {
-                try {
-                    baos.close();
-                } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
-                }
-            }
-        }
-        return backData;
-    }
-
-    public static String compress(String rowData) {
-        return new String(Base64Util.baseEncode(compress(rowData.getBytes(StandardCharsets.UTF_8))), StandardCharsets.UTF_8);
-    }
-
-    public static String deCompress(String rowData) {
-        return new String(deCompress(Base64Util.baseDecode(rowData.getBytes(StandardCharsets.UTF_8))), StandardCharsets.UTF_8);
-    }
-
 
     /**
      * 压缩文件或路径
@@ -141,10 +44,10 @@ public class ZipUtil {
                 }
                 _zipOut.close();
             } else {
-                System.out.println("target file[" + zip + "] is not .zip type file");
+                LOG.info("target file[" + zip + "] is not .zip type file");
             }
-        } catch (FileNotFoundException e) {
         } catch (IOException e) {
+            LOG.error("ZipUtil.zipFile error:{}",ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -190,7 +93,7 @@ public class ZipUtil {
      * @param zipPath           待解压缩的ZIP文件名
      * @param descDir 目标目录
      */
-    public static List<File> upzipFile(String zipPath, String descDir) {
+    public static List<File> upzipFile(String zipPath, String descDir) throws IOException {
         return upzipFile(new File(zipPath), descDir);
     }
 
@@ -202,9 +105,12 @@ public class ZipUtil {
      * @return
      */
     @SuppressWarnings("rawtypes")
-    public static List<File> upzipFile(File zipFile, String descDir) {
-        List<File> _list = new ArrayList<File>();
-        try (ZipFile _zipFile = new ZipFile(zipFile, "GBK");) {
+    public static List<File> upzipFile(File zipFile, String descDir) throws IOException {
+        List<File> _list = new ArrayList<>();
+        ZipFile _zipFile = null;
+        OutputStream _out = null;
+        try {
+            _zipFile = new ZipFile(zipFile, "GBK");
             for (Enumeration entries = _zipFile.getEntries(); entries.hasMoreElements(); ) {
                 org.apache.tools.zip.ZipEntry entry = (org.apache.tools.zip.ZipEntry) entries.nextElement();
                 File _file = new File(descDir + File.separator + entry.getName());
@@ -215,17 +121,27 @@ public class ZipUtil {
                     if (!_parent.exists()) {
                         _parent.mkdirs();
                     }
-                    try (InputStream _in = _zipFile.getInputStream(entry); OutputStream _out = new FileOutputStream(_file)) {
-                        int len = 0;
-                        while ((len = _in.read(_byte)) > 0) {
-                            _out.write(_byte, 0, len);
-                        }
-                        _out.flush();
+                    InputStream _in = _zipFile.getInputStream(entry);
+                    _out = new FileOutputStream(_file);
+                    int len = 0;
+                    while ((len = _in.read(_byte)) > 0) {
+                        _out.write(_byte, 0, len);
                     }
+                    _in.close();
+                    _out.flush();
+                    _out.close();
                     _list.add(_file);
                 }
             }
         } catch (IOException e) {
+            throw new IOException("解压缩文件失败");
+        }finally {
+            if(Objects.nonNull(_zipFile)){
+                _zipFile.close();
+            }
+            if(Objects.nonNull(_out)){
+                _out.close();
+            }
         }
         return _list;
     }
@@ -251,7 +167,7 @@ public class ZipUtil {
                 file.delete();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("", e);
         }
     }
 

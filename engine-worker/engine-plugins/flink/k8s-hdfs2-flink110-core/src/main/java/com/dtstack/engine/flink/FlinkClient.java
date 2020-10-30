@@ -49,6 +49,7 @@ import org.apache.flink.client.program.PackagedProgramUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HistoryServerOptions;
 import org.apache.flink.kubernetes.kubeclient.FlinkKubeClient;
+import org.apache.flink.kubernetes.kubeclient.resources.KubernetesService;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.Preconditions;
@@ -255,8 +256,8 @@ public class FlinkClient extends AbstractClient {
             return Pair.create(jobExecutionResult.getJobID().toString(), clusterClient.getClusterId().toString());
         } catch (Exception e) {
             if (!FlinkMode.isPerJob(taskRunMode) && flinkClusterClientManager.getIsClientOn()) {
-                logger.info("submit job error,flink session init ..");
-                flinkClusterClientManager.setIsClientOn(false);
+                logger.error("submit job error,flink session init ..");
+                // flinkClusterClientManager.setIsClientOn(false);
             }
             throw e;
         } finally {
@@ -408,7 +409,7 @@ public class FlinkClient extends AbstractClient {
             String reqUrl = "";
             String response = "";
             FlinkKubeClient flinkKubeClient = flinkClientBuilder.getFlinkKubeClient();
-            if (flinkKubeClient.getInternalService(clusterId) == null) {
+            if (!flinkKubeClient.getInternalService(clusterId).isPresent()) {
                 String jobHistoryURL = getJobHistoryURL();
                 reqUrl = jobHistoryURL + "/jobs/" + jobId;
                 Long refreshInterval = flinkClientBuilder.getFlinkConfiguration()
@@ -437,7 +438,7 @@ public class FlinkClient extends AbstractClient {
                     RdosTaskStatus rdosTaskStatus =  RdosTaskStatus.getTaskStatus(state);
                     Boolean isFlinkSessionTask = clusterId.startsWith(ConfigConstrant.FLINK_SESSION_PREFIX);
                     if (RdosTaskStatus.isStopped(rdosTaskStatus.getStatus()) && !isFlinkSessionTask) {
-                        if (flinkClientBuilder.getFlinkKubeClient().getInternalService(clusterId) != null) {
+                        if (flinkClientBuilder.getFlinkKubeClient().getInternalService(clusterId).isPresent()) {
                             flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(clusterId);
                         }
                     }
@@ -485,6 +486,10 @@ public class FlinkClient extends AbstractClient {
     public String getJobLog(JobIdentifier jobIdentifier) {
 
         String jobId = jobIdentifier.getEngineJobId();
+        if (StringUtils.isBlank(jobId)) {
+            logger.warn("get jobLog jobId {} is null ", jobIdentifier.getTaskId());
+            return null;
+        }
         String applicationId = jobIdentifier.getApplicationId();
 
         RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
@@ -548,9 +553,14 @@ public class FlinkClient extends AbstractClient {
                     .withNamespace(flinkConfig.getNamespace())
                     .withAllowPendingPodSize(0)
                     .build();
-            String groupName = jobClient.getGroupName();
-            String[] contents = groupName.split("_");
-            String namespace = contents[contents.length-1];
+
+            String pluginInfo = jobClient.getPluginInfo();
+            Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
+            String namespace = null;
+            if (properties.containsKey("namespace")) {
+                namespace = properties.getProperty("namespace");
+            }
+            Preconditions.checkNotNull(namespace, "namespace is null");
             ResourceQuotaList resourceQuotas = kubernetesClient.resourceQuotas().inNamespace(namespace).list();
             if (resourceQuotas != null && resourceQuotas.getItems().size() > 0) {
                 ResourceQuota resourceQuota = resourceQuotas.getItems().get(0);
@@ -728,6 +738,10 @@ public class FlinkClient extends AbstractClient {
             if (StringUtils.isNotBlank(localKeytab) && !(new File(localKeytab).exists())) {
                 SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
                 handler.downloadFile(sftpKeytab, localKeytab);
+                try {
+                    handler.close();
+                } catch (Exception e) {
+                }
             }
         } catch (Exception e) {
             logger.error("Download keytab from sftp failed", e);

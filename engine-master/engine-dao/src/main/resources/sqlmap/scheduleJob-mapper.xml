@@ -5,7 +5,7 @@
     <sql id="select_content_fragment">
       bj.id,bj.tenant_id,bj.project_id,bj.dtuic_tenant_id,bj.app_type,bj.job_id,bj.job_key,bj.job_name,bj.task_id,bj.gmt_create,bj.gmt_modified,bj.create_user_id,bj.is_deleted,bj.type,bj.is_restart,
       bj.business_date,bj.cyc_time,dependency_type,flow_job_id,bj.period_type,bj.status,bj.task_type,bj.fill_id,bj.exec_start_time,bj.exec_end_time,bj.exec_time,bj.submit_time,bj.retry_num,max_retry_num,
-      bj.node_address,bj.version_id,bj.next_cyc_time,bj.log_info
+      bj.node_address,bj.version_id,bj.next_cyc_time,bj.log_info,bj.compute_type
     </sql>
 
     <sql id="select_where_fragment">
@@ -436,6 +436,9 @@
             </if>
             <if test="phaseStatus != null">
                 phase_status = #{phaseStatus},
+            </if>
+            <if test="versionId != null">
+                version_id = #{versionId},
             </if>
         </set>
     </sql>

@@ -422,7 +422,7 @@ public class JobGraphBuilder {
                     }
                 }
                 ScheduleTaskShade flowTaskShade = batchTaskShadeService.getBatchTaskById(task.getFlowId(), task.getAppType());
-                if (Objects.isNull(flowTaskShade)) {
+                if (null == flowTaskShade) {
                     scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
                 } else {
                     scheduleJob.setFlowJobId(this.buildFlowReplaceId(flowTaskShade.getTaskId(),flowJobTime,flowTaskShade.getAppType()));
@@ -642,7 +642,7 @@ public class JobGraphBuilder {
 
 
                 //如果父任务在当前任务业务日期不同，则查询父任务是有已生成
-                if (Objects.nonNull(jobCycTime) && Objects.nonNull(fatherCycTime) && fatherCycTime.getDayOfYear() != jobCycTime.getDayOfYear()) {
+                if (fatherCycTime.getDayOfYear() != jobCycTime.getDayOfYear()) {
                     //判断父任务是否生成
                     ScheduleJob pScheduleJob = batchJobService.getJobByJobKeyAndType(pjobKey, EScheduleType.NORMAL_SCHEDULE.getType());
                     if (pScheduleJob == null) {
@@ -699,7 +699,7 @@ public class JobGraphBuilder {
         //现在task中 taskId + appType 才是唯一
         //现在采用taskShade表的id
         ScheduleTaskShade shade = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), scheduleJob.getAppType());
-        if (Objects.nonNull(shade)) {
+        if (null != shade) {
             return generateJobKey(keyPreStr, shade.getId(), preTriggerDateStr);
         }
         return null;
@@ -716,10 +716,11 @@ public class JobGraphBuilder {
     public static String getPrePeriodJobTriggerDateStr(String batchJobCycTime, ScheduleCron cron) {
         DateTime triggerDate = new DateTime(DateUtil.getTimestamp(batchJobCycTime, dtfFormatString));
         Date preTriggerDate = getPreJob(triggerDate.toDate(), cron);
-        if (preTriggerDate == null) {
-            return "";
+        if(null != preTriggerDate) {
+            return DateUtil.getFormattedDate(preTriggerDate.getTime(), dtfFormatString);
+        }else{
+            throw new RdosDefineException("找不到运行时间");
         }
-        return DateUtil.getFormattedDate(preTriggerDate.getTime(), dtfFormatString);
     }
 
     /**

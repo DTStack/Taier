@@ -70,7 +70,7 @@ public class HadoopClient extends AbstractClient {
     private static final String FLINK_URL_FORMAT = "http://%s/proxy/%s/taskmanagers";
     private static final String YARN_RM_WEB_KEY_PREFIX = "yarn.resourcemanager.webapp.address.";
     private static final String YARN_SCHEDULER_FORMAT = "http://%s/ws/v1/cluster/scheduler";
-    private static final long ONE_MEGABYTE = 1024*1024;
+    private static final long ONE_MEGABYTE = 1024*1024L;
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -331,7 +331,6 @@ public class HadoopClient extends AbstractClient {
         while (sqlItera.hasNext()){
             String tmpSql = sqlItera.next();
             if(AddJarOperator.verific(tmpSql)){
-                sqlItera.remove();
                 JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
 
                 String addFilePath = jarFileInfo.getJarPath();
@@ -354,7 +353,6 @@ public class HadoopClient extends AbstractClient {
         }
 
         cacheFile.put(jobClient.getTaskId(), fileList);
-        jobClient.setSql(String.join(";", sqlList));
     }
 
     @Override
@@ -427,6 +425,14 @@ public class HadoopClient extends AbstractClient {
             testResult.setClusterResourceDescription(new ComponentTestResult.ClusterResourceDescription(nodes.size(), totalMemory, totalCores, descriptions));
         } catch (Exception e) {
             LOG.error("getRootQueueInfos error", e);
+        } finally {
+            if(testYarnClient != null){
+                try {
+                    testYarnClient.close();
+                } catch (IOException e) {
+                    LOG.error("close yarn client error",e);
+                }
+            }
         }
         testResult.setResult(true);
         return testResult;
@@ -436,7 +442,7 @@ public class HadoopClient extends AbstractClient {
         List<ComponentTestResult.QueueDescription> descriptions = new ArrayList<>(queueInfos.size());
         parentPath = StringUtils.isBlank(parentPath) ? "" : parentPath + ".";
         for (QueueInfo queueInfo : queueInfos) {
-            String queuePath = parentPath + queueInfo.getQueueName();
+            String queuePath = queueInfo.getQueueName().startsWith(parentPath) ? queueInfo.getQueueName() : parentPath + queueInfo.getQueueName();
             ComponentTestResult.QueueDescription queueDescription = new ComponentTestResult.QueueDescription();
             queueDescription.setQueueName(queueInfo.getQueueName());
             queueDescription.setCapacity(String.valueOf(queueInfo.getCapacity()));
@@ -474,7 +480,7 @@ public class HadoopClient extends AbstractClient {
                     LOG.error("submit file {} to hdfs error", hdfsPath,e);
                     throw new RdosDefineException("上传文件失败", e);
                 } finally {
-                    if (Objects.nonNull(fs)) {
+                    if (null != fs) {
                         try {
                             fs.close();
                         } catch (IOException e) {
@@ -495,7 +501,7 @@ public class HadoopClient extends AbstractClient {
         //测试hdfs联通性
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
-            if (Objects.isNull(testConnectConf)) {
+            if (null == testConnectConf) {
                 componentTestResult.setResult(false);
                 componentTestResult.setErrorMsg("配置信息不能你为空");
                 return componentTestResult;
@@ -512,7 +518,7 @@ public class HadoopClient extends AbstractClient {
                     componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
                     return componentTestResult;
                 } finally {
-                    if (Objects.nonNull(fs)) {
+                    if (null != fs) {
                         try {
                             fs.close();
                         } catch (IOException e) {
@@ -580,7 +586,7 @@ public class HadoopClient extends AbstractClient {
                 } catch (Exception e) {
                     LOG.error("close reource error ", e);
                 } finally {
-                    if (Objects.nonNull(resourceClient)) {
+                    if (null != resourceClient) {
                         try {
                             resourceClient.close();
                         } catch (IOException e) {
@@ -763,30 +769,46 @@ public class HadoopClient extends AbstractClient {
 
     public static void main(String[] args) throws Exception {
 
-        System.setProperty("HADOOP_USER_NAME", "admin");
+        FileInputStream fileInputStream = null;
+        InputStreamReader inputStreamReader = null;
+        BufferedReader reader = null;
 
-        // input params json file path
-        String filePath = args[0];
-        File paramsFile = new File(filePath);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(paramsFile)));
-        String request = reader.readLine();
-        Map params =  PublicUtil.jsonStrToObject(request, Map.class);
-        ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-        JobClient jobClient = new JobClient(paramAction);
+        try {
+            System.setProperty("HADOOP_USER_NAME", "admin");
 
-        String pluginInfo = jobClient.getPluginInfo();
-        Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
-        String md5plugin = MD5Util.getMd5String(pluginInfo);
-        properties.setProperty("md5sum", md5plugin);
+            // input params json file path
+            String filePath = args[0];
+            File paramsFile = new File(filePath);
+            fileInputStream = new FileInputStream(paramsFile);
+            inputStreamReader = new InputStreamReader(fileInputStream);
+            reader = new BufferedReader(inputStreamReader);
+            String request = reader.readLine();
+            Map params =  PublicUtil.jsonStrToObject(request, Map.class);
+            ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
+            JobClient jobClient = new JobClient(paramAction);
 
-        HadoopClient client = new HadoopClient();
-        client.init(properties);
+            String pluginInfo = jobClient.getPluginInfo();
+            Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
+            String md5plugin = MD5Util.getMd5String(pluginInfo);
+            properties.setProperty("md5sum", md5plugin);
 
-        ClusterResource clusterResource = client.getClusterResource();
+            HadoopClient client = new HadoopClient();
+            client.init(properties);
 
-        LOG.info("submit success!");
-        LOG.info(clusterResource.toString());
-        System.exit(0);
+            ClusterResource clusterResource = client.getClusterResource();
+
+            LOG.info("submit success!");
+            LOG.info(clusterResource.toString());
+            System.exit(0);
+        } catch (Exception e) {
+            LOG.error("submit error!", e);
+        } finally {
+            if (reader != null){
+                reader.close();
+                inputStreamReader.close();
+                fileInputStream.close();
+            }
+        }
     }
 
 

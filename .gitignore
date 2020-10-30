@@ -17,3 +17,7 @@ entrance/dependency-reduced-pom.xml
 .DS_Store
 kerberosConfig/
 tmpK8sConf/
+keytab/
+tmp/
+tmp1100/
+tmpSave/

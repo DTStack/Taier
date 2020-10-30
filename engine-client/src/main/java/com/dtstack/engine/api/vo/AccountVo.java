@@ -43,7 +43,16 @@ public class AccountVo  extends BaseEntity {
 
     private Integer engineType;
 
+    @ApiModelProperty(notes = "账号类型")
+    private Integer accountType;
 
+    public Integer getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(Integer accountType) {
+        this.accountType = accountType;
+    }
 
     public Integer getEngineType() {
         return engineType;
@@ -138,7 +147,7 @@ public class AccountVo  extends BaseEntity {
     }
 
     public AccountVo(AccountDTO accountDTO) {
-        if(Objects.nonNull(accountDTO)){
+        if(null != accountDTO){
             this.setName(accountDTO.getName());
             this.setUsername(accountDTO.getUsername());
             this.setModifyUserName(accountDTO.getModifyUserName());

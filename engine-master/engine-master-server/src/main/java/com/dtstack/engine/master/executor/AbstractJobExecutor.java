@@ -135,9 +135,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             ScheduleJob scheduleJob = null;
             try {
                 ScheduleBatchJob scheduleBatchJob = scheduleJobQueue.take();
-                if (Objects.isNull(scheduleBatchJob)) {
-                    continue;
-                }
                 scheduleJob = scheduleBatchJob.getScheduleJob();
 
                 logger.info("jobId:{} scheduleType:{} take job from queue.", scheduleJob.getJobId(), getScheduleType());
@@ -173,12 +170,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     for (ScheduleBatchJob scheduleBatchJob : listExecJobs) {
                         // 节点检查是否能进入队列
                         try {
-                            JobCheckRunInfo checkRunInfo;
+                            ScheduleTaskShade batchTask = batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType());
 
-                            Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
-                            ScheduleTaskShade batchTask =  batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType());
-                            Map<Long, ScheduleTaskShade> taskCache = Maps.newHashMap();
-                            taskCache.put(taskIdUnique,batchTask);
                             if (batchTask == null) {
                                 String errMsg = JobCheckStatus.NO_TASK.getMsg();
                                 batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.SUBMITFAILD.getStatus(), errMsg);
@@ -188,7 +181,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
                             Integer type = batchTask.getTaskType();
                             Integer status = batchJobService.getStatusById(scheduleBatchJob.getId());
-
                             if (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
                                 logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB so immediate put queue.", scheduleBatchJob.getJobId(), getScheduleType());
                                 if (status != null && status.equals(RdosTaskStatus.UNSUBMIT.getStatus())) {
@@ -197,7 +189,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                                 logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
                                 batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(),scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
                             } else {
-                                checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), new HashSet<>(), new HashMap<>(), taskCache);
+                                JobCheckRunInfo checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(),batchTask);
                                 if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
                                     // 更新job状态
                                     boolean updateStatus = batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.CREATE, JobPhaseStatus.JOIN_THE_TEAM);
@@ -243,7 +235,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         } else if (checkRunInfo.getStatus() == JobCheckStatus.NO_TASK
                 || checkRunInfo.getStatus() == JobCheckStatus.SELF_PRE_PERIOD_EXCEPTION
                 || checkRunInfo.getStatus() == JobCheckStatus.TASK_DELETE
-                || checkRunInfo.getStatus() == JobCheckStatus.FATHER_NO_CREATED) {
+                || checkRunInfo.getStatus() == JobCheckStatus.FATHER_NO_CREATED
+                || checkRunInfo.getStatus() == JobCheckStatus.RESOURCE_OVER_LIMIT ) {
             status = RdosTaskStatus.FAILED.getStatus();
         } else if (checkRunInfo.getStatus() == JobCheckStatus.FATHER_JOB_EXCEPTION) {
             //上游任务失败
