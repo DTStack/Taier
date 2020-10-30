@@ -185,7 +185,7 @@ public class DtScriptClient extends AbstractClient {
             },conf);
         } catch (Exception e) {
             LOG.error("", e);
-            return RdosTaskStatus.NOTFOUND;
+            return RdosTaskStatus.RUNNING;
         }
     }
 

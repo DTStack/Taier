@@ -1,7 +1,6 @@
 package com.dtstack.engine.dtscript.am;
 
 
-import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.common.DtContainerStatus;
 import com.dtstack.engine.dtscript.common.HeartbeatRequest;
@@ -12,7 +11,6 @@ import org.apache.hadoop.conf.Configuration;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 

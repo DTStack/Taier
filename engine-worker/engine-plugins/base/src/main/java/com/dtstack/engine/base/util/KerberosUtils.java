@@ -117,8 +117,11 @@ public class KerberosUtils {
         if (null == allConfig.get(SECURITY_TO_LOCAL)) {
             allConfig.set(KERBEROS_AUTH, KERBEROS_AUTH_TYPE);
         }
-        UserGroupInformation.setConfiguration(allConfig);
+
         try {
+            sun.security.krb5.Config.refresh();
+            UserGroupInformation.setConfiguration(allConfig);
+
             UserGroupInformation ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
             logger.info("userGroupInformation current user = {} ugi user  = {} ", UserGroupInformation.getCurrentUser(), ugi.getUserName());
             return ugi.doAs((PrivilegedExceptionAction<T>) supplier::get);

@@ -114,7 +114,7 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final String DTSCRIPT_CONTAINER_HEARTBEAT_TIMEOUT = "dtscript.container.heartbeat.timeout";
 
-    public static final long DEFAULT_DTSCRIPT_CONTAINER_HEARTBEAT_TIMEOUT = 2 * 60 * 1000L;
+    public static final long DEFAULT_DTSCRIPT_CONTAINER_HEARTBEAT_TIMEOUT = 2 * 60 * 1000;
 
     public static final String DTSCRIPT_LOCALRESOURCE_TIMEOUT = "dtscript.localresource.timeout";
 
@@ -149,6 +149,10 @@ public class DtYarnConfiguration extends YarnConfiguration {
     public static final String DTSCRIPT_CONTAINER_RESERVED_MEMORY = "dtscript.container.reserved.memory";
 
     public static final int DEFAULT_DTSCRIPT_CONTAINER_RESERVED_MEMORY = 500;
+
+    public static final String DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM = "asyncCheckYarnClientThreadNum";
+
+    public static final int DEFAULT_DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM = 3;
 
     /**
      * am在向rm申请资源时，在同一个nm上不能申请2次以上; app独占nm

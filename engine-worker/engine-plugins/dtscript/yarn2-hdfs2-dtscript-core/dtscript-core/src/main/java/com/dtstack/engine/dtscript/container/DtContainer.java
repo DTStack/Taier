@@ -1,6 +1,5 @@
 package com.dtstack.engine.dtscript.container;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.common.SecurityUtil;
 import com.dtstack.engine.dtscript.common.type.AbstractAppType;
@@ -295,7 +294,7 @@ public class DtContainer {
         }
     }
 
-    private String readFile(String filePath){
+    private String readFile(String filePath) throws IOException {
 
         LOG.info("start read file");
         StringBuffer sb = new StringBuffer();
