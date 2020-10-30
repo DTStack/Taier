@@ -21,7 +21,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -166,6 +165,7 @@ public class ScheduleJobBack {
             if (statement != null) {
                 statement.close();
             }
+
         }
     }
 
