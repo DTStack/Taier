@@ -132,6 +132,9 @@ public class ScheduleJobBack {
             int rows = rs.getRow();
             return rows > 0;
         } finally {
+            if (null != statement) {
+                statement.close();
+            }
             if (rs != null) {
                 rs.close();
             }
@@ -156,11 +159,11 @@ public class ScheduleJobBack {
             log.error("create table error... tableName:{}", tableName);
             throw e;
         } finally {
-            if (resultSet != null) {
-                resultSet.close();
-            }
             if (statement != null) {
                 statement.close();
+            }
+            if (resultSet != null) {
+                resultSet.close();
             }
         }
     }

@@ -29,7 +29,7 @@ public class JobGraphBuilderTrigger implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(JobGraphBuilderTrigger.class);
 
-    private static final long CHECK_JOB_BUILD_INTERVAL = 60 * 10 * 1000;
+    private static final long CHECK_JOB_BUILD_INTERVAL = 60 * 10 * 1000L;
 
     private static final AtomicBoolean RUNNING = new AtomicBoolean(false);
 
