@@ -441,25 +441,43 @@ public class FlinkClient extends AbstractClient {
         String jobId = jobIdentifier.getEngineJobId();
         String applicationId = jobIdentifier.getApplicationId();
 
-        if (!Strings.isNullOrEmpty(applicationId)) {
-            return getPerJobStatus(applicationId);
+        if (StringUtils.isBlank(jobId)) {
+            logger.warn("jobIdentifier:{} is blank.", jobIdentifier);
+            return RdosTaskStatus.NOTFOUND;
         }
 
-        if (Strings.isNullOrEmpty(jobId)) {
-            return null;
-        }
-
-        String reqUrl = getReqUrl() + "/jobs/" + jobId;
-        String response = null;
+        ClusterClient clusterClient = null;
         try {
-            response = PoolHttpClient.get(reqUrl);
-        } catch (RdosDefineException e) {
-            return RdosTaskStatus.NOTFOUND;
-        } catch (IOException e) {
-            return RdosTaskStatus.NOTFOUND;
+            clusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+        } catch (Exception e) {
+            logger.error("Get clusterClient error: {}", e.getMessage());
         }
 
-        if (response == null) {
+        String response = null;
+        if (clusterClient != null) {
+            try {
+                String webInterfaceURL = clusterClient.getWebInterfaceURL();
+                String jobUrl = String.format("%s/jobs/%s", webInterfaceURL, jobId);
+                response = PoolHttpClient.get(jobUrl);
+            } catch (IOException e) {
+                logger.error("request job status error: {}", e.getMessage());
+            }
+        }
+
+        if (StringUtils.isEmpty(response)) {
+            try {
+                String jobHistoryURL = getJobHistoryURL();
+                String jobUrl = String.format("%s/jobs/%s", jobHistoryURL, jobId);
+                response = PoolHttpClient.get(jobUrl);
+            } catch (IOException e) {
+                logger.error("request job status error from jobHistory: {}", e.getMessage());
+            }
+        }
+
+        if (StringUtils.isEmpty(response)) {
+            if (StringUtils.isNotEmpty(applicationId)) {
+                return getPerJobStatus(applicationId);
+            }
             return RdosTaskStatus.NOTFOUND;
         }
 
@@ -477,7 +495,6 @@ public class FlinkClient extends AbstractClient {
             logger.error("", e);
             return RdosTaskStatus.NOTFOUND;
         }
-
     }
 
     /**
