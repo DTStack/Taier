@@ -732,7 +732,7 @@ public class ScheduleJobService {
                 batchJobDTO.setTaskIds(batchTaskShades.stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList()));
             }
         }
-        List<Map<String, Integer>> statusCount = scheduleJobDao.getJobsStatusStatistics(batchJobDTO);
+        List<Map<String, Long>> statusCount = scheduleJobDao.getJobsStatusStatistics(batchJobDTO);
 
         Map<String, Long> attachment = Maps.newHashMap();
         long totalNum = 0;
@@ -742,9 +742,10 @@ public class ScheduleJobService {
             String statusName = RdosTaskStatus.getCode(entry.getKey());
             List<Integer> statuses = entry.getValue();
             long num = 0;
-            for (Map<String, Integer> statusCountMap : statusCount) {
+            for (Map<String, Long> statusCountMap : statusCount) {
                 if (statuses.contains(statusCountMap.get("status"))) {
-                    num += statusCountMap.get("count");
+                    long val = statusCountMap.get("count");
+                    num += val;
                 }
             }
             if (!attachment.containsKey(statusName)) {
