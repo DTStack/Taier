@@ -300,11 +300,9 @@ public class DtContainer {
         LOG.info("start read file");
         StringBuffer sb = new StringBuffer();
         String line;
-        InputStream is = null;
-        BufferedReader reader = null;
-        try {
-            is = new FileInputStream(filePath);
-            reader = new BufferedReader(new InputStreamReader(is, DtYarnConfiguration.UTF8));
+        try (InputStream is = new FileInputStream(filePath);
+             BufferedReader reader = new BufferedReader(
+                     new InputStreamReader(is, DtYarnConfiguration.UTF8))){
             line = reader.readLine();
             while (line != null) {
                 sb.append(line);
@@ -313,17 +311,7 @@ public class DtContainer {
             }
         } catch (IOException e) {
             LOG.error("read file failed");
-            throw new RdosDefineException("", e);
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                    is.close();
-                }
-            } catch (IOException e) {
-                LOG.error("close resource error", e);
-                throw new RdosDefineException("", e);
-            }
+            throw new RuntimeException(e);
         }
         LOG.info("end read file");
         return sb.toString();
