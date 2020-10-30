@@ -274,8 +274,8 @@ public class ClusterService implements InitializingBean {
                     .fluentPut("remoteDir", remotePath)
                     .fluentPut("principalFile", kerberosConfig.getName()).fluentPut("krbName",kerberosConfig.getKrbName());
             JSONObject config = new JSONObject();
-            config.put("yarnConf",pluginJson.getJSONObject("hadoopConf"));
-            config.put("sftpConf",pluginJson.getJSONObject("sftpConf"));
+            config.put("yarnConf",clusterConfigJson.getJSONObject("hadoopConf"));
+            config.put("sftpConf",sftpConfig);
             config.put("principalFile",kerberosConfig.getName());
             config.put("remoteDir",kerberosConfig.getRemotePath());
             config.put("krbName",kerberosConfig.getKrbName());
@@ -701,10 +701,16 @@ public class ClusterService implements InitializingBean {
                 pluginInfo.put(entry.getKey(), entry.getValue());
             }
             if (EComponentType.HIVE_SERVER == type.getComponentType()) {
+                Component hiveServer = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.HIVE_SERVER.getTypeCode());
+                if (null == hiveServer) {
+                    throw new RdosDefineException("hive组件不能为空");
+                }
                 String jdbcUrl = pluginInfo.getString("jdbcUrl");
                 jdbcUrl = jdbcUrl.replace("/%s", "");
                 pluginInfo.put("jdbcUrl", jdbcUrl);
-                pluginInfo.put("typeName", "hive");
+                String typeName = componentService.convertComponentTypeToClient(clusterVO.getClusterName(),
+                        EComponentType.HIVE_SERVER.getTypeCode(), hiveServer.getHadoopVersion());
+                pluginInfo.put("typeName",typeName);
             }
             pluginInfo.put(ConfigConstant.MD5_SUM_KEY, getZipFileMD5(clusterConfigJson));
             removeMd5FieldInHadoopConf(pluginInfo);
