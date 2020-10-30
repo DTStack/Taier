@@ -374,9 +374,6 @@ public class FlinkClient extends AbstractClient {
 
                 logger.info("Job[{}] Savepoint completed. Path:{}", jobID.toString(), savepointPath);
             }
-            if (!isSession) {
-                targetClusterClient.close();
-            }
         } catch (Exception e) {
             logger.error("Stop job error: {}", e.getMessage());
 
@@ -494,8 +491,8 @@ public class FlinkClient extends AbstractClient {
         String reqURL;
 
         //从jobhistory读取
-        if (StringUtils.isNotBlank(applicationId) && (rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
-                || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED))) {
+        boolean isFromJobHistory = RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus()) || rdosTaskStatus.equals(RdosTaskStatus.NOTFOUND);
+        if (StringUtils.isNotBlank(applicationId) && isFromJobHistory) {
             reqURL = getJobHistoryURL();
         } else {
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
@@ -584,6 +581,7 @@ public class FlinkClient extends AbstractClient {
         List<String> sqlList = Lists.newArrayList(sqlArr);
         Iterator<String> sqlItera = sqlList.iterator();
         List<String> fileList = Lists.newArrayList();
+        List<String> sftpFiles = Lists.newArrayList();
 
         while (sqlItera.hasNext()) {
             String tmpSql = sqlItera.next();
@@ -591,6 +589,7 @@ public class FlinkClient extends AbstractClient {
                 sqlItera.remove();
                 JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
                 String addFilePath = jarFileInfo.getJarPath();
+                sftpFiles.add(addFilePath);
                 File tmpFile = null;
                 try {
                     tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf, flinkConfig.getSftpConf());
@@ -614,6 +613,11 @@ public class FlinkClient extends AbstractClient {
                     break;
                 }
             }
+        }
+        if (CollectionUtils.isNotEmpty(sftpFiles)) {
+            String sftpFileStr = String.join(";", sftpFiles);
+            Properties confProps = jobClient.getConfProperties();
+            confProps.setProperty(ConfigConstrant.KEY_SFTPFILES_PATH, sftpFileStr);
         }
 
         cacheFile.put(jobClient.getTaskId(), fileList);
@@ -646,10 +650,7 @@ public class FlinkClient extends AbstractClient {
                 logger.error("", e1);
             }
         }
-
         cacheFile.remove(jobClient.getTaskId());
-
-        //FlinkUtil.deleteK8sConfig(jobClient);
     }
 
     @Override
@@ -659,9 +660,9 @@ public class FlinkClient extends AbstractClient {
 
         RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
 
-        String reqURL;
-        if (rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
-                || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED)) {
+        String reqURL = "";
+        boolean isFromJobHistory = RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus()) || rdosTaskStatus.equals(RdosTaskStatus.NOTFOUND);
+        if (isFromJobHistory) {
             reqURL = getJobHistoryURL();
         } else {
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);

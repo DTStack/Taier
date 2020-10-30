@@ -1059,27 +1059,33 @@ public class ComponentService {
                 throw new RdosDefineException("sftp组件不存在");
             }
             Map<String, String> map = JSONObject.parseObject(sftpComponent.getComponentConfig(), Map.class);
-            SFTPHandler instance = SFTPHandler.getInstance(map);
             String remoteDir = map.get("path") + File.separator + this.buildSftpPath(clusterId, component.getComponentTypeCode());
             localDownLoadPath = downloadLocation + File.separator + component.getId();
-            if (DownloadType.Kerberos.getCode() == downloadType) {
-                remoteDir = remoteDir + File.separator + KERBEROS_PATH;
-                localDownLoadPath = localDownLoadPath + File.separator + KERBEROS_PATH;
-                instance.downloadDir(remoteDir, localDownLoadPath);
-            } else {
-                //一种是 上传配置文件的需要到sftp下载
-                //一种是  全部手动填写的 如flink
-                if (Objects.isNull(component.getUploadFileName())) {
-                    try {
-                        localDownLoadPath = localDownLoadPath + ".json";
-                        FileUtils.write(new File(localDownLoadPath), component.getComponentConfig());
-                    } catch (IOException e) {
-                        LOGGER.error("write upload file {} error", component.getComponentConfig(), e);
-                    }
+            SFTPHandler handler = null;
+            try {
+                 handler = SFTPHandler.getInstance(map);
+                if (DownloadType.Kerberos.getCode() == downloadType) {
+                    remoteDir = remoteDir + File.separator + KERBEROS_PATH;
+                    localDownLoadPath = localDownLoadPath + File.separator + KERBEROS_PATH;
+                    handler.downloadDir(remoteDir, localDownLoadPath);
                 } else {
-                    instance.downloadDir(remoteDir + File.separator + component.getUploadFileName(), localDownLoadPath);
+                    //一种是 上传配置文件的需要到sftp下载
+                    //一种是  全部手动填写的 如flink
+                    if (Objects.isNull(component.getUploadFileName())) {
+                        try {
+                            localDownLoadPath = localDownLoadPath + ".json";
+                            FileUtils.write(new File(localDownLoadPath), component.getComponentConfig());
+                        } catch (IOException e) {
+                            LOGGER.error("write upload file {} error", component.getComponentConfig(), e);
+                        }
+                    } else {
+                        handler.downloadDir(remoteDir + File.separator + component.getUploadFileName(), localDownLoadPath);
+                    }
                 }
-
+            } finally {
+                if (handler != null) {
+                    handler.close();
+                }
             }
             uploadFileName = component.getUploadFileName();
         }

@@ -14,9 +14,11 @@ import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flink.client.program.ClusterClient;
+import org.apache.flink.util.IOUtils;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
+import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,37 +57,33 @@ public class FlinkClusterClientManager {
             .expireAfterAccess(10, TimeUnit.MINUTES)
             .build();
 
-    private FlinkClusterClientManager() {
-    }
-
-    public static FlinkClusterClientManager createWithInit(FlinkClientBuilder flinkClientBuilder) throws Exception {
+    public FlinkClusterClientManager(FlinkClientBuilder flinkClientBuilder) throws Exception {
         LOG.warn("Start init FlinkClusterClientManager");
-        FlinkClusterClientManager manager = new FlinkClusterClientManager();
-        manager.flinkClientBuilder = flinkClientBuilder;
-        manager.flinkConfig = flinkClientBuilder.getFlinkConfig();
-        manager.perJobClientFactory = PerJobClientFactory.createPerJobClientFactory(flinkClientBuilder);
-        manager.initClusterClient();
-        return manager;
+        this.flinkClientBuilder = flinkClientBuilder;
+        this.flinkConfig = flinkClientBuilder.getFlinkConfig();
+        this.perJobClientFactory = PerJobClientFactory.createPerJobClientFactory(flinkClientBuilder);
+        if (!flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.PER_JOB.name())) {
+            this.clusterClient = KerberosUtils.login(flinkConfig, () -> this.initClusterClient(), flinkClientBuilder.getYarnConf());
+        }
     }
 
-    public void initClusterClient() throws Exception {
-        clusterClient = KerberosUtils.login(flinkConfig, () -> {
-            if (flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.STANDALONE.name())) {
-                return new StandaloneClientFactory(flinkClientBuilder.getFlinkConfiguration(), flinkConfig).getClusterClient();
-            } else if (flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.SESSION.name())) {
-                if (null == sessionClientFactory) {
-                    try {
-                        sessionClientFactory = new SessionClientFactory(this, flinkClientBuilder);
-                        LOG.warn("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor");
-                    } catch (MalformedURLException e) {
-                        LOG.error("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor error", e);
-                        throw new RdosDefineException(e);
-                    }
+    public ClusterClient initClusterClient() {
+        if (flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.STANDALONE.name())) {
+            return new StandaloneClientFactory(flinkClientBuilder.getFlinkConfiguration(), flinkConfig).getClusterClient();
+        } else if (flinkConfig.getClusterMode().equalsIgnoreCase(ClusterMode.SESSION.name())) {
+            if (null == sessionClientFactory) {
+                try {
+                    sessionClientFactory = new SessionClientFactory(this, flinkClientBuilder);
+                    LOG.warn("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor");
+                } catch (MalformedURLException e) {
+                    LOG.error("Create FlinkYarnSessionStarter and start YarnSessionClientMonitor error", e);
+                    throw new RdosDefineException(e);
                 }
-                return sessionClientFactory.startAndGetSessionClusterClient();
             }
-            return null;
-        }, flinkClientBuilder.getYarnConf());
+            this.clusterClient = sessionClientFactory.startAndGetSessionClusterClient();
+            return clusterClient;
+        }
+        return null;
     }
 
     /**
@@ -142,14 +140,16 @@ public class FlinkClusterClientManager {
     /**
      * 创建一个监听器，在缓存被移除的时候，得到这个通知
      */
-    private static class ClusterClientRemovalListener implements RemovalListener<String, ClusterClient> {
+    private class ClusterClientRemovalListener implements RemovalListener<String, ClusterClient> {
 
         @Override
         public void onRemoval(RemovalNotification<String, ClusterClient> notification) {
             LOG.info("key={},value={},reason={}", notification.getKey(), notification.getValue(), notification.getCause());
             if (notification.getValue() != null) {
                 try {
-                    notification.getValue().shutdown();
+                    if (notification.getValue() != FlinkClusterClientManager.this.clusterClient) {
+                        notification.getValue().shutdown();
+                    }
                 } catch (Exception ex) {
                     LOG.info("[ClusterClientCache] Could not properly shutdown cluster client.", ex);
                 }
