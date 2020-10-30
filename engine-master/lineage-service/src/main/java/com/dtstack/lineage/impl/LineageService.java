@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.impl;
+package com.dtstack.lineage.impl;
 
 import com.dtstack.engine.api.domain.LineageColumnColumn;
 import com.dtstack.engine.api.domain.LineageTableTable;
@@ -66,6 +66,8 @@ public class LineageService {
      */
     public void parseAndSaveTableLineage(Integer appType,String sql, String defaultDb, Long engineSourceId){
         //调用该接口时，必须先存储数据源。接口异步解析、存储
+        //取出数据源信息
+        //获取表
         //TODO
     }
 

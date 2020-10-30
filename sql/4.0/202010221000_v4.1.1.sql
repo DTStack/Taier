@@ -70,7 +70,7 @@ create table lineage_table_table(
     gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
     is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-    is_manual smallint(3) NOT NULL DEFAULT '0' COMMENT '0正常 1手动维护',
+    lineage_source smallint(3) NOT NULL DEFAULT '0' COMMENT '血缘来源：0-sql解析；1-手动维护；2-json解析',
     PRIMARY KEY (id),
     UNIQUE KEY uni_table_lineage_key (table_lineage_key)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -99,7 +99,7 @@ create table lineage_column_column(
     gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
     is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-    is_manual smallint(3) NOT NULL DEFAULT '0' COMMENT '0正常 1手动维护',
+    lineage_source smallint(3) NOT NULL DEFAULT '0' COMMENT '血缘来源：0-sql解析；1-手动维护；2-json解析',
     PRIMARY KEY (id),
     UNIQUE KEY uni_column_lineage_key (column_lineage_key)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;

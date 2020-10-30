@@ -22,8 +22,8 @@ public class LineageTableTable extends TenantEntity {
     @ApiModelProperty(notes = "表级血缘关系定位码")
     private String tableLineageKey;
 
-    @ApiModelProperty(notes = "是否手动维护")
-    private Integer isManual;
+    @ApiModelProperty(notes = "血缘来源：0-sql解析；1-手动维护；2-json解析")
+    private Integer lineageSource;
 
     @ApiModelProperty(notes = "血缘批次唯一码")
     private String uniqueKey;
@@ -52,12 +52,12 @@ public class LineageTableTable extends TenantEntity {
         this.tableLineageKey = tableLineageKey;
     }
 
-    public Integer getIsManual() {
-        return isManual;
+    public Integer getLineageSource() {
+        return lineageSource;
     }
 
-    public void setIsManual(Integer isManual) {
-        this.isManual = isManual;
+    public void setLineageSource(Integer lineageSource) {
+        this.lineageSource = lineageSource;
     }
 
     public String getUniqueKey() {

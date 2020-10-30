@@ -15,5 +15,4 @@ public interface LineageColumnColumnAppRefDao {
 
     Integer batchInsert(List<LineageColumnColumnAppRef> columnColumns);
 
-
 }

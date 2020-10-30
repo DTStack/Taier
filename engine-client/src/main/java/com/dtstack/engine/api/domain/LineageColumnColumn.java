@@ -12,8 +12,6 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @ApiModel
 public class LineageColumnColumn extends TenantEntity {
-    @ApiModelProperty(notes = "app类型")
-    private Integer appType;
 
     @ApiModelProperty(notes = "输入表id")
     private Integer inputTableId;
@@ -30,19 +28,11 @@ public class LineageColumnColumn extends TenantEntity {
     @ApiModelProperty(notes = "血缘定位码")
     private String columnLineageKey;
 
-    @ApiModelProperty(notes = "是否手动维护")
-    private Integer isManual;
+    @ApiModelProperty(notes = "血缘来源：0-sql解析；1-手动维护；2-json解析")
+    private Integer lineageSource;
 
     @ApiModelProperty(notes = "血缘批次唯一码")
     private String uniqueKey;
-
-    public Integer getAppType() {
-        return appType;
-    }
-
-    public void setAppType(Integer appType) {
-        this.appType = appType;
-    }
 
     public Integer getInputTableId() {
         return inputTableId;
@@ -84,12 +74,12 @@ public class LineageColumnColumn extends TenantEntity {
         this.columnLineageKey = columnLineageKey;
     }
 
-    public Integer getIsManual() {
-        return isManual;
+    public Integer getLineageSource() {
+        return lineageSource;
     }
 
-    public void setIsManual(Integer isManual) {
-        this.isManual = isManual;
+    public void setLineageSource(Integer lineageSource) {
+        this.lineageSource = lineageSource;
     }
 
     public String getUniqueKey() {

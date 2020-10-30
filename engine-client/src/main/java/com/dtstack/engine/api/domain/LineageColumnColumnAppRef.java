@@ -1,5 +1,7 @@
 package com.dtstack.engine.api.domain;
 
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * @author chener
  * @Classname LineageColumnColumnAppRef
@@ -9,8 +11,10 @@ package com.dtstack.engine.api.domain;
  */
 public class LineageColumnColumnAppRef extends BaseEntity{
 
+    @ApiModelProperty(notes = "app类型")
     private Integer appType;
 
+    @ApiModelProperty(notes = "字段血缘关联id")
     private Integer lineageColumnColumnId;
 
     public Integer getAppType() {
