@@ -167,6 +167,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
     @Override
     public void destroy() throws Exception {
+        delayStopProcessor.close();
         delayStopProcessorService.shutdownNow();
         scheduledService.shutdownNow();
         asyncDealStopJobService.shutdownNow();
@@ -238,10 +239,12 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
     }
 
     private class DelayStopProcessor implements Runnable {
+        private Boolean open = Boolean.TRUE;
+
         @Override
         public void run() {
             logger.info("DelayStopProcessor thread is start...");
-            while (true) {
+            while (open) {
                 try {
                     StoppedJob<JobElement> stoppedJob = stopJobQueue.take();
                     asyncDealStopJobService.submit(() -> asyncDealStopJob(stoppedJob));
@@ -250,6 +253,11 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 }
             }
         }
+
+        public void close(){
+            open = Boolean.FALSE;
+        }
+
     }
 
     private void asyncDealStopJob(StoppedJob<JobElement> stoppedJob) {

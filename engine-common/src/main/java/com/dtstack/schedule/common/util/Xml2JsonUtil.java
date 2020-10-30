@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -63,14 +64,26 @@ public class Xml2JsonUtil {
     }
 
     public static String readFile(File file) throws Exception {
-        FileInputStream fis = new FileInputStream(file);
-        FileChannel fc = fis.getChannel();
-        ByteBuffer bb = ByteBuffer.allocate(new Long(file.length()).intValue());
-        fc.read(bb);
-        bb.flip();
-        String str = new String(bb.array(), "UTF8");
-        fc.close();
-        fis.close();
+        FileInputStream fis = null;
+        FileChannel fc = null;
+        String str;
+        try {
+            fis = new FileInputStream(file);
+            fc = fis.getChannel();
+            ByteBuffer bb = ByteBuffer.allocate(new Long(file.length()).intValue());
+            fc.read(bb);
+            bb.flip();
+            str = new String(bb.array(), StandardCharsets.UTF_8);
+        } finally {
+            if (fc != null) {
+                fc.close();
+            }
+
+            if (fis != null) {
+                fis.close();
+            }
+        }
+
         return str;
     }
 

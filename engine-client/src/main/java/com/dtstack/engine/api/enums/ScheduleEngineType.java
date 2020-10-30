@@ -130,6 +130,9 @@ public enum ScheduleEngineType {
 
     public static String getEngineName(int val) {
         ScheduleEngineType scheduleEngineType = getEngineType(val);
+        if (scheduleEngineType==null) {
+            return "";
+        }
         return scheduleEngineType.getEngineName().toLowerCase();
     }
 

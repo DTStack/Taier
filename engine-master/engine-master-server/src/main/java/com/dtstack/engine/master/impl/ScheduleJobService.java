@@ -742,7 +742,8 @@ public class ScheduleJobService {
             List<Integer> statuses = entry.getValue();
             long num = 0;
             for (Map<Integer, Long> statusCountMap : statusCount) {
-                if (statuses.contains(statusCountMap.get("status"))) {
+                Long status = statusCountMap.get("status");
+                if (status != null && statuses.contains(status.intValue())) {
                     num += statusCountMap.get("count");
                 }
             }
@@ -1141,7 +1142,7 @@ public class ScheduleJobService {
             throw new RdosDefineException(ErrorCode.JOB_CAN_NOT_STOP);
         }
 
-        if (status.equals(RdosTaskStatus.UNSUBMIT.getStatus())) {
+        if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
             //stopSubmittedJob(Lists.newArrayList(scheduleJob), dtuicTenantId, appType);
             jobStopDealer.addStopJobs(Lists.newArrayList(scheduleJob));
             //return stopUnsubmitJob(scheduleJob);
@@ -2005,7 +2006,7 @@ public class ScheduleJobService {
 
         String exeTime = DateUtil.getTimeDifference(scheduleJob.getExecTime() == null ? 0L : scheduleJob.getExecTime() * 1000);
         Integer showStatus = RdosTaskStatus.getShowStatusWithoutStop(status);
-        ScheduleFillDataJobDetailVO.FillDataRecord record = new ScheduleFillDataJobDetailVO.FillDataRecord(scheduleJob.getId(), bizDayVO, taskShade.getName(),
+        ScheduleFillDataJobDetailVO.FillDataRecord record = new ScheduleFillDataJobDetailVO.FillDataRecord(scheduleJob.getId(), bizDayVO, taskShade != null ? taskShade.getName() : "",
                 taskType, showStatus, cycTimeVO, exeStartTimeVO, exeTime, null);
 
         record.setJobId(scheduleJob.getJobId());

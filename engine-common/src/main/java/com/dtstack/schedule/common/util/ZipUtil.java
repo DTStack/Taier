@@ -163,7 +163,7 @@ public class ZipUtil {
         if (!srcFile.getPath().equals(zip)) {
             if (srcFile.isDirectory()) {
                 File[] _files = srcFile.listFiles();
-                if (_files.length == 0) {
+                if (_files == null || _files.length == 0) {
                     zipOut.putNextEntry(new org.apache.tools.zip.ZipEntry(path + srcFile.getName() + File.separator));
                     zipOut.closeEntry();
                 } else {
@@ -172,13 +172,13 @@ public class ZipUtil {
                     }
                 }
             } else {
-                InputStream _in = new FileInputStream(srcFile);
-                zipOut.putNextEntry(new org.apache.tools.zip.ZipEntry(path + srcFile.getName()));
-                int len = 0;
-                while ((len = _in.read(_byte)) > 0) {
-                    zipOut.write(_byte, 0, len);
+                try (InputStream _in = new FileInputStream(srcFile)) {
+                    zipOut.putNextEntry(new org.apache.tools.zip.ZipEntry(path + srcFile.getName()));
+                    int len = 0;
+                    while ((len = _in.read(_byte)) > 0) {
+                        zipOut.write(_byte, 0, len);
+                    }
                 }
-                _in.close();
                 zipOut.closeEntry();
             }
         }
@@ -204,8 +204,7 @@ public class ZipUtil {
     @SuppressWarnings("rawtypes")
     public static List<File> upzipFile(File zipFile, String descDir) {
         List<File> _list = new ArrayList<File>();
-        try {
-            ZipFile _zipFile = new ZipFile(zipFile, "GBK");
+        try (ZipFile _zipFile = new ZipFile(zipFile, "GBK");) {
             for (Enumeration entries = _zipFile.getEntries(); entries.hasMoreElements(); ) {
                 org.apache.tools.zip.ZipEntry entry = (org.apache.tools.zip.ZipEntry) entries.nextElement();
                 File _file = new File(descDir + File.separator + entry.getName());
@@ -216,15 +215,13 @@ public class ZipUtil {
                     if (!_parent.exists()) {
                         _parent.mkdirs();
                     }
-                    InputStream _in = _zipFile.getInputStream(entry);
-                    OutputStream _out = new FileOutputStream(_file);
-                    int len = 0;
-                    while ((len = _in.read(_byte)) > 0) {
-                        _out.write(_byte, 0, len);
+                    try (InputStream _in = _zipFile.getInputStream(entry); OutputStream _out = new FileOutputStream(_file)) {
+                        int len = 0;
+                        while ((len = _in.read(_byte)) > 0) {
+                            _out.write(_byte, 0, len);
+                        }
+                        _out.flush();
                     }
-                    _in.close();
-                    _out.flush();
-                    _out.close();
                     _list.add(_file);
                 }
             }

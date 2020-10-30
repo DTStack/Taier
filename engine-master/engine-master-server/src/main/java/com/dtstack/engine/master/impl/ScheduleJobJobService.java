@@ -69,7 +69,9 @@ public class ScheduleJobJobService {
                 ScheduleJob flowJob = scheduleJobDao.getByJobId(job.getFlowJobId(), Deleted.NORMAL.getStatus());
                 //工作流下全部实例,层级level使用int最大值
                 com.dtstack.engine.master.vo.ScheduleJobVO subJobVO = displayOffSpringForFlowWork(flowJob);
-                subJobVO.setProjectId(flowJob.getProjectId());
+                if (subJobVO != null) {
+                    subJobVO.setProjectId(flowJob.getProjectId());
+                }
                 return subJobVO;
             } catch (Exception e) {
                 logger.error("get flow work subJob error", e);

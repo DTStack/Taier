@@ -66,7 +66,11 @@ public class DateUtil {
 
     public static java.sql.Date columnToDate(Object column) {
         if(column instanceof String) {
-            return new java.sql.Date(stringToDate((String)column).getTime());
+            Date date = stringToDate((String) column);
+            if (date == null) {
+                throw new IllegalArgumentException("Can't convert " + column.getClass().getName() + " to Date");
+            }
+            return new java.sql.Date(date.getTime());
         } else if (column instanceof Integer) {
             Integer rawData = (Integer) column;
             return new java.sql.Date(rawData.longValue());
@@ -713,7 +717,7 @@ public class DateUtil {
      */
     public static int getMinusDate(int day, int minusDay) {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date(day * 1000));
+        cal.setTime(new Date(day * 1000L));
         cal.set(Calendar.DATE, cal.get(Calendar.DATE) - minusDay);
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
