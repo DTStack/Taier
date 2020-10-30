@@ -150,8 +150,8 @@
                                     <exclude>org.slf4j:slf4j-log4j12</exclude>
                                     <exclude>log4j:log4j</exclude>
                                     <exclude>org.slf4j:slf4j-api</exclude>
-                                    <exclude>com.dtstack.engine:plugins.dtscript.yarn2-hdfs2-dtscript.dtscript-core</exclude>
-                                    <exclude>com.dtstack.engine:plugins.dtscript.yarn2-hdfs2-dtscript-core.dtscript-core</exclude>
+<!--                                    <exclude>com.dtstack.engine:plugins.dtscript.yarn2-hdfs2-dtscript.dtscript-core</exclude>-->
+<!--                                    <exclude>com.dtstack.engine:plugins.dtscript.yarn2-hdfs2-dtscript-core.dtscript-core</exclude>-->
                                 </excludes>
                             </artifactSet>
                             <filters>
