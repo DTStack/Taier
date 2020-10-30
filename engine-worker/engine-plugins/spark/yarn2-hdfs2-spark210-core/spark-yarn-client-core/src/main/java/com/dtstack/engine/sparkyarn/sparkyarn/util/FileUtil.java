@@ -81,6 +81,7 @@ public class FileUtil {
         String hdfsFilePathStr = pair.getRight();
 
         URI uri = new URI(hdfsUri);
+        InputStream is = null;
         try (FileSystem fs = FileSystem.get(uri, hadoopConf)) {
             Path hdfsFilePath = new Path(hdfsFilePathStr);
             if (!fs.exists(hdfsFilePath)) {
@@ -93,8 +94,12 @@ public class FileUtil {
                 Files.createParentDirs(file);
             }
 
-            InputStream is=fs.open(hdfsFilePath);//读取文件
+            is=fs.open(hdfsFilePath);//读取文件
             IOUtils.copyBytes(is, new FileOutputStream(file), BUFFER_SIZE, true);//保存到本地
+        } finally {
+            if (is != null){
+                is.close();
+            }
         }
         return true;
     }

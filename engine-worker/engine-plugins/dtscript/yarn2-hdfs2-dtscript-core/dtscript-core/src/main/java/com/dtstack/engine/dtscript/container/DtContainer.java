@@ -318,9 +318,7 @@ public class DtContainer {
             try {
                 if (reader != null) {
                     reader.close();
-                    if (is != null) {
-                        is.close();
-                    }
+                    is.close();
                 }
             } catch (IOException e) {
                 LOG.error("close resource error", e);

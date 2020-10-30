@@ -49,8 +49,7 @@ public class StandaloneClientFactory implements IClientFactory {
         if (clusterId == null) {
             throw new RdosDefineException("No cluster id was specified. Please specify a cluster to which you would like to connect.");
         }
-        try {
-            final ClusterDescriptor<StandaloneClusterId> clusterDescriptor = standaloneClientFactory.createClusterDescriptor(flinkConfiguration);
+        try (final ClusterDescriptor<StandaloneClusterId> clusterDescriptor = standaloneClientFactory.createClusterDescriptor(flinkConfiguration)) {
             ClusterClient<StandaloneClusterId> clusterClient = clusterDescriptor.retrieve(clusterId).getClusterClient();
             return clusterClient;
         } catch (Exception e) {
