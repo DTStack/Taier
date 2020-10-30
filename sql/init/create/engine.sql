@@ -464,7 +464,7 @@ create table lineage_real_data_source(
 -- 逻辑数据源表
 create table lineage_data_source(
     id int(11) NOT NULL AUTO_INCREMENT,
-    tenant_id int(11) NOT NULL COMMENT '租户id',
+    dt_uic_tenant_id int(11) NOT NULL COMMENT '租户id',
     real_source_id int(11) NOT NULL COMMENT '真实数据源id',
     source_key VARCHAR(155) NOT NULL COMMENT '数据源定位码，不同数据源类型计算方式不同。',
     source_name VARCHAR(55) NOT NULL COMMENT '数据源名称',
@@ -486,7 +486,7 @@ create table lineage_data_source(
 -- 表信息表。表可能并不能关联上data source。
 create table lineage_data_set_info(
     id int(11) NOT NULL AUTO_INCREMENT,
-    tenant_id int(11) NOT NULL COMMENT '租户id',
+    dt_uic_tenant_id int(11) NOT NULL COMMENT '租户id',
     app_type smallint(4) NOT NULL COMMENT '应用类型',
     source_id int(11) NOT NULL COMMENT 'lineage_data_source中的id',
     real_source_id int(11) NOT NULL COMMENT '真实数据源id',
@@ -509,7 +509,7 @@ create table lineage_data_set_info(
 -- 表级血缘记录表
 create table lineage_table_table(
     id int(11) NOT NULL AUTO_INCREMENT,
-    tenant_id int(11) NOT NULL COMMENT '租户id',
+    dt_uic_tenant_id int(11) NOT NULL COMMENT '租户id',
     input_table_id int(11) NOT NULL COMMENT '输入表id lineage_real_data_source表的id',
     result_table_id int(11) NOT NULL COMMENT '输出表id lineage_real_data_source表的id',
     table_lineage_key VARCHAR(30) NOT NULL COMMENT '表血缘定位码，根据输入表和输出表定位码计算出',
@@ -536,7 +536,7 @@ create table lineage_table_table_app_ref(
 -- 字段级血缘存储方案
 create table lineage_column_column(
     id int(11) NOT NULL AUTO_INCREMENT,
-    tenant_id int(11) NOT NULL COMMENT '租户id',
+    dt_uic_tenant_id int(11) NOT NULL COMMENT '租户id',
     input_table_id int(11) NOT NULL COMMENT '输入表id',
     input_column_name VARCHAR(55) NOT NULL COMMENT '输入字段名称',
     result_table_id int(11) NOT NULL COMMENT '输出表id',

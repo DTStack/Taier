@@ -1,0 +1,90 @@
+package com.dtstack.engine.api.dto;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+/**
+ * @Author tengzhen
+ * @Description:
+ * @Date: Created in 11:09 上午 2020/10/29
+ */
+@ApiModel
+public class DataSourceDTO {
+
+    @ApiModelProperty(name = "数据源id")
+    private Long dataSourceId;
+
+    @ApiModelProperty(name = "数据源名称",required = true)
+    private String sourceName;
+
+    @ApiModelProperty(name = "数据源配置")
+    private String dataJson;
+
+    @ApiModelProperty(name = "kerberos配置")
+    private String kerberosConf;
+
+    @ApiModelProperty(name = "数据源类型")
+    private Integer sourceType;
+
+    @ApiModelProperty(name = "应用类型")
+    private Integer appType;
+
+    @ApiModelProperty(name = "dtuic租户id")
+    private Long dtUicTenantId;
+
+    public Long getDataSourceId() {
+        return dataSourceId;
+    }
+
+    public void setDataSourceId(Long dataSourceId) {
+        this.dataSourceId = dataSourceId;
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
+    }
+
+    public String getDataJson() {
+        return dataJson;
+    }
+
+    public void setDataJson(String dataJson) {
+        this.dataJson = dataJson;
+    }
+
+    public String getKerberosConf() {
+        return kerberosConf;
+    }
+
+    public void setKerberosConf(String kerberosConf) {
+        this.kerberosConf = kerberosConf;
+    }
+
+    public Integer getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(Integer sourceType) {
+        this.sourceType = sourceType;
+    }
+
+    public Integer getAppType() {
+        return appType;
+    }
+
+    public void setAppType(Integer appType) {
+        this.appType = appType;
+    }
+
+    public Long getDtUicTenantId() {
+        return dtUicTenantId;
+    }
+
+    public void setDtUicTenantId(Long dtUicTenantId) {
+        this.dtUicTenantId = dtUicTenantId;
+    }
+}

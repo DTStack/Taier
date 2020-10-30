@@ -102,4 +102,16 @@
     <delete id="deleteById">
         delete from console_component where id = #{componentId}
     </delete>
+
+    <select id="getIdByTenantIdComponentType" resultType="java.lang.Integer">
+        select
+		cc.id
+        from
+        console_component cc
+        INNER JOIN console_engine_tenant cet
+        on cc.engine_id = cet.engine_id
+        and cet.tenant_id =  #{tenantId}
+        where cc.component_type_code = #{componentType}
+        and cc.is_deleted = 0
+    </select>
 </mapper>

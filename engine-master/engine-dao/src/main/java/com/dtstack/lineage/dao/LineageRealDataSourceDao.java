@@ -18,4 +18,6 @@ public interface LineageRealDataSourceDao {
     Integer deleteRealDataSource(@Param("id")Long id);
 
     LineageRealDataSource getOne(@Param("id")Long id);
+
+    LineageRealDataSource getOneBySourceKey(@Param("sourceKey") String sourceKey);
 }

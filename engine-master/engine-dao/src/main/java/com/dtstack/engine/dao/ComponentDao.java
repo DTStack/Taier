@@ -24,4 +24,6 @@ public interface ComponentDao {
     Long getClusterIdByComponentId(@Param("componentId") Long componentId);
 
     void deleteById(@Param("componentId") Long componentId);
+
+    Integer getIdByTenantIdComponentType(@Param("tenantId") Long tenantId,@Param("componentType") Integer componentType);
 }
