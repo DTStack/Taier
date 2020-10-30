@@ -22,7 +22,7 @@ package com.dtstack.engine.sql.rdb.node;
 import com.dtstack.engine.sql.ParseResult;
 import com.dtstack.engine.sql.Table;
 import com.dtstack.engine.sql.rdb.SqlNodeParserImpl;
-import org.apache.calcite.sql.SqlIdentifier;
+import org.dtstack.apache.calcite.sql.SqlIdentifier;
 
 import java.sql.SQLException;
 import java.util.List;

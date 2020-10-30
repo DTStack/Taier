@@ -24,11 +24,11 @@ import com.dtstack.engine.sql.QueryTableTree;
 import com.dtstack.engine.sql.SelectColumn;
 import com.dtstack.engine.sql.SqlType;
 import com.dtstack.engine.sql.TableOperateEnum;
-import org.apache.calcite.sql.SqlIdentifier;
-import org.apache.calcite.sql.SqlInsert;
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlNodeList;
-import org.apache.calcite.sql.SqlSelect;
+import org.dtstack.apache.calcite.sql.SqlIdentifier;
+import org.dtstack.apache.calcite.sql.SqlInsert;
+import org.dtstack.apache.calcite.sql.SqlNode;
+import org.dtstack.apache.calcite.sql.SqlNodeList;
+import org.dtstack.apache.calcite.sql.SqlSelect;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

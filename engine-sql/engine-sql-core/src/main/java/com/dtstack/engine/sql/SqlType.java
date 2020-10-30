@@ -1,6 +1,6 @@
 package com.dtstack.engine.sql;
 
-import org.apache.calcite.sql.SqlKind;
+import org.dtstack.apache.calcite.sql.SqlKind;
 import org.apache.hadoop.hive.ql.parse.HiveParser;
 
 import java.util.Arrays;

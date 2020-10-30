@@ -3,7 +3,7 @@ package com.dtstack.engine.sql.node.hive;
 import com.dtstack.engine.sql.Column;
 import com.dtstack.engine.sql.node.Identifier;
 import com.dtstack.engine.sql.node.Node;
-import org.apache.calcite.sql.SqlNode;
+import org.dtstack.apache.calcite.sql.SqlNode;
 
 import java.util.List;
 import java.util.Map;

@@ -27,12 +27,12 @@ import com.dtstack.engine.sql.SqlType;
 import com.dtstack.engine.sql.Table;
 import com.dtstack.engine.sql.TableOperateEnum;
 import com.dtstack.engine.sql.utils.SqlRegexUtil;
-import org.apache.calcite.sql.SqlDataTypeSpec;
-import org.apache.calcite.sql.SqlIdentifier;
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlNodeList;
-import org.apache.calcite.sql.ddl.SqlColumnDeclaration;
-import org.apache.calcite.sql.ddl.SqlCreateTable;
+import org.dtstack.apache.calcite.sql.SqlDataTypeSpec;
+import org.dtstack.apache.calcite.sql.SqlIdentifier;
+import org.dtstack.apache.calcite.sql.SqlNode;
+import org.dtstack.apache.calcite.sql.SqlNodeList;
+import org.dtstack.apache.calcite.sql.ddl.SqlColumnDeclaration;
+import org.dtstack.apache.calcite.sql.ddl.SqlCreateTable;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.SQLException;

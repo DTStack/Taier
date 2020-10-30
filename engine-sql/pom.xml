@@ -18,33 +18,16 @@
         <module>engine-sql-rdb</module>
         <module>engine-sql-parse</module>
         <module>engine-sql-flink</module>
+<!--        <module>calcite-shade</module>-->
     </modules>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.apache.calcite/calcite-core -->
+        <!-- 解决flink sql中的calcite冲突-->
         <dependency>
-            <groupId>org.apache.calcite</groupId>
-            <artifactId>calcite-core</artifactId>
-            <version>1.19.0</version>
+            <groupId>com.dtstack.engine</groupId>
+            <version>1.0.0</version>
+            <artifactId>calcite-shade</artifactId>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.calcite/calcite-server -->
-        <dependency>
-            <groupId>org.apache.calcite</groupId>
-            <artifactId>calcite-server</artifactId>
-            <version>1.19.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.calcite</groupId>
-                    <artifactId>calcite-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>slf4j-api</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>

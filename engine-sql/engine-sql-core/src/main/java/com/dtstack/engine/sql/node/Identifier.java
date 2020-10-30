@@ -2,8 +2,8 @@ package com.dtstack.engine.sql.node;
 
 import com.dtstack.engine.sql.Column;
 import com.dtstack.engine.sql.KeywordsHelper;
-import org.apache.calcite.sql.SqlIdentifier;
-import org.apache.calcite.sql.SqlNode;
+import org.dtstack.apache.calcite.sql.SqlIdentifier;
+import org.dtstack.apache.calcite.sql.SqlNode;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;

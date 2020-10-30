@@ -40,7 +40,7 @@ public class LineageService {
      * @param sql 单条sql
      * @return
      */
-    public SqlParseInfo parseSql(String sql){
+    public SqlParseInfo parseSql(String sql,Integer dataSourceType){
         //TODO
         //解析sql基本信息
         return null;
@@ -52,7 +52,7 @@ public class LineageService {
      * @param defaultDb 默认数据库
      * @return
      */
-    public LineageTableTable parseTableLineage(String sql, String defaultDb){
+    public LineageTableTable parseTableLineage(String sql, String defaultDb,Integer dataSourceType){
         //TODO
         return null;
     }
@@ -65,9 +65,12 @@ public class LineageService {
      * @param engineSourceId 数据源id
      */
     public void parseAndSaveTableLineage(Integer appType,String sql, String defaultDb, Long engineSourceId){
-        //调用该接口时，必须先存储数据源。接口异步解析、存储
-        //取出数据源信息
-        //获取表
+        //1.根据数据源id和appType查询数据源
+        //2.解析出sql中的表
+        //3.根据表名和数dbName，schemaName查询表,sourceId。表不存在则需要插入表
+        //4.获取表中的字段列表
+        //5.解析字段级血缘关系
+        //6.存储字段级血缘关系
         //TODO
     }
 
@@ -78,7 +81,7 @@ public class LineageService {
      * @param tableColumnsMap 表字段map
      * @return
      */
-    public ColumnLineageParseInfo parseColumnLineage(String sql, String defaultDb, Map<String, List<Column>> tableColumnsMap){
+    public ColumnLineageParseInfo parseColumnLineage(String sql, Integer dataSourceType,String defaultDb, Map<String, List<Column>> tableColumnsMap){
         //TODO
         return null;
     }
@@ -91,6 +94,12 @@ public class LineageService {
      * @param engineSourceId 数据源id
      */
     public void parseAndSaveColumnLineage(Integer appType,String sql, String defaultDb, Long engineSourceId){
+        //1.根据数据源id和appType查询数据源
+        //2.解析出sql中的表
+        //3.根据表名和数据库名，查询表。表不存在则需要插入表
+        //4.获取表中的字段列表
+        //5.解析字段级血缘关系
+        //6.存储字段级血缘关系
         //TODO
     }
 

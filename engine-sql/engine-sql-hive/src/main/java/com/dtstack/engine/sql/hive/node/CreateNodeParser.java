@@ -6,7 +6,7 @@ import com.dtstack.engine.sql.TableOperateEnum;
 import com.dtstack.engine.sql.node.CreateNode;
 import com.dtstack.engine.sql.node.Identifier;
 import com.dtstack.engine.sql.node.Node;
-import org.apache.calcite.sql.SqlKind;
+import org.dtstack.apache.calcite.sql.SqlKind;
 import org.apache.hadoop.hive.ql.parse.ASTNode;
 import org.apache.hadoop.hive.ql.parse.HiveParser;
 

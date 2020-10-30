@@ -2,11 +2,11 @@ package com.dtstack.engine.sql.node;
 
 import com.dtstack.engine.sql.Column;
 import javafx.util.Pair;
-import org.apache.calcite.sql.SqlBasicCall;
-import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlNodeList;
-import org.apache.calcite.sql.SqlOperator;
+import org.dtstack.apache.calcite.sql.SqlBasicCall;
+import org.dtstack.apache.calcite.sql.SqlKind;
+import org.dtstack.apache.calcite.sql.SqlNode;
+import org.dtstack.apache.calcite.sql.SqlNodeList;
+import org.dtstack.apache.calcite.sql.SqlOperator;
 
 import java.util.List;
 import java.util.Map;

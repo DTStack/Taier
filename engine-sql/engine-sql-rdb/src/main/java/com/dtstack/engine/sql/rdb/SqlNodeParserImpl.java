@@ -1,7 +1,7 @@
 package com.dtstack.engine.sql.rdb;
 
 import com.dtstack.engine.sql.ParseResult;
-import org.apache.calcite.sql.SqlNode;
+import org.dtstack.apache.calcite.sql.SqlNode;
 
 import java.sql.SQLException;
 

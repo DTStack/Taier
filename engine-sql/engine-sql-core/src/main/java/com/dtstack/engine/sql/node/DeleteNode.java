@@ -1,9 +1,9 @@
 package com.dtstack.engine.sql.node;
 
 import com.dtstack.engine.sql.Column;
-import org.apache.calcite.sql.SqlDelete;
-import org.apache.calcite.sql.SqlIdentifier;
-import org.apache.calcite.sql.SqlNode;
+import org.dtstack.apache.calcite.sql.SqlDelete;
+import org.dtstack.apache.calcite.sql.SqlIdentifier;
+import org.dtstack.apache.calcite.sql.SqlNode;
 
 import java.util.List;
 import java.util.Map;

@@ -23,7 +23,7 @@ import com.dtstack.engine.sql.ParseResult;
 import com.dtstack.engine.sql.Table;
 import com.dtstack.engine.sql.TableOperateEnum;
 import com.dtstack.engine.sql.utils.SqlRegexUtil;
-import org.apache.calcite.sql.SqlNode;
+import org.dtstack.apache.calcite.sql.SqlNode;
 
 import java.sql.SQLException;
 import java.util.Map;

@@ -19,7 +19,7 @@ import com.dtstack.engine.sql.utils.SqlRegexUtil;
 import com.dtstack.engine.sql.utils.SqlTypeRegexUtil;
 import com.google.common.collect.Lists;
 import javafx.util.Pair;
-import org.apache.calcite.sql.SqlKind;
+import org.dtstack.apache.calcite.sql.SqlKind;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hive.ql.lib.Node;

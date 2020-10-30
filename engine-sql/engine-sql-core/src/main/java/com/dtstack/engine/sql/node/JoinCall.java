@@ -4,12 +4,12 @@ package com.dtstack.engine.sql.node;
 import com.dtstack.engine.sql.Column;
 import com.google.common.collect.Lists;
 import javafx.util.Pair;
-import org.apache.calcite.sql.SqlBasicCall;
-import org.apache.calcite.sql.SqlIdentifier;
-import org.apache.calcite.sql.SqlJoin;
-import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlSelect;
+import org.dtstack.apache.calcite.sql.SqlBasicCall;
+import org.dtstack.apache.calcite.sql.SqlIdentifier;
+import org.dtstack.apache.calcite.sql.SqlJoin;
+import org.dtstack.apache.calcite.sql.SqlKind;
+import org.dtstack.apache.calcite.sql.SqlNode;
+import org.dtstack.apache.calcite.sql.SqlSelect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

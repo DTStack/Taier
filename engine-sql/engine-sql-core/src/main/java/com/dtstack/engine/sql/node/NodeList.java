@@ -1,8 +1,8 @@
 package com.dtstack.engine.sql.node;
 
 import com.dtstack.engine.sql.Column;
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlNodeList;
+import org.dtstack.apache.calcite.sql.SqlNode;
+import org.dtstack.apache.calcite.sql.SqlNodeList;
 
 import java.util.List;
 import java.util.Map;
