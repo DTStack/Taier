@@ -7,7 +7,7 @@ then
 fi
 echo "Dependency ${hadoopversion} Building..."
 
-mvn clean package -DskipTests -Dhadoop.version=${hadoopversion} -pl \
+mvn clean package -DskipTests -Dhadoop.version=${hadoopversion} -Dhadoop3.version=${hadoopversion} -pl \
 engine-worker/engine-plugins/dummy,\
 engine-worker/engine-plugins/hadoop/yarn3-hdfs3-hadoop3,\
 engine-worker/engine-plugins/dtscript/yarn3-hdfs3-dtscript/dtscript-client,\
