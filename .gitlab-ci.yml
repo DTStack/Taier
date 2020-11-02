@@ -12,4 +12,3 @@ build:
     - release_4.0.x
   tags:
     - dt-insight-engine
-    - dagschedulex
