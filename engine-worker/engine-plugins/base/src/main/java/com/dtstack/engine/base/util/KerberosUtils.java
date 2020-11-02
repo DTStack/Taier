@@ -232,8 +232,11 @@ public class KerberosUtils {
                 .getPrivateCredentials(KerberosTicket.class);
         for (KerberosTicket ticket : tickets) {
             KerberosPrincipal principal = ticket.getServer();
+            if (principal == null) {
+                continue;
+            }
             String krbtgt = "krbtgt/" + principal.getRealm() + "@" + principal.getRealm();
-            if (principal != null && StringUtils.equals(principal.getName(), krbtgt)) {
+            if (StringUtils.equals(principal.getName(), krbtgt)) {
                 return ticket;
             }
         }
