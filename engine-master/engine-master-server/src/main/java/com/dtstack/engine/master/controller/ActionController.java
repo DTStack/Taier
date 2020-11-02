@@ -106,7 +106,7 @@ public class ActionController {
             @ApiImplicitParam(name="jobId",value="查询的job的jobId值",required=true, dataType = "String"),
             @ApiImplicitParam(name="computeType",value="查询的job的computeType值",required=true, dataType = "int")
     })
-    public String logFromEs(String jobId, Integer computeType) throws Exception {
+    public String logFromEs(@DtRequestParam("jobId") String jobId, @DtRequestParam("computeType") Integer computeType) throws Exception {
         return actionService.logFromEs(jobId, computeType);
     }
 
