@@ -198,6 +198,7 @@ public abstract class AbstractRdbsClient extends AbstractClient {
             }
         } catch (Exception e) {
             LOG.error("execue sql {} error",sql,e);
+            throw new RdosDefineException(e);
         } finally {
             try {
                 if (res != null) {
