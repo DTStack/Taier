@@ -109,6 +109,7 @@ public class ZipUtil {
         List<File> _list = new ArrayList<>();
         ZipFile _zipFile = null;
         OutputStream _out = null;
+        InputStream _in = null;
         try {
             _zipFile = new ZipFile(zipFile, "GBK");
             for (Enumeration entries = _zipFile.getEntries(); entries.hasMoreElements(); ) {
@@ -121,7 +122,7 @@ public class ZipUtil {
                     if (!_parent.exists()) {
                         _parent.mkdirs();
                     }
-                    InputStream _in = _zipFile.getInputStream(entry);
+                    _in = _zipFile.getInputStream(entry);
                     _out = new FileOutputStream(_file);
                     int len = 0;
                     while ((len = _in.read(_byte)) > 0) {
@@ -136,11 +137,14 @@ public class ZipUtil {
         } catch (IOException e) {
             throw new IOException("解压缩文件失败");
         }finally {
-            if(Objects.nonNull(_zipFile)){
+            if (_zipFile != null) {
                 _zipFile.close();
             }
-            if(Objects.nonNull(_out)){
+            if (_out != null) {
                 _out.close();
+            }
+            if (_in != null) {
+                _in.close();
             }
         }
         return _list;
