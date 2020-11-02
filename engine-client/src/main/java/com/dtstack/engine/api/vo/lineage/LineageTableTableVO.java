@@ -1,25 +1,37 @@
 package com.dtstack.engine.api.vo.lineage;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * @author chener
  * @Classname LineageTableTableVO
- * @Description TODO
+ * @Description 表级血缘信息
  * @Date 2020/10/30 10:09
  * @Created chener@dtstack.com
  */
+@ApiModel("表级血缘关系")
 public class LineageTableTableVO {
 
-    private Long tenantId;
-
-    private Integer appType;
-
-    private Long inputTableId;
-
-    private Long resultTableId;
-
-    private Integer lineageSource;
-
+    @ApiModelProperty("输入表id")
     private LineageTableVO inputTableInfo;
 
-    private LineageTableTableVO resultTableInfo;
+    @ApiModelProperty("输出表id")
+    private LineageTableVO resultTableInfo;
+
+    public LineageTableVO getInputTableInfo() {
+        return inputTableInfo;
+    }
+
+    public void setInputTableInfo(LineageTableVO inputTableInfo) {
+        this.inputTableInfo = inputTableInfo;
+    }
+
+    public LineageTableVO getResultTableInfo() {
+        return resultTableInfo;
+    }
+
+    public void setResultTableInfo(LineageTableVO resultTableInfo) {
+        this.resultTableInfo = resultTableInfo;
+    }
 }

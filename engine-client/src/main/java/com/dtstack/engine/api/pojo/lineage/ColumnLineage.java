@@ -27,6 +27,8 @@ public class ColumnLineage {
 
     private String fromDb;
 
+    private String fromSchema;
+
     private String fromTable;
 
     private String fromColumn;
@@ -35,11 +37,29 @@ public class ColumnLineage {
 
     private String toDb;
 
+    private String toSchema;
+
     private String toTable;
 
     private String toColumn;
 
     private boolean isToTempTable;
+
+    public String getFromSchema() {
+        return fromSchema;
+    }
+
+    public void setFromSchema(String fromSchema) {
+        this.fromSchema = fromSchema;
+    }
+
+    public String getToSchema() {
+        return toSchema;
+    }
+
+    public void setToSchema(String toSchema) {
+        this.toSchema = toSchema;
+    }
 
     public boolean isFromTempTable() {
         return isFromTempTable;

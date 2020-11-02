@@ -1,5 +1,8 @@
 package com.dtstack.engine.api.vo.lineage;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * @author chener
  * @Classname BaseParseResult
@@ -7,36 +10,43 @@ package com.dtstack.engine.api.vo.lineage;
  * @Date 2020/10/15 11:01
  * @Created chener@dtstack.com
  */
+@ApiModel
 public class BaseParseResult {
 
     /**
      * 解析结果
      */
+    @ApiModelProperty("解析是否成功")
     private boolean parseSuccess = true;
 
     /**
      * 解析错误日志
      */
+    @ApiModelProperty("失败信息")
     private String failedMsg;
 
     /**
      * 标准 sql(格式化后的sql)
      */
+    @ApiModelProperty("格式化后的sql")
     private String standardSql;
 
     /**
      * 原始sql
      */
+    @ApiModelProperty("原始sql")
     private String originSql;
 
     /**
      * sql类型
      */
+    @ApiModelProperty("sql操作类型")
     private SqlType sqlType;
 
     /**
      * 当前sql运行时的数据库
      */
+    @ApiModelProperty("当前sql运行数据库")
     private String currentDb;
 
     public boolean isParseSuccess() {

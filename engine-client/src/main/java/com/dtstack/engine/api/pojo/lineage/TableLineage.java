@@ -2,13 +2,51 @@ package com.dtstack.engine.api.pojo.lineage;
 
 public class TableLineage {
 
+    /**
+     * 血缘上游schema
+     */
+    private String fromSchema;
+
+    /**
+     * 血缘上游db
+     */
     private String fromDb;
 
+    /**
+     * 血缘上游表名
+     */
     private String fromTable;
 
+    /**
+     * 血缘下游schema
+     */
+    private String toSchema;
+
+    /**
+     * 血缘下游db
+     */
     private String toDb;
 
+    /**
+     * 血缘下游表名
+     */
     private String toTable;
+
+    public String getFromSchema() {
+        return fromSchema;
+    }
+
+    public void setFromSchema(String fromSchema) {
+        this.fromSchema = fromSchema;
+    }
+
+    public String getToSchema() {
+        return toSchema;
+    }
+
+    public void setToSchema(String toSchema) {
+        this.toSchema = toSchema;
+    }
 
     public String getFromDb() {
         return fromDb;

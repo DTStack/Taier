@@ -96,7 +96,7 @@ public class LineageService {
     public void parseAndSaveColumnLineage(Integer appType,String sql, String defaultDb, Long engineSourceId){
         //1.根据数据源id和appType查询数据源
         //2.解析出sql中的表
-        //3.根据表名和数据库名，查询表。表不存在则需要插入表
+        //3.根据表名和数据库名，数据库id查询表。表不存在则需要插入表
         //4.获取表中的字段列表
         //5.解析字段级血缘关系
         //6.存储字段级血缘关系
