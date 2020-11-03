@@ -781,7 +781,7 @@
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
         where type = #{type}
-        AND status = #{status}
+        AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
         <if test="lastTime != null">
             AND gmt_modified &gt;= #{lastTime}
         </if>
