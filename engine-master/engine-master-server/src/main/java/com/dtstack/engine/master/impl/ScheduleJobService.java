@@ -2781,8 +2781,8 @@ public class ScheduleJobService {
         return Boolean.FALSE;
     }
 
-    public Long getListMinId(String nodeAddress,Integer scheduleType, String left, String right) {
-        return scheduleJobDao.getListMinId(nodeAddress, scheduleType, left, right, JobPhaseStatus.CREATE.getCode());
+    public Long getListMinId(String nodeAddress,Integer scheduleType, String left, String right,Integer isRestart) {
+        return scheduleJobDao.getListMinId(nodeAddress, scheduleType, left, right, JobPhaseStatus.CREATE.getCode(),isRestart);
     }
 
     public String getJobGraphJSON(String jobId) {
