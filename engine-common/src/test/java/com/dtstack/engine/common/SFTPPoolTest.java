@@ -55,8 +55,6 @@ public class SFTPPoolTest {
             Thread.sleep(100);
         }
         countDownLatch.await();
-        System.out.println("get count: " + manage.getCount.get());
-        System.out.println("return count: " + manage.returnCount.get());
         System.out.println("finish sftp connection");
     }
 }
