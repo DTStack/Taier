@@ -238,7 +238,7 @@ public interface ScheduleJobDao {
 
     Integer updatePhaseStatusById(@Param("id") Long id, @Param("original") Integer original, @Param("update") Integer update);
 
-    Long getListMinId(@Param("nodeAddress") String nodeAddress, @Param("scheduleType") Integer scheduleType, @Param("cycStartTime") String left, @Param("cycEndTime") String right, @Param("phaseStatus") Integer code);
+    Long getListMinId(@Param("nodeAddress") String nodeAddress, @Param("scheduleType") Integer scheduleType, @Param("cycStartTime") String left, @Param("cycEndTime") String right, @Param("phaseStatus") Integer code,@Param("isRestart") Integer isRestart);
 
     Integer updateListPhaseStatus(@Param("ids") List<Long> ids, @Param("update") Integer update);
 
