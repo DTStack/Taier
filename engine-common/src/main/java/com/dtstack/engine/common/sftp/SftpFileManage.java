@@ -61,10 +61,6 @@ public class SftpFileManage {
     private SftpPool sftpPool;
     private SftpConfig sftpConfig;
 
-    public AtomicInteger getCount = new AtomicInteger(0);
-    public AtomicInteger returnCount = new AtomicInteger(0);
-
-
     public SftpFileManage(SftpConfig sftpConfig) {
         this.sftpConfig = sftpConfig;
         checkConfig(sftpConfig);
@@ -88,7 +84,6 @@ public class SftpFileManage {
             channelSftp = sftpFactory.create();
         }
         setSessionTimeout(sftpConfig, channelSftp);
-        getCount.getAndIncrement();
         return channelSftp;
     }
 
@@ -461,7 +456,6 @@ public class SftpFileManage {
                 LOG.error("close channelSftp error: {}", e.getMessage());
             }
         }
-        returnCount.getAndIncrement();
     }
 
 }

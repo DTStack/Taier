@@ -26,9 +26,10 @@ public class SFTPPoolTest {
         config.setUsername(USERNAME);
         config.setPassword(PASSWORD);
         config.setIsUsePool(true);
-        config.setMinIdle(1);
+        config.setMinIdle(16);
+        config.setMaxIdle(16);
         config.setMaxTotal(10);
-        config.setTimeout(10000);
+        config.setTimeout(36000000);
         config.setPath("/data/sftp");
         config.setAuth(SftpType.PASSWORD_AUTHENTICATION.getType());
     }
@@ -36,14 +37,19 @@ public class SFTPPoolTest {
     @Test
     public void testGetInstance() throws Exception {
         SftpFileManage manage = new SftpFileManage(config);
-        CountDownLatch countDownLatch = new CountDownLatch(COUNT);
+        CountDownLatch countDownLatch = new CountDownLatch(COUNT+1);
 
         for (int i = 0; i < COUNT; ++i) {
             new Thread(
                     () -> {
-                    ChannelSftp channelSftp = manage.getChannelSftp();
-                    manage.close(channelSftp);
-                    countDownLatch.countDown();
+                    try {
+                        ChannelSftp channelSftp = manage.getChannelSftp();
+                        Thread.sleep(300);
+                        manage.close(channelSftp);
+                        countDownLatch.countDown();
+                    } catch (Exception e) {
+                        System.out.println("Error sleep");
+                    }
                 }
             ).start();
             Thread.sleep(100);

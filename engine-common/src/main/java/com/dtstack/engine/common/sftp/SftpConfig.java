@@ -7,14 +7,35 @@ package com.dtstack.engine.common.sftp;
  */
 public class SftpConfig {
 
+    //SFTP主机地址
     private String host;
+    //SFTP端口地址
     private Integer port;
+    //主机用户名
     private String username;
+    //主机文件路径
     private String path;
+    /**
+     * 连接池最多可获取的连接数量
+     * 例：10个线程同时访问maxTotal设置为5的连接池，5个得到连接，其他等待。
+     */
     private Integer maxTotal = 16;
+    /**
+     * 允许留存空闲的最大连接数量
+     * 测试表明设置maxIdle=16也只能保留8个连接
+     * 若设置maxIdle=0那么就不保留连接。
+     */
     private Integer maxIdle = 16;
+    /**
+     * 允许留存空闲的最小连接数量
+     * 实际保留的连接数量会在minIdle和maxIdle之间。
+     */
     private Integer minIdle = 16;
+    /**
+     * 当minIdle < maxIdle产生作用，若超出timeout设置得时间，减少留存的空闲连接，但是不小于minIdle。
+     */
     private Integer timeout = 0;
+    //是否使用连接池
     private boolean isUsePool;
     private Long fileTimeout = 300000L;
     private Integer auth;
