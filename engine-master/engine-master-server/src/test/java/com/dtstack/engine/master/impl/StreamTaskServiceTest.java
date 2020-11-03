@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
+import org.junit.Assert;
 
 import java.util.Arrays;
 import java.util.List;
@@ -63,8 +63,8 @@ public class StreamTaskServiceTest extends AbstractTest {
 		Long triggerEnd = engineJobCheckpoint.getCheckpointTrigger().getTime() + 1;
 		List<EngineJobCheckpoint> engineJobCheckpoints = streamTaskService.getCheckPoint(
 			engineJobCheckpoint.getTaskId(), triggerStart, triggerEnd);
-		Assert.notNull(engineJobCheckpoints);
-		Assert.isTrue(engineJobCheckpoints.size() > 0);
+		Assert.assertNotNull(engineJobCheckpoints);
+		Assert.assertTrue(engineJobCheckpoints.size() > 0);
 	}
 
 	@Test
@@ -74,8 +74,8 @@ public class StreamTaskServiceTest extends AbstractTest {
 		EngineJobCheckpoint engineJobCheckpoint = DataCollection.getData().getEngineJobCheckpoint();
 
 		EngineJobCheckpoint resJobCheckpoint = streamTaskService.getByTaskIdAndEngineTaskId(
-			engineJobCheckpoint.getTaskId(), engineJobCheckpoint.getCheckpointId());
-		Assert.notNull(resJobCheckpoint);
+			engineJobCheckpoint.getTaskId(), engineJobCheckpoint.getTaskEngineId());
+		Assert.assertNotNull(resJobCheckpoint);
 	}
 
 	@Test
@@ -86,8 +86,8 @@ public class StreamTaskServiceTest extends AbstractTest {
 
 		List<String> taskIds = Arrays.asList(new String[]{streamJob.getJobId()});
 		List<ScheduleJob> jobs = streamTaskService.getEngineStreamJob(taskIds);
-		Assert.notNull(jobs);
-		Assert.isTrue(jobs.size() > 0);
+		Assert.assertNotNull(jobs);
+		Assert.assertTrue(jobs.size() > 0);
 	}
 
 	@Test
@@ -96,9 +96,10 @@ public class StreamTaskServiceTest extends AbstractTest {
 	public void testGetTaskIdsByStatus() {
 		ScheduleJob streamJob = DataCollection.getData().getScheduleJobStream();
 
-		List<String> taskIds = streamTaskService.getTaskIdsByStatus(streamJob.getStatus());
-		Assert.notNull(taskIds);
-		Assert.isTrue(taskIds.contains(streamJob.getTaskId()));
+		Integer status = streamJob.getStatus();
+		List<String> taskIds = streamTaskService.getTaskIdsByStatus(status);
+		Assert.assertNotNull(taskIds);
+		Assert.assertTrue(taskIds.contains(streamJob.getJobId()));
 	}
 
 	@Test
@@ -108,8 +109,8 @@ public class StreamTaskServiceTest extends AbstractTest {
 		ScheduleJob streamJob = DataCollection.getData().getScheduleJobStream();
 
 		Integer taskStatus = streamTaskService.getTaskStatus(streamJob.getJobId());
-		Assert.notNull(taskStatus);
-		Assert.isTrue(taskStatus == 14);
+		Assert.assertNotNull(taskStatus);
+		Assert.assertTrue(taskStatus == 4);
 	}
 
 	@Test
@@ -121,7 +122,7 @@ public class StreamTaskServiceTest extends AbstractTest {
 		DataCollection.getData().getEngineJobCache();
 
 		Integer taskStatus = streamTaskService.getTaskStatus(streamJob.getJobId());
-		Assert.isTrue(RdosTaskStatus.RUNNING.getStatus().equals(taskStatus));
+		Assert.assertTrue(RdosTaskStatus.RUNNING.getStatus().equals(taskStatus));
 
 //		List<String> taskLogUrl = streamTaskService.getRunningTaskLogUrl(streamJob.getJobId());
 //		Assert.notNull(taskLogUrl.getKey());
