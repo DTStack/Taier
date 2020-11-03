@@ -26,26 +26,31 @@ public class SFTPPoolTest {
         config.setUsername(USERNAME);
         config.setPassword(PASSWORD);
         config.setIsUsePool(true);
+        config.setMinIdle(1);
+        config.setMaxTotal(10);
+        config.setTimeout(10000);
         config.setPath("/data/sftp");
         config.setAuth(SftpType.PASSWORD_AUTHENTICATION.getType());
     }
 
     @Test
     public void testGetInstance() throws Exception {
+        SftpFileManage manage = new SftpFileManage(config);
         CountDownLatch countDownLatch = new CountDownLatch(COUNT);
 
         for (int i = 0; i < COUNT; ++i) {
             new Thread(
                     () -> {
-                    SftpFileManage manage = new SftpFileManage(config);
                     ChannelSftp channelSftp = manage.getChannelSftp();
-//                    manage.close(channelSftp);
+                    manage.close(channelSftp);
                     countDownLatch.countDown();
                 }
             ).start();
             Thread.sleep(100);
         }
         countDownLatch.await();
+        System.out.println("get count: " + manage.getCount.get());
+        System.out.println("return count: " + manage.returnCount.get());
         System.out.println("finish sftp connection");
     }
 }

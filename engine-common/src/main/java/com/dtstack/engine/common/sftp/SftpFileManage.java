@@ -35,6 +35,7 @@ import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Date: 2020/7/20
@@ -60,6 +61,9 @@ public class SftpFileManage {
     private SftpPool sftpPool;
     private SftpConfig sftpConfig;
 
+    public AtomicInteger getCount = new AtomicInteger(0);
+    public AtomicInteger returnCount = new AtomicInteger(0);
+
 
     public SftpFileManage(SftpConfig sftpConfig) {
         this.sftpConfig = sftpConfig;
@@ -84,6 +88,7 @@ public class SftpFileManage {
             channelSftp = sftpFactory.create();
         }
         setSessionTimeout(sftpConfig, channelSftp);
+        getCount.getAndIncrement();
         return channelSftp;
     }
 
@@ -456,6 +461,7 @@ public class SftpFileManage {
                 LOG.error("close channelSftp error: {}", e.getMessage());
             }
         }
+        returnCount.getAndIncrement();
     }
 
 }
