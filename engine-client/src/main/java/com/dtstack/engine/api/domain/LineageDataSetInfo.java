@@ -11,7 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @Created chener@dtstack.com
  */
 @ApiModel
-public class LineageDataSetInfo extends TenantEntity {
+public class LineageDataSetInfo extends DtUicTenantEntity {
 
     @ApiModelProperty(notes = "应用类型")
     private Integer appType;
@@ -32,7 +32,7 @@ public class LineageDataSetInfo extends TenantEntity {
     private String sourceKey;
 
     @ApiModelProperty(notes = "数据集类型 0 表，1 文件")
-    private String setType;
+    private Integer setType;
 
     @ApiModelProperty(notes = "一般数据集类型为表，该字段为数据库名称;当数据集类型为文件时，该字段可以取文件名，或者其他定义")
     private String dbName;
@@ -97,11 +97,11 @@ public class LineageDataSetInfo extends TenantEntity {
         this.sourceKey = sourceKey;
     }
 
-    public String getSetType() {
+    public Integer getSetType() {
         return setType;
     }
 
-    public void setSetType(String setType) {
+    public void setSetType(Integer setType) {
         this.setType = setType;
     }
 

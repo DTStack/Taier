@@ -1,5 +1,6 @@
 package com.dtstack.engine.common.client;
 
+import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -345,6 +346,23 @@ public class ClientProxy implements IClient {
             return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getRollingLogBaseInfo(jobIdentifier), targetClient.getClass().getClassLoader(), true);
         } catch (Exception e) {
             throw new RdosDefineException(e.getMessage());
+        }
+    }
+
+
+    @Override
+    public List<Column> getAllColumns(String tableName, String dbName) {
+        try {
+            return CompletableFuture.supplyAsync(() -> {
+                try {
+                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getAllColumns(tableName,dbName),
+                            targetClient.getClass().getClassLoader(), true);
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
+                }
+            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new RdosDefineException(e);
         }
     }
 }

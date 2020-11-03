@@ -9,7 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @Date 2020/10/28 19:46
  * @Created chener@dtstack.com
  */
-public class LineageTableTableAppRef extends BaseEntity{
+public class LineageTableTableAppRef extends DtUicTenantEntity{
 
     @ApiModelProperty(notes = "app类型")
     private Integer appType;

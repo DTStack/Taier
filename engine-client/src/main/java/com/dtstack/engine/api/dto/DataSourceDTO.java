@@ -11,32 +11,32 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel
 public class DataSourceDTO {
 
-    @ApiModelProperty(name = "数据源id")
-    private Long dataSourceId;
+    @ApiModelProperty(value = "数据源id")
+    private Integer dataSourceId;
 
-    @ApiModelProperty(name = "数据源名称",required = true)
+    @ApiModelProperty(value = "数据源名称",required = true)
     private String sourceName;
 
-    @ApiModelProperty(name = "数据源配置")
+    @ApiModelProperty(value = "数据源配置")
     private String dataJson;
 
-    @ApiModelProperty(name = "kerberos配置")
+    @ApiModelProperty(value = "kerberos配置")
     private String kerberosConf;
 
-    @ApiModelProperty(name = "数据源类型")
+    @ApiModelProperty(value = "数据源类型")
     private Integer sourceType;
 
-    @ApiModelProperty(name = "应用类型")
+    @ApiModelProperty(value = "应用类型")
     private Integer appType;
 
-    @ApiModelProperty(name = "dtuic租户id")
+    @ApiModelProperty(value = "dtuic租户id")
     private Long dtUicTenantId;
 
-    public Long getDataSourceId() {
+    public Integer getDataSourceId() {
         return dataSourceId;
     }
 
-    public void setDataSourceId(Long dataSourceId) {
+    public void setDataSourceId(Integer dataSourceId) {
         this.dataSourceId = dataSourceId;
     }
 

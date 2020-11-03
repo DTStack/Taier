@@ -11,7 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @Created chener@dtstack.com
  */
 @ApiModel
-public class LineageDataSource extends TenantEntity {
+public class LineageDataSource extends DtUicTenantEntity {
 
     @ApiModelProperty(notes = "真实数据源id")
     private Long realSourceId;
@@ -133,4 +133,5 @@ public class LineageDataSource extends TenantEntity {
     public void setComponentId(Integer componentId) {
         this.componentId = componentId;
     }
+
 }

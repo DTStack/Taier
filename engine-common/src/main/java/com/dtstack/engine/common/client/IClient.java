@@ -1,5 +1,6 @@
 package com.dtstack.engine.common.client;
 
+import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -51,4 +52,7 @@ public interface IClient {
 	ClusterResource getClusterResource();
 
 	List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier);
+
+
+	List<Column> getAllColumns(String tableName,String dbName);
 }

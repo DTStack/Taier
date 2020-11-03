@@ -11,7 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @Created chener@dtstack.com
  */
 @ApiModel
-public class LineageTableTable extends TenantEntity {
+public class LineageTableTable extends DtUicTenantEntity {
 
     @ApiModelProperty(notes = "输入表id")
     private Integer inputTableId;

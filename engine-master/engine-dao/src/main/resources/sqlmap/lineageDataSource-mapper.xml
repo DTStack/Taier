@@ -11,6 +11,12 @@
             <if test="model.id != null and model.id > 0">
                 AND id = #{model.id}
             </if>
+            <if test="model.appType !=null">
+                AND app_type = #{model.appType}
+            </if>
+            <if test="model.isDeleted !=null">
+                AND app_type = #{model.isDeleted}
+            </if>
         </trim>
     </sql>
 
@@ -65,17 +71,62 @@
     </insert>
 
     <update id="updateDataSource" parameterType="com.dtstack.engine.api.domain.LineageDataSource">
-        update lineage_real_data_source
+        update lineage_data_source
         <include refid="update_fragment"/>
         where id = #{id}
     </update>
 
     <delete id="deleteDataSource">
-        update lineage_real_data_source set is_deleted = 1 where id = #{id}
+        update lineage_data_source set is_deleted = 1 where id = #{id}
     </delete>
 
     <select id="getOne" resultType="com.dtstack.engine.api.domain.LineageDataSource">
-        select <include refid="select_content_fragment"/> where id = #{id}
+        select
+        <include refid="select_content_fragment"/>
+        from lineage_data_source
+        where id = #{id} and is_deleted = 0
     </select>
+
+    <select id="generalCount" resultType="java.lang.Integer">
+
+       select
+       count(id)
+       from  lineage_data_source
+       <include refid="select_where_fragment" />
+    </select>
+
+
+    <select id="generalQuery" resultType="com.dtstack.engine.api.domain.LineageDataSource">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM lineage_data_source
+        <include refid="select_where_fragment"/>
+        <if test="orderBy != null and sort != null">
+            order by ${orderBy} ${sort}
+        </if>
+        <if test="orderBy != null and sort == null">
+            order by ${orderBy} desc
+        </if>
+        <if test="start != null and pageSize != null">
+            limit #{start} , #{pageSize}
+        </if>
+        <if test="start == null and pageSize != null">
+            limit #{pageSize}
+        </if>
+        <if test="start == null and pageSize == null">
+            limit 1000
+        </if>
+    </select>
+
+    <select id="getOneByAppTypeAndId" resultType="com.dtstack.engine.api.domain.LineageDataSource">
+
+        select
+        <include refid="select_content_fragment" />
+        from lineage_data_source
+        where app_type = #{appType}
+        and id = #{sourceId}
+        and is_deleted = 0
+    </select>
+
 
 </mapper>

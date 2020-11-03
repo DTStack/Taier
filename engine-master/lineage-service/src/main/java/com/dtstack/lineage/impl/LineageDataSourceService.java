@@ -2,25 +2,26 @@ package com.dtstack.lineage.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.domain.LineageRealDataSource;
 import com.dtstack.engine.api.dto.DataSourceDTO;
+import com.dtstack.engine.api.pager.PageQuery;
+import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ComponentDao;
-import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.lineage.bo.RdbmsDataSourceConfig;
 import com.dtstack.lineage.dao.LineageDataSourceDao;
 import com.dtstack.lineage.dao.LineageRealDataSourceDao;
-import org.apache.commons.lang.StringUtils;
+import com.dtstack.schedule.common.enums.Sort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -49,7 +50,7 @@ public class LineageDataSourceService {
     private ComponentDao componentDao;
 
     /**
-     * 新增或删除数据源
+     * 新增或修改逻辑数据源
      * @param dataSourceDTO 数据源信息
      */
     public void addOrUpdateDataSource(DataSourceDTO dataSourceDTO){
@@ -110,7 +111,7 @@ public class LineageDataSourceService {
         dataSource.setOpenKerberos(null == dataSourceDTO.getKerberosConf() ? 0:1);
         dataSource.setSourceKey(sourceKey);
         dataSource.setRealSourceId(realSourceId);
-        dataSource.setTenantId(dataSourceDTO.getDtUicTenantId());
+        dataSource.setDtUicTenantId(dataSourceDTO.getDtUicTenantId());
         return dataSource;
     }
 
@@ -128,10 +129,17 @@ public class LineageDataSourceService {
         return sourceKey;
     }
 
+    /**
+     * @author zyd
+     * @Description 新增真实数据源
+     * @Date 2020/10/30 11:52 上午
+     * @param dataSourceDTO:
+     * @param sourceKey:
+     * @return: java.lang.Long
+     **/
     private Long addRealDataSource(DataSourceDTO dataSourceDTO,String sourceKey) {
-        //TODO
         //先根据sourceKey查询物理数据源是否存在
-        LineageRealDataSource oneBySourceKey = lineageRealDataSourceDao.getOneBySourceKey(sourceKey);
+        LineageRealDataSource oneBySourceKey = getRealDataSource(sourceKey);
         Long realSourceId;
         if(null == oneBySourceKey){
             //不存在则新增
@@ -152,45 +160,83 @@ public class LineageDataSourceService {
     }
 
     /**
-     * 删除数据源
+     * 删除逻辑数据源
      * @param sourceId 数据源id
      * @param appType 应用类型
      */
-    public void deleteDataSource(Long sourceId,Integer appType){
-        //TODO
+    public void deleteDataSource(Integer sourceId,Integer appType){
+
         //删除数据源时，不删除物理数据源
+        LineageDataSource one = lineageDataSourceDao.getOne(sourceId);
+        if(null == one) {
+            throw new RdosDefineException("该数据源不存在或已经被删除了");
+        }
+        if(!appType.equals(one.getAppType())){
+            throw new RdosDefineException("不可以删除其它应用的数据源");
+        }
+        lineageDataSourceDao.deleteDataSource(sourceId);
     }
 
+
     /**
-     * 添加或更新真实数据源
-     * @param dataSource 引擎数据源
-     */
-    public void addOrUpdateRealDataSource(LineageDataSource dataSource){
-        //TODO
-        //每次新增、修改逻辑数据源都要检查物理数据源是否需要对应修改。
-//        物理数据源的dataJson作用不大，因为使用时，是用逻辑数据源，且不同逻辑数据源配置的用户可能不同
+     * @author zyd
+     * @Description 根据sourceId和appType查询数据源信息
+     * @Date 2020/10/30 4:03 下午
+     * @param sourceId: 数据源id
+     * @param appType: 应用类型
+     * @return: com.dtstack.engine.api.domain.LineageDataSource
+     **/
+    public LineageDataSource getDataSourceByIdAndAppType(Long sourceId,Integer appType){
+
+        return lineageDataSourceDao.getOneByAppTypeAndId(sourceId,appType);
     }
 
     /**
      * 查找真实数据源源
-     * @param dataSource 引擎数据源
+     * @param sourceKey sourceKey
      * @return
      */
-    LineageRealDataSource getRealDataSource(LineageDataSource dataSource){
-        //TODO
+    private LineageRealDataSource getRealDataSource(String sourceKey){
         //根据data source描述信息从lineage_real_data_source表中查询出真实数据源
-        return null;
+        return lineageRealDataSourceDao.getOneBySourceKey(sourceKey);
     }
 
+
+
     /**
-     *
-     * @param dataSourceType 数据源类型
-     * @param dataJson 数据源配置json
-     * @return
-     */
-    LineageRealDataSource getRealDataSourceByDataJsonAndType(Integer dataSourceType,String dataJson){
-        //TODO
-        return null;
+     * @author zyd
+     * @Description 根据appType分页查询逻辑数据源列表
+     * @Date 2020/10/30 11:55 上午
+     * @param appType:
+     * @return: java.util.List<com.dtstack.engine.api.domain.LineageDataSource>
+     **/
+    PageResult<List<LineageDataSource>> pageQueryDataSourceByAppType(Integer appType,Integer currentPage,Integer pageSize){
+
+        PageQuery<LineageDataSource> pageQuery = new PageQuery<>(currentPage,pageSize,"gmt_modified", Sort.DESC.name());
+        LineageDataSource dataSource = new LineageDataSource();
+        dataSource.setAppType(appType);
+        dataSource.setIsDeleted(0);
+        Integer count = lineageDataSourceDao.generalCount(dataSource);
+        List<LineageDataSource> dataSourceList = new ArrayList<>();
+        if(count>0){
+            pageQuery.setModel(dataSource);
+            dataSourceList = lineageDataSourceDao.generalQuery(pageQuery);
+        }
+        return new PageResult<>(dataSourceList,count,pageQuery);
     }
+
+
+    /**
+     * @author zyd
+     * @Description 根据id查询逻辑数据源信息
+     * @Date 2020/10/30 2:25 下午
+     * @param id:
+     * @return: com.dtstack.engine.api.domain.LineageDataSource
+     **/
+    LineageDataSource getDataSourceById(Integer id){
+
+        return lineageDataSourceDao.getOne(id);
+    }
+
 
 }

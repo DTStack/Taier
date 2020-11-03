@@ -25,7 +25,21 @@
     </delete>
 
     <select id="getTableInfo" resultType="com.dtstack.engine.api.domain.LineageDataSetInfo">
-        select <include refid="select_content_fragment"/> from lineage_table_info where source_id = #{sourceId} and db_name = #{db} and table_name = #{tableName}
+        select <include refid="select_content_fragment"/> from lineage_data_set where source_id = #{sourceId} and db_name = #{db} and table_name = #{tableName}
+    </select>
+
+    <select id="getOneBySourceIdAndDbNameAndTableName" resultType="com.dtstack.engine.api.domain.LineageDataSetInfo">
+
+        select
+        <include refid="select_content_fragment" />
+        from lineage_data_set
+        where
+        source_id = #{sourceId}
+        and db_name = #{dbName}
+        and table_name = #{tableName}
+        and schema_name = #{schemaName}
+        and is_deleted = #{isDeleted}
+
     </select>
 
 </mapper>

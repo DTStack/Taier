@@ -11,7 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @Created chener@dtstack.com
  */
 @ApiModel
-public class LineageRealDataSource extends TenantEntity{
+public class LineageRealDataSource extends DtUicTenantEntity{
 
     @ApiModelProperty(notes = "数据源名称")
     private String sourceName;

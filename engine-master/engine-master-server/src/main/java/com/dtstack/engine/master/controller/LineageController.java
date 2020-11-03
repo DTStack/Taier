@@ -1,7 +1,6 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.domain.LineageColumnColumn;
-import com.dtstack.engine.api.domain.LineageTableTable;
+
 import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
 import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
