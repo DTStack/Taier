@@ -14,6 +14,12 @@ import io.swagger.annotations.ApiModelProperty;
 public class LineageColumnColumnVO {
 
     /**
+     * 应用类型
+     */
+    @ApiModelProperty("应用类型")
+    private Integer appType;
+
+    /**
      * 输入表信息
      */
     @ApiModelProperty("输入表信息")
@@ -36,6 +42,17 @@ public class LineageColumnColumnVO {
      */
     @ApiModelProperty("输出字段名称")
     private String resultColumnName;
+
+    @ApiModelProperty(value = "使用双亲表示法，标识树数据结构",notes = "当前节点的父节点在列表中的下标")
+    private Integer parentIndex;
+
+    public Integer getAppType() {
+        return appType;
+    }
+
+    public void setAppType(Integer appType) {
+        this.appType = appType;
+    }
 
     public String getInputColumnName() {
         return inputColumnName;
@@ -67,5 +84,13 @@ public class LineageColumnColumnVO {
 
     public void setResultTableInfo(LineageTableVO resultTableInfo) {
         this.resultTableInfo = resultTableInfo;
+    }
+
+    public Integer getParentIndex() {
+        return parentIndex;
+    }
+
+    public void setParentIndex(Integer parentIndex) {
+        this.parentIndex = parentIndex;
     }
 }

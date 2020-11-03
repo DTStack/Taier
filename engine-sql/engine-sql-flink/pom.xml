@@ -16,9 +16,12 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-sql-core</artifactId>
-            <version>1.0.0</version>
+            <artifactId>calcite-shade</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>

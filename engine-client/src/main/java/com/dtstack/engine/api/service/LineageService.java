@@ -1,5 +1,6 @@
 package com.dtstack.engine.api.service;
 
+import com.dtstack.engine.api.domain.LineageTableTable;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
@@ -30,7 +31,6 @@ public interface LineageService extends DtInsightServer {
      * @Param sourceType 数据源类型
      * @return
      */
-    @ApiModelProperty("解析sql基本类型")
     ApiResponse<SqlParseInfo> parseBaseInfo(String sql,Integer sourceType);
 
     /**
@@ -40,7 +40,6 @@ public interface LineageService extends DtInsightServer {
      * @param sourceType 数据库类型
      * @return
      */
-    @ApiModelProperty("解析表级血缘关系")
     ApiResponse<TableLineageParseInfo> parseTableLineage(String sql, String defaultDb,Integer sourceType);
 
     /**
@@ -50,7 +49,6 @@ public interface LineageService extends DtInsightServer {
      * @param engineSourceId engine数据源id
      * @return
      */
-    @ApiModelProperty("解析并保存表级血缘关系")
     ApiResponse parseAndSaveTableLineage(Integer appType,String sql, String defaultDb, Long engineSourceId);
 
     /**
@@ -60,7 +58,6 @@ public interface LineageService extends DtInsightServer {
      * @param tableColumnsMap
      * @return
      */
-    @ApiModelProperty("解析字段级血缘关系")
     ApiResponse<ColumnLineageParseInfo> parseColumnLineage(String sql, String defaultDb, Map<String, List<Column>> tableColumnsMap);
 
     /**
@@ -71,42 +68,84 @@ public interface LineageService extends DtInsightServer {
      * @param engineSourceId
      * @return
      */
-    @ApiModelProperty("解析并存储字段级血缘关系")
     ApiResponse parseAndSaveColumnLineage(Integer appType,String sql, String defaultDb, Long engineSourceId);
 
     /**
      * 手动添加表级血缘
-     * @param appType
      * @param lineageTableTableVO
      * @return
      */
-    @ApiModelProperty("手动添加表级血缘关系")
-    ApiResponse manualAddTableTable(Integer appType, LineageTableTableVO lineageTableTableVO);
+    ApiResponse manualAddTableTable( LineageTableTableVO lineageTableTableVO);
 
     /**
      * 手动删除表级血缘
-     * @param appType
      * @param lineageTableTableVO
      * @return
      */
-    @ApiModelProperty("手动删除表级血缘关系")
-    ApiResponse manualDeleteTableTable(Integer appType, LineageTableTableVO lineageTableTableVO);
+    ApiResponse manualDeleteTableTable( LineageTableTableVO lineageTableTableVO);
 
     /**
      * 手动添加字段级血缘
-     * @param appType
      * @param lineageColumnColumnVO
      * @return
      */
-    @ApiModelProperty("手动添加字段级血缘关系")
-    ApiResponse manualAddColumnColumn(Integer appType, LineageColumnColumnVO lineageColumnColumnVO);
+    ApiResponse manualAddColumnColumn( LineageColumnColumnVO lineageColumnColumnVO);
 
     /**
      * 手动删除字段级血缘
-     * @param appType
      * @param lineageColumnColumnVO
      * @return
      */
-    @ApiModelProperty("手动删除字段级血缘")
-    ApiResponse manualDeleteColumnColumn(Integer appType, LineageColumnColumnVO lineageColumnColumnVO);
+    ApiResponse manualDeleteColumnColumn(LineageColumnColumnVO lineageColumnColumnVO);
+
+    /**
+     * 根据表id查询表上游血缘关系
+     * @param appType
+     * @param tableId
+     * @return
+     */
+    ApiResponse<List<LineageTableTableVO>> queryTableInputLineage(Long appType,Long tableId);
+
+    /**
+     * 根据表id查询表下游血缘关系
+     * @param appType
+     * @param tableId
+     * @return
+     */
+    ApiResponse<List<LineageTableTableVO>> queryTableResultLineage(Long appType, Long tableId);
+
+    /**
+     * 根据表id查询表上下游血缘关系
+     * @param appType
+     * @param tableId
+     * @return
+     */
+    ApiResponse<List<LineageTableTableVO>> queryTableLineages(Long appType, Long tableId);
+
+    /**
+     * 查询字段上游字段血缘
+     * @param appType
+     * @param tableId
+     * @param columnName
+     * @return
+     */
+    ApiResponse<List<LineageColumnColumnVO>> queryColumnInoutLineage(Long appType,Long tableId,String columnName);
+
+    /**
+     * 查询字段下游字段血缘
+     * @param appType
+     * @param tableId
+     * @param columnName
+     * @return
+     */
+    ApiResponse<List<LineageColumnColumnVO>> queryColumnResultLineage(Long appType,Long tableId,String columnName);
+
+    /**
+     * 查询字段所有血缘关系
+     * @param appType
+     * @param tableId
+     * @param columnName
+     * @return
+     */
+    ApiResponse<List<LineageColumnColumnVO>> queryColumnLineages(Long appType,Long tableId,String columnName);
 }

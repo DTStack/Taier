@@ -20,7 +20,7 @@
 
 package com.dtstack.engine.sql.flink;
 
-import com.dtstack.engine.sql.utils.DtStringUtil;
+import com.dtstack.engine.sql.flink.util.DtStringUtil;
 import com.google.common.collect.Maps;
 
 import java.util.List;

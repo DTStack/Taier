@@ -21,46 +21,63 @@
 <!--        <module>calcite-shade</module>-->
     </modules>
 
-    <dependencies>
-        <!-- 解决flink sql中的calcite冲突-->
-        <dependency>
-            <groupId>com.dtstack.engine</groupId>
-            <version>1.0.0</version>
-            <artifactId>calcite-shade</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.70</version>
-        </dependency>
+    <properties>
+        <hive.version>2.1.0</hive.version>
+        <fastjson.version>1.2.70</fastjson.version>
+        <junit.version>4.12</junit.version>
+        <commons-langs.version>3.4</commons-langs.version>
+        <commons-collections.version>3.2.1</commons-collections.version>
+        <commons-math3.version>3.1.1</commons-math3.version>
+        <guava.version>26.0-jre</guava.version>
+    </properties>
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.4</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>3.2.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-math3</artifactId>
-            <version>3.1.1</version>
-        </dependency>
+    <dependencyManagement>
+        <dependencies>
+            <!-- 解决flink sql中的calcite冲突-->
+            <dependency>
+                <groupId>com.dtstack.engine</groupId>
+                <version>1.0.0</version>
+                <artifactId>calcite-shade</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
+            </dependency>
 
-        <dependency>
-            <artifactId>dt-insight-hive-shade</artifactId>
-            <groupId>dt.insight.plat</groupId>
-            <version>4.0.2</version>
-        </dependency>
-    </dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-langs.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${commons-collections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math3</artifactId>
+                <version>${commons-math3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hive</groupId>
+                <artifactId>hive-exec</artifactId>
+                <version>${hive.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

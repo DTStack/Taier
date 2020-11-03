@@ -21,7 +21,7 @@
 package com.dtstack.engine.sql.flink.table;
 
 import com.dtstack.engine.sql.flink.util.ClassUtil;
-import com.dtstack.engine.sql.utils.DtStringUtil;
+import com.dtstack.engine.sql.flink.util.DtStringUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

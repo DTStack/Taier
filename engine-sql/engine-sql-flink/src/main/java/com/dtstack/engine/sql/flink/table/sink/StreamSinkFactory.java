@@ -23,8 +23,8 @@ package com.dtstack.engine.sql.flink.table.sink;
 import com.dtstack.engine.sql.flink.classloader.ClassLoaderManager;
 import com.dtstack.engine.sql.flink.table.AbstractTableParser;
 import com.dtstack.engine.sql.flink.table.AbstractTargetTableInfo;
+import com.dtstack.engine.sql.flink.util.DtStringUtil;
 import com.dtstack.engine.sql.flink.util.PluginUtil;
-import com.dtstack.engine.sql.utils.DtStringUtil;
 import org.apache.flink.table.sinks.TableSink;
 
 /**

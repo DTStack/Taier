@@ -21,7 +21,7 @@
 package com.dtstack.engine.sql.flink;
 
 import com.dtstack.engine.sql.flink.table.AbstractTableInfo;
-import com.dtstack.engine.sql.utils.DtStringUtil;
+import com.dtstack.engine.sql.flink.util.DtStringUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;

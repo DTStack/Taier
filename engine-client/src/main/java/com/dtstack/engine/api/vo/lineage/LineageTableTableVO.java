@@ -13,11 +13,25 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel("表级血缘关系")
 public class LineageTableTableVO {
 
+    @ApiModelProperty("app类型")
+    private Integer appType;
+
     @ApiModelProperty("输入表id")
     private LineageTableVO inputTableInfo;
 
     @ApiModelProperty("输出表id")
     private LineageTableVO resultTableInfo;
+
+    @ApiModelProperty(value = "使用双亲表示法，标识树数据结构",notes = "当前节点的父节点在列表中的下标")
+    private Integer parentIndex;
+
+    public Integer getAppType() {
+        return appType;
+    }
+
+    public void setAppType(Integer appType) {
+        this.appType = appType;
+    }
 
     public LineageTableVO getInputTableInfo() {
         return inputTableInfo;
@@ -33,5 +47,13 @@ public class LineageTableTableVO {
 
     public void setResultTableInfo(LineageTableVO resultTableInfo) {
         this.resultTableInfo = resultTableInfo;
+    }
+
+    public Integer getParentIndex() {
+        return parentIndex;
+    }
+
+    public void setParentIndex(Integer parentIndex) {
+        this.parentIndex = parentIndex;
     }
 }

@@ -23,8 +23,8 @@ package com.dtstack.engine.sql.flink.table.source;
 
 import com.dtstack.engine.sql.flink.classloader.ClassLoaderManager;
 import com.dtstack.engine.sql.flink.table.AbstractSourceParser;
+import com.dtstack.engine.sql.flink.util.DtStringUtil;
 import com.dtstack.engine.sql.flink.util.PluginUtil;
-import com.dtstack.engine.sql.utils.DtStringUtil;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
