@@ -134,6 +134,9 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
             ScheduleJob scheduleJob = null;
             try {
+                if(null == scheduleJobQueue){
+                    continue;
+                }
                 ScheduleBatchJob scheduleBatchJob = scheduleJobQueue.take();
                 scheduleJob = scheduleBatchJob.getScheduleJob();
 
@@ -192,7 +195,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                             JobCheckRunInfo checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), new HashSet<>(), new HashMap<>(), taskCache);
                             if (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
                                 logger.info("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB so immediate put queue.", scheduleBatchJob.getJobId(), getScheduleType());
-                                if (isPutQueue(checkRunInfo, scheduleBatchJob) && RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
+                                if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status) && isPutQueue(checkRunInfo, scheduleBatchJob)) {
                                     putScheduleJob(scheduleBatchJob);
                                 } else if(!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)){
                                     logger.info("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
