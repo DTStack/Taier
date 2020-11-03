@@ -120,6 +120,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         //添加需要重跑的数据
         List<ScheduleBatchJob> restartJobList = getRestartDataJob(cycStartTime);
         listExecJobs.addAll(restartJobList);
+        listExecJobs.sort(Comparator.comparing(ScheduleBatchJob::getId));
         return listExecJobs;
     }
 
@@ -279,7 +280,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     }
 
     protected List<ScheduleBatchJob> getRestartDataJob(String cycStartTime) {
-        int status = RdosTaskStatus.UNSUBMIT.getStatus();
         Timestamp lasTime = null;
         if (!StringUtils.isBlank(cycStartTime)) {
             DateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -295,7 +295,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         if (null == lasTime) {
             lasTime = new Timestamp(DateTime.now().withTime(0,0,0,0).getMillis());
         }
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listRestartBatchJobList(getScheduleType().getType(), status, lasTime);
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listRestartBatchJobList(getScheduleType().getType(), lasTime);
         return getScheduleBatchJobList(scheduleJobs);
     }
 
