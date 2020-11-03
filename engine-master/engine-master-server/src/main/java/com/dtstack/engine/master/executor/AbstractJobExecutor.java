@@ -164,7 +164,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             Long startId = batchJobService.getListMinId(nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), null);
             logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{} .", getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), nodeAddress, startId);
             if (startId == null) {
-                //需要校验是否包含重跑的周期实例
+                //周期实例查询为空之后 还需要校验是否存在重跑的数据 否则startId为空  com.dtstack.engine.master.executor.AbstractJobExecutor.listExecJob 不会查询重跑数据 导致重跑任务无法提交
                 startId = batchJobService.getListMinId(nodeAddress, getScheduleType().getType(), null, null, Restarted.RESTARTED.getStatus());
                 logger.info("scheduleType:{} nodeAddress:{} get isRestart start scanning since when startId:{} .", getScheduleType().getType(), nodeAddress, startId);
             }
@@ -208,10 +208,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                                 }
                             }
 
-                            //重跑任务不记录id
-                            if (Restarted.RESTARTED.getStatus() != scheduleBatchJob.getIsRestart()) {
-                                startId = scheduleBatchJob.getId();
-                            }
+                            // listExecJobs 如果全是为重跑的任务 会进入死循环 去除是否重跑的判断条件
+                            startId = scheduleBatchJob.getId();
                         } catch (Exception e) {
                             logger.error("jobId:{} scheduleType:{} nodeAddress:{} emitJob2Queue error:", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, e);
                             Integer status = RdosTaskStatus.FAILED.getStatus();
