@@ -780,13 +780,19 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
-        where type = #{type}
-        AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
+        where (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
         <if test="lastTime != null">
             AND gmt_modified &gt;= #{lastTime}
         </if>
+        <if test="type != null">
+            AND type = #{type}
+        </if>
+        <if test="phaseStatus != null">
+            AND `phase_status` = #{phaseStatus}
+        </if>
         AND is_restart = 1
         AND is_deleted = 0
+        ORDER BY id, cyc_time ASC LIMIT 500
     </select>
 
     <select id="listJobByJobKeys" resultType="ScheduleJob">
@@ -1374,6 +1380,7 @@
         </if>
         AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
         AND is_deleted = 0
+        AND is_restart = 0
         AND `phase_status` = #{phaseStatus}
         order by id, cyc_time asc limit 500
     </select>

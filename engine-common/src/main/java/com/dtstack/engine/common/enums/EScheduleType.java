@@ -11,7 +11,7 @@ package com.dtstack.engine.common.enums;
 public enum EScheduleType {
 
     //正常调度(0), 补数据(1),临时运行一次
-    NORMAL_SCHEDULE(0, "正常调度"), FILL_DATA(1, "补数据"), TEMP_JOB(2, "临时运行");
+    NORMAL_SCHEDULE(0, "正常调度"), FILL_DATA(1, "补数据"), TEMP_JOB(2, "临时运行"),RESTART(3, "重跑");
 
     private int type;
 
@@ -38,6 +38,8 @@ public enum EScheduleType {
             return FILL_DATA.desc;
         } else if (TEMP_JOB.type == type) {
             return TEMP_JOB.desc;
+        } else if(RESTART.type == type){
+            return RESTART.desc;
         } else {
             throw new UnsupportedOperationException("未知调度类型");
         }

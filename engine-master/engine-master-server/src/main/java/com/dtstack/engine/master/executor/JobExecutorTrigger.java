@@ -43,6 +43,9 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
     private FillJobExecutor fillJobExecutor;
 
     @Autowired
+    private RestartJobExecutor restartJobExecutor;
+
+    @Autowired
     private JobRichOperator jobRichOperator;
 
     private List<AbstractJobExecutor> executors = new ArrayList<>(EScheduleType.values().length);
@@ -55,8 +58,9 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
 
         executors.add(fillJobExecutor);
         executors.add(cronJobExecutor);
+        executors.add(restartJobExecutor);
 
-        executorService = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,
+        executorService = new ThreadPoolExecutor(3, 3, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("ExecutorDealer"));
         for (AbstractJobExecutor executor : executors) {
             executorService.submit(executor);
