@@ -1,22 +1,14 @@
 package com.dtstack.engine.master.jobdealer.resource;
 
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.constrant.ConfigConstant;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.EDeployMode;
-import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ClusterService;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -27,7 +19,7 @@ import java.util.Objects;
 @Component
 public class JobComputeResourcePlain {
 
-    private static final String SPLIT = "_";
+    public static final String SPLIT = "_";
 
     @Autowired
     private CommonResource commonResource;
@@ -45,18 +37,11 @@ public class JobComputeResourcePlain {
 
         String plainType = environmentContext.getComputeResourcePlain();
         String jobResource = null;
-        if (ComputeResourcePlain.Cluster.name().equalsIgnoreCase(plainType)) {
-            jobResource = StringUtils.substringBefore(jobClient.getGroupName(), SPLIT);
-        } else if (ComputeResourcePlain.ClusterQueue.name().equalsIgnoreCase(plainType)) {
-            jobResource = jobClient.getGroupName();
-        } else if (ComputeResourcePlain.EngineTypeClusterQueue.name().equalsIgnoreCase(plainType)) {
+        if (ComputeResourcePlain.EngineTypeClusterQueue.name().equalsIgnoreCase(plainType)) {
             jobResource = jobClient.getEngineType() + SPLIT + jobClient.getGroupName();
-        } else if (ComputeResourcePlain.EngineTypeClusterQueueComputeType.name().equalsIgnoreCase(plainType)) {
-            jobResource = jobClient.getEngineType() + SPLIT + jobClient.getGroupName() + SPLIT + jobClient.getComputeType().name().toLowerCase();
         } else {
-            jobResource = jobClient.getGroupName();
+            jobResource = jobClient.getEngineType() + SPLIT + jobClient.getGroupName() + SPLIT + jobClient.getComputeType().name().toLowerCase();
         }
-
         return jobResource + SPLIT + computeResourceType.name();
     }
 
