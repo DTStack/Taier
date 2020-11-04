@@ -43,6 +43,7 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.yarn.ClientArguments;
+import org.apache.zookeeper.server.util.KerberosUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -385,22 +386,8 @@ public class SparkYarnClient extends AbstractClient {
 
         String taskId = jobClient.getTaskId();
         if (sparkYarnConfig.isOpenKerberos()){
-
-            String fileName = sparkYarnConfig.getPrincipalFile();
-            String remoteDir = sparkYarnConfig.getRemoteDir();
-            String localKeytabDir = USER_DIR + "/kerberos/keytab";
-            String localDir = String.format("%s/%s", localKeytabDir, taskId);
-
-            File path = new File(localDir);
-            if (!path.exists()) {
-                path.mkdirs();
-            }
-
-            logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, sparkYarnConfig.getSftpConf());
-            SFTPHandler handler = SFTPHandler.getInstance(sparkYarnConfig.getSftpConf());
-            String keytab = handler.loadOverrideFromSftp(fileName, remoteDir, localDir, true);
-            logger.info("keytabPath:{}", keytab);
-
+            String[] kerberosFiles = KerberosUtils.getKerberosFile(sparkYarnConfig, null);
+            String keytab = kerberosFiles[0];
             String principal = KerberosUtils.getPrincipal(keytab);
             sparkConf.set("spark.yarn.keytab", keytab);
             sparkConf.set("spark.yarn.principal", principal);

@@ -364,19 +364,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         String remoteDir = flinkConfig.getRemoteDir();
 
         // 任务提交keytab
-        String clusterKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + UUID.randomUUID();
-        File path = new File(clusterKeytabDirPath);
-        if (!path.exists()) {
-            path.mkdirs();
-        }
-        String keytabName = flinkConfig.getPrincipalFile();
-        SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
-        handler.loadOverrideFromSftp(keytabName, remoteDir, clusterKeytabDirPath, false);
-
-        String krb5ConfName = flinkConfig.getKrbName();
-        if (StringUtils.isNotBlank(krb5ConfName)) {
-            handler.loadOverrideFromSftp(krb5ConfName, flinkConfig.getRemoteDir(), clusterKeytabDirPath, true);
-        }
+        String clusterKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
         File clusterKeytabDir = new File(clusterKeytabDirPath);
         File[] clusterKeytabFiles = clusterKeytabDir.listFiles();
 

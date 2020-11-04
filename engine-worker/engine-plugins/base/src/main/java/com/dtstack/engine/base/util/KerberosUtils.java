@@ -3,9 +3,11 @@ package com.dtstack.engine.base.util;
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.SFTPHandler;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.HadoopKerberosName;
@@ -21,13 +23,15 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.kerberos.KerberosTicket;
 import java.io.*;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.PrivilegedExceptionAction;
 import java.util.*;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 public class KerberosUtils {
@@ -36,12 +40,16 @@ public class KerberosUtils {
 
     private static final String USER_DIR = System.getProperty("user.dir");
     private static final String LOCAL_KEYTAB_DIR = USER_DIR + "/kerberos/keytab";
+    private static final String LOCAL_KRB5_DIR = USER_DIR + "/kerberos/krb5";
+    private static final String KRB5_FILE_NAME = "krb5.conf";
     private static final String KRB5_CONF = "java.security.krb5.conf";
     private static final String KERBEROS_AUTH = "hadoop.security.authentication";
     private static final String SECURITY_TO_LOCAL = "hadoop.security.auth_to_local";
     private static final String KERBEROS_AUTH_TYPE = "kerberos";
     private static final String SECURITY_TO_LOCAL_DEFAULT = "RULE:[1:$1] RULE:[2:$1]";
+    private static final String MODIFIED_TIME_KEY = "modifiedTime";
 
+    private static ObjectMapper objectMapper = new ObjectMapper();
     private static Map<String, UserGroupInformation> ugiMap = Maps.newConcurrentMap();
     private static Map<String, String> segment = Maps.newConcurrentMap();
     private static final String TIME_FILE = ".lock";
@@ -192,10 +200,12 @@ public class KerberosUtils {
         return isOverrideDownLoad;
     }
 
-    private static UserGroupInformation createUGI(String krb5Conf, Configuration config, String principal, String keytabPath) {
+    private synchronized static UserGroupInformation createUGI(String krb5ConfPath, Configuration config, String principal, String keytabPath) {
         try {
-            if (StringUtils.isNotEmpty(krb5Conf)) {
-                System.setProperty(KRB5_CONF, krb5Conf);
+            checkParams(principal, krb5ConfPath, keytabPath);
+            krb5ConfPath = mergeKrb5(krb5ConfPath, principal);
+            if (StringUtils.isNotEmpty(krb5ConfPath)) {
+                System.setProperty(KRB5_CONF, krb5ConfPath);
             }
             if (StringUtils.isEmpty(config.get(SECURITY_TO_LOCAL)) || "DEFAULT".equals(config.get(SECURITY_TO_LOCAL))) {
                 config.set(SECURITY_TO_LOCAL, SECURITY_TO_LOCAL_DEFAULT);
@@ -262,21 +272,243 @@ public class KerberosUtils {
         return principal;
     }
 
-    public static String getKeytabPath(BaseConfig config) {
-        String fileName = config.getPrincipalFile();
-        String remoteDir = config.getRemoteDir();
-        String localDir = String.format("%s/%s", LOCAL_KEYTAB_DIR, UUID.randomUUID());
-
-        File path = new File(localDir);
-        if (!path.exists()) {
-            path.mkdirs();
+    public static String mergeKrb5(String krb5ConfPath, String principal) throws Exception {
+        if (StringUtils.isEmpty(krb5ConfPath)) {
+            return "";
+        }
+        File krb5Dir = new File(LOCAL_KRB5_DIR);
+        if (!krb5Dir.exists()) {
+            krb5Dir.mkdirs();
+        }
+        String localKrb5Path = LOCAL_KRB5_DIR + File.separator + KRB5_FILE_NAME;
+        File localKrb5File = new File(localKrb5Path);
+        if (!localKrb5File.exists()) {
+            synchronized(KerberosUtils.class) {
+                if (!localKrb5File.exists()) {
+                    FileUtils.copyFile(new File(krb5ConfPath), localKrb5File);
+                    return localKrb5Path;
+                }
+            }
         }
 
-        logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, config.getSftpConf());
-        SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
-        String keytabPath = handler.loadOverrideFromSftp(fileName, remoteDir, localDir, true);
-        logger.info("keytabPath:{}", keytabPath);
-        return keytabPath;
+        boolean isMerge = false;
+        for (int i=0; i < 3; i++) {
+            try{
+                Map<String, HashMap<String, String>> remoteKrb5Content = readKrb5(krb5ConfPath);
+                Map<String, HashMap<String, String>> localKrb5Content = readKrb5(localKrb5Path);
+
+                String modifiedTime = localKrb5Content.get(MODIFIED_TIME_KEY).get(MODIFIED_TIME_KEY);
+                Set<String> mapKeys = mergeKrb5ContentKey(remoteKrb5Content, localKrb5Content);
+                String localKrb5ContentStr = objectMapper.writeValueAsString(localKrb5Content);
+                if (StringUtils.isEmpty(localKrb5ContentStr)) {
+                    throw new RdosDefineException("krb5.conf is null!");
+                }
+                Map<String, HashMap<String, String>> newContent = (HashMap<String, HashMap<String, String>>)objectMapper.readValue(localKrb5ContentStr, HashMap.class);
+
+                for (String key: mapKeys) {
+                    HashMap<String, String> remoteKrb5Section = remoteKrb5Content.get(key);
+                    if (remoteKrb5Section == null) {
+                        continue;
+                    }
+                    newContent.merge(key, remoteKrb5Content.get(key), new BiFunction() {
+                        @Override
+                        public Map<String, String> apply(Object oldValue, Object newValue) {
+                            Map<String, String> oldMap = (Map<String, String>) oldValue;
+                            Map<String, String> newMap = (Map<String, String>) newValue;
+                            if (oldMap == null) {
+                                return newMap;
+                            } else if (newMap == null) {
+                                return oldMap;
+                            } else {
+                                oldMap.putAll(newMap);
+                                return oldMap;
+                            }
+                        }
+                    });
+                }
+
+                checkRealm(newContent.get("domain_realm"), principal);
+                if (!localKrb5Content.equals(newContent)) {
+                    writeKrb5(localKrb5Path, newContent, modifiedTime);
+                }
+                isMerge = true;
+                break;
+            } catch (Exception e) {
+                logger.error("merge krb5.conf fail!, {}", e.getMessage());
+            }
+        }
+
+        if (!isMerge) {
+            throw new RdosDefineException("Merge krb5.conf fail!");
+        }
+        return localKrb5Path;
+    }
+
+    private static void checkParams(String principal, String krb5ConfPath, String keytabPath) {
+        if (StringUtils.isEmpty(principal)) {
+            throw new RdosDefineException("principal is null！");
+        }
+        if (StringUtils.isEmpty(krb5ConfPath)) {
+            throw new RdosDefineException("krb5ConfPath is null！");
+        }
+        if (StringUtils.isEmpty(keytabPath)) {
+            throw new RdosDefineException("keytabPath is null！");
+        }
+    }
+
+    private static void checkRealm(HashMap<String, String> domainRealm, String principal) {
+        if (domainRealm == null || domainRealm.size() == 0) {
+            throw new RdosDefineException("domain_realm is not set！");
+        }
+        String user = "";
+        String hostname = "";
+        if (StringUtils.contains(principal, "/")) {
+            String[] conts = StringUtils.split(principal, "/");
+            user = conts[0];
+            if (conts.length >= 2) {
+                if (StringUtils.contains(conts[1], "@")) {
+                    String[] split = StringUtils.split(conts[1], "@");
+                    hostname = split[0];
+                }
+            }
+        }
+        if (StringUtils.isNotEmpty(hostname) && !domainRealm.containsKey(hostname)) {
+            logger.error("{} not in domain_realm, current principal is {}", hostname, principal);
+            throw new RdosDefineException(hostname + "not in domain_realm!");
+        }
+    }
+
+    private static Set<String> mergeKrb5ContentKey(Map<String, HashMap<String, String>> remoteKrb5Content, Map<String, HashMap<String, String>> localKrb5Content) {
+        remoteKrb5Content.remove(MODIFIED_TIME_KEY);
+        localKrb5Content.remove(MODIFIED_TIME_KEY);
+
+        Set<String> mapKeys = new HashSet<>();
+        mapKeys.addAll(remoteKrb5Content.keySet());
+        mapKeys.addAll(localKrb5Content.keySet());
+        return mapKeys;
+    }
+
+    public static Map<String, HashMap<String, String>> readKrb5(String krb5Path) {
+        Map<String, HashMap<String, String>> krb5Contents = new HashMap<>();
+
+        String section = "";
+        boolean flag = true;
+        String currentKey = "";
+        StringBuffer content = new StringBuffer();
+
+        List<String> lines = new ArrayList<>();
+        File krb5File = new File(krb5Path);
+
+        try(
+                InputStreamReader inputReader = new InputStreamReader(new FileInputStream(krb5File));
+                BufferedReader br = new BufferedReader(inputReader);
+        ){
+            long modifiedTime = krb5File.lastModified();
+            krb5Contents.put(MODIFIED_TIME_KEY, new HashMap<String, String>(){{
+                put(MODIFIED_TIME_KEY, String.valueOf(modifiedTime));
+            }});
+            for (;;) {
+                String line = br.readLine();
+                if (line == null) {
+                    break;
+                }
+                lines.add(line);
+            }
+        } catch (Exception e){
+            logger.error("krb5.conf read error: {}", e.getMessage());
+            throw new RdosDefineException("krb5.conf read error");
+        }
+
+        for (String line : lines) {
+            line = StringUtils.trim(line);
+            if (StringUtils.isNotEmpty(line) && !StringUtils.startsWith(line, "#") && !StringUtils.startsWith(line, ";")) {
+                if (line.startsWith("[") && line.endsWith("]")){
+                    section = line.substring(1, line.length() - 1).trim();
+                } else {
+                    if (line.contains("{")) {
+                        flag = false;
+                        content = new StringBuffer();
+                        if (line.contains("=")) {
+                            currentKey = line.split("=")[0].trim();
+                            line = line.split("=")[1].trim();
+                        }
+                    }
+
+                    if (flag) {
+                        String[] cons = line.split("=");
+                        String key = cons[0].trim();
+                        String value = "";
+                        if (cons.length > 1) {
+                            value = cons[1].trim();
+                        }
+                        currentKey = key;
+                        Map map = krb5Contents.computeIfAbsent(section, k -> new HashMap<String, String>());
+                        map.put(key, value);
+                    } else {
+                        content.append(line).append(System.lineSeparator());
+                    }
+
+                    if (line.contains("}")) {
+                        flag = true;
+                        String value = content.toString();
+                        Map map = krb5Contents.computeIfAbsent(section, k -> new HashMap<String, String>());
+                        map.put(currentKey, value);
+                    }
+                }
+            }
+        }
+        return krb5Contents;
+    }
+
+    public static void writeKrb5(String filePath, Map<String, HashMap<String, String>> krb5, String modifiedTime) throws Exception {
+        File file = new File(filePath);
+        String newModifiedTime = String.valueOf(file.lastModified());
+        if (!StringUtils.equals(newModifiedTime, modifiedTime)) {
+            throw new RdosDefineException("krb5.conf modified time changed!");
+        }
+
+        StringBuffer content = new StringBuffer();
+        for (String key : krb5.keySet()) {
+            if (StringUtils.isNotEmpty(key)) {
+                String keyStr = String.format("[%s]", key);
+                content.append(keyStr).append(System.lineSeparator());
+            }
+            Map<String, String> options = krb5.get(key);
+            for(String option : options.keySet()) {
+                String optionStr = String.format("%s = %s", option, options.get(option));
+                content.append(optionStr).append(System.lineSeparator());
+            }
+        }
+        Files.write(Paths.get(filePath), Collections.singleton(content));
+    }
+
+    public static synchronized String[] getKerberosFile(BaseConfig config, String localDir) {
+        String keytabFileName = config.getPrincipalFile();
+        String krb5FileName = config.getKrbName();
+        String remoteDir = config.getRemoteDir();
+        if (StringUtils.isEmpty(localDir)) {
+            localDir = LOCAL_KEYTAB_DIR + remoteDir;
+        }
+
+        File localDirPath = new File(localDir);
+        if (!localDirPath.exists()) {
+            localDirPath.mkdirs();
+        }
+
+        String keytabPath = "";
+        String krb5ConfPath = "";
+        boolean isOverrideDownLoad = checkLocalCache(config.getKerberosFileTimestamp(), localDirPath);
+        if (isOverrideDownLoad) {
+            SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
+            keytabPath = handler.loadOverrideFromSftp(keytabFileName, remoteDir, localDir, false);
+            krb5ConfPath = handler.loadOverrideFromSftp(krb5FileName, remoteDir, localDir, true);
+            writeTimeLockFile(config.getKerberosFileTimestamp(), localDir);
+        } else {
+            keytabPath = localDir + File.separator + keytabFileName;
+            krb5ConfPath = localDir + File.separator + krb5FileName;
+        }
+        logger.info("Get keytabPath: {}, krb5ConfPath: {}", keytabPath, krb5ConfPath);
+        return new String[]{keytabPath, krb5ConfPath};
     }
 
     public static Configuration convertMapConfToConfiguration(Map<String,Object> allConfig) {
