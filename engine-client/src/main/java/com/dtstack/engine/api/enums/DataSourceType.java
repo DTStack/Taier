@@ -1,4 +1,6 @@
-package com.dtstack.lineage.enums;
+package com.dtstack.engine.api.enums;
+
+import java.util.Objects;
 
 /**
  * @author chener
@@ -27,5 +29,17 @@ public enum DataSourceType {
 
     DataSourceType(int type) {
         this.type = type;
+    }
+
+    public static DataSourceType getByType(Integer type){
+        if (Objects.isNull(type)){
+            return null;
+        }
+        for (DataSourceType sourceType:values()){
+            if (sourceType.getType() == type){
+                return sourceType;
+            }
+        }
+        return null;
     }
 }

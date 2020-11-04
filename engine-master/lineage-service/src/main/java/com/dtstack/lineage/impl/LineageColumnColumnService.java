@@ -1,6 +1,6 @@
 package com.dtstack.lineage.impl;
 
-import com.dtstack.lineage.dao.LineageColumnColumnAppRefDao;
+import com.dtstack.lineage.dao.LineageColumnColumnUniqueKeyRefDao;
 import com.dtstack.lineage.dao.LineageColumnColumnDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class LineageColumnColumnService {
     private LineageColumnColumnDao lineageColumnColumnDao;
 
     @Autowired
-    private LineageColumnColumnAppRefDao lineageColumnColumnAppRefDao;
+    private LineageColumnColumnUniqueKeyRefDao lineageColumnColumnUniqueKeyRefDao;
 
 
 }

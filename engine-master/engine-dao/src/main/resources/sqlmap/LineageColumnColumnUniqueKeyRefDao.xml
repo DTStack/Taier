@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.lineage.dao.LineageColumnColumnUniqueKeyRefDao">
+
+    <sql id="select_content_fragment">
+      id,app_type,unique_key,lineage_column_column_id,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <insert id="batchInsert" parameterType="com.dtstack.engine.api.domain.LineageColumnColumnUniqueKeyRef" useGeneratedKeys="true" keyProperty="id">
+        insert into lineage_column_column_app_ref(app_type,unique_key,lineage_column_column_id)
+        values
+         (#{appType},#{uniqueKey},#{lineageColumnColumnId})
+    </insert>
+
+</mapper>

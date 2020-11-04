@@ -44,6 +44,12 @@ public class BaseParseResult {
     private SqlType sqlType;
 
     /**
+     * 附加类型，常用语创建临时表
+     */
+    @ApiModelProperty("sql操作类型")
+    private SqlType extraType;
+
+    /**
      * 当前sql运行时的数据库
      */
     @ApiModelProperty("当前sql运行数据库")
@@ -95,5 +101,13 @@ public class BaseParseResult {
 
     public void setCurrentDb(String currentDb) {
         this.currentDb = currentDb;
+    }
+
+    public SqlType getExtraType() {
+        return extraType;
+    }
+
+    public void setExtraType(SqlType extraType) {
+        this.extraType = extraType;
     }
 }

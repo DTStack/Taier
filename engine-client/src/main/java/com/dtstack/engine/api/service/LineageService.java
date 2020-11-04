@@ -24,11 +24,12 @@ public interface LineageService extends DtInsightServer {
     /**
      * 解析sql基本信息
      * @param sql sql
+     * @Param defaultDb 默认数据库
      * @Param sourceType 数据源类型
      * @return 返回基本解析信息
      */
     @RequestLine("POST /node/lineage/parseSqlInfo")
-    ApiResponse<SqlParseInfo> parseSqlInfo(String sql,Integer sourceType);
+    ApiResponse<SqlParseInfo> parseSqlInfo(String sql,String defaultDb,Integer sourceType);
 
     /**
      * 解析sql表级血缘

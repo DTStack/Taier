@@ -7,6 +7,6 @@ package com.dtstack.lineage.dao;
  * @Date 2020/10/28 18:01
  * @Created chener@dtstack.com
  */
-public interface LineageTableTableAppRefDao {
-
+public interface LineageTableTableUniqueKeyDao {
+    void deleteByUniqueKey(Integer appType,String uniqueKey);
 }

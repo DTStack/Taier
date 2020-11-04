@@ -62,8 +62,11 @@ create table lineage_data_set_info(
 -- 表级血缘记录表
 create table lineage_table_table(
     id int(11) NOT NULL AUTO_INCREMENT,
+    app_type smallint(3) NOT NULL COMMENT '应用类型',
     dt_uic_tenant_id int(11) NOT NULL COMMENT '租户id',
+    input_table_key varchar(32) NOT NULL COMMENT '输入表表物理定位码',
     input_table_id int(11) NOT NULL COMMENT '输入表id lineage_real_data_source表的id',
+    result_table_key varchar(32) NOT NULL COMMENT '输出表表物理定位码',
     result_table_id int(11) NOT NULL COMMENT '输出表id lineage_real_data_source表的id',
     table_lineage_key VARCHAR(30) NOT NULL COMMENT '表血缘定位码，根据输入表和输出表定位码计算出',
     unique_key VARCHAR(32) NOT NULL COMMENT '批次血缘唯一码，比如离线中使用taskId作为血缘批次控制',
@@ -76,9 +79,10 @@ create table lineage_table_table(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 表血缘与应用关联表
-create table lineage_table_table_app_ref(
+create table lineage_table_table_unique_key_ref(
     id int(11) NOT NULL AUTO_INCREMENT,
     app_type smallint(4) NOT NULL COMMENT '应用类型',
+    uniqueKey varchar(32) NOT NULL COMMENT '血缘批次码，离线中通常为taskId',
     lineage_table_table_id int(11) NOT NULL COMMENT 'lineage_table_table表id',
     gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -89,10 +93,13 @@ create table lineage_table_table_app_ref(
 -- 字段级血缘存储方案
 create table lineage_column_column(
     id int(11) NOT NULL AUTO_INCREMENT,
+    app_type smallint(3) NOT NULL COMMENT '应用类型',
     dt_uic_tenant_id int(11) NOT NULL COMMENT '租户id',
     input_table_id int(11) NOT NULL COMMENT '输入表id',
+    input_table_key varchar(32) NOT NULL COMMENT '输入表表物理定位码',
     input_column_name VARCHAR(55) NOT NULL COMMENT '输入字段名称',
     result_table_id int(11) NOT NULL COMMENT '输出表id',
+    result_table_key varchar(32) NOT NULL COMMENT '输入表表物理定位码',
     result_column_name VARCHAR(55) NOT NULL COMMENT '输出字段名称',
     column_lineage_key VARCHAR(60) NOT NULL COMMENT '字段级血缘定位码，根据输入字段和输出字段定位码计算出',
     unique_key VARCHAR(32) NOT NULL COMMENT '批次血缘唯一码，比如离线中使用taskId作为血缘批次控制',
@@ -105,9 +112,10 @@ create table lineage_column_column(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 字段血缘与应用关联表
-create table lineage_table_table_app_ref(
+create table lineage_column_column_unique_key_ref(
     id int(11) NOT NULL AUTO_INCREMENT,
     app_type smallint(4) NOT NULL COMMENT '应用类型',
+    uniqueKey varchar(32) NOT NULL COMMENT '血缘批次码，离线中通常为taskId',
     lineage_column_column_id int(11) NOT NULL COMMENT 'lineage_column_column表id',
     gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',

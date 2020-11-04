@@ -1,6 +1,6 @@
 package com.dtstack.lineage.dao;
 
-import com.dtstack.engine.api.domain.LineageColumnColumnAppRef;
+import com.dtstack.engine.api.domain.LineageColumnColumnUniqueKeyRef;
 
 import java.util.List;
 
@@ -11,8 +11,8 @@ import java.util.List;
  * @Date 2020/10/28 18:02
  * @Created chener@dtstack.com
  */
-public interface LineageColumnColumnAppRefDao {
+public interface LineageColumnColumnUniqueKeyRefDao {
 
-    Integer batchInsert(List<LineageColumnColumnAppRef> columnColumns);
+    Integer batchInsert(List<LineageColumnColumnUniqueKeyRef> columnColumns);
 
 }

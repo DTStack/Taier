@@ -32,7 +32,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/node/lineage")
-@Api(value = "/node/lineage", tags = {"sql解析"})
+@Api(value = "/node/lineage", tags = {"sql解析接口"})
 public class LineageController {
 
     @Autowired
@@ -42,12 +42,12 @@ public class LineageController {
     @ApiOperation(value = "解析sql基本信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "sql", value = "待解析sql"),
+            @ApiImplicitParam(name = "defaultDb", value = "默认数据库"),
             @ApiImplicitParam(name = "sourceType", value = "数据源类型")
     }
     )
-    public SqlParseInfo parseBaseInfo(@DtRequestParam String sql,@DtRequestParam Integer sourceType){
-        //TODO
-        return null;
+    public SqlParseInfo parseSqlInfo(@DtRequestParam String sql,@DtRequestParam String defaultDb,@DtRequestParam Integer sourceType){
+        return lineageService.parseSql(sql,defaultDb,sourceType);
     }
 
     @RequestMapping(value="/parseTableLineage", method = {RequestMethod.POST})
@@ -59,20 +59,20 @@ public class LineageController {
     }
     )
     public TableLineageParseInfo parseTableLineage(@DtRequestParam String sql,@DtRequestParam String defaultDb,@DtRequestParam Integer sourceType){
-        //TODO
-        return null;
+        return lineageService.parseTableLineage(sql,defaultDb,sourceType);
     }
 
     @RequestMapping(value="/parseAndSaveTableLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "解析sql表级血缘关系并存储")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "appType", value = "应用类型"),
+            @ApiImplicitParam(name = "uicTenantId", value = "uic租户id"),
             @ApiImplicitParam(name = "sql", value = "待解析sql"),
             @ApiImplicitParam(name = "defaultDb", value = "默认数据库"),
             @ApiImplicitParam(name = "engineSourceId", value = "引擎数据源id，需要提前将数据源推送到engine")
     }
     )
-    public void parseAndSaveTableLineage(@DtRequestParam Integer appType,@DtRequestParam String sql,@DtRequestParam String defaultDb,@DtRequestParam Long engineSourceId){
+    public void parseAndSaveTableLineage(@DtRequestParam Integer appType,@DtRequestParam Integer uicTenantId,@DtRequestParam String sql,@DtRequestParam String defaultDb,@DtRequestParam Long engineSourceId){
         //TODO
     }
 

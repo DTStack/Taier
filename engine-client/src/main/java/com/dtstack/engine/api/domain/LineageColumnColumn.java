@@ -13,11 +13,20 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel
 public class LineageColumnColumn extends DtUicTenantEntity {
 
+    @ApiModelProperty("应用类型")
+    private Integer appType;
+
+    @ApiModelProperty("输入物理表定位key")
+    private String inputTableKey;
+
     @ApiModelProperty(notes = "输入表id")
     private Integer inputTableId;
 
     @ApiModelProperty(notes = "输入字段名")
     private String inputColumnName;
+
+    @ApiModelProperty("输出物理表定位key")
+    private String resultTableKey;
 
     @ApiModelProperty(notes = "输出表id")
     private Integer resultTableId;
@@ -33,6 +42,14 @@ public class LineageColumnColumn extends DtUicTenantEntity {
 
     @ApiModelProperty(notes = "血缘批次唯一码")
     private String uniqueKey;
+
+    public Integer getAppType() {
+        return appType;
+    }
+
+    public void setAppType(Integer appType) {
+        this.appType = appType;
+    }
 
     public Integer getInputTableId() {
         return inputTableId;
@@ -88,5 +105,21 @@ public class LineageColumnColumn extends DtUicTenantEntity {
 
     public void setUniqueKey(String uniqueKey) {
         this.uniqueKey = uniqueKey;
+    }
+
+    public String getInputTableKey() {
+        return inputTableKey;
+    }
+
+    public void setInputTableKey(String inputTableKey) {
+        this.inputTableKey = inputTableKey;
+    }
+
+    public String getResultTableKey() {
+        return resultTableKey;
+    }
+
+    public void setResultTableKey(String resultTableKey) {
+        this.resultTableKey = resultTableKey;
     }
 }

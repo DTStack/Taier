@@ -13,11 +13,20 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel
 public class LineageTableTable extends DtUicTenantEntity {
 
+    @ApiModelProperty(notes = "应用类型")
+    private Integer appType;
+
     @ApiModelProperty(notes = "输入表id")
-    private Integer inputTableId;
+    private Long inputTableId;
+
+    @ApiModelProperty("输入物理表定位key")
+    private String inputTableKey;
 
     @ApiModelProperty(notes = "输出表id")
-    private Integer resultTableId;
+    private Long resultTableId;
+
+    @ApiModelProperty("输出物理表定位key")
+    private String resultTableKey;
 
     @ApiModelProperty(notes = "表级血缘关系定位码")
     private String tableLineageKey;
@@ -28,19 +37,27 @@ public class LineageTableTable extends DtUicTenantEntity {
     @ApiModelProperty(notes = "血缘批次唯一码")
     private String uniqueKey;
 
-    public Integer getInputTableId() {
+    public Integer getAppType() {
+        return appType;
+    }
+
+    public void setAppType(Integer appType) {
+        this.appType = appType;
+    }
+
+    public Long getInputTableId() {
         return inputTableId;
     }
 
-    public void setInputTableId(Integer inputTableId) {
+    public void setInputTableId(Long inputTableId) {
         this.inputTableId = inputTableId;
     }
 
-    public Integer getResultTableId() {
+    public Long getResultTableId() {
         return resultTableId;
     }
 
-    public void setResultTableId(Integer resultTableId) {
+    public void setResultTableId(Long resultTableId) {
         this.resultTableId = resultTableId;
     }
 
@@ -66,5 +83,21 @@ public class LineageTableTable extends DtUicTenantEntity {
 
     public void setUniqueKey(String uniqueKey) {
         this.uniqueKey = uniqueKey;
+    }
+
+    public String getInputTableKey() {
+        return inputTableKey;
+    }
+
+    public void setInputTableKey(String inputTableKey) {
+        this.inputTableKey = inputTableKey;
+    }
+
+    public String getResultTableKey() {
+        return resultTableKey;
+    }
+
+    public void setResultTableKey(String resultTableKey) {
+        this.resultTableKey = resultTableKey;
     }
 }

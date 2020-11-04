@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.lineage.dao.LineageColumnColumnDao">
 
     <sql id="select_content_fragment">
-      id,tenant_id,app_type,input_table_id,input_column_name,result_table_id,result_column_name,column_lineage_key,is_manual,gmt_create,gmt_modified,is_deleted
+      id,dt_uic_tenant_id,app_type,input_table_id,input_table_key,input_column_name,result_table_id,result_table_key,result_column_name,column_lineage_key,lineage_source,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <sql id="select_where_fragment">

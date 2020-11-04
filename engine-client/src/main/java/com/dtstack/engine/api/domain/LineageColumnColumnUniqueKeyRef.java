@@ -9,10 +9,13 @@ import io.swagger.annotations.ApiModelProperty;
  * @Date 2020/10/28 19:46
  * @Created chener@dtstack.com
  */
-public class LineageColumnColumnAppRef extends BaseEntity{
+public class LineageColumnColumnUniqueKeyRef extends BaseEntity{
 
     @ApiModelProperty(notes = "app类型")
     private Integer appType;
+
+    @ApiModelProperty(notes = "血缘批次码，离线中通常为taskId")
+    private String uniqueKey;
 
     @ApiModelProperty(notes = "字段血缘关联id")
     private Integer lineageColumnColumnId;
@@ -31,5 +34,13 @@ public class LineageColumnColumnAppRef extends BaseEntity{
 
     public void setLineageColumnColumnId(Integer lineageColumnColumnId) {
         this.lineageColumnColumnId = lineageColumnColumnId;
+    }
+
+    public String getUniqueKey() {
+        return uniqueKey;
+    }
+
+    public void setUniqueKey(String uniqueKey) {
+        this.uniqueKey = uniqueKey;
     }
 }

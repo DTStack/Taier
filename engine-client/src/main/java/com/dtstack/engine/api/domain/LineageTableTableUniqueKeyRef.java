@@ -9,10 +9,13 @@ import io.swagger.annotations.ApiModelProperty;
  * @Date 2020/10/28 19:46
  * @Created chener@dtstack.com
  */
-public class LineageTableTableAppRef extends DtUicTenantEntity{
+public class LineageTableTableUniqueKeyRef extends DtUicTenantEntity{
 
-    @ApiModelProperty(notes = "app类型")
+    @ApiModelProperty(notes = "应用类型")
     private Integer appType;
+
+    @ApiModelProperty(notes = "血缘批次码，离线中通常为taskId")
+    private String uniqueKey;
 
     @ApiModelProperty(notes = "表血缘关联id")
     private Integer lineageTableTableId;
@@ -31,5 +34,13 @@ public class LineageTableTableAppRef extends DtUicTenantEntity{
 
     public void setLineageTableTableId(Integer lineageTableTableId) {
         this.lineageTableTableId = lineageTableTableId;
+    }
+
+    public String getUniqueKey() {
+        return uniqueKey;
+    }
+
+    public void setUniqueKey(String uniqueKey) {
+        this.uniqueKey = uniqueKey;
     }
 }
