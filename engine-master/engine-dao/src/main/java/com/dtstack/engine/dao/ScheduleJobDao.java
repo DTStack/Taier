@@ -43,8 +43,6 @@ public interface ScheduleJobDao {
 
     List<Map<String, Object>> listThirtyDayJobs(@Param("statusList") List<Integer> statusList, @Param("type") Integer type, @Param("taskTypes") List<Integer> taskTypes, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId);
 
-    List<ScheduleJob> listRestartBatchJobList(@Param("type") Integer type, @Param("lastTime") Timestamp lastTime,@Param("phaseStatus")Integer phaseStatus);
-
     List<ScheduleJob> listJobByJobKeys(@Param("jobKeys") Collection<String> jobKeys);
 
     List<Long> listIdByTaskIdAndStatus(@Param("taskId") Long taskId, @Param("statuses") List<Integer> status, @Param("appType") Integer appType);
@@ -175,7 +173,8 @@ public interface ScheduleJobDao {
 
     void stopUnsubmitJob(@Param("likeName") String likeName, @Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("status") Integer status);
 
-    List<ScheduleJob> listExecJobByCycTimeTypeAddress(@Param("startId") Long startId, @Param("nodeAddress") String nodeAddress, @Param("scheduleType") Integer scheduleType, @Param("cycStartTime") String cycStartTime, @Param("cycEndTime") String cycEndTime, @Param("phaseStatus") Integer phaseStatus, @Param("isEq") Boolean isEq);
+    List<ScheduleJob> listExecJobByCycTimeTypeAddress(@Param("startId") Long startId, @Param("nodeAddress") String nodeAddress, @Param("scheduleType") Integer scheduleType, @Param("cycStartTime") String cycStartTime, @Param("cycEndTime") String cycEndTime, @Param("phaseStatus") Integer phaseStatus,
+                                                      @Param("isEq") Boolean isEq, @Param("lastTime") Timestamp lastTime,@Param("isRestart") Integer isRestart);
 
     Integer updateJobInfoByJobId(@Param("jobId") String jobId, @Param("status") Integer status, @Param("execStartTime") Timestamp execStartTime, @Param("execEndTime") Timestamp execEndTime, @Param("execTime") Long execTime, @Param("retryNum") Integer retryNum,@Param("stopStatuses") List<Integer> stopStatuses);
 

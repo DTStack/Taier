@@ -112,7 +112,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     }
 
     protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress, String cycStartTime, String cycEndTime,Boolean isEq) {
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, getScheduleType().getType(), cycStartTime, cycEndTime, JobPhaseStatus.CREATE.getCode(),isEq);
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, getScheduleType().getType(), cycStartTime, cycEndTime, JobPhaseStatus.CREATE.getCode(),isEq
+        ,null,Restarted.NORMAL.getStatus());
         return getScheduleBatchJobList(scheduleJobs);
     }
 
@@ -190,7 +191,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                             Integer type = batchTask.getTaskType();
                             Integer status = batchJobService.getStatusById(scheduleBatchJob.getId());
 
-                            JobCheckRunInfo checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), new HashSet<>(0),new HashedMap(0), taskCache);
+                            JobCheckRunInfo checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), new HashSet<>(),new HashedMap(), taskCache);
                             if (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
                                 if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status) && isPutQueue(checkRunInfo, scheduleBatchJob)) {
                                     putScheduleJob(scheduleBatchJob);

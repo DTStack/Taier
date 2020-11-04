@@ -40,10 +40,10 @@ public class RestartJobExecutor extends AbstractJobExecutor {
     @Override
     protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress, String cycStartTime, String cycEndTime, Boolean isEq) {
         //添加需要重跑的数据
-        return getRestartDataJob(cycStartTime);
+        return getRestartDataJob(startId,cycStartTime,nodeAddress,isEq);
     }
 
-    protected List<ScheduleBatchJob> getRestartDataJob(String cycStartTime) {
+    protected List<ScheduleBatchJob> getRestartDataJob(Long startId,String cycStartTime,String nodeAddress,Boolean isEq) {
         Timestamp lasTime = null;
         if (!StringUtils.isBlank(cycStartTime)) {
             DateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -60,7 +60,8 @@ public class RestartJobExecutor extends AbstractJobExecutor {
             lasTime = new Timestamp(DateTime.now().withTime(0, 0, 0, 0).getMillis());
         }
         //重跑查询补数据和周期调度的
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listRestartBatchJobList(null, lasTime, JobPhaseStatus.CREATE.getCode());
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, null, null, null,
+                JobPhaseStatus.CREATE.getCode(), isEq, lasTime, Restarted.RESTARTED.getStatus());
         return getScheduleBatchJobList(scheduleJobs);
     }
 
