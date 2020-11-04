@@ -6,11 +6,14 @@ import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
 import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
 import com.dtstack.engine.api.vo.lineage.SqlParseInfo;
 import com.dtstack.engine.api.vo.lineage.TableLineageParseInfo;
+import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryColumnLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageParam;
 import com.dtstack.engine.master.router.DtRequestParam;
 import com.dtstack.lineage.impl.LineageService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +40,11 @@ public class LineageController {
 
     @RequestMapping(value="/parseSqlInfo", method = {RequestMethod.POST})
     @ApiOperation(value = "解析sql基本信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "sql", value = "待解析sql"),
+            @ApiImplicitParam(name = "sourceType", value = "数据源类型")
+    }
+    )
     public SqlParseInfo parseBaseInfo(@DtRequestParam String sql,@DtRequestParam Integer sourceType){
         //TODO
         return null;
@@ -44,6 +52,12 @@ public class LineageController {
 
     @RequestMapping(value="/parseTableLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "解析sql表级血缘关系")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "sql", value = "待解析sql"),
+            @ApiImplicitParam(name = "defaultDb", value = "默认数据库"),
+            @ApiImplicitParam(name = "sourceType", value = "数据源类型")
+    }
+    )
     public TableLineageParseInfo parseTableLineage(@DtRequestParam String sql,@DtRequestParam String defaultDb,@DtRequestParam Integer sourceType){
         //TODO
         return null;
@@ -51,20 +65,35 @@ public class LineageController {
 
     @RequestMapping(value="/parseAndSaveTableLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "解析sql表级血缘关系并存储")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "appType", value = "应用类型"),
+            @ApiImplicitParam(name = "sql", value = "待解析sql"),
+            @ApiImplicitParam(name = "defaultDb", value = "默认数据库"),
+            @ApiImplicitParam(name = "engineSourceId", value = "引擎数据源id，需要提前将数据源推送到engine")
+    }
+    )
     public void parseAndSaveTableLineage(@DtRequestParam Integer appType,@DtRequestParam String sql,@DtRequestParam String defaultDb,@DtRequestParam Long engineSourceId){
         //TODO
     }
 
     @RequestMapping(value="/parseColumnLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "解析字段级血缘关系")
-    public ColumnLineageParseInfo parseColumnLineage(@DtRequestParam Integer appType, @DtRequestParam String sql, @DtRequestParam String defaultDb, @DtRequestParam Long engineSourceId){
+    public ColumnLineageParseInfo parseColumnLineage(@RequestBody ParseColumnLineageParam parseColumnLineageParam){
         //TODO
         return null;
     }
 
     @RequestMapping(value="/parseAndSaveColumnLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "解析字段级血缘关系并存储")
-    public ColumnLineageParseInfo parseAndSaveColumnLineage(@DtRequestParam Integer appType,@DtRequestParam String sql,@DtRequestParam String defaultDb,@DtRequestParam Long engineSourceId){
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "appType", value = "应用类型"),
+            @ApiImplicitParam(name = "sql", value = "待解析sql"),
+            @ApiImplicitParam(name = "tenantId", value = "uic租户id"),
+            @ApiImplicitParam(name = "defaultDb", value = "默认数据库"),
+            @ApiImplicitParam(name = "engineSourceId", value = "引擎数据源id，资产需要提前将数据源推送到engine")
+    }
+    )
+    public ColumnLineageParseInfo parseAndSaveColumnLineage(@DtRequestParam Integer appType,@DtRequestParam Integer tenantId,@DtRequestParam String sql,@DtRequestParam String defaultDb,@DtRequestParam Long engineSourceId){
         //TODO
         return null;
     }
