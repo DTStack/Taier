@@ -2,28 +2,22 @@ package com.dtstack.engine.master.scheduler;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.util.DateUtil;
-import com.dtstack.engine.api.domain.TenantResource;
-import com.dtstack.engine.common.enums.*;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.dao.TenantResourceDao;
-import com.dtstack.schedule.common.enums.Deleted;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
-import com.dtstack.schedule.common.enums.Expired;
-import com.dtstack.schedule.common.enums.Restarted;
-import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.util.DateUtil;
+import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.dao.ScheduleJobDao;
+import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
 import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
+import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -174,7 +168,8 @@ public class JobRichOperator {
 
         //正常调度---判断当前任务是不是处于暂停状态--暂停状态直接返回冻结
         if (scheduleType == EScheduleType.NORMAL_SCHEDULE.getType()
-                && batchTaskShade.getScheduleStatus().equals(EScheduleStatus.PAUSE.getVal())) {
+                && (EScheduleStatus.PAUSE.getVal().equals(batchTaskShade.getScheduleStatus()) ||
+                EProjectScheduleStatus.PAUSE.getStatus().equals(batchTaskShade.getProjectScheduleStatus()))) {
             //查询缓存
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TASK_PAUSE);
         }
