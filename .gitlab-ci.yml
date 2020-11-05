@@ -1,7 +1,7 @@
 build:
   stage: build
   script:
-    - mvn clean org.jacoco:jacoco-maven-plugin:0.7.8:prepare-agent package -Dmaven.test.failure.ignore=true -q
+    - mvn clean org.jacoco:jacoco-maven-plugin:0.7.8:prepare-agent package -Dmaven.test.failure.ignore=true -Dhadoop2.version=2.7.3 -Dhadoop3.version=3.0.0 -q
     - mvn sonar:sonar -Dsonar.projectKey="dt-insight-engine/DAGScheduleX" -Dsonar.host.url=http://172.16.100.198:9000 -Dsonar.jdbc.url=jdbc:postgresql://172.16.100.198:5432/sonar -Dsonar.ws.timeout=3600 -Dsonar.java.binaries=target/classes -Dsonar.core.codeCoveragePlugin=jacoco -Dsonar.jacoco.reportPath=jacoco.exec -Dsonar.login=11974c5e9a29625efa09fdc3c3fdc031efb1aab1
     - sh ci/sonar_notify.sh
   only:
