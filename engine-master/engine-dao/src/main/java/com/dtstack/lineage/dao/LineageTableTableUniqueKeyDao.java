@@ -1,5 +1,9 @@
 package com.dtstack.lineage.dao;
 
+import com.dtstack.engine.api.domain.LineageTableTableUniqueKeyRef;
+
+import java.util.List;
+
 /**
  * @author chener
  * @Classname LineageTableTableAppRefDao
@@ -8,5 +12,7 @@ package com.dtstack.lineage.dao;
  * @Created chener@dtstack.com
  */
 public interface LineageTableTableUniqueKeyDao {
-    void deleteByUniqueKey(Integer appType,String uniqueKey);
+    Integer deleteByUniqueKey(Integer appType,String uniqueKey);
+
+    Integer batchInsert(List<LineageTableTableUniqueKeyRef> resList);
 }

@@ -20,7 +20,7 @@ public class LineageColumnColumn extends DtUicTenantEntity {
     private String inputTableKey;
 
     @ApiModelProperty(notes = "输入表id")
-    private Integer inputTableId;
+    private Long inputTableId;
 
     @ApiModelProperty(notes = "输入字段名")
     private String inputColumnName;
@@ -29,7 +29,7 @@ public class LineageColumnColumn extends DtUicTenantEntity {
     private String resultTableKey;
 
     @ApiModelProperty(notes = "输出表id")
-    private Integer resultTableId;
+    private Long resultTableId;
 
     @ApiModelProperty(notes = "输出字段名称")
     private String resultColumnName;
@@ -51,11 +51,11 @@ public class LineageColumnColumn extends DtUicTenantEntity {
         this.appType = appType;
     }
 
-    public Integer getInputTableId() {
+    public Long getInputTableId() {
         return inputTableId;
     }
 
-    public void setInputTableId(Integer inputTableId) {
+    public void setInputTableId(Long inputTableId) {
         this.inputTableId = inputTableId;
     }
 
@@ -67,11 +67,11 @@ public class LineageColumnColumn extends DtUicTenantEntity {
         this.inputColumnName = inputColumnName;
     }
 
-    public Integer getResultTableId() {
+    public Long getResultTableId() {
         return resultTableId;
     }
 
-    public void setResultTableId(Integer resultTableId) {
+    public void setResultTableId(Long resultTableId) {
         this.resultTableId = resultTableId;
     }
 

@@ -9,16 +9,18 @@ import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.SqlParseInfo;
 import com.dtstack.engine.api.vo.lineage.TableLineageParseInfo;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.sql.ColumnLineage;
 import com.dtstack.engine.sql.ParseResult;
 import com.dtstack.engine.sql.SqlParserImpl;
 import com.dtstack.engine.sql.Table;
 import com.dtstack.engine.sql.TableLineage;
 import com.dtstack.engine.sql.parse.SqlParserFactory;
+import com.dtstack.lineage.adapter.ColumnAdapter;
+import com.dtstack.lineage.adapter.ColumnLineageAdapter;
 import com.dtstack.lineage.adapter.SqlTypeAdapter;
 import com.dtstack.lineage.adapter.TableAdapter;
 import com.dtstack.lineage.adapter.TableLineageAdapter;
-import com.dtstack.lineage.dao.LineageColumnColumnDao;
-import com.dtstack.lineage.dao.LineageTableTableDao;
 import com.dtstack.lineage.enums.SourceType2TableType;
 import com.dtstack.schedule.common.enums.AppType;
 import org.apache.commons.collections.CollectionUtils;
@@ -58,13 +60,14 @@ public class LineageService {
 
     /**
      * 解析sql基本信息
+     *
      * @param sql 单条sql
      * @return
      */
-    public SqlParseInfo parseSql(String sql,String defaultDb,Integer dataSourceType){
+    public SqlParseInfo parseSql(String sql, String defaultDb, Integer dataSourceType) {
         SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(dataSourceType);
-        if (Objects.isNull(sourceType2TableType)){
-            throw new IllegalArgumentException("数据源类型"+dataSourceType+"不支持");
+        if (Objects.isNull(sourceType2TableType)) {
+            throw new IllegalArgumentException("数据源类型" + dataSourceType + "不支持");
         }
         SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
         SqlParseInfo parseInfo = new SqlParseInfo();
@@ -81,7 +84,7 @@ public class LineageService {
             parseInfo.setExtraType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getExtraSqlType()));
             parseInfo.setStandardSql(parseResult.getStandardSql());
         } catch (Exception e) {
-            logger.error("sql解析失败：{}",e);
+            logger.error("sql解析失败：{}", e);
             parseInfo.setFailedMsg(e.getMessage());
             parseInfo.setParseSuccess(false);
         }
@@ -90,14 +93,15 @@ public class LineageService {
 
     /**
      * 解析表血缘
-     * @param sql 单条sql
+     *
+     * @param sql       单条sql
      * @param defaultDb 默认数据库
      * @return
      */
-    public TableLineageParseInfo parseTableLineage(String sql, String defaultDb, Integer dataSourceType){
+    public TableLineageParseInfo parseTableLineage(String sql, String defaultDb, Integer dataSourceType) {
         SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(dataSourceType);
-        if (Objects.isNull(sourceType2TableType)){
-            throw new IllegalArgumentException("数据源类型"+dataSourceType+"不支持");
+        if (Objects.isNull(sourceType2TableType)) {
+            throw new IllegalArgumentException("数据源类型" + dataSourceType + "不支持");
         }
         SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
         TableLineageParseInfo parseInfo = new TableLineageParseInfo();
@@ -113,11 +117,11 @@ public class LineageService {
             parseInfo.setExtraType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getExtraSqlType()));
             parseInfo.setStandardSql(parseResult.getStandardSql());
             List<TableLineage> tableLineages = parseResult.getTableLineages();
-            if (CollectionUtils.isNotEmpty(tableLineages)){
+            if (CollectionUtils.isNotEmpty(tableLineages)) {
                 parseInfo.setTableLineages(tableLineages.stream().map(TableLineageAdapter::sqlTableLineage2ApiTableLineage).collect(Collectors.toList()));
             }
         } catch (Exception e) {
-            logger.error("sql解析失败：{}",e);
+            logger.error("sql解析失败：{}", e);
             parseInfo.setFailedMsg(e.getMessage());
             parseInfo.setParseSuccess(false);
         }
@@ -127,182 +131,274 @@ public class LineageService {
 
     /**
      * 解析并存储表血缘
-     * @param appType 应用类型
-     * @param sql 单条sql
-     * @param defaultDb 默认数据库
+     *
+     * @param appType        应用类型
+     * @param sql            单条sql
+     * @param defaultDb      默认数据库
      * @param engineSourceId 数据源id
      */
-    public void parseAndSaveTableLineage(Integer appType,String sql, String defaultDb, Long engineSourceId ,String unionKey){
+    public void parseAndSaveTableLineage(Integer appType, String sql, String defaultDb, Long engineSourceId, String unionKey) {
         LineageDataSource lineageDataSource = null;
-        if (AppType.RDOS.getType() == appType){
+        if (AppType.RDOS.getType() == appType) {
             //离线根据uic租户id查询数据源
 
-        }else {
+        } else {
             //资产通过数据源id查询数据源
-            lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId,appType);
+            lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
         }
         //1.根据数据源id和appType查询数据源
         //2.解析出sql中的表
         SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(lineageDataSource.getSourceType());
-        if (Objects.isNull(sourceType2TableType)){
-            throw new IllegalArgumentException("数据源类型"+lineageDataSource.getSourceType()+"不支持");
+        if (Objects.isNull(sourceType2TableType)) {
+            throw new IllegalArgumentException("数据源类型" + lineageDataSource.getSourceType() + "不支持");
         }
         SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
         try {
             ParseResult parseResult = sqlParser.parseSql(sql, defaultDb, new HashMap<>());
             //3.根据表名和数dbName，schemaName查询表,sourceId。表不存在则需要插入表
             List<Table> tables = parseResult.getTables();
-            Map<String,LineageDataSetInfo> tableRef = new HashMap<>();
+            Map<String, LineageDataSetInfo> tableRef = new HashMap<>();
             String tableKey = "%s.%s";
             for (int i = 0; i < tables.size(); i++) {
                 Table ta = tables.get(i);
                 LineageDataSetInfo dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId().intValue(), ta.getDb(), ta.getName(), ta.getDb());
-                if (Objects.isNull(dataSet)){
+                if (Objects.isNull(dataSet)) {
                     //TODO 保存dataSet
                 }
-                tableRef.put(String.format(tableKey,ta.getDb(),ta.getName()),dataSet);
+                tableRef.put(String.format(tableKey, ta.getDb(), ta.getName()), dataSet);
             }
             List<TableLineage> tableLineages = parseResult.getTableLineages();
-            if (CollectionUtils.isNotEmpty(tableLineages)){
+            if (CollectionUtils.isNotEmpty(tableLineages)) {
                 List<LineageTableTable> lineageTableTables = tableLineages.stream().map(l -> TableLineageAdapter.sqlTableLineage2DbTableLineage(l, tableRef, LineageOriginType.SQL_PARSE, unionKey)).collect(Collectors.toList());
                 //如果uniqueKey不为空，则删除相同uniqueKey的血缘
+                lineageTableTableService.saveTableLineage(lineageTableTables);
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("解析保存表血缘失败：{}", e);
+            throw new RdosDefineException("解析保存表血缘失败");
         }
-
-        //4.获取表中的字段列表
-        //5.解析字段级血缘关系
-        //6.存储字段级血缘关系
-        //TODO
     }
 
     /**
      * 解析字段级血缘
-     * @param sql 单条sql
-     * @param defaultDb 默认数据库
+     *
+     * @param sql             单条sql
+     * @param defaultDb       默认数据库
      * @param tableColumnsMap 表字段map
      * @return
      */
-    public ColumnLineageParseInfo parseColumnLineage(String sql, Integer dataSourceType,String defaultDb, Map<String, List<Column>> tableColumnsMap){
-        //TODO
-        return null;
+    public ColumnLineageParseInfo parseColumnLineage(String sql, Integer dataSourceType, String defaultDb, Map<String, List<Column>> tableColumnsMap) {
+        SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(dataSourceType);
+        if (Objects.isNull(sourceType2TableType)) {
+            throw new IllegalArgumentException("数据源类型" + dataSourceType + "不支持");
+        }
+        SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
+        ColumnLineageParseInfo parseInfo = new ColumnLineageParseInfo();
+        try {
+            Map<String, List<com.dtstack.engine.sql.Column>> sqlColumnMap = new HashMap<>();
+            for (Map.Entry<String, List<Column>> entry : tableColumnsMap.entrySet()) {
+                String key = entry.getKey();
+                List<Column> value = entry.getValue();
+                sqlColumnMap.put(key, value.stream().map(ColumnAdapter::apiColumn2SqlColumn).collect(Collectors.toList()));
+            }
+            ParseResult parseResult = sqlParser.parseSql(sql, defaultDb, sqlColumnMap);
+            parseInfo.setMainDb(parseResult.getCurrentDb());
+            Table mainTable = parseResult.getMainTable();
+            parseInfo.setMainTable(TableAdapter.sqlTable2ApiTable(mainTable));
+            parseInfo.setCurrentDb(parseResult.getCurrentDb());
+            parseInfo.setFailedMsg(parseResult.getFailedMsg());
+            parseInfo.setParseSuccess(parseResult.isParseSuccess());
+            parseInfo.setSqlType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getSqlType()));
+            parseInfo.setExtraType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getExtraSqlType()));
+            parseInfo.setStandardSql(parseResult.getStandardSql());
+            List<TableLineage> tableLineages = parseResult.getTableLineages();
+            if (CollectionUtils.isNotEmpty(tableLineages)) {
+                parseInfo.setTableLineages(tableLineages.stream().map(TableLineageAdapter::sqlTableLineage2ApiTableLineage).collect(Collectors.toList()));
+            }
+            List<ColumnLineage> columnLineages = parseResult.getColumnLineages();
+            if (CollectionUtils.isNotEmpty(columnLineages)) {
+                parseInfo.setColumnLineages(columnLineages.stream().map(ColumnLineageAdapter::sqlColumnLineage2ApiColumnLineage).collect(Collectors.toList()));
+            }
+        } catch (Exception e) {
+            logger.error("sql解析失败：{}", e);
+            parseInfo.setFailedMsg(e.getMessage());
+            parseInfo.setParseSuccess(false);
+        }
+
+        return parseInfo;
     }
 
     /**
      * 解析并存储字段级血缘
-     * @param appType 应用类型
-     * @param sql 单条sql
-     * @param defaultDb 默认数据库
+     *
+     * @param appType        应用类型
+     * @param sql            单条sql
+     * @param defaultDb      默认数据库
      * @param engineSourceId 数据源id
      */
-    public void parseAndSaveColumnLineage(Integer appType,String sql, String defaultDb, Long engineSourceId){
+    public void parseAndSaveColumnLineage(Integer appType, String sql, String defaultDb, Long engineSourceId, String uniqueKey) {
         //1.根据数据源id和appType查询数据源
         //2.解析出sql中的表
         //3.根据表名和数据库名，数据库id查询表。表不存在则需要插入表
         //4.获取表中的字段列表
         //5.解析字段级血缘关系
         //6.存储字段级血缘关系
-        //TODO
+        LineageDataSource lineageDataSource = null;
+        if (AppType.RDOS.getType() == appType) {
+            //离线根据uic租户id查询数据源
+
+        } else {
+            //资产通过数据源id查询数据源
+            lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
+        }
+        //1.根据数据源id和appType查询数据源
+        //2.解析出sql中的表
+        SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(lineageDataSource.getSourceType());
+        if (Objects.isNull(sourceType2TableType)) {
+            throw new IllegalArgumentException("数据源类型" + lineageDataSource.getSourceType() + "不支持");
+        }
+        SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
+        try {
+            List<Table> resTables = sqlParser.parseTables(sql, defaultDb);
+            //TODO 获取表字段信息
+            ParseResult parseResult = sqlParser.parseSql(sql, defaultDb, new HashMap<>());
+            //3.根据表名和数dbName，schemaName查询表,sourceId。表不存在则需要插入表
+            List<Table> tables = parseResult.getTables();
+            Map<String, LineageDataSetInfo> tableRef = new HashMap<>();
+            String tableKey = "%s.%s";
+            for (int i = 0; i < tables.size(); i++) {
+                Table ta = tables.get(i);
+                LineageDataSetInfo dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId().intValue(), ta.getDb(), ta.getName(), ta.getDb());
+                if (Objects.isNull(dataSet)) {
+                    //TODO 保存dataSet
+                }
+                tableRef.put(String.format(tableKey, ta.getDb(), ta.getName()), dataSet);
+            }
+            List<TableLineage> tableLineages = parseResult.getTableLineages();
+            if (CollectionUtils.isNotEmpty(tableLineages)) {
+                List<LineageTableTable> lineageTableTables = tableLineages.stream().map(l -> TableLineageAdapter.sqlTableLineage2DbTableLineage(l, tableRef, LineageOriginType.SQL_PARSE, uniqueKey)).collect(Collectors.toList());
+                //如果uniqueKey不为空，则删除相同uniqueKey的血缘
+                lineageTableTableService.saveTableLineage(lineageTableTables);
+            }
+            List<ColumnLineage> columnLineages = parseResult.getColumnLineages();
+            if (CollectionUtils.isNotEmpty(columnLineages)) {
+                lineageColumnColumnService.saveColumnLineage(columnLineages.stream().map(cl -> ColumnLineageAdapter.sqlColumnLineage2ColumnColumn(cl, appType, tableRef, uniqueKey)).collect(Collectors.toList()));
+            }
+
+        } catch (Exception e) {
+            logger.error("解析保存表血缘失败：{}", e);
+            throw new RdosDefineException("解析保存字段血缘失败");
+        }
     }
 
     /**
      * 查询表上游表血缘
+     *
      * @param appType
      * @param tableId
      * @return
      */
-    public List<LineageTableTable> queryTableInputLineage(Long appType,Long tableId){
-        //TODO
-        return null;
+    public List<LineageTableTable> queryTableInputLineage(Integer appType, Long tableId) {
+        return lineageTableTableService.queryTableInputLineageByAppType(tableId,appType);
     }
 
     /**
      * 查询表下游表血缘
+     *
      * @param appType
      * @param tableId
      * @return
      */
-    public List<LineageTableTable> queryTableResultLineage(Long appType,Long tableId){
-        //TODO
-        return null;
+    public List<LineageTableTable> queryTableResultLineage(Integer appType, Long tableId) {
+        return lineageTableTableService.queryTableResultLineageByAppType(tableId,appType);
     }
 
     /**
      * 查询表级血缘关系
+     *
      * @param appType
      * @param tableId
      * @return
      */
-    public List<LineageTableTable> queryTableLineages(Long appType,Long tableId){
+    public List<LineageTableTable> queryTableLineages(Long appType, Long tableId) {
         //TODO
         return null;
     }
 
     /**
      * 手动添加表级血缘
+     *
      * @param appType
      * @param lineageTableTable
      */
-    public void manualAddTableLineage(Long appType,LineageTableTable lineageTableTable){
+    public void manualAddTableLineage(Long appType, LineageTableTable lineageTableTable) {
+        //1.添加表
+        //2.添加血缘
+        //3.添加血缘ref
         //TODO
     }
 
     /**
      * 手动删除表级血缘
+     *
      * @param appType
      * @param lineageTableTable
      */
-    public void manualDeleteTableLineage(Long appType,LineageTableTable lineageTableTable){
+    public void manualDeleteTableLineage(Long appType, LineageTableTable lineageTableTable) {
         //TODO
     }
 
     /**
      * 查询字段上游字段血缘
+     *
      * @return
      */
-    public List<LineageColumnColumn> queryColumnInoutLineage(Long appType,Long tableId,String columnName){
+    public List<LineageColumnColumn> queryColumnInoutLineage(Long appType, Long tableId, String columnName) {
         //TODO
         return null;
     }
 
     /**
      * 查询字段下游字段血缘
+     *
      * @return
      */
-    public List<LineageColumnColumn> queryColumnResultLineage(Long appType,Long tableId,String columnName){
+    public List<LineageColumnColumn> queryColumnResultLineage(Long appType, Long tableId, String columnName) {
         //TODO
         return null;
     }
 
     /**
      * 查询字段级血缘关系
+     *
      * @param appType
      * @param tableId
      * @param columnName
      * @return
      */
-    public List<LineageColumnColumn> queryColumnLineages(Long appType,Long tableId,String columnName){
+    public List<LineageColumnColumn> queryColumnLineages(Long appType, Long tableId, String columnName) {
         //TODO
         return null;
     }
 
     /**
      * 手动添加表级血缘
+     *
      * @param appType
      * @param lineageColumnColumn
      */
-    public void manualAddColumnLineage(Long appType,LineageColumnColumn lineageColumnColumn){
+    public void manualAddColumnLineage(Long appType, LineageColumnColumn lineageColumnColumn) {
         //TODO
     }
 
     /**
      * 手动删除字段级级血缘
+     *
      * @param appType
      * @param lineageColumnColumn
      */
-    public void manualDeleteColumnLineage(Long appType,LineageColumnColumn lineageColumnColumn){
+    public void manualDeleteColumnLineage(Long appType, LineageColumnColumn lineageColumnColumn) {
         //TODO
     }
 }

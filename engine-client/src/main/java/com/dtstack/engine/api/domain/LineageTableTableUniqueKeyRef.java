@@ -18,7 +18,7 @@ public class LineageTableTableUniqueKeyRef extends DtUicTenantEntity{
     private String uniqueKey;
 
     @ApiModelProperty(notes = "表血缘关联id")
-    private Integer lineageTableTableId;
+    private Long lineageTableTableId;
 
     public Integer getAppType() {
         return appType;
@@ -28,11 +28,11 @@ public class LineageTableTableUniqueKeyRef extends DtUicTenantEntity{
         this.appType = appType;
     }
 
-    public Integer getLineageTableTableId() {
+    public Long getLineageTableTableId() {
         return lineageTableTableId;
     }
 
-    public void setLineageTableTableId(Integer lineageTableTableId) {
+    public void setLineageTableTableId(Long lineageTableTableId) {
         this.lineageTableTableId = lineageTableTableId;
     }
 

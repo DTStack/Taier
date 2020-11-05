@@ -1,6 +1,5 @@
 package com.dtstack.lineage.adapter;
 
-import com.dtstack.engine.api.pojo.lineage.Column;
 
 import java.util.List;
 
@@ -21,5 +20,16 @@ public class ColumnAdapter {
         column.setTable(sqlColumn.getTable());
         column.setType(sqlColumn.getType());
         return column;
+    }
+
+    public static com.dtstack.engine.sql.Column apiColumn2SqlColumn(com.dtstack.engine.api.pojo.lineage.Column apiColumn){
+        com.dtstack.engine.sql.Column sqlColumn = new com.dtstack.engine.sql.Column();
+        sqlColumn.setAlias(apiColumn.getAlias());
+        sqlColumn.setComment(apiColumn.getComment());
+        sqlColumn.setIndex(apiColumn.getIndex());
+        sqlColumn.setName(apiColumn.getName());
+        sqlColumn.setTable(apiColumn.getTable());
+        sqlColumn.setType(apiColumn.getType());
+        return sqlColumn;
     }
 }

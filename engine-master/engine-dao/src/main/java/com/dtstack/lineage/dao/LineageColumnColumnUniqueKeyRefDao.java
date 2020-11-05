@@ -15,4 +15,6 @@ public interface LineageColumnColumnUniqueKeyRefDao {
 
     Integer batchInsert(List<LineageColumnColumnUniqueKeyRef> columnColumns);
 
+    Integer deleteByUniqueKey(String uniqueKey);
+
 }

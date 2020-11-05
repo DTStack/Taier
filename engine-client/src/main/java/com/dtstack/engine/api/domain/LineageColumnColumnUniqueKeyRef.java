@@ -18,7 +18,7 @@ public class LineageColumnColumnUniqueKeyRef extends BaseEntity{
     private String uniqueKey;
 
     @ApiModelProperty(notes = "字段血缘关联id")
-    private Integer lineageColumnColumnId;
+    private Long lineageColumnColumnId;
 
     public Integer getAppType() {
         return appType;
@@ -28,11 +28,11 @@ public class LineageColumnColumnUniqueKeyRef extends BaseEntity{
         this.appType = appType;
     }
 
-    public Integer getLineageColumnColumnId() {
+    public Long getLineageColumnColumnId() {
         return lineageColumnColumnId;
     }
 
-    public void setLineageColumnColumnId(Integer lineageColumnColumnId) {
+    public void setLineageColumnColumnId(Long lineageColumnColumnId) {
         this.lineageColumnColumnId = lineageColumnColumnId;
     }
 
