@@ -2,29 +2,25 @@ package com.dtstack.engine.master.scheduler;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.util.DateUtil;
-import com.dtstack.schedule.common.enums.Deleted;
-import com.dtstack.schedule.common.enums.EScheduleJobType;
-import com.dtstack.schedule.common.enums.Expired;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.schedule.common.enums.Restarted;
-import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.common.enums.DependencyType;
-import com.dtstack.engine.common.enums.EScheduleStatus;
-import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.enums.JobCheckStatus;
-import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.util.DateUtil;
+import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.dao.ScheduleJobDao;
+import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
 import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
+import com.dtstack.schedule.common.enums.Deleted;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.schedule.common.enums.Expired;
+import com.dtstack.schedule.common.enums.Restarted;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -179,13 +175,20 @@ public class JobRichOperator {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TIME_NOT_REACH);
         }
 
+        JSONObject scheduleConf = JSONObject.parseObject(batchTaskShade.getScheduleConf());
+        if(null == scheduleConf){
+            return null;
+        }
+        Integer isExpire = scheduleConf.getInteger("isExpire");
+        if(null == isExpire){
+            return null;
+        }
         //配置了允许过期才能
-        if (Expired.EXPIRE.getVal() == batchTaskShade.getIsExpire() && this.checkExpire(scheduleBatchJob, scheduleType, batchTaskShade)) {
+        if (Expired.EXPIRE.getVal() == isExpire && this.checkExpire(scheduleBatchJob, scheduleType, batchTaskShade)) {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TIME_OVER_EXPIRE);
         }
         return null;
     }
-
 
     /**
      * 根据jobjob 表中的依赖关系 校验任务是否可以执行
