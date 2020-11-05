@@ -183,8 +183,16 @@ public class JobRichOperator {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TIME_NOT_REACH);
         }
 
+        JSONObject scheduleConf = JSONObject.parseObject(batchTaskShade.getScheduleConf());
+        if(null == scheduleConf){
+            return null;
+        }
+        Integer isExpire = scheduleConf.getInteger("isExpire");
+        if(null == isExpire){
+            return null;
+        }
         //配置了允许过期才能
-        if (Expired.EXPIRE.getVal() == batchTaskShade.getIsExpire() && this.checkExpire(scheduleBatchJob, scheduleType, batchTaskShade)) {
+        if (Expired.EXPIRE.getVal() == isExpire && this.checkExpire(scheduleBatchJob, scheduleType, batchTaskShade)) {
             return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TIME_OVER_EXPIRE);
         }
         return null;

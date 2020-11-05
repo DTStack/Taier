@@ -308,7 +308,6 @@ CREATE TABLE `schedule_task_shade`
   `flow_id`                 INT(11)      NOT NULL DEFAULT '0' COMMENT '工作流id',
   `is_publish_to_produce`   tinyint(1)   NOT NULL DEFAULT '0' COMMENT '是否发布到生产环境：0-否，1-是',
   `extra_info`              mediumtext                  DEFAULT NULL COMMENT '存储task运行时所需的额外信息',
-  `is_expire`               TINYINT(1)   NOT NULL DEFAULT '0' COMMENT '过期策略：0永不过期 1过期取消',
   PRIMARY KEY (`id`),
   KEY `index_name` (`project_id`, `name`(128)),
   UNIQUE KEY `index_task_id` (`task_id`,`app_type`)
