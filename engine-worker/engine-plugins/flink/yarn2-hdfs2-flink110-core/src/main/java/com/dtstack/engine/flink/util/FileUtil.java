@@ -7,6 +7,8 @@ import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.io.Files;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -22,6 +24,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -120,11 +123,10 @@ public class FileUtil {
         return true;
     }
 
-    public static boolean downLoadFileFromHdfs(String uriStr, String dstFileName, Configuration hadoopConf) throws URISyntaxException, IOException {
-
-        Pair<String, String> pair = parseHdfsUri(uriStr);
+    private static InputStream readStreamFromFile(String filePath, Configuration hadoopConf) throws URISyntaxException, IOException {
+        Pair<String, String> pair = parseHdfsUri(filePath);
         if(pair == null){
-            throw new RdosDefineException("can't parse hdfs url from given uriStr:" + uriStr);
+            throw new RdosDefineException("can't parse hdfs url from given uriStr:" + filePath);
         }
 
         String hdfsUri = pair.getLeft();
@@ -134,15 +136,36 @@ public class FileUtil {
         FileSystem fs = FileSystem.get(uri, hadoopConf);
         Path hdfsFilePath = new Path(hdfsFilePathStr);
         if(!fs.exists(hdfsFilePath)){
-            return false;
+            return null;
         }
+
+        return fs.open(hdfsFilePath);
+    }
+
+    public static JsonObject readJsonFromHdfs(String filePath, Configuration hadoopConf) throws URISyntaxException, IOException {
+        InputStream is = readStreamFromFile(filePath, hadoopConf);
+        if (is == null) {
+            return null;
+        }
+        JsonParser jsonParser = new JsonParser();
+        try (InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+            return (JsonObject) jsonParser.parse(reader);
+        }
+    }
+
+    public static boolean downLoadFileFromHdfs(String uriStr, String dstFileName, Configuration hadoopConf) throws URISyntaxException, IOException {
 
         File file = new File(dstFileName);
         if(!file.getParentFile().exists()){
             Files.createParentDirs(file);
         }
 
-        InputStream is=fs.open(hdfsFilePath);//读取文件
+        //读取文件
+        InputStream is = readStreamFromFile(uriStr, hadoopConf);
+        if (is == null) {
+            return false;
+        }
+
         IOUtils.copyBytes(is, new FileOutputStream(file),2048, true);//保存到本地
 
         return true;
