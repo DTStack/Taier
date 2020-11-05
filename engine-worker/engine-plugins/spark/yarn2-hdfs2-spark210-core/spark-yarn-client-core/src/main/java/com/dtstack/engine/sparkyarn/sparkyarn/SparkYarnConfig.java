@@ -58,20 +58,15 @@ public class SparkYarnConfig extends BaseConfig {
 
     private String jvmOptions = "-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing";
 
-    private boolean openKerberos;
-
     private String carbonStorePath;
-
-    private Map<String, String> sftpConf;
 
     private Map<String, String> kerberosConfig;
 
+    private boolean monitorAcceptedApp = false;
 
     public String getTypeName() {
         return typeName;
     }
-
-    private boolean monitorAcceptedApp = false;
 
     public void setTypeName(String typeName) {
         this.typeName = typeName;
