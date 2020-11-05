@@ -1,5 +1,6 @@
 package com.dtstack.engine.master;
 
+import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.master.listener.RunnerListener;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.InitializationError;
@@ -14,9 +15,7 @@ public class DtCenterSpringJUnit4ClassRunner extends SpringJUnit4ClassRunner {
     public DtCenterSpringJUnit4ClassRunner(Class<?> clazz) throws InitializationError {
         super(clazz);
         //获得项目文件的根目录
-        String s_pre = System.getProperty("user.dir");
-        int index = s_pre.indexOf(DICTIONARY_NAME);
-        System.setProperty("user.dir", s_pre.substring(0, index + DICTIONARY_NAME.length()) + "/test_conf");
+        setUserDirToTest();
     }
 
 
@@ -36,5 +35,13 @@ public class DtCenterSpringJUnit4ClassRunner extends SpringJUnit4ClassRunner {
         if (runnerListener != null) {
             runnerListener.runsAfterClass();
         }
+
     }
+
+    private void setUserDirToTest() {
+        String s_pre = System.getProperty("user.dir");
+        int index = s_pre.indexOf(DICTIONARY_NAME);
+        System.setProperty("user.dir.conf", s_pre.substring(0, index + DICTIONARY_NAME.length()) + "/test_conf/conf");
+    }
+
 }
