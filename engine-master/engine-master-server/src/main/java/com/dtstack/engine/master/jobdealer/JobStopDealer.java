@@ -292,8 +292,11 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                         }
                     default:
                 }
+            } else {
+                engineJobStopRecordDao.delete(stoppedJob.getJob().stopJobId);
+                logger.warn("delete stop record jobId {} stopJobId {} ", stoppedJob.getJob().jobId, stoppedJob.getJob().stopJobId);
             }
-            engineJobStopRecordDao.delete(stoppedJob.getJob().stopJobId);
+
         } catch (Exception e) {
             logger.error("", e);
         }

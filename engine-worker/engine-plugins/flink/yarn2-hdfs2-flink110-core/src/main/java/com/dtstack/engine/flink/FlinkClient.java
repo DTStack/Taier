@@ -38,10 +38,7 @@ import com.dtstack.engine.worker.enums.ClassLoaderType;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
@@ -111,6 +108,10 @@ public class FlinkClient extends AbstractClient {
 
     private String jobHistory;
 
+    private static final String JOBMANAGER_DIR = "jobmanager.archive.fs.dir";
+
+    private String jobmanagerDir;
+
     @Override
     public void init(Properties prop) throws Exception {
         this.flinkExtProp = prop;
@@ -133,6 +134,8 @@ public class FlinkClient extends AbstractClient {
         if (flinkConfig.getMonitorAcceptedApp()) {
             AcceptedApplicationMonitor.start(hadoopConf.getYarnConfiguration(), flinkConfig.getQueue(), flinkConfig);
         }
+
+        jobmanagerDir = prop.getProperty(JOBMANAGER_DIR);
     }
 
     @Override
@@ -626,9 +629,19 @@ public class FlinkClient extends AbstractClient {
         Map<String,String> retMap = Maps.newHashMap();
 
         try {
-            String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
-            String except = getExceptionInfo(exceptPath, reqURL);
-            retMap.put("exception", except);
+            String exceptPath = jobmanagerDir + ConfigConstrant.SP + jobId;
+            JsonObject exceptJson = FileUtil.readJsonFromHdfs(exceptPath, hadoopConf.getConfiguration());
+            JsonArray jsonArray = exceptJson.get("archive").getAsJsonArray();
+
+            for (JsonElement ele: jsonArray) {
+                JsonObject obj = ele.getAsJsonObject();
+                if (obj.get("path").getAsString().endsWith("exceptions")) {
+                    String exception = obj.get("json").getAsString();
+                    retMap.put("exception", exception);
+                    break;
+                }
+            }
+
             return FlinkRestParseUtil.parseEngineLog(retMap);
         } catch (RdosDefineException | IOException e) {
             //http 请求失败时返回空日志
