@@ -2,9 +2,12 @@ package com.dtstack.engine.master;
 
 import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.master.listener.RunnerListener;
+import com.dtstack.engine.master.utils.CommonUtils;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.InitializationError;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.File;
 
 public class DtCenterSpringJUnit4ClassRunner extends SpringJUnit4ClassRunner {
     private final static String DICTIONARY_NAME = "DAGScheduleX";
@@ -15,7 +18,7 @@ public class DtCenterSpringJUnit4ClassRunner extends SpringJUnit4ClassRunner {
     public DtCenterSpringJUnit4ClassRunner(Class<?> clazz) throws InitializationError {
         super(clazz);
         //获得项目文件的根目录
-        setUserDirToTest();
+        CommonUtils.setUserDirToTest();
     }
 
 
@@ -38,10 +41,5 @@ public class DtCenterSpringJUnit4ClassRunner extends SpringJUnit4ClassRunner {
 
     }
 
-    private void setUserDirToTest() {
-        String s_pre = System.getProperty("user.dir");
-        int index = s_pre.indexOf(DICTIONARY_NAME);
-        System.setProperty("user.dir.conf", s_pre.substring(0, index + DICTIONARY_NAME.length()) + "/test_conf/conf");
-    }
 
 }
