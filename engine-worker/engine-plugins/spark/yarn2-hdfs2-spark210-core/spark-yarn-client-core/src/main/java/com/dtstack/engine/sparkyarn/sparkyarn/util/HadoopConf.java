@@ -2,15 +2,11 @@ package com.dtstack.engine.sparkyarn.sparkyarn.util;
 
 
 import com.dtstack.engine.base.util.HadoopConfTool;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.util.Map;
 
 /**
@@ -44,7 +40,6 @@ public class HadoopConf {
     }
 
     public void initYarnConf(Map<String, Object> conf){
-
         yarnConfiguration = new YarnConfiguration(configuration);
         conf.keySet().forEach(key ->{
             Object value = conf.get(key);
@@ -54,7 +49,7 @@ public class HadoopConf {
                 yarnConfiguration.setBoolean(key, (boolean) value);
             }
         });
-
+        HadoopConfTool.setDefaultYarnConf(yarnConfiguration);
     }
 
     public void initHiveSecurityConf(Map<String, Object> conf){

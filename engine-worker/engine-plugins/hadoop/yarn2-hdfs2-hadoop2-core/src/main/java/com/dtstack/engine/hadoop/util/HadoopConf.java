@@ -1,6 +1,7 @@
 package com.dtstack.engine.hadoop.util;
 
 
+import com.dtstack.engine.base.util.HadoopConfTool;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
@@ -54,6 +55,7 @@ public class HadoopConf {
                 yarnConfiguration.setBoolean(key, (boolean) value);
             }
         });
+        HadoopConfTool.setDefaultYarnConf(yarnConfiguration);
     }
 
     public Configuration getConfiguration(){

@@ -6,6 +6,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.CommonConfigurationKeys;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 import java.util.List;
 import java.util.Map;
@@ -125,5 +127,11 @@ public class HadoopConfTool {
 
     public static void setFsHdfsImplDisableCache(Configuration conf){
         conf.setBoolean(FS_HDFS_IMPL_DISABLE_CACHE, true);
+    }
+
+    public static void setDefaultYarnConf(Configuration yarnConf) {
+        yarnConf.setLong(YarnConfiguration.RESOURCEMANAGER_CONNECT_MAX_WAIT_MS, 9000);
+        yarnConf.setLong(YarnConfiguration.RESOURCEMANAGER_CONNECT_RETRY_INTERVAL_MS, 3000);
+        yarnConf.setBoolean(CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_KEY, true);
     }
 }
