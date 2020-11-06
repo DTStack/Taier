@@ -769,19 +769,15 @@ public class HadoopClient extends AbstractClient {
 
     public static void main(String[] args) throws Exception {
 
-        FileInputStream fileInputStream = null;
-        InputStreamReader inputStreamReader = null;
-        BufferedReader reader = null;
-
-        try {
+        String filePath = args[0];
+        File paramsFile = new File(filePath);
+        try (
+                FileInputStream fileInputStream = new FileInputStream(paramsFile);
+                InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+                BufferedReader reader = new BufferedReader(inputStreamReader);
+        ){
             System.setProperty("HADOOP_USER_NAME", "admin");
 
-            // input params json file path
-            String filePath = args[0];
-            File paramsFile = new File(filePath);
-            fileInputStream = new FileInputStream(paramsFile);
-            inputStreamReader = new InputStreamReader(fileInputStream);
-            reader = new BufferedReader(inputStreamReader);
             String request = reader.readLine();
             Map params =  PublicUtil.jsonStrToObject(request, Map.class);
             ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
@@ -802,12 +798,6 @@ public class HadoopClient extends AbstractClient {
             System.exit(0);
         } catch (Exception e) {
             LOG.error("submit error!", e);
-        } finally {
-            if (reader != null){
-                reader.close();
-                inputStreamReader.close();
-                fileInputStream.close();
-            }
         }
     }
 
