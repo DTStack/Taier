@@ -47,6 +47,7 @@ public class HiveConnFactory extends AbstractConnFactory {
 
     @Override
     public void init(Properties props) throws ClassNotFoundException {
+        fillDefaultDatabase(props);
         super.init(props);
         hiveSubType = props.getProperty(HIVE_SUB_TYPE);
         queue = MathUtil.getString(props.get(ConfigConstant.QUEUE));
@@ -58,6 +59,17 @@ public class HiveConnFactory extends AbstractConnFactory {
             }
         }
     }
+
+    private void fillDefaultDatabase(Properties props) {
+        String oldJdbcUrl = MathUtil.getString(props.get(ConfigConstant.JDBCURL));
+        String[] jdbcContents = StringUtils.split(oldJdbcUrl, ";");
+        if (jdbcContents.length > 0 && !StringUtils.endsWith(jdbcContents[0], "default")) {
+            jdbcContents[0] = StringUtils.endsWith(jdbcContents[0], "/")? jdbcContents[0] + "default" : jdbcContents[0] + "/default";
+            String newJdbcUrl = StringUtils.join(jdbcContents, ";");
+            props.setProperty(ConfigConstant.JDBCURL, newJdbcUrl);
+        }
+    }
+
     @Override
     public Connection getConnByTaskParams(String taskParams, String jobName) throws ClassNotFoundException, SQLException, IOException {
         try {
