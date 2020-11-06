@@ -35,6 +35,7 @@ import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.yarn.ClientArguments;
@@ -121,6 +122,7 @@ public class SparkYarnClient extends AbstractClient {
         this.threadPoolExecutor = new ThreadPoolExecutor(sparkYarnConfig.getAsyncCheckYarnClientThreadNum(), sparkYarnConfig.getAsyncCheckYarnClientThreadNum(),
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory("spark_yarnclient"));
+
     }
 
     private void initYarnConf(SparkYarnConfig sparkConfig){
@@ -681,20 +683,6 @@ public class SparkYarnClient extends AbstractClient {
         }
 
         jobClient.setSql(String.join(";", sqlList));
-    }
-
-    @Override
-    public void afterSubmitFunc(JobClient jobClient) {
-        String localKeytabDir = USER_DIR + "/kerberos/keytab";
-        String localDir = String.format("%s/%s", localKeytabDir, jobClient.getTaskId());
-        File localDirFile = new File(localDir);
-        if (localDirFile.exists()){
-            try {
-                FileUtils.deleteDirectory(localDirFile);
-            } catch (IOException e) {
-                logger.error("Delete dir failed: " + e);
-            }
-        }
     }
 
     public YarnClient getYarnClient(){

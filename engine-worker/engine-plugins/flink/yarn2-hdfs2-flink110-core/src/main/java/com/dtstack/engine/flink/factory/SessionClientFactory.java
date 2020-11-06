@@ -455,6 +455,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                                 boolean checkRs = checkJobGraphWithStatus();
                                                 while (!checkRs) {
                                                     if (checked++ >= 3) {
+                                                        LOG.error("Health check  failed exceeded 3 times, prepare to stop Flink yarn-session client");
                                                         sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                                                         break;
                                                     } else {
@@ -500,7 +501,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                 } finally {
                     try {
                         Thread.sleep(CHECK_INTERVAL);
-                        LOG.info("SessionAppName is "+ sessionClientFactory.sessionAppNameSuffix +" and Current role is : "+ sessionClientFactory.isLeader.get());
+                        LOG.warn("Current ThreadName is " + Thread.currentThread().getName()+" SessionAppName is "+ sessionClientFactory.sessionAppNameSuffix +" and Current role is : "+ (sessionClientFactory.isLeader.get() ? "Leader": "Follower"));
                     } catch (Exception e) {
                         LOG.error("", e);
                     }
