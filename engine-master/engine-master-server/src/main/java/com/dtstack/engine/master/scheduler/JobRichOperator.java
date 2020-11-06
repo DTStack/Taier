@@ -509,8 +509,13 @@ public class JobRichOperator {
             return nextDateCycTime.isBefore(LocalDateTime.now());
         } else {
             //延迟至第二天后自动取消
-            //最后一个执行时间 20201105235800 nextCycTime为2020-11-06 23:48:00 当前时间2020-11-06 11:00:00
-            return nextDateCycTime.getDayOfMonth() != cycDateTime.getDayOfMonth() && nextDateCycTime.getDayOfMonth() == LocalDateTime.now().getDayOfMonth();
+            if (nextDateCycTime.getDayOfMonth() == cycDateTime.getDayOfMonth()) {
+                //不是当天最后一个任务
+                return nextDateCycTime.isBefore(LocalDateTime.now());
+            } else {
+                //最后一个执行时间 20201105235800 nextCycTime为2020-11-06 23:48:00 当前时间2020-11-06 11:00:00 要过期
+                return nextDateCycTime.getDayOfMonth() == LocalDateTime.now().getDayOfMonth();
+            }
         }
     }
 
