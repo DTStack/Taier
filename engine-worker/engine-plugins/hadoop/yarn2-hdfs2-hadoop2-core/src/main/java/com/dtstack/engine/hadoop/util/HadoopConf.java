@@ -1,6 +1,7 @@
 package com.dtstack.engine.hadoop.util;
 
 
+import com.dtstack.engine.base.util.HadoopConfTool;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -57,8 +58,7 @@ public class HadoopConf {
                 yarnConfiguration.setBoolean(key, (boolean) value);
             }
         });
-        yarnConfiguration.setBoolean(CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_KEY, true);
-
+        HadoopConfTool.setDefaultYarnConf(yarnConfiguration);
     }
 
     public Configuration getConfiguration(){

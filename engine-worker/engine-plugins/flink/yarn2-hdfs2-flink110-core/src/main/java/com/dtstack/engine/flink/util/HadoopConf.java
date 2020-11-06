@@ -56,7 +56,7 @@ public class HadoopConf {
                 yarnConfiguration.setBoolean(key, (boolean) value);
             }
         });
-        yarnConfiguration.setBoolean(CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_KEY, true);
+        HadoopConfTool.setDefaultYarnConf(yarnConfiguration);
     }
 
     public Configuration getConfiguration(){
