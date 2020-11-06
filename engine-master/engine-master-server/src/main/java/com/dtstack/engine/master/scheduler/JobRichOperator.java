@@ -458,37 +458,33 @@ public class JobRichOperator {
         }
         //判断task任务是否配置了允许过期（暂时允许全部任务过期 不做判断）
         //超过时间限制
-        String nextCycTime1 = scheduleBatchJob.getScheduleJob().getNextCycTime();
-        if (StringUtils.isNotBlank(nextCycTime1)) {
-            LocalDateTime nextCycTime = LocalDateTime.parse(scheduleBatchJob.getScheduleJob().getNextCycTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            if(nextCycTime.isBefore(LocalDateTime.now())){
-                // 判断是否开启延迟至第二天后自动取消
-                String scheduleConf = batchTaskShade.getScheduleConf();
-                if (StringUtils.isNotBlank(scheduleConf)) {
-                    JSONObject jsonObject = JSON.parseObject(scheduleConf);
-                    Boolean isLastInstance = jsonObject.getBoolean("isLastInstance");
-                    // 判断当前实例是否是最后一个实例,且设置了执行最后一个任务
-                    if (isLastInstance != null && isLastInstance ) {
-                        // cycTime 和 nextCycTime 是不是同一天
-                        String cycTime = scheduleBatchJob.getScheduleJob().getCycTime();
-                        Date cycDate = DateUtil.parseDate(cycTime, "yyyyMMddHHmmss");
-                        Date nextCycDate = DateUtil.parseDate(nextCycTime1, "yyyy-MM-dd HH:mm:ss");
-
-                        DateTime nextCycDateTime = new DateTime(nextCycDate);
-                        DateTime cycDateTime = new DateTime(cycDate);
-
-                        if (nextCycDateTime.getDayOfMonth() != cycDateTime.getDayOfMonth()) {
-                            // 不是同一天 说明这个任务是今天执行的最后一个任务
-                            return false;
-                        }
-                    }
-                }
-
-                //如果超过过期时间限制 每天最后一次周期不允许过期
-                return nextCycTime.getDayOfYear() == LocalDateTime.now().getDayOfYear();
-            }
+        String nextCycTime = scheduleBatchJob.getScheduleJob().getNextCycTime();
+        if(StringUtils.isBlank(nextCycTime)){
+            return false;
         }
-        return false;
+        String scheduleConf = batchTaskShade.getScheduleConf();
+        if(StringUtils.isBlank(scheduleConf)){
+            return false;
+        }
+        LocalDateTime nextDateCycTime = LocalDateTime.parse(scheduleBatchJob.getScheduleJob().getNextCycTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        JSONObject jsonObject = JSON.parseObject(scheduleConf);
+        Boolean isLastInstance = jsonObject.getBoolean("isLastInstance");
+        if(null == isLastInstance){
+            return nextDateCycTime.isBefore(LocalDateTime.now());
+        }
+        LocalDateTime cycDateTime = LocalDateTime.parse(scheduleBatchJob.getScheduleJob().getCycTime(), DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        if (isLastInstance) {
+            // 判断当前实例是否是最后一个实例,且设置了执行最后一个任务
+            if (nextDateCycTime.getDayOfMonth() != cycDateTime.getDayOfMonth()) {
+                // cycTime 和 nextCycTime 是不是同一天 不是同一天 说明这个任务是今天执行的最后一个任务
+                return false;
+            }
+            return nextDateCycTime.isBefore(LocalDateTime.now());
+        } else {
+            //延迟至第二天后自动取消
+            //最后一个执行时间 20201105235800 nextCycTime为2020-11-06 23:48:00 当前时间2020-11-06 11:00:00
+            return nextDateCycTime.getDayOfMonth() != cycDateTime.getDayOfMonth() && nextDateCycTime.getDayOfMonth() == LocalDateTime.now().getDayOfMonth();
+        }
     }
 
     private boolean isEndStatus(Integer jobStatus) {
