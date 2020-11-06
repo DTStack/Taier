@@ -92,7 +92,7 @@ public class DtScriptClient extends AbstractClient {
                 conf.set(key, value.toString());
             }
         }
-        HadoopConfTool.setDefaultYarnConf(conf);
+        HadoopConfTool.setDefaultYarnConf(conf, (Map<String, Object>) prop.get("yarnConf"));
 
         String queue = prop.getProperty(DtYarnConfiguration.DT_APP_QUEUE);
         if (StringUtils.isNotBlank(queue)) {

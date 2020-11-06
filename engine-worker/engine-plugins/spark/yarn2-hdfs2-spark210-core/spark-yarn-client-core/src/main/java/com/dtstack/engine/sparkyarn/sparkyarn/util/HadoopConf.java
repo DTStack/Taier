@@ -49,7 +49,7 @@ public class HadoopConf {
                 yarnConfiguration.setBoolean(key, (boolean) value);
             }
         });
-        HadoopConfTool.setDefaultYarnConf(yarnConfiguration);
+        HadoopConfTool.setDefaultYarnConf(yarnConfiguration, conf);
     }
 
     public void initHiveSecurityConf(Map<String, Object> conf){

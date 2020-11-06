@@ -55,7 +55,7 @@ public class HadoopConf {
                 yarnConfiguration.setBoolean(key, (boolean) value);
             }
         });
-        HadoopConfTool.setDefaultYarnConf(yarnConfiguration);
+        HadoopConfTool.setDefaultYarnConf(yarnConfiguration, conf);
     }
 
     public Configuration getConfiguration(){
