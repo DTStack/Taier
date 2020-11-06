@@ -66,6 +66,8 @@ public class SparkYarnConfig extends BaseConfig {
 
     private Map<String, String> kerberosConfig;
 
+    private int asyncCheckYarnClientThreadNum = 3;
+
     private String dtProxyUserName;
 
     public String getDtProxyUserName() {
@@ -93,6 +95,14 @@ public class SparkYarnConfig extends BaseConfig {
 
     public void setHiveConf(Map<String, Object> hiveConf) {
         this.hiveConf = hiveConf;
+    }
+
+    public int getAsyncCheckYarnClientThreadNum() {
+        return asyncCheckYarnClientThreadNum;
+    }
+
+    public void setAsyncCheckYarnClientThreadNum(int asyncCheckYarnClientThreadNum) {
+        this.asyncCheckYarnClientThreadNum = asyncCheckYarnClientThreadNum;
     }
 
     public String getSparkYarnArchive() {
