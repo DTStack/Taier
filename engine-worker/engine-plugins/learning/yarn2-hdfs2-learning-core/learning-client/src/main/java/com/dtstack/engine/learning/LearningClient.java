@@ -91,7 +91,7 @@ public class LearningClient extends AbstractClient {
                 conf.set(key, value.toString());
             }
         }
-        HadoopConfTool.setDefaultYarnConf(conf);
+        HadoopConfTool.setDefaultYarnConf(conf, (Map<String, Object>) prop.get("yarnConf"));
 
         String queue = prop.getProperty(LearningConfiguration.XLEARNING_APP_QUEUE);
         if (StringUtils.isNotBlank(queue)){
