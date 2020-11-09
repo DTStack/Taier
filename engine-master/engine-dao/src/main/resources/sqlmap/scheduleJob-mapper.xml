@@ -1673,13 +1673,6 @@
         where job_id=#{jobId};
     </update>
 
-    <update id="updateJobUnSubmitOrRestart">
-        update schedule_job
-        set status=#{status},
-
-        where job_id=#{jobId};
-    </update>
-
     <select id="getJobGraph" resultType="java.lang.String">
         select job_graph from schedule_job where job_id = #{jobId}
     </select>
