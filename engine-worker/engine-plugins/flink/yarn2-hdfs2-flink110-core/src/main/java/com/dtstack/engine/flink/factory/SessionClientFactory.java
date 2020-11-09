@@ -40,6 +40,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.client.ClientUtils;
+import org.apache.flink.client.deployment.ClusterDeploymentException;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.*;
 import org.apache.flink.configuration.CheckpointingOptions;
@@ -205,8 +206,11 @@ public class SessionClientFactory extends AbstractClientFactory {
 
             if(isLeader.get()&& flinkConfig.getSessionStartAuto()){
                 try {
-                    YarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
-                    clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification).getClusterClient();
+                    try (
+                            YarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
+                    ) {
+                        clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification).getClusterClient();
+                    }
                     return true;
                 } catch (FlinkException e) {
                     LOG.info("Couldn't deploy Yarn session cluster, ", e);
