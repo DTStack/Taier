@@ -1,8 +1,9 @@
-package com.dtstack.engine.master.jobdealer;
+package com.dtstack.engine.master.temp;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

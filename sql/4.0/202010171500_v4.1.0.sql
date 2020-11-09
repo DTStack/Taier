@@ -1,0 +1,1 @@
+ALTER TABLE schedule_engine_job_stop_record ADD COLUMN force_cancel_flag TINYINT(1) NOT NULL COMMENT '强制标志 0非强制 1强制';

@@ -105,6 +105,8 @@ public class JobClient extends OrderObject {
 
     private Integer appType;
 
+    private Boolean isForceCancel;
+
 
     public JobClient() {
 
@@ -188,6 +190,13 @@ public class JobClient extends OrderObject {
         return action;
     }
 
+    public Boolean getForceCancel() {
+        return isForceCancel;
+    }
+
+    public void setForceCancel(Boolean forceCancel) {
+        isForceCancel = forceCancel;
+    }
 
     public void setPluginWrapperInfo(Map pluginInfoMap) {
         if (null == pluginInfoMap) {

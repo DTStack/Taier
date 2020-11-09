@@ -23,6 +23,7 @@ import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.zookeeper.ZkService;
+import com.dtstack.schedule.common.enums.ForceCancelFlag;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -332,7 +333,7 @@ public class ConsoleService {
         return false;
     }
 
-    public void stopJob( String jobId) throws Exception {
+    public void stopJob(String jobId, Integer isForce){
         Preconditions.checkArgument(StringUtils.isNotBlank(jobId), "parameters of jobId is required");
         List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(Lists.newArrayList(jobId));
         if (alreadyExistJobIds.contains(jobId)) {
@@ -342,8 +343,14 @@ public class ConsoleService {
 
         EngineJobStopRecord stopRecord = new EngineJobStopRecord();
         stopRecord.setTaskId(jobId);
+        stopRecord.setForceCancelFlag(isForce);
 
         engineJobStopRecordDao.insert(stopRecord);
+
+    }
+
+    public void stopJob( String jobId) throws Exception {
+        stopJob(jobId , ForceCancelFlag.NO.getFlag());
     }
 
     /**
@@ -359,10 +366,11 @@ public class ConsoleService {
         }
     }
 
-    public void stopJobList( String jobResource,
-                             String nodeAddress,
-                             Integer stage,
-                             List<String> jobIdList) throws Exception {
+    public void stopJobList(String jobResource,
+                            String nodeAddress,
+                            Integer stage,
+                            List<String> jobIdList,
+                            Integer isForce){
         if (jobIdList != null && !jobIdList.isEmpty()) {
             //杀死指定jobIdList的任务
 
@@ -380,6 +388,7 @@ public class ConsoleService {
 
                     EngineJobStopRecord stopRecord = new EngineJobStopRecord();
                     stopRecord.setTaskId(jobId);
+                    stopRecord.setForceCancelFlag(isForce);
                     engineJobStopRecordDao.insert(stopRecord);
                 }
             }
@@ -423,11 +432,19 @@ public class ConsoleService {
 
                         EngineJobStopRecord stopRecord = new EngineJobStopRecord();
                         stopRecord.setTaskId(jobCache.getJobId());
+                        stopRecord.setForceCancelFlag(isForce);
                         engineJobStopRecordDao.insert(stopRecord);
                     }
                 }
             }
         }
+    }
+
+    public void stopJobList( String jobResource,
+                             String nodeAddress,
+                             Integer stage,
+                             List<String> jobIdList) throws Exception {
+        stopJobList(jobResource, nodeAddress, stage, jobIdList, ForceCancelFlag.NO.getFlag());
     }
 
     public ClusterResource clusterResources( String clusterName) {
@@ -475,7 +492,7 @@ public class ConsoleService {
         }
     }
 
-    private Component getYarnComponent(Long clusterId) {
+    public Component getYarnComponent(Long clusterId) {
         List<Engine> engines = engineDao.listByClusterId(clusterId);
         if (CollectionUtils.isEmpty(engines)) {
             return null;
