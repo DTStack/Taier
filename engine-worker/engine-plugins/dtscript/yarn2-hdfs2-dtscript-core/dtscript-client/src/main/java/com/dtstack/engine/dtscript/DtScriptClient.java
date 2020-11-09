@@ -185,7 +185,7 @@ public class DtScriptClient extends AbstractClient {
             },conf);
         } catch (Exception e) {
             LOG.error("", e);
-            return RdosTaskStatus.NOTFOUND;
+            return RdosTaskStatus.RUNNING;
         }
     }
 
@@ -246,7 +246,7 @@ public class DtScriptClient extends AbstractClient {
                     LOG.info("", e);
                     return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
                 }
-            },conf);
+            }, conf);
         } catch (Exception e) {
             LOG.info("", e);
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));

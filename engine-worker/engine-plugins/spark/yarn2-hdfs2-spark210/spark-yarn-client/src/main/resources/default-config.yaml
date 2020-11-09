@@ -27,4 +27,5 @@ perjob:
     spark.eventLog.compress: true
     spark.eventLog.enabled: true
     spark.eventLog.dir: hdfs://ns1/tmp/spark-yarn-logs
-
+    spark.driver.extraJavaOptions: -Dfile.encoding=utf-8
+    spark.executor.extraJavaOptions: -Dfile.encoding=utf-8

@@ -8,7 +8,7 @@ then
 fi
 echo "Dependency ${hadoopversion} Building..."
 
-mvn -T 1C clean package -DskipTests -Dhadoop.version=${hadoopversion} -pl \
+mvn -T 1C clean package -DskipTests -Dhadoop.version=${hadoopversion} -Dhadoop2.version=${hadoopversion} -pl \
 engine-worker/engine-plugins/dummy,\
 engine-worker/engine-plugins/flink/common,\
 engine-worker/engine-plugins/flink/yarn2-hdfs2-flink180,\
