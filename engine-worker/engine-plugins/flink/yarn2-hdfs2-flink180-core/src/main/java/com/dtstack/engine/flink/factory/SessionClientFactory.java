@@ -205,10 +205,13 @@ public class SessionClientFactory extends AbstractClientFactory {
 
             if(isLeader.get()&& flinkConfig.getSessionStartAuto()){
                 try {
-                    AbstractYarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
-                    yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + sessionAppNameSuffix);
-                    clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
-                    clusterClient.setDetached(true);
+                    try (
+                            AbstractYarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
+                    ) {
+                        yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + sessionAppNameSuffix);
+                        clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
+                        clusterClient.setDetached(true);
+                    }
                     return true;
                 } catch (FlinkException e) {
                     LOG.info("Couldn't deploy Yarn session cluster, ", e);
