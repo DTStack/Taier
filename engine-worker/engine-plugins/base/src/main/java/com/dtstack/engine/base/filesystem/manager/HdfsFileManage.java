@@ -18,6 +18,7 @@
 
 package com.dtstack.engine.base.filesystem.manager;
 
+import com.dtstack.engine.common.IFileManage;
 import com.google.common.io.Files;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;

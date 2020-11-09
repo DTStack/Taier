@@ -18,7 +18,7 @@
 
 package com.dtstack.engine.base.filesystem.factory;
 
-import com.dtstack.engine.base.filesystem.manager.IFileManage;
+import com.dtstack.engine.common.IFileManage;
 
 /**
  *  传递配置文件，创建IFileManage

@@ -564,7 +564,7 @@ public class ComponentService {
     private String uploadResourceToSftp(Long clusterId,  List<Resource> resources,  String kerberosFileName,
                                         SftpConfig sftpConfig, Component addComponent, Component dbComponent) {
         //上传配置文件到sftp 供后续下载
-        SftpFileManage sftpFileManage = new SftpFileManage(sftpConfig);
+        SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
         String md5sum = "";
         String remoteDir = sftpConfig.getPath() + File.separator + this.buildSftpPath(clusterId, addComponent.getComponentTypeCode());
         for (Resource resource : resources) {
@@ -1070,9 +1070,9 @@ public class ComponentService {
             }
             SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
             String remoteDir = sftpConfig.getPath() + File.separator + this.buildSftpPath(clusterId, component.getComponentTypeCode());
-            localDownLoadPath = downloadLocation + File.separator + component.getId();
+            localDownLoadPath = downloadLocation + File.separator + component.getComponentName();
 
-            SftpFileManage sftpFileManage = new SftpFileManage(sftpConfig);
+            SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
             if (DownloadType.Kerberos.getCode() == downloadType) {
                 remoteDir = remoteDir + File.separator + KERBEROS_PATH;
                 localDownLoadPath = localDownLoadPath + File.separator + KERBEROS_PATH;

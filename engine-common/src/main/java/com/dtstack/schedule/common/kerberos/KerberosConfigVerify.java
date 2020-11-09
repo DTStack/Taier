@@ -121,7 +121,7 @@ public class KerberosConfigVerify {
         //需要读取配置文件
         //本地kerberos文件
         String localTimeLock = getLocalTimeLock(localKerberosConf);
-        SftpFileManage sftpFileManage = new SftpFileManage(sftpConfig);
+        SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
         try {
             String sourceSftpPath = sftpConfig.getPath() + SEPARATE + sourceKey;
             //sftp服务器kerberos文件

@@ -19,7 +19,7 @@
 package com.dtstack.engine.base.filesystem;
 
 import com.dtstack.engine.base.filesystem.factory.IFileManageFactory;
-import com.dtstack.engine.base.filesystem.manager.IFileManage;
+import com.dtstack.engine.common.IFileManage;
 import com.dtstack.engine.common.sftp.SftpConfig;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;

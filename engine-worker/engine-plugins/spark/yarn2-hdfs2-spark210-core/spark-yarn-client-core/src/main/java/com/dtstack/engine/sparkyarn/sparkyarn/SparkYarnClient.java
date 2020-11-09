@@ -1,8 +1,6 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
-import com.dtstack.engine.base.filesystem.FileConfig;
 import com.dtstack.engine.base.filesystem.FilesystemManager;
-import com.dtstack.engine.base.filesystem.manager.IFileManage;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
@@ -37,7 +35,6 @@ import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.yarn.ClientArguments;

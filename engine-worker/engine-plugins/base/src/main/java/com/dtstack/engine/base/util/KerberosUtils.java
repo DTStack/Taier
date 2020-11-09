@@ -1,9 +1,9 @@
 package com.dtstack.engine.base.util;
 
 import com.dtstack.engine.base.BaseConfig;
-import com.dtstack.engine.base.filesystem.manager.SftpFileManage;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.sftp.SftpConfig;
+import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -54,7 +54,6 @@ public class KerberosUtils {
     private static ObjectMapper objectMapper = new ObjectMapper();
     private static Map<String, UserGroupInformation> ugiMap = Maps.newConcurrentMap();
     private static Map<String, String> segment = Maps.newConcurrentMap();
-    private static Map<SftpConfig, SftpFileManage> sftpMap = new ConcurrentHashMap<>();
 
     private static final String TIME_FILE = ".lock";
     private static final String KEYTAB_FILE = ".keytab";
@@ -95,7 +94,7 @@ public class KerberosUtils {
                 //本地文件是否和服务器时间一致 一致使用本地缓存
                 boolean isOverrideDownLoad = checkLocalCache(config.getKerberosFileTimestamp(), localDirPath);
                 if (isOverrideDownLoad) {
-                    SftpFileManage sftpFileManage = sftpMap.computeIfAbsent(config.getSftpConf() , k -> new SftpFileManage(config.getSftpConf()));
+                    SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(config.getSftpConf());
                     keytabPath = sftpFileManage.cacheOverloadFile(fileName, remoteDir, localDir);
                     if (StringUtils.isNotBlank(krb5ConfName)) {
                         krb5ConfPath = sftpFileManage.cacheOverloadFile(krb5ConfName, config.getRemoteDir(), localDir);
@@ -499,7 +498,7 @@ public class KerberosUtils {
         String krb5ConfPath = "";
         boolean isOverrideDownLoad = checkLocalCache(config.getKerberosFileTimestamp(), localDirPath);
         if (isOverrideDownLoad) {
-            SftpFileManage sftpFileManage = sftpMap.computeIfAbsent(config.getSftpConf() , k -> new SftpFileManage(config.getSftpConf()));
+            SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(config.getSftpConf());
             keytabPath = sftpFileManage.cacheOverloadFile(keytabFileName, remoteDir, localDir);
             krb5ConfPath = sftpFileManage.cacheOverloadFile(krb5FileName, remoteDir, localDir);
             writeTimeLockFile(config.getKerberosFileTimestamp(), localDir);
@@ -521,7 +520,7 @@ public class KerberosUtils {
             path.mkdirs();
         }
 
-        SftpFileManage sftpFileManage = sftpMap.computeIfAbsent(config.getSftpConf() , k -> new SftpFileManage(config.getSftpConf()));
+        SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(config.getSftpConf());
         logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, config.getSftpConf());
 
         String keytabPath = sftpFileManage.cacheOverloadFile(fileName, remoteDir, localDir);

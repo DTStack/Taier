@@ -36,7 +36,7 @@ public class SFTPPoolTest {
 
     @Test
     public void testGetInstance() throws Exception {
-        SftpFileManage manage = new SftpFileManage(config);
+        SftpFileManage manage = SftpFileManage.getSftpManager(config);
         CountDownLatch countDownLatch = new CountDownLatch(COUNT+1);
 
         for (int i = 0; i < COUNT; ++i) {

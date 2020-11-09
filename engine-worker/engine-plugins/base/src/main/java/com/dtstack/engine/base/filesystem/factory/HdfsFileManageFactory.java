@@ -20,7 +20,7 @@ package com.dtstack.engine.base.filesystem.factory;
 
 import com.dtstack.engine.base.filesystem.FileConfig;
 import com.dtstack.engine.base.filesystem.manager.HdfsFileManage;
-import com.dtstack.engine.base.filesystem.manager.IFileManage;
+import com.dtstack.engine.common.IFileManage;
 import org.apache.hadoop.conf.Configuration;
 
 /**

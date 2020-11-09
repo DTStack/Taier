@@ -18,6 +18,7 @@
 
 package com.dtstack.engine.common.sftp;
 
+import com.dtstack.engine.common.IFileManage;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Maps;
 import com.jcraft.jsch.ChannelSftp;
@@ -35,7 +36,7 @@ import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Date: 2020/7/20
@@ -45,7 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author maqi
  */
-public class SftpFileManage {
+public class SftpFileManage implements IFileManage {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(SftpFileManage.class);
 
@@ -55,13 +56,18 @@ public class SftpFileManage {
 
     private Map<String, SftpPool> sftpPoolMap = Maps.newConcurrentMap();
     private Map<String, Long> fileLastModifyMap = Maps.newConcurrentMap();
+    private static Map<SftpConfig, SftpFileManage> sftpMap = new ConcurrentHashMap<>();
 
 
     private SftpFactory sftpFactory;
     private SftpPool sftpPool;
     private SftpConfig sftpConfig;
 
-    public SftpFileManage(SftpConfig sftpConfig) {
+    public static SftpFileManage getSftpManager(SftpConfig sftpConfig){
+        return sftpMap.computeIfAbsent(sftpConfig, k-> new SftpFileManage(sftpConfig));
+    }
+
+    private SftpFileManage(SftpConfig sftpConfig) {
         this.sftpConfig = sftpConfig;
         checkConfig(sftpConfig);
         boolean isUsePool = sftpConfig.getIsUsePool();
@@ -169,6 +175,16 @@ public class SftpFileManage {
             LOG.error("load file error: ", e);
             return null;
         }
+    }
+
+    @Override
+    public String getPrefix() {
+        return PREFIX;
+    }
+
+    @Override
+    public boolean canHandle(String remotePath) {
+        return remotePath.contains(PREFIX);
     }
 
     public boolean downloadFile(String remotePath, String localPath) {

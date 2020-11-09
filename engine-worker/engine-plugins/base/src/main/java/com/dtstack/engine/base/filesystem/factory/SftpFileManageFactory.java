@@ -20,11 +20,9 @@ package com.dtstack.engine.base.filesystem.factory;
 
 
 import com.dtstack.engine.base.filesystem.FileConfig;
-import com.dtstack.engine.base.filesystem.manager.IFileManage;
-import com.dtstack.engine.base.filesystem.manager.SftpFileManage;
+import com.dtstack.engine.common.IFileManage;
 import com.dtstack.engine.common.sftp.SftpConfig;
-
-import java.util.Map;
+import com.dtstack.engine.common.sftp.SftpFileManage;
 
 /**
  *  sftp文件管理
@@ -39,6 +37,6 @@ public class SftpFileManageFactory implements IFileManageFactory<FileConfig> {
         if (sftpConfig == null) {
             return null;
         }
-        return new SftpFileManage(sftpConfig);
+        return SftpFileManage.getSftpManager(sftpConfig);
     }
 }

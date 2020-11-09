@@ -3,7 +3,6 @@ package com.dtstack.engine.dummy;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.base.filesystem.manager.SftpFileManage;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.AbstractClient;
@@ -13,6 +12,7 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.sftp.SftpConfig;
+import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.common.util.PublicUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -114,7 +114,7 @@ public class DummyClient extends AbstractClient {
         try {
             SftpConfig sftpConfig = PublicUtil.jsonStrToObject(pluginInfo, SftpConfig.class);
             // check sftpConfig 准确性
-            SftpFileManage sftpFileManage = new SftpFileManage(sftpConfig);
+            SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
             //测试路径是否存在
             Vector res = sftpFileManage.listFile(sftpConfig.getPath());
             if (null != res) {
