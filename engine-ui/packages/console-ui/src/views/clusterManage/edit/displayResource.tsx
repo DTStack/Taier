@@ -245,14 +245,53 @@ class DisplayResource extends React.Component<any, any> {
         )
     }
 
+    // 存储组件
+    renderStorageComponents=(configName: string)=>{
+        const { versionData, getFieldDecorator, isView, components } = this.props;
+        console.log('预留变量',versionData,components)
+        const versionCompsData=[]
+        return (
+            <FormItem
+                label="存储组件"
+                colon={false}
+                key={`${configName}.storageComponents`}
+            >
+                {getFieldDecorator(`${configName}.hadoopVersion`, {
+                    initialValue: versionCompsData.includes(4) ? versionCompsData : undefined
+                })(
+                    <Select style={{ width: 172 }} disabled={isView} onChange={(val) => this.handleCompsVersion(val, componentTypeCode)}>
+                        {versionCompsData.map((ver: any) => {
+                            return <Option value={ver.value} key={ver.key}>{ver.key}</Option>
+                        })}
+                    </Select>
+                )}
+            </FormItem>
+        )
+    }
+
     renderDisplayResource = () => {
         const { componentTypeCode = '' } = this.props?.components;
         switch (componentTypeCode) {
+            case COMPONENT_TYPE_VALUE.SPARK:
+            case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
+            case COMPONENT_TYPE_VALUE.IMPALA_SQL:
+            case COMPONENT_TYPE_VALUE.HIVE_SERVER:
+            case COMPONENT_TYPE_VALUE.DTYARNSHELL:
+            case COMPONENT_TYPE_VALUE.LEARNING:
+            case COMPONENT_TYPE_VALUE.PRESTO_SQL:
+            case COMPONENT_TYPE_VALUE.TIDB_SQL:
+            case COMPONENT_TYPE_VALUE.ORACLE_SQL:
+            case COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL:
+            case COMPONENT_TYPE_VALUE.LIBRA_SQL:
+            case COMPONENT_TYPE_VALUE.FLINK:    {
+                return this.renderStorageComponents(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])
+            }
             case COMPONENT_TYPE_VALUE.SFTP:
             case COMPONENT_TYPE_VALUE.ORACLE_SQL:
             case COMPONENT_TYPE_VALUE.LIBRA_SQL:
             case COMPONENT_TYPE_VALUE.TIDB_SQL:
             case COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL:
+            case COMPONENT_TYPE_VALUE.NFS:
             case COMPONENT_TYPE_VALUE.PRESTO_SQL: {
                 return this.renderParamsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])
             }
