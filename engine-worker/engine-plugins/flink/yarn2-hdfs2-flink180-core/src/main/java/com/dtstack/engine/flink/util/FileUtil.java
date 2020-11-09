@@ -131,7 +131,7 @@ public class FileUtil {
     public static JsonObject readJsonFromHdfs(String filePath, Configuration hadoopConf) throws URISyntaxException, IOException {
         InputStream is = readStreamFromFile(filePath, hadoopConf);
         if (is == null) {
-            return null;
+            throw new RdosDefineException("can't read file from hdfs, file path:" + filePath);
         }
         JsonParser jsonParser = new JsonParser();
         try (InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
