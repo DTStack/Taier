@@ -946,6 +946,7 @@ public class ComponentService {
         JSONObject dataInfo = new JSONObject();
         dataInfo.put("componentName", EComponentType.getByCode(componentType).getName().toLowerCase());
         if (Objects.nonNull(kerberosConfig)) {
+            dataInfo.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
             //开启了kerberos
             dataInfo.put("openKerberos", kerberosConfig.getOpenKerberos());
             dataInfo.put("remoteDir", kerberosConfig.getRemotePath());
@@ -981,6 +982,7 @@ public class ComponentService {
                 config.put("remoteDir", kerberosConfig.getRemotePath());
                 config.put("principalFile", kerberosConfig.getName());
                 config.put("krbName", kerberosConfig.getKrbName());
+                config.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
                 //补充yarn参数
                 Cluster cluster = clusterDao.getByClusterName(clusterName);
                 if (Objects.nonNull(cluster)) {
