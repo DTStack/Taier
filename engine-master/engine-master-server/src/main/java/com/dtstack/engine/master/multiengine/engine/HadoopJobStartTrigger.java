@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.multiengine.engine;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.engine.api.domain.ScheduleJob;
@@ -159,6 +158,13 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
             if (StringUtils.isNotBlank(sql) && sql.contains(TaskConstant.UPLOADPATH)) {
                 sql = sql.replace(TaskConstant.UPLOADPATH, uploadPath);
+            }
+        } else if(taskShade.getEngineType().equals(ScheduleEngineType.Hadoop.getVal())){
+            //hadoop mr提交 不用上传文件
+            String exeArgs = (String) actionParam.get("exeArgs");
+            if (StringUtils.isNotBlank(exeArgs)) {
+                //替换系统参数
+                taskExeArgs = jobParamReplace.paramReplace(exeArgs, taskParamsToReplace, scheduleJob.getCycTime());
             }
         }
 
