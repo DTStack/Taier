@@ -1,11 +1,11 @@
 package com.dtstack.engine.master.listener;
 
-import com.dtstack.engine.common.exception.ExceptionUtil;
-import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.master.failover.FailoverStrategy;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.master.scheduler.ScheduleJobBack;
-import com.dtstack.engine.master.zookeeper.ZkService;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.leader.LeaderLatch;
+import org.apache.curator.framework.recipes.leader.LeaderLatchListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,24 +20,30 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author toutian
  * create: 2019/10/22
  */
-public class MasterListener implements Listener {
+public class MasterListener implements LeaderLatchListener, Listener {
 
     private static final Logger logger = LoggerFactory.getLogger(MasterListener.class);
 
-    private int logOutput = 0;
-    private final static int MULTIPLES = 10;
-    private final static int CHECK_INTERVAL = 1000;
+    private final static int CHECK_INTERVAL = 10000;
 
-    private AtomicBoolean isMaster = new AtomicBoolean(false);
+    private final AtomicBoolean isMaster = new AtomicBoolean(false);
+    private final FailoverStrategy failoverStrategy;
+    private final ScheduleJobBack scheduleJobBack;
+
     private final ScheduledExecutorService scheduledService;
-    private ZkService zkService;
-    private FailoverStrategy failoverStrategy;
-    private ScheduleJobBack scheduleJobBack;
+    private LeaderLatch latch;
 
-    public MasterListener(FailoverStrategy failoverStrategy, ZkService zkService,ScheduleJobBack scheduleJobBack) {
+    public MasterListener(FailoverStrategy failoverStrategy,
+                          ScheduleJobBack scheduleJobBack,
+                          CuratorFramework curatorFramework,
+                          String latchPath,
+                          String localAddress) throws Exception {
         this.failoverStrategy = failoverStrategy;
-        this.zkService = zkService;
         this.scheduleJobBack = scheduleJobBack;
+
+        this.latch = new LeaderLatch(curatorFramework, latchPath, localAddress);
+        this.latch.addListener(this);
+        this.latch.start();
 
         scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
@@ -47,31 +53,36 @@ public class MasterListener implements Listener {
                 TimeUnit.MILLISECONDS);
     }
 
-    @Override
-    public void run() {
-        try {
-            logOutput++;
-            isMaster.getAndSet(zkService.setMaster());
-            failoverStrategy.setIsMaster(isMaster.get());
-            scheduleJobBack.setIsMaster(isMaster.get());
-
-            if (LogCountUtil.count(logOutput, MULTIPLES)) {
-                logger.info("MasterListener start again...");
-                if (isMaster()) {
-                    logger.info("i am is master...");
-                }
-            }
-        } catch (Throwable e) {
-            logger.error("MasterCheck error:{}", ExceptionUtil.getErrorMessage(e));
-        }
-    }
-
     public boolean isMaster() {
         return isMaster.get();
     }
 
     @Override
+    public void isLeader() {
+        isMaster.getAndSet(Boolean.TRUE);
+    }
+
+    @Override
+    public void notLeader() {
+        isMaster.getAndSet(Boolean.FALSE);
+    }
+
+    @Override
     public void close() throws Exception {
+        this.latch.close();
         scheduledService.shutdownNow();
     }
+
+    @Override
+    public void run() {
+        logger.info("i am master:{} ...", isMaster.get());
+
+        doEventElection();
+    }
+
+    public void doEventElection(){
+        failoverStrategy.setIsMaster(isMaster.get());
+        scheduleJobBack.setIsMaster(isMaster.get());
+    }
+
 }
