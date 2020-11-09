@@ -256,8 +256,6 @@ public class FlinkClient extends AbstractClient {
 
             flinkClusterClientManager.addClient(applicationId, clusterClient);
             return Pair.create(flinkJobId, applicationId);
-        } catch (Exception e) {
-            throw new RdosDefineException(e);
         }
     }
 

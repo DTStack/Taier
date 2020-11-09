@@ -119,8 +119,6 @@ public class FlinkClusterClientManager {
                                 YarnClusterDescriptor perJobYarnClusterDescriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
                         )  {
                             return perJobYarnClusterDescriptor.retrieve(ConverterUtils.toApplicationId(applicationId)).getClusterClient();
-                        } catch (Exception e) {
-                            throw new RdosDefineException(e);
                         }
                     });
                 } catch (ExecutionException e) {
