@@ -312,6 +312,7 @@ class ComponentsConfig extends React.Component<any, any> {
                 return this.rendeConfigForm(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])
             }
             case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
+            case COMPONENT_TYPE_VALUE.NFS:
             case COMPONENT_TYPE_VALUE.HIVE_SERVER: {
                 return (
                     <React.Fragment>
