@@ -117,8 +117,13 @@ public class FlinkClusterClientManager {
                         JobClient jobClient = new JobClient();
                         jobClient.setTaskId(taskId);
                         jobClient.setJobName("taskId-" + taskId);
-                        AbstractYarnClusterDescriptor perJobYarnClusterDescriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
-                        return perJobYarnClusterDescriptor.retrieve(ConverterUtils.toApplicationId(applicationId));
+                        try (
+                                AbstractYarnClusterDescriptor perJobYarnClusterDescriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
+                        ) {
+                            return perJobYarnClusterDescriptor.retrieve(ConverterUtils.toApplicationId(applicationId));
+                        } catch (Exception e) {
+                            throw new RdosDefineException(e);
+                        }
                     });
                 } catch (ExecutionException e) {
                     throw new RdosDefineException(e);

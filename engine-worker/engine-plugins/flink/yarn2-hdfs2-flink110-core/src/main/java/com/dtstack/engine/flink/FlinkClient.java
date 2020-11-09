@@ -244,18 +244,21 @@ public class FlinkClient extends AbstractClient {
     private Pair<String, String> runJobByPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws Exception{
         logger.info("--------job:{} run by PerJob mode-----.", jobClient.getTaskId());
         PerJobClientFactory perJobClientFactory = flinkClusterClientManager.getPerJobClientFactory();
-        YarnClusterDescriptor descriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
-        perJobClientFactory.deleteTaskIfExist(jobClient);
-        ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, new JobGraph(),true).getClusterClient();
+        try (
+                YarnClusterDescriptor descriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
+        ) {
+            perJobClientFactory.deleteTaskIfExist(jobClient);
+            ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, new JobGraph(),true).getClusterClient();
 
-        String applicationId = clusterClient.getClusterId().toString();
-        String flinkJobId = clusterSpecification.getJobGraph().getJobID().toString();
+            String applicationId = clusterClient.getClusterId().toString();
+            String flinkJobId = clusterSpecification.getJobGraph().getJobID().toString();
+            delFilesFromDir(ConfigConstrant.IO_TMPDIR, applicationId);
 
-        delFilesFromDir(ConfigConstrant.IO_TMPDIR, applicationId);
-
-        flinkClusterClientManager.addClient(applicationId, clusterClient);
-
-        return Pair.create(flinkJobId, applicationId);
+            flinkClusterClientManager.addClient(applicationId, clusterClient);
+            return Pair.create(flinkJobId, applicationId);
+        } catch (Exception e) {
+            throw new RdosDefineException(e);
+        }
     }
 
     /**
