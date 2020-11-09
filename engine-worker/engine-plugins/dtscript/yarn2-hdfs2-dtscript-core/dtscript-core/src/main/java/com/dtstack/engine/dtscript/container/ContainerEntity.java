@@ -4,31 +4,20 @@ package com.dtstack.engine.dtscript.container;
 import com.dtstack.engine.dtscript.common.DtContainerStatus;
 
 public class ContainerEntity {
-    private int  lane;
     private DtContainerId containerId;
-    private DtContainerStatus dtContainerStatus;
+    private volatile DtContainerStatus dtContainerStatus;
     private int attempts;
     private String nodeHost;
     private int nodePort;
-    private Long lastBeatTime;
+    private volatile Long lastBeatTime;
 
 
-    public ContainerEntity(int lane, DtContainerId containerId, DtContainerStatus dtContainerStatus, String nodeHost, int nodePort, int attempts) {
-        this.lane = lane;
+    public ContainerEntity(DtContainerId containerId, DtContainerStatus dtContainerStatus, String nodeHost, int nodePort) {
         this.containerId = containerId;
         this.dtContainerStatus = dtContainerStatus;
         this.nodeHost = nodeHost;
         this.nodePort = nodePort;
-        this.attempts = attempts;
         this.lastBeatTime = System.currentTimeMillis();
-    }
-
-    public int getLane() {
-        return lane;
-    }
-
-    public void setLane(int lane) {
-        this.lane = lane;
     }
 
     public DtContainerId getContainerId() {
@@ -80,12 +69,28 @@ public class ContainerEntity {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ContainerEntity that = (ContainerEntity) o;
+        return containerId != null ? containerId.equals(that.containerId) : that.containerId == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return containerId.hashCode();
+    }
+
+    @Override
     public String toString() {
         return "ContainerEntity{" +
-                "lane=" + lane +
                 ", containerId=" + containerId +
                 ", dtContainerStatus=" + dtContainerStatus +
-                ", attempts=" + attempts +
                 ", nodeHost='" + nodeHost + '\'' +
                 ", nodePort=" + nodePort +
                 ", lastBeatTime=" + lastBeatTime +
