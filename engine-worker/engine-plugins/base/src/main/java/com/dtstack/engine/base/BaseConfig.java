@@ -39,7 +39,6 @@ public class BaseConfig {
         this.krbName = krbName;
     }
 
-
     public Timestamp getKerberosFileTimestamp() {
         return kerberosFileTimestamp;
     }

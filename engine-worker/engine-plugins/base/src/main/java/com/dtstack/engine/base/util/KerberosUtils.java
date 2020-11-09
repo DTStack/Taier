@@ -123,7 +123,7 @@ public class KerberosUtils {
                 });
                 KerberosTicket ticket = getTGT(ugi);
                 if (!checkTGT(ticket) || isOverrideDownLoad) {
-                    logger.info("Relogin after the ticket expired, principal {}", principal);
+                    logger.info("Relogin after the ticket expired, principal: {}, current thread: {}", principal, Thread.currentThread().getName());
                     ugi = createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath);
                     ugiMap.put(threadName, ugi);
                 }
@@ -203,7 +203,7 @@ public class KerberosUtils {
     private synchronized static UserGroupInformation createUGI(String krb5ConfPath, Configuration config, String principal, String keytabPath) {
         try {
             checkParams(principal, krb5ConfPath, keytabPath);
-            krb5ConfPath = mergeKrb5(krb5ConfPath, principal);
+            // krb5ConfPath = mergeKrb5(krb5ConfPath, principal);
             if (StringUtils.isNotEmpty(krb5ConfPath)) {
                 System.setProperty(KRB5_CONF, krb5ConfPath);
             }
@@ -509,6 +509,23 @@ public class KerberosUtils {
         }
         logger.info("Get keytabPath: {}, krb5ConfPath: {}", keytabPath, krb5ConfPath);
         return new String[]{keytabPath, krb5ConfPath};
+    }
+
+    public static String getKeytabPath(BaseConfig config) {
+        String fileName = config.getPrincipalFile();
+        String remoteDir = config.getRemoteDir();
+        String localDir = USER_DIR + remoteDir;
+
+        File path = new File(localDir);
+        if (!path.exists()) {
+            path.mkdirs();
+        }
+
+        logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, config.getSftpConf());
+        SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
+        String keytabPath = handler.loadFromSftp(fileName, remoteDir, localDir);
+        logger.info("keytabPath:{}", keytabPath);
+        return keytabPath;
     }
 
     public static Configuration convertMapConfToConfiguration(Map<String,Object> allConfig) {

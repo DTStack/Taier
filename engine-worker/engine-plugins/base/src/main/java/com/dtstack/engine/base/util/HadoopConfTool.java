@@ -8,6 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -20,6 +22,8 @@ import java.util.Map;
  */
 
 public class HadoopConfTool {
+
+    private static final Logger LOG = LoggerFactory.getLogger(KerberosUtils.class);
 
     public static final String DFS_NAME_SERVICES = "dfs.nameservices";
     public static final String FS_DEFAULTFS = "fs.defaultFS";
@@ -147,5 +151,7 @@ public class HadoopConfTool {
         } else {
             yarnConf.setLong(YarnConfiguration.RESOURCEMANAGER_CONNECT_RETRY_INTERVAL_MS, 5000L);
         }
+
+        LOG.info("yarn.resourcemanager.connect.max-wait.ms:{} yarn.resourcemanager.connect.retry-interval.ms:{}", yarnConf.getLong(YarnConfiguration.RESOURCEMANAGER_CONNECT_MAX_WAIT_MS, -1), yarnConf.getLong(YarnConfiguration.RESOURCEMANAGER_CONNECT_RETRY_INTERVAL_MS, -1));
     }
 }

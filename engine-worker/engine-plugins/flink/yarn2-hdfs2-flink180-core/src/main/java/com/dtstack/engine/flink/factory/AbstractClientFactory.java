@@ -63,7 +63,7 @@ public abstract class AbstractClientFactory implements IClientFactory {
                 yarnConfiguration,
                 configurationDirectory,
                 yarnClient,
-                true);
+                false);
     }
 
     public YarnClient getYarnClient() {
