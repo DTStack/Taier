@@ -178,6 +178,7 @@ public class AlertController {
             dynamicParams.put("content", "测试内容");
             smsAlertParam.setDynamicParams(dynamicParams);
             smsAlertParam.setPhones(alertGateTestVO.getPhones());
+            smsAlertParam.setMessage("测试内容");
             result = smsAlertParam;
         }
 

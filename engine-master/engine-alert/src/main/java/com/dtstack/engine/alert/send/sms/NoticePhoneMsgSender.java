@@ -43,6 +43,7 @@ public class NoticePhoneMsgSender extends AbstractSender {
         json.put("content", sms.getContent());
         body.put("dynamicParams",json);
         body.put("source",source);
+        body.put("message",sms.getContent());
         return body.toJSONString();
     }
 }

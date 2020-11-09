@@ -7,6 +7,7 @@ import com.dtstack.engine.alert.domian.Notice;
 import com.dtstack.engine.alert.enums.AGgateType;
 import com.dtstack.engine.api.domain.po.ClusterAlertPO;
 import com.dtstack.engine.api.enums.SenderType;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ClusterAlertDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -28,6 +29,10 @@ public abstract class AbstractSender {
         SenderType senderType = SenderType.parse(notice.getSenderType());
         AGgateType aGgateType = convert(senderType);
         ClusterAlertPO clusterAlertPO = getDefaultClusterAlertPO(notice, aGgateType);
+
+        if(null == clusterAlertPO){
+            throw new RdosDefineException("请先配置默认告警通道");
+        }
         String body = buildBody(notice, clusterAlertPO);
         AlertEvent alertEvent = JSONObject.parseObject(body, AlertEvent.class);
         alertGateApiFacade.sendAsync(alertEvent, aGgateType);
