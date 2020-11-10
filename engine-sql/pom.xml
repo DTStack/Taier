@@ -16,7 +16,7 @@
         <module>engine-sql-core</module>
         <module>engine-sql-hive</module>
         <module>engine-sql-rdb</module>
-        <module>engine-sql-parse</module>
+        <module>engine-sql-parser</module>
         <module>engine-sql-flink</module>
 <!--        <module>calcite-shade</module>-->
     </modules>
