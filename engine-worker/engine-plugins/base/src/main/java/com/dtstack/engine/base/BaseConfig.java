@@ -1,5 +1,6 @@
 package com.dtstack.engine.base;
 
+import java.sql.Timestamp;
 import java.util.Map;
 
 /**
@@ -18,24 +19,16 @@ public class BaseConfig {
 
     private String krbName;
 
-    private String principalPath;
+    private String principal;
 
-    private String principalName;
+    private Timestamp kerberosFileTimestamp;
 
-    public String getPrincipalPath() {
-        return principalPath;
+    public String getPrincipal() {
+        return principal;
     }
 
-    public void setPrincipalPath(String principalPath) {
-        this.principalPath = principalPath;
-    }
-
-    public String getPrincipalName() {
-        return principalName;
-    }
-
-    public void setPrincipalName(String principalName) {
-        this.principalName = principalName;
+    public void setPrincipal(String principal) {
+        this.principal = principal;
     }
 
     public String getKrbName() {
@@ -44,6 +37,14 @@ public class BaseConfig {
 
     public void setKrbName(String krbName) {
         this.krbName = krbName;
+    }
+
+    public Timestamp getKerberosFileTimestamp() {
+        return kerberosFileTimestamp;
+    }
+
+    public void setKerberosFileTimestamp(Timestamp kerberosFileTimestamp) {
+        this.kerberosFileTimestamp = kerberosFileTimestamp;
     }
 
     public boolean isOpenKerberos() {

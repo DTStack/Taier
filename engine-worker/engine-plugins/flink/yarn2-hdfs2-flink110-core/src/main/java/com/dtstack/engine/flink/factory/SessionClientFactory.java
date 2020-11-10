@@ -39,6 +39,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.client.ClientUtils;
+import org.apache.flink.client.deployment.ClusterDeploymentException;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.*;
 import org.apache.flink.configuration.CheckpointingOptions;
@@ -211,8 +212,11 @@ public class SessionClientFactory extends AbstractClientFactory {
 
             if(isLeader.get()&& flinkConfig.getSessionStartAuto()){
                 try {
-                    YarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
-                    clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification).getClusterClient();
+                    try (
+                            YarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
+                    ) {
+                        clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification).getClusterClient();
+                    }
                     return true;
                 } catch (FlinkException e) {
                     LOG.info("Couldn't deploy Yarn session cluster, ", e);
@@ -454,6 +458,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                                 boolean checkRs = checkJobGraphWithStatus();
                                                 while (!checkRs) {
                                                     if (checked++ >= 3) {
+                                                        LOG.error("Health check  failed exceeded 3 times, prepare to stop Flink yarn-session client");
                                                         sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                                                         break;
                                                     } else {
@@ -499,7 +504,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                 } finally {
                     try {
                         Thread.sleep(CHECK_INTERVAL);
-                        LOG.info("SessionAppName is "+ sessionClientFactory.sessionAppNameSuffix +" and Current role is : "+ sessionClientFactory.isLeader.get());
+                        LOG.warn("Current ThreadName is " + Thread.currentThread().getName()+" SessionAppName is "+ sessionClientFactory.sessionAppNameSuffix +" and Current role is : "+ (sessionClientFactory.isLeader.get() ? "Leader": "Follower"));
                     } catch (Exception e) {
                         LOG.error("", e);
                     }

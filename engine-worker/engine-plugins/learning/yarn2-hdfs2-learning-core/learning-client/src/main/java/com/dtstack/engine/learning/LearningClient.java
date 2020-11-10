@@ -2,6 +2,7 @@ package com.dtstack.engine.learning;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
+import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -90,6 +91,7 @@ public class LearningClient extends AbstractClient {
                 conf.set(key, value.toString());
             }
         }
+        HadoopConfTool.setDefaultYarnConf(conf, (Map<String, Object>) prop.get("yarnConf"));
 
         String queue = prop.getProperty(LearningConfiguration.XLEARNING_APP_QUEUE);
         if (StringUtils.isNotBlank(queue)){
