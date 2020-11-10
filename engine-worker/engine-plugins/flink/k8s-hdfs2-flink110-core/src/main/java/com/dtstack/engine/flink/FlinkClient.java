@@ -592,9 +592,9 @@ public class FlinkClient extends AbstractClient {
                 sftpFiles.add(addFilePath);
                 File tmpFile = null;
                 try {
-                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, filesystemManager);
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
+                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, filesystemManager, false);
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
                 }
                 if (tmpFile == null) {
                     throw new RuntimeException("JAR file does not exist: " + addFilePath);

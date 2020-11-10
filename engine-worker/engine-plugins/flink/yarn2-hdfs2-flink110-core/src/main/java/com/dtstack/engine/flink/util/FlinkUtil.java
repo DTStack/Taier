@@ -42,7 +42,7 @@ public class FlinkUtil {
             throw new IllegalArgumentException("The program JAR file was not specified.");
         }
 
-        File jarFile = downloadJar(fromPath, localDir, filesystemManager);
+        File jarFile = downloadJar(fromPath, localDir, filesystemManager, true);
 
         ClassLoaderType classLoaderType = ClassLoaderType.getClassLoaderType(jobType);
         if (ClassLoaderType.CHILD_FIRST == classLoaderType) {
@@ -71,7 +71,15 @@ public class FlinkUtil {
         return program;
     }
 
-    public static File downloadJar(String remotePath, String localDir, FilesystemManager filesystemManager) throws IOException {
+    public static File downloadJar(String remotePath, String localDir, FilesystemManager filesystemManager, boolean localPriority) throws IOException {
+        if(localPriority){
+            //如果不是http 或者 hdfs协议的从本地读取
+            File localFile = new File(remotePath);
+            if(localFile.exists()){
+                return localFile;
+            }
+        }
+
         String localJarPath = FlinkUtil.getTmpFileName(remotePath, localDir);
         File downloadFile = filesystemManager.downloadFile(remotePath, localJarPath);
         logger.info("downloadFile remotePath:{} localJarPath:{}", remotePath, localJarPath);
