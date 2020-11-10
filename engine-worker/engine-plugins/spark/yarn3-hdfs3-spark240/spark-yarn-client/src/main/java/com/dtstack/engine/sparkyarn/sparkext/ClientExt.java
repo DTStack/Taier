@@ -99,6 +99,10 @@ public class ClientExt extends DtCDHClient {
 
         boolean downLoadSuccess = filesystemManager.downloadDir(remotePath, confFileDirName);
         LOG.info("downloadDir remotePath:{} confFileDirName:{} status is: {} ", remotePath, confFileDirName, downLoadSuccess);
+        if (!downLoadSuccess) {
+            throw new RdosDefineException("yarn-site.xml/hdfs-site.xml/hive-site.xml configuration download failed");
+        }
+
         return confFileDirName;
     }
 

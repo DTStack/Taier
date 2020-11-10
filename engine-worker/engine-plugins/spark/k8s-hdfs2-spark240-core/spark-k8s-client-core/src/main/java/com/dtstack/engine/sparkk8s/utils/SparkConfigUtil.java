@@ -184,8 +184,9 @@ public class SparkConfigUtil {
         }
 
         boolean downloadFlag = filesystemManager.downloadDir(remotePath, confFileDirName);
+        LOG.info("downloadDir remotePath:{} confFileDirName:{} status is: {} ", remotePath, confFileDirName, downloadFlag);
         if (!downloadFlag) {
-            throw new RuntimeException("----download file exception---");
+            throw new RuntimeException("remoteDir " + remotePath + " download failed");
         }
         return confFileDirName;
     }
