@@ -573,7 +573,7 @@ public class ComponentService {
             }
             try {
                 if (resource.getFileName().equalsIgnoreCase(kerberosFileName)) {
-                    this.updateComponentKerberosFile(clusterId, addComponent, sftpFileManage, remoteDir, resource, addComponent.getId());
+                    this.updateComponentKerberosFile(clusterId, addComponent, sftpFileManage, remoteDir, resource);
                 } else {
                     this.updateComponentConfigFile(dbComponent, sftpFileManage, remoteDir, resource);
                     if(addComponent.getComponentTypeCode() == EComponentType.HDFS.getTypeCode()){
@@ -726,7 +726,7 @@ public class ComponentService {
      * @param resource
      * @return
      */
-    private String updateComponentKerberosFile(Long clusterId, Component addComponent, SftpFileManage sftpFileManage, String remoteDir, Resource resource, Long componentId) {
+    private String updateComponentKerberosFile(Long clusterId, Component addComponent, SftpFileManage sftpFileManage, String remoteDir, Resource resource) {
         //kerberos认证文件
         remoteDir = remoteDir + File.separator;
         //删除本地文件夹
