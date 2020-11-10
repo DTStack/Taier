@@ -1,4 +1,4 @@
-package com.dtstack.engine.hadoop.util;
+package com.dtstack.engine.kubernetes.util;
 
 
 import org.apache.hadoop.conf.Configuration;

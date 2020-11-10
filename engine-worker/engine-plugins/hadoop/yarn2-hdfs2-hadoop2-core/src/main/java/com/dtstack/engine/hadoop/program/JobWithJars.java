@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.hadoop.program;
+package com.dtstack.engine.kubernetes.program;
 
 import com.dtstack.engine.worker.enums.ClassLoaderType;
 import org.apache.commons.lang3.StringUtils;

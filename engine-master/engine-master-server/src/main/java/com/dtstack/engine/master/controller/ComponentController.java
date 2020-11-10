@@ -74,6 +74,12 @@ public class ComponentController {
         return componentService.getComponentVersion();
     }
 
+    @RequestMapping(value="/getComponentStore", method = {RequestMethod.POST})
+    @ApiOperation(value = "获取对应的组件版本信息")
+    public List<Component> getComponentStore(@DtRequestParam("clusterName") String clusterName,@DtRequestParam("componentType") Integer componentType) {
+        return componentService.getComponentStore(clusterName,componentType);
+    }
+
     @RequestMapping(value="/testConnects", method = {RequestMethod.POST})
     @ApiOperation(value = "测试所有组件连通性")
     public List<ComponentTestResult> testConnects(@DtRequestParam("clusterName") String clusterName) {

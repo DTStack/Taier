@@ -20,7 +20,9 @@
         <module>dtscript</module>
         <module>dummy</module>
         <module>flink</module>
-        <module>hadoop</module>
+<!--        <module>hadoop</module>-->
+        <module>stores</module>
+        <module>schedules</module>
         <module>kylin</module>
         <module>learning</module>
         <module>odps</module>

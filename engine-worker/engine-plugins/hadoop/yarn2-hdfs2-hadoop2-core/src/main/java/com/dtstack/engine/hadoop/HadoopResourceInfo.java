@@ -1,4 +1,4 @@
-package com.dtstack.engine.hadoop;
+package com.dtstack.engine.kubernetes;
 
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.base.resource.EngineResourceInfo;

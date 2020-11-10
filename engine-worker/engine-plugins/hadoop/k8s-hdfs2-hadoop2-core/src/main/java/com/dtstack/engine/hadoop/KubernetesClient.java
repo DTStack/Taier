@@ -1,4 +1,4 @@
-package com.dtstack.engine.hadoop;
+package com.dtstack.engine.kubernetes;
 
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JobClient;
@@ -10,7 +10,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.hadoop.util.HadoopConf;
+import com.dtstack.engine.kubernetes.util.HadoopConf;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;

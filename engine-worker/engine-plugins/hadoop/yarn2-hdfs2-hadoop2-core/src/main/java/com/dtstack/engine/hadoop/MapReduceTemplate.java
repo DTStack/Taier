@@ -1,8 +1,8 @@
-package com.dtstack.engine.hadoop;
+package com.dtstack.engine.kubernetes;
 
 import com.dtstack.engine.common.JobParam;
 import com.dtstack.engine.common.callback.ClassLoaderCallBackMethod;
-import com.dtstack.engine.hadoop.program.PackagedProgram;
+import com.dtstack.engine.kubernetes.program.PackagedProgram;
 import com.dtstack.engine.worker.enums.ClassLoaderType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
