@@ -74,7 +74,7 @@ public class FlinkUtil {
     }
 
     private static String getTmpFileName(String fileUrl, String toPath){
-        String fileName = StringUtils.substringAfter(fileUrl, File.separator);
+        String fileName = StringUtils.substringAfterLast(fileUrl, File.separator);
         String tmpFileName = toPath  + File.separator + fileName;
         return tmpFileName;
     }
