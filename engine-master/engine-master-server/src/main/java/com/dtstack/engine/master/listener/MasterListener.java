@@ -59,12 +59,12 @@ public class MasterListener implements LeaderLatchListener, Listener {
 
     @Override
     public void isLeader() {
-        isMaster.getAndSet(Boolean.TRUE);
+        isMaster.set(Boolean.TRUE);
     }
 
     @Override
     public void notLeader() {
-        isMaster.getAndSet(Boolean.FALSE);
+        isMaster.set(Boolean.FALSE);
     }
 
     @Override
@@ -77,10 +77,6 @@ public class MasterListener implements LeaderLatchListener, Listener {
     public void run() {
         logger.info("i am master:{} ...", isMaster.get());
 
-        doEventElection();
-    }
-
-    public void doEventElection(){
         failoverStrategy.setIsMaster(isMaster.get());
         scheduleJobBack.setIsMaster(isMaster.get());
     }
