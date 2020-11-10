@@ -1670,7 +1670,10 @@
     </update>
 
     <update id="updateJobStatusAndPhaseStatus">
-        update schedule_job set gmt_modified=now(),status=#{status},`phase_status` = #{phaseStatus} where job_id=#{jobId};
+        update schedule_job set gmt_modified=now(),status=#{status},`phase_status` = #{phaseStatus},
+        application_id = null, engine_job_id = null, engine_log = null, log_info = null,
+        retry_task_params = null, exec_end_time = null, exec_start_time = null, exec_time = 0, gmt_modified=now()
+        where job_id=#{jobId};
     </update>
 
     <select id="getJobGraph" resultType="java.lang.String">

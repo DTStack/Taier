@@ -1,8 +1,7 @@
 package com.dtstack.engine.sparkk8s.utils;
 
-import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.sparkk8s.config.SparkK8sConfig;
 import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import com.dtstack.schedule.common.util.ZipUtil;
@@ -132,7 +131,7 @@ public class SparkConfigUtil {
         return hadoopConfContent.toString();
     }
 
-    public static String downloadK8sConfig(SparkK8sConfig sparkK8sConfig) {
+    public static String downloadK8sConfig(FilesystemManager filesystemManager, SparkK8sConfig sparkK8sConfig) throws IOException {
         String tmpK8sConfig = String.format("%s/%s", USER_DIR, tmpK8sConfigDir);
 
         String remoteDir = sparkK8sConfig.getRemoteDir();
@@ -148,14 +147,9 @@ public class SparkConfigUtil {
         }
 
         if (!new File(localConfigPath).exists()) {
-            SFTPHandler handler = SFTPHandler.getInstance(sparkK8sConfig.getSftpConf());
-            handler.downloadFile(remoteConfigPath, localConfigPath);
-            try {
-                handler.close();
-                ZipUtil.upzipFile(localConfigPath, localConfigParentDir);
-            } catch (Exception e) {
-                LOG.error("SparkConfigUtil.downloadK8sConfig error:{}", ExceptionUtil.getErrorMessage(e));
-            }
+            filesystemManager.downloadFile(remoteConfigPath, localConfigPath);
+
+            ZipUtil.upzipFile(localConfigPath, localConfigParentDir);
         }
 
         String configName = getConfigNameFromTmpDir(tmpConfigDir);
@@ -164,8 +158,9 @@ public class SparkConfigUtil {
         return k8sConfigPath;
     }
 
-    public static String downloadHdfsAndHiveConf(SparkK8sConfig sparkK8sConfig) {
+    public static String downloadHdfsAndHiveConf(FilesystemManager filesystemManager, SparkK8sConfig sparkK8sConfig) {
         String confMd5Sum = sparkK8sConfig.getMd5sum();
+        String remotePath = sparkK8sConfig.getConfHdfsPath();
         String confFileDirName = String.format("%s/%s/%s", USER_DIR, tmpHadoopFilePath, confMd5Sum);
         File dirFile = new File(confFileDirName);
 
@@ -188,68 +183,13 @@ public class SparkConfigUtil {
             }
         }
 
-        boolean downloadFlag = false;
-        if (sparkK8sConfig.getSftpConf() != null && !sparkK8sConfig.getSftpConf().isEmpty()) {
-            downloadFlag = downloadFileFromSftp(sparkK8sConfig, confFileDirName);
-        }
-
+        boolean downloadFlag = filesystemManager.downloadDir(remotePath, confFileDirName);
+        LOG.info("downloadDir remotePath:{} confFileDirName:{} status is: {} ", remotePath, confFileDirName, downloadFlag);
         if (!downloadFlag) {
-            throw new RuntimeException("----download file exception---");
+            throw new RuntimeException("remoteDir " + remotePath + " download failed");
         }
         return confFileDirName;
     }
-
-    private static boolean downloadFileFromSftp(SparkK8sConfig sparkK8sConfig, String confFileDirName) {
-        //从Sftp下载文件到目录下
-        Map<String, String> sftpConf = sparkK8sConfig.getSftpConf();
-        String hdfsSftpPath = sparkK8sConfig.getConfHdfsPath();
-
-        SFTPHandler handler = null;
-        try {
-            handler = SFTPHandler.getInstance(sftpConf);
-            int files = handler.downloadDir(hdfsSftpPath, confFileDirName);
-            LOG.info("download file from SFTP, fileSize: " + files);
-            if (files > 0) {
-                return true;
-            }
-        } catch (Exception e) {
-            LOG.error("", e);
-            try {
-                //下载失败后文件可能没有成功下载或下载不全，直接删除该目录
-                deleteFile(confFileDirName);
-            } catch (Exception e1) {
-                LOG.error("", e1);
-            }
-        } finally {
-            if (handler != null) {
-                handler.close();
-            }
-        }
-        return false;
-    }
-
-    public static void deleteFile(String delpath) {
-        try {
-            File file = new File(delpath);
-            if (!file.isDirectory()) {
-                file.delete();
-            } else if (file.isDirectory()) {
-                String[] filelist = file.list();
-                for (int i = 0; i < filelist.length; i++) {
-                    File delfile = new File(delpath + File.separator + filelist[i]);
-                    if (!delfile.isDirectory()) {
-                        delfile.delete();
-                    } else if (delfile.isDirectory()) {
-                        deleteFile(delpath + File.separator + filelist[i]);
-                    }
-                }
-                file.delete();
-            }
-        } catch (Exception e) {
-            LOG.error("SparkConfigUtil.deleteFile error:{}",ExceptionUtil.getErrorMessage(e));
-        }
-    }
-
 
     public static String getConfigNameFromTmpDir(File tmpConfigDir) {
         String[] contentFiles = tmpConfigDir.list();

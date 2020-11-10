@@ -18,6 +18,7 @@
 
 package com.dtstack.engine.sparkk8s;
 
+import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -68,13 +69,17 @@ public class SparkK8sClient extends AbstractClient {
 
     private volatile KubernetesClient k8sClient;
 
+    private FilesystemManager filesystemManager;
+
     @Override
     public void init(Properties prop) throws Exception {
         this.sparkDefaultProp = prop;
         this.sparkK8sConfig = PublicUtil.jsonStrToObject(PublicUtil.objToString(prop), SparkK8sConfig.class);
-        this.hdfsConfPath = SparkConfigUtil.downloadHdfsAndHiveConf(sparkK8sConfig);
 
-        String k8sConfigPath = SparkConfigUtil.downloadK8sConfig(sparkK8sConfig);
+        this.filesystemManager = new FilesystemManager(null, sparkK8sConfig.getSftpConf());
+
+        this.hdfsConfPath = SparkConfigUtil.downloadHdfsAndHiveConf(filesystemManager, sparkK8sConfig);
+        String k8sConfigPath = SparkConfigUtil.downloadK8sConfig(filesystemManager, sparkK8sConfig);
         sparkDefaultProp.setProperty(ExtendConfig.KUBERNETES_KUBE_CONFIG_KEY(),k8sConfigPath);
 
         k8sClient = getK8sClient();
@@ -150,7 +155,7 @@ public class SparkK8sClient extends AbstractClient {
     public void beforeSubmitFunc(JobClient jobClient) {
         try {
             SparkK8sConfig sparkK8sConfig = PublicUtil.jsonStrToObject(jobClient.getPluginInfo(), SparkK8sConfig.class);
-            String k8sConfigPath = SparkConfigUtil.downloadK8sConfig(sparkK8sConfig);
+            String k8sConfigPath = SparkConfigUtil.downloadK8sConfig(filesystemManager, sparkK8sConfig);
             sparkDefaultProp.setProperty(ExtendConfig.KUBERNETES_KUBE_CONFIG_KEY(), k8sConfigPath);
         } catch (IOException e) {
             throw new RuntimeException("k8s config file download fail");

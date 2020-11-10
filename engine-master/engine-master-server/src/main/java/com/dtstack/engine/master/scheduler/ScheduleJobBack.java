@@ -41,10 +41,10 @@ public class ScheduleJobBack {
     private ReentrantLock lock = new ReentrantLock();
 
     private static List<String> expireTableName = Lists.newArrayList("schedule_job", "schedule_job_job", "schedule_fill_data_job");
-    private static String backTableSuffix = "_back";
-    private static String job_where_sql = "where period_type in #{periodType} AND cyc_time < #{limitDate} and id < #{limitId}";
-    private static String fill_data_where_sql = "where id not in (select fill_id from schedule_job WHERE fill_id > 0 )";
-    private static String job_job_where_sql = "where job_key in (select job_key from schedule_job_back where id > #{lastId})";
+    private final static String BACK_TABLE_SUFFIX = "_back";
+    private final static String JOB_WHERE_SQL = "where period_type in #{periodType} AND cyc_time < #{limitDate} and id < #{limitId}";
+    private final static String FILL_DATA_WHERE_SQL = "where id not in (select fill_id from schedule_job WHERE fill_id > 0 )";
+    private final static String JOB_JOB_WHERE_SQL = "where job_key in (select job_key from schedule_job_back where id > #{lastId})";
     private List<Pair<Integer, String>> timePeriodTypeMapping = null;
 
     @PostConstruct
@@ -90,8 +90,8 @@ public class ScheduleJobBack {
                 for (String tableName : expireTableName) {
                     boolean tableExist = this.isTableExist(tableName, connection);
                     if (tableExist) {
-                        if (!this.isTableExist(tableName + backTableSuffix, connection)) {
-                            this.createBackUpTable(tableName, tableName + backTableSuffix, connection);
+                        if (!this.isTableExist(tableName + BACK_TABLE_SUFFIX, connection)) {
+                            this.createBackUpTable(tableName, tableName + BACK_TABLE_SUFFIX, connection);
                         }
                     }
                 }
@@ -107,14 +107,14 @@ public class ScheduleJobBack {
                         new DateTime().minusDays(pair.getKey()).withTime(0,0,0,0).toString("yyyyMMddHHmmss"));
                 //走ID索引
                 Long lastJobId = this.getLastId(connection, String.format("SELECT id from schedule_job where cyc_time >%s limit 1;",limitDate));
-                this.backUpTables("schedule_job", pair.getKey(), pair.getValue(), connection, job_where_sql.replace("#{limitId}",String.valueOf(lastJobId)));
+                this.backUpTables("schedule_job", pair.getKey(), pair.getValue(), connection, JOB_WHERE_SQL.replace("#{limitId}",String.valueOf(lastJobId)));
             }
 
             //schedule_fill_data_job 直接删除fill_id没有的数据
-            this.backUpTables("schedule_fill_data_job", null, null, connection, fill_data_where_sql);
+            this.backUpTables("schedule_fill_data_job", null, null, connection, FILL_DATA_WHERE_SQL);
 
             if (lastJobBackId >= 0L) {
-                this.backUpTables("schedule_job_job", null, null, connection, job_job_where_sql.replace("#{lastId}", String.valueOf(lastJobBackId)));
+                this.backUpTables("schedule_job_job", null, null, connection, JOB_JOB_WHERE_SQL.replace("#{lastId}", String.valueOf(lastJobBackId)));
             }
             log.info("back up schedule job end");
         } catch (Exception e) {
@@ -188,7 +188,7 @@ public class ScheduleJobBack {
         }
 
         try (Statement statement = connection.createStatement()) {
-            String backUpTableName = tableName + backTableSuffix;
+            String backUpTableName = tableName + BACK_TABLE_SUFFIX;
             String limitDate = null == maxDays ? "" : String.format("'%s'", new DateTime().minusDays(maxDays).toString("yyyyMMddHHmmss"));
             String where = where_sql.replace("#{limitDate}", limitDate)
                     .replace("#{periodType}", String.format("(%s)", periodType));

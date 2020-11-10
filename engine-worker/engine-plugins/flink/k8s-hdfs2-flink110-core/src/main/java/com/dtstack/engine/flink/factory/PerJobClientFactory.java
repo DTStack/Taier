@@ -21,6 +21,7 @@ package com.dtstack.engine.flink.factory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
@@ -117,24 +118,19 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
         // set sftp env
         FlinkConfig flinkConfig = flinkClientBuilder.getFlinkConfig();
-        Map<String, String> sftpConfig = flinkConfig.getSftpConf();
-        if (sftpConfig.size() != 0) {
-            String host = MapUtils.getString(sftpConfig, ConfigConstrant.KEY_HOST);
-            String port = MapUtils.getString(sftpConfig, ConfigConstrant.KEY_PORT, ConfigConstrant.DEFAULT_PORT);
-            String username = MapUtils.getString(sftpConfig, ConfigConstrant.KEY_USERNAME);
-            String password = MapUtils.getString(sftpConfig, ConfigConstrant.KEY_PASSWORD);
+        SftpConfig sftpConfig = flinkConfig.getSftpConf();
+        if (StringUtils.isNotBlank(sftpConfig.getHost())) {
+            config.setString(buildMasterEnvKey(ConfigConstrant.SFTP_USERNAME_ENV), sftpConfig.getUsername());
+            config.setString(buildTaskManagerEnvKey(ConfigConstrant.SFTP_USERNAME_ENV), sftpConfig.getUsername());
 
-            config.setString(buildMasterEnvKey(ConfigConstrant.SFTP_USERNAME_ENV), username);
-            config.setString(buildTaskManagerEnvKey(ConfigConstrant.SFTP_USERNAME_ENV), username);
+            config.setString(buildMasterEnvKey(ConfigConstrant.SFTP_PASSWORD_ENV), sftpConfig.getPassword());
+            config.setString(buildTaskManagerEnvKey(ConfigConstrant.SFTP_PASSWORD_ENV), sftpConfig.getPassword());
 
-            config.setString(buildMasterEnvKey(ConfigConstrant.SFTP_PASSWORD_ENV), password);
-            config.setString(buildTaskManagerEnvKey(ConfigConstrant.SFTP_PASSWORD_ENV), password);
+            config.setString(buildMasterEnvKey(ConfigConstrant.SFTP_HOST_ENV), sftpConfig.getHost());
+            config.setString(buildTaskManagerEnvKey(ConfigConstrant.SFTP_HOST_ENV), sftpConfig.getHost());
 
-            config.setString(buildMasterEnvKey(ConfigConstrant.SFTP_HOST_ENV), host);
-            config.setString(buildTaskManagerEnvKey(ConfigConstrant.SFTP_HOST_ENV), host);
-
-            config.setString(buildMasterEnvKey(ConfigConstrant.SFTP_PORT_ENV), port);
-            config.setString(buildTaskManagerEnvKey(ConfigConstrant.SFTP_PORT_ENV), port);
+            config.setString(buildMasterEnvKey(ConfigConstrant.SFTP_PORT_ENV), String.valueOf(sftpConfig.getPort()));
+            config.setString(buildTaskManagerEnvKey(ConfigConstrant.SFTP_PORT_ENV), String.valueOf(sftpConfig.getPort()));
         }
 
         // set sftp files path env
