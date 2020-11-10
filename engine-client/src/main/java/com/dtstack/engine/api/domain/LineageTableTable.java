@@ -3,6 +3,8 @@ package com.dtstack.engine.api.domain;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.Objects;
+
 /**
  * @author chener
  * @Classname LineageTableTable
@@ -99,5 +101,24 @@ public class LineageTableTable extends DtUicTenantEntity {
 
     public void setResultTableKey(String resultTableKey) {
         this.resultTableKey = resultTableKey;
+    }
+
+    @Override
+    public int hashCode() {
+        if (Objects.nonNull(tableLineageKey)){
+            return Objects.hashCode(tableLineageKey);
+        }
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (Objects.isNull(obj)){
+            return false;
+        }
+        if (obj instanceof LineageTableTable){
+            return this.tableLineageKey.equalsIgnoreCase(((LineageTableTable) obj).getTableLineageKey());
+        }
+        return super.equals(obj);
     }
 }

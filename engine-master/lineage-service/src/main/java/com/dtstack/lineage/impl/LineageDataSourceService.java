@@ -164,7 +164,7 @@ public class LineageDataSourceService {
      * @param sourceId 数据源id
      * @param appType 应用类型
      */
-    public void deleteDataSource(Integer sourceId,Integer appType){
+    public void deleteDataSource(Long sourceId,Integer appType){
 
         //删除数据源时，不删除物理数据源
         LineageDataSource one = lineageDataSourceDao.getOne(sourceId);
@@ -233,7 +233,7 @@ public class LineageDataSourceService {
      * @param id:
      * @return: com.dtstack.engine.api.domain.LineageDataSource
      **/
-    LineageDataSource getDataSourceById(Integer id){
+    LineageDataSource getDataSourceById(Long id){
 
         return lineageDataSourceDao.getOne(id);
     }

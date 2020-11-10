@@ -41,7 +41,7 @@ public class LineageDataSetInfoService {
      * @param schemaName:
      * @return: com.dtstack.lineage.impl.LineageTableInfoService
      **/
-    public LineageDataSetInfo getOneBySourceIdAndDbNameAndTableName(Integer sourceId, String dbName, String tableName, String schemaName){
+    public LineageDataSetInfo getOneBySourceIdAndDbNameAndTableName(Long sourceId, String dbName, String tableName, String schemaName){
 
         LineageDataSetInfo lineageDataSetInfo = lineageDataSetDao.getOneBySourceIdAndDbNameAndTableName(sourceId,dbName,tableName,schemaName);
         if(null != lineageDataSetInfo){
@@ -58,7 +58,7 @@ public class LineageDataSetInfoService {
         return lineageDataSetInfo;
     }
 
-    private LineageDataSetInfo generateDataSet(Integer sourceId, String tableName, String schemaName, LineageDataSource dataSource, String dbName) {
+    private LineageDataSetInfo generateDataSet(Long sourceId, String tableName, String schemaName, LineageDataSource dataSource, String dbName) {
         LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
         BeanUtils.copyProperties(dataSource,dataSetInfo);
         dataSetInfo.setSourceId(sourceId);
@@ -73,7 +73,7 @@ public class LineageDataSetInfoService {
         return dataSetInfo;
     }
 
-    private String generateTableKey(Integer sourceId, String dbName, String tableName) {
+    private String generateTableKey(Long sourceId, String dbName, String tableName) {
 
         return sourceId+dbName+tableName;
     }

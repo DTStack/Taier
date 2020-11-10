@@ -13,6 +13,9 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel("表级血缘关系")
 public class LineageTableTableVO {
 
+    @ApiModelProperty("uic租户id")
+    private Long dtUicTenantId;
+
     @ApiModelProperty("app类型")
     private Integer appType;
 
@@ -55,5 +58,13 @@ public class LineageTableTableVO {
 
     public void setParentIndex(Integer parentIndex) {
         this.parentIndex = parentIndex;
+    }
+
+    public Long getDtUicTenantId() {
+        return dtUicTenantId;
+    }
+
+    public void setDtUicTenantId(Long dtUicTenantId) {
+        this.dtUicTenantId = dtUicTenantId;
     }
 }

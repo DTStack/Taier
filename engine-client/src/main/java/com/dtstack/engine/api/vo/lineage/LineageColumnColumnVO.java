@@ -13,6 +13,9 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel("字段级血缘关系")
 public class LineageColumnColumnVO {
 
+    @ApiModelProperty("uic租户id")
+    private Long dtUicTenantId;
+
     /**
      * 应用类型
      */
@@ -92,5 +95,13 @@ public class LineageColumnColumnVO {
 
     public void setParentIndex(Integer parentIndex) {
         this.parentIndex = parentIndex;
+    }
+
+    public Long getDtUicTenantId() {
+        return dtUicTenantId;
+    }
+
+    public void setDtUicTenantId(Long dtUicTenantId) {
+        this.dtUicTenantId = dtUicTenantId;
     }
 }

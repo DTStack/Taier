@@ -13,17 +13,33 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel("表信息")
 public class LineageTableVO {
 
-    /**
-     * 表id
-     */
     @ApiModelProperty("表id")
     private Long tableId;
 
-    /**
-     * 表名
-     */
     @ApiModelProperty("表名")
     private String tableName;
+
+    @ApiModelProperty("schema名称")
+    private String schemaName;
+
+    @ApiModelProperty("数据库名")
+    private String dbName;
+
+    public String getSchemaName() {
+        return schemaName;
+    }
+
+    public void setSchemaName(String schemaName) {
+        this.schemaName = schemaName;
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
+
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
+    }
 
     /**
      * 数据源信息

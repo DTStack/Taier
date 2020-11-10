@@ -22,4 +22,5 @@ public interface LineageTableTableDao {
 
     List<LineageTableTable> queryTableResultList(@Param("appType")Integer appType,@Param("tableId")Long tableId);
 
+    LineageTableTable queryBTableLineageKey(@Param("appType")Integer appType,@Param("tableLineageKey")String tableLineageKey);
 }

@@ -1,17 +1,24 @@
 package com.dtstack.lineage.impl;
 
+import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageTableTable;
 import com.dtstack.engine.api.domain.LineageTableTableUniqueKeyRef;
-import com.dtstack.engine.common.util.MD5Util;
-import com.dtstack.lineage.dao.LineageTableTableUniqueKeyDao;
+import com.dtstack.engine.api.enums.LineageOriginType;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.lineage.dao.LineageTableTableUniqueKeyRefDao;
 import com.dtstack.lineage.dao.LineageTableTableDao;
+import com.dtstack.schedule.common.enums.AppType;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -30,13 +37,16 @@ public class LineageTableTableService {
     private static final String TABLE_TABLE_KEY_TMP = "%s_%s";
 
     @Autowired
+    private LineageDataSetInfoService dataSetInfoService;
+
+    @Autowired
     private LineageTableTableDao lineageTableTableDao;
 
     @Autowired
-    private LineageTableTableUniqueKeyDao lineageTableTableUniqueKeyDao;
+    private LineageTableTableUniqueKeyRefDao lineageTableTableUniqueKeyRefDao;
 
     /**
-     * 保存表级血缘
+     * 保存表级血缘,不需要事务
      */
     public void saveTableLineage(List<LineageTableTable> tableTables) {
         if (CollectionUtils.isEmpty(tableTables)){
@@ -47,7 +57,7 @@ public class LineageTableTableService {
         lineageTableTableDao.batchInsertTableTable(tableTables);
         //如果uniqueKey不为空，需要删除ref表中相同uniqueKey的数据，再插入该批数据。
         if (StringUtils.isNotEmpty(tableTables.get(0).getUniqueKey())){
-            lineageTableTableUniqueKeyDao.deleteByUniqueKey(tableTables.get(0).getAppType(),tableTables.get(0).getUniqueKey());
+            lineageTableTableUniqueKeyRefDao.deleteByUniqueKey(tableTables.get(0).getAppType(),tableTables.get(0).getUniqueKey());
         }
         //插入新的ref
         List<LineageTableTableUniqueKeyRef> refList = tableTables.stream().map(tt -> {
@@ -56,7 +66,7 @@ public class LineageTableTableService {
             ref.setLineageTableTableId(tt.getId());
             return ref;
         }).collect(Collectors.toList());
-        lineageTableTableUniqueKeyDao.batchInsert(refList);
+        lineageTableTableUniqueKeyRefDao.batchInsert(refList);
     }
 
     /**
@@ -99,8 +109,62 @@ public class LineageTableTableService {
     /**
      * 查询表血缘关系(全应用)
      */
-    public void selectTableTableByTable() {
-        //TODO
+    public List<LineageTableTable> queryTableTableByTableAndAppId(Integer appType, Long tableId) {
+        List<LineageTableTable> inputLineages = queryTableInputLineageByAppType(tableId, appType);
+        List<LineageTableTable> resultLineages = queryTableResultLineageByAppType(tableId, appType);
+        Set<LineageTableTable> lineageSet = Sets.newHashSet();
+        lineageSet.addAll(inputLineages);
+        lineageSet.addAll(resultLineages);
+        return Lists.newArrayList(lineageSet);
+    }
+
+    /**
+     * 手动添加血缘关系
+     * @param appType
+     * @param lineageTableTable
+     */
+    public void manualAddTableLineage(Integer appType, LineageTableTable lineageTableTable){
+        //需要确保表存在
+        //添加血缘
+        //添加血缘ref
+        Long inputTableId = lineageTableTable.getInputTableId();
+        Long resultTableId = lineageTableTable.getResultTableId();
+        LineageDataSetInfo inputDataSetInfo = null;
+        LineageDataSetInfo resultDataSetInfo = null;
+        //TODO 查询表信息  dataSetInfoService.
+        lineageTableTable.setLineageSource(LineageOriginType.MANUAL_ADD.getType());
+        if (StringUtils.isEmpty(lineageTableTable.getUniqueKey())){
+            lineageTableTable.setUniqueKey(generateDefaultUniqueKey(appType));
+        }
+        String inputTableKey = inputDataSetInfo.getTableKey();
+        String resultTableKey = inputDataSetInfo.getTableKey();
+        //TODO 处理好tableKey
+        lineageTableTableDao.batchInsertTableTable(Lists.newArrayList(lineageTableTable));
+        Long lineageTableTableId = lineageTableTable.getId();
+        LineageTableTableUniqueKeyRef ref = new LineageTableTableUniqueKeyRef();
+        ref.setAppType(appType);
+        ref.setLineageTableTableId(lineageTableTableId);
+        ref.setUniqueKey(lineageTableTable.getUniqueKey());
+        lineageTableTableUniqueKeyRefDao.batchInsert(Lists.newArrayList(ref));
+    }
+
+    /**
+     * 手动删除血缘关系
+     * @param appType
+     * @param lineageTableTable
+     */
+    public void manualDeleteTableLineage(Integer appType, LineageTableTable lineageTableTable){
+        String tableLineageKey = lineageTableTable.getTableLineageKey();
+        LineageTableTable tableTable = lineageTableTableDao.queryBTableLineageKey(appType, tableLineageKey);
+        if (Objects.isNull(tableTable)){
+            throw new RdosDefineException("未找到血缘关系");
+        }
+        String uniqueKey = lineageTableTable.getUniqueKey();
+        if (Objects.isNull(uniqueKey)){
+            uniqueKey = generateDefaultUniqueKey(appType);
+        }
+        //只需要删除关联关系即可
+        lineageTableTableUniqueKeyRefDao.deleteByLineageTableIdAndUniqueKey(appType,uniqueKey,lineageTableTable.getId());
     }
 
     /**
@@ -112,5 +176,20 @@ public class LineageTableTableService {
      */
     public String generateTableTableKey(LineageTableTable tableTable) {
         return String.format(TABLE_TABLE_KEY_TMP, tableTable.getInputTableId(), tableTable.getResultTableId());
+    }
+
+    /**
+     * 生成默认uniqueKey
+     * @param appType
+     * @return
+     */
+    public String generateDefaultUniqueKey(Integer appType){
+        if (AppType.RDOS.getType() == appType){
+            return AppType.RDOS.name();
+        }
+        if (AppType.DQ.getType() == appType){
+            return AppType.DQ.name();
+        }
+        return UUID.randomUUID().toString();
     }
 }

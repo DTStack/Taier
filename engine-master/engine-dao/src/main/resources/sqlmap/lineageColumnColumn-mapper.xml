@@ -41,4 +41,8 @@
         select <include refid="select_content_fragment"/> where result_table_id = #{tableId} and result_column_name = #{columnName} and app_type = #{appType}
     </select>
 
+    <select id="queryByLineageKey" resultType="com.dtstack.engine.api.domain.LineageColumnColumn">
+
+    </select>
+
 </mapper>

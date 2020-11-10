@@ -35,4 +35,8 @@
         select tt.* from lineage_table_table tt join lineage_table_table_app_ref ref on tt.id = ref.lineage_table_table_id where tt.result_table_id = #{tableId} and ref.app_type = #{appType}
     </select>
 
+    <select id="queryBTableLineageKey" resultType="com.dtstack.engine.api.domain.LineageTableTable">
+        select <include refid="select_content_fragment"/> from lineage_table_table where app_type = #{appType} and table_lineage_key = #{tableLineageKey}
+    </select>
+
 </mapper>

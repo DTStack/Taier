@@ -2,7 +2,10 @@ package com.dtstack.lineage.adapter;
 
 import com.dtstack.engine.api.domain.LineageColumnColumn;
 import com.dtstack.engine.api.domain.LineageDataSetInfo;
+import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.pojo.lineage.ColumnLineage;
+import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
+import com.dtstack.engine.api.vo.lineage.LineageTableVO;
 
 import java.util.Map;
 
@@ -44,5 +47,18 @@ public class ColumnLineageAdapter {
         lineageColumnColumn.setUniqueKey(uniqueKey);
         lineageColumnColumn.setDtUicTenantId(inputTable.getDtUicTenantId());
         return lineageColumnColumn;
+    }
+
+    public static LineageColumnColumnVO columnColumn2ColumnColumnVO(LineageColumnColumn columnColumn, LineageDataSetInfo inputTable, LineageDataSetInfo resultTable, LineageDataSource inputSource, LineageDataSource resultSource){
+        LineageColumnColumnVO columnColumnVO = new LineageColumnColumnVO();
+        columnColumnVO.setAppType(columnColumn.getAppType());
+        columnColumnVO.setDtUicTenantId(columnColumn.getDtUicTenantId());
+        columnColumnVO.setInputColumnName(columnColumn.getInputColumnName());
+        LineageTableVO inputTableVO = TableAdapter.dataSetInfo2LineageTableVO(inputSource,inputTable);
+        LineageTableVO resultTableVO = TableAdapter.dataSetInfo2LineageTableVO(resultSource,resultTable);
+        columnColumnVO.setInputTableInfo(inputTableVO);
+        columnColumnVO.setResultTableInfo(resultTableVO);
+        columnColumnVO.setResultColumnName(columnColumn.getResultColumnName());
+        return columnColumnVO;
     }
 }

@@ -1,5 +1,9 @@
 package com.dtstack.lineage.adapter;
 
+import com.dtstack.engine.api.domain.LineageDataSetInfo;
+import com.dtstack.engine.api.domain.LineageDataSource;
+import com.dtstack.engine.api.vo.lineage.LineageDataSourceVO;
+import com.dtstack.engine.api.vo.lineage.LineageTableVO;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Objects;
@@ -36,5 +40,16 @@ public class TableAdapter {
         apiTable.setTemp(sqlTable.isTemp());
         apiTable.setView(sqlTable.isView());
         return apiTable;
+    }
+
+    public static LineageTableVO dataSetInfo2LineageTableVO(LineageDataSource dataSource, LineageDataSetInfo dataSetInfo){
+        LineageTableVO lineageTableVO = new LineageTableVO();
+        LineageDataSourceVO dataSourceVO = DataSourceAdapter.dataSource2DataSourceVO(dataSource);
+        lineageTableVO.setDataSourceVO(dataSourceVO);
+        lineageTableVO.setTableId(dataSetInfo.getId());
+        lineageTableVO.setTableName(dataSetInfo.getTableName());
+        lineageTableVO.setDbName(dataSetInfo.getDbName());
+        lineageTableVO.setSchemaName(dataSetInfo.getSchemaName());
+        return lineageTableVO;
     }
 }

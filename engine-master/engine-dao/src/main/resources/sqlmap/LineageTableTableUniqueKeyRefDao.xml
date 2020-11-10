@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.lineage.dao.LineageTableTableUniqueKeyRefDao">
+
+    <sql id="select_content_fragment">
+      id,app_type,unique_key,lineage_table_table_id,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <sql id="select_where_fragment">
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="model.id != null and model.id > 0">
+                AND id = #{model.id}
+            </if>
+        </trim>
+    </sql>
+
+    <insert id="batchInsert" parameterType="com.dtstack.engine.api.domain.LineageTableTableUniqueKeyRef"
+            useGeneratedKeys="true" keyProperty="id">
+        insert into lineage_table_table_unique_key_ref(app_type,unique_key,lineage_table_table_id) values
+        <foreach collection="list" item="item" open="" close="" separator=",">
+            (#{appType},#{uniqueKey},#{lineageTableTableId})
+        </foreach>
+    </insert>
+
+    <update id="deleteByUniqueKey">
+        update lineage_table_table_unique_key_ref set is_deleted = 1 where app_type = #{appType} and unique_key = #{uniqueKey}
+    </update>
+
+    <update id="deleteByLineageTableIdAndUniqueKey">
+        update lineage_table_table_unique_key_ref set is_deleted = 1 where app_type = #{appType} and unique_key = #{uniqueKey} and lineage_table_table_id = #{lineageTableId}
+    </update>
+
+</mapper>

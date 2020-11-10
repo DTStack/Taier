@@ -19,10 +19,10 @@ public class QueryTableLineageParam {
     private Integer sourceType;
 
     @ApiModelProperty(value = "engine数据源id",notes = "数据资产必须传，离线不传")
-    private Integer engineSourceId;
+    private Long engineSourceId;
 
     @ApiModelProperty("uic租户id")
-    private Integer dtUicTenantId;
+    private Long dtUicTenantId;
 
     @ApiModelProperty("schema名称")
     private String schemaName;
@@ -49,19 +49,19 @@ public class QueryTableLineageParam {
         this.sourceType = sourceType;
     }
 
-    public Integer getEngineSourceId() {
+    public Long getEngineSourceId() {
         return engineSourceId;
     }
 
-    public void setEngineSourceId(Integer engineSourceId) {
+    public void setEngineSourceId(Long engineSourceId) {
         this.engineSourceId = engineSourceId;
     }
 
-    public Integer getDtUicTenantId() {
+    public Long getDtUicTenantId() {
         return dtUicTenantId;
     }
 
-    public void setDtUicTenantId(Integer dtUicTenantId) {
+    public void setDtUicTenantId(Long dtUicTenantId) {
         this.dtUicTenantId = dtUicTenantId;
     }
 

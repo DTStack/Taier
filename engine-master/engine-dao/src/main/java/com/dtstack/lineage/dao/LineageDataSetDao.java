@@ -18,6 +18,6 @@ public interface LineageDataSetDao {
 
     Integer deleteTableInfo(@Param("id")Long id);
 
-    LineageDataSetInfo getOneBySourceIdAndDbNameAndTableName(@Param("sourceId") Integer sourceId, @Param("dbName") String dbName,
+    LineageDataSetInfo getOneBySourceIdAndDbNameAndTableName(@Param("sourceId") Long sourceId, @Param("dbName") String dbName,
                                                              @Param("tableName") String tableName,@Param("schemaName") String schemaName);
 }

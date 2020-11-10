@@ -82,7 +82,7 @@ create table lineage_table_table(
 create table lineage_table_table_unique_key_ref(
     id int(11) NOT NULL AUTO_INCREMENT,
     app_type smallint(4) NOT NULL COMMENT '应用类型',
-    uniqueKey varchar(32) NOT NULL COMMENT '血缘批次码，离线中通常为taskId',
+    unique_key varchar(32) NOT NULL COMMENT '血缘批次码，离线中通常为taskId',
     lineage_table_table_id int(11) NOT NULL COMMENT 'lineage_table_table表id',
     gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -115,7 +115,7 @@ create table lineage_column_column(
 create table lineage_column_column_unique_key_ref(
     id int(11) NOT NULL AUTO_INCREMENT,
     app_type smallint(4) NOT NULL COMMENT '应用类型',
-    uniqueKey varchar(32) NOT NULL COMMENT '血缘批次码，离线中通常为taskId',
+    unique_key varchar(32) NOT NULL COMMENT '血缘批次码，离线中通常为taskId',
     lineage_column_column_id int(11) NOT NULL COMMENT 'lineage_column_column表id',
     gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',

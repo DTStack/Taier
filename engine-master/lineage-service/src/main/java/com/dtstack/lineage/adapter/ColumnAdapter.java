@@ -1,6 +1,9 @@
 package com.dtstack.lineage.adapter;
 
 
+import com.dtstack.engine.api.domain.LineageColumnColumn;
+import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
+
 import java.util.List;
 
 /**

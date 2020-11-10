@@ -12,4 +12,12 @@
          (#{appType},#{uniqueKey},#{lineageColumnColumnId})
     </insert>
 
+    <update id="deleteByUniqueKey">
+        update lineage_column_column_app_ref set is_deleted = 1 where unique_key = #{uniqueKey}
+    </update>
+
+    <update id="deleteByLineageIdAndUniqueKey">
+        update lineage_column_column_app_ref set is_deleted = 1 where lineage_column_column_id = #{columnLineageId} and unique_key = #{uniqueKey} and app_type = #{appType}
+    </update>
+
 </mapper>

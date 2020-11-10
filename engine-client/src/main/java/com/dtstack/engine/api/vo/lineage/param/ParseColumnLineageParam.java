@@ -17,6 +17,9 @@ import java.util.Map;
 @ApiModel("查询字段血缘参数")
 public class ParseColumnLineageParam {
 
+    @ApiModelProperty("uic租户id")
+    private Long dtUicTenantId;
+
     @ApiModelProperty("应用类型")
     private Integer appType;
 
@@ -29,8 +32,33 @@ public class ParseColumnLineageParam {
     @ApiModelProperty("默认数据源")
     private String defaultDb;
 
+    @ApiModelProperty("数据源类型")
+    private Integer dataSourceType;
+
+    @ApiModelProperty("引擎数据源id")
+    private Long engineDataSourceId;
+
     @ApiModelProperty("表字段map")
     private Map<String, List<Column>> tableColumnsMap;
+
+    @ApiModelProperty("血缘批次码")
+    private String uniqueKey;
+
+    public String getUniqueKey() {
+        return uniqueKey;
+    }
+
+    public void setUniqueKey(String uniqueKey) {
+        this.uniqueKey = uniqueKey;
+    }
+
+    public Integer getDataSourceType() {
+        return dataSourceType;
+    }
+
+    public void setDataSourceType(Integer dataSourceType) {
+        this.dataSourceType = dataSourceType;
+    }
 
     public Integer getAppType() {
         return appType;
@@ -70,5 +98,21 @@ public class ParseColumnLineageParam {
 
     public void setTableColumnsMap(Map<String, List<Column>> tableColumnsMap) {
         this.tableColumnsMap = tableColumnsMap;
+    }
+
+    public Long getDtUicTenantId() {
+        return dtUicTenantId;
+    }
+
+    public void setDtUicTenantId(Long dtUicTenantId) {
+        this.dtUicTenantId = dtUicTenantId;
+    }
+
+    public Long getEngineDataSourceId() {
+        return engineDataSourceId;
+    }
+
+    public void setEngineDataSourceId(Long engineDataSourceId) {
+        this.engineDataSourceId = engineDataSourceId;
     }
 }

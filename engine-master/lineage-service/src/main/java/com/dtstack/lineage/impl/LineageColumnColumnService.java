@@ -2,15 +2,24 @@ package com.dtstack.lineage.impl;
 
 import com.dtstack.engine.api.domain.LineageColumnColumn;
 import com.dtstack.engine.api.domain.LineageColumnColumnUniqueKeyRef;
+import com.dtstack.engine.api.domain.LineageDataSetInfo;
+import com.dtstack.engine.api.domain.LineageTableTable;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.lineage.dao.LineageColumnColumnUniqueKeyRefDao;
 import com.dtstack.lineage.dao.LineageColumnColumnDao;
+import com.dtstack.schedule.common.enums.AppType;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -24,6 +33,9 @@ import java.util.stream.Collectors;
 public class LineageColumnColumnService {
 
     private static final String COLUMN_COLUMN_KEY_TMP = "%s.%s_%s.%s";
+
+    @Autowired
+    private LineageDataSetInfoService lineageDataSetInfoService;
 
     @Autowired
     private LineageColumnColumnDao lineageColumnColumnDao;
@@ -79,8 +91,56 @@ public class LineageColumnColumnService {
         return res;
     }
 
+    public List<LineageColumnColumn> queryColumnLineages(Integer appType, Long tableId, String columnName){
+        List<LineageColumnColumn> inputLineages = queryColumnInputLineageByAppType(appType,tableId,columnName);
+        List<LineageColumnColumn> resultLineages = queryColumnResultLineageByAppType(appType,tableId,columnName);
+        Set<LineageColumnColumn> lineageSet = Sets.newHashSet();
+        lineageSet.addAll(inputLineages);
+        lineageSet.addAll(resultLineages);
+        return Lists.newArrayList(lineageSet);
+    }
+
+    public void manualAddColumnLineage(Integer appType, LineageColumnColumn lineageColumnColumn){
+        LineageDataSetInfo inputTable = null;
+        LineageDataSetInfo resultTable = null;
+        //TODO 检查表信息lineageDataSetInfoService.getOne
+        lineageColumnColumn.setColumnLineageKey(generateColumnColumnKey(lineageColumnColumn));
+        if (StringUtils.isEmpty(lineageColumnColumn.getColumnLineageKey())){
+            lineageColumnColumn.setUniqueKey(generateDefaultUniqueKey(appType));
+        }
+        lineageColumnColumnDao.batchInsertColumnColumn(Lists.newArrayList(lineageColumnColumn));
+        LineageColumnColumnUniqueKeyRef ref = new LineageColumnColumnUniqueKeyRef();
+        ref.setAppType(appType);
+        ref.setUniqueKey(lineageColumnColumn.getUniqueKey());
+        ref.setLineageColumnColumnId(lineageColumnColumn.getId());
+        lineageColumnColumnUniqueKeyRefDao.batchInsert(Lists.newArrayList(ref));
+    }
+
+    public void manualDeleteColumnLineage(Integer appType, LineageColumnColumn lineageColumnColumn){
+        //只删除ref表
+        String columnLineageKey = generateColumnColumnKey(lineageColumnColumn);
+        LineageColumnColumn columnColumn = lineageColumnColumnDao.queryByLineageKey(appType, columnLineageKey);
+        if (Objects.isNull(columnColumn)){
+            throw new RdosDefineException("血缘关系未查到");
+        }
+        if (StringUtils.isEmpty(lineageColumnColumn.getUniqueKey())){
+            lineageColumnColumn.setUniqueKey(generateDefaultUniqueKey(appType));
+        }
+        lineageColumnColumnUniqueKeyRefDao.deleteByLineageIdAndUniqueKey(appType,lineageColumnColumn.getUniqueKey(),columnColumn.getId());
+    }
+
     private String generateColumnColumnKey(LineageColumnColumn columnColumn) {
         String rawKey = String.format(COLUMN_COLUMN_KEY_TMP, columnColumn.getInputTableId(), columnColumn.getInputColumnName(), columnColumn.getResultTableId(), columnColumn.getResultColumnName());
         return MD5Util.getMd5String(rawKey);
+    }
+
+    public String generateDefaultUniqueKey(Integer appType){
+        if (AppType.RDOS.getType() == appType){
+            return AppType.RDOS.name();
+        }
+        if (AppType.DQ.getType() == appType){
+            return AppType.DQ.name();
+        }
+        return UUID.randomUUID().toString();
     }
 }

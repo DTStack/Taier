@@ -34,14 +34,14 @@ public interface LineageDataSourceDao {
      * @param id
      * @return
      */
-    Integer deleteDataSource(@Param("id")Integer id);
+    Integer deleteDataSource(@Param("id")Long id);
 
     /**
      * 根据id查找数据源
      * @param id
      * @return
      */
-    LineageDataSource getOne(@Param("id")Integer id);
+    LineageDataSource getOne(@Param("id")Long id);
 
     /**
      * @author zyd

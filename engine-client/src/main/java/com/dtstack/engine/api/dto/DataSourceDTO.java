@@ -12,7 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class DataSourceDTO {
 
     @ApiModelProperty(value = "数据源id")
-    private Integer dataSourceId;
+    private Long dataSourceId;
 
     @ApiModelProperty(value = "数据源名称",required = true)
     private String sourceName;
@@ -32,11 +32,11 @@ public class DataSourceDTO {
     @ApiModelProperty(value = "dtuic租户id")
     private Long dtUicTenantId;
 
-    public Integer getDataSourceId() {
+    public Long getDataSourceId() {
         return dataSourceId;
     }
 
-    public void setDataSourceId(Integer dataSourceId) {
+    public void setDataSourceId(Long dataSourceId) {
         this.dataSourceId = dataSourceId;
     }
 

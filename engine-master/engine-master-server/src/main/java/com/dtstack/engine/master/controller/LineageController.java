@@ -38,7 +38,7 @@ public class LineageController {
     @Autowired
     private LineageService lineageService;
 
-    @RequestMapping(value="/parseSqlInfo", method = {RequestMethod.POST})
+    @RequestMapping(value = "/parseSqlInfo", method = {RequestMethod.POST})
     @ApiOperation(value = "解析sql基本信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "sql", value = "待解析sql"),
@@ -46,11 +46,11 @@ public class LineageController {
             @ApiImplicitParam(name = "sourceType", value = "数据源类型")
     }
     )
-    public SqlParseInfo parseSqlInfo(@DtRequestParam String sql,@DtRequestParam String defaultDb,@DtRequestParam Integer sourceType){
-        return lineageService.parseSql(sql,defaultDb,sourceType);
+    public SqlParseInfo parseSqlInfo(@DtRequestParam String sql, @DtRequestParam String defaultDb, @DtRequestParam Integer sourceType) {
+        return lineageService.parseSql(sql, defaultDb, sourceType);
     }
 
-    @RequestMapping(value="/parseTableLineage", method = {RequestMethod.POST})
+    @RequestMapping(value = "/parseTableLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "解析sql表级血缘关系")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "sql", value = "待解析sql"),
@@ -58,11 +58,11 @@ public class LineageController {
             @ApiImplicitParam(name = "sourceType", value = "数据源类型")
     }
     )
-    public TableLineageParseInfo parseTableLineage(@DtRequestParam String sql,@DtRequestParam String defaultDb,@DtRequestParam Integer sourceType){
-        return lineageService.parseTableLineage(sql,defaultDb,sourceType);
+    public TableLineageParseInfo parseTableLineage(@DtRequestParam String sql, @DtRequestParam String defaultDb, @DtRequestParam Integer sourceType) {
+        return lineageService.parseTableLineage(sql, defaultDb, sourceType);
     }
 
-    @RequestMapping(value="/parseAndSaveTableLineage", method = {RequestMethod.POST})
+    @RequestMapping(value = "/parseAndSaveTableLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "解析sql表级血缘关系并存储")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "appType", value = "应用类型"),
@@ -72,18 +72,17 @@ public class LineageController {
             @ApiImplicitParam(name = "engineSourceId", value = "引擎数据源id，需要提前将数据源推送到engine")
     }
     )
-    public void parseAndSaveTableLineage(@DtRequestParam Integer appType,@DtRequestParam Integer uicTenantId,@DtRequestParam String sql,@DtRequestParam String defaultDb,@DtRequestParam Long engineSourceId){
-        //TODO
+    public void parseAndSaveTableLineage(@DtRequestParam Integer appType, @DtRequestParam Long uicTenantId, @DtRequestParam String sql, @DtRequestParam String defaultDb, @DtRequestParam Long engineSourceId, @DtRequestParam String uniqueKey) {
+        lineageService.parseAndSaveTableLineage(uicTenantId, appType, sql, defaultDb, engineSourceId, uniqueKey);
     }
 
-    @RequestMapping(value="/parseColumnLineage", method = {RequestMethod.POST})
+    @RequestMapping(value = "/parseColumnLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "解析字段级血缘关系")
-    public ColumnLineageParseInfo parseColumnLineage(@RequestBody ParseColumnLineageParam parseColumnLineageParam){
-        //TODO
-        return null;
+    public ColumnLineageParseInfo parseColumnLineage(@RequestBody ParseColumnLineageParam parseColumnLineageParam) {
+        return lineageService.parseColumnLineage(parseColumnLineageParam.getSql(), parseColumnLineageParam.getDataSourceType(), parseColumnLineageParam.getDefaultDb(), parseColumnLineageParam.getTableColumnsMap());
     }
 
-    @RequestMapping(value="/parseAndSaveColumnLineage", method = {RequestMethod.POST})
+    @RequestMapping(value = "/parseAndSaveColumnLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "解析字段级血缘关系并存储")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "appType", value = "应用类型"),
@@ -93,80 +92,67 @@ public class LineageController {
             @ApiImplicitParam(name = "engineSourceId", value = "引擎数据源id，资产需要提前将数据源推送到engine")
     }
     )
-    public ColumnLineageParseInfo parseAndSaveColumnLineage(@DtRequestParam Integer appType,@DtRequestParam Integer tenantId,@DtRequestParam String sql,@DtRequestParam String defaultDb,@DtRequestParam Long engineSourceId){
-        //TODO
-        return null;
+    public void parseAndSaveColumnLineage(@RequestBody ParseColumnLineageParam parseColumnLineageParam) {
+        lineageService.parseAndSaveColumnLineage(parseColumnLineageParam.getAppType(), parseColumnLineageParam.getSql(), parseColumnLineageParam.getDefaultDb(), parseColumnLineageParam.getEngineDataSourceId(), parseColumnLineageParam.getUniqueKey());
     }
 
-    @RequestMapping(value="/manualAddTableTable", method = {RequestMethod.POST})
+    @RequestMapping(value = "/manualAddTableTable", method = {RequestMethod.POST})
     @ApiOperation(value = "手动添加表级血缘")
-    public void manualAddTableTable(@RequestBody LineageTableTableVO lineageTableTableVO){
-        //TODO
+    public void manualAddTableTable(@RequestBody LineageTableTableVO lineageTableTableVO) {
+        lineageService.manualAddTableLineage(lineageTableTableVO);
     }
 
-    @RequestMapping(value="/manualDeleteTableTable", method = {RequestMethod.POST})
+    @RequestMapping(value = "/manualDeleteTableTable", method = {RequestMethod.POST})
     @ApiOperation(value = "手动删除表级血缘")
-    public void manualDeleteTableTable(@RequestBody LineageTableTableVO lineageTableTableVO){
-        //TODO
+    public void manualDeleteTableTable(@RequestBody LineageTableTableVO lineageTableTableVO) {
+        lineageService.manualDeleteTableLineage(lineageTableTableVO);
     }
 
-    @RequestMapping(value="/manualAddColumnColumn", method = {RequestMethod.POST})
+    @RequestMapping(value = "/manualAddColumnColumn", method = {RequestMethod.POST})
     @ApiOperation(value = "手动添加字段级血缘")
-    public void manualAddColumnColumn(@RequestBody LineageColumnColumnVO lineageTableTableVO){
-        //TODO
+    public void manualAddColumnColumn(@RequestBody LineageColumnColumnVO lineageTableTableVO) {
+        lineageService.manualAddColumnLineage(lineageTableTableVO);
     }
 
-    @RequestMapping(value="/manualDeleteColumnColumn", method = {RequestMethod.POST})
+    @RequestMapping(value = "/manualDeleteColumnColumn", method = {RequestMethod.POST})
     @ApiOperation(value = "手动删除字段级血缘")
-    public void manualDeleteColumnColumn(@RequestBody LineageColumnColumnVO lineageTableTableVO){
-        //TODO
+    public void manualDeleteColumnColumn(@RequestBody LineageColumnColumnVO lineageTableTableVO) {
+        lineageService.manualDeleteColumnLineage(lineageTableTableVO);
     }
 
-    @RequestMapping(value="/queryTableInputLineage", method = {RequestMethod.POST})
+    @RequestMapping(value = "/queryTableInputLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "查询表上游血缘")
-    public List<LineageTableTableVO> queryTableInputLineage(@RequestBody QueryTableLineageParam queryTableLineageParam){
-        //TODO
-//        List<LineageTableTable> lineageTableTables = lineageService.queryTableInputLineage(appType, tableId);
-        return null;
+    public List<LineageTableTableVO> queryTableInputLineage(@RequestBody QueryTableLineageParam queryTableLineageParam) {
+        return lineageService.queryTableInputLineage(queryTableLineageParam);
     }
 
-    @RequestMapping(value="/queryTableResultLineage", method = {RequestMethod.POST})
+    @RequestMapping(value = "/queryTableResultLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "查询表下游血缘")
-    public List<LineageTableTableVO> queryTableResultLineage(@RequestBody QueryTableLineageParam queryTableLineageParam){
-//        List<LineageTableTable> lineageTableTables = lineageService.queryTableResultLineage(appType, tableId);
-        //TODO
-        return null;
+    public List<LineageTableTableVO> queryTableResultLineage(@RequestBody QueryTableLineageParam queryTableLineageParam) {
+        return lineageService.queryTableResultLineage(queryTableLineageParam);
     }
 
-    @RequestMapping(value="/queryTableLineages", method = {RequestMethod.POST})
+    @RequestMapping(value = "/queryTableLineages", method = {RequestMethod.POST})
     @ApiOperation(value = "查询表血缘")
-    public List<LineageTableTableVO> queryTableLineages(@RequestBody QueryTableLineageParam queryTableLineageParam){
-//        List<LineageTableTable> lineageTableTables = lineageService.queryTableLineages(appType, tableId);
-        //TODO
-        return null;
+    public List<LineageTableTableVO> queryTableLineages(@RequestBody QueryTableLineageParam queryTableLineageParam) {
+        return lineageService.queryTableLineages(queryTableLineageParam);
     }
 
-    @RequestMapping(value="/queryColumnInoutLineage", method = {RequestMethod.POST})
+    @RequestMapping(value = "/queryColumnInoutLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "查询字段上游血缘")
-    public List<LineageColumnColumnVO> queryColumnInoutLineage(@RequestBody QueryColumnLineageParam queryColumnLineageParam){
-//        List<LineageColumnColumn> lineageColumnColumns = lineageService.queryColumnInoutLineage(appType, tableId,columnName);
-        //TODO
-        return null;
+    public List<LineageColumnColumnVO> queryColumnInoutLineage(@RequestBody QueryColumnLineageParam queryColumnLineageParam) {
+        return lineageService.queryColumnInoutLineage(queryColumnLineageParam);
     }
 
-    @RequestMapping(value="/queryColumnResultLineage", method = {RequestMethod.POST})
+    @RequestMapping(value = "/queryColumnResultLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "查询字段下游血缘")
-    public List<LineageColumnColumnVO> queryColumnResultLineage(@RequestBody QueryColumnLineageParam queryColumnLineageParam){
-//        List<LineageColumnColumn> lineageColumnColumns = lineageService.queryColumnResultLineage(appType, tableId,columnName);
-        //TODO
-        return null;
+    public List<LineageColumnColumnVO> queryColumnResultLineage(@RequestBody QueryColumnLineageParam queryColumnLineageParam) {
+        return lineageService.queryColumnResultLineage(queryColumnLineageParam);
     }
 
-    @RequestMapping(value="/queryColumnLineages", method = {RequestMethod.POST})
+    @RequestMapping(value = "/queryColumnLineages", method = {RequestMethod.POST})
     @ApiOperation(value = "查询字段血缘")
-    public List<LineageColumnColumnVO> queryColumnLineages(@RequestBody QueryColumnLineageParam queryColumnLineageParam){
-//        List<LineageColumnColumn> lineageColumnColumns = lineageService.queryColumnLineages(appType, tableId,columnName);
-        //TODO
-        return null;
+    public List<LineageColumnColumnVO> queryColumnLineages(@RequestBody QueryColumnLineageParam queryColumnLineageParam) {
+        return lineageService.queryColumnLineages(queryColumnLineageParam);
     }
 }

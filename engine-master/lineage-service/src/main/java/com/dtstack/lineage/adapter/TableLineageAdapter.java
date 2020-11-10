@@ -1,9 +1,13 @@
 package com.dtstack.lineage.adapter;
 
 import com.dtstack.engine.api.domain.LineageDataSetInfo;
+import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.domain.LineageTableTable;
 import com.dtstack.engine.api.enums.LineageOriginType;
 import com.dtstack.engine.api.pojo.lineage.TableLineage;
+import com.dtstack.engine.api.vo.lineage.LineageDataSourceVO;
+import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
+import com.dtstack.engine.api.vo.lineage.LineageTableVO;
 
 import java.util.Map;
 import java.util.Objects;
@@ -42,5 +46,16 @@ public class TableLineageAdapter {
         tableTable.setLineageSource(originType.getType());
         tableTable.setUniqueKey(uniqueKey);
         return tableTable;
+    }
+
+    public static LineageTableTableVO tableTable2TableTableVO(LineageTableTable tableTable, LineageDataSetInfo inputTable, LineageDataSetInfo resultTable, LineageDataSource inputSource,LineageDataSource resultSource){
+        LineageTableTableVO lineageTableTableVO = new LineageTableTableVO();
+        lineageTableTableVO.setAppType(tableTable.getAppType());
+        lineageTableTableVO.setDtUicTenantId(tableTable.getDtUicTenantId());
+        LineageTableVO inputTableVO = TableAdapter.dataSetInfo2LineageTableVO(inputSource,inputTable);
+        LineageTableVO resultTableVO = TableAdapter.dataSetInfo2LineageTableVO(resultSource,resultTable);
+        lineageTableTableVO.setInputTableInfo(inputTableVO);
+        lineageTableTableVO.setResultTableInfo(resultTableVO);
+        return lineageTableTableVO;
     }
 }

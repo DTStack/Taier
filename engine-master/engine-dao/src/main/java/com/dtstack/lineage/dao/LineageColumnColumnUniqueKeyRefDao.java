@@ -1,6 +1,7 @@
 package com.dtstack.lineage.dao;
 
 import com.dtstack.engine.api.domain.LineageColumnColumnUniqueKeyRef;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -15,6 +16,8 @@ public interface LineageColumnColumnUniqueKeyRefDao {
 
     Integer batchInsert(List<LineageColumnColumnUniqueKeyRef> columnColumns);
 
-    Integer deleteByUniqueKey(String uniqueKey);
+    Integer deleteByUniqueKey(@Param("uniqueKey")String uniqueKey);
+
+    Integer deleteByLineageIdAndUniqueKey(@Param("appType") Integer appType, @Param("uniqueKey")String uniqueKey, @Param("columnLineageId")Long columnLineageId);
 
 }
