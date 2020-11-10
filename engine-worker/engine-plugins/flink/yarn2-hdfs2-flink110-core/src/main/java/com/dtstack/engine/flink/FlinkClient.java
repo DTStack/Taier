@@ -890,8 +890,8 @@ public class FlinkClient extends AbstractClient {
                 File tmpFile = null;
                 try {
                     tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, filesystemManager);
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
                 }
 
                 fileList.add(tmpFile.getAbsolutePath());

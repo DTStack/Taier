@@ -7,6 +7,7 @@ import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
 import com.dtstack.engine.worker.enums.ClassLoaderType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.client.program.JobWithJars;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
@@ -14,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Properties;
@@ -30,15 +33,15 @@ public class FlinkUtil {
     private static final Logger logger = LoggerFactory.getLogger(FlinkUtil.class);
 
 
-    public static PackagedProgram buildProgram(String fromPath, String toPath, List<URL> classpaths, EJobType jobType,
+    public static PackagedProgram buildProgram(String fromPath, String localDir, List<URL> classpaths, EJobType jobType,
                                                String entryPointClass, String[] programArgs,
                                                SavepointRestoreSettings spSetting, FilesystemManager filesystemManager)
-            throws FileNotFoundException, ProgramInvocationException {
+            throws IOException, ProgramInvocationException {
         if (fromPath == null) {
             throw new IllegalArgumentException("The program JAR file was not specified.");
         }
 
-        File jarFile = downloadJar(fromPath, toPath, filesystemManager);
+        File jarFile = downloadJar(fromPath, localDir, filesystemManager);
 
         ClassLoaderType classLoaderType = ClassLoaderType.getClassLoaderType(jobType);
 
@@ -52,11 +55,28 @@ public class FlinkUtil {
         return program;
     }
 
-    public static File downloadJar(String remotePath, String localPath, FilesystemManager filesystemManager) throws FileNotFoundException {
+    public static File downloadJar(String remotePath, String localDir, FilesystemManager filesystemManager) throws IOException {
+        String localJarPath = FlinkUtil.getTmpFileName(remotePath, localDir);
+        File downloadFile = filesystemManager.downloadFile(remotePath, localJarPath);
+        logger.info("downloadFile remotePath:{} localJarPath:{}", remotePath, localJarPath);
 
-        File downloadFile = filesystemManager.downloadFile(remotePath, localPath);
-        logger.info("downloadFile remotePath:{} localPath:{} status is: {} ", remotePath, localPath);
+        URL jarFileUrl;
+
+        try {
+            jarFileUrl = downloadFile.getAbsoluteFile().toURI().toURL();
+        } catch (MalformedURLException e1) {
+            throw new IllegalArgumentException("The jar file path is invalid.");
+        }
+
+        JobWithJars.checkJarFile(jarFileUrl);
+
         return downloadFile;
+    }
+
+    private static String getTmpFileName(String fileUrl, String toPath){
+        String fileName = StringUtils.substringAfter(fileUrl, File.separator);
+        String tmpFileName = toPath  + File.separator + fileName;
+        return tmpFileName;
     }
 
     /**

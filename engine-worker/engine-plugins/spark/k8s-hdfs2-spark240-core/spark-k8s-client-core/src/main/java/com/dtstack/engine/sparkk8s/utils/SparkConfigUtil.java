@@ -147,7 +147,7 @@ public class SparkConfigUtil {
         }
 
         if (!new File(localConfigPath).exists()) {
-            filesystemManager.downloadFile(remoteConfigPath, localConfigPath, false, false, true);
+            filesystemManager.downloadFile(remoteConfigPath, localConfigPath);
 
             ZipUtil.upzipFile(localConfigPath, localConfigParentDir);
         }
