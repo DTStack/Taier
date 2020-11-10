@@ -190,6 +190,13 @@ public class SftpFileManage implements IFileManage {
     public boolean downloadFile(String remotePath, String localPath) {
         ChannelSftp channelSftp = getChannelSftp();
         try {
+            //检查并创建本地文件目录
+            File localPathFile = new File(localPath);
+            if (!localPathFile.getParentFile().exists()) {
+                boolean mkdirs = localPathFile.getParentFile().mkdirs();
+                LOG.info("local file localParentFile {}  mkdir {} :", localPathFile.getParent(), mkdirs);
+            }
+
             if (!isFileExist(channelSftp, remotePath)) {
                 LOG.info("File not exist on sftp:" + remotePath);
                 return false;
@@ -231,11 +238,13 @@ public class SftpFileManage implements IFileManage {
     public boolean downloadDir(String remoteDir, String localDir) {
         ChannelSftp channelSftp = null;
         try {
+            //检查并创建本地文件目录
             File localDirPath = new File(localDir);
             if (!localDirPath.exists()) {
                 boolean mkdirs = localDirPath.mkdirs();
-                LOG.info("local file path {}  mkdir {} :", localDir, mkdirs);
+                LOG.info("local file localDir {}  mkdir {} :", localDir, mkdirs);
             }
+
             channelSftp = getChannelSftp();
             Vector files = channelSftp.ls(remoteDir);
             if (files == null) {

@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * Date: 2020/10/21
@@ -40,10 +39,6 @@ import java.util.Vector;
 public class FilesystemManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(FilesystemManager.class);
-
-    private static final String URL_SPLIT = "/";
-
-    private static String fileSP = File.separator;
 
     private List<IFileManage> fileManages;
 
@@ -84,69 +79,46 @@ public class FilesystemManager {
      * @throws FileNotFoundException
      */
     public File downloadFile(String remoteJarPath, String localPath) {
-        return downloadFile(remoteJarPath, localPath, false, false, true);
-    }
-
-    /**
-     * 远程文件下载到本地文件夹/文件，优先使用本地已有文件
-     * @param remoteJarPath
-     * @param localPath
-     * @param isLocalDir
-     * @return
-     * @throws FileNotFoundException
-     */
-    public File downloadFile(String remoteJarPath, String localPath, boolean isLocalDir) {
-        return downloadFile(remoteJarPath, localPath, isLocalDir, false, true);
-    }
-
-    /**
-     * 远程文件下载到本地文件夹/文件，优先使用本地已有文件
-     * @param remoteJarPath
-     * @param localPath
-     * @param isLocalDir
-     * @param alwaysPullNew
-     * @return
-     * @throws FileNotFoundException
-     */
-    public File downloadFile(String remoteJarPath, String localPath, boolean isLocalDir, boolean alwaysPullNew) {
-        return downloadFile(remoteJarPath, localPath, isLocalDir, alwaysPullNew, true);
+        return downloadFile(remoteJarPath, localPath, false);
     }
 
     /**
      *  使用文件管理器下载文件，返回本地文件
      * @param remoteJarPath  远程jar完整路径
      * @param localPath     本地临时文件夹/文件
-     * @param isLocalDir    tmpFileDirPath是否为本地文件夹
      * @param alwaysPullNew   总是从远程下载最新文件
-     * @param isEnd          文件下载后是否归还连接
      * @return
      */
-    public File downloadFile(String remoteJarPath, String localPath, boolean isLocalDir, boolean alwaysPullNew, boolean isEnd) {
-        LOG.info("download file remoteJarPath:{},localPath:{},isLocalDir:{},alwaysPullNew:{}", remoteJarPath, localPath, isLocalDir, alwaysPullNew);
-        boolean downLoadSuccess = false;
-        String localJarPath = isLocalDir ? getTmpFileName(remoteJarPath, localPath) : localPath;
+    public File downloadFile(String remoteFilePath, String localFilePath, boolean alwaysPullNew) {
+        LOG.info("download file remoteFilePath:{} localFilePath:{} alwaysPullNew:{}", remoteFilePath, localFilePath, alwaysPullNew);
 
+        File jarFile = new File(localFilePath);
         if (!alwaysPullNew) {
-            File jarFile = new File(localJarPath);
             if (jarFile.exists()) {
                 return jarFile;
             }
         }
 
+        //检查并创建本地文件目录
+        if (!jarFile.getParentFile().exists()) {
+            boolean mkdirs = jarFile.getParentFile().mkdirs();
+            LOG.info("local file localParentFile {}  mkdir {} :", jarFile.getParent(), mkdirs);
+        }
+
         for (IFileManage fileManage : fileManages) {
             if (fileManage.filterPrefix()) {
                 String prefix = fileManage.getPrefix();
-                remoteJarPath = remoteJarPath.startsWith(prefix) ? StringUtils.substringAfter(remoteJarPath, prefix) : remoteJarPath;
+                remoteFilePath = remoteFilePath.startsWith(prefix) ? StringUtils.substringAfter(remoteFilePath, prefix) : remoteFilePath;
             }
 
-            downLoadSuccess = fileManage.downloadFile(remoteJarPath, localJarPath);
+            boolean downLoadSuccess = fileManage.downloadFile(remoteFilePath, localFilePath);
             if (downLoadSuccess) {
                 LOG.info("download file success fileManage is :{}", fileManage.getClass().getSimpleName());
                 break;
             }
         }
 
-        return getLocalJarFile(localJarPath);
+        return getLocalJarFile(localFilePath);
     }
 
     /**
@@ -154,7 +126,14 @@ public class FilesystemManager {
      * @return
      */
     public boolean downloadDir(String remoteDir, String localDir) {
-        LOG.info("download dir remoteDir:{}, localDir:{},alwaysPullNew:{}", remoteDir, localDir);
+        LOG.info("download dir remoteDir:{}, localDir:{}", remoteDir, localDir);
+
+        //检查并创建本地文件目录
+        File localDirPath = new File(localDir);
+        if (!localDirPath.exists()) {
+            boolean mkdirs = localDirPath.mkdirs();
+            LOG.info("local file localDir {}  mkdir {} :", localDir, mkdirs);
+        }
 
         boolean downLoadSuccess = false;
         for (IFileManage fileManage : fileManages) {
@@ -178,7 +157,7 @@ public class FilesystemManager {
      * @param localJarPath
      * @return
      */
-    public File getLocalJarFile(String localJarPath) {
+    private File getLocalJarFile(String localJarPath) {
         File jarFile = new File(localJarPath);
         if (!jarFile.exists()) {
             throw new RuntimeException("File does not exist: " + localJarPath);
@@ -186,34 +165,6 @@ public class FilesystemManager {
             throw new RuntimeException("File is not a file: " + localJarPath);
         }
         return jarFile;
-    }
-
-
-    /**
-     * 根据远程文件路径，构建本地临时文件名
-     * @param fileUrl
-     * @param toPath
-     * @return
-     */
-    public String getTmpFileName(String fileUrl, String toPath) {
-        String name = fileUrl.substring(fileUrl.lastIndexOf(URL_SPLIT) + 1);
-        String tmpFileName = toPath + fileSP + name;
-        return tmpFileName;
-    }
-
-    public Vector listFile(String remotePath) {
-        for (IFileManage fileManage : fileManages) {
-            if (fileManage.filterPrefix()) {
-                String prefix = fileManage.getPrefix();
-                remotePath = remotePath.startsWith(prefix) ? StringUtils.substringAfter(remotePath, prefix) : remotePath;
-            }
-
-            Vector listFile = fileManage.listFile(remotePath);
-            if (null != listFile) {
-                return listFile;
-            }
-        }
-        return null;
     }
 
 }

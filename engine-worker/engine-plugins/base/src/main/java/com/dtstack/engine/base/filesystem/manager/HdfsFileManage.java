@@ -20,8 +20,6 @@ package com.dtstack.engine.base.filesystem.manager;
 
 import com.dtstack.engine.common.IFileManage;
 import com.google.common.io.Files;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -32,10 +30,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Date: 2020/7/20
@@ -45,13 +40,7 @@ import java.util.regex.Pattern;
 public class HdfsFileManage implements IFileManage {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(HdfsFileManage.class);
 
-    public static final String PREFIX = "hdfs://";
-
-    private static final String HDFS_PATTERN = "(hdfs://[^/]+)(.*)";
-
-    private static String fileSP = File.separator;
-
-    private static Pattern pattern = Pattern.compile(HDFS_PATTERN);
+    private static final String PREFIX = "hdfs://";
 
     private static final Integer BUFFER_SIZE = 2048;
 
@@ -72,30 +61,19 @@ public class HdfsFileManage implements IFileManage {
     }
 
     @Override
-    public boolean filterPrefix() {
-        return false;
-    }
-
-    @Override
     public boolean downloadFile(String remotePath, String localPath) {
-        Pair<String, String> pair = parseHdfsUri(remotePath);
-        if (pair == null) {
-            LOG.info("can't parse hdfs url from given uriStr:{}", remotePath);
-            return false;
-        }
 
-        String hdfsUri = pair.getLeft();
-        String hdfsFilePathStr = pair.getRight();
-        try (FileSystem fs = FileSystem.get(new URI(hdfsUri), hadoopConf)) {
-            Path hdfsFilePath = new Path(hdfsFilePathStr);
-            if (!fs.exists(hdfsFilePath)) {
-                return false;
-            }
+        try (FileSystem fs = FileSystem.get(hadoopConf)) {
 
-
+            //检查并创建本地文件目录
             File file = new File(localPath);
             if(!file.getParentFile().exists()){
                 Files.createParentDirs(file);
+            }
+
+            Path hdfsFilePath = new Path(remotePath);
+            if (!fs.exists(hdfsFilePath)) {
+                return false;
             }
 
             //读取文件
@@ -110,8 +88,15 @@ public class HdfsFileManage implements IFileManage {
     }
 
     @Override
-    public boolean downloadDir(String remotePath, String localPath) {
+    public boolean downloadDir(String remotePath, String localDir) {
         try (FileSystem fs = FileSystem.get(hadoopConf)) {
+            //检查并创建本地文件目录
+            File localDirPath = new File(localDir);
+            if (!localDirPath.exists()) {
+                boolean mkdirs = localDirPath.mkdirs();
+                LOG.info("local file localDir {}  mkdir {} :", localDir, mkdirs);
+            }
+
             Path path = new Path(remotePath);
             if (!fs.exists(path)) {
                 LOG.info("hdfs not exists" + path);
@@ -127,13 +112,13 @@ public class HdfsFileManage implements IFileManage {
             for (FileStatus status : statusArr) {
                 String subPath = status.getPath().toString();
                 String fileName = status.getPath().getName();
-                String localDstFileName = localPath + fileSP + fileName;
+                String localDstFileName = localDir + File.separator + fileName;
                 downloadFile(subPath, localDstFileName);
             }
             return true;
         } catch (Exception e) {
             LOG.error("downloadDir from hdfs error:", e);
-            clearDownloadFile(localPath);
+//            clearDownloadFile(localDir);
             return false;
         }
     }
@@ -176,18 +161,6 @@ public class HdfsFileManage implements IFileManage {
     @Override
     public Vector listFile(String remotePath) {
         return null;
-    }
-
-
-    private static Pair<String, String> parseHdfsUri(String path){
-        Matcher matcher = pattern.matcher(path);
-        if(matcher.find() && matcher.groupCount() == 2){
-            String hdfsUri = matcher.group(1);
-            String hdfsPath = matcher.group(2);
-            return new MutablePair<>(hdfsUri, hdfsPath);
-        }else{
-            return null;
-        }
     }
 
     @Override
