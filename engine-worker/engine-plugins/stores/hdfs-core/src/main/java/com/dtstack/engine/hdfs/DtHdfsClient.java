@@ -16,7 +16,6 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
-import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +37,7 @@ public class DtHdfsClient extends AbstractClient {
 
         String configStr = PublicUtil.objToString(prop);
         config = PublicUtil.jsonStrToObject(configStr, Config.class);
-        this.initYarnConf(config.getYarnConf());
+        configuration =  this.initYarnConf(config.getYarnConf());
     }
 
     private Configuration initYarnConf(Map<String, Object> conf){
@@ -46,7 +45,7 @@ public class DtHdfsClient extends AbstractClient {
             return null;
         }
 
-        configuration = new YarnConfiguration();
+        Configuration  configuration = new Configuration();
 
         conf.keySet().forEach(key ->{
             Object value = conf.get(key);
@@ -150,7 +149,7 @@ public class DtHdfsClient extends AbstractClient {
             KerberosUtils.login(testConnectConf, () -> {
                 FileSystem fs = null;
                 try {
-                    Configuration configuration = this.initYarnConf(testConnectConf.getYarnConf());
+                    Configuration configuration = this.initYarnConf(testConnectConf.getHadoopConf());
                     fs = FileSystem.get(configuration);
                 } catch (Exception e) {
                     componentTestResult.setResult(false);

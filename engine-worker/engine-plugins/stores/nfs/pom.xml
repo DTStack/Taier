@@ -10,7 +10,8 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>nfs</artifactId>
+    <artifactId>plugins.stores.nfs</artifactId>
+    <name>plugins.stores.nfs</name>
     <version>1.0.0</version>
     <properties>
         <!-- 插件包所在文件夹名称 -->

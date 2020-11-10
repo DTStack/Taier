@@ -129,8 +129,11 @@ public class ComponentService {
         //hdfs core 需要合并
         componentTypeConfigMapping.put(EComponentType.HDFS.getTypeCode(), Lists.newArrayList("hdfs-site.xml", "core-site.xml","hive-site.xml"));
         componentTypeConfigMapping.put(EComponentType.YARN.getTypeCode(), Lists.newArrayList("yarn-site.xml","core-site.xml"));
+
         componentVersionMapping.put(EComponentType.FLINK.getName(), Lists.newArrayList(new Pair<>("1.8", "180"), new Pair<>("1.10", "110")));
         componentVersionMapping.put(EComponentType.SPARK.getName(), Lists.newArrayList(new Pair<>("2.1.X", "210"), new Pair<>("2.4.X", "240")));
+        componentVersionMapping.put(EComponentType.HDFS.getName(), Lists.newArrayList(new Pair<>("hadoop2", "hadoop2"), new Pair<>("hadoop3", "hadoop3")));
+        componentVersionMapping.put(EComponentType.YARN.getName(), Lists.newArrayList(new Pair<>("hadoop2", "hadoop2"), new Pair<>("hadoop3", "hadoop3")));
         componentVersionMapping.put(EComponentType.SPARK_THRIFT.getName(), Lists.newArrayList(new Pair<>("1.X", "1.x"), new Pair<>("2.X", "2.x"),new Pair<>("2.1.1-cdh6.1.1","2.1.1-cdh6.1.1")));
         componentVersionMapping.put(EComponentType.HIVE_SERVER.getName(), Lists.newArrayList(new Pair<>("1.X", "1.x"), new Pair<>("2.X", "2.x"),new Pair<>("2.1.1-cdh6.1.1","2.1.1-cdh6.1.1")));
         //-1 为hadoopversion
@@ -241,7 +244,7 @@ public class ComponentService {
         return componentDao.listByEngineId(engineId);
     }
 
-    private Map<String, Object> parseUploadFileToMap(List<Resource> resources) {
+    private Map<String, Map<String,Object>> parseUploadFileToMap(List<Resource> resources) {
 
         if (CollectionUtils.isEmpty(resources)) {
             throw new RdosDefineException("上传的文件不能为空");
@@ -254,7 +257,7 @@ public class ComponentService {
 
         String upzipLocation = unzipLocation + File.separator + resource.getFileName();
         try {
-            Map<String, Object> confMap = new HashMap<>();
+            Map<String, Map<String,Object>> confMap = new HashMap<>();
             //解压缩获得配置文件
             String xmlZipLocation = resource.getUploadedFileName();
             List<File> xmlFiles = XmlFileUtil.getFilesFromZip(xmlZipLocation, upzipLocation, null);
@@ -276,7 +279,7 @@ public class ComponentService {
                     if (StringUtils.isBlank(jsonStr)) {
                         continue;
                     }
-                    fileMap = JSONObject.parseObject(jsonStr);
+                    fileMap = (Map<String, Object>) JSONObject.parseObject(jsonStr,Map.class);
                 }
                 if (null != fileMap) {
                     confMap.put(file.getName(), fileMap);
@@ -520,7 +523,7 @@ public class ComponentService {
                 throw new RdosDefineException("kerberos上传文件非zip格式");
             }
         } else {
-            if(null== dbComponent){
+            if(null == dbComponent){
                 return false;
             }
             KerberosConfig componentKerberos = kerberosDao.getByComponentType(dbComponent.getId(), dbComponent.getComponentTypeCode());
@@ -889,14 +892,18 @@ public class ComponentService {
 
     private List<Object> parseXmlFileConfig(List<Resource> resources, List<String> xmlName) {
         List<Object> datas = new ArrayList<>();
-        Map<String, Object> xmlConfigMap = this.parseUploadFileToMap(resources);
-        boolean isLostXmlFile = xmlName.containsAll(xmlConfigMap.keySet());
+        Map<String, Map<String,Object>> xmlConfigMap = this.parseUploadFileToMap(resources);
+        boolean isLostXmlFile = xmlConfigMap.keySet().containsAll(xmlName);
         if(!isLostXmlFile){
             throw new RdosDefineException("缺少 必要 配置文件");
         }
         //多个配置文件合并为一个map
         if(MapUtils.isNotEmpty(xmlConfigMap)){
-            datas.add(xmlConfigMap.values());
+            Map<String,Object> data = new HashMap<>();
+            for (String key : xmlConfigMap.keySet()) {
+                data.putAll(xmlConfigMap.get(key));
+            }
+            datas.add(data);
         }
         return datas;
     }
@@ -1262,10 +1269,6 @@ public class ComponentService {
             return pluginName;
         }
 
-        if (StringUtils.isBlank(version)) {
-            throw new RdosDefineException("请选择版本");
-        }
-
         //调度或存储单个组件
         if (EComponentType.ResourceScheduling.contains(componentCode) || EComponentType.StorageScheduling.contains(componentCode)) {
             return String.format("%s%s", componentCode.name().toLowerCase(), this.formatHadoopVersion(version, componentCode));
@@ -1287,16 +1290,16 @@ public class ComponentService {
         if (null == yarn && null == kubernetes) {
             throw new RdosDefineException("请先配置调度组件");
         }
-        String resourceSign = null == yarn ? "k8s" : "yarn" + this.formatHadoopVersion(yarn.getHadoopVersion(), componentCode);
+        String resourceSign = null == yarn ? "k8s" : "yarn" + this.formatHadoopVersion(yarn.getHadoopVersion(), EComponentType.YARN);
 
         Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
         Component nfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.NFS.getTypeCode());
         if (null == hdfs && null == nfs) {
             throw new RdosDefineException("请先配置存储组件");
         }
-        String storageSign = null == hdfs ? "nfs" : "hdfs" + this.formatHadoopVersion(hdfs.getHadoopVersion(), componentCode);
+        String storageSign = null == hdfs ? "nfs" : "hdfs" + this.formatHadoopVersion(hdfs.getHadoopVersion(), EComponentType.HDFS);
 
-        computeSign = this.formatHadoopVersion(computeSign, componentCode);
+        computeSign = computeSign + this.formatHadoopVersion(version, componentCode);
         return String.format("%s-%s-%s", resourceSign, storageSign, computeSign);
     }
 
@@ -1322,8 +1325,8 @@ public class ComponentService {
                 //hw
                 return hadoopVersion.substring(0, 2);
             }
-        } else if (EComponentType.FLINK == componentType) {
-            //flink 为 三位版本标识
+        } else if (EComponentType.FLINK == componentType || EComponentType.SPARK == componentType) {
+            //flink dtscript 为 三位版本标识
             return hadoopVersion;
         }
         return "";
