@@ -2,6 +2,7 @@ package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.EngineTenantVO;
+import com.dtstack.engine.api.vo.tenant.TenantResourceVO;
 import com.dtstack.engine.api.vo.tenant.UserTenantVO;
 import com.dtstack.engine.master.impl.TenantService;
 import com.dtstack.engine.master.router.DtHeader;
@@ -14,6 +15,7 @@ import com.dtstack.engine.master.router.DtRequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/node/tenant")
@@ -51,7 +53,23 @@ public class TenantController {
 
     @RequestMapping(value="/bindingQueue", method = {RequestMethod.POST})
     public void bindingQueue(@DtRequestParam("queueId") Long queueId,
-                             @DtRequestParam("tenantId") Long dtUicTenantId) {
-        tenantService.bindingQueue(queueId, dtUicTenantId);
+                             @DtRequestParam("tenantId") Long dtUicTenantId,
+                             @DtRequestParam("taskTypeResourceJson") String taskTypeResourceJson
+                             ) {
+        tenantService.bindingQueue(queueId, dtUicTenantId,taskTypeResourceJson);
+    }
+
+    @ApiOperation(value = "获取租户的设置了任务资源限制的信息列表")
+    @RequestMapping(value="/queryTaskResourceLimits", method = {RequestMethod.POST})
+    public List<TenantResourceVO> queryTaskResourceLimits(@DtRequestParam("dtUicTenantId") Long dtUicTenantId
+    ) {
+        return tenantService.queryTaskResourceLimits(dtUicTenantId);
+    }
+
+    @ApiOperation(value = "根据租户id和taskType获取资源限制信息")
+    @RequestMapping(value="/queryResourceLimitByTenantIdAndTaskType", method = {RequestMethod.POST})
+    public String queryResourceLimitByTenantIdAndTaskType(@DtRequestParam("dtUicTenantId") Long dtUicTenantId,
+                                                                         @DtRequestParam("taskType") Integer taskType) {
+        return tenantService.queryResourceLimitByTenantIdAndTaskType(dtUicTenantId,taskType);
     }
 }
