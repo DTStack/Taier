@@ -11,8 +11,9 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
+import com.dtstack.engine.common.sftp.SftpConfig;
+import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.util.SFTPHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Vector;
 
 /**
  * 用于流程上压测的dummy插件
@@ -110,25 +112,13 @@ public class DummyClient extends AbstractClient {
     public ComponentTestResult testConnect(String pluginInfo) {
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
-            Map config = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
-            if ("sftp".equalsIgnoreCase(String.valueOf(config.get(COMPONENT_TYPE)))) {
-                SFTPHandler instance = null;
-                try {
-                    instance = SFTPHandler.getInstance(config);
-                    String path = (String) config.get("path");
-                    if (StringUtils.isBlank(path)) {
-                        componentTestResult.setErrorMsg("SFTP组件path配置不能为空");
-                        componentTestResult.setResult(false);
-                    } else {
-                        //测试路径是否存在
-                        instance.listFile(path);
-                        componentTestResult.setResult(true);
-                    }
-                } finally {
-                    if (instance != null) {
-                        instance.close();
-                    }
-                }
+            SftpConfig sftpConfig = PublicUtil.jsonStrToObject(pluginInfo, SftpConfig.class);
+            // check sftpConfig 准确性
+            SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
+            //测试路径是否存在
+            Vector res = sftpFileManage.listFile(sftpConfig.getPath());
+            if (null != res) {
+                componentTestResult.setResult(true);
             }
         } catch (Exception e) {
             componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));

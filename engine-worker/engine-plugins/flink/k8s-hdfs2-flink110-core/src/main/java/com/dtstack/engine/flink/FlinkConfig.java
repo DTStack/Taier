@@ -1,8 +1,10 @@
 package com.dtstack.engine.flink;
 
+import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -10,11 +12,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * company: www.dtstack.com
- * author: toutian
- * create: 2020/04/03
+ *
+ * @author sishu.yss
+ *
  */
-public class FlinkConfig {
+public class FlinkConfig extends BaseConfig {
 
     private static List<String> ENGINE_FLINK_CONFIGS = null;
 
@@ -43,14 +45,6 @@ public class FlinkConfig {
     private String flinkJarPath;
 
     private String elasticCapacity;
-
-    private boolean openKerberos;
-
-    private String remoteDir;
-
-    private String principalFile;
-
-    private Map<String, String> sftpConf;
 
     private Map<String, String> kerberosConfig;
 
@@ -144,30 +138,6 @@ public class FlinkConfig {
 
     public void setElasticCapacity(String elasticCapacity) {
         this.elasticCapacity = elasticCapacity;
-    }
-
-    public boolean isOpenKerberos() {
-        return openKerberos;
-    }
-
-    public void setOpenKerberos(boolean openKerberos) {
-        this.openKerberos = openKerberos;
-    }
-
-    public String getRemoteDir() {
-        return remoteDir;
-    }
-
-    public void setRemoteDir(String remoteDir) {
-        this.remoteDir = remoteDir;
-    }
-
-    public Map<String, String> getSftpConf() {
-        return sftpConf;
-    }
-
-    public void setSftpConf(Map<String, String> sftpConf) {
-        this.sftpConf = sftpConf;
     }
 
     public Map<String, String> getKerberosConfig() {
@@ -264,14 +234,6 @@ public class FlinkConfig {
 
     public static void setEngineFlinkConfigs(List<String> engineFlinkConfigs) {
         ENGINE_FLINK_CONFIGS = engineFlinkConfigs;
-    }
-
-    public String getPrincipalFile() {
-        return principalFile;
-    }
-
-    public void setPrincipalFile(String principalFile) {
-        this.principalFile = principalFile;
     }
 
     private static List<String> initEngineFlinkConfigFields() {

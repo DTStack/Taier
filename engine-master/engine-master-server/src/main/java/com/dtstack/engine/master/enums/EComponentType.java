@@ -29,7 +29,7 @@ public enum EComponentType {
     KUBERNETES(15, "Kubernetes", "kubernetesConf"),
     PRESTO_SQL(16, "Presto SQL", "prestoConf");
 
-    private int typeCode;
+    private Integer typeCode;
 
     private String name;
 
@@ -71,7 +71,7 @@ public enum EComponentType {
         throw new IllegalArgumentException("No enum constant with conf name:" + ConfName);
     }
 
-    public int getTypeCode() {
+    public Integer getTypeCode() {
         return typeCode;
     }
 

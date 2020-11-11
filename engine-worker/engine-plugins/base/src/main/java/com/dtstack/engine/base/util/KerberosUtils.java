@@ -3,7 +3,8 @@ package com.dtstack.engine.base.util;
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.SFTPHandler;
+import com.dtstack.engine.common.sftp.SftpConfig;
+import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -32,6 +33,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -51,6 +53,7 @@ public class KerberosUtils {
     private static ObjectMapper objectMapper = new ObjectMapper();
     private static Map<String, UserGroupInformation> ugiMap = Maps.newConcurrentMap();
     private static Map<String, String> segment = Maps.newConcurrentMap();
+
     private static final String TIME_FILE = ".lock";
     private static final String KEYTAB_FILE = ".keytab";
 
@@ -90,14 +93,10 @@ public class KerberosUtils {
                 //本地文件是否和服务器时间一致 一致使用本地缓存
                 boolean isOverrideDownLoad = checkLocalCache(config.getKerberosFileTimestamp(), localDirPath);
                 if (isOverrideDownLoad) {
-                    SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
-                    keytabPath = handler.loadOverrideFromSftp(fileName, remoteDir, localDir, false);
+                    SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(config.getSftpConf());
+                    keytabPath = sftpFileManage.cacheOverloadFile(fileName, remoteDir, localDir);
                     if (StringUtils.isNotBlank(krb5ConfName)) {
-                        krb5ConfPath = handler.loadOverrideFromSftp(krb5ConfName, config.getRemoteDir(), localDir, true);
-                    }
-                    try {
-                        handler.close();
-                    } catch (Exception e) {
+                        krb5ConfPath = sftpFileManage.cacheOverloadFile(krb5ConfName, config.getRemoteDir(), localDir);
                     }
                     writeTimeLockFile(config.getKerberosFileTimestamp(),localDir);
                 } else {
@@ -498,9 +497,9 @@ public class KerberosUtils {
         String krb5ConfPath = "";
         boolean isOverrideDownLoad = checkLocalCache(config.getKerberosFileTimestamp(), localDirPath);
         if (isOverrideDownLoad) {
-            SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
-            keytabPath = handler.loadOverrideFromSftp(keytabFileName, remoteDir, localDir, false);
-            krb5ConfPath = handler.loadOverrideFromSftp(krb5FileName, remoteDir, localDir, true);
+            SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(config.getSftpConf());
+            keytabPath = sftpFileManage.cacheOverloadFile(keytabFileName, remoteDir, localDir);
+            krb5ConfPath = sftpFileManage.cacheOverloadFile(krb5FileName, remoteDir, localDir);
             writeTimeLockFile(config.getKerberosFileTimestamp(), localDir);
         } else {
             keytabPath = localDir + File.separator + keytabFileName;
@@ -520,9 +519,10 @@ public class KerberosUtils {
             path.mkdirs();
         }
 
+        SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(config.getSftpConf());
         logger.info("fileName:{}, remoteDir:{}, localDir:{}, sftpConf:{}", fileName, remoteDir, localDir, config.getSftpConf());
-        SFTPHandler handler = SFTPHandler.getInstance(config.getSftpConf());
-        String keytabPath = handler.loadFromSftp(fileName, remoteDir, localDir);
+
+        String keytabPath = sftpFileManage.cacheOverloadFile(fileName, remoteDir, localDir);
         logger.info("keytabPath:{}", keytabPath);
         return keytabPath;
     }

@@ -1,8 +1,8 @@
 package com.dtstack.engine.flink.util;
 
+import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
 import com.dtstack.engine.worker.enums.ClassLoaderType;
@@ -11,14 +11,15 @@ import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.configuration.CoreOptions;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
-import org.apache.hadoop.conf.Configuration;
+import org.apache.flink.util.JarUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -32,20 +33,16 @@ public class FlinkUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkUtil.class);
 
-    private static final String URL_SPLITE = "/";
 
-    private static String fileSP = File.separator;
-
-
-    public static PackagedProgram buildProgram(String fromPath, String toPath, List<URL> classpaths, EJobType jobType,
+    public static PackagedProgram buildProgram(String fromPath, String localDir, List<URL> classpaths, EJobType jobType,
                                                String entryPointClass, String[] programArgs,
-                                               SavepointRestoreSettings spSetting, Configuration hadoopConf, org.apache.flink.configuration.Configuration flinkConfiguration)
-            throws FileNotFoundException, ProgramInvocationException {
+                                               SavepointRestoreSettings spSetting, org.apache.flink.configuration.Configuration flinkConfiguration, FilesystemManager filesystemManager)
+            throws IOException, ProgramInvocationException {
         if (fromPath == null) {
             throw new IllegalArgumentException("The program JAR file was not specified.");
         }
 
-        File jarFile = downloadJar(fromPath, toPath, hadoopConf);
+        File jarFile = downloadJar(fromPath, localDir, filesystemManager, true);
 
         ClassLoaderType classLoaderType = ClassLoaderType.getClassLoaderType(jobType);
         if (ClassLoaderType.CHILD_FIRST == classLoaderType) {
@@ -74,68 +71,37 @@ public class FlinkUtil {
         return program;
     }
 
-    public static String getTmpFileName(String fileUrl, String toPath){
-        String name = fileUrl.substring(fileUrl.lastIndexOf(URL_SPLITE) + 1);
-        String tmpFileName = toPath  + fileSP + name;
-        return tmpFileName;
-    }
-
-    public static File downloadJar(String fromPath, String toPath, Configuration hadoopConf) throws FileNotFoundException {
-        String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
-        if(!FileUtil.downLoadFile(fromPath, localJarPath, hadoopConf)){
+    public static File downloadJar(String remotePath, String localDir, FilesystemManager filesystemManager, boolean localPriority) throws IOException {
+        if(localPriority){
             //如果不是http 或者 hdfs协议的从本地读取
-            File localFile = new File(fromPath);
+            File localFile = new File(remotePath);
             if(localFile.exists()){
                 return localFile;
             }
-            return null;
         }
 
-        File jarFile = new File(localJarPath);
+        String localJarPath = FlinkUtil.getTmpFileName(remotePath, localDir);
+        File downloadFile = filesystemManager.downloadFile(remotePath, localJarPath);
+        logger.info("downloadFile remotePath:{} localJarPath:{}", remotePath, localJarPath);
 
-        // Check if JAR file exists
-        if (!jarFile.exists()) {
-            throw new FileNotFoundException("JAR file does not exist: " + jarFile);
-        } else if (!jarFile.isFile()) {
-            throw new FileNotFoundException("JAR file is not a file: " + jarFile);
-        }
+        URL jarFileUrl;
 
-        return jarFile;
-    }
-
-    public static File downloadJar(String fromPath, String toPath, Configuration hadoopConf, Map<String, String> sftpConf) throws FileNotFoundException {
-        boolean downloadJarFlag = false;
-        if (sftpConf != null && !sftpConf.isEmpty()){
-            downloadJarFlag = downloadFileFromSftp(fromPath, toPath, sftpConf);
-        }
-        if (!downloadJarFlag) {
-            return downloadJar(fromPath, toPath, hadoopConf);
-        } else {
-            String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
-            return new File(localJarPath);
-        }
-    }
-
-    private static boolean downloadFileFromSftp(String fromPath, String toPath, Map<String, String> sftpConf) {
-        //从Sftp下载文件到目录下
-        SFTPHandler handler = null;
         try {
-            handler = SFTPHandler.getInstance(sftpConf);
-            int files = handler.downloadDir(fromPath, toPath);
-            logger.info("download file from SFTP, fromPath:{} toPath:{} fileSize:{}", fromPath, toPath, files);
-            if (files > 0) {
-                return true;
-            }
-        } catch (Throwable e) {
-            logger.error("download file from SFTP error, fromPath:{} toPath:{} ", e);
-        } finally {
-            if (handler != null) {
-                handler.close();
-            }
+            jarFileUrl = downloadFile.getAbsoluteFile().toURI().toURL();
+        } catch (MalformedURLException e1) {
+            throw new IllegalArgumentException("The jar file path is invalid.");
         }
-        return false;
+
+        JarUtils.checkJarFile(jarFileUrl);
+
+        return downloadFile;
     }
 
+    private static String getTmpFileName(String fileUrl, String toPath){
+        String fileName = StringUtils.substringAfterLast(fileUrl, File.separator);
+        String tmpFileName = toPath  + File.separator + fileName;
+        return tmpFileName;
+    }
 
     /**
      *

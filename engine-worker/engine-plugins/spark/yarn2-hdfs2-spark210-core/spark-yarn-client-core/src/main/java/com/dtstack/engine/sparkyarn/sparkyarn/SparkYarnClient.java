@@ -1,5 +1,6 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
+import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
@@ -35,7 +36,6 @@ import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.yarn.ClientArguments;
@@ -101,6 +101,8 @@ public class SparkYarnClient extends AbstractClient {
 
     private Properties sparkExtProp;
 
+    private FilesystemManager filesystemManager;
+
     private ThreadPoolExecutor threadPoolExecutor;
 
     @Override
@@ -115,6 +117,8 @@ public class SparkYarnClient extends AbstractClient {
         parseWebAppAddr();
         logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
         yarnClient = this.buildYarnClient();
+
+        this.filesystemManager = new FilesystemManager(yarnConf, sparkYarnConfig.getSftpConf());
 
         if (sparkYarnConfig.getMonitorAcceptedApp()) {
             AcceptedApplicationMonitor.start(yarnConf, sparkYarnConfig.getQueue(), sparkYarnConfig);
@@ -206,7 +210,7 @@ public class SparkYarnClient extends AbstractClient {
         ApplicationId appId = null;
 
         try {
-            ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
+            ClientExt clientExt = ClientExtFactory.getClientExt(filesystemManager, clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
             String proxyUserName = sparkYarnConfig.getDtProxyUserName();
             if (StringUtils.isNotBlank(proxyUserName)) {
@@ -290,7 +294,7 @@ public class SparkYarnClient extends AbstractClient {
 
         try {
             ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
-            ClientExt clientExt = new ClientExt(clientArguments, yarnConf, sparkConf);
+            ClientExt clientExt = new ClientExt(filesystemManager, clientArguments, yarnConf, sparkConf);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
 
             String proxyUserName = sparkYarnConfig.getDtProxyUserName();
@@ -364,7 +368,7 @@ public class SparkYarnClient extends AbstractClient {
         ApplicationId appId = null;
 
         try {
-            ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
+            ClientExt clientExt = ClientExtFactory.getClientExt(filesystemManager, clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
             String proxyUserName = sparkYarnConfig.getDtProxyUserName();
             if (StringUtils.isNotBlank(proxyUserName)) {

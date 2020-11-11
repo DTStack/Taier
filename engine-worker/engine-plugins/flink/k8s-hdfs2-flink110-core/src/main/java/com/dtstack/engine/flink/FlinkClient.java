@@ -2,6 +2,7 @@ package com.dtstack.engine.flink;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
@@ -16,7 +17,6 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
 import com.dtstack.engine.flink.entity.LatencyMarkerInfo;
@@ -102,6 +102,8 @@ public class FlinkClient extends AbstractClient {
 
     private String jobHistory;
 
+    private FilesystemManager filesystemManager;
+
     @Override
     public void init(Properties prop) throws Exception {
 
@@ -116,10 +118,13 @@ public class FlinkClient extends AbstractClient {
 
         initHadoopConf(flinkConfig);
 
-        FlinkUtil.downloadK8sConfig(prop, flinkConfig);
+        filesystemManager = new FilesystemManager(hadoopConf, flinkConfig.getSftpConf());
+
+        FlinkUtil.downloadK8sConfig(prop, flinkConfig, filesystemManager);
 
         flinkClientBuilder = new FlinkClientBuilder(flinkConfig, hadoopConf, prop);
         kubernetesClient = flinkClientBuilder.getKubernetesClient();
+
 
         flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
     }
@@ -202,7 +207,7 @@ public class FlinkClient extends AbstractClient {
 
         try {
             Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
-            packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, jobClient.getJobType(), entryPointClass, programArgs, spSettings, hadoopConf, tmpConfiguration);
+            packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, jobClient.getJobType(), entryPointClass, programArgs, spSettings, tmpConfiguration, filesystemManager);
             jobGraph = PackagedProgramUtils.createJobGraph(packagedProgram, tmpConfiguration, runParallelism, false);
 
             fillJobGraphClassPath(jobGraph);
@@ -587,9 +592,9 @@ public class FlinkClient extends AbstractClient {
                 sftpFiles.add(addFilePath);
                 File tmpFile = null;
                 try {
-                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf, flinkConfig.getSftpConf());
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
+                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, filesystemManager, false);
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
                 }
                 if (tmpFile == null) {
                     throw new RuntimeException("JAR file does not exist: " + addFilePath);
@@ -620,7 +625,7 @@ public class FlinkClient extends AbstractClient {
         try {
             FlinkConfig flinkConfig = PublicUtil.jsonStrToObject(jobClient.getPluginInfo(), FlinkConfig.class);
             Properties prop = PublicUtil.stringToProperties(jobClient.getPluginInfo());
-            FlinkUtil.downloadK8sConfig(prop, flinkConfig);
+            FlinkUtil.downloadK8sConfig(prop, flinkConfig, filesystemManager);
         } catch (IOException e) {
             throw new RuntimeException("k8s config file download fail");
         }
@@ -726,8 +731,7 @@ public class FlinkClient extends AbstractClient {
 
             String localKeytab = confProperties.getProperty(ConfigConstrant.SECURITY_KERBEROS_LOGIN_KEYTAB);
             if (StringUtils.isNotBlank(localKeytab) && !(new File(localKeytab).exists())) {
-                SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
-                handler.downloadFile(sftpKeytab, localKeytab);
+                filesystemManager.downloadFile(sftpKeytab, localKeytab);
             }
         } catch (Exception e) {
             logger.error("Download keytab from sftp failed", e);

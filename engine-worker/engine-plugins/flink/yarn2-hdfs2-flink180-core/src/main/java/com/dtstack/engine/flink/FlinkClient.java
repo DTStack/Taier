@@ -3,6 +3,7 @@ package com.dtstack.engine.flink;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JarFileInfo;
@@ -109,6 +110,8 @@ public class FlinkClient extends AbstractClient {
 
     private String jobHistory;
 
+    private FilesystemManager filesystemManager;
+
     private static final String JOBMANAGER_DIR = "jobmanager.archive.fs.dir";
 
     private String jobmanagerDir;
@@ -132,6 +135,8 @@ public class FlinkClient extends AbstractClient {
         flinkClientBuilder.initFlinkGlobalConfiguration(flinkExtProp);
 
         flinkClusterClientManager = new FlinkClusterClientManager(flinkClientBuilder);
+
+        filesystemManager = new FilesystemManager(hadoopConf.getYarnConfiguration(), flinkConfig.getSftpConf());
 
         if (flinkConfig.getMonitorAcceptedApp()) {
             AcceptedApplicationMonitor.start(hadoopConf.getYarnConfiguration(), flinkConfig.getQueue(), flinkConfig);
@@ -170,7 +175,7 @@ public class FlinkClient extends AbstractClient {
 
     private JobResult submitJobWithJar(JobClient jobClient, List<URL> classPaths, List<String> programArgList) {
         if (flinkConfig.isOpenKerberos()) {
-            FileUtil.downloadKafkaKeyTab(jobClient, flinkConfig);
+            FileUtil.downloadKafkaKeyTab(jobClient, filesystemManager);
         }
 
         if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
@@ -204,7 +209,8 @@ public class FlinkClient extends AbstractClient {
         try {
             if (FlinkYarnMode.isPerJob(taskRunMode)) {
                 // perjob模式延后创建PackagedProgram
-                jarFile = FlinkUtil.downloadJar(jarPath, tmpFileDirPath, hadoopConf.getConfiguration(), null);
+                jarFile = FlinkUtil.downloadJar(jarPath, tmpFileDirPath, filesystemManager, true);
+
                 ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getApplicationPriority(), jobClient.getConfProperties());
                 clusterSpecification.setConfiguration(flinkClientBuilder.getFlinkConfiguration());
                 clusterSpecification.setClasspaths(classPaths);
@@ -219,7 +225,7 @@ public class FlinkClient extends AbstractClient {
                 runResult = runJobByPerJob(clusterSpecification, jobClient);
                 packagedProgram = clusterSpecification.getProgram();
             } else {
-                packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, jobClient.getJobType(), entryPointClass, programArgs, spSettings, hadoopConf.getConfiguration());
+                packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, jobClient.getJobType(), entryPointClass, programArgs, spSettings, filesystemManager);
                 //只有当程序本身没有指定并行度的时候该参数才生效
                 Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
                 clearClassPathShipfileLoadMode(packagedProgram);
@@ -875,8 +881,7 @@ public class FlinkClient extends AbstractClient {
             String tmpSql = sqlItera.next();
             if (PrepareOperator.verificKeytab(tmpSql)) {
                 sqlItera.remove();
-                SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
-                String localDir = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+                String localDir = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
 
                 if (!new File(localDir).exists()) {
                     new File(localDir).mkdirs();
@@ -887,17 +892,20 @@ public class FlinkClient extends AbstractClient {
                 keytabFileName = keytabFile.getName();
                 String remoteDir = keytabFile.getParent();
 
-                String localPath = handler.loadFromSftp(keytabFileName, remoteDir, localDir);
-                logger.info("Download file to :" + localPath);
+                String remoteFile = remoteDir + File.separator + keytabFileName;
+                String localFile = localDir + File.separator + keytabFileName;
+                //download file and close
+                File downloadFile = filesystemManager.downloadFile(remoteFile, localFile);
+                logger.info("Download file to :" + downloadFile.toPath());
             } else if (PrepareOperator.verific(tmpSql)) {
                 sqlItera.remove();
                 JarFileInfo jarFileInfo = PrepareOperator.parseSql(tmpSql);
                 String addFilePath = jarFileInfo.getJarPath();
                 File tmpFile = null;
                 try {
-                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf.getConfiguration(), flinkConfig.getSftpConf());
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
+                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, filesystemManager, false);
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
                 }
 
                 fileList.add(tmpFile.getAbsolutePath());

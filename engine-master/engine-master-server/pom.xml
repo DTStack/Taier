@@ -119,9 +119,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.netflix.curator</groupId>
+            <groupId>org.apache.curator</groupId>
             <artifactId>curator-recipes</artifactId>
-            <version>1.3.3</version>
+            <version>4.3.0</version>
             <exclusions>
                 <exclusion>
                     <artifactId>zookeeper</artifactId>
