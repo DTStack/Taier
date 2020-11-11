@@ -29,7 +29,6 @@ public class ImpalaClient extends AbstractRdbsClient {
 
         List<Column> columns = new ArrayList<>();
         int maxRows = JdbcUrlPropertiesValue.MAX_ROWS;
-        AbstractConnFactory connFactory = getConnFactory();
         ResultSet res = null;
         try(Connection conn = connFactory.getConn();
            Statement statement = conn.createStatement()){
@@ -65,12 +64,10 @@ public class ImpalaClient extends AbstractRdbsClient {
                     columns.add(dealResult(res));
                 }
             }
-
         }catch (Exception e){
             throw new RdosDefineException("获取字段列表异常",e);
         }
-
-        return null;
+        return columns;
     }
 
     private static Column dealResult(ResultSet resultSet) throws SQLException {

@@ -8,7 +8,6 @@ import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
 import com.dtstack.engine.master.utils.DataCollectionProxy;
 import com.dtstack.engine.master.utils.Template;
-import com.dtstack.engine.master.utils.ValueUtils;
 import org.joda.time.DateTime;
 
 import java.lang.reflect.Proxy;
@@ -341,4 +340,15 @@ public interface DataCollection {
         sj.setCycTime("20200501163446");
         return sj;
     }
+
+
+    @DatabaseInsertOperation(dao = TestClusterDao.class)
+    default Cluster getCluster() {
+        Cluster cluster = new Cluster();
+        cluster.setClusterName("test_01");
+        cluster.setHadoopVersion("1.2");
+        return cluster;
+    }
+
+
 }

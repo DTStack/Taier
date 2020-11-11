@@ -29,7 +29,7 @@ public class LineageDataSource extends DtUicTenantEntity {
     private Integer sourceType;
 
     @ApiModelProperty(notes = "数据源配置信息")
-    private String dataJason;
+    private String dataJson;
 
     @ApiModelProperty(notes = "数据源kerberos配置")
     private String kerberosConf;
@@ -45,6 +45,15 @@ public class LineageDataSource extends DtUicTenantEntity {
 
     @ApiModelProperty(notes = "组件id")
     private Integer componentId;
+
+    public LineageDataSource() {
+    }
+
+    public LineageDataSource(String sourceName, Integer appType, Integer sourceType) {
+        this.sourceName = sourceName;
+        this.appType = appType;
+        this.sourceType = sourceType;
+    }
 
     public Long getRealSourceId() {
         return realSourceId;
@@ -86,12 +95,12 @@ public class LineageDataSource extends DtUicTenantEntity {
         this.sourceType = sourceType;
     }
 
-    public String getDataJason() {
-        return dataJason;
+    public String getDataJson() {
+        return dataJson;
     }
 
-    public void setDataJason(String dataJason) {
-        this.dataJason = dataJason;
+    public void setDataJson(String dataJson) {
+        this.dataJson = dataJson;
     }
 
     public String getKerberosConf() {
@@ -134,4 +143,20 @@ public class LineageDataSource extends DtUicTenantEntity {
         this.componentId = componentId;
     }
 
+    @Override
+    public String toString() {
+        return "LineageDataSource{" +
+                "realSourceId=" + realSourceId +
+                ", sourceKey='" + sourceKey + '\'' +
+                ", sourceName='" + sourceName + '\'' +
+                ", appType=" + appType +
+                ", sourceType=" + sourceType +
+                ", dataJson='" + dataJson + '\'' +
+                ", kerberosConf='" + kerberosConf + '\'' +
+                ", openKerberos=" + openKerberos +
+                ", appSourceId=" + appSourceId +
+                ", innerSource=" + innerSource +
+                ", componentId=" + componentId +
+                '}';
+    }
 }

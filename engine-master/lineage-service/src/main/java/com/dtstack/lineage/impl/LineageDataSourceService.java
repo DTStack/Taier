@@ -15,11 +15,13 @@ import com.dtstack.lineage.bo.RdbmsDataSourceConfig;
 import com.dtstack.lineage.dao.LineageDataSourceDao;
 import com.dtstack.lineage.dao.LineageRealDataSourceDao;
 import com.dtstack.schedule.common.enums.Sort;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,14 +55,15 @@ public class LineageDataSourceService {
      * 新增或修改逻辑数据源
      * @param dataSourceDTO 数据源信息
      */
-    public void addOrUpdateDataSource(DataSourceDTO dataSourceDTO){
+    @Transactional(rollbackFor = Exception.class)
+    public Integer addOrUpdateDataSource(DataSourceDTO dataSourceDTO){
         //如果存在数据源则更新
         //更新后更新物理数据源
         //如果不存在数据源则添加
         //添加后添加物理数据源，如果物理数据源已经存在，检查配置是否更新。注意：如果两个应用使用了相同的物理数据源但是使用了不同的账号，依旧算同一个物理数据源
         try {
             if (Objects.isNull(dataSourceDTO.getDataSourceId())){
-                addDataSource(dataSourceDTO);
+                return addDataSource(dataSourceDTO);
             }else {
                 //更新数据源
                 LineageDataSource one = lineageDataSourceDao.getOne(dataSourceDTO.getDataSourceId());
@@ -75,10 +78,11 @@ public class LineageDataSourceService {
                     throw new RdosDefineException("jdbc.url中ip和端口不能修改");
                 }
                 updateDataSource(dataSourceDTO,sourceKey,one.getRealSourceId());
+                return one.getId().intValue();
             }
         } catch (Exception e) {
             logger.error("新增或修改数据源异常,e:{}", ExceptionUtil.getErrorMessage(e));
-            throw new RdosDefineException("新增或修改数据愿异常");
+            throw new RdosDefineException("新增或修改数据源异常");
         }
     }
 
@@ -89,7 +93,7 @@ public class LineageDataSourceService {
 
     }
 
-    private void addDataSource(DataSourceDTO dataSourceDTO) {
+    private Integer addDataSource(DataSourceDTO dataSourceDTO) {
         //生成sourceKey
         String sourceKey = generateSourceKey(dataSourceDTO.getDataJson());
         //插入物理数据愿
@@ -98,6 +102,7 @@ public class LineageDataSourceService {
         //查询组件
         LineageDataSource dataSource = convertLineageDataSource(dataSourceDTO, sourceKey, realSourceId);
         lineageDataSourceDao.insertDataSource(dataSource);
+        return dataSource.getId().intValue();
     }
 
     private LineageDataSource convertLineageDataSource(DataSourceDTO dataSourceDTO, String sourceKey, Long realSourceId) {
@@ -105,12 +110,19 @@ public class LineageDataSourceService {
         Integer componentId =  componentDao.getIdByTenantIdComponentType(tenantId, dataSourceDTO.getSourceType());
         LineageDataSource dataSource = new LineageDataSource();
         BeanUtils.copyProperties(dataSourceDTO,dataSource);
-        dataSource.setComponentId(componentId);
+        dataSource.setComponentId(null == componentId ? -1 : componentId);
         //有组件则为内部数据源1，否则为外部数据源0
+        if(StringUtils.isBlank(dataSourceDTO.getKerberosConf())){
+            dataSource.setKerberosConf("-1");
+            dataSource.setOpenKerberos( 0 );
+        }else{
+            dataSource.setKerberosConf(dataSourceDTO.getKerberosConf());
+            dataSource.setOpenKerberos( 1 );
+        }
         dataSource.setInnerSource(null == componentId ? 1 : 0);
-        dataSource.setOpenKerberos(null == dataSourceDTO.getKerberosConf() ? 0:1);
         dataSource.setSourceKey(sourceKey);
         dataSource.setRealSourceId(realSourceId);
+        dataSource.setAppSourceId(-1);
         dataSource.setDtUicTenantId(dataSourceDTO.getDtUicTenantId());
         return dataSource;
     }
@@ -121,7 +133,7 @@ public class LineageDataSourceService {
         }
         JSONObject jsonObject = JSON.parseObject(dataJson);
         RdbmsDataSourceConfig sourceConfig = new RdbmsDataSourceConfig();
-        sourceConfig.setJdbc(jsonObject.getString("jdbc.url"));
+        sourceConfig.setJdbc(jsonObject.getString("jdbcUrl"));
         String sourceKey = sourceConfig.generateRealSourceKey();
         if(null == sourceKey){
             throw new RdosDefineException("dataJson格式有误");
@@ -145,8 +157,9 @@ public class LineageDataSourceService {
             //不存在则新增
             LineageRealDataSource realDataSource = new LineageRealDataSource();
             realDataSource.setDataJason(dataSourceDTO.getDataJson());
-            realDataSource.setKerberosConf(dataSourceDTO.getKerberosConf());
-            realDataSource.setOpenKerberos( null == dataSourceDTO.getKerberosConf() ? 0 : 1);
+            realDataSource.setKerberosConf(StringUtils.isBlank(dataSourceDTO.getKerberosConf())
+                    ? "-1" : dataSourceDTO.getKerberosConf());
+            realDataSource.setOpenKerberos( StringUtils.isBlank(dataSourceDTO.getKerberosConf()) ? 0 : 1);
             realDataSource.setSourceKey(sourceKey);
             realDataSource.setSourceName(dataSourceDTO.getSourceName());
             realDataSource.setSourceType(dataSourceDTO.getSourceType());
@@ -210,7 +223,7 @@ public class LineageDataSourceService {
      * @param appType:
      * @return: java.util.List<com.dtstack.engine.api.domain.LineageDataSource>
      **/
-    PageResult<List<LineageDataSource>> pageQueryDataSourceByAppType(Integer appType,Integer currentPage,Integer pageSize){
+    public PageResult<List<LineageDataSource>> pageQueryDataSourceByAppType(Integer appType,Integer currentPage,Integer pageSize){
 
         PageQuery<LineageDataSource> pageQuery = new PageQuery<>(currentPage,pageSize,"gmt_modified", Sort.DESC.name());
         LineageDataSource dataSource = new LineageDataSource();
@@ -233,7 +246,7 @@ public class LineageDataSourceService {
      * @param id:
      * @return: com.dtstack.engine.api.domain.LineageDataSource
      **/
-    LineageDataSource getDataSourceById(Long id){
+    public LineageDataSource getDataSourceById(Long id){
 
         return lineageDataSourceDao.getOne(id);
     }

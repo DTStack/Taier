@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.lineage.dao.LineageDataSetDao">
 
     <sql id="select_content_fragment">
-      id,tenant_id,real_source_id,source_id,source_name,source_key,app_type,source_type,set_type,db_name,schema_name,table_name,table_key,is_manual,gmt_create,gmt_modified,is_deleted
+      id,dt_uic_tenant_id,real_source_id,source_id,source_name,source_key,app_type,source_type,set_type,db_name,schema_name,table_name,table_key,is_manual,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <sql id="select_where_fragment">
@@ -15,30 +15,31 @@
     </sql>
 
     <insert id="insertTableInfo" parameterType="com.dtstack.engine.api.domain.LineageDataSetInfo" useGeneratedKeys="true" keyProperty="id">
-        insert into lineage_data_set(tenant_id,real_source_id,source_id,source_name,source_key,app_type,source_type,set_type,db_name,table_name,table_key,is_manual)
+        insert into lineage_data_set_info(dt_uic_tenant_id,real_source_id,source_id,source_name,source_key,app_type,source_type,set_type,db_name,table_name,schema_name,table_key,is_manual)
         values
-        (#{tenantId},#{realSourceId},#{sourceId},#{sourceName},#{sourceKey},#{appType},#{sourceType},#{setType},#{dbName},#{tableName},#{tableKey},#{isManual})
+        (#{dtUicTenantId},#{realSourceId},#{sourceId},#{sourceName},#{sourceKey},#{appType},#{sourceType},#{setType},#{dbName},#{tableName},#{schemaName},#{tableKey},#{isManual})
     </insert>
 
     <delete id="deleteTableInfo" >
-        update lineage_data_set set is_deleted = 1 where id = #{id}
+        update lineage_data_set_info set is_deleted = 1 where id = #{id}
     </delete>
 
     <select id="getTableInfo" resultType="com.dtstack.engine.api.domain.LineageDataSetInfo">
-        select <include refid="select_content_fragment"/> from lineage_data_set where source_id = #{sourceId} and db_name = #{db} and table_name = #{tableName}
+        select <include refid="select_content_fragment"/>
+        from lineage_data_set_info where source_id = #{sourceId} and db_name = #{db} and table_name = #{tableName}
     </select>
 
     <select id="getOneBySourceIdAndDbNameAndTableName" resultType="com.dtstack.engine.api.domain.LineageDataSetInfo">
 
         select
         <include refid="select_content_fragment" />
-        from lineage_data_set
+        from lineage_data_set_info
         where
         source_id = #{sourceId}
         and db_name = #{dbName}
         and table_name = #{tableName}
         and schema_name = #{schemaName}
-        and is_deleted = #{isDeleted}
+        and is_deleted = 0
 
     </select>
 

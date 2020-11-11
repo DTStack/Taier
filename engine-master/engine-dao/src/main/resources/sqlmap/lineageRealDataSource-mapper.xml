@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.lineage.dao.LineageRealDataSourceDao">
 
     <sql id="select_content_fragment">
-      id,source_name,source_key,source_type,data_jason,kerberos_conf,open_kerberos,gmt_create,gmt_modified,is_deleted
+      id,source_name,source_key,source_type,data_json,kerberos_conf,open_kerberos,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <sql id="update_fragment">
@@ -14,8 +14,8 @@
             <if test="sourceKey!=null">
                 source_key = #{sourceKey},
             </if>
-            <if test="dataJason!=null">
-                data_jason = #{dataJason},
+            <if test="dataJson!=null">
+                data_json = #{dataJson},
             </if>
             <if test="kerberosConf!=null">
                 kerberos_conf = #{kerberosConf},
@@ -44,7 +44,7 @@
     </sql>
 
     <insert id="addRealDataSource" parameterType="com.dtstack.engine.api.domain.LineageRealDataSource" useGeneratedKeys="true" keyProperty="id">
-        insert into lineage_real_data_source(source_name,source_key,source_type,data_jason,kerberos_conf,open_kerberos)
+        insert into lineage_real_data_source(source_name,source_key,source_type,data_json,kerberos_conf,open_kerberos)
         VALUES
         (#{sourceName},#{sourceKey},#{sourceType},#{dataJson},#{kerberosConf},#{openKerberos})
     </insert>

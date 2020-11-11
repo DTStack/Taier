@@ -16,7 +16,7 @@ public class MysqlClient extends AbstractRdbsClient {
         this.dbType = "mysql";
     }
 
-    private static final String TABLE_INFO_SQL = "select column_name , data_type, column_comment  from INFORMATION_SCHEMA.COLUMNS\n where table_name = ";
+    private static final String TABLE_INFO_SQL = "select column_name , data_type, column_comment  from INFORMATION_SCHEMA.COLUMNS where table_schema = '%s' and table_name = '%s' ";
 
     @Override
     protected AbstractConnFactory getConnFactory() {
@@ -28,13 +28,10 @@ public class MysqlClient extends AbstractRdbsClient {
     public List<Column> getAllColumns(String tableName, String dbName) {
 
         List<Column> columnList = new ArrayList<>();
-        AbstractConnFactory connFactory = getConnFactory();
-
-        try( Connection conn = connFactory.getConn();
+        try(Connection conn = this.connFactory.getConn();
             Statement statement = conn.createStatement()){
-
-            statement.execute("use " + dbName);
-            ResultSet res = statement.executeQuery(TABLE_INFO_SQL + tableName);
+            String sql = String.format(TABLE_INFO_SQL,dbName,tableName);
+            ResultSet res = statement.executeQuery(sql);
             while (res.next()){
                 Column column = new Column();
                 String name = res.getString("column_name");

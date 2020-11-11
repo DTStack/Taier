@@ -34,9 +34,9 @@ public abstract class AbstractConnFactory {
 
     protected String jdbcUrl;
 
-    private String username;
+    protected String username;
 
-    private String password;
+    protected String password;
 
     protected String driverName = null;
 

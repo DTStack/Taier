@@ -23,7 +23,7 @@ public class LineageRealDataSource extends DtUicTenantEntity{
     private Integer sourceType;
 
     @ApiModelProperty(notes = "数据源配置信息")
-    private String dataJason;
+    private String dataJson;
 
     @ApiModelProperty(notes = "数据源kerberos配置")
     private String kerberosConf;
@@ -55,12 +55,12 @@ public class LineageRealDataSource extends DtUicTenantEntity{
         this.sourceType = sourceType;
     }
 
-    public String getDataJason() {
-        return dataJason;
+    public String getDataJson() {
+        return dataJson;
     }
 
     public void setDataJason(String dataJason) {
-        this.dataJason = dataJason;
+        this.dataJson = dataJason;
     }
 
     public String getKerberosConf() {

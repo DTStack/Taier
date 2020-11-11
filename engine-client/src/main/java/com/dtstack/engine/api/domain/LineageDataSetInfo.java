@@ -20,7 +20,7 @@ public class LineageDataSetInfo extends DtUicTenantEntity {
     private Long sourceId;
 
     @ApiModelProperty(notes = "真实数据源id")
-    private Integer realSourceId;
+    private Long realSourceId;
 
     @ApiModelProperty(notes = "数据源名称")
     private String sourceName;
@@ -65,11 +65,11 @@ public class LineageDataSetInfo extends DtUicTenantEntity {
         this.sourceId = sourceId;
     }
 
-    public Integer getRealSourceId() {
+    public Long getRealSourceId() {
         return realSourceId;
     }
 
-    public void setRealSourceId(Integer realSourceId) {
+    public void setRealSourceId(Long realSourceId) {
         this.realSourceId = realSourceId;
     }
 
@@ -143,5 +143,23 @@ public class LineageDataSetInfo extends DtUicTenantEntity {
 
     public void setIsManual(Integer isManual) {
         this.isManual = isManual;
+    }
+
+    @Override
+    public String toString() {
+        return "LineageDataSetInfo{" +
+                "appType=" + appType +
+                ", sourceId=" + sourceId +
+                ", realSourceId=" + realSourceId +
+                ", sourceName='" + sourceName + '\'' +
+                ", sourceType=" + sourceType +
+                ", sourceKey='" + sourceKey + '\'' +
+                ", setType=" + setType +
+                ", dbName='" + dbName + '\'' +
+                ", schemaName='" + schemaName + '\'' +
+                ", tableName='" + tableName + '\'' +
+                ", tableKey='" + tableKey + '\'' +
+                ", isManual=" + isManual +
+                '}';
     }
 }

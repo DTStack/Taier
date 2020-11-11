@@ -31,6 +31,7 @@ public class LineageDataSourceController {
     @ApiOperation(value = "新增或修改逻辑数据源")
     public void addOrUpdateDataSource(@RequestBody DataSourceDTO dataSourceDTO){
 
+        dataSourceService.addOrUpdateDataSource(dataSourceDTO);
     }
 
     /**
@@ -52,7 +53,7 @@ public class LineageDataSourceController {
                                                                      @DtRequestParam("currentPage") Integer currentPage,
                                                                      @DtRequestParam("pageSize") Integer pageSize){
 
-        return null;
+        return dataSourceService.pageQueryDataSourceByAppType(appType,currentPage,pageSize);
     }
 
 
@@ -66,7 +67,8 @@ public class LineageDataSourceController {
     @RequestMapping(value = "/queryById",method = RequestMethod.POST)
     @ApiOperation(value = "根据id查找逻辑数据源")
     @ApiImplicitParam(name="id",value = "逻辑数据源id")
-    LineageDataSource getDataSourceById(Integer id){
-        return null;
+    LineageDataSource getDataSourceById(@DtRequestParam Long id){
+
+        return dataSourceService.getDataSourceById(id);
     }
 }

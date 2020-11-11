@@ -1,20 +1,33 @@
 package com.dtstack.lineage.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageDataSource;
+import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.enums.EComponentApiType;
 import com.dtstack.engine.api.pojo.lineage.Column;
+import com.dtstack.engine.api.service.ComponentService;
 import com.dtstack.engine.common.client.ClientCache;
 import com.dtstack.engine.common.client.IClient;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.dao.ComponentDao;
+import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.lineage.dao.LineageDataSetDao;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * @Author tengzhen
@@ -29,7 +42,14 @@ public class LineageDataSetInfoService {
     private LineageDataSourceService sourceService;
 
     @Autowired
+    private TenantDao tenantDao;
+
+    @Autowired
     private LineageDataSetDao lineageDataSetDao;
+
+
+    @Autowired
+    private ComponentDao componentDao;
 
     /**
      * @author zyd
@@ -68,7 +88,7 @@ public class LineageDataSetInfoService {
         dataSetInfo.setSetType(0);
         dataSetInfo.setTableName(tableName);
         //生成tableKey
-        String tableKey = generateTableKey(sourceId, dbName, tableName);
+        String tableKey = generateTableKey(dataSource.getRealSourceId(), dbName, tableName);
         dataSetInfo.setTableKey(tableKey);
         return dataSetInfo;
     }
@@ -88,10 +108,40 @@ public class LineageDataSetInfoService {
         ClientCache clientCache = ClientCache.getInstance();
         IClient iClient ;
         try {
-            iClient =  clientCache.getClient(EComponentType.getByCode(dataSetInfo.getSourceType()).getName(),dataSource.getDataJason());
-        } catch (ClientAccessException e) {
+            //TODO kebers配置文件路径放入到pluginInfo中
+            String kerberosConf = dataSource.getKerberosConf();
+            String dataJson = dataSource.getDataJson();
+            JSONObject jsonObject = JSON.parseObject(dataJson);
+            JSONObject kerberosJsonObj = new JSONObject();
+            if(!"-1".equals(kerberosConf)) {
+                kerberosJsonObj = JSON.parseObject(kerberosConf);
+            }
+            //获取sftp配置
+            Long dtUicTenantId = dataSource.getDtUicTenantId();
+            Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
+            Integer componentId = componentDao.getIdByTenantIdComponentType(tenantId, EComponentType.SFTP.getTypeCode());
+            if(null == componentId){
+                throw new RdosDefineException("该租户没有绑定集群");
+            }
+            Component component = componentDao.getOne((long) componentId);
+            String componentConfig = component.getComponentConfig();
+            if(null == componentConfig){
+                throw new RdosDefineException("sftp配置信息为空");
+            }
+            JSONObject componentJsonObj = JSONObject.parseObject(componentConfig);
+            if(dataSource.getOpenKerberos()==1) {
+                //开启kerberos
+                jsonObject.put("sftpConf", componentJsonObj);
+                jsonObject.put("config", kerberosJsonObj);
+            }
+            String pluginInfo = PublicUtil.objToString(jsonObject);
+            iClient =  clientCache.getClient(EComponentType.getByCode(dataSource.getSourceType()).getName(),pluginInfo);
+        } catch (Exception e) {
             throw new RdosDefineException("获取client异常",e);
         }
-           return iClient.getAllColumns(dataSetInfo.getTableName(),dataSetInfo.getDbName());
+
+        List<Column> columnsList = iClient.getAllColumns(dataSetInfo.getTableName(), dataSetInfo.getDbName());
+
+        return columnsList;
     }
 }

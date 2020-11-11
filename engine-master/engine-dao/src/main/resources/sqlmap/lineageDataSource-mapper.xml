@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.lineage.dao.LineageDataSourceDao">
 
     <sql id="select_content_fragment">
-      id,tenant_id,real_source_id,source_name,source_key,app_type,source_type,data_jason,kerberos_conf,open_kerberos,app_source_id,inner_source,component_id,gmt_create,gmt_modified,is_deleted
+      id,dt_uic_tenant_id,real_source_id,source_name,source_key,app_type,source_type,data_json,kerberos_conf,open_kerberos,app_source_id,inner_source,component_id,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <sql id="select_where_fragment">
@@ -15,7 +15,7 @@
                 AND app_type = #{model.appType}
             </if>
             <if test="model.isDeleted !=null">
-                AND app_type = #{model.isDeleted}
+                AND is_deleted = #{model.isDeleted}
             </if>
         </trim>
     </sql>
@@ -32,7 +32,7 @@
                 app_type = #{appType},
             </if>
             <if test="dataJason!=null">
-                data_jason = #{dataJason},
+                data_json = #{dataJson},
             </if>
             <if test="source_type!=null">
                 source_type = #{sourceType},
@@ -65,9 +65,9 @@
     </sql>
 
     <insert id="insertDataSource" parameterType="com.dtstack.engine.api.domain.LineageDataSource" useGeneratedKeys="true" keyProperty="id">
-        insert into lineage_data_source(tenant_id,real_source_id,source_name,source_key,app_type,source_type,data_jason,kerberos_conf,open_kerberos,app_source_id,inner_source,component_id)
+        insert into lineage_data_source(dt_uic_tenant_id,real_source_id,source_name,source_key,app_type,source_type,data_json,kerberos_conf,open_kerberos,app_source_id,inner_source,component_id)
         values
-         (#{tenantId},#{realSourceId},#{sourceName},#{sourceKey},#{appType},#{sourceType},#{dataJson},#{kerberosConf},#{openKerberos},#{appSourceId},#{innerSource},#{componentId})
+         (#{dtUicTenantId},#{realSourceId},#{sourceName},#{sourceKey},#{appType},#{sourceType},#{dataJson},#{kerberosConf},#{openKerberos},#{appSourceId},#{innerSource},#{componentId})
     </insert>
 
     <update id="updateDataSource" parameterType="com.dtstack.engine.api.domain.LineageDataSource">

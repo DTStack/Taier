@@ -16,6 +16,7 @@ public class OracleClient extends AbstractRdbsClient {
 
     private static final String SHOW_COLUMN = "SELECT column_name,data_type FROM all_tab_columns where owner = upper('%s') and table_name = upper('%s')";
 
+    private static final String SHOW_COMMENT = "select comments from all_col_comments  where owner = upper('%s') and table_name = upper('%s')";
     public OracleClient() {
         this.dbType = "oracle";
     }
@@ -28,7 +29,6 @@ public class OracleClient extends AbstractRdbsClient {
     @Override
     public List<Column> getAllColumns(String tableName, String dbName) {
 
-        AbstractConnFactory connFactory = getConnFactory();
         List<Column> columnList = new ArrayList<>();
         ResultSet res = null;
         try(
@@ -44,9 +44,31 @@ public class OracleClient extends AbstractRdbsClient {
                 column.setType(res.getString(2));
                 columnList.add(column);
             }
+            String commentSql = String.format(SHOW_COMMENT,dbName,tableName);
+            res = statement.executeQuery(commentSql);
+            List<String> commentList = new ArrayList<>();
+            while (res.next()){
+                commentList.add(res.getString(1));
+            }
+            columnList = convertColumnList(columnList, commentList);
         }catch (Exception e){
             throw new RdosDefineException("获取字段信息列表异常");
         }
         return columnList;
+    }
+
+
+    private List<Column> convertColumnList(List<Column> columnList, List<String> commentList) {
+
+        List<Column> columns = new ArrayList<>();
+        for (int i = 0; i < columnList.size(); i++) {
+            Column column = new Column();
+            column.setTable(columnList.get(i).getTable());
+            column.setName(columnList.get(i).getName());
+            column.setType(columnList.get(i).getType());
+            column.setComment(commentList.get(i));
+            columns.add(column);
+        }
+        return columns;
     }
 }
