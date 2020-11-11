@@ -55,7 +55,7 @@ public class FileUtil {
             return;
         }
 
-        String taskKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+        String taskKeytabDirPath = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
         File taskKeytabDir = new File(taskKeytabDirPath);
         if (!taskKeytabDir.exists()) {
             taskKeytabDir.mkdirs();

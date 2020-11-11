@@ -867,7 +867,7 @@ public class FlinkClient extends AbstractClient {
             String tmpSql = sqlItera.next();
             if (PrepareOperator.verificKeytab(tmpSql)) {
                 sqlItera.remove();
-                String localDir = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+                String localDir = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
 
                 if (!new File(localDir).exists()) {
                     new File(localDir).mkdirs();
