@@ -83,7 +83,6 @@ public class ClientOperator {
 
         String logInfo;
         try {
-            LOG.info("get engineLog pluginInfo {} jobIdentifier {} ",pluginInfo ,jobIdentifier);
             IClient client = clientCache.getClient(engineType, pluginInfo);
             logInfo = client.getJobLog(jobIdentifier);
         } catch (Exception e) {

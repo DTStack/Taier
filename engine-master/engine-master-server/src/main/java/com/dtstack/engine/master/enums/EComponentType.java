@@ -28,7 +28,7 @@ public enum EComponentType {
     GREENPLUM_SQL(14, "Greenplum SQL", "greenplumConf"),
     KUBERNETES(15, "Kubernetes", "kubernetesConf"),
     PRESTO_SQL(16, "Presto SQL", "prestoConf"),
-    NFS(17, "NFS", "ndfConf");
+    NFS(17, "NFS", "nfsConf");
 
     private int typeCode;
 
@@ -226,5 +226,8 @@ public enum EComponentType {
     public static List<EComponentType> requireComponent = Lists.newArrayList(EComponentType.ORACLE_SQL, EComponentType.HDFS, EComponentType.TIDB_SQL, EComponentType.ORACLE_SQL,
             EComponentType.LIBRA_SQL, EComponentType.GREENPLUM_SQL, EComponentType.PRESTO_SQL);
 
+    //基础配置信息
+    public static List<String> BASE_CONFIG = Lists.newArrayList(EComponentType.HDFS.getConfName(),EComponentType.NFS.getConfName(),
+            EComponentType.YARN.getConfName(), EComponentType.SPARK_THRIFT.getConfName(), EComponentType.SFTP.getConfName(),EComponentType.KUBERNETES.getConfName());
 
 }

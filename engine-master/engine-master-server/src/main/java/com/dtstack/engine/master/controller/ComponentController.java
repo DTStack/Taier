@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import com.dtstack.engine.master.router.DtRequestParam;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -56,8 +57,9 @@ public class ComponentController {
 
     @RequestMapping(value="/loadTemplate", method = {RequestMethod.POST})
     @ApiOperation(value = "加载各个组件的默认值, 解析yml文件转换为前端渲染格式")
-    public List<ClientTemplate> loadTemplate(@DtRequestParam("componentType") Integer componentType, @DtRequestParam("clusterName") String clusterName, @DtRequestParam("version") String version) {
-        return componentService.loadTemplate(componentType, clusterName, version);
+    public List<ClientTemplate> loadTemplate(@DtRequestParam("componentType") Integer componentType, @DtRequestParam("clusterName") String clusterName,
+                                             @DtRequestParam("version") String version,@DtRequestParam("storeType")String storeType) {
+        return componentService.loadTemplate(componentType, clusterName, version,storeType);
     }
 
 
