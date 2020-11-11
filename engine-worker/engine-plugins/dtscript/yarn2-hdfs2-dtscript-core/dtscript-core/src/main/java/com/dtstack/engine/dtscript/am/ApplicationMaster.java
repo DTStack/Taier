@@ -188,6 +188,9 @@ public class ApplicationMaster extends CompositeService {
             amrmAsync.stop();
         } catch (Exception e) {
             LOG.error("Error while unregister Application", e);
+        } finally {
+            Utilities.cleanStagingRemotePath((YarnConfiguration) this.conf, this.applicationAttemptId.getApplicationId());
+            LOG.info("cleanStagingRemotePath ApplicationId:" + this.applicationAttemptId.getApplicationId());
         }
     }
 
@@ -453,7 +456,6 @@ public class ApplicationMaster extends CompositeService {
             appMaster = new ApplicationMaster();
             appMaster.init();
             boolean tag = appMaster.run();
-            Utilities.cleanStagingRemotePath((YarnConfiguration) appMaster.conf, appMaster.applicationAttemptId.getApplicationId());
             if (tag) {
                 LOG.info("Application completed successfully.");
                 System.exit(0);
@@ -462,11 +464,6 @@ public class ApplicationMaster extends CompositeService {
                 System.exit(1);
             }
         } catch (Exception e) {
-            if (appMaster != null) {
-                Utilities.cleanStagingRemotePath((YarnConfiguration) appMaster.conf, appMaster.applicationAttemptId.getApplicationId());
-            } else {
-                LOG.fatal("init appMaster occurs error, delete remote path failed.");
-            }
             LOG.fatal("Error running ApplicationMaster", e);
             System.exit(1);
         }
