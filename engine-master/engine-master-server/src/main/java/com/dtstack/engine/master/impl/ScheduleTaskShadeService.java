@@ -2,6 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.TenantResource;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
@@ -9,12 +10,17 @@ import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
+import com.dtstack.engine.common.enums.JobCheckStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.common.util.UnitConvertUtil;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
+import com.dtstack.engine.dao.TenantResourceDao;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
@@ -23,10 +29,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,11 +49,16 @@ import java.util.stream.Collectors;
 public class ScheduleTaskShadeService {
 
 
+    private static final Logger LOG = LoggerFactory.getLogger(ScheduleTaskShadeService.class);
+
     @Autowired
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
 
     @Autowired
     private ScheduleTaskTaskShadeService scheduleTaskTaskShadeService;
+
+    @Autowired
+    private TenantResourceDao tenantResourceDao;
 
     @Autowired
     private CronJobExecutor cronJobExecutor;
@@ -517,4 +531,128 @@ public class ScheduleTaskShadeService {
         return scheduleTaskShadeDao.getById(id);
     }
 
+    /**
+     * @author zyd
+     * @Description 校验任务资源参数限制
+     * @Date 2020/10/20 2:55 下午
+     * @param dtuicTenantId: uic租户id
+     * @param taskType: 任务类型
+     * @param resourceParams: 任务资源参数
+     * @return: java.util.List<java.lang.String>
+     **/
+    public List<String> checkResourceLimit(Long dtuicTenantId, Integer taskType, String resourceParams,Long taskId) {
+
+        TenantResource tenantResource = tenantResourceDao.selectByUicTenantIdAndTaskType(dtuicTenantId,taskType);
+        List<String> exceedMessage = new ArrayList<>();
+        if(Objects.isNull(tenantResource)){
+            return exceedMessage;
+        }
+        try {
+            Properties taskProperties = PublicUtil.stringToProperties(resourceParams);
+            String resourceLimit = tenantResource.getResourceLimit();
+            JSONObject jsonObject = JSONObject.parseObject(resourceLimit);
+            if(EScheduleJobType.SPARK_SQL.getType().equals(taskType) || EScheduleJobType.SPARK.getType().equals(taskType)
+                    || EScheduleJobType.SPARK_PYTHON.getType().equals(taskType)){
+                //spark类型的任务
+                String driverCores = taskProperties.getProperty("driver.cores");
+                Integer driverCoresLimit = jsonObject.getInteger("driver.cores");
+                if(StringUtils.isNotBlank(driverCores) && driverCoresLimit!=null){
+                    if(UnitConvertUtil.getNormalizedMem(driverCores) > driverCoresLimit){
+                        //driver核数超过限制
+                        LOG.error("spark类型任务，task{} driverCores:{} (限制:{})",taskId,driverCores,driverCoresLimit);
+                        exceedMessage.add("driverCores: "+driverCores+" (限制: "+driverCoresLimit+")");
+                    }
+                }
+                String driverMemory = taskProperties.getProperty("driver.memory");
+                Integer driverMemoryLimit = jsonObject.getInteger("driver.memory");
+                if(StringUtils.isNotBlank(driverMemory) && driverMemoryLimit!=null){
+                    if(UnitConvertUtil.getNormalizedMem(driverMemory) > driverMemoryLimit){
+                        //driver内存大小超过限制
+                        LOG.error("spark类型任务，task{} driverMemory:{} (限制:{})",taskId,driverMemory,driverMemoryLimit);
+                        exceedMessage.add("driverMemory: "+driverMemory+" (限制: "+driverMemoryLimit+")");
+                    }
+                }
+                String executorInstances = taskProperties.getProperty("executor.instances");
+                Integer executorInstancesLimit = jsonObject.getInteger("executor.instances");
+                if(StringUtils.isNotBlank(executorInstances) && executorInstancesLimit!=null){
+                    if(UnitConvertUtil.getNormalizedMem(executorInstances) > executorInstancesLimit){
+                        //executor实例数超过限制
+                        LOG.error("spark类型任务，task{} executorInstances:{} (限制:{})",taskId,executorInstances,executorInstancesLimit);
+                        exceedMessage.add("executorInstances: "+executorInstances+" (限制: "+executorInstancesLimit+")");
+                    }
+                }
+                String executorCores = taskProperties.getProperty("executor.cores");
+                Integer executorCoresLimit = jsonObject.getInteger("executor.cores");
+                if(StringUtils.isNotBlank(executorCores) && executorCoresLimit!=null){
+                    if(UnitConvertUtil.getNormalizedMem(executorCores) > executorCoresLimit){
+                        //executor核数超过限制
+                        LOG.error("spark类型任务，task{} executorCores:{} (限制:{})",taskId,executorCores,executorCoresLimit);
+                        exceedMessage.add("executorCores: "+executorCores+" (限制: "+executorCoresLimit+")");
+                    }
+                }
+                String executorMemory = taskProperties.getProperty("executor.memory");
+                Integer executorMemoryLimit = jsonObject.getInteger("executor.memory");
+                if(StringUtils.isNotBlank(executorMemory) && executorMemoryLimit!=null){
+                    if(UnitConvertUtil.getNormalizedMem(executorMemory) > executorMemoryLimit){
+                        //executor核数超过限制
+                        LOG.error("spark类型任务，task{} executorMemory:{} (限制:{})",taskId,executorMemory,executorMemoryLimit);
+                        exceedMessage.add("executorMemory: "+executorMemory+" (限制: "+executorMemoryLimit+")");
+                    }
+                }
+            }else if(EScheduleJobType.SYNC.getType().equals(taskType)){
+                //flink，数据同步类型任务
+                String jobManagerMemory = taskProperties.getProperty("jobmanager.memory.mb");
+                Integer jobManagerMemoryLimit = jsonObject.getInteger("jobmanager.memory.mb");
+                if(StringUtils.isNotBlank(jobManagerMemory) && jobManagerMemoryLimit !=null){
+                    if(UnitConvertUtil.getNormalizedMem(jobManagerMemory) > jobManagerMemoryLimit){
+                        //工作管理器内存大小超过限制
+                        LOG.error("flink数据同步类型任务，task{} jobManagerMemory:{} (限制:{})",taskId,jobManagerMemory,jobManagerMemoryLimit);
+                        exceedMessage.add("jobManagerMemory: "+jobManagerMemory+" (限制: "+jobManagerMemoryLimit+")");
+                    }
+                }
+                String taskManagerMemory = taskProperties.getProperty("taskmanager.memory.mb");
+                Integer taskManagerMemoryLimit = jsonObject.getInteger("taskmanager.memory.mb");
+                if(StringUtils.isNotBlank(taskManagerMemory) && taskManagerMemoryLimit!=null){
+                    if(UnitConvertUtil.getNormalizedMem(taskManagerMemory) > taskManagerMemoryLimit){
+                        //任务管理器内存大小超过限制
+                        LOG.error("flink数据同步类型任务，task{} taskManagerMemory:{} (限制:{})",taskId,taskManagerMemory,taskManagerMemoryLimit);
+                        exceedMessage.add("taskManagerMemory: "+taskManagerMemory+" (限制: "+taskManagerMemoryLimit+")");
+                    }
+                }
+            }else if(EScheduleJobType.PYTHON.getType().equals(taskType) || EScheduleJobType.SHELL.getType().equals(taskType)){
+                //dtscript类型的任务
+                String workerMemory = taskProperties.getProperty("worker.memory");
+                Integer workerMemoryLimit = jsonObject.getInteger("worker.memory");
+                if(StringUtils.isNotBlank(workerMemory) && workerMemoryLimit!=null){
+                    if(UnitConvertUtil.getNormalizedMem(workerMemory) > workerMemoryLimit){
+                        //工作内存大小超过限制
+                        LOG.error("dtscript数据同步类型任务，task{} workerMemory:{} (限制:{})",taskId,workerMemory,workerMemoryLimit);
+                        exceedMessage.add("workerMemory: "+workerMemory+" (限制: "+workerMemoryLimit+")");
+                    }
+                }
+                String workerCores = taskProperties.getProperty("worker.cores");
+                Integer workerCoresLimit = jsonObject.getInteger("worker.cores");
+                if(StringUtils.isNotBlank(workerCores) && workerCoresLimit!=null ){
+                    if(UnitConvertUtil.getNormalizedMem(workerCores) > workerCoresLimit){
+                        //工作核数超过限制
+                        LOG.error("dtscript数据同步类型任务，task{} workerCores:{} (限制:{})",taskId,workerCores,workerCoresLimit);
+                        exceedMessage.add("workerCores: "+workerCores+" (限制: "+workerCoresLimit+")");
+                    }
+                }
+                String workerNum = taskProperties.getProperty("worker.num");
+                Integer workerNumLimit = jsonObject.getInteger("worker.num");
+                if(StringUtils.isNotBlank(workerNum) && workerNumLimit!=null ){
+                    if(UnitConvertUtil.getNormalizedMem(workerNum) > workerNumLimit){
+                        //worker数量超过限制
+                        LOG.error("dtscript数据同步类型任务，task{} workerNum:{} (限制:{})",taskId,workerNum,workerNumLimit);
+                        exceedMessage.add("workerNum: "+workerNum+" (限制: "+workerNumLimit+")");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("ScheduleTaskShadeService.checkResourceLimit error:{}", ExceptionUtil.getErrorMessage(e));
+            throw new RdosDefineException("校验任务资源参数异常");
+        }
+        return exceedMessage;
+    }
 }

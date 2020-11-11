@@ -15,6 +15,7 @@ import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
+import com.dtstack.engine.master.config.TaskResourceBeanConfig;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
@@ -22,6 +23,7 @@ import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
+import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.dtstack.schedule.common.enums.ForceCancelFlag;
 import com.google.common.base.Preconditions;
@@ -522,5 +524,17 @@ public class ConsoleService {
         }
 
         return null;
+    }
+
+    /**
+    * @author zyd
+    * @Description 获取任务类型及对应的资源模板
+    * @Date 8:13 下午 2020/10/14
+    * @Param []
+    * @retrun java.util.List<com.dtstack.engine.master.vo.TaskTypeResourceTemplate>
+    **/
+    public List<TaskTypeResourceTemplateVO> getTaskResourceTemplate() {
+
+        return TaskResourceBeanConfig.templateList;
     }
 }
