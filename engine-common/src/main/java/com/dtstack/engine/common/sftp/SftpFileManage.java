@@ -280,7 +280,7 @@ public class SftpFileManage implements IFileManage {
             return true;
         } catch (Exception e) {
             LOG.error("sftp downloadDir error {}", e);
-            return false;
+            throw new RdosDefineException(e);
         } finally {
             close(channelSftp);
         }
