@@ -262,21 +262,23 @@ public class ClusterService implements InitializingBean {
      * @param pluginJson
      * @param type
      */
-    private void setComponentSftpDir(Long clusterId, JSONObject clusterConfigJson, JSONObject pluginJson,EngineTypeComponentType type) {
+    private void setComponentSftpDir(Long clusterId, JSONObject clusterConfigJson, JSONObject pluginJson, EngineTypeComponentType type) {
         //sftp Dir
         JSONObject sftpConfig = clusterConfigJson.getJSONObject(EComponentType.SFTP.getConfName());
+        if (null != sftpConfig) {
+            clusterConfigJson.fluentPut("sftpConf", sftpConfig);
+        }
         EComponentType componentType = type.getComponentType();
         KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode());
-        if (MapUtils.isNotEmpty(sftpConfig) && Objects.nonNull(kerberosConfig)) {
+        if (null != kerberosConfig) {
             Integer openKerberos = kerberosConfig.getOpenKerberos();
             String remotePath = kerberosConfig.getRemotePath();
             Preconditions.checkState(StringUtils.isNotEmpty(remotePath), "remotePath can not be null");
             pluginJson.fluentPut("openKerberos", Objects.nonNull(openKerberos) && openKerberos > 0)
                     .fluentPut("remoteDir", remotePath)
                     .fluentPut("principalFile", kerberosConfig.getName())
-                    .fluentPut("krbName",kerberosConfig.getKrbName())
-                    .fluentPut("kerberosFileTimestamp",kerberosConfig.getGmtModified())
-                    .fluentPut("sftpConf",sftpConfig);
+                    .fluentPut("krbName", kerberosConfig.getKrbName())
+                    .fluentPut("kerberosFileTimestamp", kerberosConfig.getGmtModified());
         }
     }
 
@@ -598,7 +600,6 @@ public class ClusterService implements InitializingBean {
     public JSONObject convertPluginInfo(JSONObject clusterConfigJson, EngineTypeComponentType type, ClusterVO clusterVO,Integer deployMode) {
         JSONObject pluginInfo = new JSONObject();
         if (EComponentType.HDFS == type.getComponentType()) {
-            pluginInfo = new JSONObject();
             //hdfs yarn%s-hdfs%s-hadoop%s的版本
             JSONObject hadoopConf = clusterConfigJson.getJSONObject(EComponentType.HDFS.getConfName());
             String typeName = hadoopConf.getString(TYPE_NAME);
