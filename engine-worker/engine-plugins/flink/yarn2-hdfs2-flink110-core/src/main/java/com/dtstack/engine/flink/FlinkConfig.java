@@ -72,8 +72,6 @@ public class FlinkConfig extends BaseConfig {
 
     private long submitTimeout = 5;
 
-    private String krbName;
-
     private int zkConnectionTimeout = 5000;
 
     private int zkSessionTimeout = 5000;
@@ -123,14 +121,6 @@ public class FlinkConfig extends BaseConfig {
 
     public void setMonitorAcceptedApp(boolean monitorAcceptedApp) {
         this.monitorAcceptedApp = monitorAcceptedApp;
-    }
-
-    public String getKrbName() {
-        return krbName;
-    }
-
-    public void setKrbName(String krbName) {
-        this.krbName = krbName;
     }
 
     public String getTypeName() {

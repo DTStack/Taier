@@ -2,6 +2,7 @@ package com.dtstack.engine.dtscript;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
+import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -91,6 +92,7 @@ public class DtScriptClient extends AbstractClient {
                 conf.set(key, value.toString());
             }
         }
+        HadoopConfTool.setDefaultYarnConf(conf, (Map<String, Object>) prop.get("yarnConf"));
 
         String queue = prop.getProperty(DtYarnConfiguration.DT_APP_QUEUE);
         if (StringUtils.isNotBlank(queue)) {
