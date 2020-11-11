@@ -113,6 +113,7 @@ public class ComponentService {
     private WorkerOperator workerOperator;
 
     public static final String TYPE_NAME = "typeName";
+    public static final String VERSION = "version";
 
     /**
      * 组件配置文件映射
@@ -948,7 +949,7 @@ public class ComponentService {
         }
         String pluginType = null;
         if (EComponentType.HDFS.getTypeCode() == componentType) {
-            //HDFS 测试连通性走hdfs2
+            //HDFS 测试连通性走hdfs2 其他走yarn2-hdfs2-hadoop
             pluginType = EComponentType.HDFS.name().toLowerCase() + this.formatHadoopVersion(hadoopVersion, EComponentType.HDFS);
         } else {
             pluginType = this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion);
@@ -1317,9 +1318,9 @@ public class ComponentService {
      * @param hadoopVersion
      * @return
      */
-    private String formatHadoopVersion(String hadoopVersion, EComponentType componentType) {
+    public String formatHadoopVersion(String hadoopVersion, EComponentType componentType) {
         if (EComponentType.HDFS == componentType || EComponentType.YARN == componentType) {
-            //hdfs 和 yarn 为1为标识
+            //hdfs 和 yarn 为1位标识
             if (StringUtils.isBlank(hadoopVersion)) {
                 return "2";
             }
@@ -1542,6 +1543,7 @@ public class ComponentService {
         String pluginInfo = this.wrapperConfig(componentType.getTypeCode(), component.getComponentConfig(), sftpMap, kerberos, cluster.getClusterName());
         JSONObject pluginInfoObj = JSONObject.parseObject(pluginInfo);
         pluginInfoObj.put(TYPE_NAME,typeName);
+        pluginInfoObj.put(VERSION,component.getHadoopVersion());
         return pluginInfoObj;
     }
 

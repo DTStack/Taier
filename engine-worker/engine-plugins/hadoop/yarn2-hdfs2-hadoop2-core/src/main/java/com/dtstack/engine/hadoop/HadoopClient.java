@@ -1,4 +1,4 @@
-package com.dtstack.engine.kubernetes;
+package com.dtstack.engine.hadoop;
 
 
 import com.alibaba.fastjson.JSONArray;
@@ -24,8 +24,8 @@ import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.kubernetes.parser.AddJarOperator;
-import com.dtstack.engine.kubernetes.util.HadoopConf;
+import com.dtstack.engine.hadoop.parser.AddJarOperator;
+import com.dtstack.engine.hadoop.util.HadoopConf;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

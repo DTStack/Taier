@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.multiengine.engine;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.engine.api.domain.ScheduleJob;
@@ -529,7 +528,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
     /**
      * 获取flink任务checkpoint的存储路径
      *
-     * @param tenantId 租户id
+     * @param dtuicTenantId 租户id
      * @return checkpoint存储路径
      */
     private String getSavepointPath(Long dtuicTenantId) {
@@ -602,7 +601,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 }
 
                 JSONObject pluginInfoWithComponentType = componentService.getPluginInfoWithComponentType(dtuicTenantId, EComponentType.HDFS);
-                String typeName = pluginInfoWithComponentType.getString(ComponentService.TYPE_NAME);
+                String hdfsVersion = pluginInfoWithComponentType.getString(ComponentService.VERSION);
+                String typeName = EComponentType.HDFS.name().toLowerCase() + componentService.formatHadoopVersion(hdfsVersion,EComponentType.HDFS);
                 String hdfsUploadPath = workerOperator.uploadStringToHdfs(typeName, pluginInfoWithComponentType.toJSONString(), content, hdfsPath);
                 if(StringUtils.isBlank(hdfsUploadPath)){
                     throw new RdosDefineException("Update task to HDFS failure hdfsUploadPath is blank");

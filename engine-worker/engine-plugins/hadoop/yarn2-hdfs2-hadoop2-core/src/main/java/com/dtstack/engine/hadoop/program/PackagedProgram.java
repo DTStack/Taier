@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.kubernetes.program;
+package com.dtstack.engine.hadoop.program;
 
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;

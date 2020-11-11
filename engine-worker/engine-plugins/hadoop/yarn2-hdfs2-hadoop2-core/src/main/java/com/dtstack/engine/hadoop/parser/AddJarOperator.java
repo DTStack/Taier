@@ -1,4 +1,4 @@
-package com.dtstack.engine.kubernetes.parser;
+package com.dtstack.engine.hadoop.parser;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.JarFileInfo;
