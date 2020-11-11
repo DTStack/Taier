@@ -273,17 +273,10 @@ public class ClusterService implements InitializingBean {
             Preconditions.checkState(StringUtils.isNotEmpty(remotePath), "remotePath can not be null");
             pluginJson.fluentPut("openKerberos", Objects.nonNull(openKerberos) && openKerberos > 0)
                     .fluentPut("remoteDir", remotePath)
-                    .fluentPut("principalFile", kerberosConfig.getName()).fluentPut("krbName",kerberosConfig.getKrbName());
-            JSONObject config = new JSONObject();
-            config.put("yarnConf",clusterConfigJson.getJSONObject("hadoopConf"));
-            config.put("sftpConf",sftpConfig);
-            config.put("principalFile",kerberosConfig.getName());
-            config.put("remoteDir",kerberosConfig.getRemotePath());
-            config.put("krbName",kerberosConfig.getKrbName());
-            config.put("openKerberos","true");
-            config.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
-            pluginJson.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
-            pluginJson.put("config",config);
+                    .fluentPut("principalFile", kerberosConfig.getName())
+                    .fluentPut("krbName",kerberosConfig.getKrbName())
+                    .fluentPut("kerberosFileTimestamp",kerberosConfig.getGmtModified())
+                    .fluentPut("sftpConf",sftpConfig);
         }
     }
 

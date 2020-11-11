@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.multiengine.engine;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.engine.api.domain.ScheduleJob;
@@ -431,17 +430,14 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 || "kerberos".equalsIgnoreCase(hadoopConfig.getString("hive.server2.authentication"))
                 || "kerberos".equalsIgnoreCase(hadoopConfig.getString("hive.server.authentication"));
         if (isOpenKerberos) {
-            JSONObject config = new JSONObject();
             //开启了kerberos 用数据同步中job 中配置项
             pluginInfo.put("openKerberos", "true");
-            config.put("openKerberos", "true");
-            config.put("remoteDir", hadoopConfig.getString("remoteDir"));
-            config.put("principalFile", hadoopConfig.getString("principalFile"));
+            pluginInfo.put("remoteDir", hadoopConfig.getString("remoteDir"));
+            pluginInfo.put("principalFile", hadoopConfig.getString("principalFile"));
             //krb5.conf的文件名
-            config.put("krbName", hadoopConfig.getString("java.security.krb5.conf"));
-            config.put("yarnConf", hadoopConfig);
+            pluginInfo.put("krbName", hadoopConfig.getString("java.security.krb5.conf"));
+            pluginInfo.put("yarnConf", hadoopConfig);
             pluginInfo.put("sftpConf", hadoopConfig.getJSONObject("sftpConf"));
-            pluginInfo.put("config", config);
         }
         return pluginInfo;
     }
