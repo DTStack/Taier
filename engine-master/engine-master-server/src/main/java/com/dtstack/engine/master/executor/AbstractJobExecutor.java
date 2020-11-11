@@ -243,7 +243,8 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         } else if (checkRunInfo.getStatus() == JobCheckStatus.NO_TASK
                 || checkRunInfo.getStatus() == JobCheckStatus.SELF_PRE_PERIOD_EXCEPTION
                 || checkRunInfo.getStatus() == JobCheckStatus.TASK_DELETE
-                || checkRunInfo.getStatus() == JobCheckStatus.FATHER_NO_CREATED) {
+                || checkRunInfo.getStatus() == JobCheckStatus.FATHER_NO_CREATED
+                || checkRunInfo.getStatus() == JobCheckStatus.RESOURCE_OVER_LIMIT ) {
             status = RdosTaskStatus.FAILED.getStatus();
         } else if (checkRunInfo.getStatus() == JobCheckStatus.FATHER_JOB_EXCEPTION) {
             //上游任务失败
