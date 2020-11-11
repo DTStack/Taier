@@ -1,6 +1,7 @@
 package com.dtstack.engine.hdfs;
 
 
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JobClient;
@@ -108,6 +109,7 @@ public class DtHdfsClient extends AbstractClient {
     @Override
     public String uploadStringToHdfs(String bytes, String hdfsPath) {
         try {
+            configuration =  this.initYarnConf(config.getYarnConf());
             return KerberosUtils.login(config, () -> {
                 FileSystem fs = null;
                 try {
@@ -136,6 +138,12 @@ public class DtHdfsClient extends AbstractClient {
             throw new RdosDefineException("上传文件失败", e);
         }
     }
+
+    @Override
+    public ClusterResource getClusterResource() {
+        return null;
+    }
+
 
     private ComponentTestResult checkHdfsConnect(Config testConnectConf) {
         //测试hdfs联通性

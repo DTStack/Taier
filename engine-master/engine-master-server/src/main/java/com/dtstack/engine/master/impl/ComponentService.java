@@ -946,8 +946,13 @@ public class ComponentService {
             componentTestResult.setResult(true);
             return componentTestResult;
         }
-
-        String pluginType = this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion);
+        String pluginType = null;
+        if (EComponentType.HDFS.getTypeCode() == componentType) {
+            //HDFS 测试连通性走hdfs2
+            pluginType = EComponentType.HDFS.name().toLowerCase() + this.formatHadoopVersion(hadoopVersion, EComponentType.HDFS);
+        } else {
+            pluginType = this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion);
+        }
 
         ComponentTestResult componentTestResult = workerOperator.testConnect(pluginType,
                 this.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterName));
@@ -1270,7 +1275,7 @@ public class ComponentService {
         }
 
         //调度或存储单个组件
-        if (EComponentType.ResourceScheduling.contains(componentCode) || EComponentType.StorageScheduling.contains(componentCode)) {
+        if (EComponentType.NFS.equals(componentCode) || EComponentType.ResourceScheduling.contains(componentCode)) {
             return String.format("%s%s", componentCode.name().toLowerCase(), this.formatHadoopVersion(version, componentCode));
         }
 

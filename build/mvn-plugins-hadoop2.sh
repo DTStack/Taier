@@ -21,12 +21,10 @@ engine-worker/engine-plugins/spark/k8s-hdfs2-spark240/spark-k8s-client,\
 engine-worker/engine-plugins/spark/k8s-hdfs2-spark240/spark-sql-proxy,\
 engine-worker/engine-plugins/dtscript/yarn2-hdfs2-dtscript/dtscript-client,\
 engine-worker/engine-plugins/learning/yarn2-hdfs2-learning/learning-client,\
+engine-worker/engine-plugins/hadoop/yarn2-hdfs2-hadoop2,\
 engine-worker/engine-plugins/stores/nfs,\
 engine-worker/engine-plugins/stores/hdfs2,\
-engine-worker/engine-plugins/stores/hdfs3,\
 engine-worker/engine-plugins/schedules/yarn2,\
-engine-worker/engine-plugins/schedules/yarn3,\
-engine-worker/engine-plugins/schedules/kubernetes,\
 engine-worker/engine-plugins/kylin,\
 engine-worker/engine-plugins/odps,\
 engine-worker/engine-plugins/rdbs/mysql,\

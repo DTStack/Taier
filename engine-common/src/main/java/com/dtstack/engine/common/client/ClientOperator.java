@@ -188,7 +188,7 @@ public class ClientOperator {
     }
 
     public ClusterResource getClusterResource(String engineType, String pluginInfo) throws ClientAccessException{
-        IClient client = clientCache.getClient(engineType,pluginInfo);
+        IClient client = clientCache.getClient(engineType, pluginInfo);
         return client.getClusterResource();
     }
 

@@ -206,6 +206,8 @@ public enum EComponentType {
                 return "learning";
             case DT_SCRIPT:
                 return "dtscript";
+            case HDFS:
+                return "hadoop";
         }
         return "";
     }

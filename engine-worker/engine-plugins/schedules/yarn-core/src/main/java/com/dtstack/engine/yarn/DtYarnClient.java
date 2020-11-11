@@ -6,43 +6,27 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.base.resource.EngineResourceInfo;
-import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
-import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.JobParam;
 import com.dtstack.engine.common.client.AbstractClient;
-import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.pojo.JudgeResult;
-import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.yarn.parser.AddJarOperator;
 import com.dtstack.engine.yarn.util.HadoopConf;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.Files;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
-import org.apache.hadoop.mapreduce.MRJobConfig;
-import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.yarn.api.records.*;
+import org.apache.hadoop.yarn.api.records.NodeReport;
+import org.apache.hadoop.yarn.api.records.NodeState;
+import org.apache.hadoop.yarn.api.records.QueueInfo;
+import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.exceptions.YarnException;
-import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,330 +38,56 @@ import java.util.*;
 public class DtYarnClient extends AbstractClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(DtYarnClient.class);
-    private static final String USER_DIR = System.getProperty("user.dir");
-    private static final String TMP_PATH = USER_DIR + "/tmp";
-    private static final String HDFS_PREFIX = "hdfs://";
-    private static final String HADOOP_USER_NAME = "HADOOP_USER_NAME";
-    private static final String QUEUE = "queue";
-    private EngineResourceInfo resourceInfo = new HadoopResourceInfo();
-    private Configuration conf = new Configuration();
-    private volatile YarnClient yarnClient;
-    private Config config;
-    private Map<String, List<String>> cacheFile = Maps.newConcurrentMap();
-    private static final String APP_TYPE = "Apache Flink";
-    private static final String DEFAULT_APP_NAME_PREFIX = "Flink session";
-    private static final String FLINK_URL_FORMAT = "http://%s/proxy/%s/taskmanagers";
     private static final String YARN_RM_WEB_KEY_PREFIX = "yarn.resourcemanager.webapp.address.";
     private static final String YARN_SCHEDULER_FORMAT = "http://%s/ws/v1/cluster/scheduler";
-    private static final long ONE_MEGABYTE = 1024*1024;
+
+    private Config config;
+    private Configuration configuration;
 
     @Override
     public void init(Properties prop) throws Exception {
-        LOG.info("hadoop client init...");
-
         String configStr = PublicUtil.objToString(prop);
         config = PublicUtil.jsonStrToObject(configStr, Config.class);
-        HadoopConf customerConf = new HadoopConf();
-        customerConf.initHadoopConf(config.getHadoopConf());
-        customerConf.initYarnConf(config.getYarnConf());
-        conf = customerConf.getYarnConfiguration();
-
-        HadoopConfTool.setFsHdfsImplDisableCache(conf);
-
-        conf.set("mapreduce.framework.name", "yarn");
-        conf.set("yarn.scheduler.maximum-allocation-mb", "1024");
-        conf.set("yarn.nodemanager.resource.memory-mb", "1024");
-        conf.set("mapreduce.map.memory.mb","1024");
-        conf.set("mapreduce.reduce.memory.mb","1024");
-        conf.setBoolean("mapreduce.app-submission.cross-platform", true);
-
-        setHadoopUserName(config);
-
-        yarnClient = buildYarnClient();
-
-        LOG.info("UGI info: " + UserGroupInformation.getCurrentUser());
-
+        configuration =  this.initYarnConf(config.getYarnConf());
     }
-
-    @Override
-    protected JobResult processSubmitJobWithType(JobClient jobClient) {
-        EJobType jobType = jobClient.getJobType();
-        JobResult jobResult = null;
-        if(EJobType.MR.equals(jobType)){
-            jobResult = submitJobWithJar(jobClient);
+    private Configuration initYarnConf(Map<String, Object> conf){
+        if(null == conf){
+            return null;
         }
-        return jobResult;
+
+        Configuration  configuration = new Configuration();
+
+        conf.keySet().forEach(key ->{
+            Object value = conf.get(key);
+            if (value instanceof String){
+                configuration.set(key, (String) value);
+            } else if (value instanceof Boolean){
+                configuration.setBoolean(key, (boolean) value);
+            }
+        });
+        return configuration;
     }
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
-        try {
-            return KerberosUtils.login(config, ()->{
-                String jobId = jobIdentifier.getEngineJobId();
-
-                try {
-                    getYarnClient().killApplication(generateApplicationId(jobId));
-                } catch (YarnException | IOException e) {
-                    return JobResult.createErrorResult(e);
-                }
-
-                JobResult jobResult = JobResult.newInstance(false);
-                jobResult.setData("jobid", jobId);
-                return jobResult;
-            },conf);
-        } catch (Exception e) {
-            LOG.error("cancelJob error:", e);
-            return JobResult.createErrorResult(e);
-        }
-    }
-
-    private ApplicationId generateApplicationId(String jobId) {
-        String appId = jobId.replace("job_", "application_");
-        return ConverterUtils.toApplicationId(appId);
+        return null;
     }
 
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
-        try {
-            return KerberosUtils.login(config, ()->{
-                String jobId = jobIdentifier.getEngineJobId();
-                ApplicationId appId = generateApplicationId(jobId);
-
-                try {
-                    ApplicationReport report = getYarnClient().getApplicationReport(appId);
-                    YarnApplicationState applicationState = report.getYarnApplicationState();
-                    switch(applicationState) {
-                        case KILLED:
-                            return RdosTaskStatus.KILLED;
-                        case NEW:
-                        case NEW_SAVING:
-                            return RdosTaskStatus.CREATED;
-                        case SUBMITTED:
-                            //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
-                            return RdosTaskStatus.WAITCOMPUTE;
-                        case ACCEPTED:
-                            return RdosTaskStatus.SCHEDULED;
-                        case RUNNING:
-                            return RdosTaskStatus.RUNNING;
-                        case FINISHED:
-                            //state 为finished状态下需要兼顾判断finalStatus.
-                            FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
-                            if(finalApplicationStatus == FinalApplicationStatus.FAILED){
-                                return RdosTaskStatus.FAILED;
-                            }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
-                                return RdosTaskStatus.FINISHED;
-                            }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
-                                return RdosTaskStatus.KILLED;
-                            }else{
-                                return RdosTaskStatus.RUNNING;
-                            }
-
-                        case FAILED:
-                            return RdosTaskStatus.FAILED;
-                        default:
-                            throw new RdosDefineException("Unsupported application state");
-                    }
-                } catch (Exception e) {
-                    return RdosTaskStatus.NOTFOUND;
-                }
-            }, conf);
-        } catch (Exception e) {
-            LOG.error("", e);
-            return RdosTaskStatus.NOTFOUND;
-        }
+        return null;
     }
 
     @Override
     public String getJobMaster(JobIdentifier jobIdentifier) {
-        throw new RdosDefineException("hadoop client not support method 'getJobMaster'");
-    }
-
-    @Override
-    public String getMessageByHttp(String path) {
-        throw new RdosDefineException("hadoop client not support method 'getJobMaster'");
-    }
-
-    private JobResult submitJobWithJar(JobClient jobClient) {
-        try {
-            setHadoopUserName(config);
-            JobParam jobParam = new JobParam(jobClient);
-            Map<String, Object> plugininfo = PublicUtil.jsonStrToObject(jobClient.getPluginInfo(),Map.class);
-            Configuration jobConf = new Configuration(conf);
-            if(plugininfo.containsKey(QUEUE)){
-                jobConf.set(MRJobConfig.QUEUE_NAME, plugininfo.get(QUEUE).toString());
-            }
-
-            MapReduceTemplate mr = new MapReduceTemplate(jobConf, jobParam);
-            mr.run();
-            LOG.info("mr jobId:{} jobName:{}", mr.getJobId(), jobParam.getJobName());
-            return JobResult.createSuccessResult(mr.getJobId());
-        } catch (Throwable ex) {
-            LOG.error("", ex);
-            return JobResult.createErrorResult(ex);
-        }
-
-    }
-
-    private void downloadHdfsFile(String from, String to) throws IOException {
-        File toFile = new File(to);
-        if(!toFile.getParentFile().exists()){
-            Files.createParentDirs(toFile);
-        }
-        Path hdfsFilePath = new Path(from);
-        InputStream is= FileSystem.get(conf).open(hdfsFilePath);//读取文件
-        IOUtils.copyBytes(is, new FileOutputStream(toFile),2048, true);//保存到本地
-    }
-
-    @Override
-    public JudgeResult judgeSlots(JobClient jobClient) {
-        try {
-            return resourceInfo.judgeSlots(jobClient);
-        } catch (Exception e) {
-            LOG.error("JudgeSlots error:", e);
-            return JudgeResult.notOk("judgeSlots error");
-        }
-    }
-
-    @Override
-    public String getJobLog(JobIdentifier jobIdentifier) {
-        try {
-            return KerberosUtils.login(config, ()-> {
-                String jobId = jobIdentifier.getEngineJobId();
-
-                try {
-                    ApplicationReport applicationReport = getYarnClient().getApplicationReport(generateApplicationId(jobId));
-                    return applicationReport.getDiagnostics();
-                } catch (Exception e) {
-                    LOG.error("", e);
-                }
-
-                return StringUtils.EMPTY;
-            }, conf);
-        } catch (Exception e) {
-            LOG.error("", e);
-            return StringUtils.EMPTY;
-        }
-
-    }
-
-    private void setHadoopUserName(Config config){
-        if(Strings.isNullOrEmpty(config.getHadoopUserName())){
-            return;
-        }
-
-        UserGroupInformation.afterSetHadoopUserName(config.getHadoopUserName());
-    }
-
-    public YarnClient getYarnClient(){
-        long startTime = System.currentTimeMillis();
-        try {
-            if (yarnClient == null) {
-                synchronized (this) {
-                    if (yarnClient == null) {
-                        LOG.info("buildYarnClient!");
-                        YarnClient yarnClient1 = YarnClient.createYarnClient();
-                        yarnClient1.init(conf);
-                        yarnClient1.start();
-                        yarnClient = yarnClient1;
-                    }
-                }
-            } else {
-                //判断下是否可用
-                yarnClient.getAllQueues();
-            }
-        } catch (Throwable e) {
-            LOG.error("buildYarnClient![backup]", e);
-            YarnClient yarnClient1 = YarnClient.createYarnClient();
-            yarnClient1.init(conf);
-            yarnClient1.start();
-            yarnClient = yarnClient1;
-        } finally {
-            long endTime= System.currentTimeMillis();
-            LOG.info("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
-        }
-        return yarnClient;
-    }
-
-    private YarnClient buildYarnClient() {
-        try {
-            return KerberosUtils.login(config, () -> {
-                LOG.info("buildYarnClient, init YarnClient!");
-                YarnClient yarnClient1 = YarnClient.createYarnClient();
-                yarnClient1.init(conf);
-                yarnClient1.start();
-                yarnClient = yarnClient1;
-                return yarnClient;
-            }, conf);
-        } catch (Exception e) {
-            LOG.error("initSecurity happens error", e);
-            throw new RdosDefineException(e);
-        }
+        return null;
     }
 
 
     @Override
-    public void beforeSubmitFunc(JobClient jobClient) {
-        String sql = jobClient.getSql();
-        List<String> sqlArr = DtStringUtil.splitIgnoreQuota(sql, ';');
-        if(sqlArr.size() == 0){
-            return;
-        }
-
-        List<String> sqlList = Lists.newArrayList(sqlArr);
-        Iterator<String> sqlItera = sqlList.iterator();
-        List<String> fileList = Lists.newArrayList();
-
-        while (sqlItera.hasNext()){
-            String tmpSql = sqlItera.next();
-            if(AddJarOperator.verific(tmpSql)){
-                sqlItera.remove();
-                JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
-
-                String addFilePath = jarFileInfo.getJarPath();
-                //只支持hdfs
-                if(!addFilePath.startsWith(HDFS_PREFIX)) {
-                    throw new RdosDefineException("only support hdfs protocol for jar path");
-                }
-                String localJarPath = TMP_PATH + File.separator + UUID.randomUUID().toString() + ".jar";
-                try {
-                    downloadHdfsFile(addFilePath, localJarPath);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                jarFileInfo.setJarPath(localJarPath);
-
-                jobClient.setCoreJarInfo(jarFileInfo);
-                fileList.add(localJarPath);
-
-            }
-        }
-
-        cacheFile.put(jobClient.getTaskId(), fileList);
-        jobClient.setSql(String.join(";", sqlList));
+    protected JobResult processSubmitJobWithType(JobClient jobClient) {
+        return null;
     }
-
-    @Override
-    public void afterSubmitFunc(JobClient jobClient) {
-        List<String> fileList = cacheFile.get(jobClient.getTaskId());
-        if(CollectionUtils.isEmpty(fileList)){
-            return;
-        }
-
-        //清理包含下载下来的临时jar文件
-        for(String path : fileList){
-            try{
-                File file = new File(path);
-                if(file.exists()){
-                    file.delete();
-                }
-
-            }catch (Exception e1){
-                LOG.error("", e1);
-            }
-        }
-        cacheFile.remove(jobClient.getTaskId());
-    }
-
 
     /**
      * 测试联通性 yarn需要返回集群队列信息
@@ -390,7 +100,8 @@ public class DtYarnClient extends AbstractClient {
         testResult.setResult(false);
         try {
             Config allConfig = PublicUtil.jsonStrToObject(pluginInfo, Config.class);
-            return KerberosUtils.login(allConfig, () -> testYarnConnect(testResult, allConfig),conf);
+            Configuration configuration =  this.initYarnConf(allConfig.getYarnConf());
+            return KerberosUtils.login(allConfig, () -> testYarnConnect(testResult, allConfig),configuration);
         } catch (Exception e) {
             LOG.error("test yarn connect error", e);
             testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
@@ -451,11 +162,12 @@ public class DtYarnClient extends AbstractClient {
     public ClusterResource getClusterResource() {
         ClusterResource clusterResource = new ClusterResource();
         try {
+
             KerberosUtils.login(config, () -> {
                 YarnClient resourceClient = null;
                 try {
                     resourceClient = YarnClient.createYarnClient();
-                    resourceClient.init(conf);
+                    resourceClient.init(configuration);
                     resourceClient.start();
                     List<NodeReport> nodes = resourceClient.getNodeReports(NodeState.RUNNING);
                     List<ClusterResource.NodeDescription> clusterNodes = new ArrayList<>();
@@ -488,7 +200,7 @@ public class DtYarnClient extends AbstractClient {
                             totalMem, usedMem, totalCores, usedCores);
 
                     clusterResource.setNodes(clusterNodes);
-                    clusterResource.setQueues(getQueueResource(yarnClient));
+                    clusterResource.setQueues(getQueueResource(resourceClient));
                     clusterResource.setResourceMetrics(metrics);
 
                 } catch (Exception e) {
@@ -503,7 +215,7 @@ public class DtYarnClient extends AbstractClient {
                     }
                 }
                 return clusterResource;
-            }, conf);
+            }, configuration);
 
         } catch (Exception e) {
             throw new RdosDefineException(e.getMessage());
@@ -702,6 +414,5 @@ public class DtYarnClient extends AbstractClient {
         LOG.info(clusterResource.toString());
         System.exit(0);
     }
-
 
 }
