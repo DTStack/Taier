@@ -3,6 +3,8 @@ package com.dtstack.lineage.dao;
 import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  * @author chener
  * @Classname LineageTableInfo
@@ -20,4 +22,22 @@ public interface LineageDataSetDao {
 
     LineageDataSetInfo getOneBySourceIdAndDbNameAndTableName(@Param("sourceId") Long sourceId, @Param("dbName") String dbName,
                                                              @Param("tableName") String tableName,@Param("schemaName") String schemaName);
+
+    /**
+     * @author zyd
+     * @Description 根据id查询表信息
+     * @Date 2020/11/11 5:12 下午
+     * @param id:
+     * @return: com.dtstack.engine.api.domain.LineageDataSetInfo
+     **/
+    LineageDataSetInfo getOneById(Long id);
+
+    /**
+     * @author zyd
+     * @Description 根据ids批量查询表信息
+     * @Date 2020/11/11 5:15 下午
+     * @param ids:
+     * @return: com.dtstack.engine.api.domain.LineageDataSetInfo
+     **/
+    LineageDataSetInfo getDataSetListByIds(@Param("ids") List<Long> ids);
 }

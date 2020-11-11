@@ -17,6 +17,18 @@
             <if test="model.isDeleted !=null">
                 AND is_deleted = #{model.isDeleted}
             </if>
+            <if test="model.sourceType !=null">
+                AND source_type = #{model.sourceType}
+            </if>
+            <if test="model.sourceName !=null">
+                AND source_name = #{model.sourceName}
+            </if>
+            <if test="model.dtUicTenantId !=null">
+                AND dt_uic_tenantId = #{model.dtUicTenantId}
+            </if>
+            <if test="model.appType !=null">
+                AND app_type = #{model.appType}
+            </if>
         </trim>
     </sql>
 
@@ -126,6 +138,31 @@
         where app_type = #{appType}
         and id = #{sourceId}
         and is_deleted = 0
+    </select>
+
+
+    <select id="getDataSourceByParams" resultType="com.dtstack.engine.api.domain.LineageDataSource">
+
+        select
+        <include refid="select_content_fragment" />
+        from lineage_data_source
+        <include refid="select_where_fragment" />
+
+    </select>
+
+
+    <select id="getDataSourcesByIdList" resultType="com.dtstack.engine.api.domain.LineageDataSource">
+
+        select
+        <include refid="select_content_fragment" />
+        from lineage_data_source
+        where
+        id in
+        <foreach collection="ids" open="(" close=")" item="id" separator=",">
+            #{id}
+        </foreach>
+        and is_deleted = 0;
+
     </select>
 
 

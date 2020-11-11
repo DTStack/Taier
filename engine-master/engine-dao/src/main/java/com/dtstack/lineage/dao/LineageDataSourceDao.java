@@ -70,4 +70,25 @@ public interface LineageDataSourceDao {
      * @return: com.dtstack.engine.api.domain.LineageDataSource
      **/
     LineageDataSource getOneByAppTypeAndId(@Param("sourceId") Long sourceId,@Param("appType") Integer appType);
+
+
+    /**
+     * @author zyd
+     * @Description 根据dt租户id和数据源类型查询数据源
+     * @Date 2020/11/11 4:35 下午
+     @return: com.dtstack.engine.api.domain.LineageDataSource
+     **/
+    LineageDataSource getDataSourceByParams(LineageDataSource lineageDataSource);
+
+
+
+
+    /**
+     * @author zyd
+     * @Description 根据id列表批量查询逻辑数据源信息
+     * @Date 2020/10/30 2:25 下午
+     * @param ids:
+     * @return: com.dtstack.engine.api.domain.LineageDataSource
+     **/
+    List<LineageDataSource> getDataSourcesByIdList(@Param("ids") List<Long> ids);
 }

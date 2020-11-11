@@ -15,6 +15,7 @@ import com.dtstack.lineage.bo.RdbmsDataSourceConfig;
 import com.dtstack.lineage.dao.LineageDataSourceDao;
 import com.dtstack.lineage.dao.LineageRealDataSourceDao;
 import com.dtstack.schedule.common.enums.Sort;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -252,4 +253,40 @@ public class LineageDataSourceService {
     }
 
 
+    /**
+     * @author zyd
+     * @Description 根据id列表批量查询逻辑数据源信息
+     * @Date 2020/10/30 2:25 下午
+     * @param ids:
+     * @return: com.dtstack.engine.api.domain.LineageDataSource
+     **/
+    public List<LineageDataSource> getDataSourcesByIdList(List<Long> ids){
+
+        if(CollectionUtils.isEmpty(ids)){
+            throw new RdosDefineException("数据源id列表不能为空");
+        }
+        return lineageDataSourceDao.getDataSourcesByIdList(ids);
+    }
+
+
+
+    /**
+     * @author zyd
+     * @Description 根据dt租户id和数据源类型查找数据源
+     * @Date 2020/11/11 4:32 下午
+     * @param dtUicTenantId:
+     * @param sourceType:
+     * @return: com.dtstack.engine.api.domain.LineageDataSource
+     **/
+    public LineageDataSource getDataSourceByParams(Integer sourceType,String sourceName,Long dtUicTenantId,
+                                                   Integer appType){
+
+        LineageDataSource lineageDataSource = new LineageDataSource();
+        lineageDataSource.setSourceName(sourceName);
+        lineageDataSource.setSourceType(sourceType);
+        lineageDataSource.setDtUicTenantId(dtUicTenantId);
+        lineageDataSource.setAppType(appType);
+        lineageDataSource.setIsDeleted(0);
+       return lineageDataSourceDao.getDataSourceByParams(lineageDataSource);
+    }
 }

@@ -144,4 +144,31 @@ public class LineageDataSetInfoService {
 
         return columnsList;
     }
+
+    /**
+     * @author zyd
+     * @Description 根据id查询表信息
+     * @Date 2020/11/11 5:11 下午
+     * @param id:
+     * @return: com.dtstack.engine.api.domain.LineageDataSetInfo
+     **/
+    public LineageDataSetInfo getOneById(Long id){
+
+        return lineageDataSetDao.getOneById(id);
+    }
+
+    /**
+     * @author zyd
+     * @Description 根据ids批量查询表信息
+     * @Date 2020/11/11 5:14 下午
+     * @param ids:
+     * @return: com.dtstack.engine.api.domain.LineageDataSetInfo
+     **/
+    public LineageDataSetInfo getDataSetListByIds(List<Long> ids){
+
+        if(CollectionUtils.isEmpty(ids)){
+            throw new RdosDefineException("表id列表不能为空");
+        }
+        return lineageDataSetDao.getDataSetListByIds(ids);
+    }
 }

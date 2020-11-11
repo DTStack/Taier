@@ -43,4 +43,23 @@
 
     </select>
 
+    <select id="getOneById" resultType="com.dtstack.engine.api.domain.LineageDataSetInfo">
+
+        select
+        <include refid="select_content_fragment" />
+        from lineage_data_set_info
+        where id = #{id}
+        and is_deleted = 0;
+    </select>
+
+    <select id="getDataSetListByIds" resultType="com.dtstack.engine.api.domain.LineageDataSetInfo">
+
+        select
+        <include refid="select_content_fragment" />
+        from lineage_data_set_info
+        where id in
+        <foreach collection="ids" open="(" close=")" item="item" separator=",">
+            #{item}
+        </foreach>
+    </select>
 </mapper>
