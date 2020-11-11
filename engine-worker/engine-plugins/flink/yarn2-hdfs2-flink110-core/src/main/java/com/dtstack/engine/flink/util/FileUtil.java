@@ -1,8 +1,8 @@
 package com.dtstack.engine.flink.util;
 
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
@@ -25,7 +25,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -185,7 +184,7 @@ public class FileUtil {
                 return;
             }
 
-            String taskKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+            String taskKeytabDirPath = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
             File taskKeytabDir = new File(taskKeytabDirPath);
             if (!taskKeytabDir.exists()) {
                 taskKeytabDir.mkdirs();

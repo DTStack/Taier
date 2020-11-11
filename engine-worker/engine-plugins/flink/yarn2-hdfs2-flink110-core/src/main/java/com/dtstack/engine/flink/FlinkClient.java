@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.KerberosUtils;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -35,7 +36,6 @@ import com.dtstack.engine.flink.resource.FlinkYarnSeesionResourceInfo;
 import com.dtstack.engine.flink.util.*;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.worker.enums.ClassLoaderType;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.*;
@@ -864,7 +864,7 @@ public class FlinkClient extends AbstractClient {
             if (PrepareOperator.verificKeytab(tmpSql)) {
                 sqlItera.remove();
                 SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
-                String localDir = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+                String localDir = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
 
                 if (!new File(localDir).exists()) {
                     new File(localDir).mkdirs();
@@ -928,7 +928,7 @@ public class FlinkClient extends AbstractClient {
 
         cacheFile.remove(jobClient.getTaskId());
 
-        String localDirStr = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+        String localDirStr = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
         File localDir = new File(localDirStr);
         if (localDir.exists()){
             try {

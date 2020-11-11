@@ -1,6 +1,7 @@
 package com.dtstack.engine.base.util;
 
 import com.dtstack.engine.base.BaseConfig;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,8 +40,6 @@ public class KerberosUtils {
     private static final Logger logger = LoggerFactory.getLogger(KerberosUtils.class);
 
     private static final String USER_DIR = System.getProperty("user.dir");
-    private static final String LOCAL_KEYTAB_DIR = USER_DIR + "/kerberos/keytab";
-    private static final String LOCAL_KRB5_DIR = USER_DIR + "/kerberos/krb5";
     private static final String KRB5_FILE_NAME = "krb5.conf";
     private static final String KRB5_CONF = "java.security.krb5.conf";
     private static final String KERBEROS_AUTH = "hadoop.security.authentication";
@@ -71,7 +70,7 @@ public class KerberosUtils {
 
         String fileName = config.getPrincipalFile();
         String remoteDir = config.getRemoteDir();
-        String localDir = LOCAL_KEYTAB_DIR + remoteDir;
+        String localDir = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
 
         File localDirPath = new File(localDir);
         if (!localDirPath.exists()) {
@@ -276,11 +275,11 @@ public class KerberosUtils {
         if (StringUtils.isEmpty(krb5ConfPath)) {
             return "";
         }
-        File krb5Dir = new File(LOCAL_KRB5_DIR);
+        File krb5Dir = new File(ConfigConstant.LOCAL_KRB5_DIR_PARENT);
         if (!krb5Dir.exists()) {
             krb5Dir.mkdirs();
         }
-        String localKrb5Path = LOCAL_KRB5_DIR + File.separator + KRB5_FILE_NAME;
+        String localKrb5Path = ConfigConstant.LOCAL_KRB5_DIR_PARENT + File.separator + KRB5_FILE_NAME;
         File localKrb5File = new File(localKrb5Path);
         if (!localKrb5File.exists()) {
             synchronized(KerberosUtils.class) {
@@ -487,7 +486,7 @@ public class KerberosUtils {
         String krb5FileName = config.getKrbName();
         String remoteDir = config.getRemoteDir();
         if (StringUtils.isEmpty(localDir)) {
-            localDir = LOCAL_KEYTAB_DIR + remoteDir;
+            localDir = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
         }
 
         File localDirPath = new File(localDir);
