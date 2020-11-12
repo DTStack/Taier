@@ -242,7 +242,7 @@ public class FlinkClient extends AbstractClient {
      */
     private Pair<String, String> runJobByPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws Exception {
         logger.info("--------job:{} run by PerJob mode-----.", jobClient.getTaskId());
-        PerJobClientFactory perJobClientFactory = flinkClusterClientManager.getPerJobClientFactory();
+        PerJobClientFactory perJobClientFactory = (PerJobClientFactory) flinkClusterClientManager.getClientFactory();
         try (
                 AbstractYarnClusterDescriptor descriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
         ) {
@@ -254,7 +254,7 @@ public class FlinkClient extends AbstractClient {
             String flinkJobId = clusterSpecification.getJobGraph().getJobID().toString();
             delFilesFromDir(ConfigConstrant.IO_TMPDIR, applicationId);
 
-            flinkClusterClientManager.addClient(applicationId, clusterClient);
+            perJobClientFactory.dealWithDeployCluster(applicationId, clusterClient);
 
             return Pair.create(flinkJobId, applicationId);
         }
@@ -265,7 +265,7 @@ public class FlinkClient extends AbstractClient {
      */
     private Pair<String, String> runJobByYarnSession(PackagedProgram program, int parallelism) throws Exception {
         try {
-            ClusterClient clusterClient = flinkClusterClientManager.getClusterClient();
+            ClusterClient clusterClient = flinkClusterClientManager.getClusterClient(null);
             JobSubmissionResult result = clusterClient.run(program, parallelism);
 
             if (result.isJobExecutionResult()) {
@@ -279,10 +279,7 @@ public class FlinkClient extends AbstractClient {
 
             return Pair.create(result.getJobID().toString(), null);
         } catch (Exception e) {
-            //累加失败次数
-            if (flinkClusterClientManager.getSessionClientFactory() != null) {
-                flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().incrSubmitError();
-            }
+            flinkClusterClientManager.dealWithClientError();
             throw e;
         } finally {
             delFilesFromDir(ConfigConstrant.IO_TMPDIR, "flink-jobgraph");
@@ -578,7 +575,7 @@ public class FlinkClient extends AbstractClient {
     }
 
     public String getReqUrl() {
-        return flinkClusterClientManager.getClusterClient().getWebInterfaceURL();
+        return flinkClusterClientManager.getClusterClient(null).getWebInterfaceURL();
     }
 
 
@@ -721,9 +718,8 @@ public class FlinkClient extends AbstractClient {
             if (!judgeResult.available() || isPerJob) {
                 return judgeResult;
             } else {
-                if (flinkClusterClientManager.getSessionClientFactory()!=null&&
-                        !flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().isRunning()) {
-                    logger.warn("wait flink session client recover...");
+                ClusterClient clusterClient = flinkClusterClientManager.getClusterClient(null);
+                if (clusterClient == null) {
                     return JudgeResult.notOk("wait flink session client recover");
                 }
                 FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
@@ -733,7 +729,7 @@ public class FlinkClient extends AbstractClient {
             }
         } catch (Exception e) {
             logger.error("judgeSlots error:{}", e);
-            return JudgeResult.notOk("judgeSlots error");
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
