@@ -135,14 +135,26 @@ public class LineageDataSetInfoService {
                 jsonObject.put("config", kerberosJsonObj);
             }
             String pluginInfo = PublicUtil.objToString(jsonObject);
-            iClient =  clientCache.getClient(EComponentType.getByCode(dataSource.getSourceType()).getName(),pluginInfo);
+            iClient = getClient(dataSource, clientCache, pluginInfo);
+            return getAllColumns(dataSetInfo, iClient);
         } catch (Exception e) {
             throw new RdosDefineException("获取client异常",e);
         }
+    }
 
-        List<Column> columnsList = iClient.getAllColumns(dataSetInfo.getTableName(), dataSetInfo.getDbName());
+    public List<Column> getAllColumns(LineageDataSetInfo dataSetInfo, IClient iClient) {
 
-        return columnsList;
+        if(null == dataSetInfo){
+            return new ArrayList<>();
+        }
+        return iClient.getAllColumns(dataSetInfo.getTableName(), dataSetInfo.getSchemaName(), dataSetInfo.getDbName());
+    }
+
+    public IClient getClient(LineageDataSource dataSource, ClientCache clientCache, String pluginInfo) throws ClientAccessException {
+        if(null == clientCache || null == dataSource){
+            return null;
+        }
+        return clientCache.getClient(EComponentType.getByCode(dataSource.getSourceType()).getName(), pluginInfo);
     }
 
     /**

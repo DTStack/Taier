@@ -351,11 +351,11 @@ public class ClientProxy implements IClient {
 
 
     @Override
-    public List<Column> getAllColumns(String tableName, String dbName) {
+    public List<Column> getAllColumns(String tableName,String schemaName, String dbName) {
         try {
             return CompletableFuture.supplyAsync(() -> {
                 try {
-                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getAllColumns(tableName,dbName),
+                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getAllColumns(tableName,schemaName,dbName),
                             targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
                     throw new RdosDefineException(e);

@@ -13,7 +13,8 @@ import java.util.List;
 
 public class TiDBClient extends AbstractRdbsClient {
 
-    private static final String SHOW_COLUMN = "show columns from %s;";
+    private static final String TABLE_INFO_SQL = "select column_name , data_type, column_comment  from INFORMATION_SCHEMA.COLUMNS where table_schema = '%s' and table_name = '%s' ";
+
 
     public TiDBClient() {
         this.dbType = "tidb";
@@ -26,33 +27,26 @@ public class TiDBClient extends AbstractRdbsClient {
 
 
     @Override
-    public List<Column> getAllColumns(String tableName, String dbName) {
+    public List<Column> getAllColumns(String tableName,String schemaName, String dbName) {
 
 
         List<Column> columnList = new ArrayList<>();
-        AbstractConnFactory connFactory = getConnFactory();
-
-        try(Connection conn = connFactory.getConn();
+        try(Connection conn = this.connFactory.getConn();
             Statement statement = conn.createStatement()){
-            String sql = String.format(SHOW_COLUMN, tableName);
-            if (StringUtils.isNotBlank(dbName)) {
-                statement.execute("use " + dbName);
-            }
-            ResultSet resultSet = statement.executeQuery(sql);
-            while (resultSet.next()) {
-                if("Field".equalsIgnoreCase(resultSet.getString(1))){
-                    continue;
-                }
+            String sql = String.format(TABLE_INFO_SQL,dbName,tableName);
+            ResultSet res = statement.executeQuery(sql);
+            while (res.next()){
                 Column column = new Column();
-                column.setTable(tableName);
-                column.setName(resultSet.getString(1));
-                column.setType(resultSet.getString(2));
+                String name = res.getString("column_name");
+                column.setName(name);
+                String type = res.getString("data_type");
+                column.setType(type);
+                column.setComment(res.getString("column_comment"));
                 columnList.add(column);
             }
         }catch (Exception e){
             throw new RdosDefineException("获取字段列表异常");
         }
-
-        return super.getAllColumns(tableName, dbName);
+        return columnList;
     }
 }

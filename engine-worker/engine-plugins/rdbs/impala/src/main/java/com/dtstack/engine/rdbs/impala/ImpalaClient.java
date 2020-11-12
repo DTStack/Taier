@@ -25,7 +25,7 @@ public class ImpalaClient extends AbstractRdbsClient {
     }
 
     @Override
-    public List<Column> getAllColumns(String tableName, String dbName) {
+    public List<Column> getAllColumns(String tableName,String schemaName, String dbName) {
 
         List<Column> columns = new ArrayList<>();
         int maxRows = JdbcUrlPropertiesValue.MAX_ROWS;

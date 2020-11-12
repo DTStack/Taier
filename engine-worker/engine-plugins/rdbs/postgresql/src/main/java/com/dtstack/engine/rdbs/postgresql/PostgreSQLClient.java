@@ -35,9 +35,8 @@ public class PostgreSQLClient extends AbstractRdbsClient {
 
 
     @Override
-    public List<Column> getAllColumns(String tableName, String dbName) {
+    public List<Column> getAllColumns(String tableName,String schemaName, String dbName) {
 
-        AbstractConnFactory connFactory = getConnFactory();
         List<Column> columnList = new ArrayList<>();
         try(
             Connection conn = connFactory.getConn();

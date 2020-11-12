@@ -163,7 +163,7 @@ public abstract class AbstractClient implements IClient {
     }
 
     @Override
-    public List<Column> getAllColumns(String tableName, String dbName) {
+    public List<Column> getAllColumns(String tableName,String schemaName, String dbName) {
         return null;
     }
 }

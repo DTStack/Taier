@@ -33,10 +33,9 @@ public class GreenPlumClient extends AbstractRdbsClient {
 
 
     @Override
-    public List<Column> getAllColumns(String tableName, String dbName) {
+    public List<Column> getAllColumns(String tableName,String schemaName, String dbName) {
 
         List<Column> columns = new ArrayList<>();
-        AbstractConnFactory connFactory = getConnFactory();
         try(Connection conn = connFactory.getConn();
             Statement statement = conn.createStatement()){
             if (!Strings.isNullOrEmpty(dbName)) {
@@ -46,13 +45,10 @@ public class GreenPlumClient extends AbstractRdbsClient {
             String commentSql = String.format(QUERY_COMMENT_INFO,tableName,dbName);
             ResultSet commentResult = statement.executeQuery(commentSql);
             Map<String,String> columnCommentMap = new HashMap<>(16);
-            Map<String,String> columnTypeMap = new HashMap<>(16);
             while (commentResult.next()) {
                 String comment = commentResult.getString(1);
                 String columnName = commentResult.getString(3);
-                String columnType = commentResult.getString(2);
                 columnCommentMap.put(columnName,comment);
-                columnTypeMap.put(columnName,columnType);
             }
             String querySql = String.format(QUERY_COLUMN, tableName);
             ResultSet resultSet = statement.executeQuery(querySql);

@@ -25,7 +25,7 @@ public class MysqlClient extends AbstractRdbsClient {
 
 
     @Override
-    public List<Column> getAllColumns(String tableName, String dbName) {
+    public List<Column> getAllColumns(String tableName,String schemaName, String dbName) {
 
         List<Column> columnList = new ArrayList<>();
         try(Connection conn = this.connFactory.getConn();

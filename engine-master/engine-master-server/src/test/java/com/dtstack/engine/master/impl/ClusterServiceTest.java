@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
@@ -11,6 +12,7 @@ import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.common.client.ClientOperator;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
@@ -18,6 +20,7 @@ import com.dtstack.engine.master.enums.EComponentScheduleType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
+import com.dtstack.lineage.dao.LineageDataSetDao;
 import com.dtstack.lineage.impl.LineageDataSetInfoService;
 import com.dtstack.lineage.impl.LineageDataSourceService;
 import com.google.common.collect.Lists;
@@ -32,15 +35,11 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author yuebai
@@ -51,8 +50,16 @@ public class ClusterServiceTest extends AbstractTest {
 
 
     @Autowired
-    private LineageDataSetInfoService dataSetInfoService;
+    private TenantDao tenantDao;
 
+    @Autowired
+    private LineageDataSetDao lineageDataSetDao;
+
+    @Autowired
+    private ComponentDao componentDao;
+
+    @Spy
+    private LineageDataSetInfoService dataSetInfoService;
 
     @Autowired
     private LineageDataSourceService dataSourceService;
@@ -66,14 +73,9 @@ public class ClusterServiceTest extends AbstractTest {
     @Autowired
     private EngineDao engineDao;
 
-    @Autowired
-    private ComponentDao componentDao;
 
     @Mock
     private ClientOperator clientOperator;
-
-    @Autowired
-    private TenantDao tenantDao;
 
     @Autowired
     private QueueDao queueDao;
@@ -102,12 +104,11 @@ public class ClusterServiceTest extends AbstractTest {
         when(AkkaConfig.isLocalMode()).thenReturn(true);
         when(AkkaConfig.getWorkerTimeout()).thenReturn(30000L);
         PowerMockito.mockStatic(ClientOperator.class);
-
         ComponentTestResult componentTestResult = new ComponentTestResult();
         componentTestResult.setResult(true);
         when(ClientOperator.getInstance()).thenReturn(clientOperator);
-
         when(clientOperator.testConnect(any(),any())).thenReturn(componentTestResult);
+
 
         ReflectionTestUtils.setField(tenantService,"clusterDao", clusterDao);
         ReflectionTestUtils.setField(tenantService,"queueDao", queueDao);
@@ -116,6 +117,18 @@ public class ClusterServiceTest extends AbstractTest {
         ReflectionTestUtils.setField(tenantService,"engineDao", engineDao);
         ReflectionTestUtils.setField(tenantService,"consoleCache", consoleCache);
         doNothing().when(tenantService).checkClusterCanUse(any());
+
+        ReflectionTestUtils.setField(dataSetInfoService,"sourceService", dataSourceService);
+        ReflectionTestUtils.setField(dataSetInfoService,"tenantDao", tenantDao);
+        ReflectionTestUtils.setField(dataSetInfoService,"lineageDataSetDao", lineageDataSetDao);
+        ReflectionTestUtils.setField(dataSetInfoService,"componentDao", componentDao);
+        ReflectionTestUtils.setField(dataSetInfoService,"tenantDao", tenantDao);
+
+        when(dataSetInfoService.getClient(any(),any(),any())).thenReturn(null);
+        when(dataSetInfoService.getAllColumns(any(),any())).thenReturn(new ArrayList<>());
+
+
+
 
     }
 
@@ -237,36 +250,37 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNotNull(dataSet);
 
         //获取表字段列表信息
-        List<Column> columnList = getTableColumns(dataSet.getSourceId(), dataSet.getTableName(), dataSet.getDbName());
+        List<Column> columnList = getTableColumns(dataSet.getSourceId(), dataSet.getTableName(), dataSet.getSchemaName(),
+                dataSet.getDbName());
         Assert.assertNotNull(columnList);
 
-//        //删除组件
-//        try {
-//            componentService.delete(Lists.newArrayList(hdfsComponent.getId().intValue()));
-//        } catch (Exception e) {
-//            if (e instanceof RdosDefineException) {
-//                RdosDefineException rdosDefineException = (RdosDefineException) e;
-//                if (!rdosDefineException.getErrorMessage().contains("是必选组件")) {
-//                    throw e;
-//                }
-//            } else {
-//                throw e;
-//            }
-//        }
-//
-//        //删除集群
-//        try {
-//            clusterService.deleteCluster(clusterVO.getClusterId());
-//        } catch (Exception e) {
-//            if (e instanceof RdosDefineException) {
-//                RdosDefineException rdosDefineException = (RdosDefineException) e;
-//                if (!rdosDefineException.getErrorMessage().contains("有租户")) {
-//                    throw e;
-//                }
-//            } else {
-//                throw e;
-//            }
-//        }
+        //删除组件
+        try {
+            componentService.delete(Lists.newArrayList(hdfsComponent.getId().intValue()));
+        } catch (Exception e) {
+            if (e instanceof RdosDefineException) {
+                RdosDefineException rdosDefineException = (RdosDefineException) e;
+                if (!rdosDefineException.getErrorMessage().contains("是必选组件")) {
+                    throw e;
+                }
+            } else {
+                throw e;
+            }
+        }
+
+        //删除集群
+        try {
+            clusterService.deleteCluster(clusterVO.getClusterId());
+        } catch (Exception e) {
+            if (e instanceof RdosDefineException) {
+                RdosDefineException rdosDefineException = (RdosDefineException) e;
+                if (!rdosDefineException.getErrorMessage().contains("有租户")) {
+                    throw e;
+                }
+            } else {
+                throw e;
+            }
+        }
     }
 
     private void testUpdateQueue(Long engineId, Tenant tenant) {
@@ -384,12 +398,13 @@ public class ClusterServiceTest extends AbstractTest {
 
 
 
-    public List<Column> getTableColumns(Long sourceId,String tableName,String dbName){
+    public List<Column> getTableColumns(Long sourceId,String tableName,String schemaNme,String dbName){
 
         LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
         dataSetInfo.setSourceId(sourceId);
         dataSetInfo.setTableName(tableName);
         dataSetInfo.setDbName(dbName);
+        dataSetInfo.setSchemaName(schemaNme);
         return   dataSetInfoService.getTableColumns(dataSetInfo, "");
     }
 
@@ -397,8 +412,8 @@ public class ClusterServiceTest extends AbstractTest {
     private DataSourceDTO getDataSourceDTO(Long tenantId) {
 
         String dataJson = "{\"maxJobPoolSize\":\"\",\"password\":\"\",\"minJobPoolSize\":\"\"," +
-                "\"jdbcUrl\":\"jdbc:impala://172.16.8.83:21050\"," +
-                "\"username\":\"default\",\"typeName\":\"impala\"}";
+                "\"jdbcUrl\":\"jdbc:hive2://172.16.8.107:10000/default\"," +
+                "\"username\":\"admin\",\"typeName\":\"hive2.1.1-cdh6.1.1\"}";
 //        String kerberosConf = "{\n" +
 //                "\"principalFile\":\"hive_pure.keytab\",\n" +
 //                "\"remoteDir\":\"/data/sftp_dev/CONSOLE_kerberos/SPARK_THRIFT/kerberos\",\n" +
@@ -433,9 +448,9 @@ public class ClusterServiceTest extends AbstractTest {
 
     private LineageDataSetInfo getOneBySourceIdAndDbNameAndTableName(Long sourceId){
 
-        String dbName = "valid_test";
-        String tableName = "my";
-        String schemaName = "my";
+        String dbName = "default";
+        String tableName = "t1";
+        String schemaName = "t1";
 
         return dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(sourceId, dbName, tableName, schemaName);
     }

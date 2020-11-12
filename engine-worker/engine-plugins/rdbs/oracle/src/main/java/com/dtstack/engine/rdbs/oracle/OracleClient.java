@@ -27,7 +27,7 @@ public class OracleClient extends AbstractRdbsClient {
     }
 
     @Override
-    public List<Column> getAllColumns(String tableName, String dbName) {
+    public List<Column> getAllColumns(String tableName,String schemaName, String dbName) {
 
         List<Column> columnList = new ArrayList<>();
         ResultSet res = null;
