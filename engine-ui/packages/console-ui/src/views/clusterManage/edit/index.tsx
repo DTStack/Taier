@@ -155,6 +155,19 @@ class EditCluster extends React.Component<any, any> {
         this.getLoadTemplate(componentTypeCode, compVersion);
     }
 
+    handleCompsCompsData = (storeType: any, componentTypeCode: number) => {
+        const { componentConfig } = this.state;
+        this.setState({
+            componentConfig: {
+                ...componentConfig,
+                [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                    ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
+                    storeType
+                }
+            }
+        })
+    }
+
     // 获取组件模板
     getLoadTemplate = (key: any = '', compVersion: any = '') => {
         const { compTypeKey, tabCompData, componentConfig, clusterName } = this.state;
@@ -475,7 +488,6 @@ class EditCluster extends React.Component<any, any> {
         const config = this.getComponentConfig(components);
         const isFileNameRequire = dealData.checkUplaodFileComps(componentTypeCode);
         validateFields(null, {}, (err: any, values: any) => {
-            console.log(err, values)
             if (err) {
                 let paramName = COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode];
                 if (Object.keys(err).includes(paramName)) {
@@ -662,6 +674,15 @@ class EditCluster extends React.Component<any, any> {
         }
     }
 
+    handleSaveCompsData = (val: string, componentTypeCode: number) => {
+        const { form } = this.props;
+        form.setFieldsValue({
+            [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                storeType: val
+            }
+        })
+    }
+
     renderCompTabs = (item: any) => {
         const { tabCompData } = this.state;
         if (tabCompData.length === 0) return {};
@@ -671,6 +692,7 @@ class EditCluster extends React.Component<any, any> {
     render () {
         const { compTypeKey, popoverVisible, clusterName, modify, selectValue,
             deleteComps, defaultValue, componentConfig, testLoading } = this.state;
+        const { location: { state: { cluster: { clusterName: realClusterName } } } } = this.props
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { mode } = this.props.location.state || {} as any;
         const isView = mode === 'view';
@@ -759,7 +781,10 @@ class EditCluster extends React.Component<any, any> {
                                                                         downloadFile={this.downloadFile}
                                                                         paramsfileChange={this.paramsfileChange}
                                                                         kerFileChange={this.kerFileChange}
+                                                                        clusterName={realClusterName}
                                                                         handleCommonVersion={this.handleCommonVersion}
+                                                                        handleSaveCompsData={this.handleSaveCompsData}
+                                                                        handleCompsCompsData={this.handleCompsCompsData}
                                                                         handleCompsVersion={this.handleCompsVersion}
                                                                         deleteKerFile={this.deleteKerFile}
                                                                         fileChange={this.fileChange} />
