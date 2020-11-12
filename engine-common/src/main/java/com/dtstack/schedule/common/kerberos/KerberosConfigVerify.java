@@ -174,8 +174,10 @@ public class KerberosConfigVerify {
     }
 
     private static String getSftpTimeLock(SftpFileManage sftpFileManage, String sourceSftpPath, String localTimeLock) throws SftpException {
+        // 获得远程sftp下的路径sourceSftpPath下文件列表
         Vector vector = sftpFileManage.listFile(sourceSftpPath);
         for (Object obj : vector) {
+            // 判断是否有后缀名.lock的文件
             ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) obj;
             if (lsEntry.getFilename().endsWith(LOCK_SUFFIX)) {
                 return lsEntry.getFilename();

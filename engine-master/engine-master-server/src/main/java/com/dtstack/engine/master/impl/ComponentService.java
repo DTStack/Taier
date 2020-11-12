@@ -622,8 +622,6 @@ public class ComponentService {
     /**
      * 上传四个xml到sftp 作为spark 作为confHdfsPath
      * @param clusterId
-     * @param sftpMap
-     * @param instance
      * @param resource
      */
     private void updateConfigToSftpPath( Long clusterId, SftpConfig sftpConfig, SftpFileManage sftpFileManage, Resource resource) {
@@ -712,7 +710,6 @@ public class ComponentService {
      * 上传配置文件到sftp
      *
      * @param dbComponent
-     * @param instance
      * @param remoteDir
      * @param resource
      */
@@ -721,7 +718,7 @@ public class ComponentService {
         String deletePath = remoteDir + File.separator;
         if (Objects.nonNull(dbComponent)) {
             deletePath = deletePath + dbComponent.getUploadFileName();
-            //删除原来的文件配置zip
+            //删除原来的文件配置zip 如果dbComponent不为null ,删除文件。
             sftpFileManage.deleteFile(deletePath);
         }
 
@@ -742,7 +739,7 @@ public class ComponentService {
      * @return
      */
     private String updateComponentKerberosFile(Long clusterId, Component addComponent, SftpFileManage sftpFileManage, String remoteDir, Resource resource) {
-        //kerberos认证文件
+        // kerberos认证文件 远程删除 kerberos下的文件
         remoteDir = remoteDir + File.separator+KERBEROS_PATH;
         //删除本地文件夹
         String kerberosPath = this.getLocalKerberosPath(clusterId, addComponent.getComponentTypeCode());

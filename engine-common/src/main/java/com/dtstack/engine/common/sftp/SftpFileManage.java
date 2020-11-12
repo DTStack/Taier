@@ -250,6 +250,7 @@ public class SftpFileManage implements IFileManage {
             if (files == null) {
                 return false;
             }
+            // 递归下载文件
             for (Iterator<ChannelSftp.LsEntry> iterator = files.iterator(); iterator.hasNext(); ) {
                 ChannelSftp.LsEntry str = iterator.next();
                 String filename = str.getFilename();
