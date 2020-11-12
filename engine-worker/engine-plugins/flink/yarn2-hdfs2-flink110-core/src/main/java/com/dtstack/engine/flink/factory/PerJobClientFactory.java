@@ -21,12 +21,17 @@ package com.dtstack.engine.flink.factory;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.FileUtil;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -37,6 +42,7 @@ import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.configuration.SecurityOptions;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
+import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.YarnClusterDescriptor;
 import org.apache.flink.yarn.configuration.YarnConfigOptions;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -44,6 +50,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +58,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -66,11 +75,55 @@ public class PerJobClientFactory extends AbstractClientFactory {
     private Configuration flinkConfiguration;
     private YarnConfiguration yarnConf;
 
-    private PerJobClientFactory(FlinkClientBuilder flinkClientBuilder) {
+    /**
+     * 用于缓存连接perjob对应application的ClusterClient
+     */
+    private Cache<String, ClusterClient> perJobClientCache = CacheBuilder.newBuilder()
+            .removalListener(new ClusterClientRemovalListener())
+            .expireAfterAccess(10, TimeUnit.MINUTES)
+            .build();
+
+    public PerJobClientFactory(FlinkClientBuilder flinkClientBuilder) {
         this.flinkClientBuilder = flinkClientBuilder;
         this.flinkConfig = flinkClientBuilder.getFlinkConfig();
         this.flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
         this.yarnConf = flinkClientBuilder.getYarnConf();
+    }
+
+    @Override
+    public ClusterClient getClusterClient(JobIdentifier jobIdentifier) {
+        String applicationId = jobIdentifier.getApplicationId();
+        String taskId = jobIdentifier.getTaskId();
+
+        ClusterClient clusterClient = null;
+
+        try {
+            clusterClient = KerberosUtils.login(flinkConfig, () -> {
+                try {
+                    return perJobClientCache.get(applicationId, () -> {
+                        JobClient jobClient = new JobClient();
+                        jobClient.setTaskId(taskId);
+                        jobClient.setJobName("taskId-" + taskId);
+                        try (
+                                YarnClusterDescriptor perJobYarnClusterDescriptor = this.createPerJobClusterDescriptor(jobClient);
+                        )  {
+                            return perJobYarnClusterDescriptor.retrieve(ConverterUtils.toApplicationId(applicationId)).getClusterClient();
+                        }
+                    });
+                } catch (ExecutionException e) {
+                    throw new RdosDefineException(e);
+                }
+            }, flinkClientBuilder.getYarnConf());
+        } catch (Exception e) {
+            LOG.error("job[{}] get perJobClient exception:{}", taskId, e.getMessage());
+        }
+
+        Preconditions.checkNotNull(clusterClient, "Get perJobClient is null!");
+        return clusterClient;
+    }
+
+    public void dealWithDeployCluster(String applicationId, ClusterClient<ApplicationId> clusterClient) {
+        perJobClientCache.put(applicationId, clusterClient);
     }
 
     public YarnClusterDescriptor createPerJobClusterDescriptor(JobClient jobClient) throws Exception {
@@ -158,11 +211,6 @@ public class PerJobClientFactory extends AbstractClientFactory {
         return configuration;
     }
 
-    @Override
-    public ClusterClient getClusterClient() {
-        return null;
-    }
-
     private List<File> getKeytabFilesAndSetSecurityConfig(JobClient jobClient, Configuration config) throws IOException {
         Map<String, File> keytabs = new HashMap<>();
         String remoteDir = flinkConfig.getRemoteDir();
@@ -208,9 +256,22 @@ public class PerJobClientFactory extends AbstractClientFactory {
         return keytabs.entrySet().stream().map(entry -> entry.getValue()).collect(Collectors.toList());
     }
 
-    public static PerJobClientFactory createPerJobClientFactory(FlinkClientBuilder flinkClientBuilder) {
-        PerJobClientFactory perJobClientFactory = new PerJobClientFactory(flinkClientBuilder);
-        return perJobClientFactory;
+    /**
+     * 创建一个监听器，在缓存被移除的时候，得到这个通知
+     */
+    private class ClusterClientRemovalListener implements RemovalListener<String, ClusterClient> {
+
+        @Override
+        public void onRemoval(RemovalNotification<String, ClusterClient> notification) {
+            LOG.info("key={},value={},reason={}", notification.getKey(), notification.getValue(), notification.getCause());
+            if (notification.getValue() != null) {
+                try {
+                    notification.getValue().close();
+                } catch (Exception ex) {
+                    LOG.info("[ClusterClientCache] Could not properly shutdown cluster client.", ex);
+                }
+            }
+        }
     }
 
 }

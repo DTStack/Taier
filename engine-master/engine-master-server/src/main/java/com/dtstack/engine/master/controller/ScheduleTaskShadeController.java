@@ -166,4 +166,12 @@ public class ScheduleTaskShadeController {
                                                                  @DtRequestParam("taskTypes") List<Integer> taskTypes) {
         return scheduleTaskShadeService.countTaskByTypes(tenantId, dtuicTenantId, projectIds, appType, taskTypes);
     }
+
+    @ApiOperation(value = "校验任务资源参数限制")
+    @RequestMapping(value="/checkResourceLimit", method = {RequestMethod.POST})
+    public List<String> checkResourceLimit(@DtRequestParam("dtuicTenantId") Long dtuicTenantId,
+                                           @DtRequestParam("taskType") Integer taskType,
+                                           @DtRequestParam("resourceParams") String resourceParams){
+        return scheduleTaskShadeService.checkResourceLimit(dtuicTenantId,taskType,resourceParams,null);
+    }
 }
