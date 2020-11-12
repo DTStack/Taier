@@ -321,7 +321,7 @@ export const DATA_SOURCE: any = {
     FTP: 9,
     MAXCOMPUTE: 10,
     ADSMAXCOMPUTE: 11,
-    NFS:17,
+    NFS: 17,
     TI_DB: 31
 }
 export const ENGINE_TYPE = {
