@@ -120,7 +120,6 @@ public class PerJobClientFactory extends AbstractClientFactory {
         return clusterClient;
     }
 
-    @Override
     public void dealWithDeployCluster(String applicationId, ClusterClient<ApplicationId> clusterClient) {
         perJobClientCache.put(applicationId, clusterClient);
     }

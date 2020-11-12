@@ -25,7 +25,6 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.FlinkClientBuilder;
-import com.dtstack.engine.flink.FlinkClusterClientManager;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.FileUtil;
@@ -121,6 +120,10 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
         Preconditions.checkNotNull(clusterClient, "Get perJobClient is null!");
         return clusterClient;
+    }
+
+    public void dealWithDeployCluster(String applicationId, ClusterClient<ApplicationId> clusterClient) {
+        perJobClientCache.put(applicationId, clusterClient);
     }
 
     public YarnClusterDescriptor createPerJobClusterDescriptor(JobClient jobClient) throws Exception {
