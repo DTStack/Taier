@@ -29,6 +29,39 @@
         display: none;
     }
 }
+
+.o-div--actionDom {
+    position:absolute;
+    top: -10px;
+    right: -95px;
+    color: #1890ff;
+    cursor: pointer;
+}
+
+.o-icon--actionDom {
+    margin-right: 3px;
+    color: #1890ff;
+}
+
+.o-block--dynamic {
+    width: 92%;
+    background: #fbf8fc;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+
+.c-header-dynamicform {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    line-height: 40px;
+    margin-bottom:20px;
+    border-bottom: #dedbdf 1px solid;
+    >span {
+        padding:0 20px;
+    }
+}
+
 // 改版
 .resource-wrapper {
     padding: 20px;
