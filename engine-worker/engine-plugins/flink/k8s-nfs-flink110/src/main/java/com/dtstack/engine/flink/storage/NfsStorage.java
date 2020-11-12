@@ -43,23 +43,23 @@ public class NfsStorage extends AbstractStorage {
         String dockerPluginHome = config.get(KubernetesConfigOptions.KUBERNETES_DOCKER_PLUGIN_HOME);
 
         // set jobmanager plugin volume
-        String jobmanagerVolumeServer = String.format("%s.%s.%s.options.server", Constants.KUBERNETES_JOB_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, "flinkplugin");
+        String jobmanagerVolumeServer = String.format("%s%s.%s.options.server", Constants.KUBERNETES_JOB_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, "flinkplugin");
         config.setString(jobmanagerVolumeServer, service);
-        String jobmanagerVolumePath = String.format("%s.%s.%s.options.path", Constants.KUBERNETES_JOB_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, "flinkplugin");
+        String jobmanagerVolumePath = String.format("%s%s.%s.options.path", Constants.KUBERNETES_JOB_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, "flinkplugin");
         config.setString(jobmanagerVolumePath, remotePlugin);
 
         // set jobmanager plugin mount
-        String jobmanagerMountPath = String.format("%s.%s.%s.mount.path", Constants.KUBERNETES_JOB_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, "flinkplugin");
+        String jobmanagerMountPath = String.format("%s%s.%s.mount.mountPath", Constants.KUBERNETES_JOB_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, "flinkplugin");
         config.setString(jobmanagerMountPath, dockerPluginHome);
 
         // set taskmanager plugin volume
-        String taskmanagerVolumeServer = String.format("%s.%s.%s.options.server", Constants.KUBERNETES_TASK_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, "flinkplugin");
+        String taskmanagerVolumeServer = String.format("%s%s.%s.options.server", Constants.KUBERNETES_TASK_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, "flinkplugin");
         config.setString(taskmanagerVolumeServer, service);
-        String taskmanagerVolumePath = String.format("%s.%s.%s.options.path", Constants.KUBERNETES_TASK_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, "flinkplugin");
+        String taskmanagerVolumePath = String.format("%s%s.%s.options.path", Constants.KUBERNETES_TASK_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, "flinkplugin");
         config.setString(taskmanagerVolumePath, remotePlugin);
 
         // set taskmanager plugin mount
-        String taskmanagerMountPath = String.format("%s.%s.%s.mount.path", Constants.KUBERNETES_TASK_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, "flinkplugin");
+        String taskmanagerMountPath = String.format("%s%s.%s.mount.mountPath", Constants.KUBERNETES_TASK_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, "flinkplugin");
         config.setString(taskmanagerMountPath, dockerPluginHome);
 
         flinkConfig.setRemotePluginRootDir(dockerPluginHome);

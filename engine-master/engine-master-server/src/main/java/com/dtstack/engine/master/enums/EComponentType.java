@@ -27,7 +27,8 @@ public enum EComponentType {
     ORACLE_SQL(13, "Oracle SQL", "oracleConf"),
     GREENPLUM_SQL(14, "Greenplum SQL", "greenplumConf"),
     KUBERNETES(15, "Kubernetes", "kubernetesConf"),
-    PRESTO_SQL(16, "Presto SQL", "prestoConf");
+    PRESTO_SQL(16, "Presto SQL", "prestoConf"),
+    NFS(17, "NFS", "nfsConf");
 
     private int typeCode;
 
@@ -88,7 +89,7 @@ public enum EComponentType {
     public static List<EComponentType> ResourceScheduling = Lists.newArrayList(EComponentType.YARN, EComponentType.KUBERNETES);
 
     // 存储组件
-    public static List<EComponentType> StorageScheduling = Lists.newArrayList(EComponentType.HDFS);
+    public static List<EComponentType> StorageScheduling = Lists.newArrayList(EComponentType.HDFS, EComponentType.NFS);
 
     // 计算组件
     public static List<EComponentType> ComputeScheduling = Lists.newArrayList(EComponentType.SPARK, EComponentType.SPARK_THRIFT,

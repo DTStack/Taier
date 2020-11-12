@@ -65,7 +65,8 @@ public class ClusterService implements InitializingBean {
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     private final static List<String> BASE_CONFIG = Lists.newArrayList(EComponentType.HDFS.getConfName(),
-            EComponentType.YARN.getConfName(), EComponentType.SPARK_THRIFT.getConfName(), EComponentType.SFTP.getConfName(),EComponentType.KUBERNETES.getConfName());
+            EComponentType.YARN.getConfName(), EComponentType.SPARK_THRIFT.getConfName(), EComponentType.SFTP.getConfName(),
+            EComponentType.KUBERNETES.getConfName(), EComponentType.NFS.getConfName());
 
     @Autowired
     private ClusterDao clusterDao;
@@ -743,9 +744,12 @@ public class ClusterService implements InitializingBean {
     }
 
     private String getZipFileMD5(JSONObject clusterConfigJson) {
-        JSONObject hadoopConf = clusterConfigJson.getJSONObject(EComponentType.HDFS.getConfName());
-        if (hadoopConf.containsKey(ConfigConstant.MD5_SUM_KEY)) {
-            return hadoopConf.getString(ConfigConstant.MD5_SUM_KEY);
+        try {
+            JSONObject hadoopConf = clusterConfigJson.getJSONObject(EComponentType.HDFS.getConfName());
+            if (hadoopConf.containsKey(ConfigConstant.MD5_SUM_KEY)) {
+                return hadoopConf.getString(ConfigConstant.MD5_SUM_KEY);
+            }
+        } catch (Exception e) {
         }
         return "";
     }
