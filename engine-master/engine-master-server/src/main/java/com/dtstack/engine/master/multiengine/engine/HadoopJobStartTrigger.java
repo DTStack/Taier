@@ -219,10 +219,12 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
         //TODO 数据资产任务值为空 需要设置默认值
         Integer sourceType = (Integer) actionParam.getOrDefault("dataSourceType", DataSourceType.HIVE.getVal());
+        //有可能 mysql-kudu 脏数据表是hive 用以区分数据同步目标表类型 还是脏数据表类型
+        Integer dirtyDataSourceType = (Integer) actionParam.getOrDefault("dirtyDataSourceType", DataSourceType.HIVE.getVal());
         String engineIdentity = (String) actionParam.get("engineIdentity");
         // 获取脏数据存储路径
         try {
-            job = this.replaceTablePath(true, job, taskShade.getName(), sourceType, engineIdentity,taskShade.getDtuicTenantId());
+            job = this.replaceTablePath(true, job, taskShade.getName(), dirtyDataSourceType, engineIdentity,taskShade.getDtuicTenantId());
         } catch (Exception e) {
             LOG.error("create dirty table  partition error {}", scheduleJob.getJobId(), e);
         }
