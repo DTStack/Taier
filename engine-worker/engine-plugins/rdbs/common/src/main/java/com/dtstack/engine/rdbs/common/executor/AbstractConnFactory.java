@@ -45,7 +45,7 @@ public abstract class AbstractConnFactory {
 
     protected Configuration yarnConf = null;
 
-    protected BaseConfig baseConfig = null;
+    protected BaseConfig baseConfig = new BaseConfig();
 
     public void init(Properties properties) throws ClassNotFoundException {
         synchronized (AbstractConnFactory.class) {
@@ -60,22 +60,13 @@ public abstract class AbstractConnFactory {
         password = MathUtil.getString(properties.get(ConfigConstant.PASSWORD));
 
         Preconditions.checkNotNull(jdbcUrl, "db url can't be null");
-        Map config = (Map) properties.get("config");
 
         try {
-            if (Objects.nonNull(config)) {
-                baseConfig = PublicUtil.mapToObject(config, BaseConfig.class);
-                if (Objects.nonNull(config.get("yarnConf"))) {
-                    Map<String, Object> yarnMap = (Map<String, Object>) config.get("yarnConf");
-                    yarnConf = KerberosUtils.convertMapConfToConfiguration(yarnMap);
-                }
-                if (Objects.nonNull(properties.get("sftpConf"))) {
-                    SftpConfig sftpConfig = PublicUtil.mapToObject((Map<String, Object>) properties.get("sftpConf"), SftpConfig.class);
-                    baseConfig.setSftpConf(sftpConfig);
-//                    baseConfig.setSftpConf((Map<String, String>) properties.get("sftpConf"));
-                }
-            } else {
-                baseConfig = new BaseConfig();
+            String propStr = PublicUtil.objToString(properties);
+            baseConfig = PublicUtil.jsonStrToObject(propStr, BaseConfig.class);
+            if (null != properties.get("yarnConf")) {
+                Map<String, Object> yarnMap = (Map<String, Object>) properties.get("yarnConf");
+                yarnConf = KerberosUtils.convertMapConfToConfiguration(yarnMap);
             }
             testConn();
         } catch (Exception e) {

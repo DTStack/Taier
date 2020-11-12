@@ -42,7 +42,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * Date: 2020/7/20
  * Company: www.dtstack.com
  * <p>
- * 参考 @com.dtstack.engine.common.util.SFTPHandler
  *
  * @author maqi
  */
