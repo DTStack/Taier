@@ -49,6 +49,14 @@ public interface IFileManage {
      */
     boolean downloadDir(String remotePath, String localPath);
 
+
+    /**
+     *  下载目录 无异常
+     * @param remotePath
+     * @param localPath
+     */
+    boolean downloadDirManager(String remotePath, String localPath);
+
     /**
      * 上传文件
      * @param remotePath

@@ -471,14 +471,6 @@ public class ComponentService {
         componentDTO.setComponentTypeCode(componentCode);
 
         String clusterName = clusterDao.getOne(clusterId).getClusterName();
-
-        Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
-        if (CollectionUtils.isNotEmpty(resources)) {
-            //上传资源需要依赖sftp组件
-            if (Objects.isNull(sftpComponent)) {
-                throw new RdosDefineException("请先配置sftp组件");
-            }
-        }
         EComponentType componentType = EComponentType.getByCode(componentDTO.getComponentTypeCode());
         MultiEngineType engineType = EComponentType.getEngineTypeByComponent(componentType);
         Engine engine = engineDao.getByClusterIdAndEngineType(clusterId, engineType.getType());
@@ -541,14 +533,16 @@ public class ComponentService {
         }
 
         String md5Key = "";
+
         // 获得sftp配置
-        SftpConfig sftpConfig = getSFTPConfig(sftpComponent,componentCode,componentConfig);
         if (CollectionUtils.isNotEmpty(resources)) {
-            //上传配置文件到sftp 供后续下载
+            Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
+            // 上传配置文件到sftp 供后续下载
+            SftpConfig sftpConfig = getSFTPConfig(sftpComponent,componentCode,componentConfig);
             md5Key = uploadResourceToSftp(clusterId, resources, kerberosFileName, sftpConfig, addComponent, dbComponent);
         }
-        addComponent.setComponentConfig(this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion,md5Key));
 
+        addComponent.setComponentConfig(this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion,md5Key));
         addComponent.setClusterId(clusterId);
         if (isUpdate) {
             componentDao.update(addComponent);
