@@ -142,7 +142,7 @@ public class FilesystemManager {
                 remoteDir = remoteDir.startsWith(prefix) ? StringUtils.substringAfter(remoteDir, prefix) : remoteDir;
             }
 
-            downLoadSuccess = fileManage.downloadDir(remoteDir, localDir);
+            downLoadSuccess = fileManage.downloadDirManager(remoteDir, localDir);
             fileManage.close();
             if (downLoadSuccess) {
                 LOG.info("download file success fileManage is :{}", fileManage.getClass().getSimpleName());
