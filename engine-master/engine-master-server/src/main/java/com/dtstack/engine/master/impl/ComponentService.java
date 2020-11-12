@@ -523,7 +523,7 @@ public class ComponentService {
             }
             addComponent = dbComponent;
         }
-        if(EComponentType.KUBERNETES.getTypeCode() == componentType.getTypeCode() && CollectionUtils.isNotEmpty(resources)){
+        if(EComponentType.KUBERNETES.getTypeCode().equals(componentType.getTypeCode()) && CollectionUtils.isNotEmpty(resources)){
             //kubernetes 信息需要自己解析文件
             List<Object> config = this.config(resources, EComponentType.KUBERNETES.getTypeCode(),false);
             if(CollectionUtils.isNotEmpty(config)){
@@ -541,6 +541,7 @@ public class ComponentService {
         }
 
         String md5Key = "";
+        // 获得sftp配置
         SftpConfig sftpConfig = getSFTPConfig(sftpComponent,componentCode,componentConfig);
         if (CollectionUtils.isNotEmpty(resources)) {
             //上传配置文件到sftp 供后续下载
@@ -587,15 +588,16 @@ public class ComponentService {
             }
             try {
                 if (resource.getFileName().equalsIgnoreCase(kerberosFileName)) {
+                    // 更新Kerberos文件
                     this.updateComponentKerberosFile(clusterId, addComponent, sftpFileManage, remoteDir, resource);
                 } else {
                     this.updateComponentConfigFile(dbComponent, sftpFileManage, remoteDir, resource);
-                    if(addComponent.getComponentTypeCode() == EComponentType.HDFS.getTypeCode()){
+                    if(EComponentType.HDFS.getTypeCode().equals(addComponent.getComponentTypeCode())){
                         String xmlZipLocation = resource.getUploadedFileName();
                         md5sum = MD5Util.getFileMd5String(new File(xmlZipLocation));
                         this.updateConfigToSftpPath(clusterId, sftpConfig, sftpFileManage, resource);
                     }
-                    if(addComponent.getComponentTypeCode() == EComponentType.YARN.getTypeCode()){
+                    if(EComponentType.YARN.getTypeCode().equals(addComponent.getComponentTypeCode())){
                         this.updateConfigToSftpPath(clusterId, sftpConfig, sftpFileManage, resource);
                     }
                 }
@@ -719,9 +721,9 @@ public class ComponentService {
         String deletePath = remoteDir + File.separator;
         if (Objects.nonNull(dbComponent)) {
             deletePath = deletePath + dbComponent.getUploadFileName();
+            //删除原来的文件配置zip
+            sftpFileManage.deleteFile(deletePath);
         }
-        //删除原来的文件配置zip
-        sftpFileManage.deleteFile(deletePath);
 
         //更新为原名
         sftpFileManage.uploadFile(remoteDir, resource.getUploadedFileName());
@@ -735,14 +737,13 @@ public class ComponentService {
      * * @param clusterId
      *
      * @param addComponent
-     * @param instance
      * @param remoteDir
      * @param resource
      * @return
      */
     private String updateComponentKerberosFile(Long clusterId, Component addComponent, SftpFileManage sftpFileManage, String remoteDir, Resource resource) {
         //kerberos认证文件
-        remoteDir = remoteDir + File.separator;
+        remoteDir = remoteDir + File.separator+KERBEROS_PATH;
         //删除本地文件夹
         String kerberosPath = this.getLocalKerberosPath(clusterId, addComponent.getComponentTypeCode());
         try {
