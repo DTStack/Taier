@@ -228,6 +228,13 @@ public class SftpFileManage implements IFileManage {
         }
     }
 
+    /**
+     * download 后自动释放连接
+     *
+     * @param remoteDir
+     * @param localDir
+     * @return
+     */
     public boolean downloadDirManager(String remoteDir, String localDir) {
         try {
             return downloadDir(remoteDir,localDir);
