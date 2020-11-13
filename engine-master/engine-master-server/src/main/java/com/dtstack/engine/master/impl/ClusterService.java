@@ -278,7 +278,6 @@ public class ClusterService implements InitializingBean {
                     .fluentPut("remoteDir", remotePath)
                     .fluentPut("principalFile", kerberosConfig.getName())
                     .fluentPut("krbName", kerberosConfig.getKrbName())
-                    .fluentPut("yarnConf", clusterConfigJson.getJSONObject("hadoopConf"))
                     .fluentPut("kerberosFileTimestamp", kerberosConfig.getGmtModified());
         }
     }
