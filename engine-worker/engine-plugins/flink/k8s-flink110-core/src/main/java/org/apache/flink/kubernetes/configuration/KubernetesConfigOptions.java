@@ -168,11 +168,36 @@ public class KubernetesConfigOptions {
             .noDefaultValue()
             .withDescription("the host aliases.");
 
-    public static final ConfigOption<String> KUBERNETES_DOCKER_PLUGIN_HOME =
-        key("kubernetes.docker.plugin.home")
+    public static final ConfigOption<String> KUBERNETES_DOCKER_FLINKPLUGIN_PATH =
+        key("kubernetes.docker.flinkplugin.path")
             .stringType()
-            .defaultValue("/opt/flink/flinkplugin")
-            .withDescription("docker flinkplugin home.");
+            .defaultValue("/opt/flink/mount/flinkplugin")
+            .withDescription("docker flinkplugin path.");
+
+    public static final ConfigOption<String> KUBERNETES_DOCKER_CHECKPOINT_PATH =
+        key("kubernetes.docker.checkpoint.path")
+            .stringType()
+            .defaultValue("/opt/flink/mount/checkpoints")
+            .withDescription("docker checkpoints path.");
+
+    public static final ConfigOption<String> KUBERNETES_DOCKER_SAVEPOINT_PATH =
+        key("kubernetes.docker.savepoint.path")
+            .stringType()
+            .defaultValue("/opt/flink/mount/savepoints")
+            .withDescription("docker savepoints path.");
+
+    public static final ConfigOption<String> KUBERNETES_DOCKER_COMPLETEDJOB_PATH =
+        key("kubernetes.docker.completedjob.path")
+            .stringType()
+            .defaultValue("/opt/flink/mount/completed-jobs")
+            .withDescription("docker completed-jobs path.");
+
+    public static final ConfigOption<String> KUBERNETES_DOCKER_HA_STORAGE_PATH =
+        key("kubernetes.docker.ha.path")
+            .stringType()
+            .defaultValue("/opt/flink/mount/ha")
+            .withDescription("docker ha_storage path.");
+
 
     /**
      * The flink rest service exposed type.
