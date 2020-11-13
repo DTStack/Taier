@@ -1,6 +1,13 @@
 package com.dtstack.engine.master.utils;
 
+import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.master.dataCollection.DataCollection;
+
 import java.io.File;
+import java.io.IOException;
 
 public class CommonUtils {
     private final static String SEP = File.separator;
@@ -26,5 +33,13 @@ public class CommonUtils {
             }
         }
         throw new RuntimeException("Not found dir named test_conf");
+    }
+
+    public static JobClient getJobClient() throws Exception {
+
+        EngineJobCache jobCache = DataCollection.getData().getEngineJobCache();
+        ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
+        return new JobClient(paramAction);
+
     }
 }

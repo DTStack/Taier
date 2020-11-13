@@ -64,10 +64,10 @@ public class Template {
         EngineJobCache engineJobCache = new EngineJobCache();
         engineJobCache.setJobId("jobId");
         engineJobCache.setJobName("test");
-        engineJobCache.setEngineType("1");
+        engineJobCache.setEngineType("spark");
         engineJobCache.setJobPriority(10L);
         engineJobCache.setComputeType(1);
-        engineJobCache.setJobInfo("{\"engineType\":\"2\",\"taskType\":2,\"computeType\":0, \"tenantId\":9}");
+        engineJobCache.setJobInfo("{\"engineType\":\"spark\",\"taskType\":2,\"computeType\":0, \"tenantId\":9}");
         engineJobCache.setStage(2);
         engineJobCache.setNodeAddress("node01");
         engineJobCache.setJobResource("test");
