@@ -225,11 +225,11 @@ public class FlinkClientTest {
 
 		JobClient jobClient = YarnMockUtil.mockJobClient("session", null);
 
-		//when(flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().isRunning()).thenReturn(true);
+//		when(flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().isRunning()).thenReturn(true);
 		String webInterfaceURL = "http://dtstack01:8088";
 		ClusterClient clusterClient = PowerMockito.mock(ClusterClient.class);
 		when(clusterClient.getWebInterfaceURL()).thenReturn(webInterfaceURL);
-		when(flinkClusterClientManager.getClusterClient()).thenReturn(clusterClient);
+		when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
 
 		String taskmanagers = "{\"taskmanagers\":[{\"freeSlots\":9, \"slotsNumber\":4}]}";
 		PowerMockito.mockStatic(PoolHttpClient.class);
@@ -270,7 +270,7 @@ public class FlinkClientTest {
 		JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobId, appId, taskId);
 
 		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
-		when(flinkClusterClientManager.getClusterClient()).thenReturn(clusterClient);
+		when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
 
 		JobResult jobResult = flinkClient.cancelJob(jobIdentifier);
 		Assert.assertNotNull(jobResult);
@@ -294,7 +294,7 @@ public class FlinkClientTest {
 		when(PoolHttpClient.get(any())).thenReturn("{\"state\":\"RUNNING\"}");
 
 		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
-		when(flinkClusterClientManager.getClusterClient()).thenReturn(clusterClient);
+		when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
 		jobIdentifier.setApplicationId(null);
 		RdosTaskStatus jobStatus2 = flinkClient.getJobStatus(jobIdentifier);
 		Assert.assertNotNull(jobStatus2);
@@ -353,7 +353,7 @@ public class FlinkClientTest {
 		YarnMockUtil.mockPackagedProgram();
 		ClusterSpecification clusterSpecification = YarnMockUtil.mockClusterSpecification();
 
-		when(flinkClusterClientManager.getClusterClient()).thenReturn(clusterClient);
+		when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
 
 		PowerMockito.mockStatic(FlinkConfUtil.class);
 		when(FlinkConfUtil.createClusterSpecification(any(Configuration.class), any(int.class), any(Properties.class)))
@@ -394,7 +394,7 @@ public class FlinkClientTest {
 		YarnMockUtil.mockPackagedProgram();
 		ClusterSpecification clusterSpecification = YarnMockUtil.mockClusterSpecification();
 
-		when(flinkClusterClientManager.getClusterClient()).thenReturn(clusterClient);
+		when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
 		when(flinkClientBuilder.getFlinkConfiguration()).thenReturn(new Configuration());
 
 		PowerMockito.mockStatic(FlinkConfUtil.class);
@@ -404,11 +404,10 @@ public class FlinkClientTest {
 		YarnClusterDescriptor yarnClusterDescriptor = YarnMockUtil.mockYarnClusterDescriptor(clusterClient);
 
 		PerJobClientFactory perJobClientFactory = PowerMockito.mock(PerJobClientFactory.class);
-		when(flinkClusterClientManager.getPerJobClientFactory()).thenReturn(perJobClientFactory);
+		when(flinkClusterClientManager.getClientFactory()).thenReturn(perJobClientFactory);
 		when(perJobClientFactory.createPerJobClusterDescriptor(any(JobClient.class)))
 				.thenReturn(yarnClusterDescriptor);
 		PowerMockito.mockStatic(PerJobClientFactory.class);
-		when(PerJobClientFactory.getPerJobClientFactory()).thenReturn(perJobClientFactory);
 
 		Class<? extends FlinkClient> flinkClientClass = flinkClient.getClass();
 		Method submitSqlJobMethod = flinkClientClass.getDeclaredMethod("submitSqlJob", JobClient.class);
@@ -424,7 +423,7 @@ public class FlinkClientTest {
 		String webInterfaceURL = "http://dtstack01:8088";
 		ClusterClient clusterClient = PowerMockito.mock(ClusterClient.class);
 		when(clusterClient.getWebInterfaceURL()).thenReturn(webInterfaceURL);
-		when(flinkClusterClientManager.getClusterClient()).thenReturn(clusterClient);
+		when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
 		String perReqUrl = flinkClient.getReqUrl(FlinkYarnMode.PER_JOB);
 		Assert.assertEquals(perReqUrl, "${monitor}");
 
@@ -436,7 +435,7 @@ public class FlinkClientTest {
 	public void testGetMessageByHttp() throws Exception {
 
 		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
-		when(flinkClusterClientManager.getClusterClient()).thenReturn(clusterClient);
+		when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
 
 		PowerMockito.mockStatic(PoolHttpClient.class);
 		when(PoolHttpClient.get(any(String.class), anyObject(), any(int.class))).thenReturn("testGetMessageByHttp");

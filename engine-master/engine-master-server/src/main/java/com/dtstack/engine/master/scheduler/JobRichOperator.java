@@ -1,31 +1,30 @@
 package com.dtstack.engine.master.scheduler;
 
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.schedule.common.enums.*;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.util.MathUtil;
-import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.common.enums.DependencyType;
-import com.dtstack.engine.common.enums.EScheduleStatus;
-import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.enums.JobCheckStatus;
-import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.dao.ScheduleJobJobDao;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.util.DateUtil;
+import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.dao.ScheduleJobDao;
+import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
 import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
+import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -173,8 +172,16 @@ public class JobRichOperator {
             return Boolean.FALSE;
         }
 
+        JSONObject scheduleConf = JSONObject.parseObject(batchTaskShade.getScheduleConf());
+        if(null == scheduleConf){
+            return null;
+        }
+        Integer isExpire = scheduleConf.getInteger("isExpire");
+        if(null == isExpire){
+            return null;
+        }
         //配置了允许过期才能
-        if (Expired.EXPIRE.getVal() == batchTaskShade.getIsExpire() && this.checkExpire(scheduleBatchJob, scheduleType, batchTaskShade)) {
+        if (Expired.EXPIRE.getVal() == isExpire && this.checkExpire(scheduleBatchJob, scheduleType, batchTaskShade)) {
             checkRunInfo.setStatus(JobCheckStatus.TIME_OVER_EXPIRE);
             return Boolean.FALSE;
         }
@@ -430,14 +437,38 @@ public class JobRichOperator {
         }
         //判断task任务是否配置了允许过期（暂时允许全部任务过期 不做判断）
         //超过时间限制
-        if (StringUtils.isNotBlank(scheduleBatchJob.getScheduleJob().getNextCycTime())) {
-            LocalDateTime nextCycTime = LocalDateTime.parse(scheduleBatchJob.getScheduleJob().getNextCycTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            if(nextCycTime.isBefore(LocalDateTime.now())){
-                //如果超过过期时间限制 每天最后一次周期不允许过期
-                return nextCycTime.getDayOfYear() == LocalDateTime.now().getDayOfYear();
+        String nextCycTime = scheduleBatchJob.getScheduleJob().getNextCycTime();
+        if(StringUtils.isBlank(nextCycTime)){
+            return false;
+        }
+        String scheduleConf = batchTaskShade.getScheduleConf();
+        if(StringUtils.isBlank(scheduleConf)){
+            return false;
+        }
+        LocalDateTime nextDateCycTime = LocalDateTime.parse(scheduleBatchJob.getScheduleJob().getNextCycTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        JSONObject jsonObject = JSON.parseObject(scheduleConf);
+        Boolean isLastInstance = jsonObject.getBoolean("isLastInstance");
+        if(null == isLastInstance){
+            return nextDateCycTime.isBefore(LocalDateTime.now());
+        }
+        LocalDateTime cycDateTime = LocalDateTime.parse(scheduleBatchJob.getScheduleJob().getCycTime(), DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        if (isLastInstance) {
+            // 判断当前实例是否是最后一个实例,且设置了执行最后一个任务
+            if (nextDateCycTime.getDayOfMonth() != cycDateTime.getDayOfMonth()) {
+                // cycTime 和 nextCycTime 是不是同一天 不是同一天 说明这个任务是今天执行的最后一个任务
+                return false;
+            }
+            return nextDateCycTime.isBefore(LocalDateTime.now());
+        } else {
+            //延迟至第二天后自动取消
+            if (nextDateCycTime.getDayOfMonth() == cycDateTime.getDayOfMonth()) {
+                //不是当天最后一个任务
+                return nextDateCycTime.isBefore(LocalDateTime.now());
+            } else {
+                //最后一个执行时间 20201105235800 nextCycTime为2020-11-06 23:48:00 当前时间2020-11-06 11:00:00 要过期
+                return nextDateCycTime.getDayOfMonth() == LocalDateTime.now().getDayOfMonth();
             }
         }
-        return false;
     }
 
     private boolean isEndStatus(Integer jobStatus) {
@@ -612,5 +643,4 @@ public class JobRichOperator {
         String startTime = sdf.format(calendar.getTime());
         return new ImmutablePair<>(startTime, endTime);
     }
-
 }

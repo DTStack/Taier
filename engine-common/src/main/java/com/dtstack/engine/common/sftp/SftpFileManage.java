@@ -42,7 +42,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * Date: 2020/7/20
  * Company: www.dtstack.com
  * <p>
- * 参考 @com.dtstack.engine.common.util.SFTPHandler
  *
  * @author maqi
  */
@@ -235,6 +234,22 @@ public class SftpFileManage implements IFileManage {
      * @param localDir
      * @return
      */
+    public boolean downloadDirManager(String remoteDir, String localDir) {
+        try {
+            return downloadDir(remoteDir,localDir);
+        } catch (Throwable e) {
+            LOG.error("sftp downloadDir error {}", e);
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * download 后自动释放连接
+     *
+     * @param remoteDir
+     * @param localDir
+     * @return
+     */
     public boolean downloadDir(String remoteDir, String localDir) {
         ChannelSftp channelSftp = null;
         try {
@@ -250,6 +265,7 @@ public class SftpFileManage implements IFileManage {
             if (files == null) {
                 return false;
             }
+            // 递归下载文件
             for (Iterator<ChannelSftp.LsEntry> iterator = files.iterator(); iterator.hasNext(); ) {
                 ChannelSftp.LsEntry str = iterator.next();
                 String filename = str.getFilename();
@@ -280,7 +296,7 @@ public class SftpFileManage implements IFileManage {
             return true;
         } catch (Exception e) {
             LOG.error("sftp downloadDir error {}", e);
-            return false;
+            throw new RdosDefineException(e);
         } finally {
             close(channelSftp);
         }

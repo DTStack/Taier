@@ -129,7 +129,7 @@ public class FlinkClientTest {
 
         JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobId, appId, taskId);
         ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
-        when(flinkClusterClientManager.getClusterClient()).thenReturn(clusterClient);
+        when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
         JobResult jobResult = flinkClient.cancelJob(jobIdentifier);
         Assert.assertNotNull(jobResult);
     }
@@ -206,7 +206,7 @@ public class FlinkClientTest {
         when(PoolHttpClient.get(any())).thenReturn("{\"state\":\"RUNNING\"}");
 
         ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
-        when(flinkClusterClientManager.getClusterClient()).thenReturn(clusterClient);
+        when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
         jobIdentifier.setApplicationId(null);
         RdosTaskStatus jobStatus2 = flinkClient.getJobStatus(jobIdentifier);
         Assert.assertNotNull(jobStatus2);

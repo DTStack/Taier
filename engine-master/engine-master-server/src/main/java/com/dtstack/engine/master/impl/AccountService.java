@@ -416,17 +416,17 @@ public class AccountService {
     public AccountVo getAccountVo(Long dtUicTenantId, Long dtUicUserId,Integer accountType) {
         AccountVo accountVo = new AccountVo();
         Tenant tenant = tenantDao.getByDtUicTenantId(dtUicTenantId);
-        if (null == tenant) {
+        if (Objects.isNull(tenant)) {
             return accountVo;
         }
 
         User user = userDao.getByDtUicUserId(dtUicUserId);
-        if (null == user) {
+        if (Objects.isNull(user)) {
             return accountVo;
         }
 
         Account one = accountDao.getOne(tenant.getId(), user.getId(), accountType,null);
-        if (null == one) {
+        if (Objects.isNull(one)) {
             return accountVo;
         }
 
@@ -446,24 +446,24 @@ public class AccountService {
         }
         //检查ldap 同一个租户下一个ldap name 只能被一个账号绑定
         Tenant tenant = tenantDao.getByDtUicTenantId(accountVo.getBindTenantId());
-        if (null == tenant) {
+        if (Objects.isNull(tenant)) {
             return;
         }
 
         User user = userDao.getByDtUicUserId(accountVo.getBindUserId());
-        if (null == user) {
+        if (Objects.isNull(user)) {
             return;
         }
 
         //检查同租户下用户是否已被绑定
         Account one = accountDao.getOne(tenant.getId(), user.getId(), accountType, null);
-        if (null != one) {
+        if (Objects.nonNull(one)) {
             throw new RdosDefineException("用户"+ user.getUserName() + "已绑定");
         }
 
         //检查同租户下用户名是否被绑定
         Account exit = accountDao.getOne(tenant.getId(), null, accountType, accountVo.getName());
-        if (null != exit) {
+        if (Objects.nonNull(exit)) {
             throw new RdosDefineException("用户名"+ accountVo.getName() + "已绑定");
         }
 

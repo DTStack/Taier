@@ -38,8 +38,11 @@ public class DownloadController {
     @ApiImplicitParams({
             @ApiImplicitParam(name="type",value="0:kerberos配置文件 1:配置文件 2:模板文件",required=true, dataType = "int")
     })
-    public void handleDownload(@RequestParam("componentId") Long componentId, @RequestParam("type") Integer downloadType, @RequestParam("componentType") Integer componentType,
-                               @RequestParam("hadoopVersion") String hadoopVersion, @RequestParam("clusterName") String clusterName, HttpServletResponse response) {
+    public void handleDownload(@RequestParam(value = "componentId",required = false) Long componentId,
+                               @RequestParam("type") Integer downloadType,
+                               @RequestParam("componentType") Integer componentType,
+                               @RequestParam("hadoopVersion") String hadoopVersion,
+                               @RequestParam("clusterName") String clusterName, HttpServletResponse response) {
         response.setHeader("content-type", "application/octet-stream;charset=UTF-8");
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Cache-Control", "no-cache");
