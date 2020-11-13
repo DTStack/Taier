@@ -223,7 +223,8 @@ public class JobRestartDealer {
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
             jobClient.setSql(paramAction.getSqlText());
         } catch (IOException e) {
-            throw new RdosDefineException(e);
+            LOG.error("convert paramAction error: {}", e.getMessage());
+            return false;
         }
 
         //添加到重试队列中
