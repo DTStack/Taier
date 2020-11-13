@@ -17,7 +17,7 @@ const CustomModal: React.FC = (props: any) => {
     const [tenantList, setTenantList] = useState([])
     const prevVisible = useRef(null)
     const [clusterId, setClusterId] = useState(Id)
-    const { env, queueList } = useEnv({ clusterId, visible, form, clusterList })
+    const { env, queueList } = useEnv({ clusterId: clusterId || Id, visible, form, clusterList })
     // 切换集群
     useEffect(() => {
         prevVisible.current = visible
@@ -107,7 +107,7 @@ const CustomModal: React.FC = (props: any) => {
                                 required: true,
                                 message: '租户不可为空！'
                             }],
-                            initialValue: tenantInfo && `${tenantInfo.tenantName}`
+                            initialValue: tenantInfo.tenantName || ''
                         })(
                             <Select
                                 allowClear
@@ -133,7 +133,7 @@ const CustomModal: React.FC = (props: any) => {
                                 required: true,
                                 message: '集群不可为空！'
                             }],
-                            initialValue: clusterId || ''
+                            initialValue: Id || ''
                         })(
                             <Select
                                 allowClear
