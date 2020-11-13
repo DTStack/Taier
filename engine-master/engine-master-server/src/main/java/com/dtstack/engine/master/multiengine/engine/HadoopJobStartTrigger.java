@@ -432,12 +432,25 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         if (isOpenKerberos) {
             //开启了kerberos 用数据同步中job 中配置项
             pluginInfo.put("openKerberos", "true");
-            pluginInfo.put("remoteDir", hadoopConfig.getString("remoteDir"));
-            pluginInfo.put("principalFile", hadoopConfig.getString("principalFile"));
+            String remoteDir = hadoopConfig.getString("remoteDir");
+            if(StringUtils.isBlank(remoteDir)){
+                throw new RdosDefineException("数据同步hadoopConfig remoteDir 字段不能为空");
+            }
+            pluginInfo.put("remoteDir",remoteDir);
+            String principalFile = hadoopConfig.getString("principalFile");
+            if(StringUtils.isBlank(principalFile)){
+                throw new RdosDefineException("数据同步hadoopConfig principalFile 字段不能为空");
+            }
+            JSONObject sftpConf = hadoopConfig.getJSONObject("sftpConf");
+            if (null == sftpConf || sftpConf.size() <= 0) {
+                throw new RdosDefineException("数据同步hadoopConfig sftpConf 字段不能为空");
+            }
+            pluginInfo.put("sftpConf", sftpConf);
+            pluginInfo.put("principalFile",principalFile);
             //krb5.conf的文件名
             pluginInfo.put("krbName", hadoopConfig.getString("java.security.krb5.conf"));
             pluginInfo.put("yarnConf", hadoopConfig);
-            pluginInfo.put("sftpConf", hadoopConfig.getJSONObject("sftpConf"));
+
         }
         return pluginInfo;
     }
