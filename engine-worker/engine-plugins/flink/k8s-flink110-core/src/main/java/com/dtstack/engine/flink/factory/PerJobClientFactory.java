@@ -100,8 +100,8 @@ public class PerJobClientFactory extends AbstractClientFactory {
 
     private Configuration setContainerEnv(Configuration config, JobClient jobClient) {
         // set log env
-        config.setString(buildMasterEnvKey(ConfigConstrant.TASKID_KEY), config.get(KubernetesConfigOptions.CLUSTER_ID));
-        config.setString(buildTaskManagerEnvKey(ConfigConstrant.TASKID_KEY), config.get(KubernetesConfigOptions.CLUSTER_ID));
+        config.setString(buildMasterEnvKey(ConfigConstrant.TASKID_KEY), config.get(KubernetesConfigOptions.CLUSTER_ID).replaceAll("-", ""));
+        config.setString(buildTaskManagerEnvKey(ConfigConstrant.TASKID_KEY), config.get(KubernetesConfigOptions.CLUSTER_ID).replaceAll("-", ""));
 
         config.setString(buildMasterEnvKey(ConfigConstrant.FLINKX_HOSTS_ENV), config.getString(ConfigConstrant.FLINKX_HOSTS_CONFIG_KEY, ""));
         config.setString(buildTaskManagerEnvKey(ConfigConstrant.FLINKX_HOSTS_ENV), config.getString(ConfigConstrant.FLINKX_HOSTS_CONFIG_KEY, ""));

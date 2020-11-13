@@ -334,7 +334,11 @@ public class ActionService {
         String engineLog = "";
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         if (scheduleJob != null && StringUtils.isNotEmpty(scheduleJob.getApplicationId())) {
-            engineLog = elasticsearchService.searchWithJobId("taskId", scheduleJob.getApplicationId());
+            String applicationId = "";
+            if (StringUtils.isNotEmpty(scheduleJob.getApplicationId())) {
+                applicationId = scheduleJob.getApplicationId().replaceAll("-", "");
+            }
+            engineLog = elasticsearchService.searchWithJobId("taskId", applicationId);
         }
         return engineLog;
     }
