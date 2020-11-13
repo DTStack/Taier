@@ -17,6 +17,10 @@ public class Table{
      */
     private String db;
 
+
+    /**schema名称**/
+    private String schemaName;
+
     /**
      * 名称
      */
@@ -184,6 +188,14 @@ public class Table{
 
     public void setTemp(boolean temp) {
         isTemp = temp;
+    }
+
+    public String getSchemaName() {
+        return schemaName;
+    }
+
+    public void setSchemaName(String schemaName) {
+        this.schemaName = schemaName;
     }
 
     @Override

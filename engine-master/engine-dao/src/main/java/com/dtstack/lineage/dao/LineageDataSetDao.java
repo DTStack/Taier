@@ -39,5 +39,5 @@ public interface LineageDataSetDao {
      * @param ids:
      * @return: com.dtstack.engine.api.domain.LineageDataSetInfo
      **/
-    LineageDataSetInfo getDataSetListByIds(@Param("ids") List<Long> ids);
+    List<LineageDataSetInfo> getDataSetListByIds(@Param("ids") List<Long> ids);
 }

@@ -8,6 +8,7 @@ import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.enums.EComponentApiType;
 import com.dtstack.engine.api.pojo.lineage.Column;
+import com.dtstack.engine.api.pojo.lineage.Table;
 import com.dtstack.engine.api.service.ComponentService;
 import com.dtstack.engine.common.client.ClientCache;
 import com.dtstack.engine.common.client.IClient;
@@ -24,10 +25,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * @Author tengzhen
@@ -98,7 +96,7 @@ public class LineageDataSetInfoService {
         return sourceId+dbName+tableName;
     }
 
-    public List<Column> getTableColumns(LineageDataSetInfo dataSetInfo,String sql){
+    public List<Column> getTableColumns(LineageDataSetInfo dataSetInfo){
 
         //获取数据源信息
         LineageDataSource dataSource = sourceService.getDataSourceById(dataSetInfo.getSourceId());
@@ -176,11 +174,39 @@ public class LineageDataSetInfoService {
      * @param ids:
      * @return: com.dtstack.engine.api.domain.LineageDataSetInfo
      **/
-    public LineageDataSetInfo getDataSetListByIds(List<Long> ids){
+    public List<LineageDataSetInfo> getDataSetListByIds(List<Long> ids){
 
         if(CollectionUtils.isEmpty(ids)){
             throw new RdosDefineException("表id列表不能为空");
         }
         return lineageDataSetDao.getDataSetListByIds(ids);
     }
-}
+
+
+    /**
+     * @author zyd
+     * @Description 根据数据源id和table列表查询字段信息
+     * @Date 2020/11/13 10:57 上午
+     * @param sourceId:
+     * @param tables:
+     * @return: java.util.Map<java.lang.String,java.util.List<com.dtstack.engine.api.pojo.lineage.Column>>
+     **/
+    public Map<String,List<Column>> getColumnsBySourceIdAndListTable(Long sourceId, List<Table> tables){
+
+        HashMap<String, List<Column>> listHashMap = new HashMap<>(16);
+        if(CollectionUtils.isEmpty(tables)){
+            return listHashMap;
+        }
+        for (Table table : tables) {
+            LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
+            dataSetInfo.setDbName(table.getName());
+            dataSetInfo.setSchemaName(table.getSchemaName());
+            dataSetInfo.setDbName(table.getDb());
+            dataSetInfo.setSourceId(sourceId);
+            List<Column> tableColumns = getTableColumns(dataSetInfo);
+            listHashMap.put(table.getName(),tableColumns);
+        }
+        return listHashMap;
+    }
+
+    }
