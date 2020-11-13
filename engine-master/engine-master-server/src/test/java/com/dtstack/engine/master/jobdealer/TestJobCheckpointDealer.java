@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.jobDeleader;
+package com.dtstack.engine.master.jobdealer;
 
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
@@ -7,7 +7,6 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.dataCollection.DataCollection;
-import com.dtstack.engine.master.jobdealer.JobCheckpointDealer;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

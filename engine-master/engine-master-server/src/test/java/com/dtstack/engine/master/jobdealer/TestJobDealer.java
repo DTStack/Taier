@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.jobDeleader;
+package com.dtstack.engine.master.jobdealer;
 
 import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.EngineJobCache;
@@ -8,41 +8,68 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
-import com.dtstack.engine.master.jobdealer.JobRestartDealer;
+import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.utils.CommonUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Map;
+
 /**
  * @Author tengzhen
  * @Description:
- * @Date: Created in 6:02 下午 2020/11/13
+ * @Date: Created in 5:02 下午 2020/11/13
  */
-public class TestJobRestartDealer extends AbstractTest {
+public class TestJobDealer extends AbstractTest {
+
 
     @Autowired
-    private JobRestartDealer jobRestartDealer;
+    private JobDealer jobDealer;
 
     @Autowired
     private ClusterDao clusterDao;
 
 
     @Test
-    public void testCheckAndRestartForSubmitResult() throws Exception {
+    public void testAddSubmitJob() throws Exception {
 
         JobClient jobClient = CommonUtils.getJobClient();
         addDefaultCluster();
-        jobRestartDealer.checkAndRestartForSubmitResult(jobClient);
+        jobClient.setTaskId("afafafga");
+        jobDealer.addSubmitJob(jobClient);
     }
 
+
     @Test
-    public void testCheckAndRestart() {
+    public void testGetAllNodesGroupQueueInfo() throws Exception {
+
+        Map<String, Map<String, GroupInfo>> allNodesGroupQueueInfo = jobDealer.getAllNodesGroupQueueInfo();
+        Assert.assertNotNull(allNodesGroupQueueInfo);
+    }
+
+
+    @Test
+    public void testGetAndUpdateEngineLog(){
+
+        ScheduleTaskShade taskShade = DataCollection.getData().getScheduleTaskShade();
         EngineJobCache jobCache = DataCollection.getData().getEngineJobCache();
         EngineJobCheckpoint checkpoint = DataCollection.getData().getEngineJobCheckpoint();
-        boolean flag = jobRestartDealer.checkAndRestart(2, jobCache.getJobId(), checkpoint.getTaskEngineId(), "1");
-        Assert.assertTrue(flag);
+        String andUpdateEngineLog = jobDealer.getAndUpdateEngineLog(jobCache.getJobId(),checkpoint.getTaskEngineId(),
+                "11",taskShade.getDtuicTenantId());
+        Assert.assertNotNull(andUpdateEngineLog);
     }
+
+
+    @Test
+    public void testAfterPropertiesSet() throws Exception {
+
+        jobDealer.afterPropertiesSet();
+    }
+
+
+
+
 
 
     private Cluster addDefaultCluster(){
