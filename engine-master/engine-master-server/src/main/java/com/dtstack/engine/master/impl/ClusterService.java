@@ -266,7 +266,7 @@ public class ClusterService implements InitializingBean {
         //sftp Dir
         JSONObject sftpConfig = clusterConfigJson.getJSONObject(EComponentType.SFTP.getConfName());
         if (null != sftpConfig) {
-            pluginJson.fluentPut("sftpConf", sftpConfig);
+            pluginJson.put(EComponentType.SFTP.getConfName(), sftpConfig);
         }
         EComponentType componentType = type.getComponentType();
         KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode());
@@ -279,6 +279,8 @@ public class ClusterService implements InitializingBean {
                     .fluentPut("principalFile", kerberosConfig.getName())
                     .fluentPut("krbName", kerberosConfig.getKrbName())
                     .fluentPut("kerberosFileTimestamp", kerberosConfig.getGmtModified());
+            //如果 hiveSQL  impalaSQL中没有yarnConf 需要添加yarnConf做kerberos认证
+            pluginJson.putIfAbsent(EComponentType.YARN.getConfName(),clusterConfigJson.getJSONObject(EComponentType.YARN.getConfName()));
         }
     }
 
