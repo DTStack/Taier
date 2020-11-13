@@ -267,7 +267,7 @@ public class ClusterService implements InitializingBean {
         //sftp Dir
         JSONObject sftpConfig = clusterConfigJson.getJSONObject(EComponentType.SFTP.getConfName());
         if (null != sftpConfig) {
-            clusterConfigJson.fluentPut("sftpConf", sftpConfig);
+            pluginJson.fluentPut("sftpConf", sftpConfig);
         }
         EComponentType componentType = type.getComponentType();
         KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode());
