@@ -1,93 +1,54 @@
-import * as React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Modal, Form, Select, Icon, Tooltip, Input } from 'antd';
 import { debounce } from 'lodash';
 
 import API from 'dt-common/src/api';
 
-import { formItemLayout, ENGINE_TYPE, RESOURCE_TYPE } from '../../consts'
+import { useEnv } from '../customHooks'
+
+import { formItemLayout } from '../../consts'
+
 const Option = Select.Option;
+const FormItem = Form.Item
 
-class BindCommModal extends React.Component<any, any> {
-    constructor (props: any) {
-        super(props);
-        this.state = {
-            queueList: [],
-            tenantList: [],
-            hasHadoop: false,
-            hasKubernetes: false,
-            hasLibra: false,
-            hasTiDB: false,
-            hasOracle: false,
-            hasGreenPlum: false,
-            hasPresto: false,
-            clusterId: props.clusterId
-        }
-    }
-
-    componentDidMount () {
-        const { clusterId } = this.state;
-        if (clusterId) { // 新增租户初始化
-            this.handleChangeCluster(clusterId)
-        }
-    }
-
+const CustomModal: React.FC = (props: any) => {
+    const { form, form: { getFieldDecorator, resetFields }, visible, onOk, onCancel, title, isBindTenant,
+        disabled, tenantInfo = {}, clusterId: Id, clusterList, isBindNamespace } = props
+    const [tenantList, setTenantList] = useState([])
+    const prevVisible = useRef(null)
+    const [clusterId, setClusterId] = useState(Id)
+    const { env, queueList } = useEnv({ clusterId, visible, form, clusterList })
     // 切换集群
-    handleChangeCluster = (value: any) => {
-        const { clusterList } = this.props;
-        this.props.form.resetFields(['queueId']);
-        let currentCluster: any;
-        currentCluster = clusterList.filter((clusItem: any) => clusItem.clusterId == value); // 选中当前集群
+    useEffect(() => {
+        prevVisible.current = visible
+        if (visible === false) {
+            resetFields()
+            setClusterId(undefined)
+        }
+    }, [visible, resetFields])
 
-        const currentEngineList = (currentCluster[0] && currentCluster[0].engines) || [];
-        const hadoopEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.HADOOP);
-        const kubernetesEngine = currentEngineList.filter((item: any) => item.resourceType == RESOURCE_TYPE.KUBERNETES);
-        const libraEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.LIBRA);
-        const tiDBEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.TI_DB);
-        const oracleEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.ORACLE);
-        const greenPlumEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.GREEN_PLUM);
-        const prestoEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.PRESTO);
-
-        const hasHadoop = hadoopEngine.length >= 1;
-        const hasKubernetes = kubernetesEngine.length >= 1;
-        const hasLibra = libraEngine.length >= 1;
-        const hasTiDB = tiDBEngine.length > 0;
-        const hasOracle = oracleEngine.length > 0;
-        const hasGreenPlum = greenPlumEngine.length > 0;
-        const hasPresto = prestoEngine.length > 0;
-
-        const queueList = hasHadoop && hadoopEngine[0] && hadoopEngine[0].queues;
-        this.setState({
-            hasHadoop,
-            hasKubernetes,
-            hasLibra,
-            hasTiDB,
-            queueList,
-            hasOracle,
-            hasGreenPlum,
-            hasPresto
-        })
-    }
-
-    onSearchTenantUser = (value: string) => {
+    const onSearchTenantUser = (value: string) => {
         API.getFullTenants(value).then((res: any) => {
             if (res.success) {
-                this.setState({
-                    tenantList: res.data || []
-                })
+                setTenantList(res.data || [])
             }
         })
     }
 
-    debounceSearchTenant = debounce(this.onSearchTenantUser, 1000);
+    const handleChangeCluster = (e) => {
+        setClusterId(e)
+    }
 
-    getServiceParam () {
+    const debounceSearchTenant = debounce(onSearchTenantUser, 1000);
+
+    const getServiceParam = () => {
         let params: any = {
             canSubmit: false,
             reqParams: {}
         }
-        const { getFieldsValue, validateFields } = this.props.form;
+        const { getFieldsValue, validateFields } = props?.form;
         const reqParams = getFieldsValue();
-        const { tenantInfo = {}, isBindTenant, isBindNamespace } = this.props;
+        const { hasKubernetes } = env
         validateFields((err: any) => {
             if (!err) {
                 params.canSubmit = true;
@@ -100,14 +61,14 @@ class BindCommModal extends React.Component<any, any> {
                         queueId: tenantInfo.queueId
                     });
                 }
-                params.hasKubernetes = this.state.hasKubernetes
+                params.hasKubernetes = hasKubernetes
             }
         })
         return params
     }
 
-    getEnginName () {
-        const { hasLibra, hasTiDB, hasOracle, hasGreenPlum, hasPresto } = this.state;
+    const getEnginName = () => {
+        const { hasLibra, hasTiDB, hasOracle, hasGreenPlum, hasPresto } = env;
         let enginName = [];
         enginName = hasLibra ? [...enginName, 'Libra'] : enginName;
         enginName = hasTiDB ? [...enginName, 'TiDB'] : enginName;
@@ -117,141 +78,147 @@ class BindCommModal extends React.Component<any, any> {
         return enginName;
     }
 
-    render () {
-        const { getFieldDecorator } = this.props.form;
-        const { visible, onOk, onCancel, title, isBindTenant,
-            disabled, clusterList, tenantInfo, clusterId } = this.props;
-        const { hasHadoop, queueList, tenantList, hasKubernetes } = this.state;
-        const bindEnginName = this.getEnginName();
-        return (
-            <Modal
-                title={title}
-                visible={visible}
-                onOk={() => { onOk(this.getServiceParam()) }}
-                onCancel={onCancel}
-                width='600px'
-                className={isBindTenant ? 'no-padding-modal' : ''}
-            >
-                <React.Fragment>
+    const { hasHadoop, hasKubernetes } = env;
+    const bindEnginName = getEnginName();
+
+    return (
+        <Modal
+            title={title}
+            visible={visible}
+            onOk={() => { onOk(getServiceParam()) }}
+            onCancel={onCancel}
+            width='600px'
+            className={isBindTenant ? 'no-padding-modal' : ''}
+        >
+            <React.Fragment>
+                {
+                    isBindTenant && <div className='info-title'>
+                        <Icon type="info-circle" style={{ color: '#2491F7' }} />
+                        <span className='info-text'>将租户绑定到集群，可使用集群内的每种计算引擎，绑定后，不能切换其他集群。</span>
+                    </div>
+                }
+                <Form>
+                    <Form.Item
+                        label="租户"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('tenantId', {
+                            rules: [{
+                                required: true,
+                                message: '租户不可为空！'
+                            }],
+                            initialValue: tenantInfo && `${tenantInfo.tenantName}`
+                        })(
+                            <Select
+                                allowClear
+                                showSearch
+                                placeholder='请搜索要绑定的租户'
+                                optionFilterProp="title"
+                                disabled={disabled}
+                                onSearch={debounceSearchTenant}
+                                filterOption={(input: any, option: any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            >
+                                {tenantList && tenantList.map((tenantItem: any) => {
+                                    return <Option key={`${tenantItem.tenantId}`} value={`${tenantItem.tenantId}`} title={tenantItem.tenantName}>{tenantItem.tenantName}</Option>
+                                })}
+                            </Select>
+                        )}
+                    </Form.Item>
+                    <Form.Item
+                        label="集群"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('clusterId', {
+                            rules: [{
+                                required: true,
+                                message: '集群不可为空！'
+                            }],
+                            initialValue: clusterId || ''
+                        })(
+                            <Select
+                                allowClear
+                                placeholder='请选择集群'
+                                disabled={disabled}
+                                onChange={handleChangeCluster}
+                            >
+                                {clusterList.map((clusterItem: any) => {
+                                    return <Option key={`${clusterItem.clusterId}`} value={`${clusterItem.clusterId}`}>{clusterItem.clusterName}</Option>
+                                })}
+                            </Select>
+                        )}
+                    </Form.Item>
                     {
-                        isBindTenant && <div className='info-title'>
-                            <Icon type="info-circle" style={{ color: '#2491F7' }} />
-                            <span className='info-text'>将租户绑定到集群，可使用集群内的每种计算引擎，绑定后，不能切换其他集群。</span>
-                        </div>
+                        hasKubernetes && (
+                            <div
+                                className='border-item'
+                            >
+                                <div className='engine-title'>Kubernetes</div>
+                                <Form.Item
+                                    label='Namespace'
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator('namespace', {
+                                        initialValue: tenantInfo?.queue || ''
+                                    })(
+                                        <Input />
+                                    )}
+                                </Form.Item>
+                            </div>
+                        )
                     }
-                    <Form>
-                        <Form.Item
-                            label="租户"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('tenantId', {
-                                rules: [{
-                                    required: true,
-                                    message: '租户不可为空！'
-                                }],
-                                initialValue: tenantInfo && `${tenantInfo.tenantName}`
-                            })(
-                                <Select
-                                    allowClear
-                                    showSearch
-                                    placeholder='请搜索要绑定的租户'
-                                    optionFilterProp="title"
-                                    disabled={disabled}
-                                    onSearch={this.debounceSearchTenant}
-                                    filterOption={(input: any, option: any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                    {
+                        hasHadoop && !hasKubernetes ? (
+                            <div
+                                className='border-item'
+                            >
+                                <div className='engine-title'>Hadoop</div>
+                                <FormItem
+                                    label={
+                                        (<span>
+                                            资源队列&nbsp;
+                                            <Tooltip title="指Yarn上分配的资源队列，若下拉列表中无全部队列，请前往“多集群管理”页面的具体集群中刷新集群">
+                                                <Icon type="question-circle-o" />
+                                            </Tooltip>
+                                        </span>)
+                                    }
+                                    {...formItemLayout}
                                 >
-                                    {tenantList && tenantList.map((tenantItem: any) => {
-                                        return <Option key={`${tenantItem.tenantId}`} value={`${tenantItem.tenantId}`} title={tenantItem.tenantName}>{tenantItem.tenantName}</Option>
-                                    })}
-                                </Select>
-                            )}
-                        </Form.Item>
-                        <Form.Item
-                            label="集群"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('clusterId', {
-                                rules: [{
-                                    required: true,
-                                    message: '集群不可为空！'
-                                }],
-                                initialValue: clusterId && `${clusterId}`
-                            })(
-                                <Select
-                                    allowClear
-                                    placeholder='请选择集群'
-                                    disabled={disabled}
-                                    onChange={this.handleChangeCluster}
-                                >
-                                    {clusterList.map((clusterItem: any) => {
-                                        return <Option key={`${clusterItem.clusterId}`} value={`${clusterItem.clusterId}`}>{clusterItem.clusterName}</Option>
-                                    })}
-                                </Select>
-                            )}
-                        </Form.Item>
-                        {
-                            hasKubernetes && (
-                                <div
-                                    className='border-item'
-                                >
-                                    <div className='engine-title'>Kubernetes</div>
-                                    <Form.Item
-                                        label='Namespace'
-                                        {...formItemLayout}
+                                    {getFieldDecorator('queueId', {
+                                        rules: [{
+                                            required: true,
+                                            message: '租户不可为空！'
+                                        }],
+                                        initialValue: tenantInfo?.tenantName
+                                    })(<Select
+                                        allowClear
+                                        placeholder='请选择资源队列'
                                     >
-                                        {getFieldDecorator('namespace', {
-                                            initialValue: tenantInfo?.queue || ''
-                                        })(
-                                            <Input />
-                                        )}
-                                    </Form.Item>
+                                        {queueList.map((item: any) => {
+                                            return <Option key={`${item.queueId}`} value={`${item.queueId}`}>{item.queueName}</Option>
+                                        })}
+                                    </Select>)
+                                    }
+                                </FormItem>
+                            </div>
+                        ) : null
+                    }
+                    {
+                        bindEnginName.length > 0 ? (
+                            <div className='border-item'>
+                                <div className="engine-name">
+                                    创建项目时，自动关联到租户的{bindEnginName.join('、')}引擎
                                 </div>
-                            )
-                        }
-                        {
-                            hasHadoop && !hasKubernetes ? (
-                                <div
-                                    className='border-item'
-                                >
-                                    <div className='engine-title'>Hadoop</div>
-                                    <Form.Item
-                                        label={(
-                                            <span>
-                                                资源队列&nbsp;
-                                                <Tooltip title="指Yarn上分配的资源队列，若下拉列表中无全部队列，请前往“多集群管理”页面的具体集群中刷新集群">
-                                                    <Icon type="question-circle-o" />
-                                                </Tooltip>
-                                            </span>
-                                        )}
-                                        {...formItemLayout}
-                                    >
-                                        {getFieldDecorator('queueId')(
-                                            <Select
-                                                allowClear
-                                                placeholder='请选择资源队列'
-                                            >
-                                                {queueList.map((item: any) => {
-                                                    return <Option key={`${item.queueId}`} value={`${item.queueId}`}>{item.queueName}</Option>
-                                                })}
-                                            </Select>
-                                        )}
-                                    </Form.Item>
-                                </div>
-                            ) : null
-                        }
-                        {
-                            bindEnginName.length > 0 ? (
-                                <div className='border-item'>
-                                    <div className="engine-name">
-                                        创建项目时，自动关联到租户的{bindEnginName.join('、')}引擎
-                                    </div>
-                                </div>
-                            ) : null
-                        }
-                    </Form>
-                </React.Fragment>
-            </Modal>
-        )
-    }
+                            </div>
+                        ) : null
+                    }
+                </Form>
+            </React.Fragment>
+        </Modal>
+    )
 }
-export default Form.create<any>()(BindCommModal);
+const areEqual = (prevprops, nextprops) => {
+    if (prevprops?.visible !== nextprops?.visible || nextprops?.visible === true) return false
+    return true
+}
+
+export default Form.create<any>()(React.memo(CustomModal, areEqual));

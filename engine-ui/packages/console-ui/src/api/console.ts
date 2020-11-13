@@ -200,6 +200,10 @@ export default {
     searchTenant (params: any) {
         return http.post(req.SEARCH_TENANT, params);
     },
+    getTaskResourceTemplate (params?: any) {
+        return http.post(req.TASK_RESOURCE, params);
+    },
+
     getQueue (params: any) {
         return http.post(req.GET_QUEUE, params);
     },
@@ -211,6 +215,9 @@ export default {
     },
     bindNamespace (params: any) {
         return http.post(req.BIND_NAME_SPACE, params);
+    },
+    queryTaskResourceLimits (params: any) {
+        return http.post(req.GET_TASKLIMITS, params)
     },
 
     /**

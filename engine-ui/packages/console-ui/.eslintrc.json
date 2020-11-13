@@ -8,12 +8,14 @@
     "extends":[
         "standard",
         "plugin:react/recommended",
-        "plugin:@typescript-eslint/recommended"
+        "plugin:@typescript-eslint/recommended",
+        "plugin:react-hooks/recommended"
     ],
     "plugins": [ 
         "import",
         "react",
-        "jsx-a11y"
+        "jsx-a11y",
+        "react-hooks"
     ],
     "settings": {
         "react": {
@@ -46,6 +48,8 @@
         "no-param-reassign": 0,
         "@typescript-eslint/no-unused-vars": ["error", { "vars": "all", "args": "none", "ignoreRestSiblings": false }],
         "import/no-extraneous-dependencies": ["error", {"devDependencies": false, "optionalDependencies": false, "peerDependencies": false}],
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn",
         "react/display-name":[0],
         "react/sort-comp": 0,
         "react/jsx-no-target-blank":2,
