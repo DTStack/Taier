@@ -734,7 +734,7 @@ public class ComponentService {
      */
     private String updateComponentKerberosFile(Long clusterId, Component addComponent, SftpFileManage sftpFileManage, String remoteDir, Resource resource) {
         // kerberos认证文件 远程删除 kerberos下的文件
-        remoteDir = remoteDir + File.separator+KERBEROS_PATH;
+        remoteDir = remoteDir + File.separator;
         //删除本地文件夹
         String kerberosPath = this.getLocalKerberosPath(clusterId, addComponent.getComponentTypeCode());
         try {
@@ -756,7 +756,7 @@ public class ComponentService {
         }
         String principal = this.getPrincipal(keyTabPath);
         //删除sftp原来kerberos 的文件夹
-        sftpFileManage.deleteDir(remoteDir);
+        sftpFileManage.deleteDir(remoteDir + KERBEROS_PATH);
         //上传kerberos解压后的文件
         File ktb5File;
         if (isDir) {
