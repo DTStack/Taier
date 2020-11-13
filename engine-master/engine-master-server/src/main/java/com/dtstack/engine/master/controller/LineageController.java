@@ -72,8 +72,8 @@ public class LineageController {
             @ApiImplicitParam(name = "engineSourceId", value = "引擎数据源id，需要提前将数据源推送到engine")
     }
     )
-    public void parseAndSaveTableLineage(@DtRequestParam Integer appType, @DtRequestParam Long uicTenantId, @DtRequestParam String sql, @DtRequestParam String defaultDb, @DtRequestParam Long engineSourceId, @DtRequestParam String uniqueKey) {
-        lineageService.parseAndSaveTableLineage(uicTenantId, appType, sql, defaultDb, engineSourceId, uniqueKey);
+    public void parseAndSaveTableLineage(@DtRequestParam Integer appType, @DtRequestParam Long uicTenantId, @DtRequestParam String sql, @DtRequestParam String defaultDb, @DtRequestParam Long engineSourceId,@DtRequestParam Integer sourceType, @DtRequestParam String uniqueKey) {
+        lineageService.parseAndSaveTableLineage(uicTenantId, appType, sql, defaultDb, engineSourceId, sourceType,uniqueKey);
     }
 
     @RequestMapping(value = "/parseColumnLineage", method = {RequestMethod.POST})
@@ -93,7 +93,7 @@ public class LineageController {
     }
     )
     public void parseAndSaveColumnLineage(@RequestBody ParseColumnLineageParam parseColumnLineageParam) {
-        lineageService.parseAndSaveColumnLineage(parseColumnLineageParam.getAppType(), parseColumnLineageParam.getSql(), parseColumnLineageParam.getDefaultDb(), parseColumnLineageParam.getEngineDataSourceId(), parseColumnLineageParam.getUniqueKey());
+        lineageService.parseAndSaveColumnLineage(parseColumnLineageParam);
     }
 
     @RequestMapping(value = "/manualAddTableTable", method = {RequestMethod.POST})
