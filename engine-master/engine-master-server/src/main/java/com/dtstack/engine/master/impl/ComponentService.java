@@ -486,9 +486,9 @@ public class ComponentService {
             LOGGER.info("cluster {} add engine  {} ", clusterId, engine.getId());
         }
         //yarn 和 Kubernetes 只能2选一
-        if (EComponentType.YARN.getTypeCode() == componentCode || EComponentType.KUBERNETES.getTypeCode() == componentCode) {
+        if (EComponentType.YARN.getTypeCode().equals(componentCode) || EComponentType.KUBERNETES.getTypeCode().equals(componentCode)) {
             Component resourceComponent = componentDao.getByClusterIdAndComponentType(clusterId,
-                    EComponentType.YARN.getTypeCode() == componentCode ? EComponentType.KUBERNETES.getTypeCode() : EComponentType.YARN.getTypeCode());
+                    EComponentType.YARN.getTypeCode().equals(componentCode) ? EComponentType.KUBERNETES.getTypeCode() : EComponentType.YARN.getTypeCode());
             if (Objects.nonNull(resourceComponent)) {
                 throw new RdosDefineException("资源组件只能选择单项");
             }
@@ -1073,25 +1073,25 @@ public class ComponentService {
             }
 
             localDownLoadPath = downloadLocation + File.separator + component.getComponentName();
-            if (Objects.isNull(component.getUploadFileName())) {
-                //一种是 上传配置文件的需要到sftp下载
-                //一种是  全部手动填写的 如flink
-                try {
-                    localDownLoadPath = localDownLoadPath + ".json";
-                    FileUtils.write(new File(localDownLoadPath), component.getComponentConfig());
-                } catch (IOException e) {
-                    LOGGER.error("write upload file {} error", component.getComponentConfig(), e);
-                }
+
+            SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
+            String remoteDir = sftpConfig.getPath() + File.separator + this.buildSftpPath(clusterId, component.getComponentTypeCode());
+            SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
+            if (DownloadType.Kerberos.getCode() == downloadType) {
+                remoteDir = remoteDir + File.separator + KERBEROS_PATH;
+                localDownLoadPath = localDownLoadPath + File.separator + KERBEROS_PATH;
+                sftpFileManage.downloadDir(remoteDir, localDownLoadPath);
             } else {
-                // 获取远程Sftp连接
-                SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
-                String remoteDir = sftpConfig.getPath() + File.separator + this.buildSftpPath(clusterId, component.getComponentTypeCode());
-                SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
-                if (DownloadType.Kerberos.getCode() == downloadType) {
-                    remoteDir = remoteDir + File.separator + KERBEROS_PATH;
-                    localDownLoadPath = localDownLoadPath + File.separator + KERBEROS_PATH;
-                    sftpFileManage.downloadDir(remoteDir, localDownLoadPath);
+                if (Objects.isNull(component.getUploadFileName())) {
+                    //一种是  全部手动填写的 如flink
+                    try {
+                        localDownLoadPath = localDownLoadPath + ".json";
+                        FileUtils.write(new File(localDownLoadPath), component.getComponentConfig());
+                    } catch (IOException e) {
+                        LOGGER.error("write upload file {} error", component.getComponentConfig(), e);
+                    }
                 } else {
+                    //一种是 上传配置文件的需要到sftp下载
                     sftpFileManage.downloadDir(remoteDir + File.separator + component.getUploadFileName(), localDownLoadPath);
                 }
             }
