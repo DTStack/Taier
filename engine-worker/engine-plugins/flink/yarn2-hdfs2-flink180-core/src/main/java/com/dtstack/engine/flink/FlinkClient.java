@@ -691,17 +691,20 @@ public class FlinkClient extends AbstractClient {
                 try {
                     return FileUtil.readJsonFromHdfs(exceptPath, hadoopConf.getConfiguration());
                 } catch (Exception e) {
-                    throw new RdosDefineException(e);
+                    logger.error("", e);
+                    return null;
                 }
             }, hadoopConf.getConfiguration());
 
-            JsonArray jsonArray = exceptJson.get("archive").getAsJsonArray();
+            if (null != exceptJson) {
+                JsonArray jsonArray = exceptJson.get("archive").getAsJsonArray();
 
-            for (JsonElement ele: jsonArray) {
-                JsonObject obj = ele.getAsJsonObject();
-                if (obj.get("path").getAsString().endsWith("exceptions")) {
-                    String exception = obj.get("json").getAsString();
-                    return exception;
+                for (JsonElement ele: jsonArray) {
+                    JsonObject obj = ele.getAsJsonObject();
+                    if (obj.get("path").getAsString().endsWith("exceptions")) {
+                        String exception = obj.get("json").getAsString();
+                        return exception;
+                    }
                 }
             }
         } catch (Exception e) {
