@@ -74,6 +74,10 @@ public class ComponentService {
 
     public static final String KERBEROS_PATH = "kerberos";
 
+    public static final String KEYTAB = ".keytab";
+
+    public static final String CONF = ".conf";
+
     private static final String KERBEROS_CONFIG = "kerberosConfig";
 
     @Autowired
@@ -734,7 +738,8 @@ public class ComponentService {
      */
     private String updateComponentKerberosFile(Long clusterId, Component addComponent, SftpFileManage sftpFileManage, String remoteDir, Resource resource) {
         // kerberos认证文件 远程删除 kerberos下的文件
-        remoteDir = remoteDir + File.separator;
+        String remoteDirKerberos = remoteDir + File.separator + KERBEROS_PATH;
+        LOGGER.info("updateComponentKerberosFile 远程路径:{}",remoteDirKerberos);
         //删除本地文件夹
         String kerberosPath = this.getLocalKerberosPath(clusterId, addComponent.getComponentTypeCode());
         try {
@@ -743,31 +748,32 @@ public class ComponentService {
             LOGGER.error("delete old kerberos directory {} error", kerberosPath, e);
         }
         //解压到本地
-        this.unzipKeytab(kerberosPath, resource);
+        List<File> files = ZipUtil.upzipFile(resource.getUploadedFileName(), kerberosPath);
+        File fileKeyTab = files.stream().filter(f -> f.getName().endsWith(KEYTAB)).findFirst().orElse(null);
+        File fileConf = files.stream().filter(f -> f.getName().endsWith(CONF)).findFirst().orElse(null);
+
+        if (fileKeyTab==null) {
+            throw new RdosDefineException("上传的Hadoop-Kerberos文件的zip文件中必须有keytab文件，请添加keytab文件");
+        }
+        LOGGER.info("fileKeyTab 解压出来:{}",fileKeyTab.getAbsolutePath());
+
+        if (fileConf==null) {
+            throw new RdosDefineException("上传的Hadoop-Kerberos文件的zip文件中必须有conf文件，请添加conf文件");
+        }
+        LOGGER.info("conf 解压出来:{}",fileConf.getAbsolutePath());
+
         //获取principal
-        boolean isDir = false;
-        File keyTabPath = this.getFileWithSuffix(kerberosPath, ".keytab");
-        if(Objects.isNull(keyTabPath)){
-            isDir = true;
-            keyTabPath = this.getDeepFileWithSuffix(kerberosPath, ".keytab");
-        }
-        if (Objects.isNull(keyTabPath)) {
-            throw new RdosDefineException("keytab文件缺失");
-        }
-        String principal = this.getPrincipal(keyTabPath);
+        String principal = this.getPrincipal(fileKeyTab);
         //删除sftp原来kerberos 的文件夹
-        sftpFileManage.deleteDir(remoteDir + KERBEROS_PATH);
+        sftpFileManage.deleteDir(remoteDirKerberos);
         //上传kerberos解压后的文件
-        File ktb5File;
-        if (isDir) {
-            for (File file : keyTabPath.getParentFile().listFiles()) {
-                sftpFileManage.uploadFile(remoteDir + File.separator + KERBEROS_PATH, file.getPath());
+        for (File file : fileKeyTab.getParentFile().listFiles()) {
+            if (file.isFile()) {
+                LOGGER.info("上传sftp文件:{}",file.getAbsolutePath());
+                sftpFileManage.uploadFile(remoteDirKerberos, file.getPath());
             }
-            ktb5File = this.getDeepFileWithSuffix(kerberosPath, ".conf");
-        } else {
-            ktb5File = this.getFileWithSuffix(kerberosPath, ".conf");
-            sftpFileManage.uploadDir(remoteDir, kerberosPath);
         }
+
         //更新数据库kerberos信息
         KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, addComponent.getComponentTypeCode());
         boolean isFirstOpenKerberos = false;
@@ -777,18 +783,17 @@ public class ComponentService {
         }
         kerberosConfig.setOpenKerberos(1);
         kerberosConfig.setPrincipal(principal);
-        kerberosConfig.setName(keyTabPath.getName());
-        kerberosConfig.setRemotePath(remoteDir + KERBEROS_PATH);
+        kerberosConfig.setName(fileKeyTab.getName());
+        kerberosConfig.setRemotePath(remoteDirKerberos);
         kerberosConfig.setClusterId(clusterId);
         kerberosConfig.setComponentType(addComponent.getComponentTypeCode());
-
-        kerberosConfig.setKrbName(Objects.nonNull(ktb5File) ? ktb5File.getName() : null);
+        kerberosConfig.setKrbName(fileConf.getName());
         if (isFirstOpenKerberos) {
             kerberosDao.insert(kerberosConfig);
         } else {
             kerberosDao.update(kerberosConfig);
         }
-        return remoteDir;
+        return remoteDirKerberos;
     }
 
     /**
