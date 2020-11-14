@@ -380,7 +380,7 @@ public class FlinkClient extends AbstractClient {
                 logger.info("Job[{}] Savepoint completed. Path:{}", jobID.toString(), savepointPath);
             }
         } catch (Exception e) {
-            logger.error("Stop job error: {}", e.getMessage());
+            logger.error("Stop job error:", e);
 
             if (isSession) {
                 logger.error("", e);

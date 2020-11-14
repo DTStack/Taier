@@ -411,7 +411,7 @@ public class KerberosUtils {
                 lines.add(line);
             }
         } catch (Exception e){
-            logger.error("krb5.conf read error: {}", e.getMessage());
+            logger.error("krb5.conf read error:", e);
             throw new RdosDefineException("krb5.conf read error");
         }
 
