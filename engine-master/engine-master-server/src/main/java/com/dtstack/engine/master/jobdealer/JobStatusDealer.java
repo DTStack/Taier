@@ -119,7 +119,7 @@ public class JobStatusDealer implements Runnable {
             ctl.await();
 
         } catch (Throwable e) {
-            logger.error("jobResource:{} run error:{}", jobResource, e);
+            logger.error("jobResource:{} run error:", jobResource, e);
         }
     }
 

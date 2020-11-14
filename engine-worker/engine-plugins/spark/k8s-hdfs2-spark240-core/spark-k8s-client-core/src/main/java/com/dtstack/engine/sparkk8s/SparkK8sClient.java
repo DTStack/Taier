@@ -198,7 +198,7 @@ public class SparkK8sClient extends AbstractClient {
                     .build();
             return sparkResourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
-            LOG.error("judgeSlots error:{}",jobClient.getTaskId(), e);
+            LOG.error("jobId:{} judgeSlots error:",jobClient.getTaskId(), e);
             throw new RdosDefineException("JudgeSlots error " + e.getMessage());
         }
     }
@@ -231,14 +231,14 @@ public class SparkK8sClient extends AbstractClient {
                 k8sClient.getMasterUrl();
             }
         } catch (Throwable e) {
-            LOG.error("getK8sClient error:{}", e);
+            LOG.error("getK8sClient error:", e);
             synchronized (this) {
                 if (k8sClient != null) {
                     try {
                         //判断下是否可用
                         k8sClient.getMasterUrl();
                     } catch (Throwable e1) {
-                        LOG.error("getYarnClient error:{}", e1);
+                        LOG.error("getYarnClient error:", e1);
                         k8sClient = null;
                     }
                 }

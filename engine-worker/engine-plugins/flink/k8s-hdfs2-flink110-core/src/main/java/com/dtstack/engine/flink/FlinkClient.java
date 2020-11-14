@@ -565,8 +565,8 @@ public class FlinkClient extends AbstractClient {
                 return seesionResourceInfo.judgeSlots(jobClient);
             }
         } catch (Exception e) {
-            logger.error("judgeSlots error:{}", e);
-            return JudgeResult.notOk("judgeSlots error");
+            logger.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 

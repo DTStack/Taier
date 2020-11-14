@@ -411,7 +411,7 @@ public class Client {
                 dfs.getStatus();
             }
         } catch (Throwable e) {
-            LOG.error("getFileSystem error:{}", e);
+            LOG.error("getFileSystem error:", e);
             synchronized (this) {
                 if (dfs != null) {
                     boolean flag = true;
@@ -419,7 +419,7 @@ public class Client {
                         //判断下是否可用
                         dfs.getStatus();
                     } catch (Throwable e1) {
-                        LOG.error("getFileSystem error:{}", e1);
+                        LOG.error("getFileSystem error:", e1);
                         flag = false;
                     }
                     if (!flag) {
