@@ -43,6 +43,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.dtstack.engine.common.constrant.ConfigConstant.*;
 import static com.dtstack.engine.master.impl.ComponentService.TYPE_NAME;
 import static java.lang.String.format;
 
@@ -301,8 +302,7 @@ public class ClusterService implements InitializingBean {
             if (sftpConfig != null) {
                 KerberosConfig kerberosDaoByComponentType = kerberosDao.getByComponentType(clusterId, componentType);
                 if(Objects.nonNull(kerberosDaoByComponentType)){
-                    return sftpConfig.get("path") + File.separator + componentService.buildSftpPath(clusterId, componentType) + File.separator +
-                            ComponentService.KERBEROS_PATH;
+                    return sftpConfig.get("path") + File.separator + componentService.buildSftpPath(clusterId, componentType) + File.separator + KERBEROS_PATH;
                 }
                 return sftpConfig.get("path") + File.separator + componentService.buildSftpPath(clusterId, componentType);
             }
@@ -556,13 +556,12 @@ public class ClusterService implements InitializingBean {
             Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getPrincipal()));
             Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getRemotePath()));
             Preconditions.checkState(Objects.nonNull(kerberosConfig.getComponentType()));
-            String remoteSftpKerberosPath = componentService.buildSftpPath(kerberosConfig.getClusterId(), component.getComponentTypeCode()) +
-                   File.separator +  ComponentService.KERBEROS_PATH;
+            String remoteSftpKerberosPath = componentService.buildSftpPath(kerberosConfig.getClusterId(), component.getComponentTypeCode()) + File.separator +  KERBEROS_PATH;
             String localKerberosPath = componentService.getLocalKerberosPath(kerberosConfig.getClusterId(), component.getComponentTypeCode());
             KerberosConfigVerify.downloadKerberosFromSftp(remoteSftpKerberosPath, localKerberosPath, sftpConfig);
             File file = new File(localKerberosPath);
             Preconditions.checkState(file.exists() && file.isDirectory(), "console kerberos local path not exist");
-            File keytabFile = Arrays.stream(file.listFiles()).filter((obj) -> obj.getName().endsWith("keytab"))
+            File keytabFile = Arrays.stream(file.listFiles()).filter((obj) -> obj.getName().endsWith(KEYTAB_SUFFIX))
                     .findFirst().orElseThrow(() -> new RdosDefineException("keytab文件不存在"));
             //获取本地的kerberos本地路径
             configJsonObject.put("keytabPath", keytabFile.getPath());
