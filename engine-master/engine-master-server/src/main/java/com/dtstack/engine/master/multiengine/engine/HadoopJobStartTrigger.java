@@ -359,9 +359,9 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
         if (parameter.containsKey("partition") && parameter.containsKey("connection")) {
             JSONObject connection = parameter.getJSONArray("connection").getJSONObject(0);
-            String username = parameter.containsKey("username") ? parameter.getString("username") : "";
-            String password = parameter.containsKey("password") ? parameter.getString("password") : "";
-            String jdbcUrl = connection.getString("jdbcUrl");
+            String username = parameter.containsKey(ConfigConstant.USERNAME) ? parameter.getString(ConfigConstant.USERNAME) : "";
+            String password = parameter.containsKey(ConfigConstant.PASSWORD) ? parameter.getString(ConfigConstant.PASSWORD) : "";
+            String jdbcUrl = connection.getString(ConfigConstant.JDBCURL);
             String table = connection.getJSONArray("table").getString(0);
 
             String partition = parameter.getString("partition");
@@ -419,37 +419,39 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
      */
     private JSONObject buildDataSourcePluginInfo(JSONObject hadoopConfig, Integer sourceType, String username, String password, String jdbcUrl) {
         JSONObject pluginInfo = new JSONObject();
-        pluginInfo.put("jdbcUrl", jdbcUrl);
-        pluginInfo.put("username", username);
-        pluginInfo.put("password", password);
+        pluginInfo.put(ConfigConstant.JDBCURL, jdbcUrl);
+        pluginInfo.put(ConfigConstant.USERNAME, username);
+        pluginInfo.put(ConfigConstant.PASSWORD, password);
         pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataSourceType.getBaseType(sourceType).getTypeName());
         if (null == hadoopConfig) {
             return pluginInfo;
         }
-        boolean isOpenKerberos = "kerberos".equalsIgnoreCase(hadoopConfig.getString("hadoop.security.authentication"))
-                || "kerberos".equalsIgnoreCase(hadoopConfig.getString("hive.server2.authentication"))
-                || "kerberos".equalsIgnoreCase(hadoopConfig.getString("hive.server.authentication"));
+        boolean isOpenKerberos = ConfigConstant.KERBEROS.equalsIgnoreCase(hadoopConfig.getString("hadoop.security.authentication"))
+                || ConfigConstant.KERBEROS.equalsIgnoreCase(hadoopConfig.getString("hive.server2.authentication"))
+                || ConfigConstant.KERBEROS.equalsIgnoreCase(hadoopConfig.getString("hive.server.authentication"));
         if (isOpenKerberos) {
             //开启了kerberos 用数据同步中job 中配置项
-            pluginInfo.put("openKerberos", "true");
-            String remoteDir = hadoopConfig.getString("remoteDir");
+            pluginInfo.put(ConfigConstant.OPEN_KERBEROS, Boolean.TRUE.toString());
+            String remoteDir = hadoopConfig.getString(ConfigConstant.REMOTE_DIR);
             if(StringUtils.isBlank(remoteDir)){
                 throw new RdosDefineException("数据同步hadoopConfig remoteDir 字段不能为空");
             }
-            pluginInfo.put("remoteDir",remoteDir);
-            String principalFile = hadoopConfig.getString("principalFile");
+            pluginInfo.put(ConfigConstant.REMOTE_DIR,remoteDir);
+
+            String principalFile = hadoopConfig.getString(ConfigConstant.PRINCIPALFILE);
             if(StringUtils.isBlank(principalFile)){
                 throw new RdosDefineException("数据同步hadoopConfig principalFile 字段不能为空");
             }
-            JSONObject sftpConf = hadoopConfig.getJSONObject("sftpConf");
+            pluginInfo.put(ConfigConstant.PRINCIPALFILE,principalFile);
+
+            JSONObject sftpConf = hadoopConfig.getJSONObject(EComponentType.SFTP.getConfName());
             if (null == sftpConf || sftpConf.size() <= 0) {
                 throw new RdosDefineException("数据同步hadoopConfig sftpConf 字段不能为空");
             }
-            pluginInfo.put("sftpConf", sftpConf);
-            pluginInfo.put("principalFile",principalFile);
+            pluginInfo.put(EComponentType.SFTP.getConfName(), sftpConf);
             //krb5.conf的文件名
-            pluginInfo.put("krbName", hadoopConfig.getString("java.security.krb5.conf"));
-            pluginInfo.put("yarnConf", hadoopConfig);
+            pluginInfo.put(ConfigConstant.KRBNAME, hadoopConfig.getString(ConfigConstant.KRB5_CONF));
+            pluginInfo.put(EComponentType.YARN.getConfName(), hadoopConfig);
 
         }
         return pluginInfo;
@@ -544,7 +546,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
     private String getSavepointPath(Long dtuicTenantId) {
         String clusterInfoStr = clusterService.clusterInfo(dtuicTenantId);
         JSONObject clusterJson = JSONObject.parseObject(clusterInfoStr);
-        JSONObject flinkConf = clusterJson.getJSONObject("flinkConf");
+        JSONObject flinkConf = clusterJson.getJSONObject(EComponentType.FLINK.getConfName());
         if (!flinkConf.containsKey(KEY_SAVEPOINT)) {
             return null;
         }
@@ -562,7 +564,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
     private String buildSyncTaskExecArgs(String savepointPath, String taskParams) throws Exception {
         Properties properties = new Properties();
-        properties.load(new ByteArrayInputStream(taskParams.getBytes("UTF-8")));
+        properties.load(new ByteArrayInputStream(taskParams.getBytes(Charsets.UTF_8.name())));
         String interval = properties.getProperty(KEY_CHECKPOINT_INTERVAL, DEFAULT_VAL_CHECKPOINT_INTERVAL);
 
         JSONObject confProp = new JSONObject();
