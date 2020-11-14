@@ -144,7 +144,7 @@ public class KerberosUtils {
             return ugi.doAs((PrivilegedExceptionAction<T>) supplier::get);
         } catch (Exception e) {
             logger.error("{}", e.getMessage());
-            throw new RdosDefineException("kerberos校验失败, Message:" + e.getMessage());
+            throw new RdosDefineException("doAs error: " + e.getMessage());
         }
     }
 
