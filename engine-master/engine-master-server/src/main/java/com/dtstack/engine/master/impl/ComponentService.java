@@ -573,6 +573,7 @@ public class ComponentService {
             try {
                 if (resource.getFileName().equalsIgnoreCase(kerberosFileName)) {
                     // 更新Kerberos文件
+                    LOGGER.info("start load kerberosFile:{}",kerberosFileName);
                     this.updateComponentKerberosFile(clusterId, addComponent, sftpFileManage, remoteDir, resource);
                 } else {
                     this.updateComponentConfigFile(dbComponent, sftpFileManage, remoteDir, resource);
@@ -700,16 +701,17 @@ public class ComponentService {
     private void updateComponentConfigFile(Component dbComponent, SftpFileManage sftpFileManage, String remoteDir, Resource resource) {
         //原来配置
         String deletePath = remoteDir + File.separator;
+        LOGGER.info("上传配置文件到sftp:{}"+deletePath);
         if (Objects.nonNull(dbComponent)) {
             deletePath = deletePath + dbComponent.getUploadFileName();
             //删除原来的文件配置zip 如果dbComponent不为null ,删除文件。
+            LOGGER.info("删除文件:{}"+deletePath);
             sftpFileManage.deleteFile(deletePath);
         }
 
         //更新为原名
         sftpFileManage.uploadFile(remoteDir, resource.getUploadedFileName());
-        sftpFileManage.renamePath(remoteDir + File.separator + resource.getUploadedFileName().substring(resource.getUploadedFileName().lastIndexOf(File.separator) + 1),
-                remoteDir + File.separator + resource.getFileName());
+        sftpFileManage.renamePath(remoteDir + File.separator + resource.getUploadedFileName().substring(resource.getUploadedFileName().lastIndexOf(File.separator) + 1), remoteDir + File.separator + resource.getFileName());
     }
 
 
