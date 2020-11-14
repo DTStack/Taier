@@ -27,7 +27,7 @@ public class WorkerMain {
             System.setSecurityManager(new NoExitSecurityManager());
             logger.info("engine-worker start end...");
         } catch (Throwable e) {
-            logger.error("engine-worker start error:{}", e);
+            logger.error("engine-worker start error:", e);
             System.exit(-1);
         }
     }

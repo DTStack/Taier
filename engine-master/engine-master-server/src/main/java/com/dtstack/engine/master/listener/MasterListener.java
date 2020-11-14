@@ -70,6 +70,7 @@ public class MasterListener implements LeaderLatchListener, Listener {
     @Override
     public void close() throws Exception {
         this.latch.close();
+        notLeader();
         scheduledService.shutdownNow();
     }
 

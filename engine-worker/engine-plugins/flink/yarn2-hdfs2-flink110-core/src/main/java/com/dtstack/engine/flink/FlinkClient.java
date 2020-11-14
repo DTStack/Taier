@@ -458,7 +458,7 @@ public class FlinkClient extends AbstractClient {
         try {
             clusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
         } catch (Exception e) {
-            logger.error("Get clusterClient error: {}", e.getMessage());
+            logger.error("Get clusterClient error:", e);
         }
 
         String response = null;
@@ -468,7 +468,7 @@ public class FlinkClient extends AbstractClient {
                 String jobUrl = String.format("%s/jobs/%s", webInterfaceURL, jobId);
                 response = PoolHttpClient.get(jobUrl);
             } catch (IOException e) {
-                logger.error("request job status error: {}", e.getMessage());
+                logger.error("request job status error:", e);
             }
         }
 
@@ -731,7 +731,7 @@ public class FlinkClient extends AbstractClient {
                 return yarnSeesionResourceInfo.judgeSlots(jobClient);
             }
         } catch (Exception e){
-            logger.error("judgeSlots error:{}", e);
+            logger.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
             return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
