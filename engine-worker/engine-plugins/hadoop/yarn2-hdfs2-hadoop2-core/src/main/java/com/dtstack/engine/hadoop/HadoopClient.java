@@ -253,8 +253,8 @@ public class HadoopClient extends AbstractClient {
         try {
             return KerberosUtils.login(config, () -> resourceInfo.judgeSlots(jobClient), conf);
         } catch (Exception e) {
-            LOG.error("JudgeSlots error:", e);
-            return JudgeResult.notOk("judgeSlots error");
+            LOG.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 

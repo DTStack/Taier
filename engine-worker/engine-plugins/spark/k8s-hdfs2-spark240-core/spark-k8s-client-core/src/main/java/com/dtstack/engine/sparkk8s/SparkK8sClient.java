@@ -25,6 +25,7 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
@@ -198,8 +199,8 @@ public class SparkK8sClient extends AbstractClient {
                     .build();
             return sparkResourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
-            LOG.error("jobId:{} judgeSlots error:",jobClient.getTaskId(), e);
-            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
+            LOG.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
