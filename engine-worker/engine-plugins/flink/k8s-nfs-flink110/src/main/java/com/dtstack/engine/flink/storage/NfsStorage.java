@@ -46,39 +46,39 @@ public class NfsStorage extends AbstractStorage {
         String remotePlugin = flinkConfig.getRemotePluginRootDir();
         checkReadPermission(remotePlugin);
         String dockerPluginHome = config.get(KubernetesConfigOptions.KUBERNETES_DOCKER_FLINKPLUGIN_PATH);
-        setNfsMountConf(config, "flinkplugin", remotePlugin, dockerPluginHome);
+        setNfsMountConf(config, "flinkplugin", remotePlugin, dockerPluginHome, "true");
         flinkConfig.setRemotePluginRootDir(dockerPluginHome);
 
         // set haPath volume
         String haStoragePath = config.getString(HighAvailabilityOptions.HA_STORAGE_PATH);
         String remoteHaStoragePath = createDirOnNfs(haStoragePath);
         String dockerHaStoragePath = config.get(KubernetesConfigOptions.KUBERNETES_DOCKER_HA_STORAGE_PATH);
-        setNfsMountConf(config, "hastorage", remoteHaStoragePath, dockerHaStoragePath);
+        setNfsMountConf(config, "hastorage", remoteHaStoragePath, dockerHaStoragePath, "false");
         config.setString(HighAvailabilityOptions.HA_STORAGE_PATH, "file://" + dockerHaStoragePath);
 
         // set completed-jobs volume
         String completedJobs = config.getString(JobManagerOptions.ARCHIVE_DIR);
         String remoteCompletedJobs = createDirOnNfs(completedJobs);
         String dockerCompletedJobs = config.get(KubernetesConfigOptions.KUBERNETES_DOCKER_COMPLETEDJOB_PATH);
-        setNfsMountConf(config, "completedjobs", remoteCompletedJobs, dockerCompletedJobs);
+        setNfsMountConf(config, "completedjobs", remoteCompletedJobs, dockerCompletedJobs, "false");
         config.setString(JobManagerOptions.ARCHIVE_DIR, "file://" + dockerCompletedJobs);
 
         // set checkpoints volume
         String checkpointPath = config.getString(CheckpointingOptions.CHECKPOINTS_DIRECTORY);
         String remoteCheckpointPath = createDirOnNfs(checkpointPath);
         String dockerCheckpointPath = config.get(KubernetesConfigOptions.KUBERNETES_DOCKER_CHECKPOINT_PATH);
-        setNfsMountConf(config, "checkpoints", remoteCheckpointPath, dockerCheckpointPath);
+        setNfsMountConf(config, "checkpoints", remoteCheckpointPath, dockerCheckpointPath, "false");
         config.setString(CheckpointingOptions.CHECKPOINTS_DIRECTORY, "file://" + dockerCheckpointPath);
 
         // set savepoints volume
         String savepointPath = config.getString(CheckpointingOptions.SAVEPOINT_DIRECTORY);
         String remoteSavepointPath = createDirOnNfs(savepointPath);
         String dockerSavepointPath = config.get(KubernetesConfigOptions.KUBERNETES_DOCKER_SAVEPOINT_PATH);
-        setNfsMountConf(config, "savepoints", remoteSavepointPath, dockerSavepointPath);
+        setNfsMountConf(config, "savepoints", remoteSavepointPath, dockerSavepointPath, "false");
         config.setString(CheckpointingOptions.SAVEPOINT_DIRECTORY, "file://" + dockerSavepointPath);
     }
 
-    private void setNfsMountConf(Configuration config, String volumeName, String path, String mountPath) {
+    private void setNfsMountConf(Configuration config, String volumeName, String path, String mountPath, String readOnly) {
         // set jobmanager volume
         String jobmanagerVolumeServer = String.format("%s%s.%s.options.server", Constants.KUBERNETES_JOB_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, volumeName);
         config.setString(jobmanagerVolumeServer, service);
@@ -88,6 +88,8 @@ public class NfsStorage extends AbstractStorage {
         // set jobmanager mount
         String jobmanagerMountPath = String.format("%s%s.%s.mount.mountPath", Constants.KUBERNETES_JOB_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, volumeName);
         config.setString(jobmanagerMountPath, mountPath);
+        String jobmanagerMountReadOnly = String.format("%s%s.%s.mount.readOnly", Constants.KUBERNETES_JOB_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, volumeName);
+        config.setString(jobmanagerMountReadOnly, readOnly);
 
         // set taskmanager volume
         String taskmanagerVolumeServer = String.format("%s%s.%s.options.server", Constants.KUBERNETES_TASK_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, volumeName);
@@ -98,6 +100,8 @@ public class NfsStorage extends AbstractStorage {
         // set taskmanager mount
         String taskmanagerMountPath = String.format("%s%s.%s.mount.mountPath", Constants.KUBERNETES_TASK_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, volumeName);
         config.setString(taskmanagerMountPath, mountPath);
+        String taskmanagerMountreadOnly = String.format("%s%s.%s.mount.readOnly", Constants.KUBERNETES_TASK_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, volumeName);
+        config.setString(taskmanagerMountreadOnly, readOnly);
     }
 
     private String createDirOnNfs(String path) {
