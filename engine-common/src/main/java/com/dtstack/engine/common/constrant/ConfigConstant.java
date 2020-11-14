@@ -1,5 +1,7 @@
 package com.dtstack.engine.common.constrant;
 
+import java.io.File;
+
 /**
  * 常量
  * Date: 2018/1/19
@@ -51,5 +53,22 @@ public class ConfigConstant {
     public static final String SQL_CHECKPOINT_TIMEOUT = "sql.checkpoint.timeout";
     public static final String FLINK_CHECKPOINT_TIMEOUT = "flink.checkpoint.timeout";
     public static final Long DEFAULT_CHECKPOINT_TIMEOUT = 600000L;
+
+    public static final String KERBEROS = "kerberos";
+    public static final String KERBEROS_PATH = "kerberos";
+
+    public static final String REMOTE_DIR = "remoteDir";
+    public static final String PRINCIPAL_FILE = "principalFile";
+    public static final String KRB_NAME = "krbName";
+    public static final String OPEN_KERBEROS = "openKerberos";
+    public static final String JAVA_SECURITY_KRB5_CONF = "java.security.krb5.conf";
+    public static final String KRB5_CONF = "krb5.conf";
+    public static final String KEYTAB_SUFFIX = ".keytab";
+    public static final String KERBEROS_CONFIG = "kerberosConfig";
+
+
+    public static final String ZIP_SUFFIX = ".zip";
+    public static final String USER_DIR_UNZIP = System.getProperty("user.dir") + File.separator + "unzip";
+    public static final String USER_DIR_DOWNLOAD = System.getProperty("user.dir") + File.separator + "download";
 
 }
