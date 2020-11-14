@@ -38,12 +38,17 @@ public class TestShardCache extends AbstractTest {
         //jobId不存在的情况
         boolean flag1 = shardCache.updateLocalMemTaskStatus("afaf", 1);
         Assert.assertFalse(flag1);
+
+    }
+
+
+    @Test
+    public void testUpdateLocalMemTaskStatus2(){
         //jobId存在的情况
         EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
         boolean flag2 = shardCache.updateLocalMemTaskStatus(engineJobCache.getJobId(), 2);
         Assert.assertTrue(flag2);
 
     }
-
 
 }

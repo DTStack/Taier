@@ -36,12 +36,18 @@ public class TestJobRestartDealer extends AbstractTest {
 
     @Test
     public void testCheckAndRestart() {
+        addDefaultCluster();
         EngineJobCache jobCache = DataCollection.getData().getEngineJobCache();
         EngineJobCheckpoint checkpoint = DataCollection.getData().getEngineJobCheckpoint();
         boolean flag = jobRestartDealer.checkAndRestart(2, jobCache.getJobId(), checkpoint.getTaskEngineId(), "1");
         Assert.assertFalse(flag);
         boolean flag2 = jobRestartDealer.checkAndRestart(8, jobCache.getJobId(), checkpoint.getTaskEngineId(), "1");
         Assert.assertFalse(flag2);
+        //失败重试
+        EngineJobCache jobCache2 = DataCollection.getData().getEngineJobCache2();
+        boolean flag3 = jobRestartDealer.checkAndRestart(8, jobCache2.getJobId(), checkpoint.getTaskEngineId(), "1");
+        Assert.assertTrue(flag3);
+
     }
 
 

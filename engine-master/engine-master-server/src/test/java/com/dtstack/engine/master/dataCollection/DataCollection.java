@@ -197,6 +197,24 @@ public interface DataCollection {
         return sj;
     }
 
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobStream2() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setJobId("testJobId2");
+        sj.setStatus(4);
+        sj.setExecStartTime(new Timestamp(1591805197000L));
+        sj.setExecEndTime(new Timestamp(1591805197100L));
+        sj.setJobName("test2");
+        sj.setCycTime("20200609234500");
+        sj.setTaskType(ComputeType.STREAM.getType());
+        sj.setType(2);
+        sj.setEngineLog("");
+        sj.setSourceType(-1);
+        sj.setApplicationId("application_9527");
+        sj.setComputeType(ComputeType.STREAM.getType());
+        return sj;
+    }
+
     @DatabaseInsertOperation(dao = TestEngineJobRetryDao.class)
     default EngineJobRetry getEngineJobRetry() {
         EngineJobRetry ej = Template.getEngineJobRetryTemplate();
@@ -223,6 +241,26 @@ public interface DataCollection {
     default EngineJobCache getEngineJobCache() {
         EngineJobCache engineJobCache = Template.getEngineJobCacheTemplate();
         engineJobCache.setJobId(getData().getScheduleJobStream().getJobId());
+        return engineJobCache;
+    }
+
+
+    /**
+     * @author zyd
+     * @Description 失败重试的任务
+     * @Date 2020/11/14 10:02 上午
+     * @return: com.dtstack.engine.api.domain.EngineJobCache
+     **/
+    @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
+    @IgnoreUniqueRandomSet
+    default EngineJobCache getEngineJobCache2() {
+        EngineJobCache engineJobCache = Template.getEngineJobCacheTemplate2();
+        String jobId = getData().getScheduleJobStream2().getJobId();
+        engineJobCache.setJobId(jobId);
+        engineJobCache.setJobInfo(String.format("{\"engineType\":\"spark\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, " +
+                "\"maxRetryNum\":3,\"taskParams\":\"openCheckpoint=true \\n sql.checkpoint.interval=2\"," +
+                "\"taskId\":\"%s\"}",jobId));
+        engineJobCache.setIsFailover(1);
         return engineJobCache;
     }
 

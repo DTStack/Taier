@@ -40,6 +40,9 @@ public class TestJobCheckpointDealer extends AbstractTest {
         JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobId.getJobId(),jobId.getApplicationId(),taskId);
         String engineTypeName = "spark";
         jobCheckpointDealer.addCheckpointTaskForQueue(computeType,engineJobCache.getJobId(),jobIdentifier,engineTypeName);
+        //2
+        EngineJobCache engineJobCache2 = DataCollection.getData().getEngineJobCache2();
+        jobCheckpointDealer.addCheckpointTaskForQueue(computeType,engineJobCache2.getJobId(),jobIdentifier,engineTypeName);
     }
 
 
