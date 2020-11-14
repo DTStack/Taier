@@ -59,26 +59,12 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-import static com.dtstack.engine.common.constrant.ConfigConstant.MD5_SUM_KEY;
+import static com.dtstack.engine.common.constrant.ConfigConstant.*;
 
 @Service
 public class ComponentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComponentService.class);
-
-    private final static String ZIP_CONTENT_TYPE = "zip";
-
-    private static String unzipLocation = System.getProperty("user.dir") + File.separator + "unzip";
-
-    private static String downloadLocation = System.getProperty("user.dir") + File.separator + "download";
-
-    public static final String KERBEROS_PATH = "kerberos";
-
-    public static final String KEYTAB = ".keytab";
-
-    public static final String CONF = ".conf";
-
-    private static final String KERBEROS_CONFIG = "kerberosConfig";
 
     @Autowired
     private ComponentDao componentDao;
@@ -274,13 +260,13 @@ public class ComponentService {
             }
 
             Resource resource = resources.get(0);
-            if (!resource.getFileName().endsWith("." + ZIP_CONTENT_TYPE)) {
+            if (!resource.getFileName().endsWith(ZIP_SUFFIX)) {
                 throw new RdosDefineException("压缩包格式仅支持ZIP格式");
             }
 
             //解压缩获得配置文件
             String xmlZipLocation = resource.getUploadedFileName();
-            upzipLocation = unzipLocation + File.separator + resource.getFileName();
+            upzipLocation = USER_DIR_UNZIP + File.separator + resource.getFileName();
             try {
                 xmlFiles = XmlFileUtil.getFilesFromZip(xmlZipLocation, upzipLocation, null);
             } catch (Exception e) {
@@ -504,7 +490,7 @@ public class ComponentService {
         boolean isUpdate = false;
         boolean isOpenKerberos = StringUtils.isNotBlank(kerberosFileName);
         if (isOpenKerberos) {
-            if (!resources.isEmpty() && !kerberosFileName.endsWith("." + ZIP_CONTENT_TYPE)) {
+            if (!resources.isEmpty() && !kerberosFileName.endsWith(ZIP_SUFFIX)) {
                 throw new RdosDefineException("kerberos上传文件非zip格式");
             }
         }
@@ -754,8 +740,8 @@ public class ComponentService {
             throw new RdosDefineException("Hadoop-Kerberos文件解压错误");
         }
 
-        File fileKeyTab = files.stream().filter(f -> f.getName().endsWith(KEYTAB)).findFirst().orElse(null);
-        File fileConf = files.stream().filter(f -> f.getName().endsWith(CONF)).findFirst().orElse(null);
+        File fileKeyTab = files.stream().filter(f -> f.getName().endsWith(KEYTAB_SUFFIX)).findFirst().orElse(null);
+        File fileConf = files.stream().filter(f -> f.getName().equalsIgnoreCase(KRB5_CONF)).findFirst().orElse(null);
 
         if (fileKeyTab==null) {
             throw new RdosDefineException("上传的Hadoop-Kerberos文件的zip文件中必须有keytab文件，请添加keytab文件");
@@ -866,7 +852,7 @@ public class ComponentService {
                 Resource resource = resources.get(0);
                 //解压缩获得配置文件
                 String xmlZipLocation = resource.getUploadedFileName();
-                String upzipLocation = unzipLocation + File.separator + resource.getFileName();
+                String upzipLocation = USER_DIR_UNZIP + File.separator + resource.getFileName();
                 //解析zip 带换行符号
                 List<File> xmlFiles = XmlFileUtil.getFilesFromZip(xmlZipLocation, upzipLocation, null);
                 if(CollectionUtils.isNotEmpty(xmlFiles)){
@@ -1062,7 +1048,7 @@ public class ComponentService {
                 JSONObject fileJson = new JSONObject();
                 fileJson = (JSONObject) this.convertTemplateToJson(clientTemplates, fileJson);
                 uploadFileName = EComponentType.getByCode(componentType).name() + ".json";
-                localDownLoadPath = downloadLocation + File.separator + uploadFileName;
+                localDownLoadPath = USER_DIR_DOWNLOAD + File.separator + uploadFileName;
                 try {
                     FileUtils.write(new File(localDownLoadPath), fileJson.toString());
                 } catch (Exception e) {
@@ -1080,7 +1066,7 @@ public class ComponentService {
                 throw new RdosDefineException("sftp组件不存在");
             }
 
-            localDownLoadPath = downloadLocation + File.separator + component.getComponentName();
+            localDownLoadPath = USER_DIR_DOWNLOAD + File.separator + component.getComponentName();
 
             SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
             String remoteDir = sftpConfig.getPath() + File.separator + this.buildSftpPath(clusterId, component.getComponentTypeCode());
@@ -1119,17 +1105,17 @@ public class ComponentService {
                     Long clusterId = componentDao.getClusterIdByComponentId(componentId);
                     KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType);
                     if (Objects.nonNull(kerberosConfig)) {
-                        zipFilename = kerberosConfig.getName() + "." + ZIP_CONTENT_TYPE;
+                        zipFilename = kerberosConfig.getName() + ZIP_SUFFIX;
                     }
                 }
-                ZipUtil.zipFile(downloadLocation + File.separator + zipFilename, Arrays.stream(files).collect(Collectors.toList()));
+                ZipUtil.zipFile(USER_DIR_DOWNLOAD + File.separator + zipFilename, Arrays.stream(files).collect(Collectors.toList()));
             }
             try {
                 FileUtils.forceDelete(file);
             } catch (IOException e) {
                 LOGGER.error("delete upload file {} error", file.getName(), e);
             }
-            return new File(downloadLocation + File.separator + zipFilename);
+            return new File(USER_DIR_DOWNLOAD + File.separator + zipFilename);
         } else {
             return new File(localDownLoadPath);
         }
