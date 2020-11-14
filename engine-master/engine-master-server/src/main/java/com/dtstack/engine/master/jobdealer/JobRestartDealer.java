@@ -219,6 +219,7 @@ public class JobRestartDealer {
             return false;
         }
         String jobInfo = jobCache.getJobInfo();
+        //对flinksql 任务会修改sql信息的，需要重置sqlText
         try {
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
             jobClient.setSql(paramAction.getSqlText());
