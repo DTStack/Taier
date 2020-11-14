@@ -687,7 +687,14 @@ public class FlinkClient extends AbstractClient {
     private String getExceptionFromHdfsCompleted(String jobId) {
         try {
             String exceptPath = jobmanagerDir + ConfigConstrant.SP + jobId;
-            JsonObject exceptJson = FileUtil.readJsonFromHdfs(exceptPath, hadoopConf.getConfiguration());
+            JsonObject exceptJson = KerberosUtils.login(flinkConfig, () -> {
+                try {
+                    return FileUtil.readJsonFromHdfs(exceptPath, hadoopConf.getConfiguration());
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
+                }
+            }, hadoopConf.getConfiguration());
+
             JsonArray jsonArray = exceptJson.get("archive").getAsJsonArray();
 
             for (JsonElement ele: jsonArray) {
