@@ -749,6 +749,11 @@ public class ComponentService {
         }
         //解压到本地
         List<File> files = ZipUtil.upzipFile(resource.getUploadedFileName(), kerberosPath);
+
+        if (CollectionUtils.isEmpty(files)) {
+            throw new RdosDefineException("Hadoop-Kerberos文件解压错误");
+        }
+
         File fileKeyTab = files.stream().filter(f -> f.getName().endsWith(KEYTAB)).findFirst().orElse(null);
         File fileConf = files.stream().filter(f -> f.getName().endsWith(CONF)).findFirst().orElse(null);
 
@@ -767,11 +772,9 @@ public class ComponentService {
         //删除sftp原来kerberos 的文件夹
         sftpFileManage.deleteDir(remoteDirKerberos);
         //上传kerberos解压后的文件
-        for (File file : fileKeyTab.getParentFile().listFiles()) {
-            if (file.isFile()) {
-                LOGGER.info("上传sftp文件:{}",file.getAbsolutePath());
-                sftpFileManage.uploadFile(remoteDirKerberos, file.getPath());
-            }
+        for (File file : files) {
+            LOGGER.info("上传sftp文件:{}",file.getAbsolutePath());
+            sftpFileManage.uploadFile(remoteDirKerberos, file.getPath());
         }
 
         //更新数据库kerberos信息
