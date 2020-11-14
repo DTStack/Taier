@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.multiengine.engine;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.engine.api.domain.ScheduleJob;
@@ -159,6 +158,13 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             taskExeArgs = taskExeArgs.replace(TaskConstant.UPLOADPATH, uploadPath);
             if (StringUtils.isNotBlank(sql) && sql.contains(TaskConstant.UPLOADPATH)) {
                 sql = sql.replace(TaskConstant.UPLOADPATH, uploadPath);
+            }
+        } else if(taskShade.getEngineType().equals(ScheduleEngineType.Hadoop.getVal())){
+            //hadoop mr提交 不用上传文件
+            String exeArgs = (String) actionParam.get("exeArgs");
+            if (StringUtils.isNotBlank(exeArgs)) {
+                //替换系统参数
+                taskExeArgs = jobParamReplace.paramReplace(exeArgs, taskParamsToReplace, scheduleJob.getCycTime());
             }
         }
 
@@ -431,17 +437,27 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 || "kerberos".equalsIgnoreCase(hadoopConfig.getString("hive.server2.authentication"))
                 || "kerberos".equalsIgnoreCase(hadoopConfig.getString("hive.server.authentication"));
         if (isOpenKerberos) {
-            JSONObject config = new JSONObject();
             //开启了kerberos 用数据同步中job 中配置项
             pluginInfo.put("openKerberos", "true");
-            config.put("openKerberos", "true");
-            config.put("remoteDir", hadoopConfig.getString("remoteDir"));
-            config.put("principalFile", hadoopConfig.getString("principalFile"));
+            String remoteDir = hadoopConfig.getString("remoteDir");
+            if(StringUtils.isBlank(remoteDir)){
+                throw new RdosDefineException("数据同步hadoopConfig remoteDir 字段不能为空");
+            }
+            pluginInfo.put("remoteDir",remoteDir);
+            String principalFile = hadoopConfig.getString("principalFile");
+            if(StringUtils.isBlank(principalFile)){
+                throw new RdosDefineException("数据同步hadoopConfig principalFile 字段不能为空");
+            }
+            JSONObject sftpConf = hadoopConfig.getJSONObject("sftpConf");
+            if (null == sftpConf || sftpConf.size() <= 0) {
+                throw new RdosDefineException("数据同步hadoopConfig sftpConf 字段不能为空");
+            }
+            pluginInfo.put("sftpConf", sftpConf);
+            pluginInfo.put("principalFile",principalFile);
             //krb5.conf的文件名
-            config.put("krbName", hadoopConfig.getString("java.security.krb5.conf"));
-            config.put("yarnConf", hadoopConfig);
-            pluginInfo.put("sftpConf", hadoopConfig.getJSONObject("sftpConf"));
-            pluginInfo.put("config", config);
+            pluginInfo.put("krbName", hadoopConfig.getString("java.security.krb5.conf"));
+            pluginInfo.put("yarnConf", hadoopConfig);
+
         }
         return pluginInfo;
     }

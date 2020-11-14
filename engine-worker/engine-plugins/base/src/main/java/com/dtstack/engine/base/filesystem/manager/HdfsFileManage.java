@@ -124,6 +124,16 @@ public class HdfsFileManage implements IFileManage {
     }
 
     @Override
+    public boolean downloadDirManager(String remotePath, String localPath) {
+        try {
+            return downloadDir(remotePath,localPath);
+        } catch (Exception e) {
+            LOG.error("downloadDir from hdfs error:", e);
+        }
+        return false;
+    }
+
+    @Override
     public boolean uploadFile(String remotePath, String localPath) {
         return false;
     }

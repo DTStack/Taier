@@ -88,13 +88,6 @@ public class FlinkClusterClientManagerTest {
 	}
 
 	@Test
-	public void testAddClient() {
-		String applicationId = "application_1593762151957_0080";
-
-		flinkClusterClientManager.addClient(applicationId, clusterClient);
-	}
-
-	@Test
 	public void testCreateWithInit() throws Exception {
 		FlinkConfig flinkConfig = new FlinkConfig();
 		flinkConfig.setClusterMode("yarn");
