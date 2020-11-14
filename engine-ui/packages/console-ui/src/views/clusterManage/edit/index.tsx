@@ -152,7 +152,7 @@ class EditCluster extends React.Component<any, any> {
                 }
             }
         })
-        this.getLoadTemplate(componentTypeCode, compVersion);
+        this.getLoadTemplate(componentTypeCode, { compVersion });
     }
 
     handleCompsCompsData = (storeType: any, componentTypeCode: number) => {
@@ -166,10 +166,11 @@ class EditCluster extends React.Component<any, any> {
                 }
             }
         })
+        this.getLoadTemplate(componentTypeCode, { storeType });
     }
 
     // 获取组件模板
-    getLoadTemplate = (key: any = '', compVersion: any = '') => {
+    getLoadTemplate = (key: any = '', { storeType=undefined, compVersion=undefined }) => {
         const { compTypeKey, tabCompData, componentConfig, clusterName } = this.state;
         const component = tabCompData.find((item: any) => item.schedulingCode === compTypeKey) || { components: [] };
         if (component.components.length === 0) return;
@@ -183,6 +184,7 @@ class EditCluster extends React.Component<any, any> {
             Api.getLoadTemplate({
                 clusterName,
                 version,
+                storeType,
                 componentType: componentTypeCode
             }).then((res: any) => {
                 if (res.code === 1) {
