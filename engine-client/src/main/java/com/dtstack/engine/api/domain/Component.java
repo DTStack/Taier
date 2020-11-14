@@ -38,13 +38,13 @@ public class Component extends BaseEntity {
      * 存储组件名称
      */
     @ApiModelProperty(notes = "存储组件名称")
-    private String storeType;
+    private Integer storeType;
 
-    public String getStoreType() {
+    public Integer getStoreType() {
         return storeType;
     }
 
-    public void setStoreType(String storeType) {
+    public void setStoreType(Integer storeType) {
         this.storeType = storeType;
     }
 

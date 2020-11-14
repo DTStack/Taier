@@ -21,6 +21,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MD5Util;
+import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.dao.*;
@@ -428,7 +429,7 @@ public class ComponentService {
     public ComponentVO addOrUpdateComponent( Long clusterId,  String componentConfig,
                                              List<Resource> resources,  String hadoopVersion,
                                              String kerberosFileName,  String componentTemplate,
-                                             Integer componentCode, String storeType) {
+                                             Integer componentCode, Integer storeType) {
         if (StringUtils.isBlank(componentConfig) && EComponentType.KUBERNETES.getTypeCode() != componentCode) {
             throw new RdosDefineException("组件信息不能为空");
         }
@@ -476,7 +477,8 @@ public class ComponentService {
         }
         componentConfig = this.checkKubernetesConfig(componentConfig, resources, componentType);
 
-        addComponent.setStoreType(this.checkStoresComponent(clusterId,storeType).name());
+        EComponentType storesComponent = this.checkStoresComponent(clusterId, storeType);
+        addComponent.setStoreType(storesComponent.getTypeCode());
         addComponent.setHadoopVersion(Optional.ofNullable(hadoopVersion).orElse("hadoop2"));
         addComponent.setComponentName(componentType.getName());
         addComponent.setComponentTypeCode(componentType.getTypeCode());
@@ -536,15 +538,15 @@ public class ComponentService {
         return isOpenKerberos;
     }
 
-    private EComponentType checkStoresComponent(Long clusterId, String storeType) {
+    private EComponentType checkStoresComponent(Long clusterId, Integer storeType) {
         //默认为hdfs
-        if(StringUtils.isBlank(storeType)){
+        if(null == storeType){
             return EComponentType.HDFS;
         }
-        EComponentType componentType = EComponentType.getByName(storeType);
+        EComponentType componentType = EComponentType.getByCode(MathUtil.getIntegerVal(storeType));
         Component storeComponent = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode());
         if(null == storeComponent){
-            throw new RdosDefineException(String.format("请先配置对应%s组件",storeType));
+            throw new RdosDefineException(String.format("请先配置对应%s组件",componentType.getName()));
         }
         return componentType;
     }
@@ -703,7 +705,7 @@ public class ComponentService {
      * @return
      */
     private String wrapperConfig(EComponentType componentType, String componentString, boolean isOpenKerberos, String clusterName, String hadoopVersion,
-                                 String md5Key,String storeType) {
+                                 String md5Key,Integer storeType) {
         if (EComponentType.KUBERNETES.equals(componentType)) {
             JSONObject dataJSON = new JSONObject();
             dataJSON.put("kubernetes.context",componentString);
@@ -956,7 +958,7 @@ public class ComponentService {
      * 测试单个组件联通性
      */
     public ComponentTestResult testConnect(Integer componentType, String componentConfig, String clusterName,
-                                            String hadoopVersion, Long engineId, KerberosConfig kerberosConfig, Map<String, String> sftpConfig,String storeType) {
+                                            String hadoopVersion, Long engineId, KerberosConfig kerberosConfig, Map<String, String> sftpConfig,Integer storeType) {
         if (EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))) {
             ComponentTestResult componentTestResult = new ComponentTestResult();
             componentTestResult.setResult(true);
@@ -1035,6 +1037,9 @@ public class ComponentService {
             confObj.put(EComponentType.KUBERNETES.getConfName(),componentConfig);
             dataInfo.put(EComponentType.KUBERNETES.getConfName(), confObj);
             dataInfo.put("componentName", EComponentType.KUBERNETES.getName());
+        } else if (EComponentType.NFS.getTypeCode() == componentType){
+            dataInfo = JSONObject.parseObject(componentConfig);
+            dataInfo.put("componentType", EComponentType.NFS.getName());
         }
         return dataInfo.toJSONString();
     }
@@ -1107,7 +1112,7 @@ public class ComponentService {
         String uploadFileName = "";
         if (Objects.isNull(componentId)) {
             //解析模版中的信息 作为默认值 返回json
-            List<ClientTemplate> clientTemplates = this.loadTemplate(componentType, clusterName, hadoopVersion,"");
+            List<ClientTemplate> clientTemplates = this.loadTemplate(componentType, clusterName, hadoopVersion,null);
             if (CollectionUtils.isNotEmpty(clientTemplates)) {
                 JSONObject fileJson = new JSONObject();
                 fileJson = (JSONObject) this.convertTemplateToJson(clientTemplates, fileJson);
@@ -1198,7 +1203,7 @@ public class ComponentService {
      * @param componentType
      * @return
      */
-    public List<ClientTemplate> loadTemplate( Integer componentType,  String clusterName, String version,String storeType) {
+    public List<ClientTemplate> loadTemplate(Integer componentType,  String clusterName, String version,Integer storeType) {
         EComponentType component = EComponentType.getByCode(componentType);
         List<ClientTemplate> defaultPluginConfig = null;
         try {
@@ -1264,7 +1269,7 @@ public class ComponentService {
      * @param version
      * @return
      */
-    public String convertComponentTypeToClient(String clusterName, Integer componentType, String version, String storeType) {
+    public String convertComponentTypeToClient(String clusterName, Integer componentType, String version, Integer storeType) {
         //普通rdb插件
         EComponentType componentCode = EComponentType.getByCode(componentType);
         String pluginName = EComponentType.convertPluginNameByComponent(componentCode);
@@ -1278,10 +1283,12 @@ public class ComponentService {
                 version = defaultVersion.get(0).getValue();
             }
         }
-        //hive也需要version
+        //hive 特殊处理 version
         if (EComponentType.HIVE_SERVER.getTypeCode() == componentType || EComponentType.SPARK_THRIFT.getTypeCode() == componentType) {
             pluginName = "hive";
-            if (version.equalsIgnoreCase("1.x") || version.equalsIgnoreCase("2.x")) {
+            if (version.equalsIgnoreCase("1.x")) {
+
+            } else if (version.equalsIgnoreCase("2.x")) {
                 pluginName = pluginName + version.charAt(0);
             } else {
                 //其他为完整路径
@@ -1319,11 +1326,12 @@ public class ComponentService {
         return String.format("%s-%s-%s", resourceSign, storageSign, computeSign);
     }
 
-    private String buildStoreSign(ClusterVO cluster,String storeType) {
+    private String buildStoreSign(ClusterVO cluster,Integer storeType) {
         String storageSign;
         //如果组件配置了对应的存储组件 以配置为准
-        if (StringUtils.isNotBlank(storeType)) {
-            storageSign = storeType.toLowerCase();
+        if (null != storeType) {
+            EComponentType storeComponent = EComponentType.getByCode(storeType);
+            storageSign = storeComponent.name().toLowerCase();
         } else {
             //hdfs和nfs可以共存 hdfs为默认
             Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
@@ -1360,7 +1368,7 @@ public class ComponentService {
                 return hadoopVersion.substring(0, 2);
             }
         } else if (EComponentType.FLINK == componentType || EComponentType.SPARK == componentType) {
-            //flink dtscript 为 三位版本标识
+            //flink spark 为 三位版本标识
             return hadoopVersion;
         }
         return "";
