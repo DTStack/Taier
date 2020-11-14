@@ -227,6 +227,7 @@ class DisplayResource extends React.Component<any, any> {
         const componentTypeCode = components.componentTypeCode;
         let defaultVersion = 'hadoop2';
         let version = commonVersion || components.hadoopVersion;
+
         let versionCompsData = versionData.hadoopVersion || [];
         switch (componentTypeCode) {
             case COMPONENT_TYPE_VALUE.FLINK:
@@ -276,6 +277,7 @@ class DisplayResource extends React.Component<any, any> {
         const { getFieldDecorator, isView, components } = this.props;
         const componentTypeCode = components.componentTypeCode;
         const { saveCompsData } = this.state
+        let storeType = components?.storeType
         let storeTypeFlag = false
         for (const item in saveCompsData) {
             if (saveCompsData[item].key === COMPONENT_TYPE_VALUE.HDFS) {
@@ -290,7 +292,7 @@ class DisplayResource extends React.Component<any, any> {
                 key={`${configName}.storeType`}
             >
                 {getFieldDecorator(`${configName}.storeType`, {
-                    initialValue: storeTypeFlag ? COMPONENT_TYPE_VALUE.HDFS : saveCompsData?.[0]?.key
+                    initialValue: storeType || storeTypeFlag ? COMPONENT_TYPE_VALUE.HDFS : saveCompsData?.[0]?.key
                 })(
                     <Select style={{ width: 172 }} disabled={isView} onChange={(val) => this.handleSaveCompsData(val, componentTypeCode)}>
                         {saveCompsData.map((ver: any) => {
