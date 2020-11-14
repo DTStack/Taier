@@ -3,7 +3,6 @@ package com.dtstack.engine.base.util;
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
@@ -33,7 +32,6 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -347,10 +345,10 @@ public class KerberosUtils {
             throw new RdosDefineException("principal is null！");
         }
         if (StringUtils.isEmpty(krb5ConfPath)) {
-            throw new RdosDefineException("krb5ConfPath is null！");
+            throw new RdosDefineException("krb5.conf not exists！");
         }
         if (StringUtils.isEmpty(keytabPath)) {
-            throw new RdosDefineException("keytabPath is null！");
+            throw new RdosDefineException("keytab not exists！");
         }
     }
 
