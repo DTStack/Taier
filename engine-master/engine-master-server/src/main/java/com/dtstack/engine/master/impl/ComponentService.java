@@ -461,7 +461,7 @@ public class ComponentService {
                                              List<Resource> resources,  String hadoopVersion,
                                              String kerberosFileName,  String componentTemplate,
                                              Integer componentCode) {
-        if (StringUtils.isBlank(componentConfig) && EComponentType.KUBERNETES.getTypeCode() != componentCode) {
+        if (StringUtils.isBlank(componentConfig) && !EComponentType.KUBERNETES.getTypeCode().equals(componentCode)) {
             throw new RdosDefineException("组件信息不能为空");
         }
         if (Objects.isNull(componentCode)) {
@@ -1091,7 +1091,7 @@ public class ComponentService {
                 sftpFileManage.downloadDir(remoteDir, localDownLoadPath);
             } else {
                 if (Objects.isNull(component.getUploadFileName())) {
-                    //一种是  全部手动填写的 如flink
+                    // 一种是  全部手动填写的 如flink
                     try {
                         localDownLoadPath = localDownLoadPath + ".json";
                         FileUtils.write(new File(localDownLoadPath), component.getComponentConfig());
@@ -1099,7 +1099,7 @@ public class ComponentService {
                         LOGGER.error("write upload file {} error", component.getComponentConfig(), e);
                     }
                 } else {
-                    //一种是 上传配置文件的需要到sftp下载
+                    // 一种是 上传配置文件的需要到sftp下载
                     sftpFileManage.downloadDir(remoteDir + File.separator + component.getUploadFileName(), localDownLoadPath);
                 }
             }
