@@ -26,7 +26,6 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.FlinkClientBuilder;
-import com.dtstack.engine.flink.FlinkClusterClientManager;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.util.FileUtil;
@@ -81,7 +80,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
      * 用于缓存连接perjob对应application的ClusterClient
      */
     private Cache<String, ClusterClient> perJobClientCache = CacheBuilder.newBuilder()
-            .removalListener(new FlinkClusterClientManager.ClusterClientRemovalListener())
+            .removalListener(new ClusterClientRemovalListener())
             .expireAfterAccess(10, TimeUnit.MINUTES)
             .build();
 
