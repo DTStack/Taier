@@ -445,11 +445,11 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             }
             pluginInfo.put(ConfigConstant.REMOTE_DIR,remoteDir);
 
-            String principalFile = hadoopConfig.getString(ConfigConstant.PRINCIPALFILE);
+            String principalFile = hadoopConfig.getString(ConfigConstant.PRINCIPAL_FILE);
             if(StringUtils.isBlank(principalFile)){
                 throw new RdosDefineException("数据同步hadoopConfig principalFile 字段不能为空");
             }
-            pluginInfo.put(ConfigConstant.PRINCIPALFILE,principalFile);
+            pluginInfo.put(ConfigConstant.PRINCIPAL_FILE,principalFile);
 
             JSONObject sftpConf = hadoopConfig.getJSONObject(EComponentType.SFTP.getConfName());
             if (null == sftpConf || sftpConf.size() <= 0) {
@@ -457,7 +457,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             }
             pluginInfo.put(EComponentType.SFTP.getConfName(), sftpConf);
             //krb5.conf的文件名
-            pluginInfo.put(ConfigConstant.KRBNAME, hadoopConfig.getString(ConfigConstant.KRB5_CONF));
+            pluginInfo.put(ConfigConstant.KRB_NAME, hadoopConfig.getString(ConfigConstant.JAVA_SECURITY_KRB5_CONF));
             pluginInfo.put(EComponentType.YARN.getConfName(), hadoopConfig);
 
         }

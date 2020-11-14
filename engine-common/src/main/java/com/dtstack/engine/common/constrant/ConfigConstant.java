@@ -50,10 +50,10 @@ public class ConfigConstant {
 
     public static final String KERBEROS = "kerberos";
     public static final String REMOTE_DIR = "remoteDir";
-    public static final String PRINCIPALFILE = "principalFile";
-    public static final String KRBNAME = "krbName";
+    public static final String PRINCIPAL_FILE = "principalFile";
+    public static final String KRB_NAME = "krbName";
     public static final String OPEN_KERBEROS = "openKerberos";
-    public static final String KRB5_CONF = "java.security.krb5.conf";
+    public static final String JAVA_SECURITY_KRB5_CONF = "java.security.krb5.conf";
 
 
 
