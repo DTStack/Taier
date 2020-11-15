@@ -156,7 +156,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                 });
                 this.leaderLatch.start();
 
-                //这里需要sleep一下，避免leader还未选举完就走到下一步 默认10S
+                //这里需要sleep一下，避免leader还未选举完就走到下一步 默认5S
                 Thread.sleep(flinkConfig.getMonitorElectionWaitTime());
             }
         } catch (Exception e) {
