@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Form, Select, Icon } from 'antd';
 import utils from 'dt-common/src/utils';
 import {
-    COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEY_ENUM
+    COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEY_ENUM, COMPONEMT_CONFIG_KEYS, UPPER_NAME
 } from '../../../consts';
 import dealData from './dealData';
 
@@ -271,6 +271,7 @@ class DisplayResource extends React.Component<any, any> {
                         {this.renderCompsVersion(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderParamsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderPrincipal(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                     </React.Fragment>
                 )
             case COMPONENT_TYPE_VALUE.LEARNING:
@@ -279,6 +280,7 @@ class DisplayResource extends React.Component<any, any> {
                     <React.Fragment>
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderParamsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderPrincipal(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                     </React.Fragment>
                 )
             }
@@ -289,6 +291,7 @@ class DisplayResource extends React.Component<any, any> {
                         {this.renderCompsVersion(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderConfigsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderPrincipal(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                     </React.Fragment>
                 )
             }
@@ -300,6 +303,7 @@ class DisplayResource extends React.Component<any, any> {
                         {this.renderCompsVersion(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderParamsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderPrincipal(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                     </React.Fragment>
                 )
             }
@@ -307,6 +311,44 @@ class DisplayResource extends React.Component<any, any> {
                 return null;
         }
     }
+
+    handlePrincipal = (val, componentTypeCode) => {
+    }
+
+    isPrincipal= () => {
+        const type=Object.keys(COMPONEMT_CONFIG_KEYS)
+        const [principalList,havePrincipal]=[{},[...UPPER_NAME]]
+        type.forEach(item=>{
+            principalList[COMPONEMT_CONFIG_KEYS[item]]=havePrincipal.includes(item)
+            
+        })
+        return principalList
+    }
+
+    renderPrincipal = (configName) => {
+        const list = this.isPrincipal()
+        if(!list[configName]) return null
+        const { getFieldDecorator, isView, components } = this.props;
+        const componentTypeCode = components.componentTypeCode;
+        return (
+            <FormItem
+                label="principal"
+                colon={false}
+                key={`${configName}.principal`}
+            >
+                {getFieldDecorator(`${configName}.principal`, {
+                    initialValue: undefined
+                })(
+                    <Select style={{ width: 172 }} disabled={isView} onChange={(val) => this.handlePrincipal(val, componentTypeCode)}>
+                        {[{key:'1',value:'principal1'}].map((ver: any) => {
+                            return <Option value={ver.value} key={ver.key}>{ver.key}</Option>
+                        })}
+                    </Select>
+                )}
+            </FormItem>
+        )
+    }
+
     render () {
         return (
             <div className="c-displayResource__container">

@@ -18,6 +18,17 @@ export const COMPONENT_CONFIG_NAME = {
     KUBERNETES: 'Kubernetes'
 }
 
+export const UPPER_NAME = [
+    'FLINK',
+    'HDFS',
+    'SPARK',
+    'SPARK_THRIFT_SERVER',
+    'YARN',
+    "IMPALA_SQL",
+    "DTYARNSHELL",
+    "LEARNING"
+]
+
 export const COMPONENT_TYPE_VALUE = {
     FLINK: 0,
     SPARK: 1,
@@ -37,6 +48,9 @@ export const COMPONENT_TYPE_VALUE = {
     KUBERNETES: 15,
     PRESTO_SQL: 16
 }
+
+
+
 export const COMPONEMT_CONFIG_KEYS = {
     FLINK: 'flinkConf',
     SPARK: 'sparkConf',
