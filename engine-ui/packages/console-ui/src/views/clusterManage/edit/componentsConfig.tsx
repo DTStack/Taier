@@ -293,11 +293,29 @@ class ComponentsConfig extends React.Component<any, any> {
         const { componentTypeCode = '' } = this.props?.components
         switch (componentTypeCode) {
             case COMPONENT_TYPE_VALUE.YARN:
-                return this.renderYarnOrHdfsConfig()
+                return (
+                <>
+                    {this.renderCustomParam(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                    {this.renderAddCustomParam()}
+                    {this.renderYarnOrHdfsConfig()}
+                </>
+                )
             case COMPONENT_TYPE_VALUE.HDFS:
-                return this.renderYarnOrHdfsConfig()
+                return (
+                <>
+                    {this.renderCustomParam(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                    {this.renderAddCustomParam()}
+                    {this.renderYarnOrHdfsConfig()}
+                </>
+                )
             case COMPONENT_TYPE_VALUE.KUBERNETES:
-                return this.renderKubernetsConfig()
+                return (
+                <>
+                    {this.renderCustomParam(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                    {this.renderAddCustomParam()}
+                    {this.renderKubernetsConfig()}
+                </>
+                )
             case COMPONENT_TYPE_VALUE.SFTP:
             case COMPONENT_TYPE_VALUE.TIDB_SQL:
             case COMPONENT_TYPE_VALUE.LIBRA_SQL:
@@ -309,7 +327,13 @@ class ComponentsConfig extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.LEARNING:
             case COMPONENT_TYPE_VALUE.DTYARNSHELL:
             case COMPONENT_TYPE_VALUE.PRESTO_SQL: {
-                return this.rendeConfigForm(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])
+                return (
+                    <>
+                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderCustomParam(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderAddCustomParam()}
+                    </>
+                )
             }
             case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
             case COMPONENT_TYPE_VALUE.HIVE_SERVER: {
