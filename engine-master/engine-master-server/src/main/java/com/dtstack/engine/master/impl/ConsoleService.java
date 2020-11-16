@@ -460,10 +460,10 @@ public class ConsoleService {
                 String clusterName = cluster.getClusterName();
                 if (Objects.isNull(hdfsComponent)) {
                     typeName = componentService.convertComponentTypeToClient(clusterName,
-                            EComponentType.HDFS.getTypeCode(), yarnComponent.getHadoopVersion());
+                            EComponentType.HDFS.getTypeCode(), yarnComponent.getHadoopVersion(),null);
                 } else {
                     typeName = componentService.convertComponentTypeToClient(clusterName,
-                            EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion());
+                            EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion(),hdfsComponent.getStoreType());
                 }
             }
             pluginInfo.put(ComponentService.TYPE_NAME,typeName);
