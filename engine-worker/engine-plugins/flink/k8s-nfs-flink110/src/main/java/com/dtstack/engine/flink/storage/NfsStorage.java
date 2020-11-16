@@ -19,10 +19,10 @@ import java.util.Properties;
 public class NfsStorage extends AbstractStorage {
 
     private static final String VOLUME_TYPE = "nfs";
-    private static final String KEY_NFS_SERVICE = "service";
+    private static final String KEY_NFS_SERVICE = "server";
     private static final String KEY_NFS_PATH = "path";
 
-    private String service;
+    private String server;
     private String rootPath;
 
     @Override
@@ -31,9 +31,9 @@ public class NfsStorage extends AbstractStorage {
         if (nfsConf == null || nfsConf.size() == 0) {
             throw new RdosDefineException("No set nfs config!");
         }
-        service = MapUtils.getString(nfsConf, KEY_NFS_SERVICE);
+        server = MapUtils.getString(nfsConf, KEY_NFS_SERVICE);
         rootPath = MapUtils.getString(nfsConf, KEY_NFS_PATH);
-        Preconditions.checkNotNull(service, "no set nfs service");
+        Preconditions.checkNotNull(server, "no set nfs server");
         Preconditions.checkNotNull(rootPath, "no set nfs path");
         checkReadPermission(rootPath);
         checkWritePermission(rootPath);
@@ -81,7 +81,7 @@ public class NfsStorage extends AbstractStorage {
     private void setNfsMountConf(Configuration config, String volumeName, String path, String mountPath, String readOnly) {
         // set jobmanager volume
         String jobmanagerVolumeServer = String.format("%s%s.%s.options.server", Constants.KUBERNETES_JOB_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, volumeName);
-        config.setString(jobmanagerVolumeServer, service);
+        config.setString(jobmanagerVolumeServer, server);
         String jobmanagerVolumePath = String.format("%s%s.%s.options.path", Constants.KUBERNETES_JOB_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, volumeName);
         config.setString(jobmanagerVolumePath, path);
 
@@ -93,7 +93,7 @@ public class NfsStorage extends AbstractStorage {
 
         // set taskmanager volume
         String taskmanagerVolumeServer = String.format("%s%s.%s.options.server", Constants.KUBERNETES_TASK_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, volumeName);
-        config.setString(taskmanagerVolumeServer, service);
+        config.setString(taskmanagerVolumeServer, server);
         String taskmanagerVolumePath = String.format("%s%s.%s.options.path", Constants.KUBERNETES_TASK_MANAGER_VOLUMES_PREFIX, VOLUME_TYPE, volumeName);
         config.setString(taskmanagerVolumePath, path);
 
@@ -109,7 +109,7 @@ public class NfsStorage extends AbstractStorage {
         if (StringUtils.startsWith(path, "nfs://")) {
             fileUrl = path;
         } else {
-            fileUrl = String.format("nfs://%s/%s", service, path);
+            fileUrl = String.format("nfs://%s/%s", server, path);
         }
         XFile nfsFile = new XFile(fileUrl);
         if (!nfsFile.exists()) {
@@ -124,7 +124,7 @@ public class NfsStorage extends AbstractStorage {
     }
 
     private void checkReadPermission(String path) {
-        String url = String.format("nfs://%s/%s", service, path);
+        String url = String.format("nfs://%s/%s", server, path);
         XFile nfsFile = new XFile(url);
         if (!nfsFile.exists()) {
             throw new RdosDefineException("file or dir not exists. path: " + path);
@@ -136,7 +136,7 @@ public class NfsStorage extends AbstractStorage {
     }
 
     private void checkWritePermission(String path) {
-        String url = String.format("nfs://%s/%s", service, path);
+        String url = String.format("nfs://%s/%s", server, path);
         XFile nfsFile = new XFile(url);
         if (!nfsFile.exists()) {
             throw new RdosDefineException("file or dir not exists. path: " + path);
