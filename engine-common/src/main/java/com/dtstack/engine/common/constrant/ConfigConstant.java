@@ -71,4 +71,7 @@ public class ConfigConstant {
     public static final String USER_DIR_UNZIP = System.getProperty("user.dir") + File.separator + "unzip";
     public static final String USER_DIR_DOWNLOAD = System.getProperty("user.dir") + File.separator + "download";
 
+    public static final String SPLIT = "_";
+    public static final String RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT = "default";
+
 }
