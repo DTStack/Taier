@@ -24,7 +24,7 @@ public class EngineMain {
             ShutdownHookUtil.addShutdownHook(EngineMain::shutdown, EngineMain.class.getSimpleName(), logger);
             System.setSecurityManager(new NoExitSecurityManager());
         } catch (Throwable e) {
-            logger.error("EngineMain start error:{}", e);
+            logger.error("EngineMain start error:", e);
             System.exit(-1);
         }
     }

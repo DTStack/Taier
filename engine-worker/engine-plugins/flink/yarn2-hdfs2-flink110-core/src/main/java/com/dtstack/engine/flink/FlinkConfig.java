@@ -70,6 +70,8 @@ public class FlinkConfig extends BaseConfig {
 
     private int checkSubmitJobGraphInterval = 0;
 
+    private int monitorElectionWaitTime = 5 * 1000;
+
     private long submitTimeout = 5;
 
     private int zkConnectionTimeout = 5000;
@@ -121,6 +123,14 @@ public class FlinkConfig extends BaseConfig {
 
     public void setMonitorAcceptedApp(boolean monitorAcceptedApp) {
         this.monitorAcceptedApp = monitorAcceptedApp;
+    }
+
+    public int getMonitorElectionWaitTime() {
+        return monitorElectionWaitTime;
+    }
+
+    public void setMonitorElectionWaitTime(int monitorElectionWaitTime) {
+        this.monitorElectionWaitTime = monitorElectionWaitTime;
     }
 
     public String getTypeName() {

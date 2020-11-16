@@ -3,6 +3,7 @@ package com.dtstack.engine.hadoop;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.base.resource.EngineResourceInfo;
@@ -18,7 +19,6 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
-import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.DtStringUtil;
@@ -102,12 +102,18 @@ public class HadoopClient extends AbstractClient {
 
     @Override
     protected JobResult processSubmitJobWithType(JobClient jobClient) {
-        EJobType jobType = jobClient.getJobType();
-        JobResult jobResult = null;
-        if(EJobType.MR.equals(jobType)){
-            jobResult = submitJobWithJar(jobClient);
+        try {
+            return KerberosUtils.login(config, () -> {
+                EJobType jobType = jobClient.getJobType();
+                if (EJobType.MR.equals(jobType)) {
+                    return submitJobWithJar(jobClient);
+                }
+                return null;
+            }, conf);
+        } catch (Exception e) {
+            LOG.error("submit error:", e);
+            return JobResult.createErrorResult(e);
         }
-        return jobResult;
     }
 
     @Override
@@ -220,22 +226,35 @@ public class HadoopClient extends AbstractClient {
     }
 
     private void downloadHdfsFile(String from, String to) throws IOException {
-        File toFile = new File(to);
-        if(!toFile.getParentFile().exists()){
-            Files.createParentDirs(toFile);
+
+        try {
+            KerberosUtils.login(config, ()-> {
+                try {
+                    File toFile = new File(to);
+                    if(!toFile.getParentFile().exists()){
+                        Files.createParentDirs(toFile);
+                    }
+                    Path hdfsFilePath = new Path(from);
+                    InputStream is= FileSystem.get(conf).open(hdfsFilePath);//读取文件
+                    IOUtils.copyBytes(is, new FileOutputStream(toFile),2048, true);//保存到本地
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
+                }
+                return null;
+            }, conf);
+        } catch (Exception e) {
+            LOG.error("", e);
+            throw new RdosDefineException(e);
         }
-        Path hdfsFilePath = new Path(from);
-        InputStream is= FileSystem.get(conf).open(hdfsFilePath);//读取文件
-        IOUtils.copyBytes(is, new FileOutputStream(toFile),2048, true);//保存到本地
     }
 
     @Override
     public JudgeResult judgeSlots(JobClient jobClient) {
         try {
-            return resourceInfo.judgeSlots(jobClient);
+            return KerberosUtils.login(config, () -> resourceInfo.judgeSlots(jobClient), conf);
         } catch (Exception e) {
-            LOG.error("JudgeSlots error:", e);
-            return JudgeResult.notOk("judgeSlots error");
+            LOG.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -395,7 +414,9 @@ public class HadoopClient extends AbstractClient {
                 //测试hdfs联通性
                 return this.checkHdfsConnect(allConfig);
             }
-            return KerberosUtils.login(allConfig, () -> testYarnConnect(testResult, allConfig),conf);
+            return KerberosUtils.login(allConfig,
+                    () -> testYarnConnect(testResult, allConfig),
+                    KerberosUtils.convertMapConfToConfiguration(allConfig.getYarnConf()));
 
         } catch (Exception e) {
             LOG.error("test yarn connect error", e);

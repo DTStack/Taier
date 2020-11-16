@@ -7,6 +7,7 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.vo.console.*;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -15,13 +16,16 @@ import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
+import com.dtstack.engine.master.config.TaskResourceBeanConfig;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
+import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -169,7 +173,7 @@ public class ConsoleService {
             List<Map<String, Object>> finalResult = new ArrayList<>(groupResult.size());
             for (Map<String, Object> record : groupResult) {
                 String jobResource = MapUtils.getString(record, "jobResource");
-                if (StringUtils.isBlank(clusterName) || !jobResource.contains(clusterName)) {
+                if(!isBelongCluster(clusterName,jobResource)){
                     continue;
                 }
                 long generateTime = MapUtils.getLong(record, "generateTime");
@@ -213,6 +217,23 @@ public class ConsoleService {
         }
         return overview.values();
     }
+
+    private boolean isBelongCluster(String clusterName,String jobResource){
+        if(StringUtils.isBlank(clusterName)){
+            return false;
+        }
+        if(StringUtils.isBlank(jobResource)){
+            return false;
+        }
+        String[] split = jobResource.split(ConfigConstant.SPLIT);
+        if(split.length <= 1){
+            return false;
+        }
+        //第二位为集群名
+        String jobResourceClusterName = split[1];
+        return clusterName.equalsIgnoreCase(jobResourceClusterName);
+    }
+
 
     public PageResult groupDetail(String jobResource,
                                   String nodeAddress,
@@ -505,5 +526,17 @@ public class ConsoleService {
         }
 
         return null;
+    }
+
+    /**
+    * @author zyd
+    * @Description 获取任务类型及对应的资源模板
+    * @Date 8:13 下午 2020/10/14
+    * @Param []
+    * @retrun java.util.List<com.dtstack.engine.master.vo.TaskTypeResourceTemplate>
+    **/
+    public List<TaskTypeResourceTemplateVO> getTaskResourceTemplate() {
+
+        return TaskResourceBeanConfig.templateList;
     }
 }

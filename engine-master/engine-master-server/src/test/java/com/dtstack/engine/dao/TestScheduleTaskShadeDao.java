@@ -1,8 +1,6 @@
 package com.dtstack.engine.dao;
 
-import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
@@ -21,7 +19,7 @@ public interface TestScheduleTaskShadeDao {
 		"VALUES (#{scheduleTaskShade.tenantId},#{scheduleTaskShade.projectId},#{scheduleTaskShade.nodePid},#{scheduleTaskShade.name},#{scheduleTaskShade.taskType},#{scheduleTaskShade.engineType},#{scheduleTaskShade.computeType},#{scheduleTaskShade.sqlText},#{scheduleTaskShade.taskParams},\n" +
 		"#{scheduleTaskShade.scheduleConf},#{scheduleTaskShade.periodType},#{scheduleTaskShade.scheduleStatus},#{scheduleTaskShade.submitStatus},#{scheduleTaskShade.gmtCreate},#{scheduleTaskShade.gmtModified},#{scheduleTaskShade.modifyUserId},#{scheduleTaskShade.createUserId},\n" +
 		"#{scheduleTaskShade.ownerUserId},#{scheduleTaskShade.versionId},#{scheduleTaskShade.isDeleted},#{scheduleTaskShade.taskDesc},#{scheduleTaskShade.mainClass},#{scheduleTaskShade.exeArgs},#{scheduleTaskShade.flowId},#{scheduleTaskShade.appType},#{scheduleTaskShade.dtuicTenantId},#{scheduleTaskShade.taskId},\n" +
-		"#{scheduleTaskShade.isExpire},#{scheduleTaskShade.projectScheduleStatus})"})
+        "#{scheduleTaskShade.projectScheduleStatus})"})
 	@Options(useGeneratedKeys=true, keyProperty = "scheduleTaskShade.id", keyColumn = "id")
 	void insert(@Param("scheduleTaskShade") ScheduleTaskShade scheduleTaskShade);
 }

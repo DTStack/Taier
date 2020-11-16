@@ -13,11 +13,10 @@ import com.dtstack.engine.master.listener.MasterListener;
 import com.dtstack.engine.master.failover.FailoverStrategy;
 import com.dtstack.engine.master.scheduler.ScheduleJobBack;
 import com.google.common.collect.Lists;
-import com.netflix.curator.framework.CuratorFramework;
-import com.netflix.curator.framework.CuratorFrameworkFactory;
-import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
-import com.netflix.curator.retry.ExponentialBackoffRetry;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * company: www.dtstack.com
@@ -51,13 +49,11 @@ public class ZkService implements InitializingBean, DisposableBean {
     private String workersNode;
 
     private CuratorFramework zkClient;
-    private InterProcessMutex masterLock;
-    private InterProcessMutex brokerHeartLock;
-
-    private String lastMasterAddress = "";
-
     private static ObjectMapper objectMapper = new ObjectMapper();
-    private List<InterProcessMutex> interProcessMutexes = Lists.newArrayList();
+
+    /**
+     * when normal stopped，need trigger Listener close();
+     */
     private List<Listener> listeners = Lists.newArrayList();
 
     @Autowired
@@ -88,9 +84,6 @@ public class ZkService implements InitializingBean, DisposableBean {
     }
 
     private void initClient() {
-        if (zkConfig.getSecurity() != null) {
-            initSecurity();
-        }
         this.zkClient = CuratorFrameworkFactory.builder()
                 .connectString(this.zkAddress).retryPolicy(new ExponentialBackoffRetry(1000, 3))
                 .connectionTimeoutMs(1000)
@@ -99,41 +92,20 @@ public class ZkService implements InitializingBean, DisposableBean {
         logger.warn("connector zk success...");
     }
 
-    private void initSecurity() {
-        /*try {
-            Map<String, String> securityKvs = zkConfig.getSecurity();
-            String userPrincipal = securityKvs.get("userPrincipal");
-            String userKeytabPath = securityKvs.get("userKeytabPath");
-            String krb5ConfPath = securityKvs.get("krb5ConfPath");
-            String zkPrincipal = securityKvs.get("zkPrincipal");
-            String loginContextName = securityKvs.get("loginContextName");
-
-            KerberosUtils.setJaasConf(loginContextName, userPrincipal, userKeytabPath);
-            KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", zkPrincipal);
-            Configuration hadoopConf = new Configuration();
-            hadoopConf.set("hadoop.security.authentication", "kerberos");
-            hadoopConf.setBoolean("hadoop.security.authorization", true);
-            KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
-        } catch (IOException e) {
-            logger.error("", e);
-        }*/
-    }
-
-    private ZkService zkRegistration() throws Exception {
+    private void zkRegistration() throws Exception {
         createNodeIfNotExists(this.distributeRootNode, "");
         createNodeIfNotExists(this.brokersNode, BrokersNode.initBrokersNode());
         createNodeIfNotExists(this.localNode, "");
         createNodeIfNotExists(this.workersNode, new HashSet<>());
-        initNeedLock();
         createLocalBrokerHeartNode();
         initScheduledExecutorService();
         logger.warn("init zk server success...");
-        return this;
     }
 
-    private void initScheduledExecutorService() {
+    private void initScheduledExecutorService() throws Exception {
         listeners.add(new HeartBeatListener(this));
-        MasterListener masterListener = new MasterListener(failoverStrategy, this,scheduleJobBack);
+        String latchPath = String.format("%s/%s", this.distributeRootNode, "masterLatchLock");
+        MasterListener masterListener = new MasterListener(failoverStrategy, scheduleJobBack, zkClient, latchPath, localAddress);
         listeners.add(masterListener);
         listeners.add(new HeartBeatCheckListener(masterListener, failoverStrategy, this));
     }
@@ -151,72 +123,13 @@ public class ZkService implements InitializingBean, DisposableBean {
     public void updateSynchronizedLocalBrokerHeartNode(String localAddress, BrokerHeartNode source, boolean isCover) {
         String nodePath = String.format("%s/%s/%s", brokersNode, localAddress, HEART_NODE);
         try {
-            if (this.brokerHeartLock.acquire(30, TimeUnit.SECONDS)) {
-                BrokerHeartNode target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerHeartNode.class);
-                BrokerHeartNode.copy(source, target, isCover);
-                zkClient.setData().forPath(nodePath,
-                        objectMapper.writeValueAsBytes(target));
-            }
+            BrokerHeartNode target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerHeartNode.class);
+            BrokerHeartNode.copy(source, target, isCover);
+            zkClient.setData().forPath(nodePath,
+                    objectMapper.writeValueAsBytes(target));
         } catch (Exception e) {
             logger.error("{}:updateSynchronizedBrokerHeartNode error:", nodePath, e);
-        } finally {
-            try {
-                if (this.brokerHeartLock.isAcquiredInThisProcess()) {
-                    this.brokerHeartLock.release();
-                }
-            } catch (Exception e) {
-                logger.error("{}:updateSynchronizedBrokerHeartNode error:", nodePath, e);
-            }
         }
-    }
-
-    private void initNeedLock() {
-        this.masterLock = createDistributeLock(String.format(
-                "%s/%s", this.distributeRootNode, "masterLock"));
-
-        this.brokerHeartLock = createDistributeLock(String.format(
-                "%s/%s", this.distributeRootNode, "brokerheartlock"));
-
-        interProcessMutexes.add(this.masterLock);
-        interProcessMutexes.add(this.brokerHeartLock);
-
-    }
-
-    private InterProcessMutex createDistributeLock(String nodePath) {
-        return new InterProcessMutex(zkClient, nodePath);
-    }
-
-    public boolean setMaster() {
-        try {
-            if (this.masterLock.acquire(10, TimeUnit.SECONDS)) {
-                String zkMasterAddr = isHaveMaster();
-                if (!this.localAddress.equals(zkMasterAddr) || !lastMasterAddress.equals(zkMasterAddr)) {
-                    BrokersNode brokersNode = BrokersNode.initBrokersNode();
-                    brokersNode.setMaster(this.localAddress);
-                    this.zkClient.setData().forPath(this.brokersNode,
-                            objectMapper.writeValueAsBytes(brokersNode));
-                    if (zkMasterAddr != null) {
-                        lastMasterAddress = zkMasterAddr;
-                    }
-                }
-                return true;
-            }
-        } catch (Exception e) {
-            logger.error(ExceptionUtil.getErrorMessage(e));
-        }
-        return false;
-    }
-
-
-    public String isHaveMaster() throws Exception {
-        byte[] data = this.zkClient.getData().forPath(this.brokersNode);
-        String de = new String(data);
-        if (data == null || "[]".equals(de)
-                || StringUtils.isBlank(objectMapper.readValue(data,
-                BrokersNode.class).getMaster())) {
-            return null;
-        }
-        return objectMapper.readValue(data, BrokersNode.class).getMaster();
     }
 
     public void createNodeIfNotExists(String node, Object obj) throws Exception {
@@ -250,8 +163,7 @@ public class ZkService implements InitializingBean, DisposableBean {
                     .forPath(nodePath), BrokerHeartNode.class);
             return nodeSign;
         } catch (Exception e) {
-            logger.error("{}:getBrokerHeartNode error:{}", node,
-                    ExceptionUtil.getErrorMessage(e));
+            logger.error("{}:getBrokerHeartNode error:", node, e);
         }
         return BrokerHeartNode.initNullBrokerHeartNode();
     }
@@ -260,8 +172,7 @@ public class ZkService implements InitializingBean, DisposableBean {
         try {
             return zkClient.getChildren().forPath(this.brokersNode);
         } catch (Exception e) {
-            logger.error("getBrokersChildren error:{}",
-                    ExceptionUtil.getErrorMessage(e));
+            logger.error("getBrokersChildren error:", e);
         }
         return Lists.newArrayList();
     }
@@ -277,8 +188,7 @@ public class ZkService implements InitializingBean, DisposableBean {
                 }
             }
         } catch (Exception e) {
-            logger.error("getBrokersChildren error:{}",
-                    ExceptionUtil.getErrorMessage(e));
+            logger.error("getBrokersChildren error:", e);
         }
         return alives;
     }
@@ -325,6 +235,7 @@ public class ZkService implements InitializingBean, DisposableBean {
         for (Listener listener : listeners) {
             try {
                 listener.close();
+                logger.info("close {}", listener.getClass().getSimpleName());
             } catch (Exception e) {
                 logger.error("{}", e);
             }

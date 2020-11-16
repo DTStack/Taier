@@ -256,7 +256,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                 scheduleJobDao.updateEngineLog(jobId, engineLog);
             }
         } catch (Throwable e) {
-            LOG.error("getAndUpdateEngineLog error jobId:{} error:{}.", jobId, e);
+            LOG.error("getAndUpdateEngineLog error jobId:{} error:.", jobId, e);
         }
         return engineLog;
     }
@@ -313,7 +313,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                     }
                 }
             } catch (Exception e) {
-                LOG.error("----broker:{} RecoverDealer error:{}", localAddress, e);
+                LOG.error("----broker:{} RecoverDealer error:", localAddress, e);
             }
 
             LOG.info("-----重启后任务结束恢复-----");

@@ -1,7 +1,8 @@
 package com.dtstack.engine.base;
 
+import com.dtstack.engine.common.sftp.SftpConfig;
+
 import java.sql.Timestamp;
-import java.util.Map;
 
 /**
  * @author yuebai
@@ -9,19 +10,27 @@ import java.util.Map;
  */
 public class BaseConfig {
 
+    private SftpConfig sftpConf;
+
     private boolean openKerberos;
 
     private String remoteDir;
 
     private String principalFile;
 
-    private Map<String, String> sftpConf;
-
     private String krbName;
 
     private String principal;
 
     private Timestamp kerberosFileTimestamp;
+
+    public SftpConfig getSftpConf() {
+        return sftpConf;
+    }
+
+    public void setSftpConf(SftpConfig sftpConf) {
+        this.sftpConf = sftpConf;
+    }
 
     public String getPrincipal() {
         return principal;
@@ -70,13 +79,4 @@ public class BaseConfig {
     public void setPrincipalFile(String principalFile) {
         this.principalFile = principalFile;
     }
-
-    public Map<String, String> getSftpConf() {
-        return sftpConf;
-    }
-
-    public void setSftpConf(Map<String, String> sftpConf) {
-        this.sftpConf = sftpConf;
-    }
-
 }

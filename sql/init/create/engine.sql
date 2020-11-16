@@ -245,7 +245,7 @@ CREATE TABLE `console_account`
   `id`             int(11)      NOT NULL AUTO_INCREMENT,
   `name`           varchar(24)  NOT NULL COMMENT '用户名',
   `password`       varchar(256) NOT NULL COMMENT '密码',
-  `type`           tinyint(1)   NOT NULL COMMENT '账号类型',
+  `type`           tinyint(11)   NOT NULL COMMENT '账号类型',
   `gmt_create`     datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `gmt_modified`   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted`     tinyint(1)   NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
@@ -309,7 +309,6 @@ CREATE TABLE `schedule_task_shade`
   `flow_id`                 INT(11)      NOT NULL DEFAULT '0' COMMENT '工作流id',
   `is_publish_to_produce`   tinyint(1)   NOT NULL DEFAULT '0' COMMENT '是否发布到生产环境：0-否，1-是',
   `extra_info`              mediumtext                  DEFAULT NULL COMMENT '存储task运行时所需的额外信息',
-  `is_expire`               TINYINT(1)   NOT NULL DEFAULT '0' COMMENT '过期策略：0永不过期 1过期取消',
   PRIMARY KEY (`id`),
   KEY `index_name` (`project_id`, `name`(128)),
   UNIQUE KEY `index_task_id` (`task_id`,`app_type`)
@@ -445,4 +444,21 @@ CREATE TABLE `schedule_job_graph_trigger`
   UNIQUE KEY `index_trigger_time` (`trigger_time`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
+
+CREATE TABLE `console_tenant_resource` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `dt_uic_tenant_id` int(11) NOT NULL COMMENT 'uic租户id',
+  `task_type` tinyint(2) NOT NULL COMMENT '任务类型',
+  `engine_type` varchar(256) NOT NULL COMMENT '任务类型名称',
+  `resource_limit` text NOT NULL COMMENT '资源限制',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` int(10) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_uic_tenantid_tasktype` (`dt_uic_tenant_id`,`task_type`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8 COMMENT='租户资源限制表'
+
+
+
 

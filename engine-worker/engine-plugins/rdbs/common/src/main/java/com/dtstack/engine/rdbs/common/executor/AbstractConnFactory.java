@@ -3,6 +3,7 @@ package com.dtstack.engine.rdbs.common.executor;
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
@@ -44,7 +45,7 @@ public abstract class AbstractConnFactory {
 
     protected Configuration yarnConf = null;
 
-    protected BaseConfig baseConfig = null;
+    protected BaseConfig baseConfig = new BaseConfig();
 
     public void init(Properties properties) throws ClassNotFoundException {
         synchronized (AbstractConnFactory.class) {
@@ -59,20 +60,13 @@ public abstract class AbstractConnFactory {
         password = MathUtil.getString(properties.get(ConfigConstant.PASSWORD));
 
         Preconditions.checkNotNull(jdbcUrl, "db url can't be null");
-        Map config = (Map) properties.get("config");
 
         try {
-            if (Objects.nonNull(config)) {
-                baseConfig = PublicUtil.mapToObject(config, BaseConfig.class);
-                if (Objects.nonNull(config.get("yarnConf"))) {
-                    Map<String, Object> yarnMap = (Map<String, Object>) config.get("yarnConf");
-                    yarnConf = KerberosUtils.convertMapConfToConfiguration(yarnMap);
-                }
-                if (Objects.nonNull(properties.get("sftpConf"))) {
-                    baseConfig.setSftpConf((Map<String, String>) properties.get("sftpConf"));
-                }
-            } else {
-                baseConfig = new BaseConfig();
+            String propStr = PublicUtil.objToString(properties);
+            baseConfig = PublicUtil.jsonStrToObject(propStr, BaseConfig.class);
+            if (null != properties.get("yarnConf")) {
+                Map<String, Object> yarnMap = (Map<String, Object>) properties.get("yarnConf");
+                yarnConf = KerberosUtils.convertMapConfToConfiguration(yarnMap);
             }
             testConn();
         } catch (Exception e) {

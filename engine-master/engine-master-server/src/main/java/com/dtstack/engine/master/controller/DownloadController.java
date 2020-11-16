@@ -1,8 +1,6 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.service.DownloadService;
 import com.dtstack.engine.master.impl.ComponentService;
-import com.dtstack.sdk.core.common.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -11,7 +9,6 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,8 +35,11 @@ public class DownloadController {
     @ApiImplicitParams({
             @ApiImplicitParam(name="type",value="0:kerberos配置文件 1:配置文件 2:模板文件",required=true, dataType = "int")
     })
-    public void handleDownload(@RequestParam("componentId") Long componentId, @RequestParam("type") Integer downloadType, @RequestParam("componentType") Integer componentType,
-                               @RequestParam("hadoopVersion") String hadoopVersion, @RequestParam("clusterName") String clusterName, HttpServletResponse response) {
+    public void handleDownload(@RequestParam(value = "componentId",required = false) Long componentId,
+                               @RequestParam("type") Integer downloadType,
+                               @RequestParam("componentType") Integer componentType,
+                               @RequestParam("hadoopVersion") String hadoopVersion,
+                               @RequestParam("clusterName") String clusterName, HttpServletResponse response) {
         response.setHeader("content-type", "application/octet-stream;charset=UTF-8");
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Cache-Control", "no-cache");

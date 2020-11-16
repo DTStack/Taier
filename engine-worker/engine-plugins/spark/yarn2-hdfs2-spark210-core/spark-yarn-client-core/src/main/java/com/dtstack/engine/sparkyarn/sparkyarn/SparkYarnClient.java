@@ -1,5 +1,6 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
+import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
@@ -26,6 +27,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -34,15 +36,16 @@ import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.yarn.ClientArguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.security.PrivilegedExceptionAction;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -83,6 +86,8 @@ public class SparkYarnClient extends AbstractClient {
 
     private static final String CLUSTER_INFO_WS_FORMAT = "%s/ws/v1/cluster";
 
+    private static final String USER_DIR = System.getProperty("user.dir");
+
     /**如果请求 CLUSTER_INFO_WS_FORMAT 返回信息包含该特征则表示是alive*/
     private static final String ALIVE_WEB_FLAG = "clusterInfo";
 
@@ -95,6 +100,8 @@ public class SparkYarnClient extends AbstractClient {
     private volatile YarnClient yarnClient;
 
     private Properties sparkExtProp;
+
+    private FilesystemManager filesystemManager;
 
     private ThreadPoolExecutor threadPoolExecutor;
 
@@ -110,6 +117,8 @@ public class SparkYarnClient extends AbstractClient {
         parseWebAppAddr();
         logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
         yarnClient = this.buildYarnClient();
+
+        this.filesystemManager = new FilesystemManager(yarnConf, sparkYarnConfig.getSftpConf());
 
         if (sparkYarnConfig.getMonitorAcceptedApp()) {
             AcceptedApplicationMonitor.start(yarnConf, sparkYarnConfig.getQueue(), sparkYarnConfig);
@@ -194,16 +203,22 @@ public class SparkYarnClient extends AbstractClient {
         }
 
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
-        SparkConf sparkConf = buildBasicSparkConf();
+        SparkConf sparkConf = buildBasicSparkConf(jobClient);
         sparkConf.setAppName(appName);
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
 
         ApplicationId appId = null;
 
         try {
-            ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
+            ClientExt clientExt = ClientExtFactory.getClientExt(filesystemManager, clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
-            appId = clientExt.submitApplication(jobClient.getApplicationPriority());
+            String proxyUserName = sparkYarnConfig.getDtProxyUserName();
+            if (StringUtils.isNotBlank(proxyUserName)) {
+                logger.info("ugi proxyUser is {}", proxyUserName);
+                appId = UserGroupInformation.createProxyUser(proxyUserName, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<ApplicationId>) () -> clientExt.submitApplication(jobClient.getApplicationPriority()));
+            } else {
+                appId = clientExt.submitApplication(jobClient.getApplicationPriority());
+            }
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             logger.info("", ex);
@@ -272,16 +287,23 @@ public class SparkYarnClient extends AbstractClient {
             pythonExtPath = pythonExtPath + "," + dependencyResource;
         }
 
-        SparkConf sparkConf = buildBasicSparkConf();
+        SparkConf sparkConf = buildBasicSparkConf(jobClient);
         sparkConf.set("spark.submit.pyFiles", pythonExtPath);
         sparkConf.setAppName(appName);
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
 
         try {
             ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
-            ClientExt clientExt = new ClientExt(clientArguments, yarnConf, sparkConf);
+            ClientExt clientExt = new ClientExt(filesystemManager, clientArguments, yarnConf, sparkConf);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
-            appId = clientExt.submitApplication(jobClient.getApplicationPriority());
+
+            String proxyUserName = sparkYarnConfig.getDtProxyUserName();
+            if (StringUtils.isNotBlank(proxyUserName)) {
+                logger.info("ugi proxyUser is {}", proxyUserName);
+                appId = UserGroupInformation.createProxyUser(proxyUserName, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<ApplicationId>) () -> clientExt.submitApplication(jobClient.getApplicationPriority()));
+            } else {
+                appId = clientExt.submitApplication(jobClient.getApplicationPriority());
+            }
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             logger.info("", ex);
@@ -339,16 +361,22 @@ public class SparkYarnClient extends AbstractClient {
         argList.add(sqlExeJson);
 
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
-        SparkConf sparkConf = buildBasicSparkConf();
+        SparkConf sparkConf = buildBasicSparkConf(jobClient);
         sparkConf.setAppName(jobClient.getJobName());
         fillExtSparkConf(sparkConf, confProp);
 
         ApplicationId appId = null;
 
         try {
-            ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
+            ClientExt clientExt = ClientExtFactory.getClientExt(filesystemManager, clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
-            appId = clientExt.submitApplication(jobClient.getApplicationPriority());
+            String proxyUserName = sparkYarnConfig.getDtProxyUserName();
+            if (StringUtils.isNotBlank(proxyUserName)) {
+                logger.info("ugi proxyUser is {}", proxyUserName);
+                appId = UserGroupInformation.createProxyUser(proxyUserName, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<ApplicationId>) () -> clientExt.submitApplication(jobClient.getApplicationPriority()));
+            } else {
+                appId = clientExt.submitApplication(jobClient.getApplicationPriority());
+            }
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
@@ -376,7 +404,7 @@ public class SparkYarnClient extends AbstractClient {
         return map;
     }
 
-    private SparkConf buildBasicSparkConf(){
+    private SparkConf buildBasicSparkConf(JobClient jobClient){
 
         SparkConf sparkConf = new SparkConf();
         sparkConf.remove("spark.jars");
@@ -385,8 +413,10 @@ public class SparkYarnClient extends AbstractClient {
         sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
         sparkConf.set("security", "false");
 
+        String taskId = jobClient.getTaskId();
         if (sparkYarnConfig.isOpenKerberos()){
-            String keytab = KerberosUtils.getKeytabPath(sparkYarnConfig);
+            String[] kerberosFiles = KerberosUtils.getKerberosFile(sparkYarnConfig, null);
+            String keytab = kerberosFiles[0];
             String principal = KerberosUtils.getPrincipal(keytab);
             sparkConf.set("spark.yarn.keytab", keytab);
             sparkConf.set("spark.yarn.principal", principal);
@@ -636,8 +666,8 @@ public class SparkYarnClient extends AbstractClient {
                     return resourceInfo.judgeSlots(jobClient);
             }, yarnConf);
         } catch (Exception e) {
-            logger.error("judgeSlots error", e);
-            return JudgeResult.notOk("judgeSlots error");
+            logger.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 

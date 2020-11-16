@@ -71,7 +71,7 @@
     <select id="getByEngineIdAndComponentType" resultType="Component">
         select <include refid="select_content_fragment"/>
         from console_component
-        where engine_id = #{engineId} and component_type_code = #{type} and is_deleted = 0
+        where engine_id = #{engineId} and component_type_code = #{type} and is_deleted = 0 LIMIT 1
     </select>
 
 
@@ -85,7 +85,7 @@
         LEFT JOIN console_engine ENGINE ON ENGINE.id = c.engine_id
         LEFT JOIN console_cluster cluster ON cluster.id = ENGINE.cluster_id
         WHERE
-        cluster.id = #{clusterId} and c.component_type_code = #{type} and c.is_deleted = 0
+        cluster.id = #{clusterId} and c.component_type_code = #{type} and c.is_deleted = 0 LIMIT 1
     </select>
 
 

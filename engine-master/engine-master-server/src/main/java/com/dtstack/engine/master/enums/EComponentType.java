@@ -30,7 +30,7 @@ public enum EComponentType {
     PRESTO_SQL(16, "Presto SQL", "prestoConf"),
     NFS(17, "NFS", "nfsConf");
 
-    private int typeCode;
+    private Integer typeCode;
 
     private String name;
 
@@ -72,7 +72,7 @@ public enum EComponentType {
         throw new IllegalArgumentException("No enum constant with conf name:" + ConfName);
     }
 
-    public int getTypeCode() {
+    public Integer getTypeCode() {
         return typeCode;
     }
 
