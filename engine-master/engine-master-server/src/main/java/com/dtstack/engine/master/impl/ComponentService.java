@@ -1203,12 +1203,18 @@ public class ComponentService {
      * @param componentType
      * @return
      */
-    public List<ClientTemplate> loadTemplate(Integer componentType,  String clusterName, String version,Integer storeType) {
+    public List<ClientTemplate> loadTemplate(Integer componentType, String clusterName, String version, Integer storeType) {
         EComponentType component = EComponentType.getByCode(componentType);
         List<ClientTemplate> defaultPluginConfig = null;
         try {
-            defaultPluginConfig = workerOperator.getDefaultPluginConfig(this.convertComponentTypeToClient(clusterName, componentType, version,storeType),
-                    component.getName().toLowerCase());
+            String typeName = null;
+            if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
+                typeName = EComponentType.HDFS.name().toLowerCase() + this.formatHadoopVersion(version, component);
+            } else {
+                typeName = this.convertComponentTypeToClient(clusterName, componentType, version, storeType);
+            }
+
+            defaultPluginConfig = workerOperator.getDefaultPluginConfig(typeName, component.getName().toLowerCase());
         } catch (Exception e) {
             throw new RdosDefineException("不支持的插件类型");
         }
