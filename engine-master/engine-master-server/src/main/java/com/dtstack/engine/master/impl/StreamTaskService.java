@@ -94,6 +94,7 @@ public class StreamTaskService {
                 return RdosTaskStatus.getShowStatus(status);
             }
         }
+
         return null;
     }
 
