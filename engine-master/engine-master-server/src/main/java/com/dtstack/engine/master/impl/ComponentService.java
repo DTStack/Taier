@@ -1212,6 +1212,8 @@ public class ComponentService {
             String typeName = null;
             if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
                 typeName = EComponentType.HDFS.name().toLowerCase() + this.formatHadoopVersion(version, component);
+            } else if(EComponentType.NFS.getTypeCode().equals(componentType)){
+                typeName = EComponentType.NFS.name().toLowerCase();
             } else {
                 typeName = this.convertComponentTypeToClient(clusterName, componentType, version, storeType);
             }
@@ -1339,7 +1341,15 @@ public class ComponentService {
         //如果组件配置了对应的存储组件 以配置为准
         if (null != storeType) {
             EComponentType storeComponent = EComponentType.getByCode(storeType);
-            storageSign = storeComponent.name().toLowerCase();
+            if (EComponentType.NFS.equals(storeComponent)) {
+                return EComponentType.NFS.name().toLowerCase();
+            } else {
+                Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
+                if (null == hdfs) {
+                    throw new RdosDefineException("请先配置存储组件");
+                }
+                return EComponentType.HDFS.name().toLowerCase() + this.formatHadoopVersion(hdfs.getHadoopVersion(), EComponentType.HDFS);
+            }
         } else {
             //hdfs和nfs可以共存 hdfs为默认
             Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
@@ -1495,13 +1505,12 @@ public class ComponentService {
         CountDownLatch countDownLatch = new CountDownLatch(components.size());
         for (Component component : components) {
             KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), component.getComponentTypeCode());
-            Map<String, String> finalSftpMap = sftpMap;
             try {
                 CompletableFuture.runAsync(() -> {
                     ComponentTestResult testResult = new ComponentTestResult();
                     try {
                         testResult = this.testConnect(component.getComponentTypeCode(), component.getComponentConfig(), clusterName, component.getHadoopVersion(),
-                                component.getEngineId(), kerberosConfig, finalSftpMap,component.getStoreType());
+                                component.getEngineId(), kerberosConfig, sftpMap,component.getStoreType());
                         //测试联通性
                         if (EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
                             if (testResult.getResult()) {
