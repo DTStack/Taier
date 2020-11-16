@@ -60,6 +60,9 @@ public class FlinkConfig extends BaseConfig {
 
     private int flinkSessionSlotCount;
 
+    // monitor 选举时间 5s
+    private int monitorElectionWaitTime = 5 * 1000;
+
     private String flinkSessionName = "Flink session";
 
     private boolean sessionStartAuto = false;
@@ -111,6 +114,14 @@ public class FlinkConfig extends BaseConfig {
 
     public void setAsyncCheckYarnClientThreadNum(int asyncCheckYarnClientThreadNum) {
         this.asyncCheckYarnClientThreadNum = asyncCheckYarnClientThreadNum;
+    }
+
+    public int getMonitorElectionWaitTime() {
+        return monitorElectionWaitTime;
+    }
+
+    public void setMonitorElectionWaitTime(int monitorElectionWaitTime) {
+        this.monitorElectionWaitTime = monitorElectionWaitTime;
     }
 
     public boolean getMonitorAcceptedApp() {

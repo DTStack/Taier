@@ -192,6 +192,9 @@ public class ElasticsearchService implements InitializingBean, DisposableBean {
         final String[] hosts = hostsStr.split(";");
         for (String host : hosts) {
             try {
+                if (host.contains("127.0.0.1")){
+                    continue;
+                }
                 final URL url = new URL(host);
                 final String protocol = url.getProtocol();
                 final String hostName = url.getHost();

@@ -50,6 +50,10 @@ public class ZkService implements InitializingBean, DisposableBean {
 
     private CuratorFramework zkClient;
     private static ObjectMapper objectMapper = new ObjectMapper();
+
+    /**
+     * when normal stopped，need trigger Listener close();
+     */
     private List<Listener> listeners = Lists.newArrayList();
 
     @Autowired
@@ -159,8 +163,7 @@ public class ZkService implements InitializingBean, DisposableBean {
                     .forPath(nodePath), BrokerHeartNode.class);
             return nodeSign;
         } catch (Exception e) {
-            logger.error("{}:getBrokerHeartNode error:{}", node,
-                    ExceptionUtil.getErrorMessage(e));
+            logger.error("{}:getBrokerHeartNode error:", node, e);
         }
         return BrokerHeartNode.initNullBrokerHeartNode();
     }
@@ -169,8 +172,7 @@ public class ZkService implements InitializingBean, DisposableBean {
         try {
             return zkClient.getChildren().forPath(this.brokersNode);
         } catch (Exception e) {
-            logger.error("getBrokersChildren error:{}",
-                    ExceptionUtil.getErrorMessage(e));
+            logger.error("getBrokersChildren error:", e);
         }
         return Lists.newArrayList();
     }
@@ -186,8 +188,7 @@ public class ZkService implements InitializingBean, DisposableBean {
                 }
             }
         } catch (Exception e) {
-            logger.error("getBrokersChildren error:{}",
-                    ExceptionUtil.getErrorMessage(e));
+            logger.error("getBrokersChildren error:", e);
         }
         return alives;
     }
@@ -234,6 +235,7 @@ public class ZkService implements InitializingBean, DisposableBean {
         for (Listener listener : listeners) {
             try {
                 listener.close();
+                logger.info("close {}", listener.getClass().getSimpleName());
             } catch (Exception e) {
                 logger.error("{}", e);
             }

@@ -18,6 +18,7 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.*;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.Sort;
@@ -40,7 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.dtstack.engine.common.constrant.ConfigConstant.*;
@@ -104,6 +104,9 @@ public class ClusterService implements InitializingBean {
 
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
 
 
     @Override
@@ -216,7 +219,7 @@ public class ClusterService implements InitializingBean {
     }
 
     /**
-     * 对外接口
+     * 内部使用
      */
     public JSONObject pluginInfoJSON( Long dtUicTenantId,  String engineTypeStr, Long dtUicUserId,Integer deployMode) {
         if (EngineType.Dummy.name().equalsIgnoreCase(engineTypeStr)) {
@@ -703,7 +706,8 @@ public class ClusterService implements InitializingBean {
                     throw new RdosDefineException("hive组件不能为空");
                 }
                 String jdbcUrl = pluginInfo.getString("jdbcUrl");
-                jdbcUrl = jdbcUrl.replace("/%s", "");
+                //%s替换成默认的 供插件使用
+                jdbcUrl = jdbcUrl.replace("/%s", environmentContext.getComponentJdbcToReplace());
                 pluginInfo.put("jdbcUrl", jdbcUrl);
                 String typeName = componentService.convertComponentTypeToClient(clusterVO.getClusterName(),
                         EComponentType.HIVE_SERVER.getTypeCode(), hiveServer.getHadoopVersion());

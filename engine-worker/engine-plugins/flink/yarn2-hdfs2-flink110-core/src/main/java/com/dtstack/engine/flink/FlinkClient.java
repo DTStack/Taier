@@ -6,6 +6,7 @@ import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.KerberosUtils;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -35,7 +36,6 @@ import com.dtstack.engine.flink.resource.FlinkYarnSeesionResourceInfo;
 import com.dtstack.engine.flink.util.*;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.worker.enums.ClassLoaderType;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.*;
@@ -68,6 +68,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
@@ -457,7 +458,7 @@ public class FlinkClient extends AbstractClient {
         try {
             clusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
         } catch (Exception e) {
-            logger.error("Get clusterClient error: {}", e.getMessage());
+            logger.error("Get clusterClient error:", e);
         }
 
         String response = null;
@@ -467,7 +468,7 @@ public class FlinkClient extends AbstractClient {
                 String jobUrl = String.format("%s/jobs/%s", webInterfaceURL, jobId);
                 response = PoolHttpClient.get(jobUrl);
             } catch (IOException e) {
-                logger.error("request job status error: {}", e.getMessage());
+                logger.error("request job status error:", e);
             }
         }
 
@@ -677,14 +678,24 @@ public class FlinkClient extends AbstractClient {
     private String getExceptionFromHdfsCompleted(String jobId) {
         try {
             String exceptPath = jobmanagerDir + ConfigConstrant.SP + jobId;
-            JsonObject exceptJson = FileUtil.readJsonFromHdfs(exceptPath, hadoopConf.getConfiguration());
-            JsonArray jsonArray = exceptJson.get("archive").getAsJsonArray();
+            JsonObject exceptJson = KerberosUtils.login(flinkConfig, () -> {
+                try {
+                    return FileUtil.readJsonFromHdfs(exceptPath, hadoopConf.getConfiguration());
+                } catch (Exception e) {
+                    logger.error("", e);
+                    return null;
+                }
+            }, hadoopConf.getConfiguration());
 
-            for (JsonElement ele: jsonArray) {
-                JsonObject obj = ele.getAsJsonObject();
-                if (obj.get("path").getAsString().endsWith("exceptions")) {
-                    String exception = obj.get("json").getAsString();
-                    return exception;
+            if (null != exceptJson) {
+                JsonArray jsonArray = exceptJson.get("archive").getAsJsonArray();
+
+                for (JsonElement ele: jsonArray) {
+                    JsonObject obj = ele.getAsJsonObject();
+                    if (obj.get("path").getAsString().endsWith("exceptions")) {
+                        String exception = obj.get("json").getAsString();
+                        return exception;
+                    }
                 }
             }
         } catch (Exception e) {
@@ -723,7 +734,7 @@ public class FlinkClient extends AbstractClient {
                 return yarnSeesionResourceInfo.judgeSlots(jobClient);
             }
         } catch (Exception e){
-            logger.error("judgeSlots error:{}", e);
+            logger.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
             return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
@@ -863,7 +874,7 @@ public class FlinkClient extends AbstractClient {
             String tmpSql = sqlItera.next();
             if (PrepareOperator.verificKeytab(tmpSql)) {
                 sqlItera.remove();
-                String localDir = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+                String localDir = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
 
                 if (!new File(localDir).exists()) {
                     new File(localDir).mkdirs();
@@ -930,7 +941,7 @@ public class FlinkClient extends AbstractClient {
 
         cacheFile.remove(jobClient.getTaskId());
 
-        String localDirStr = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+        String localDirStr = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
         File localDir = new File(localDirStr);
         if (localDir.exists()){
             try {
