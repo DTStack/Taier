@@ -277,7 +277,7 @@ class DisplayResource extends React.Component<any, any> {
         const { getFieldDecorator, isView, components } = this.props;
         const componentTypeCode = components.componentTypeCode;
         const { saveCompsData } = this.state
-        let storeType = components?.storeType
+        if(saveCompsData.length===0) return
         let storeTypeFlag = false
         for (const item in saveCompsData) {
             if (saveCompsData[item].key === COMPONENT_TYPE_VALUE.HDFS) {
@@ -285,6 +285,8 @@ class DisplayResource extends React.Component<any, any> {
                 break;
             }
         }
+        let storeType = components?.storeType || (storeTypeFlag ? COMPONENT_TYPE_VALUE.HDFS : saveCompsData?.[0]?.key)
+
         return (
             <FormItem
                 label="存储组件"
@@ -292,7 +294,7 @@ class DisplayResource extends React.Component<any, any> {
                 key={`${configName}.storeType`}
             >
                 {getFieldDecorator(`${configName}.storeType`, {
-                    initialValue: storeType || storeTypeFlag ? COMPONENT_TYPE_VALUE.HDFS : saveCompsData?.[0]?.key
+                    initialValue: storeType 
                 })(
                     <Select style={{ width: 172 }} disabled={isView} onChange={(val) => this.handleSaveCompsData(val, componentTypeCode)}>
                         {saveCompsData.map((ver: any) => {
