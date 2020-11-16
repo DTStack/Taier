@@ -380,7 +380,7 @@ public class FlinkClient extends AbstractClient {
                 logger.info("Job[{}] Savepoint completed. Path:{}", jobID.toString(), savepointPath);
             }
         } catch (Exception e) {
-            logger.error("Stop job error: {}", e.getMessage());
+            logger.error("Stop job error:", e);
 
             if (isSession) {
                 logger.error("", e);
@@ -565,8 +565,8 @@ public class FlinkClient extends AbstractClient {
                 return seesionResourceInfo.judgeSlots(jobClient);
             }
         } catch (Exception e) {
-            logger.error("judgeSlots error:{}", e);
-            return JudgeResult.notOk("judgeSlots error");
+            logger.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 

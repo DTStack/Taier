@@ -674,7 +674,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
             return String.format("http://%s/proxy",addr);
         }catch (Exception e){
-            LOG.warn("get monitor error:{}", ExceptionUtil.getTaskLogError(e));
+            LOG.error("get monitor error:", e);
         }
 
         return url;

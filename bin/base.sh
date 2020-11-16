@@ -51,6 +51,8 @@ JAVA_OPTS="$JAVA_OPTS -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOcc
 
 JAVA_OPTS="$JAVA_OPTS -Dconfig.file=${FILE}"
 
+JAVA_OPTS="$JAVA_OPTS -Djava.security.policy=$LS_CONF_DIR/java.policy"
+
 JAVA_OPTS="$JAVA_OPTS -Djava.io.tmpdir=./tmpSave"
 
 #Comment to speed up starting time

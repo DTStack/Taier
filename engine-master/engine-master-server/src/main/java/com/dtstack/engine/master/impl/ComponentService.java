@@ -964,7 +964,11 @@ public class ComponentService {
             if (EComponentType.SPARK_THRIFT.getTypeCode() == componentType ||
                     EComponentType.HIVE_SERVER.getTypeCode() == componentType) {
                 //数据库连接不带%s
-                jdbcUrl = jdbcUrl.replace("/%s", "/");
+                String replaceStr = "/";
+                if(null != kerberosConfig){
+                    replaceStr = env.getComponentJdbcToReplace();
+                }
+                jdbcUrl = jdbcUrl.replace("/%s", replaceStr);
             }
 
             dataInfo.put("jdbcUrl", jdbcUrl);

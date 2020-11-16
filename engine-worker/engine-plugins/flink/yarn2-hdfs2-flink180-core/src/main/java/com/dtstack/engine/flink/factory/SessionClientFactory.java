@@ -24,6 +24,7 @@ import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
@@ -149,11 +150,13 @@ public class SessionClientFactory extends AbstractClientFactory {
                     }
                 });
                 this.leaderLatch.start();
+
+                //这里需要sleep一下，避免leader还未选举完就走到下一步 默认5S
+                Thread.sleep(flinkConfig.getMonitorElectionWaitTime());
             }
         } catch (Exception e) {
             LOG.error("join leader election failed.", e);
         }
-
 
         LOG.warn("connector zk success...");
     }
@@ -379,7 +382,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         String remoteDir = flinkConfig.getRemoteDir();
 
         // 任务提交keytab
-        String clusterKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
+        String clusterKeytabDirPath = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
         File clusterKeytabDir = new File(clusterKeytabDirPath);
         File[] clusterKeytabFiles = clusterKeytabDir.listFiles();
 
