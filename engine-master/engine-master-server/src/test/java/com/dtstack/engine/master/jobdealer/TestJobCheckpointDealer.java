@@ -4,13 +4,27 @@ import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.dao.EngineJobCheckpointDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.dataCollection.DataCollection;
+import com.dtstack.engine.master.impl.ClusterService;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.concurrent.ExecutionException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 
 /**
  * @Author tengzhen
@@ -20,8 +34,37 @@ import java.util.concurrent.ExecutionException;
 public class TestJobCheckpointDealer extends AbstractTest {
 
 
-    @Autowired
+    @Spy
     private JobCheckpointDealer jobCheckpointDealer;
+
+    @Autowired
+    private EngineJobCheckpointDao engineJobCheckpointDao;
+
+    @Autowired
+    private EngineJobCacheDao engineJobCacheDao;
+
+    @Autowired
+    private ScheduleJobDao scheduleJobDao;
+
+    @Mock
+    private WorkerOperator workerOperator;
+
+    @Autowired
+    private ClusterService clusterService;
+
+
+
+    @Before
+    public void setup() throws Exception{
+        MockitoAnnotations.initMocks(this);
+        ReflectionTestUtils.setField(jobCheckpointDealer,"workerOperator", workerOperator);
+        ReflectionTestUtils.setField(jobCheckpointDealer,"engineJobCheckpointDao", engineJobCheckpointDao);
+        ReflectionTestUtils.setField(jobCheckpointDealer,"engineJobCacheDao", engineJobCacheDao);
+        ReflectionTestUtils.setField(jobCheckpointDealer,"scheduleJobDao", scheduleJobDao);
+        ReflectionTestUtils.setField(jobCheckpointDealer,"workerOperator", workerOperator);
+        ReflectionTestUtils.setField(jobCheckpointDealer,"clusterService", clusterService);
+        when(workerOperator.getCheckpoints(any())).thenReturn("{\"restored\":0,\"total\":13,\"in_progress\":0,\"completed\":11,\"failed\":2}");
+    }
 
     @Test
     public void testAfterPropertiesSet(){
@@ -50,12 +93,29 @@ public class TestJobCheckpointDealer extends AbstractTest {
     public void testUpdateCheckpointImmediately(){
 
         EngineJobCheckpoint checkpoint = DataCollection.getData().getEngineJobCheckpoint();
-        EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
+        EngineJobCache engineJobCache2 = DataCollection.getData().getEngineJobCache2();
         ScheduleJob jobId = DataCollection.getData().getScheduleJobDefiniteJobId();
         String taskEngineId = checkpoint.getTaskEngineId();
-        JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobCache.getJobId(),jobId.getApplicationId(),engineJobCache.getJobId());
-        JobCheckpointInfo info = new JobCheckpointInfo(jobIdentifier,engineJobCache.getEngineType());
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobCache2.getJobId(),jobId.getApplicationId(),engineJobCache2.getJobId());
+        JobCheckpointInfo info = new JobCheckpointInfo(jobIdentifier,engineJobCache2.getEngineType());
         jobCheckpointDealer.updateCheckpointImmediately(info,taskEngineId,2);
+    }
+
+
+    @Test
+    public void testUpdateJobCheckpoints(){
+
+        EngineJobCache engineJobCache2 = DataCollection.getData().getEngineJobCache2();
+        ScheduleJob jobId = DataCollection.getData().getScheduleJobDefiniteJobId();
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobCache2.getJobId(),jobId.getApplicationId(),engineJobCache2.getJobId());
+        jobIdentifier.setPluginInfo("");
+//        when(workerOperator.getCheckpoints(any())).thenReturn("{\"restored\":0,\"total\":13,\"in_progress\":0,\"completed\":11,\"failed\":2}");
+//        jobCheckpointDealer.updateJobCheckpoints(jobIdentifier);
+        //
+        when(workerOperator.getCheckpoints(any())).thenReturn("{\"restored\":0,\"total\":13,\"in_progress\":0,\"completed\":11," +
+                "\"failed\":2,\"history\":[{\"id\":1,\"trigger_timestamp\":101313,\"external_path\":\"Users\",\"status\":2}]}");
+
+        jobCheckpointDealer.updateJobCheckpoints(jobIdentifier);
     }
 
 

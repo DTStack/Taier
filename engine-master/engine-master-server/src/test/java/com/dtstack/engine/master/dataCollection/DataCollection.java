@@ -28,9 +28,13 @@ public interface DataCollection {
                 new Class<?>[]{DataCollection.class}, DataCollectionProxy.instance);
     }
 
+
     class SingletonHolder {
         private static final DataCollection INSTANCE = getDataCollectionProxy();
     }
+
+
+
 
     @DataSource
     static DataCollection getData() {
@@ -378,5 +382,14 @@ public interface DataCollection {
         sj.setEngineLog("");
         sj.setCycTime("20200501163446");
         return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
+    default EngineJobStopRecord getScheduleJobStop(){
+
+        EngineJobCache engineJobCache = getEngineJobCache();
+        EngineJobStopRecord jsr = new EngineJobStopRecord();
+
+        return null;
     }
 }

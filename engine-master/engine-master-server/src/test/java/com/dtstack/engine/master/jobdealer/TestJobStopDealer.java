@@ -43,4 +43,10 @@ public class TestJobStopDealer extends AbstractTest {
     }
 
 
+
+    @Test
+    public void afterPropertiesSet() throws Exception {
+        DataCollection.getData().getScheduleJobStop();
+        jobStopDealer.afterPropertiesSet();
+    }
 }
