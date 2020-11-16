@@ -17,7 +17,7 @@ class DisplayResource extends React.Component<any, any> {
     }
     componentDidMount () {
         const { clusterName } = this.props;
-
+        if(!clusterName) return
         (async () => {
             const res = await Api.getComponentStore({ clusterName })
             if (!res) return
