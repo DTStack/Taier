@@ -7,6 +7,7 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.vo.console.*;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -224,7 +225,7 @@ public class ConsoleService {
         if(StringUtils.isBlank(jobResource)){
             return false;
         }
-        String[] split = jobResource.split(JobComputeResourcePlain.SPLIT);
+        String[] split = jobResource.split(ConfigConstant.SPLIT);
         if(split.length <= 1){
             return false;
         }
