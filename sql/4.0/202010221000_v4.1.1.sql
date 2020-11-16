@@ -87,7 +87,8 @@ create table lineage_table_table_unique_key_ref(
     gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
     is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    UNIQUE KEY uni_appType_tableTableId_uniqueKey (app_type,lineage_table_table_id,unique_key)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 字段级血缘存储方案
@@ -120,5 +121,6 @@ create table lineage_column_column_unique_key_ref(
     gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
     is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    UNIQUE KEY uni_appType_columnColumnId_uniqueKey (app_type,lineage_column_column_id,unique_key)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;

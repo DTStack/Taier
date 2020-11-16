@@ -2,6 +2,7 @@ package com.dtstack.engine.master.utils;
 
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.util.DateUtil;
+import com.dtstack.schedule.common.enums.AppType;
 
 import java.sql.Timestamp;
 
@@ -127,5 +128,19 @@ public class Template {
         user.setStatus(0);
         user.setPhoneNumber("");
         return user;
+    }
+
+    public static LineageTableTable getLineageTableTableTemplate(){
+        LineageTableTable lineageTableTable = new LineageTableTable();
+        lineageTableTable.setDtUicTenantId(1L);
+        lineageTableTable.setAppType(AppType.RDOS.getType());
+        lineageTableTable.setLineageSource(0);
+        lineageTableTable.setUniqueKey("11");
+        lineageTableTable.setInputTableId(-2020L);
+        lineageTableTable.setInputTableKey("-2020");
+        lineageTableTable.setResultTableId(-2021L);
+        lineageTableTable.setResultTableKey("-2021");
+        lineageTableTable.setTableLineageKey("");
+        return lineageTableTable;
     }
 }

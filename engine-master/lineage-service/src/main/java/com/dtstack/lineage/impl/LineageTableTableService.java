@@ -55,6 +55,7 @@ public class LineageTableTableService {
         tableTables.forEach(tt->{tt.setTableLineageKey(generateTableTableKey(tt));});
         //数据插入后，id会更新
         lineageTableTableDao.batchInsertTableTable(tableTables);
+        //FIXME 出现一条记录未更新id的情况
         //如果uniqueKey不为空，需要删除ref表中相同uniqueKey的数据，再插入该批数据。
         if (StringUtils.isNotEmpty(tableTables.get(0).getUniqueKey())){
             lineageTableTableUniqueKeyRefDao.deleteByUniqueKey(tableTables.get(0).getAppType(),tableTables.get(0).getUniqueKey());
@@ -63,6 +64,7 @@ public class LineageTableTableService {
         List<LineageTableTableUniqueKeyRef> refList = tableTables.stream().map(tt -> {
             LineageTableTableUniqueKeyRef ref = new LineageTableTableUniqueKeyRef();
             ref.setAppType(tt.getAppType());
+            ref.setUniqueKey(tt.getUniqueKey());
             ref.setLineageTableTableId(tt.getId());
             return ref;
         }).collect(Collectors.toList());

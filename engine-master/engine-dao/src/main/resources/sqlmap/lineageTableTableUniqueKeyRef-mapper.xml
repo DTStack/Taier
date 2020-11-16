@@ -18,8 +18,9 @@
             useGeneratedKeys="true" keyProperty="id">
         insert into lineage_table_table_unique_key_ref(app_type,unique_key,lineage_table_table_id) values
         <foreach collection="list" item="item" open="" close="" separator=",">
-            (#{appType},#{uniqueKey},#{lineageTableTableId})
+            (#{item.appType},#{item.uniqueKey},#{item.lineageTableTableId})
         </foreach>
+        on duplicate key update gmt_modified=values(gmt_modified),is_deleted = values(is_deleted)
     </insert>
 
     <update id="deleteByUniqueKey">

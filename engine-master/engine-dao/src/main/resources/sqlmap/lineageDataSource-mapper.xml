@@ -8,26 +8,26 @@
 
     <sql id="select_where_fragment">
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
-            <if test="model.id != null and model.id > 0">
-                AND id = #{model.id}
+            <if test="id != null and id > 0">
+                AND id = #{id}
             </if>
-            <if test="model.appType !=null">
-                AND app_type = #{model.appType}
+            <if test="appType !=null">
+                AND app_type = #{appType}
             </if>
-            <if test="model.isDeleted !=null">
-                AND is_deleted = #{model.isDeleted}
+            <if test="isDeleted !=null">
+                AND is_deleted = #{isDeleted}
             </if>
-            <if test="model.sourceType !=null">
-                AND source_type = #{model.sourceType}
+            <if test="sourceType !=null">
+                AND source_type = #{sourceType}
             </if>
-            <if test="model.sourceName !=null">
-                AND source_name = #{model.sourceName}
+            <if test="sourceName !=null">
+                AND source_name = #{sourceName}
             </if>
-            <if test="model.dtUicTenantId !=null">
-                AND dt_uic_tenantId = #{model.dtUicTenantId}
+            <if test="dtUicTenantId !=null">
+                AND dt_uic_tenant_id = #{dtUicTenantId}
             </if>
-            <if test="model.appType !=null">
-                AND app_type = #{model.appType}
+            <if test="appType !=null">
+                AND app_type = #{appType}
             </if>
         </trim>
     </sql>

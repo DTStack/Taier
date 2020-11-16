@@ -8,10 +8,12 @@ import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
 import com.dtstack.engine.master.utils.DataCollectionProxy;
 import com.dtstack.engine.master.utils.Template;
+import com.dtstack.schedule.common.enums.AppType;
 import org.joda.time.DateTime;
 
 import java.lang.reflect.Proxy;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 /**
  * 使用方法：
@@ -348,6 +350,12 @@ public interface DataCollection {
         cluster.setClusterName("test_01");
         cluster.setHadoopVersion("1.2");
         return cluster;
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageTableTableDao.class)
+    default LineageTableTable getLineageTableTable(){
+        LineageTableTable lineageTableTable = Template.getLineageTableTableTemplate();
+        return lineageTableTable;
     }
 
 
