@@ -405,7 +405,7 @@ public class ClusterServiceTest extends AbstractTest {
         dataSetInfo.setTableName(tableName);
         dataSetInfo.setDbName(dbName);
         dataSetInfo.setSchemaName(schemaNme);
-        return   dataSetInfoService.getTableColumns(dataSetInfo, "");
+        return   dataSetInfoService.getTableColumns(dataSetInfo);
     }
 
 

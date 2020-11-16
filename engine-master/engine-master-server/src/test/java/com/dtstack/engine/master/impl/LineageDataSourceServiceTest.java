@@ -92,7 +92,7 @@ public class LineageDataSourceServiceTest extends AbstractTest {
         dataSetInfo.setSourceId(1L);
         dataSetInfo.setTableName("test_01");
         dataSetInfo.setDbName("db_01");
-        dataSetInfoService.getTableColumns(dataSetInfo, "");
+        dataSetInfoService.getTableColumns(dataSetInfo);
     }
 
 
