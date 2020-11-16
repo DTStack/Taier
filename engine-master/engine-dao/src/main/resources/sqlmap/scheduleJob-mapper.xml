@@ -437,6 +437,9 @@
             <if test="phaseStatus != null">
                 phase_status = #{phaseStatus},
             </if>
+            <if test="versionId != null">
+                version_id = #{versionId},
+            </if>
         </set>
     </sql>
 

@@ -93,4 +93,11 @@ public class ComponentController {
     public List<ComponentTestResult> refresh(@DtRequestParam("clusterName") String clusterName) {
         return componentService.refresh(clusterName);
     }
+
+    @RequestMapping(value="/isYarnSupportGpus", method = {RequestMethod.POST})
+    @ApiOperation(value = "判断集群是否支持gpu")
+    public Boolean isYarnSupportGpus(@DtRequestParam("clusterName") String clusterName) {
+        return componentService.isYarnSupportGpus(clusterName);
+    }
+
 }

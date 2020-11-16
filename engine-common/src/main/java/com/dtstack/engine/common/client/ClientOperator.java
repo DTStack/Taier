@@ -116,7 +116,8 @@ public class ClientOperator {
         if(jobClient.getEngineTaskId() == null){
             return JobResult.createSuccessResult(jobClient.getTaskId());
         }
-        JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getTaskId());
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobClient.getEngineTaskId(),
+                jobClient.getApplicationId(), jobClient.getTaskId(), jobClient.getForceCancel());
         checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
         LOG.info("stop job jobClient {} ",jobClient);
 

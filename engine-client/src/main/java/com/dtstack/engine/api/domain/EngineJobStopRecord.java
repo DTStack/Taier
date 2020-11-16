@@ -17,9 +17,18 @@ public class EngineJobStopRecord extends DataObject {
     private String engineType;
     private Integer computeType;
     private String jobResource;
+    private Integer forceCancelFlag;
     private int version;
     private Date operatorExpired;
 
+
+    public Integer getForceCancelFlag() {
+        return forceCancelFlag;
+    }
+
+    public void setForceCancelFlag(Integer forceCancelFlag) {
+        this.forceCancelFlag = forceCancelFlag;
+    }
 
     public String getTaskId() {
         return taskId;

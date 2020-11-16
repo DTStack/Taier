@@ -32,7 +32,6 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.directory.api.util.Strings;
 import org.apache.flink.client.deployment.ClusterDeploymentException;
 import org.apache.flink.client.deployment.ClusterDescriptor;
 import org.apache.flink.client.deployment.ClusterSpecification;
@@ -204,7 +203,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
     private String getEffectiveTaskName(JobClient jobClient) {
         String taskName = jobClient.getJobName();
         String taskId = jobClient.getTaskId();
-        if (Strings.isNotEmpty(taskName)) {
+        if (StringUtils.isNotEmpty(taskName)) {
             taskName = StringUtils.lowerCase(taskName);
             taskName = StringUtils.splitByWholeSeparator(taskName, taskId)[0];
             taskName = taskName.replaceAll("\\p{P}", "-");

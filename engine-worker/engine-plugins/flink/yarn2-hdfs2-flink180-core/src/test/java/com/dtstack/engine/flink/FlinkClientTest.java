@@ -12,6 +12,7 @@ import com.dtstack.engine.flink.enums.FlinkYarnMode;
 import com.dtstack.engine.flink.factory.AbstractClientFactory;
 import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
+import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.util.FileUtil;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
@@ -29,6 +30,7 @@ import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.api.records.impl.pb.ApplicationReportPBImpl;
 import org.apache.hadoop.yarn.api.records.impl.pb.NodeReportPBImpl;
 import org.apache.hadoop.yarn.client.api.YarnClient;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -45,6 +47,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -108,49 +111,40 @@ public class FlinkClientTest {
 
 	}
 
-	@Test
-	public void testInit() throws Exception {
-		Properties prop = new Properties();
-		prop.put("jarTmpDir", "test/tmp");
-		prop.put("clusterMode", "test");
+	/**
+	 * flink client init test
+	 */
+	/*@Test
+	public void testInit() throws Exception{
+
+		MemberModifier.field(FlinkClient.class, "flicnkConfig")
+				.set(flinkClient, new FlinkConfig());
+		MemberModifier.field(FlinkClient.class, "hadoopConf")
+				.set(flinkClient, new HadoopConf());
+		MemberModifier.field(FlinkClient.class, "cacheFile")
+				.set(flinkClient, Maps.newConcurrentMap());
 
 		String sqlPluginRootDir = temporaryFolder.newFolder("sqlPluginDir").getAbsolutePath();
+		temporaryFolder.newFolder("sqlPluginDir", "sqlplugin");
+		temporaryFolder.newFile("sqlPluginDir/sqlplugin/core-test.jar").getAbsolutePath();
+
+		Properties prop = new Properties();
 		prop.put("remotePluginRootDir", sqlPluginRootDir);
 		prop.put("flinkPluginRoot", sqlPluginRootDir);
-		prop.put("monitorAddress", "monitorAddress");
-		prop.put("hadoopConf", new HashMap<>());
-		prop.put("yarnConf", new HashMap<>());
+		String propStr = PublicUtil.objToString(prop);
+		SqlPluginInfo sqlPluginInfo = SqlPluginInfo.create(PublicUtil.jsonStrToObject(propStr, FlinkConfig.class));
+		MemberModifier.field(FlinkClient.class, "sqlPluginInfo")
+				.set(flinkClient, sqlPluginInfo);
 
-		temporaryFolder.newFolder("sqlPluginDir", "sqlplugin");
+		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
+		YarnMockUtil.mockPackagedProgram();
+		ClusterSpecification clusterSpecification = YarnMockUtil.mockClusterSpecification();
 
-		flinkClient.init(prop);
+		when(flinkClusterClientManager.getClusterClient()).thenReturn(clusterClient);
+		when(flinkClientBuilder.getFlinkConfiguration()).thenReturn(new Configuration());
+	}*/
 
-		Class<? extends FlinkClient> flinkClientClass = flinkClient.getClass();
-		Field flinkExtPropField = flinkClientClass.getDeclaredField("flinkExtProp");
-		flinkExtPropField.setAccessible(true);
-		Assert.assertNotNull(flinkExtPropField.get(flinkClient));
 
-		Field flinkConfigField = flinkClientClass.getDeclaredField("flinkConfig");
-		flinkConfigField.setAccessible(true);
-		Assert.assertNotNull(flinkConfigField.get(flinkClient));
-
-		Field tmpFileDirPathField = flinkClientClass.getDeclaredField("tmpFileDirPath");
-		tmpFileDirPathField.setAccessible(true);
-		Assert.assertNotNull(tmpFileDirPathField.get(flinkClient));
-
-		Field syncPluginInfoField = flinkClientClass.getDeclaredField("syncPluginInfo");
-		syncPluginInfoField.setAccessible(true);
-		Assert.assertNotNull(syncPluginInfoField.get(flinkClient));
-
-		Field sqlPluginInfoField = flinkClientClass.getDeclaredField("sqlPluginInfo");
-		sqlPluginInfoField.setAccessible(true);
-		Assert.assertNotNull(sqlPluginInfoField.get(flinkClient));
-
-		Field flinkClusterClientManagerField = flinkClientClass.getDeclaredField("flinkClusterClientManager");
-		flinkClusterClientManagerField.setAccessible(true);
-		Assert.assertNotNull(flinkClusterClientManagerField.get(flinkClient));
-
-	}
 
 	@Test
 	public void testBeforeSubmitFunc() throws Exception {

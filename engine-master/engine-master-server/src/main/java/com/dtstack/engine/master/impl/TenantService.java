@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.api.domain.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -7,6 +8,7 @@ import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.tenant.TenantAdminVO;
@@ -15,6 +17,7 @@ import com.dtstack.engine.api.vo.tenant.UserTenantVO;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.dao.*;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
@@ -31,6 +34,8 @@ import com.dtstack.schedule.common.enums.Sort;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -38,6 +43,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.io.IOException;
 import java.util.*;
 
@@ -81,6 +90,9 @@ public class TenantService {
 
     @Autowired
     private ComponentService componentService;
+
+    @Autowired
+    private QueueService queueService;
 
     public PageResult<List<EngineTenantVO>> pageQuery( Long clusterId,
                                                        Integer engineType,
@@ -150,8 +162,8 @@ public class TenantService {
             }
 
             engineTenantVO.setQueue(queue.getQueuePath());
-            engineTenantVO.setMaxCapacity(queue.getMaxCapacity());
-            engineTenantVO.setMinCapacity(queue.getCapacity());
+            engineTenantVO.setMaxCapacity(NumberUtils.toInt(queue.getMaxCapacity(),0) * 100 + "%");
+            engineTenantVO.setMinCapacity(NumberUtils.toInt(queue.getCapacity(),0) * 100 + "%");
         }
     }
 
@@ -203,7 +215,7 @@ public class TenantService {
 
     @Transactional(rollbackFor = Exception.class)
     public void bindingTenant( Long dtUicTenantId,  Long clusterId,
-                               Long queueId,  String dtToken) throws Exception {
+                               Long queueId,  String dtToken,String namespace) throws Exception {
         Cluster cluster = clusterDao.getOne(clusterId);
         EngineAssert.assertTrue(cluster != null, "集群不存在", ErrorCode.DATA_NOT_FIND);
 
@@ -214,8 +226,14 @@ public class TenantService {
 
         List<Engine> engineList = engineDao.listByClusterId(clusterId);
         Engine hadoopEngine = addEngineTenant(tenant.getId(), engineList);
-
-        if(queueId != null && hadoopEngine != null){
+        if(null == hadoopEngine){
+            return;
+        }
+        if(StringUtils.isNotBlank(namespace)){
+            //k8s
+           queueId = queueService.addNamespaces(hadoopEngine.getId(),namespace);
+        }
+        if(queueId != null){
             updateTenantQueue(tenant.getId(), dtUicTenantId, hadoopEngine.getId(), queueId);
         }
 
@@ -305,7 +323,7 @@ public class TenantService {
         return tenant;
     }
 
-    private void updateTenantQueue(Long tenantId, Long dtUicTenantId, Long engineId, Long queueId){
+    public void updateTenantQueue(Long tenantId, Long dtUicTenantId, Long engineId, Long queueId){
         Integer childCount = queueDao.countByParentQueueId(queueId);
         if (childCount != 0) {
             throw new RdosDefineException("所选队列存在子队列，选择正确的子队列", ErrorCode.DATA_NOT_FIND);

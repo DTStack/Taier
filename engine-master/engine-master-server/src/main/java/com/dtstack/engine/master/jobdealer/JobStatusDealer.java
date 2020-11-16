@@ -84,8 +84,8 @@ public class JobStatusDealer implements Runnable {
     @Override
     public void run() {
         try {
-            if (logger.isInfoEnabled() && LogCountUtil.count(logOutput++, MULTIPLES)) {
-                logger.info("jobResource:{} start again gap:[{} ms]...", jobResource, INTERVAL * MULTIPLES);
+            if (logger.isDebugEnabled() && LogCountUtil.count(logOutput++, MULTIPLES)) {
+                logger.debug("jobResource:{} start again gap:[{} ms]...", jobResource, INTERVAL * MULTIPLES);
             }
 
             List<Map.Entry<String, Integer>> jobs = new ArrayList<>(shardManager.getShard().entrySet());

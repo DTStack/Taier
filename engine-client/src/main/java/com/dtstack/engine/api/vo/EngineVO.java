@@ -1,7 +1,7 @@
 package com.dtstack.engine.api.vo;
 
-import com.dtstack.engine.api.domain.Engine;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.Engine;
 import io.swagger.annotations.ApiModel;
 import org.springframework.beans.BeanUtils;
 
@@ -20,6 +20,19 @@ public class EngineVO extends Engine {
     private List<ComponentVO> components;
 
     private JSONObject resource;
+
+    /**
+     * yarn 还是k8s调度
+     */
+    private String resourceType;
+
+    public String getResourceType() {
+        return resourceType;
+    }
+
+    public void setResourceType(String resourceType) {
+        this.resourceType = resourceType;
+    }
 
     public static EngineVO toVO(Engine engine) {
         EngineVO vo = new EngineVO();
