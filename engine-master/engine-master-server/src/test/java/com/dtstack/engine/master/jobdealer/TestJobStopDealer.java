@@ -1,11 +1,15 @@
 package com.dtstack.engine.master.jobdealer;
 
+import com.dtstack.engine.api.domain.EngineJobStopRecord;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +49,10 @@ public class TestJobStopDealer extends AbstractTest {
 
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void afterPropertiesSet() throws Exception {
-        DataCollection.getData().getScheduleJobStop();
+        EngineJobStopRecord scheduleJobStop = DataCollection.getData().getScheduleJobStop();
         jobStopDealer.afterPropertiesSet();
     }
 }

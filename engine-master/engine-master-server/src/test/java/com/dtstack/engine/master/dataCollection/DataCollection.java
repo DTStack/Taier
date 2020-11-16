@@ -8,10 +8,10 @@ import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
 import com.dtstack.engine.master.utils.DataCollectionProxy;
 import com.dtstack.engine.master.utils.Template;
-import com.dtstack.engine.master.utils.ValueUtils;
 import org.joda.time.DateTime;
 
 import java.lang.reflect.Proxy;
+import java.sql.Date;
 import java.sql.Timestamp;
 
 /**
@@ -384,12 +384,19 @@ public interface DataCollection {
         return sj;
     }
 
-    @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
+    @DatabaseInsertOperation(dao = TestEngineJobStopDao.class)
     default EngineJobStopRecord getScheduleJobStop(){
 
         EngineJobCache engineJobCache = getEngineJobCache();
         EngineJobStopRecord jsr = new EngineJobStopRecord();
-
-        return null;
+        jsr.setTaskId(engineJobCache.getJobId());
+        jsr.setComputeType(jsr.getComputeType());
+        jsr.setEngineType(jsr.getEngineType());
+        jsr.setForceCancelFlag(1);
+        jsr.setJobResource(engineJobCache.getJobResource());
+        jsr.setOperatorExpired(new java.util.Date());
+        jsr.setTaskType(10);
+        jsr.setVersion(1);
+        return jsr;
     }
 }

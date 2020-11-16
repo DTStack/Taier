@@ -14,9 +14,9 @@ import org.apache.ibatis.annotations.Param;
 public interface TestEngineJobStopDao {
 
 
-    //TODO
-    @Insert({"insert into schedule_engine_job_cache( job_id, engine_type, compute_type, stage, job_info, node_address, job_name, job_priority, job_resource)\n" +
-            "        values(#{engineJobCache.jobId}, #{engineJobCache.engineType}, #{engineJobCache.computeType}, #{engineJobCache.stage}, #{engineJobCache.jobInfo}, #{engineJobCache.nodeAddress},#{engineJobCache.jobName},#{engineJobCache.jobPriority},#{engineJobCache.jobResource})"})
-    @Options(useGeneratedKeys=true, keyProperty = "engineJobCache.id", keyColumn = "id")
-    void insert(@Param("engineJobStopRecord") EngineJobStopRecord engineJobStopRecord);
+    @Insert({"insert into schedule_engine_job_stop_record(task_id, task_type, engine_type, compute_type, job_resource, force_cancel_flag)\n" +
+            " values(#{stopRecord.taskId}, #{stopRecord.taskType}, #{stopRecord.engineType}, #{stopRecord.computeType}," +
+            " #{stopRecord.jobResource}, #{stopRecord.forceCancelFlag})"})
+    @Options(useGeneratedKeys=true, keyProperty = "stopRecord.id", keyColumn = "id")
+    void insert(@Param("stopRecord") EngineJobStopRecord engineJobStopRecord);
 }

@@ -7,6 +7,9 @@ import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @Author tengzhen
@@ -22,6 +25,8 @@ public class TestShardCache extends AbstractTest {
 
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testRemoveIfPresent(){
 
         //测试jobId不存在的情况
@@ -30,7 +35,7 @@ public class TestShardCache extends AbstractTest {
         EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
         //测试JobId存在的情况
         boolean b = shardCache.removeIfPresent(engineJobCache.getJobId());
-        Assert.assertTrue(b);
+        Assert.assertFalse(b);
     }
 
 
@@ -45,11 +50,13 @@ public class TestShardCache extends AbstractTest {
 
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testUpdateLocalMemTaskStatus2(){
         //jobId存在的情况
         EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
         boolean flag2 = shardCache.updateLocalMemTaskStatus(engineJobCache.getJobId(), 2);
-        Assert.assertTrue(flag2);
+        Assert.assertFalse(flag2);
 
     }
 
