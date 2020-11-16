@@ -69,10 +69,6 @@ public class ComponentService {
 
     private final static String ZIP_CONTENT_TYPE = "zip";
 
-    private static String unzipLocation = System.getProperty("user.dir") + File.separator + "unzip";
-
-    private static String downloadLocation = System.getProperty("user.dir") + File.separator + "download";
-
     public static final String KERBEROS_PATH = "kerberos";
 
     @Autowired
@@ -444,17 +440,8 @@ public class ComponentService {
         componentDTO.setComponentConfig(componentConfig);
         componentDTO.setComponentTypeCode(componentCode);
 
-        //上传资源依赖sftp组件
-        String clusterName = clusterDao.getOne(clusterId).getClusterName();
-        Component sftpComponent = null;
-        if (CollectionUtils.isNotEmpty(resources)) {
-            sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
-            //上传资源需要依赖sftp组件
-            if (Objects.isNull(sftpComponent)) {
-                throw new RdosDefineException("请先配置sftp组件");
-            }
-        }
 
+        String clusterName = clusterDao.getOne(clusterId).getClusterName();
         //校验引擎是否添加
         EComponentType componentType = EComponentType.getByCode(componentDTO.getComponentTypeCode());
         MultiEngineType engineType = EComponentType.getEngineTypeByComponent(componentType);
@@ -496,7 +483,7 @@ public class ComponentService {
 
         String md5Key = "";
 
-        // 获得sftp配置
+        //上传资源依赖sftp组件
         if (CollectionUtils.isNotEmpty(resources)) {
             Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
             // 上传配置文件到sftp 供后续下载
@@ -601,13 +588,10 @@ public class ComponentService {
         return engine;
     }
 
-    private String uploadResourceToSftp( Long clusterId,  List<Resource> resources,  String kerberosFileName,
-                                      Map<String, String> sftpMap,
-                                      Component addComponent, Component dbComponent) {
     public SftpConfig getSFTPConfig(Component sftpComponent, Integer componentCode,String componentConfig) {
         if (sftpComponent == null) {
             //  判断componentCode 是否是sftp的配置，如果是上传文件，如果不是 抛异常返回提交配置sftp服务器
-            if ( EComponentType.SFTP.getTypeCode().equals(componentCode)) {
+            if (EComponentType.SFTP.getTypeCode().equals(componentCode)) {
                 // 是sftp的配置
                 return JSONObject.parseObject(componentConfig, SftpConfig.class);
             } else {
@@ -1019,6 +1003,7 @@ public class ComponentService {
         JSONObject dataInfo = new JSONObject();
         dataInfo.put("componentName", EComponentType.getByCode(componentType).getName().toLowerCase());
         if (Objects.nonNull(kerberosConfig)) {
+            dataInfo.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
             //开启了kerberos
             dataInfo.put("openKerberos", kerberosConfig.getOpenKerberos());
             dataInfo.put("remoteDir", kerberosConfig.getRemotePath());
@@ -1073,62 +1058,35 @@ public class ComponentService {
             throw new RdosDefineException("jdbcUrl不能为空");
         }
 
-            if (EComponentType.SPARK_THRIFT.getTypeCode() == componentType ||
-                    EComponentType.HIVE_SERVER.getTypeCode() == componentType) {
-                //数据库连接不带%s
-                String replaceStr = "/";
-                if(null != kerberosConfig){
-                    replaceStr = env.getComponentJdbcToReplace();
-                }
-                jdbcUrl = jdbcUrl.replace("/%s", replaceStr);
+        if (EComponentType.SPARK_THRIFT.getTypeCode() == componentType ||
+                EComponentType.HIVE_SERVER.getTypeCode() == componentType) {
+            //数据库连接不带%s
+            String replaceStr = "/";
+            if (null != kerberosConfig) {
+                replaceStr = env.getComponentJdbcToReplace();
             }
+            jdbcUrl = jdbcUrl.replace("/%s", replaceStr);
+        }
 
-            dataInfo.put("jdbcUrl", jdbcUrl);
-            dataInfo.put("username", dataInfo.getString("username"));
-            dataInfo.put("password", dataInfo.getString("password"));
-            if (Objects.nonNull(kerberosConfig)) {
-                //开启了kerberos
-                dataInfo.put("openKerberos", kerberosConfig.getOpenKerberos());
-                dataInfo.put("remoteDir", kerberosConfig.getRemotePath());
-                dataInfo.put("principalFile", kerberosConfig.getName());
-                dataInfo.put("krbName", kerberosConfig.getKrbName());
-                dataInfo.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
-                //补充yarn参数
-                Cluster cluster = clusterDao.getByClusterName(clusterName);
-                if(Objects.nonNull(cluster)){
-                    Component yarnComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode());
-                    if(Objects.nonNull(yarnComponent)){
-                        Map yarnMap = JSONObject.parseObject(yarnComponent.getComponentConfig(), Map.class);
-                        dataInfo.put(EComponentType.YARN.getConfName(), yarnMap);
-                    }
-                }
-            }
-        } else if (EComponentType.YARN.getTypeCode() == componentType) {
-            Map map = JSONObject.parseObject(componentConfig, Map.class);
-            dataInfo.put(EComponentType.YARN.getConfName(), map);
-        } else if (EComponentType.HDFS.getTypeCode() == componentType) {
-            Map map = JSONObject.parseObject(componentConfig, Map.class);
-            dataInfo.put(EComponentType.HDFS.getConfName(), map);
+        dataInfo.put("jdbcUrl", jdbcUrl);
+        dataInfo.put("username", dataInfo.getString("username"));
+        dataInfo.put("password", dataInfo.getString("password"));
+        if (Objects.nonNull(kerberosConfig)) {
+            //开启了kerberos
+            dataInfo.put("openKerberos", kerberosConfig.getOpenKerberos());
+            dataInfo.put("remoteDir", kerberosConfig.getRemotePath());
+            dataInfo.put("principalFile", kerberosConfig.getName());
+            dataInfo.put("krbName", kerberosConfig.getKrbName());
+            dataInfo.put("kerberosFileTimestamp", kerberosConfig.getGmtModified());
             //补充yarn参数
             Cluster cluster = clusterDao.getByClusterName(clusterName);
-            if(Objects.nonNull(cluster)){
+            if (Objects.nonNull(cluster)) {
                 Component yarnComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode());
-                if(Objects.nonNull(yarnComponent)){
+                if (Objects.nonNull(yarnComponent)) {
                     Map yarnMap = JSONObject.parseObject(yarnComponent.getComponentConfig(), Map.class);
                     dataInfo.put(EComponentType.YARN.getConfName(), yarnMap);
                 }
             }
-        } else if (EComponentType.KUBERNETES.getTypeCode() == componentType) {
-            //
-            dataInfo = new JSONObject();
-            JSONObject confObj = new JSONObject();
-            if(componentConfig.contains("kubernetes.context")){
-                JSONObject contextConf = JSONObject.parseObject(componentConfig);
-                componentConfig = contextConf.getString("kubernetes.context");
-            }
-            confObj.put(EComponentType.KUBERNETES.getConfName(),componentConfig);
-            dataInfo.put(EComponentType.KUBERNETES.getConfName(), confObj);
-            dataInfo.put("componentName", EComponentType.KUBERNETES.getName());
         }
         return dataInfo;
     }
