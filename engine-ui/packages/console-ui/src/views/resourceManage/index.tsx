@@ -6,6 +6,7 @@ import Api from '../../api/console';
 import { ENGIN_TYPE_TEXT } from '../../consts';
 import { isHadoopEngine, isTiDBEngine, isOracleEngine, isGreenPlumEngine, isKubernetesEngine } from '../../consts/clusterFunc';
 import BindCommModal from '../../components/bindCommModal';
+import ResourceManageModal from '../../components/resourceManageModal';
 import Resource from './resourceView';
 
 import BindAccountPane from './bindAccount';
@@ -33,12 +34,11 @@ class ResourceManage extends React.Component<any, any> {
         total: 0,
         tenantModal: false,
         queueModal: false,
+        manageModal: false,
         tenantInfo: '',
         isHaveHadoop: false,
         isHaveLibra: false,
-        queueList: [], // hadoop资源队列
-        modalKey: '',
-        editModalKey: null
+        queueList: [] // hadoop资源队列
     }
 
     private requestEnd: boolean = true; // 请求结束
@@ -109,6 +109,12 @@ class ResourceManage extends React.Component<any, any> {
             })
         }
     }
+    sourceManage (params: any) {
+        this.setState({
+            manageModal: false,
+            tenantInfo: ''
+        }, () => this.initList())
+    }
     initList = async () => {
         const res = await Api.getAllCluster();
         if (res.code === 1) {
@@ -175,11 +181,16 @@ class ResourceManage extends React.Component<any, any> {
         }, this.searchTenant)
     }
     showTenant () {
-        this.setState({ tenantModal: true, editModalKey: Math.random() })
+        this.setState({ tenantModal: true })
     }
     clickSwitchQueue = (record: any) => {
         this.setState({
-            modalKey: Math.random(),
+            manageModal: true,
+            tenantInfo: record
+        })
+    }
+    clickSwitchNamespace = (record: any) => {
+        this.setState({
             queueModal: true,
             tenantInfo: record
         })
@@ -218,8 +229,8 @@ class ResourceManage extends React.Component<any, any> {
                 title: '操作',
                 dataIndex: 'deal',
                 render: (text: any, record: any) => {
-                    return <a onClick={ () => { this.clickSwitchQueue(record) }}>
-                        切换队列
+                    return <a onClick={() => { this.clickSwitchQueue(record) }}>
+                        资源管理
                     </a>
                 }
             }
@@ -240,7 +251,7 @@ class ResourceManage extends React.Component<any, any> {
                 dataIndex: 'action',
                 width: 200,
                 render: (text: any, record: any) => {
-                    return <a onClick={ () => { this.clickSwitchQueue(record) }}>
+                    return <a onClick={ () => { this.clickSwitchNamespace(record) }}>
                         切换Namespace
                     </a>
                 }
@@ -267,7 +278,7 @@ class ResourceManage extends React.Component<any, any> {
     }
     render () {
         const { tableData, queryParams, total, loading, engineList, clusterList,
-            tenantModal, queueModal, modalKey, editModalKey, clusterName } = this.state;
+            tenantModal, queueModal, modalKey, clusterName, tenantInfo, manageModal } = this.state;
         const kubernetesEngine = isKubernetesEngine(engineList[0] && engineList[0].resourceType);
         const pagination: any = {
             current: queryParams.currentPage,
@@ -278,7 +289,7 @@ class ResourceManage extends React.Component<any, any> {
         return (
             <div className='resource-wrapper'>
                 <Row>
-                    <Col span= { 12 } >
+                    <Col span={12} >
                         <Form className="m-form-inline" layout="inline">
                             <FormItem
                                 label='集群'
@@ -295,8 +306,8 @@ class ResourceManage extends React.Component<any, any> {
                             </FormItem>
                         </Form>
                     </Col>
-                    <Col span={ 12 } >
-                        <Button className='terent-button' type='primary' onClick={() => { this.setState({ editModalKey: Math.random(), tenantModal: true }) }}>绑定新租户</Button>
+                    <Col span={12} >
+                        <Button className='terent-button' type='primary' onClick={() => { this.setState({ tenantModal: true }) }}>绑定新租户</Button>
                     </Col>
                 </Row>
                 <div className="resource-content">
@@ -339,7 +350,7 @@ class ResourceManage extends React.Component<any, any> {
                                                                 this.setState({
                                                                     queryParams: Object.assign(this.state.queryParams, { tenantName: e.target.value })
                                                                 })
-                                                            } }
+                                                            }}
                                                             onSearch={this.changeTenantName}
                                                         />
                                                         <Table
@@ -381,7 +392,6 @@ class ResourceManage extends React.Component<any, any> {
                     </Card>
                 </div>
                 <BindCommModal
-                    key={editModalKey}
                     title='绑定新租户'
                     visible={tenantModal}
                     clusterList={clusterList}
@@ -406,6 +416,25 @@ class ResourceManage extends React.Component<any, any> {
                         })
                     }}
                     onOk={this.switchQueue.bind(this)}
+                />
+                <ResourceManageModal
+                    title={`资源管理 (${tenantInfo.tenantName ?? ''})`}
+                    visible={manageModal}
+                    isBindTenant={false}
+                    clusterList={clusterList}
+                    tenantInfo={this.state.tenantInfo}
+                    clusterId={queryParams.clusterId}
+                    disabled={true}
+                    tenantId={tenantInfo?.tenantId}
+                    queue={tenantInfo?.queue}
+                    queueId={tenantInfo?.queueId}
+                    onCancel={() => {
+                        this.setState({
+                            manageModal: false,
+                            tenantInfo: ''
+                        })
+                    }}
+                    onOk={this.sourceManage.bind(this)}
                 />
             </div>
         )
