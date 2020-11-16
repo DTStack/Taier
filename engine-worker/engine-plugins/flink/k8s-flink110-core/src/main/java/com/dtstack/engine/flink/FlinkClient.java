@@ -116,11 +116,11 @@ public class FlinkClient extends AbstractClient {
         storage = loadStorage();
         storage.init(prop);
 
-        filesystemManager = new FilesystemManager(hadoopConf, flinkConfig.getSftpConf());
+        filesystemManager = new FilesystemManager(storage.getStorageConfig(), flinkConfig.getSftpConf());
 
         FlinkUtil.downloadK8sConfig(prop, flinkConfig, filesystemManager);
 
-        flinkClientBuilder = new FlinkClientBuilder(flinkConfig, hadoopConf, prop);
+        flinkClientBuilder = new FlinkClientBuilder(flinkConfig, storage, prop);
         kubernetesClient = flinkClientBuilder.getKubernetesClient();
 
         syncPluginInfo = SyncPluginInfo.create(flinkConfig);
