@@ -37,7 +37,6 @@ engine-worker/engine-plugins/learning/yarn2-hdfs2-learning/learning-client,\
 engine-worker/engine-plugins/learning/yarn3-hdfs3-learning/learning-client,\
 engine-worker/engine-plugins/hadoop/yarn3-hdfs3-hadoop3,\
 engine-worker/engine-plugins/hadoop/yarn2-hdfs2-hadoop2,\
-engine-worker/engine-plugins/hadoop/k8s-hdfs2-hadoop2,\
 engine-worker/engine-plugins/kylin,\
 engine-worker/engine-plugins/odps,\
 engine-worker/engine-plugins/rdbs/mysql,\
