@@ -1334,12 +1334,20 @@ public class ComponentService {
         return String.format("%s-%s-%s", resourceSign, storageSign, computeSign);
     }
 
-    private String buildStoreSign(ClusterVO cluster,Integer storeType) {
+    private String buildStoreSign(ClusterVO cluster, Integer storeType) {
         String storageSign;
         //如果组件配置了对应的存储组件 以配置为准
         if (null != storeType) {
             EComponentType storeComponent = EComponentType.getByCode(storeType);
-            storageSign = storeComponent.name().toLowerCase();
+            if (EComponentType.NFS.equals(storeComponent)) {
+                return EComponentType.NFS.name().toLowerCase();
+            } else {
+                Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
+                if (null == hdfs) {
+                    throw new RdosDefineException("请先配置存储组件");
+                }
+                return EComponentType.HDFS.name().toLowerCase() + this.formatHadoopVersion(hdfs.getHadoopVersion(), EComponentType.HDFS);
+            }
         } else {
             //hdfs和nfs可以共存 hdfs为默认
             Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());

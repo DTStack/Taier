@@ -760,7 +760,7 @@ public class ClusterService implements InitializingBean {
 
     private String getZipFileMD5(JSONObject clusterConfigJson) {
         JSONObject hadoopConf = clusterConfigJson.getJSONObject(EComponentType.HDFS.getConfName());
-        if (hadoopConf.containsKey(ConfigConstant.MD5_SUM_KEY)) {
+        if (null != hadoopConf && hadoopConf.containsKey(ConfigConstant.MD5_SUM_KEY)) {
             return hadoopConf.getString(ConfigConstant.MD5_SUM_KEY);
         }
         return "";
