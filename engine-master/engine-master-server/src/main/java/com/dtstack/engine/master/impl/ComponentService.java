@@ -563,7 +563,7 @@ public class ComponentService {
             //如果是hdfs 组件 需要先确定调度组件为 yarn 还是k8s
             Component resourceComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.YARN.getTypeCode());
             if (null == resourceComponent) {
-                resourceComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.NFS.getTypeCode());
+                resourceComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.KUBERNETES.getTypeCode());
             }
             if (null == resourceComponent) {
                 throw new RdosDefineException("请先配置调度组件");
