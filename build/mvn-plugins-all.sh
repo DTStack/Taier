@@ -40,7 +40,9 @@ engine-worker/engine-plugins/hadoop/yarn2-hdfs2-hadoop2,\
 engine-worker/engine-plugins/kylin,\
 engine-worker/engine-plugins/stores/nfs,\
 engine-worker/engine-plugins/stores/hdfs2,\
+engine-worker/engine-plugins/stores/hdfs3,\
 engine-worker/engine-plugins/schedules/yarn2,\
+engine-worker/engine-plugins/schedules/yarn3,\
 engine-worker/engine-plugins/schedules/kubernetes,\
 engine-worker/engine-plugins/odps,\
 engine-worker/engine-plugins/rdbs/mysql,\
