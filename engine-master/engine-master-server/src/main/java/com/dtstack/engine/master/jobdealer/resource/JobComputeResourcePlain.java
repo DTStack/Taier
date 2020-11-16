@@ -4,6 +4,7 @@ import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ClusterService;
@@ -29,6 +30,9 @@ public class JobComputeResourcePlain {
     private EngineTenantDao engineTenantDao;
 
     @Autowired
+    private ClusterDao clusterDao;
+
+    @Autowired
     private ClusterService clusterService;
 
 
@@ -52,7 +56,7 @@ public class JobComputeResourcePlain {
         if(null == clusterId){
             return;
         }
-        Cluster cluster = clusterService.getOne(clusterId);
+        Cluster cluster = clusterDao.getOne(clusterId);
         if (null == cluster) {
             return;
         }
