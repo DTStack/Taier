@@ -1,16 +1,15 @@
 package com.dtstack.engine.master.jobdealer.resource;
 
+import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ClusterService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Objects;
 
 /**
  * company: www.dtstack.com
@@ -25,6 +24,9 @@ public class JobComputeResourcePlain {
 
     @Autowired
     private EnvironmentContext environmentContext;
+
+    @Autowired
+    private EngineTenantDao engineTenantDao;
 
     @Autowired
     private ClusterService clusterService;
@@ -46,9 +48,12 @@ public class JobComputeResourcePlain {
 
 
     private void buildJobClientGroupName(JobClient jobClient) {
-
-        ClusterVO cluster = clusterService.getClusterByTenant(jobClient.getTenantId());
-        if (Objects.isNull(cluster)) {
+        Long clusterId = engineTenantDao.getClusterIdByTenantId(jobClient.getTenantId());
+        if(null == clusterId){
+            return;
+        }
+        Cluster cluster = clusterService.getOne(clusterId);
+        if (null == cluster) {
             return;
         }
         String clusterName = cluster.getClusterName();
@@ -62,9 +67,9 @@ public class JobComputeResourcePlain {
             jobClient.setGroupName(groupName);
             return;
         }
-        Queue queue = clusterService.getQueue(jobClient.getTenantId(), cluster.getClusterId());
+        Queue queue = clusterService.getQueue(jobClient.getTenantId(), clusterId);
         if (null != queue) {
-            groupName = clusterName + ConfigConstant.SPLIT + ConfigConstant.RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT + queue.getQueueName();
+            groupName = clusterName + ConfigConstant.SPLIT  + queue.getQueueName();
         }
         jobClient.setGroupName(groupName);
     }
