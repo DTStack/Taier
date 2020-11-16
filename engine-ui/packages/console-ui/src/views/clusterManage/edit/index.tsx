@@ -170,7 +170,7 @@ class EditCluster extends React.Component<any, any> {
     }
 
     // 获取组件模板
-    getLoadTemplate = (key: any = '', {storeType,compVersion}:any={storeType:undefined,compVersion:undefined}) => {
+    getLoadTemplate = (key: any = '', { storeType, compVersion }: any = { storeType: undefined, compVersion: undefined }) => {
         const { compTypeKey, tabCompData, componentConfig, clusterName } = this.state;
         const component = tabCompData?.find((item: any) => item.schedulingCode === compTypeKey) || { components: [] };
         if (component.components.length === 0) return;
@@ -180,7 +180,7 @@ class EditCluster extends React.Component<any, any> {
         const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {}
         const { loadTemplate = {} } = config;
         const version = dealData.getCompsVersion(Number(componentTypeCode), compVersion)
-        if ((storeType!==undefined && compVersion===undefined) || (!isNeedLoadTemp && (Object.keys(loadTemplate).length === 0 || isChangeVersion))) {
+        if ((storeType !== undefined && compVersion === undefined) || (!isNeedLoadTemp && (Object.keys(loadTemplate).length === 0 || isChangeVersion))) {
             Api.getLoadTemplate({
                 clusterName,
                 version,

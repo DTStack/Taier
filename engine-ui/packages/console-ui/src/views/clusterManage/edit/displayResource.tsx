@@ -277,7 +277,7 @@ class DisplayResource extends React.Component<any, any> {
         const { getFieldDecorator, isView, components } = this.props;
         const componentTypeCode = components.componentTypeCode;
         const { saveCompsData } = this.state
-        if(saveCompsData.length===0) return
+        if (saveCompsData.length === 0) return
         let storeTypeFlag = false
         for (const item in saveCompsData) {
             if (saveCompsData[item].key === COMPONENT_TYPE_VALUE.HDFS) {
@@ -294,7 +294,7 @@ class DisplayResource extends React.Component<any, any> {
                 key={`${configName}.storeType`}
             >
                 {getFieldDecorator(`${configName}.storeType`, {
-                    initialValue: storeType 
+                    initialValue: storeType
                 })(
                     <Select style={{ width: 172 }} disabled={isView} onChange={(val) => this.handleSaveCompsData(val, componentTypeCode)}>
                         {saveCompsData.map((ver: any) => {
