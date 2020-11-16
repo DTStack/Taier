@@ -573,8 +573,10 @@ public class ComponentService {
             try {
                 if (resource.getFileName().equalsIgnoreCase(kerberosFileName)) {
                     // 更新Kerberos文件
+                    LOGGER.info("start upload kerberosFile:{}",kerberosFileName);
                     this.updateComponentKerberosFile(clusterId, addComponent, sftpFileManage, remoteDir, resource);
                 } else {
+                    LOGGER.info("start upload hadoop config file:{}",kerberosFileName);
                     this.updateComponentConfigFile(dbComponent, sftpFileManage, remoteDir, resource);
                     if(EComponentType.HDFS.getTypeCode().equals(addComponent.getComponentTypeCode())){
                         String xmlZipLocation = resource.getUploadedFileName();
@@ -700,16 +702,17 @@ public class ComponentService {
     private void updateComponentConfigFile(Component dbComponent, SftpFileManage sftpFileManage, String remoteDir, Resource resource) {
         //原来配置
         String deletePath = remoteDir + File.separator;
+        LOGGER.info("upload config file to sftp:{}",deletePath);
         if (Objects.nonNull(dbComponent)) {
             deletePath = deletePath + dbComponent.getUploadFileName();
             //删除原来的文件配置zip 如果dbComponent不为null ,删除文件。
+            LOGGER.info("delete file :{}",deletePath);
             sftpFileManage.deleteFile(deletePath);
         }
 
         //更新为原名
         sftpFileManage.uploadFile(remoteDir, resource.getUploadedFileName());
-        sftpFileManage.renamePath(remoteDir + File.separator + resource.getUploadedFileName().substring(resource.getUploadedFileName().lastIndexOf(File.separator) + 1),
-                remoteDir + File.separator + resource.getFileName());
+        sftpFileManage.renamePath(remoteDir + File.separator + resource.getUploadedFileName().substring(resource.getUploadedFileName().lastIndexOf(File.separator) + 1), remoteDir + File.separator + resource.getFileName());
     }
 
 
@@ -725,7 +728,7 @@ public class ComponentService {
     private String updateComponentKerberosFile(Long clusterId, Component addComponent, SftpFileManage sftpFileManage, String remoteDir, Resource resource) {
         // kerberos认证文件 远程删除 kerberos下的文件
         String remoteDirKerberos = remoteDir + File.separator + KERBEROS_PATH;
-        LOGGER.info("updateComponentKerberosFile 远程路径:{}",remoteDirKerberos);
+        LOGGER.info("updateComponentKerberosFile remote path:{}",remoteDirKerberos);
         //删除本地文件夹
         String kerberosPath = this.getLocalKerberosPath(clusterId, addComponent.getComponentTypeCode());
         try {
@@ -746,12 +749,12 @@ public class ComponentService {
         if (fileKeyTab==null) {
             throw new RdosDefineException("上传的Hadoop-Kerberos文件的zip文件中必须有keytab文件，请添加keytab文件");
         }
-        LOGGER.info("fileKeyTab 解压出来:{}",fileKeyTab.getAbsolutePath());
+        LOGGER.info("fileKeyTab Unzip fileName:{}",fileKeyTab.getAbsolutePath());
 
         if (fileConf==null) {
             throw new RdosDefineException("上传的Hadoop-Kerberos文件的zip文件中必须有conf文件，请添加conf文件");
         }
-        LOGGER.info("conf 解压出来:{}",fileConf.getAbsolutePath());
+        LOGGER.info("conf Unzip fileName:{}",fileConf.getAbsolutePath());
 
         //获取principal
         String principal = this.getPrincipal(fileKeyTab);
@@ -759,7 +762,7 @@ public class ComponentService {
         sftpFileManage.deleteDir(remoteDirKerberos);
         //上传kerberos解压后的文件
         for (File file : files) {
-            LOGGER.info("上传sftp文件:{}",file.getAbsolutePath());
+            LOGGER.info("upload sftp file:{}",file.getAbsolutePath());
             sftpFileManage.uploadFile(remoteDirKerberos, file.getPath());
         }
 
