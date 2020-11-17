@@ -11,6 +11,9 @@ import com.dtstack.engine.master.utils.CommonUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @Author tengzhen
@@ -27,6 +30,8 @@ public class TestJobRestartDealer extends AbstractTest {
 
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testCheckAndRestartForSubmitResult() throws Exception {
 
         JobClient jobClient = CommonUtils.getJobClient();
@@ -35,6 +40,8 @@ public class TestJobRestartDealer extends AbstractTest {
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testCheckAndRestart() {
         addDefaultCluster();
         EngineJobCache jobCache = DataCollection.getData().getEngineJobCache();

@@ -19,43 +19,41 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Description:
  * @Date: Created in 5:04 下午 2020/11/14
  */
-public class TestJobStatusStatus  extends AbstractTest {
+public class TestJobStatusDealer extends AbstractTest {
 
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Autowired
     private ShardCache shardCache;
 
-    @Autowired
-    private EngineJobCacheDao engineJobCacheDao;
 
-    private Map<String, ShardManager> jobResourceShardManager = new ConcurrentHashMap<>();
+    private final Map<String, ShardManager> jobResourceShardManager = new ConcurrentHashMap<>();
 
-    private JobStatusDealer jobStatusDealer = new JobStatusDealer();
+    private final JobStatusDealer jobStatusDealer = new JobStatusDealer();
 
 
     @Test
     public void testRun(){
 
         EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
-        ShardManager shardManager = getShardManager(engineJobCache.getJobId());
+        ShardManager shardManager = getShardManager(engineJobCache);
         shardManager.putJob(engineJobCache.getJobId(), RdosTaskStatus.RUNNING.getStatus());
         jobStatusDealer.setShardManager(shardManager);
         new Thread(jobStatusDealer).start();
     }
 
 
-    private ShardManager getShardManager(String jobId) {
-        EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
-        if (engineJobCache == null) {
-            return null;
-        }
+    private ShardManager getShardManager(EngineJobCache engineJobCache) {
+
         return jobResourceShardManager.computeIfAbsent(engineJobCache.getJobResource(), jr -> {
             ShardManager shardManager = new ShardManager(engineJobCache.getJobResource());
             JobStatusDealer jobStatusDealer = new JobStatusDealer();
             jobStatusDealer.setJobResource(engineJobCache.getJobResource());
             jobStatusDealer.setShardManager(shardManager);
             jobStatusDealer.setShardCache(shardCache);
-            jobStatusDealer.setApplicationContext(shardCache.applicationContext);
+            jobStatusDealer.setApplicationContext(applicationContext);
             jobStatusDealer.start();
             return shardManager;
         });

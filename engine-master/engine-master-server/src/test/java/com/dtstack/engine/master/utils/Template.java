@@ -85,7 +85,7 @@ public class Template {
         engineJobCache.setJobInfo("{\"engineType\":\"spark\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, \"maxRetryNum\":3,\"taskParams\":\"openCheckpoint:true\"," +
                 "\"taskId\":\"jobId2\"}");
         engineJobCache.setStage(2);
-        engineJobCache.setNodeAddress("node01");
+        engineJobCache.setNodeAddress(null);
         engineJobCache.setJobResource("test");
 
         return engineJobCache;

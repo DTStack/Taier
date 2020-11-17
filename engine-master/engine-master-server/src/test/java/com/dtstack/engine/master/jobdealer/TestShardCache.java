@@ -25,8 +25,6 @@ public class TestShardCache extends AbstractTest {
 
 
     @Test
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    @Rollback
     public void testRemoveIfPresent(){
 
         //测试jobId不存在的情况
@@ -50,8 +48,6 @@ public class TestShardCache extends AbstractTest {
 
 
     @Test
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    @Rollback
     public void testUpdateLocalMemTaskStatus2(){
         //jobId存在的情况
         EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();

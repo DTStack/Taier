@@ -13,7 +13,12 @@ import com.dtstack.engine.master.utils.CommonUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,6 +37,8 @@ public class TestJobDealer extends AbstractTest {
 
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testAddSubmitJob() throws Exception {
 
         JobClient jobClient = CommonUtils.getJobClient();
@@ -42,6 +49,8 @@ public class TestJobDealer extends AbstractTest {
 
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testGetAllNodesGroupQueueInfo() throws Exception {
 
         Map<String, Map<String, GroupInfo>> allNodesGroupQueueInfo = jobDealer.getAllNodesGroupQueueInfo();
@@ -50,6 +59,8 @@ public class TestJobDealer extends AbstractTest {
 
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testGetAndUpdateEngineLog(){
 
         ScheduleTaskShade taskShade = DataCollection.getData().getScheduleTaskShade();
@@ -62,9 +73,22 @@ public class TestJobDealer extends AbstractTest {
 
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testAfterPropertiesSet() throws Exception {
 
+        EngineJobCache jobCache2 = DataCollection.getData().getEngineJobCache2();
         jobDealer.afterPropertiesSet();
+    }
+
+
+    @Test
+    public void  testAfterSubmitJobVast() throws Exception {
+
+        List<JobClient> jobClientList = new ArrayList<>();
+        JobClient jobClient = CommonUtils.getJobClient();
+        jobClientList.add(jobClient);
+        jobDealer.afterSubmitJobVast(jobClientList);
     }
 
 

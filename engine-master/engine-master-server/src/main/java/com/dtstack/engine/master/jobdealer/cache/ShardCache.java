@@ -25,7 +25,7 @@ public class ShardCache implements ApplicationContextAware {
 
     private static Logger logger = LoggerFactory.getLogger(ShardCache.class);
 
-    public ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
 
     @Autowired
     private EngineJobCacheDao engineJobCacheDao;

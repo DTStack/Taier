@@ -27,6 +27,8 @@ public class TestJobStopDealer extends AbstractTest {
 
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testAddStopJobs(){
 
         ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteTaskId();
@@ -42,6 +44,8 @@ public class TestJobStopDealer extends AbstractTest {
 
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testDestroy() throws Exception {
         jobStopDealer.destroy();
     }

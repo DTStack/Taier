@@ -39,7 +39,9 @@ public class CommonUtils {
 
         EngineJobCache jobCache = DataCollection.getData().getEngineJobCache();
         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
-        return new JobClient(paramAction);
+        JobClient jobClient = new JobClient(paramAction);
+        jobClient.setTaskId(jobCache.getJobId());
+        return jobClient;
 
     }
 }
