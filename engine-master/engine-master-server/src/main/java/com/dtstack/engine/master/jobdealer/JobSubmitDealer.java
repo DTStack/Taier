@@ -114,6 +114,13 @@ public class JobSubmitDealer implements Runnable {
                     simpleJobDelay = delayJobQueue.take();
                     jobClient = simpleJobDelay.getJob();
                     if (jobClient != null) {
+                        EngineJobCache dbEngineJobCache = engineJobCacheDao.getOne(jobClient.getTaskId());
+                        if(null == dbEngineJobCache){
+                            //如果任务出现资源不足 一直deploy加大延时  界面杀死重跑立马完成之后 deployQueue数据未移除
+                            //重新放入之后直接取消 导致状态更新waitEngine 状态不一致 所以需要判断下数据是否存在
+                            logger.info("jobId:{} stage:{} take job from delayJobQueue queue size:{} but engine job cache has deleted", jobClient.getTaskId(), simpleJobDelay.getStage(), delayJobQueue.size());
+                            continue;
+                        }
                         engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.PRIORITY.getStage(), localAddress, jobClient.getPriority(), null);
                         jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
                         queue.put(jobClient);
