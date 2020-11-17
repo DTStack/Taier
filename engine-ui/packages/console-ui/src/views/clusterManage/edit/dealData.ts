@@ -222,7 +222,7 @@ function handleCancleParams (params: any) {
 }
 
 function handleUploadFile (fileName: string) {
-    if (!fileName) return '';
+    if (!fileName || typeof fileName !== 'string') return '';
     const baseFile = fileName.split('\\');
     // console.log('baseFile=======', fileName, baseFile)
     return baseFile[baseFile.length - 1];
@@ -261,7 +261,8 @@ function updateCompsConfig (components: any, componentTypeCode: number, data: an
             hadoopVersion: data.data.hadoopVersion,
             fileName: data.data.uploadFileName || '',
             kerFileName: data.data.kerberosFileName || '',
-            params: getLoadTemplateParams(JSON.parse(data.data.componentTemplate))
+            params: getLoadTemplateParams(JSON.parse(data.data.componentTemplate)),
+            storeType: data.data.storeType || ''
         }
     }
 }
@@ -338,6 +339,7 @@ function getComponentConfigPrames (values: any, components: any, config: any) {
 function getMoadifyComps (values: any, componentConfig: any) {
     const componentTypeCodeArr = Object.values(COMPONENT_TYPE_VALUE);
     let modifyCompsArr: any = [];
+
     componentTypeCodeArr.forEach((componentTypeCode: number) => {
         const formConfig = values[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
         if (Object.keys(formConfig).length !== 0) {
@@ -354,7 +356,7 @@ function getMoadifyComps (values: any, componentConfig: any) {
             const isModify = (hadoopVersion && !_.isEqual(compHadoopVersion, hadoopVersion)) ||
                 (uploadFileName && !_.isEqual(compUploadFileName, handleUploadFile(uploadFileName))) ||
                     (kerberosFileName && !_.isEqual(compKerberosFileName, handleUploadFile(kerberosFileName))) ||
-                        (storeType && !_.isEqual(compStoreType, handleUploadFile(storeType)))
+                        (storeType && !_.isEqual(compStoreType, storeType))
 
             if (!config.id) { modifyCompsArr = [...modifyCompsArr, componentTypeCode]; return; }
             if (isModify) { modifyCompsArr = [...modifyCompsArr, componentTypeCode]; return; }
