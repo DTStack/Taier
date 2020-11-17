@@ -1344,6 +1344,7 @@ public class ComponentService {
                     if (null == hdfs) {
                         throw new RdosDefineException("请先配置存储组件");
                     }
+                    return EComponentType.HDFS.name().toLowerCase() + this.formatHadoopVersion(version, EComponentType.HDFS);
                 }
             }
         } else {
