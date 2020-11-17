@@ -40,16 +40,16 @@
             <if test="sourceKey!=null">
                 source_key = #{sourceKey},
             </if>
-            <if test="app_type!=null">
+            <if test="appType!=null">
                 app_type = #{appType},
             </if>
-            <if test="dataJason!=null">
+            <if test="dataJson!=null">
                 data_json = #{dataJson},
             </if>
-            <if test="source_type!=null">
+            <if test="sourceType!=null">
                 source_type = #{sourceType},
             </if>
-            <if test="app_source_id!=null">
+            <if test="appSourceId!=null">
                 app_source_id = #{appSourceId},
             </if>
             <if test="kerberosConf!=null">
@@ -58,10 +58,10 @@
             <if test="openKerberos!=null">
                 open_kerberos = #{openKerberos},
             </if>
-            <if test="inner_source!=null">
+            <if test="innerSource!=null">
                 inner_source = #{innerSource},
             </if>
-            <if test="component_id!=null">
+            <if test="componentId!=null">
                 component_id = #{componentId},
             </if>
             <if test="isDeleted!=null">
