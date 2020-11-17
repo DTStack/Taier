@@ -25,7 +25,7 @@ import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
-import com.dtstack.engine.master.enums.EDeployMode;
+import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
@@ -62,7 +62,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -1073,7 +1072,7 @@ public class ScheduleJobService {
                 }
                 if (EJobType.SYNC.getType() == scheduleJob.getTaskType()) {
                     //数据同步需要解析是perjob 还是session
-                    EDeployMode eDeployMode = this.parseDeployTypeByTaskParams(batchTask.getTaskParams(),batchTask.getComputeType());
+                    EDeployMode eDeployMode = this.parseDeployTypeByTaskParams(batchTask.getTaskParams(),batchTask.getComputeType(), EngineType.Flink.name());
                     actionParam.put("deployMode", eDeployMode.getType());
                 }
                 this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus());
@@ -1093,7 +1092,7 @@ public class ScheduleJobService {
      * @param taskParams
      * @return
      */
-    public EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType) {
+    private EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType) {
         try {
             if (!StringUtils.isBlank(taskParams)) {
                 Properties properties = com.dtstack.engine.common.util.PublicUtil.stringToProperties(taskParams);
@@ -1116,6 +1115,21 @@ public class ScheduleJobService {
         } else {
             return EDeployMode.SESSION;
         }
+    }
+
+    /**
+     * 除了flink任务有perjob和session之分外，
+     * 其他任务默认全部为perjob模式
+     * @param taskParams
+     * @param computeType
+     * @param engineType
+     * @return
+     */
+    public EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType, String engineType) {
+        if (StringUtils.isBlank(engineType) || !EngineType.isFlink(engineType)){
+            return EDeployMode.PERJOB;
+        }
+        return parseDeployTypeByTaskParams(taskParams, computeType);
     }
 
 

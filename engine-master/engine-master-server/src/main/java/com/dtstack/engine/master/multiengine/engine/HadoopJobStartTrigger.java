@@ -10,6 +10,7 @@ import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -17,7 +18,7 @@ import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.EDeployMode;
+import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ClusterService;
@@ -490,11 +491,11 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         if (CollectionUtils.isEmpty(componentsConfigOfComponentsVOS)) {
             return null;
         }
-        Optional<ComponentsConfigOfComponentsVO> flinkComponent = componentsConfigOfComponentsVOS.stream().filter(c -> c.getComponentTypeCode() == EComponentType.FLINK.getTypeCode()).findFirst();
+        Optional<ComponentsConfigOfComponentsVO> flinkComponent = componentsConfigOfComponentsVOS.stream().filter(c -> c.getComponentTypeCode().equals(EComponentType.FLINK.getTypeCode())).findFirst();
         if(flinkComponent.isPresent()){
             ComponentsConfigOfComponentsVO componentsVO = flinkComponent.get();
             JSONObject flinkJsonObject = JSONObject.parseObject(componentsVO.getComponentConfig());
-            EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam,computeType);
+            EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam,computeType, EngineType.Flink.name());
             JSONObject flinkConfig = flinkJsonObject.getJSONObject(eDeployMode.getMode());
             String prometheusHost = flinkConfig.getString("prometheusHost");
             String prometheusPort = flinkConfig.getString("prometheusPort");

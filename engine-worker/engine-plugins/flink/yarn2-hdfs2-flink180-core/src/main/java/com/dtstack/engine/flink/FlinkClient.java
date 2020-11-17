@@ -10,9 +10,7 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.JobParam;
 import com.dtstack.engine.common.client.AbstractClient;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -637,18 +635,13 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
-
         String jobId = jobIdentifier.getEngineJobId();
-        String applicationId = jobIdentifier.getApplicationId();
-
-        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
         String reqURL;
 
-        if(StringUtils.isNotBlank(applicationId) && (rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
-                || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED))){
+        if (null != jobIdentifier.getDeployMode() && EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode())) {
             //perjob从jobhistory读取
             reqURL = getJobHistoryURL();
-        }else{
+        } else {
             //session
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
             reqURL = currClient.getWebInterfaceURL();

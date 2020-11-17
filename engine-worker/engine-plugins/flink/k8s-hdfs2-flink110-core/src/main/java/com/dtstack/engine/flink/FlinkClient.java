@@ -2,6 +2,7 @@ package com.dtstack.engine.flink;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
@@ -485,16 +486,13 @@ public class FlinkClient extends AbstractClient {
     public String getJobLog(JobIdentifier jobIdentifier) {
 
         String jobId = jobIdentifier.getEngineJobId();
-        String applicationId = jobIdentifier.getApplicationId();
-
-        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
         String reqURL;
 
-        //从jobhistory读取
-        boolean isFromJobHistory = RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus()) || rdosTaskStatus.equals(RdosTaskStatus.NOTFOUND);
-        if (StringUtils.isNotBlank(applicationId) && isFromJobHistory) {
+        if (null != jobIdentifier.getDeployMode() && EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode())) {
+            //perjob从jobhistory读取
             reqURL = getJobHistoryURL();
         } else {
+            //session
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
             reqURL = currClient.getWebInterfaceURL();
         }

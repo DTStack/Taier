@@ -249,7 +249,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
             Long userId = info.getLong("userId");
             String pluginInfo = info.getString("pluginInfo");
             JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId,dtuicTenantId,engineType,
-                    scheduleJobService.parseDeployTypeByTaskParams(taskParams,engineJobCache.getComputeType()).getType(),userId,pluginInfo);
+                    scheduleJobService.parseDeployTypeByTaskParams(taskParams,engineJobCache.getComputeType(),engineJobCache.getEngineType()).getType(),userId,pluginInfo);
             //从engine获取log
             engineLog = workerOperator.getEngineLog(jobIdentifier);
             if (engineLog != null) {

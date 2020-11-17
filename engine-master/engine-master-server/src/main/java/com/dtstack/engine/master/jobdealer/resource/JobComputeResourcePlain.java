@@ -1,22 +1,14 @@
 package com.dtstack.engine.master.jobdealer.resource;
 
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.constrant.ConfigConstant;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.EDeployMode;
-import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ClusterService;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 import java.util.Objects;
 
 /**
