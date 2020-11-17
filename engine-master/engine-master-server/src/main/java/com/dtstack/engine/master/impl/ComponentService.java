@@ -67,10 +67,6 @@ public class ComponentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComponentService.class);
 
-    private final static String ZIP_CONTENT_TYPE = "zip";
-
-    public static final String KERBEROS_PATH = "kerberos";
-
     @Autowired
     private ComponentDao componentDao;
 
@@ -250,7 +246,7 @@ public class ComponentService {
         }
 
         Resource resource = resources.get(0);
-        if (!resource.getFileName().endsWith("." + ZIP_CONTENT_TYPE)) {
+        if (!resource.getFileName().endsWith(ZIP_SUFFIX)) {
             throw new RdosDefineException("压缩包格式仅支持ZIP格式");
         }
 
@@ -427,7 +423,7 @@ public class ComponentService {
                                              List<Resource> resources,  String hadoopVersion,
                                              String kerberosFileName,  String componentTemplate,
                                              Integer componentCode, Integer storeType) {
-        if (StringUtils.isBlank(componentConfig) && EComponentType.KUBERNETES.getTypeCode() != componentCode) {
+        if (StringUtils.isBlank(componentConfig) && !EComponentType.KUBERNETES.getTypeCode().equals(componentCode)) {
             throw new RdosDefineException("组件信息不能为空");
         }
         if (Objects.isNull(componentCode)) {
@@ -458,11 +454,6 @@ public class ComponentService {
         Component dbComponent = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode());
         boolean isUpdate = false;
         boolean isOpenKerberos = isOpenKerberos(resources, kerberosFileName, dbComponent);
-        if (isOpenKerberos) {
-            if (!resources.isEmpty() && !kerberosFileName.endsWith(ZIP_SUFFIX)) {
-                throw new RdosDefineException("kerberos上传文件非zip格式");
-            }
-        }
         if (null != dbComponent) {
             //更新
             addComponent = dbComponent;
@@ -506,7 +497,7 @@ public class ComponentService {
     }
 
     private String checkKubernetesConfig(String componentConfig, List<Resource> resources, EComponentType componentType) {
-        if(EComponentType.KUBERNETES.getTypeCode() == componentType.getTypeCode() && CollectionUtils.isNotEmpty(resources)){
+        if(EComponentType.KUBERNETES.getTypeCode().equals(componentType.getTypeCode()) && CollectionUtils.isNotEmpty(resources)){
             //kubernetes 信息需要自己解析文件
             List<Object> config = this.config(resources, EComponentType.KUBERNETES.getTypeCode(),false);
             if(CollectionUtils.isNotEmpty(config)){
@@ -519,16 +510,15 @@ public class ComponentService {
     private boolean isOpenKerberos(List<Resource> resources, String kerberosFileName, Component dbComponent) {
         boolean isOpenKerberos = StringUtils.isNotBlank(kerberosFileName);
         if (isOpenKerberos) {
-            if (!resources.isEmpty() && !kerberosFileName.endsWith("." + ZIP_CONTENT_TYPE)) {
+            if (!resources.isEmpty() && !kerberosFileName.endsWith(ZIP_SUFFIX)) {
                 throw new RdosDefineException("kerberos上传文件非zip格式");
             }
         } else {
-            if(null == dbComponent){
-                return false;
-            }
-            KerberosConfig componentKerberos = kerberosDao.getByComponentType(dbComponent.getId(), dbComponent.getComponentTypeCode());
-            if (componentKerberos != null) {
-                isOpenKerberos = true;
+            if (null != dbComponent) {
+                KerberosConfig componentKerberos = kerberosDao.getByComponentType(dbComponent.getId(), dbComponent.getComponentTypeCode());
+                if (componentKerberos != null) {
+                    isOpenKerberos = true;
+                }
             }
         }
         return isOpenKerberos;
@@ -549,9 +539,9 @@ public class ComponentService {
 
     private void checkSchedulesComponent(Long clusterId, Integer componentCode) {
         //yarn 和 Kubernetes 只能2选一
-        if (EComponentType.YARN.getTypeCode() == componentCode || EComponentType.KUBERNETES.getTypeCode() == componentCode) {
+        if (EComponentType.YARN.getTypeCode().equals(componentCode) || EComponentType.KUBERNETES.getTypeCode().equals(componentCode)) {
             Component resourceComponent = componentDao.getByClusterIdAndComponentType(clusterId,
-                    EComponentType.YARN.getTypeCode() == componentCode ? EComponentType.KUBERNETES.getTypeCode() : EComponentType.YARN.getTypeCode());
+                    EComponentType.YARN.getTypeCode().equals(componentCode) ? EComponentType.KUBERNETES.getTypeCode() : EComponentType.YARN.getTypeCode());
             if (Objects.nonNull(resourceComponent)) {
                 throw new RdosDefineException("调度组件只能选择单项");
             }
@@ -882,7 +872,7 @@ public class ComponentService {
             }
 
             //解析k8s组件
-            if(EComponentType.KUBERNETES.getTypeCode() == componentType) {
+            if(EComponentType.KUBERNETES.getTypeCode().equals(componentType)) {
                 return parseKubernetesData(resources);
             }
 
@@ -969,7 +959,7 @@ public class ComponentService {
             return componentTestResult;
         }
         String pluginType = null;
-        if (EComponentType.HDFS.getTypeCode() == componentType) {
+        if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
             //HDFS 测试连通性走hdfs2 其他走yarn2-hdfs2-hadoop
             pluginType = EComponentType.HDFS.name().toLowerCase() + this.formatHadoopVersion(hadoopVersion, EComponentType.HDFS);
         } else {
@@ -1212,6 +1202,8 @@ public class ComponentService {
             String typeName = null;
             if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
                 typeName = EComponentType.HDFS.name().toLowerCase() + this.formatHadoopVersion(version, component);
+            } else if(EComponentType.NFS.getTypeCode().equals(componentType)){
+                typeName = EComponentType.NFS.name().toLowerCase();
             } else {
                 typeName = this.convertComponentTypeToClient(clusterName, componentType, version, storeType);
             }
@@ -1339,7 +1331,15 @@ public class ComponentService {
         //如果组件配置了对应的存储组件 以配置为准
         if (null != storeType) {
             EComponentType storeComponent = EComponentType.getByCode(storeType);
-            storageSign = storeComponent.name().toLowerCase();
+            if (EComponentType.NFS.equals(storeComponent)) {
+                return EComponentType.NFS.name().toLowerCase();
+            } else {
+                Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
+                if (null == hdfs) {
+                    throw new RdosDefineException("请先配置存储组件");
+                }
+                return EComponentType.HDFS.name().toLowerCase() + this.formatHadoopVersion(hdfs.getHadoopVersion(), EComponentType.HDFS);
+            }
         } else {
             //hdfs和nfs可以共存 hdfs为默认
             Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
@@ -1495,13 +1495,12 @@ public class ComponentService {
         CountDownLatch countDownLatch = new CountDownLatch(components.size());
         for (Component component : components) {
             KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), component.getComponentTypeCode());
-            Map<String, String> finalSftpMap = sftpMap;
             try {
                 CompletableFuture.runAsync(() -> {
                     ComponentTestResult testResult = new ComponentTestResult();
                     try {
                         testResult = this.testConnect(component.getComponentTypeCode(), component.getComponentConfig(), clusterName, component.getHadoopVersion(),
-                                component.getEngineId(), kerberosConfig, finalSftpMap,component.getStoreType());
+                                component.getEngineId(), kerberosConfig, sftpMap,component.getStoreType());
                         //测试联通性
                         if (EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
                             if (testResult.getResult()) {
