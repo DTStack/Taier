@@ -342,9 +342,9 @@ ActionService {
         if (scheduleJob != null && StringUtils.isNotEmpty(scheduleJob.getApplicationId())) {
             String applicationId = "";
             if (StringUtils.isNotEmpty(scheduleJob.getApplicationId())) {
-                applicationId = scheduleJob.getApplicationId().replaceAll("-", "");
+                applicationId = scheduleJob.getApplicationId();
             }
-            engineLog = elasticsearchService.searchWithJobId("taskId", applicationId);
+            engineLog = elasticsearchService.searchWithJobId("taskId.keyword", applicationId);
         }
         return engineLog;
     }
