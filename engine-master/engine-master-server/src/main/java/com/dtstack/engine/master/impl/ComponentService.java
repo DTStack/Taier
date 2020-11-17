@@ -1286,7 +1286,7 @@ public class ComponentService {
             }
         }
         //hive 特殊处理 version
-        if (EComponentType.HIVE_SERVER.getTypeCode() == componentType || EComponentType.SPARK_THRIFT.getTypeCode() == componentType) {
+        if (EComponentType.HIVE_SERVER.getTypeCode().equals(componentType) || EComponentType.SPARK_THRIFT.getTypeCode().equals(componentType)) {
             pluginName = "hive";
             if (version.equalsIgnoreCase("1.x")) {
 
@@ -1322,25 +1322,29 @@ public class ComponentService {
         }
         String resourceSign = null == yarn ? "k8s" : EComponentType.YARN.name().toLowerCase() + this.formatHadoopVersion(yarn.getHadoopVersion(), EComponentType.YARN);
 
-        String storageSign = this.buildStoreSign(cluster, storeType);
+        String storageSign = this.buildStoreSign(cluster, storeType,version,componentType);
 
         computeSign = computeSign + this.formatHadoopVersion(version, componentCode);
         return String.format("%s-%s-%s", resourceSign, storageSign, computeSign);
     }
 
-    private String buildStoreSign(ClusterVO cluster, Integer storeType) {
-        String storageSign;
+    private String buildStoreSign(ClusterVO cluster, Integer storeType, String version, Integer componentType) {
+        String storageSign = "";
         //如果组件配置了对应的存储组件 以配置为准
         if (null != storeType) {
             EComponentType storeComponent = EComponentType.getByCode(storeType);
             if (EComponentType.NFS.equals(storeComponent)) {
                 return EComponentType.NFS.name().toLowerCase();
             } else {
-                Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
-                if (null == hdfs) {
-                    throw new RdosDefineException("请先配置存储组件");
+                if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
+                    //当前更新组件为hdfs
+                    return EComponentType.HDFS.name().toLowerCase() + this.formatHadoopVersion(version, EComponentType.HDFS);
+                } else {
+                    Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
+                    if (null == hdfs) {
+                        throw new RdosDefineException("请先配置存储组件");
+                    }
                 }
-                return EComponentType.HDFS.name().toLowerCase() + this.formatHadoopVersion(hdfs.getHadoopVersion(), EComponentType.HDFS);
             }
         } else {
             //hdfs和nfs可以共存 hdfs为默认
