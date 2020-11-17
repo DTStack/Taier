@@ -40,9 +40,6 @@ public class LineageColumnColumn extends DtUicTenantEntity {
     @ApiModelProperty(notes = "血缘来源：0-sql解析；1-手动维护；2-json解析")
     private Integer lineageSource;
 
-    @ApiModelProperty(notes = "血缘批次唯一码")
-    private String uniqueKey;
-
     public Integer getAppType() {
         return appType;
     }
@@ -97,14 +94,6 @@ public class LineageColumnColumn extends DtUicTenantEntity {
 
     public void setLineageSource(Integer lineageSource) {
         this.lineageSource = lineageSource;
-    }
-
-    public String getUniqueKey() {
-        return uniqueKey;
-    }
-
-    public void setUniqueKey(String uniqueKey) {
-        this.uniqueKey = uniqueKey;
     }
 
     public String getInputTableKey() {

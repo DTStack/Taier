@@ -48,23 +48,24 @@ public class LineageTableTableService {
     /**
      * 保存表级血缘,不需要事务
      */
-    public void saveTableLineage(List<LineageTableTable> tableTables) {
+    public void saveTableLineage(List<LineageTableTable> tableTables,String uniqueKey) {
         if (CollectionUtils.isEmpty(tableTables)){
             return;
         }
         tableTables.forEach(tt->{tt.setTableLineageKey(generateTableTableKey(tt));});
         //数据插入后，id会更新
         lineageTableTableDao.batchInsertTableTable(tableTables);
-        //FIXME 出现一条记录未更新id的情况
+        List<String> keys = tableTables.stream().map(tt -> tt.getTableLineageKey()).collect(Collectors.toList());
+        tableTables = getTableTablesByTableLineageKeys(tableTables.get(0).getAppType(), keys);
         //如果uniqueKey不为空，需要删除ref表中相同uniqueKey的数据，再插入该批数据。
-        if (StringUtils.isNotEmpty(tableTables.get(0).getUniqueKey())){
-            lineageTableTableUniqueKeyRefDao.deleteByUniqueKey(tableTables.get(0).getAppType(),tableTables.get(0).getUniqueKey());
+        if (StringUtils.isNotEmpty(uniqueKey)){
+            lineageTableTableUniqueKeyRefDao.deleteByUniqueKey(tableTables.get(0).getAppType(),uniqueKey);
         }
         //插入新的ref
         List<LineageTableTableUniqueKeyRef> refList = tableTables.stream().map(tt -> {
             LineageTableTableUniqueKeyRef ref = new LineageTableTableUniqueKeyRef();
             ref.setAppType(tt.getAppType());
-            ref.setUniqueKey(tt.getUniqueKey());
+            ref.setUniqueKey(uniqueKey);
             ref.setLineageTableTableId(tt.getId());
             return ref;
         }).collect(Collectors.toList());
@@ -125,28 +126,21 @@ public class LineageTableTableService {
      * @param appType
      * @param lineageTableTable
      */
-    public void manualAddTableLineage(Integer appType, LineageTableTable lineageTableTable){
+    public void manualAddTableLineage(Integer appType, LineageTableTable lineageTableTable,String uniqueKey){
         //需要确保表存在
         //添加血缘
         //添加血缘ref
-        Long inputTableId = lineageTableTable.getInputTableId();
-        Long resultTableId = lineageTableTable.getResultTableId();
-        LineageDataSetInfo inputDataSetInfo = null;
-        LineageDataSetInfo resultDataSetInfo = null;
-        //TODO 查询表信息  dataSetInfoService.
         lineageTableTable.setLineageSource(LineageOriginType.MANUAL_ADD.getType());
-        if (StringUtils.isEmpty(lineageTableTable.getUniqueKey())){
-            lineageTableTable.setUniqueKey(generateDefaultUniqueKey(appType));
+        if (StringUtils.isEmpty(uniqueKey)){
+            lineageTableTable.setTableLineageKey(generateTableTableKey(lineageTableTable));
         }
-        String inputTableKey = inputDataSetInfo.getTableKey();
-        String resultTableKey = inputDataSetInfo.getTableKey();
         //TODO 处理好tableKey
         lineageTableTableDao.batchInsertTableTable(Lists.newArrayList(lineageTableTable));
         Long lineageTableTableId = lineageTableTable.getId();
         LineageTableTableUniqueKeyRef ref = new LineageTableTableUniqueKeyRef();
         ref.setAppType(appType);
         ref.setLineageTableTableId(lineageTableTableId);
-        ref.setUniqueKey(lineageTableTable.getUniqueKey());
+        ref.setUniqueKey(uniqueKey);
         lineageTableTableUniqueKeyRefDao.batchInsert(Lists.newArrayList(ref));
     }
 
@@ -155,13 +149,12 @@ public class LineageTableTableService {
      * @param appType
      * @param lineageTableTable
      */
-    public void manualDeleteTableLineage(Integer appType, LineageTableTable lineageTableTable){
-        String tableLineageKey = lineageTableTable.getTableLineageKey();
+    public void manualDeleteTableLineage(Integer appType, LineageTableTable lineageTableTable,String uniqueKey){
+        String tableLineageKey = generateTableTableKey(lineageTableTable);
         LineageTableTable tableTable = lineageTableTableDao.queryBTableLineageKey(appType, tableLineageKey);
         if (Objects.isNull(tableTable)){
             throw new RdosDefineException("未找到血缘关系");
         }
-        String uniqueKey = lineageTableTable.getUniqueKey();
         if (Objects.isNull(uniqueKey)){
             uniqueKey = generateDefaultUniqueKey(appType);
         }
@@ -193,5 +186,9 @@ public class LineageTableTableService {
             return AppType.DQ.name();
         }
         return UUID.randomUUID().toString();
+    }
+
+    private List<LineageTableTable> getTableTablesByTableLineageKeys(Integer appType,List<String> tableLineageKeys){
+        return lineageTableTableDao.queryByTableLineageKeys(appType, tableLineageKeys);
     }
 }

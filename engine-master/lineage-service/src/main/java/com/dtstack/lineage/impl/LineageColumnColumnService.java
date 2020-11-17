@@ -43,7 +43,7 @@ public class LineageColumnColumnService {
     @Autowired
     private LineageColumnColumnUniqueKeyRefDao lineageColumnColumnUniqueKeyRefDao;
 
-    public void saveColumnLineage(List<LineageColumnColumn> columnColumns) {
+    public void saveColumnLineage(List<LineageColumnColumn> columnColumns,String uniqueKey) {
         if (CollectionUtils.isEmpty(columnColumns)) {
             return;
         }
@@ -53,12 +53,12 @@ public class LineageColumnColumnService {
         }
         lineageColumnColumnDao.batchInsertColumnColumn(columnColumns);
         //2.删除uniqueKey对应批次的ref，插入新的ref
-        lineageColumnColumnUniqueKeyRefDao.deleteByUniqueKey(columnColumns.get(0).getUniqueKey());
+        lineageColumnColumnUniqueKeyRefDao.deleteByUniqueKey(uniqueKey);
         List<LineageColumnColumnUniqueKeyRef> refList = columnColumns.stream().map(cc -> {
             LineageColumnColumnUniqueKeyRef ref = new LineageColumnColumnUniqueKeyRef();
             ref.setAppType(cc.getAppType());
             ref.setLineageColumnColumnId(cc.getId());
-            ref.setUniqueKey(cc.getUniqueKey());
+            ref.setUniqueKey(uniqueKey);
             return ref;
         }).collect(Collectors.toList());
         lineageColumnColumnUniqueKeyRefDao.batchInsert(refList);
@@ -100,33 +100,27 @@ public class LineageColumnColumnService {
         return Lists.newArrayList(lineageSet);
     }
 
-    public void manualAddColumnLineage(Integer appType, LineageColumnColumn lineageColumnColumn){
-        LineageDataSetInfo inputTable = null;
-        LineageDataSetInfo resultTable = null;
+    public void manualAddColumnLineage(Integer appType, LineageColumnColumn lineageColumnColumn,String uniqueKey){
         //TODO 检查表信息lineageDataSetInfoService.getOne
-        lineageColumnColumn.setColumnLineageKey(generateColumnColumnKey(lineageColumnColumn));
         if (StringUtils.isEmpty(lineageColumnColumn.getColumnLineageKey())){
-            lineageColumnColumn.setUniqueKey(generateDefaultUniqueKey(appType));
+            lineageColumnColumn.setColumnLineageKey(generateColumnColumnKey(lineageColumnColumn));
         }
         lineageColumnColumnDao.batchInsertColumnColumn(Lists.newArrayList(lineageColumnColumn));
         LineageColumnColumnUniqueKeyRef ref = new LineageColumnColumnUniqueKeyRef();
         ref.setAppType(appType);
-        ref.setUniqueKey(lineageColumnColumn.getUniqueKey());
+        ref.setUniqueKey(uniqueKey);
         ref.setLineageColumnColumnId(lineageColumnColumn.getId());
         lineageColumnColumnUniqueKeyRefDao.batchInsert(Lists.newArrayList(ref));
     }
 
-    public void manualDeleteColumnLineage(Integer appType, LineageColumnColumn lineageColumnColumn){
+    public void manualDeleteColumnLineage(Integer appType, LineageColumnColumn lineageColumnColumn,String uniqueKey ){
         //只删除ref表
         String columnLineageKey = generateColumnColumnKey(lineageColumnColumn);
         LineageColumnColumn columnColumn = lineageColumnColumnDao.queryByLineageKey(appType, columnLineageKey);
         if (Objects.isNull(columnColumn)){
             throw new RdosDefineException("血缘关系未查到");
         }
-        if (StringUtils.isEmpty(lineageColumnColumn.getUniqueKey())){
-            lineageColumnColumn.setUniqueKey(generateDefaultUniqueKey(appType));
-        }
-        lineageColumnColumnUniqueKeyRefDao.deleteByLineageIdAndUniqueKey(appType,lineageColumnColumn.getUniqueKey(),columnColumn.getId());
+        lineageColumnColumnUniqueKeyRefDao.deleteByLineageIdAndUniqueKey(appType,uniqueKey,columnColumn.getId());
     }
 
     private String generateColumnColumnKey(LineageColumnColumn columnColumn) {

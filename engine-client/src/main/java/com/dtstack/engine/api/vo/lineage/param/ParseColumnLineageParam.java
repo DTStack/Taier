@@ -23,9 +23,6 @@ public class ParseColumnLineageParam {
     @ApiModelProperty("应用类型")
     private Integer appType;
 
-    @ApiModelProperty("uic租户id")
-    private Integer uicTenantId;
-
     @ApiModelProperty("需要解析的sql")
     private String sql;
 
@@ -66,14 +63,6 @@ public class ParseColumnLineageParam {
 
     public void setAppType(Integer appType) {
         this.appType = appType;
-    }
-
-    public Integer getUicTenantId() {
-        return uicTenantId;
-    }
-
-    public void setUicTenantId(Integer uicTenantId) {
-        this.uicTenantId = uicTenantId;
     }
 
     public String getSql() {

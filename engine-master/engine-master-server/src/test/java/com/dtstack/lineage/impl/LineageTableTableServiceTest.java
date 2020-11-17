@@ -5,6 +5,7 @@ import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.schedule.common.enums.AppType;
 import org.assertj.core.util.Lists;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,12 +45,13 @@ public class LineageTableTableServiceTest extends AbstractTest {
         tableTable.setResultTableId(1L);
         tableTable.setResultTableKey("1_1");
         tableTable.setTableLineageKey("1_1#1_1");
-        lineageTableTableService.saveTableLineage(Lists.newArrayList(tableTable) );
-        //TODO
+        tableTable.setLineageSource(0);
+        lineageTableTableService.saveTableLineage(Lists.newArrayList(tableTable) ,"RDOS");
+        Assert.assertNotNull(tableTable.getId());
     }
     @Test
     public void testQueryTableInputLineageByAppType(){
-        List<LineageTableTable> queryTableInputLineageByAppType = lineageTableTableService.queryTableInputLineageByAppType(0L , 0 );
+        List<LineageTableTable> queryTableInputLineageByAppType = lineageTableTableService.queryTableInputLineageByAppType(1L , 1 );
         //TODO
     }
     @Test
@@ -64,12 +66,12 @@ public class LineageTableTableServiceTest extends AbstractTest {
     }
     @Test
     public void testManualAddTableLineage(){
-        lineageTableTableService.manualAddTableLineage(0 , null );
+        lineageTableTableService.manualAddTableLineage(0 , null ,null);
         //TODO
     }
     @Test
     public void testManualDeleteTableLineage(){
-        lineageTableTableService.manualDeleteTableLineage(0 , null );
+        lineageTableTableService.manualDeleteTableLineage(0 , null ,null);
         //TODO
     }
     @Test

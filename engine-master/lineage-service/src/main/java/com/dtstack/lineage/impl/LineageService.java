@@ -187,13 +187,13 @@ public class LineageService {
             List<TableLineage> tableLineages = parseResult.getTableLineages();
             if (CollectionUtils.isNotEmpty(tableLineages)) {
                 List<LineageTableTable> lineageTableTables = tableLineages.stream().map(l -> {
-                    LineageTableTable tableTable = TableLineageAdapter.sqlTableLineage2DbTableLineage(l, tableRef, LineageOriginType.SQL_PARSE, unionKey);
+                    LineageTableTable tableTable = TableLineageAdapter.sqlTableLineage2DbTableLineage(l, tableRef, LineageOriginType.SQL_PARSE);
                     tableTable.setDtUicTenantId(dtUicTenantId);
                     tableTable.setAppType(appType);
                     return tableTable;
                 }).collect(Collectors.toList());
                 //如果uniqueKey不为空，则删除相同uniqueKey的血缘
-                lineageTableTableService.saveTableLineage(lineageTableTables);
+                lineageTableTableService.saveTableLineage(lineageTableTables,unionKey);
             }
 
         } catch (Exception e) {
@@ -213,7 +213,7 @@ public class LineageService {
     public ColumnLineageParseInfo parseColumnLineage(String sql, Integer dataSourceType, String defaultDb, Map<String, List<Column>> tableColumnsMap) {
         SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(dataSourceType);
         if (Objects.isNull(sourceType2TableType)) {
-            throw new IllegalArgumentException("数据源类型" + dataSourceType + "不支持");
+            throw new RdosDefineException("数据源类型" + dataSourceType + "不支持");
         }
         SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
         ColumnLineageParseInfo parseInfo = new ColumnLineageParseInfo();
@@ -277,27 +277,31 @@ public class LineageService {
         SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
         try {
             List<Table> resTables = sqlParser.parseTables(parseColumnLineageParam.getSql(), parseColumnLineageParam.getDefaultDb());
+            Set<com.dtstack.engine.api.pojo.lineage.Table> tables = resTables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toSet());
             //TODO 获取表字段信息
-//            lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(),)
-            ParseResult parseResult = sqlParser.parseSql(parseColumnLineageParam.getSql(), parseColumnLineageParam.getDefaultDb(), new HashMap<>());
+            Map<String, List<Column>> tableColumnMap = lineageDataSetInfoService.getColumnsBySourceIdAndListTable(lineageDataSource.getId(), Lists.newArrayList(tables));
+            Map<String, List<com.dtstack.engine.sql.Column>> sqlTableColumnMap = new HashMap<>();
+            for (Map.Entry<String,List<Column>> entry:tableColumnMap.entrySet()){
+                sqlTableColumnMap.put(entry.getKey(),entry.getValue().stream().map(ColumnAdapter::apiColumn2SqlColumn).collect(Collectors.toList()));
+            }
+            ParseResult parseResult = sqlParser.parseSql(parseColumnLineageParam.getSql(), parseColumnLineageParam.getDefaultDb(), sqlTableColumnMap);
             //3.根据表名和数dbName，schemaName查询表,sourceId。表不存在则需要插入表
-            List<Table> tables = sqlParser.parseTables(parseColumnLineageParam.getDefaultDb(),parseColumnLineageParam.getSql());
             Map<String, LineageDataSetInfo> tableRef = new HashMap<>();
             String tableKey = "%s.%s";
-            for (int i = 0; i < tables.size(); i++) {
-                Table ta = tables.get(i);
+            for (int i = 0; i < resTables.size(); i++) {
+                Table ta = resTables.get(i);
                 LineageDataSetInfo dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), ta.getDb(), ta.getName(), ta.getDb());
                 tableRef.put(String.format(tableKey, ta.getDb(), ta.getName()), dataSet);
             }
             List<TableLineage> tableLineages = parseResult.getTableLineages();
             if (CollectionUtils.isNotEmpty(tableLineages)) {
-                List<LineageTableTable> lineageTableTables = tableLineages.stream().map(l -> TableLineageAdapter.sqlTableLineage2DbTableLineage(l, tableRef, LineageOriginType.SQL_PARSE, parseColumnLineageParam.getUniqueKey())).collect(Collectors.toList());
+                List<LineageTableTable> lineageTableTables = tableLineages.stream().map(l -> TableLineageAdapter.sqlTableLineage2DbTableLineage(l, tableRef, LineageOriginType.SQL_PARSE)).collect(Collectors.toList());
                 //如果uniqueKey不为空，则删除相同uniqueKey的血缘
-                lineageTableTableService.saveTableLineage(lineageTableTables);
+                lineageTableTableService.saveTableLineage(lineageTableTables,parseColumnLineageParam.getUniqueKey());
             }
             List<ColumnLineage> columnLineages = parseResult.getColumnLineages();
             if (CollectionUtils.isNotEmpty(columnLineages)) {
-                lineageColumnColumnService.saveColumnLineage(columnLineages.stream().map(cl -> ColumnLineageAdapter.sqlColumnLineage2ColumnColumn(cl, parseColumnLineageParam.getAppType(), tableRef, parseColumnLineageParam.getUniqueKey())).collect(Collectors.toList()));
+                lineageColumnColumnService.saveColumnLineage(columnLineages.stream().map(cl -> ColumnLineageAdapter.sqlColumnLineage2ColumnColumn(cl, parseColumnLineageParam.getAppType(), tableRef)).collect(Collectors.toList()),parseColumnLineageParam.getUniqueKey());
             }
 
         } catch (Exception e) {
@@ -471,7 +475,8 @@ public class LineageService {
         lineageTableTable.setInputTableKey(inputTableInfo.getTableKey());
         lineageTableTable.setLineageSource(LineageOriginType.MANUAL_ADD.getType());
         lineageTableTable.setAppType(tableTableVO.getAppType());
-        lineageTableTableService.manualAddTableLineage(tableTableVO.getAppType(), lineageTableTable);
+        lineageTableTable.setDtUicTenantId(tableTableVO.getDtUicTenantId());
+        lineageTableTableService.manualAddTableLineage(tableTableVO.getAppType(), lineageTableTable,null);
     }
 
     /**
@@ -508,8 +513,9 @@ public class LineageService {
         lineageTableTable.setInputTableId(inputTableInfo.getId());
         lineageTableTable.setInputTableKey(inputTableInfo.getTableKey());
         lineageTableTable.setLineageSource(LineageOriginType.MANUAL_ADD.getType());
+        lineageTableTable.setDtUicTenantId(tableTableVO.getDtUicTenantId());
         lineageTableTable.setAppType(tableTableVO.getAppType());
-        lineageTableTableService.manualDeleteTableLineage(tableTableVO.getAppType(), lineageTableTable);
+        lineageTableTableService.manualDeleteTableLineage(tableTableVO.getAppType(), lineageTableTable,null);
     }
 
     /**
@@ -681,7 +687,7 @@ public class LineageService {
         lineageColumnColumn.setLineageSource(LineageOriginType.MANUAL_ADD.getType());
         lineageColumnColumn.setAppType(lineageColumnColumnVO.getAppType());
         lineageColumnColumn.setDtUicTenantId(lineageColumnColumnVO.getDtUicTenantId());
-        lineageColumnColumnService.manualAddColumnLineage(lineageColumnColumnVO.getAppType(), lineageColumnColumn);
+        lineageColumnColumnService.manualAddColumnLineage(lineageColumnColumnVO.getAppType(), lineageColumnColumn,null);
     }
 
     /**
@@ -714,6 +720,6 @@ public class LineageService {
         lineageColumnColumn.setLineageSource(LineageOriginType.MANUAL_ADD.getType());
         lineageColumnColumn.setAppType(lineageColumnColumnVO.getAppType());
         lineageColumnColumn.setDtUicTenantId(lineageColumnColumnVO.getDtUicTenantId());
-        lineageColumnColumnService.manualDeleteColumnLineage(lineageColumnColumnVO.getAppType(), lineageColumnColumn);
+        lineageColumnColumnService.manualDeleteColumnLineage(lineageColumnColumnVO.getAppType(), lineageColumnColumn,null);
     }
 }

@@ -29,7 +29,7 @@ public class LineageColumnColumnServiceTest extends AbstractTest {
 
     @Test
     public void testSaveColumnLineage(){
-        lineageColumnColumnService.saveColumnLineage(null );
+        lineageColumnColumnService.saveColumnLineage(null ,null);
         //TODO
     }
     @Test
@@ -49,12 +49,12 @@ public class LineageColumnColumnServiceTest extends AbstractTest {
     }
     @Test
     public void testManualAddColumnLineage(){
-        lineageColumnColumnService.manualAddColumnLineage(0 , null );
+        lineageColumnColumnService.manualAddColumnLineage(0 , null ,null);
         //TODO
     }
     @Test
     public void testManualDeleteColumnLineage(){
-        lineageColumnColumnService.manualDeleteColumnLineage(0 , null );
+        lineageColumnColumnService.manualDeleteColumnLineage(0 , null,null );
         //TODO
     }
     @Test

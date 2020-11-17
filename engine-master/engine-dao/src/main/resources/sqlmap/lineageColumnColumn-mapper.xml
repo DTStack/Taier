@@ -30,10 +30,6 @@
         on duplicate key update gmt_modified=values(gmt_modified)
     </insert>
 
-    <delete id="deleteByUniqueKey">
-        update lineage_table_table set is_deletede = 1 where unique_key = #{uniqueKey}
-    </delete>
-
     <select id="queryColumnInputList" resultType="com.dtstack.engine.api.domain.LineageColumnColumn">
         select <include refid="select_content_fragment"/> where input_table_id = #{tableId} and input_column_name = #{columnName} and app_type = #{appType}
     </select>

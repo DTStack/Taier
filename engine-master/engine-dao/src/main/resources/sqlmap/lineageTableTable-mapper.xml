@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.lineage.dao.LineageTableTableDao">
 
     <sql id="select_content_fragment">
-      id,dt_uic_tenant_id,app_type,input_table_id,input_table_key,result_table_id,result_table_key,table_lineage_key,unique_key,lineage_source,gmt_create,gmt_modified,is_deleted
+      id,dt_uic_tenant_id,app_type,input_table_id,input_table_key,result_table_id,result_table_key,table_lineage_key,lineage_source,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <sql id="select_where_fragment">
@@ -14,29 +14,36 @@
         </trim>
     </sql>
 
-    <insert id="batchInsertTableTable" parameterType="com.dtstack.engine.api.domain.LineageTableTable" useGeneratedKeys="true" keyProperty="id">
-        insert into lineage_table_table(dt_uic_tenant_id,app_type,input_table_id,input_table_key,result_table_id,result_table_key,table_lineage_key,lineage_source,unique_key)
+    <insert id="batchInsertTableTable" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        insert into lineage_table_table(dt_uic_tenant_id,app_type,input_table_id,input_table_key,result_table_id,result_table_key,table_lineage_key,lineage_source)
         values
         <foreach collection="list" item="item" open="" close="" separator=",">
-        (#{item.dtUicTenantId},#{item.appType},#{item.inputTableId},#{item.inputTableKey},#{item.resultTableId},#{item.resultTableKey},#{item.tableLineageKey},#{item.lineageSource},#{item.uniqueKey})
+        (#{item.dtUicTenantId},#{item.appType},#{item.inputTableId},#{item.inputTableKey},#{item.resultTableId},#{item.resultTableKey},#{item.tableLineageKey},#{item.lineageSource})
         </foreach>
         on duplicate key update gmt_modified=values(gmt_modified)
     </insert>
 
-    <delete id="deleteByUniqueKey">
-        update lineage_table_table set is_deleted = 1 where unique_key = #{uniqueKey}
-    </delete>
-
     <select id="queryTableInputList" resultType="com.dtstack.engine.api.domain.LineageTableTable">
-        select tt.* from lineage_table_table tt join lineage_table_table_unique_key_ref ref on tt.id = ref.lineage_table_table_id where tt.input_table_id = #{tableId} and ref.app_type = #{appType}
+        select tt.* from lineage_table_table tt join lineage_table_table_unique_key_ref ref on tt.id = ref.lineage_table_table_id where tt.input_table_id = #{tableId} and ref.app_type = #{appType} and ref.is_deleted = 0
     </select>
 
     <select id="queryTableResultList" resultType="com.dtstack.engine.api.domain.LineageTableTable">
-        select tt.* from lineage_table_table tt join lineage_table_table_unique_key_ref ref on tt.id = ref.lineage_table_table_id where tt.result_table_id = #{tableId} and ref.app_type = #{appType}
+        select tt.* from lineage_table_table tt join lineage_table_table_unique_key_ref ref on tt.id = ref.lineage_table_table_id where tt.result_table_id = #{tableId} and ref.app_type = #{appType} and ref.is_deleted = 0
     </select>
 
     <select id="queryBTableLineageKey" resultType="com.dtstack.engine.api.domain.LineageTableTable">
         select <include refid="select_content_fragment"/> from lineage_table_table where app_type = #{appType} and table_lineage_key = #{tableLineageKey}
+    </select>
+
+    <select id="queryByTableLineageKeys" resultType="com.dtstack.engine.api.domain.LineageTableTable">
+        select <include refid="select_content_fragment"/> from lineage_table_table
+        <where>
+            app_type = #{appType}
+            and table_lineage_key in
+            <foreach collection="list" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </where>
     </select>
 
 </mapper>

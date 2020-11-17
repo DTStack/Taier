@@ -32,7 +32,7 @@ public class ColumnLineageAdapter {
         return apiColumnLineage;
     }
 
-    public static LineageColumnColumn sqlColumnLineage2ColumnColumn(com.dtstack.engine.sql.ColumnLineage sqlColumnLineage, Integer appType, Map<String, LineageDataSetInfo> tableMap, String uniqueKey) {
+    public static LineageColumnColumn sqlColumnLineage2ColumnColumn(com.dtstack.engine.sql.ColumnLineage sqlColumnLineage, Integer appType, Map<String, LineageDataSetInfo> tableMap) {
         String keyPref = "%s.%s";
         LineageColumnColumn lineageColumnColumn = new LineageColumnColumn();
         LineageDataSetInfo inputTable = tableMap.get(String.format(keyPref, sqlColumnLineage.getFromDb(), sqlColumnLineage.getFromTable()));
@@ -44,7 +44,6 @@ public class ColumnLineageAdapter {
         lineageColumnColumn.setResultTableId(resultTable.getId());
         lineageColumnColumn.setResultColumnName(lineageColumnColumn.getResultColumnName());
         lineageColumnColumn.setResultTableKey(lineageColumnColumn.getResultTableKey());
-        lineageColumnColumn.setUniqueKey(uniqueKey);
         lineageColumnColumn.setDtUicTenantId(inputTable.getDtUicTenantId());
         return lineageColumnColumn;
     }
