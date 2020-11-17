@@ -10,7 +10,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_fill_data_job
-        WHERE job_name = #{jobName} and project_id = #{projectId} and is_deleted = 0
+        WHERE job_name = #{jobName} and project_id = #{projectId} and is_deleted = 0 LIMIT 1
     </select>
 
     <insert id="insert" parameterType="ScheduleFillDataJob" useGeneratedKeys="true" keyProperty="id">

@@ -17,4 +17,8 @@ public interface AccountDao {
 
     Integer update(Account account);
 
+    Account getOne(@Param("tenantId") Long tenantId,@Param("userId") Long userId,
+                   @Param("accountType") Integer accountType,@Param("name") String name);
+
+
 }
