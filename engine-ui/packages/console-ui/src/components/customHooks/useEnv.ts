@@ -12,7 +12,6 @@ function useEnv ({ clusterId, form, clusterList, visible }) {
         hasGreenPlum: false,
         hasPresto: false
     })
-
     useEffect(() => {
         if (!clusterId) return
 
@@ -26,8 +25,9 @@ function useEnv ({ clusterId, form, clusterList, visible }) {
         const greenPlumEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.GREEN_PLUM);
         const prestoEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.PRESTO);
         const kubernetesEngine = currentEngineList.filter((item: any) => item.resourceType == RESOURCE_TYPE.KUBERNETES);
+        const flag=kubernetesEngine?.length>0 ? visible : !visible
 
-        if (visible) {
+        if (flag) {
             setEnv({
                 hasHadoop: hadoopEngine.length >= 1,
                 hasLibra: libraEngine.length >= 1,
