@@ -35,4 +35,13 @@ public class UrlInfo {
     public void setDb(String db) {
         this.db = db;
     }
+
+    @Override
+    public String toString() {
+        return "UrlInfo{" +
+                "host='" + host + '\'' +
+                ", port=" + port +
+                ", db='" + db + '\'' +
+                '}';
+    }
 }

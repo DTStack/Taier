@@ -61,6 +61,9 @@ public class RdbmsDataSourceConfig extends DataSourceConfig {
             return null;
         }
         UrlInfo urlInfo = JdbcUrlUtil.getUrlInfo(jdbc);
+        if(null == urlInfo.getHost() || null == urlInfo.getPort()){
+            return null;
+        }
         return String.format("%s#%s",urlInfo.getHost(),urlInfo.getPort());
     }
 }
