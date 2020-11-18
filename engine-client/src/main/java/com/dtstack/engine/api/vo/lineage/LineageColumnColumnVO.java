@@ -46,6 +46,12 @@ public class LineageColumnColumnVO {
     @ApiModelProperty("输出字段名称")
     private String resultColumnName;
 
+    /**
+     * 血缘批次唯一码
+     */
+    @ApiModelProperty("批次唯一码")
+    private String uniqueKey;
+
     @ApiModelProperty(value = "使用双亲表示法，标识树数据结构",notes = "当前节点的父节点在列表中的下标")
     private Integer parentIndex;
 
@@ -103,5 +109,13 @@ public class LineageColumnColumnVO {
 
     public void setDtUicTenantId(Long dtUicTenantId) {
         this.dtUicTenantId = dtUicTenantId;
+    }
+
+    public String getUniqueKey() {
+        return uniqueKey;
+    }
+
+    public void setUniqueKey(String uniqueKey) {
+        this.uniqueKey = uniqueKey;
     }
 }

@@ -28,6 +28,9 @@ public class LineageTableTableVO {
     @ApiModelProperty(value = "使用双亲表示法，标识树数据结构",notes = "当前节点的父节点在列表中的下标")
     private Integer parentIndex;
 
+    @ApiModelProperty("血缘批次唯一码")
+    private String uniqueKey;
+
     public Integer getAppType() {
         return appType;
     }
@@ -66,5 +69,13 @@ public class LineageTableTableVO {
 
     public void setDtUicTenantId(Long dtUicTenantId) {
         this.dtUicTenantId = dtUicTenantId;
+    }
+
+    public String getUniqueKey() {
+        return uniqueKey;
+    }
+
+    public void setUniqueKey(String uniqueKey) {
+        this.uniqueKey = uniqueKey;
     }
 }

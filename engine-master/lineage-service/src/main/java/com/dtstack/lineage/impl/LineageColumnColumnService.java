@@ -114,6 +114,9 @@ public class LineageColumnColumnService {
             lineageColumnColumn.setColumnLineageKey(generateColumnColumnKey(lineageColumnColumn));
         }
         lineageColumnColumnDao.batchInsertColumnColumn(Lists.newArrayList(lineageColumnColumn));
+        if (StringUtils.isEmpty(uniqueKey)){
+            uniqueKey = generateDefaultUniqueKey(appType);
+        }
         LineageColumnColumnUniqueKeyRef ref = new LineageColumnColumnUniqueKeyRef();
         ref.setAppType(appType);
         ref.setUniqueKey(uniqueKey);
@@ -127,6 +130,9 @@ public class LineageColumnColumnService {
         LineageColumnColumn columnColumn = lineageColumnColumnDao.queryByLineageKey(appType, columnLineageKey);
         if (Objects.isNull(columnColumn)){
             throw new RdosDefineException("血缘关系未查到");
+        }
+        if (StringUtils.isEmpty(uniqueKey)){
+            uniqueKey = generateDefaultUniqueKey(appType);
         }
         lineageColumnColumnUniqueKeyRefDao.deleteByLineageIdAndUniqueKey(appType,uniqueKey,columnColumn.getId());
     }
