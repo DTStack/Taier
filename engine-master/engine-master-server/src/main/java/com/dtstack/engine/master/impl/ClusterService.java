@@ -262,28 +262,25 @@ public class ClusterService implements InitializingBean {
      * @param pluginJson
      * @param type
      */
-    private void setComponentSftpDir(Long clusterId, JSONObject clusterConfigJson, JSONObject pluginJson,EngineTypeComponentType type) {
+    private void setComponentSftpDir(Long clusterId, JSONObject clusterConfigJson, JSONObject pluginJson, EngineTypeComponentType type) {
         //sftp Dir
         JSONObject sftpConfig = clusterConfigJson.getJSONObject(EComponentType.SFTP.getConfName());
+        if (null != sftpConfig) {
+            pluginJson.put(EComponentType.SFTP.getConfName(), sftpConfig);
+        }
         EComponentType componentType = type.getComponentType();
         KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode());
-        if (MapUtils.isNotEmpty(sftpConfig) && Objects.nonNull(kerberosConfig)) {
+        if (null != kerberosConfig) {
             Integer openKerberos = kerberosConfig.getOpenKerberos();
             String remotePath = kerberosConfig.getRemotePath();
             Preconditions.checkState(StringUtils.isNotEmpty(remotePath), "remotePath can not be null");
             pluginJson.fluentPut("openKerberos", Objects.nonNull(openKerberos) && openKerberos > 0)
                     .fluentPut("remoteDir", remotePath)
-                    .fluentPut("principalFile", kerberosConfig.getName()).fluentPut("krbName",kerberosConfig.getKrbName());
-            JSONObject config = new JSONObject();
-            config.put("yarnConf",clusterConfigJson.getJSONObject("hadoopConf"));
-            config.put("sftpConf",sftpConfig);
-            config.put("principalFile",kerberosConfig.getName());
-            config.put("remoteDir",kerberosConfig.getRemotePath());
-            config.put("krbName",kerberosConfig.getKrbName());
-            config.put("openKerberos","true");
-            config.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
-            pluginJson.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
-            pluginJson.put("config",config);
+                    .fluentPut("principalFile", kerberosConfig.getName())
+                    .fluentPut("krbName", kerberosConfig.getKrbName())
+                    .fluentPut("kerberosFileTimestamp", kerberosConfig.getGmtModified());
+            //如果 hiveSQL  impalaSQL中没有yarnConf 需要添加yarnConf做kerberos认证
+            pluginJson.putIfAbsent(EComponentType.YARN.getConfName(),clusterConfigJson.getJSONObject(EComponentType.YARN.getConfName()));
         }
     }
 
@@ -605,7 +602,6 @@ public class ClusterService implements InitializingBean {
     public JSONObject convertPluginInfo(JSONObject clusterConfigJson, EngineTypeComponentType type, ClusterVO clusterVO,Integer deployMode) {
         JSONObject pluginInfo = new JSONObject();
         if (EComponentType.HDFS == type.getComponentType()) {
-            pluginInfo = new JSONObject();
             //hdfs yarn%s-hdfs%s-hadoop%s的版本
             JSONObject hadoopConf = clusterConfigJson.getJSONObject(EComponentType.HDFS.getConfName());
             String typeName = hadoopConf.getString(TYPE_NAME);
