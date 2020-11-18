@@ -48,7 +48,7 @@ class EditCluster extends React.Component<any, any> {
         componentConfig: {}, // 各组件配置信息
         cloneComponentConfig: {}, // 备份各组件配置信息
         testStatus: {},
-        saveCompsData:[],
+        saveCompsData: [],
         tabCompData: [
             {
                 schedulingCode: TABS_TITLE_KEY.COMMON,
