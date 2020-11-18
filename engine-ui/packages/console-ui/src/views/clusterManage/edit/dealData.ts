@@ -242,7 +242,8 @@ function handleCompsData (data: any) {
                 kerFileName: comps.kerberosFileName || '',
                 id: comps.id || '',
                 hadoopVersion: comps.hadoopVersion,
-                params: getLoadTemplateParams(JSON.parse(comps.componentTemplate))
+                params: getLoadTemplateParams(JSON.parse(comps.componentTemplate)),
+                storeType: comps.storeType || ''
             }
         })
     })
