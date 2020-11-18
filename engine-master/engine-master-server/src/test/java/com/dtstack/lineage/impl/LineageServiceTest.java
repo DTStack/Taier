@@ -13,10 +13,6 @@ import com.dtstack.schedule.common.enums.AppType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 
@@ -24,7 +20,6 @@ import javax.jdo.annotations.Transactional;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author chener
@@ -109,7 +104,7 @@ public class LineageServiceTest extends AbstractTest {
 
     @Test
     public void testQueryColumnInoutLineage() {
-        List<LineageColumnColumnVO> queryColumnInoutLineage = lineageService.queryColumnInoutLineage(null);
+        List<LineageColumnColumnVO> queryColumnInoutLineage = lineageService.queryColumnInputLineage(null);
         //TODO
     }
 

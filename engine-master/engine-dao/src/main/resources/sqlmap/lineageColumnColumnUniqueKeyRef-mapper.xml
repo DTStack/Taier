@@ -7,17 +7,20 @@
     </sql>
 
     <insert id="batchInsert" parameterType="com.dtstack.engine.api.domain.LineageColumnColumnUniqueKeyRef" useGeneratedKeys="true" keyProperty="id">
-        insert into lineage_column_column_app_ref(app_type,unique_key,lineage_column_column_id)
+        insert into lineage_column_column_unique_key_ref(app_type,unique_key,lineage_column_column_id)
         values
-         (#{appType},#{uniqueKey},#{lineageColumnColumnId})
+        <foreach collection="list" item="item" open="" close="" separator=",">
+            (#{item.appType},#{item.uniqueKey},#{item.lineageColumnColumnId})
+        </foreach>
+        on duplicate key update gmt_modified=values(gmt_modified),is_deleted = values(is_deleted)
     </insert>
 
     <update id="deleteByUniqueKey">
-        update lineage_column_column_app_ref set is_deleted = 1 where unique_key = #{uniqueKey}
+        update lineage_column_column_unique_key_ref set is_deleted = 1 where unique_key = #{uniqueKey}
     </update>
 
     <update id="deleteByLineageIdAndUniqueKey">
-        update lineage_column_column_app_ref set is_deleted = 1 where lineage_column_column_id = #{columnLineageId} and unique_key = #{uniqueKey} and app_type = #{appType}
+        update lineage_column_column_unique_key_ref set is_deleted = 1 where lineage_column_column_id = #{columnLineageId} and unique_key = #{uniqueKey} and app_type = #{appType}
     </update>
 
 </mapper>

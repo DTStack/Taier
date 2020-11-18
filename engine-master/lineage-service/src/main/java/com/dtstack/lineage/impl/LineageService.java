@@ -84,7 +84,13 @@ public class LineageService {
         SqlParseInfo parseInfo = new SqlParseInfo();
         parseInfo.setOriginSql(sql);
         try {
-            ParseResult parseResult = sqlParser.parseSql(sql, defaultDb, new HashMap<>());
+            ParseResult parseResult = null;
+            try {
+                parseResult = sqlParser.parseSql(sql, defaultDb, new HashMap<>());
+            } catch (Exception e) {
+                logger.error("解析sql异常:{}",e);
+                throw new RdosDefineException("sql解析异常，请检查语法");
+            }
             parseInfo.setMainDb(parseResult.getCurrentDb());
             Table mainTable = parseResult.getMainTable();
             parseInfo.setMainTable(TableAdapter.sqlTable2ApiTable(mainTable));
@@ -117,7 +123,13 @@ public class LineageService {
         SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
         TableLineageParseInfo parseInfo = new TableLineageParseInfo();
         try {
-            ParseResult parseResult = sqlParser.parseTableLineage(sql, defaultDb);
+            ParseResult parseResult = null;
+            try {
+                parseResult = sqlParser.parseTableLineage(sql, defaultDb);
+            } catch (Exception e) {
+                logger.error("解析sql异常:{}",e);
+                throw new RdosDefineException("sql解析异常，请检查语法");
+            }
             parseInfo.setMainDb(parseResult.getCurrentDb());
             Table mainTable = parseResult.getMainTable();
             parseInfo.setMainTable(TableAdapter.sqlTable2ApiTable(mainTable));
@@ -174,9 +186,21 @@ public class LineageService {
         }
         SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
         try {
-            ParseResult parseResult = sqlParser.parseTableLineage(sql, defaultDb);
+            ParseResult parseResult = null;
+            try {
+                parseResult = sqlParser.parseTableLineage(sql, defaultDb);
+            } catch (Exception e) {
+                logger.error("解析sql异常:{}",e);
+                throw new RdosDefineException("sql解析异常，请检查语法");
+            }
             //3.根据表名和数dbName，schemaName查询表,sourceId。表不存在则需要插入表
-            List<Table> tables = sqlParser.parseTables(defaultDb, sql);
+            List<Table> tables = null;
+            try {
+                tables = sqlParser.parseTables(defaultDb, sql);
+            } catch (Exception e) {
+                logger.error("解析sql异常:{}",e);
+                throw new RdosDefineException("sql解析异常，请检查语法");
+            }
             Map<String, LineageDataSetInfo> tableRef = new HashMap<>();
             String tableKey = "%s.%s";
             for (int i = 0; i < tables.size(); i++) {
@@ -224,7 +248,13 @@ public class LineageService {
                 List<Column> value = entry.getValue();
                 sqlColumnMap.put(key, value.stream().map(ColumnAdapter::apiColumn2SqlColumn).collect(Collectors.toList()));
             }
-            ParseResult parseResult = sqlParser.parseSql(sql, defaultDb, sqlColumnMap);
+            ParseResult parseResult = null;
+            try {
+                parseResult = sqlParser.parseSql(sql, defaultDb, sqlColumnMap);
+            } catch (Exception e) {
+                logger.error("解析sql异常:{}",e);
+                throw new RdosDefineException("sql解析异常，请检查语法");
+            }
             parseInfo.setMainDb(parseResult.getCurrentDb());
             Table mainTable = parseResult.getMainTable();
             parseInfo.setMainTable(TableAdapter.sqlTable2ApiTable(mainTable));
@@ -276,15 +306,27 @@ public class LineageService {
         }
         SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
         try {
-            List<Table> resTables = sqlParser.parseTables(parseColumnLineageParam.getSql(), parseColumnLineageParam.getDefaultDb());
+            List<Table> resTables = null;
+            try {
+                resTables = sqlParser.parseTables(parseColumnLineageParam.getDefaultDb(),parseColumnLineageParam.getSql());
+            } catch (Exception e) {
+                logger.error("解析sql异常:{}",e);
+                throw new RdosDefineException("sql解析异常，请检查语法");
+            }
             Set<com.dtstack.engine.api.pojo.lineage.Table> tables = resTables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toSet());
             //TODO 获取表字段信息
             Map<String, List<Column>> tableColumnMap = lineageDataSetInfoService.getColumnsBySourceIdAndListTable(lineageDataSource.getId(), Lists.newArrayList(tables));
             Map<String, List<com.dtstack.engine.sql.Column>> sqlTableColumnMap = new HashMap<>();
             for (Map.Entry<String,List<Column>> entry:tableColumnMap.entrySet()){
-                sqlTableColumnMap.put(entry.getKey(),entry.getValue().stream().map(ColumnAdapter::apiColumn2SqlColumn).collect(Collectors.toList()));
+                sqlTableColumnMap.put(parseColumnLineageParam.getDefaultDb()+"."+entry.getKey(),entry.getValue().stream().map(ColumnAdapter::apiColumn2SqlColumn).collect(Collectors.toList()));
             }
-            ParseResult parseResult = sqlParser.parseSql(parseColumnLineageParam.getSql(), parseColumnLineageParam.getDefaultDb(), sqlTableColumnMap);
+            ParseResult parseResult = null;
+            try {
+                parseResult = sqlParser.parseSql(parseColumnLineageParam.getSql(), parseColumnLineageParam.getDefaultDb(), sqlTableColumnMap);
+            } catch (Exception e) {
+                logger.error("解析sql异常:{}",e);
+                throw new RdosDefineException("sql解析异常，请检查语法");
+            }
             //3.根据表名和数dbName，schemaName查询表,sourceId。表不存在则需要插入表
             Map<String, LineageDataSetInfo> tableRef = new HashMap<>();
             String tableKey = "%s.%s";
@@ -523,7 +565,7 @@ public class LineageService {
      *
      * @return
      */
-    public List<LineageColumnColumnVO> queryColumnInoutLineage(QueryColumnLineageParam queryColumnLineageParam) {
+    public List<LineageColumnColumnVO> queryColumnInputLineage(QueryColumnLineageParam queryColumnLineageParam) {
         Long dtUicTenantId = queryColumnLineageParam.getDtUicTenantId();
         Integer appType = queryColumnLineageParam.getAppType();
         Long engineSourceId = queryColumnLineageParam.getEngineSourceId();
@@ -534,8 +576,7 @@ public class LineageService {
         String columnName = queryColumnLineageParam.getColumnName();
         LineageDataSource lineageDataSource = null;
         if (Objects.isNull(engineSourceId)) {
-            //TODO 查询血缘时，engineSourceId不允许为空
-            throw new RdosDefineException("数据源不存在");
+            lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), null, queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType());
         } else {
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
         }
@@ -580,8 +621,7 @@ public class LineageService {
         String columnName = queryColumnLineageParam.getColumnName();
         LineageDataSource lineageDataSource = null;
         if (Objects.isNull(engineSourceId)) {
-            //FIXME 查询血缘时，engineSourceId暂时不允许为空
-            throw new RdosDefineException("数据源不存在");
+            lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), null, queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType());
         } else {
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
         }
@@ -626,8 +666,7 @@ public class LineageService {
         String columnName = queryColumnLineageParam.getColumnName();
         LineageDataSource lineageDataSource = null;
         if (Objects.isNull(engineSourceId)) {
-            //FIXME 查询血缘时，engineSourceId暂时不允许为空
-            throw new RdosDefineException("数据源不能为空");
+            lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), null, queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType());
         } else {
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
         }

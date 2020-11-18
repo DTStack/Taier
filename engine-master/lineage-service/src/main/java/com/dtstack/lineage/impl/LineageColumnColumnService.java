@@ -52,6 +52,8 @@ public class LineageColumnColumnService {
             columnColumn.setColumnLineageKey(generateColumnColumnKey(columnColumn));
         }
         lineageColumnColumnDao.batchInsertColumnColumn(columnColumns);
+        Set<String> columnLineageKeys = columnColumns.stream().map(LineageColumnColumn::getColumnLineageKey).collect(Collectors.toSet());
+        columnColumns = queryByColumnLineageKeys(columnColumns.get(0).getAppType(),columnLineageKeys);
         //2.删除uniqueKey对应批次的ref，插入新的ref
         lineageColumnColumnUniqueKeyRefDao.deleteByUniqueKey(uniqueKey);
         List<LineageColumnColumnUniqueKeyRef> refList = columnColumns.stream().map(cc -> {
@@ -64,9 +66,14 @@ public class LineageColumnColumnService {
         lineageColumnColumnUniqueKeyRefDao.batchInsert(refList);
     }
 
+    private List<LineageColumnColumn> queryByColumnLineageKeys(Integer appType, Set<String> columnLineageKeys) {
+        return lineageColumnColumnDao.queryByLineageKeys(appType,columnLineageKeys);
+    }
+
     public List<LineageColumnColumn> queryColumnInputLineageByAppType(Integer appType,Long tableId,String columnName) {
         List<LineageColumnColumn> res = Lists.newArrayList();
         List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnDao.queryColumnResultList(appType, tableId, columnName);
+        res.addAll(lineageColumnColumns);
         if (CollectionUtils.isNotEmpty(lineageColumnColumns)){
             for (LineageColumnColumn columnColumn:lineageColumnColumns){
                 //TODO 未处理死循环
@@ -81,6 +88,7 @@ public class LineageColumnColumnService {
         List<LineageColumnColumn> res = Lists.newArrayList();
         //查询时，如果血缘没有关联ref，则不能被查出
         List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnDao.queryColumnInputList(appType, tableId, columnName);
+        res.addAll(lineageColumnColumns);
         if (CollectionUtils.isNotEmpty(lineageColumnColumns)){
             for (LineageColumnColumn columnColumn:lineageColumnColumns){
                 //TODO 未处理死循环

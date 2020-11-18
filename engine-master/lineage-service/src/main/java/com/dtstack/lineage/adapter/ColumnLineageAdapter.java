@@ -3,6 +3,7 @@ package com.dtstack.lineage.adapter;
 import com.dtstack.engine.api.domain.LineageColumnColumn;
 import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageDataSource;
+import com.dtstack.engine.api.enums.LineageOriginType;
 import com.dtstack.engine.api.pojo.lineage.ColumnLineage;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
 import com.dtstack.engine.api.vo.lineage.LineageTableVO;
@@ -32,6 +33,13 @@ public class ColumnLineageAdapter {
         return apiColumnLineage;
     }
 
+    /**
+     * 只能用于将sql解析的字段血缘转化为数据库存储字段血缘。因为其中添加了lineageSource指定为血缘解析
+     * @param sqlColumnLineage
+     * @param appType
+     * @param tableMap
+     * @return
+     */
     public static LineageColumnColumn sqlColumnLineage2ColumnColumn(com.dtstack.engine.sql.ColumnLineage sqlColumnLineage, Integer appType, Map<String, LineageDataSetInfo> tableMap) {
         String keyPref = "%s.%s";
         LineageColumnColumn lineageColumnColumn = new LineageColumnColumn();
@@ -39,12 +47,13 @@ public class ColumnLineageAdapter {
         LineageDataSetInfo resultTable = tableMap.get(String.format(keyPref, sqlColumnLineage.getToDb(), sqlColumnLineage.getToTable()));
         lineageColumnColumn.setAppType(appType);
         lineageColumnColumn.setInputTableId(inputTable.getId());
-        lineageColumnColumn.setInputColumnName(lineageColumnColumn.getInputColumnName());
+        lineageColumnColumn.setInputColumnName(sqlColumnLineage.getFromColumn());
         lineageColumnColumn.setInputTableKey(inputTable.getTableKey());
         lineageColumnColumn.setResultTableId(resultTable.getId());
-        lineageColumnColumn.setResultColumnName(lineageColumnColumn.getResultColumnName());
-        lineageColumnColumn.setResultTableKey(lineageColumnColumn.getResultTableKey());
+        lineageColumnColumn.setResultColumnName(sqlColumnLineage.getToColumn());
+        lineageColumnColumn.setResultTableKey(inputTable.getTableKey());
         lineageColumnColumn.setDtUicTenantId(inputTable.getDtUicTenantId());
+        lineageColumnColumn.setLineageSource(LineageOriginType.SQL_PARSE.getType());
         return lineageColumnColumn;
     }
 

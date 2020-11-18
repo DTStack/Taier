@@ -9,6 +9,7 @@ import com.dtstack.engine.sql.TableOperateEnum;
 import com.dtstack.engine.sql.node.AlterNode;
 import com.dtstack.engine.sql.node.Identifier;
 import com.dtstack.engine.sql.node.Node;
+import org.antlr.runtime.CommonToken;
 import org.apache.commons.math3.util.Pair;
 import org.apache.hadoop.hive.ql.parse.ASTNode;
 import org.apache.hadoop.hive.ql.parse.HiveParser;
@@ -43,7 +44,11 @@ public class AlterNodeParser extends NodeParser {
                 //第四个子节点是after属性
                 if (columName.size()>3) {
                     ASTNode afterNode = (ASTNode) columName.get(3);
-                    alterColumnResult.setAfterColumn(afterNode.getChild(0).getText());
+                    if (afterNode.getToken() instanceof CommonToken){
+                        alterColumnResult.setNewComment(afterNode.getText());
+                    }else if (afterNode.getType() == HiveParser.TOK_ALTERTABLE_CHANGECOL_AFTER_POSITION){
+                        alterColumnResult.setAfterColumn(afterNode.getChild(0).getText());
+                    }
                 }
                 alterNode.setAlterType(TableOperateEnum.ALTERTABLE_RENAMECOL);
                 alterNode.setAlterColumnMap(alterColumnResult);

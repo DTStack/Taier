@@ -1,0 +1,1 @@
+alter table gz202021112 change COLUMN id id string COMMENT 'test1'

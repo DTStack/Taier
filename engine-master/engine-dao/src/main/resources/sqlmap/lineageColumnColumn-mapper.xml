@@ -6,39 +6,38 @@
       id,dt_uic_tenant_id,app_type,input_table_id,input_table_key,input_column_name,result_table_id,result_table_key,result_column_name,column_lineage_key,lineage_source,gmt_create,gmt_modified,is_deleted
     </sql>
 
-    <sql id="select_where_fragment">
-        <trim prefix="WHERE" prefixOverrides="AND |OR ">
-            <if test="model.appType != null and model.appType > 0">
-                AND app_type = #{model.appType}
-            </if>
-            <if test="model.inputTableId != null">
-                AND input_table_id like '%${model.inputTableId}%'
-            </if>
-            <if test="model.isDeleted != null">
-                AND is_deleted = #{model.isDeleted}
-            </if>
-        </trim>
-    </sql>
-
     <insert id="batchInsertColumnColumn" parameterType="com.dtstack.engine.api.domain.LineageColumnColumn"
             useGeneratedKeys="true" keyProperty="id">
-        insert into lineage_table_table(tenant_id,app_type,input_table_id,input_column_name,result_table_id,result_column_name,column_lineage_key,is_manual)
+        insert into lineage_column_column(app_type,dt_uic_tenant_id,input_table_id,input_table_key,input_column_name,result_table_id,result_table_key,result_column_name,column_lineage_key,lineage_source)
         values
         <foreach collection="list" item="item" open="" close="" separator=",">
-            (#{tenantId},#{appType},#{inputTableId},#{inputColumnName},#{resultTableId},#{resultColumnName},#{columnLineageKey},#{isManual})
+            (#{item.appType},#{item.dtUicTenantId},#{item.inputTableId},#{item.inputTableKey},#{item.inputColumnName},#{item.resultTableId},#{item.resultTableKey},#{item.resultColumnName},#{item.columnLineageKey},#{item.lineageSource})
         </foreach>
         on duplicate key update gmt_modified=values(gmt_modified)
     </insert>
 
     <select id="queryColumnInputList" resultType="com.dtstack.engine.api.domain.LineageColumnColumn">
-        select <include refid="select_content_fragment"/> where input_table_id = #{tableId} and input_column_name = #{columnName} and app_type = #{appType}
+        select cc.* from lineage_column_column cc join lineage_column_column_unique_key_ref ref on cc.id = ref.lineage_column_column_id
+        where cc.input_table_id = #{tableId} and cc.input_column_name = #{columnName} and ref.app_type = #{appType} and ref.is_deleted = 0
     </select>
     <select id="queryColumnResultList" resultType="com.dtstack.engine.api.domain.LineageColumnColumn">
-        select <include refid="select_content_fragment"/> where result_table_id = #{tableId} and result_column_name = #{columnName} and app_type = #{appType}
+        select cc.* from lineage_column_column cc join lineage_column_column_unique_key_ref ref on cc.id = ref.lineage_column_column_id
+        where cc.result_table_id = #{tableId} and cc.result_column_name = #{columnName} and ref.app_type = #{appType} and ref.is_deleted = 0
     </select>
 
     <select id="queryByLineageKey" resultType="com.dtstack.engine.api.domain.LineageColumnColumn">
+        select <include refid="select_content_fragment"/> from lineage_column_column where column_lineage_key = #{lineageKey} and app_type = #{appType}
+    </select>
 
+    <select id="queryByLineageKeys" resultType="com.dtstack.engine.api.domain.LineageColumnColumn">
+        select <include refid="select_content_fragment"/> from lineage_column_column
+        <where>
+            app_type = #{appType}
+            and column_lineage_key in
+            <foreach collection="keys" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </where>
     </select>
 
 </mapper>
