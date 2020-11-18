@@ -99,6 +99,7 @@ class EditCluster extends React.Component<any, any> {
                     cloneComponentConfig: dealData.handleCompsData(res),
                     clusterId: res.clusterId
                 })
+                this.getSaveComponentList(res?.data?.clusterName)
             }
         })
     }
