@@ -463,6 +463,7 @@
         <include refid="select_content_fragment"/>
         from schedule_job bj
         where task_id = #{taskId}
+        AND app_type = #{appType} AND type = #{type}
         <choose>
             <when test="isAfter">
                 AND cyc_time > #{cycTime}

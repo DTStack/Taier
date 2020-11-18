@@ -63,7 +63,7 @@ public interface ScheduleJobDao {
 
     List<ScheduleJob> generalQueryWithMinAndHour(PageQuery<ScheduleJobDTO> pageQuery);
 
-    List<ScheduleJob> listAfterOrBeforeJobs(@Param("taskId") Long taskId, @Param("isAfter") boolean isAfter, @Param("cycTime") String cycTime);
+    List<ScheduleJob> listAfterOrBeforeJobs(@Param("taskId") Long taskId, @Param("isAfter") boolean isAfter, @Param("cycTime") String cycTime,@Param("appType") Integer appType,@Param("type") Integer type);
 
     Integer generalCount(@Param("model") ScheduleJobDTO object);
 

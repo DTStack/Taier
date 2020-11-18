@@ -534,7 +534,8 @@ public class ScheduleJobService {
         if (job == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listAfterOrBeforeJobs(job.getTaskId(), isAfter, job.getCycTime());
+        //需要根据查询的job的类型来
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listAfterOrBeforeJobs(job.getTaskId(), isAfter, job.getCycTime(),job.getAppType(),job.getType());
         Collections.sort(scheduleJobs, new Comparator<ScheduleJob>() {
 
             public int compare(ScheduleJob o1, ScheduleJob o2) {
