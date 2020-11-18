@@ -30,10 +30,13 @@ import java.util.regex.Pattern;
  */
 public class JdbcUrlUtil {
 
-    public static Pattern JDBC_PATTERN = Pattern.compile("(?i)jdbc:[a-zA-Z0-9\\.]+://(?<host>[0-9a-zA-Z\\-\\.]+):(?<port>\\d+)/(?<db>[0-9a-z_%]+)(?<param>[\\?;#].*)*");
+    public static Pattern JDBC_PATTERN = Pattern.compile("(?i)jdbc(:[a-zA-Z0-9\\.]+){1,2}:(//|@)(?<host>[\\d{1,3}(\\.\\d{1,3}){3}]+):(?<port>\\d{1,5}+)((;DatabaseName=(?<db1>[a-z0-9]+))|((\\/|:)(?<db2>[a-z0-9]+))|$)");
+
     public static final String HOST_KEY = "host";
     public static final String PORT_KEY = "port";
-    public static final String DB_KEY = "db";
+    public static final String DB_KEY1 = "db1";
+    public static final String DB_KEY2 = "db2";
+
     public static final String PARAM_KEY = "param";
 
     /**
@@ -51,7 +54,12 @@ public class JdbcUrlUtil {
         if (matcher.find()){
             urlInfo.setHost(matcher.group(HOST_KEY));
             urlInfo.setPort(Integer.valueOf(matcher.group(PORT_KEY)));
-            urlInfo.setDb(matcher.group(DB_KEY));
+            if(matcher.group(DB_KEY1)!=null ){
+                urlInfo.setDb(matcher.group(DB_KEY1));
+            }
+            if(matcher.group(DB_KEY2)!=null) {
+                urlInfo.setDb(matcher.group(DB_KEY2));
+            }
         }
 
         return urlInfo;
