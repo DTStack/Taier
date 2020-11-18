@@ -276,7 +276,7 @@ class DisplayResource extends React.Component<any, any> {
     renderStorageComponents = (configName: string) => {
         const { getFieldDecorator, isView, components } = this.props;
         const componentTypeCode = components.componentTypeCode;
-        const { saveCompsData=[] } = this.props
+        const { saveCompsData = [] } = this.props
         if (saveCompsData.length === 0) return
         let storeTypeFlag = false
         for (const item in saveCompsData) {
@@ -285,7 +285,7 @@ class DisplayResource extends React.Component<any, any> {
                 break;
             }
         }
-        
+
         let storeType = components?.storeType || (storeTypeFlag ? COMPONENT_TYPE_VALUE.HDFS : saveCompsData?.[0]?.key)
 
         return (
