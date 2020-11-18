@@ -1,0 +1,2 @@
+com.dtstack.engine.base.filesystem.factory.SftpFileManageFactory
+com.dtstack.engine.base.filesystem.factory.HdfsFileManageFactory

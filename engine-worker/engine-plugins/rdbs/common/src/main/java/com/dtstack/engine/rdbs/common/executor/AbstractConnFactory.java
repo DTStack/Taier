@@ -3,6 +3,7 @@ package com.dtstack.engine.rdbs.common.executor;
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;

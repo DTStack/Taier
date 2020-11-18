@@ -339,8 +339,12 @@ ActionService {
 
         String engineLog = "";
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
-        if (scheduleJob != null) {
-            engineLog = elasticsearchService.searchWithJobId("taskId", jobId);
+        if (scheduleJob != null && StringUtils.isNotEmpty(scheduleJob.getApplicationId())) {
+            String applicationId = "";
+            if (StringUtils.isNotEmpty(scheduleJob.getApplicationId())) {
+                applicationId = scheduleJob.getApplicationId();
+            }
+            engineLog = elasticsearchService.searchWithJobId("taskId.keyword", applicationId);
         }
         return engineLog;
     }

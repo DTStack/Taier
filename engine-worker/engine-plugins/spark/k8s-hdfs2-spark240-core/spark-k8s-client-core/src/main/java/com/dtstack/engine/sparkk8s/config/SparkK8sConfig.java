@@ -1,6 +1,7 @@
 package com.dtstack.engine.sparkk8s.config;
 
 
+import com.dtstack.engine.base.BaseConfig;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 
@@ -9,7 +10,7 @@ import java.util.Map;
 /**
  * Created by softfly on 17/8/10.
  */
-public class SparkK8sConfig {
+public class SparkK8sConfig extends BaseConfig {
 
     private static final String DEFAULT_SPARK_SQL_PROXY_MAINCLASS = "com.dtstack.sql.main.SqlProxy";
     // 镜像中的存储位置
@@ -29,8 +30,6 @@ public class SparkK8sConfig {
 
     /**如果不是使用默认的配置---需要设置配置文件所在的hdfs路径*/
     private String confHdfsPath;
-
-    private Map<String, String> sftpConf;
 
     private String hadoopUserName;
 
@@ -89,12 +88,12 @@ public class SparkK8sConfig {
     public String getSparkPythonExtLibPath() {
         if (Strings.isNullOrEmpty(sparkPythonExtLibPath)) {
             return DEFAULT_SPARK_PYTHON_EXTLIBPATH;
-        }
+    }
 
         if(!sparkPythonExtLibPath.startsWith(LOCAL_FLAG)){
             sparkPythonExtLibPath = sparkPythonExtLibPath.trim();
             sparkPythonExtLibPath = LOCAL_FLAG + sparkPythonExtLibPath;
-        }
+    }
 
         return sparkPythonExtLibPath;
     }
@@ -109,14 +108,6 @@ public class SparkK8sConfig {
 
     public void setJvmOptions(String jvmOptions) {
         this.jvmOptions = jvmOptions;
-    }
-
-    public Map<String, String> getSftpConf() {
-        return sftpConf;
-    }
-
-    public void setSftpConf(Map<String, String> sftpConf) {
-        this.sftpConf = sftpConf;
     }
 
     public String getSparkSqlProxyPath() {

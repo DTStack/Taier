@@ -7,6 +7,7 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.vo.console.*;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -21,6 +22,7 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;
@@ -172,7 +174,7 @@ public class ConsoleService {
             List<Map<String, Object>> finalResult = new ArrayList<>(groupResult.size());
             for (Map<String, Object> record : groupResult) {
                 String jobResource = MapUtils.getString(record, "jobResource");
-                if (StringUtils.isBlank(clusterName) || !jobResource.contains(clusterName)) {
+                if(!isBelongCluster(clusterName,jobResource)){
                     continue;
                 }
                 long generateTime = MapUtils.getLong(record, "generateTime");
@@ -216,6 +218,23 @@ public class ConsoleService {
         }
         return overview.values();
     }
+
+    private boolean isBelongCluster(String clusterName,String jobResource){
+        if(StringUtils.isBlank(clusterName)){
+            return false;
+        }
+        if(StringUtils.isBlank(jobResource)){
+            return false;
+        }
+        String[] split = jobResource.split(ConfigConstant.SPLIT);
+        if(split.length <= 1){
+            return false;
+        }
+        //第二位为集群名
+        String jobResourceClusterName = split[1];
+        return clusterName.equalsIgnoreCase(jobResourceClusterName);
+    }
+
 
     public PageResult groupDetail(String jobResource,
                                   String nodeAddress,
@@ -479,10 +498,10 @@ public class ConsoleService {
                 String clusterName = cluster.getClusterName();
                 if (Objects.isNull(hdfsComponent)) {
                     typeName = componentService.convertComponentTypeToClient(clusterName,
-                            EComponentType.HDFS.getTypeCode(), yarnComponent.getHadoopVersion());
+                            EComponentType.HDFS.getTypeCode(), yarnComponent.getHadoopVersion(),null);
                 } else {
                     typeName = componentService.convertComponentTypeToClient(clusterName,
-                            EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion());
+                            EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion(),hdfsComponent.getStoreType());
                 }
             }
             pluginInfo.put(ComponentService.TYPE_NAME,typeName);
