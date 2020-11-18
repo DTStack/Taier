@@ -838,7 +838,11 @@ public class ComponentService {
     }
 
     public ComponentsResultVO addOrCheckClusterWithName(String clusterName) {
-        if (StringUtils.isBlank(clusterName)) {
+        if (StringUtils.isNotBlank(clusterName)) {
+            if (clusterName.length() > 24) {
+                throw new RdosDefineException("名称过长");
+            }
+        } else {
             throw new RdosDefineException("集群名称不能为空");
         }
         clusterName = clusterName.trim();

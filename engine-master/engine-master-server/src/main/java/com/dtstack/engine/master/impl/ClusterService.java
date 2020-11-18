@@ -141,8 +141,6 @@ public class ClusterService implements InitializingBean {
     @Transactional(rollbackFor = Exception.class)
     public ClusterVO addCluster(ClusterDTO clusterDTO) {
         EngineAssert.assertTrue(StringUtils.isNotEmpty(clusterDTO.getClusterName()), ErrorCode.INVALID_PARAMETERS.getDescription());
-        checkName(clusterDTO.getClusterName());
-
         Cluster cluster = new Cluster();
         cluster.setClusterName(clusterDTO.getClusterName());
         cluster.setHadoopVersion("");
@@ -155,15 +153,6 @@ public class ClusterService implements InitializingBean {
         return getCluster(cluster.getId(),true,true);
     }
 
-    private void checkName(String name) {
-        if (StringUtils.isNotBlank(name)) {
-            if (name.length() > 24) {
-                throw new RdosDefineException("名称过长");
-            }
-        } else {
-            throw new RdosDefineException("名称不能为空");
-        }
-    }
 
 
 
@@ -197,8 +186,6 @@ public class ClusterService implements InitializingBean {
             JSONObject config = buildClusterConfig(cluster);
             return config.toJSONString();
         }
-
-        LOGGER.error("无法取得集群信息，默认集群信息没有配置！");
         return StringUtils.EMPTY;
     }
 

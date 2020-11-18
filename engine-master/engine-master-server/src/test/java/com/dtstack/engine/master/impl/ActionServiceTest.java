@@ -19,6 +19,7 @@ import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.utils.EngineUtil;
+import com.dtstack.engine.master.utils.Template;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
@@ -76,6 +77,42 @@ public class ActionServiceTest extends AbstractTest {
             ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(params, ParamActionExt.class);
             Boolean result = actionService.start(paramActionExt);
             Assert.assertTrue(result);
+        } catch (Exception e) {
+            fail("Have exception, message: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testStartError() {
+        try {
+            Map<String, Object> params = getParams(getJsonString(getRandomStr()));
+            ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(params, ParamActionExt.class);
+            paramActionExt.setComputeType(null);
+            Boolean result = actionService.start(paramActionExt);
+            Assert.assertFalse(result);
+            ScheduleJob scheduleJob = scheduleJobDao.getByJobId(paramActionExt.getTaskId(),null);
+            Assert.assertEquals(scheduleJob.getStatus(),RdosTaskStatus.SUBMITFAILD.getStatus());
+
+        } catch (Exception e) {
+            fail("Have exception, message: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testStartRepeat() {
+        try {
+            ScheduleJob scheduleJobTemplate = Template.getScheduleJobTemplate();
+            scheduleJobTemplate.setJobId("testRepeat");
+            scheduleJobTemplate.setStatus(RdosTaskStatus.UNSUBMIT.getStatus());
+            scheduleJobDao.insert(scheduleJobTemplate);
+            Map<String, Object> params = getParams(getJsonString(getRandomStr()));
+            ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(params, ParamActionExt.class);
+            paramActionExt.setTaskId(scheduleJobTemplate.getJobId());
+            Boolean result = actionService.start(paramActionExt);
+            Assert.assertTrue(result);
+            ScheduleJob scheduleJob = scheduleJobDao.getByJobId(paramActionExt.getTaskId(),null);
+            Assert.assertEquals(scheduleJob.getStatus(),RdosTaskStatus.ENGINEACCEPTED.getStatus());
+
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
         }

@@ -317,7 +317,8 @@ public class JobGraphBuilder {
         Timestamp timestamp = Timestamp.valueOf(triggerTimeStr);
         try {
             RetryUtil.executeWithRetry(() -> {
-                jobGraphTriggerService.addJobTrigger(timestamp);
+                jobGraphTriggerService.
+                        addJobTrigger(timestamp);
                 return null;
             }, environmentContext.getBuildJobErrorRetry(), 200, false);
         } catch (Exception e) {

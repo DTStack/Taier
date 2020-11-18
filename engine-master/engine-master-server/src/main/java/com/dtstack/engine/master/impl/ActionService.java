@@ -116,7 +116,7 @@ ActionService {
                 if (StringUtils.isNotBlank(taskId)) {
                     logger.error("Job taskId：" + taskId + " submit error ", e);
                     ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
-                    if (scheduleJob == null && Objects.nonNull(paramActionExt)) {
+                    if (scheduleJob == null) {
                         //新job 任务
                         scheduleJob = buildScheduleJob(paramActionExt);
                         scheduleJob.setStatus(RdosTaskStatus.SUBMITFAILD.getStatus());

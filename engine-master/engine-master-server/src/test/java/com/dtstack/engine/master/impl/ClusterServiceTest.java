@@ -17,7 +17,9 @@ import com.dtstack.engine.master.enums.EComponentScheduleType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
+import com.dtstack.schedule.common.enums.AppType;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +34,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -113,14 +116,24 @@ public class ClusterServiceTest extends AbstractTest {
 
     }
 
-    public void testCreateCluster() {
-        componentService.addOrCheckClusterWithName(testClusterName);
+    public void testCreateCluster(String clusterName) {
+        componentService.addOrCheckClusterWithName(clusterName);
     }
 
     public ClusterVO testGetClusterByName() {
         ClusterVO dbCluster = clusterService.getClusterByName(testClusterName);
         Assert.assertNotNull(dbCluster);
         return dbCluster;
+    }
+
+
+    @Test
+    public void testCreateEmpty(){
+        try {
+            testCreateCluster("");
+            testCreateCluster("123456789101234567891012345");
+        } catch (Exception e) {
+        }
     }
 
     /**
@@ -144,11 +157,9 @@ public class ClusterServiceTest extends AbstractTest {
      * @see EngineService#listClusterEngines(java.lang.Long, boolean)
      */
     @Test
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    @Rollback
     public void testGetCluster() throws Exception{
         //创建集群
-        testCreateCluster();
+        testCreateCluster(testClusterName);
         ClusterVO clusterVO = testGetClusterByName();
         Assert.assertNotNull(clusterVO.getClusterId());
         //添加组件 添加引擎
@@ -185,6 +196,8 @@ public class ClusterServiceTest extends AbstractTest {
         tenantService.bindingTenant(tenant.getDtUicTenantId(),clusterVO.getClusterId(),queue.getId(),"","");
         //切换队列
         this.testUpdateQueue(engineId, tenant);
+
+        this.checkQueryWithUicTenantId(tenant.getDtUicTenantId());
 
         //查询集群信息
         PageResult<List<EngineTenantVO>> engineTenants = tenantService.pageQuery(clusterVO.getClusterId(), MultiEngineType.HADOOP.getType(), tenant.getTenantName(), 10, 1);
@@ -240,6 +253,18 @@ public class ClusterServiceTest extends AbstractTest {
                 throw e;
             }
         }
+    }
+
+    private void checkQueryWithUicTenantId(Long dtUicTenantId) {
+        String clusterInfo = clusterService.clusterInfo(dtUicTenantId);
+        Assert.assertNotEquals(clusterInfo, StringUtils.EMPTY);
+        ClusterVO clusterVO = clusterService.clusterExtInfo(dtUicTenantId);
+        Assert.assertNotNull(clusterVO);
+        JSONObject infoJSON = clusterService.pluginInfoJSON(dtUicTenantId, "hadoop", null, null);
+        Assert.assertNotNull(infoJSON);
+        String sftpDir = clusterService.clusterSftpDir(dtUicTenantId, EComponentType.HDFS.getTypeCode());
+        Assert.assertEquals(sftpDir,"/data/sftp/" + AppType.CONSOLE + "_" + clusterVO.getClusterName() + File.separator + EComponentType.getByCode(EComponentType.HDFS.getTypeCode()).name());
+
     }
 
     private void testUpdateQueue(Long engineId, Tenant tenant) {

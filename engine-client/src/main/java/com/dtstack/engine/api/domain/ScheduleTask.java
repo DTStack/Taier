@@ -128,10 +128,6 @@ public class ScheduleTask extends AppTenantEntity {
     @ApiModelProperty(notes = "所属工作流id")
     private Long flowId;
 
-
-    private Integer isExpire;
-
-
     public String getName() {
         return name;
     }
