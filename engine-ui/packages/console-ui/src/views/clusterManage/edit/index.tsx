@@ -192,7 +192,7 @@ class EditCluster extends React.Component<any, any> {
         const isChangeVersion = dealData.changeVersion(componentTypeCode, compVersion);
         const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {}
         const { loadTemplate = {} } = config;
-        const stateStoreType= length === 0 ? undefined : length === 1 ? saveCompsData[0]?.key : 4
+        const stateStoreType = length === 0 ? undefined : length === 1 ? saveCompsData[0]?.key : 4
         const version = dealData.getCompsVersion(Number(componentTypeCode), compVersion)
         if ((!isNeedLoadTemp && (Object.keys(loadTemplate).length === 0 || isChangeVersion || storeType))) {
             Api.getLoadTemplate({
