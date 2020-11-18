@@ -135,7 +135,6 @@ public class Template {
         lineageTableTable.setDtUicTenantId(1L);
         lineageTableTable.setAppType(AppType.RDOS.getType());
         lineageTableTable.setLineageSource(0);
-        lineageTableTable.setUniqueKey("11");
         lineageTableTable.setInputTableId(-2020L);
         lineageTableTable.setInputTableKey("-2020");
         lineageTableTable.setResultTableId(-2021L);

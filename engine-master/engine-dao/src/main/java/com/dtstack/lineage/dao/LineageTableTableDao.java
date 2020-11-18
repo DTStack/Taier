@@ -14,13 +14,13 @@ import java.util.List;
  */
 public interface LineageTableTableDao {
 
-    Integer batchInsertTableTable(List<LineageTableTable> lineageTableTable);
-
-    Integer deleteByUniqueKey(@Param("uniqueKey")String uniqueKey);
+    Integer batchInsertTableTable(@Param("list") List<LineageTableTable> lineageTableTable);
 
     List<LineageTableTable> queryTableInputList(@Param("appType")Integer appType,@Param("tableId")Long tableId);
 
     List<LineageTableTable> queryTableResultList(@Param("appType")Integer appType,@Param("tableId")Long tableId);
 
     LineageTableTable queryBTableLineageKey(@Param("appType")Integer appType,@Param("tableLineageKey")String tableLineageKey);
+
+    List<LineageTableTable> queryByTableLineageKeys(@Param("appType")Integer appType,@Param("list") List<String> keys);
 }
