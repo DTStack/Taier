@@ -1598,14 +1598,18 @@ public class ComponentService {
 
     public List<Component> getComponentStore(String clusterName, Integer componentType) {
         Cluster cluster = clusterDao.getByClusterName(clusterName);
-        if(null == cluster){
+        if (null == cluster) {
             throw new RdosDefineException("集群不存在");
         }
-        Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
-        Component nfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.NFS.getTypeCode());
         List<Component> components = new ArrayList<>();
-        components.add(hdfs);
-        components.add(nfs);
+        Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
+        if (null != hdfs) {
+            components.add(hdfs);
+        }
+        Component nfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.NFS.getTypeCode());
+        if (null != nfs) {
+            components.add(nfs);
+        }
         return components;
     }
 }
