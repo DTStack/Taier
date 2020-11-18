@@ -177,6 +177,7 @@ public class SessionClientFactory extends AbstractClientFactory {
     private void startYarnSessionClientMonitor() {
 
         String threadName = String.format("%s-%s-%s",sessionAppNameSuffix, "flink_yarn_monitor", FLINK_VERSION);
+        LOG.warn("ThreadName : [{}] start a yarn session client monitor [{}].", Thread.currentThread().getName(), threadName);
         yarnMonitorES = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory(threadName));
 
@@ -186,12 +187,14 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     public ClusterClient<ApplicationId> startAndGetSessionClusterClient() {
         boolean startRs = startFlinkYarnSession();
+        LOG.info("FlinkYarnSession launched {}.", startRs ? "succeeded" : "failed");
         if (startRs) {
             this.sessionHealthCheckedInfo.reset();
         } else {
             this.sessionHealthCheckedInfo.unHealth();
         }
         if (startMonitor.compareAndSet(false, true)) {
+
             this.startYarnSessionClientMonitor();
         }
         return clusterClient;
@@ -212,6 +215,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                 return true;
             }
 
+            LOG.info("Current role is [{}] and session start auto is {}", isLeader.get() ? "Leader" : "Follower", flinkConfig.getSessionStartAuto());
             if(isLeader.get()&& flinkConfig.getSessionStartAuto()){
                 try {
                     try (
