@@ -776,7 +776,7 @@ class EditCluster extends React.Component<any, any> {
                                                             key={`${comps.componentTypeCode}`}
                                                         >
                                                             <div className="c-editCluster__container__componentWrap">
-                                                                <div className="c-editCluster__container__componentWrap__resource" style={{ width: 200 }}>
+                                                                <div className="c-editCluster__container__componentWrap__resource" style={{ width: 210 }}>
                                                                     <DisplayResource
                                                                         {...this.state}
                                                                         isView={isView}
