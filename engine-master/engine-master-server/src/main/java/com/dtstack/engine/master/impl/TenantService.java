@@ -310,6 +310,7 @@ public class TenantService {
         if (childCount != 0) {
             throw new RdosDefineException("所选队列存在子队列，选择正确的子队列", ErrorCode.DATA_NOT_FIND);
         }
+
         LOGGER.info("switch queue, tenantId:{} queueId:{} engineId:{}",tenantId,queueId,engineId);
         int result = engineTenantDao.updateQueueId(tenantId, engineId, queueId);
         if(result == 0){
@@ -337,6 +338,7 @@ public class TenantService {
         try {
             //修改租户各个任务资源限制
             updateTenantTaskResource(tenantId,dtUicTenantId,taskTypeResourceJson);
+            LOGGER.info("switch queue, tenantId:{} queueId:{} queueName:{} engineId:{}",tenantId,queueId,queue.getQueueName(),queue.getEngineId());
             updateTenantQueue(tenantId, dtUicTenantId, queue.getEngineId(), queueId);
         } catch (Exception e) {
             e.printStackTrace();
