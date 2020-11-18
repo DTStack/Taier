@@ -144,6 +144,9 @@ class EditCluster extends React.Component<any, any> {
 
     handleCompsVersion = (compVersion: any, componentTypeCode: number) => {
         const { componentConfig } = this.state;
+        const { getFieldValue } = this.props?.form;
+        const { storeType } = getFieldValue(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])
+
         this.setState({
             componentConfig: {
                 ...componentConfig,
@@ -153,39 +156,48 @@ class EditCluster extends React.Component<any, any> {
                 }
             }
         })
-        this.getLoadTemplate(componentTypeCode, { compVersion });
+        this.getLoadTemplate(componentTypeCode, { storeType, compVersion });
     }
 
     handleCompsCompsData = (storeType: any, componentTypeCode: number) => {
         const { componentConfig } = this.state;
+        const { getFieldValue } = this.props.form;
+        const values = getFieldValue(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])
+        const { hadoopVersion: compVersion } = values
+
         this.setState({
             componentConfig: {
                 ...componentConfig,
                 [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
                     ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
-                    storeType
+                    storeType: storeType
                 }
             }
         })
-        this.getLoadTemplate(componentTypeCode, { storeType });
+        this.getLoadTemplate(componentTypeCode, { storeType, compVersion });
     }
 
     // 获取组件模板
-    getLoadTemplate = (key: any = '', { storeType, compVersion }: any = { storeType: undefined, compVersion: undefined }) => {
+    getLoadTemplate = async (key: any = '', { storeType, compVersion }: any = { storeType: undefined, compVersion: undefined }) => {
         const { compTypeKey, tabCompData, componentConfig, clusterName } = this.state;
         const component = tabCompData?.find((item: any) => item.schedulingCode === compTypeKey) || { components: [] };
         if (component.components.length === 0) return;
+        if (typeof storeType === 'undefined') {
+            await this.getSaveComponentList(clusterName)
+        }
+        const { saveCompsData } = this.state
+        const length = saveCompsData?.length
         let componentTypeCode = key === '' ? component.components[0].componentTypeCode : key;
         const isNeedLoadTemp = dealData.checkUplaodFileComps(componentTypeCode);
         const isChangeVersion = dealData.changeVersion(componentTypeCode, compVersion);
         const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {}
         const { loadTemplate = {} } = config;
         const version = dealData.getCompsVersion(Number(componentTypeCode), compVersion)
-        if ((storeType !== undefined && compVersion === undefined) || (!isNeedLoadTemp && (Object.keys(loadTemplate).length === 0 || isChangeVersion))) {
+        if ((!isNeedLoadTemp && (Object.keys(loadTemplate).length === 0 || isChangeVersion || storeType))) {
             Api.getLoadTemplate({
                 clusterName,
-                version,
-                storeType,
+                version: compVersion || version,
+                storeType: storeType || config.storeType || (length === 0 ? undefined : length === 1 ? 4 : 17),
                 componentType: componentTypeCode
             }).then((res: any) => {
                 if (res.code === 1) {
@@ -202,7 +214,6 @@ class EditCluster extends React.Component<any, any> {
                     })
                 }
             })
-            this.getSaveComponentList(clusterName)
         }
     }
     getSaveComponentList= async (clusterName) => {
@@ -216,9 +227,10 @@ class EditCluster extends React.Component<any, any> {
                 value: item?.componentName
             })
         })
-        this.setState({
+        await this.setState({
             saveCompsData
         })
+        return saveCompsData
     }
     // 组件配置选中的组件，选中组件的值
     selectDefaultValue = () => {
