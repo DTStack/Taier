@@ -48,6 +48,7 @@ class EditCluster extends React.Component<any, any> {
         componentConfig: {}, // 各组件配置信息
         cloneComponentConfig: {}, // 备份各组件配置信息
         testStatus: {},
+        saveCompsData:[],
         tabCompData: [
             {
                 schedulingCode: TABS_TITLE_KEY.COMMON,
@@ -201,9 +202,24 @@ class EditCluster extends React.Component<any, any> {
                     })
                 }
             })
+            this.getSaveComponentList(clusterName)
         }
     }
-
+    getSaveComponentList= async (clusterName) => {
+        const res = await Api.getComponentStore({ clusterName })
+        if (!res) return
+        const { data = [] } = res
+        let saveCompsData = []
+        data.forEach(item => {
+            saveCompsData.push({
+                key: item?.componentTypeCode,
+                value: item?.componentName
+            })
+        })
+        this.setState({
+            saveCompsData
+        })
+    }
     // 组件配置选中的组件，选中组件的值
     selectDefaultValue = () => {
         const { tabCompData, compTypeKey } = this.state;
@@ -696,7 +712,7 @@ class EditCluster extends React.Component<any, any> {
 
     render () {
         const { compTypeKey, popoverVisible, clusterName, modify, selectValue,
-            deleteComps, defaultValue, componentConfig, testLoading } = this.state;
+            deleteComps, defaultValue, componentConfig, testLoading, saveCompsData } = this.state;
         const { location: { state: { cluster: { clusterName: realClusterName } } } } = this.props
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { mode } = this.props.location.state || {} as any;
@@ -781,6 +797,7 @@ class EditCluster extends React.Component<any, any> {
                                                                         {...this.state}
                                                                         isView={isView}
                                                                         components={comps}
+                                                                        saveCompsData={saveCompsData}
                                                                         getFieldValue={getFieldValue}
                                                                         getFieldDecorator={getFieldDecorator}
                                                                         downloadFile={this.downloadFile}
