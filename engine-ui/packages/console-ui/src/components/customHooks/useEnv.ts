@@ -23,7 +23,7 @@ function useEnv ({ clusterId, form, clusterList, visible }) {
         const greenPlumEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.GREEN_PLUM);
         const prestoEngine = currentEngineList.filter((item: any) => item.engineType == ENGINE_TYPE.PRESTO);
 
-        if (!visible) {
+        if (visible) {
             setEnv({
                 hasHadoop: hadoopEngine.length >= 1,
                 hasLibra: libraEngine.length >= 1,
