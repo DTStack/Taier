@@ -6,6 +6,7 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
@@ -119,7 +120,7 @@ public class JobStatusDealer implements Runnable {
             ctl.await();
 
         } catch (Throwable e) {
-            logger.error("jobResource:{} run error:{}", jobResource, e);
+            logger.error("jobResource:{} run error:", jobResource, e);
         }
     }
 
@@ -178,14 +179,17 @@ public class JobStatusDealer implements Runnable {
 
                 //数据的更新顺序，先更新job_cache，再更新engine_batch_job
                 if (RdosTaskStatus.getStoppedStatus().contains(status)) {
-                    jobCheckpointDealer.updateCheckpointImmediately(new JobCheckpointInfo(jobIdentifier, engineType), jobId, status);
+                    if (EngineType.isFlink(engineType)){
+                        jobCheckpointDealer.updateCheckpointImmediately(new JobCheckpointInfo(jobIdentifier, engineType), jobId, status);
+                    }
+
 
                     jobLogDelayDealer(jobId, jobIdentifier, engineType, engineJobCache.getComputeType(),scheduleJob.getType());
                     jobStatusFrequency.remove(jobId);
                     engineJobCacheDao.delete(jobId);
                 }
 
-                if (RdosTaskStatus.RUNNING.getStatus().equals(status)) {
+                if (RdosTaskStatus.RUNNING.getStatus().equals(status) && EngineType.isFlink(engineType)) {
                     jobCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineType);
                 }
 

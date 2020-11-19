@@ -253,8 +253,8 @@ public class HadoopClient extends AbstractClient {
         try {
             return KerberosUtils.login(config, () -> resourceInfo.judgeSlots(jobClient), conf);
         } catch (Exception e) {
-            LOG.error("JudgeSlots error:", e);
-            return JudgeResult.notOk("judgeSlots error");
+            LOG.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -412,7 +412,9 @@ public class HadoopClient extends AbstractClient {
                 //测试hdfs联通性
                 return this.checkHdfsConnect(allConfig);
             }
-            return KerberosUtils.login(allConfig, () -> testYarnConnect(testResult, allConfig),conf);
+            return KerberosUtils.login(allConfig,
+                    () -> testYarnConnect(testResult, allConfig),
+                    KerberosUtils.convertMapConfToConfiguration(allConfig.getYarnConf()));
 
         } catch (Exception e) {
             LOG.error("test yarn connect error", e);

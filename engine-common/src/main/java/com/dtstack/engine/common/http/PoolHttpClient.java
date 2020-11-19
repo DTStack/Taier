@@ -125,7 +125,7 @@ public class PoolHttpClient {
 				logger.warn("request url:{} fail:{}", url, response.getStatusLine().getStatusCode());
 			}
 		} catch (Exception e) {
-			logger.error("url:{}--->http request error:{}", url, ExceptionUtil.getErrorMessage(e));
+			logger.error("url:{}--->http request error:", url, e);
 		}finally{
 			if(response != null){
 				try {
@@ -179,7 +179,7 @@ public class PoolHttpClient {
 				}
 			}
 		} catch (IOException e) {
-			logger.error("url:{}--->http request error:{}", url, ExceptionUtil.getErrorMessage(e));
+			logger.error("url:{}--->http request error:", url, e);
 			throw e;
 		} finally{
 			if(response!=null){

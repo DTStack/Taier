@@ -404,7 +404,6 @@ public class FlinkClientTest {
 		YarnClusterDescriptor yarnClusterDescriptor = YarnMockUtil.mockYarnClusterDescriptor(clusterClient);
 
 		PerJobClientFactory perJobClientFactory = PowerMockito.mock(PerJobClientFactory.class);
-		when(flinkClusterClientManager.getClientFactory()).thenReturn(perJobClientFactory);
 		when(perJobClientFactory.createPerJobClusterDescriptor(any(JobClient.class)))
 				.thenReturn(yarnClusterDescriptor);
 		PowerMockito.mockStatic(PerJobClientFactory.class);

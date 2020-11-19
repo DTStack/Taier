@@ -27,6 +27,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -84,6 +85,8 @@ public class SparkYarnClient extends AbstractClient {
     private static final String PYTHON_RUNNER_DEPENDENCY_RES_KEY = "extRefResource";
 
     private static final String CLUSTER_INFO_WS_FORMAT = "%s/ws/v1/cluster";
+
+    private static final String USER_DIR = System.getProperty("user.dir");
 
     /**如果请求 CLUSTER_INFO_WS_FORMAT 返回信息包含该特征则表示是alive*/
     private static final String ALIVE_WEB_FLAG = "clusterInfo";
@@ -208,7 +211,7 @@ public class SparkYarnClient extends AbstractClient {
         }
 
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
-        SparkConf sparkConf = buildBasicSparkConf();
+        SparkConf sparkConf = buildBasicSparkConf(jobClient);
         sparkConf.setAppName(appName);
         setSparkLog4jLocalFilePath(sparkConf, jobClient);
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
@@ -293,7 +296,7 @@ public class SparkYarnClient extends AbstractClient {
             pythonExtPath = pythonExtPath + "," + dependencyResource;
         }
 
-        SparkConf sparkConf = buildBasicSparkConf();
+        SparkConf sparkConf = buildBasicSparkConf(jobClient);
         sparkConf.set("spark.submit.pyFiles", pythonExtPath);
         sparkConf.setAppName(appName);
         setSparkLog4jLocalFilePath(sparkConf, jobClient);
@@ -369,7 +372,7 @@ public class SparkYarnClient extends AbstractClient {
         argList.add(sqlExeJson);
 
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
-        SparkConf sparkConf = buildBasicSparkConf();
+        SparkConf sparkConf = buildBasicSparkConf(jobClient);
         sparkConf.setAppName(jobClient.getJobName());
         setSparkLog4jLocalFilePath(sparkConf, jobClient);
         fillExtSparkConf(sparkConf, confProp);
@@ -424,7 +427,7 @@ public class SparkYarnClient extends AbstractClient {
         }
     }
 
-    private SparkConf buildBasicSparkConf(){
+    private SparkConf buildBasicSparkConf(JobClient jobClient){
 
         SparkConf sparkConf = new SparkConf();
         sparkConf.remove("spark.jars");
@@ -433,8 +436,10 @@ public class SparkYarnClient extends AbstractClient {
         sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
         sparkConf.set("security", "false");
 
+        String taskId = jobClient.getTaskId();
         if (sparkYarnConfig.isOpenKerberos()){
-            String keytab = KerberosUtils.getKeytabPath(sparkYarnConfig);
+            String[] kerberosFiles = KerberosUtils.getKerberosFile(sparkYarnConfig, null);
+            String keytab = kerberosFiles[0];
             String principal = KerberosUtils.getPrincipal(keytab);
             sparkConf.set("spark.yarn.keytab", keytab);
             sparkConf.set("spark.yarn.principal", principal);
@@ -704,8 +709,8 @@ public class SparkYarnClient extends AbstractClient {
                     return resourceInfo.judgeSlots(jobClient);
             }, yarnConf);
         } catch (Exception e) {
-            logger.error("judgeSlots error", e);
-            return JudgeResult.notOk("judgeSlots error");
+            logger.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -761,8 +766,13 @@ public class SparkYarnClient extends AbstractClient {
                     }
                 }
             } else {
-                //判断下是否可用
-                yarnClient.getAllQueues();
+                //异步超时判断下是否可用，kerberos 开启下会出现hang死情况
+                RetryUtil.asyncExecuteWithRetry(() -> yarnClient.getAllQueues(),
+                        1,
+                        0,
+                        false,
+                        30000L,
+                        threadPoolExecutor);
             }
         } catch (Throwable e) {
             logger.error("buildYarnClient![backup]", e);
