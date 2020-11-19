@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
@@ -64,6 +65,8 @@ public class DtScriptClient extends AbstractClient {
 
         conf.set("fs.hdfs.impl.disable.cache", "true");
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
+        conf.setBoolean(CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_KEY, true);
+
         String propStr = PublicUtil.objToString(prop);
         configMap = PublicUtil.jsonStrToObject(propStr, BaseConfig.class);
         //其中有sftp 的配置 和hadoop yarn hdfs配置
@@ -272,8 +275,8 @@ public class DtScriptClient extends AbstractClient {
                 }
             }, conf);
         } catch (Exception e) {
-            LOG.error("", e);
-            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
+            LOG.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 

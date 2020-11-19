@@ -58,6 +58,7 @@ public class HiveConnFactory extends AbstractConnFactory {
             }
         }
     }
+
     @Override
     public Connection getConnByTaskParams(String taskParams, String jobName) throws ClassNotFoundException, SQLException, IOException {
         try {

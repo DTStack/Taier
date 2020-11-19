@@ -81,7 +81,7 @@ public class NodeRecoverService {
                 }
             }
         } catch (Exception e) {
-            logger.error("----broker:{} RecoverDealer error:{}", localAddress, e);
+            logger.error("----broker:{} RecoverDealer error:", localAddress, e);
         }
     }
 

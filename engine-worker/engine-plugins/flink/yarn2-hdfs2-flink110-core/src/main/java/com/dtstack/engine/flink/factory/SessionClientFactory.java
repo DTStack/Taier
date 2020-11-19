@@ -23,12 +23,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.flink.FlinkClientBuilder;
-import com.dtstack.engine.flink.FlinkClusterClientManager;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.entity.SessionCheckInterval;
@@ -41,7 +41,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.client.ClientUtils;
-import org.apache.flink.client.deployment.ClusterDeploymentException;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.*;
 import org.apache.flink.configuration.CheckpointingOptions;
@@ -157,6 +156,9 @@ public class SessionClientFactory extends AbstractClientFactory {
                     }
                 });
                 this.leaderLatch.start();
+
+                //这里需要sleep一下，避免leader还未选举完就走到下一步 默认5S
+                Thread.sleep(flinkConfig.getMonitorElectionWaitTime());
             }
         } catch (Exception e) {
             LOG.error("join leader election failed.", e);
@@ -176,6 +178,7 @@ public class SessionClientFactory extends AbstractClientFactory {
     private void startYarnSessionClientMonitor() {
 
         String threadName = String.format("%s-%s-%s",sessionAppNameSuffix, "flink_yarn_monitor", FLINK_VERSION);
+        LOG.warn("ThreadName : [{}] start a yarn session client monitor [{}].", Thread.currentThread().getName(), threadName);
         yarnMonitorES = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory(threadName));
 
@@ -185,12 +188,14 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     public ClusterClient<ApplicationId> startAndGetSessionClusterClient() {
         boolean startRs = startFlinkYarnSession();
+        LOG.info("FlinkYarnSession launched {}.", startRs ? "succeeded" : "failed");
         if (startRs) {
             this.sessionHealthCheckedInfo.reset();
         } else {
             this.sessionHealthCheckedInfo.unHealth();
         }
         if (startMonitor.compareAndSet(false, true)) {
+
             this.startYarnSessionClientMonitor();
         }
         return clusterClient;
@@ -211,6 +216,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                 return true;
             }
 
+            LOG.info("Current role is [{}] and session start auto is {}", isLeader.get() ? "Leader" : "Follower", flinkConfig.getSessionStartAuto());
             if(isLeader.get()&& flinkConfig.getSessionStartAuto()){
                 try {
                     try (
@@ -382,7 +388,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         String remoteDir = flinkConfig.getRemoteDir();
 
         // 任务提交keytab
-        String clusterKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
+        String clusterKeytabDirPath = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
         File clusterKeytabDir = new File(clusterKeytabDirPath);
         File[] clusterKeytabFiles = clusterKeytabDir.listFiles();
 

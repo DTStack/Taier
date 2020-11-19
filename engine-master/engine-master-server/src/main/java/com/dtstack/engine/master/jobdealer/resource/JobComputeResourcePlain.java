@@ -1,15 +1,18 @@
 package com.dtstack.engine.master.jobdealer.resource;
 
+import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.dao.ClusterDao;
+import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ClusterService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
+import static com.dtstack.engine.common.constrant.ConfigConstant.RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT;
+import static com.dtstack.engine.common.constrant.ConfigConstant.SPLIT;
 
 /**
  * company: www.dtstack.com
@@ -19,13 +22,17 @@ import java.util.Objects;
 @Component
 public class JobComputeResourcePlain {
 
-    public static final String SPLIT = "_";
-
     @Autowired
     private CommonResource commonResource;
 
     @Autowired
     private EnvironmentContext environmentContext;
+
+    @Autowired
+    private EngineTenantDao engineTenantDao;
+
+    @Autowired
+    private ClusterDao clusterDao;
 
     @Autowired
     private ClusterService clusterService;
@@ -46,23 +53,28 @@ public class JobComputeResourcePlain {
     }
 
 
-    private void buildJobClientGroupName(JobClient jobClient){
-
-        ClusterVO cluster = clusterService.getClusterByTenant(jobClient.getTenantId());
-        if(null == cluster){
+    private void buildJobClientGroupName(JobClient jobClient) {
+        Long clusterId = engineTenantDao.getClusterIdByTenantId(jobClient.getTenantId());
+        if(null == clusterId){
+            return;
+        }
+        Cluster cluster = clusterDao.getOne(clusterId);
+        if (null == cluster) {
             return;
         }
         String clusterName = cluster.getClusterName();
-        String groupName = String.format("%s_default", clusterName);
+        //%s_default
+        String groupName = clusterName + SPLIT + RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT;
 
         String namespace = clusterService.getNamespace(jobClient.getParamAction(),
                 jobClient.getTenantId(), jobClient.getEngineType(), jobClient.getComputeType());
-        Queue queue = clusterService.getQueue(jobClient.getTenantId(), cluster.getClusterId());
-
-        if (StringUtils.isNotEmpty(namespace)) {
-            groupName = String.format("%s_%s", clusterName, namespace);
-        } else if (null != queue) {
-            groupName = String.format("%s_%s", clusterName, queue.getQueueName());
+        if (StringUtils.isNotBlank(namespace)) {
+            groupName = clusterName + SPLIT + namespace;
+        } else {
+            Queue queue = clusterService.getQueue(jobClient.getTenantId(), clusterId);
+            if (null != queue) {
+                groupName = clusterName + SPLIT + queue.getQueueName();
+            }
         }
         jobClient.setGroupName(groupName);
     }
