@@ -336,6 +336,7 @@ class ComponentsConfig extends React.Component<any, any> {
                 )
             }
             case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
+            case COMPONENT_TYPE_VALUE.NFS:
             case COMPONENT_TYPE_VALUE.HIVE_SERVER: {
                 return (
                     <React.Fragment>

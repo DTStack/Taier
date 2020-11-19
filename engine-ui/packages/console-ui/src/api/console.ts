@@ -82,6 +82,12 @@ export default {
     confirmSwitchQueue (params: any) {
         return http.post(req.CONFIRM_SWITCH_QUEUE, params);
     },
+    // 4.1版本
+    // 获取存储组件列表
+    getComponentStore (params: any) {
+        return http.post(req.GET_COMPONENTSTORE, params);
+    },
+
     // 任务管理模块
     // 概览-获取集群
     getClusterDetail (params: any) {

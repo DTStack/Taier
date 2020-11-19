@@ -48,6 +48,7 @@ class EditCluster extends React.Component<any, any> {
         componentConfig: {}, // 各组件配置信息
         cloneComponentConfig: {}, // 备份各组件配置信息
         testStatus: {},
+        saveCompsData: [],
         tabCompData: [
             {
                 schedulingCode: TABS_TITLE_KEY.COMMON,
@@ -98,6 +99,7 @@ class EditCluster extends React.Component<any, any> {
                     cloneComponentConfig: dealData.handleCompsData(res),
                     clusterId: res.clusterId
                 })
+                this.getSaveComponentList(res?.data?.clusterName)
             }
         })
     }
@@ -143,6 +145,9 @@ class EditCluster extends React.Component<any, any> {
 
     handleCompsVersion = (compVersion: any, componentTypeCode: number) => {
         const { componentConfig } = this.state;
+        const { getFieldValue } = this.props?.form;
+        const { storeType } = getFieldValue(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])
+
         this.setState({
             componentConfig: {
                 ...componentConfig,
@@ -152,24 +157,49 @@ class EditCluster extends React.Component<any, any> {
                 }
             }
         })
-        this.getLoadTemplate(componentTypeCode, compVersion);
+        this.getLoadTemplate(componentTypeCode, { storeType, compVersion });
+    }
+
+    handleCompsCompsData = (storeType: any, componentTypeCode: number) => {
+        const { componentConfig } = this.state;
+        const { getFieldValue } = this.props.form;
+        const values = getFieldValue(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])
+        const { hadoopVersion: compVersion } = values
+
+        this.setState({
+            componentConfig: {
+                ...componentConfig,
+                [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                    ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
+                    storeType: storeType
+                }
+            }
+        })
+        this.getLoadTemplate(componentTypeCode, { storeType, compVersion });
     }
 
     // 获取组件模板
-    getLoadTemplate = (key: any = '', compVersion: any = '') => {
+    getLoadTemplate = async (key: any = '', { storeType, compVersion }: any = { storeType: undefined, compVersion: undefined }) => {
         const { compTypeKey, tabCompData, componentConfig, clusterName } = this.state;
-        const component = tabCompData.find((item: any) => item.schedulingCode === compTypeKey) || { components: [] };
+        const component = tabCompData?.find((item: any) => item.schedulingCode === compTypeKey) || { components: [] };
         if (component.components.length === 0) return;
+        if (typeof storeType === 'undefined') {
+            await this.getSaveComponentList(clusterName)
+        }
+        const { saveCompsData } = this.state
+        const length = saveCompsData?.length
         let componentTypeCode = key === '' ? component.components[0].componentTypeCode : key;
         const isNeedLoadTemp = dealData.checkUplaodFileComps(componentTypeCode);
         const isChangeVersion = dealData.changeVersion(componentTypeCode, compVersion);
         const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {}
         const { loadTemplate = {} } = config;
+        const stateStoreType = length === 0 ? undefined : length === 1 ? saveCompsData[0]?.key : 4
         const version = dealData.getCompsVersion(Number(componentTypeCode), compVersion)
-        if (!isNeedLoadTemp && (Object.keys(loadTemplate).length === 0 || isChangeVersion)) {
+        if ((!isNeedLoadTemp && (Object.keys(loadTemplate).length === 0 || isChangeVersion || storeType))) {
             Api.getLoadTemplate({
                 clusterName,
-                version,
+                version: compVersion || version,
+                storeType: storeType || config.storeType || stateStoreType,
                 componentType: componentTypeCode
             }).then((res: any) => {
                 if (res.code === 1) {
@@ -188,7 +218,22 @@ class EditCluster extends React.Component<any, any> {
             })
         }
     }
-
+    getSaveComponentList= async (clusterName) => {
+        const res = await Api.getComponentStore({ clusterName })
+        if (!res) return
+        const { data = [] } = res
+        let saveCompsData = []
+        data.forEach(item => {
+            saveCompsData.push({
+                key: item?.componentTypeCode,
+                value: item?.componentName
+            })
+        })
+        await this.setState({
+            saveCompsData
+        })
+        return saveCompsData
+    }
     // 组件配置选中的组件，选中组件的值
     selectDefaultValue = () => {
         const { tabCompData, compTypeKey } = this.state;
@@ -475,7 +520,6 @@ class EditCluster extends React.Component<any, any> {
         const config = this.getComponentConfig(components);
         const isFileNameRequire = dealData.checkUplaodFileComps(componentTypeCode);
         validateFields(null, {}, (err: any, values: any) => {
-            console.log(err, values)
             if (err) {
                 let paramName = COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode];
                 if (Object.keys(err).includes(paramName)) {
@@ -662,6 +706,18 @@ class EditCluster extends React.Component<any, any> {
         }
     }
 
+    handleSaveCompsData = (val: string, componentTypeCode: number) => {
+        const { form } = this.props;
+        this.setState({
+            storeType: val
+        })
+        form.setFieldsValue({
+            [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                storeType: val
+            }
+        })
+    }
+
     renderCompTabs = (item: any) => {
         const { tabCompData } = this.state;
         if (tabCompData.length === 0) return {};
@@ -670,7 +726,8 @@ class EditCluster extends React.Component<any, any> {
 
     render () {
         const { compTypeKey, popoverVisible, clusterName, modify, selectValue,
-            deleteComps, defaultValue, componentConfig, testLoading } = this.state;
+            deleteComps, defaultValue, componentConfig, testLoading, saveCompsData } = this.state;
+        const { location: { state: { cluster: { clusterName: realClusterName } } } } = this.props
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { mode } = this.props.location.state || {} as any;
         const isView = mode === 'view';
@@ -749,17 +806,21 @@ class EditCluster extends React.Component<any, any> {
                                                             key={`${comps.componentTypeCode}`}
                                                         >
                                                             <div className="c-editCluster__container__componentWrap">
-                                                                <div className="c-editCluster__container__componentWrap__resource" style={{ width: 200 }}>
+                                                                <div className="c-editCluster__container__componentWrap__resource" style={{ width: 210 }}>
                                                                     <DisplayResource
                                                                         {...this.state}
                                                                         isView={isView}
                                                                         components={comps}
+                                                                        saveCompsData={saveCompsData}
                                                                         getFieldValue={getFieldValue}
                                                                         getFieldDecorator={getFieldDecorator}
                                                                         downloadFile={this.downloadFile}
                                                                         paramsfileChange={this.paramsfileChange}
                                                                         kerFileChange={this.kerFileChange}
+                                                                        clusterName={realClusterName}
                                                                         handleCommonVersion={this.handleCommonVersion}
+                                                                        handleSaveCompsData={this.handleSaveCompsData}
+                                                                        handleCompsCompsData={this.handleCompsCompsData}
                                                                         handleCompsVersion={this.handleCompsVersion}
                                                                         deleteKerFile={this.deleteKerFile}
                                                                         fileChange={this.fileChange} />
