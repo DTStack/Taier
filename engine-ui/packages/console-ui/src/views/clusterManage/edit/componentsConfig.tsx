@@ -50,7 +50,7 @@ class ComponentsConfig extends React.Component<any, any> {
                 </Row>
             )
         })
-        if(view?.length!==0){
+        if (view?.length !== 0) {
             view.push(this.renderCustomParam(value))
             view.push(this.renderAddCustomParam())
         }
@@ -113,7 +113,7 @@ class ComponentsConfig extends React.Component<any, any> {
                 }
                 return !item.id && this.renderConfigFormItem(comps, item);
             })
-            if(view.length!==0 && flag){
+            if (view.length !== 0 && flag) {
                 view.push(this.renderCustomParam(comps))
                 view.push(this.renderAddCustomParam())
             }
@@ -327,14 +327,14 @@ class ComponentsConfig extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.LEARNING:
             case COMPONENT_TYPE_VALUE.DTYARNSHELL:
             case COMPONENT_TYPE_VALUE.PRESTO_SQL: {
-                switch(componentTypeCode){
+                switch (componentTypeCode) {
                     case COMPONENT_TYPE_VALUE.FLINK:
                     case COMPONENT_TYPE_VALUE.SPARK:
                     case COMPONENT_TYPE_VALUE.DTYARNSHELL:
-                    case COMPONENT_TYPE_VALUE.LEARNING:{
+                    case COMPONENT_TYPE_VALUE.LEARNING: {
                         return (
                             <>
-                                {this.rendeConfigForm(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode],false)}
+                                {this.rendeConfigForm(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode], false)}
                             </>
                         )
                     }
@@ -342,19 +342,18 @@ class ComponentsConfig extends React.Component<any, any> {
                         return (
                             <>
                                 {this.rendeConfigForm(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode], true)}
-                                
+
                             </>
                         )
                     }
                 }
-                
             }
             case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
             case COMPONENT_TYPE_VALUE.NFS:
             case COMPONENT_TYPE_VALUE.HIVE_SERVER: {
                 return (
                     <React.Fragment>
-                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode],true)}
+                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode], true)}
                     </React.Fragment>
                 )
             }
