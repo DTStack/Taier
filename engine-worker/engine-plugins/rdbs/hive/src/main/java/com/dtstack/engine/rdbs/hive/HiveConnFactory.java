@@ -32,6 +32,8 @@ public class HiveConnFactory extends AbstractConnFactory {
 
     private static final String HIVE_CONF_PREFIX = "hiveconf:";
     private static final String HIVE_JOBNAME_PROPERTY = "hiveconf:mapreduce.job.name";
+    private static final String HIVECONF_MAPREDUCE_MAP_JAVA_OPTS = "hiveconf:mapreduce.map.java.opts";
+    private static final String HIVECONF_MAPREDUCE_REDUCE_JAVA_OPTS = "hiveconf:mapreduce.reduce.java.opts";
 
     private static final String MAPREDUCE_JOB_QUEUENAME = "mapreduce.job.queuename=";
 
@@ -76,7 +78,11 @@ public class HiveConnFactory extends AbstractConnFactory {
                         String[] keyAndVal = str.split("=");
                         if (keyAndVal.length > 1) {
                             String newKey = keyAndVal[0].startsWith(HIVE_CONF_PREFIX) ? keyAndVal[0] : HIVE_CONF_PREFIX + keyAndVal[0];
-                            properties.setProperty(newKey, keyAndVal[1]);
+                            String newValue = keyAndVal[1];
+                            if (HIVECONF_MAPREDUCE_MAP_JAVA_OPTS.equalsIgnoreCase(newKey) || HIVECONF_MAPREDUCE_REDUCE_JAVA_OPTS.equalsIgnoreCase(newKey)) {
+                                newValue = newValue.replace("\r","");
+                            }
+                            properties.setProperty(newKey, newValue);
                         }
                     }
                 }
