@@ -714,7 +714,7 @@ public class ClusterService implements InitializingBean {
                 String typeName = componentService.convertComponentTypeToClient(clusterVO.getClusterName(),
                         EComponentType.HIVE_SERVER.getTypeCode(), hiveServer.getHadoopVersion());
                 pluginInfo.put("typeName",typeName);
-            } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK==type.getComponentType()) {
+            } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK == type.getComponentType()) {
                 if (clusterVO.getDtUicUserId() != null && clusterVO.getDtUicTenantId() != null) {
                     AccountVo accountVo = accountService.getAccountVo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId(), AccountType.LDAP.getVal());
                     String ldapUserName = StringUtils.isBlank(accountVo.getName()) ? "" : accountVo.getName();
