@@ -103,7 +103,7 @@ public class AccountServiceTest extends AbstractTest {
         ClusterVO dbCluster = clusterService.getClusterByName(accountClusterName);
         Assert.assertNotNull(dbCluster);
         componentService.addOrUpdateComponent(dbCluster.getClusterId(), "{\"jdbcUrl\":\"jdbc:mysql://172.16.100.73:4000/\",\"maxJobPoolSize\":\"\",\"minJobPoolSize\":\"\",\"password\":\"\",\"username\":\"\"}",
-                null, "", "", "[]", EComponentType.TIDB_SQL.getTypeCode(),null);
+                null, "", "", "[]", EComponentType.TIDB_SQL.getTypeCode(),null,"","");
         //添加测试租户
         Tenant tenant = DataCollection.getData().getTenant();
         tenant = tenantDao.getByDtUicTenantId(tenant.getDtUicTenantId());
