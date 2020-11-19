@@ -5,6 +5,7 @@ import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EQueueSourceType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.queue.OrderObject;
@@ -16,10 +17,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -104,6 +103,8 @@ public class JobClient extends OrderObject {
     private Long userId;
 
     private Integer appType;
+    
+    private Integer queueSourceType;
 
 
     public JobClient() {
@@ -127,6 +128,7 @@ public class JobClient extends OrderObject {
         this.tenantId = paramAction.getTenantId();
         this.userId = paramAction.getUserId();
         this.appType = paramAction.getAppType();
+        this.queueSourceType = EQueueSourceType.NORMAL.getCode();
 
         if (paramAction.getComputeType().equals(ComputeType.STREAM.getType())) {
             this.maxRetryNum = 0;
@@ -194,6 +196,14 @@ public class JobClient extends OrderObject {
             throw new RdosDefineException("pluginInfo map must not be null.");
         }
         this.pluginInfo = JSONObject.toJSONString(pluginInfoMap);
+    }
+
+    public Integer getQueueSourceType() {
+        return queueSourceType;
+    }
+
+    public void setQueueSourceType(Integer queueSourceType) {
+        this.queueSourceType = queueSourceType;
     }
 
     public long getTenantId() {

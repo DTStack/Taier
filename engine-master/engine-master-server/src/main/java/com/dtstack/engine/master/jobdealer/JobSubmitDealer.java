@@ -4,6 +4,7 @@ import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.enums.EQueueSourceType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.*;
 import com.dtstack.engine.common.pojo.JobResult;
@@ -114,15 +115,7 @@ public class JobSubmitDealer implements Runnable {
                     simpleJobDelay = delayJobQueue.take();
                     jobClient = simpleJobDelay.getJob();
                     if (jobClient != null) {
-                        EngineJobCache dbEngineJobCache = engineJobCacheDao.getOne(jobClient.getTaskId());
-                        if(null == dbEngineJobCache){
-                            //如果任务出现资源不足 一直deploy加大延时  界面杀死重跑立马完成之后 deployQueue数据未移除
-                            //重新放入之后直接取消 导致状态更新waitEngine 状态不一致 所以需要判断下数据是否存在
-                            logger.info("jobId:{} stage:{} take job from delayJobQueue queue size:{} but engine job cache has deleted", jobClient.getTaskId(), simpleJobDelay.getStage(), delayJobQueue.size());
-                            continue;
-                        }
-                        engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.PRIORITY.getStage(), localAddress, jobClient.getPriority(), null);
-                        jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
+                        jobClient.setQueueSourceType(EQueueSourceType.DELAY.getCode());
                         queue.put(jobClient);
                         logger.info("jobId:{} stage:{} take job from delayJobQueue queue size:{} and add to priorityQueue.", jobClient.getTaskId(), simpleJobDelay.getStage(), delayJobQueue.size());
                     }
@@ -170,7 +163,7 @@ public class JobSubmitDealer implements Runnable {
             try {
                 JobClient jobClient = queue.take();
                 logger.info("jobId:{} jobResource:{} queue size:{} take job from priorityQueue.", jobClient.getTaskId(), jobResource, queue.size());
-                if (checkIsFinished(jobClient.getTaskId())) {
+                if (checkIsFinished(jobClient)) {
                     shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
                     jobClient.doStatusCallBack(RdosTaskStatus.CANCELED.getStatus());
                     logger.info("jobId:{} checkIsFinished is true, job is Finished.", jobClient.getTaskId());
@@ -197,10 +190,29 @@ public class JobSubmitDealer implements Runnable {
         }
     }
 
-    private boolean checkIsFinished(String jobId) {
-        EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
-        if (engineJobCache == null) {
-            return true;
+    private boolean checkIsFinished(JobClient jobClient) {
+        try {
+            if (null == jobClient.getQueueSourceType() || EQueueSourceType.NORMAL.getCode() == jobClient.getQueueSourceType()) {
+                EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobClient.getTaskId());
+                if (engineJobCache == null) {
+                    return true;
+                }
+            } else {
+                EngineJobCache dbEngineJobCache = engineJobCacheDao.getOne(jobClient.getTaskId());
+                if (null == dbEngineJobCache) {
+                    //如果任务出现资源不足 一直deploy加大延时  界面杀死重跑立马完成之后 deployQueue数据未移除
+                    //重新放入之后直接取消 导致状态更新waitEngine 状态不一致 所以需要判断下数据是否存在
+                    logger.info("jobId:{} stage:{} take job from delayJobQueue  but engine job cache has deleted", jobClient.getTaskId(), delayJobQueue.size());
+                } else {
+                    //存在才去更新
+                    engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.PRIORITY.getStage(), localAddress, jobClient.getPriority(), null);
+                    jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
+                }
+                return false;
+            }
+        } finally {
+            //重置状态
+            jobClient.setQueueSourceType(EQueueSourceType.NORMAL.getCode());
         }
         return false;
     }
