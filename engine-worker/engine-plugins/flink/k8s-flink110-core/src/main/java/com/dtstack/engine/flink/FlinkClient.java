@@ -418,51 +418,54 @@ public class FlinkClient extends AbstractClient {
             return RdosTaskStatus.NOTFOUND;
         }
 
+        String jobUrlPath = String.format(ConfigConstrant.JOB_URL_FORMAT, jobId);
+
+        ClusterClient clusterClient = null;
         try {
-            String reqUrl = "";
-            String response = "";
-            FlinkKubeClient flinkKubeClient = flinkClientBuilder.getFlinkKubeClient();
-            if (flinkKubeClient.getInternalService(clusterId) == null) {
-                String jobHistoryURL = getJobHistoryURL();
-                reqUrl = jobHistoryURL + "/jobs/" + jobId;
-                Long refreshInterval = flinkClientBuilder.getFlinkConfiguration()
-                        .getLong(HistoryServerOptions.HISTORY_SERVER_ARCHIVE_REFRESH_INTERVAL);
-                Thread.sleep(refreshInterval);
-                try {
-                    response = PoolHttpClient.get(reqUrl);
-                } catch (IOException e) {
-                    logger.error("Get job status error from jobHistory. " + e.getMessage());
-                }
-            }
-
-            ClusterClient clusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
-            String reqUrlPrefix = clusterClient.getWebInterfaceURL();
-            if (StringUtils.isEmpty(reqUrl)) {
-                reqUrl = reqUrlPrefix + "/jobs/" + jobId;
-                response = PoolHttpClient.get(reqUrl);
-            }
-
-            if (response != null) {
-                Map<String, Object> statusMap = PublicUtil.jsonStrToObject(response, Map.class);
-                Object stateObj = statusMap.get("state");
-                if (stateObj != null) {
-                    String state = (String) stateObj;
-                    state = StringUtils.upperCase(state);
-                    RdosTaskStatus rdosTaskStatus =  RdosTaskStatus.getTaskStatus(state);
-                    Boolean isFlinkSessionTask = clusterId.startsWith(ConfigConstrant.FLINK_SESSION_PREFIX);
-                    if (RdosTaskStatus.isStopped(rdosTaskStatus.getStatus()) && !isFlinkSessionTask) {
-                        if (flinkClientBuilder.getFlinkKubeClient().getInternalService(clusterId) != null) {
-                            flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(clusterId);
-                        }
-                    }
-                    return rdosTaskStatus;
-
-                }
-            }
+            clusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
         } catch (Exception e) {
-            logger.error("", e);
+            logger.error("Get clusterClient error:", e);
         }
 
+        String response = null;
+        if (clusterClient != null) {
+            try {
+                String webInterfaceURL = clusterClient.getWebInterfaceURL();
+                String jobUrl = webInterfaceURL + ConfigConstrant.SP + jobUrlPath;
+                response = PoolHttpClient.get(jobUrl);
+            } catch (Exception e) {}
+        }
+
+        if (StringUtils.isEmpty(response)) {
+            try {
+                response = storage.getMessageFromJobArchive(jobId, jobUrlPath);
+            } catch (Exception e) {
+                logger.warn("Get job status error from jobArchive: {}", e.getMessage());
+            }
+        }
+
+        try {
+            if (response == null) {
+                throw new RdosDefineException("Get status response is null");
+            }
+
+            Map<String, Object> statusMap = PublicUtil.jsonStrToObject(response, Map.class);
+            Object stateObj = statusMap.get("state");
+            if (stateObj != null) {
+                String state = (String) stateObj;
+                state = StringUtils.upperCase(state);
+                RdosTaskStatus rdosTaskStatus =  RdosTaskStatus.getTaskStatus(state);
+                Boolean isFlinkSessionTask = clusterId.startsWith(ConfigConstrant.FLINK_SESSION_PREFIX);
+                if (RdosTaskStatus.isStopped(rdosTaskStatus.getStatus()) && !isFlinkSessionTask) {
+                    if (flinkClientBuilder.getFlinkKubeClient().getInternalService(clusterId) != null) {
+                        flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(clusterId);
+                    }
+                }
+                return rdosTaskStatus;
+            }
+        } catch (Exception e) {
+            logger.error("Get job status error. {}", e.getMessage());
+        }
         return RdosTaskStatus.NOTFOUND;
     }
 
@@ -502,37 +505,33 @@ public class FlinkClient extends AbstractClient {
         String applicationId = jobIdentifier.getApplicationId();
 
         RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
-        String reqURL;
 
-        //从jobhistory读取
-        boolean isFromJobHistory = RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus()) || rdosTaskStatus.equals(RdosTaskStatus.NOTFOUND);
-        if (StringUtils.isNotBlank(applicationId) && isFromJobHistory) {
-            reqURL = getJobHistoryURL();
-        } else {
-            ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
-            reqURL = currClient.getWebInterfaceURL();
-        }
-
+        String exceptionUrlPath = String.format(ConfigConstrant.JOB_EXCEPTIONS_URL_FORMAT, jobId);
+        String accumulatorUrlPath = String.format(ConfigConstrant.JOB_ACCUMULATOR_URL_FORMAT, jobId);
+        String exceptMessage = "";
+        String accumulator = "";
         Map<String, String> retMap = Maps.newHashMap();
 
         try {
-            String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
-            String except = getExceptionInfo(exceptPath, reqURL);
-            String accuPath = String.format(FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
-            String accuInfo = getMessageByHttp(accuPath, reqURL);
-            retMap.put("exception", except);
-            retMap.put("accuInfo", accuInfo);
+            boolean isFromJobArchive = RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus()) || rdosTaskStatus.equals(RdosTaskStatus.NOTFOUND);
+            if (StringUtils.isNotBlank(applicationId) && isFromJobArchive) {
+                exceptMessage = storage.getMessageFromJobArchive(jobId, exceptionUrlPath);
+                accumulator = storage.getMessageFromJobArchive(jobId, accumulatorUrlPath);
+            } else {
+                ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+                String reqURL = currClient.getWebInterfaceURL();
+                exceptMessage = getMessageByHttp(exceptionUrlPath, reqURL);
+                accumulator = getMessageByHttp(accumulatorUrlPath, reqURL);
+            }
+
+            retMap.put("exception", exceptMessage);
+            retMap.put("accuInfo", accumulator);
             return FlinkRestParseUtil.parseEngineLog(retMap);
-        } catch (RdosDefineException e) {
-            //http 请求失败时返回空日志
-            logger.error("", e);
-            return null;
         } catch (Exception e) {
             logger.error("", e);
             Map<String, String> map = new LinkedHashMap<>(8);
             map.put("jobId", jobId);
             map.put("exception", ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION);
-            map.put("reqURL", reqURL);
             map.put("engineLogErr", ExceptionUtil.getErrorMessage(e));
             return new Gson().toJson(map);
         }
@@ -664,23 +663,24 @@ public class FlinkClient extends AbstractClient {
         String appId = jobIdentifier.getApplicationId();
         String jobId = jobIdentifier.getEngineJobId();
 
+        String checkpointUrlPath = String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, jobId);
+        String checkpointMsg = "";
+
         RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
 
-        String reqURL = "";
-        boolean isFromJobHistory = RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus()) || rdosTaskStatus.equals(RdosTaskStatus.NOTFOUND);
-        if (isFromJobHistory) {
-            reqURL = getJobHistoryURL();
-        } else {
-            ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
-            reqURL = currClient.getWebInterfaceURL();
-        }
-
         try {
-            return getMessageByHttp(String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, jobId), reqURL);
-        } catch (IOException e) {
-            logger.error("", e);
-            return null;
+            boolean isFromJobHistory = RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus()) || rdosTaskStatus.equals(RdosTaskStatus.NOTFOUND);
+            if (isFromJobHistory) {
+                checkpointMsg = storage.getMessageFromJobArchive(jobId, checkpointUrlPath);
+            } else {
+                ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+                String reqURL = currClient.getWebInterfaceURL();
+                checkpointMsg = getMessageByHttp(checkpointUrlPath, reqURL);
+            }
+        } catch (Exception e) {
+            logger.error("Get checkpoint error, {}", e.getMessage());
         }
+        return checkpointMsg;
     }
 
     private boolean existsJobOnFlink(String engineJobId) {

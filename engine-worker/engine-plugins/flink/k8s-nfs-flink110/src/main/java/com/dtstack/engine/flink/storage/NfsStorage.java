@@ -2,6 +2,11 @@ package com.dtstack.engine.flink.storage;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.FlinkConfig;
+import com.dtstack.engine.flink.constrant.ConfigConstrant;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.sun.xfile.XFile;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +18,10 @@ import org.apache.flink.kubernetes.configuration.KubernetesConfigOptions;
 import org.apache.flink.kubernetes.utils.Constants;
 import org.apache.flink.util.Preconditions;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Properties;
 
@@ -25,8 +34,11 @@ public class NfsStorage extends AbstractStorage {
     private String server;
     private String rootPath;
 
+    private Properties pluginInfo;
+
     @Override
     public void init(Properties pluginInfo) {
+        this.pluginInfo = pluginInfo;
         Map<String, Object> nfsConf = (Map<String, Object>) pluginInfo.get("nfsConf");
         if (nfsConf == null || nfsConf.size() == 0) {
             throw new RdosDefineException("No set nfs config!");
@@ -120,6 +132,33 @@ public class NfsStorage extends AbstractStorage {
 
     @Override
     public <T> T getStorageConfig() {
+        return null;
+    }
+
+    @Override
+    public String getMessageFromJobArchive(String jobId, String urlPath) throws Exception {
+        String archiveDir = pluginInfo.getProperty(JobManagerOptions.ARCHIVE_DIR.key());
+        String jobArchivePath = archiveDir + ConfigConstrant.SP + jobId;
+        InputStream is = readStreamFromNfs(jobArchivePath);
+        JsonParser jsonParser = new JsonParser();
+        try (InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+            JsonObject jobArchiveAll = (JsonObject) jsonParser.parse(reader);
+            Preconditions.checkNotNull(jobArchiveAll, "jobArchive is null");
+
+            JsonArray jsonArray = jobArchiveAll.getAsJsonArray("archive");
+            for (JsonElement ele: jsonArray) {
+                JsonObject obj = ele.getAsJsonObject();
+                if (StringUtils.equals(obj.get("path").getAsString(), urlPath)) {
+                    String exception = obj.get("json").getAsString();
+                    return exception;
+                }
+            }
+        }
+        throw new RdosDefineException(String.format("Not found Message from jobArchive, jobId[%s], urlPath[%s]", jobId, urlPath));
+    }
+
+    private InputStream readStreamFromNfs(String jobArchivePath) {
+
         return null;
     }
 
