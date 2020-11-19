@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -34,12 +35,12 @@ public class LineageColumnColumnServiceTest extends AbstractTest {
     }
     @Test
     public void testQueryColumnInputLineageByAppType(){
-        List<LineageColumnColumn> queryColumnInputLineageByAppType = lineageColumnColumnService.queryColumnInputLineageByAppType(0 , 0L , "" );
+        List<LineageColumnColumn> queryColumnInputLineageByAppType = lineageColumnColumnService.queryColumnInputLineageByAppType(0 , 0L , "" ,new HashSet<>());
         //TODO
     }
     @Test
     public void testQueryColumnResultLineageByAppType(){
-        List<LineageColumnColumn> queryColumnResultLineageByAppType = lineageColumnColumnService.queryColumnResultLineageByAppType(0 , 0L , "" );
+        List<LineageColumnColumn> queryColumnResultLineageByAppType = lineageColumnColumnService.queryColumnResultLineageByAppType(0 , 0L , "" ,new HashSet<>());
         //TODO
     }
     @Test

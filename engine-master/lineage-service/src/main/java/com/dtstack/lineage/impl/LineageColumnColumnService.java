@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -70,29 +71,57 @@ public class LineageColumnColumnService {
         return lineageColumnColumnDao.queryByLineageKeys(appType,columnLineageKeys);
     }
 
-    public List<LineageColumnColumn> queryColumnInputLineageByAppType(Integer appType,Long tableId,String columnName) {
+    public List<LineageColumnColumn> queryColumnInputLineageByAppType(Integer appType,Long tableId,String columnName,Set<String> columnSet) {
         List<LineageColumnColumn> res = Lists.newArrayList();
         List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnDao.queryColumnResultList(appType, tableId, columnName);
+        lineageColumnColumns = lineageColumnColumns.stream().filter(tt->{
+            if (columnSet.contains(generateColumnStr(tt.getInputTableId(),tt.getInputColumnName()))){
+                return false;
+            }
+            if (columnSet.contains(generateColumnStr(tt.getResultTableId(),tt.getResultColumnName()))){
+                return false;
+            }
+            return true;
+        }).collect(Collectors.toList());
+        for (LineageColumnColumn tt :lineageColumnColumns) {
+            columnSet.add(generateColumnStr(tt.getResultTableId(),tt.getResultColumnName()));
+            columnSet.add(generateColumnStr(tt.getInputTableId(),tt.getInputColumnName()));
+        }
         res.addAll(lineageColumnColumns);
         if (CollectionUtils.isNotEmpty(lineageColumnColumns)){
             for (LineageColumnColumn columnColumn:lineageColumnColumns){
-                //TODO 未处理死循环
-                List<LineageColumnColumn> parentColumnineages = queryColumnInputLineageByAppType(appType, columnColumn.getInputTableId(), columnColumn.getInputColumnName());
+                List<LineageColumnColumn> parentColumnineages = queryColumnInputLineageByAppType(appType, columnColumn.getInputTableId(), columnColumn.getInputColumnName(),columnSet);
                 res.addAll(parentColumnineages);
             }
         }
         return res;
     }
 
-    public List<LineageColumnColumn> queryColumnResultLineageByAppType(Integer appType,Long tableId,String columnName) {
+    private String generateColumnStr(Long tableId,String columnName){
+        return String.format("%s.%s",tableId,columnName);
+    }
+
+    public List<LineageColumnColumn> queryColumnResultLineageByAppType(Integer appType,Long tableId,String columnName,Set<String> columnSet) {
         List<LineageColumnColumn> res = Lists.newArrayList();
         //查询时，如果血缘没有关联ref，则不能被查出
         List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnDao.queryColumnInputList(appType, tableId, columnName);
+        lineageColumnColumns = lineageColumnColumns.stream().filter(tt->{
+            if (columnSet.contains(generateColumnStr(tt.getInputTableId(),tt.getInputColumnName()))){
+                return false;
+            }
+            if (columnSet.contains(generateColumnStr(tt.getResultTableId(),tt.getResultColumnName()))){
+                return false;
+            }
+            return true;
+        }).collect(Collectors.toList());
+        for (LineageColumnColumn tt :lineageColumnColumns) {
+            columnSet.add(generateColumnStr(tt.getResultTableId(),tt.getResultColumnName()));
+            columnSet.add(generateColumnStr(tt.getInputTableId(),tt.getInputColumnName()));
+        }
         res.addAll(lineageColumnColumns);
         if (CollectionUtils.isNotEmpty(lineageColumnColumns)){
             for (LineageColumnColumn columnColumn:lineageColumnColumns){
-                //TODO 未处理死循环
-                List<LineageColumnColumn> parentColumnineages = queryColumnResultLineageByAppType(appType, columnColumn.getResultTableId(), columnColumn.getInputColumnName());
+                List<LineageColumnColumn> parentColumnineages = queryColumnResultLineageByAppType(appType, columnColumn.getResultTableId(), columnColumn.getInputColumnName(),columnSet);
                 res.addAll(parentColumnineages);
             }
         }
@@ -100,8 +129,8 @@ public class LineageColumnColumnService {
     }
 
     public List<LineageColumnColumn> queryColumnLineages(Integer appType, Long tableId, String columnName){
-        List<LineageColumnColumn> inputLineages = queryColumnInputLineageByAppType(appType,tableId,columnName);
-        List<LineageColumnColumn> resultLineages = queryColumnResultLineageByAppType(appType,tableId,columnName);
+        List<LineageColumnColumn> inputLineages = queryColumnInputLineageByAppType(appType,tableId,columnName,new HashSet<>());
+        List<LineageColumnColumn> resultLineages = queryColumnResultLineageByAppType(appType,tableId,columnName,new HashSet<>());
         Set<LineageColumnColumn> lineageSet = Sets.newHashSet();
         lineageSet.addAll(inputLineages);
         lineageSet.addAll(resultLineages);

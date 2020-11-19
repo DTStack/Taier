@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 
 import javax.jdo.annotations.Transactional;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -51,12 +52,12 @@ public class LineageTableTableServiceTest extends AbstractTest {
     }
     @Test
     public void testQueryTableInputLineageByAppType(){
-        List<LineageTableTable> queryTableInputLineageByAppType = lineageTableTableService.queryTableInputLineageByAppType(1L , 1 );
+        List<LineageTableTable> queryTableInputLineageByAppType = lineageTableTableService.queryTableInputLineageByAppType(1L , 1 ,new HashSet<>());
         //TODO
     }
     @Test
     public void testQueryTableResultLineageByAppType(){
-        List<LineageTableTable> queryTableResultLineageByAppType = lineageTableTableService.queryTableResultLineageByAppType(0L , 0 );
+        List<LineageTableTable> queryTableResultLineageByAppType = lineageTableTableService.queryTableResultLineageByAppType(0L , 0 ,new HashSet<>());
         //TODO
     }
     @Test

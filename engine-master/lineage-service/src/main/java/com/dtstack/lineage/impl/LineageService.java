@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -336,11 +337,17 @@ public class LineageService {
                 LineageDataSetInfo dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), ta.getDb(), ta.getName(), ta.getDb());
                 tableRef.put(String.format(tableKey, ta.getDb(), ta.getName()), dataSet);
             }
-            List<TableLineage> tableLineages = parseResult.getTableLineages();
-            if (CollectionUtils.isNotEmpty(tableLineages)) {
-                List<LineageTableTable> lineageTableTables = tableLineages.stream().map(l -> TableLineageAdapter.sqlTableLineage2DbTableLineage(l, tableRef, LineageOriginType.SQL_PARSE)).collect(Collectors.toList());
-                //如果uniqueKey不为空，则删除相同uniqueKey的血缘
-                lineageTableTableService.saveTableLineage(lineageTableTables,parseColumnLineageParam.getUniqueKey());
+            try {
+                ParseResult parseTableLineage = sqlParser.parseTableLineage(parseColumnLineageParam.getSql(), parseColumnLineageParam.getDefaultDb());
+                List<TableLineage> tableLineages = parseTableLineage.getTableLineages();
+                if (CollectionUtils.isNotEmpty(tableLineages)) {
+                    List<LineageTableTable> lineageTableTables = tableLineages.stream().map(l -> TableLineageAdapter.sqlTableLineage2DbTableLineage(l, tableRef, LineageOriginType.SQL_PARSE)).collect(Collectors.toList());
+                    //如果uniqueKey不为空，则删除相同uniqueKey的血缘
+                    lineageTableTableService.saveTableLineage(lineageTableTables,parseColumnLineageParam.getUniqueKey());
+                }
+            } catch (Exception e) {
+                logger.error("解析sql异常:{}",e);
+                throw new RdosDefineException("sql解析异常，请检查语法");
             }
             List<ColumnLineage> columnLineages = parseResult.getColumnLineages();
             if (CollectionUtils.isNotEmpty(columnLineages)) {
@@ -374,7 +381,7 @@ public class LineageService {
         }
         //TODO 手动添加的表无法查看血缘关系
         LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, schemaName);
-        List<LineageTableTable> lineageTableTables = lineageTableTableService.queryTableInputLineageByAppType(dataSetInfo.getId(), appType);
+        List<LineageTableTable> lineageTableTables = lineageTableTableService.queryTableInputLineageByAppType(dataSetInfo.getId(), appType,new HashSet<>());
         if(CollectionUtils.isEmpty(lineageTableTables)){
             return Lists.newArrayList();
         }
@@ -418,7 +425,7 @@ public class LineageService {
         }
         //TODO 手动添加的表无法查看血缘关系
         LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, schemaName);
-        List<LineageTableTable> lineageTableTables = lineageTableTableService.queryTableResultLineageByAppType(dataSetInfo.getId(), appType);
+        List<LineageTableTable> lineageTableTables = lineageTableTableService.queryTableResultLineageByAppType(dataSetInfo.getId(), appType,new HashSet<>());
         if(CollectionUtils.isEmpty(lineageTableTables)){
             return Lists.newArrayList();
         }
@@ -593,7 +600,7 @@ public class LineageService {
         }
         //TODO 手动添加的表无法查看血缘关系
         LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, schemaName);
-        List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnService.queryColumnInputLineageByAppType(appType, dataSetInfo.getId(), columnName);
+        List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnService.queryColumnInputLineageByAppType(appType, dataSetInfo.getId(), columnName,new HashSet<>());
         if(CollectionUtils.isEmpty(lineageColumnColumns)){
             return Lists.newArrayList();
         }
@@ -638,7 +645,7 @@ public class LineageService {
         }
         //TODO 手动添加的表无法查看血缘关系
         LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, schemaName);
-        List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnService.queryColumnResultLineageByAppType(appType, dataSetInfo.getId(), columnName);
+        List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnService.queryColumnResultLineageByAppType(appType, dataSetInfo.getId(), columnName,new HashSet<>());
         if(CollectionUtils.isEmpty(lineageColumnColumns)){
             return Lists.newArrayList();
         }
