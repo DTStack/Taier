@@ -105,7 +105,6 @@ public class Template {
         scheduleTaskShade.setExeArgs("null");
         scheduleTaskShade.setFlowId(1L);
         scheduleTaskShade.setDtuicTenantId(1L);
-        scheduleTaskShade.setIsExpire(1);
         scheduleTaskShade.setProjectScheduleStatus(1);
 
         return scheduleTaskShade;
