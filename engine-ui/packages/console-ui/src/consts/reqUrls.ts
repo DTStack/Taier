@@ -52,7 +52,6 @@ export default {
     CLOSE_KERBEROS: `${CONSOLE_BASE_URL}/component/closeKerberos`,
     GET_VERSION: `${CONSOLE_BASE_URL}/component/getComponentVersion`,
     ADD_CLUSTER: `${CONSOLE_BASE_URL}/component/addOrCheckClusterWithName`, // 新增集群
-
     GET_LOADTEMPLATE: `${CONSOLE_BASE_UPLOAD_URL}/component/loadTemplate`, // 获取上传模板
     UPLOAD_KERBEROSFILE: `${CONSOLE_BASE_UPLOAD_URL}/upload/component/hadoopKerberosConfig`, // 上传kerberos认证文件
     GET_KERBEROSFILE: `${CONSOLE_BASE_URL}/component/getHadoopKerberosFile`, // 获取上传过的kerberos认证文件的信息内容
@@ -64,6 +63,10 @@ export default {
     ADD_ENGINE: `${CONSOLE_BASE_URL}/engine/addEngine`,
     ADD_ENGINS: `${CONSOLE_BASE_URL}/engine/addEngines`,
     UPDATE_CLUSTER_VERSION: `${CONSOLE_BASE_URL}/cluster/updateGlobalConfig`, // 更新hadoop版本
+
+    // 4.1版本
+    GET_COMPONENTSTORE: `${CONSOLE_BASE_URL}/component/getComponentStore`, // 获取存储组件列表
+
     // 资源管理
     GET_ALL_CLUSTER: `${CONSOLE_BASE_URL}/cluster/getAllCluster`,
     SEARCH_TENANT: `${CONSOLE_BASE_URL}/tenant/pageQuery`,

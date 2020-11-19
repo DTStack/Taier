@@ -189,6 +189,12 @@ class ResourceManage extends React.Component<any, any> {
             tenantInfo: record
         })
     }
+    clickSwitchNamespace = (record: any) => {
+        this.setState({
+            queueModal: true,
+            tenantInfo: record
+        })
+    }
     initHadoopColumns = () => {
         return [
             {
@@ -245,7 +251,7 @@ class ResourceManage extends React.Component<any, any> {
                 dataIndex: 'action',
                 width: 200,
                 render: (text: any, record: any) => {
-                    return <a onClick={ () => { this.clickSwitchQueue(record) }}>
+                    return <a onClick={ () => { this.clickSwitchNamespace(record) }}>
                         切换Namespace
                     </a>
                 }

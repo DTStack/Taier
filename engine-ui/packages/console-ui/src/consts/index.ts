@@ -15,7 +15,8 @@ export const COMPONENT_CONFIG_NAME = {
     TIDB_SQL: 'TiDB SQL',
     ORACLE_SQL: 'Oracle SQL',
     GREEN_PLUM_SQL: 'Greenplum SQL',
-    KUBERNETES: 'Kubernetes'
+    KUBERNETES: 'Kubernetes',
+    NFS: 'NFS'
 }
 
 export const UPPER_NAME = [
@@ -46,7 +47,8 @@ export const COMPONENT_TYPE_VALUE = {
     ORACLE_SQL: 13,
     GREEN_PLUM_SQL: 14,
     KUBERNETES: 15,
-    PRESTO_SQL: 16
+    PRESTO_SQL: 16,
+    NFS: 17
 }
 
 
@@ -69,7 +71,8 @@ export const COMPONEMT_CONFIG_KEYS = {
     ORACLE_SQL: 'oracleConf',
     GREEN_PLUM_SQL: 'greenConf',
     KUBERNETES: 'kubernetesConf',
-    PRESTO_SQL: 'prestoConf'
+    PRESTO_SQL: 'prestoConf',
+    NFS: 'NFS'
 }
 
 // 组件对应的key值
@@ -90,7 +93,9 @@ export const COMPONEMT_CONFIG_KEY_ENUM = {
     [COMPONENT_TYPE_VALUE.ORACLE_SQL]: COMPONEMT_CONFIG_KEYS.ORACLE_SQL,
     [COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL]: COMPONEMT_CONFIG_KEYS.GREEN_PLUM_SQL,
     [COMPONENT_TYPE_VALUE.KUBERNETES]: COMPONEMT_CONFIG_KEYS.KUBERNETES,
-    [COMPONENT_TYPE_VALUE.PRESTO_SQL]: COMPONEMT_CONFIG_KEYS.PRESTO_SQL
+    [COMPONENT_TYPE_VALUE.PRESTO_SQL]: COMPONEMT_CONFIG_KEYS.PRESTO_SQL,
+    [COMPONENT_TYPE_VALUE.NFS]: COMPONEMT_CONFIG_KEYS.NFS
+
 };
 
 // 组件对应的name值
@@ -111,7 +116,8 @@ export const COMPONEMT_CONFIG_NAME_ENUM = {
     [COMPONENT_TYPE_VALUE.ORACLE_SQL]: COMPONENT_CONFIG_NAME.ORACLE_SQL,
     [COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL]: COMPONENT_CONFIG_NAME.GREEN_PLUM_SQL,
     [COMPONENT_TYPE_VALUE.KUBERNETES]: COMPONENT_CONFIG_NAME.KUBERNETES,
-    [COMPONENT_TYPE_VALUE.PRESTO_SQL]: COMPONENT_CONFIG_NAME.PRESTO_SQL
+    [COMPONENT_TYPE_VALUE.PRESTO_SQL]: COMPONENT_CONFIG_NAME.PRESTO_SQL,
+    [COMPONENT_TYPE_VALUE.NFS]: COMPONENT_CONFIG_NAME.NFS
 };
 
 // Tabs枚举值
@@ -142,7 +148,9 @@ export const SOURCE_COMPONENTS: any = [
 
 // 存储组件组件
 export const STORE_COMPONENTS: any = [
-    { componentTypeCode: COMPONENT_TYPE_VALUE.HDFS, componentName: COMPONENT_CONFIG_NAME.HDFS }
+    { componentTypeCode: COMPONENT_TYPE_VALUE.HDFS, componentName: COMPONENT_CONFIG_NAME.HDFS },
+    { componentTypeCode: COMPONENT_TYPE_VALUE.NFS, componentName: COMPONENT_CONFIG_NAME.NFS }
+
 ]
 
 // 计算组件
@@ -327,6 +335,7 @@ export const DATA_SOURCE: any = {
     FTP: 9,
     MAXCOMPUTE: 10,
     ADSMAXCOMPUTE: 11,
+    NFS: 17,
     TI_DB: 31
 }
 export const ENGINE_TYPE = {
@@ -493,7 +502,8 @@ export const dataSourceTypes: any = [ // 数据源类型
     'Hive',
     'HBase',
     'FTP',
-    'MaxCompute'
+    'MaxCompute',
+    'NFS'
 ]
 // 检验各组件数据
 export const validateFlinkParams: any = [ // flink

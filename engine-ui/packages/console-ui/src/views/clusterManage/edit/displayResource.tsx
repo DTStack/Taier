@@ -4,15 +4,35 @@ import utils from 'dt-common/src/utils';
 import {
     COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEY_ENUM, COMPONEMT_CONFIG_KEYS, UPPER_NAME
 } from '../../../consts';
+import Api from '../../../api/console'
 import dealData from './dealData';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 class DisplayResource extends React.Component<any, any> {
     state: any = {
-        compVersion: []
+        compVersion: [],
+        saveCompsData: []
     }
-
+    componentDidMount () {
+        const { clusterName } = this.props;
+        if (!clusterName) return
+        (async () => {
+            const res = await Api.getComponentStore({ clusterName })
+            if (!res) return
+            const { data = [] } = res
+            let saveCompsData = []
+            data.forEach(item => {
+                saveCompsData.push({
+                    key: item?.componentTypeCode,
+                    value: item?.componentName
+                })
+            })
+            this.setState({
+                saveCompsData
+            })
+        })()
+    }
     // 组件配置信息
     getComponentConfig = () => {
         const { components, componentConfig } = this.props;
@@ -55,7 +75,7 @@ class DisplayResource extends React.Component<any, any> {
                             htmlFor={`my${configName}File`}
                         >
                             <span>
-                                { uploadLoading ? <Icon className="blue-loading" type="loading" style={{ marginRight: 8 }} /> : <Icon type="upload" style={{ marginRight: 8 }} /> }
+                                {uploadLoading ? <Icon className="blue-loading" type="loading" style={{ marginRight: 8 }} /> : <Icon type="upload" style={{ marginRight: 8 }} />}
                                 上传文件
                             </span>
                         </label>}
@@ -67,13 +87,13 @@ class DisplayResource extends React.Component<any, any> {
                             accept=".zip"
                             style={{ display: 'none' }}
                         />
-                        { !isView && <div className="c-displayResource__notice">{noticeContent}</div> }
-                        { fileName && <div className="c-displayResource__downloadFile" style={{ fontSize: 12, color: '#3F87FF' }}>
+                        {!isView && <div className="c-displayResource__notice">{noticeContent}</div>}
+                        {fileName && <div className="c-displayResource__downloadFile" style={{ fontSize: 12, color: '#3F87FF' }}>
                             <span>
                                 <Icon type="paper-clip" style={{ marginRight: 2, color: '#666666FF' }} />
                                 {utils.textOverflowExchange(fileName, 9)}
                             </span>
-                            { components.id && <Icon type="download" style={{ color: '#666666FF' }} onClick={() => downloadFile(components, 1)} /> }
+                            {components.id && <Icon type="download" style={{ color: '#666666FF' }} onClick={() => downloadFile(components, 1)} />}
                         </div>}
                     </div>
                 )}
@@ -102,7 +122,7 @@ class DisplayResource extends React.Component<any, any> {
                             htmlFor={`my${configName}KerberosFile`}
                         >
                             <span>
-                                { kerUploadLoading ? <Icon className="blue-loading" type="loading" style={{ marginRight: 8 }} /> : <Icon type="upload" style={{ marginRight: 8 }} /> }
+                                {kerUploadLoading ? <Icon className="blue-loading" type="loading" style={{ marginRight: 8 }} /> : <Icon type="upload" style={{ marginRight: 8 }} />}
                                 上传文件
                             </span>
                         </label>}
@@ -114,14 +134,14 @@ class DisplayResource extends React.Component<any, any> {
                             accept=".zip"
                             style={{ display: 'none' }}
                         />
-                        { !isView && <div className="c-displayResource__notice">仅支持.zip格式</div> }
-                        { kerFileName && <div className="c-displayResource__downloadFile" style={{ fontSize: 12, color: '#3F87FF' }}>
+                        {!isView && <div className="c-displayResource__notice">仅支持.zip格式</div>}
+                        {kerFileName && <div className="c-displayResource__downloadFile" style={{ fontSize: 12, color: '#3F87FF' }}>
                             <span>
                                 <Icon type="paper-clip" style={{ marginRight: 2, color: '#666666FF' }} />
                                 {utils.textOverflowExchange(kerFileName, 9)}
                             </span>
                             <span>
-                                { components.id && <Icon type="download" style={{ color: '#666666FF' }} onClick={() => components.id && downloadFile(components, 0)} /> }
+                                {components.id && <Icon type="download" style={{ color: '#666666FF' }} onClick={() => components.id && downloadFile(components, 0)} />}
                                 {!isView && <Icon type="delete" style={{ color: '#666666FF', marginLeft: 6 }} onClick={() => deleteKerFile(components.componentTypeCode)} />}
                             </span>
                         </div>}
@@ -169,7 +189,7 @@ class DisplayResource extends React.Component<any, any> {
                             htmlFor={`my${configName}PramasFile`}
                         >
                             <span>
-                                { uploadLoading ? <Icon className="blue-loading" type="loading" style={{ marginRight: 8 }} /> : <Icon type="upload" style={{ marginRight: 8 }} /> }
+                                {uploadLoading ? <Icon className="blue-loading" type="loading" style={{ marginRight: 8 }} /> : <Icon type="upload" style={{ marginRight: 8 }} />}
                                 上传文件
                             </span>
                         </label>}
@@ -182,7 +202,7 @@ class DisplayResource extends React.Component<any, any> {
                             accept=".json"
                             style={{ display: 'none' }}
                         />
-                        {!isView && <div className="c-displayResource__notice">仅支持json格式</div> }
+                        {!isView && <div className="c-displayResource__notice">仅支持json格式</div>}
                     </div>
                 )}
             </FormItem>
@@ -194,6 +214,11 @@ class DisplayResource extends React.Component<any, any> {
         this.props.handleCompsVersion(val, componentTypeCode);
     }
 
+    handleSaveCompsData = (val: any, componentTypeCode: number) => {
+        this.props.handleSaveCompsData(val, componentTypeCode)
+        this.props.handleCompsCompsData(val, componentTypeCode);
+    }
+
     // 组件版本
     renderCompsVersion = (configName: string) => {
         const { versionData, getFieldDecorator, isView, components } = this.props;
@@ -201,6 +226,7 @@ class DisplayResource extends React.Component<any, any> {
         const componentTypeCode = components.componentTypeCode;
         let defaultVersion = 'hadoop2';
         let version = commonVersion || components.hadoopVersion;
+
         let versionCompsData = versionData.hadoopVersion || [];
         switch (componentTypeCode) {
             case COMPONENT_TYPE_VALUE.FLINK:
@@ -245,6 +271,41 @@ class DisplayResource extends React.Component<any, any> {
         )
     }
 
+    // 存储组件
+    renderStorageComponents = (configName: string) => {
+        const { getFieldDecorator, isView, components } = this.props;
+        const componentTypeCode = components.componentTypeCode;
+        const { saveCompsData = [] } = this.props
+        if (saveCompsData.length === 0) return
+        let storeTypeFlag = false
+        for (const item in saveCompsData) {
+            if (saveCompsData[item].key === COMPONENT_TYPE_VALUE.HDFS) {
+                storeTypeFlag = true
+                break;
+            }
+        }
+
+        let storeType = components?.storeType || (storeTypeFlag ? COMPONENT_TYPE_VALUE.HDFS : saveCompsData?.[0]?.key)
+
+        return (
+            <FormItem
+                label="存储组件"
+                colon={false}
+                key={`${configName}.storeType`}
+            >
+                {getFieldDecorator(`${configName}.storeType`, {
+                    initialValue: storeType
+                })(
+                    <Select style={{ width: 172 }} disabled={isView} onChange={(val) => this.handleSaveCompsData(val, componentTypeCode)}>
+                        {saveCompsData.map((ver: any) => {
+                            return <Option value={ver.key} key={ver.key}>{ver.value}</Option>
+                        })}
+                    </Select>
+                )}
+            </FormItem>
+        )
+    }
+
     renderDisplayResource = () => {
         const { componentTypeCode = '' } = this.props?.components;
         switch (componentTypeCode) {
@@ -253,8 +314,15 @@ class DisplayResource extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.LIBRA_SQL:
             case COMPONENT_TYPE_VALUE.TIDB_SQL:
             case COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL:
+            case COMPONENT_TYPE_VALUE.NFS:
             case COMPONENT_TYPE_VALUE.PRESTO_SQL: {
-                return this.renderParamsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])
+                return (componentTypeCode !== COMPONENT_TYPE_VALUE.SFTP && componentTypeCode !== COMPONENT_TYPE_VALUE.NFS)
+                    ? (
+                        <>
+                            {this.renderParamsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                            {this.renderStorageComponents(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        </>
+                    ) : this.renderParamsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])
             }
             case COMPONENT_TYPE_VALUE.KUBERNETES: {
                 return (
@@ -271,7 +339,7 @@ class DisplayResource extends React.Component<any, any> {
                         {this.renderCompsVersion(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderParamsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
-                        {this.renderPrincipal(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderStorageComponents(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                     </React.Fragment>
                 )
             case COMPONENT_TYPE_VALUE.LEARNING:
@@ -280,7 +348,7 @@ class DisplayResource extends React.Component<any, any> {
                     <React.Fragment>
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderParamsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
-                        {this.renderPrincipal(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderStorageComponents(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                     </React.Fragment>
                 )
             }
@@ -303,7 +371,7 @@ class DisplayResource extends React.Component<any, any> {
                         {this.renderCompsVersion(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderParamsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
-                        {this.renderPrincipal(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderStorageComponents(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                     </React.Fragment>
                 )
             }
