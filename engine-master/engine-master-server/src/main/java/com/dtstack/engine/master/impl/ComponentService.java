@@ -130,6 +130,7 @@ public class ComponentService {
     private TenantService tenantService;
 
     public static final String TYPE_NAME = "typeName";
+    public static final String VERSION = "version";
 
     /**
      * 组件配置文件映射
