@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -163,6 +164,7 @@ public class LineageService {
      * @param engineSourceId 数据源id
      * @param sourceType
      */
+    @Async
     public void parseAndSaveTableLineage(Long dtUicTenantId, Integer appType, String sql, String defaultDb, Long engineSourceId, Integer sourceType, String unionKey) {
         LineageDataSource lineageDataSource = null;
         if (AppType.RDOS.getType() == appType) {
@@ -286,6 +288,7 @@ public class LineageService {
     /**
      * 解析并存储字段级血缘
      */
+    @Async
     public void parseAndSaveColumnLineage(ParseColumnLineageParam parseColumnLineageParam) {
         //1.根据数据源id和appType查询数据源
         //2.解析出sql中的表
@@ -299,6 +302,9 @@ public class LineageService {
         } else {
             //资产通过数据源id查询数据源
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(parseColumnLineageParam.getEngineDataSourceId(), parseColumnLineageParam.getAppType());
+        }
+        if (Objects.isNull(lineageDataSource)){
+            throw new RdosDefineException("数据源不存在");
         }
         //1.根据数据源id和appType查询数据源
         //2.解析出sql中的表
@@ -687,6 +693,9 @@ public class LineageService {
             lineageDataSource = lineageDataSourceService.getDataSourceByParams(queryColumnLineageParam.getSourceType(), null, queryColumnLineageParam.getDtUicTenantId(), queryColumnLineageParam.getAppType());
         } else {
             lineageDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(engineSourceId, appType);
+        }
+        if (Objects.isNull(lineageDataSource)){
+            throw new RdosDefineException("数据源不存在");
         }
         //TODO 手动添加的表无法查看血缘关系
         LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, schemaName);

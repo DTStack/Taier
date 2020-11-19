@@ -9,6 +9,7 @@ import com.dtstack.engine.api.vo.lineage.TableLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryColumnLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageParam;
+import com.dtstack.engine.common.util.ValidateUtil;
 import com.dtstack.engine.master.router.DtRequestParam;
 import com.dtstack.lineage.impl.LineageService;
 import io.swagger.annotations.Api;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * @author chener
@@ -48,9 +50,9 @@ public class LineageController {
     }
     )
     public SqlParseInfo parseSqlInfo(@DtRequestParam String sql, @DtRequestParam String defaultDb, @DtRequestParam Integer sourceType) {
-        Validate.notNull(sql);
-        Validate.notNull(defaultDb);
-        Validate.notNull(sourceType);
+        ValidateUtil.validateNotNull(sql,"sql不能为空");
+        ValidateUtil.validateNotNull(defaultDb,"默认数据库不能为空");
+        ValidateUtil.validateNotNull(sourceType,"数据源类型不能为空");
         return lineageService.parseSql(sql, defaultDb, sourceType);
     }
 
@@ -63,9 +65,9 @@ public class LineageController {
     }
     )
     public TableLineageParseInfo parseTableLineage(@DtRequestParam String sql, @DtRequestParam String defaultDb, @DtRequestParam Integer sourceType) {
-        Validate.notNull(sql);
-        Validate.notNull(defaultDb);
-        Validate.notNull(sourceType);
+        ValidateUtil.validateNotNull(sql,"sql不能为空");
+        ValidateUtil.validateNotNull(defaultDb,"默认数据源不能为空");
+        ValidateUtil.validateNotNull(sourceType,"数据源类型不能为空");
         return lineageService.parseTableLineage(sql, defaultDb, sourceType);
     }
 
@@ -80,22 +82,22 @@ public class LineageController {
     }
     )
     public void parseAndSaveTableLineage(@DtRequestParam Integer appType, @DtRequestParam Long uicTenantId, @DtRequestParam String sql, @DtRequestParam String defaultDb, @DtRequestParam Long engineSourceId,@DtRequestParam Integer sourceType, @DtRequestParam String uniqueKey) {
-        Validate.notNull(appType);
-        Validate.notNull(uicTenantId);
-        Validate.notNull(sql);
-        Validate.notNull(defaultDb);
+        ValidateUtil.validateNotNull(appType,"应用类型不能为空");
+        ValidateUtil.validateNotNull(uicTenantId,"uic租户id不能为空");
+        ValidateUtil.validateNotNull(sql,"sql不能为空");
+        ValidateUtil.validateNotNull(defaultDb,"默认数据哭不能为空");
         lineageService.parseAndSaveTableLineage(uicTenantId, appType, sql, defaultDb, engineSourceId, sourceType,uniqueKey);
     }
 
     @RequestMapping(value = "/parseColumnLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "解析字段级血缘关系")
     public ColumnLineageParseInfo parseColumnLineage(@RequestBody ParseColumnLineageParam parseColumnLineageParam) {
-        Validate.notNull(parseColumnLineageParam.getAppType());
-        Validate.notNull(parseColumnLineageParam.getDataSourceType());
-        Validate.notNull(parseColumnLineageParam.getDefaultDb());
-        Validate.notNull(parseColumnLineageParam.getDtUicTenantId());
-        Validate.notNull(parseColumnLineageParam.getSql());
-        Validate.notNull(parseColumnLineageParam.getTableColumnsMap());
+        ValidateUtil.validateNotNull(parseColumnLineageParam.getAppType(),"应用类型不能为空");
+        ValidateUtil.validateNotNull(parseColumnLineageParam.getDataSourceType(),"数据源类型不能为空");
+        ValidateUtil.validateNotNull(parseColumnLineageParam.getDefaultDb(),"默认数据库不能为空");
+        ValidateUtil.validateNotNull(parseColumnLineageParam.getDtUicTenantId(),"uic租户id不能为空");
+        ValidateUtil.validateNotNull(parseColumnLineageParam.getSql(),"sql不能为空");
+        ValidateUtil.validateNotNull(parseColumnLineageParam.getTableColumnsMap(),"表字段map不能为空");
         return lineageService.parseColumnLineage(parseColumnLineageParam.getSql(), parseColumnLineageParam.getDataSourceType(), parseColumnLineageParam.getDefaultDb(), parseColumnLineageParam.getTableColumnsMap());
     }
 
@@ -110,128 +112,113 @@ public class LineageController {
     }
     )
     public void parseAndSaveColumnLineage(@RequestBody ParseColumnLineageParam parseColumnLineageParam) {
-        Validate.notNull(parseColumnLineageParam.getAppType());
-        Validate.notNull(parseColumnLineageParam.getDataSourceType());
-        Validate.notNull(parseColumnLineageParam.getDefaultDb());
-        Validate.notNull(parseColumnLineageParam.getDtUicTenantId());
-        Validate.notNull(parseColumnLineageParam.getSql());
+        ValidateUtil.validateNotNull(parseColumnLineageParam.getAppType(),"应用类型不能为空");
+        ValidateUtil.validateNotNull(parseColumnLineageParam.getDataSourceType(),"数据源类型不能为空");
+        ValidateUtil.validateNotNull(parseColumnLineageParam.getDefaultDb(),"默认数据库不能为空");
+        ValidateUtil.validateNotNull(parseColumnLineageParam.getDtUicTenantId(),"uic租户id不能为空");
+        ValidateUtil.validateNotNull(parseColumnLineageParam.getSql(),"sql不能为空");
         lineageService.parseAndSaveColumnLineage(parseColumnLineageParam);
+    }
+
+    private void checkLineageTableTableVO(LineageTableTableVO lineageTableTableVO){
+        ValidateUtil.validateNotNull(lineageTableTableVO.getAppType(),"应用类型不能为空");
+        ValidateUtil.validateNotNull(lineageTableTableVO.getDtUicTenantId(),"uic租户id不能为空");
+        ValidateUtil.validateNotNull(lineageTableTableVO.getInputTableInfo(),"输入表信息不能为空");
+        ValidateUtil.validateNotNull(lineageTableTableVO.getResultTableInfo(),"结果表信息不能为空");
     }
 
     @RequestMapping(value = "/manualAddTableTable", method = {RequestMethod.POST})
     @ApiOperation(value = "手动添加表级血缘")
     public void manualAddTableTable(@RequestBody LineageTableTableVO lineageTableTableVO) {
-        Validate.notNull(lineageTableTableVO.getAppType());
-        Validate.notNull(lineageTableTableVO.getDtUicTenantId());
-        Validate.notNull(lineageTableTableVO.getInputTableInfo());
-        Validate.notNull(lineageTableTableVO.getDtUicTenantId());
-        Validate.notNull(lineageTableTableVO.getResultTableInfo());
+        checkLineageTableTableVO(lineageTableTableVO);
         lineageService.manualAddTableLineage(lineageTableTableVO);
     }
 
     @RequestMapping(value = "/manualDeleteTableTable", method = {RequestMethod.POST})
     @ApiOperation(value = "手动删除表级血缘")
     public void manualDeleteTableTable(@RequestBody LineageTableTableVO lineageTableTableVO) {
-        Validate.notNull(lineageTableTableVO.getAppType());
-        Validate.notNull(lineageTableTableVO.getDtUicTenantId());
-        Validate.notNull(lineageTableTableVO.getInputTableInfo());
-        Validate.notNull(lineageTableTableVO.getDtUicTenantId());
-        Validate.notNull(lineageTableTableVO.getResultTableInfo());
+        checkLineageTableTableVO(lineageTableTableVO);
         lineageService.manualDeleteTableLineage(lineageTableTableVO);
     }
 
+    private void checkLineageColumnColumnVO(LineageColumnColumnVO lineageTableTableVO){
+        ValidateUtil.validateNotNull(lineageTableTableVO.getAppType(),"应用类型不能为空");
+        ValidateUtil.validateNotNull(lineageTableTableVO.getDtUicTenantId(),"uic租户id不能为空");
+        ValidateUtil.validateNotNull(lineageTableTableVO.getInputTableInfo(),"输入表信息不能为空");
+        ValidateUtil.validateNotNull(lineageTableTableVO.getResultTableInfo(),"输出表信息不能为空");
+        ValidateUtil.validateNotNull(lineageTableTableVO.getInputColumnName(),"输入字段名不能为空");
+        ValidateUtil.validateNotNull(lineageTableTableVO.getResultColumnName(),"输出字段名不能为空");
+    }
     @RequestMapping(value = "/manualAddColumnColumn", method = {RequestMethod.POST})
     @ApiOperation(value = "手动添加字段级血缘")
     public void manualAddColumnColumn(@RequestBody LineageColumnColumnVO lineageTableTableVO) {
-        Validate.notNull(lineageTableTableVO.getAppType());
-        Validate.notNull(lineageTableTableVO.getDtUicTenantId());
-        Validate.notNull(lineageTableTableVO.getInputTableInfo());
-        Validate.notNull(lineageTableTableVO.getDtUicTenantId());
-        Validate.notNull(lineageTableTableVO.getResultTableInfo());
-        Validate.notNull(lineageTableTableVO.getInputColumnName());
-        Validate.notNull(lineageTableTableVO.getResultColumnName());
+        checkLineageColumnColumnVO(lineageTableTableVO);
         lineageService.manualAddColumnLineage(lineageTableTableVO);
     }
 
     @RequestMapping(value = "/manualDeleteColumnColumn", method = {RequestMethod.POST})
     @ApiOperation(value = "手动删除字段级血缘")
     public void manualDeleteColumnColumn(@RequestBody LineageColumnColumnVO lineageTableTableVO) {
-        Validate.notNull(lineageTableTableVO.getAppType());
-        Validate.notNull(lineageTableTableVO.getDtUicTenantId());
-        Validate.notNull(lineageTableTableVO.getInputTableInfo());
-        Validate.notNull(lineageTableTableVO.getDtUicTenantId());
-        Validate.notNull(lineageTableTableVO.getResultTableInfo());
-        Validate.notNull(lineageTableTableVO.getInputColumnName());
-        Validate.notNull(lineageTableTableVO.getResultColumnName());
+        checkLineageColumnColumnVO(lineageTableTableVO);
         lineageService.manualDeleteColumnLineage(lineageTableTableVO);
     }
 
+    private void checkQueryColumnLineageParam(QueryTableLineageParam queryTableLineageParam){
+        ValidateUtil.validateNotNull(queryTableLineageParam.getAppType(),"应用类型不能为空");
+        ValidateUtil.validateNotNull(queryTableLineageParam.getDtUicTenantId(),"uic租户id不能为空");
+        ValidateUtil.validateNotNull(queryTableLineageParam.getSourceType(),"数据源类型不能为空");
+        ValidateUtil.validateNotNull(queryTableLineageParam.getTableName(),"表名称不能为空");
+        ValidateUtil.validateNotNull(queryTableLineageParam.getDbName(),"数据库名称不能为空");
+    }
     @RequestMapping(value = "/queryTableInputLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "查询表上游血缘")
     public List<LineageTableTableVO> queryTableInputLineage(@RequestBody QueryTableLineageParam queryTableLineageParam) {
-        Validate.notNull(queryTableLineageParam.getAppType());
-        Validate.notNull(queryTableLineageParam.getDtUicTenantId());
-        Validate.notNull(queryTableLineageParam.getSourceType());
-        Validate.notNull(queryTableLineageParam.getTableName());
-        Validate.notNull(queryTableLineageParam.getDbName());
+        checkQueryColumnLineageParam(queryTableLineageParam);
         return lineageService.queryTableInputLineage(queryTableLineageParam);
     }
 
     @RequestMapping(value = "/queryTableResultLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "查询表下游血缘")
     public List<LineageTableTableVO> queryTableResultLineage(@RequestBody QueryTableLineageParam queryTableLineageParam) {
-        Validate.notNull(queryTableLineageParam.getAppType());
-        Validate.notNull(queryTableLineageParam.getDtUicTenantId());
-        Validate.notNull(queryTableLineageParam.getSourceType());
-        Validate.notNull(queryTableLineageParam.getTableName());
-        Validate.notNull(queryTableLineageParam.getDbName());
+        checkQueryColumnLineageParam(queryTableLineageParam);
         return lineageService.queryTableResultLineage(queryTableLineageParam);
     }
 
     @RequestMapping(value = "/queryTableLineages", method = {RequestMethod.POST})
     @ApiOperation(value = "查询表血缘")
     public List<LineageTableTableVO> queryTableLineages(@RequestBody QueryTableLineageParam queryTableLineageParam) {
-        Validate.notNull(queryTableLineageParam.getAppType());
-        Validate.notNull(queryTableLineageParam.getDtUicTenantId());
-        Validate.notNull(queryTableLineageParam.getSourceType());
-        Validate.notNull(queryTableLineageParam.getTableName());
-        Validate.notNull(queryTableLineageParam.getDbName());
+        checkQueryColumnLineageParam(queryTableLineageParam);
         return lineageService.queryTableLineages(queryTableLineageParam);
+    }
+
+    private void checkQueryColumnLineageParam(QueryColumnLineageParam queryColumnLineageParam){
+        ValidateUtil.validateNotNull(queryColumnLineageParam.getAppType(),"应用类型不能为空");
+        ValidateUtil.validateNotNull(queryColumnLineageParam.getDtUicTenantId(),"uic租户id不能为空");
+        ValidateUtil.validateNotNull(queryColumnLineageParam.getSourceType(),"数据源类型不能为空");
+        ValidateUtil.validateNotNull(queryColumnLineageParam.getTableName(),"表名称不能为空");
+        ValidateUtil.validateNotNull(queryColumnLineageParam.getDbName(),"数据库名称不能为空");
+        ValidateUtil.validateNotNull(queryColumnLineageParam.getColumnName(),"字段名称不能为空");
     }
 
     @RequestMapping(value = "/queryColumnInputLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "查询字段上游血缘")
     public List<LineageColumnColumnVO> queryColumnInputLineage(@RequestBody QueryColumnLineageParam queryColumnLineageParam) {
-        Validate.notNull(queryColumnLineageParam.getAppType());
-        Validate.notNull(queryColumnLineageParam.getDtUicTenantId());
-        Validate.notNull(queryColumnLineageParam.getSourceType());
-        Validate.notNull(queryColumnLineageParam.getTableName());
-        Validate.notNull(queryColumnLineageParam.getDbName());
-        Validate.notNull(queryColumnLineageParam.getColumnName());
+        checkQueryColumnLineageParam(queryColumnLineageParam);
         return lineageService.queryColumnInputLineage(queryColumnLineageParam);
     }
 
     @RequestMapping(value = "/queryColumnResultLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "查询字段下游血缘")
     public List<LineageColumnColumnVO> queryColumnResultLineage(@RequestBody QueryColumnLineageParam queryColumnLineageParam) {
-        Validate.notNull(queryColumnLineageParam.getAppType());
-        Validate.notNull(queryColumnLineageParam.getDtUicTenantId());
-        Validate.notNull(queryColumnLineageParam.getSourceType());
-        Validate.notNull(queryColumnLineageParam.getTableName());
-        Validate.notNull(queryColumnLineageParam.getDbName());
-        Validate.notNull(queryColumnLineageParam.getColumnName());
+        checkQueryColumnLineageParam(queryColumnLineageParam);
         return lineageService.queryColumnResultLineage(queryColumnLineageParam);
     }
 
     @RequestMapping(value = "/queryColumnLineages", method = {RequestMethod.POST})
     @ApiOperation(value = "查询字段血缘")
     public List<LineageColumnColumnVO> queryColumnLineages(@RequestBody QueryColumnLineageParam queryColumnLineageParam) {
-        Validate.notNull(queryColumnLineageParam.getAppType());
-        Validate.notNull(queryColumnLineageParam.getDtUicTenantId());
-        Validate.notNull(queryColumnLineageParam.getSourceType());
-        Validate.notNull(queryColumnLineageParam.getTableName());
-        Validate.notNull(queryColumnLineageParam.getDbName());
-        Validate.notNull(queryColumnLineageParam.getColumnName());
+        checkQueryColumnLineageParam(queryColumnLineageParam);
         return lineageService.queryColumnLineages(queryColumnLineageParam);
     }
+
 }
