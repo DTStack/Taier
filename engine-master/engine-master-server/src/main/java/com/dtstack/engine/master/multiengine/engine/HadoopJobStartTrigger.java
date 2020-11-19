@@ -428,6 +428,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 throw new RdosDefineException("数据同步hadoopConfig principalFile 字段不能为空");
             }
             pluginInfo.put(ConfigConstant.PRINCIPAL_FILE,principalFile);
+            pluginInfo.putIfAbsent(ConfigConstant.PRINCIPAL,hadoopConfig.getString(ConfigConstant.PRINCIPAL));
 
             JSONObject sftpConf = hadoopConfig.getJSONObject(EComponentType.SFTP.getConfName());
             if (null == sftpConf || sftpConf.size() <= 0) {
