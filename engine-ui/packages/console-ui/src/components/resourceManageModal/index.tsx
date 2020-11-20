@@ -51,7 +51,7 @@ const CustomModal: React.FC = (props: any) => {
     const [dataList, setDataList] = useState([])
     const [initialList, setInitialList] = useState({})
     const prevVisible = useRef(null)
-    const { queueList } = useEnv({ clusterId, form, visible: prevVisible.current !== visible && visible === true, clusterList })
+    const { queueList } = useEnv({ clusterId, form, visible, clusterList })
     // 切换集群
     useEffect(() => {
         if (prevVisible.current !== visible) {
