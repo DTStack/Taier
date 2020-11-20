@@ -410,7 +410,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     return null;
                 }, 3, 2000, false, Lists.newArrayList(SocketTimeoutException.class));
             } catch (Exception e) {
-                LOG.error("create partition error", e);
+                LOG.error("create partition error:", e);
                 throw new RdosDefineException("create partition error:" + ExceptionUtil.getErrorMessage(e));
             }
         }

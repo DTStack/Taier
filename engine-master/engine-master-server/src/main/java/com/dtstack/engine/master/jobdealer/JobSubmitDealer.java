@@ -148,7 +148,7 @@ public class JobSubmitDealer implements Runnable {
             jobClient.doStatusCallBack(RdosTaskStatus.LACKING.getStatus());
         } catch (InterruptedException e) {
             queue.put(jobClient);
-            logger.error("jobId:{} delayJobQueue.put failed.", e);
+            logger.error("jobId:{} delayJobQueue.put failed.", jobClient.getTaskId(), e);
         }
         logger.info("jobId:{} success add job to lacking delayJobQueue, job's lackingCount:{}.", jobClient.getTaskId(), jobClient.getLackingCount());
     }
