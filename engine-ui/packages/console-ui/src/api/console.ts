@@ -48,6 +48,9 @@ export default {
     saveComponent (params: any) {
         return http.postAsFormData(req.SAVE_COMPONENT, params);
     },
+    parseKerberos (params: any) {
+        return http.postAsFormData(req.PARSE_KERBEROS, params);
+    },
     getCompVersion (params: any) {
         return http.post(req.GET_COMPONENT_VERSION, params);
     },

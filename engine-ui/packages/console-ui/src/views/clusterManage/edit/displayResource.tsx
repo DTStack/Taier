@@ -218,7 +218,9 @@ class DisplayResource extends React.Component<any, any> {
         this.props.handleSaveCompsData(val, componentTypeCode)
         this.props.handleCompsCompsData(val, componentTypeCode);
     }
-
+    handlePrincipal = (val, componentTypeCode) => {
+        this.props.handleSavePrincipal(val, componentTypeCode)
+    }
     // 组件版本
     renderCompsVersion = (configName: string) => {
         const { versionData, getFieldDecorator, isView, components } = this.props;
@@ -329,6 +331,7 @@ class DisplayResource extends React.Component<any, any> {
                     <React.Fragment>
                         {this.renderConfigsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderPrincipal(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                     </React.Fragment>
                 )
             }
@@ -338,6 +341,7 @@ class DisplayResource extends React.Component<any, any> {
                     <React.Fragment>
                         {this.renderCompsVersion(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderPrincipal(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderParamsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderStorageComponents(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                     </React.Fragment>
@@ -347,6 +351,7 @@ class DisplayResource extends React.Component<any, any> {
                 return (
                     <React.Fragment>
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderPrincipal(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderParamsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderStorageComponents(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                     </React.Fragment>
@@ -370,6 +375,7 @@ class DisplayResource extends React.Component<any, any> {
                     <React.Fragment>
                         {this.renderCompsVersion(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderKerberosFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+                        {this.renderPrincipal(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderParamsFile(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                         {this.renderStorageComponents(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
                     </React.Fragment>
@@ -380,24 +386,22 @@ class DisplayResource extends React.Component<any, any> {
         }
     }
 
-    handlePrincipal = (val, componentTypeCode) => {
-    }
-
     isPrincipal= () => {
-        const type=Object.keys(COMPONEMT_CONFIG_KEYS)
-        const [principalList,havePrincipal]=[{},[...UPPER_NAME]]
-        type.forEach(item=>{
-            principalList[COMPONEMT_CONFIG_KEYS[item]]=havePrincipal.includes(item)
-            
+        const type = Object.keys(COMPONEMT_CONFIG_KEYS)
+        const [principals, havePrincipal] = [{}, [...UPPER_NAME]]
+        type.forEach(item => {
+            principals[COMPONEMT_CONFIG_KEYS[item]] = havePrincipal.includes(item)
         })
-        return principalList
+        return principals
     }
 
     renderPrincipal = (configName) => {
         const list = this.isPrincipal()
-        if(!list[configName]) return null
-        const { getFieldDecorator, isView, components } = this.props;
+        const { getFieldDecorator, isView, components, componentConfig } = this.props;
+        const principals = componentConfig[configName]?.principals
         const componentTypeCode = components.componentTypeCode;
+
+        if (!list[configName] || !Array.isArray(principals) || principals?.length === 0) return null
         return (
             <FormItem
                 label="principal"
@@ -405,12 +409,14 @@ class DisplayResource extends React.Component<any, any> {
                 key={`${configName}.principal`}
             >
                 {getFieldDecorator(`${configName}.principal`, {
-                    initialValue: undefined
+                    initialValue: components.principal || principals[0] || ''
                 })(
                     <Select style={{ width: 172 }} disabled={isView} onChange={(val) => this.handlePrincipal(val, componentTypeCode)}>
-                        {[{key:'1',value:'principal1'}].map((ver: any) => {
-                            return <Option value={ver.value} key={ver.key}>{ver.key}</Option>
-                        })}
+                        {
+                            principals.map((ver: any, key) => {
+                                return <Option value={ver} key={key}>{ver}</Option>
+                            })
+                        }
                     </Select>
                 )}
             </FormItem>

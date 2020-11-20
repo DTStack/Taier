@@ -25,9 +25,9 @@ export const UPPER_NAME = [
     'SPARK',
     'SPARK_THRIFT_SERVER',
     'YARN',
-    "IMPALA_SQL",
-    "DTYARNSHELL",
-    "LEARNING"
+    'IMPALA_SQL',
+    'DTYARNSHELL',
+    'LEARNING'
 ]
 
 export const COMPONENT_TYPE_VALUE = {
@@ -50,8 +50,6 @@ export const COMPONENT_TYPE_VALUE = {
     PRESTO_SQL: 16,
     NFS: 17
 }
-
-
 
 export const COMPONEMT_CONFIG_KEYS = {
     FLINK: 'flinkConf',
