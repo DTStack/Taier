@@ -419,6 +419,11 @@ class DisplayResource extends React.Component<any, any> {
                         }
                     </Select>
                 )}
+                {getFieldDecorator(`${configName}.principals`, {
+                    initialValue: principals || components.principals || []
+                })(
+                    <></>
+                )}
             </FormItem>
         )
     }
