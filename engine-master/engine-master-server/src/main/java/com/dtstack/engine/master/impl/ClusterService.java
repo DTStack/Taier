@@ -796,12 +796,16 @@ public class ClusterService implements InitializingBean {
         clusterDao.deleteCluster(clusterId);
     }
 
+    public ClusterVO getCluster( Long clusterId,  Boolean kerberosConfig, Boolean removeTypeName) {
+        return getCluster(clusterId,kerberosConfig,removeTypeName,false);
+    }
+
     /**
      * 获取集群信息详情 需要根据组件分组
      * @param clusterId
      * @return
      */
-    public ClusterVO getCluster( Long clusterId,  Boolean kerberosConfig, Boolean removeTypeName) {
+    public ClusterVO getCluster(Long clusterId,  Boolean kerberosConfig, Boolean removeTypeName,boolean isFullPrincipal) {
         Cluster cluster = clusterDao.getOne(clusterId);
         EngineAssert.assertTrue(cluster != null, ErrorCode.DATA_NOT_FIND.getDescription());
         ClusterVO clusterVO = ClusterVO.toVO(cluster);
@@ -811,6 +815,10 @@ public class ClusterService implements InitializingBean {
         }
         List<Long> engineIds = engines.stream().map(Engine::getId).collect(Collectors.toList());
         List<Component> components = componentDao.listByEngineIds(engineIds);
+        List<KerberosConfig> kerberosConfigs = null;
+        if(isFullPrincipal){
+            kerberosConfigs =  kerberosDao.getByClusters(clusterId);
+        }
 
         Map<EComponentScheduleType, List<Component>> scheduleType = new HashMap<>();
         if (CollectionUtils.isNotEmpty(components)) {
@@ -822,12 +830,24 @@ public class ClusterService implements InitializingBean {
             SchedulingVo schedulingVo = new SchedulingVo();
             schedulingVo.setSchedulingCode(value.getType());
             schedulingVo.setSchedulingName(value.getName());
-            schedulingVo.setComponents(ComponentVO.toVOS(scheduleType.get(value), Objects.isNull(removeTypeName) || removeTypeName));
+            List<ComponentVO> componentVOS = ComponentVO.toVOS(scheduleType.get(value),null == removeTypeName|| removeTypeName);
+            if(CollectionUtils.isNotEmpty(componentVOS) && CollectionUtils.isNotEmpty(kerberosConfigs)){
+                for (ComponentVO componentVO : componentVOS) {
+                    for (KerberosConfig config : kerberosConfigs) {
+                        if(componentVO.getComponentTypeCode().equals(config.getComponentType())){
+                            componentVO.setPrincipal(config.getPrincipal());
+                            componentVO.setPrincipals(config.getPrincipals());
+                        }
+                    }
+                }
+            }
+            schedulingVo.setComponents(componentVOS);
             schedulingVos.add(schedulingVo);
         }
         clusterVO.setScheduling(schedulingVos);
         return clusterVO;
     }
+
 
 
     public List<ClusterEngineVO> getAllCluster() {

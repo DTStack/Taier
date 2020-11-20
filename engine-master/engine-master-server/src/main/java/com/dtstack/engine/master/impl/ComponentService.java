@@ -68,11 +68,7 @@ public class ComponentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComponentService.class);
 
-    private final static String ZIP_CONTENT_TYPE = "zip";
-
     public static final String KERBEROS_PATH = "kerberos";
-
-    private static final String KERBEROS_CONFIG = "kerberosConfig";
 
     private static final String HADOOP3_SIGNAL = "hadoop3";
 
@@ -454,13 +450,7 @@ public class ComponentService {
 
         String md5Key = "";
 
-        //上传资源依赖sftp组件
-        if (CollectionUtils.isNotEmpty(resources)) {
-            Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
-            // 上传配置文件到sftp 供后续下载
-            SftpConfig sftpConfig = getSFTPConfig(sftpComponent,componentCode,componentConfig);
-            md5Key = uploadResourceToSftp(clusterId, resources, kerberosFileName, sftpConfig, addComponent, dbComponent,principals,principal);
-        }
+        md5Key = updateResource(clusterId, componentConfig, resources, kerberosFileName, componentCode, principals, principal, addComponent, dbComponent, md5Key);
         addComponent.setComponentConfig(this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion,md5Key,addComponent.getStoreType()));
 
         addComponent.setClusterId(clusterId);
@@ -472,8 +462,29 @@ public class ComponentService {
         }
         ComponentVO componentVO = ComponentVO.toVO(addComponent, true);
         componentVO.setClusterName(clusterName);
+        componentVO.setPrincipal(principal);
+        componentVO.setPrincipals(principals);
         this.updateCache(engine.getId(), componentType.getTypeCode());
         return componentVO;
+    }
+
+    private String updateResource(Long clusterId, String componentConfig, List<Resource> resources, String kerberosFileName, Integer componentCode, String principals, String principal, Component addComponent, Component dbComponent, String md5Key) {
+        //上传资源依赖sftp组件
+        if (CollectionUtils.isNotEmpty(resources)) {
+            Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
+            // 上传配置文件到sftp 供后续下载
+            SftpConfig sftpConfig = getSFTPConfig(sftpComponent, componentCode, componentConfig);
+            md5Key = uploadResourceToSftp(clusterId, resources, kerberosFileName, sftpConfig, addComponent, dbComponent, principals, principal);
+        } else if (CollectionUtils.isEmpty(resources) && StringUtils.isNotBlank(principal)) {
+            //直接更新认证信息
+            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, addComponent.getComponentTypeCode());
+            if (null != kerberosConfig) {
+                kerberosConfig.setPrincipal(principal);
+                kerberosConfig.setPrincipals(principals);
+                kerberosDao.update(kerberosConfig);
+            }
+        }
+        return md5Key;
     }
 
     private String checkKubernetesConfig(String componentConfig, List<Resource> resources, EComponentType componentType) {
@@ -1749,7 +1760,7 @@ public class ComponentService {
 
             //获取principal
             List<PrincipalName> principal = this.getPrincipal(fileKeyTab);
-            return principal
+            return  principal
                     .stream()
                     .map(PrincipalName::getName)
                     .collect(Collectors.toList());
