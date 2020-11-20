@@ -469,16 +469,23 @@ class EditCluster extends React.Component<any, any> {
         const { componentConfig } = this.state;
         const isCanUpload = this.validateFileType(kerFile && kerFile.files && kerFile.files[0].name)
         if (isCanUpload) {
-            this.setState({
-                componentConfig: {
-                    ...componentConfig,
-                    [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
-                        ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
-                        kerberosFileName: kerFile,
-                        kerFileName: kerFile.files[0].name
+            let principals: any = [];
+            (async () => {
+                const res = await Api.parseKerberos({ fileName: kerFile.files[0] })
+                principals = res?.data
+
+                await this.setState({
+                    componentConfig: {
+                        ...componentConfig,
+                        [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                            ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
+                            kerberosFileName: kerFile,
+                            kerFileName: kerFile.files[0].name,
+                            principals: principals
+                        }
                     }
-                }
-            });
+                });
+            })()
         }
     }
 
@@ -527,6 +534,8 @@ class EditCluster extends React.Component<any, any> {
                     return;
                 }
             }
+            const principal = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]?.principals
+            values[`${COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]}`].principals = principal
             if (isFileNameRequire && !config.fileName) {
                 message.error('请上传配置文件');
                 return;
@@ -718,6 +727,18 @@ class EditCluster extends React.Component<any, any> {
         })
     }
 
+    handleSavePrincipal = (val: string, componentTypeCode: number) => {
+        const { form } = this.props;
+        this.setState({
+            storeType: val
+        })
+        form.setFieldsValue({
+            [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                storeType: val
+            }
+        })
+    }
+
     renderCompTabs = (item: any) => {
         const { tabCompData } = this.state;
         if (tabCompData.length === 0) return {};
@@ -820,6 +841,7 @@ class EditCluster extends React.Component<any, any> {
                                                                         clusterName={realClusterName}
                                                                         handleCommonVersion={this.handleCommonVersion}
                                                                         handleSaveCompsData={this.handleSaveCompsData}
+                                                                        handleSavePrincipal={this.handleSavePrincipal}
                                                                         handleCompsCompsData={this.handleCompsCompsData}
                                                                         handleCompsVersion={this.handleCompsVersion}
                                                                         deleteKerFile={this.deleteKerFile}

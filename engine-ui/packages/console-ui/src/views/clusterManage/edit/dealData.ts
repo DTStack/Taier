@@ -243,7 +243,9 @@ function handleCompsData (data: any) {
                 id: comps.id || '',
                 hadoopVersion: comps.hadoopVersion,
                 params: getLoadTemplateParams(JSON.parse(comps.componentTemplate)),
-                storeType: comps.storeType || ''
+                storeType: comps.storeType || '',
+                principal: comps.principal || '',
+                principals: comps.principals?.split(',') || []
             }
         })
     })
@@ -263,7 +265,9 @@ function updateCompsConfig (components: any, componentTypeCode: number, data: an
             fileName: data.data.uploadFileName || '',
             kerFileName: data.data.kerberosFileName || '',
             params: getLoadTemplateParams(JSON.parse(data.data.componentTemplate)),
-            storeType: data.data.storeType || ''
+            storeType: data.data.storeType || '',
+            principal: data.data.principal || '',
+            principals: data.data.principals?.split(',') || []
         }
     }
 }
@@ -291,7 +295,7 @@ function getComponentConfigPrames (values: any, components: any, config: any) {
     const files = uploadFileName.files && uploadFileName.files[0] ? uploadFileName.files[0] : '';
     const kerFiles = kerberosFileName.files && kerberosFileName.files[0] ? kerberosFileName.files[0] : '';
     const saveConfig = values[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]];
-    const { hadoopVersion = '', storeType = '', params = {}, configInfo } = saveConfig;
+    const { hadoopVersion = '', storeType = '', params = {}, configInfo, principal = '', principals = [] } = saveConfig;
 
     const { clusterName } = values;
     const formConfig = _.cloneDeep(configInfo);
@@ -324,6 +328,8 @@ function getComponentConfigPrames (values: any, components: any, config: any) {
         resources2: kerFiles,
         clusterName,
         storeType,
+        principal,
+        principals,
         componentConfig: JSON.stringify(paramsConfig),
         kerberosFileName: kerFileName,
         hadoopVersion: hadoopVersion || '',
@@ -340,7 +346,6 @@ function getComponentConfigPrames (values: any, components: any, config: any) {
 function getMoadifyComps (values: any, componentConfig: any) {
     const componentTypeCodeArr = Object.values(COMPONENT_TYPE_VALUE);
     let modifyCompsArr: any = [];
-
     componentTypeCodeArr.forEach((componentTypeCode: number) => {
         const formConfig = values[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
         if (Object.keys(formConfig).length !== 0) {
@@ -350,15 +355,18 @@ function getMoadifyComps (values: any, componentConfig: any) {
             const compKerberosFileName = config.kerFileName;
             const compUploadFileName = config.fileName;
             const compStoreType = config.storeType
-            const { configInfo = {}, params = {}, hadoopVersion = '', kerberosFileName = '', uploadFileName = '', storeType = '' } = formConfig;
+            const compPrincipal = config.principal
+            const compPrincipals = config.principals
+            const { configInfo = {}, params = {}, hadoopVersion = '', kerberosFileName = '', uploadFileName = '', storeType = '', principal = '', principals = [] } = formConfig;
             const formValues = handleFormValues(configInfo, params, componentTypeCode);
             const isUploadFileComps = checkUplaodFileComps(Number(componentTypeCode))
 
             const isModify = (hadoopVersion && !_.isEqual(compHadoopVersion, hadoopVersion)) ||
                 (uploadFileName && !_.isEqual(compUploadFileName, handleUploadFile(uploadFileName))) ||
                     (kerberosFileName && !_.isEqual(compKerberosFileName, handleUploadFile(kerberosFileName))) ||
-                        (storeType && !_.isEqual(compStoreType, storeType))
-
+                        (storeType && !_.isEqual(compStoreType, storeType)) ||
+                            (principal && !_.isEqual(compPrincipal, principal)) ||
+                                (principals && !_.isEqual(compPrincipals, principals))
             if (!config.id) { modifyCompsArr = [...modifyCompsArr, componentTypeCode]; return; }
             if (isModify) { modifyCompsArr = [...modifyCompsArr, componentTypeCode]; return; }
             if (!_.isEqual(compConfigInfo, formValues) && !isUploadFileComps) {

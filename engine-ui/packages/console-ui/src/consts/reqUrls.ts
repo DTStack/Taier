@@ -66,6 +66,7 @@ export default {
 
     // 4.1版本
     GET_COMPONENTSTORE: `${CONSOLE_BASE_URL}/component/getComponentStore`, // 获取存储组件列表
+    PARSE_KERBEROS: `${CONSOLE_BASE_URL}/upload/component/parseKerberos`,
 
     // 资源管理
     GET_ALL_CLUSTER: `${CONSOLE_BASE_URL}/cluster/getAllCluster`,
