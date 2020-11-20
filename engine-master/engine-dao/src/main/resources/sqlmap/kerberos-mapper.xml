@@ -47,6 +47,13 @@
         limit 1
     </select>
 
+    <select id="getByClusters" resultType="KerberosConfig">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_kerberos
+        WHERE cluster_id = #{clusterId} and is_deleted = 0
+    </select>
+
     <insert id="insert" parameterType="KerberosConfig" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO console_kerberos(cluster_id,open_kerberos,name,remote_path,principal,principals,component_type,krb_name)
         VALUES (#{clusterId},#{openKerberos},#{name},#{remotePath},#{principal},#{principals},#{componentType},#{krbName})
