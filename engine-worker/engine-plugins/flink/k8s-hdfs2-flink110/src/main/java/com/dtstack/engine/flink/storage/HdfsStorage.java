@@ -39,6 +39,8 @@ public class HdfsStorage extends AbstractStorage {
 
     private static final Logger LOG = LoggerFactory.getLogger(PerJobClientFactory.class);
 
+    public static final String HADOOP_CONF_STRING = "hadoop.conf.string";
+
     private static final String HDFS_PATTERN = "(hdfs://[^/]+)(.*)";
 
     private static Pattern pattern = Pattern.compile(HDFS_PATTERN);
@@ -74,8 +76,6 @@ public class HdfsStorage extends AbstractStorage {
 
     @Override
     public void fillStorageConfig(org.apache.flink.configuration.Configuration config, FlinkConfig flinkConfig) {
-        // hadoop
-        config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(configuration));
 
         // set hadoop conf dir
         String hadoopConfDir = config.getString(KubernetesConfigOptions.HADOOP_CONF_DIR);
@@ -98,7 +98,7 @@ public class HdfsStorage extends AbstractStorage {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String hadoopConfString = objectMapper.writeValueAsString(hadoopConfMap);
-            config.setString(HadoopUtils.HADOOP_CONF_STRING, hadoopConfString);
+            config.setString(HADOOP_CONF_STRING, hadoopConfString);
             FileSystem.initialize(config);
         } catch (Exception e) {
             LOG.error("", e);
