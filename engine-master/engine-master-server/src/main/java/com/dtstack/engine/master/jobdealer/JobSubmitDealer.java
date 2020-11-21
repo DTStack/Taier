@@ -148,7 +148,7 @@ public class JobSubmitDealer implements Runnable {
             jobClient.doStatusCallBack(RdosTaskStatus.LACKING.getStatus());
         } catch (InterruptedException e) {
             queue.put(jobClient);
-            logger.error("jobId:{} delayJobQueue.put failed.", e);
+            logger.error("jobId:{} delayJobQueue.put failed.",jobClient.getTaskId(), e);
         }
         logger.info("jobId:{} success add job to lacking delayJobQueue, job's lackingCount:{}.", jobClient.getTaskId(), jobClient.getLackingCount());
     }
@@ -164,9 +164,6 @@ public class JobSubmitDealer implements Runnable {
                 JobClient jobClient = queue.take();
                 logger.info("jobId:{} jobResource:{} queue size:{} take job from priorityQueue.", jobClient.getTaskId(), jobResource, queue.size());
                 if (checkIsFinished(jobClient)) {
-                    shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
-                    jobClient.doStatusCallBack(RdosTaskStatus.CANCELED.getStatus());
-                    logger.info("jobId:{} checkIsFinished is true, job is Finished.", jobClient.getTaskId());
                     continue;
                 }
                 if (checkJobSubmitExpired(jobClient.getGenerateTime())) {
@@ -191,28 +188,49 @@ public class JobSubmitDealer implements Runnable {
     }
 
     private boolean checkIsFinished(JobClient jobClient) {
+        EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobClient.getTaskId());
         try {
             if (null == jobClient.getQueueSourceType() || EQueueSourceType.NORMAL.getCode() == jobClient.getQueueSourceType()) {
-                EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobClient.getTaskId());
-                if (engineJobCache == null) {
+                if (null == engineJobCache) {
+                    shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
+                    jobClient.doStatusCallBack(RdosTaskStatus.CANCELED.getStatus());
+                    logger.info("jobId:{} checkIsFinished is true, job is Finished.", jobClient.getTaskId());
                     return true;
                 }
             } else {
-                EngineJobCache dbEngineJobCache = engineJobCacheDao.getOne(jobClient.getTaskId());
-                if (null == dbEngineJobCache) {
+                if (null == engineJobCache) {
                     //如果任务出现资源不足 一直deploy加大延时  界面杀死重跑立马完成之后 deployQueue数据未移除
                     //重新放入之后直接取消 导致状态更新waitEngine 状态不一致 所以需要判断下数据是否存在
                     logger.info("jobId:{} stage:{} take job from delayJobQueue  but engine job cache has deleted", jobClient.getTaskId(), delayJobQueue.size());
+                    return true;
                 } else {
-                    //存在才去更新
-                    engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.PRIORITY.getStage(), localAddress, jobClient.getPriority(), null);
-                    jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
+                    //如果任务存在 还需要判断cache表数据是否为重跑后插入生成的
+                    boolean checkCanSubmit = true;
+                    if (null != jobClient.getSubmitCacheTime()) {
+                        long insertDbCacheTime = engineJobCache.getGmtCreate().getTime();
+                        checkCanSubmit = insertDbCacheTime <= jobClient.getSubmitCacheTime();
+
+                    }
+                    if (checkCanSubmit) {
+                        engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.PRIORITY.getStage(), localAddress, jobClient.getPriority(), null);
+                        jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
+                        return false;
+                    } else {
+                        //插入cache表的时间 比 jobClient 第一次提交时间晚 认为任务重新提交过 当前jobClient 抛弃 不做任何处理
+                        logger.info("jobId:{} checkIsFinished is true checkCanSubmit is false jobClient cacheSubmitTime {} cacheDB SubmitTime {}, job is Finished.",
+                                jobClient.getTaskId(), jobClient.getSubmitCacheTime(), engineJobCache.getGmtCreate().getTime());
+                        return true;
+                    }
+
                 }
-                return false;
             }
         } finally {
             //重置状态
             jobClient.setQueueSourceType(EQueueSourceType.NORMAL.getCode());
+            if (null != engineJobCache && null == jobClient.getSubmitCacheTime()) {
+                logger.info("jobId:{} set submitCacheTime is {},", jobClient.getTaskId(), engineJobCache.getGmtCreate().getTime());
+                jobClient.setSubmitCacheTime(engineJobCache.getGmtCreate().getTime());
+            }
         }
         return false;
     }

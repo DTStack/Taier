@@ -36,9 +36,6 @@ public class JobRestartDealer {
     private static final Logger LOG = LoggerFactory.getLogger(JobRestartDealer.class);
 
     @Autowired
-    private EngineJobCacheDao engineJobCacheDao;
-
-    @Autowired
     private ScheduleJobDao scheduleJobDao;
 
     @Autowired
@@ -98,30 +95,30 @@ public class JobRestartDealer {
     /***
      * 对任务状态判断是否需要重试
      * @param status
-     * @param jobId
-     * @param engineJobId
+     * @param scheduleJob
+     * @param jobCache
      * @return
      */
-    public boolean checkAndRestart(Integer status, String jobId, String engineJobId, String appId){
-        Pair<Boolean, JobClient> checkResult = checkJobInfo(jobId, engineJobId, status);
+    public boolean checkAndRestart(Integer status, ScheduleJob scheduleJob,EngineJobCache jobCache){
+        Pair<Boolean, JobClient> checkResult = checkJobInfo(scheduleJob.getJobId(), jobCache, status);
         if(!checkResult.getKey()){
             return false;
         }
 
         JobClient jobClient = checkResult.getValue();
         // 是否需要重新提交
-        int alreadyRetryNum = getAlreadyRetryNum(jobId);
+        int alreadyRetryNum = getAlreadyRetryNum(scheduleJob.getJobId());
         if (alreadyRetryNum >= jobClient.getMaxRetryNum()) {
             LOG.info("[retry=false] jobId:{} alreadyRetryNum:{} maxRetryNum:{}, alreadyRetryNum >= maxRetryNum.", jobClient.getTaskId(), alreadyRetryNum, jobClient.getMaxRetryNum());
             return false;
         }
 
         // 通过engineJobId或appId获取日志
-        jobClient.setEngineTaskId(engineJobId);
-        jobClient.setApplicationId(appId);
+        jobClient.setEngineTaskId(scheduleJob.getEngineJobId());
+        jobClient.setApplicationId(scheduleJob.getApplicationId());
 
         jobClient.setCallBack((jobStatus)->{
-            updateJobStatus(jobId, jobStatus);
+            updateJobStatus(scheduleJob.getJobId(), jobStatus);
         });
 
         if(EngineType.Kylin.name().equalsIgnoreCase(jobClient.getEngineType())){
@@ -170,27 +167,10 @@ public class JobRestartDealer {
         LOG.info("jobId:{} set checkpoint path:{}", jobClient.getTaskId(), jobClient.getExternalPath());
     }
 
-    private Pair<Boolean, JobClient> checkJobInfo(String jobId, String engineJobId, Integer status) {
+    private Pair<Boolean, JobClient> checkJobInfo(String jobId, EngineJobCache jobCache, Integer status) {
         Pair<Boolean, JobClient> check = new Pair<>(false, null);
 
         if(!RdosTaskStatus.FAILED.getStatus().equals(status) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(status)){
-            return check;
-        }
-
-        if(Strings.isNullOrEmpty(engineJobId)){
-            LOG.error("[retry=false] jobId:{} engineJobId is null.", jobId);
-            return check;
-        }
-
-        ScheduleJob engineBatchJob = scheduleJobDao.getRdosJobByJobId(jobId);
-        if(engineBatchJob == null){
-            LOG.error("[retry=false] jobId:{} get ScheduleJob is null.", jobId);
-            return check;
-        }
-
-        EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
-        if(jobCache == null){
-            LOG.info("[retry=false] jobId:{} get EngineJobCache is null.", jobId);
             return check;
         }
 
@@ -204,7 +184,7 @@ public class JobRestartDealer {
                 return check;
             }
 
-            return new Pair<Boolean, JobClient>(true, jobClient);
+            return new Pair<>(true, jobClient);
         } catch (Exception e){
             // 解析任务的jobInfo反序列到ParamAction失败，任务不进行重试.
             LOG.error("[retry=false] jobId:{} default not retry, because getIsFailRetry happens error:{}.", jobId, e);

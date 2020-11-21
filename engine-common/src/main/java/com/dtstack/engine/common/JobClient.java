@@ -106,6 +106,8 @@ public class JobClient extends OrderObject {
     
     private Integer queueSourceType;
 
+    private Long submitCacheTime;
+
 
     public JobClient() {
 
@@ -455,6 +457,14 @@ public class JobClient extends OrderObject {
         }
         JobClient jobClient = (JobClient) o;
         return taskId != null ? taskId.equals(jobClient.taskId) : jobClient.taskId == null;
+    }
+
+    public Long getSubmitCacheTime() {
+        return submitCacheTime;
+    }
+
+    public void setSubmitCacheTime(Long submitCacheTime) {
+        this.submitCacheTime = submitCacheTime;
     }
 
     @Override
