@@ -65,7 +65,11 @@ public class StreamTaskService {
      * 查询stream job
      */
     public List<ScheduleJob> getEngineStreamJob( List<String> taskIds){
-        return scheduleJobDao.getRdosJobByJobIds(taskIds);
+        List<ScheduleJob> jobs = scheduleJobDao.getRdosJobByJobIds(taskIds);
+        for (ScheduleJob scheduleJob : jobs) {
+            scheduleJob.setStatus(RdosTaskStatus.getShowStatus(scheduleJob.getStatus()));
+        }
+        return jobs;
     }
 
     /**
