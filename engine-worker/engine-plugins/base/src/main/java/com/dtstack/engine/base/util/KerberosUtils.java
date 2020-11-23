@@ -223,10 +223,13 @@ public class KerberosUtils {
     }
 
     private static boolean checkTGT(KerberosTicket ticket) {
+        if (ticket == null) {
+            return false;
+        }
         long start = ticket.getStartTime().getTime();
         long end = ticket.getEndTime().getTime();
         boolean expired = Time.now() < start + (long) ((end - start) * 0.80f);
-        if (ticket != null && expired) {
+        if (expired) {
             return true;
         }
         return false;
@@ -250,6 +253,7 @@ public class KerberosUtils {
                 return ticket;
             }
         }
+        logger.warn("Not found Ticket, userName: {}", ugi.getUserName());
         return null;
     }
 
