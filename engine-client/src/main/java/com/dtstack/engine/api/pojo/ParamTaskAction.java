@@ -1,6 +1,7 @@
 package com.dtstack.engine.api.pojo;
 
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * @Auther: dazhi
@@ -12,10 +13,13 @@ public class ParamTaskAction {
 
     private ScheduleTaskShade batchTask;
 
+    @ApiModelProperty(notes = "任务id")
     private String jobId;
 
+    @ApiModelProperty(notes = "是否重试: NORMAL(0), RESTARTED(1) 默认 NORMAL")
     private Integer isRestart;
 
+    @ApiModelProperty(notes = "工作流Id")
     private String flowJobId;
 
     public ScheduleTaskShade getBatchTask() {

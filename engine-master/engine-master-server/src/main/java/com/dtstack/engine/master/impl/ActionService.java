@@ -158,17 +158,28 @@ public class ActionService {
     public Boolean startJob(ScheduleTaskShade batchTask,String jobId,Integer isRestart, String flowJobId) {
         logger.info("startJob ScheduleTaskShade: {} jobId:{} isRestart:{} flowJobId:{} ", JSONObject.toJSONString(batchTask), jobId, isRestart, flowJobId);
         try {
-            ScheduleJob scheduleJob = buildScheduleJob(batchTask, jobId, isRestart, flowJobId);
-            ParamActionExt paramActionExt = paramActionExt(batchTask, scheduleJob,batchTask.getExtraInfo());
-            if (paramActionExt != null) {
-                return this.start(paramActionExt);
+            ParamActionExt paramActionExt = paramActionExt(batchTask, jobId, isRestart, flowJobId);
+            if (paramActionExt == null) {
+                throw new RdosDefineException("extraInfo can't null or empty string");
             }
+            return this.start(paramActionExt);
         } catch (Exception e) {
             logger.error("", e);
         }
 
         return Boolean.FALSE;
     }
+
+    public ParamActionExt paramActionExt(ScheduleTaskShade batchTask, String jobId, Integer isRestart, String flowJobId) throws Exception {
+        logger.info("startJob ScheduleTaskShade: {} jobId:{} isRestart:{} flowJobId:{} ", JSONObject.toJSONString(batchTask), jobId, isRestart, flowJobId);
+        ScheduleJob scheduleJob = buildScheduleJob(batchTask, jobId, isRestart, flowJobId);
+        ParamActionExt paramActionExt = paramActionExt(batchTask, scheduleJob, batchTask.getExtraInfo());
+        if (paramActionExt == null) {
+            throw new RdosDefineException("extraInfo can't null or empty string");
+        }
+        return paramActionExt;
+    }
+
 
     public ParamActionExt paramActionExt(ScheduleTaskShade batchTask, ScheduleJob scheduleJob,String extraInfo) throws Exception {
         JSONObject extObject = JSONObject.parseObject(extraInfo);
