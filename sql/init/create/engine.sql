@@ -41,7 +41,7 @@ CREATE TABLE `schedule_engine_job_cache` (
   `job_priority` BIGINT(20) DEFAULT NULL COMMENT '任务优先级',
   `job_resource` VARCHAR(256) DEFAULT NULL COMMENT 'job的计算引擎资源类型',
   `is_failover` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0：不是，1：由故障恢复来的任务',
-  `wait_reason` VARCHAR(256) DEFAULT NULL COMMENT '任务等待原因',
+  `wait_reason` text DEFAULT NULL COMMENT '任务等待原因',
   PRIMARY KEY (`id`),
   unique KEY `index_job_id` (`job_id`(128))
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;

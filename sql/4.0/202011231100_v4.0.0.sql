@@ -1,0 +1,1 @@
+ALTER TABLE `schedule_engine_job_cache` MODIFY COLUMN `wait_reason` text NULL COMMENT '任务等待原因' AFTER `is_failover`;
