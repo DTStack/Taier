@@ -481,7 +481,8 @@ class EditCluster extends React.Component<any, any> {
                             ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
                             kerberosFileName: kerFile,
                             kerFileName: kerFile.files[0].name,
-                            principals: principals
+                            principals: principals,
+                            principal: undefined
                         }
                     }
                 });
@@ -513,7 +514,9 @@ class EditCluster extends React.Component<any, any> {
                 [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
                     ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
                     kerberosFileName: {},
-                    kerFileName: ''
+                    kerFileName: '',
+                    principals: [],
+                    principal: undefined
                 }
             }
         });
