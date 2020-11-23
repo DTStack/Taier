@@ -221,4 +221,15 @@ public class LineageController {
         return lineageService.queryColumnLineages(queryColumnLineageParam);
     }
 
+    @RequestMapping(value = "/acquireOldTableTable", method = {RequestMethod.POST})
+    @ApiOperation(value = "批量同步表级血缘")
+    public void acquireOldTableTable(@RequestBody List<LineageTableTableVO> lineageTableTableVOs){
+        lineageService.acquireOldTableTable(lineageTableTableVOs);
+    }
+
+    @RequestMapping(value = "/acquireOldColumnColumn", method = {RequestMethod.POST})
+    @ApiOperation(value = "批量同步字段级血缘")
+    public void acquireOldColumnColumn(@RequestBody List<LineageColumnColumnVO> lineageTableTableVOs) {
+        lineageService.acquireOldColumnColumn(lineageTableTableVOs);
+    }
 }
