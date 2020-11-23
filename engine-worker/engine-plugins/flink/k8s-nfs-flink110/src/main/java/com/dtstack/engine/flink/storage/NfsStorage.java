@@ -150,8 +150,8 @@ public class NfsStorage extends AbstractStorage {
             for (JsonElement ele: jsonArray) {
                 JsonObject obj = ele.getAsJsonObject();
                 if (StringUtils.equals(obj.get("path").getAsString(), urlPath)) {
-                    String exception = obj.get("json").getAsString();
-                    return exception;
+                    String info = obj.get("json").getAsString();
+                    return info;
                 }
             }
         }

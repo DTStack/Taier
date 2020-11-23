@@ -432,7 +432,7 @@ public class FlinkClient extends AbstractClient {
         if (clusterClient != null) {
             try {
                 String webInterfaceURL = clusterClient.getWebInterfaceURL();
-                String jobUrl = webInterfaceURL + ConfigConstrant.SP + jobUrlPath;
+                String jobUrl = webInterfaceURL + jobUrlPath;
                 response = PoolHttpClient.get(jobUrl);
             } catch (Exception e) {
                 urlException = e;

@@ -14,7 +14,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class HadoopConfigMapDecorator extends Decorator<ConfigMap, KubernetesConfigMap> {
+
     private static final Logger LOG = LoggerFactory.getLogger(HadoopConfigMapDecorator.class);
+
+    public static final String HADOOP_CONF_STRING = "hadoop.conf.string";
 
     public HadoopConfigMapDecorator() {
     }
@@ -23,7 +26,7 @@ public class HadoopConfigMapDecorator extends Decorator<ConfigMap, KubernetesCon
     protected ConfigMap decorateInternalResource(ConfigMap resource, Configuration configuration) {
         Map<String, String> configMap = resource.getData();
         try {
-            String hadoopConfString = configuration.getString(HadoopUtils.HADOOP_CONF_STRING, null);
+            String hadoopConfString = configuration.getString(HADOOP_CONF_STRING, null);
             ObjectMapper objectMapper = new ObjectMapper();
             Map hadoopConfMap =  objectMapper.readValue(hadoopConfString, Map.class);
             String coreSiteContent = getCoreSiteContent(hadoopConfMap);

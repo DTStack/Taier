@@ -19,8 +19,11 @@ perjob:
     historyserver.web.address:
     historyserver.web.port: 8082
 
+    state.backend: RocksDB
     state.checkpoints.dir: hdfs://ns1/dtInsight/flink110/checkpoints
     state.checkpoints.num-retained: 11
+    state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints
+    state.backend.incremental: true
 
     metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
     metrics.reporter.promgateway.host:
@@ -42,13 +45,8 @@ perjob:
     namespace: default
     pluginLoadMode: classpath
     submitTimeout: 5
-    flinkInterval: 5 SECONDS
     classloader.resolve-order: parent-first
     taskparams.taskmanager.heap.mb: 20
-
-    state.backend: RocksDB
-    state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints
-    state.backend.incremental: true
 
     prometheusHost:
     prometheusPort: 9090
@@ -58,6 +56,7 @@ perjob:
     gatewayJobName: pushgateway
     high-availability: ZOOKEEPER
 
+    kubernetes.container.image.pull-secret:
     kubernetes.host.aliases:
 
 session:
@@ -79,8 +78,11 @@ session:
     historyserver.web.address:
     historyserver.web.port: 8082
 
+    state.backend: RocksDB
     state.checkpoints.dir: hdfs://ns1/dtInsight/flink110/checkpoints
     state.checkpoints.num-retained: 11
+    state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints
+    state.backend.incremental: true
 
     metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
     metrics.reporter.promgateway.host:
@@ -106,10 +108,6 @@ session:
     classloader.resolve-order: parent-first
     taskparams.taskmanager.heap.mb: 20
 
-    state.backend: RocksDB
-    state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints
-    state.backend.incremental: true
-
     prometheusHost:
     prometheusPort: 9090
 
@@ -119,4 +117,7 @@ session:
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
     high-availability: ZOOKEEPER
+
+    kubernetes.container.image.pull-secret:
+    kubernetes.host.aliases:
 
