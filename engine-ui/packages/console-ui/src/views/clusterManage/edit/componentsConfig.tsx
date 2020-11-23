@@ -32,11 +32,11 @@ class ComponentsConfig extends React.Component<any, any> {
         const componentTypeCode = components.componentTypeCode;
         return componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {}
     }
-    renderYarnOrHdfsConfig = () => {
+    renderYarnOrHdfsConfig = (value) => {
         const config = this.getComponentConfig();
         const { configInfo = {} } = config;
         const keyAndValue = Object.entries(configInfo);
-        return keyAndValue.map(([key, value]: any[]) => {
+        const view = keyAndValue.map(([key, value]: any[]) => {
             return (
                 <Row key={key} className="zipConfig-item">
                     <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 4}>
@@ -50,6 +50,11 @@ class ComponentsConfig extends React.Component<any, any> {
                 </Row>
             )
         })
+        if (view?.length !== 0) {
+            view.push(this.renderCustomParam(value))
+            view.push(this.renderAddCustomParam())
+        }
+        return view
     }
     renderKubernetsConfig = () => {
         const config = this.getComponentConfig();
@@ -94,7 +99,7 @@ class ComponentsConfig extends React.Component<any, any> {
         }
     }
 
-    rendeConfigForm = (comps: any) => {
+    rendeConfigForm = (comps: any, flag: any) => {
         const { componentConfig, components } = this.props;
         const componentTypeCode = components.componentTypeCode;
         const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {}
@@ -102,12 +107,17 @@ class ComponentsConfig extends React.Component<any, any> {
         // console.log('loadTemplate===========', loadTemplate)
         let cloneLoadTemplate = cloneDeep(loadTemplate)
         if (cloneLoadTemplate.length > 0) {
-            return cloneLoadTemplate.map((item: any, index: any) => {
+            const view = cloneLoadTemplate.map((item: any, index: any) => {
                 if (item.type === 'GROUP') {
                     return this.renderConfigGroup(comps, item);
                 }
                 return !item.id && this.renderConfigFormItem(comps, item);
             })
+            if (view.length !== 0 && flag) {
+                view.push(this.renderCustomParam(comps))
+                view.push(this.renderAddCustomParam())
+            }
+            return view
         }
     }
 
@@ -293,11 +303,19 @@ class ComponentsConfig extends React.Component<any, any> {
         const { componentTypeCode = '' } = this.props?.components
         switch (componentTypeCode) {
             case COMPONENT_TYPE_VALUE.YARN:
-                return this.renderYarnOrHdfsConfig()
             case COMPONENT_TYPE_VALUE.HDFS:
-                return this.renderYarnOrHdfsConfig()
+                return (
+                <>
+                    {this.renderYarnOrHdfsConfig(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
+
+                </>
+                )
             case COMPONENT_TYPE_VALUE.KUBERNETES:
-                return this.renderKubernetsConfig()
+                return (
+                <>
+                    {this.renderKubernetsConfig()}
+                </>
+                )
             case COMPONENT_TYPE_VALUE.SFTP:
             case COMPONENT_TYPE_VALUE.TIDB_SQL:
             case COMPONENT_TYPE_VALUE.LIBRA_SQL:
@@ -309,16 +327,33 @@ class ComponentsConfig extends React.Component<any, any> {
             case COMPONENT_TYPE_VALUE.LEARNING:
             case COMPONENT_TYPE_VALUE.DTYARNSHELL:
             case COMPONENT_TYPE_VALUE.PRESTO_SQL: {
-                return this.rendeConfigForm(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])
+                switch (componentTypeCode) {
+                    case COMPONENT_TYPE_VALUE.FLINK:
+                    case COMPONENT_TYPE_VALUE.SPARK:
+                    case COMPONENT_TYPE_VALUE.DTYARNSHELL:
+                    case COMPONENT_TYPE_VALUE.LEARNING: {
+                        return (
+                            <>
+                                {this.rendeConfigForm(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode], false)}
+                            </>
+                        )
+                    }
+                    default: {
+                        return (
+                            <>
+                                {this.rendeConfigForm(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode], true)}
+
+                            </>
+                        )
+                    }
+                }
             }
             case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
             case COMPONENT_TYPE_VALUE.NFS:
             case COMPONENT_TYPE_VALUE.HIVE_SERVER: {
                 return (
                     <React.Fragment>
-                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
-                        {this.renderCustomParam(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode])}
-                        {this.renderAddCustomParam()}
+                        {this.rendeConfigForm(COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode], true)}
                     </React.Fragment>
                 )
             }
