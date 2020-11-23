@@ -460,9 +460,13 @@ public class FlinkClient extends AbstractClient {
             return RdosTaskStatus.NOTFOUND;
         }
 
+        long getClusterEndTime = 0L;
         ClusterClient clusterClient = null;
         try {
+            long getClusterStartTime = System.currentTimeMillis();
             clusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+            getClusterEndTime = System.currentTimeMillis();
+            logger.info("getClusterClient cost: {}", getClusterEndTime - getClusterStartTime);
         } catch (Exception e) {
             logger.error("Get clusterClient error: {}", e.getMessage());
         }
@@ -490,7 +494,10 @@ public class FlinkClient extends AbstractClient {
 
         if (StringUtils.isEmpty(response)) {
             if (StringUtils.isNotEmpty(applicationId)) {
-                return getPerJobStatus(applicationId);
+                RdosTaskStatus rdosTaskStatus = getPerJobStatus(applicationId);
+                long getPerJobStatusEndTime = System.currentTimeMillis();
+                logger.info("getPerJobStatus cost {}", getPerJobStatusEndTime - getClusterEndTime);
+                return rdosTaskStatus;
             }
             return RdosTaskStatus.NOTFOUND;
         }
