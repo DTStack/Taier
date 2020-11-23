@@ -67,7 +67,7 @@ public class StreamTaskService {
     public List<ScheduleJob> getEngineStreamJob( List<String> taskIds){
         List<ScheduleJob> jobs = scheduleJobDao.getRdosJobByJobIds(taskIds);
 
-        if (jobs != null && jobs.size() >=0 ){
+        if (jobs != null && jobs.size() > 0){
             for (ScheduleJob scheduleJob : jobs) {
                 scheduleJob.setStatus(RdosTaskStatus.getShowStatus(scheduleJob.getStatus()));
             }
