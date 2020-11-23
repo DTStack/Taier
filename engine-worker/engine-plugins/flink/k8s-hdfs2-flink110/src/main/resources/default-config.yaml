@@ -42,7 +42,6 @@ perjob:
 
   optional:
     jarTmpDir: ./tmp110
-    namespace: default
     pluginLoadMode: classpath
     submitTimeout: 5
     classloader.resolve-order: parent-first
@@ -101,7 +100,6 @@ session:
 
   optional:
     jarTmpDir: ./tmp110
-    namespace: default
     pluginLoadMode: classpath
     submitTimeout: 5
     flinkInterval: 5 SECONDS
