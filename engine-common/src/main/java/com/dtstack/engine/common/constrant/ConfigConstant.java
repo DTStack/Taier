@@ -78,4 +78,6 @@ public class ConfigConstant {
     public static final String USER_DIR_UNZIP = System.getProperty("user.dir") + File.separator + "unzip";
     public static final String USER_DIR_DOWNLOAD = System.getProperty("user.dir") + File.separator + "download";
 
+    public static final long DEFAULT_KUBERNETES_PARENT_NODE = -2L;
+
 }
