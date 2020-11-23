@@ -428,19 +428,25 @@ public class FlinkClient extends AbstractClient {
         }
 
         String response = null;
+        Exception urlException = null;
         if (clusterClient != null) {
             try {
                 String webInterfaceURL = clusterClient.getWebInterfaceURL();
                 String jobUrl = webInterfaceURL + ConfigConstrant.SP + jobUrlPath;
                 response = PoolHttpClient.get(jobUrl);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                urlException = e;
+            }
         }
 
         if (StringUtils.isEmpty(response)) {
             try {
                 response = storage.getMessageFromJobArchive(jobId, jobUrlPath);
             } catch (Exception e) {
-                logger.warn("Get job status error from jobArchive: {}", e.getMessage());
+                if (urlException != null) {
+                    logger.error("Get job status error from webInterface: {}", urlException.getMessage());
+                }
+                logger.error("Get job status error from jobArchive: {}", e.getMessage());
             }
         }
 
@@ -528,7 +534,7 @@ public class FlinkClient extends AbstractClient {
             retMap.put("accuInfo", accumulator);
             return FlinkRestParseUtil.parseEngineLog(retMap);
         } catch (Exception e) {
-            logger.error("", e);
+            logger.error("Get job log error, {}", e.getMessage());
             Map<String, String> map = new LinkedHashMap<>(8);
             map.put("jobId", jobId);
             map.put("exception", ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION);
@@ -669,8 +675,8 @@ public class FlinkClient extends AbstractClient {
         RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
 
         try {
-            boolean isFromJobHistory = RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus()) || rdosTaskStatus.equals(RdosTaskStatus.NOTFOUND);
-            if (isFromJobHistory) {
+            boolean isFromJobArchive = RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus()) || rdosTaskStatus.equals(RdosTaskStatus.NOTFOUND);
+            if (isFromJobArchive) {
                 checkpointMsg = storage.getMessageFromJobArchive(jobId, checkpointUrlPath);
             } else {
                 ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
