@@ -216,7 +216,7 @@ public class JobSubmitDealer implements Runnable {
                         jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
                         return false;
                     } else {
-                        //插入cache表的时间 比 jobClient 第一次提交时间晚 认为任务重新提交过 当前jobClient 抛弃 不做任何处理
+                        //插入cache表的时间 比 jobClient 第一次提交时间晚 认为任务重新提交过 当前延时队列的jobClient 抛弃 不做任何处理
                         logger.info("jobId:{} checkIsFinished is true checkCanSubmit is false jobClient cacheSubmitTime {} cacheDB SubmitTime {}, job is Finished.",
                                 jobClient.getTaskId(), jobClient.getSubmitCacheTime(), engineJobCache.getGmtCreate().getTime());
                         return true;
