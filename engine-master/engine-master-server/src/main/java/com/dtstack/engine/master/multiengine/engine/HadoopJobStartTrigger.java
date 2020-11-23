@@ -460,6 +460,12 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             pluginInfo.put(EComponentType.SFTP.getConfName(), sftpConf);
             //krb5.conf的文件名
             pluginInfo.put(ConfigConstant.KRB_NAME, hadoopConfig.getString(ConfigConstant.JAVA_SECURITY_KRB5_CONF));
+            String krb5Conf = hadoopConfig.getString(ConfigConstant.KRB5_CONF);
+            if(StringUtils.isBlank(krb5Conf)){
+                //平台不传 暂时设置默认值
+                krb5Conf = ConfigConstant.KRBNAME_DEFAULT;
+            }
+            pluginInfo.put(ConfigConstant.KRBNAME,krb5Conf);
             pluginInfo.put(EComponentType.YARN.getConfName(), hadoopConfig);
 
         }

@@ -73,8 +73,6 @@ public class FlinkClientBuilderTest {
 		MockitoAnnotations.initMocks(this);
 
 		PowerMockito.mockStatic(HadoopUtils.class);
-		when(HadoopUtils.serializeHadoopConf(any())).thenReturn(new byte[]{});
-
 	}
 
 	@Test
