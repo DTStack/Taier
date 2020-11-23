@@ -19,6 +19,7 @@ import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.jobdealer.cache.ShardManager;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -157,7 +158,7 @@ public class JobStatusDealer implements Runnable {
             String pluginInfo = info.getString("pluginInfo");
             Long userId = info.getLong("userId");
             JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getDtuicTenantId(),engineType,
-                    scheduleJobService.parseDeployTypeByTaskParams(taskParams,scheduleJob.getComputeType()).getType(),userId, pluginInfo);
+                    TaskParamsUtil.parseDeployTypeByTaskParams(taskParams,scheduleJob.getComputeType()).getType(),userId, pluginInfo);
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
 

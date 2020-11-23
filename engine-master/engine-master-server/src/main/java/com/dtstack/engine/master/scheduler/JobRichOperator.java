@@ -706,4 +706,16 @@ public class JobRichOperator {
         String startTime = sdf.format(calendar.getTime());
         return new ImmutablePair<>(startTime, endTime);
     }
+
+    public String getCycTime(Integer beforeDay) {
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+
+        if (beforeDay == null || beforeDay == 0) {
+            return sdf.format(calendar.getTime());
+        }
+
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + beforeDay);
+        return sdf.format(calendar.getTime());
+    }
 }

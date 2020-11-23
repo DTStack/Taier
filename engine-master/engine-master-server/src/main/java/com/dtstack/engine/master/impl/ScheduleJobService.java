@@ -151,9 +151,6 @@ public class ScheduleJobService {
     private JobPartitioner jobPartitioner;
 
     @Autowired
-    private MultiEngineFactory multiEngineFactory;
-
-    @Autowired
     private JobStopDealer jobStopDealer;
 
     @Autowired
@@ -1042,84 +1039,16 @@ public class ScheduleJobService {
         }
 
         String extInfoByTaskId = scheduleTaskShadeDao.getExtInfoByTaskId(scheduleJob.getTaskId(), scheduleJob.getAppType());
-        JSONObject extObject = JSONObject.parseObject(extInfoByTaskId);
-        if (Objects.nonNull(extObject)) {
-            JSONObject info = extObject.getJSONObject(TaskConstant.INFO);
-            if (Objects.nonNull(info)) {
-                Integer multiEngineType = info.getInteger("multiEngineType");
-                String ldapUserName = info.getString("ldapUserName");
-                if (StringUtils.isNotBlank(ldapUserName)) {
-                    info.remove("ldapUserName");
-                    info.remove("ldapPassword");
-                    info.remove("dbName");
-                }
-                Map<String, Object> actionParam = PublicUtil.strToMap(info.toJSONString());
-                JobStartTriggerBase jobTriggerService = multiEngineFactory.getJobTriggerService(multiEngineType);
-                jobTriggerService.readyForTaskStartTrigger(actionParam,batchTask,scheduleJob);
-                actionParam.put("name", scheduleJob.getJobName());
-                actionParam.put("taskId", scheduleJob.getJobId());
-                actionParam.put("taskType",EScheduleJobType.getEngineJobType(batchTask.getTaskType()));
-                actionParam.put("appType", batchTask.getAppType());
-                Object tenantId = actionParam.get("tenantId");
-                if(Objects.isNull(tenantId)){
-                    actionParam.put("tenantId",batchTask.getDtuicTenantId());
-                }
-                // 出错重试配置,兼容之前的任务，没有这个参数则默认重试
-                JSONObject scheduleConf = JSONObject.parseObject(batchTask.getScheduleConf());
-                if (scheduleConf.containsKey("isFailRetry")) {
-                    actionParam.put("isFailRetry", scheduleConf.getBooleanValue("isFailRetry"));
-                    if (scheduleConf.getBooleanValue("isFailRetry")) {
-                        int maxRetryNum = scheduleConf.getIntValue("maxRetryNum") == 0 ? 3 : scheduleConf.getIntValue("maxRetryNum");
-                        actionParam.put("maxRetryNum", maxRetryNum);
-                    } else {
-                        actionParam.put("maxRetryNum", 0);
-                    }
-                }
-                if (EJobType.SYNC.getType() == scheduleJob.getTaskType()) {
-                    //数据同步需要解析是perjob 还是session
-                    EDeployMode eDeployMode = this.parseDeployTypeByTaskParams(batchTask.getTaskParams(),batchTask.getComputeType());
-                    actionParam.put("deployMode", eDeployMode.getType());
-                }
-                this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus());
-                ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(actionParam, ParamActionExt.class);
-                actionService.start(paramActionExt);
-                return;
-            }
+        ParamActionExt paramActionExt = actionService.paramActionExt(batchTask, scheduleJob, extInfoByTaskId);
+        if (paramActionExt != null) {
+            this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus());
+            actionService.start(paramActionExt);
+            return;
+
         }
         //额外信息为空 标记任务为失败
         this.updateStatusAndLogInfoById(scheduleJob.getId(), RdosTaskStatus.FAILED.getStatus(), "任务运行信息为空");
         logger.error(" job  {} run fail with info is null",scheduleJob.getJobId());
-    }
-
-
-    /**
-     * 解析对应数据同步任务的环境参数 获取对应数据同步模式
-     * @param taskParams
-     * @return
-     */
-    public EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType) {
-        try {
-            if (!StringUtils.isBlank(taskParams)) {
-                Properties properties = com.dtstack.engine.common.util.PublicUtil.stringToProperties(taskParams);
-                String flinkTaskRunMode = properties.getProperty("flinkTaskRunMode");
-                if (!StringUtils.isEmpty(flinkTaskRunMode)) {
-                    if (flinkTaskRunMode.equalsIgnoreCase("session")) {
-                        return EDeployMode.SESSION;
-                    } else if (flinkTaskRunMode.equalsIgnoreCase("per_job")) {
-                        return EDeployMode.PERJOB;
-                    } else if (flinkTaskRunMode.equalsIgnoreCase("standalone")) {
-                        return EDeployMode.STANDALONE;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            logger.error(" parseDeployTypeByTaskParams {} error", taskParams, e);
-        }
-        if (ComputeType.STREAM.getType().equals(computeType)) {
-            return EDeployMode.PERJOB;
-        } else {
-            return EDeployMode.SESSION;
-        }
     }
 
 
@@ -1168,8 +1097,6 @@ public class ScheduleJobService {
         ScheduleJob batchJob = scheduleJobDao.getByJobId(jobId,Deleted.NORMAL.getStatus());
         return stopJobByScheduleJob(dtuicTenantId, appType, batchJob);
     }
-
-
 
     public void stopFillDataJobs( String fillDataJobName,  Long projectId,  Long dtuicTenantId,  Integer appType) throws Exception {
         //还未发送到engine部分---直接停止
