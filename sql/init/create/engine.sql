@@ -216,6 +216,7 @@ CREATE TABLE `console_kerberos` (
     `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
     `krb_name` varchar(26) DEFAULT NULL COMMENT 'krb5_conf名称',
     `component_type` int(11) DEFAULT NULL COMMENT '组件类型',
+    `principals` TEXT COMMENT 'keytab用户文件列表',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 

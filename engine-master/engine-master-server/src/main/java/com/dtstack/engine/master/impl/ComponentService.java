@@ -38,7 +38,6 @@ import com.dtstack.engine.master.utils.FileUtil;
 import com.dtstack.engine.master.utils.XmlFileUtil;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
-import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
 import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import com.dtstack.schedule.common.util.ZipUtil;
 import com.google.common.collect.Lists;
@@ -69,11 +68,7 @@ public class ComponentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComponentService.class);
 
-    private final static String ZIP_CONTENT_TYPE = "zip";
-
     public static final String KERBEROS_PATH = "kerberos";
-
-    private static final String KERBEROS_CONFIG = "kerberosConfig";
 
     private static final String HADOOP3_SIGNAL = "hadoop3";
 
@@ -334,24 +329,7 @@ public class ComponentService {
     }
 
 
-    private File getDeepFileWithSuffix(String dir, String suffix) {
-        //不是单个文件夹
-        File dirFile = new File(dir);
-        if (dirFile.exists() && dirFile.isDirectory()) {
-            File[] files = dirFile.listFiles();
-            if (files.length > 0) {
-                for (File file : files) {
-                    File subFile = this.getFileWithSuffix(file.getPath(), suffix);
-                    if (Objects.nonNull(subFile)) {
-                        return subFile;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private String getPrincipal(File file) {
+    private List<PrincipalName> getPrincipal(File file) {
         if (Objects.nonNull(file)) {
             Keytab keytab = null;
             try {
@@ -360,30 +338,26 @@ public class ComponentService {
                 LOGGER.error("Keytab loadKeytab error ", e);
                 throw new RdosDefineException("解析keytab文件失败");
             }
-            List<PrincipalName> names = keytab.getPrincipals();
-            if (CollectionUtils.isNotEmpty(names)) {
-                PrincipalName principalName = names.get(0);
-                if (Objects.nonNull(principalName)) {
-                    return principalName.getName();
-                }
-            }
+            return keytab.getPrincipals();
         }
         throw new RdosDefineException("当前keytab文件不包含principal信息");
     }
 
     private void unzipKeytab(String localKerberosConf, Resource resource) {
         try {
-            KerberosConfigVerify.getFilesFromZip(resource.getUploadedFileName(), localKerberosConf);
+            ZipUtil.upzipFile(resource.getUploadedFileName(), localKerberosConf);
         } catch (Exception e) {
-            KerberosConfigVerify.delFile(new File(localKerberosConf));
-            throw e;
+            try {
+                FileUtils.deleteDirectory(new File(localKerberosConf));
+            } catch (IOException ioException) {
+                LOGGER.error("delete zip directory {} error ", localKerberosConf);
+            }
         }
     }
 
 
-    public KerberosConfig getKerberosConfig(Long clusterId, Integer componentType) {
-        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType);
-        return kerberosConfig;
+    public KerberosConfig getKerberosConfig( Long clusterId,  Integer componentType) {
+        return kerberosDao.getByComponentType(clusterId, componentType);
     }
 
     public Map<String, String> getSFTPConfig(Long clusterId) {
@@ -423,7 +397,8 @@ public class ComponentService {
     public ComponentVO addOrUpdateComponent( Long clusterId,  String componentConfig,
                                              List<Resource> resources,  String hadoopVersion,
                                              String kerberosFileName,  String componentTemplate,
-                                             Integer componentCode, Integer storeType) {
+                                             Integer componentCode, Integer storeType,
+                                             String principals, String principal) {
         if (StringUtils.isBlank(componentConfig) && !EComponentType.KUBERNETES.getTypeCode().equals(componentCode)) {
             throw new RdosDefineException("组件信息不能为空");
         }
@@ -475,13 +450,7 @@ public class ComponentService {
 
         String md5Key = "";
 
-        //上传资源依赖sftp组件
-        if (CollectionUtils.isNotEmpty(resources)) {
-            Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
-            // 上传配置文件到sftp 供后续下载
-            SftpConfig sftpConfig = getSFTPConfig(sftpComponent,componentCode,componentConfig);
-            md5Key = uploadResourceToSftp(clusterId, resources, kerberosFileName, sftpConfig, addComponent, dbComponent);
-        }
+        md5Key = updateResource(clusterId, componentConfig, resources, kerberosFileName, componentCode, principals, principal, addComponent, dbComponent, md5Key);
         addComponent.setComponentConfig(this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion,md5Key,addComponent.getStoreType()));
 
         addComponent.setClusterId(clusterId);
@@ -493,8 +462,29 @@ public class ComponentService {
         }
         ComponentVO componentVO = ComponentVO.toVO(addComponent, true);
         componentVO.setClusterName(clusterName);
+        componentVO.setPrincipal(principal);
+        componentVO.setPrincipals(principals);
         this.updateCache(engine.getId(), componentType.getTypeCode());
         return componentVO;
+    }
+
+    private String updateResource(Long clusterId, String componentConfig, List<Resource> resources, String kerberosFileName, Integer componentCode, String principals, String principal, Component addComponent, Component dbComponent, String md5Key) {
+        //上传资源依赖sftp组件
+        if (CollectionUtils.isNotEmpty(resources)) {
+            Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
+            // 上传配置文件到sftp 供后续下载
+            SftpConfig sftpConfig = getSFTPConfig(sftpComponent, componentCode, componentConfig);
+            md5Key = uploadResourceToSftp(clusterId, resources, kerberosFileName, sftpConfig, addComponent, dbComponent, principals, principal);
+        } else if (CollectionUtils.isEmpty(resources) && StringUtils.isNotBlank(principal)) {
+            //直接更新认证信息
+            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, addComponent.getComponentTypeCode());
+            if (null != kerberosConfig) {
+                kerberosConfig.setPrincipal(principal);
+                kerberosConfig.setPrincipals(principals);
+                kerberosDao.update(kerberosConfig);
+            }
+        }
+        return md5Key;
     }
 
     private String checkKubernetesConfig(String componentConfig, List<Resource> resources, EComponentType componentType) {
@@ -594,7 +584,7 @@ public class ComponentService {
     }
 
     private String uploadResourceToSftp(Long clusterId,  List<Resource> resources,  String kerberosFileName,
-                                        SftpConfig sftpConfig, Component addComponent, Component dbComponent) {
+                                        SftpConfig sftpConfig, Component addComponent, Component dbComponent,String principals,String principal) {
         //上传配置文件到sftp 供后续下载
         SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
         String md5sum = "";
@@ -607,7 +597,7 @@ public class ComponentService {
                 if (resource.getFileName().equalsIgnoreCase(kerberosFileName)) {
                     // 更新Kerberos文件
                     LOGGER.info("start upload kerberosFile:{}",kerberosFileName);
-                    this.updateComponentKerberosFile(clusterId, addComponent, sftpFileManage, remoteDir, resource);
+                    this.updateComponentKerberosFile(clusterId, addComponent, sftpFileManage, remoteDir, resource,principals,principal);
                 } else {
                     LOGGER.info("start upload hadoop config file:{}",kerberosFileName);
                     this.updateComponentConfigFile(dbComponent, sftpFileManage, remoteDir, resource);
@@ -760,7 +750,8 @@ public class ComponentService {
      * @param resource
      * @return
      */
-    private String updateComponentKerberosFile(Long clusterId, Component addComponent, SftpFileManage sftpFileManage, String remoteDir, Resource resource) {
+    private String updateComponentKerberosFile(Long clusterId, Component addComponent, SftpFileManage sftpFileManage, String remoteDir, Resource resource,
+                                               String principals, String principal) {
         // kerberos认证文件 远程删除 kerberos下的文件
         String remoteDirKerberos = remoteDir + File.separator + KERBEROS_PATH;
         LOGGER.info("updateComponentKerberosFile remote path:{}",remoteDirKerberos);
@@ -792,7 +783,9 @@ public class ComponentService {
         LOGGER.info("conf Unzip fileName:{}",fileConf.getAbsolutePath());
 
         //获取principal
-        String principal = this.getPrincipal(fileKeyTab);
+        List<PrincipalName> principalLists = this.getPrincipal(fileKeyTab);
+        principal = parsePrincipal(principal, principalLists);
+
         //删除sftp原来kerberos 的文件夹
         sftpFileManage.deleteDir(remoteDirKerberos);
         //上传kerberos解压后的文件
@@ -815,12 +808,32 @@ public class ComponentService {
         kerberosConfig.setClusterId(clusterId);
         kerberosConfig.setComponentType(addComponent.getComponentTypeCode());
         kerberosConfig.setKrbName(fileConf.getName());
+        kerberosConfig.setPrincipals(principals);
         if (isFirstOpenKerberos) {
             kerberosDao.insert(kerberosConfig);
         } else {
             kerberosDao.update(kerberosConfig);
         }
         return remoteDirKerberos;
+    }
+
+    private String parsePrincipal(String principal, List<PrincipalName> principalLists) {
+        if(CollectionUtils.isEmpty(principalLists)){
+            throw new RdosDefineException("keytab文件中不包含principal");
+        }
+        if (StringUtils.isBlank(principal)) {
+            //不传默认取第一个
+            principal = principalLists.get(0).getName();
+        } else {
+            String finalPrincipal = principal;
+            boolean isContainsPrincipal = principalLists
+                    .stream()
+                    .anyMatch(p -> p.getName().equalsIgnoreCase(finalPrincipal));
+            if (!isContainsPrincipal) {
+                throw new RdosDefineException(String.format("上传的Hadoop-Kerberos文件的不包含对应的 %s", principal));
+            }
+        }
+        return principal;
     }
 
     /**
@@ -1001,6 +1014,7 @@ public class ComponentService {
             dataInfo.put("remoteDir", kerberosConfig.getRemotePath());
             dataInfo.put("principalFile", kerberosConfig.getName());
             dataInfo.put("krbName", kerberosConfig.getKrbName());
+            dataInfo.put("principal", kerberosConfig.getPrincipal());
         }
         dataInfo.put(EComponentType.SFTP.getConfName(), sftpConfig);
         if (EComponentType.SFTP.getTypeCode() == componentType) {
@@ -1447,21 +1461,20 @@ public class ComponentService {
         Map<String, String> sftpMap = getSftpMap(components);
         CountDownLatch countDownLatch = new CountDownLatch(components.size());
         for (Component component : components) {
-            if (EComponentType.YARN.getTypeCode() != component.getComponentTypeCode()) {
+            if (!EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
                 continue;
             }
             KerberosConfig kerberosConfig = kerberosDao.getByComponentType(
                     cluster.getId(), component.getComponentTypeCode());
-            Map<String, String> finalSftpMap = sftpMap;
             try {
                 CompletableFuture.runAsync(() -> {
                     ComponentTestResult refreshResult = new ComponentTestResult();
                     try {
                         refreshResult = this.testConnect(component.getComponentTypeCode(),
                                 component.getComponentConfig(), clusterName, component.getHadoopVersion(),
-                                component.getEngineId(), kerberosConfig, finalSftpMap,component.getStoreType());
+                                component.getEngineId(), kerberosConfig, sftpMap,component.getStoreType());
 
-                        if (refreshResult.getResult() && EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
+                        if (refreshResult.getResult() && EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
                             engineService.updateResource(component.getEngineId(), refreshResult.getClusterResourceDescription());
                             queueService.updateQueue(component.getEngineId(), refreshResult.getClusterResourceDescription());
                         }
@@ -1511,7 +1524,7 @@ public class ComponentService {
                         testResult = this.testConnect(component.getComponentTypeCode(), component.getComponentConfig(), clusterName, component.getHadoopVersion(),
                                 component.getEngineId(), kerberosConfig, sftpMap,component.getStoreType());
                         //测试联通性
-                        if (EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
+                        if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
                             if (testResult.getResult()) {
                                 engineService.updateResource(component.getEngineId(), testResult.getClusterResourceDescription());
                                 queueService.updateQueue(component.getEngineId(), testResult.getClusterResourceDescription());
@@ -1716,4 +1729,47 @@ public class ComponentService {
         return false;
     }
 
+
+    /**
+     * 解析对应的kerberos的zip中principle
+     * @param resourcesFromFiles
+     * @return
+     */
+    public List<String> parseKerberos(List<Resource> resourcesFromFiles) {
+        if (CollectionUtils.isEmpty(resourcesFromFiles)) {
+            return null;
+        }
+        Resource resource = resourcesFromFiles.get(0);
+        String unzipLocation = USER_DIR_UNZIP + File.separator + resource.getFileName();
+        try {
+            //解压到本地
+            List<File> files = ZipUtil.upzipFile(resource.getUploadedFileName(), unzipLocation);
+
+            if (CollectionUtils.isEmpty(files)) {
+                throw new RdosDefineException("Hadoop-Kerberos文件解压错误");
+            }
+
+            File fileKeyTab = files
+                    .stream()
+                    .filter(f -> f.getName().endsWith(KEYTAB_SUFFIX))
+                    .findFirst()
+                    .orElse(null);
+            if (fileKeyTab == null) {
+                throw new RdosDefineException("上传的Hadoop-Kerberos文件的zip文件中必须有keytab文件，请添加keytab文件");
+            }
+
+            //获取principal
+            List<PrincipalName> principal = this.getPrincipal(fileKeyTab);
+            return  principal
+                    .stream()
+                    .map(PrincipalName::getName)
+                    .collect(Collectors.toList());
+        } finally {
+            try {
+                FileUtils.deleteDirectory(new File(unzipLocation));
+            } catch (IOException e) {
+                LOGGER.error("delete update file {} error", unzipLocation);
+            }
+        }
+    }
 }

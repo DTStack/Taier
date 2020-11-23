@@ -248,8 +248,8 @@ public class TenantService {
 
 
     public void checkClusterCanUse(Long clusterId) throws Exception {
-        ClusterVO clusterVO = clusterService.getCluster(clusterId, true, true);
-        List<ComponentTestResult> testConnectionVO = componentService.testConnects(clusterVO.getClusterName());
+        Cluster cluster = clusterDao.getOne(clusterId);
+        List<ComponentTestResult> testConnectionVO = componentService.testConnects(cluster.getClusterName());
         boolean canUse = true;
         StringBuilder msg = new StringBuilder();
         msg.append("此集群不可用,测试连通性为通过：\n");
