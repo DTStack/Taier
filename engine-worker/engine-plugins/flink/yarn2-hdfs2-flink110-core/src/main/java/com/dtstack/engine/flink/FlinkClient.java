@@ -938,16 +938,13 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public String getCheckpoints(JobIdentifier jobIdentifier) {
-        String appId = jobIdentifier.getApplicationId();
-        String jobId = jobIdentifier.getEngineJobId();
-
-        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
-
         String reqURL;
-        if(rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
-                || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED)){
+        String jobId = jobIdentifier.getEngineJobId();
+        if (null != jobIdentifier.getDeployMode() && EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode())) {
+            //perjob从jobhistory读取
             reqURL = getJobHistoryURL();
-        }else{
+        } else {
+            //session
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
             reqURL = currClient.getWebInterfaceURL();
         }
