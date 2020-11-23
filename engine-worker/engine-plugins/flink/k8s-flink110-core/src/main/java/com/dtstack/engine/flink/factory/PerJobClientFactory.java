@@ -225,7 +225,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
             if (StringUtils.isEmpty(serviceName)) {
                 continue;
             }
-            String regex = String.format("(%s)-[0-9a-z]{8}", effectiveTaskName);
+            String regex = String.format("(%s)-[0-9a-z]{4}", effectiveTaskName);
             Boolean isEffective = serviceName.matches(regex);
             if (StringUtils.startsWith(serviceName, effectiveTaskName) && isEffective) {
                 flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(serviceName);

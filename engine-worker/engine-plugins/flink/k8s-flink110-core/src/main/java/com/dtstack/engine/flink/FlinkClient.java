@@ -6,6 +6,7 @@ import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
+import com.dtstack.engine.common.pojo.JobStatusFrequency;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -409,7 +410,7 @@ public class FlinkClient extends AbstractClient {
      * @return
      */
     @Override
-    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
+    public RdosTaskStatus processJobStatus(JobIdentifier jobIdentifier) {
         String jobId = jobIdentifier.getEngineJobId();
         String clusterId = jobIdentifier.getApplicationId();
 
@@ -473,6 +474,25 @@ public class FlinkClient extends AbstractClient {
             logger.error("Get job status error. {}", e.getMessage());
         }
         return RdosTaskStatus.NOTFOUND;
+    }
+
+    @Override
+    protected void handleJobStatus(JobIdentifier jobIdentifier, RdosTaskStatus status) {
+        String jobId = jobIdentifier.getEngineJobId();
+        String clusterId = jobIdentifier.getApplicationId();
+        JobStatusFrequency statusFrequency = jobStatusMap.computeIfAbsent(jobId,
+                k -> new JobStatusFrequency(status.getStatus()));
+        if (!statusFrequency.getStatus().equals(status.getStatus())) {
+            synchronized (jobId.intern()) {
+                statusFrequency.resetJobStatus(status.getStatus());
+            }
+        }
+        boolean isClear = (System.currentTimeMillis() - statusFrequency.getCreateTime()) >= 2.5 * 60000;
+        boolean isNotfound = statusFrequency.getStatus() == RdosTaskStatus.NOTFOUND.getStatus().intValue();
+
+        if (isNotfound && isClear) {
+            flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(clusterId);
+        }
     }
 
     public String getReqUrl(FlinkMode flinkMode) {
