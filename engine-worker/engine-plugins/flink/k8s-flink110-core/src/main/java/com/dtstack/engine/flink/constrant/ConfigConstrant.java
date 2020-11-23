@@ -90,6 +90,10 @@ public class ConfigConstrant {
     public static final String TASKMANAGERS_URL_FORMAT = "%s/taskmanagers";
     public static final String JOBMANAGER_LOG_URL_FORMAT = "%s/jobmanager/log";
     public static final String TASKMANAGER_LOG_URL_FORMAT = "%s/taskmanagers/%s/log";
+    public static final String JOB_EXCEPTIONS_URL_FORMAT = "/jobs/%s/exceptions";
+    public final static String JOB_ACCUMULATOR_URL_FORMAT = "/jobs/%s/accumulators";
+    public static final String JOB_URL_FORMAT = "/jobs/%s";
+    public static final String JOB_CHECKPOINTS_URL_FORMAT = "/jobs/%s/checkpoints";
     public static final String TASKMANAGERS_KEY = "taskmanagers";
 
     // ------------------------------------------------------------------------

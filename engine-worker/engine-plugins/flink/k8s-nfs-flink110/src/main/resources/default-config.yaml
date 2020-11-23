@@ -7,20 +7,23 @@ perjob:
   controls: group
   required:
     flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink110_lib
-    jobmanager.archive.fs.dir:
+    jobmanager.archive.fs.dir: nfs://server_ip/flink/completed-jobs
     flinkPluginRoot: /data/insight_plugin/flinkplugin
     remotePluginRootDir: /data/insight_plugin/flinkplugin
 
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink110
     high-availability.zookeeper.quorum:
-    high-availability.storageDir:
+    high-availability.storageDir: nfs://server_ip/flink/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082
 
-    state.checkpoints.dir:
+    state.backend: RocksDB
+    state.checkpoints.dir: nfs://server_ip/flink/checkpoints
     state.checkpoints.num-retained: 11
+    state.savepoints.dir: nfs://server_ip/flink/savepoints
+    state.backend.incremental: true
 
     metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
     metrics.reporter.promgateway.host:
@@ -42,13 +45,7 @@ perjob:
     namespace: default
     pluginLoadMode: classpath
     submitTimeout: 5
-    flinkInterval: 5 SECONDS
     classloader.resolve-order: parent-first
-    taskparams.taskmanager.heap.mb: 20
-
-    state.backend: RocksDB
-    state.savepoints.dir:
-    state.backend.incremental: true
 
     prometheusHost:
     prometheusPort: 9090
@@ -58,6 +55,7 @@ perjob:
     gatewayJobName: pushgateway
     high-availability: ZOOKEEPER
 
+    kubernetes.container.image.pull-secret:
     kubernetes.host.aliases:
 
 session:
@@ -67,20 +65,23 @@ session:
   required:
     flinkSessionSlotCount: 10
     flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink110_lib
-    jobmanager.archive.fs.dir:
+    jobmanager.archive.fs.dir: nfs://server_ip/flink/completed-jobs
     flinkPluginRoot: /data/insight_plugin/flinkplugin
     remotePluginRootDir: /data/insight_plugin/flinkplugin
 
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink110
     high-availability.zookeeper.quorum:
-    high-availability.storageDir:
+    high-availability.storageDir: nfs://server_ip/flink/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082
 
-    state.checkpoints.dir:
+    state.backend: RocksDB
+    state.checkpoints.dir: nfs://server_ip/flink/checkpoints
     state.checkpoints.num-retained: 11
+    state.savepoints.dir: nfs://server_ip/flink/savepoints
+    state.backend.incremental: true
 
     metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
     metrics.reporter.promgateway.host:
@@ -102,13 +103,8 @@ session:
     namespace: default
     pluginLoadMode: classpath
     submitTimeout: 5
-    flinkInterval: 5 SECONDS
     classloader.resolve-order: parent-first
     taskparams.taskmanager.heap.mb: 20
-
-    state.backend: RocksDB
-    state.savepoints.dir:
-    state.backend.incremental: true
 
     prometheusHost:
     prometheusPort: 9090
@@ -119,4 +115,7 @@ session:
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
     high-availability: ZOOKEEPER
+
+    kubernetes.container.image.pull-secret:
+    kubernetes.host.aliases:
 
