@@ -87,7 +87,8 @@ class ResourceManage extends React.Component<any, any> {
             Api.bindNamespace({
                 clusterId: reqParams.clusterId,
                 namespace: reqParams.namespace,
-                queueId: reqParams.queueId
+                queueId: reqParams.queueId,
+                tenantId: reqParams.tenantId
             }).then((res: any) => {
                 if (res.code === 1) {
                     this.setState({
