@@ -844,6 +844,15 @@ public class LineageService {
                 throw new RdosDefineException("数据源不存在");
             }
             LineageDataSetInfo resultTableInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(resultDataSource.getId(), resultTableInfoVO.getDbName(), resultTableInfoVO.getTableName(), resultTableInfoVO.getSchemaName());
+            LineageTableTable lineageTableTable = new LineageTableTable();
+            lineageTableTable.setResultTableId(resultTableInfo.getId());
+            lineageTableTable.setResultTableKey(resultTableInfo.getTableKey());
+            lineageTableTable.setInputTableId(inputTableInfo.getId());
+            lineageTableTable.setInputTableKey(inputTableInfo.getTableKey());
+            lineageTableTable.setLineageSource(LineageOriginType.SQL_PARSE.getType());
+            lineageTableTable.setAppType(lineageColumnColumnVO.getAppType());
+            lineageTableTable.setDtUicTenantId(lineageColumnColumnVO.getDtUicTenantId());
+            lineageTableTableService.manualAddTableLineage(lineageColumnColumnVO.getAppType(),lineageTableTable,lineageColumnColumnVO.getUniqueKey());
             LineageColumnColumn lineageColumnColumn = new LineageColumnColumn();
             lineageColumnColumn.setResultTableId(resultTableInfo.getId());
             lineageColumnColumn.setResultTableKey(resultTableInfo.getTableKey());

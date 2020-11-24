@@ -18,7 +18,8 @@
         <module>engine-sql-rdb</module>
         <module>engine-sql-parser</module>
         <module>engine-sql-flink</module>
-<!--        <module>calcite-shade</module>-->
+        <module>data-collect</module>
+        <!--        <module>calcite-shade</module>-->
     </modules>
 
     <properties>

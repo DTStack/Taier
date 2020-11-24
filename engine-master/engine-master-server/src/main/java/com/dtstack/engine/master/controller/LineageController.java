@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.controller;
 
-
 import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
+import com.dtstack.engine.api.vo.lineage.LineageColumnColumnParam;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
 import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
 import com.dtstack.engine.api.vo.lineage.SqlParseInfo;
@@ -16,7 +16,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.concurrent.Executor;
 
 /**
  * @author chener
@@ -229,7 +227,7 @@ public class LineageController {
 
     @RequestMapping(value = "/acquireOldColumnColumn", method = {RequestMethod.POST})
     @ApiOperation(value = "批量同步字段级血缘")
-    public void acquireOldColumnColumn(@RequestBody List<LineageColumnColumnVO> lineageTableTableVOs) {
-        lineageService.acquireOldColumnColumn(lineageTableTableVOs);
+    public void acquireOldColumnColumn(@RequestBody LineageColumnColumnParam lineageTableTableParam) {
+        lineageService.acquireOldColumnColumn(lineageTableTableParam.getLineageTableTableVOs());
     }
 }
