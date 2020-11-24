@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -75,14 +76,27 @@ public class LineageTableTableService {
     /**
      * 根据表和应用类型查询表级血缘上游
      */
-    public List<LineageTableTable> queryTableInputLineageByAppType(Long tableId, Integer appType) {
+    public List<LineageTableTable> queryTableInputLineageByAppType(Long tableId, Integer appType,final Set<Long> tableIdSet) {
         List<LineageTableTable> res = Lists.newArrayList();
         List<LineageTableTable> lineageTableTables = lineageTableTableDao.queryTableResultList(appType, tableId);
+        lineageTableTables = lineageTableTables.stream().filter(tt->{
+            if (tableIdSet.contains(tt.getInputTableId())){
+                return false;
+            }
+            if (tableIdSet.contains(tt.getResultTableId())){
+                return false;
+            }
+            return true;
+        }).collect(Collectors.toList());
+        for (LineageTableTable tt :lineageTableTables) {
+            tableIdSet.add(tt.getInputTableId());
+            tableIdSet.add(tt.getResultTableId());
+        }
+
         res.addAll(lineageTableTables);
         if (CollectionUtils.isNotEmpty(lineageTableTables)){
             for (LineageTableTable tt:lineageTableTables){
-                //TODO 未处理死循环
-                List<LineageTableTable> parentList = queryTableInputLineageByAppType(tt.getInputTableId(), appType);
+                List<LineageTableTable> parentList = queryTableInputLineageByAppType(tt.getInputTableId(), appType,tableIdSet);
                 res.addAll(parentList);
             }
         }
@@ -95,14 +109,26 @@ public class LineageTableTableService {
      * @param tableId
      * @param appType
      */
-    public List<LineageTableTable> queryTableResultLineageByAppType(Long tableId, Integer appType) {
+    public List<LineageTableTable> queryTableResultLineageByAppType(Long tableId, Integer appType,final Set<Long> tableIdSet) {
         List<LineageTableTable> res = Lists.newArrayList();
         List<LineageTableTable> lineageTableTables = lineageTableTableDao.queryTableInputList(appType, tableId);
+        lineageTableTables = lineageTableTables.stream().filter(tt->{
+            if (tableIdSet.contains(tt.getInputTableId())){
+                return false;
+            }
+            if (tableIdSet.contains(tt.getResultTableId())){
+                return false;
+            }
+            return true;
+        }).collect(Collectors.toList());
+        for (LineageTableTable tt :lineageTableTables) {
+            tableIdSet.add(tt.getInputTableId());
+            tableIdSet.add(tt.getResultTableId());
+        }
         res.addAll(lineageTableTables);
         if (CollectionUtils.isNotEmpty(lineageTableTables)){
             for (LineageTableTable tt:lineageTableTables){
-                //TODO 未处理死循环
-                List<LineageTableTable> parentList = queryTableResultLineageByAppType(tt.getResultTableId(), appType);
+                List<LineageTableTable> parentList = queryTableResultLineageByAppType(tt.getResultTableId(), appType,tableIdSet);
                 res.addAll(parentList);
             }
         }
@@ -110,11 +136,11 @@ public class LineageTableTableService {
     }
 
     /**
-     * 查询表血缘关系(全应用)
+     * 查询表血缘关系
      */
     public List<LineageTableTable> queryTableTableByTableAndAppId(Integer appType, Long tableId) {
-        List<LineageTableTable> inputLineages = queryTableInputLineageByAppType(tableId, appType);
-        List<LineageTableTable> resultLineages = queryTableResultLineageByAppType(tableId, appType);
+        List<LineageTableTable> inputLineages = queryTableInputLineageByAppType(tableId, appType,new HashSet<>());
+        List<LineageTableTable> resultLineages = queryTableResultLineageByAppType(tableId, appType,new HashSet<>());
         Set<LineageTableTable> lineageSet = Sets.newHashSet();
         lineageSet.addAll(inputLineages);
         lineageSet.addAll(resultLineages);

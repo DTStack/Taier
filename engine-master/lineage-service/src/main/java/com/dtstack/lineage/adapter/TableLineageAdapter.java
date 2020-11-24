@@ -43,6 +43,8 @@ public class TableLineageAdapter {
         tableTable.setResultTableId(resultTable.getId());
         tableTable.setResultTableKey(resultTable.getTableKey());
         tableTable.setLineageSource(originType.getType());
+        tableTable.setAppType(inputTable.getAppType());
+        tableTable.setDtUicTenantId(inputTable.getDtUicTenantId());
         return tableTable;
     }
 
