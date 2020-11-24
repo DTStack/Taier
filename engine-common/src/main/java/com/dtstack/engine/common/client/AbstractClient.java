@@ -7,18 +7,23 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.api.pojo.ClusterResource;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JobStatusFrequency;
 import com.dtstack.engine.common.pojo.JudgeResult;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -36,6 +41,8 @@ public abstract class AbstractClient implements IClient {
     public final static String PLUGIN_DEFAULT_CONFIG_NAME = "default-config.yaml";
 
     public final static String COMPONENT_TYPE = "componentType";
+
+    public Map<String, JobStatusFrequency> jobStatusMap = Maps.newConcurrentMap();
 
     public List<ClientTemplate> defaultPlugins;
 
@@ -78,6 +85,26 @@ public abstract class AbstractClient implements IClient {
         }
 
         return jobResult;
+    }
+
+    @Override
+    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
+        RdosTaskStatus status = RdosTaskStatus.NOTFOUND;
+        try {
+            status = processJobStatus(jobIdentifier);
+        }catch (Exception e) {
+            logger.error("get job status error: {}", e.getMessage());
+        } finally {
+            handleJobStatus(jobIdentifier, status);
+        }
+        return status;
+    }
+
+    protected RdosTaskStatus processJobStatus(JobIdentifier jobIdentifier) {
+        return RdosTaskStatus.NOTFOUND;
+    }
+
+    protected void handleJobStatus(JobIdentifier jobIdentifier, RdosTaskStatus status) {
     }
 
     @Override
