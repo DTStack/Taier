@@ -101,8 +101,6 @@ public class FlinkClient extends AbstractClient {
 
     private AbstractStorage storage;
 
-    private String jobHistory;
-
     private FilesystemManager filesystemManager;
 
     @Override
@@ -169,12 +167,6 @@ public class FlinkClient extends AbstractClient {
     private JobResult submitJobWithJar(JobClient jobClient, List<URL> classPaths, List<String> programArgList) {
         if (flinkConfig.isOpenKerberos()) {
             downloadKafkaKeyTab(jobClient.getTaskParams(), flinkConfig);
-        }
-
-        if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
-            if (existsJobOnFlink(jobClient.getEngineTaskId())) {
-                return JobResult.createSuccessResult(jobClient.getEngineTaskId());
-            }
         }
 
         JobParam jobParam = new JobParam(jobClient);
@@ -312,12 +304,6 @@ public class FlinkClient extends AbstractClient {
 
     private JobResult submitSqlJob(JobClient jobClient) {
 
-        if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
-            if (existsJobOnFlink(jobClient.getEngineTaskId())) {
-                return JobResult.createSuccessResult(jobClient.getEngineTaskId());
-            }
-        }
-
         ComputeType computeType = jobClient.getComputeType();
         if (computeType == null) {
             throw new RdosDefineException("need to set compute type.");
@@ -380,7 +366,7 @@ public class FlinkClient extends AbstractClient {
         // session mode
         Boolean isSession = StringUtils.isBlank(clusterId) || clusterId.contains("flinksession");
         try {
-            RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+            RdosTaskStatus rdosTaskStatus = processJobStatus(jobIdentifier);
             if (!RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
                 JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
 
@@ -391,7 +377,6 @@ public class FlinkClient extends AbstractClient {
             }
         } catch (Exception e) {
             logger.error("Stop job error:", e);
-
             if (isSession) {
                 logger.error("", e);
                 return JobResult.createErrorResult(e);
@@ -534,7 +519,7 @@ public class FlinkClient extends AbstractClient {
         String jobId = jobIdentifier.getEngineJobId();
         String applicationId = jobIdentifier.getApplicationId();
 
-        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+        RdosTaskStatus rdosTaskStatus = processJobStatus(jobIdentifier);
 
         String exceptionUrlPath = String.format(ConfigConstrant.JOB_EXCEPTIONS_URL_FORMAT, jobId);
         String accumulatorUrlPath = String.format(ConfigConstrant.JOB_ACCUMULATOR_URL_FORMAT, jobId);
@@ -696,7 +681,7 @@ public class FlinkClient extends AbstractClient {
         String checkpointUrlPath = String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, jobId);
         String checkpointMsg = "";
 
-        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+        RdosTaskStatus rdosTaskStatus = processJobStatus(jobIdentifier);
 
         try {
             boolean isFromJobArchive = RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus()) || rdosTaskStatus.equals(RdosTaskStatus.NOTFOUND);
@@ -713,19 +698,6 @@ public class FlinkClient extends AbstractClient {
         return checkpointMsg;
     }
 
-    private boolean existsJobOnFlink(String engineJobId) {
-        RdosTaskStatus taskStatus = getJobStatus(JobIdentifier.createInstance(engineJobId, null, null));
-        if (taskStatus == null) {
-            return false;
-        }
-
-        if (taskStatus == RdosTaskStatus.RUNNING) {
-            return true;
-        }
-
-        return false;
-    }
-
     public void fillJobGraphClassPath(JobGraph jobGraph) {
         Map<String, DistributedCache.DistributedCacheEntry> jobCacheFileConfig = jobGraph.getUserArtifacts();
         List<URL> classPath = jobCacheFileConfig.entrySet().stream()
@@ -735,19 +707,6 @@ public class FlinkClient extends AbstractClient {
 
         jobGraph.getUserArtifacts().clear();
         jobGraph.setClasspaths(classPath);
-    }
-
-    private String getJobHistoryURL() {
-        if (StringUtils.isNotBlank(jobHistory)) {
-            return jobHistory;
-        }
-        String webAddress = flinkClientBuilder.getFlinkConfiguration().getValue(HistoryServerOptions.HISTORY_SERVER_WEB_ADDRESS);
-        String port = flinkClientBuilder.getFlinkConfiguration().getValue(HistoryServerOptions.HISTORY_SERVER_WEB_PORT);
-        if (StringUtils.isBlank(webAddress) || StringUtils.isBlank(port)) {
-            throw new RdosDefineException("History Server webAddress:" + webAddress + " port:" + port);
-        }
-        jobHistory = String.format("http://%s:%s", webAddress, port);
-        return jobHistory;
     }
 
     private void downloadKafkaKeyTab(String taskParams, FlinkConfig flinkConfig) {
