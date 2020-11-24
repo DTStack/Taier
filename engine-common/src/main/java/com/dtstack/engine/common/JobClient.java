@@ -1,5 +1,6 @@
 package com.dtstack.engine.common;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.ComputeType;
@@ -104,6 +105,8 @@ public class JobClient extends OrderObject {
 
     private Integer appType;
 
+    private Boolean isForceCancel;
+
 
     public JobClient() {
 
@@ -187,15 +190,19 @@ public class JobClient extends OrderObject {
         return action;
     }
 
+    public Boolean getForceCancel() {
+        return isForceCancel;
+    }
+
+    public void setForceCancel(Boolean forceCancel) {
+        isForceCancel = forceCancel;
+    }
 
     public void setPluginWrapperInfo(Map pluginInfoMap) {
-        if (Objects.nonNull(pluginInfoMap)) {
-            try {
-                this.pluginInfo = PublicUtil.objToString(pluginInfoMap);
-            } catch (IOException e) {
-                logger.error("", e);
-            }
+        if (null == pluginInfoMap) {
+            throw new RdosDefineException("pluginInfo map must not be null.");
         }
+        this.pluginInfo = JSONObject.toJSONString(pluginInfoMap);
     }
 
     public long getTenantId() {
@@ -471,7 +478,6 @@ public class JobClient extends OrderObject {
                 ", again=" + again +
                 ", groupName='" + groupName + '\'' +
                 ", priorityLevel=" + priorityLevel +
-                ", pluginInfo='" + pluginInfo + '\'' +
                 ", generateTime=" + generateTime +
                 ", maxRetryNum=" + maxRetryNum +
                 ", lackingCount=" + lackingCount +

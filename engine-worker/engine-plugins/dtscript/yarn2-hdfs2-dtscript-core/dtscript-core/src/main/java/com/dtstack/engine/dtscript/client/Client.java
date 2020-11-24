@@ -3,6 +3,8 @@ package com.dtstack.engine.dtscript.client;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.util.KerberosUtils;
+import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.am.ApplicationMaster;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
@@ -32,6 +34,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class Client {
 
@@ -40,14 +45,19 @@ public class Client {
 
     private DtYarnConfiguration conf;
     private FileSystem dfs;
-    private YarnClient yarnClient;
+    private volatile YarnClient yarnClient;
     private volatile Path appJarSrc;
-
+    private ThreadPoolExecutor threadPoolExecutor;
 
     private static FsPermission JOB_FILE_PERMISSION = FsPermission.createImmutable((short) 0644);
 
     public Client(DtYarnConfiguration conf, BaseConfig allConfig) throws Exception {
         this.conf = conf;
+        this.threadPoolExecutor = new ThreadPoolExecutor(
+                conf.getInt(DtYarnConfiguration.DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM, DtYarnConfiguration.DEFAULT_DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM),
+                conf.getInt(DtYarnConfiguration.DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM, DtYarnConfiguration.DEFAULT_DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM),
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory("dtscript_yarnclient"));
         KerberosUtils.login(allConfig, () -> {
             String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
             if (conf.get("hadoop.job.ugi") == null) {
@@ -56,20 +66,16 @@ public class Client {
             }
             String proxyUser = conf.get(DtYarnConstants.PROXY_USER_NAME);
             String superGroup = conf.get(HDFS_SUPER_GROUP);
-            if(StringUtils.isNotBlank(superGroup)){
-                if (StringUtils.isNotBlank(proxyUser)) {
-                    UserGroupInformation hadoopUserNameUGI = UserGroupInformation.createRemoteUser(superGroup);
-                    UserGroupInformation.setLoginUser(UserGroupInformation.createProxyUser(proxyUser, hadoopUserNameUGI));
-                } else {
-                    UserGroupInformation.setLoginUser(UserGroupInformation.createRemoteUser(superGroup));
-                }
+            if (StringUtils.isNotBlank(proxyUser) && StringUtils.isNotBlank(superGroup)) {
+                UserGroupInformation hadoopUserNameUGI = UserGroupInformation.createRemoteUser(superGroup);
+                UserGroupInformation.setLoginUser(UserGroupInformation.createProxyUser(proxyUser, hadoopUserNameUGI));
+            } else if (StringUtils.isNotBlank(superGroup)) {
+                UserGroupInformation.setLoginUser(UserGroupInformation.createRemoteUser(superGroup));
             }
 
             this.yarnClient = getYarnClient();
             Path appJarSrc = new Path(JobConf.findContainingJar(ApplicationMaster.class));
             this.appJarSrc = appJarSrc;
-
-
             return null;
         }, conf);
     }
@@ -122,164 +128,170 @@ public class Client {
         return conf;
     }
 
-    public String submit(String[] args) throws IOException, YarnException, ParseException, ClassNotFoundException {
-        ClientArguments clientArguments = new ClientArguments(args);
+    public String submit(String[] args) throws Exception {
+        ApplicationId applicationId = null;
+        try {
+            ClientArguments clientArguments = new ClientArguments(args);
 
-        YarnConfiguration conf = init(clientArguments);
+            YarnConfiguration conf = init(clientArguments);
 
-        YarnClientApplication newAPP = getYarnClient().createApplication();
-        GetNewApplicationResponse newAppResponse = newAPP.getNewApplicationResponse();
-        ApplicationId applicationId = newAppResponse.getApplicationId();
-        clientArguments.setApplicationId(applicationId.toString());
-        LOG.info("Got new Application: " + applicationId.toString());
+            YarnClientApplication newAPP = getYarnClient().createApplication();
+            GetNewApplicationResponse newAppResponse = newAPP.getNewApplicationResponse();
+            applicationId = newAppResponse.getApplicationId();
+            clientArguments.setApplicationId(applicationId.toString());
+            LOG.info("Got new Application: " + applicationId.toString());
 
-        Map<String, String> appMasterEnv = new HashMap<>();
+            Map<String, String> appMasterEnv = new HashMap<>();
 
-        /** launch command */
-        LOG.info("Building app launch command");
-        String launchCmd = new LaunchCommandBuilder(clientArguments, conf).buildCmd();
-        if (StringUtils.isNotBlank(launchCmd)) {
-            appMasterEnv.put(DtYarnConstants.Environment.DT_EXEC_CMD.toString(), launchCmd);
-        } else {
-            throw new IllegalArgumentException("Invalid launch cmd for the application");
-        }
-        LOG.info("app launch command: " + launchCmd);
-
-        Path jobConfPath = Utilities.getRemotePath(conf, applicationId, DtYarnConstants.LEARNING_JOB_CONFIGURATION);
-        LOG.info("job conf path: " + jobConfPath);
-        FSDataOutputStream out = FileSystem.create(jobConfPath.getFileSystem(conf), jobConfPath,
-                new FsPermission(JOB_FILE_PERMISSION));
-        conf.writeXml(out);
-        out.close();
-
-        Map<String, LocalResource> localResources = new HashMap<>();
-        localResources.put(DtYarnConstants.LEARNING_JOB_CONFIGURATION,
-                Utilities.createApplicationResource(getFileSystem(), jobConfPath, LocalResourceType.FILE));
-
-
-        Path appMasterJar = Utilities.getRemotePath(conf, applicationId, DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH);
-        LOG.info("Copying " + appJarSrc + " to remote path " + appMasterJar.toString());
-        getFileSystem().copyFromLocalFile(false, true, appJarSrc, appMasterJar);
-        localResources.put(DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH,
-                Utilities.createApplicationResource(getFileSystem(), appMasterJar, LocalResourceType.FILE));
-
-
-        StringBuilder classPathEnv = new StringBuilder("${CLASSPATH}:./*");
-
-        for (String cp : conf.getStrings(DtYarnConfiguration.YARN_APPLICATION_CLASSPATH,
-                DtYarnConfiguration.DEFAULT_DTSCRIPT_APPLICATION_CLASSPATH)) {
-            classPathEnv.append(':');
-            classPathEnv.append(cp.trim());
-        }
-
-        if (Boolean.FALSE.equals(clientArguments.localFile) && clientArguments.files != null) {
-            StringBuffer appFilesRemotePath = new StringBuffer(1000);
-            Path[] xlearningFilesDst = new Path[clientArguments.files.length];
-            LOG.info("Copy dtscript files from local filesystem to remote.");
-            for (int i = 0; i < clientArguments.files.length; i++) {
-                assert (!clientArguments.files[i].isEmpty());
-
-                if (!clientArguments.files[i].startsWith("hdfs:")) { //local
-                    Path xlearningFilesSrc = new Path(clientArguments.files[i]);
-                    xlearningFilesDst[i] = Utilities.getRemotePath(
-                            conf, applicationId, new Path(clientArguments.files[i]).getName());
-                    LOG.info("Copying " + clientArguments.files[i] + " to remote path " + xlearningFilesDst[i].toString());
-                    getFileSystem().copyFromLocalFile(false, true, xlearningFilesSrc, xlearningFilesDst[i]);
-                    appFilesRemotePath.append(xlearningFilesDst[i].toUri().toString()).append(",");
-                } else { //hdfs
-                    appFilesRemotePath.append(clientArguments.files[i]).append(",");
-                }
-
+            /** launch command */
+            LOG.info("Building app launch command");
+            String launchCmd = new LaunchCommandBuilder(clientArguments, conf).buildCmd();
+            if (StringUtils.isNotBlank(launchCmd)) {
+                appMasterEnv.put(DtYarnConstants.Environment.DT_EXEC_CMD.toString(), launchCmd);
+            } else {
+                throw new IllegalArgumentException("Invalid launch cmd for the application");
             }
-            appMasterEnv.put(DtYarnConstants.Environment.FILES_LOCATION.toString(),
-                    appFilesRemotePath.deleteCharAt(appFilesRemotePath.length() - 1).toString());
-        }
+            LOG.info("app launch command: " + launchCmd);
 
-        if (StringUtils.isNotBlank(clientArguments.cacheFiles)) {
-            String[] cacheFiles = StringUtils.split(clientArguments.cacheFiles, ",");
-            for (String path : cacheFiles) {
-                Path pathRemote;
-                if (path.contains("#")) {
-                    String[] paths = StringUtils.split(path, "#");
-                    if (paths.length != 2) {
-                        throw new RuntimeException("Error cacheFile path format " + path);
+            Path jobConfPath = Utilities.getRemotePath(conf, applicationId, DtYarnConstants.LEARNING_JOB_CONFIGURATION);
+            LOG.info("job conf path: " + jobConfPath);
+            FSDataOutputStream out = FileSystem.create(jobConfPath.getFileSystem(conf), jobConfPath,
+                    new FsPermission(JOB_FILE_PERMISSION));
+            conf.writeXml(out);
+            out.close();
+
+            Map<String, LocalResource> localResources = new HashMap<>();
+            localResources.put(DtYarnConstants.LEARNING_JOB_CONFIGURATION,
+                    Utilities.createApplicationResource(getFileSystem(), jobConfPath, LocalResourceType.FILE));
+
+
+            Path appMasterJar = Utilities.getRemotePath(conf, applicationId, DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH);
+            LOG.info("Copying " + appJarSrc + " to remote path " + appMasterJar.toString());
+            getFileSystem().copyFromLocalFile(false, true, appJarSrc, appMasterJar);
+            localResources.put(DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH,
+                    Utilities.createApplicationResource(getFileSystem(), appMasterJar, LocalResourceType.FILE));
+
+
+            StringBuilder classPathEnv = new StringBuilder("${CLASSPATH}:./*");
+
+            for (String cp : conf.getStrings(DtYarnConfiguration.YARN_APPLICATION_CLASSPATH,
+                    DtYarnConfiguration.DEFAULT_DTSCRIPT_APPLICATION_CLASSPATH)) {
+                classPathEnv.append(':');
+                classPathEnv.append(cp.trim());
+            }
+
+            if (Boolean.FALSE.equals(clientArguments.localFile) && clientArguments.files != null) {
+                StringBuffer appFilesRemotePath = new StringBuffer(1000);
+                Path[] xlearningFilesDst = new Path[clientArguments.files.length];
+                LOG.info("Copy dtscript files from local filesystem to remote.");
+                for (int i = 0; i < clientArguments.files.length; i++) {
+                    assert (!clientArguments.files[i].isEmpty());
+
+                    if (!clientArguments.files[i].startsWith("hdfs:")) { //local
+                        Path xlearningFilesSrc = new Path(clientArguments.files[i]);
+                        xlearningFilesDst[i] = Utilities.getRemotePath(
+                                conf, applicationId, new Path(clientArguments.files[i]).getName());
+                        LOG.info("Copying " + clientArguments.files[i] + " to remote path " + xlearningFilesDst[i].toString());
+                        getFileSystem().copyFromLocalFile(false, true, xlearningFilesSrc, xlearningFilesDst[i]);
+                        appFilesRemotePath.append(xlearningFilesDst[i].toUri().toString()).append(",");
+                    } else { //hdfs
+                        appFilesRemotePath.append(clientArguments.files[i]).append(",");
                     }
-                    pathRemote = new Path(paths[0]);
-                } else {
-                    pathRemote = new Path(path);
-                }
 
-                if (!pathRemote.getFileSystem(conf).exists(pathRemote)) {
-                    throw new IOException("cacheFile path " + pathRemote + " not existed!");
                 }
+                appMasterEnv.put(DtYarnConstants.Environment.FILES_LOCATION.toString(),
+                        appFilesRemotePath.deleteCharAt(appFilesRemotePath.length() - 1).toString());
             }
-            appMasterEnv.put(DtYarnConstants.Environment.CACHE_FILE_LOCATION.toString(), clientArguments.cacheFiles);
+
+            if (StringUtils.isNotBlank(clientArguments.cacheFiles)) {
+                String[] cacheFiles = StringUtils.split(clientArguments.cacheFiles, ",");
+                for (String path : cacheFiles) {
+                    Path pathRemote;
+                    if (path.contains("#")) {
+                        String[] paths = StringUtils.split(path, "#");
+                        if (paths.length != 2) {
+                            throw new RuntimeException("Error cacheFile path format " + path);
+                        }
+                        pathRemote = new Path(paths[0]);
+                    } else {
+                        pathRemote = new Path(path);
+                    }
+
+                    if (!pathRemote.getFileSystem(conf).exists(pathRemote)) {
+                        throw new IOException("cacheFile path " + pathRemote + " not existed!");
+                    }
+                }
+                appMasterEnv.put(DtYarnConstants.Environment.CACHE_FILE_LOCATION.toString(), clientArguments.cacheFiles);
+            }
+
+            appMasterEnv.put("CLASSPATH", classPathEnv.toString());
+            appMasterEnv.put("HADOOP_HOME", conf.get(DtYarnConfiguration.DT_HADOOP_HOME_DIR));
+            appMasterEnv.put(DtYarnConstants.Environment.OUTPUTS.toString(), clientArguments.outputs.toString());
+            appMasterEnv.put(DtYarnConstants.Environment.INPUTS.toString(), clientArguments.inputs.toString());
+            appMasterEnv.put(DtYarnConstants.Environment.APP_TYPE.toString(), clientArguments.appType.name());
+            appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_STAGING_LOCATION.toString(), Utilities.getRemotePath(conf, applicationId, "").toString());
+            appMasterEnv.put(DtYarnConstants.Environment.APP_JAR_LOCATION.toString(), appMasterJar.toUri().toString());
+            appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString(), jobConfPath.toString());
+            appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_CONTAINER_MAX_MEMORY.toString(), String.valueOf(newAppResponse.getMaximumResourceCapability().getMemory()));
+
+
+            LOG.info("Building application master launch command");
+            List<String> appMasterArgs = new ArrayList<>(20);
+            appMasterArgs.add(conf.get(DtYarnConfiguration.JAVA_PATH,"${JAVA_HOME}" + "/bin/java"));
+            appMasterArgs.add("-cp " + "${CLASSPATH}");
+            appMasterArgs.add("-Xms" + conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY) + "m");
+            appMasterArgs.add("-Xmx" + conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY) + "m");
+            String javaOpts = conf.get(DtYarnConfiguration.DTSCRIPT_APPMASTER_EXTRA_JAVA_OPTS, DtYarnConfiguration.DEFAULT_DTSCRIPT_APPMASTER_EXTRA_JAVA_OPTS);
+            if (!StringUtils.isBlank(javaOpts)) {
+                appMasterArgs.add(javaOpts);
+            }
+
+            appMasterArgs.add(ApplicationMaster.class.getName());
+            appMasterArgs.add("1>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR
+                    + "/" + ApplicationConstants.STDOUT);
+            appMasterArgs.add("2>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR
+                    + "/" + ApplicationConstants.STDERR);
+
+            StringBuilder command = new StringBuilder();
+            for (String arg : appMasterArgs) {
+                command.append(arg).append(" ");
+            }
+
+            LOG.info("Application master launch command: " + command.toString());
+            List<String> appMasterLaunchcommands = new ArrayList<>();
+            appMasterLaunchcommands.add(command.toString());
+
+            ApplicationSubmissionContext applicationContext = newAPP.getApplicationSubmissionContext();
+            applicationContext.setApplicationId(applicationId);
+            applicationContext.setApplicationName(clientArguments.appName);
+            applicationContext.setApplicationType(clientArguments.appType.name());
+            applicationContext.setMaxAppAttempts(clientArguments.maxAppAttempts);
+            Resource capability = Records.newRecord(Resource.class);
+            capability.setMemory(conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY));
+            capability.setVirtualCores(conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_CORES, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_CORES));
+            applicationContext.setResource(capability);
+            ByteBuffer tokenBuffer = SecurityUtil.getDelegationTokens(conf, getYarnClient());
+            ContainerLaunchContext amContainer = ContainerLaunchContext.newInstance(
+                    localResources, appMasterEnv, appMasterLaunchcommands, null, tokenBuffer, null);
+
+
+            applicationContext.setAMContainerSpec(amContainer);
+
+            Priority priority = Records.newRecord(Priority.class);
+            priority.setPriority(conf.getInt(DtYarnConfiguration.APP_PRIORITY, DtYarnConfiguration.DEFAULT_DTSCRIPT_APP_PRIORITY));
+            applicationContext.setPriority(priority);
+            applicationContext.setQueue(conf.get(DtYarnConfiguration.DT_APP_QUEUE, DtYarnConfiguration.DEFAULT_DT_APP_QUEUE));
+            String nodeLabels = conf.get(DtYarnConfiguration.NODE_LABEL);
+            if (StringUtils.isNotBlank(nodeLabels)) {
+                applicationContext.setNodeLabelExpression(nodeLabels);
+            }
+            applicationId = getYarnClient().submitApplication(applicationContext);
+
+            return applicationId.toString();
+        } catch (Exception e) {
+            Utilities.cleanStagingRemotePath(conf, applicationId);
+            throw e;
         }
-
-        appMasterEnv.put("CLASSPATH", classPathEnv.toString());
-        appMasterEnv.put("HADOOP_HOME", conf.get(DtYarnConfiguration.DT_HADOOP_HOME_DIR));
-        appMasterEnv.put(DtYarnConstants.Environment.OUTPUTS.toString(), clientArguments.outputs.toString());
-        appMasterEnv.put(DtYarnConstants.Environment.INPUTS.toString(), clientArguments.inputs.toString());
-        appMasterEnv.put(DtYarnConstants.Environment.APP_TYPE.toString(), clientArguments.appType.name());
-        appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_STAGING_LOCATION.toString(), Utilities.getRemotePath(conf, applicationId, "").toString());
-        appMasterEnv.put(DtYarnConstants.Environment.APP_JAR_LOCATION.toString(), appMasterJar.toUri().toString());
-        appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString(), jobConfPath.toString());
-        appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_CONTAINER_MAX_MEMORY.toString(), String.valueOf(newAppResponse.getMaximumResourceCapability().getMemory()));
-
-
-        LOG.info("Building application master launch command");
-        List<String> appMasterArgs = new ArrayList<>(20);
-        appMasterArgs.add(conf.get(DtYarnConfiguration.JAVA_PATH,"${JAVA_HOME}" + "/bin/java"));
-        appMasterArgs.add("-cp " + "${CLASSPATH}");
-        appMasterArgs.add("-Xms" + conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY) + "m");
-        appMasterArgs.add("-Xmx" + conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY) + "m");
-        String javaOpts = conf.get(DtYarnConfiguration.DTSCRIPT_APPMASTER_EXTRA_JAVA_OPTS, DtYarnConfiguration.DEFAULT_DTSCRIPT_APPMASTER_EXTRA_JAVA_OPTS);
-        if (!StringUtils.isBlank(javaOpts)) {
-            appMasterArgs.add(javaOpts);
-        }
-
-        appMasterArgs.add(ApplicationMaster.class.getName());
-        appMasterArgs.add("1>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR
-                + "/" + ApplicationConstants.STDOUT);
-        appMasterArgs.add("2>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR
-                + "/" + ApplicationConstants.STDERR);
-
-        StringBuilder command = new StringBuilder();
-        for (String arg : appMasterArgs) {
-            command.append(arg).append(" ");
-        }
-
-        LOG.info("Application master launch command: " + command.toString());
-        List<String> appMasterLaunchcommands = new ArrayList<>();
-        appMasterLaunchcommands.add(command.toString());
-
-        ApplicationSubmissionContext applicationContext = newAPP.getApplicationSubmissionContext();
-        applicationContext.setApplicationId(applicationId);
-        applicationContext.setApplicationName(clientArguments.appName);
-        applicationContext.setApplicationType(clientArguments.appType.name());
-        applicationContext.setMaxAppAttempts(clientArguments.maxAppAttempts);
-        Resource capability = Records.newRecord(Resource.class);
-        capability.setMemory(conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY));
-        capability.setVirtualCores(conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_CORES, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_CORES));
-        applicationContext.setResource(capability);
-        ByteBuffer tokenBuffer = SecurityUtil.getDelegationTokens(conf, getYarnClient());
-        ContainerLaunchContext amContainer = ContainerLaunchContext.newInstance(
-                localResources, appMasterEnv, appMasterLaunchcommands, null, tokenBuffer, null);
-
-
-        applicationContext.setAMContainerSpec(amContainer);
-
-        Priority priority = Records.newRecord(Priority.class);
-        priority.setPriority(conf.getInt(DtYarnConfiguration.APP_PRIORITY, DtYarnConfiguration.DEFAULT_DTSCRIPT_APP_PRIORITY));
-        applicationContext.setPriority(priority);
-        applicationContext.setQueue(conf.get(DtYarnConfiguration.DT_APP_QUEUE, DtYarnConfiguration.DEFAULT_DT_APP_QUEUE));
-        String nodeLabels = conf.get(DtYarnConfiguration.NODE_LABEL);
-        if (StringUtils.isNotBlank(nodeLabels)) {
-            applicationContext.setNodeLabelExpression(nodeLabels);
-        }
-        applicationId = getYarnClient().submitApplication(applicationContext);
-
-        return applicationId.toString();
     }
 
 
@@ -354,11 +366,13 @@ public class Client {
         return getYarnClient().getApplicationReport(appId);
     }
 
-    public YarnClient getYarnClient() {
+    public YarnClient getYarnClient(){
+        long startTime = System.currentTimeMillis();
         try {
             if (yarnClient == null) {
                 synchronized (this) {
                     if (yarnClient == null) {
+                        LOG.info("buildYarnClient!");
                         YarnClient yarnClient1 = YarnClient.createYarnClient();
                         yarnClient1.init(conf);
                         yarnClient1.start();
@@ -366,36 +380,23 @@ public class Client {
                     }
                 }
             } else {
-                //判断下是否可用
-                yarnClient.getAllQueues();
+                //异步超时判断下是否可用，kerberos 开启下会出现hang死情况
+                RetryUtil.asyncExecuteWithRetry(() -> yarnClient.getAllQueues(),
+                        1,
+                        0,
+                        false,
+                        30000L,
+                        threadPoolExecutor);
             }
         } catch (Throwable e) {
-            LOG.error("getYarnClient error:{}", e);
-            synchronized (this) {
-                if (yarnClient != null) {
-                    boolean flag = true;
-                    try {
-                        //判断下是否可用
-                        yarnClient.getAllQueues();
-                    } catch (Throwable e1) {
-                        LOG.error("getYarnClient error:{}", e1);
-                        flag = false;
-                    }
-                    if (!flag) {
-                        try {
-                            yarnClient.stop();
-                        } finally {
-                            yarnClient = null;
-                        }
-                    }
-                }
-                if (yarnClient == null) {
-                    YarnClient yarnClient1 = YarnClient.createYarnClient();
-                    yarnClient1.init(conf);
-                    yarnClient1.start();
-                    yarnClient = yarnClient1;
-                }
-            }
+            LOG.error("buildYarnClient![backup]", e);
+            YarnClient yarnClient1 = YarnClient.createYarnClient();
+            yarnClient1.init(conf);
+            yarnClient1.start();
+            yarnClient = yarnClient1;
+        } finally {
+            long endTime= System.currentTimeMillis();
+            LOG.info("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
         }
         return yarnClient;
     }
@@ -410,7 +411,7 @@ public class Client {
                 dfs.getStatus();
             }
         } catch (Throwable e) {
-            LOG.error("getFileSystem error:{}", e);
+            LOG.error("getFileSystem error:", e);
             synchronized (this) {
                 if (dfs != null) {
                     boolean flag = true;
@@ -418,7 +419,7 @@ public class Client {
                         //判断下是否可用
                         dfs.getStatus();
                     } catch (Throwable e1) {
-                        LOG.error("getFileSystem error:{}", e1);
+                        LOG.error("getFileSystem error:", e1);
                         flag = false;
                     }
                     if (!flag) {
@@ -436,6 +437,7 @@ public class Client {
         }
         return dfs;
     }
+
 
     public List<String> getContainerInfos(String jobId) throws IOException {
         Path remotePath = new Path(conf.get(DtYarnConfiguration.CONTAINER_STAGING_DIR, DtYarnConfiguration.DEFAULT_CONTAINER_STAGING_DIR), jobId);

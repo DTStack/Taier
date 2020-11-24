@@ -2,15 +2,12 @@ package com.dtstack.engine.sparkyarn.sparkyarn.util;
 
 
 import com.dtstack.engine.base.util.HadoopConfTool;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.util.Map;
 
 /**
@@ -41,10 +38,10 @@ public class HadoopConf {
                 configuration.setBoolean(key, (boolean) value);
             }
         });
+        configuration.setBoolean(CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_KEY, true);
     }
 
     public void initYarnConf(Map<String, Object> conf){
-
         yarnConfiguration = new YarnConfiguration(configuration);
         conf.keySet().forEach(key ->{
             Object value = conf.get(key);
@@ -54,7 +51,7 @@ public class HadoopConf {
                 yarnConfiguration.setBoolean(key, (boolean) value);
             }
         });
-
+        HadoopConfTool.setDefaultYarnConf(yarnConfiguration, conf);
     }
 
     public void initHiveSecurityConf(Map<String, Object> conf){

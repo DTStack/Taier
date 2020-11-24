@@ -57,6 +57,13 @@ public class StreamTaskService {
         return engineJobCheckpointDao.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
     }
 
+    /**
+     * 查询checkPoint
+     */
+    public EngineJobCheckpoint getSavePoint( String taskId){
+        return engineJobCheckpointDao.findLatestSavepointByTaskId(taskId);
+    }
+
     public EngineJobCheckpoint getByTaskIdAndEngineTaskId( String taskId,  String engineTaskId){
         return engineJobCheckpointDao.getByTaskIdAndEngineTaskId(taskId, engineTaskId);
     }
@@ -65,7 +72,15 @@ public class StreamTaskService {
      * 查询stream job
      */
     public List<ScheduleJob> getEngineStreamJob( List<String> taskIds){
-        return scheduleJobDao.getRdosJobByJobIds(taskIds);
+        List<ScheduleJob> jobs = scheduleJobDao.getRdosJobByJobIds(taskIds);
+
+        if (jobs != null && jobs.size() > 0){
+            for (ScheduleJob scheduleJob : jobs) {
+                scheduleJob.setStatus(RdosTaskStatus.getShowStatus(scheduleJob.getStatus()));
+            }
+        }
+
+        return jobs;
     }
 
     /**
@@ -78,16 +93,17 @@ public class StreamTaskService {
     /**
      * 获取任务的状态
      */
-    public Integer getTaskStatus( String taskId){
+    public Integer getTaskStatus(String taskId) {
         Integer status = null;
-        if (StringUtils.isNotEmpty(taskId)){
-        	ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
-            if (scheduleJob != null){
+        if (StringUtils.isNotEmpty(taskId)) {
+            ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
+            if (scheduleJob != null) {
                 status = scheduleJob.getStatus();
+                return RdosTaskStatus.getShowStatus(status);
             }
         }
 
-        return status;
+        return null;
     }
 
     /**

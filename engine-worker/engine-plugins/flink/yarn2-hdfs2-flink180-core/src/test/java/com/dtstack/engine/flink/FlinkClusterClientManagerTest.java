@@ -88,13 +88,6 @@ public class FlinkClusterClientManagerTest {
 	}
 
 	@Test
-	public void testAddClient() {
-		String applicationId = "application_1593762151957_0080";
-
-		flinkClusterClientManager.addClient(applicationId, clusterClient);
-	}
-
-	@Test
 	public void testCreateWithInit() throws Exception {
 		FlinkConfig flinkConfig = new FlinkConfig();
 		flinkConfig.setClusterMode("yarn");
@@ -113,7 +106,7 @@ public class FlinkClusterClientManagerTest {
 		PowerMockito.mockStatic(CuratorFrameworkFactory.class);
 		when(CuratorFrameworkFactory.builder()).thenReturn(builder);
 
-		FlinkClusterClientManager clusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
+		FlinkClusterClientManager clusterClientManager = new FlinkClusterClientManager(flinkClientBuilder);
 		Assert.assertNotNull(clusterClientManager);
 	}
 

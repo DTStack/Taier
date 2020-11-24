@@ -23,6 +23,7 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
+import com.dtstack.schedule.common.enums.ForceCancelFlag;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -99,7 +100,8 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
     private static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EScheduleJobType.WORK_FLOW.getVal(), EScheduleJobType.ALGORITHM_LAB.getVal());
 
-    public int addStopJobs(List<ScheduleJob> jobs) {
+    public int addStopJobs(List<ScheduleJob> jobs,Integer isForce){
+
         if (CollectionUtils.isEmpty(jobs)) {
             return 0;
         }
@@ -129,6 +131,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                     logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobStopRecord.getTaskId());
                     continue;
                 }
+                jobStopRecord.setForceCancelFlag(isForce);
                 engineJobStopRecordDao.insert(jobStopRecord);
             }
         }
@@ -138,7 +141,10 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         }
 
         return jobs.size();
+    }
 
+    public int addStopJobs(List<ScheduleJob> jobs) {
+        return addStopJobs(jobs, ForceCancelFlag.NO.getFlag());
     }
 
     private boolean checkJobCanStop(Integer status) {
@@ -167,6 +173,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
     @Override
     public void destroy() throws Exception {
+        delayStopProcessor.close();
         delayStopProcessorService.shutdownNow();
         scheduledService.shutdownNow();
         asyncDealStopJobService.shutdownNow();
@@ -218,7 +225,8 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                                 continue;
                             }
 
-                            JobElement jobElement = new JobElement(jobCache.getJobId(), jobStopRecord.getId());
+                            boolean forceCancelFlag = jobStopRecord.getForceCancelFlag() == ForceCancelFlag.YES.getFlag() ? true : false;
+                            JobElement jobElement = new JobElement(jobCache.getJobId(), jobStopRecord.getId(), forceCancelFlag );
                             asyncDealStopJobService.submit(() -> asyncDealStopJob(new StoppedJob<JobElement>(jobElement, jobStoppedRetry, jobStoppedDelay)));
                         } else {
                             //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
@@ -231,17 +239,19 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
                     Thread.sleep(500);
                 } catch (Throwable e) {
-                    logger.error("when acquire stop jobs happens error:{}", e);
+                    logger.error("when acquire stop jobs happens error:", e);
                 }
             }
         }
     }
 
     private class DelayStopProcessor implements Runnable {
+        private Boolean open = Boolean.TRUE;
+
         @Override
         public void run() {
             logger.info("DelayStopProcessor thread is start...");
-            while (true) {
+            while (open) {
                 try {
                     StoppedJob<JobElement> stoppedJob = stopJobQueue.take();
                     asyncDealStopJobService.submit(() -> asyncDealStopJob(stoppedJob));
@@ -250,6 +260,11 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 }
             }
         }
+
+        public void close(){
+            open = Boolean.FALSE;
+        }
+
     }
 
     private void asyncDealStopJob(StoppedJob<JobElement> stoppedJob) {
@@ -277,8 +292,11 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                         }
                     default:
                 }
+            } else {
+                engineJobStopRecordDao.delete(stoppedJob.getJob().stopJobId);
+                logger.warn("delete stop record jobId {} stopJobId {} ", stoppedJob.getJob().jobId, stoppedJob.getJob().stopJobId);
             }
-            engineJobStopRecordDao.delete(stoppedJob.getJob().stopJobId);
+
         } catch (Exception e) {
             logger.error("", e);
         }
@@ -321,6 +339,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
             paramAction.setEngineTaskId(scheduleJob.getEngineJobId());
             paramAction.setApplicationId(scheduleJob.getApplicationId());
             JobClient jobClient = new JobClient(paramAction);
+            jobClient.setForceCancel(jobElement.isForceCancel);
 
             if (StringUtils.isNotBlank(scheduleJob.getEngineJobId()) && !jobClient.getEngineTaskId().equals(scheduleJob.getEngineJobId())) {
                 this.removeMemStatusAndJobCache(jobElement.jobId);
@@ -361,10 +380,17 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
         public String jobId;
         public long stopJobId;
+        public boolean isForceCancel;
 
         public JobElement(String jobId, long stopJobId) {
             this.jobId = jobId;
             this.stopJobId = stopJobId;
+        }
+
+        public JobElement(String jobId, long stopJobId, boolean isForceCancel) {
+            this.jobId = jobId;
+            this.stopJobId = stopJobId;
+            this.isForceCancel = isForceCancel;
         }
     }
 }

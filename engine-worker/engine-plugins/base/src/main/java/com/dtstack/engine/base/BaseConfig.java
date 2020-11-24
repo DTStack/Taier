@@ -1,6 +1,8 @@
 package com.dtstack.engine.base;
 
-import java.util.Map;
+import com.dtstack.engine.common.sftp.SftpConfig;
+
+import java.sql.Timestamp;
 
 /**
  * @author yuebai
@@ -8,34 +10,34 @@ import java.util.Map;
  */
 public class BaseConfig {
 
+    private SftpConfig sftpConf;
+
     private boolean openKerberos;
 
     private String remoteDir;
 
     private String principalFile;
 
-    private Map<String, String> sftpConf;
-
     private String krbName;
 
-    private String principalPath;
+    private String principal;
 
-    private String principalName;
+    private Timestamp kerberosFileTimestamp;
 
-    public String getPrincipalPath() {
-        return principalPath;
+    public SftpConfig getSftpConf() {
+        return sftpConf;
     }
 
-    public void setPrincipalPath(String principalPath) {
-        this.principalPath = principalPath;
+    public void setSftpConf(SftpConfig sftpConf) {
+        this.sftpConf = sftpConf;
     }
 
-    public String getPrincipalName() {
-        return principalName;
+    public String getPrincipal() {
+        return principal;
     }
 
-    public void setPrincipalName(String principalName) {
-        this.principalName = principalName;
+    public void setPrincipal(String principal) {
+        this.principal = principal;
     }
 
     public String getKrbName() {
@@ -44,6 +46,14 @@ public class BaseConfig {
 
     public void setKrbName(String krbName) {
         this.krbName = krbName;
+    }
+
+    public Timestamp getKerberosFileTimestamp() {
+        return kerberosFileTimestamp;
+    }
+
+    public void setKerberosFileTimestamp(Timestamp kerberosFileTimestamp) {
+        this.kerberosFileTimestamp = kerberosFileTimestamp;
     }
 
     public boolean isOpenKerberos() {
@@ -69,13 +79,4 @@ public class BaseConfig {
     public void setPrincipalFile(String principalFile) {
         this.principalFile = principalFile;
     }
-
-    public Map<String, String> getSftpConf() {
-        return sftpConf;
-    }
-
-    public void setSftpConf(Map<String, String> sftpConf) {
-        this.sftpConf = sftpConf;
-    }
-
 }

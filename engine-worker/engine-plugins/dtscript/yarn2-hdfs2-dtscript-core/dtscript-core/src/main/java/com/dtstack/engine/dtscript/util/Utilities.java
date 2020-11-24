@@ -49,9 +49,10 @@ public final class Utilities {
         }
       }
     } else {
-      LOG.info("input list size:" + fileStatus.length);
       if (fileStatus == null) {
         LOG.info("fileStatus is null");
+      } else {
+        LOG.info("input list size:" + fileStatus.length);
       }
     }
     return fileStatuses;
@@ -133,5 +134,24 @@ public final class Utilities {
     localResource.setVisibility(LocalResourceVisibility.APPLICATION);
     return localResource;
   }
+
+
+  public static Boolean cleanStagingRemotePath(YarnConfiguration conf, ApplicationId appId) {
+    if (conf == null || appId == null) {
+      LOG.error("clean staging remote path failed because yarnConfiguration or applicationId is null.");
+      return false;
+    }
+    try {
+      Path remotePath = getRemotePath(conf, appId, "");
+      FileSystem fs = FileSystem.get(conf);
+      fs.delete(remotePath, true);
+      LOG.info("clean staging remote path " + remotePath.toString() + " success.");
+      return true;
+    } catch (IOException e) {
+      LOG.error("clean staging remote path failed: " + e);
+      return false;
+    }
+  }
+
 
 }

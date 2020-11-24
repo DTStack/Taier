@@ -434,6 +434,10 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		}
 	}
 
+	private boolean isSecurityEnabled() {
+		return flinkConfiguration.getBoolean("openKerberos", false);
+	}
+
 	/**
 	 * This method will block until the ApplicationMaster/JobManager have been deployed on YARN.
 	 *
@@ -450,7 +454,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 			@Nullable JobGraph jobGraph,
 			boolean detached) throws Exception {
 
-		if (UserGroupInformation.isSecurityEnabled()) {
+		if (isSecurityEnabled()) {
 			// note: UGI::hasKerberosCredentials inaccurately reports false
 			// for logins based on a keytab (fixed in Hadoop 2.6.1, see HADOOP-10786),
 			// so we check only in ticket cache scenario.
@@ -656,7 +660,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 				currentProxy = currentProxyField.get(h);
 			}catch (Exception e){
 				//兼容Hadoop 2.7.3.2.6.4.91-3
-				LOG.warn("get currentProxy error:{}", ExceptionUtil.getErrorMessage(e));
+				LOG.error("get currentProxy error:", e);
 				Field proxyDescriptorField = h.getClass().getDeclaredField("proxyDescriptor");
 				proxyDescriptorField.setAccessible(true);
 				Object proxyDescriptor = proxyDescriptorField.get(h);
@@ -678,7 +682,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
 			return String.format("http://%s/proxy",addr);
 		}catch (Exception e){
-			LOG.warn("get monitor error:{}", ExceptionUtil.getErrorMessage(e));
+			LOG.error("get monitor error:", e);
 		}
 
 		return url;
@@ -829,7 +833,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		final Path homeDir = fs.getHomeDirectory();
 
 		// hard coded check for the GoogleHDFS client because its not overriding the getScheme() method.
-		if (!fs.getClass().getSimpleName().equals("GoogleHadoopFileSystem") &&
+		if (!"GoogleHadoopFileSystem".equals(fs.getClass().getSimpleName()) &&
 				fs.getScheme().startsWith("file")) {
 			LOG.warn("The file system scheme is '" + fs.getScheme() + "'. This indicates that the "
 					+ "specified Hadoop configuration path is wrong and the system is using the default Hadoop configuration values."
@@ -850,17 +854,22 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		if (logConfigFilePath == null) {
 			String logLevel = flinkConfiguration.getString("logLevel", "info").toLowerCase();
 
-			String log4jConfigFilePath = "." + File.separator + FLINK_LOG_DIR + File.separator + logLevel + File.separator + CONFIG_FILE_LOG4J_NAME;
-			File log4jFile = new File(log4jConfigFilePath);
-			if (log4jFile.exists()) {
-				logConfigFilePath = log4jConfigFilePath;
+			// TODO: 2020/11/11 默认上传一份日志配置文件 log4j.properties > logback.xml
+			String configFileParentPath = "." + File.separator + FLINK_LOG_DIR + File.separator + logLevel;
+			String uploadConfigFilePath = configFileParentPath + File.separator + CONFIG_FILE_LOG4J_NAME;
+			File uploadFile = new File(uploadConfigFilePath);
+			if ( uploadFile.exists() ) {
+				logConfigFilePath = uploadConfigFilePath;
 			} else {
-				log4jConfigFilePath = System.getenv(ENV_FLINK_CONF_DIR) + File.separator + CONFIG_FILE_LOG4J_NAME;
-				log4jFile = new File(log4jConfigFilePath);
-				if (log4jFile.exists()) {
-					logConfigFilePath = log4jConfigFilePath;
+				uploadConfigFilePath = configFileParentPath + File.separator + CONFIG_FILE_LOGBACK_NAME;
+				uploadFile = new File(uploadConfigFilePath);
+				if ( uploadFile.exists() ) {
+					logConfigFilePath = uploadConfigFilePath;
+				} else {
+					LOG.warn("No log configuration file to upload was found. Please check if there are any log configuration files in the [{}] ", configFileParentPath);
 				}
 			}
+
 		}
 		if (logConfigFilePath != null) {
 			LOG.info("logConfigFilePath:{}", logConfigFilePath);
@@ -1136,7 +1145,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 				hasKrb5,
 				clusterSpecification.getMasterMemoryMB());
 
-		if (UserGroupInformation.isSecurityEnabled()) {
+		if (isSecurityEnabled()) {
 			// set HDFS delegation tokens when security is enabled
 			LOG.info("Adding delegation token to the AM container.");
 			Utils.setTokensFor(amContainer, paths, yarnConfiguration);

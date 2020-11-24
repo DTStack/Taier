@@ -18,7 +18,9 @@
 
 package com.dtstack.engine.flink.factory;
 
+import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import org.apache.flink.client.deployment.ClusterRetrieveException;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
@@ -50,13 +52,13 @@ public class StandaloneClientFactory implements IClientFactory {
     private FlinkConfig flinkConfig;
 
 
-    public StandaloneClientFactory(Configuration flinkConfiguration, FlinkConfig flinkConfig) {
-        this.flinkConfiguration = flinkConfiguration;
-        this.flinkConfig = flinkConfig;
+    public StandaloneClientFactory(FlinkClientBuilder flinkClientBuilder) {
+        this.flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
+        this.flinkConfig = flinkClientBuilder.getFlinkConfig();
     }
 
     @Override
-    public ClusterClient getClusterClient() {
+    public ClusterClient getClusterClient(JobIdentifier jobIdentifier) {
         if (HighAvailabilityMode.ZOOKEEPER == HighAvailabilityMode.valueOf(flinkConfiguration.getValue(HighAvailabilityOptions.HA_MODE))) {
             return initClusterClientByZk();
         } else {
@@ -105,11 +107,11 @@ public class StandaloneClientFactory implements IClientFactory {
         config.setString(JobManagerOptions.ADDRESS, jobMgrHost);
         config.setInteger(JobManagerOptions.PORT, jobMgrPort);
 
-        StandaloneClusterDescriptor descriptor = new StandaloneClusterDescriptor(config);
+
         RestClusterClient<StandaloneClusterId> clusterClient = null;
-        try {
+        try (StandaloneClusterDescriptor descriptor = new StandaloneClusterDescriptor(config)){
             clusterClient = descriptor.retrieve(null);
-        } catch (ClusterRetrieveException e) {
+        } catch (Exception e) {
             throw new RdosDefineException("Couldn't retrieve standalone cluster");
         }
         clusterClient.setDetached(isDetached);

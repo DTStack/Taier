@@ -1,5 +1,8 @@
 package com.dtstack.engine.common.client;
 
+import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.api.pojo.ClusterResource;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.constrant.ConfigConstant;
@@ -7,9 +10,6 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ClientTemplate;
-import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.google.common.base.Strings;
@@ -83,7 +83,6 @@ public class ClientOperator {
 
         String logInfo;
         try {
-            LOG.info("get engineLog pluginInfo {} jobIdentifier {} ",pluginInfo ,jobIdentifier);
             IClient client = clientCache.getClient(engineType, pluginInfo);
             logInfo = client.getJobLog(jobIdentifier);
         } catch (Exception e) {
@@ -117,9 +116,10 @@ public class ClientOperator {
         if(jobClient.getEngineTaskId() == null){
             return JobResult.createSuccessResult(jobClient.getTaskId());
         }
-        JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getTaskId());
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobClient.getEngineTaskId(),
+                jobClient.getApplicationId(), jobClient.getTaskId(), jobClient.getForceCancel());
         checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
-        LOG.info("stop job jobClient {} ",jobClient);
+        LOG.info("stop job jobClient {} pluginInfo {} ",jobClient, jobClient.getPluginInfo());
 
         jobIdentifier.setTimeout(getCheckoutTimeout(jobClient));
         IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
@@ -159,7 +159,7 @@ public class ClientOperator {
     }
 
     public JobResult submitJob(JobClient jobClient) throws ClientAccessException {
-        LOG.info("submit job jobClient {} ",jobClient);
+        LOG.info("submit job jobClient {}  pluginInfo {}", jobClient, jobClient.getPluginInfo());
         IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return clusterClient.submitJob(jobClient);
     }
@@ -188,7 +188,7 @@ public class ClientOperator {
     }
 
     public ClusterResource getClusterResource(String engineType, String pluginInfo) throws ClientAccessException{
-        IClient client = clientCache.getClient(engineType,pluginInfo);
+        IClient client = clientCache.getClient(engineType, pluginInfo);
         return client.getClusterResource();
     }
 

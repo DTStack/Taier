@@ -203,9 +203,12 @@ public class ZipUtil {
      */
     @SuppressWarnings("rawtypes")
     public static List<File> upzipFile(File zipFile, String descDir) {
-        List<File> _list = new ArrayList<File>();
+        List<File> _list = new ArrayList<>();
+        ZipFile _zipFile = null;
+        OutputStream _out = null;
+        InputStream _in = null;
         try {
-            ZipFile _zipFile = new ZipFile(zipFile, "GBK");
+            _zipFile = new ZipFile(zipFile, "GBK");
             for (Enumeration entries = _zipFile.getEntries(); entries.hasMoreElements(); ) {
                 org.apache.tools.zip.ZipEntry entry = (org.apache.tools.zip.ZipEntry) entries.nextElement();
                 File _file = new File(descDir + File.separator + entry.getName());
@@ -216,8 +219,8 @@ public class ZipUtil {
                     if (!_parent.exists()) {
                         _parent.mkdirs();
                     }
-                    InputStream _in = _zipFile.getInputStream(entry);
-                    OutputStream _out = new FileOutputStream(_file);
+                    _in = _zipFile.getInputStream(entry);
+                    _out = new FileOutputStream(_file);
                     int len = 0;
                     while ((len = _in.read(_byte)) > 0) {
                         _out.write(_byte, 0, len);
@@ -229,6 +232,25 @@ public class ZipUtil {
                 }
             }
         } catch (IOException e) {
+        } finally {
+            if (_zipFile != null) {
+                try {
+                    _zipFile.close();
+                } catch (IOException e) {
+                }
+            }
+            if (_out != null) {
+                try {
+                    _out.close();
+                } catch (IOException e) {
+                }
+            }
+            if (_in != null) {
+                try {
+                    _in.close();
+                } catch (IOException e) {
+                }
+            }
         }
         return _list;
     }

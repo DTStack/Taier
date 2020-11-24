@@ -8,6 +8,7 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -259,6 +260,9 @@ public class ScheduleJobController {
 
     @RequestMapping(value="/generalCount", method = {RequestMethod.POST})
     public Integer generalCount(@RequestBody ScheduleJobDTO query) {
+        if (query.getBizEndDay()==null || query.getBizStartDay()==null) {
+            throw new RdosDefineException("业务时间必须必传");
+        }
         return scheduleJobService.generalCount(query);
     }
 
@@ -313,8 +317,8 @@ public class ScheduleJobController {
 
     @RequestMapping(value="/createTodayTaskShade", method = {RequestMethod.POST})
     @ApiOperation(value = "生成当天任务实例")
-    public void createTodayTaskShade(@DtRequestParam("taskId") Long taskId,@DtRequestParam("appType") Integer appType) {
-        scheduleJobService.createTodayTaskShade(taskId, appType);
+    public void createTodayTaskShade(@DtRequestParam("taskId") Long taskId,@DtRequestParam("appType") Integer appType,@DtRequestParam("date") String date) {
+        scheduleJobService.createTodayTaskShade(taskId, appType,date);
     }
 
     @RequestMapping(value="/listByBusinessDateAndPeriodTypeAndStatusList", method = {RequestMethod.POST})

@@ -21,6 +21,7 @@ engine-worker/engine-plugins/flink/yarn3-hdfs3-flink180,\
 engine-worker/engine-plugins/flink/yarn2-hdfs2-flink180,\
 engine-worker/engine-plugins/flink/yarnHW-hdfsHW-flink180HW,\
 engine-worker/engine-plugins/flink/k8s-hdfs2-flink110,\
+engine-worker/engine-plugins/flink/k8s-nfs-flink110,\
 engine-worker/engine-plugins/flink/yarn3-hdfs3-flink110,\
 engine-worker/engine-plugins/flink/yarn2-hdfs2-flink110,\
 engine-worker/engine-plugins/spark/yarn3-hdfs3-spark240/spark-yarn-client,\
@@ -37,8 +38,13 @@ engine-worker/engine-plugins/learning/yarn2-hdfs2-learning/learning-client,\
 engine-worker/engine-plugins/learning/yarn3-hdfs3-learning/learning-client,\
 engine-worker/engine-plugins/hadoop/yarn3-hdfs3-hadoop3,\
 engine-worker/engine-plugins/hadoop/yarn2-hdfs2-hadoop2,\
-engine-worker/engine-plugins/hadoop/k8s-hdfs2-hadoop2,\
 engine-worker/engine-plugins/kylin,\
+engine-worker/engine-plugins/stores/nfs,\
+engine-worker/engine-plugins/stores/hdfs2,\
+engine-worker/engine-plugins/stores/hdfs3,\
+engine-worker/engine-plugins/schedules/yarn2,\
+engine-worker/engine-plugins/schedules/yarn3,\
+engine-worker/engine-plugins/schedules/kubernetes,\
 engine-worker/engine-plugins/odps,\
 engine-worker/engine-plugins/rdbs/mysql,\
 engine-worker/engine-plugins/rdbs/oracle,\
@@ -53,4 +59,3 @@ engine-worker/engine-plugins/rdbs/greenplum,\
 engine-worker/engine-plugins/rdbs/presto,\
 engine-entrance \
 -am
-

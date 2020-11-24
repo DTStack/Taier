@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.scheduler;
 
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -29,7 +30,7 @@ public class JobGraphBuilderTrigger implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(JobGraphBuilderTrigger.class);
 
-    private static final long CHECK_JOB_BUILD_INTERVAL = 60 * 10 * 1000;
+    private static final long CHECK_JOB_BUILD_INTERVAL = 60 * 10 * 1000L;
 
     private static final AtomicBoolean RUNNING = new AtomicBoolean(false);
 
@@ -55,7 +56,7 @@ public class JobGraphBuilderTrigger implements Runnable {
                 stopJobGraph();
             }
         } catch (Throwable e) {
-            logger.error("{}", e);
+            logger.error("JobGraphBuilderTrigger.dealMaster error:{}", ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -90,7 +91,7 @@ public class JobGraphBuilderTrigger implements Runnable {
             Date curDate = dateFormat.parse(dayFormat.format(new Date()) + " " + time);
             return curDate.getTime();
         } catch (ParseException e) {
-            e.printStackTrace();
+            logger.error("JobGraphBuilderTrigger.getTimeMillis error:{}",ExceptionUtil.getErrorMessage(e));
         }
         return 0;
     }

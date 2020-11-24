@@ -60,12 +60,12 @@ public class MysqlDataConnPool {
     /**
      * 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
      */
-    private long timeBetweenEvictionRunsMillis = 60 * 1000;
+    private long timeBetweenEvictionRunsMillis = 60 * 1000L;
 
     /**
      * 配置一个连接在池中最小生存的时间，单位是毫秒
      */
-    private long minEvictableIdleTimeMillis = 300 * 1000;
+    private long minEvictableIdleTimeMillis = 300 * 1000L;
 
     /**
      * 连接检测的语句

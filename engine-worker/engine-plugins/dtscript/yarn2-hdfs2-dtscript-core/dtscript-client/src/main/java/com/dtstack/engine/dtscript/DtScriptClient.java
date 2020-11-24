@@ -2,6 +2,7 @@ package com.dtstack.engine.dtscript;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
+import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -18,6 +19,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
@@ -63,6 +65,8 @@ public class DtScriptClient extends AbstractClient {
 
         conf.set("fs.hdfs.impl.disable.cache", "true");
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
+        conf.setBoolean(CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_KEY, true);
+
         String propStr = PublicUtil.objToString(prop);
         configMap = PublicUtil.jsonStrToObject(propStr, BaseConfig.class);
         //其中有sftp 的配置 和hadoop yarn hdfs配置
@@ -91,6 +95,7 @@ public class DtScriptClient extends AbstractClient {
                 conf.set(key, value.toString());
             }
         }
+        HadoopConfTool.setDefaultYarnConf(conf, (Map<String, Object>) prop.get("yarnConf"));
 
         String queue = prop.getProperty(DtYarnConfiguration.DT_APP_QUEUE);
         if (StringUtils.isNotBlank(queue)) {
@@ -117,13 +122,20 @@ public class DtScriptClient extends AbstractClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
-        String jobId = jobIdentifier.getEngineJobId();
         try {
-            client.kill(jobId);
-            return JobResult.createSuccessResult(jobId);
+            return KerberosUtils.login(configMap, ()->{
+                String jobId = jobIdentifier.getEngineJobId();
+                try {
+                    client.kill(jobId);
+                    return JobResult.createSuccessResult(jobId);
+                } catch (Exception e) {
+                    LOG.error("", e);
+                    return JobResult.createErrorResult(e.getMessage());
+                }
+            }, conf);
         } catch (Exception e) {
-            LOG.error("", e);
-            return JobResult.createErrorResult(e.getMessage());
+            LOG.error("cancelJob error:", e);
+            return JobResult.createErrorResult(e);
         }
     }
 
@@ -178,7 +190,7 @@ public class DtScriptClient extends AbstractClient {
             },conf);
         } catch (Exception e) {
             LOG.error("", e);
-            return RdosTaskStatus.NOTFOUND;
+            return RdosTaskStatus.RUNNING;
         }
     }
 
@@ -263,23 +275,32 @@ public class DtScriptClient extends AbstractClient {
                 }
             }, conf);
         } catch (Exception e) {
-            LOG.error("", e);
-            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
+            LOG.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
-        String jobId = jobIdentifier.getEngineJobId();
-        Map<String,Object> jobLog = new HashMap<>();
         try {
-            ApplicationReport applicationReport = client.getApplicationReport(jobId);
-            jobLog.put("msg_info", applicationReport.getDiagnostics());
+            return KerberosUtils.login(configMap, ()-> {
+                String jobId = jobIdentifier.getEngineJobId();
+                Map<String,Object> jobLog = new HashMap<>();
+                try {
+                    ApplicationReport applicationReport = client.getApplicationReport(jobId);
+                    jobLog.put("msg_info", applicationReport.getDiagnostics());
+                } catch (Exception e) {
+                    LOG.error("", e);
+                    jobLog.put("msg_info", e.getMessage());
+                }
+                return GSON.toJson(jobLog, Map.class);
+            }, conf);
         } catch (Exception e) {
             LOG.error("", e);
+            Map<String,Object> jobLog = new HashMap<>();
             jobLog.put("msg_info", e.getMessage());
+            return GSON.toJson(jobLog, Map.class);
         }
-        return GSON.toJson(jobLog, Map.class);
     }
 
     @Override

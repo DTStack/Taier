@@ -432,6 +432,10 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         }
     }
 
+    private boolean isSecurityEnabled() {
+        return flinkConfiguration.getBoolean("openKerberos", false);
+    }
+
     /**
      * This method will block until the ApplicationMaster/JobManager have been deployed on YARN.
      *
@@ -451,7 +455,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         // ------------------ Check if configuration is valid --------------------
         validateClusterSpecification(clusterSpecification);
 
-        if (UserGroupInformation.isSecurityEnabled()) {
+        if (isSecurityEnabled()) {
             // note: UGI::hasKerberosCredentials inaccurately reports false
             // for logins based on a keytab (fixed in Hadoop 2.6.1, see HADOOP-10786),
             // so we check only in ticket cache scenario.
@@ -670,7 +674,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
             return String.format("http://%s/proxy",addr);
         }catch (Exception e){
-            LOG.warn("get monitor error:{}", ExceptionUtil.getTaskLogError(e));
+            LOG.error("get monitor error:", e);
         }
 
         return url;
@@ -857,7 +861,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         final Path homeDir = fs.getHomeDirectory();
 
         // hard coded check for the GoogleHDFS client because its not overriding the getScheme() method.
-        if (!fs.getClass().getSimpleName().equals("GoogleHadoopFileSystem") &&
+        if (!"GoogleHadoopFileSystem".equals(fs.getClass().getSimpleName()) &&
                 fs.getScheme().startsWith("file")) {
             LOG.warn("The file system scheme is '" + fs.getScheme() + "'. This indicates that the "
                     + "specified Hadoop configuration path is wrong and the system is using the default Hadoop configuration values."
@@ -876,22 +880,21 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         }
 
         String logLevel = flinkConfiguration.getString("logLevel", "info").toLowerCase();
-        //check if there is a logback or log4j file
-        File logbackFile = new File(configurationDirectory + File.separator + FLINK_LOG_DIR + File.separator + logLevel + File.separator + CONFIG_FILE_LOGBACK_NAME);
+        /**
+         * check if there is a logback or log4j file
+         * log4j.properties > logback.xml
+         */
+        String configFileParentPath = configurationDirectory + File.separator + FLINK_LOG_DIR + File.separator + logLevel ;
+        File log4jFile = new File(configFileParentPath + File.separator + CONFIG_FILE_LOG4J_NAME);
+        File logbackFile = new File(configFileParentPath + File.separator + CONFIG_FILE_LOGBACK_NAME);
         final boolean hasLogback = logbackFile.exists();
-        if (hasLogback) {
-            systemShipFiles.add(logbackFile);
-        }
-
-        File log4jFile = new File(configurationDirectory + File.separator + FLINK_LOG_DIR + File.separator + logLevel + File.separator + CONFIG_FILE_LOG4J_NAME);
         final boolean hasLog4j = log4jFile.exists();
         if (hasLog4j) {
             systemShipFiles.add(log4jFile);
-            if (hasLogback) {
-                // this means there is already a logback configuration file --> fail
-                LOG.warn("The configuration directory ('" + configurationDirectory + "') contains both LOG4J and " +
-                        "Logback configuration files. Please delete or rename one of them.");
-            }
+        } else if (hasLogback) {
+            systemShipFiles.add(log4jFile);
+        } else {
+            LOG.warn("No log configuration file to upload was found. Please check if there are any log configuration files in the [{}] ", configFileParentPath);
         }
 
         addLibFolderToShipFiles(systemShipFiles);
@@ -1023,6 +1026,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 localResources,
                 homeDir,
                 "");
+        envShipFileList.append(flinkConfigKey).append("=").append(remotePathConf).append(",");
 
         paths.add(remotePathJar);
         classPathBuilder.append("flink.jar").append(File.pathSeparator);
@@ -1119,7 +1123,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 hasKrb5,
                 clusterSpecification.getMasterMemoryMB());
 
-        if (UserGroupInformation.isSecurityEnabled()) {
+        if (isSecurityEnabled()) {
             // set HDFS delegation tokens when security is enabled
             LOG.info("Adding delegation token to the AM container..");
             Utils.setTokensFor(amContainer, paths, yarnConfiguration);
@@ -1717,12 +1721,12 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         if (hasLogback || hasLog4j) {
             logging = "-Dlog.file=\"" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/jobmanager.log\"";
 
-            if (hasLogback) {
-                logging += " -Dlogback.configurationFile=file:" + CONFIG_FILE_LOGBACK_NAME;
-            }
-
             if (hasLog4j) {
                 logging += " -Dlog4j.configuration=file:" + CONFIG_FILE_LOG4J_NAME;
+            } else if (hasLogback) {
+                logging += " -Dlogback.configurationFile=file:" + CONFIG_FILE_LOGBACK_NAME;
+            } else {
+                // do nothing
             }
         }
 

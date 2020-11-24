@@ -1,12 +1,10 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
+import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
-import com.dtstack.engine.common.JarFileInfo;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.JobParam;
+import com.dtstack.engine.common.*;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
@@ -19,6 +17,7 @@ import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.sparkyarn.sparkyarn.parser.AddJarOperator;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExt;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExtFactory;
@@ -28,6 +27,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -36,17 +36,20 @@ import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.yarn.ClientArguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.security.PrivilegedExceptionAction;
 import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by softfly on 17/8/10.
@@ -83,6 +86,8 @@ public class SparkYarnClient extends AbstractClient {
 
     private static final String CLUSTER_INFO_WS_FORMAT = "%s/ws/v1/cluster";
 
+    private static final String USER_DIR = System.getProperty("user.dir");
+
     /**如果请求 CLUSTER_INFO_WS_FORMAT 返回信息包含该特征则表示是alive*/
     private static final String ALIVE_WEB_FLAG = "clusterInfo";
 
@@ -92,9 +97,21 @@ public class SparkYarnClient extends AbstractClient {
 
     private YarnConfiguration yarnConf;
 
-    private YarnClient yarnClient;
+    private volatile YarnClient yarnClient;
 
     private Properties sparkExtProp;
+
+    private FilesystemManager filesystemManager;
+
+    private ThreadPoolExecutor threadPoolExecutor;
+
+    private static String userDir = System.getProperty("user.dir");
+
+    private static final String SPARK_CONF_DIR = "sparkconf";
+
+    public static final String SPARK_LOG4J_FILE_NAME = "log4j-spark.properties";
+
+    public static final String SPARK_LOCAL_LOG4J_KEY = "spark_local_log4j_key";
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -107,11 +124,18 @@ public class SparkYarnClient extends AbstractClient {
         System.setProperty(SPARK_YARN_MODE, "true");
         parseWebAppAddr();
         logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
-        yarnClient = KerberosUtils.login(sparkYarnConfig,this::getYarnClient,yarnConf);
+        yarnClient = this.buildYarnClient();
+
+        this.filesystemManager = new FilesystemManager(yarnConf, sparkYarnConfig.getSftpConf());
 
         if (sparkYarnConfig.getMonitorAcceptedApp()) {
             AcceptedApplicationMonitor.start(yarnConf, sparkYarnConfig.getQueue(), sparkYarnConfig);
         }
+
+        this.threadPoolExecutor = new ThreadPoolExecutor(sparkYarnConfig.getAsyncCheckYarnClientThreadNum(), sparkYarnConfig.getAsyncCheckYarnClientThreadNum(),
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory("spark_yarnclient"));
+
     }
 
     private void initYarnConf(SparkYarnConfig sparkConfig){
@@ -187,15 +211,16 @@ public class SparkYarnClient extends AbstractClient {
         }
 
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
-        SparkConf sparkConf = buildBasicSparkConf();
+        SparkConf sparkConf = buildBasicSparkConf(jobClient);
         sparkConf.setAppName(appName);
+        setSparkLog4jLocalFilePath(sparkConf, jobClient);
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
+        setSparkLog4jConfiguration(sparkConf);
 
         ApplicationId appId = null;
 
         try {
-
-            ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
+            ClientExt clientExt = ClientExtFactory.getClientExt(filesystemManager, clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
             String proxyUserName = sparkYarnConfig.getDtProxyUserName();
             if (StringUtils.isNotBlank(proxyUserName)) {
@@ -227,7 +252,6 @@ public class SparkYarnClient extends AbstractClient {
         if(Strings.isNullOrEmpty(appName)){
             return JobResult.createErrorResult("an application name must be set in your configuration");
         }
-
         ApplicationId appId = null;
 
         List<String> argList = new ArrayList<>();
@@ -272,14 +296,16 @@ public class SparkYarnClient extends AbstractClient {
             pythonExtPath = pythonExtPath + "," + dependencyResource;
         }
 
-        SparkConf sparkConf = buildBasicSparkConf();
+        SparkConf sparkConf = buildBasicSparkConf(jobClient);
         sparkConf.set("spark.submit.pyFiles", pythonExtPath);
         sparkConf.setAppName(appName);
+        setSparkLog4jLocalFilePath(sparkConf, jobClient);
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
+        setSparkLog4jConfiguration(sparkConf);
 
         try {
             ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
-            ClientExt clientExt = new ClientExt(clientArguments, yarnConf, sparkConf);
+            ClientExt clientExt = new ClientExt(filesystemManager, clientArguments, yarnConf, sparkConf);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
 
             String proxyUserName = sparkYarnConfig.getDtProxyUserName();
@@ -346,14 +372,16 @@ public class SparkYarnClient extends AbstractClient {
         argList.add(sqlExeJson);
 
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
-        SparkConf sparkConf = buildBasicSparkConf();
+        SparkConf sparkConf = buildBasicSparkConf(jobClient);
         sparkConf.setAppName(jobClient.getJobName());
+        setSparkLog4jLocalFilePath(sparkConf, jobClient);
         fillExtSparkConf(sparkConf, confProp);
+        setSparkLog4jConfiguration(sparkConf);
 
         ApplicationId appId = null;
 
         try {
-            ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
+            ClientExt clientExt = ClientExtFactory.getClientExt(filesystemManager, clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
             String proxyUserName = sparkYarnConfig.getDtProxyUserName();
             if (StringUtils.isNotBlank(proxyUserName)) {
@@ -389,7 +417,17 @@ public class SparkYarnClient extends AbstractClient {
         return map;
     }
 
-    private SparkConf buildBasicSparkConf(){
+    private void setSparkLog4jLocalFilePath(SparkConf sparkConf, JobClient jobClient) {
+        Properties confProp = jobClient.getConfProperties();
+        String logLevel = MathUtil.getString(confProp.get(LOG_LEVEL_KEY), "info");
+        String path = userDir + File.separator + SPARK_CONF_DIR + File.separator + logLevel.toLowerCase() + File.separator + SPARK_LOG4J_FILE_NAME;
+        File file = new File(path);
+        if (file.exists()) {
+            sparkConf.set(SPARK_LOCAL_LOG4J_KEY, path);
+        }
+    }
+
+    private SparkConf buildBasicSparkConf(JobClient jobClient){
 
         SparkConf sparkConf = new SparkConf();
         sparkConf.remove("spark.jars");
@@ -398,8 +436,10 @@ public class SparkYarnClient extends AbstractClient {
         sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
         sparkConf.set("security", "false");
 
+        String taskId = jobClient.getTaskId();
         if (sparkYarnConfig.isOpenKerberos()){
-            String keytab = KerberosUtils.getKeytabPath(sparkYarnConfig);
+            String[] kerberosFiles = KerberosUtils.getKerberosFile(sparkYarnConfig, null);
+            String keytab = kerberosFiles[0];
             String principal = KerberosUtils.getPrincipal(keytab);
             sparkConf.set("spark.yarn.keytab", keytab);
             sparkConf.set("spark.yarn.principal", principal);
@@ -413,6 +453,26 @@ public class SparkYarnClient extends AbstractClient {
             });
         }
         return sparkConf;
+    }
+
+    private void setSparkLog4jConfiguration(SparkConf sparkConf) {
+        String localPath = sparkConf.get(SPARK_LOCAL_LOG4J_KEY, "");
+        if (StringUtils.isBlank(localPath)) {
+            return;
+        }
+        String configuration = "-Dlog4j.configuration=" + SPARK_LOG4J_FILE_NAME;
+        String driverExtraJavaOptions = sparkConf.get("spark.driver.extraJavaOptions", "");
+        if (StringUtils.isBlank(driverExtraJavaOptions)) {
+            sparkConf.set("spark.driver.extraJavaOptions", configuration);
+        } else {
+            sparkConf.set("spark.driver.extraJavaOptions", driverExtraJavaOptions + " " + configuration);
+        }
+        String executorExtraJavaOptions = sparkConf.get("spark.executor.extraJavaOptions", "");
+        if (StringUtils.isBlank(executorExtraJavaOptions)) {
+            sparkConf.set("spark.executor.extraJavaOptions", configuration);
+        } else {
+            sparkConf.set("spark.executor.extraJavaOptions", executorExtraJavaOptions + " " + configuration);
+        }
     }
 
     /**
@@ -465,67 +525,78 @@ public class SparkYarnClient extends AbstractClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
-
-        String jobId = jobIdentifier.getEngineJobId();
         try {
-            ApplicationId appId = ConverterUtils.toApplicationId(jobId);
-            getYarnClient().killApplication(appId);
-            return JobResult.createSuccessResult(jobId);
+            return KerberosUtils.login(sparkYarnConfig, ()->{
+                String jobId = jobIdentifier.getEngineJobId();
+                try {
+                    ApplicationId appId = ConverterUtils.toApplicationId(jobId);
+                    getYarnClient().killApplication(appId);
+                    return JobResult.createSuccessResult(jobId);
+                } catch (Exception e) {
+                    logger.error("", e);
+                    return JobResult.createErrorResult(e.getMessage());
+                }
+            }, yarnConf);
         } catch (Exception e) {
-            logger.error("", e);
-            return JobResult.createErrorResult(e.getMessage());
+            logger.error("cancelJob error:", e);
+            return JobResult.createErrorResult(e);
         }
     }
 
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
-
-        String jobId = jobIdentifier.getEngineJobId();
-
-        if(StringUtils.isEmpty(jobId)){
-            return null;
-        }
-
-        ApplicationId appId = ConverterUtils.toApplicationId(jobId);
         try {
-            ApplicationReport report = getYarnClient().getApplicationReport(appId);
-            YarnApplicationState applicationState = report.getYarnApplicationState();
-            switch(applicationState) {
-                case KILLED:
-                    return RdosTaskStatus.KILLED;
-                case NEW:
-                case NEW_SAVING:
-                    return RdosTaskStatus.CREATED;
-                case SUBMITTED:
-                    //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
-                    return RdosTaskStatus.WAITCOMPUTE;
-                case ACCEPTED:
-                    return RdosTaskStatus.SCHEDULED;
-                case RUNNING:
-                    return RdosTaskStatus.RUNNING;
-                case FINISHED:
-                    //state 为finished状态下需要兼顾判断finalStatus.
-                    FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
-                    if(finalApplicationStatus == FinalApplicationStatus.FAILED){
-                        return RdosTaskStatus.FAILED;
-                    }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
-                        return RdosTaskStatus.FINISHED;
-                    }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
-                        return RdosTaskStatus.KILLED;
-                    }else{
-                        return RdosTaskStatus.RUNNING;
-                    }
+            return KerberosUtils.login(sparkYarnConfig, ()->{
+                String jobId = jobIdentifier.getEngineJobId();
 
-                case FAILED:
-                    return RdosTaskStatus.FAILED;
-                default:
-                    throw new RdosDefineException("Unsupported application state");
-            }
-        } catch (YarnException e) {
+                if(StringUtils.isEmpty(jobId)){
+                    return null;
+                }
+
+                ApplicationId appId = ConverterUtils.toApplicationId(jobId);
+                try {
+                    ApplicationReport report = getYarnClient().getApplicationReport(appId);
+                    YarnApplicationState applicationState = report.getYarnApplicationState();
+                    switch(applicationState) {
+                        case KILLED:
+                            return RdosTaskStatus.KILLED;
+                        case NEW:
+                        case NEW_SAVING:
+                            return RdosTaskStatus.CREATED;
+                        case SUBMITTED:
+                            //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
+                            return RdosTaskStatus.WAITCOMPUTE;
+                        case ACCEPTED:
+                            return RdosTaskStatus.SCHEDULED;
+                        case RUNNING:
+                            return RdosTaskStatus.RUNNING;
+                        case FINISHED:
+                            //state 为finished状态下需要兼顾判断finalStatus.
+                            FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
+                            if(finalApplicationStatus == FinalApplicationStatus.FAILED){
+                                return RdosTaskStatus.FAILED;
+                            }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
+                                return RdosTaskStatus.FINISHED;
+                            }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
+                                return RdosTaskStatus.KILLED;
+                            }else{
+                                return RdosTaskStatus.RUNNING;
+                            }
+
+                        case FAILED:
+                            return RdosTaskStatus.FAILED;
+                        default:
+                            throw new RdosDefineException("Unsupported application state");
+                    }
+                } catch (Exception e) {
+                    logger.error("", e);
+                    return RdosTaskStatus.NOTFOUND;
+                }
+            }, yarnConf);
+        } catch (Exception e) {
             logger.error("", e);
             return RdosTaskStatus.NOTFOUND;
         }
-
     }
 
     @Override
@@ -601,21 +672,28 @@ public class SparkYarnClient extends AbstractClient {
 
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
-
-        String jobId = jobIdentifier.getEngineJobId();
-        ApplicationId applicationId = ConverterUtils.toApplicationId(jobId);
         SparkJobLog sparkJobLog = new SparkJobLog();
-
         try {
-            ApplicationReport applicationReport = getYarnClient().getApplicationReport(applicationId);
-            String msgInfo = applicationReport.getDiagnostics();
-            sparkJobLog.addAppLog(jobId, msgInfo);
+            return KerberosUtils.login(sparkYarnConfig, ()-> {
+                String jobId = jobIdentifier.getEngineJobId();
+                ApplicationId applicationId = ConverterUtils.toApplicationId(jobId);
+
+                try {
+                    ApplicationReport applicationReport = getYarnClient().getApplicationReport(applicationId);
+                    String msgInfo = applicationReport.getDiagnostics();
+                    sparkJobLog.addAppLog(jobId, msgInfo);
+                } catch (Exception e) {
+                    logger.error("", e);
+                    sparkJobLog.addAppLog(jobId, "get log from yarn err:" + e.getMessage());
+                }
+
+                return sparkJobLog.toString();
+            }, yarnConf);
         } catch (Exception e) {
             logger.error("", e);
-            sparkJobLog.addAppLog(jobId, "get log from yarn err:" + e.getMessage());
+            sparkJobLog.addAppLog(jobIdentifier.getEngineJobId(), "get log from yarn err:" + e.getMessage());
+            return sparkJobLog.toString();
         }
-
-        return sparkJobLog.toString();
     }
 
     @Override
@@ -631,8 +709,8 @@ public class SparkYarnClient extends AbstractClient {
                     return resourceInfo.judgeSlots(jobClient);
             }, yarnConf);
         } catch (Exception e) {
-            logger.error("judgeSlots error", e);
-            throw new RdosDefineException(e.getMessage());
+            logger.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -675,48 +753,57 @@ public class SparkYarnClient extends AbstractClient {
     }
 
     public YarnClient getYarnClient(){
-        try{
-            if(yarnClient == null){
-                synchronized (this){
-                    if(yarnClient == null){
+        long startTime = System.currentTimeMillis();
+        try {
+            if (yarnClient == null) {
+                synchronized (this) {
+                    if (yarnClient == null) {
+                        logger.info("buildYarnClient!");
                         YarnClient yarnClient1 = YarnClient.createYarnClient();
                         yarnClient1.init(yarnConf);
                         yarnClient1.start();
                         yarnClient = yarnClient1;
                     }
                 }
-            }else{
-                //判断下是否可用
-                yarnClient.getAllQueues();
+            } else {
+                //异步超时判断下是否可用，kerberos 开启下会出现hang死情况
+                RetryUtil.asyncExecuteWithRetry(() -> yarnClient.getAllQueues(),
+                        1,
+                        0,
+                        false,
+                        30000L,
+                        threadPoolExecutor);
             }
-        }catch(Throwable e){
-            logger.error("getYarnClient error:{}",e);
-            synchronized (this){
-                if(yarnClient != null){
-                    boolean flag = true;
-                    try{
-                        //判断下是否可用
-                        yarnClient.getAllQueues();
-                    }catch(Throwable e1){
-                        logger.error("getYarnClient error:{}",e1);
-                        flag = false;
-                    }
-                    if(!flag){
-                        try{
-                            yarnClient.stop();
-                        }finally {
-                            yarnClient = null;
-                        }
-                    }
-                }
-                if(yarnClient == null){
-                    YarnClient yarnClient1 = YarnClient.createYarnClient();
-                    yarnClient1.init(yarnConf);
-                    yarnClient1.start();
-                    yarnClient = yarnClient1;
-                }
-            }
+        } catch (Throwable e) {
+            logger.error("buildYarnClient![backup]", e);
+            YarnClient yarnClient1 = YarnClient.createYarnClient();
+            yarnClient1.init(yarnConf);
+            yarnClient1.start();
+            yarnClient = yarnClient1;
+        } finally {
+            long endTime= System.currentTimeMillis();
+            logger.info("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
         }
         return yarnClient;
     }
+
+    /**
+     * 创建YarnClient 增加KerberosUtils 逻辑
+     * @return
+     */
+    private YarnClient buildYarnClient() {
+        try {
+            return KerberosUtils.login(sparkYarnConfig, () -> {
+                logger.info("buildYarnClient, init YarnClient!");
+                YarnClient yarnClient1 = YarnClient.createYarnClient();
+                yarnClient1.init(yarnConf);
+                yarnClient1.start();
+                return yarnClient1;
+            }, yarnConf);
+        } catch (Exception e) {
+            logger.error("buildYarnClient initSecurity happens error", e);
+            throw new RdosDefineException(e);
+        }
+    }
+
 }

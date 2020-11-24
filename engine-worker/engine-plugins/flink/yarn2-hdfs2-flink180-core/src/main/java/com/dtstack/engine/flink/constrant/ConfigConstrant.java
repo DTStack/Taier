@@ -40,6 +40,7 @@ public class ConfigConstrant {
     public static final String  SESSION_CHECK_MAIN_CLASS= "com.dtstack.engine.flink.check.FlinkSessionCheck";
     public static final String DEFAULT_SESSION_CHECK_PATH = "/pluginLibs/flinkcommon";
 
+
     // ------------------------------------------------------------------------
     // Resource Configs
     // ------------------------------------------------------------------------
@@ -77,8 +78,6 @@ public class ConfigConstrant {
 
     public static final String KAFKA_SFTP_KEYTAB = "kafka.sftp.keytab";
     public static final String SECURITY_KERBEROS_LOGIN_KEYTAB= "security.kerberos.login.keytab";
-    public static final String LOCAL_KEYTAB_DIR_PARENT = USER_DIR + "/keytab";
-
 
     // ------------------------------------------------------------------------
     // Restful Url Format Configs

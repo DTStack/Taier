@@ -54,6 +54,7 @@ public class FlinkConfig extends BaseConfig {
 
     private String yarnAccepterTaskNumber;
 
+    private int asyncCheckYarnClientThreadNum = 3;
 
     private Map<String, String> kerberosConfig;
 
@@ -69,11 +70,37 @@ public class FlinkConfig extends BaseConfig {
 
     private int checkSubmitJobGraphInterval = 0;
 
+    private int monitorElectionWaitTime = 5 * 1000;
+
     private long submitTimeout = 5;
 
-    private String krbName;
+    private int zkConnectionTimeout = 5000;
 
-    private boolean monitorAcceptedApp = false;
+    private int zkSessionTimeout = 5000;
+
+    public int getZkConnectionTimeout() {
+        return zkConnectionTimeout;
+    }
+
+    public void setZkConnectionTimeout(int zkConnectionTimeout) {
+        this.zkConnectionTimeout = zkConnectionTimeout;
+    }
+
+    public int getZkSessionTimeout() {
+        return zkSessionTimeout;
+    }
+
+    public void setZkSessionTimeout(int zkSessionTimeout) {
+        this.zkSessionTimeout = zkSessionTimeout;
+    }
+
+    public int getAsyncCheckYarnClientThreadNum() {
+        return asyncCheckYarnClientThreadNum;
+    }
+
+    public void setAsyncCheckYarnClientThreadNum(int asyncCheckYarnClientThreadNum) {
+        this.asyncCheckYarnClientThreadNum = asyncCheckYarnClientThreadNum;
+    }
 
     private String sessionCheckJarPath;
 
@@ -88,6 +115,8 @@ public class FlinkConfig extends BaseConfig {
         this.sessionCheckJarPath = sessionCheckJarPath;
     }
 
+    private boolean monitorAcceptedApp = false;
+
     public boolean getMonitorAcceptedApp() {
         return monitorAcceptedApp;
     }
@@ -96,12 +125,12 @@ public class FlinkConfig extends BaseConfig {
         this.monitorAcceptedApp = monitorAcceptedApp;
     }
 
-    public String getKrbName() {
-        return krbName;
+    public int getMonitorElectionWaitTime() {
+        return monitorElectionWaitTime;
     }
 
-    public void setKrbName(String krbName) {
-        this.krbName = krbName;
+    public void setMonitorElectionWaitTime(int monitorElectionWaitTime) {
+        this.monitorElectionWaitTime = monitorElectionWaitTime;
     }
 
     public String getTypeName() {

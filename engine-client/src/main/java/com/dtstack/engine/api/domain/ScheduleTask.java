@@ -283,12 +283,4 @@ public class ScheduleTask extends AppTenantEntity {
     public void setProjectScheduleStatus(Integer projectScheduleStatus) {
         this.projectScheduleStatus = projectScheduleStatus;
     }
-
-    public Integer getIsExpire() {
-        return isExpire;
-    }
-
-    public void setIsExpire(Integer isExpire) {
-        this.isExpire = isExpire;
-    }
 }

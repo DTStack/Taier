@@ -77,8 +77,6 @@ public class ApplicationMaster extends CompositeService {
 
     Map<String, String> envs;
 
-    ApplicationAttemptId applicationAttemptID;
-
     long heartBeatInterval;
 
     final String APP_SUCCESS = "Application is success.";
@@ -105,22 +103,22 @@ public class ApplicationMaster extends CompositeService {
         if (envs.containsKey(ApplicationConstants.Environment.CONTAINER_ID.toString())) {
             ContainerId containerId = ConverterUtils
                     .toContainerId(envs.get(ApplicationConstants.Environment.CONTAINER_ID.toString()));
-            applicationAttemptID = containerId.getApplicationAttemptId();
+            applicationAttemptId = containerId.getApplicationAttemptId();
         } else {
             throw new IllegalArgumentException(
                     "Application Attempt Id is not available in environment");
         }
 
         LOG.info("Application appId="
-                + applicationAttemptID.getApplicationId().getId()
+                + applicationAttemptId.getApplicationId().getId()
                 + ", clustertimestamp="
-                + applicationAttemptID.getApplicationId().getClusterTimestamp()
-                + ", attemptId=" + applicationAttemptID.getAttemptId());
+                + applicationAttemptId.getApplicationId().getClusterTimestamp()
+                + ", attemptId=" + applicationAttemptId.getAttemptId());
 
-        if (applicationAttemptID.getAttemptId() > 1 && appArguments.appMaxAttempts > 1) {
+        if (applicationAttemptId.getAttemptId() > 1 && appArguments.appMaxAttempts > 1) {
             int maxMem = conf.getInt(DtYarnConfiguration.DTSCRIPT_MAX_WORKER_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_MAX_WORKER_MEMORY);
             LOG.info("maxMem : " + maxMem);
-            int newWorkerMemory = appArguments.workerMemory + (applicationAttemptID.getAttemptId() - 1) * (int) Math.ceil(appArguments.workerMemory * conf.getDouble(DtYarnConfiguration.DTSCRIPT_WORKER_MEM_AUTO_SCALE, DtYarnConfiguration.DEFAULT_DTSCRIPT_WORKER_MEM_AUTO_SCALE));
+            int newWorkerMemory = appArguments.workerMemory + (applicationAttemptId.getAttemptId() - 1) * (int) Math.ceil(appArguments.workerMemory * conf.getDouble(DtYarnConfiguration.DTSCRIPT_WORKER_MEM_AUTO_SCALE, DtYarnConfiguration.DEFAULT_DTSCRIPT_WORKER_MEM_AUTO_SCALE));
             LOG.info("Auto Scale the Worker Memory from " + appArguments.workerMemory + " to " + newWorkerMemory);
             if (newWorkerMemory > maxMem) {
                 newWorkerMemory = maxMem;
@@ -190,6 +188,9 @@ public class ApplicationMaster extends CompositeService {
             amrmAsync.stop();
         } catch (Exception e) {
             LOG.error("Error while unregister Application", e);
+        } finally {
+            Utilities.cleanStagingRemotePath((YarnConfiguration) this.conf, this.applicationAttemptId.getApplicationId());
+            LOG.info("cleanStagingRemotePath ApplicationId:" + this.applicationAttemptId.getApplicationId());
         }
     }
 
@@ -276,7 +277,7 @@ public class ApplicationMaster extends CompositeService {
 
         boolean finalSuccess = containerListener.isAllWorkerContainersSucceeded();
 
-        if (!finalSuccess && applicationAttemptID.getAttemptId() < appArguments.appMaxAttempts) {
+        if (!finalSuccess && applicationAttemptId.getAttemptId() < appArguments.appMaxAttempts) {
             throw new RuntimeException("Application Failed, retry starting. Note that container memory will auto scale if user config the setting.");
         }
 
@@ -450,7 +451,7 @@ public class ApplicationMaster extends CompositeService {
     }
 
     public static void main(String[] args) {
-        ApplicationMaster appMaster;
+        ApplicationMaster appMaster = null;
         try {
             appMaster = new ApplicationMaster();
             appMaster.init();

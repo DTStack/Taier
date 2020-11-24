@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.ComponentDao">
 
     <sql id="select_content_fragment">
-      id,engine_id,component_name,component_type_code,component_config,gmt_create,gmt_modified,is_deleted,hadoop_version,upload_file_name,component_template,kerberos_file_name
+      id,engine_id,component_name,component_type_code,component_config,gmt_create,gmt_modified,is_deleted,hadoop_version,upload_file_name,component_template,kerberos_file_name,store_type
     </sql>
 
     <sql id="update_fragment">
@@ -26,6 +26,9 @@
             <if test="kerberosFileName != null">
                 kerberos_file_name = #{kerberosFileName},
             </if>
+            <if test="storeType != null">
+                store_type = #{storeType},
+            </if>
             gmt_modified =now()
         </set>
     </sql>
@@ -37,8 +40,8 @@
     </select>
 
     <insert id="insert" parameterType="Component" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO console_component(engine_id,component_name,component_type_code,component_config,upload_file_name,hadoop_version,component_template,kerberos_file_name)
-        VALUES (#{engineId},#{componentName},#{componentTypeCode},#{componentConfig},#{uploadFileName},#{hadoopVersion},#{componentTemplate},#{kerberosFileName})
+        INSERT INTO console_component(engine_id,component_name,component_type_code,component_config,upload_file_name,hadoop_version,component_template,kerberos_file_name,store_type)
+        VALUES (#{engineId},#{componentName},#{componentTypeCode},#{componentConfig},#{uploadFileName},#{hadoopVersion},#{componentTemplate},#{kerberosFileName},#{storeType})
     </insert>
 
     <update id="update">
@@ -68,7 +71,7 @@
     <select id="getByEngineIdAndComponentType" resultType="Component">
         select <include refid="select_content_fragment"/>
         from console_component
-        where engine_id = #{engineId} and component_type_code = #{type} and is_deleted = 0
+        where engine_id = #{engineId} and component_type_code = #{type} and is_deleted = 0 LIMIT 1
     </select>
 
 
@@ -82,7 +85,7 @@
         LEFT JOIN console_engine ENGINE ON ENGINE.id = c.engine_id
         LEFT JOIN console_cluster cluster ON cluster.id = ENGINE.cluster_id
         WHERE
-        cluster.id = #{clusterId} and c.component_type_code = #{type} and c.is_deleted = 0
+        cluster.id = #{clusterId} and c.component_type_code = #{type} and c.is_deleted = 0 LIMIT 1
     </select>
 
 

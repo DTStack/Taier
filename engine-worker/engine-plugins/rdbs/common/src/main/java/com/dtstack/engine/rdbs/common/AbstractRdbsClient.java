@@ -123,8 +123,8 @@ public abstract class AbstractRdbsClient extends AbstractClient {
         try {
             return resourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
-            LOG.error("JudgeSlots error " + e.getMessage());
-            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
+            LOG.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -133,9 +133,9 @@ public abstract class AbstractRdbsClient extends AbstractClient {
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
             Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
-            if(Objects.isNull(connFactory)){
+            if(null == connFactory){
                 synchronized (AbstractRdbsClient.class){
-                    if(Objects.isNull(connFactory)){
+                    if(null == connFactory){
                         connFactory = getConnFactory();
                     }
                 }
@@ -186,7 +186,7 @@ public abstract class AbstractRdbsClient extends AbstractClient {
                     List<Object> objects = Lists.newArrayList();
 
                     for (int i = 1; i <= columns; ++i) {
-                        if (i == timeStamp && Objects.nonNull(dateFormat)) {
+                        if (i == timeStamp && null != dateFormat) {
                             objects.add(dateFormat.format(res.getObject(i)));
                         } else {
                             objects.add(res.getObject(i));
@@ -198,6 +198,7 @@ public abstract class AbstractRdbsClient extends AbstractClient {
             }
         } catch (Exception e) {
             LOG.error("execue sql {} error",sql,e);
+            throw new RdosDefineException(e);
         } finally {
             try {
                 if (res != null) {

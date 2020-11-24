@@ -152,7 +152,7 @@ public class ConsoleCache implements InitializingBean {
                     uaCache.asMap().remove(tidbCacheKey.get(key));
                     redisTemplate.delete(tidbCacheKey.get(key));
                     DruidDataSource tiDBPoolDataSource = tidbComboPooledDataSourceMap.remove(tidbCacheKey.get(key));
-                    if(Objects.nonNull(tiDBPoolDataSource)){
+                    if(null != tiDBPoolDataSource){
                         tiDBPoolDataSource.close();
                     }
                 }
@@ -164,7 +164,7 @@ public class ConsoleCache implements InitializingBean {
                     uaCache.asMap().remove(prestoCacheKey.get(key));
                     redisTemplate.delete(prestoCacheKey.get(key));
                     DruidDataSource prestoPoolDataSource = prestoComboPooledDataSourceMap.remove(prestoCacheKey.get(key));
-                    if(Objects.nonNull(prestoPoolDataSource)){
+                    if(null != prestoPoolDataSource){
                         prestoPoolDataSource.close();
                     }
                 }

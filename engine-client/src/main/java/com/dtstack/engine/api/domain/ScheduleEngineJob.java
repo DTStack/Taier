@@ -123,14 +123,14 @@ public class ScheduleEngineJob extends AppTenantEntity {
     }
 
     public ScheduleEngineJob(ScheduleJob scheduleJob) {
-        if (Objects.nonNull(scheduleJob)) {
+        if (null != scheduleJob) {
             this.retryNum = scheduleJob.getRetryNum();
             this.status = scheduleJob.getStatus();
             this.execTime = scheduleJob.getExecTime();
-            if (Objects.nonNull(scheduleJob.getExecStartTime())) {
+            if (null != scheduleJob.getExecStartTime()) {
                 this.execStartTime = new Timestamp(scheduleJob.getExecStartTime().getTime());
             }
-            if (Objects.nonNull(scheduleJob.getExecEndTime())) {
+            if (null != scheduleJob.getExecEndTime()) {
                 this.execEndTime = new Timestamp(scheduleJob.getExecEndTime().getTime());
             }
             this.jobId = scheduleJob.getJobId();

@@ -43,7 +43,7 @@
     <select id="getByDtUicTenantId"  resultType="Tenant">
         SELECT *
         FROM console_dtuic_tenant
-        WHERE is_deleted = 0 AND dt_uic_tenant_id = #{dtUicTenantId}
+        WHERE is_deleted = 0 AND dt_uic_tenant_id = #{dtUicTenantId} LIMIT 1
     </select>
 
     <select id="listDtUicTenantIdByIds" resultType="java.lang.Long">
