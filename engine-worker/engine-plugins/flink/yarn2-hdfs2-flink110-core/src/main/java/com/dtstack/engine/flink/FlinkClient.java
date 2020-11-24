@@ -469,7 +469,7 @@ public class FlinkClient extends AbstractClient {
             try {
                 String webInterfaceURL = clusterClient.getWebInterfaceURL();
                 String jobUrl = String.format("%s/jobs/%s", webInterfaceURL, jobId);
-                response = PoolHttpClient.get(jobUrl, null , 0);
+                response = PoolHttpClient.get(jobUrl);
             } catch (Exception e) {
                 logger.error("request job status error: {}", e.getMessage());
             }
@@ -479,7 +479,7 @@ public class FlinkClient extends AbstractClient {
             try {
                 String jobHistoryURL = getJobHistoryURL();
                 String jobUrl = String.format("%s/jobs/%s", jobHistoryURL, jobId);
-                response = PoolHttpClient.get(jobUrl, null, 0);
+                response = PoolHttpClient.get(jobUrl);
             } catch (Exception e) {
                 logger.error("request job status error from jobHistory: {}", e.getMessage());
             }
