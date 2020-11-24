@@ -595,6 +595,7 @@ public class ClusterService implements InitializingBean {
                 }
                 kerberosConfigVO.setHdfsConfig(JSONObject.parseObject(hdfsComponent.getComponentConfig()));
             }
+            kerberosConfigVO.setKerberosFileTimestamp(kerberosConfig.getGmtModified());
             configObj.put("kerberosConfig", kerberosConfigVO);
         }
     }
