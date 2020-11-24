@@ -68,7 +68,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
@@ -461,9 +460,13 @@ public class FlinkClient extends AbstractClient {
             return RdosTaskStatus.NOTFOUND;
         }
 
+        long getClusterEndTime = 0L;
         ClusterClient clusterClient = null;
         try {
+            long getClusterStartTime = System.currentTimeMillis();
             clusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+            getClusterEndTime = System.currentTimeMillis();
+            logger.info("getClusterClient cost: {}", getClusterEndTime - getClusterStartTime);
         } catch (Exception e) {
             logger.error("Get clusterClient error:", e);
         }
@@ -473,9 +476,9 @@ public class FlinkClient extends AbstractClient {
             try {
                 String webInterfaceURL = clusterClient.getWebInterfaceURL();
                 String jobUrl = String.format("%s/jobs/%s", webInterfaceURL, jobId);
-                response = PoolHttpClient.get(jobUrl);
-            } catch (IOException e) {
-                logger.error("request job status error:", e);
+                response = PoolHttpClient.get(jobUrl, null , 0);
+            } catch (Exception e) {
+                logger.error("request job status error: {}", e.getMessage());
             }
         }
 
@@ -483,15 +486,18 @@ public class FlinkClient extends AbstractClient {
             try {
                 String jobHistoryURL = getJobHistoryURL();
                 String jobUrl = String.format("%s/jobs/%s", jobHistoryURL, jobId);
-                response = PoolHttpClient.get(jobUrl);
-            } catch (IOException e) {
+                response = PoolHttpClient.get(jobUrl, null, 0);
+            } catch (Exception e) {
                 logger.error("request job status error from jobHistory: {}", e.getMessage());
             }
         }
 
         if (StringUtils.isEmpty(response)) {
             if (StringUtils.isNotEmpty(applicationId)) {
-                return getPerJobStatus(applicationId);
+                RdosTaskStatus rdosTaskStatus = getPerJobStatus(applicationId);
+                long getPerJobStatusEndTime = System.currentTimeMillis();
+                logger.info("getPerJobStatus cost {}", getPerJobStatusEndTime - getClusterEndTime);
+                return rdosTaskStatus;
             }
             return RdosTaskStatus.NOTFOUND;
         }
