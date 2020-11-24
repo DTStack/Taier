@@ -142,7 +142,7 @@ public class ClusterController{
 
     @RequestMapping(value="/getConfigByKey", method = {RequestMethod.POST})
     public String getConfigByKey(@DtRequestParam("dtUicTenantId")Long dtUicTenantId, @DtRequestParam("key") String key, @DtRequestParam("fullKerberos") Boolean fullKerberos) {
-        return clusterService.getConfigByKey(dtUicTenantId, key, fullKerberos);
+        return clusterService.getConfigByKey(dtUicTenantId, key, fullKerberos,Boolean.FALSE);
     }
 
     @RequestMapping(value="/clusters", method = {RequestMethod.POST})
