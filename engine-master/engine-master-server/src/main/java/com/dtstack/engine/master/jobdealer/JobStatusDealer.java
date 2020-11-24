@@ -3,6 +3,7 @@ package com.dtstack.engine.master.jobdealer;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.common.BlockCallerPolicy;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EScheduleType;
@@ -26,8 +27,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -39,7 +42,7 @@ import java.util.stream.Collectors;
  */
 public class JobStatusDealer implements Runnable {
 
-    private static Logger logger = LoggerFactory.getLogger(JobStatusDealer.class);
+    private final static Logger logger = LoggerFactory.getLogger(JobStatusDealer.class);
 
     /**
      * 最大允许查询不到任务信息的次数--超过这个次数任务会被设置为CANCELED
@@ -51,7 +54,7 @@ public class JobStatusDealer implements Runnable {
      */
     private final static int NOT_FOUND_LIMIT_INTERVAL = 3 * 60 * 1000;
 
-    public static final long INTERVAL = 2000;
+    public static final long INTERVAL = 3000;
     private final static int MULTIPLES = 5;
     private int logOutput = 0;
 
@@ -68,18 +71,16 @@ public class JobStatusDealer implements Runnable {
     private long jobLogDelay;
     private JobCompletedLogDelayDealer jobCompletedLogDelayDealer;
 
-    private int taskStatusDealerPoolSize;
-
     /**
      * 记录job 连续某个状态的频次
      */
-    private Map<String, JobStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();
+    private final Map<String, JobStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();
 
     private ExecutorService taskStatusPool;
 
-    private ScheduledExecutorService scheduledService;
-
     private ScheduleJobService scheduleJobService;
+
+    private Set<String> dealingJobs = new HashSet<>();
 
     @Override
     public void run() {
@@ -93,13 +94,11 @@ public class JobStatusDealer implements Runnable {
                 return;
             }
 
-            jobs = jobs.stream().filter(job -> !RdosTaskStatus.needClean(job.getValue())).collect(Collectors.toList());
+            jobs = jobs.stream().filter(job -> !dealingJobs.contains(job.getKey()) && !RdosTaskStatus.needClean(job.getValue())).collect(Collectors.toList());
 
-            Semaphore buildSemaphore = new Semaphore(taskStatusDealerPoolSize);
-            CountDownLatch ctl = new CountDownLatch(jobs.size());
             for (Map.Entry<String, Integer> job : jobs) {
                 try {
-                    buildSemaphore.acquire();
+                    dealingJobs.add(job.getKey());
                     taskStatusPool.submit(() -> {
                         try {
                             logger.info("jobId:{} before dealJob status:{}", job.getKey(), job.getValue());
@@ -107,18 +106,14 @@ public class JobStatusDealer implements Runnable {
                         } catch (Throwable e) {
                             logger.error("jobId:{}", job.getKey(), e);
                         } finally {
-                            buildSemaphore.release();
-                            ctl.countDown();
+                            dealingJobs.remove(job.getKey());
                         }
                     });
                 } catch (Throwable e) {
                     logger.error("jobId:{} [acquire pool error]:",job.getKey(), e);
-                    buildSemaphore.release();
-                    ctl.countDown();
+                    dealingJobs.remove(job.getKey());
                 }
             }
-            ctl.await();
-
         } catch (Throwable e) {
             logger.error("jobResource:{} run error:", jobResource, e);
         }
@@ -251,9 +246,9 @@ public class JobStatusDealer implements Runnable {
         setBean();
         createLogDelayDealer();
 
-        this.taskStatusDealerPoolSize = environmentContext.getTaskStatusDealerPoolSize();
+        int taskStatusDealerPoolSize = environmentContext.getTaskStatusDealerPoolSize();
         this.taskStatusPool = new ThreadPoolExecutor(taskStatusDealerPoolSize, taskStatusDealerPoolSize, 60L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(1000), new CustomThreadFactory(jobResource + this.getClass().getSimpleName() + "DealJob"));
+                new LinkedBlockingQueue<>(1000), new CustomThreadFactory(jobResource + this.getClass().getSimpleName() + "DealJob"), new BlockCallerPolicy());
     }
 
     private void setBean() {
@@ -273,7 +268,7 @@ public class JobStatusDealer implements Runnable {
     }
 
     public void start() {
-        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
+        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,

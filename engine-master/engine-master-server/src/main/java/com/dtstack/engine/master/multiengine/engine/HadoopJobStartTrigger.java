@@ -249,10 +249,12 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
         //TODO 数据资产任务值为空 需要设置默认值
         Integer sourceType = (Integer) actionParam.getOrDefault("dataSourceType", DataSourceType.HIVE.getVal());
+        //有可能 mysql-kudu 脏数据表是hive 用以区分数据同步目标表类型 还是脏数据表类型
+        Integer dirtyDataSourceType = (Integer) actionParam.getOrDefault("dirtyDataSourceType", DataSourceType.HIVE.getVal());
         String engineIdentity = (String) actionParam.get("engineIdentity");
         // 获取脏数据存储路径
         try {
-            job = this.replaceTablePath(true, job, taskShade.getName(), sourceType, engineIdentity,taskShade.getDtuicTenantId());
+            job = this.replaceTablePath(true, job, taskShade.getName(), dirtyDataSourceType, engineIdentity,taskShade.getDtuicTenantId());
         } catch (Exception e) {
             LOG.error("create dirty table  partition error {}", scheduleJob.getJobId(), e);
         }
@@ -457,7 +459,12 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             }
             pluginInfo.put(EComponentType.SFTP.getConfName(), sftpConf);
             //krb5.conf的文件名
-            pluginInfo.put(ConfigConstant.KRB_NAME, hadoopConfig.getString(ConfigConstant.JAVA_SECURITY_KRB5_CONF));
+            String krb5Conf = hadoopConfig.getString(ConfigConstant.KRB5_CONF);
+            if(StringUtils.isBlank(krb5Conf)){
+                //平台不传 暂时设置默认值
+                krb5Conf = ConfigConstant.KRBNAME_DEFAULT;
+            }
+            pluginInfo.put(ConfigConstant.KRBNAME,krb5Conf);
             pluginInfo.put(EComponentType.YARN.getConfName(), hadoopConfig);
 
         }
