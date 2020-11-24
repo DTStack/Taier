@@ -40,7 +40,6 @@
         on et.tenant_id = t.id
         where et.engine_id = #{engineId} and t.tenant_name like concat(concat('%',#{tenantName}),'%')
         and et.is_deleted = 0
-        and et.queue_id is not null
         <if test="query.orderBy != null and query.sort != null">
             order by t.${query.orderBy} ${query.sort}
         </if>
