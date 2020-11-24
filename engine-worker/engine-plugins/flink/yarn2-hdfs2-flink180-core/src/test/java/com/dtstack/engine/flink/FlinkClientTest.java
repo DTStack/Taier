@@ -253,7 +253,7 @@ public class FlinkClientTest {
 	@Test
 	public void testGetCheckpoints() throws Exception {
 		JobIdentifier jobIdentifier =
-			new JobIdentifier("engineId","application_1593762151957_0080", "taskId");
+			 JobIdentifier.createInstance("engineId","application_1593762151957_0080", "taskId");
 
 		ApplicationReportPBImpl report = YarnMockUtil.mockApplicationReport(null);
 		when(yarnClient.getApplicationReport(any())).thenReturn(report);

@@ -1,11 +1,14 @@
 package com.dtstack.engine.common;
 
+import com.dtstack.engine.common.enums.EDeployMode;
+
 import java.io.Serializable;
 
 /**
  * Reason:
  * Date: 2018/11/5
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -29,7 +32,11 @@ public class JobIdentifier implements Serializable {
 
     private Long timeout;
 
-    public JobIdentifier(String engineJobId, String applicationId, String taskId, Long tenantId, String engineType, Integer deployMode, Long userId,String pluginInfo) {
+    private JobIdentifier() {
+
+    }
+
+    public JobIdentifier(String engineJobId, String applicationId, String taskId, Long tenantId, String engineType, Integer deployMode, Long userId, String pluginInfo) {
         this.engineJobId = engineJobId;
         this.applicationId = applicationId;
         this.taskId = taskId;
@@ -40,13 +47,14 @@ public class JobIdentifier implements Serializable {
         this.pluginInfo = pluginInfo;
     }
 
-    public JobIdentifier(String engineJobId, String applicationId, String taskId){
+    private JobIdentifier(String engineJobId, String applicationId, String taskId) {
         this.engineJobId = engineJobId;
         this.applicationId = applicationId;
         this.taskId = taskId;
+        this.deployMode = EDeployMode.PERJOB.getType();
     }
 
-    public static JobIdentifier createInstance(String jobId, String applicationId, String taskId){
+    public static JobIdentifier createInstance(String jobId, String applicationId, String taskId) {
         return new JobIdentifier(jobId, applicationId, taskId);
     }
 
@@ -62,16 +70,8 @@ public class JobIdentifier implements Serializable {
         return pluginInfo;
     }
 
-    public void setPluginInfo(String pluginInfo) {
-        this.pluginInfo = pluginInfo;
-    }
-
     public String getEngineJobId() {
         return engineJobId;
-    }
-
-    public void setEngineJobId(String engineJobId) {
-        this.engineJobId = engineJobId;
     }
 
     public String getApplicationId() {
@@ -86,41 +86,22 @@ public class JobIdentifier implements Serializable {
         return taskId;
     }
 
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
-    }
-
     public Long getTenantId() {
         return tenantId;
-    }
-
-    public void setTenantId(Long tenantId) {
-        this.tenantId = tenantId;
     }
 
     public String getEngineType() {
         return engineType;
     }
 
-    public void setEngineType(String engineType) {
-        this.engineType = engineType;
-    }
-
     public Integer getDeployMode() {
         return deployMode;
-    }
-
-    public void setDeployMode(Integer deployMode) {
-        this.deployMode = deployMode;
     }
 
     public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
 
     @Override
     public String toString() {

@@ -65,7 +65,7 @@ public class FlinkClusterClientManagerTest {
 		String engineId = "engineId";
 		String appId = "application_1593762151957_0080";
 		String taskId = "taskId";
-		JobIdentifier jobIdentifier = new JobIdentifier(engineId,appId, taskId);
+		JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineId,appId, taskId);
 
 		Cache<String, ClusterClient> perJobClientCache = CacheBuilder
 			.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
