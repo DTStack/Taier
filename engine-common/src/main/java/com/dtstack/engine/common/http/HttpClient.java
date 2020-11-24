@@ -77,7 +77,7 @@ public class HttpClient {
             try {
             	if(httpClient!=null){httpClient.close();}
 			} catch (Exception e) {
-				logger.error(ExceptionUtil.getErrorMessage(e));
+				logger.error("", e);
 			}  
         }  
         return responseBody;  
@@ -100,7 +100,7 @@ public class HttpClient {
             try {
                 if(httpClient!=null){httpClient.close();}
             } catch (Exception e) {
-                logger.error(ExceptionUtil.getErrorMessage(e));
+                logger.error("", e);
             }
         }
 

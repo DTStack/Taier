@@ -212,7 +212,7 @@ public class HadoopUtils {
             hadoopConf.readFields(datain);
             return hadoopConf;
         } catch (IOException e) {
-            LOG.error("HadoopUtils.deserializeHadoopConf error:{}", ExceptionUtil.getErrorMessage(e));
+            LOG.error("HadoopUtils.deserializeHadoopConf error:", e);
         } finally {
                 try {
                     datain.close();

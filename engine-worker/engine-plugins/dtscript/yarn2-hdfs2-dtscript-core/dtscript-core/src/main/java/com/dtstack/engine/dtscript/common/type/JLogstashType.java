@@ -144,7 +144,7 @@ public class JLogstashType extends AbstractAppType {
                 cmd = StringUtils.join(args, " ");
             }
         } catch (Exception e) {
-            LOG.error("JLogstashType.cmdContainerExtra error:{}", ExceptionUtil.getErrorMessage(e));
+            LOG.error("JLogstashType.cmdContainerExtra error:", e);
         }
         return super.cmdContainerExtra(cmd, conf, containerInfo);
     }

@@ -225,20 +225,12 @@ public class ZipUtil {
                     while ((len = _in.read(_byte)) > 0) {
                         _out.write(_byte, 0, len);
                     }
-                    _in.close();
                     _out.flush();
-                    _out.close();
                     _list.add(_file);
                 }
             }
         } catch (IOException e) {
         } finally {
-            if (_zipFile != null) {
-                try {
-                    _zipFile.close();
-                } catch (IOException e) {
-                }
-            }
             if (_out != null) {
                 try {
                     _out.close();
@@ -248,6 +240,12 @@ public class ZipUtil {
             if (_in != null) {
                 try {
                     _in.close();
+                } catch (IOException e) {
+                }
+            }
+            if (_zipFile != null) {
+                try {
+                    _zipFile.close();
                 } catch (IOException e) {
                 }
             }

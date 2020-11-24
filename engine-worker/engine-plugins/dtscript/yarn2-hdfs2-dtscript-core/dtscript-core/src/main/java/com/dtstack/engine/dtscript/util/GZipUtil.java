@@ -30,13 +30,13 @@ public class GZipUtil {
             gzip = new GZIPOutputStream(bos);
             gzip.write(data);
         } catch (IOException e) {
-            LOG.error("GZipUtil.compress error:{}", ExceptionUtil.getErrorMessage(e));
+            LOG.error("GZipUtil.compress error:", e);
         } finally {
             if (null != bos) {
                 try {
                     bos.close();
                 } catch (IOException e) {
-                    LOG.error("GZipUtil.compress error:{}", ExceptionUtil.getErrorMessage(e));
+                    LOG.error("GZipUtil.compress error:", e);
                 }
             }
 
@@ -44,7 +44,7 @@ public class GZipUtil {
                 try {
                     gzip.close();
                 } catch (IOException e) {
-                    LOG.error("GZipUtil.compress error:{}", ExceptionUtil.getErrorMessage(e));
+                    LOG.error("GZipUtil.compress error:", e);
                 }
             }
         }
@@ -60,18 +60,18 @@ public class GZipUtil {
             gis = new GZIPInputStream(bis);
             backData = IOUtils.toByteArray(gis);
         } catch (IOException e) {
-            LOG.error("GZipUtil.deCompress error:{}", ExceptionUtil.getErrorMessage(e));
+            LOG.error("GZipUtil.deCompress error:", e);
         } finally {
                 try {
                     bis.close();
                 } catch (IOException e) {
-                    LOG.error("GZipUtil.deCompress error:{}", ExceptionUtil.getErrorMessage(e));
+                    LOG.error("GZipUtil.deCompress error:", e);
                 }
             if (null != gis) {
                 try {
                     gis.close();
                 } catch (IOException e) {
-                    LOG.error("GZipUtil.deCompress error:{}", ExceptionUtil.getErrorMessage(e));
+                    LOG.error("GZipUtil.deCompress error:", e);
                 }
             }
         }

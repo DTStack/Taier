@@ -969,7 +969,7 @@ public class DateUtil {
             Date date = simpleDateFormat.parse(formattedDate);
             return date.getTime();
         } catch (ParseException e) {
-            LOGGER.error("DateUtil.getTimestamp error:{}", ExceptionUtil.getErrorMessage(e));
+            LOGGER.error("DateUtil.getTimestamp error:", e);
         }
         return 0L;
     }

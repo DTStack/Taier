@@ -229,7 +229,7 @@ public class TimeParamOperator {
                         }
                         result = FastDateFormat.getInstance(line, TimeZone.getTimeZone("GMT+8")).format(cycd);
                     } catch (ParseException e) {
-                        LOGGER.error("TimeParamOperator.dealCustomizeTimeOperator error:{}", ExceptionUtil.getErrorMessage(e));
+                        LOGGER.error("TimeParamOperator.dealCustomizeTimeOperator error:", e);
                     }
                 }
             }

@@ -53,8 +53,6 @@ public class Xml2JsonUtil {
     /**
      * xml转json
      *
-     * @param xml file
-     * @return
      * @throws DocumentException
      */
     public static JSONObject xml2Json(File xmlFile) throws Exception {
@@ -76,19 +74,20 @@ public class Xml2JsonUtil {
             fc.read(bb);
             bb.flip();
             str = new String(bb.array(), "UTF8");
-            fc.close();
-            fis.close();
         } catch (IOException e) {
             throw new IOException("读取文件失败");
         } finally {
-            try {
-                if(Objects.nonNull(fis)) {
+            if(null != fis) {
+                try {
                     fis.close();
+                } catch (IOException e) {
                 }
-                if(Objects.nonNull(fc)) {
+            }
+            if(null != fc) {
+                try {
                     fc.close();
+                } catch (IOException e) {
                 }
-            } catch (IOException e) {
             }
         }
         return str;

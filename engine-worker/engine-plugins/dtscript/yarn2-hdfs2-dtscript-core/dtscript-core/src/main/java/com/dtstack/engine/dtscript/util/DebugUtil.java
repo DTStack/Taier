@@ -16,7 +16,7 @@ public class DebugUtil {
         try {
             Thread.sleep(Integer.MAX_VALUE);
         } catch (InterruptedException e) {
-            LOG.error("DebugUtil.pause error:{}", ExceptionUtil.getErrorMessage(e));
+            LOG.error("DebugUtil.pause error:", e);
         }
     }
 
