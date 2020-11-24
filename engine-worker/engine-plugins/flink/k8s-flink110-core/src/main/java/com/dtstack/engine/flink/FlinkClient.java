@@ -370,9 +370,14 @@ public class FlinkClient extends AbstractClient {
             if (!RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
                 JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
 
-                String savepointPath = targetClusterClient.stopWithSavepoint(jobID, true, null)
-                        .get(jobIdentifier.getTimeout(), TimeUnit.MILLISECONDS).toString();
+                String savepointPath = "";
 
+                if (jobIdentifier.isForceCancel()) {
+                    flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(clusterId);
+                } else {
+                    savepointPath = targetClusterClient.stopWithSavepoint(jobID, true, null)
+                            .get(jobIdentifier.getTimeout(), TimeUnit.MILLISECONDS).toString();
+                }
                 logger.info("Job[{}] Savepoint completed. Path:{}", jobID.toString(), savepointPath);
             }
         } catch (Exception e) {
