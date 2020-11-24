@@ -1629,8 +1629,10 @@ public class ComponentService {
         }
         return components;
     }
+
+
     @Transactional(rollbackFor = Exception.class)
-    public void updateNamespaces(Long clusterId, String namespace, Long queueId) {
+    public Long addOrUpdateNamespaces(Long clusterId, String namespace, Long queueId, Long dtUicTenantId) {
         if (StringUtils.isBlank(namespace)) {
             throw new RdosDefineException("namespace不能为空");
         }
@@ -1647,7 +1649,7 @@ public class ComponentService {
             throw new RdosDefineException("引擎为空");
         }
         String clusterName = cluster.getClusterName();
-        String pluginType = this.convertComponentTypeToClient(clusterName, EComponentType.KUBERNETES.getTypeCode(), "",null);
+        String pluginType = this.convertComponentTypeToClient(clusterName, EComponentType.KUBERNETES.getTypeCode(), "", null);
         Component sftpConfig = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
         if (null == sftpConfig) {
             throw new RdosDefineException("sftp配置为空");
@@ -1663,16 +1665,38 @@ public class ComponentService {
         }
         List<Queue> namespaces = queueDao.listByIds(Lists.newArrayList(queueId));
         if (CollectionUtils.isNotEmpty(namespaces)) {
-            for (Queue queue : namespaces) {
-                queue.setQueueName(namespace);
-                queue.setQueuePath(namespace);
-                queue.setIsDeleted(Deleted.NORMAL.getStatus());
-                queueDao.update(queue);
-            }
+            Queue dbQueue = namespaces.get(0);
+            dbQueue.setQueueName(namespace);
+            dbQueue.setQueuePath(namespace);
+            dbQueue.setIsDeleted(Deleted.NORMAL.getStatus());
+            queueDao.update(dbQueue);
+            return dbQueue.getId();
         } else {
-            throw new RdosDefineException("namespace为空 绑定失败");
+            Queue queue = new Queue();
+            queue.setQueueName(namespace);
+            queue.setEngineId(engine.getId());
+            queue.setMaxCapacity("0");
+            queue.setCapacity("0");
+            queue.setQueueState("ACTIVE");
+            queue.setParentQueueId(DEFAULT_KUBERNETES_PARENT_NODE);
+            queue.setQueuePath(namespace);
+            Integer insert = queueDao.insert(queue);
+            if (insert != 1) {
+                throw new RdosDefineException("操作失败");
+            }
+            if (null == queueId) {
+                Tenant tenant = tenantDao.getByDtUicTenantId(dtUicTenantId);
+                if (null == tenant) {
+                    throw new RdosDefineException("租户不存在");
+                }
+                Long dbQueue = engineTenantDao.getQueueIdByTenantId(tenant.getId());
+                if (null == dbQueue) {
+                    //兼容4.0 queueId为空的数据 需要重新绑定
+                    tenantService.updateTenantQueue(tenant.getId(), dtUicTenantId, engine.getId(), queue.getId());
+                }
+            }
+            return queue.getId();
         }
-
     }
 
     public Boolean isYarnSupportGpus(String clusterName) {
