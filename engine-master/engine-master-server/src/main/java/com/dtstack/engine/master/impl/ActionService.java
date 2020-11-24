@@ -165,6 +165,9 @@ public class ActionService {
             return this.start(paramActionExt);
         } catch (Exception e) {
             logger.error("", e);
+            if (e instanceof RdosDefineException) {
+                throw (RdosDefineException)e;
+            }
         }
 
         return Boolean.FALSE;
@@ -173,7 +176,7 @@ public class ActionService {
     public ParamActionExt paramActionExt(ScheduleTaskShade batchTask, String jobId, Integer isRestart, String flowJobId) throws Exception {
         logger.info("startJob ScheduleTaskShade: {} jobId:{} isRestart:{} flowJobId:{} ", JSONObject.toJSONString(batchTask), jobId, isRestart, flowJobId);
         ScheduleJob scheduleJob = buildScheduleJob(batchTask, jobId, isRestart, flowJobId);
-        ParamActionExt paramActionExt = paramActionExt(batchTask, scheduleJob, batchTask.getExtraInfo());
+        ParamActionExt paramActionExt = paramActionExt(batchTask, scheduleJob, JSONObject.parseObject(batchTask.getExtraInfo()));
         if (paramActionExt == null) {
             throw new RdosDefineException("extraInfo can't null or empty string");
         }
@@ -181,15 +184,8 @@ public class ActionService {
     }
 
 
-    public ParamActionExt paramActionExt(ScheduleTaskShade batchTask, ScheduleJob scheduleJob,String extraInfo) throws Exception {
-        JSONObject extObject = JSONObject.parseObject(extraInfo);
-        if (Objects.nonNull(extObject)) {
-            JSONObject info = extObject.getJSONObject(TaskConstant.INFO);
-            if (Objects.nonNull(info)) {
-                return this.parseParamActionExt(scheduleJob, batchTask, info);
-            }
-        }
-        return null;
+    public ParamActionExt paramActionExt(ScheduleTaskShade batchTask, ScheduleJob scheduleJob, JSONObject extraInfo) throws Exception {
+        return this.parseParamActionExt(scheduleJob, batchTask, extraInfo);
     }
 
     private ScheduleJob buildScheduleJob(ScheduleTaskShade batchTask, String jobId, Integer isRestart, String flowJobId) throws IOException, ParseException {

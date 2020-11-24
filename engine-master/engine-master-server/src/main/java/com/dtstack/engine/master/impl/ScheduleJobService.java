@@ -1039,12 +1039,20 @@ public class ScheduleJobService {
         }
 
         String extInfoByTaskId = scheduleTaskShadeDao.getExtInfoByTaskId(scheduleJob.getTaskId(), scheduleJob.getAppType());
-        ParamActionExt paramActionExt = actionService.paramActionExt(batchTask, scheduleJob, extInfoByTaskId);
-        if (paramActionExt != null) {
-            this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus());
-            actionService.start(paramActionExt);
-            return;
+        if (Objects.nonNull(extInfoByTaskId)) {
+            JSONObject extObject = JSONObject.parseObject(extInfoByTaskId);
+            if (Objects.nonNull(extObject)) {
+                JSONObject info = extObject.getJSONObject(TaskConstant.INFO);
+                if (Objects.nonNull(info)) {
+                    ParamActionExt paramActionExt = actionService.paramActionExt(batchTask, scheduleJob, info);
+                    if (paramActionExt != null) {
+                        this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus());
+                        actionService.start(paramActionExt);
+                        return;
 
+                    }
+                }
+            }
         }
         //额外信息为空 标记任务为失败
         this.updateStatusAndLogInfoById(scheduleJob.getId(), RdosTaskStatus.FAILED.getStatus(), "任务运行信息为空");

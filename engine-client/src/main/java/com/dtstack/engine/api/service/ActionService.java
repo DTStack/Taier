@@ -2,6 +2,7 @@ package com.dtstack.engine.api.service;
 
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
+import com.dtstack.engine.api.pojo.ParamTaskAction;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
@@ -21,6 +22,27 @@ public interface ActionService extends DtInsightServer {
     @RequestLine("POST /node/action/start")
     @Headers(value={"Content-Type: application/json"})
     ApiResponse<Boolean> start(ParamActionExt paramActionExt);
+
+    /**
+     * 如在当前节点,则直接处理任务(包括预处理)
+     *
+     * @param paramTaskAction
+     * @return
+     */
+    @RequestLine("POST /node/action/startJob")
+    @Headers(value={"Content-Type: application/json"})
+    ApiResponse<Boolean> startJob(ParamTaskAction paramTaskAction);
+
+    /**
+     * 执行前预处理，逻辑
+     *
+     * @param paramActionExt
+     * @return
+     */
+    @RequestLine("POST /node/action/paramActionExt")
+    @Headers(value={"Content-Type: application/json"})
+    ApiResponse<ParamActionExt> paramActionExt(ParamActionExt paramActionExt);
+
 
     /**
      *
