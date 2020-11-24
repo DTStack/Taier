@@ -3,8 +3,8 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
@@ -341,7 +341,7 @@ public class TenantService {
             updateTenantTaskResource(tenantId,dtUicTenantId,taskTypeResourceJson);
             updateTenantQueue(tenantId, dtUicTenantId, queue.getEngineId(), queueId);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("", e);
             throw new RdosDefineException("切换队列失败");
         }
     }
@@ -371,7 +371,7 @@ public class TenantService {
             Integer taskType = jsonObj.getInteger("taskType");
             tenantResource.setTaskType(taskType);
             EScheduleJobType eJobType = EScheduleJobType.getEJobType(taskType);
-            if(Objects.isNull(eJobType)){
+            if(null == eJobType){
                 throw new RdosDefineException("传入任务类型错误");
             }else{
                 tenantResource.setEngineType(eJobType.getName());
@@ -395,7 +395,7 @@ public class TenantService {
             List<TenantResource> tenantResources = tenantResourceDao.selectByUicTenantId(dtUicTenantId);
             return convertTenantResourceToVO(tenantResources);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("", e);
             throw new RdosDefineException("查询失败");
         }
     }
@@ -431,10 +431,10 @@ public class TenantService {
         try {
             tenantResource = tenantResourceDao.selectByUicTenantIdAndTaskType(dtUicTenantId, taskType);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("", e);
             throw new RdosDefineException("查找资源限制失败");
         }
-        if(Objects.nonNull(tenantResource)){
+        if(null != tenantResource){
             return tenantResource.getResourceLimit();
         }else{
             return "";

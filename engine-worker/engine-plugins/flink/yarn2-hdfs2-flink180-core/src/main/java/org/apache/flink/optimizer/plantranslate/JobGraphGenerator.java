@@ -18,6 +18,7 @@
 
 package org.apache.flink.optimizer.plantranslate;
 
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.aggregators.AggregatorRegistry;
 import org.apache.flink.api.common.aggregators.AggregatorWithName;
@@ -306,7 +307,7 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 						Files.deleteIfExists(tmpDir);
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOG.error("JobGraphGenerator.addUserArtifactEntries error:", e);
 				}
 			}
 		}

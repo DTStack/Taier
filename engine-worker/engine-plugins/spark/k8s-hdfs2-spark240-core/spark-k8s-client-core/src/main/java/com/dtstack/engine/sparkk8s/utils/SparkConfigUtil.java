@@ -67,7 +67,7 @@ public class SparkConfigUtil {
     }
 
     public static void replaceBasicSparkConf(SparkConf sparkConf, Properties confProperties) {
-        if (!Objects.isNull(confProperties)) {
+        if (null != confProperties) {
             for (Map.Entry<Object, Object> param : confProperties.entrySet()) {
                 String key = (String) param.getKey();
                 String val = (String) param.getValue();
@@ -131,7 +131,7 @@ public class SparkConfigUtil {
         return hadoopConfContent.toString();
     }
 
-    public static String downloadK8sConfig(FilesystemManager filesystemManager, SparkK8sConfig sparkK8sConfig) {
+    public static String downloadK8sConfig(FilesystemManager filesystemManager, SparkK8sConfig sparkK8sConfig) throws IOException {
         String tmpK8sConfig = String.format("%s/%s", USER_DIR, tmpK8sConfigDir);
 
         String remoteDir = sparkK8sConfig.getRemoteDir();

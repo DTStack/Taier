@@ -150,7 +150,7 @@ public class FlinkUtil {
         return FlinkMode.mode(modeStr);
     }
 
-    public static void downloadK8sConfig(Properties prop, FlinkConfig flinkConfig, FilesystemManager filesystemManager) {
+    public static void downloadK8sConfig(Properties prop, FlinkConfig flinkConfig, FilesystemManager filesystemManager) throws IOException {
         String tmpK8sConfig = String.format("%s/%s", USER_DIR, tmpK8sConfigDir);
 
         String remoteDir = flinkConfig.getRemoteDir();

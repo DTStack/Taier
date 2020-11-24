@@ -99,5 +99,4 @@ public class ComponentController {
     public Boolean isYarnSupportGpus(@DtRequestParam("clusterName") String clusterName) {
         return componentService.isYarnSupportGpus(clusterName);
     }
-
 }

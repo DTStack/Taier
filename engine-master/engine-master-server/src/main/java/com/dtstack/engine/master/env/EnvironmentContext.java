@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * @author sishu.yss
  */
 @Component
-@PropertySource(value = "file:${user.dir}/conf/application.properties")
+@PropertySource(value = "file:${user.dir.conf}/application.properties")
 public class EnvironmentContext {
 
     @Autowired
@@ -391,7 +391,7 @@ public class EnvironmentContext {
     }
 
     public long getConsoleStopExpireTime() {
-        return Long.parseLong(environment.getProperty("consoleStopExpireTime", Long.toString(60 * 1000 * 24)));
+        return Long.parseLong(environment.getProperty("consoleStopExpireTime", Long.toString(60 * 1000L * 24)));
     }
 
     public Integer getScheduleJobScope() {

@@ -23,7 +23,7 @@ public class HadoopConf {
     }
 
     public void initHadoopConf(Map<String, Object> conf){
-        if(Objects.isNull(conf)){
+        if(null == conf){
             return;
         }
 

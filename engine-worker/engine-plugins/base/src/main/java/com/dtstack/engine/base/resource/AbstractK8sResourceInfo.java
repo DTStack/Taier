@@ -193,13 +193,13 @@ public abstract class AbstractK8sResourceInfo implements EngineResourceInfo {
 
         Quantity amountTotalCores = resourceQuota.getStatus().getHard().get("requests.cpu");
         Quantity amountTotalMem = resourceQuota.getStatus().getHard().get("requests.memory");
-        Double totalCores = Objects.isNull(amountTotalCores) ? 0d : Quantity.getAmountInBytes(amountTotalCores).doubleValue();
-        Double totalMem = Objects.isNull(amountTotalMem) ? 0d : Quantity.getAmountInBytes(amountTotalMem).doubleValue();
+        Double totalCores = null == amountTotalCores ? 0d : Quantity.getAmountInBytes(amountTotalCores).doubleValue();
+        Double totalMem = null == amountTotalMem ? 0d : Quantity.getAmountInBytes(amountTotalMem).doubleValue();
 
         Quantity amountUsedCores = resourceQuota.getStatus().getUsed().get("requests.cpu");
         Quantity amountUsedMem = resourceQuota.getStatus().getUsed().get("requests.memory");
-        Double usedCores = Objects.isNull(amountUsedCores) ? 0d : Quantity.getAmountInBytes(amountUsedCores).doubleValue();
-        Double usedMem = Objects.isNull(amountUsedMem) ? 0d : Quantity.getAmountInBytes(amountUsedMem).doubleValue();
+        Double usedCores = null == amountUsedCores ? 0d : Quantity.getAmountInBytes(amountUsedCores).doubleValue();
+        Double usedMem = null == amountUsedMem ? 0d : Quantity.getAmountInBytes(amountUsedMem).doubleValue();
 
         Double freeCores = totalCores - usedCores;
         Double freeMem = totalMem - usedMem;

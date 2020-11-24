@@ -6,12 +6,15 @@ import org.dom4j.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.*;
 
 /**
  * company: www.dtstack.com
@@ -50,8 +53,6 @@ public class Xml2JsonUtil {
     /**
      * xml转json
      *
-     * @param xml file
-     * @return
      * @throws DocumentException
      */
     public static JSONObject xml2Json(File xmlFile) throws Exception {
@@ -62,15 +63,33 @@ public class Xml2JsonUtil {
         return json;
     }
 
-    public static String readFile(File file) throws Exception {
-        FileInputStream fis = new FileInputStream(file);
-        FileChannel fc = fis.getChannel();
-        ByteBuffer bb = ByteBuffer.allocate(new Long(file.length()).intValue());
-        fc.read(bb);
-        bb.flip();
-        String str = new String(bb.array(), "UTF8");
-        fc.close();
-        fis.close();
+    public static String readFile(File file) throws IOException {
+        String str = null;
+        FileChannel fc = null;
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(file);
+            fc = fis.getChannel();
+            ByteBuffer bb = ByteBuffer.allocate(new Long(file.length()).intValue());
+            fc.read(bb);
+            bb.flip();
+            str = new String(bb.array(), "UTF8");
+        } catch (IOException e) {
+            throw new IOException("读取文件失败");
+        } finally {
+            if(null != fis) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                }
+            }
+            if(null != fc) {
+                try {
+                    fc.close();
+                } catch (IOException e) {
+                }
+            }
+        }
         return str;
     }
 

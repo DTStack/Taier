@@ -27,7 +27,7 @@ public class KylinJobStartTrigger extends JobStartTriggerBase {
         if (taskShade.getEngineType().equals(ScheduleEngineType.Kylin.getVal())) {
             List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String)actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
             Map<String,Object> pluginInfo = (Map<String,Object>) actionParam.get("pluginInfo");
-            if (Objects.nonNull(pluginInfo)) {
+            if (null != pluginInfo) {
                String taskExeArgs = taskShade.getExeArgs();
                 JSONObject jsonObject = (JSONObject) JSONObject.parse(taskExeArgs);
                 if (!jsonObject.getBooleanValue("noPartition")) {
