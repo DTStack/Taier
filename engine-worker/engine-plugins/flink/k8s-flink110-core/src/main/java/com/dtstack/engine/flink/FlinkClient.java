@@ -491,7 +491,10 @@ public class FlinkClient extends AbstractClient {
         boolean isNotfound = statusFrequency.getStatus() == RdosTaskStatus.NOTFOUND.getStatus().intValue();
 
         if (isNotfound && isClear) {
-            flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(clusterId);
+            try {
+                flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(clusterId);
+            } catch (Exception e) {}
+            jobStatusMap.remove(jobId);
         }
     }
 
