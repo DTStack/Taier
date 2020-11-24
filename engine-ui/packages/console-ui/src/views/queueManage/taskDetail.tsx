@@ -355,7 +355,7 @@ class TaskDetail extends React.Component<any, any> {
             <Row className="table-footer">
                 <Col>
                     <Checkbox
-                        style={{ padding: '0 16px 0 20px' }}
+                        style={{ padding: '0 16px 0 0' }}
                         indeterminate={indeterminate}
                         checked={checked}
                         onChange={this.onCheckAllChange}
@@ -428,7 +428,7 @@ class TaskDetail extends React.Component<any, any> {
                         </div>
                         <Table
                             rowKey={(record: any) => {
-                                return `taskDetail-${record.jobId}`
+                                return `${record.jobId}`
                             }}
                             loading={loading}
                             className="dt-table-border"
