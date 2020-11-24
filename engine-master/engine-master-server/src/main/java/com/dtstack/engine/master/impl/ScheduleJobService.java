@@ -1039,7 +1039,7 @@ public class ScheduleJobService {
         }
 
         String extInfoByTaskId = scheduleTaskShadeDao.getExtInfoByTaskId(scheduleJob.getTaskId(), scheduleJob.getAppType());
-        if (Objects.nonNull(extInfoByTaskId)) {
+        if (StringUtils.isNotBlank(extInfoByTaskId)) {
             JSONObject extObject = JSONObject.parseObject(extInfoByTaskId);
             if (Objects.nonNull(extObject)) {
                 JSONObject info = extObject.getJSONObject(TaskConstant.INFO);
@@ -1049,7 +1049,6 @@ public class ScheduleJobService {
                         this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus());
                         actionService.start(paramActionExt);
                         return;
-
                     }
                 }
             }
