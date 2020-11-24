@@ -487,7 +487,8 @@ public class FlinkClient extends AbstractClient {
                 statusFrequency.resetJobStatus(status.getStatus());
             }
         }
-        boolean isClear = (System.currentTimeMillis() - statusFrequency.getCreateTime()) >= 2.5 * 60000;
+        Double waitTime = flinkClientBuilder.getFlinkConfiguration().getDouble(ConfigConstrant.NOTFOUND_WAITTIME_key, ConfigConstrant.NOTFOUND_WAITTIME_DEFAULT);
+        boolean isClear = (System.currentTimeMillis() - statusFrequency.getCreateTime()) >= waitTime;
         boolean isNotfound = statusFrequency.getStatus() == RdosTaskStatus.NOTFOUND.getStatus().intValue();
 
         if (isNotfound && isClear) {

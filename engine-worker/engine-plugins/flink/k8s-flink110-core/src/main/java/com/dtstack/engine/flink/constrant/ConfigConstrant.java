@@ -40,6 +40,9 @@ public class ConfigConstrant {
 
     public final static Integer TASKNAME_MAX_LENGTH = 38;
 
+    public final static String NOTFOUND_WAITTIME_key = "notfound.waittime";
+    public final static double NOTFOUND_WAITTIME_DEFAULT = 2.5 * 60 * 000;
+
     // ------------------------------------------------------------------------
     // Resource Configs
     // ------------------------------------------------------------------------
