@@ -57,7 +57,7 @@ public class LineageServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testParseAndSaveTableLineage() {
-        lineageService.parseAndSaveTableLineage(0L, AppType.RDOS.getType(), "create table chener_1 as select * from chener_o1 o1 join chener_o2 o2 on o1.id = o2.id", "dev", 0L, DataSourceType.SPARK_THRIFT.getType(), "11");
+        lineageService.parseAndSaveTableLineage(1L, AppType.RDOS.getType(), "create table chener_1 as select * from chener_o1 o1 join chener_o2 o2 on o1.id = o2.id", "dev", 0L, DataSourceType.SPARK_THRIFT.getType(), "11");
     }
 
     @Test
