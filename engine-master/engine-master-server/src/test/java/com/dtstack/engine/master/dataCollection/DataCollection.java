@@ -8,10 +8,10 @@ import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
 import com.dtstack.engine.master.utils.DataCollectionProxy;
 import com.dtstack.engine.master.utils.Template;
-import com.dtstack.engine.master.utils.ValueUtils;
 import org.joda.time.DateTime;
 
 import java.lang.reflect.Proxy;
+import java.sql.Date;
 import java.sql.Timestamp;
 
 /**
@@ -28,9 +28,13 @@ public interface DataCollection {
                 new Class<?>[]{DataCollection.class}, DataCollectionProxy.instance);
     }
 
+
     class SingletonHolder {
         private static final DataCollection INSTANCE = getDataCollectionProxy();
     }
+
+
+
 
     @DataSource
     static DataCollection getData() {
@@ -197,6 +201,24 @@ public interface DataCollection {
         return sj;
     }
 
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobStream2() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setJobId("testJobId2");
+        sj.setStatus(4);
+        sj.setExecStartTime(new Timestamp(1591805197000L));
+        sj.setExecEndTime(new Timestamp(1591805197100L));
+        sj.setJobName("test2");
+        sj.setCycTime("20200609234500");
+        sj.setTaskType(ComputeType.STREAM.getType());
+        sj.setType(2);
+        sj.setEngineLog("");
+        sj.setSourceType(-1);
+        sj.setApplicationId("application_9527");
+        sj.setComputeType(ComputeType.STREAM.getType());
+        return sj;
+    }
+
     @DatabaseInsertOperation(dao = TestEngineJobRetryDao.class)
     default EngineJobRetry getEngineJobRetry() {
         EngineJobRetry ej = Template.getEngineJobRetryTemplate();
@@ -223,6 +245,26 @@ public interface DataCollection {
     default EngineJobCache getEngineJobCache() {
         EngineJobCache engineJobCache = Template.getEngineJobCacheTemplate();
         engineJobCache.setJobId(getData().getScheduleJobStream().getJobId());
+        return engineJobCache;
+    }
+
+
+    /**
+     * @author zyd
+     * @Description 失败重试的任务
+     * @Date 2020/11/14 10:02 上午
+     * @return: com.dtstack.engine.api.domain.EngineJobCache
+     **/
+    @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
+    @IgnoreUniqueRandomSet
+    default EngineJobCache getEngineJobCache2() {
+        EngineJobCache engineJobCache = Template.getEngineJobCacheTemplate2();
+        String jobId = getData().getScheduleJobStream2().getJobId();
+        engineJobCache.setJobId(jobId);
+        engineJobCache.setJobInfo(String.format("{\"engineType\":\"spark\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, " +
+                "\"maxRetryNum\":3,\"taskParams\":\"openCheckpoint=true \\n sql.checkpoint.interval=2\"," +
+                "\"taskId\":\"%s\"}",jobId));
+        engineJobCache.setIsFailover(1);
         return engineJobCache;
     }
 
@@ -340,5 +382,21 @@ public interface DataCollection {
         sj.setEngineLog("");
         sj.setCycTime("20200501163446");
         return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestEngineJobStopDao.class)
+    default EngineJobStopRecord getScheduleJobStop(){
+
+        EngineJobCache engineJobCache = getEngineJobCache();
+        EngineJobStopRecord jsr = new EngineJobStopRecord();
+        jsr.setTaskId(engineJobCache.getJobId());
+        jsr.setComputeType(jsr.getComputeType());
+        jsr.setEngineType(jsr.getEngineType());
+        jsr.setForceCancelFlag(1);
+        jsr.setJobResource(engineJobCache.getJobResource());
+        jsr.setOperatorExpired(new java.util.Date());
+        jsr.setTaskType(10);
+        jsr.setVersion(1);
+        return jsr;
     }
 }
