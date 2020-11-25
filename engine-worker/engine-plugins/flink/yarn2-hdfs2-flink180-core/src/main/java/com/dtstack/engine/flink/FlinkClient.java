@@ -12,9 +12,7 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.JobParam;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.constrant.ConfigConstant;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -75,6 +73,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -639,18 +638,13 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
-
         String jobId = jobIdentifier.getEngineJobId();
-        String applicationId = jobIdentifier.getApplicationId();
-
-        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
         String reqURL;
 
-        if(StringUtils.isNotBlank(applicationId) && (rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
-                || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED))){
+        if (null != jobIdentifier.getDeployMode() && EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode())) {
             //perjob从jobhistory读取
             reqURL = getJobHistoryURL();
-        }else{
+        } else {
             //session
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
             reqURL = currClient.getWebInterfaceURL();
@@ -966,21 +960,21 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public String getCheckpoints(JobIdentifier jobIdentifier) {
-        String appId = jobIdentifier.getApplicationId();
-        String jobId = jobIdentifier.getEngineJobId();
-
-        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
-
         String reqURL;
-        if (rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
-                || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED)) {
+        String engineJobId = jobIdentifier.getEngineJobId();
+        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+        Predicate<RdosTaskStatus> isEndStatus = status -> status.equals(RdosTaskStatus.FINISHED) || status.equals(RdosTaskStatus.CANCELED)
+                || status.equals(RdosTaskStatus.FAILED) || status.equals(RdosTaskStatus.KILLED);
+        if (isEndStatus.test(rdosTaskStatus) &&  EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode())) {
+            //perob 且结束从jobHistory读取
             reqURL = getJobHistoryURL();
         } else {
+            //session
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
             reqURL = currClient.getWebInterfaceURL();
         }
 
-        return getMessageByHttp(String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, jobId), reqURL);
+        return getMessageByHttp(String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, engineJobId), reqURL);
     }
 
     private boolean existsJobOnFlink(String engineJobId) {

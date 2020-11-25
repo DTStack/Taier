@@ -15,7 +15,7 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.enums.EDeployMode;
+import com.dtstack.engine.common.enums.EDeployMode;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

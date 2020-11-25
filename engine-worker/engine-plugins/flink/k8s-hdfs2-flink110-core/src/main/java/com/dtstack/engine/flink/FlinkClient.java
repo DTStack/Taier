@@ -2,6 +2,7 @@ package com.dtstack.engine.flink;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -490,16 +491,13 @@ public class FlinkClient extends AbstractClient {
     public String getJobLog(JobIdentifier jobIdentifier) {
 
         String jobId = jobIdentifier.getEngineJobId();
-        String applicationId = jobIdentifier.getApplicationId();
-
-        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
         String reqURL;
 
-        //从jobhistory读取
-        boolean isFromJobHistory = RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus()) || rdosTaskStatus.equals(RdosTaskStatus.NOTFOUND);
-        if (StringUtils.isNotBlank(applicationId) && isFromJobHistory) {
+        if (null != jobIdentifier.getDeployMode() && EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode())) {
+            //perjob从jobhistory读取
             reqURL = getJobHistoryURL();
         } else {
+            //session
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
             reqURL = currClient.getWebInterfaceURL();
         }
@@ -655,14 +653,13 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public String getCheckpoints(JobIdentifier jobIdentifier) {
-        String appId = jobIdentifier.getApplicationId();
-        String jobId = jobIdentifier.getEngineJobId();
+        String engineJobId = jobIdentifier.getEngineJobId();
 
         RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
 
         String reqURL = "";
         boolean isFromJobHistory = RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus()) || rdosTaskStatus.equals(RdosTaskStatus.NOTFOUND);
-        if (isFromJobHistory) {
+        if (isFromJobHistory && EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode())) {
             reqURL = getJobHistoryURL();
         } else {
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
@@ -670,7 +667,7 @@ public class FlinkClient extends AbstractClient {
         }
 
         try {
-            return getMessageByHttp(String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, jobId), reqURL);
+            return getMessageByHttp(String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, engineJobId), reqURL);
         } catch (IOException e) {
             logger.error("", e);
             return null;
