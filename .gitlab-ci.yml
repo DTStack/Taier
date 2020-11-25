@@ -5,10 +5,6 @@ build:
     - mvn sonar:sonar -Dsonar.projectKey="dt-insight-engine/DAGScheduleX" -Dsonar.host.url=http://172.16.100.198:9000 -Dsonar.jdbc.url=jdbc:postgresql://172.16.100.198:5432/sonar -Dsonar.java.binaries=target/classes -Dsonar.login=11974c5e9a29625efa09fdc3c3fdc031efb1aab1
     - sh ci/sonar_notify.sh
   only:
-    - dev
     - 4.0_dev
-    - release_3.10.x
-    - release_3.9.x
-    - release_4.0.x
   tags:
     - dt-insight-engine
