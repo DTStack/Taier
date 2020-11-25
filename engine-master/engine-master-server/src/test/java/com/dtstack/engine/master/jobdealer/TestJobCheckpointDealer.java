@@ -84,7 +84,6 @@ public class TestJobCheckpointDealer extends AbstractTest {
         Integer computeType = 1;
         String taskId = checkpoint.getTaskId();
         JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobId.getJobId(),jobId.getApplicationId(),taskId);
-        jobIdentifier.setEngineType(EngineType.Dummy.name());
         String engineTypeName = "spark";
 //        jobCheckpointDealer.addCheckpointTaskForQueue(computeType,engineJobCache.getJobId(),jobIdentifier,engineTypeName);
         //2
@@ -141,7 +140,6 @@ public class TestJobCheckpointDealer extends AbstractTest {
         EngineJobCache engineJobCache2 = DataCollection.getData().getEngineJobCache2();
         ScheduleJob jobId = DataCollection.getData().getScheduleJobDefiniteJobId();
         JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobCache2.getJobId(),jobId.getApplicationId(),engineJobCache2.getJobId());
-        jobIdentifier.setPluginInfo("");
         when(workerOperator.getCheckpoints(any())).thenReturn("{\"restored\":0,\"total\":13,\"in_progress\":0,\"completed\":11," +
                 "\"failed\":2,\"history\":[{\"id\":1,\"trigger_timestamp\":101313,\"external_path\":\"Users\",\"status\":2}]}");
 
