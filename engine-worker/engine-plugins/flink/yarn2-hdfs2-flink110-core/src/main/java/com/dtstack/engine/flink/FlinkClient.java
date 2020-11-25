@@ -114,6 +114,10 @@ public class FlinkClient extends AbstractClient {
 
     private String jobmanagerDir;
 
+    private final static Predicate<RdosTaskStatus> IS_END_STATUS = status ->
+            status.equals(RdosTaskStatus.FINISHED) || status.equals(RdosTaskStatus.CANCELED)
+                    || status.equals(RdosTaskStatus.FAILED) || status.equals(RdosTaskStatus.KILLED);
+
     @Override
     public void init(Properties prop) throws Exception {
         this.flinkExtProp = prop;
@@ -634,11 +638,12 @@ public class FlinkClient extends AbstractClient {
         String jobId = jobIdentifier.getEngineJobId();
         String reqURL;
 
-        if (null != jobIdentifier.getDeployMode() && EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode())) {
-            //perjob从jobhistory读取
+        if (EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode()) && IS_END_STATUS.test(getJobStatus(jobIdentifier))) {
+            /**
+             * perjob 且结束时从 jobhistory 读取
+             */
             reqURL = getJobHistoryURL();
         } else {
-            //session
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
             reqURL = currClient.getWebInterfaceURL();
         }
@@ -941,14 +946,12 @@ public class FlinkClient extends AbstractClient {
     public String getCheckpoints(JobIdentifier jobIdentifier) {
         String reqURL;
         String engineJobId = jobIdentifier.getEngineJobId();
-        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
-        Predicate<RdosTaskStatus> isEndStatus = status -> status.equals(RdosTaskStatus.FINISHED) || status.equals(RdosTaskStatus.CANCELED)
-                || status.equals(RdosTaskStatus.FAILED) || status.equals(RdosTaskStatus.KILLED);
-        if (isEndStatus.test(rdosTaskStatus) &&  EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode())) {
-            //perob 且结束从jobHistory读取
+        if (EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode()) && IS_END_STATUS.test(getJobStatus(jobIdentifier))) {
+            /**
+             * perjob 且结束时从 jobhistory 读取
+             */
             reqURL = getJobHistoryURL();
         } else {
-            //session
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
             reqURL = currClient.getWebInterfaceURL();
         }

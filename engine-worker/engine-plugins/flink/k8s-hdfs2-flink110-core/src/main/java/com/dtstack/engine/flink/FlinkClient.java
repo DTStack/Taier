@@ -20,7 +20,6 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
-import com.dtstack.engine.flink.entity.LatencyMarkerInfo;
 import com.dtstack.engine.flink.enums.FlinkMode;
 import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.parser.AddJarOperator;
@@ -68,6 +67,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.security.AccessController.doPrivileged;
@@ -102,6 +102,8 @@ public class FlinkClient extends AbstractClient {
     private FlinkClusterClientManager flinkClusterClientManager;
 
     private String jobHistory;
+
+    private final static Predicate<RdosTaskStatus> IS_END_STATUS = status -> RdosTaskStatus.getStoppedStatus().contains(status.getStatus()) || RdosTaskStatus.NOTFOUND.equals(status);
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -488,11 +490,12 @@ public class FlinkClient extends AbstractClient {
         String jobId = jobIdentifier.getEngineJobId();
         String reqURL;
 
-        if (null != jobIdentifier.getDeployMode() && EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode())) {
-            //perjob从jobhistory读取
+        if (EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode()) && IS_END_STATUS.test(getJobStatus(jobIdentifier))) {
+            /**
+             * perjob 且结束时从 jobhistory 读取
+             */
             reqURL = getJobHistoryURL();
         } else {
-            //session
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
             reqURL = currClient.getWebInterfaceURL();
         }
@@ -650,11 +653,11 @@ public class FlinkClient extends AbstractClient {
     public String getCheckpoints(JobIdentifier jobIdentifier) {
         String engineJobId = jobIdentifier.getEngineJobId();
 
-        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
-
         String reqURL = "";
-        boolean isFromJobHistory = RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus()) || rdosTaskStatus.equals(RdosTaskStatus.NOTFOUND);
-        if (isFromJobHistory && EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode())) {
+        if (EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode()) && IS_END_STATUS.test(getJobStatus(jobIdentifier))) {
+            /**
+             * perjob 且结束时从 jobhistory 读取
+             */
             reqURL = getJobHistoryURL();
         } else {
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);

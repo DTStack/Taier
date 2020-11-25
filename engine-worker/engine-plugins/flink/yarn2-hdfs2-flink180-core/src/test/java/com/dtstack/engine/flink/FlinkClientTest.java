@@ -303,7 +303,6 @@ public class FlinkClientTest {
 
 		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
 		when(flinkClusterClientManager.getClusterClient()).thenReturn(clusterClient);
-		jobIdentifier.setApplicationId(null);
 		RdosTaskStatus jobStatus2 = flinkClient.getJobStatus(jobIdentifier);
 		Assert.assertNotNull(jobStatus2);
 	}
