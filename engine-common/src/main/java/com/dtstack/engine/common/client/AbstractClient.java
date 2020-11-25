@@ -88,7 +88,7 @@ public abstract class AbstractClient implements IClient {
     }
 
     @Override
-    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
+    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException{
         RdosTaskStatus status = RdosTaskStatus.NOTFOUND;
         try {
             status = processJobStatus(jobIdentifier);
