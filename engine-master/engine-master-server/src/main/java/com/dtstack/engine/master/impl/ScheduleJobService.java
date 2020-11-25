@@ -960,11 +960,11 @@ public class ScheduleJobService {
         return details;
     }
 
-    public Integer updateStatusAndLogInfoById(Long id, Integer status, String msg) {
+    public Integer updateStatusAndLogInfoById(String jobId, Integer status, String msg) {
         if (StringUtils.isNotBlank(msg) && msg.length() > 500) {
             msg = msg.substring(0, 500) + "...";
         }
-        return scheduleJobDao.updateStatusAndLogInfoById(id, status, msg);
+        return scheduleJobDao.updateStatusByJobId(jobId, status, msg);
     }
 
     public Integer updateStatusByJobId(String jobId, Integer status) {
@@ -1083,7 +1083,7 @@ public class ScheduleJobService {
             }
         }
         //额外信息为空 标记任务为失败
-        this.updateStatusAndLogInfoById(scheduleJob.getId(), RdosTaskStatus.FAILED.getStatus(), "任务运行信息为空");
+        this.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "任务运行信息为空");
         logger.error(" job  {} run fail with info is null",scheduleJob.getJobId());
     }
 
@@ -1173,10 +1173,11 @@ public class ScheduleJobService {
             return;
         }
         String likeName = fillDataJobName + "-%";
-        scheduleJobDao.stopUnsubmitJob(likeName, projectId, appType, RdosTaskStatus.CANCELED.getStatus());
         //发送停止消息到engine
         //查询出所有需要停止的任务
         List<ScheduleJob> needStopIdList = scheduleJobDao.listNeedStopFillDataJob(likeName, RdosTaskStatus.getCanStopStatus(), projectId, appType);
+        //通过interceptor的触发状态更新的event
+        scheduleJobDao.stopUnsubmitJob(likeName, projectId, appType, RdosTaskStatus.CANCELED.getStatus());
         //发送停止任务消息到engine
         //this.stopSubmittedJob(needStopIdList, dtuicTenantId, appType);
         jobStopDealer.addStopJobs(needStopIdList);
@@ -1328,22 +1329,6 @@ public class ScheduleJobService {
         }
     }
 
-
-    /**
-     * 批量更新
-     * FIXME 暂时一条条插入,最好优化成批量提交
-     *
-     * @param batchJobList
-     */
-    @Transactional
-    public void updateJobListForRestart(List<ScheduleBatchJob> batchJobList) {
-
-        for (ScheduleBatchJob scheduleBatchJob : batchJobList) {
-            if (scheduleBatchJob.getScheduleJob() != null) {
-                scheduleJobDao.update(scheduleBatchJob.getScheduleJob());
-            }
-        }
-    }
 
     /**
      * 补数据的时候，选中什么业务日期，参数替换结果是业务日期+1天

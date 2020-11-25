@@ -1023,7 +1023,7 @@
         UPDATE
         schedule_job
         <include refid="update_fragment"/>
-        WHERE id = #{id} AND is_deleted = 0
+        WHERE job_id = #{jobId} AND is_deleted = 0
     </update>
 
     <update id="updateStatusWithExecTime" parameterType="ScheduleJob">
@@ -1168,14 +1168,6 @@
 			AND bj.flow_job_id != '0'
 			GROUP BY bj.flow_job_id
     </select>
-
-    <update id="setJobRestart">
-        update schedule_job set is_restart = 1
-        where job_id in
-        <foreach collection="list" item="jobId" open="(" separator="," close=")">
-            #{jobId}
-        </foreach>
-    </update>
 
     <select id="countByFillDataAllStatus" resultType="java.util.HashMap">
         SELECT
@@ -1329,9 +1321,9 @@
         UPDATE schedule_job
         SET status = #{status},gmt_modified = now()
         WHERE is_deleted=0
-        AND id IN
-        <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
-            #{id}
+        AND job_id IN
+        <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
+            #{jobId}
         </foreach>
     </update>
 
@@ -1406,12 +1398,6 @@
         AND is_deleted=0
     </update>
 
-    <update id="updateStatusAndLogInfoById">
-        UPDATE schedule_job
-        SET status = #{status}, gmt_modified = now(), log_info = #{logInfo}
-        WHERE id = #{id}
-          AND is_deleted=0
-    </update>
 
     <update id="updateStatusByJobId">
         UPDATE schedule_job
@@ -1555,10 +1541,6 @@
         <foreach item="stopStatus" index="index" collection="stopStatuses" open="(" separator="," close=")">
             #{stopStatus}
         </foreach>
-    </update>
-
-    <update id="updateTaskStatusCompareOld">
-        update schedule_job set gmt_modified=now(),status=#{status},job_name=#{jobName} where job_id=#{jobId} and status=#{oldStatus};
     </update>
 
     <update id="updateJobPluginId">

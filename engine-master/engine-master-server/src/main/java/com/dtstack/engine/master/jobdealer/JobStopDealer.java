@@ -109,10 +109,10 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         }
 
         List<ScheduleJob> needSendStopJobs = new ArrayList<>(jobs.size());
-        List<Long> unSubmitJob = new ArrayList<>(jobs.size());
+        List<String> unSubmitJob = new ArrayList<>(jobs.size());
         for (ScheduleJob job : jobs) {
             if (RdosTaskStatus.UNSUBMIT.getStatus().equals(job.getStatus()) || SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
-                unSubmitJob.add(job.getId());
+                unSubmitJob.add(job.getJobId());
             } else {
                 needSendStopJobs.add(job);
             }

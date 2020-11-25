@@ -146,7 +146,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 logger.error("happens error:", e);
                 try {
                     if (scheduleJob != null) {
-                        batchJobService.updateStatusAndLogInfoById(scheduleJob.getId(), RdosTaskStatus.SUBMITFAILD.getStatus(), e.getMessage());
+                        batchJobService.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.SUBMITFAILD.getStatus(), e.getMessage());
                         logger.error("jobId:{} scheduleType:{} submit failed.", scheduleJob.getJobId(), getScheduleType());
                     }
                 } catch (Exception ex) {
@@ -181,7 +181,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                             taskCache.put(taskIdUnique,batchTask);
                             if (batchTask == null) {
                                 String errMsg = JobCheckStatus.NO_TASK.getMsg();
-                                batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.SUBMITFAILD.getStatus(), errMsg);
+                                batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getJobId(), RdosTaskStatus.SUBMITFAILD.getStatus(), errMsg);
                                 logger.warn("jobId:{} scheduleType:{} submit failed for taskId:{} already deleted.", scheduleBatchJob.getJobId(), getScheduleType(), scheduleBatchJob.getTaskId());
                                 continue;
                             }
@@ -215,7 +215,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                         } catch (Exception e) {
                             logger.error("jobId:{} scheduleType:{} nodeAddress:{} emitJob2Queue error:", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, e);
                             Integer status = RdosTaskStatus.FAILED.getStatus();
-                            batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), status,e.getMessage());
+                            batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getJobId(), status,e.getMessage());
                         }
                     }
                     listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight(),Boolean.FALSE);
@@ -263,7 +263,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             return Boolean.FALSE;
         }
         logger.info("jobId:{} checkRunInfo.status:{} errMsg:{} status:{} update status.", scheduleBatchJob.getJobId(), checkRunInfo.getStatus(), errMsg, status);
-        batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), status, errMsg);
+        batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getJobId(), status, errMsg);
         return Boolean.FALSE;
     }
 
@@ -337,7 +337,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                     logger.info("--- jobId:{} scheduleType:{} send to engine.", scheduleBatchJob.getJobId(), getScheduleType());
                 } catch (Exception e) {
                     logger.info("--- jobId:{} scheduleType:{} send to engine error:", scheduleBatchJob.getJobId(), getScheduleType(), e);
-                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.FAILED.getStatus(), ExceptionUtil.getErrorMessage(e));
+                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), ExceptionUtil.getErrorMessage(e));
                 } finally {
                     batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.JOIN_THE_TEAM, JobPhaseStatus.EXECUTE_OVER);
                 }

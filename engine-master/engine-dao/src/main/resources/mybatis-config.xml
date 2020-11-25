@@ -7,4 +7,9 @@
         <setting name="aggressiveLazyLoading" value="false"/>
 <!--        <setting name="logPrefix" value="dao."/>-->
     </settings>
+
+    <plugins>
+        <plugin interceptor="com.dtstack.engine.master.config.StatusChangeInterceptor"/>
+    </plugins>
+
 </configuration>
