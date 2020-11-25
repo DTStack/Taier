@@ -648,14 +648,13 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public String getCheckpoints(JobIdentifier jobIdentifier) {
-        String appId = jobIdentifier.getApplicationId();
-        String jobId = jobIdentifier.getEngineJobId();
+        String engineJobId = jobIdentifier.getEngineJobId();
 
         RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
 
         String reqURL = "";
         boolean isFromJobHistory = RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus()) || rdosTaskStatus.equals(RdosTaskStatus.NOTFOUND);
-        if (isFromJobHistory) {
+        if (isFromJobHistory && EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode())) {
             reqURL = getJobHistoryURL();
         } else {
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
@@ -663,7 +662,7 @@ public class FlinkClient extends AbstractClient {
         }
 
         try {
-            return getMessageByHttp(String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, jobId), reqURL);
+            return getMessageByHttp(String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, engineJobId), reqURL);
         } catch (IOException e) {
             logger.error("", e);
             return null;

@@ -75,6 +75,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -939,9 +940,12 @@ public class FlinkClient extends AbstractClient {
     @Override
     public String getCheckpoints(JobIdentifier jobIdentifier) {
         String reqURL;
-        String jobId = jobIdentifier.getEngineJobId();
-        if (null != jobIdentifier.getDeployMode() && EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode())) {
-            //perjob从jobhistory读取
+        String engineJobId = jobIdentifier.getEngineJobId();
+        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+        Predicate<RdosTaskStatus> isEndStatus = status -> status.equals(RdosTaskStatus.FINISHED) || status.equals(RdosTaskStatus.CANCELED)
+                || status.equals(RdosTaskStatus.FAILED) || status.equals(RdosTaskStatus.KILLED);
+        if (isEndStatus.test(rdosTaskStatus) &&  EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode())) {
+            //perob 且结束从jobHistory读取
             reqURL = getJobHistoryURL();
         } else {
             //session
@@ -949,7 +953,7 @@ public class FlinkClient extends AbstractClient {
             reqURL = currClient.getWebInterfaceURL();
         }
 
-        return getMessageByHttp(String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, jobId), reqURL);
+        return getMessageByHttp(String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, engineJobId), reqURL);
     }
 
     private boolean existsJobOnFlink(String engineJobId){

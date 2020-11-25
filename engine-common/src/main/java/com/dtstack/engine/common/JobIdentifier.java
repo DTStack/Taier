@@ -54,8 +54,8 @@ public class JobIdentifier implements Serializable {
         this.deployMode = EDeployMode.PERJOB.getType();
     }
 
-    public static JobIdentifier createInstance(String jobId, String applicationId, String taskId) {
-        return new JobIdentifier(jobId, applicationId, taskId);
+    public static JobIdentifier createInstance(String engineJobId, String applicationId, String taskId) {
+        return new JobIdentifier(engineJobId, applicationId, taskId);
     }
 
     public Long getTimeout() {
