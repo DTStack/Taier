@@ -472,9 +472,9 @@ class EditCluster extends React.Component<any, any> {
             let principals: any = [];
             (async () => {
                 const res = await Api.parseKerberos({ fileName: kerFile.files[0] })
-                principals = res?.data
+                principals = res?.data || []
 
-                await this.setState({
+                this.setState({
                     componentConfig: {
                         ...componentConfig,
                         [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
@@ -504,10 +504,16 @@ class EditCluster extends React.Component<any, any> {
 
     deleteKerFile = (componentTypeCode: any) => {
         const { componentConfig } = this.state;
+        const { form: { setFieldsValue } } = this.props
         const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]] || {};
         config.id && Api.closeKerberos({
             componentId: config.id
         });
+        setFieldsValue({
+            [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                kerberosFileName: ''
+            }
+        })
         this.setState({
             componentConfig: {
                 ...componentConfig,
