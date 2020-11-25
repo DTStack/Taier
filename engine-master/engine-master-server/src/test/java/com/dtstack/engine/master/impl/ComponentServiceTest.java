@@ -156,6 +156,7 @@ public class ComponentServiceTest extends AbstractTest {
     }
 
     @Test
+    @Rollback
     public void testGetSFTPConfig() {
         Component component = initSftpComponentForTest();
         Map<String, String> getSFTPConfig = componentService.getSFTPConfig(1L);
@@ -207,23 +208,30 @@ public class ComponentServiceTest extends AbstractTest {
     }
 
     @Test
+    @Rollback
     public void testTestConnect() {
         Component one = componentDao.getOne();
         Cluster cluster = clusterDao.getOne();
+        Component component = initSftpComponentForTest();
         Map<String, String> getSFTPConfig = componentService.getSFTPConfig(1L);
         ComponentTestResult testConnect = componentService.testConnect(EComponentType.YARN.getTypeCode(), one.getComponentConfig(), cluster.getClusterName(), one.getHadoopVersion(), one.getEngineId(), null, getSFTPConfig, 0);
         Assert.assertNotNull(testConnect);
     }
 
     @Test
+    @Rollback
     public void testWrapperConfig() {
-        String wrapperConfig = componentService.wrapperConfig(0, "", null, null, null);
-        //TODO
+        Component component = initSftpComponentForTest();
+        Map<String, String> getSFTPConfig = componentService.getSFTPConfig(1L);
+        Component one = componentDao.getOne();
+        Cluster cluster = clusterDao.getOne();
+        String wrapperConfig = componentService.wrapperConfig(EComponentType.YARN.getTypeCode(), one.getComponentConfig(), getSFTPConfig, null, cluster.getClusterName());
+        Assert.assertTrue(StringUtils.isNoneEmpty(wrapperConfig));
     }
 
     @Test
     public void testGetLocalKerberosPath() {
-        String getLocalKerberosPath = componentService.getLocalKerberosPath(0L, 0);
+        String getLocalKerberosPath = componentService.getLocalKerberosPath(1L, 0);
         //TODO
     }
 
