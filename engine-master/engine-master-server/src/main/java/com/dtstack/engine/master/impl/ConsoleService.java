@@ -7,6 +7,7 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.vo.console.*;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -225,7 +226,7 @@ public class ConsoleService {
         if(StringUtils.isBlank(jobResource)){
             return false;
         }
-        String[] split = jobResource.split(JobComputeResourcePlain.SPLIT);
+        String[] split = jobResource.split(ConfigConstant.SPLIT);
         if(split.length <= 1){
             return false;
         }
@@ -497,10 +498,10 @@ public class ConsoleService {
                 String clusterName = cluster.getClusterName();
                 if (null == hdfsComponent) {
                     typeName = componentService.convertComponentTypeToClient(clusterName,
-                            EComponentType.HDFS.getTypeCode(), yarnComponent.getHadoopVersion());
+                            EComponentType.HDFS.getTypeCode(), yarnComponent.getHadoopVersion(),null);
                 } else {
                     typeName = componentService.convertComponentTypeToClient(clusterName,
-                            EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion());
+                            EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion(),hdfsComponent.getStoreType());
                 }
             }
             pluginInfo.put(ComponentService.TYPE_NAME,typeName);

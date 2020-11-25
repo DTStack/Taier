@@ -16,8 +16,6 @@ import com.dtstack.engine.api.vo.tenant.UserTenantVO;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
@@ -26,13 +24,12 @@ import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.router.login.domain.TenantAdmin;
 import com.dtstack.engine.master.router.login.domain.UserTenant;
-import com.dtstack.fasterxml.jackson.databind.util.BeanUtil;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.Sort;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -40,7 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.*;
 
 
@@ -83,9 +79,6 @@ public class TenantService {
 
     @Autowired
     private ComponentService componentService;
-
-    @Autowired
-    private QueueService queueService;
 
     public PageResult<List<EngineTenantVO>> pageQuery( Long clusterId,
                                                        Integer engineType,
@@ -222,14 +215,12 @@ public class TenantService {
         if(null == hadoopEngine){
             return;
         }
-        if(StringUtils.isNotBlank(namespace)){
+        if (StringUtils.isNotBlank(namespace)) {
             //k8s
-           queueId = queueService.addNamespaces(hadoopEngine.getId(),namespace);
-        }
-        if(queueId != null){
+            componentService.addOrUpdateNamespaces(cluster.getId(), namespace, null, dtUicTenantId);
+        } else if (queueId != null) {
             updateTenantQueue(tenant.getId(), dtUicTenantId, hadoopEngine.getId(), queueId);
         }
-
     }
 
     private void checkTenantBindStatus(Long tenantId) {

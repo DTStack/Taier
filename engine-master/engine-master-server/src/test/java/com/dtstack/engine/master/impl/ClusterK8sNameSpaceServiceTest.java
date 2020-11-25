@@ -161,7 +161,7 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
         Component sftpConfig = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.SFTP.getTypeCode());
         Map sftpMap = JSONObject.parseObject(sftpConfig.getComponentConfig(), Map.class);
         //测试组件联通性
-        ComponentTestResult componentTestResult = componentService.testConnect(k8s.getComponentTypeCode(), k8s.getComponentConfig(), testClusterName, k8s.getHadoopVersion(), engineId, null, sftpMap);
+        ComponentTestResult componentTestResult = componentService.testConnect(k8s.getComponentTypeCode(), k8s.getComponentConfig(), testClusterName, k8s.getHadoopVersion(), engineId, null, sftpMap,null);
         Assert.assertNotNull(componentTestResult);
         Assert.assertTrue(componentTestResult.getResult());
 
@@ -225,9 +225,9 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
 
     private ComponentVO testAddK8s(ClusterVO clusterVO) {
         componentService.addOrUpdateComponent(clusterVO.getClusterId(), "{\"path\":\"/data/sftp\",\"password\":\"abc123\",\"auth\":\"1\",\"port\":\"22\",\"host\":\"172.16.100.168\",\"username\":\"root\"}",
-                null, "hadoop2", "", "[]", EComponentType.SFTP.getTypeCode());
+                null, "hadoop2", "", "[]", EComponentType.SFTP.getTypeCode(),null);
         return componentService.addOrUpdateComponent(clusterVO.getClusterId(), "{\"kubernetes.context\":\"# Configuration snippets may be placed in this directory as well\\nincludedir /etc/krb5.conf.d/\\n\\n[logging]\\n default = FILE:/var/log/krb5libs.log\\n kdc = FILE:/var/log/krb5kdc.log\\n admin_server = FILE:/var/log/kadmind.log\\n\\n[libdefaults]\\n dns_lookup_realm = false\\n ticket_lifetime = 24h\\n renew_lifetime = 7d\\n forwardable = true\\n rdns = false\\n pkinit_anchors = FILE:/etc/pki/tls/certs/ca-bundle.crt\\n default_realm = DTSTACK.COM\\n #default_ccache_name = KEYRING:persistent:%{uid}\\n\\n[realms]\\n DTSTACK.COM = {\\n  kdc = 172.16.10.99\\n  admin_server = 172.16.10.99\\n }\\n\\n[domain_realm]\\n .example.com = DTSTACK.COM\\n example.com = DTSTACK.COM\\n\"}"
-                , null, "hadoop2", "", "[]", EComponentType.KUBERNETES.getTypeCode());
+                , null, "hadoop2", "", "[]", EComponentType.KUBERNETES.getTypeCode(),null);
     }
 
 
@@ -236,7 +236,7 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
                         "\"hive.metastore.warehouse.dir\":\"/dtInsight/hive/warehouse\",\"hive.server2.async.exec.threads\":\"200\",\"dfs.datanode.data.dir\":\"file:/data/hadoop/hdfs/data\"," +
                         "\"dfs.namenode.shared.edits.dir\":\"qjournal://172.16.100.216:8485;172.16.101.136:8485;172.16.101.227:8485/namenode-ha-data\",\"hive.metastore.schema.verification\":\"false\",\"hive.server2.support.dynamic.service.discovery\":\"true\",\"hive.server2.session.check.interval\":\"30000\",\"hive.metastore.uris\":\"thrift://172.16.101.227:9083\",\"hive.server2.thrift.port\":\"10000\",\"hive.exec.dynamic.partition.mode\":\"nonstrict\",\"ha.zookeeper.session-timeout.ms\":\"5000\",\"hadoop.tmp.dir\":\"/data/hadoop_${user.name}\",\"dfs.journalnode.edits.dir\":\"/data/hadoop/hdfs/journal\",\"hive.server2.zookeeper.namespace\":\"hiveserver2\",\"hive.server2.enable.doAs\":\"false\",\"dfs.namenode.http-address.ns1.nn2\":\"172.16.101.136:50070\",\"dfs.namenode.http-address.ns1.nn1\":\"172.16.100.216:50070\"," +
                         "\"dfs.namenode.datanode.registration.ip-hostname-check\":\"false\",\"hadoop.proxyuser.${user.name}.hosts\":\"*\",\"hadoop.proxyuser.${user.name}.groups\":\"*\",\"hive.exec.scratchdir\":\"/dtInsight/hive/warehouse\",\"hive.zookeeper.quorum\":\"172.16.100.216:2181,172.16.101.136:2181,172.16.101.227:2181\",\"datanucleus.schema.autoCreateAll\":\"true\",\"hive.exec.dynamic.partition\":\"true\",\"hive.cluster.delegation.token.store.class\":\"org.apache.hadoop.hive.thrift.MemoryTokenStore\",\"ha.zookeeper.quorum\":\"172.16.100.216:2181,172.16.101.136:2181,172.16.101.227:2181\",\"hive.server2.thrift.min.worker.threads\":\"300\",\"dfs.ha.automatic-failover.enabled\":\"true\"}"
-                , null, "hadoop2", "", "[]", EComponentType.HDFS.getTypeCode());
+                , null, "hadoop2", "", "[]", EComponentType.HDFS.getTypeCode(),null);
     }
 
 }

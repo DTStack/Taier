@@ -21,6 +21,7 @@ package com.dtstack.engine.flink.factory;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -216,7 +217,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
         String remoteDir = flinkConfig.getRemoteDir();
 
         // 数据源keytab
-        String taskKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+        String taskKeytabDirPath = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
         File taskKeytabDir = new File(taskKeytabDirPath);
         File[] taskKeytabFiles = taskKeytabDir.listFiles();
         if (taskKeytabFiles != null && taskKeytabFiles.length > 0) {
@@ -227,7 +228,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
         }
 
         // 任务提交keytab
-        String clusterKeytabDirPath = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
+        String clusterKeytabDirPath = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
         File clusterKeytabDir = new File(clusterKeytabDirPath);
         File[] clusterKeytabFiles = clusterKeytabDir.listFiles();
 

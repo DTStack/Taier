@@ -339,8 +339,12 @@ ActionService {
 
         String engineLog = "";
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
-        if (scheduleJob != null) {
-            engineLog = elasticsearchService.searchWithJobId("taskId", jobId);
+        if (scheduleJob != null && StringUtils.isNotEmpty(scheduleJob.getApplicationId())) {
+            String applicationId = "";
+            if (StringUtils.isNotEmpty(scheduleJob.getApplicationId())) {
+                applicationId = scheduleJob.getApplicationId();
+            }
+            engineLog = elasticsearchService.searchWithJobId("taskId.keyword", applicationId);
         }
         return engineLog;
     }
@@ -390,7 +394,7 @@ ActionService {
             vo.setLogInfo(jobRetry.getLogInfo());
             String engineLog = jobRetry.getEngineLog();
             if (StringUtils.isBlank(jobRetry.getEngineLog())){
-                engineLog = jobDealer.getAndUpdateEngineLog(jobId, jobRetry.getEngineJobId(), jobRetry.getApplicationId(), scheduleJob.getPluginInfoId());
+                engineLog = jobDealer.getAndUpdateEngineLog(jobId, jobRetry.getEngineJobId(), jobRetry.getApplicationId(), scheduleJob.getDtuicTenantId());
                 if (engineLog != null){
                     logger.info("engineJobRetryDao.updateEngineLog id:{}, jobId:{}, engineLog:{}", jobRetry.getId(), jobRetry.getJobId(), engineLog);
                     engineJobRetryDao.updateEngineLog(jobRetry.getId(), engineLog);

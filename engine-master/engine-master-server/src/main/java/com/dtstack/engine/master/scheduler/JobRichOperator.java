@@ -174,11 +174,11 @@ public class JobRichOperator {
 
         JSONObject scheduleConf = JSONObject.parseObject(batchTaskShade.getScheduleConf());
         if(null == scheduleConf){
-            return null;
+            return Boolean.FALSE;
         }
         Integer isExpire = scheduleConf.getInteger("isExpire");
         if(null == isExpire){
-            return null;
+            return Boolean.FALSE;
         }
         //配置了允许过期才能
         if (Expired.EXPIRE.getVal() == isExpire && this.checkExpire(scheduleBatchJob, scheduleType, batchTaskShade)) {

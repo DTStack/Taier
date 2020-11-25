@@ -53,11 +53,11 @@ public class UnitConvertUtil {
 
     public static int getNormalizedMem(String rawMem) {
         if (rawMem.endsWith("G") || rawMem.endsWith("g")) {
-            return Integer.parseInt(rawMem.substring(0, rawMem.length() - 1)) * 1024;
+            return Integer.parseInt(rawMem.trim().substring(0, rawMem.length() - 1)) * 1024;
         } else if (rawMem.endsWith("M") || rawMem.endsWith("m")) {
-            return Integer.parseInt(rawMem.substring(0, rawMem.length() - 1));
+            return Integer.parseInt(rawMem.trim().substring(0, rawMem.length() - 1));
         } else {
-            return Integer.parseInt(rawMem);
+            return Integer.parseInt(rawMem.trim());
         }
     }
 }

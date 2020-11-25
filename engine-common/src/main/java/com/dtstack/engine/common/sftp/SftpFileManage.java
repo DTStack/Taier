@@ -494,7 +494,7 @@ public class SftpFileManage implements IFileManage {
                 channelSftp.disconnect();
                 channelSftp.getSession().disconnect();
             } catch (Exception e) {
-                LOG.error("close channelSftp error: {}", e.getMessage());
+                LOG.error("close channelSftp error:", e);
             }
         }
     }

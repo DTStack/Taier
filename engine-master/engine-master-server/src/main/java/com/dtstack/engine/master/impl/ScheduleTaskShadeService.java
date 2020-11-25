@@ -650,7 +650,7 @@ public class ScheduleTaskShadeService {
                 }
             }
         } catch (Exception e) {
-            LOG.error("ScheduleTaskShadeService.checkResourceLimit error:{}", ExceptionUtil.getErrorMessage(e));
+            LOG.error("ScheduleTaskShadeService.checkResourceLimit error:", e);
             throw new RdosDefineException("校验任务资源参数异常");
         }
         return exceedMessage;
