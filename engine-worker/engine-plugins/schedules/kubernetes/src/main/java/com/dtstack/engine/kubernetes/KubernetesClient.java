@@ -104,10 +104,12 @@ public class KubernetesClient extends AbstractClient {
             throw e;
         } finally {
             if (Objects.nonNull(client)) {
-                try {
-                    client.configMaps().delete(configMap);
-                } catch (Exception e) {
-                    LOG.error("delete namespace {} config error", allConfig.getNamespace(), e);
+                if (null != configMap) {
+                    try {
+                        client.configMaps().delete(configMap);
+                    } catch (Exception e) {
+                        LOG.error("delete namespace {} config error", allConfig.getNamespace(), e);
+                    }
                 }
                 client.close();
             }
