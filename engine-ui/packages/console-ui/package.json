@@ -39,6 +39,7 @@
     "highlight.js": "9.14.2",
     "history": "4.6.1",
     "immutability-helper": "^3.0.1",
+    "jest-sonar-reporter": "2.0.0",
     "lodash": "4.17.12",
     "mirror-creator": "1.1.0",
     "moment": "2.22.2",
@@ -63,6 +64,7 @@
     "regenerator-runtime": "^0.13.1",
     "shortid": "^2.2.15",
     "showdown": "^1.9.1",
+    "sonarqube-scanner": "2.8.0",
     "styled-components": "3.1.6",
     "whatwg-fetch": "2.0.3"
   },
@@ -146,7 +148,8 @@
     "dev:win": "./node_modules/.bin/webpack-dev-server --inline --config build/dev.js --open",
     "build": "rm -rf dist/* && node --max_old_space_size=4092 ./node_modules/.bin/webpack --config build/prod.js",
     "mock": "cup config",
-    "test": "jest --no-cache",
+    "test": "jest --no-cache --coverage",
+    "sonar": "node ./sonarcube.scanner.js",
     "release": "./scripts/release.sh",
     "update": "./scripts/update_lib.sh",
     "ssh": "./scripts/ssh_server.sh",
@@ -186,5 +189,10 @@
     "commitizen": {
       "path": "cz-conventional-changelog"
     }
+  },
+  "jestSonar": {
+    "reportPath": "coverage",
+    "sonar56x": true,
+    "reportFile": "test-reporter.xml"
   }
 }
