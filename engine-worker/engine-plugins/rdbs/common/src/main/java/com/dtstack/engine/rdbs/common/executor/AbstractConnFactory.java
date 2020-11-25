@@ -63,7 +63,8 @@ public abstract class AbstractConnFactory {
         try {
             String propStr = PublicUtil.objToString(properties);
             baseConfig = PublicUtil.jsonStrToObject(propStr, BaseConfig.class);
-            if (null != properties.get("yarnConf")) {
+            //非kerberos 不进行yarnConf初始化
+            if (baseConfig.isOpenKerberos() && null != properties.get("yarnConf")) {
                 Map<String, Object> yarnMap = (Map<String, Object>) properties.get("yarnConf");
                 yarnConf = KerberosUtils.convertMapConfToConfiguration(yarnMap);
             }
