@@ -652,7 +652,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 currentProxy = currentProxyField.get(h);
             }catch (Exception e){
                 //兼容Hadoop 2.7.3.2.6.4.91-3
-                LOG.warn("get currentProxy error:{}", ExceptionUtil.getErrorMessage(e));
+                LOG.error("get currentProxy error:", e);
                 Field proxyDescriptorField = h.getClass().getDeclaredField("proxyDescriptor");
                 proxyDescriptorField.setAccessible(true);
                 Object proxyDescriptor = proxyDescriptorField.get(h);
@@ -674,7 +674,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
             return String.format("http://%s/proxy",addr);
         }catch (Exception e){
-            LOG.warn("get monitor error:{}", ExceptionUtil.getTaskLogError(e));
+            LOG.error("get monitor error:", e);
         }
 
         return url;

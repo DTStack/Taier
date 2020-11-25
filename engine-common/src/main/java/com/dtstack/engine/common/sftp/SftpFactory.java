@@ -6,14 +6,12 @@ import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -25,47 +23,32 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp>  {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SftpFactory.class);
 
-    private static final String KEY_USERNAME = "username";
-    private static final String KEY_PASSWORD = "password";
-    private static final String KEY_HOST = "host";
-    private static final String KEY_PORT = "port";
-    private static final String KEY_TIMEOUT = "timeout";
-    private static final String KEY_RSA = "rsaPath";
-    private static final String KEY_AUTHENTICATION = "auth";
-
-    private static final int DEFAULT_PORT = 22;
-
-    private static final int DEFAULT_TIME_OUT = 0;
-
     private static final int DEFAULT_RETRY_TIMES = 3;
     private static final int SLEEP_TIME_MILLI_SECOND = 2000;
 
-    private String host;
-    private int port;
-    private String username;
-    private String password;
-    private String rsaPath;
-    private int authType;
-    private int timeout;
+    private SftpConfig sftpConfig;
 
-    public SftpFactory(Map<String, String> sftpConfig) {
+    public SftpFactory(SftpConfig sftpConfig) {
         checkConfig(sftpConfig);
 
-        host = MapUtils.getString(sftpConfig, KEY_HOST);
-        port = MapUtils.getIntValue(sftpConfig, KEY_PORT, DEFAULT_PORT);
-        username = MapUtils.getString(sftpConfig, KEY_USERNAME);
-        password = MapUtils.getString(sftpConfig, KEY_PASSWORD);
-        rsaPath = MapUtils.getString(sftpConfig, KEY_RSA);
-        authType = MapUtils.getInteger(sftpConfig, KEY_AUTHENTICATION, SftpType.PASSWORD_AUTHENTICATION.getType());
-        timeout = MapUtils.getIntValue(sftpConfig, KEY_TIMEOUT, DEFAULT_TIME_OUT);
+        this.sftpConfig = sftpConfig;
     }
 
-    private void checkConfig(Map<String, String> sftpConfig) {
-        if(sftpConfig == null || sftpConfig.isEmpty()){
+    private static void checkConfig(SftpConfig sftpConfig) {
+        if (sftpConfig == null) {
             throw new IllegalArgumentException("The config of sftp is null");
         }
-        if(StringUtils.isEmpty(sftpConfig.get(KEY_HOST))){
+        if (StringUtils.isBlank(sftpConfig.getHost())) {
             throw new IllegalArgumentException("The host of sftp is null");
+        }
+        if (sftpConfig.getPort() == null) {
+            throw new IllegalArgumentException("The port of sftp is null");
+        }
+        if (StringUtils.isBlank(sftpConfig.getUsername())) {
+            throw new IllegalArgumentException("The username of sftp is null");
+        }
+        if (StringUtils.isBlank(sftpConfig.getPath())) {
+            throw new IllegalArgumentException("The path of sftp is null");
         }
     }
 
@@ -86,31 +69,31 @@ public class SftpFactory extends BasePooledObjectFactory<ChannelSftp>  {
 
     private ChannelSftp getChannelSftp() throws JSchException {
 
-            JSch jsch = new JSch();
-            if (SftpType.PUBKEY_AUTHENTICATION.getType() == authType && StringUtils.isNotBlank(rsaPath)) {
-                jsch.addIdentity(rsaPath.trim(), "");
-            }
-            Session session = jsch.getSession(username, host, port);
-            if (session == null) {
-                throw new RuntimeException("Login failed. Please check if username and password are correct");
-            }
+        JSch jsch = new JSch();
+        if (SftpType.PUBKEY_AUTHENTICATION.getType() == sftpConfig.getAuth() && StringUtils.isNotBlank(sftpConfig.getRsaPath())) {
+            jsch.addIdentity(sftpConfig.getRsaPath().trim(), "");
+        }
+        Session session = jsch.getSession(sftpConfig.getUsername(), sftpConfig.getHost(), sftpConfig.getPort());
+        if (session == null) {
+            throw new RuntimeException("Login failed. Please check if username and password are correct");
+        }
 
-            if (SftpType.PASSWORD_AUTHENTICATION.getType()==authType) {
-                //默认走密码验证模式
-                session.setPassword(password);
-            }
-            Properties config = new Properties();
-            config.put("StrictHostKeyChecking", "no");
-            session.setConfig(config);
-            session.setTimeout(timeout);
-            session.connect();
+        if (SftpType.PASSWORD_AUTHENTICATION.getType() == sftpConfig.getAuth()) {
+            //默认走密码验证模式
+            session.setPassword(sftpConfig.getPassword());
+        }
+        Properties config = new Properties();
+        config.put("StrictHostKeyChecking", "no");
+        session.setConfig(config);
+        session.setTimeout(sftpConfig.getTimeout());
+        session.connect();
 
-            ChannelSftp channelSftp = (ChannelSftp) session.openChannel("sftp");
-            channelSftp.connect();
+        ChannelSftp channelSftp = (ChannelSftp) session.openChannel("sftp");
+        channelSftp.connect();
 
-            logger.info("create执行, 与ftp服务器建立连接成功 : " + channelSftp);
+        logger.info("create执行, 与ftp服务器建立连接成功 : " + channelSftp);
 
-            return channelSftp;
+        return channelSftp;
 
     }
 

@@ -231,7 +231,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
                     Thread.sleep(500);
                 } catch (Throwable e) {
-                    logger.error("when acquire stop jobs happens error:{}", e);
+                    logger.error("when acquire stop jobs happens error:", e);
                 }
             }
         }

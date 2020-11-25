@@ -148,7 +148,7 @@ public class JobSubmitDealer implements Runnable {
             jobClient.doStatusCallBack(RdosTaskStatus.LACKING.getStatus());
         } catch (InterruptedException e) {
             queue.put(jobClient);
-            logger.error("jobId:{} delayJobQueue.put failed.", e);
+            logger.error("jobId:{} delayJobQueue.put failed.", jobClient.getTaskId(), e);
         }
         logger.info("jobId:{} success add job to lacking delayJobQueue, job's lackingCount:{}.", jobClient.getTaskId(), jobClient.getLackingCount());
     }
@@ -263,7 +263,7 @@ public class JobSubmitDealer implements Runnable {
                 addToTaskListener(jobClient, jobResult);
                 logger.info("jobId:{} engineType:{} submit to engine end.", jobClient.getTaskId(), jobClient.getEngineType());
             } else if (JudgeResult.JudgeType.LIMIT_ERROR == judgeResult.getResult()) {
-                logger.error("jobId:{} engineType:{} submitJob happens system error:{}", jobClient.getTaskId(), jobClient.getEngineType(), judgeResult.getReason());
+                logger.info("jobId:{} engineType:{} submitJob happens system limitError:{}", jobClient.getTaskId(), jobClient.getEngineType(), judgeResult.getReason());
                 jobClient.setEngineTaskId(null);
                 jobResult = JobResult.createErrorResult(false, judgeResult.getReason());
                 addToTaskListener(jobClient, jobResult);

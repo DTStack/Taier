@@ -146,7 +146,7 @@ public class JobRestartDealer {
             pluginInfoMap.put("retry", true);
             jobClient.setPluginInfo(PublicUtil.objToString(pluginInfoMap));
         } catch (IOException e) {
-            LOG.warn("Set retry tag error:{}", e);
+            LOG.error("Set retry tag error:", e);
         }
     }
 
@@ -208,7 +208,7 @@ public class JobRestartDealer {
             return new Pair<Boolean, JobClient>(true, jobClient);
         } catch (Exception e){
             // 解析任务的jobInfo反序列到ParamAction失败，任务不进行重试.
-            LOG.error("[retry=false] jobId:{} default not retry, because getIsFailRetry happens error:{}.", jobId, e);
+            LOG.error("[retry=false] jobId:{} default not retry, because getIsFailRetry happens error:.", jobId, e);
             return check;
         }
     }

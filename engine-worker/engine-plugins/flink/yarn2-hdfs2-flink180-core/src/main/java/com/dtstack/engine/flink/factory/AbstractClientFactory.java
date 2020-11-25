@@ -18,10 +18,10 @@
 
 package com.dtstack.engine.flink.factory;
 
-import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.FlinkClientBuilder;
-import com.google.common.collect.Lists;
+import com.dtstack.engine.flink.FlinkConfig;
+import com.dtstack.engine.flink.enums.ClusterMode;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
@@ -40,6 +40,7 @@ import java.util.List;
 /**
  * Date: 2020/5/13
  * Company: www.dtstack.com
+ *
  * @author maqi
  */
 public abstract class AbstractClientFactory implements IClientFactory {
@@ -48,6 +49,26 @@ public abstract class AbstractClientFactory implements IClientFactory {
 
     public AbstractClientFactory(FlinkClientBuilder flinkClientBuilder) {
         this.flinkClientBuilder = flinkClientBuilder;
+    }
+
+    public static IClientFactory createClientFactory(FlinkClientBuilder flinkClientBuilder) {
+        FlinkConfig flinkConfig = flinkClientBuilder.getFlinkConfig();
+        ClusterMode clusterMode = ClusterMode.getClusteMode(flinkConfig.getClusterMode());
+        IClientFactory clientFactory;
+        switch (clusterMode) {
+            case PER_JOB:
+                clientFactory = new PerJobClientFactory(flinkClientBuilder);
+                break;
+            case SESSION:
+                clientFactory = new SessionClientFactory(flinkClientBuilder);
+                break;
+            case STANDALONE:
+                clientFactory = new StandaloneClientFactory(flinkClientBuilder);
+                break;
+            default:
+                throw new RdosDefineException("not support clusterMode: " + clusterMode);
+        }
+        return clientFactory;
     }
 
     public AbstractYarnClusterDescriptor getClusterDescriptor(
@@ -66,9 +87,6 @@ public abstract class AbstractClientFactory implements IClientFactory {
                 false);
     }
 
-    public YarnClient getYarnClient() {
-        return flinkClientBuilder.getYarnClient();
-    }
 
     public List<URL> getFlinkJarFile(String flinkJarPath, AbstractYarnClusterDescriptor clusterDescriptor) throws MalformedURLException {
         List<URL> classpaths = new ArrayList<>();
