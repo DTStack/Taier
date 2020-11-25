@@ -8,12 +8,10 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.bo.EngineJobRetry;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
-import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
@@ -35,6 +33,9 @@ import java.util.Map;
 public class JobRestartDealer {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobRestartDealer.class);
+
+    @Autowired
+    private EngineJobCacheDao engineJobCacheDao;
 
     @Autowired
     private ScheduleJobDao scheduleJobDao;
@@ -196,6 +197,7 @@ public class JobRestartDealer {
     private boolean restartJob(JobClient jobClient){
         EngineJobCache jobCache = engineJobCacheDao.getOne(jobClient.getTaskId());
         if (jobCache == null) {
+            LOG.info("jobId:{} restart but jobCache is null.", jobClient.getTaskId());
             return false;
         }
         String jobInfo = jobCache.getJobInfo();
@@ -203,7 +205,7 @@ public class JobRestartDealer {
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
             jobClient.setSql(paramAction.getSqlText());
         } catch (IOException e) {
-            LOG.error("convert paramAction error: {}", e.getMessage());
+            LOG.error("jobId:{} restart but convert paramAction error: ", jobClient.getTaskId(), e);
             return false;
         }
 
