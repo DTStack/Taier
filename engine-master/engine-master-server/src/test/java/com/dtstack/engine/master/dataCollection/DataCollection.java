@@ -359,7 +359,7 @@ public interface DataCollection {
         Cluster cluster = new Cluster();
         cluster.setId(1L);
         cluster.setClusterName("test");
-        cluster.setHadoopVersion("v3");
+        cluster.setHadoopVersion("hadoop3");
         return cluster;
     }
 
@@ -400,7 +400,6 @@ public interface DataCollection {
         return queue;
     }
 
-
     @DatabaseInsertOperation(dao = TestTenantResourceDao.class)
     default TenantResource getDefaultTenantResource(){
         TenantResource tenantResource = new TenantResource();
@@ -412,4 +411,32 @@ public interface DataCollection {
         return tenantResource;
     }
 
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultComponent(){
+        Component component = new Component();
+        component.setEngineId(1L);
+        component.setComponentName(EComponentType.SPARK.name());
+        component.setComponentTypeCode(EComponentType.SPARK.getTypeCode());
+        component.setComponentConfig("{\"deploymode\":[\"perjob\"],\"perjob\":{\"spark.executor.memory\":\"512m\",\"sparkSqlProxyPath\":\"hdfs://ns1/dtInsight/spark/spark-0.0.1-SNAPSHOT.jar\",\"spark.yarn.appMasterEnv.PYSPARK_PYTHON\":\"/data/anaconda3/bin/python3\",\"spark.executor.heartbeatInterval\":\"600s\",\"spark.rpc.askTimeout\":\"600s\",\"spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON\":\"/data/anaconda3/bin/python3\",\"spark.yarn.maxAppAttempts\":\"1\",\"spark.network.timeout\":\"600s\",\"spark.executor.cores\":\"1\",\"spark.submit.deployMode\":\"cluster\",\"spark.speculation\":\"true\",\"sparkPythonExtLibPath\":\"/dtInsight/pythons/pyspark.zip,hdfs://ns1/dtInsight/pythons/py4j-0.10.7-src.zip\",\"addColumnSupport\":\"true\",\"spark.eventLog.compress\":\"true\",\"spark.eventLog.dir\":\"hdfs://ns1/tmp/logs\",\"spark.eventLog.enabled\":\"true\",\"sparkYarnArchive\":\"hdfs://ns1/dtInsight/sparkjars/jars\",\"spark.executor.instances\":\"1\",\"spark.cores.max\":\"1\"},\"typeName\":\"yarn2-hdfs2-spark210\"}");
+        component.setClusterId(1L);
+        component.setHadoopVersion("hadoop3");
+        component.setComponentTemplate("[]");
+        component.setUploadFileName("conf.zip");
+        component.setKerberosFileName("kb.zip");
+        component.setStoreType(0);
+        return component;
+    }
+
+    @DatabaseInsertOperation(dao = TestKerberosConfigDao.class)
+    default KerberosConfig getDefaultKerberosConfig(){
+        KerberosConfig kerberosConfig = new KerberosConfig();
+        kerberosConfig.setClusterId(1L);
+        kerberosConfig.setName("testKerberos");
+        kerberosConfig.setOpenKerberos(1);
+        kerberosConfig.setPrincipal("node1@127.0.0.1");
+        kerberosConfig.setComponentType(EComponentType.YARN.getTypeCode());
+        kerberosConfig.setRemotePath("ttt");
+        kerberosConfig.setKrbName("krb5.conf");
+        return kerberosConfig;
+    }
 }

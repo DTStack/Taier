@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * Date: 2020/6/20
@@ -18,4 +19,7 @@ public interface TestEngineJobCacheDao {
 		"        values(#{engineJobCache.jobId}, #{engineJobCache.engineType}, #{engineJobCache.computeType}, #{engineJobCache.stage}, #{engineJobCache.jobInfo}, #{engineJobCache.nodeAddress},#{engineJobCache.jobName},#{engineJobCache.jobPriority},#{engineJobCache.jobResource})"})
 	@Options(useGeneratedKeys=true, keyProperty = "engineJobCache.id", keyColumn = "id")
 	void insert(@Param("engineJobCache") EngineJobCache engineJobCache);
+
+	@Select({"select * from schedule_engine_job_cache limit 1"})
+	EngineJobCache getOne();
 }

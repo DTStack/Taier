@@ -4,6 +4,7 @@ import com.dtstack.engine.api.domain.Cluster;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * @author chener
@@ -18,4 +19,6 @@ public interface TestClusterDao {
     @Options()
     Integer insert(@Param("cluster") Cluster cluster);
 
+    @Select({"select * from console_cluster limit 1"})
+    Cluster getOne();
 }
