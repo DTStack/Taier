@@ -2,10 +2,13 @@ package com.dtstack.engine.master.dataCollection;
 
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.anno.DataSource;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
+import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.utils.DataCollectionProxy;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.engine.master.utils.ValueUtils;
@@ -341,4 +344,72 @@ public interface DataCollection {
         sj.setCycTime("20200501163446");
         return sj;
     }
+
+    @DatabaseInsertOperation(dao = TestEngineTenantDao.class)
+    default EngineTenant getEngineTenant(){
+        EngineTenant engineTenant = new EngineTenant();
+        engineTenant.setEngineId(1L);
+        engineTenant.setQueueId(1L);
+        engineTenant.setTenantId(1L);
+        return engineTenant;
+    }
+
+    @DatabaseInsertOperation(dao = TestClusterDao.class)
+    default Cluster getDefaultCluster() {
+        Cluster cluster = new Cluster();
+        cluster.setId(1L);
+        cluster.setClusterName("test");
+        cluster.setHadoopVersion("v3");
+        return cluster;
+    }
+
+    @DatabaseInsertOperation(dao = TestEngineDao.class)
+    default Engine getDefaultHadoopEngine(){
+        Engine engine = new Engine();
+        engine.setId(1L);
+        engine.setClusterId(1L);
+        engine.setEngineName("hadoop");
+        engine.setEngineType(MultiEngineType.HADOOP.getType());
+        engine.setSyncType(null);
+        engine.setTotalCore(10);
+        engine.setTotalMemory(40960);
+        engine.setTotalNode(10);
+        return engine;
+    }
+
+    @DatabaseInsertOperation(dao = TestTenantDao.class)
+    default Tenant getDefaultTenant(){
+        Tenant tenant = new Tenant();
+        tenant.setId(1L);
+        tenant.setDtUicTenantId(1L);
+        tenant.setTenantName("测试租户");
+        tenant.setTenantDesc("测试租户");
+        return tenant;
+    }
+
+    @DatabaseInsertOperation(dao = TestQueueDao.class)
+    default Queue getDefaultQueue(){
+        Queue queue = new Queue();
+        queue.setEngineId(1L);
+        queue.setQueueName("默认queue");
+        queue.setCapacity("1.0");
+        queue.setMaxCapacity("1.0");
+        queue.setQueueState("RUNNING");
+        queue.setParentQueueId(-1L);
+        queue.setQueuePath("default");
+        return queue;
+    }
+
+
+    @DatabaseInsertOperation(dao = TestTenantResourceDao.class)
+    default TenantResource getDefaultTenantResource(){
+        TenantResource tenantResource = new TenantResource();
+        tenantResource.setTenantId(1);
+        tenantResource.setDtUicTenantId(1);
+        tenantResource.setTaskType(EComponentType.SPARK.getTypeCode());
+        tenantResource.setEngineType(MultiEngineType.HADOOP.name());
+        tenantResource.setResourceLimit("{\"cores\":1,\"memory\":250}");
+        return tenantResource;
+    }
+
 }
