@@ -3,8 +3,12 @@ package com.dtstack.engine.master.controller;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.lineage.param.DataSourceParam;
 import com.dtstack.engine.master.router.DtRequestParam;
 import com.dtstack.lineage.impl.LineageDataSourceService;
+import com.dtstack.sdk.core.common.ApiResponse;
+import com.dtstack.sdk.core.feign.Param;
+import com.dtstack.sdk.core.feign.RequestLine;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -67,8 +71,25 @@ public class LineageDataSourceController {
     @RequestMapping(value = "/queryById",method = RequestMethod.POST)
     @ApiOperation(value = "根据id查找逻辑数据源")
     @ApiImplicitParam(name="id",value = "逻辑数据源id")
-    LineageDataSource getDataSourceById(@DtRequestParam Long id){
+    public LineageDataSource getDataSourceById(@DtRequestParam Long id){
 
         return dataSourceService.getDataSourceById(id);
+    }
+
+
+    @RequestMapping(value="/acquireOldDataSourceList",method = RequestMethod.POST)
+    @ApiOperation(value = "接受老的推送过来的数据源")
+    @ApiImplicitParam(name="dataSourceParam",value = "老的数据源列表")
+    public void acquireOldDataSourceList(@DtRequestParam("dataSourceParam") DataSourceParam dataSourceParam){
+
+        dataSourceService.acquireOldDataSourceList(dataSourceParam.getDataSourceDTOList());
+    }
+
+
+    @RequestMapping(value="/sysIdeDataSourceList",method = RequestMethod.POST)
+    @ApiOperation(value = "同步离线的数据源")
+    public void sysIdeDataSourceList(){
+
+        dataSourceService.sysIdeDataSourceList();
     }
 }

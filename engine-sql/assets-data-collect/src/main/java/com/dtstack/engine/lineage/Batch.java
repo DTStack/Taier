@@ -96,50 +96,65 @@ public class Batch {
 
             for (BatchTenant tenant:tenants){
 
-                //查询血缘关系，并批量导入
-                PreparedStatement preparedStatement = connection.prepareStatement(QUERY_LINEAGE_COUNT_BY_TENANT);
-                preparedStatement.setLong(1,tenant.getId());
-                preparedStatement.execute();
-                ResultSet resultSet2 = preparedStatement.getResultSet();
-                int totalCount = 0;
-                if (resultSet2.next()){
-                    totalCount = resultSet2.getInt(1);
+                //查询数据源信息，并批量导入
+                PreparedStatement statement1 = connection.prepareStatement(QUERY_DATASOURCE_COUNT_BY_TENANT);
+                statement1.setLong(1,tenant.getId());
+                statement1.execute();
+                ResultSet resultSet1 = statement1.getResultSet();
+                int countDataSource = 0;
+                if(resultSet1.next()){
+                    countDataSource = resultSet1.getInt(1);
                 }
-                if (totalCount>0){
-                    double val = totalCount * 1.0d / PAGE_SIZE;
+                if(countDataSource>0){
+                    double val = countDataSource * 1.0d / PAGE_SIZE;
                     int pageCount = (int) Math.ceil(val);
                     for (int i = 0; i < pageCount; i++) {
-                        PreparedStatement prepareStatement = connection.prepareStatement(PAGE_QUERY_LINEAGE_BY_TENANT);
+                        PreparedStatement prepareStatement = connection.prepareStatement(PAGE_QUERY_DATASOURCE_BY_TENANT);
                         prepareStatement.setLong(1,tenant.getId());
                         prepareStatement.setInt(2,PAGE_SIZE*i);
                         prepareStatement.setInt(3,PAGE_SIZE*(i+1));
                         prepareStatement.execute();
-                        ResultSet resultSet3 = prepareStatement.getResultSet();
-                        List<BatchLineage> batchLineages = new ArrayList<>();
-                        while (resultSet3.next()){
-                            BatchLineage lineage = new BatchLineage();
-                            lineage.setTenantId(resultSet3.getLong(1));
-                            lineage.setTaskId(resultSet3.getLong(2));
-                            lineage.setDataSourceId(resultSet3.getLong(3));
-                            lineage.setTableNam(resultSet3.getString(4));
-                            lineage.setCol(resultSet3.getString(5));
-                            lineage.setInputDataSourceId(resultSet3.getLong(6));
-                            lineage.setInputTableName(resultSet3.getString(7));
-                            lineage.setInputCol(resultSet3.getString(8));
-                            batchLineages.add(lineage);
+                        ResultSet resultSet2 = prepareStatement.getResultSet();
+                        List<BatchDataSource> batchDataSources = new ArrayList<>();
+                        while (resultSet2.next()){
+                            BatchDataSource dataSource1 = new BatchDataSource();
+                            dataSource1.setSourceName(resultSet2.getString(1));
+                            dataSource1.setDataJson(resultSet2.getString(2));
+                            dataSource1.setSourceType(resultSet2.getInt(3));
+                            dataSource1.setTenantId(resultSet2.getLong(4));
+                            batchDataSources.add(dataSource1);
                         }
-                        if (batchLineages.size()>0){
-                            sendToEngine(batchLineages,tenant);
+                        if (batchDataSources.size()>0){
+                            sendDataSourceListToEngine(batchDataSources,tenant);
                         }
                     }
                 }
-                resultSet2.close();
-                preparedStatement.close();
+                resultSet.close();
+                statement.close();
             }
 
         }catch (Exception e){
             logger.error("",e);
         }
+    }
+
+    private static void sendDataSourceListToEngine(List<BatchDataSource> batchDataSources, BatchTenant tenant) {
+
+        DataSourceService dataSourceService = dtInsightApi.getSlbApiClient(DataSourceService.class);
+        DataSourceParam dataSourceParam = new DataSourceParam();
+        List<DataSourceDTO> dataSourceDTOs = new ArrayList<>();
+        for (BatchDataSource batchDataSource : batchDataSources) {
+            DataSourceDTO dataSourceDTO = new DataSourceDTO();
+            dataSourceDTO.setSourceType(batchDataSource.getSourceType());
+            dataSourceDTO.setSourceName(batchDataSource.getSourceName());
+            dataSourceDTO.setDataJson(batchDataSource.getDataJson());
+            dataSourceDTO.setDtUicTenantId(tenant.getTenantId());
+            dataSourceDTOs.add(dataSourceDTO);
+        }
+        dataSourceParam.setDataSourceDTOList(dataSourceDTOs);
+        dataSourceService.acquireOldDataSourceList(dataSourceParam);
+
+
     }
 
     private static void sendToEngine(List<BatchLineage> batchLineages, BatchTenant tenant) throws PropertyVetoException {

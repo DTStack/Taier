@@ -114,4 +114,10 @@
         where cc.component_type_code = #{componentType}
         and cc.is_deleted = 0
     </select>
+
+    <select id="listByTenantId">
+        select <include refid="select_content_fragment"/>
+        from console_component
+        where tenant_id  = #{tenantId}  and is_deleted = 0
+    </select>
 </mapper>

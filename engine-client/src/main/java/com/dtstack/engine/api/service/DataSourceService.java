@@ -3,6 +3,7 @@ package com.dtstack.engine.api.service;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.lineage.param.DataSourceParam;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Param;
@@ -23,8 +24,8 @@ public interface DataSourceService extends DtInsightServer {
      * 新增或修改逻辑数据源
      * @param dataSourceDTO 数据源信息
      */
-    @RequestLine("/node/dataSource/addOrUpdateDataSource")
-    void addOrUpdateDataSource(DataSourceDTO dataSourceDTO);
+    @RequestLine("POST /node/dataSource/addOrUpdateDataSource")
+    ApiResponse addOrUpdateDataSource(DataSourceDTO dataSourceDTO);
 
     /**
      * @author zyd
@@ -33,8 +34,8 @@ public interface DataSourceService extends DtInsightServer {
      * @param appType:
      * @return: java.util.List<com.dtstack.engine.api.domain.LineageDataSource>
      **/
-    @RequestLine("/node/dataSource/pageQuery")
-    PageResult<List<LineageDataSource>> pageQueryDataSourceByAppType(@Param("appType") Integer appType,
+    @RequestLine("POST /node/dataSource/pageQuery")
+    ApiResponse<PageResult<List<LineageDataSource>>> pageQueryDataSourceByAppType(@Param("appType") Integer appType,
                                                                      @Param("currentPage") Integer currentPage,
                                                                      @Param("pageSize") Integer pageSize);
 
@@ -45,8 +46,20 @@ public interface DataSourceService extends DtInsightServer {
      * @param id:
      * @return: com.dtstack.engine.api.domain.LineageDataSource
      **/
-    @RequestLine("/node/")
-    LineageDataSource getDataSourceById(Integer id);
+    @RequestLine("POST /node/dataSource/getDataSourceById")
+    ApiResponse<LineageDataSource> getDataSourceById(Integer id);
+
+
+    /**
+     * @author zyd
+     * @Description 接收老的推送过来的数据源
+     * @Date 2020/11/25 5:27 下午
+     * @param dataSourceParam:
+     * @return: com.dtstack.sdk.core.common.ApiResponse
+     **/
+    @RequestLine("POST /node/dataSource/acquireOldDataSourceList")
+    ApiResponse acquireOldDataSourceList(@Param("dataSourceParam") DataSourceParam dataSourceParam);
+
 
 
 }

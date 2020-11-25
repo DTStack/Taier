@@ -2,11 +2,14 @@ package com.dtstack.lineage.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.domain.LineageRealDataSource;
 import com.dtstack.engine.api.dto.DataSourceDTO;
+import com.dtstack.engine.api.enums.DataSourceTypeEnum;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.vo.lineage.param.DataSourceParam;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ComponentDao;
@@ -14,6 +17,7 @@ import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.lineage.bo.RdbmsDataSourceConfig;
 import com.dtstack.lineage.dao.LineageDataSourceDao;
 import com.dtstack.lineage.dao.LineageRealDataSourceDao;
+import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Sort;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -97,6 +101,8 @@ public class LineageDataSourceService {
     private Integer addDataSource(DataSourceDTO dataSourceDTO) {
         //生成sourceKey
         String sourceKey = generateSourceKey(dataSourceDTO.getDataJson());
+        //根据sourceKey和appType查找数据源
+        LineageDataSource dataSourceParam = new LineageDataSource();
         //插入物理数据愿
         Long realSourceId =  addRealDataSource(dataSourceDTO,sourceKey);
         //插入逻辑数据源
@@ -288,5 +294,37 @@ public class LineageDataSourceService {
         lineageDataSource.setAppType(appType);
         lineageDataSource.setIsDeleted(0);
        return lineageDataSourceDao.getDataSourceByParams(lineageDataSource);
+    }
+
+    public void acquireOldDataSourceList(List<DataSourceDTO> dataSourceDTOs) {
+
+        if (dataSourceDTOs.size()>200){
+            throw new RdosDefineException("请分批执行");
+        }
+        for (DataSourceDTO dataSourceDTO : dataSourceDTOs) {
+            addDataSource(dataSourceDTO);
+        }
+    }
+
+    public void sysIdeDataSourceList() {
+
+        //遍历租户
+        List<Long> dtUicTenantIds = tenantDao.listAllDtUicTenantIds();
+        for (Long dtUicTenantId : dtUicTenantIds) {
+            Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
+            List<Component> componentList = componentDao.listByTenantId(tenantId);
+            for (Component component : componentList) {
+                if(DataSourceTypeEnum.getAllTypeCodes().contains(component.getComponentTypeCode())){
+                    DataSourceDTO dataSourceDTO = new DataSourceDTO();
+                    dataSourceDTO.setDtUicTenantId(dtUicTenantId);
+                    dataSourceDTO.setDataJson(component.getComponentConfig());
+                    dataSourceDTO.setSourceName("ideDataSource_"+component.getComponentName());
+                    dataSourceDTO.setAppType(AppType.RDOS.getType());
+                    addDataSource(dataSourceDTO);
+                }
+            }
+        }
+
+
     }
 }
