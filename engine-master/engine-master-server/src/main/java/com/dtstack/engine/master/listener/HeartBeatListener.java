@@ -53,7 +53,7 @@ public class HeartBeatListener implements Listener {
                 logger.info("HeartBeatListener start again...");
             }
         } catch (Throwable e) {
-            logger.error(ExceptionUtil.getErrorMessage(e));
+            logger.error("", e);
         }
     }
 

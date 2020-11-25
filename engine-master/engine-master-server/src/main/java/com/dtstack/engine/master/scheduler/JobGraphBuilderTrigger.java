@@ -56,7 +56,7 @@ public class JobGraphBuilderTrigger implements Runnable {
                 stopJobGraph();
             }
         } catch (Throwable e) {
-            logger.error("JobGraphBuilderTrigger.dealMaster error:{}", ExceptionUtil.getErrorMessage(e));
+            logger.error("JobGraphBuilderTrigger.dealMaster error:", e);
         }
     }
 
@@ -91,7 +91,7 @@ public class JobGraphBuilderTrigger implements Runnable {
             Date curDate = dateFormat.parse(dayFormat.format(new Date()) + " " + time);
             return curDate.getTime();
         } catch (ParseException e) {
-            logger.error("JobGraphBuilderTrigger.getTimeMillis error:{}",ExceptionUtil.getErrorMessage(e));
+            logger.error("JobGraphBuilderTrigger.getTimeMillis error:", e);
         }
         return 0;
     }

@@ -309,7 +309,7 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 				try {
 					Files.deleteIfExists(tmpDir);
 				} catch (IOException e) {
-					LOG.error("JobGraphGenerator.addUserArtifactEntries error:{}", ExceptionUtil.getErrorMessage(e));
+					LOG.error("JobGraphGenerator.addUserArtifactEntries error:", e);
 				}
 			}
 		}

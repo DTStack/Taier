@@ -62,7 +62,7 @@ public class ScheduleTaskVO extends com.dtstack.engine.api.vo.ScheduleTaskVO {
                     taskPeriodType = "月任务";
                 }
             } catch (Throwable e) {
-                LOG.error("ScheduleTaskVO.init error:{}", ExceptionUtil.getErrorMessage(e));
+                LOG.error("ScheduleTaskVO.init error:", e);
             }
         }
     }

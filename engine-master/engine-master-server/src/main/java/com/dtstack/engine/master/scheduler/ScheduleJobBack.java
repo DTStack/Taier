@@ -74,7 +74,7 @@ public class ScheduleJobBack {
             Date curDate = dateFormat.parse(dayFormat.format(new Date()) + " " + time);
             return curDate.getTime();
         } catch (ParseException e) {
-            log.error("ScheduleJobBack.getTimeMillis error:{}", ExceptionUtil.getErrorMessage(e));
+            log.error("ScheduleJobBack.getTimeMillis error:", e);
         }
         return 0;
     }

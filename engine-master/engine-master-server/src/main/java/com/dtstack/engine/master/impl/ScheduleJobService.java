@@ -732,7 +732,7 @@ public class ScheduleJobService {
                 batchJobDTO.setTaskIds(batchTaskShades.stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList()));
             }
         }
-        List<Map<String, Integer>> statusCount = scheduleJobDao.getJobsStatusStatistics(batchJobDTO);
+        List<Map<String, Long>> statusCount = scheduleJobDao.getJobsStatusStatistics(batchJobDTO);
 
         Map<String, Long> attachment = Maps.newHashMap();
         long totalNum = 0;
@@ -742,8 +742,9 @@ public class ScheduleJobService {
             String statusName = RdosTaskStatus.getCode(entry.getKey());
             List<Integer> statuses = entry.getValue();
             long num = 0;
-            for (Map<String, Integer> statusCountMap : statusCount) {
-                if (statuses.contains(statusCountMap.get("status"))) {
+            for (Map<String, Long> statusCountMap : statusCount) {
+                Integer statusCountKey = MapUtils.getInteger(statusCountMap, "status");
+                if (statuses.contains(statusCountKey)) {
                     long val = statusCountMap.get("count");
                     num += val;
                 }
@@ -2598,7 +2599,7 @@ public class ScheduleJobService {
             JobCheckRunInfo jobCheckRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, scheduleJob.getStatus(), scheduleJob.getType(),batchTaskById);
             return JSONObject.toJSONString(jobCheckRunInfo);
         } catch (ParseException e) {
-            logger.error("ScheduleJobService.testCheckCanRun error:{}", ExceptionUtil.getErrorMessage(e));
+            logger.error("ScheduleJobService.testCheckCanRun error:", e);
         }
         return "";
     }
