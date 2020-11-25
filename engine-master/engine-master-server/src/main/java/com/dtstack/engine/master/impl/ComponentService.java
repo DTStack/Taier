@@ -1082,6 +1082,7 @@ public class ComponentService {
             dataInfo.put("openKerberos", kerberosConfig.getOpenKerberos());
             dataInfo.put("remoteDir", kerberosConfig.getRemotePath());
             dataInfo.put("principalFile", kerberosConfig.getName());
+            dataInfo.put("principal", kerberosConfig.getPrincipal());
             dataInfo.put("krbName", kerberosConfig.getKrbName());
             dataInfo.put("kerberosFileTimestamp", kerberosConfig.getGmtModified());
             //补充yarn参数
