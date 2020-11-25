@@ -331,7 +331,7 @@ public class EnvironmentContext {
     }
 
     public String getLocalKerberosDir() {
-        return environment.getProperty("local.kerberos.dir", System.getProperty("user.dir") + "/kerberosConfig");
+        return environment.getProperty("local.kerberos.dir", System.getProperty("user.dir") + "/kerberosUploadTempDir");
     }
 
     public String getKerberosTemplatepath() {
@@ -412,5 +412,9 @@ public class EnvironmentContext {
 
     public Integer getJobExecutorPoolQueueSize(){
         return Integer.valueOf(environment.getProperty("job.executor.pool.queue.size", "1000"));
+    }
+
+    public String getComponentJdbcToReplace() {
+        return environment.getProperty("component.jdbc.replace", "/default");
     }
 }

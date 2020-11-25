@@ -73,15 +73,6 @@ public class CacheConfig {
             for (RedisNode sn : nodes) {
                 sentinelConfig.sentinel(sn.getHost(), sn.getPort());
             }
-            JedisSentinelPool sentinelPool = null;
-            try {
-                sentinelPool = new JedisSentinelPool("mymaster", getSentinelAddress());
-            } finally {
-                if(Objects.nonNull(sentinelPool)) {
-                    sentinelPool.close();
-                }
-            }
-            logger.info("redis sentinel master = {}", String.valueOf(sentinelPool.getCurrentHostMaster()));
         }
         return sentinelConfig;
     }

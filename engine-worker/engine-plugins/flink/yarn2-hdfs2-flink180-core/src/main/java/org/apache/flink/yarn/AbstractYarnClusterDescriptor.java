@@ -652,7 +652,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 currentProxy = currentProxyField.get(h);
             }catch (Exception e){
                 //兼容Hadoop 2.7.3.2.6.4.91-3
-                LOG.warn("get currentProxy error:{}", ExceptionUtil.getErrorMessage(e));
+                LOG.error("get currentProxy error:", e);
                 Field proxyDescriptorField = h.getClass().getDeclaredField("proxyDescriptor");
                 proxyDescriptorField.setAccessible(true);
                 Object proxyDescriptor = proxyDescriptorField.get(h);
@@ -674,7 +674,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
             return String.format("http://%s/proxy",addr);
         }catch (Exception e){
-            LOG.warn("get monitor error:{}", ExceptionUtil.getTaskLogError(e));
+            LOG.error("get monitor error:", e);
         }
 
         return url;
@@ -879,23 +879,23 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
             systemShipFiles.addAll(Arrays.asList(file.listFiles()));
         }
 
-        String logLevel = flinkConfiguration.getString("logLevel", "info").toLowerCase();
-        //check if there is a logback or log4j file
-        File logbackFile = new File(configurationDirectory + File.separator + FLINK_LOG_DIR + File.separator + logLevel + File.separator + CONFIG_FILE_LOGBACK_NAME);
-        final boolean hasLogback = logbackFile.exists();
-        if (hasLogback) {
-            systemShipFiles.add(logbackFile);
-        }
 
-        File log4jFile = new File(configurationDirectory + File.separator + FLINK_LOG_DIR + File.separator + logLevel + File.separator + CONFIG_FILE_LOG4J_NAME);
+        String logLevel = flinkConfiguration.getString("logLevel", "info").toLowerCase();
+        /**
+         * check if there is a logback or log4j file
+         * log4j.properties > logback.xml
+         */
+        String configFileParentPath = configurationDirectory + File.separator + FLINK_LOG_DIR + File.separator + logLevel ;
+        File log4jFile = new File(configFileParentPath + File.separator + CONFIG_FILE_LOG4J_NAME);
+        File logbackFile = new File(configFileParentPath + File.separator + CONFIG_FILE_LOGBACK_NAME);
+        final boolean hasLogback = logbackFile.exists();
         final boolean hasLog4j = log4jFile.exists();
         if (hasLog4j) {
             systemShipFiles.add(log4jFile);
-            if (hasLogback) {
-                // this means there is already a logback configuration file --> fail
-                LOG.warn("The configuration directory ('" + configurationDirectory + "') contains both LOG4J and " +
-                        "Logback configuration files. Please delete or rename one of them.");
-            }
+        } else if (hasLogback) {
+            systemShipFiles.add(log4jFile);
+        } else {
+            LOG.warn("No log configuration file to upload was found. Please check if there are any log configuration files in the [{}] ", configFileParentPath);
         }
 
         addLibFolderToShipFiles(systemShipFiles);
@@ -1722,12 +1722,12 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         if (hasLogback || hasLog4j) {
             logging = "-Dlog.file=\"" + ApplicationConstants.LOG_DIR_EXPANSION_VAR + "/jobmanager.log\"";
 
-            if (hasLogback) {
-                logging += " -Dlogback.configurationFile=file:" + CONFIG_FILE_LOGBACK_NAME;
-            }
-
             if (hasLog4j) {
                 logging += " -Dlog4j.configuration=file:" + CONFIG_FILE_LOG4J_NAME;
+            } else if (hasLogback) {
+                logging += " -Dlogback.configurationFile=file:" + CONFIG_FILE_LOGBACK_NAME;
+            } else {
+                // do nothing
             }
         }
 

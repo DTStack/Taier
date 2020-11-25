@@ -14,7 +14,6 @@ import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;

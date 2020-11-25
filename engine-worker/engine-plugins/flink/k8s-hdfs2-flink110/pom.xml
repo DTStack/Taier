@@ -24,7 +24,7 @@
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.flink.k8s-hdfs2-flink110-core</artifactId>
+            <artifactId>plugins.flink.k8s-flink110-core</artifactId>
             <version>1.0.0</version>
         </dependency>
         <!-- engine -->

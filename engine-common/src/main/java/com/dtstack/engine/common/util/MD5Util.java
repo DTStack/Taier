@@ -35,7 +35,7 @@ public class MD5Util {
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             bytes = md5.digest(str.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
-            LOGGER.error("MD5Util.getMd5String error:{}", ExceptionUtil.getErrorMessage(e));
+            LOGGER.error("MD5Util.getMd5String error:", e);
         }
         return HexUtil.bytes2Hex(bytes);
 
@@ -72,20 +72,20 @@ public class MD5Util {
             md5.update(byteBuffer);
             ret = HexUtil.bytes2Hex(md5.digest());
         } catch (IOException |NoSuchAlgorithmException e) {
-            LOGGER.error("MD5Util.getFileMd5String error:{}",ExceptionUtil.getErrorMessage(e));
+            LOGGER.error("MD5Util.getFileMd5String error:", e);
         } finally {
             if (in != null) {
                 try {
                     in.close();
                 } catch (IOException e) {
-                    LOGGER.error("MD5Util.getFileMd5String error:{}",ExceptionUtil.getErrorMessage(e));
+                    LOGGER.error("MD5Util.getFileMd5String error:", e);
                 }
             }
             if (ch != null) {
                 try {
                     ch.close();
                 } catch (IOException e) {
-                    LOGGER.error("MD5Util.getFileMd5String error:{}",ExceptionUtil.getErrorMessage(e));
+                    LOGGER.error("MD5Util.getFileMd5String error:", e);
                 }
             }
         }
