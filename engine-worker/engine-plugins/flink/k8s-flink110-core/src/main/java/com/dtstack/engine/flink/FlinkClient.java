@@ -403,6 +403,9 @@ public class FlinkClient extends AbstractClient {
             logger.warn("jobIdentifier:{} is blank.", jobIdentifier);
             return RdosTaskStatus.NOTFOUND;
         }
+        if (!flinkClientBuilder.getFlinkKubeClient().getInternalService(clusterId).isPresent()) {
+            return RdosTaskStatus.CANCELED;
+        }
 
         String jobUrlPath = String.format(ConfigConstrant.JOB_URL_FORMAT, jobId);
 
@@ -449,7 +452,7 @@ public class FlinkClient extends AbstractClient {
                 RdosTaskStatus rdosTaskStatus =  RdosTaskStatus.getTaskStatus(state);
                 Boolean isFlinkSessionTask = clusterId.startsWith(ConfigConstrant.FLINK_SESSION_PREFIX);
                 if (RdosTaskStatus.isStopped(rdosTaskStatus.getStatus()) && !isFlinkSessionTask) {
-                    if (flinkClientBuilder.getFlinkKubeClient().getInternalService(clusterId) != null) {
+                    if (flinkClientBuilder.getFlinkKubeClient().getInternalService(clusterId).isPresent()) {
                         flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(clusterId);
                     }
                 }
