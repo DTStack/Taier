@@ -8,6 +8,7 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.bo.EngineJobRetry;
@@ -193,6 +194,19 @@ public class JobRestartDealer {
     }
 
     private boolean restartJob(JobClient jobClient){
+        EngineJobCache jobCache = engineJobCacheDao.getOne(jobClient.getTaskId());
+        if (jobCache == null) {
+            return false;
+        }
+        String jobInfo = jobCache.getJobInfo();
+        try {
+            ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
+            jobClient.setSql(paramAction.getSqlText());
+        } catch (IOException e) {
+            LOG.error("convert paramAction error: {}", e.getMessage());
+            return false;
+        }
+
         //添加到重试队列中
         boolean isAdd = jobDealer.addRestartJob(jobClient);
         if (isAdd) {
