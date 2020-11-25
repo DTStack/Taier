@@ -63,6 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -2612,7 +2613,7 @@ public class ScheduleJobService {
         try {
             JobCheckRunInfo jobCheckRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, scheduleJob.getStatus(), scheduleJob.getType(),batchTaskById);
             return JSONObject.toJSONString(jobCheckRunInfo);
-        } catch (ParseException e) {
+        } catch (Exception e) {
             logger.error("ScheduleJobService.testCheckCanRun error:", e);
         }
         return "";
