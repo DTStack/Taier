@@ -292,8 +292,7 @@ public class SFTPHandler {
                 return localFile;
             }
         } catch (Exception e){
-            logger.error("load file error: ", e);
-            return fileName;
+            throw new RuntimeException("download file from sftp error", e);
         } finally {
             close();
         }
@@ -326,8 +325,7 @@ public class SFTPHandler {
             fileLastModifyMap.put(localFile, new File(localFile).lastModified());
             return localFile;
         } catch (Exception e) {
-            logger.error("load file error: ", e);
-            return fileName;
+            throw new RuntimeException("download file from sftp error", e);
         } finally {
             if(isEnd){
                 close();
@@ -346,8 +344,7 @@ public class SFTPHandler {
                 return localFile;
             }
         } catch (Exception e){
-            logger.error("load file error: ", e);
-            return fileName;
+            throw new RuntimeException("download file from sftp error", e);
         } finally {
             if(isEnd){
                 close();
