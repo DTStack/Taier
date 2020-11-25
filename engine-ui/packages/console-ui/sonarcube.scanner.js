@@ -1,6 +1,6 @@
 const scanner = require("sonarqube-scanner");
 const VERSION = JSON.stringify(require('./package.json').version); // app version.
-
+const NAME = JSON.stringify(require('./package.json').name);
 scanner(
  {
    // this example uses local instance of SQ
@@ -8,7 +8,7 @@ scanner(
    token: "",
    options: {
      "sonar.projectVersion": VERSION,
-     "sonar.projectName": "dt-insight-front/dt-batch-works",
+     "sonar.projectName": NAME,
      "sonar.sources": "./src",
      "sonar.exclusions": "**/__tests__/**",
      "sonar.tests": "./src",
