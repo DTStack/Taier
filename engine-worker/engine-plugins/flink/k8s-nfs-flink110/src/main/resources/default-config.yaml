@@ -9,7 +9,7 @@ perjob:
     flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink110_lib
     jobmanager.archive.fs.dir: nfs://server_ip/flink/completed-jobs
     flinkPluginRoot: /data/insight_plugin/flinkplugin
-    remotePluginRootDir: /data/insight_plugin/flinkplugin
+    remotePluginRootDir: nfs://server_ip/flinkplugin
 
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink110

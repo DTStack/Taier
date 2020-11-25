@@ -58,6 +58,7 @@ public class NfsStorage extends AbstractStorage {
         // set flinkplugin volume
         String remotePlugin = flinkConfig.getRemotePluginRootDir();
         checkReadPermission(remotePlugin);
+        remotePlugin = convertPath(remotePlugin);
         String dockerPluginHome = config.get(KubernetesConfigOptions.KUBERNETES_DOCKER_FLINKPLUGIN_PATH);
         setNfsMountConf(config, "flinkplugin", remotePlugin, dockerPluginHome, "true");
         flinkConfig.setRemotePluginRootDir(dockerPluginHome);
@@ -117,14 +118,13 @@ public class NfsStorage extends AbstractStorage {
         config.setString(taskmanagerMountreadOnly, readOnly);
     }
 
+    private String convertPath(String path) {
+        XFile nfsFile = createNfsFileByPath(path);
+        return "/"+ nfsFile.getPath();
+    }
+
     private String createDirOnNfs(String path) {
-        String fileUrl = "";
-        if (StringUtils.startsWith(path, "nfs://")) {
-            fileUrl = path;
-        } else {
-            fileUrl = String.format("nfs://%s/%s", server, path);
-        }
-        XFile nfsFile = new XFile(fileUrl);
+        XFile nfsFile = createNfsFileByPath(path);
         if (!nfsFile.exists()) {
             nfsFile.mkdirs();
         }
@@ -168,11 +168,7 @@ public class NfsStorage extends AbstractStorage {
     }
 
     private void checkReadPermission(String path) {
-        String url = path;
-        if (!StringUtils.startsWith(path, "nfs://")) {
-            url = String.format("nfs://%s/%s", server, path);
-        }
-        XFile nfsFile = new XFile(url);
+        XFile nfsFile = createNfsFileByPath(path);
         if (!nfsFile.exists()) {
             throw new RdosDefineException("file or dir not exists. path: " + path);
         } else {
@@ -183,11 +179,7 @@ public class NfsStorage extends AbstractStorage {
     }
 
     private void checkWritePermission(String path) {
-        String url = path;
-        if (!StringUtils.startsWith(path, "nfs://")) {
-            url = String.format("nfs://%s/%s", server, path);
-        }
-        XFile nfsFile = new XFile(url);
+        XFile nfsFile = createNfsFileByPath(path);
         if (!nfsFile.exists()) {
             throw new RdosDefineException("file or dir not exists. path: " + path);
         } else {
@@ -195,5 +187,15 @@ public class NfsStorage extends AbstractStorage {
                 throw new RdosDefineException("No write permission. path: " + path);
             }
         }
+    }
+
+    private XFile createNfsFileByPath(String path) {
+        String fileUrl = "";
+        if (StringUtils.startsWith(path, "nfs://")) {
+            fileUrl = path;
+        } else {
+            fileUrl = String.format("nfs://%s/%s", server, path);
+        }
+        return new XFile(fileUrl);
     }
 }
