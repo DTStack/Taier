@@ -26,6 +26,7 @@ import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
+import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.dtstack.schedule.common.enums.DataBaseType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
@@ -81,9 +82,6 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
     @Autowired
     private WorkerOperator workerOperator;
-    
-    @Autowired
-    private ScheduleJobService scheduleJobService;
 
     private DateTimeFormatter dayFormatterAll = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
@@ -512,7 +510,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         if(flinkComponent.isPresent()){
             ComponentsConfigOfComponentsVO componentsVO = flinkComponent.get();
             JSONObject flinkJsonObject = JSONObject.parseObject(componentsVO.getComponentConfig());
-            EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam,computeType, EngineType.Flink.name());
+            EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams(taskParam,computeType,EngineType.Flink.name());
             JSONObject flinkConfig = flinkJsonObject.getJSONObject(eDeployMode.getMode());
             String prometheusHost = flinkConfig.getString("prometheusHost");
             String prometheusPort = flinkConfig.getString("prometheusPort");
