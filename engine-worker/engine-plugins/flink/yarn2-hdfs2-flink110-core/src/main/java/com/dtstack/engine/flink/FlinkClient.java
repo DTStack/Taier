@@ -69,7 +69,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
@@ -116,6 +115,10 @@ public class FlinkClient extends AbstractClient {
     private static final String JOBMANAGER_DIR = "jobmanager.archive.fs.dir";
 
     private String jobmanagerDir;
+
+    private final static Predicate<RdosTaskStatus> IS_END_STATUS = status ->
+            status.equals(RdosTaskStatus.FINISHED) || status.equals(RdosTaskStatus.CANCELED)
+                    || status.equals(RdosTaskStatus.FAILED) || status.equals(RdosTaskStatus.KILLED);
 
     @Override
     public void init(Properties prop) throws Exception {

@@ -2,8 +2,8 @@ package com.dtstack.engine.flink;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.base.filesystem.FilesystemManager;
+import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
@@ -49,8 +49,6 @@ import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.PackagedProgramUtils;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.configuration.HistoryServerOptions;
-import org.apache.flink.kubernetes.kubeclient.FlinkKubeClient;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.Preconditions;
@@ -60,7 +58,6 @@ import org.slf4j.LoggerFactory;
 import sun.security.action.GetPropertyAction;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
@@ -528,18 +525,21 @@ public class FlinkClient extends AbstractClient {
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getEngineJobId();
+        String engineJobId = jobIdentifier.getEngineJobId();
 
-        String exceptionUrlPath = String.format(ConfigConstrant.JOB_EXCEPTIONS_URL_FORMAT, jobId);
-        String accumulatorUrlPath = String.format(ConfigConstrant.JOB_ACCUMULATOR_URL_FORMAT, jobId);
+        String exceptionUrlPath = String.format(ConfigConstrant.JOB_EXCEPTIONS_URL_FORMAT, engineJobId);
+        String accumulatorUrlPath = String.format(ConfigConstrant.JOB_ACCUMULATOR_URL_FORMAT, engineJobId);
         String exceptMessage = "";
         String accumulator = "";
         Map<String, String> retMap = Maps.newHashMap();
 
         try {
-            if (EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode()) && IS_END_STATUS.test(processJobStatus(jobIdentifier))) {
-                exceptMessage = storage.getMessageFromJobArchive(jobId, exceptionUrlPath);
-                accumulator = storage.getMessageFromJobArchive(jobId, accumulatorUrlPath);
+            RdosTaskStatus taskStatus = processJobStatus(jobIdentifier);
+            Boolean isEndStatus = IS_END_STATUS.test(taskStatus);
+            Boolean isPerjob = EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode());
+            if (isPerjob && isEndStatus) {
+                exceptMessage = storage.getMessageFromJobArchive(engineJobId, exceptionUrlPath);
+                accumulator = storage.getMessageFromJobArchive(engineJobId, accumulatorUrlPath);
             } else {
                 ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
                 String reqURL = currClient.getWebInterfaceURL();
@@ -553,26 +553,11 @@ public class FlinkClient extends AbstractClient {
         } catch (Exception e) {
             logger.error("Get job log error, {}", e.getMessage());
             Map<String, String> map = new LinkedHashMap<>(8);
-            map.put("jobId", jobId);
+            map.put("jobId", engineJobId);
             map.put("exception", ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION);
             map.put("engineLogErr", ExceptionUtil.getErrorMessage(e));
             return new Gson().toJson(map);
         }
-    }
-
-    /**
-     * perjob模式下任务完成后进入jobHistory会有一定的时间
-     */
-    private String getExceptionInfo(String exceptPath, String reqURL) {
-        String exceptionInfo = "";
-        try {
-            exceptionInfo = getMessageByHttp(exceptPath, reqURL);
-            return exceptionInfo;
-        } catch (Exception e) {
-            logger.error("", e);
-        }
-
-        return exceptionInfo;
     }
 
     @Override
@@ -688,9 +673,11 @@ public class FlinkClient extends AbstractClient {
         String checkpointUrlPath = String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, engineJobId);
         String checkpointMsg = "";
 
-        RdosTaskStatus rdosTaskStatus = processJobStatus(jobIdentifier);
         try {
-            if (EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode()) && IS_END_STATUS.test(rdosTaskStatus)) {
+            RdosTaskStatus taskStatus = processJobStatus(jobIdentifier);
+            Boolean isEndStatus = IS_END_STATUS.test(taskStatus);
+            Boolean isPerjob = EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode());
+            if (isPerjob && isEndStatus) {
                 checkpointMsg = storage.getMessageFromJobArchive(engineJobId, checkpointUrlPath);
             } else {
                 ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
