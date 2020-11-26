@@ -3,13 +3,9 @@ package com.dtstack.engine.master;
 import com.dtstack.engine.master.config.CacheConfig;
 import com.dtstack.engine.master.config.MybatisConfig;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.listener.RunnerListener;
-import com.dtstack.engine.master.utils.ValueUtils;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 
 
@@ -21,22 +17,6 @@ import org.springframework.test.context.ContextConfiguration;
 @ContextConfiguration(classes = {EnvironmentContext.class, CacheConfig.class, MybatisConfig.class})
 @PowerMockIgnore({"javax.management.*", "javax.security.*", "javax.net.ssl.*", "javax.crypto.*"})
 @SpringBootTest
-public abstract class AbstractTest implements RunnerListener {
+public abstract class AbstractTest {
 
-    @Autowired
-    public ApplicationContext context;
-
-    @Override
-    public void runsBeforeClass() {
-        try {
-            ValueUtils.initData();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    @Override
-    public void runsAfterClass() {
-    }
 }
