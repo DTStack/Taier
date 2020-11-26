@@ -241,7 +241,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         String engineLog = null;
         try {
             EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
-            if (Objects.isNull(engineJobCache)) {
+            if (null == engineJobCache) {
                 return "";
             }
             String engineType = engineJobCache.getEngineType();
@@ -250,7 +250,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
             Long userId = info.getLong("userId");
             String pluginInfo = info.getString("pluginInfo");
             JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId,dtuicTenantId,engineType,
-                    TaskParamsUtil.parseDeployTypeByTaskParams(taskParams,engineJobCache.getComputeType()).getType(),userId,pluginInfo);
+                    TaskParamsUtil.parseDeployTypeByTaskParams(taskParams,engineJobCache.getComputeType(),engineJobCache.getEngineType()).getType(),userId,pluginInfo);
             //从engine获取log
             engineLog = workerOperator.getEngineLog(jobIdentifier);
             if (engineLog != null) {

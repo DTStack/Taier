@@ -25,7 +25,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -45,7 +44,6 @@ import static org.mockito.Mockito.when;
  * @author yuebai
  * @date 2020-06-04
  */
-@PrepareForTest({AkkaConfig.class, ClientOperator.class})
 public class ClusterServiceTest extends AbstractTest {
 
     @Autowired
@@ -92,13 +90,10 @@ public class ClusterServiceTest extends AbstractTest {
     @Before
     public void setup() throws Exception{
         MockitoAnnotations.initMocks(this);
-        PowerMockito.mockStatic(AkkaConfig.class);
-        when(AkkaConfig.isLocalMode()).thenReturn(true);
-        PowerMockito.mockStatic(ClientOperator.class);
+        PowerMockito.mock(ClientOperator.class);
 
         ComponentTestResult componentTestResult = new ComponentTestResult();
         componentTestResult.setResult(true);
-        when(ClientOperator.getInstance()).thenReturn(clientOperator);
 
         when(clientOperator.testConnect(any(),any())).thenReturn(componentTestResult);
 

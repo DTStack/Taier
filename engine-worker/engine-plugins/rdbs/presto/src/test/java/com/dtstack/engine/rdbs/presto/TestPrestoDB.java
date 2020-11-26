@@ -14,7 +14,7 @@ import static org.junit.Assert.fail;
 
 public class TestPrestoDB {
 
-    @Test
+
     public void testPrestoConn() {
         try {
             String driver = "com.facebook.presto.jdbc.PrestoDriver";

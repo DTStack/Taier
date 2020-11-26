@@ -267,7 +267,7 @@ public class ConsoleService {
                     ScheduleJob scheduleJob = scheduleJobMap.getOrDefault(engineJobCache.getJobId(), new ScheduleJob());
                     //补充租户信息
                     Tenant tenant = tenantMap.get(scheduleJob.getDtuicTenantId());
-                    if(Objects.isNull(tenant) && DELAULT_TENANT != scheduleJob.getDtuicTenantId() && scheduleJob.getDtuicTenantId() > 0){
+                    if(null == tenant && DELAULT_TENANT != scheduleJob.getDtuicTenantId() && scheduleJob.getDtuicTenantId() > 0){
                         //可能临时运行 租户在tenant表没有 需要添加
                         try {
                             tenant = tenantService.addTenant(scheduleJob.getDtuicTenantId(), dtToken);
@@ -296,16 +296,16 @@ public class ConsoleService {
         String waitTime = DateUtil.getTimeDifference(currentTime - engineJobCache.getGmtCreate().getTime());
         theJobMap.put("waitTime", waitTime);
         theJobMap.put("waitReason", engineJobCache.getWaitReason());
-        theJobMap.put("tenantName", Objects.isNull(tenant) ? "" : tenant.getTenantName());
+        theJobMap.put("tenantName", null == tenant ? "" : tenant.getTenantName());
         String jobInfo = (String) theJobMap.get("jobInfo");
         JSONObject jobInfoJSON = JSONObject.parseObject(jobInfo);
-        if (Objects.isNull(jobInfoJSON)) {
+        if (null == jobInfoJSON) {
             jobInfoJSON = new JSONObject();
         }
         if (!jobInfoJSON.containsKey(PluginWrapper.PLUGIN_INFO)) {
             //获取插件信息
             String pluginInfo = pluginWrapper.getPluginInfo(jobInfoJSON.getString("taskParams"), engineJobCache.getComputeType(), engineJobCache.getEngineType(),
-                    Objects.isNull(tenant) ? -1L : tenant.getDtUicTenantId(), jobInfoJSON.getLong("userId"));
+                    null == tenant ? -1L : tenant.getDtUicTenantId(), jobInfoJSON.getLong("userId"));
             jobInfoJSON.put(PluginWrapper.PLUGIN_INFO, pluginInfo);
             theJobMap.put("jobInfo", jobInfoJSON.toJSONString());
         }
@@ -319,7 +319,7 @@ public class ConsoleService {
         long currentTime = System.currentTimeMillis();
         String waitTime = DateUtil.getTimeDifference(currentTime - engineJobCache.getGmtCreate().getTime());
         infoVO.setWaitTime(waitTime);
-        infoVO.setTenantName(Objects.isNull(tenant) ? "" : tenant.getTenantName());
+        infoVO.setTenantName(null == tenant ? "" : tenant.getTenantName());
         infoVO.setParamAction(paramAction);
         return infoVO;
     }
@@ -330,7 +330,7 @@ public class ConsoleService {
         try {
             EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
             //只支持DB、PRIORITY两种调整顺序
-            if (Objects.nonNull(engineJobCache) && EJobCacheStage.DB.getStage() == engineJobCache.getStage() || EJobCacheStage.PRIORITY.getStage() == engineJobCache.getStage()) {
+            if (null != engineJobCache && EJobCacheStage.DB.getStage() == engineJobCache.getStage() || EJobCacheStage.PRIORITY.getStage() == engineJobCache.getStage()) {
                 ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
                 JobClient jobClient = new JobClient(paramAction);
                 jobClient.setCallBack((jobStatus) -> {
@@ -496,7 +496,7 @@ public class ConsoleService {
                 //获取对应的插件名称
                 Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode());
                 String clusterName = cluster.getClusterName();
-                if (Objects.isNull(hdfsComponent)) {
+                if (null == hdfsComponent) {
                     typeName = componentService.convertComponentTypeToClient(clusterName,
                             EComponentType.HDFS.getTypeCode(), yarnComponent.getHadoopVersion(),null);
                 } else {

@@ -107,7 +107,7 @@ public class GroupPriorityQueue {
     }
 
     private long priorityQueueSize() {
-        return queue.size() + jobSubmitDealer.getDelayJobQueueSize();
+        return queue.size() + (long)jobSubmitDealer.getDelayJobQueueSize();
     }
 
     public String getJobResource() {
@@ -257,7 +257,7 @@ public class GroupPriorityQueue {
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_AcquireJob"));
         scheduledService.scheduleWithFixedDelay(
                 new AcquireGroupQueueJob(),
-                WAIT_INTERVAL * 10,
+                WAIT_INTERVAL * 10L,
                 WAIT_INTERVAL,
                 TimeUnit.MILLISECONDS);
 

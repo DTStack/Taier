@@ -53,7 +53,7 @@ public class Template {
         EngineJobCheckpoint jc = new EngineJobCheckpoint();
         jc.setTaskId("taskId");
         jc.setTaskEngineId("te-999");
-        jc.setCheckpointId("checkpointId");
+        jc.setCheckpointId("2");
         jc.setCheckpointTrigger(Timestamp.valueOf("2020-06-14 12:12:12"));
         jc.setCheckpointSavepath("hdfs://tmp/flink/checkpoint/test");
         jc.setCheckpointCounts("2");
@@ -64,13 +64,29 @@ public class Template {
         EngineJobCache engineJobCache = new EngineJobCache();
         engineJobCache.setJobId("jobId");
         engineJobCache.setJobName("test");
-        engineJobCache.setEngineType("1");
+        engineJobCache.setEngineType("spark");
         engineJobCache.setJobPriority(10L);
         engineJobCache.setComputeType(1);
-        engineJobCache.setJobInfo("{\"engineType\":\"2\",\"taskType\":2,\"computeType\":0, \"tenantId\":9}");
+        engineJobCache.setJobInfo("{\"engineType\":\"spark\",\"taskType\":2,\"computeType\":0, \"tenantId\":9}");
         engineJobCache.setStage(2);
         engineJobCache.setNodeAddress("node01");
         engineJobCache.setJobResource("dtScript_dev_default_batch_Yarn");
+
+        return engineJobCache;
+    }
+
+    public static EngineJobCache getEngineJobCacheTemplate2() {
+        EngineJobCache engineJobCache = new EngineJobCache();
+        engineJobCache.setJobId("jobId2");
+        engineJobCache.setJobName("test");
+        engineJobCache.setEngineType("spark");
+        engineJobCache.setJobPriority(10L);
+        engineJobCache.setComputeType(1);
+        engineJobCache.setJobInfo("{\"engineType\":\"spark\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, \"maxRetryNum\":3,\"taskParams\":\"openCheckpoint:true\"," +
+                "\"taskId\":\"jobId2\"}");
+        engineJobCache.setStage(2);
+        engineJobCache.setNodeAddress(null);
+        engineJobCache.setJobResource("test");
 
         return engineJobCache;
     }

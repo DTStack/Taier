@@ -18,6 +18,7 @@
 
 package org.apache.flink.runtime.util;
 
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.util.FlinkRuntimeException;
@@ -211,23 +212,14 @@ public class HadoopUtils {
             hadoopConf.readFields(datain);
             return hadoopConf;
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("HadoopUtils.deserializeHadoopConf error:", e);
         } finally {
-            if(datain != null) {
                 try {
                     datain.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            if(in != null) {
-                try {
                     in.close();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            }
         }
 
         return null;
