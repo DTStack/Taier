@@ -46,7 +46,6 @@ import static org.mockito.Mockito.when;
  * @author yuebai
  * @date 2020-11-05
  */
-@PrepareForTest({ZkService.class, WorkerOperator.class})
 public class ConsoleServiceTest extends AbstractTest {
 
     @Mock
@@ -83,16 +82,16 @@ public class ConsoleServiceTest extends AbstractTest {
     }
 
     private void initMockWorkOperator() throws Exception {
-        PowerMockito.mockStatic(WorkerOperator.class);
-        PowerMockito.mockStatic(WorkerOperator.class);
+        PowerMockito.mock(WorkerOperator.class);
         ClusterResource clusterResource = new ClusterResource();
         when(workerOperator.clusterResource(any(),any())).thenReturn(clusterResource);
     }
 
     private void initMockZkService() {
+        PowerMockito.mock(ZkService.class);
         List<String> aliveNodes = new ArrayList<>();
         aliveNodes.add("127.0.0.1:9099");
-        Mockito.when(zkService.getAliveBrokersChildren()).thenReturn(aliveNodes);
+        when(zkService.getAliveBrokersChildren()).thenReturn(aliveNodes);
     }
 
     @Test

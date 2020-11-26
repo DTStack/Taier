@@ -64,7 +64,6 @@ import java.util.Map;
  * @Date 2020-11-25 20:00:08
  * @Created basion
  */
-@PrepareForTest({AkkaConfig.class, ClientOperator.class, SftpFileManage.class, XmlFileUtil.class})
 public class ComponentServiceTest extends AbstractTest {
 
     @Autowired
@@ -112,7 +111,6 @@ public class ComponentServiceTest extends AbstractTest {
 
     private void initMock() throws Exception {
         MockitoAnnotations.initMocks(this);
-        initMockAkka();
         initMockClientOperator();
         initMockSftpFileManager();
         initMockXmlFileUtil();
@@ -133,7 +131,7 @@ public class ComponentServiceTest extends AbstractTest {
     }
 
     private void initMockSftpFileManager() {
-        PowerMockito.mockStatic(SftpFileManage.class);
+        PowerMockito.mock(SftpFileManage.class);
         when(SftpFileManage.getSftpManager(any())).thenReturn(sftpFileManage);
         when(sftpFileManage.downloadDir(any(), any())).thenAnswer((Answer<Boolean>) invocation -> {
             Object[] args = invocation.getArguments();
@@ -151,20 +149,14 @@ public class ComponentServiceTest extends AbstractTest {
     }
 
     private void initMockClientOperator() {
-        PowerMockito.mockStatic(ClientOperator.class);
+        PowerMockito.mock(ClientOperator.class);
         ComponentTestResult componentTestResult = new ComponentTestResult();
         componentTestResult.setResult(true);
-        when(ClientOperator.getInstance()).thenReturn(clientOperator);
         when(clientOperator.testConnect(any(), any())).thenReturn(componentTestResult);
         List<ClientTemplate> templates = new ArrayList<>();
         ClientTemplate clientTemplate = new ClientTemplate();
         templates.add(clientTemplate);
         when(clientOperator.getDefaultPluginConfig(any(), any())).thenReturn(templates);
-    }
-
-    private void initMockAkka() {
-        PowerMockito.mockStatic(AkkaConfig.class);
-        when(AkkaConfig.isLocalMode()).thenReturn(true);
     }
 
     @Test
