@@ -27,7 +27,8 @@ export const UPPER_NAME = [
     'YARN',
     'IMPALA_SQL',
     'DTYARNSHELL',
-    'LEARNING'
+    'LEARNING',
+    'HIVE_SERVER'
 ]
 
 export const COMPONENT_TYPE_VALUE = {
