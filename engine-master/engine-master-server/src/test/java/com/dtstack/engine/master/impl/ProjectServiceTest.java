@@ -7,6 +7,9 @@ import com.dtstack.schedule.common.enums.EProjectScheduleStatus;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author yuebai
@@ -21,6 +24,8 @@ public class ProjectServiceTest extends AbstractTest {
     private ScheduleTaskShadeService scheduleTaskShadeService;
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testUpdateProjectSchedule(){
         ScheduleTaskShade scheduleTaskShade = DataCollection.getData().getScheduleTaskShade();
         Long projectId = scheduleTaskShade.getProjectId();
