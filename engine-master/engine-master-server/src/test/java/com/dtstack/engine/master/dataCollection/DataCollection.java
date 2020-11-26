@@ -347,7 +347,7 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
-    @IgnoreUniqueRandomSet
+//    @IgnoreUniqueRandomSet
     default ScheduleJob getScheduleJobDefiniteJobkey() {
         ScheduleJob scheduleJobJob = Template.getScheduleJobTemplate();
         scheduleJobJob.setTenantId(-20001L);
