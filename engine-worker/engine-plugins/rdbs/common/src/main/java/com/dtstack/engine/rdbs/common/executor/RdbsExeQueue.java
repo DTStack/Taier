@@ -456,7 +456,7 @@ public class RdbsExeQueue {
                     } catch (RejectedExecutionException e) {
                         //等待继续执行---说明当时执行队列处于满状态-->先等2s
                         waitQueue.add(jobClient);
-                        Thread.sleep(2 * 1000);
+                        Thread.sleep(2 * 1000L);
                     }
                 } catch (Throwable t) {
                     LOG.error("", t);

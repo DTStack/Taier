@@ -453,6 +453,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 throw new RdosDefineException("数据同步hadoopConfig principalFile 字段不能为空");
             }
             pluginInfo.put(ConfigConstant.PRINCIPAL_FILE,principalFile);
+            pluginInfo.putIfAbsent(ConfigConstant.PRINCIPAL,hadoopConfig.getString(ConfigConstant.PRINCIPAL));
 
             JSONObject sftpConf = hadoopConfig.getJSONObject(EComponentType.SFTP.getConfName());
             if (null == sftpConf || sftpConf.size() <= 0) {
@@ -460,12 +461,12 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             }
             pluginInfo.put(EComponentType.SFTP.getConfName(), sftpConf);
             //krb5.conf的文件名
-            String krb5Conf = hadoopConfig.getString(ConfigConstant.KRB5_CONF);
+            String krb5Conf = hadoopConfig.getString(ConfigConstant.JAVA_SECURITY_KRB5_CONF);
             if(StringUtils.isBlank(krb5Conf)){
                 //平台不传 暂时设置默认值
-                krb5Conf = ConfigConstant.KRBNAME_DEFAULT;
+                krb5Conf = ConfigConstant.KRB5_CONF;
             }
-            pluginInfo.put(ConfigConstant.KRB_NAME,krb5Conf);
+            pluginInfo.put(ConfigConstant.KRB_NAME, krb5Conf);
             pluginInfo.put(EComponentType.YARN.getConfName(), hadoopConfig);
 
         }
@@ -488,7 +489,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             try {
                 JSONObject reader = (JSONObject) JSONPath.eval(jsonJob, "$.job.content[0].reader");
                 Object increCol = JSONPath.eval(reader, "$.parameter.increColumn");
-                if (Objects.nonNull(increCol) && Objects.nonNull(job.getExecStartTime()) && Objects.nonNull(job.getExecEndTime())) {
+                if (null != increCol && null != job.getExecStartTime() && null != job.getExecEndTime()) {
                     String lastEndLocation = this.queryLastLocation(dtuicTenantId, job.getEngineJobId(), job.getExecStartTime().getTime(), job.getExecEndTime().getTime(), taskparams, job.getComputeType(), jobId);
                     LOG.info("job {} last job {} applicationId {} startTime {} endTime {} location {}", job, job.getJobId(), job.getEngineJobId(), job.getExecStartTime(), job.getExecEndTime(), lastEndLocation);
                     reader.getJSONObject("parameter").put("startLocation", lastEndLocation);

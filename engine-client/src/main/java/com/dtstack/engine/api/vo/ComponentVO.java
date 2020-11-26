@@ -14,6 +14,26 @@ public class ComponentVO extends Component {
 
     private String clusterName;
 
+    private String principals;
+
+    private String principal;
+
+    public String getPrincipals() {
+        return principals;
+    }
+
+    public void setPrincipals(String principals) {
+        this.principals = principals;
+    }
+
+    public String getPrincipal() {
+        return principal;
+    }
+
+    public void setPrincipal(String principal) {
+        this.principal = principal;
+    }
+
     public String getClusterName() {
         return clusterName;
     }

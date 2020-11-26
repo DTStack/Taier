@@ -21,3 +21,4 @@ keytab/
 tmp/
 tmp1100/
 tmpSave/
+*jacoco.exec

@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.bo;
+package com.dtstack.engine.common.pojo;
 
 /**
  * Reason:
