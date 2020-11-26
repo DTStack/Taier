@@ -739,11 +739,11 @@ class EditCluster extends React.Component<any, any> {
     handleSavePrincipal = (val: string, componentTypeCode: number) => {
         const { form } = this.props;
         this.setState({
-            storeType: val
+            principal: val
         })
         form.setFieldsValue({
             [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
-                storeType: val
+                principal: val
             }
         })
     }
