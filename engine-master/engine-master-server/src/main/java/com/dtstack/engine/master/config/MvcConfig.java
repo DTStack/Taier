@@ -11,8 +11,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.*;
 
 import java.util.List;
@@ -25,6 +23,25 @@ import java.util.List;
  */
 @Configuration
 public class MvcConfig extends DelegatingWebMvcConfiguration {
+
+    private static final List<String> INTERCEPT_LIST;
+
+    static {
+        INTERCEPT_LIST = Lists.newArrayList("/**/getJobGraph","/**/runTimeTopOrder","/**/errorTopOrder",
+                "/**/frozenTask","/**/getFillDataJobInfoPreview","/**/stopFillDataJobs",
+                //队列管理
+                "/node/cluster/getAllCluster","/node/console/nodeAddress","/node/console/overview","/node/console/stopAll",
+                "/node/console/groupDetail",
+                //资源管理
+                "/node/console/clusterResources","/node/tenant/pageQuery","/node/tenant/queryTaskResourceLimits",
+                "/node/console/getTaskResourceTemplate","/node/tenant/bindingQueue","/node/account/getTenantUnBandList",
+                //告警通道
+                "/node/account/pageQuery","/console/service/alert/page","/console/service/alert/edit",
+                "/console/service/alert/setDefaultAlert","/service/alert/getByAlertId","/console/service/alert/delete",
+                //多集群管理
+                "/node/cluster/pageQuery","/node/component/cluster/getCluster","/node/component/getComponentVersion",
+                "/node/component/addOrCheckClusterWithName","/node/component/testConnects","/node/cluster/deleteCluster");
+    }
 
     @Autowired
     private DtArgumentResolver dtArgumentResolver;
@@ -60,8 +77,7 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loginInterceptor()).addPathPatterns(Lists.newArrayList("/**/getJobGraph","/**/runTimeTopOrder","/**/errorTopOrder",
-                "/**/frozenTask","/**/getFillDataJobInfoPreview","/**/stopFillDataJobs"));
+        registry.addInterceptor(loginInterceptor()).addPathPatterns(INTERCEPT_LIST);
         super.addInterceptors(registry);
     }
 

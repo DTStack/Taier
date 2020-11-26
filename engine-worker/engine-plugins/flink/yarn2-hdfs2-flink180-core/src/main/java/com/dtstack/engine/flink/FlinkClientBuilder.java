@@ -67,7 +67,8 @@ public class FlinkClientBuilder {
         config.setString("akka.tcp.timeout", ConfigConstrant.AKKA_TCP_TIMEOUT);
         // JVM Param
         config.setString(CoreOptions.FLINK_JVM_OPTIONS, ConfigConstrant.JVM_OPTIONS);
-        config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));
+        //config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));
+
         config.setLong("submitTimeout", 5);
 
         if (extProp != null) {

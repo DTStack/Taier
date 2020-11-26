@@ -14,7 +14,7 @@
     <name>plugins.dtscript.yarn2-hdfs2-dtscript-core.dtscript-core</name>
 
     <properties>
-        <junit.version>4.11</junit.version>
+        <junit.version>4.12</junit.version>
         <jdk.version>1.8</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -127,7 +127,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
 

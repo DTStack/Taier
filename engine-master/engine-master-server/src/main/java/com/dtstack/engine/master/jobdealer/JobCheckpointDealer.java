@@ -121,7 +121,7 @@ public class JobCheckpointDealer implements InitializingBean {
                     JobCheckpointInfo taskInfo = delayBlockingQueue.take();
                     String engineJobId = taskInfo.getJobIdentifier().getEngineJobId();
                     ScheduleJob jobInfo = scheduleJobDao.getByJobId(taskInfo.getTaskId(), 0);
-                    int status = jobInfo.getStatus().intValue();
+                    int status = jobInfo.getStatus();
 
                     updateCheckpointImmediately(taskInfo, engineJobId, status);
 
@@ -199,7 +199,7 @@ public class JobCheckpointDealer implements InitializingBean {
                 }
             }
         } catch (IOException e) {
-            logger.error("taskID:{} ,engineTaskId:{}, error log:{}\n", taskId, engineTaskId, ExceptionUtil.getErrorMessage(e));
+            logger.error("taskID:{} ,engineTaskId:{}, error log:", taskId, engineTaskId, e);
         }
     }
 
@@ -254,7 +254,7 @@ public class JobCheckpointDealer implements InitializingBean {
      * @return
      * @throws ExecutionException
      */
-    private Map getJobParamsByJobId(String jobId) throws ExecutionException {
+    private Map getJobParamsByJobId(String jobId) throws ExecutionException{
         Map<String, Object> taskParams = checkpointConfigCache.get(jobId, () -> {
             Map<String, Object> paramInfo = Maps.newConcurrentMap();
             String jobInfo = engineJobCacheDao.getOne(jobId).getJobInfo();

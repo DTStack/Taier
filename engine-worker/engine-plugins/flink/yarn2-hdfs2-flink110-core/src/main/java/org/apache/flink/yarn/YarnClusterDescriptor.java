@@ -660,7 +660,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 				currentProxy = currentProxyField.get(h);
 			}catch (Exception e){
 				//兼容Hadoop 2.7.3.2.6.4.91-3
-				LOG.warn("get currentProxy error:{}", ExceptionUtil.getErrorMessage(e));
+				LOG.error("get currentProxy error:", e);
 				Field proxyDescriptorField = h.getClass().getDeclaredField("proxyDescriptor");
 				proxyDescriptorField.setAccessible(true);
 				Object proxyDescriptor = proxyDescriptorField.get(h);
@@ -682,7 +682,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
 			return String.format("http://%s/proxy",addr);
 		}catch (Exception e){
-			LOG.warn("get monitor error:{}", ExceptionUtil.getErrorMessage(e));
+			LOG.error("get monitor error:", e);
 		}
 
 		return url;
@@ -833,7 +833,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		final Path homeDir = fs.getHomeDirectory();
 
 		// hard coded check for the GoogleHDFS client because its not overriding the getScheme() method.
-		if (!fs.getClass().getSimpleName().equals("GoogleHadoopFileSystem") &&
+		if (!"GoogleHadoopFileSystem".equals(fs.getClass().getSimpleName()) &&
 				fs.getScheme().startsWith("file")) {
 			LOG.warn("The file system scheme is '" + fs.getScheme() + "'. This indicates that the "
 					+ "specified Hadoop configuration path is wrong and the system is using the default Hadoop configuration values."

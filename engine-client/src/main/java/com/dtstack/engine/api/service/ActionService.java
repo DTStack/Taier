@@ -32,6 +32,16 @@ public interface ActionService extends DtInsightServer {
     ApiResponse<Boolean> stop(@Param("jobIds") List<String> jobIds) ;
 
     /**
+     *
+     * @param jobIds 任务id
+     * @param isForce 是否强制
+     * @return
+     */
+    @RequestLine("POST /node/action/forceStop")
+    @Headers(value={"Content-Type: application/json"})
+    ApiResponse<Boolean> stop(@Param("jobIds") List<String> jobIds,@Param("isForce") Integer isForce);
+
+    /**
      * 根据jobid 和 计算类型，查询job的状态
      */
     @RequestLine("POST /node/action/status")

@@ -73,7 +73,7 @@ public class HeartBeatCheckListener implements Listener {
                 }
             }
         } catch (Throwable e) {
-            logger.error(ExceptionUtil.getErrorMessage(e));
+            logger.error("", e);
         }
     }
 

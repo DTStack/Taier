@@ -34,6 +34,15 @@
         order by checkpoint_trigger asc
     </select>
 
+    <select id="findLatestSavepointByTaskId" resultType="EngineJobCheckpoint">
+        select
+        <include refid="select_content_fragment"/>
+        from schedule_engine_job_checkpoint
+        where is_deleted=0 and task_id=#{taskId}
+        and checkpoint_savepath REGEXP '^hdfs.*[a-zA-Z0-9]{8}-[a-zA-Z0-9]{6}-[a-zA-Z0-9]{12}$'
+        order by checkpoint_trigger desc limit 1
+    </select>
+
     <select id="getByTaskIdAndEngineTaskId" resultType="EngineJobCheckpoint">
         select
         <include refid="select_content_fragment"/>
