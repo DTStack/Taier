@@ -7,6 +7,7 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.vo.console.ConsoleJobVO;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.TestClusterDao;
 import com.dtstack.engine.dao.TestComponentDao;
 import com.dtstack.engine.dao.TestEngineJobCacheDao;
@@ -14,7 +15,6 @@ import com.dtstack.engine.dao.TestScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.dataCollection.DataCollection;
-import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
@@ -30,6 +30,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -94,6 +96,8 @@ public class ConsoleServiceTest extends AbstractTest {
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testOverview() {
         EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
         Collection<Map<String, Object>> dev = consoleService.overview(engineJobCache.getNodeAddress(), "dev");
@@ -104,18 +108,24 @@ public class ConsoleServiceTest extends AbstractTest {
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testFinishJob() {
-        Boolean finishJob = consoleService.finishJob("asdf", 0);
+        Boolean finishJob = consoleService.finishJob("asdf", RdosTaskStatus.RUNNING.getStatus());
         Assert.assertEquals(finishJob,true);
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testNodeAddress() {
         List<String> nodeAddress = consoleService.nodeAddress();
         Assert.assertEquals(nodeAddress.size(),1);
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testSearchJob() {
         ScheduleJob one = scheduleJobDao.getOne();
         ConsoleJobVO searchJob = consoleService.searchJob(one.getJobName());
@@ -123,6 +133,8 @@ public class ConsoleServiceTest extends AbstractTest {
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testListNames() {
         ScheduleJob one = scheduleJobDao.getOne();
         List<String> listNames = consoleService.listNames(one.getJobName());
@@ -136,6 +148,8 @@ public class ConsoleServiceTest extends AbstractTest {
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testGroupDetail() {
         EngineJobCache one = engineJobCacheDao.getOne();
         PageResult groupDetail = consoleService.groupDetail(one.getJobResource(), one.getNodeAddress(), one.getStage(), 10, 1, "");
@@ -144,6 +158,8 @@ public class ConsoleServiceTest extends AbstractTest {
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testJobStick() {
         EngineJobCache one = engineJobCacheDao.getOne();
         Boolean jobStick = consoleService.jobStick(one.getJobId());
@@ -151,18 +167,24 @@ public class ConsoleServiceTest extends AbstractTest {
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testStopJob() throws Exception {
-        EngineJobCache one = engineJobCacheDao.getOne();
-        consoleService.stopJob(one.getJobId());
+        EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
+        consoleService.stopJob(engineJobCache.getJobId());
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testStopAll() throws Exception {
-        EngineJobCache one = engineJobCacheDao.getOne();
-        consoleService.stopAll(one.getJobResource(), one.getNodeAddress());
+        EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
+        consoleService.stopAll(engineJobCache.getJobResource(), engineJobCache.getNodeAddress());
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testStopJobList() throws Exception {
         EngineJobCache one = engineJobCacheDao.getOne();
         consoleService.stopJobList(one.getJobResource(), one.getNodeAddress(), one.getStage(), Lists.newArrayList(one.getJobId()));
@@ -170,42 +192,35 @@ public class ConsoleServiceTest extends AbstractTest {
 
     @Test
     @Rollback
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public void testClusterResources() {
-        Component component = initYarnComponentForTest();
-        initHdfsComponentForTest();
         Cluster one = clusterDao.getOne();
         ClusterResource clusterResources = consoleService.clusterResources(one.getClusterName());
         Assert.assertNotNull(clusterResources);
     }
 
-    private Component initYarnComponentForTest() {
-        Component component = Template.getDefaultYarnComponentTemplate();
-        componentDao.insert(component);
-        return component;
-    }
-
-    private Component initHdfsComponentForTest() {
-        Component component = Template.getDefaltHdfsComponentTemplate();
-        componentDao.insert(component);
-        return component;
-    }
-
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testGetResources() {
-        Component component = initHdfsComponentForTest();
+        Component hdfsComponent = Template.getDefaultHdfsComponentTemplate();
         Cluster cluster = clusterDao.getOne();
-        ClusterResource getResources = consoleService.getResources(component, cluster);
+        ClusterResource getResources = consoleService.getResources(hdfsComponent, cluster);
         Assert.assertNotNull(getResources);
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testGetYarnComponent() {
-        initYarnComponentForTest();
-        Component getYarnComponent = consoleService.getYarnComponent(1L);
+        Cluster defaultCluster = DataCollection.getData().getDefaultCluster();
+        Component getYarnComponent = consoleService.getYarnComponent(defaultCluster.getId());
         Assert.assertNotNull(getYarnComponent);
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testGetTaskResourceTemplate() {
         List<TaskTypeResourceTemplateVO> getTaskResourceTemplate = consoleService.getTaskResourceTemplate();
         Assert.assertTrue(org.apache.commons.collections.CollectionUtils.isNotEmpty(getTaskResourceTemplate));

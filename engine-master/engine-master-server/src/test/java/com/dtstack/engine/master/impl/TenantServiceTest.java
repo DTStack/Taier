@@ -1,7 +1,10 @@
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.api.domain.Cluster;
+import com.dtstack.engine.api.domain.Engine;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.Tenant;
+import com.dtstack.engine.api.domain.TenantResource;
 import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
@@ -14,7 +17,9 @@ import com.dtstack.engine.dao.TestConsoleUserDao;
 import com.dtstack.engine.dao.TestQueueDao;
 import com.dtstack.engine.dao.TestTenantDao;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.router.login.domain.UserTenant;
 import org.apache.commons.collections.CollectionUtils;
@@ -27,6 +32,9 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -64,18 +72,6 @@ public class TenantServiceTest extends AbstractTest {
     @Before
     public void setup() throws Exception {
         initMock();
-        initUserForTest();
-    }
-
-    private User initUserForTest() {
-        User user = new User();
-        user.setDtuicUserId(1L);
-        user.setUserName("test@dtstack.com");
-        user.setEmail("test@dtstack.com");
-        user.setStatus(0);
-        user.setPhoneNumber("");
-        consoleUserDao.insert(user);
-        return user;
     }
 
     private void initMock() {
@@ -110,72 +106,102 @@ public class TenantServiceTest extends AbstractTest {
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testPageQuery() {
-        PageResult<List<EngineTenantVO>> pageQuery = tenantService.pageQuery(1L, 9, "测试租户", 10, 0);
+        Cluster defaultCluster = DataCollection.getData().getDefaultCluster();
+        Tenant defaultTenant = DataCollection.getData().getDefaultTenant();
+        PageResult<List<EngineTenantVO>> pageQuery = tenantService.pageQuery(defaultCluster.getId(), MultiEngineType.HADOOP.getType(), defaultTenant.getTenantName(), 10, 1);
         Assert.assertNotNull(pageQuery);
-        Assert.assertEquals(pageQuery.getTotalCount(),1);
+        Assert.assertTrue(pageQuery.getTotalCount()>0);
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testListEngineTenant() {
-        List<EngineTenantVO> listEngineTenant = tenantService.listEngineTenant(1L, 9);
+        Tenant defaultTenant = DataCollection.getData().getDefaultTenant();
+        List<EngineTenantVO> listEngineTenant = tenantService.listEngineTenant(defaultTenant.getDtUicTenantId(), MultiEngineType.HADOOP.getType());
         Assert.assertEquals(listEngineTenant.size(),1);
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testListTenant() {
         List<UserTenantVO> listTenant = tenantService.listTenant("token");
     }
 
     @Test()
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testBindingTenant() throws Exception {
-        initDefaultTenantForBind();
-        tenantService.bindingTenant(2L, 1L, 0L, "", "");
+        Tenant tenant = initDefaultTenantForBind();
+        Cluster defaultCluster = DataCollection.getData().getDefaultCluster();
+        tenantService.bindingTenant(tenant.getDtUicTenantId(), defaultCluster.getId(), 0L, "", "");
     }
 
-    private void initDefaultTenantForBind() {
+    private Tenant initDefaultTenantForBind() {
         Tenant tenant = new Tenant();
         tenant.setId(2L);
         tenant.setDtUicTenantId(2L);
         tenant.setTenantName("测试租户2");
         tenant.setTenantDesc("测试租户2");
         tenantDao.insert(tenant);
+        return tenant;
     }
 
     @Test()
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testCheckClusterCanUse() throws Exception {
-        tenantService.checkClusterCanUse(1L);
+        Cluster defaultCluster = DataCollection.getData().getDefaultCluster();
+        tenantService.checkClusterCanUse(defaultCluster.getId());
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testAddTenant() {
         Tenant addTenant = tenantService.addTenant(3L, "");
         Assert.assertNotNull(addTenant);
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testUpdateTenantQueue() {
         tenantService.updateTenantQueue(1L, 1L, 1L, 1L);
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testBindingQueue() {
         Queue one = queueDao.getOne();
         tenantService.bindingQueue(one.getId(), 1L, "");
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testUpdateTenantTaskResource() {
         tenantService.updateTenantTaskResource(1L, 1L, "");
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testQueryTaskResourceLimits() {
-        List<TenantResourceVO> queryTaskResourceLimits = tenantService.queryTaskResourceLimits(1L);
+        Tenant defaultTenant = DataCollection.getData().getDefaultTenant();
+        TenantResource defaultTenantResource = DataCollection.getData().getDefaultTenantResource();
+        List<TenantResourceVO> queryTaskResourceLimits = tenantService.queryTaskResourceLimits(defaultTenantResource.getDtUicTenantId().longValue());
         Assert.assertEquals(CollectionUtils.isNotEmpty(queryTaskResourceLimits),true);
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testQueryResourceLimitByTenantIdAndTaskType() {
         String queryResourceLimitByTenantIdAndTaskType = tenantService.queryResourceLimitByTenantIdAndTaskType(1L, EComponentType.SPARK.getTypeCode());
         Assert.assertNotNull(queryResourceLimitByTenantIdAndTaskType);

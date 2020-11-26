@@ -1,12 +1,17 @@
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.api.domain.Engine;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.dataCollection.DataCollection;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +38,8 @@ public class QueueServiceTest extends AbstractTest {
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testUpdateQueue() {
         List<ComponentTestResult.QueueDescription> descriptions = new ArrayList<>();
         ComponentTestResult.QueueDescription queueDescription = new ComponentTestResult.QueueDescription();
@@ -44,10 +51,13 @@ public class QueueServiceTest extends AbstractTest {
         queueDescription.setQueueState("RUNNING");
         descriptions.add(queueDescription);
         ComponentTestResult.ClusterResourceDescription description = new ComponentTestResult.ClusterResourceDescription(3,100000,10,descriptions);
-        queueService.updateQueue(1L, description);
+        Engine defaultHadoopEngine = DataCollection.getData().getDefaultHadoopEngine();
+        queueService.updateQueue(defaultHadoopEngine.getId(), description);
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testAddNamespaces() {
         Long addNamespaces = queueService.addNamespaces(1L, "test");
         Assert.assertNotNull(addNamespaces);
