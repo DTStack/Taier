@@ -26,20 +26,21 @@ import java.util.Properties;
  *
  * @author xuchao
  */
-
 public class ClientOperator {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientOperator.class);
 
     private ClientCache clientCache = ClientCache.getInstance();
 
-    private static ClientOperator singleton = new ClientOperator();
+    private static class SingletonHolder {
+        private static ClientOperator singleton = new ClientOperator();
+    }
 
     private ClientOperator() {
     }
 
     public static ClientOperator getInstance() {
-        return singleton;
+        return SingletonHolder.singleton;
     }
 
     public RdosTaskStatus getJobStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {

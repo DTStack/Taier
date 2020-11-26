@@ -11,16 +11,10 @@ import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
@@ -39,11 +33,7 @@ import static org.mockito.Mockito.when;
  * @author xiuzhu
  */
 
-@PrepareForTest({PoolHttpClient.class, WorkerOperator.class})
 public class StreamTaskServiceTest extends AbstractTest {
-
-	@Mock
-	private WorkerOperator workerOperator;
 
 	@Autowired
     private ScheduleJobDao scheduleJobDao;
@@ -52,22 +42,7 @@ public class StreamTaskServiceTest extends AbstractTest {
     private EngineJobCacheDao engineJobCacheDao;
 
 	@Autowired
-	@InjectMocks
 	StreamTaskService streamTaskService;
-
-	@Before
-	public void setup() throws Exception{
-		MockitoAnnotations.initMocks(this);
-		PowerMockito.mockStatic(WorkerOperator.class);
-		when(workerOperator.getJobMaster(any())).thenReturn("http://dtstack01:8088/");
-
-        PowerMockito.mockStatic(WorkerOperator.class);
-        when(workerOperator.getJobStatus(any())).thenReturn(RdosTaskStatus.FAILED);
-
-		PowerMockito.mockStatic(PoolHttpClient.class);
-		when(PoolHttpClient.get(any())).thenReturn("{\"app\":{\"amContainerLogs\":\"http://dtstack01:8088/ws/v1/cluster/apps/application_9527\"}}");
-
-	}
 
 	@Test
 	@Transactional(isolation = Isolation.READ_UNCOMMITTED)

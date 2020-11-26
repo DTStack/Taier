@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.enums;
+package com.dtstack.engine.common.enums;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
 

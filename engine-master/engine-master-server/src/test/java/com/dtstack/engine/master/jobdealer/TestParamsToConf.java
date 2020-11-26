@@ -1,19 +1,7 @@
-package com.dtstack.engine;
+package com.dtstack.engine.master.jobdealer;
 
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.master.DtCenterSpringJUnit4ClassRunner;
-import com.dtstack.engine.master.config.CacheConfig;
-import com.dtstack.engine.master.config.MasterServerBeanConfig;
-import com.dtstack.engine.master.config.MybatisConfig;
-import com.dtstack.engine.master.env.EnvironmentContext;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.stereotype.Component;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -23,12 +11,6 @@ import java.util.Properties;
  * @Description:
  * @Date: Created in 2:39 下午 2020/10/15
  */
-@Component
-@RunWith(PowerMockRunner.class)
-@PowerMockRunnerDelegate(DtCenterSpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {EnvironmentContext.class, MasterServerBeanConfig.class, CacheConfig.class, MybatisConfig.class})
-@PowerMockIgnore({"javax.management.*", "javax.security.*", "javax.net.ssl.*", "javax.crypto.*"})
-@SpringBootTest
 public class TestParamsToConf {
 
 

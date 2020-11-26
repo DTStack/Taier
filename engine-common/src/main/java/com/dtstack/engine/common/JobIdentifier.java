@@ -1,12 +1,12 @@
 package com.dtstack.engine.common;
 
+import com.dtstack.engine.common.enums.EDeployMode;
+
 import java.io.Serializable;
 
 /**
- * Reason:
- * Date: 2018/11/5
  * Company: www.dtstack.com
- * @author xuchao
+ * @author yuebai
  */
 
 public class JobIdentifier implements Serializable {
@@ -21,7 +21,10 @@ public class JobIdentifier implements Serializable {
 
     private String engineType;
 
-    private Integer deployMode;
+    /**
+     * 默认 perjob
+     */
+    private Integer deployMode = EDeployMode.PERJOB.getType();
 
     private Long userId;
 
@@ -30,6 +33,10 @@ public class JobIdentifier implements Serializable {
     private Long timeout;
 
     private Boolean forceCancel;
+
+    private JobIdentifier() {
+
+    }
 
     public JobIdentifier(String engineJobId, String applicationId, String taskId, Long tenantId, String engineType, Integer deployMode, Long userId,String pluginInfo) {
         this.engineJobId = engineJobId;
@@ -55,12 +62,12 @@ public class JobIdentifier implements Serializable {
         this.taskId = taskId;
     }
 
-    public static JobIdentifier createInstance(String jobId, String applicationId, String taskId, Boolean forceCancel){
-        return new JobIdentifier(jobId, applicationId, taskId, forceCancel);
+    public static JobIdentifier createInstance(String engineJobId, String applicationId, String taskId, Boolean forceCancel) {
+        return new JobIdentifier(engineJobId, applicationId, taskId, forceCancel);
     }
 
-    public static JobIdentifier createInstance(String jobId, String applicationId, String taskId){
-        return new JobIdentifier(jobId, applicationId, taskId);
+    public static JobIdentifier createInstance(String engineJobId, String applicationId, String taskId) {
+        return new JobIdentifier(engineJobId, applicationId, taskId);
     }
 
     public Boolean isForceCancel() {
@@ -83,65 +90,34 @@ public class JobIdentifier implements Serializable {
         return pluginInfo;
     }
 
-    public void setPluginInfo(String pluginInfo) {
-        this.pluginInfo = pluginInfo;
-    }
-
     public String getEngineJobId() {
         return engineJobId;
-    }
-
-    public void setEngineJobId(String engineJobId) {
-        this.engineJobId = engineJobId;
     }
 
     public String getApplicationId() {
         return applicationId;
     }
 
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
-    }
-
     public String getTaskId() {
         return taskId;
-    }
-
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
     }
 
     public Long getTenantId() {
         return tenantId;
     }
 
-    public void setTenantId(Long tenantId) {
-        this.tenantId = tenantId;
-    }
-
     public String getEngineType() {
         return engineType;
-    }
-
-    public void setEngineType(String engineType) {
-        this.engineType = engineType;
     }
 
     public Integer getDeployMode() {
         return deployMode;
     }
 
-    public void setDeployMode(Integer deployMode) {
-        this.deployMode = deployMode;
-    }
-
     public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
 
     @Override
     public String toString() {

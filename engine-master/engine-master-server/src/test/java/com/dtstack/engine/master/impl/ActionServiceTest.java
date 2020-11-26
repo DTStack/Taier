@@ -28,7 +28,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.mockito.Mockito.*;
 
@@ -37,7 +36,6 @@ import java.util.*;
 
 import static junit.framework.TestCase.fail;
 
-@PrepareForTest({AkkaConfig.class, ClientOperator.class})
 public class ActionServiceTest extends AbstractTest {
 
     private final static List<String> mockInfos = Lists.newArrayList("Mock Info");
@@ -62,10 +60,7 @@ public class ActionServiceTest extends AbstractTest {
     @Before
     public void setup() throws Exception{
         MockitoAnnotations.initMocks(this);
-        PowerMockito.mockStatic(AkkaConfig.class);
-        when(AkkaConfig.isLocalMode()).thenReturn(true);
-        PowerMockito.mockStatic(ClientOperator.class);
-        when(ClientOperator.getInstance()).thenReturn(clientOperator);
+        PowerMockito.mock(ClientOperator.class);
         when(clientOperator.containerInfos(any())).thenReturn(mockInfos);
     }
 
@@ -207,7 +202,7 @@ public class ActionServiceTest extends AbstractTest {
         computeType = scheduleJob.getComputeType();
         String mock_engine_log = "{err: test_mock_engine_log}";
         when(jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(),
-                scheduleJob.getApplicationId(), scheduleJob.getPluginInfoId())).thenReturn(mock_engine_log);
+                scheduleJob.getApplicationId(), scheduleJob.getDtuicTenantId())).thenReturn(mock_engine_log);
         try {
             String engineLog = "\"engineLog\":\"" + mock_engine_log + "\"" ;
             String logInfo = "\"logInfo\":\"" + scheduleJob.getLogInfo() + "\"";
@@ -255,7 +250,7 @@ public class ActionServiceTest extends AbstractTest {
         } catch (Exception e) {}
 
         String mock_engine_log = "{err: test_mock_engine_log}";
-        when(jobDealer.getAndUpdateEngineLog(jobId, engineJobRetry.getEngineJobId(), engineJobRetry.getApplicationId(), scheduleJob.getPluginInfoId())).thenReturn(mock_engine_log);
+        when(jobDealer.getAndUpdateEngineLog(jobId, engineJobRetry.getEngineJobId(), engineJobRetry.getApplicationId(), scheduleJob.getDtuicTenantId())).thenReturn(mock_engine_log);
 
         try {
             ActionRetryLogVO actionRetryLogVO = actionService.retryLogDetail(jobId, computeType, engineJobRetry.getRetryNum() + 1);
