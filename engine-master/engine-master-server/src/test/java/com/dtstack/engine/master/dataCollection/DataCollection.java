@@ -1,11 +1,13 @@
 package com.dtstack.engine.master.dataCollection;
 
+import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.anno.DataSource;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
+import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.utils.DataCollectionProxy;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.engine.master.utils.ValueUtils;
@@ -345,8 +347,9 @@ public interface DataCollection {
 
     @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
     default ScheduleTaskShade getTask() {
-        ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
 
+
+        ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
         return scheduleTaskShade;
     }
 
@@ -385,4 +388,43 @@ public interface DataCollection {
         return scheduleTaskShade;
     }
 
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    default ScheduleTaskShade getCronJobBySelfReliance1() {
+        ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
+        scheduleTaskShade.setScheduleConf("{\"beginHour\":\"0\",\"endHour\":\"23\",\"beginMin\":\"0\",\"gapHour\":\"1\",\"periodType\":\"1\",\"isFailRetry\":true,\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"selfReliance\":0,\"maxRetryNum\":\"3\",\"isLastInstance\":true,\"endMin\":\"59\",\"isExpire\":true}");
+        scheduleTaskShade.setTaskId(1L);
+        return scheduleTaskShade;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    default ScheduleTaskShade getCronJobBySelfReliance2() {
+        ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
+        scheduleTaskShade.setScheduleConf("{\"beginHour\":\"0\",\"endHour\":\"23\",\"beginMin\":\"0\",\"gapHour\":\"1\",\"periodType\":\"1\",\"isFailRetry\":true,\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"selfReliance\":1,\"maxRetryNum\":\"3\",\"isLastInstance\":true,\"endMin\":\"59\"}");
+        scheduleTaskShade.setTaskId(5L);
+        return scheduleTaskShade;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    default ScheduleTaskShade getCronJobBySelfReliance3() {
+        ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
+        scheduleTaskShade.setScheduleConf("{\"beginHour\":\"0\",\"endHour\":\"23\",\"beginMin\":\"0\",\"gapHour\":\"1\",\"periodType\":\"1\",\"isFailRetry\":true,\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"selfReliance\":2,\"maxRetryNum\":\"3\",\"isLastInstance\":true,\"endMin\":\"59\"}");
+        scheduleTaskShade.setTaskId(2L);
+        return scheduleTaskShade;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    default ScheduleTaskShade getCronJobBySelfReliance4() {
+        ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
+        scheduleTaskShade.setScheduleConf("{\"beginHour\":\"0\",\"endHour\":\"23\",\"beginMin\":\"0\",\"gapHour\":\"1\",\"periodType\":\"1\",\"isFailRetry\":true,\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"selfReliance\":3,\"maxRetryNum\":\"3\",\"isLastInstance\":true,\"endMin\":\"59\"}");
+        scheduleTaskShade.setTaskId(3L);
+        return scheduleTaskShade;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    default ScheduleTaskShade getCronJobBySelfReliance5() {
+        ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
+        scheduleTaskShade.setScheduleConf("{\"beginHour\":\"0\",\"endHour\":\"23\",\"beginMin\":\"0\",\"gapHour\":\"1\",\"periodType\":\"1\",\"isFailRetry\":true,\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"selfReliance\":4,\"maxRetryNum\":\"3\",\"isLastInstance\":true,\"endMin\":\"59\"}");
+        scheduleTaskShade.setTaskId(4L);
+        return scheduleTaskShade;
+    }
 }
