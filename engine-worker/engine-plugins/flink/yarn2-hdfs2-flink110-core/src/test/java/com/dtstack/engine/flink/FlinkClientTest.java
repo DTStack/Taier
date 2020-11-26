@@ -59,7 +59,7 @@ import static org.mockito.Mockito.when;
         AbstractClientFactory.class, FlinkClient.class})
 @PowerMockIgnore("javax.net.ssl.*")
 public class FlinkClientTest {
-/*
+
     @Mock
     FlinkClientBuilder flinkClientBuilder;
 
