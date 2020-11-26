@@ -1554,10 +1554,10 @@
     remark "^12.0.0"
     unist-util-find-all-after "^3.0.1"
 
-"@types/antlr4@^4.7.0":
-  version "4.7.2"
-  resolved "http://registry.npm.dtstack.com/@types%2fantlr4/-/antlr4-4.7.2.tgz#8cfbbcea13d45c42e9a326aa0e55df816cdd07f5"
-  integrity sha512-v6NASzZa4pUgO2QJJqGHTRRBfZDTOk2savuugSfCLatRTd2q+UtW0I7ub9mjzERhm7aWqGxBi886HnJkLYiIEA==
+"@types/antlr4@4.7.0":
+  version "4.7.0"
+  resolved "http://registry.npm.dtstack.com/@types%2fantlr4/-/antlr4-4.7.0.tgz#e6300119bddff6e23f5bbd299f5cf3c722a6249b"
+  integrity sha1-5jABGb3f9uI/W70pn1zzxyKmJJs=
 
 "@types/babel__core@^7.0.0", "@types/babel__core@^7.1.7":
   version "7.1.12"
@@ -2499,6 +2499,13 @@ ant-design-dtinsight-theme@1.0.7:
     bisheng-plugin-toc "^0.4.4"
     moment "^2.24.0"
 
+ant-design-dtinsight-theme@1.0.9:
+  version "1.0.9"
+  resolved "http://registry.npm.dtstack.com/ant-design-dtinsight-theme/-/ant-design-dtinsight-theme-1.0.9.tgz#aabde06085d5c7932d8edd7750cf4500d0515cf0"
+  integrity sha512-/2P9TanSEXZhwKNzFbIG0CDj9csHM7WqwNGz3YvRP1ep1VoN2BIqbLLo3NLVyFGPTo2cPSXeq2ZyLuyi83eRNQ==
+  dependencies:
+    antd "3.26.13"
+
 antd@3.26.13:
   version "3.26.13"
   resolved "http://registry.npm.dtstack.com/antd/-/antd-3.26.13.tgz#fd6b618a33d5dec0f649263f30eae691425f7e47"
@@ -2610,10 +2617,10 @@ antd@latest:
     scroll-into-view-if-needed "^2.2.25"
     warning "^4.0.3"
 
-antlr4@^4.7.2:
-  version "4.8.0"
-  resolved "http://registry.npm.dtstack.com/antlr4/-/antlr4-4.8.0.tgz#f938ec171be7fc2855cd3a533e87647185b32b6a"
-  integrity sha512-en/MxQ4OkPgGJQ3wD/muzj1uDnFSzdFIhc2+c6bHZokWkuBb6RRvFjpWhPxWLbgQvaEzldJZ0GSQpfSAaE3hqg==
+antlr4@4.7.2:
+  version "4.7.2"
+  resolved "http://registry.npm.dtstack.com/antlr4/-/antlr4-4.7.2.tgz#9d0b5987bb63660de658055ee9149141b4d9b462"
+  integrity sha512-vZA1xYufXLe3LX+ja9rIVxjRmILb1x3k7KYZHltRbfJtXjJ1DlFIqt+CbPYmghx0EuzY9DajiDw+MdyEt1qAsQ==
 
 anymatch@^1.3.0:
   version "1.3.2"
@@ -5393,10 +5400,10 @@ draft-js@^0.10.0, draft-js@~0.10.0:
     immutable "~3.7.4"
     object-assign "^4.1.0"
 
-dt-common@4.0.0-alpha.3:
-  version "4.0.0-alpha.3"
-  resolved "http://registry.npm.dtstack.com/dt-common/-/dt-common-4.0.0-alpha.3.tgz#4ed50f440b24e5d33cf0dc1342dd5ed0d3a7ae9b"
-  integrity sha512-kW4KtAVaJZiSIyDUKfDbgGSsG5oz0G1poo6J6hIS+/wazlRLKZhusqqHaZV49hNP35gz3fRLFpnAUXeWYbzbwQ==
+dt-common@4.0.0-alpha.14:
+  version "4.0.0-alpha.14"
+  resolved "http://registry.npm.dtstack.com/dt-common/-/dt-common-4.0.0-alpha.14.tgz#8d17646d022cf71210607d93a76a5389bf251119"
+  integrity sha512-xgVqKhN47HSKXZ6sS5SwXOgZkqAMI5JjCCPZop54CQJe2KN1MILIm1FzWVr0ucZCpk53cCBxtmdKx5IzH9GV/w==
   dependencies:
     "@babel/core" "^7.7.7"
     "@babel/plugin-proposal-class-properties" "^7.1.0"
@@ -5424,7 +5431,7 @@ dt-common@4.0.0-alpha.3:
     "@types/react-router-redux" "4.0.51"
     "@types/redux-logger" "3.0.7"
     "@types/showdown" "1.9.3"
-    ant-design-dtinsight-theme "1.0.7"
+    ant-design-dtinsight-theme "1.0.9"
     antd "3.26.13"
     babel-eslint "^10.0.1"
     babel-loader "^8.0.4"
@@ -5434,7 +5441,7 @@ dt-common@4.0.0-alpha.3:
     core-js "^3.3.2"
     d3-selection "1.1.0"
     diff-match-patch "1.0.0"
-    dt-sql-parser "2.0.11"
+    dt-sql-parser "3.0.5"
     echarts "3.8.5"
     handsontable "^6.2.2"
     highlight.js "9.14.2"
@@ -5464,13 +5471,13 @@ dt-common@4.0.0-alpha.3:
     styled-components "3.1.6"
     whatwg-fetch "2.0.3"
 
-dt-sql-parser@2.0.11, dt-sql-parser@^2.0.4:
-  version "2.0.11"
-  resolved "http://registry.npm.dtstack.com/dt-sql-parser/-/dt-sql-parser-2.0.11.tgz#0cd94972244c378e9d2e84285bcb1b30cb494582"
-  integrity sha512-CKI+0G0NOagQFqZXCrsuJr8UQr/4Zl+TLN5Xh4GL/6pxeaVILvQuiw1SX9pRo8STrzDq7z1Xi2SLiw9qUzG0hg==
+dt-sql-parser@3.0.5:
+  version "3.0.5"
+  resolved "http://registry.npm.dtstack.com/dt-sql-parser/-/dt-sql-parser-3.0.5.tgz#1d80dae7e342d2c5d39b8133d63e1b25be33e40d"
+  integrity sha512-opwS6qtf2VGRx5JMezEHmAHP/7X4PMvrxeeIuo2Y7tesPurCfMO7OtRTJKZsaxU4sKyvaN4+x1gfWslhCll13A==
   dependencies:
-    "@types/antlr4" "^4.7.0"
-    antlr4 "^4.7.2"
+    "@types/antlr4" "4.7.0"
+    antlr4 "4.7.2"
 
 duplexer3@^0.1.4:
   version "0.1.4"
