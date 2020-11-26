@@ -14,6 +14,7 @@ public class ScheduleTaskShade extends ScheduleTask {
     @ApiModelProperty(notes = "是否发布到了生产环境")
     private Long isPublishToProduce;
 
+    @ApiModelProperty(notes = "扩展信息")
     private String extraInfo;
 
     @Unique
