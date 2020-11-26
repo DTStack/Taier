@@ -115,9 +115,13 @@
         and cc.is_deleted = 0
     </select>
 
-    <select id="listByTenantId">
-        select <include refid="select_content_fragment"/>
-        from console_component
-        where tenant_id  = #{tenantId}  and is_deleted = 0
+    <select id="listByTenantId" resultType="Component">
+        select
+        cc.id,cc.component_name,cc.component_type_code,cc.component_config
+        from console_component cc
+        INNER JOIN console_engine_tenant cet
+        on cc.engine_id = cet.engine_id
+        and cet.tenant_id =  #{tenantId}
+        where cc.is_deleted = 0
     </select>
 </mapper>

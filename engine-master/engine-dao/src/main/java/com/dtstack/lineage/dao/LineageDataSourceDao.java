@@ -78,7 +78,7 @@ public interface LineageDataSourceDao {
      * @Date 2020/11/11 4:35 下午
      @return: com.dtstack.engine.api.domain.LineageDataSource
      **/
-    LineageDataSource getDataSourceByParams(LineageDataSource lineageDataSource);
+    List<LineageDataSource> getDataSourceByParams(LineageDataSource lineageDataSource);
 
 
 

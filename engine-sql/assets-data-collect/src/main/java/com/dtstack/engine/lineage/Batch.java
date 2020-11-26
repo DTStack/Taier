@@ -1,13 +1,10 @@
 package com.dtstack.engine.lineage;
 
 import com.dtstack.engine.api.dto.DataSourceDTO;
+import com.dtstack.engine.api.enums.DataSourceType;
 import com.dtstack.engine.api.service.DataSourceService;
-import com.dtstack.engine.api.service.LineageService;
-import com.dtstack.engine.api.vo.lineage.LineageColumnColumnParam;
-import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
-import com.dtstack.engine.api.vo.lineage.LineageDataSourceVO;
-import com.dtstack.engine.api.vo.lineage.LineageTableVO;
 import com.dtstack.engine.api.vo.lineage.param.DataSourceParam;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.sdk.core.common.DtInsightApi;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -22,16 +19,11 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * @author chener
@@ -55,17 +47,15 @@ public class Batch {
         }
     }
 
-    private static String QUERY_TENANT = "select id,dtuic_tenant_id from rdos_tenant where is_deleted=0";
+    private static String QUERY_TENANT = "select id,dtuic_tenant_id from assets_tenant where is_deleted=0";
 
     private static String PAGE_QUERY_LINEAGE_BY_TENANT = "select tenant_id,task_id,data_source_id,table_name,col,input_data_source_id,input_table_name,input_col from rdos_batch_table_table where tenant_id = ? and is_deleted =0 limit ?,?";
 
     private static String QUERY_LINEAGE_COUNT_BY_TENANT = "select count(*) from rdos_batch_table_table where tenant_id = ? and is_deleted =0";
 
-    private static String PAGE_QUERY_DATASOURCE_BY_TENANT = "select data_name,data_json,type,tenant_id from rdos_batch_data_source where tenant_id = ? and is_deleted = 0 limit ?,?";
+    private static String PAGE_QUERY_DATASOURCE_BY_TENANT = "select data_source_name,data_source_json,data_source_type,tenant_id from assets_data_source where tenant_id = ? and is_deleted = 0 limit ?,?";
 
-    private static String QUERY_DATASOURCE_COUNT_BY_TENANT = "select count(1) from rdos_batch_data_source where tenant_id = ? and is_deleted = 0";
-
-    private static final String QUERY_DATA_SOURCE_INFO = "select ds.id,ds.data_name,ds.type,ds.tenant_id,pe.engine_identity from ide.rdos_batch_data_source ds join ide.rdos_project_engine pe on ds.project_id = pe.project_id where ds.is_default = 1 and ds.id = ?";
+    private static String QUERY_DATASOURCE_COUNT_BY_TENANT = "select count(1) from assets_data_source where tenant_id = ? and is_deleted = 0";
 
     private static final Integer PAGE_SIZE = 200;
 
@@ -93,7 +83,6 @@ public class Batch {
                 tenant.setTenantId(dtUicTenantId);
                 tenants.add(tenant);
             }
-
             for (BatchTenant tenant:tenants){
 
                 //查询数据源信息，并批量导入
@@ -142,79 +131,30 @@ public class Batch {
 
         DataSourceService dataSourceService = dtInsightApi.getSlbApiClient(DataSourceService.class);
         DataSourceParam dataSourceParam = new DataSourceParam();
-        List<DataSourceDTO> dataSourceDTOs = new ArrayList<>();
+        List<DataSourceDTO> dataSourceDtos = new ArrayList<>();
         for (BatchDataSource batchDataSource : batchDataSources) {
             DataSourceDTO dataSourceDTO = new DataSourceDTO();
-            dataSourceDTO.setSourceType(batchDataSource.getSourceType());
+            //数据源类型进行转换
+            String nameByTypeCode = AssertDataSourceTypeEnum.getNameByTypeCode(batchDataSource.getSourceType());
+            DataSourceType byName = DataSourceType.getByName(nameByTypeCode);
+            if(byName==null){
+                logger.error("数据源类型不支持,tenantId:{},sourceTypeName:{},sourceType:{}",tenant.getTenantId(),
+                        nameByTypeCode,batchDataSource.getSourceType());
+                continue;
+            }
+            dataSourceDTO.setSourceType(byName.getType());
             dataSourceDTO.setSourceName(batchDataSource.getSourceName());
             dataSourceDTO.setDataJson(batchDataSource.getDataJson());
             dataSourceDTO.setDtUicTenantId(tenant.getTenantId());
-            dataSourceDTOs.add(dataSourceDTO);
+            //资产平台
+            dataSourceDTO.setAppType(AppType.MAP.getType());
+            dataSourceDtos.add(dataSourceDTO);
         }
-        dataSourceParam.setDataSourceDTOList(dataSourceDTOs);
+        dataSourceParam.setDataSourceDTOList(dataSourceDtos);
         dataSourceService.acquireOldDataSourceList(dataSourceParam);
-
-
     }
 
-    private static void sendToEngine(List<BatchLineage> batchLineages, BatchTenant tenant) throws PropertyVetoException {
-        Set<Long> dataSourceIdSet = new HashSet<>();
-        for (BatchLineage batchLineage:batchLineages){
-            dataSourceIdSet.add(batchLineage.getDataSourceId());
-            dataSourceIdSet.add(batchLineage.getInputDataSourceId());
-        }
-        DataSource dataSource = getDataSource();
-        Map<Long, BatchDataSource> dataSourceMap = new HashMap<>();
-        try (Connection connection = dataSource.getConnection()) {
-            PreparedStatement prepareStatement = connection.prepareStatement(QUERY_DATA_SOURCE_INFO);
-            for (Long dataSourceId:dataSourceIdSet){
-                prepareStatement.setLong(1,dataSourceId);
-                prepareStatement.execute();
-                ResultSet resultSet = prepareStatement.getResultSet();
-                while (resultSet.next()){
-                    BatchDataSource batchDataSource = new BatchDataSource();
-                    batchDataSource.setSourceId(resultSet.getLong(1));
-                    batchDataSource.setSourceName(resultSet.getString(2));
-                    batchDataSource.setSourceType(resultSet.getInt(3));
-                    batchDataSource.setTenantId(resultSet.getLong(4));
-                    batchDataSource.setDbName(resultSet.getString(5));
-                    dataSourceMap.put(batchDataSource.getSourceId(),batchDataSource);
-                }
-            }
-        } catch (SQLException e) {
-            logger.error("",e);
-        }
-        List<LineageColumnColumnVO> columnColumnVOS = new ArrayList<>();
-        for (BatchLineage lineage:batchLineages){
-            LineageColumnColumnVO vo = new LineageColumnColumnVO();
-            vo.setDtUicTenantId(tenant.getTenantId());
-            vo.setAppType(AppType.RDOS.getType());
-            vo.setInputColumnName(lineage.getInputCol());
-            vo.setResultColumnName(lineage.getCol());
-            LineageTableVO resultTableVo = getLineageTableVO(lineage.getTableNam(),dataSourceMap.get(lineage.getDataSourceId()));
-            vo.setResultTableInfo(resultTableVo);
-            LineageTableVO inputTableVo = getLineageTableVO(lineage.getInputTableName(),dataSourceMap.get(lineage.getInputDataSourceId()));
-            vo.setInputTableInfo(inputTableVo);
-            columnColumnVOS.add(vo);
-        }
-        LineageService lineageService = dtInsightApi.getSlbApiClient(LineageService.class);
-        LineageColumnColumnParam param = new LineageColumnColumnParam();
-        param.setLineageTableTableVOs(columnColumnVOS);
-        lineageService.acquireOldColumnColumn(param);
-    }
 
-    private static LineageTableVO getLineageTableVO(String tableNam, BatchDataSource batchDataSource) {
-        LineageTableVO tableVO = new LineageTableVO();
-        tableVO.setSchemaName(batchDataSource.getDbName());
-        tableVO.setDbName(batchDataSource.getDbName());
-        tableVO.setTableName(tableNam);
-        LineageDataSourceVO dataSourceVO = new LineageDataSourceVO();
-        dataSourceVO.setSourceType(batchDataSource.getSourceType());
-        dataSourceVO.setSourceName(batchDataSource.getSourceName());
-        dataSourceVO.setAppType(AppType.RDOS.getType());
-        tableVO.setDataSourceVO(dataSourceVO);
-        return tableVO;
-    }
 
     private static void initLog4jProperties() {
         InputStream is = Batch.class.getClassLoader().getResourceAsStream("log4j.properties");

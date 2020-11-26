@@ -238,7 +238,7 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNotNull(engineVOS);
 
         //新增或修改逻辑数据源
-        Integer sourceId = addOrUpdateDataSource(tenant.getDtUicTenantId());
+        Long sourceId = addOrUpdateDataSource(tenant.getDtUicTenantId());
         Assert.assertNotNull(sourceId);
 
         //根据appType查询逻辑数据源
@@ -431,7 +431,7 @@ public class ClusterServiceTest extends AbstractTest {
         return dataSourceDTO;
     }
 
-    private Integer addOrUpdateDataSource(Long tenantId) {
+    private Long addOrUpdateDataSource(Long tenantId) {
 
         DataSourceDTO dataSourceDTO = getDataSourceDTO(tenantId);
         return dataSourceService.addOrUpdateDataSource(dataSourceDTO);
@@ -439,9 +439,9 @@ public class ClusterServiceTest extends AbstractTest {
 
 
 
-    private LineageDataSource getDataSourceByIdAndAppType(Integer sourceId){
+    private LineageDataSource getDataSourceByIdAndAppType(Long sourceId){
 
-        return dataSourceService.getDataSourceByIdAndAppType((long)sourceId, 1);
+        return dataSourceService.getDataSourceByIdAndAppType(sourceId, 1);
 
     }
 

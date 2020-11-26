@@ -86,10 +86,10 @@ public class LineageDataSourceController {
     }
 
 
-    @RequestMapping(value="/sysIdeDataSourceList",method = RequestMethod.POST)
+    @RequestMapping(value="/synIdeDataSourceList",method = RequestMethod.POST)
     @ApiOperation(value = "同步离线的数据源")
-    public void sysIdeDataSourceList(){
+    public void synIdeDataSourceList(){
 
-        dataSourceService.sysIdeDataSourceList();
+        dataSourceService.synIdeDataSourceList();
     }
 }

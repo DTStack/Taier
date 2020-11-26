@@ -10,25 +10,33 @@ import java.util.Objects;
  * @Created chener@dtstack.com
  */
 public enum DataSourceType {
-    HIVE1(1),
-    HIVE2(2),
-    SPARK_THRIFT(3),
-    IMPALA(4),
-    TIDB(5),
-    ORACLE(6),
-    LIBRA(7),
-    MYSQL(8),
-    GREENPLUM(9),
-    SQLSERVER(10)
+    HIVE1(1,"Hive1Server"),
+    HIVE2(2,"HiveServer"),
+    SPARK_THRIFT(3,"SparkThrift"),
+    IMPALA(4,"Impala SQL"),
+    TIDB(5,"TiDB SQL"),
+    ORACLE(6,"Oracle SQL"),
+    LIBRA(7,"LibrA SQL"),
+    MYSQL(8,"Mysql"),
+    GREENPLUM(9,"Greenplum SQL"),
+    SQLSERVER(10,"SqlServer SQL")
     ;
     private int type;
+
+    private String name;
 
     public int getType() {
         return type;
     }
 
-    DataSourceType(int type) {
+    public String getName() {
+        return name;
+    }
+
+    DataSourceType(int type,String name) {
+
         this.type = type;
+        this.name = name;
     }
 
     public static DataSourceType getByType(Integer type){
@@ -37,6 +45,18 @@ public enum DataSourceType {
         }
         for (DataSourceType sourceType:values()){
             if (sourceType.getType() == type){
+                return sourceType;
+            }
+        }
+        return null;
+    }
+
+    public static DataSourceType getByName(String name){
+        if (Objects.isNull(name)){
+            return null;
+        }
+        for (DataSourceType sourceType:values()){
+            if (sourceType.getName() == name){
                 return sourceType;
             }
         }
