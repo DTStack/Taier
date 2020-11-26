@@ -26,11 +26,7 @@ public interface TestScheduleJobDao {
             "   VALUES\n" +
             "   (#{scheduleJob.gmtCreate}, #{scheduleJob.gmtModified}, #{scheduleJob.tenantId}, #{scheduleJob.projectId}, #{scheduleJob.dtuicTenantId}, #{scheduleJob.appType}, #{scheduleJob.jobId}, #{scheduleJob.jobKey}, #{scheduleJob.jobName}, #{scheduleJob.taskId},\n" +
             "   #{scheduleJob.createUserId}, #{scheduleJob.isDeleted}, #{scheduleJob.type}, #{scheduleJob.isRestart}, #{scheduleJob.businessDate}, #{scheduleJob.cycTime}, #{scheduleJob.dependencyType}, #{scheduleJob.flowJobId},\n" +
-<<<<<<< HEAD
             "   #{scheduleJob.status}, #{scheduleJob.taskType}, #{scheduleJob.maxRetryNum}, #{scheduleJob.nodeAddress}, #{scheduleJob.versionId}, #{scheduleJob.computeType}, #{scheduleJob.applicationId}, #{scheduleJob.execStartTime}, #{scheduleJob.execEndTime}, #{scheduleJob.execTime}, #{scheduleJob.logInfo}, #{scheduleJob.engineLog})" })
-=======
-            "   #{scheduleJob.status}, #{scheduleJob.taskType}, #{scheduleJob.maxRetryNum}, #{scheduleJob.nodeAddress}, #{scheduleJob.versionId},  #{scheduleJob.computeType}, #{scheduleJob.applicationId}, #{scheduleJob.execStartTime}, #{scheduleJob.execEndTime}, #{scheduleJob.execTime}, #{scheduleJob.logInfo}, #{scheduleJob.engineLog})" })
->>>>>>> 2bbe094f7b7f92a50fcc7b51b17a3c8c861b1ba5
     @Options(useGeneratedKeys=true, keyProperty = "scheduleJob.id", keyColumn = "id")
     void insertWithCustomGmt(@Param("scheduleJob") ScheduleJob scheduleJob);
 }

@@ -10,6 +10,7 @@ import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Auther: dazhi
@@ -41,19 +43,25 @@ public class JobRichOperatorTest extends AbstractTest {
 
     @Test
     public void testJobRichOperator() throws Exception {
-        List<ScheduleTaskShade> tasks = Lists.newArrayList();
+        Map<Long,ScheduleTaskShade> tasks = Maps.newHashMap();
         List<ScheduleBatchJob> jobs = Lists.newArrayList();
         // task
-        tasks.add(DataCollection.getData().getCronJobBySelfReliance1());
-        tasks.add(DataCollection.getData().getCronJobBySelfReliance2());
-        tasks.add(DataCollection.getData().getCronJobBySelfReliance3());
-        tasks.add(DataCollection.getData().getCronJobBySelfReliance4());
-        tasks.add(DataCollection.getData().getCronJobBySelfReliance5());
+        ScheduleTaskShade cronJobBySelfReliance1 = DataCollection.getData().getCronJobBySelfReliance1();
+        ScheduleTaskShade cronJobBySelfReliance2 = DataCollection.getData().getCronJobBySelfReliance2();
+        ScheduleTaskShade cronJobBySelfReliance3 = DataCollection.getData().getCronJobBySelfReliance3();
+        ScheduleTaskShade cronJobBySelfReliance4 = DataCollection.getData().getCronJobBySelfReliance4();
+        ScheduleTaskShade cronJobBySelfReliance5 = DataCollection.getData().getCronJobBySelfReliance5();
+        tasks.put(cronJobBySelfReliance1.getTaskId(),cronJobBySelfReliance1);
+        tasks.put(cronJobBySelfReliance2.getTaskId(),cronJobBySelfReliance2);
+        tasks.put(cronJobBySelfReliance3.getTaskId(),cronJobBySelfReliance3);
+        tasks.put(cronJobBySelfReliance4.getTaskId(),cronJobBySelfReliance4);
+        tasks.put(cronJobBySelfReliance5.getTaskId(),cronJobBySelfReliance5);
 
         // 生成当天周期任务
         String triggerDay = new DateTime().toString("yyyy-MM-dd");
 
-        for (ScheduleTaskShade task : tasks) {
+        for (Map.Entry<Long, ScheduleTaskShade> longScheduleTaskShadeEntry : tasks.entrySet()) {
+            ScheduleTaskShade task = longScheduleTaskShadeEntry.getValue();
             String cronJobName = CRON_JOB_NAME + "_" + task.getName();
             List<ScheduleBatchJob> scheduleBatchJobs = jobGraphBuilder.buildJobRunBean(task, CRON_TRIGGER_TYPE, EScheduleType.NORMAL_SCHEDULE,
                     true, true, triggerDay, cronJobName, null, task.getProjectId(), task.getTenantId());
@@ -74,9 +82,14 @@ public class JobRichOperatorTest extends AbstractTest {
 
         batchJobService.insertJobList(jobs, EScheduleType.NORMAL_SCHEDULE.getType());
 
+
         for (ScheduleBatchJob scheduleBatchJob : jobs) {
-            JobCheckRunInfo jobCheckRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, scheduleBatchJob.getStatus(), scheduleBatchJob.getScheduleType(), null, null, new HashMap<>());
-            System.out.println(jobCheckRunInfo.getStatus());
+            ScheduleTaskShade scheduleTaskShade = tasks.get(scheduleBatchJob.getTaskId());
+            if (scheduleTaskShade != null) {
+                JobCheckRunInfo jobCheckRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, scheduleBatchJob.getStatus(), scheduleBatchJob.getScheduleType(), scheduleTaskShade);
+                System.out.println(jobCheckRunInfo.getStatus());
+            }
+
         }
     }
 

@@ -386,7 +386,6 @@ public interface DataCollection {
         return sj;
     }
 
-<<<<<<< HEAD
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
     default ScheduleJob getScheduleJobByTask(ScheduleTaskShade scheduleTaskShade) {
         return Template.getScheduleJobTemplate();
@@ -400,10 +399,27 @@ public interface DataCollection {
         return scheduleTaskShade;
     }
 
+    @DatabaseInsertOperation(dao = TestEngineJobStopDao.class)
+    default EngineJobStopRecord getScheduleJobStop(){
+
+        EngineJobCache engineJobCache = getEngineJobCache();
+        EngineJobStopRecord jsr = new EngineJobStopRecord();
+        jsr.setTaskId(engineJobCache.getJobId());
+        jsr.setComputeType(jsr.getComputeType());
+        jsr.setEngineType(jsr.getEngineType());
+        jsr.setForceCancelFlag(1);
+        jsr.setJobResource(engineJobCache.getJobResource());
+        jsr.setOperatorExpired(new java.util.Date());
+        jsr.setTaskType(10);
+        jsr.setVersion(1);
+        return jsr;
+    }
+
     @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
     default ScheduleTaskShade getCronMonthTask() {
         ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
         scheduleTaskShade.setScheduleConf("{\"day\":5,\"hour\":0,\"min\":23,\"periodType\":\"4\",\"scheduleStatus\":false,\"isFailRetry\":true,\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"selfReliance\":false,\"maxRetryNum\":\"3\"}");
+        scheduleTaskShade.setTaskId(104L);
         return scheduleTaskShade;
     }
 
@@ -411,6 +427,7 @@ public interface DataCollection {
     default ScheduleTaskShade getCronWeekTask() {
         ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
         scheduleTaskShade.setScheduleConf("{\"weekDay\":3,\"min\":0,\"hour\":23,\"periodType\":\"3\",\"scheduleStatus\":false,\"isFailRetry\":true,\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"selfReliance\":false,\"maxRetryNum\":\"3\"}");
+        scheduleTaskShade.setTaskId(103L);
         return scheduleTaskShade;
     }
 
@@ -418,6 +435,7 @@ public interface DataCollection {
     default ScheduleTaskShade getCronDayTask() {
         ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
         scheduleTaskShade.setScheduleConf("{\"selfReliance\":false, \"min\":0,\"hour\":0,\"periodType\":\"2\",\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"isFailRetry\":true,\"maxRetryNum\":\"3\"}");
+        scheduleTaskShade.setTaskId(102L);
         return scheduleTaskShade;
     }
 
@@ -425,6 +443,7 @@ public interface DataCollection {
     default ScheduleTaskShade getCronWeekHour() {
         ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
         scheduleTaskShade.setScheduleConf("{\"beginHour\":0,\"endHour\":23,\"beginMin\":0,\"gapHour\":5,\"periodType\":\"1\",\"scheduleStatus\":false,\"isFailRetry\":true,\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"selfReliance\":false,\"maxRetryNum\":\"3\"}");
+        scheduleTaskShade.setTaskId(100L);
         return scheduleTaskShade;
     }
 
@@ -432,6 +451,7 @@ public interface DataCollection {
     default ScheduleTaskShade getCronWeekMin() {
         ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
         scheduleTaskShade.setScheduleConf("{\"beginMin\":0,\"endMin\":59,\"beginHour\":0,\"endHour\":23,\"gapMin\":5,\"periodType\":\"0\",\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"scheduleStatus\":false,\"isFailRetry\":true,\"selfReliance\":false,\"maxRetryNum\":\"3\"}");
+        scheduleTaskShade.setTaskId(101L);
         return scheduleTaskShade;
     }
 
@@ -473,21 +493,5 @@ public interface DataCollection {
         scheduleTaskShade.setScheduleConf("{\"beginHour\":\"0\",\"endHour\":\"23\",\"beginMin\":\"0\",\"gapHour\":\"1\",\"periodType\":\"1\",\"isFailRetry\":true,\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"selfReliance\":4,\"maxRetryNum\":\"3\",\"isLastInstance\":true,\"endMin\":\"59\"}");
         scheduleTaskShade.setTaskId(4L);
         return scheduleTaskShade;
-=======
-    @DatabaseInsertOperation(dao = TestEngineJobStopDao.class)
-    default EngineJobStopRecord getScheduleJobStop(){
-
-        EngineJobCache engineJobCache = getEngineJobCache();
-        EngineJobStopRecord jsr = new EngineJobStopRecord();
-        jsr.setTaskId(engineJobCache.getJobId());
-        jsr.setComputeType(jsr.getComputeType());
-        jsr.setEngineType(jsr.getEngineType());
-        jsr.setForceCancelFlag(1);
-        jsr.setJobResource(engineJobCache.getJobResource());
-        jsr.setOperatorExpired(new java.util.Date());
-        jsr.setTaskType(10);
-        jsr.setVersion(1);
-        return jsr;
->>>>>>> 2bbe094f7b7f92a50fcc7b51b17a3c8c861b1ba5
     }
 }
