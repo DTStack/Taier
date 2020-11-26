@@ -76,7 +76,7 @@ public class FileUtil {
         }
     }
 
-    private static InputStream readStreamFromFile(String filePath, Configuration hadoopConf) throws URISyntaxException, IOException {
+    public static InputStream readStreamFromFile(String filePath, Configuration hadoopConf) throws URISyntaxException, IOException {
         Pair<String, String> pair = parseHdfsUri(filePath);
         if(pair == null){
             throw new RdosDefineException("can't parse hdfs url from given uriStr:" + filePath);
