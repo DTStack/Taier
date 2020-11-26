@@ -16,7 +16,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import scala.concurrent.java8.FuturesConvertersImpl;
 
 import java.io.File;
-import java.sql.DriverManager;
+import java.sql.*;
+import java.util.List;
 import java.util.Properties;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -59,8 +60,29 @@ public class HiveClientTest {
     }
 
     @Test
-    public void testExecuteQuery() {
+    public void testExecuteQuery() throws Exception {
 
+        HiveConnFactory hiveConnFactory = PowerMockito.mock(HiveConnFactory.class);
+        Connection connection = PowerMockito.mock(Connection.class);
+        Statement stmt = PowerMockito.mock(Statement.class);
+        when(stmt.execute(any(String.class))).thenReturn(true);
+
+        ResultSet res = PowerMockito.mock(ResultSet.class);
+        ResultSetMetaData metaData = PowerMockito.mock(ResultSetMetaData.class);
+        when(metaData.getColumnCount()).thenReturn(1);
+        when(metaData.getColumnName(any(int.class))).thenReturn("name");
+        when(res.getMetaData()).thenReturn(metaData);
+
+        when(stmt.getResultSet()).thenReturn(res);
+
+        when(connection.createStatement()).thenReturn(stmt);
+        when(hiveConnFactory.getConn()).thenReturn(connection);
+        MemberModifier.field(HiveClient.class, "connFactory").set(hiveClient, hiveConnFactory);
+
+        String sql = "select * from tables";
+        String database = "default";
+        List<List<Object>> execRes = hiveClient.executeQuery(sql, database);
+        Assert.assertNotNull(execRes);
     }
 
 }
