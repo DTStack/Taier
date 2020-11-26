@@ -67,6 +67,7 @@ public class ConfigConstant {
     public static final String PRINCIPAL_FILE = "principalFile";
     public static final String KRB_NAME = "krbName";
     public static final String OPEN_KERBEROS = "openKerberos";
+    public static final String KRBNAME_DEFAULT = "krb5.conf";
     public static final String JAVA_SECURITY_KRB5_CONF = "java.security.krb5.conf";
     public static final String KRB5_CONF = "krb5.conf";
     public static final String KEYTAB_SUFFIX = ".keytab";
@@ -76,5 +77,7 @@ public class ConfigConstant {
     public static final String ZIP_SUFFIX = ".zip";
     public static final String USER_DIR_UNZIP = System.getProperty("user.dir") + File.separator + "unzip";
     public static final String USER_DIR_DOWNLOAD = System.getProperty("user.dir") + File.separator + "download";
+
+    public static final long DEFAULT_KUBERNETES_PARENT_NODE = -2L;
 
 }

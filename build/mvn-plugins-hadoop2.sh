@@ -21,6 +21,7 @@ engine-worker/engine-plugins/flink/yarn3-hdfs3-flink180,\
 engine-worker/engine-plugins/flink/yarn2-hdfs2-flink180,\
 engine-worker/engine-plugins/flink/yarnHW-hdfsHW-flink180HW,\
 engine-worker/engine-plugins/flink/k8s-hdfs2-flink110,\
+engine-worker/engine-plugins/flink/k8s-nfs-flink110,\
 engine-worker/engine-plugins/flink/yarn3-hdfs3-flink110,\
 engine-worker/engine-plugins/flink/yarn2-hdfs2-flink110,\
 engine-worker/engine-plugins/spark/yarn3-hdfs3-spark240/spark-yarn-client,\

@@ -72,14 +72,14 @@ public class PluginWrapper{
 
         Long tenantId = action.getTenantId();
         String engineType = action.getEngineType();
-        if (Objects.isNull(deployMode) && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
+        if (null == deployMode && ScheduleEngineType.Flink.getEngineName().equalsIgnoreCase(engineType)) {
             //解析参数
             deployMode = scheduleJobService.parseDeployTypeByTaskParams(action.getTaskParams(),action.getComputeType()).getType();
         }
         JSONObject pluginInfoJson = clusterService.pluginInfoJSON(tenantId, engineType, action.getUserId(),deployMode);
         String groupName = ConfigConstant.DEFAULT_GROUP_NAME;
         action.setGroupName(groupName);
-        if (Objects.nonNull(pluginInfoJson) && !pluginInfoJson.isEmpty()) {
+        if (null != pluginInfoJson && !pluginInfoJson.isEmpty()) {
             addParamsToJdbcUrl(actionParam, pluginInfoJson);
             addUserNameToHadoop(pluginInfoJson, ldapUserName);
             addUserNameToImpalaOrHive(pluginInfoJson, ldapUserName, ldapPassword, dbName, engineType);
@@ -111,12 +111,12 @@ public class PluginWrapper{
         String jobId = (String)actionParam.get("taskId");
         Integer appType = MapUtils.getInteger(actionParam, "appType");
         ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus());
-        if(Objects.isNull(scheduleJob) || Objects.isNull(appType)){
+        if(null == scheduleJob || null == appType){
             logger.info("dbUrl {} jobId {} appType or scheduleJob is null",dbUrl,jobId);
             return;
         }
         JSONObject info = JSONObject.parseObject(scheduleTaskShadeDao.getExtInfoByTaskId(scheduleJob.getTaskId(), appType));
-        if(Objects.isNull(info)){
+        if(null == info){
             return;
         }
 
@@ -219,11 +219,11 @@ public class PluginWrapper{
             return;
         }
         EngineJobCache jobCache = engineJobCacheDao.getOne(jobId);
-        if (Objects.isNull(jobCache)) {
+        if (null == jobCache) {
             return;
         }
         JSONObject dbPluginInfo = JSONObject.parseObject(jobCache.getJobInfo());
-        if (Objects.isNull(dbPluginInfo)) {
+        if (null == dbPluginInfo) {
             dbPluginInfo = new JSONObject();
         }
         if (dbPluginInfo.containsKey(PLUGIN_INFO) && !dbPluginInfo.getJSONObject(PLUGIN_INFO).isEmpty()) {
@@ -242,7 +242,7 @@ public class PluginWrapper{
                 deployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParams, computeType).getType();
             }
             JSONObject infoJSON = clusterService.pluginInfoJSON(tenantId, engineType, userId, deployMode);
-            if (Objects.nonNull(infoJSON)) {
+            if (null != infoJSON) {
                 return infoJSON.toJSONString();
             }
         } catch (Exception e) {

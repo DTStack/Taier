@@ -478,7 +478,6 @@ public class JobClient extends OrderObject {
                 ", again=" + again +
                 ", groupName='" + groupName + '\'' +
                 ", priorityLevel=" + priorityLevel +
-                ", pluginInfo='" + pluginInfo + '\'' +
                 ", generateTime=" + generateTime +
                 ", maxRetryNum=" + maxRetryNum +
                 ", lackingCount=" + lackingCount +

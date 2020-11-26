@@ -83,7 +83,7 @@ public class FlinkResource extends CommonResource {
         long tenantId = jobClient.getTenantId();
 
         ClusterVO cluster = clusterService.getClusterByTenant(tenantId);
-        if (Objects.isNull(cluster)){
+        if (null == cluster){
             throw new RdosDefineException("No found cluster by tenantId: " + tenantId);
         }
 
@@ -100,7 +100,7 @@ public class FlinkResource extends CommonResource {
                 break;
             }
         }
-        if (Objects.isNull(hadoopEngine)) {
+        if (null == hadoopEngine) {
             throw new RdosDefineException("No found hadoopEngine");
         }
 

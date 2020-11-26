@@ -1,5 +1,6 @@
 package com.dtstack.schedule.common.util;
 
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -7,6 +8,8 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -26,6 +29,8 @@ import java.util.regex.Pattern;
  */
 
 public class TimeParamOperator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TimeParamOperator.class);
 
     private static final String STD_FMT = "yyyyMMddHHmmss";
 
@@ -224,7 +229,7 @@ public class TimeParamOperator {
                         }
                         result = FastDateFormat.getInstance(line, TimeZone.getTimeZone("GMT+8")).format(cycd);
                     } catch (ParseException e) {
-                        e.printStackTrace();
+                        LOGGER.error("TimeParamOperator.dealCustomizeTimeOperator error:", e);
                     }
                 }
             }
