@@ -84,21 +84,8 @@ public class StreamTaskServiceTest extends AbstractTest {
         ScheduleJob streamJob = DataCollection.getData().getScheduleJobStream();
 
         Integer taskStatus = streamTaskService.getTaskStatus(streamJob.getJobId());
-        Assert.assertNotNull(taskStatus);
-        Assert.assertTrue(taskStatus == 4);
-    }
 
-    @Test
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    @Rollback
-    public void testGetRunningTaskLogUrl() throws Exception {
-
-        ScheduleJob streamJob = DataCollection.getData().getScheduleJobStream();
-        DataCollection.getData().getEngineJobCache();
-
-        Integer taskStatus = streamTaskService.getTaskStatus(streamJob.getJobId());
-        Assert.assertTrue(RdosTaskStatus.RUNNING.getStatus().equals(taskStatus));
-
+        Assert.assertEquals(RdosTaskStatus.FINISHED.getStatus(), taskStatus);
     }
 
 }

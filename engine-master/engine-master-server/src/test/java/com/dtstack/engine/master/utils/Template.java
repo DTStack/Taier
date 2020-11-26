@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.utils;
 
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.util.DateUtil;
 
 import java.sql.Timestamp;
@@ -21,7 +22,7 @@ public class Template {
         sj.setIsDeleted(0);
         sj.setBusinessDate("20200608234500");
         sj.setCycTime(DateUtil.getUnStandardFormattedDate(System.currentTimeMillis()));
-        sj.setTaskType(0);
+        sj.setTaskType(EJobType.SQL.getType());
         sj.setAppType(0);
         sj.setType(0);
         sj.setIsRestart(0);

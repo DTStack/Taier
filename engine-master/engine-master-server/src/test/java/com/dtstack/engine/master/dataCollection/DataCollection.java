@@ -2,6 +2,7 @@ package com.dtstack.engine.master.dataCollection;
 
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.anno.DataSource;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
@@ -192,7 +193,7 @@ public interface DataCollection {
         sj.setExecEndTime(new Timestamp(1591805197100L));
         sj.setJobName("test");
         sj.setCycTime("20200609234500");
-        sj.setTaskType(ComputeType.STREAM.getType());
+        sj.setTaskType(EJobType.SQL.getType());
         sj.setType(2);
         sj.setEngineLog("");
         sj.setSourceType(-1);
@@ -210,7 +211,7 @@ public interface DataCollection {
         sj.setExecEndTime(new Timestamp(1591805197100L));
         sj.setJobName("test2");
         sj.setCycTime("20200609234500");
-        sj.setTaskType(ComputeType.STREAM.getType());
+        sj.setTaskType(EJobType.SQL.getType());
         sj.setType(2);
         sj.setEngineLog("");
         sj.setSourceType(-1);
