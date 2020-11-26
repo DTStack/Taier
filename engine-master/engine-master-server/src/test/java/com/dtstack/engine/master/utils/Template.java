@@ -60,6 +60,17 @@ public class Template {
         return jc;
     }
 
+    public static EngineJobCheckpoint getEngineJobSavepointTemplate() {
+        EngineJobCheckpoint jc = new EngineJobCheckpoint();
+        jc.setTaskId("taskId");
+        jc.setTaskEngineId("te-9991");
+        jc.setCheckpointId("savepointId");
+        jc.setCheckpointTrigger(Timestamp.valueOf("2020-06-14 12:12:12"));
+        jc.setCheckpointSavepath("hdfs://ns1/dtInsight/flink110/savepoints/savepoint-77aea4-a0b9f689989c");
+        jc.setCheckpointCounts("2");
+        return jc;
+    }
+
     public static EngineJobCache getEngineJobCacheTemplate() {
         EngineJobCache engineJobCache = new EngineJobCache();
         engineJobCache.setJobId("jobId");
@@ -88,7 +99,7 @@ public class Template {
         scheduleTaskShade.setComputeType(1);
         scheduleTaskShade.setSqlText("select");
         scheduleTaskShade.setTaskParams("null");
-        scheduleTaskShade.setScheduleConf("null");
+        scheduleTaskShade.setScheduleConf("{\"selfReliance\":false, \"min\":0,\"hour\":0,\"periodType\":\"2\",\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"isFailRetry\":true,\"maxRetryNum\":\"3\"}");
         scheduleTaskShade.setPeriodType(1);
         scheduleTaskShade.setScheduleStatus(1);
         scheduleTaskShade.setSubmitStatus(1);
@@ -103,7 +114,7 @@ public class Template {
         scheduleTaskShade.setIsDeleted(0);
         scheduleTaskShade.setMainClass("DataCollection");
         scheduleTaskShade.setExeArgs("null");
-        scheduleTaskShade.setFlowId(1L);
+        scheduleTaskShade.setFlowId(0L);
         scheduleTaskShade.setDtuicTenantId(1L);
         scheduleTaskShade.setProjectScheduleStatus(1);
 
