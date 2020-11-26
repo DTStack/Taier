@@ -186,7 +186,7 @@ const CustomModal: React.FC = (props: any) => {
                                     {getFieldDecorator('queueId', {
                                         rules: [{
                                             required: true,
-                                            message: '租户不可为空！'
+                                            message: '资源队列不可为空！'
                                         }],
                                         initialValue: tenantInfo?.tenantName
                                     })(<Select
