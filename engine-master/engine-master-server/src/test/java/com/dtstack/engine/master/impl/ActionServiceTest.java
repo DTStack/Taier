@@ -27,7 +27,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.mockito.Mockito.*;
 
@@ -36,7 +35,6 @@ import java.util.*;
 
 import static junit.framework.TestCase.fail;
 
-@PrepareForTest({AkkaConfig.class, ClientOperator.class})
 public class ActionServiceTest extends AbstractTest {
 
     private final static List<String> mockInfos = Lists.newArrayList("Mock Info");
@@ -61,10 +59,7 @@ public class ActionServiceTest extends AbstractTest {
     @Before
     public void setup() throws Exception{
         MockitoAnnotations.initMocks(this);
-        PowerMockito.mockStatic(AkkaConfig.class);
-        when(AkkaConfig.isLocalMode()).thenReturn(true);
-        PowerMockito.mockStatic(ClientOperator.class);
-        when(ClientOperator.getInstance()).thenReturn(clientOperator);
+        PowerMockito.mock(ClientOperator.class);
         when(clientOperator.containerInfos(any())).thenReturn(mockInfos);
     }
 
