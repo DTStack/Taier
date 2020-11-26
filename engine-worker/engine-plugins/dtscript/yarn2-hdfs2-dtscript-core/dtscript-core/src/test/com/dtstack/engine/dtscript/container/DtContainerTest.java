@@ -9,7 +9,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
@@ -27,13 +29,12 @@ import java.util.Map;
  * @create: 2020/11/26 11:24
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({DtContainer.class, DtYarnConfiguration.class, RPC.class, FileSystem.class})
-@PowerMockIgnore({"javax.net.ssl.*", "javax.security.auth.login.*",
-        "org.apache.hadoop.security.UserGroupInformation",
-        "org.apache.hadoop.security.JniBasedUnixGroupsMappingWithFallback",
-        "org.apache.hadoop.security.GroupMappingServiceProvider",
-        "com.dtstack.engine.dtscript.common.SecurityUtil"})
+@PrepareForTest({DtContainer.class, DtYarnConfiguration.class, RPC.class})
+@PowerMockIgnore({"javax.net.ssl.*"})
 public class DtContainerTest {
+
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
 
     @BeforeClass
@@ -48,21 +49,28 @@ public class DtContainerTest {
 
         System.setProperty("HADOOP_USER_NAME", "admin");
         System.setProperty("hadoop.job.ugi", "admin,admin");
+    }
+
+    @Test
+    public void testStartContainer() throws Exception {
+
         Map<String, String> systemEnvs = new HashMap<>();
         systemEnvs.putAll(System.getenv());
         String containerId = "container_e19_1533108188813_12125_01_000002";
+
+        String workDir = temporaryFolder.newFolder("worker").getAbsolutePath();
+        temporaryFolder.newFile("worker/dterror.log");
+        temporaryFolder.newFile("worker/dtstdout.log");
+
         systemEnvs.put(ApplicationConstants.Environment.CONTAINER_ID.toString(),
                 containerId);
-        systemEnvs.put(ApplicationConstants.Environment.LOG_DIRS.name(), testFileDir);
+        systemEnvs.put(ApplicationConstants.Environment.LOG_DIRS.name(), workDir);
         PowerMockito.mockStatic(System.class);
         Mockito.when(System.getenv()).thenReturn(systemEnvs);
         Mockito.when(System.getenv(ApplicationConstants.Environment.CONTAINER_ID.name())).thenReturn(containerId);
         Mockito.when(System.getenv(DtYarnConstants.Environment.APPMASTER_HOST.toString())).thenReturn("127.0.0.1");
         Mockito.when(System.getenv(DtYarnConstants.Environment.APPMASTER_PORT.toString())).thenReturn("8080");
-    }
 
-    @Test
-    public void testStartContainer() throws Exception {
         DtYarnConfiguration yarnConfiguration = new DtYarnConfiguration();
         DtYarnConfiguration mockYarnConfiguration = Mockito.spy(yarnConfiguration);
         Mockito.when(mockYarnConfiguration.get("hadoop.job.ugi")).thenReturn("admin");

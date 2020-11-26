@@ -114,11 +114,7 @@ public class ClientTest {
 
     }
 
-    public void testClient() throws Exception {
 
-
-
-    }
 
     @Test
     public void testGetYarnClient() throws Exception {

@@ -2,21 +2,29 @@ package com.dtstack.engine.dtscript.am;
 
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
+import com.dtstack.engine.dtscript.common.DtContainerStatus;
+import com.dtstack.engine.dtscript.container.ContainerEntity;
+import com.dtstack.engine.dtscript.container.DtContainerId;
+import org.apache.commons.math3.analysis.function.Pow;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authorize.ServiceAuthorizationManager;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.impl.pb.RegisterApplicationMasterResponsePBImpl;
-import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
-import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
+import org.apache.hadoop.yarn.client.api.NMClient;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.client.api.YarnClientApplication;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
+import org.apache.hadoop.yarn.client.api.async.impl.NMClientAsyncImpl;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -29,10 +37,10 @@ import javax.security.auth.Subject;
 import java.net.InetSocketAddress;
 import java.security.AccessControlContext;
 import java.security.AccessController;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.*;
@@ -48,10 +56,7 @@ import static org.powermock.api.mockito.PowerMockito.*;
         NMClientAsync.class, ApplicationMaster.class, ApplicationMessageService.class,
         System.class,
         NetUtils.class, ApplicationContainerListener.class})
-@PowerMockIgnore({"javax.net.ssl.*", "javax.security.auth.login.*",
-        "org.apache.hadoop.security.UserGroupInformation",
-        "org.apache.hadoop.security.JniBasedUnixGroupsMappingWithFallback",
-        "org.apache.hadoop.security.GroupMappingServiceProvider"})
+@PowerMockIgnore({"javax.net.ssl.*"})
 public class ApplicationMasterTest {
 
     private static String testFileDir;
@@ -60,7 +65,10 @@ public class ApplicationMasterTest {
     AMRMClientAsync<AMRMClient.ContainerRequest> amrmAsync;
 
     @Mock
-    NMClientAsync nmAsync;
+    NMClientAsyncImpl nmAsync;
+
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @BeforeClass
     public static void beforeClassRun() {
@@ -76,19 +84,31 @@ public class ApplicationMasterTest {
     public void testApplicationMaster() throws Exception {
         System.setProperty("HADOOP_USER_NAME", "admin");
         Map<String, String> systemEnvs = new HashMap<>();
+
+        String workDir = temporaryFolder.newFolder("worker").getAbsolutePath();
+        temporaryFolder.newFile("worker/dtscript-core-1.0.0.jar");
+        temporaryFolder.newFile("worker/dterror.log");
+        temporaryFolder.newFile("worker/dtstdout.log");
+
         systemEnvs.putAll(System.getenv());
         systemEnvs.put(ApplicationConstants.Environment.CONTAINER_ID.toString(), "container_e19_1533108188813_12125_01_000002");
-        systemEnvs.put(DtYarnConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString(), testFileDir);
+        systemEnvs.put(DtYarnConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString(), workDir);
         systemEnvs.put("hadoop.job.ugi", "admin,admin");
-        systemEnvs.put(DtYarnConstants.Environment.APP_JAR_LOCATION.toString(), testFileDir + "/" + "dtscript-core-1.0.0.jar");
+
+        systemEnvs.put(DtYarnConstants.Environment.APP_JAR_LOCATION.toString(), workDir + "/" + "dtscript-core-1.0.0.jar");
 
         DtYarnConfiguration configuration = new DtYarnConfiguration();
         configuration.set("hadoop.job.ugi", "admin,admin");
-        DtYarnConfiguration mockConfiguration = spy(configuration);
-        when(mockConfiguration.get(DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH, DtYarnConfiguration.DEFAULT_DTSCRIPT_APPMASTERJAR_PATH))
-                .thenReturn(testFileDir + "/" + "dtscript-core-1.0.0.jar");
+        DtYarnConfiguration mockConfiguration = Mockito.spy(configuration);
+        Mockito.when(mockConfiguration.get(DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH,
+                DtYarnConfiguration.DEFAULT_DTSCRIPT_APPMASTERJAR_PATH)).thenReturn(workDir + "/" + "dtscript-core-1.0.0.jar");
 
         PowerMockito.whenNew(DtYarnConfiguration.class).withAnyArguments().thenReturn(mockConfiguration);
+
+        ApplicationContainerListener containerListener = Mockito.mock(ApplicationContainerListener.class);
+        ContainerLostDetector containerLostDetector =  Mockito.mock(ContainerLostDetector.class);
+        PowerMockito.whenNew(ContainerLostDetector.class).withArguments(any(ApplicationContainerListener.class)).thenReturn(containerLostDetector);
+        PowerMockito.whenNew(ApplicationContainerListener.class).withArguments(any(RunningAppContext.class), any(Configuration.class)).thenReturn(containerListener);
 
         mockStatic(System.class);
         when(System.getenv()).thenReturn(systemEnvs);
@@ -127,16 +147,36 @@ public class ApplicationMasterTest {
         Mockito.when(resource.getMemory()).thenReturn(512);
         Mockito.when(response.getMaximumResourceCapability()).thenReturn(resource);
 
-        RMCallbackHandler handler = Mockito.mock(RMCallbackHandler.class);
-        Mockito.when(handler.getAllocatedWorkerContainerNumber()).thenReturn(1);
-        PowerMockito.whenNew(RMCallbackHandler.class).withAnyArguments().thenReturn(handler);
+
+        Container container = Mockito.mock(Container.class);
+        ContainerId containerId = Mockito.mock(ContainerId.class);
+        RMCallbackHandler rmCallback = Mockito.mock(RMCallbackHandler.class);
+        Mockito.when(rmCallback.getAllocatedWorkerContainerNumber()).thenReturn(1);
+        PowerMockito.when(container.getId()).thenReturn(containerId);
+        Mockito.when(rmCallback.getReleaseContainers()).thenReturn(Arrays.asList(container));
+        Mockito.when(rmCallback.getAcquiredWorkerContainer()).thenReturn(Arrays.asList(container, container));
+        PowerMockito.whenNew(Container.class).withAnyArguments().thenReturn(container);
+        PowerMockito.whenNew(RMCallbackHandler.class).withAnyArguments().thenReturn(rmCallback);
+        List<Container> containers = Mockito.mock(List.class);
+        Mockito.when(rmCallback.getReleaseContainers()).thenReturn(containers);
+
+        NMCallbackHandler nmCallback = Mockito.mock(NMCallbackHandler.class);
+        PowerMockito.whenNew(NMCallbackHandler.class).withArguments(any(ApplicationMaster.class)).thenReturn(nmCallback);
+
+        NodeId nodeId = Mockito.mock(NodeId.class);
+        Mockito.when(container.getId()).thenReturn(containerId);
+        Mockito.when(container.getNodeId()).thenReturn(nodeId);
+        Mockito.when(nodeId.getHost()).thenReturn("127.0.0.1");
+        Mockito.when(nodeId.getPort()).thenReturn(8980);
+
+        PowerMockito.when(containerListener.isTrainCompleted()).thenReturn(true);
+        PowerMockito.when(containerListener.isAllWorkerContainersSucceeded()).thenReturn(true);
+
+
+        NMClient nmClient = Mockito.mock(NMClient.class);
+        Mockito.when(nmAsync.getClient()).thenReturn(nmClient);
 
         ApplicationMaster.main(null);
-
-
-
-
-
 
     }
 
