@@ -295,14 +295,14 @@ function getComponentConfigPrames (values: any, components: any, config: any) {
     const files = uploadFileName.files && uploadFileName.files[0] ? uploadFileName.files[0] : '';
     const kerFiles = kerberosFileName.files && kerberosFileName.files[0] ? kerberosFileName.files[0] : '';
     const saveConfig = values[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]];
-    const { hadoopVersion = '', storeType = '', params = {}, configInfo, principal = '', principals = [] } = saveConfig;
+    const { hadoopVersion = '', storeType = '', params = {}, configInfo = [], principal = '', principals = [] } = saveConfig;
 
     const { clusterName } = values;
     const formConfig = _.cloneDeep(configInfo);
     const customParams = _.cloneDeep(params);
     let componentTemplate = _.cloneDeep(loadTemplate);
     componentTemplate.forEach((val: any) => {
-        if (val.type === 'GROUP') {
+        if (val?.type === 'GROUP') {
             for (const groupKey in formConfig[val.key]) {
                 val.values.forEach((vals: any) => {
                     if (vals.key === groupKey.split('%').join('.')) {
@@ -311,7 +311,7 @@ function getComponentConfigPrames (values: any, components: any, config: any) {
                 })
             }
         } else {
-            val.value = formConfig[val.key.split('%').join('.')]
+            val.value = formConfig?.[val.key.split('%').join('.')] 
         }
     })
     componentTemplate = getCustomParams(customParams, componentTemplate)
