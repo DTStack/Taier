@@ -245,7 +245,7 @@ function handleCompsData (data: any) {
                 params: getLoadTemplateParams(JSON.parse(comps.componentTemplate)),
                 storeType: comps.storeType || '',
                 principal: comps.principal || '',
-                principals: comps.principals?.length!==0 ? comps.principals?.split(',') : []
+                principals: comps.principals?.length !== 0 ? comps.principals?.split(',') : []
             }
         })
     })
@@ -267,7 +267,7 @@ function updateCompsConfig (components: any, componentTypeCode: number, data: an
             params: getLoadTemplateParams(JSON.parse(data.data.componentTemplate)),
             storeType: data.data.storeType || '',
             principal: data.data.principal || '',
-            principals: data.data.principals?.length!==0 ? data.data.principals?.split(',') : []
+            principals: data.data.principals?.length !== 0 ? data.data.principals?.split(',') : []
         }
     }
 }
@@ -356,11 +356,10 @@ function getMoadifyComps (values: any, componentConfig: any) {
             const compUploadFileName = config.fileName;
             const compStoreType = config.storeType
             const compPrincipal = config.principal
-            const compPrincipals = config.principals
+            const compPrincipals = config.principals || []
             const { configInfo = {}, params = {}, hadoopVersion = '', kerberosFileName = '', uploadFileName = '', storeType = '', principal = '', principals = [] } = formConfig;
             const formValues = handleFormValues(configInfo, params, componentTypeCode);
             const isUploadFileComps = checkUplaodFileComps(Number(componentTypeCode))
-
             const isModify = (hadoopVersion && !_.isEqual(compHadoopVersion, hadoopVersion)) ||
                 (uploadFileName && !_.isEqual(compUploadFileName, handleUploadFile(uploadFileName))) ||
                     (kerberosFileName && !_.isEqual(compKerberosFileName, handleUploadFile(kerberosFileName))) ||
