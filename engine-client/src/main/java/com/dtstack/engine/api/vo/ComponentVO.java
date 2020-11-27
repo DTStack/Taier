@@ -1,5 +1,6 @@
 package com.dtstack.engine.api.vo;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Component;
 import io.swagger.annotations.ApiModel;
@@ -61,6 +62,16 @@ public class ComponentVO extends Component {
         if(removeTypeName){
             jsonObject.remove("typeName");
             jsonObject.remove("md5zip");
+        }
+        //将自定义参数移除
+        String template = component.getComponentTemplate();
+        if(null != template){
+            JSONArray jsonArray = JSONObject.parseArray(template);
+            for (Object o : jsonArray.toArray()) {
+                String key = ((JSONObject) o).getString("key");
+                String value = ((JSONObject) o).getString("value");
+                jsonObject.remove(key,value);
+            }
         }
         vo.setComponentConfig(jsonObject.toJSONString());
         return vo;

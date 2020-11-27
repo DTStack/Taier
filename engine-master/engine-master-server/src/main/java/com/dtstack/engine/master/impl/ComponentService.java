@@ -1648,7 +1648,7 @@ public class ComponentService {
             }
             componentConfig = JSON.toJSONString(configJbj);
             hdfs.setComponentConfig(componentConfig);
-            //这个字段不能传给前端，否则有问题
+            //将componentTemplate设为null
             hdfs.setComponentTemplate(null);
             components.add(hdfs);
         }
