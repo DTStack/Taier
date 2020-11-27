@@ -12,6 +12,7 @@ import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -87,10 +88,16 @@ public class JobRichOperatorTest extends AbstractTest {
             ScheduleTaskShade scheduleTaskShade = tasks.get(scheduleBatchJob.getTaskId());
             if (scheduleTaskShade != null) {
                 JobCheckRunInfo jobCheckRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, scheduleBatchJob.getStatus(), scheduleBatchJob.getScheduleType(), scheduleTaskShade);
-                System.out.println(jobCheckRunInfo.getStatus());
+                Assert.assertNotNull(jobCheckRunInfo);
             }
 
         }
+    }
+
+
+    public void getCycTime() throws Exception {
+        String cycTime = jobRichOperator.getCycTime(1);
+        Assert.assertNotNull(cycTime);
     }
 
 
