@@ -8,7 +8,6 @@ import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
-import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import com.dtstack.engine.rdbs.common.executor.RdbsExeQueue;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,11 +32,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({DriverManager.class, AbstractRdbsClientTest.TestConnFactory.class, AbstractRdbsClientTest.TestRdbsClient.class})
+@PrepareForTest({DriverManager.class, TestConnFactory.class, TestRdbsClient.class})
 public class AbstractRdbsClientTest {
 
     @Mock
-    static TestConnFactory testConnFactory;
+    TestConnFactory testConnFactory;
 
     @InjectMocks
     TestRdbsClient testRdbsClient;
@@ -176,41 +175,4 @@ public class AbstractRdbsClientTest {
         List<List<Object>> execRes = testRdbsClient.executeQuery(sql, database);
         Assert.assertNotNull(execRes);
     }
-
-
-    static class TestRdbsClient extends AbstractRdbsClient {
-
-        public TestRdbsClient() {
-            this.dbType = "mysql";
-        }
-
-        @Override
-        public AbstractConnFactory getConnFactory() {
-            return testConnFactory;
-        }
-    }
-
-    static class TestConnFactory extends AbstractConnFactory {
-
-        public TestConnFactory() {
-            driverName = "com.mysql.jdbc.Driver";
-            testSql = "select 1111";
-        }
-
-        @Override
-        public String getCreateProcedureHeader(String procName) {
-            return String.format("create procedure %s() \n", procName);
-        }
-
-        @Override
-        public String getCallProc(String procName) {
-            return String.format("call %s()", procName);
-        }
-
-        @Override
-        public String getDropProc(String procName) {
-            return String.format("DROP PROCEDURE %s", procName);
-        }
-    }
-
 }
