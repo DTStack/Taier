@@ -251,7 +251,7 @@ public class FlinkClientTest {
 	@Test
 	public void testGetCheckpoints() throws Exception {
 		JobIdentifier jobIdentifier =
-			new JobIdentifier("engineId","application_1593762151957_0080", "taskId");
+			 JobIdentifier.createInstance("engineId","application_1593762151957_0080", "taskId");
 
 		ApplicationReportPBImpl report = YarnMockUtil.mockApplicationReport(null);
 		when(yarnClient.getApplicationReport(any())).thenReturn(report);
@@ -300,8 +300,7 @@ public class FlinkClientTest {
 		when(PoolHttpClient.get(any())).thenReturn("{\"state\":\"RUNNING\"}");
 
 		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
-		when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
-		jobIdentifier.setApplicationId(null);
+		when(flinkClusterClientManager.getClusterClient(jobIdentifier)).thenReturn(clusterClient);
 		RdosTaskStatus jobStatus2 = flinkClient.getJobStatus(jobIdentifier);
 		Assert.assertNotNull(jobStatus2);
 	}
