@@ -64,14 +64,6 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
                 Lists.newArrayList(scheduleTaskShadeDTO.getTaskType()));
         Assert.assertNotNull(scheduleTaskShadeCountTaskVOS);
 
-
-        ScheduleTaskShadeCountTaskVO scheduleTaskShadeCountTaskVO = scheduleTaskShadeService.countTaskByType(scheduleTaskShadeTemplate.getTenantId(),
-                scheduleTaskShadeTemplate.getDtuicTenantId(),
-                scheduleTaskShadeDTO.getProjectId(),
-                scheduleTaskShadeDTO.getAppType(),
-                Lists.newArrayList(scheduleTaskShadeDTO.getTaskType()));
-        Assert.assertNotNull(scheduleTaskShadeCountTaskVO);
-
         List<ScheduleTaskShade> taskByIds = scheduleTaskShadeService.getTaskByIds(Lists.newArrayList(scheduleTaskShadeDTO.getTaskId()), scheduleTaskShadeDTO.getAppType());
         long findTaskCount = taskByIds.stream().filter(s -> s.getTaskId().equals(scheduleTaskShadeTemplate.getTaskId())
                 && s.getAppType().equals(scheduleTaskShadeTemplate.getAppType())).count();
@@ -93,6 +85,9 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
         scheduleTaskShadeService.updateTaskName(scheduleTaskShadeDTO.getTaskId(), "testUpdate", scheduleTaskShadeDTO.getAppType());
         Assert.assertNotNull(scheduleTaskShadeService.getById(scheduleTaskShadeDTO.getId()));
         Assert.assertTrue(CollectionUtils.isEmpty(scheduleTaskShadeService.listDependencyTask(Lists.newArrayList(scheduleTaskShadeDTO.getTaskId()), scheduleTaskShadeDTO.getAppType(), "testUpdate", scheduleTaskShadeDTO.getProjectId())));
+        Assert.assertEquals(scheduleTaskShadeService.getTaskNameByJobKey("cron_" + scheduleTaskShadeDTO.getId(),scheduleTaskShadeDTO.getAppType()),"testUpdate");
+
+
         scheduleTaskShadeService.info(scheduleTaskShadeDTO.getTaskId(), scheduleTaskShadeDTO.getAppType(), "{}");
         scheduleTaskShadeService.frozenTask(Lists.newArrayList(scheduleTaskShadeDTO.getTaskId()), EProjectScheduleStatus.PAUSE.getStatus(), scheduleTaskShadeDTO.getProjectId(), 0L, scheduleTaskShade.getAppType());
         scheduleTaskShadeService.deleteTask(scheduleTaskShadeDTO.getTaskId(), 0L, scheduleTaskShadeDTO.getAppType());
