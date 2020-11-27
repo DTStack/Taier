@@ -395,7 +395,7 @@ public class EnvironmentContext {
     }
 
     public Integer getScheduleJobScope() {
-        return Integer.valueOf(environment.getProperty("job.back.scope", "1000*60"));
+        return Integer.valueOf(environment.getProperty("job.back.scope", "60000"));
     }
 
     public Integer getJobExecutorPoolCorePoolSize(){

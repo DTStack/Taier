@@ -99,8 +99,6 @@ public final class RetryUtil {
                 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
                 new CustomThreadFactory("asyncRetryPool"));
     }
-
-
     private static class Retry {
 
         public <T> T doRetry(Callable<T> callable, int retryTimes, long sleepTimeInMilliSecond, boolean exponential, List<Class<?>> retryExceptionClasss)

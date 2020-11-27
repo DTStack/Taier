@@ -66,40 +66,40 @@
         </encoder>
     </appender>
 
-    <logger name="org.apache.flink.runtime" level="warn" additivity="false">
+    <logger name="org.apache.flink.runtime" level="error" additivity="false">
         <appender-ref ref="flinkAppender" />
     </logger>
 
-    <logger name="com.dtstack.engine.master.router" level="info" additivity="false">
+    <logger name="com.dtstack.engine.master.router" level="error" additivity="false">
         <appender-ref ref="request" />
     </logger>
 
-    <logger name="com.dtstack.engine" level="info" additivity="false">
+    <logger name="com.dtstack.engine" level="error" additivity="false">
         <appender-ref ref="allAppender" />
     </logger>
 
-    <logger name="com.dtstack.engine.master.listener" level="info" additivity="false">
+    <logger name="com.dtstack.engine.master.listener" level="error" additivity="false">
         <appender-ref ref="zkAppender" />
     </logger>
 
-    <logger name="com.dtstack.engine.worker" level="info" additivity="false">
+    <logger name="com.dtstack.engine.worker" level="error" additivity="false">
         <appender-ref ref="worker" />
     </logger>
 
-    <logger name="com.dtstack.engine.master.executor" level="info" additivity="false">
+    <logger name="com.dtstack.engine.master.executor" level="error" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
-    <logger name="com.dtstack.engine.master.multiengine" level="info" additivity="false">
+    <logger name="com.dtstack.engine.master.multiengine" level="error" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
-    <logger name="com.dtstack.engine.master.scheduler" level="info" additivity="false">
+    <logger name="com.dtstack.engine.master.scheduler" level="error" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
-    <logger name="com.dtstack.engine.master.queue.JopPriorityQueue" level="info" additivity="false">
+    <logger name="com.dtstack.engine.master.queue.JopPriorityQueue" level="error" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
 
-    <root level="info">
+    <root level="error">
         <appender-ref ref="allAppender" />
     </root>
 
