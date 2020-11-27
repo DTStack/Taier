@@ -6,7 +6,6 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.common.enums.*;
-import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
@@ -24,7 +23,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -174,11 +172,11 @@ public class JobRichOperator {
 
         JSONObject scheduleConf = JSONObject.parseObject(batchTaskShade.getScheduleConf());
         if(null == scheduleConf){
-            return Boolean.FALSE;
+            return Boolean.TRUE;
         }
         Integer isExpire = scheduleConf.getInteger("isExpire");
         if(null == isExpire){
-            return Boolean.FALSE;
+            return Boolean.TRUE;
         }
         //配置了允许过期才能
         if (Expired.EXPIRE.getVal() == isExpire && this.checkExpire(scheduleBatchJob, scheduleType, batchTaskShade)) {

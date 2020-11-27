@@ -125,9 +125,9 @@ public class Template {
         scheduleTaskShade.setIsDeleted(0);
         scheduleTaskShade.setMainClass("DataCollection");
         scheduleTaskShade.setExeArgs("null");
-        scheduleTaskShade.setFlowId(1L);
+        scheduleTaskShade.setFlowId(0L);
         scheduleTaskShade.setDtuicTenantId(1L);
-        scheduleTaskShade.setProjectScheduleStatus(1);
+        scheduleTaskShade.setProjectScheduleStatus(0);
 
         return scheduleTaskShade;
     }
@@ -148,6 +148,11 @@ public class Template {
         user.setStatus(0);
         user.setPhoneNumber("");
         return user;
+    }
+
+    public static ScheduleTaskShade getCronDayTask() {
+
+        return null;
     }
 
     public static Engine getDefaultEngineTemplate(){
