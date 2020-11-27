@@ -20,6 +20,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,6 +80,8 @@ public class AccountServiceTest extends AbstractTest {
 
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testAccountCluster() throws Exception {
         //创建集群
         componentService.addOrCheckClusterWithName(accountClusterName);
