@@ -358,5 +358,18 @@ public interface DataCollection {
         return lineageTableTable;
     }
 
+    @DatabaseInsertOperation(dao = TestLineageRealDataSourceDao.class)
+    default LineageRealDataSource getDefaultHiveLineageRealDataSource(){
+        LineageRealDataSource defaultHiveRealDataSourceTemplate = Template.getDefaultHiveRealDataSourceTemplate();
+        defaultHiveRealDataSourceTemplate.setId(1L);
+        return defaultHiveRealDataSourceTemplate;
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageDataSourceDao.class)
+    default LineageDataSource getDefaultLineageDataSource(){
+        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
+        defaultHiveDataSourceTemplate.setRealSourceId(1L);
+        return defaultHiveDataSourceTemplate;
+    }
 
 }
