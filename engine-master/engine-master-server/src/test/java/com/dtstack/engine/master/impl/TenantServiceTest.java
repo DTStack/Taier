@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
@@ -48,23 +47,19 @@ import static org.mockito.Mockito.when;
  * @Date 2020-11-24 18:05:31
  * @Created basion
  */
-@PrepareForTest({AkkaConfig.class, ClientOperator.class,DtUicUserConnect.class})
 public class TenantServiceTest extends AbstractTest {
 
     @Autowired
     private TenantService tenantService;
-
-    @Mock
-    private ClientOperator clientOperator;
-
-    @Autowired
-    private TestConsoleUserDao consoleUserDao;
 
     @Autowired
     private TestTenantDao tenantDao;
 
     @Autowired
     private TestQueueDao queueDao;
+
+    @Mock
+    private DtUicUserConnect dtUicUserConnect;
 
     /**
      * do some mock before test
@@ -77,32 +72,18 @@ public class TenantServiceTest extends AbstractTest {
     private void initMock() {
         MockitoAnnotations.initMocks(this);
         initMockUserTenants();
-        initMockAkka();
-        initMockClientOperator();
-    }
-
-    private void initMockClientOperator() {
-        PowerMockito.mockStatic(ClientOperator.class);
-        ComponentTestResult componentTestResult = new ComponentTestResult();
-        componentTestResult.setResult(true);
-        when(ClientOperator.getInstance()).thenReturn(clientOperator);
-    }
-
-    private void initMockAkka() {
-        PowerMockito.mockStatic(AkkaConfig.class);
-        when(AkkaConfig.isLocalMode()).thenReturn(true);
     }
 
     private void initMockUserTenants() {
-        PowerMockito.mockStatic(DtUicUserConnect.class);
+        PowerMockito.mock(DtUicUserConnect.class);
         List<UserTenant> tenants = Lists.newArrayList();
         UserTenant userTenant = new UserTenant();
         userTenant.setAdmin(true);
         userTenant.setTenantId(1L);
         userTenant.setTenantName("测试租户");
         tenants.add(userTenant);
-        when(DtUicUserConnect.getUserTenants(any(),any(),any())).thenReturn(tenants);
-        when(DtUicUserConnect.getTenantByTenantId(any(),any(),any())).thenReturn(userTenant);
+        when(dtUicUserConnect.getUserTenants(any(),any(),any())).thenReturn(tenants);
+        when(dtUicUserConnect.getTenantByTenantId(any(),any(),any())).thenReturn(userTenant);
     }
 
     @Test

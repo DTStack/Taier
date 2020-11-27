@@ -5,14 +5,8 @@ import com.dtstack.engine.master.vo.ScheduleJobVO;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 import com.dtstack.engine.master.AbstractTest;
 
@@ -25,7 +19,6 @@ import java.util.List;
  * @Date 2020-11-26 17:28:38
  * @Created basion
  */
-@PrepareForTest()
 public class ScheduleJobJobServiceTest extends AbstractTest {
 
     @Autowired

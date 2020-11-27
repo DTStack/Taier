@@ -7,7 +7,6 @@ import com.dtstack.engine.master.dataCollection.DataCollection;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
@@ -23,7 +22,6 @@ import java.util.List;
  * @Date 2020-11-25 19:39:34
  * @Created basion
  */
-@PrepareForTest()
 public class QueueServiceTest extends AbstractTest {
 
     @Autowired

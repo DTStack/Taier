@@ -1,7 +1,6 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.Engine;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
@@ -12,12 +11,10 @@ import com.dtstack.engine.dao.TestComponentDao;
 import com.dtstack.engine.dao.TestQueueDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
-import com.dtstack.engine.master.utils.Template;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
@@ -33,7 +30,6 @@ import java.util.List;
  * @Date 2020-11-25 19:04:44
  * @Created basion
  */
-@PrepareForTest()
 public class EngineServiceTest extends AbstractTest {
 
     @Autowired

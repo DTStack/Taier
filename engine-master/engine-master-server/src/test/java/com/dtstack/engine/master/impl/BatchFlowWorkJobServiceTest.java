@@ -6,14 +6,8 @@ import com.dtstack.schedule.common.enums.AppType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 import com.dtstack.engine.master.AbstractTest;
 import org.springframework.test.annotation.Rollback;
@@ -27,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @Date 2020-11-26 16:44:33
  * @Created basion
  */
-@PrepareForTest()
 public class BatchFlowWorkJobServiceTest extends AbstractTest {
 
     @Autowired

@@ -10,14 +10,8 @@ import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 import com.dtstack.engine.master.AbstractTest;
 import org.springframework.test.annotation.Rollback;
@@ -33,7 +27,6 @@ import java.util.List;
  * @Date 2020-11-26 17:01:53
  * @Created basion
  */
-@PrepareForTest()
 public class ScheduleFillDataJobServiceTest extends AbstractTest {
 
     @Autowired
