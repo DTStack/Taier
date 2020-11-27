@@ -80,7 +80,7 @@ public class AccountServiceTest extends AbstractTest {
 
 
     @Test
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Transactional
     @Rollback
     public void testAccountCluster() throws Exception {
         //创建集群

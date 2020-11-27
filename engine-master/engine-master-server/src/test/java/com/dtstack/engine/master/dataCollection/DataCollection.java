@@ -254,6 +254,12 @@ public interface DataCollection {
         return jc;
     }
 
+    @DatabaseInsertOperation(dao = TestEngineJobCheckpointDao.class)
+    default EngineJobCheckpoint getEngineJobSavepoint() {
+        EngineJobCheckpoint jc = Template.getEngineJobSavepointTemplate();
+        return jc;
+    }
+
     @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
     @IgnoreUniqueRandomSet
     default EngineJobCache getEngineJobCache() {
@@ -532,6 +538,29 @@ public interface DataCollection {
         scheduleTaskShade.setTaskId(4L);
         return scheduleTaskShade;
     }
+
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    default ScheduleTaskShade getCronJobBySelfRelianceTaskTask() {
+        ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
+        scheduleTaskShade.setScheduleConf("{\"beginHour\":\"0\",\"endHour\":\"23\",\"beginMin\":\"0\",\"gapHour\":\"1\",\"periodType\":\"1\",\"isFailRetry\":true,\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"selfReliance\":4,\"maxRetryNum\":\"3\",\"isLastInstance\":true,\"endMin\":\"59\"}");
+        scheduleTaskShade.setTaskId(5L);
+        return scheduleTaskShade;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    default ScheduleTaskShade getCronJobBySelfRelianceTaskTask2() {
+        ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
+        scheduleTaskShade.setScheduleConf("{\"beginHour\":\"0\",\"endHour\":\"23\",\"beginMin\":\"0\",\"gapHour\":\"1\",\"periodType\":\"1\",\"isFailRetry\":true,\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"selfReliance\":4,\"maxRetryNum\":\"3\",\"isLastInstance\":true,\"endMin\":\"59\"}");
+        scheduleTaskShade.setTaskId(6L);
+        return scheduleTaskShade;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleTaskTaskShadeDao.class)
+    default ScheduleTaskTaskShade getTaskTask() {
+        ScheduleTaskTaskShade taskTask = Template.getTaskTask();
+        return taskTask;
+    }
+
 
     @DatabaseInsertOperation(dao = TestEngineTenantDao.class)
     default EngineTenant getEngineTenant(){
