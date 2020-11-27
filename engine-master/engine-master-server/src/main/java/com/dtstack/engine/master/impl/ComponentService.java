@@ -465,7 +465,7 @@ public class ComponentService {
                 componentConfigJbj.put(key,value);
             }
         }
-        componentConfig = JSON.toJSONString(componentConfig);
+        componentConfig = JSON.toJSONString(componentConfigJbj);
         md5Key = updateResource(clusterId, componentConfig, resources, kerberosFileName, componentCode, principals, principal, addComponent, dbComponent, md5Key);
         addComponent.setComponentConfig(this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion,md5Key,addComponent.getStoreType()));
 
@@ -1650,6 +1650,8 @@ public class ComponentService {
             }
             componentConfig = JSON.toJSONString(configJbj);
             hdfs.setComponentConfig(componentConfig);
+            //将componentTemplate设为null
+            hdfs.setComponentTemplate(null);
             components.add(hdfs);
         }
         Component nfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.NFS.getTypeCode());
