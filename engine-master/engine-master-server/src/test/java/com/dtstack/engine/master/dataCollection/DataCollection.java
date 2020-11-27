@@ -576,7 +576,7 @@ public interface DataCollection {
         Cluster cluster = new Cluster();
         cluster.setId(1L);
         cluster.setClusterName("test");
-        cluster.setHadoopVersion("hadoop3");
+        cluster.setHadoopVersion("hadoop2");
         return cluster;
     }
 

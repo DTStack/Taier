@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 
 import com.dtstack.engine.master.AbstractTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author basion
@@ -28,11 +31,15 @@ public class NodeRecoverServiceTest extends AbstractTest {
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testMasterTriggerNode() {
         nodeRecoverService.masterTriggerNode();
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testRecoverJobCaches() {
         nodeRecoverService.recoverJobCaches();
     }
