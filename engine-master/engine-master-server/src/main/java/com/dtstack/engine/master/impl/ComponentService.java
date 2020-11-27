@@ -1640,7 +1640,7 @@ public class ComponentService {
             String componentTemplate = hdfs.getComponentTemplate();
             String componentConfig = hdfs.getComponentConfig();
             JSONObject configJbj = JSONObject.parseObject(componentConfig);
-            if(null != componentConfig){
+            if(null != componentTemplate){
                 JSONArray jsonArray = JSONObject.parseArray(componentTemplate);
                 for (Object o : jsonArray.toArray()) {
                     String key = ((JSONObject) o).getString("key");
