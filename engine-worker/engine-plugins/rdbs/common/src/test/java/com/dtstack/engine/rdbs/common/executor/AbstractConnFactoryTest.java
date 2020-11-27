@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({DriverManager.class, TestConnFactory.class})
+@PrepareForTest({DriverManager.class, TestConnFactory.class, AbstractConnFactory.class})
 public class AbstractConnFactoryTest {
 
     @InjectMocks

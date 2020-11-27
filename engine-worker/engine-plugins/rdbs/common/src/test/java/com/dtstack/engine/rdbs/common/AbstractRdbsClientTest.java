@@ -32,7 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({DriverManager.class, TestConnFactory.class, TestRdbsClient.class})
+@PrepareForTest({DriverManager.class, TestConnFactory.class, TestRdbsClient.class, AbstractRdbsClient.class})
 public class AbstractRdbsClientTest {
 
     @Mock
