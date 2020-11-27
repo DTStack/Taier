@@ -85,8 +85,6 @@ public class ClientTest {
         Mockito.when(System.getenv(DtYarnConstants.Environment.APPMASTER_HOST.toString())).thenReturn("127.0.0.1");
         Mockito.when(System.getenv(DtYarnConstants.Environment.APPMASTER_PORT.toString())).thenReturn("8080");
 
-
-
     }
 
     @Test

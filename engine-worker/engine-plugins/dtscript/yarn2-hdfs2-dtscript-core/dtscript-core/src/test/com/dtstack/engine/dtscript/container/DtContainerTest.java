@@ -19,6 +19,7 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,8 +30,8 @@ import java.util.Map;
  * @create: 2020/11/26 11:24
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({DtContainer.class, DtYarnConfiguration.class, RPC.class})
-@PowerMockIgnore({"javax.net.ssl.*"})
+@PrepareForTest({DtContainer.class, DtYarnConfiguration.class, RPC.class, FileSystem.class})
+@PowerMockIgnore({"javax.net.ssl.*","org.apache.hadoop.security.UserGroupInformation.*"})
 public class DtContainerTest {
 
     @Rule
@@ -86,11 +87,11 @@ public class DtContainerTest {
         paths[0] = path;
         Mockito.when(protocol.getOutputLocation()).thenReturn(paths);
 
-        FileSystem dtf = FileSystem.get(mockYarnConfiguration);
-        FSDataOutputStream stream = Mockito.mock(FSDataOutputStream.class);
-        PowerMockito.mockStatic(FileSystem.class);
-        PowerMockito.when(FileSystem.create(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(stream);
-        PowerMockito.when(FileSystem.get(Mockito.any())).thenReturn(dtf);
+//        FileSystem dtf = FileSystem.get(mockYarnConfiguration);
+//        FSDataOutputStream stream = Mockito.mock(FSDataOutputStream.class);
+//        PowerMockito.mockStatic(FileSystem.class);
+//        PowerMockito.when(FileSystem.create(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(stream);
+//        PowerMockito.when(FileSystem.get(Mockito.any())).thenReturn(dtf);
 
         DtContainer.main(null);
     }
