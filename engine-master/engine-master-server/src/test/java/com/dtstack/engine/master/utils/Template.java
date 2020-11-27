@@ -132,6 +132,21 @@ public class Template {
         return scheduleTaskShade;
     }
 
+    public static ScheduleTaskTaskShade getTaskTask(){
+        ScheduleTaskTaskShade scheduleTaskShade = new ScheduleTaskTaskShade();
+        scheduleTaskShade.setTaskId(5L);
+        scheduleTaskShade.setParentTaskId(6L);
+        scheduleTaskShade.setAppType(1);
+        scheduleTaskShade.setDtuicTenantId(1L);
+        scheduleTaskShade.setGmtCreate(new Timestamp(1592559742000L));
+        scheduleTaskShade.setGmtModified(new Timestamp(1592559742000L));
+        scheduleTaskShade.setDtuicTenantId(1L);
+        scheduleTaskShade.setIsDeleted(0);
+        scheduleTaskShade.setTenantId(ValueUtils.getChangedLong());
+        scheduleTaskShade.setProjectId(ValueUtils.getChangedLong());
+        return scheduleTaskShade;
+    }
+
     public static Tenant getTenantTemplate(){
         Tenant tenant = new Tenant();
         tenant.setDtUicTenantId(ValueUtils.getChangedLong());
