@@ -22,6 +22,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,10 +57,10 @@ public class AccountServiceTest extends AbstractTest {
     @Autowired
     private AccountService accountService;
 
-    @Mock
+    @MockBean
     private DtUicUserConnect dtUicUserConnect;
 
-    @Mock
+    @MockBean
     private ClientOperator clientOperator;
 
     @Before
@@ -72,10 +75,6 @@ public class AccountServiceTest extends AbstractTest {
         rootMap.put("createTime", new DateTime().toString());
         users.add(rootMap);
 
-        MockitoAnnotations.initMocks(this);
-        PowerMockito.mock(ClientOperator.class);
-        PowerMockito.mock(DtUicUserConnect.class);
-
         when(dtUicUserConnect.getAllUicUsers(any(),any(),any(),any())).thenReturn(users);
         when(clientOperator.testConnect(any(), any())).thenReturn(componentTestResult);
         when(clientOperator.executeQuery(any(), any(), any(), any())).thenReturn(new ArrayList());
@@ -83,6 +82,8 @@ public class AccountServiceTest extends AbstractTest {
 
 
     @Test
+    @Transactional
+    @Rollback
     public void testAccountCluster() throws Exception {
         //创建集群
         componentService.addOrCheckClusterWithName(accountClusterName);

@@ -29,6 +29,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
 import static org.mockito.Mockito.*;
 
 
@@ -40,10 +42,10 @@ public class ActionServiceTest extends AbstractTest {
 
     private final static List<String> mockInfos = Lists.newArrayList("Mock Info");
 
-    @Mock
+    @MockBean
     private ClientOperator clientOperator;
 
-    @Mock
+    @MockBean
     private JobDealer jobDealer;
 
     @Autowired

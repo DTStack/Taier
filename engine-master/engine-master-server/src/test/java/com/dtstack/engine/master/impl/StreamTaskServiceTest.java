@@ -7,19 +7,21 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -43,6 +45,14 @@ public class StreamTaskServiceTest extends AbstractTest {
 
 	@Autowired
 	StreamTaskService streamTaskService;
+
+	@MockBean
+    private WorkerOperator workerOperator;
+
+	@Before
+    public void setup(){
+	    when(workerOperator.getRollingLogBaseInfo(any())).thenReturn(new ArrayList<>());
+    }
 
 	@Test
 	@Transactional(isolation = Isolation.READ_UNCOMMITTED)

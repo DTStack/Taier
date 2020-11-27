@@ -17,6 +17,7 @@ import com.dtstack.engine.master.enums.EComponentScheduleType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
+import com.dtstack.engine.master.utils.Template;
 import com.dtstack.schedule.common.enums.AppType;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
@@ -28,6 +29,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.powermock.api.mockito.PowerMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Isolation;
@@ -64,7 +66,7 @@ public class ClusterServiceTest extends AbstractTest {
     @Autowired
     private ComponentDao componentDao;
 
-    @Mock
+    @MockBean
     private ClientOperator clientOperator;
 
     @Autowired
@@ -82,7 +84,7 @@ public class ClusterServiceTest extends AbstractTest {
     @Autowired
     private EngineTenantDao engineTenantDao;
 
-    @Mock
+    @MockBean
     private ConsoleCache consoleCache;
 
     @Autowired
@@ -152,6 +154,8 @@ public class ClusterServiceTest extends AbstractTest {
      * @see EngineService#listClusterEngines(java.lang.Long, boolean)
      */
     @Test
+    @Transactional
+    @Rollback
     public void testGetCluster() throws Exception{
         //创建集群
         testCreateCluster(testClusterName);
@@ -183,7 +187,9 @@ public class ClusterServiceTest extends AbstractTest {
         //添加测试组件对应yarn的队列
         Queue queue = this.testInsertQueue(engineId);
         //添加测试租户
-        Tenant tenant = DataCollection.getData().getTenant();
+        Tenant tenant = Template.getTenantTemplate();
+        tenant.setDtUicTenantId(-107L);
+        tenantDao.insert(tenant);
         tenant = tenantDao.getByDtUicTenantId(tenant.getDtUicTenantId());
         Assert.assertNotNull(tenant);
         Assert.assertNotNull(tenant.getId());
