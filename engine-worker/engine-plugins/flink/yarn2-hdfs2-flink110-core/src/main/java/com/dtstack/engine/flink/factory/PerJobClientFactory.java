@@ -196,7 +196,6 @@ public class PerJobClientFactory extends AbstractClientFactory {
         }
 
         configuration.setString(YarnConfigOptions.APPLICATION_NAME, jobClient.getJobName());
-        configuration.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
 
         if (StringUtils.isNotBlank(flinkConfig.getPluginLoadMode()) && ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(flinkConfig.getPluginLoadMode())) {
             configuration.setString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, flinkConfig.getPluginLoadMode());

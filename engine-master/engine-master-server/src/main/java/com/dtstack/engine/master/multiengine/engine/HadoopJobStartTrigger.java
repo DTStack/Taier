@@ -411,7 +411,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     return null;
                 }, 3, 2000, false, Lists.newArrayList(SocketTimeoutException.class));
             } catch (Exception e) {
-                LOG.error("create partition error", e);
+                LOG.error("create partition error:", e);
                 throw new RdosDefineException("create partition error:" + ExceptionUtil.getErrorMessage(e));
             }
         }
@@ -460,12 +460,12 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             }
             pluginInfo.put(EComponentType.SFTP.getConfName(), sftpConf);
             //krb5.conf的文件名
-            String krb5Conf = hadoopConfig.getString(ConfigConstant.KRB5_CONF);
+            String krb5Conf = hadoopConfig.getString(ConfigConstant.JAVA_SECURITY_KRB5_CONF);
             if(StringUtils.isBlank(krb5Conf)){
                 //平台不传 暂时设置默认值
-                krb5Conf = ConfigConstant.KRBNAME_DEFAULT;
+                krb5Conf = ConfigConstant.KRB5_CONF;
             }
-            pluginInfo.put(ConfigConstant.KRB_NAME,krb5Conf);
+            pluginInfo.put(ConfigConstant.KRB_NAME, krb5Conf);
             pluginInfo.put(EComponentType.YARN.getConfName(), hadoopConfig);
 
         }
