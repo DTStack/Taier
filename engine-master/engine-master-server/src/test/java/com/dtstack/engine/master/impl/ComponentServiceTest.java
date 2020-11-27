@@ -271,8 +271,8 @@ public class ComponentServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testTestConnect() {
-        Component one = DataCollection.getData().getDefaultHdfsComponent();
-        Cluster cluster = clusterDao.getOne();
+        Component one = DataCollection.getData().getDefaultK8sClusterHdfsComponent();
+        Cluster cluster = DataCollection.getData().getDefaultK8sCluster();
         Map<String, String> getSFTPConfig = componentService.getSFTPConfig(cluster.getId());
         ComponentTestResult testConnect = componentService.testConnect(EComponentType.HDFS.getTypeCode(), one.getComponentConfig(), cluster.getClusterName(), one.getHadoopVersion(), one.getEngineId(), null, getSFTPConfig, 0);
         Assert.assertNotNull(testConnect);

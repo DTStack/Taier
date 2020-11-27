@@ -121,9 +121,22 @@ public class ConsoleServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testSearchJob() {
-        EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
+        EngineJobCache engineJobCache = initScheduleJobForTest();
         ConsoleJobVO searchJob = consoleService.searchJob(engineJobCache.getJobName());
         Assert.assertNotNull(searchJob);
+    }
+
+    private EngineJobCache initScheduleJobForTest() {
+        ScheduleJob scheduleJobTemplate = Template.getScheduleJobTemplate();
+        scheduleJobTemplate.setJobName("initScheduleJobForTest");
+        scheduleJobTemplate.setJobKey("initScheduleJobForTest");
+        scheduleJobTemplate.setJobId("initScheduleJobForTest");
+        scheduleJobDao.insert(scheduleJobTemplate);
+        EngineJobCache engineJobCacheTemplate2 = Template.getEngineJobCacheTemplate2();
+        engineJobCacheTemplate2.setJobName("initScheduleJobForTest");
+        engineJobCacheTemplate2.setJobId("initScheduleJobForTest");
+        engineJobCacheDao.insert(engineJobCacheTemplate2);
+        return engineJobCacheTemplate2;
     }
 
     @Test

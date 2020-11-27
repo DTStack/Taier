@@ -705,4 +705,58 @@ public interface DataCollection {
     default ScheduleFillDataJob getDefaultScheduleFillDataJob(){
         return Template.getDefaultScheduleFillDataJobTemplate();
     }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    @IgnoreUniqueRandomSet
+    default ScheduleJob getDefaultJobForSpring1(){
+        return Template.getDefaultScheduleJobForSpring1Template();
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    @IgnoreUniqueRandomSet
+    default ScheduleTaskShade getDefaultTaskForSpring1(){
+        ScheduleTaskShade taskShade = Template.getDefaultScheduleTaskFlowParentTemplate();
+        taskShade.setTaskId(1L);
+        return taskShade;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    @IgnoreUniqueRandomSet
+    default ScheduleJob getDefaultJobForSpring2(){
+        return Template.getDefaultScheduleJobForSpring2Template();
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobJobDao.class)
+    default ScheduleJobJob getDefaultJobJobForSpring1(){
+        return Template.getDefaultScheduleJobJobForSpring1Template();
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    @IgnoreUniqueRandomSet
+    default ScheduleTaskShade getDefaultTaskForFlowParent(){
+        return Template.getDefaultScheduleTaskFlowParentTemplate();
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    @IgnoreUniqueRandomSet
+    default ScheduleTaskShade getDefaultTaskForFlowChild(){
+        return Template.getDefaultScheduleTaskFlowTemplate();
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    @IgnoreUniqueRandomSet
+    default ScheduleJob getDefaultJobForFlowParent(){
+        return Template.getDefaultScheduleJobFlowParentTemplate();
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    @IgnoreUniqueRandomSet
+    default ScheduleJob getDefaultJobForFlowChild(){
+        return Template.getDefaultScheduleJobFlowChildTemplate();
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobJobDao.class)
+    default ScheduleJobJob getDefaultJobJobForFlow(){
+        return Template.getDefaultScheduleJobJobFlowTemplate();
+    }
 }
