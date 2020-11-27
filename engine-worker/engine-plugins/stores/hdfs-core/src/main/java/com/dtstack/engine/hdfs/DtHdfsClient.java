@@ -159,6 +159,8 @@ public class DtHdfsClient extends AbstractClient {
                 try {
                     Configuration configuration = this.initYarnConf(testConnectConf.getHadoopConf());
                     fs = FileSystem.get(configuration);
+                    Path path = new Path(configuration.get("yarn.nodemanager.remote-app-log-dir"));
+                    fs.exists(path);
                 } catch (Exception e) {
                     componentTestResult.setResult(false);
                     componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));

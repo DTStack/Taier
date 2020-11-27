@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Queue;
@@ -442,13 +443,24 @@ public class ComponentService {
         addComponent.setComponentName(componentType.getName());
         addComponent.setComponentTypeCode(componentType.getTypeCode());
         addComponent.setEngineId(engine.getId());
+
         addComponent.setComponentTemplate(componentTemplate);
         if (StringUtils.isNotBlank(kerberosFileName)) {
             addComponent.setKerberosFileName(kerberosFileName);
         }
 
         String md5Key = "";
-
+        //将componentTemplate的值放入componentConfig
+        JSONObject componentConfigJbj = JSONObject.parseObject(componentConfig);
+        if(componentTemplate!=null){
+            JSONArray jsonArray = JSONObject.parseArray(componentTemplate);
+            for (Object o : jsonArray.toArray()) {
+                String key = ((JSONObject) o).getString("key");
+                String value = ((JSONObject) o).getString("value");
+                componentConfigJbj.put(key,value);
+            }
+        }
+        componentConfig = JSON.toJSONString(componentConfigJbj);
         md5Key = updateResource(clusterId, componentConfig, resources, kerberosFileName, componentCode, principals, principal, addComponent, dbComponent, md5Key);
         addComponent.setComponentConfig(this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion,md5Key,addComponent.getStoreType()));
 
@@ -1620,6 +1632,22 @@ public class ComponentService {
         List<Component> components = new ArrayList<>();
         Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
         if (null != hdfs) {
+            //将componentConfig中的componentTemplate内容过滤掉
+            String componentTemplate = hdfs.getComponentTemplate();
+            String componentConfig = hdfs.getComponentConfig();
+            JSONObject configJbj = JSONObject.parseObject(componentConfig);
+            if(null != componentTemplate){
+                JSONArray jsonArray = JSONObject.parseArray(componentTemplate);
+                for (Object o : jsonArray.toArray()) {
+                    String key = ((JSONObject) o).getString("key");
+                    String value = ((JSONObject) o).getString("value");
+                    configJbj.remove(key,value);
+                }
+            }
+            componentConfig = JSON.toJSONString(configJbj);
+            hdfs.setComponentConfig(componentConfig);
+            //将componentTemplate设为null
+            hdfs.setComponentTemplate(null);
             components.add(hdfs);
         }
         Component nfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.NFS.getTypeCode());
