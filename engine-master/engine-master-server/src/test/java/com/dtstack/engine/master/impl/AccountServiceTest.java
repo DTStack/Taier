@@ -18,10 +18,8 @@ import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,10 +52,10 @@ public class AccountServiceTest extends AbstractTest {
     @Autowired
     private AccountService accountService;
 
-    @Mock
+    @MockBean
     private DtUicUserConnect dtUicUserConnect;
 
-    @Mock
+    @MockBean
     private ClientOperator clientOperator;
 
     @Before
@@ -71,10 +69,6 @@ public class AccountServiceTest extends AbstractTest {
         rootMap.put("active", true);
         rootMap.put("createTime", new DateTime().toString());
         users.add(rootMap);
-
-        MockitoAnnotations.initMocks(this);
-        PowerMockito.mock(ClientOperator.class);
-        PowerMockito.mock(DtUicUserConnect.class);
 
         when(dtUicUserConnect.getAllUicUsers(any(),any(),any(),any())).thenReturn(users);
         when(clientOperator.testConnect(any(), any())).thenReturn(componentTestResult);

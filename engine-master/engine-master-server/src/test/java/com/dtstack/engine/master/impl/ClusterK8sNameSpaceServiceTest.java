@@ -22,8 +22,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.powermock.api.mockito.PowerMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Isolation;
@@ -56,7 +56,7 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
     @Autowired
     private ComponentDao componentDao;
 
-    @Mock
+    @MockBean
     private ClientOperator clientOperator;
 
     @Autowired
@@ -74,7 +74,7 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
     @Autowired
     private EngineTenantDao engineTenantDao;
 
-    @Mock
+    @MockBean
     private ConsoleCache consoleCache;
 
     @Autowired
@@ -85,7 +85,6 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
     @Before
     public void setup() throws Exception{
         MockitoAnnotations.initMocks(this);
-        PowerMockito.mock(ClientOperator.class);
 
         ComponentTestResult componentTestResult = new ComponentTestResult();
         componentTestResult.setResult(true);
