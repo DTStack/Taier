@@ -1,6 +1,6 @@
 package com.dtstack.engine.rdbs.common.executor;
 
-import com.dtstack.engine.rdbs.common.AbstractRdbsClientTest;
+import com.dtstack.engine.rdbs.common.TestConnFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,11 +22,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({DriverManager.class, AbstractConnFactoryTest.TestConnFactory.class})
+@PrepareForTest({DriverManager.class, TestConnFactory.class})
 public class AbstractConnFactoryTest {
 
     @InjectMocks
-    AbstractConnFactoryTest.TestConnFactory testConnFactory;
+    TestConnFactory testConnFactory;
 
     @Before
     public void setUp() {
@@ -35,8 +35,8 @@ public class AbstractConnFactoryTest {
 
     @Test
     public void testInit() throws Exception {
-        MemberModifier.field(AbstractConnFactoryTest.TestConnFactory.class, "driverName").set(testConnFactory, "com.mysql.jdbc.Driver");
-        MemberModifier.field(AbstractConnFactoryTest.TestConnFactory.class, "isFirstLoaded").set(testConnFactory, new AtomicBoolean(true));
+        MemberModifier.field(TestConnFactory.class, "driverName").set(testConnFactory, "com.mysql.jdbc.Driver");
+        MemberModifier.field(TestConnFactory.class, "isFirstLoaded").set(testConnFactory, new AtomicBoolean(true));
 
         PowerMockito.mockStatic(DriverManager.class);
         Connection conn = PowerMockito.mock(Connection.class);
@@ -71,18 +71,5 @@ public class AbstractConnFactoryTest {
         String procName = "testCase";
         String dropProc = testConnFactory.getDropProc(procName);
         Assert.assertEquals("DROP PROCEDURE \"testCase\"", dropProc);
-    }
-
-    static class TestConnFactory extends AbstractConnFactory {
-
-        public TestConnFactory() {
-            driverName = "com.mysql.jdbc.Driver";
-            testSql = "select 1111";
-        }
-
-        @Override
-        public String getCreateProcedureHeader(String procName) {
-            return String.format("create procedure %s() \n", procName);
-        }
     }
 }
