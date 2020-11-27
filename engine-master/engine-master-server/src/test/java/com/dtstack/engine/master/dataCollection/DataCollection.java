@@ -254,6 +254,12 @@ public interface DataCollection {
         return jc;
     }
 
+    @DatabaseInsertOperation(dao = TestEngineJobCheckpointDao.class)
+    default EngineJobCheckpoint getEngineJobSavepoint() {
+        EngineJobCheckpoint jc = Template.getEngineJobSavepointTemplate();
+        return jc;
+    }
+
     @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
     @IgnoreUniqueRandomSet
     default EngineJobCache getEngineJobCache() {

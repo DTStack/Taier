@@ -1,18 +1,13 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.KerberosConfig;
-import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.domain.Tenant;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.Resource;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.ComponentVO;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
-import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.sftp.SftpConfig;
@@ -20,13 +15,13 @@ import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.dao.TestClusterDao;
 import com.dtstack.engine.dao.TestComponentDao;
 import com.dtstack.engine.dao.TestKerberosConfigDao;
+import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.enums.DownloadType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.engine.master.utils.XmlFileUtil;
-import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
@@ -35,16 +30,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
+import org.powermock.api.mockito.PowerMockito;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import com.dtstack.engine.master.AbstractTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
@@ -52,9 +41,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * @author basion
