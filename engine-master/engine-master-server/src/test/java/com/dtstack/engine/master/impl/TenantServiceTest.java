@@ -1,19 +1,13 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.Engine;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.domain.TenantResource;
-import com.dtstack.engine.api.domain.User;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.tenant.TenantResourceVO;
 import com.dtstack.engine.api.vo.tenant.UserTenantVO;
-import com.dtstack.engine.common.akka.config.AkkaConfig;
-import com.dtstack.engine.common.client.ClientOperator;
-import com.dtstack.engine.dao.TestConsoleUserDao;
 import com.dtstack.engine.dao.TestQueueDao;
 import com.dtstack.engine.dao.TestTenantDao;
 import com.dtstack.engine.master.AbstractTest;
@@ -27,10 +21,9 @@ import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,7 +51,7 @@ public class TenantServiceTest extends AbstractTest {
     @Autowired
     private TestQueueDao queueDao;
 
-    @Mock
+    @MockBean
     private DtUicUserConnect dtUicUserConnect;
 
     /**
@@ -70,12 +63,10 @@ public class TenantServiceTest extends AbstractTest {
     }
 
     private void initMock() {
-        MockitoAnnotations.initMocks(this);
         initMockUserTenants();
     }
 
     private void initMockUserTenants() {
-        PowerMockito.mock(DtUicUserConnect.class);
         List<UserTenant> tenants = Lists.newArrayList();
         UserTenant userTenant = new UserTenant();
         userTenant.setAdmin(true);
