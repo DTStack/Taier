@@ -85,7 +85,7 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
         scheduleTaskShadeService.updateTaskName(scheduleTaskShadeDTO.getTaskId(), "testUpdate", scheduleTaskShadeDTO.getAppType());
         Assert.assertNotNull(scheduleTaskShadeService.getById(scheduleTaskShadeDTO.getId()));
         Assert.assertTrue(CollectionUtils.isEmpty(scheduleTaskShadeService.listDependencyTask(Lists.newArrayList(scheduleTaskShadeDTO.getTaskId()), scheduleTaskShadeDTO.getAppType(), "testUpdate", scheduleTaskShadeDTO.getProjectId())));
-        Assert.assertEquals(scheduleTaskShadeService.getTaskNameByJobKey("cron_" + scheduleTaskShadeDTO.getId(),scheduleTaskShadeDTO.getAppType()),"testUpdate");
+        Assert.assertEquals(scheduleTaskShadeService.getTaskNameByJobKey("cron_" + scheduleTaskShadeDTO.getId() + "_20201200000",scheduleTaskShadeDTO.getAppType()),"testUpdate");
 
 
         scheduleTaskShadeService.info(scheduleTaskShadeDTO.getTaskId(), scheduleTaskShadeDTO.getAppType(), "{}");
