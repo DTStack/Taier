@@ -26,9 +26,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,14 +47,14 @@ import static org.mockito.Mockito.when;
  */
 public class ConsoleServiceTest extends AbstractTest {
 
-    @Mock
+    @MockBean
     private WorkerOperator workerOperator;
 
     @Autowired
     @InjectMocks
     private ConsoleService consoleService;
 
-    @Mock
+    @MockBean
     private ZkService zkService;
 
     @Autowired
@@ -82,13 +81,11 @@ public class ConsoleServiceTest extends AbstractTest {
     }
 
     private void initMockWorkOperator() throws Exception {
-        PowerMockito.mock(WorkerOperator.class);
         ClusterResource clusterResource = new ClusterResource();
         when(workerOperator.clusterResource(any(),any())).thenReturn(clusterResource);
     }
 
     private void initMockZkService() {
-        PowerMockito.mock(ZkService.class);
         List<String> aliveNodes = new ArrayList<>();
         aliveNodes.add("127.0.0.1:9099");
         when(zkService.getAliveBrokersChildren()).thenReturn(aliveNodes);

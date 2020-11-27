@@ -107,39 +107,39 @@ public class ComponentServiceTest extends AbstractTest {
     }
 
     private void initMockXmlFileUtil() {
-        PowerMockito.mockStatic(XmlFileUtil.class);
-        List<File> files = new ArrayList<>();
-        String hive = getClass().getClassLoader().getResource("hadoopConf/hive-site.xml").getFile();
-        files.add(new File(hive));
-        String core = getClass().getClassLoader().getResource("hadoopConf/core-site.xml").getFile();
-        files.add(new File(core));
-        String yarn = getClass().getClassLoader().getResource("hadoopConf/yarn-site.xml").getFile();
-        files.add(new File(yarn));
-        String hdfs = getClass().getClassLoader().getResource("hadoopConf/hdfs-site.xml").getFile();
-        files.add(new File(hdfs));
-        when(XmlFileUtil.getFilesFromZip(any(), any(), any())).thenReturn(files);
+//        PowerMockito.mockStatic(XmlFileUtil.class);
+//        List<File> files = new ArrayList<>();
+//        String hive = getClass().getClassLoader().getResource("hadoopConf/hive-site.xml").getFile();
+//        files.add(new File(hive));
+//        String core = getClass().getClassLoader().getResource("hadoopConf/core-site.xml").getFile();
+//        files.add(new File(core));
+//        String yarn = getClass().getClassLoader().getResource("hadoopConf/yarn-site.xml").getFile();
+//        files.add(new File(yarn));
+//        String hdfs = getClass().getClassLoader().getResource("hadoopConf/hdfs-site.xml").getFile();
+//        files.add(new File(hdfs));
+//        when(XmlFileUtil.getFilesFromZip(any(), any(), any())).thenReturn(files);
     }
 
     private void initMockSftpFileManager() {
-        PowerMockito.mock(SftpFileManage.class);
-        when(SftpFileManage.getSftpManager(any())).thenReturn(sftpFileManage);
-        when(sftpFileManage.downloadDir(any(), any())).thenAnswer((Answer<Boolean>) invocation -> {
-            Object[] args = invocation.getArguments();
-            String localDir = (String) args[1];
-            File file = new File(localDir);
-            if (!file.exists()) {
-                boolean mkdirs = file.mkdirs();
-                if (mkdirs) {
-                    files.add(file);
-                    System.out.println("创建本地测试目录完成:" + localDir);
-                }
-            }
-            return true;
-        });
+//        PowerMockito.mock(SftpFileManage.class);
+//        when(SftpFileManage.getSftpManager(any())).thenReturn(sftpFileManage);
+//        when(sftpFileManage.downloadDir(any(), any())).thenAnswer((Answer<Boolean>) invocation -> {
+//            Object[] args = invocation.getArguments();
+//            String localDir = (String) args[1];
+//            File file = new File(localDir);
+//            if (!file.exists()) {
+//                boolean mkdirs = file.mkdirs();
+//                if (mkdirs) {
+//                    files.add(file);
+//                    System.out.println("创建本地测试目录完成:" + localDir);
+//                }
+//            }
+//            return true;
+//        });
     }
 
     private void initMockClientOperator() {
-        PowerMockito.mock(ClientOperator.class);
+//        PowerMockito.mock(ClientOperator.class);
         ComponentTestResult componentTestResult = new ComponentTestResult();
         componentTestResult.setResult(true);
         when(clientOperator.testConnect(any(), any())).thenReturn(componentTestResult);

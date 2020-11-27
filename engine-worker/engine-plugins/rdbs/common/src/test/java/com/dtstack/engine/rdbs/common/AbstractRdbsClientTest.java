@@ -1,0 +1,216 @@
+package com.dtstack.engine.rdbs.common;
+
+import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.base.resource.EngineResourceInfo;
+import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
+import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
+import com.dtstack.engine.rdbs.common.executor.RdbsExeQueue;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.api.support.membermodification.MemberModifier;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.sql.*;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({DriverManager.class, AbstractRdbsClientTest.TestConnFactory.class, AbstractRdbsClientTest.TestRdbsClient.class})
+public class AbstractRdbsClientTest {
+
+    @Mock
+    static TestConnFactory testConnFactory;
+
+    @InjectMocks
+    TestRdbsClient testRdbsClient;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void testInit() throws Exception {
+        MemberModifier.field(TestConnFactory.class, "driverName").set(testConnFactory, "com.mysql.jdbc.Driver");
+        MemberModifier.field(TestConnFactory.class, "isFirstLoaded").set(testConnFactory, new AtomicBoolean(true));
+
+        PowerMockito.mockStatic(DriverManager.class);
+        Connection conn = PowerMockito.mock(Connection.class);
+        Statement stmt = PowerMockito.mock(Statement.class);
+        when(stmt.execute(any(String.class))).thenReturn(true);
+        when(conn.createStatement()).thenReturn(stmt);
+        when(DriverManager.getConnection(any(String.class), any(String.class), any(String.class))).thenReturn(conn);
+
+        Properties props = new Properties();
+        props.put("jdbcUrl", "jdbcUrl");
+        props.put("username", "username");
+        props.put("password", "password");
+
+        testRdbsClient.init(props);
+    }
+
+    @Test
+    public void testProcessSubmitJobWithType() throws Exception {
+        JobClient jobClient = new JobClient();
+        jobClient.setJobType(EJobType.MR);
+
+        Boolean isMr = false;
+        try {
+            testRdbsClient.processSubmitJobWithType(jobClient);
+        } catch (Exception e) {
+            isMr = true;
+        }
+        Assert.assertTrue(isMr);
+
+        jobClient.setJobType(EJobType.SQL);
+
+        RdbsExeQueue rdbsExeQueue = PowerMockito.mock(RdbsExeQueue.class);
+        when(rdbsExeQueue.submit(any(JobClient.class))).thenReturn("test");
+        MemberModifier.field(TestRdbsClient.class, "exeQueue").set(testRdbsClient, rdbsExeQueue);
+        JobResult jobResult = testRdbsClient.processSubmitJobWithType(jobClient);
+        Assert.assertNotNull(jobResult);
+    }
+
+    @Test
+    public void testCancelJob() throws Exception {
+        RdbsExeQueue rdbsExeQueue = PowerMockito.mock(RdbsExeQueue.class);
+        when(rdbsExeQueue.cancelJob(any(String.class))).thenReturn(true);
+        MemberModifier.field(TestRdbsClient.class, "exeQueue").set(testRdbsClient, rdbsExeQueue);
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance("test", "test", "test");
+        JobResult jobResult = testRdbsClient.cancelJob(jobIdentifier);
+        Assert.assertNotNull(jobResult);
+    }
+
+    @Test
+    public void testGetJobStatus() throws Exception {
+        RdbsExeQueue rdbsExeQueue = PowerMockito.mock(RdbsExeQueue.class);
+        when(rdbsExeQueue.getJobStatus(any(String.class))).thenReturn(RdosTaskStatus.RUNNING);
+        MemberModifier.field(TestRdbsClient.class, "exeQueue").set(testRdbsClient, rdbsExeQueue);
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance("test", "test", "test");
+        RdosTaskStatus status = testRdbsClient.getJobStatus(jobIdentifier);
+        Assert.assertEquals(status, RdosTaskStatus.RUNNING);
+    }
+
+    @Test
+    public void testGetJobLog() throws Exception {
+        RdbsExeQueue rdbsExeQueue = PowerMockito.mock(RdbsExeQueue.class);
+        when(rdbsExeQueue.getJobLog(any(String.class))).thenReturn("job log");
+        MemberModifier.field(TestRdbsClient.class, "exeQueue").set(testRdbsClient, rdbsExeQueue);
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance("test", "test", "test");
+        String jobLog = testRdbsClient.getJobLog(jobIdentifier);
+        Assert.assertEquals(jobLog, "job log");
+    }
+
+    @Test
+    public void testJudgeSlots() throws Exception {
+        JobClient jobClient = new JobClient();
+        JudgeResult result = testRdbsClient.judgeSlots(jobClient);
+        Assert.assertEquals(JudgeResult.JudgeType.NOT_OK, result.getResult());
+
+        EngineResourceInfo info = PowerMockito.mock(EngineResourceInfo.class);
+        when(info.judgeSlots(any(JobClient.class))).thenReturn(JudgeResult.ok());
+        MemberModifier.field(TestRdbsClient.class, "resourceInfo").set(testRdbsClient, info);
+        JudgeResult judgeResult = testRdbsClient.judgeSlots(jobClient);
+        Assert.assertEquals(JudgeResult.JudgeType.OK, judgeResult.getResult());
+    }
+
+    @Test
+    public void testTestConnect() throws Exception {
+        ComponentTestResult result = testRdbsClient.testConnect(null);
+        Assert.assertFalse(result.getResult());
+
+        TestConnFactory connFactory = PowerMockito.mock(TestConnFactory.class);
+        PowerMockito.doAnswer(new Answer() {
+            @Override
+            public String answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return "test";
+            }
+        }).when(connFactory).init(any(Properties.class));
+
+        MemberModifier.field(TestRdbsClient.class, "connFactory").set(testRdbsClient, connFactory);
+        String pluginInfo = "{\"test\": \"test\"}";
+        ComponentTestResult okResult = testRdbsClient.testConnect(pluginInfo);
+        Assert.assertTrue(okResult.getResult());
+    }
+
+    @Test
+    public void testExecuteQuery() throws Exception {
+
+        TestConnFactory connFactory = PowerMockito.mock(TestConnFactory.class);
+        Connection connection = PowerMockito.mock(Connection.class);
+        Statement stmt = PowerMockito.mock(Statement.class);
+        when(stmt.execute(any(String.class))).thenReturn(true);
+
+        ResultSet res = PowerMockito.mock(ResultSet.class);
+        ResultSetMetaData metaData = PowerMockito.mock(ResultSetMetaData.class);
+        when(metaData.getColumnCount()).thenReturn(1);
+        when(metaData.getColumnName(any(int.class))).thenReturn("name");
+        when(res.getMetaData()).thenReturn(metaData);
+
+        when(stmt.getResultSet()).thenReturn(res);
+
+        when(connection.createStatement()).thenReturn(stmt);
+        when(connFactory.getConn()).thenReturn(connection);
+        MemberModifier.field(TestRdbsClient.class, "connFactory").set(testRdbsClient, connFactory);
+
+        String sql = "select * from tables";
+        String database = "default";
+        List<List<Object>> execRes = testRdbsClient.executeQuery(sql, database);
+        Assert.assertNotNull(execRes);
+    }
+
+
+    static class TestRdbsClient extends AbstractRdbsClient {
+
+        public TestRdbsClient() {
+            this.dbType = "mysql";
+        }
+
+        @Override
+        public AbstractConnFactory getConnFactory() {
+            return testConnFactory;
+        }
+    }
+
+    static class TestConnFactory extends AbstractConnFactory {
+
+        public TestConnFactory() {
+            driverName = "com.mysql.jdbc.Driver";
+            testSql = "select 1111";
+        }
+
+        @Override
+        public String getCreateProcedureHeader(String procName) {
+            return String.format("create procedure %s() \n", procName);
+        }
+
+        @Override
+        public String getCallProc(String procName) {
+            return String.format("call %s()", procName);
+        }
+
+        @Override
+        public String getDropProc(String procName) {
+            return String.format("DROP PROCEDURE %s", procName);
+        }
+    }
+
+}

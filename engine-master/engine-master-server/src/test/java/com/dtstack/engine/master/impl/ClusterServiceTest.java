@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.powermock.api.mockito.PowerMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
@@ -94,8 +93,6 @@ public class ClusterServiceTest extends AbstractTest {
 
     @Before
     public void setup() throws Exception{
-        MockitoAnnotations.initMocks(this);
-        PowerMockito.mock(ClientOperator.class);
 
         ComponentTestResult componentTestResult = new ComponentTestResult();
         componentTestResult.setResult(true);

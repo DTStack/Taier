@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Isolation;
@@ -50,7 +51,7 @@ public class TestJobCheckpointDealer extends AbstractTest {
     @Autowired
     private ScheduleJobDao scheduleJobDao;
 
-    @Mock
+    @MockBean
     private WorkerOperator workerOperator;
 
     @Autowired

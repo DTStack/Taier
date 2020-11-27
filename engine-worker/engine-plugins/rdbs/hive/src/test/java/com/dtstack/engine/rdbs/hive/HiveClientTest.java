@@ -16,7 +16,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import scala.concurrent.java8.FuturesConvertersImpl;
 
 import java.io.File;
-import java.sql.DriverManager;
+import java.sql.*;
+import java.util.List;
 import java.util.Properties;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -38,29 +39,4 @@ public class HiveClientTest {
     public void testGetConnFactory() {
         hiveClient.getConnFactory();
     }
-
-    @Test
-    public void testTestConnect() throws Exception {
-        ComponentTestResult result = hiveClient.testConnect(null);
-        Assert.assertFalse(result.getResult());
-
-        HiveConnFactory hiveConnFactory = PowerMockito.mock(HiveConnFactory.class);
-        PowerMockito.doAnswer(new Answer() {
-            @Override
-            public String answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return "test";
-            }
-        }).when(hiveConnFactory).init(any(Properties.class));
-
-        MemberModifier.field(HiveClient.class, "connFactory").set(hiveClient, hiveConnFactory);
-        String pluginInfo = "{\"test\": \"test\"}";
-        ComponentTestResult okResult = hiveClient.testConnect(pluginInfo);
-        Assert.assertTrue(okResult.getResult());
-    }
-
-    @Test
-    public void testExecuteQuery() {
-
-    }
-
 }

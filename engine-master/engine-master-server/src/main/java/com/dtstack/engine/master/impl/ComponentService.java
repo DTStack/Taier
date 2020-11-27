@@ -39,7 +39,6 @@ import com.dtstack.engine.master.utils.FileUtil;
 import com.dtstack.engine.master.utils.XmlFileUtil;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
-import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
 import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import com.dtstack.schedule.common.util.ZipUtil;
 import com.google.common.collect.Lists;
@@ -124,6 +123,9 @@ public class ComponentService {
 
     @Autowired
     private TenantService tenantService;
+
+    @Autowired
+    private SftpFileManage sftpFileManageBean;
 
     public static final String TYPE_NAME = "typeName";
     public static final String VERSION = "version";
@@ -369,9 +371,9 @@ public class ComponentService {
 
     private void unzipKeytab(String localKerberosConf, Resource resource) {
         try {
-            KerberosConfigVerify.getFilesFromZip(resource.getUploadedFileName(), localKerberosConf);
+            List<File> xmlFiles = ZipUtil.upzipFile(resource.getUploadedFileName(), localKerberosConf);
         } catch (Exception e) {
-            KerberosConfigVerify.delFile(new File(localKerberosConf));
+            ZipUtil.deletefile(localKerberosConf);
             throw e;
         }
     }
@@ -592,7 +594,7 @@ public class ComponentService {
     private String uploadResourceToSftp(Long clusterId,  List<Resource> resources,  String kerberosFileName,
                                         SftpConfig sftpConfig, Component addComponent, Component dbComponent) {
         //上传配置文件到sftp 供后续下载
-        SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
+        SftpFileManage sftpFileManage = sftpFileManageBean.retrieveSftpManager(sftpConfig);
         String md5sum = "";
         String remoteDir = sftpConfig.getPath() + File.separator + this.buildSftpPath(clusterId, addComponent.getComponentTypeCode());
         for (Resource resource : resources) {
@@ -1138,7 +1140,7 @@ public class ComponentService {
 
             SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
             String remoteDir = sftpConfig.getPath() + File.separator + this.buildSftpPath(clusterId, component.getComponentTypeCode());
-            SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
+            SftpFileManage sftpFileManage = sftpFileManageBean.retrieveSftpManager(sftpConfig);
             if (DownloadType.Kerberos.getCode() == downloadType) {
                 remoteDir = remoteDir + File.separator + KERBEROS_PATH;
                 localDownLoadPath = localDownLoadPath + File.separator + KERBEROS_PATH;
