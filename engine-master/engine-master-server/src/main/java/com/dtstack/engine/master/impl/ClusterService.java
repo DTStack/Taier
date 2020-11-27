@@ -40,7 +40,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.dtstack.engine.common.constrant.ConfigConstant.KERBEROS_PATH;
 import static com.dtstack.engine.master.impl.ComponentService.TYPE_NAME;
 import static java.lang.String.format;
 
@@ -372,35 +371,35 @@ public class ClusterService implements InitializingBean {
      * FIXME 这里获取的hiveConf其实是spark thrift server的连接信息，后面会统一做修改
      */
     public String hiveInfo( Long dtUicTenantId,  Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.SPARK_THRIFT.getConfName(),fullKerberos);
+        return getConfigByKey(dtUicTenantId, EComponentType.SPARK_THRIFT.getConfName(),fullKerberos,Boolean.FALSE);
     }
 
     /**
      * 对外接口
      */
     public String hiveServerInfo( Long dtUicTenantId, Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.HIVE_SERVER.getConfName(),fullKerberos);
+        return getConfigByKey(dtUicTenantId, EComponentType.HIVE_SERVER.getConfName(),fullKerberos,Boolean.FALSE);
     }
 
     /**
      * 对外接口
      */
     public String hadoopInfo( Long dtUicTenantId, Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.HDFS.getConfName(),fullKerberos);
+        return getConfigByKey(dtUicTenantId, EComponentType.HDFS.getConfName(),fullKerberos,Boolean.FALSE);
     }
 
     /**
      * 对外接口
      */
     public String carbonInfo( Long dtUicTenantId, Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.CARBON_DATA.getConfName(),fullKerberos);
+        return getConfigByKey(dtUicTenantId, EComponentType.CARBON_DATA.getConfName(),fullKerberos,Boolean.FALSE);
     }
 
     /**
      * 对外接口
      */
     public String impalaInfo( Long dtUicTenantId, Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.IMPALA_SQL.getConfName(),fullKerberos);
+        return getConfigByKey(dtUicTenantId, EComponentType.IMPALA_SQL.getConfName(),fullKerberos,Boolean.FALSE);
     }
 
     /**
@@ -410,14 +409,14 @@ public class ClusterService implements InitializingBean {
      * @return
      */
     public String prestoInfo(Long dtUicTenantId, Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.PRESTO_SQL.getConfName(), fullKerberos);
+        return getConfigByKey(dtUicTenantId, EComponentType.PRESTO_SQL.getConfName(), fullKerberos,Boolean.FALSE);
     }
 
     /**
      * 对外接口
      */
     public String sftpInfo( Long dtUicTenantId) {
-        return getConfigByKey(dtUicTenantId, EComponentType.SFTP.getConfName(),false);
+        return getConfigByKey(dtUicTenantId, EComponentType.SFTP.getConfName(),false,Boolean.FALSE);
     }
 
     public JSONObject buildClusterConfig(ClusterVO cluster) {
@@ -456,7 +455,7 @@ public class ClusterService implements InitializingBean {
         return getCluster(engine.getClusterId(), true,false);
     }
 
-    public String getConfigByKey(Long dtUicTenantId,  String key, Boolean fullKerberos) {
+    public String getConfigByKey(Long dtUicTenantId,  String key, Boolean fullKerberos,Boolean isWrapper) {
         ClusterVO cluster = getClusterByTenant(dtUicTenantId);
         //根据组件区分kerberos
         EComponentType componentType = EComponentType.getByConfName(key);
@@ -471,17 +470,21 @@ public class ClusterService implements InitializingBean {
         if(null != kerberosConfig){
             // 添加组件的kerberos配置信息 应用层使用
             this.addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
-            Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode());
-            Map sftpMap = null;
-            try {
-                sftpMap = PublicUtil.strToObject(sftpComponent.getComponentConfig(), Map.class);
-            } catch (Exception e) {
-                throw new RdosDefineException("sftp 配置不能为空");
+
+            if(BooleanUtils.isTrue(isWrapper)){
+                Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode());
+                Map sftpMap = null;
+                try {
+                    sftpMap = PublicUtil.strToObject(sftpComponent.getComponentConfig(), Map.class);
+                } catch (Exception e) {
+                    throw new RdosDefineException("sftp 配置不能为空");
+                }
+                //填充信息
+                JSONObject componentInfo = JSONObject.parseObject(componentService.wrapperConfig(componentType.getTypeCode(), component.getComponentConfig(),
+                        sftpMap, kerberosConfig, cluster.getClusterName()));
+                configObj.putAll(componentInfo);
             }
-            //填充信息
-            JSONObject componentInfo = JSONObject.parseObject(componentService.wrapperConfig(componentType.getTypeCode(), component.getComponentConfig(),
-                    sftpMap, kerberosConfig, cluster.getClusterName()));
-            configObj.putAll(componentInfo);
+            return configObj.toJSONString();
         }
         return configObj.toJSONString();
     }
@@ -519,6 +522,7 @@ public class ClusterService implements InitializingBean {
                     throw new RdosDefineException("开启kerberos后需要预先保存hdfs组件");
                 }
             }
+            kerberosConfigVO.setKerberosFileTimestamp(kerberosConfig.getGmtModified());
         }
         configObj.put("kerberosConfig", kerberosConfigVO);
     }
@@ -746,7 +750,7 @@ public class ClusterService implements InitializingBean {
             throw new RdosDefineException("不支持的数据源类型");
         }
         //优先绑定账号
-        String jdbcInfo = getConfigByKey(dtUicTenantId, componentType.getConfName(), false);
+        String jdbcInfo = getConfigByKey(dtUicTenantId, componentType.getConfName(), false,Boolean.FALSE);
         User dtUicUser = userDao.getByDtUicUserId(dtUicUserId);
         if (null == dtUicUser) {
             return jdbcInfo;
@@ -867,7 +871,7 @@ public class ClusterService implements InitializingBean {
 
     public String pluginInfoForType(Long dtUicTenantId, Boolean fullKerberos, Integer pluginType) {
         EComponentType type = EComponentType.getByCode(pluginType);
-        return getConfigByKey(dtUicTenantId, type.getConfName(),fullKerberos);
+        return getConfigByKey(dtUicTenantId, type.getConfName(),fullKerberos,Boolean.FALSE);
     }
 
     public String dbInfo(Long dtUicTenantId, Long dtUicUserId, Integer type) {
