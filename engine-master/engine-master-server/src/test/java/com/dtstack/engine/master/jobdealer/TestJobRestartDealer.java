@@ -43,21 +43,39 @@ public class TestJobRestartDealer extends AbstractTest {
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
-    public void testCheckAndRestart() {
+    public void testCheckAndRestart1() {
         addDefaultCluster();
         EngineJobCache jobCache = DataCollection.getData().getEngineJobCache();
         ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteJobId();
-        EngineJobCheckpoint checkpoint = DataCollection.getData().getEngineJobCheckpoint();
         boolean flag = jobRestartDealer.checkAndRestart(2, scheduleJob, jobCache);
         Assert.assertFalse(flag);
+
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testCheckAndRestart2() {
+        addDefaultCluster();
+        EngineJobCache jobCache = DataCollection.getData().getEngineJobCache();
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteJobId();
         boolean flag2 = jobRestartDealer.checkAndRestart(8, scheduleJob,jobCache );
         Assert.assertFalse(flag2);
-        //失败重试
-        EngineJobCache jobCache2 = DataCollection.getData().getEngineJobCache2();
-        boolean flag3 = jobRestartDealer.checkAndRestart(8, scheduleJob, jobCache2);
+
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testCheckAndRestart3() {
+        addDefaultCluster();
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteJobId();
+        EngineJobCache jobCache4 = DataCollection.getData().getEngineJobCache4();
+        boolean flag3 = jobRestartDealer.checkAndRestart(8, scheduleJob, jobCache4);
         Assert.assertTrue(flag3);
 
     }
+
 
 
     private Cluster addDefaultCluster(){

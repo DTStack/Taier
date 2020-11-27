@@ -10,6 +10,9 @@ import com.dtstack.engine.master.jobdealer.cache.ShardManager;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,6 +38,8 @@ public class TestJobStatusDealer extends AbstractTest {
 
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testRun(){
 
         EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();

@@ -226,6 +226,24 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobStream3() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setJobId("testJobId3");
+        sj.setStatus(4);
+        sj.setExecStartTime(new Timestamp(1591805197000L));
+        sj.setExecEndTime(new Timestamp(1591805197100L));
+        sj.setJobName("test2");
+        sj.setCycTime("20200609234500");
+        sj.setTaskType(EJobType.SQL.getType());
+        sj.setType(2);
+        sj.setEngineLog("");
+        sj.setSourceType(-1);
+        sj.setApplicationId("application_9527");
+        sj.setComputeType(ComputeType.STREAM.getType());
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
     default ScheduleJob getScheduleJobSubmitted() {
         ScheduleJob sj = Template.getScheduleJobTemplate();
         sj.setStatus(RdosTaskStatus.SUBMITFAILD.getStatus());
@@ -281,6 +299,27 @@ public interface DataCollection {
         engineJobCache.setIsFailover(1);
         return engineJobCache;
     }
+
+    /**
+     * @author zyd
+     * @Description 构造不同jobId的jobCache，防止被其他线程删掉
+     * @Date 2020/11/27 2:46 下午
+     * @return: com.dtstack.engine.api.domain.EngineJobCache
+     **/
+    @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
+    @IgnoreUniqueRandomSet
+    default EngineJobCache getEngineJobCache4() {
+        EngineJobCache engineJobCache = Template.getEngineJobCacheTemplate2();
+        String jobId = getData().getScheduleJobStream3().getJobId();
+        engineJobCache.setJobId(jobId);
+        engineJobCache.setJobInfo(String.format("{\"engineType\":\"spark\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, " +
+                "\"maxRetryNum\":3,\"taskParams\":\"openCheckpoint=true \\n sql.checkpoint.interval=2\"," +
+                "\"taskId\":\"%s\"}",jobId));
+        engineJobCache.setIsFailover(1);
+        return engineJobCache;
+    }
+
+
 
     /**
      * stage为5的job

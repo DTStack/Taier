@@ -64,7 +64,7 @@ public class TestJobDealer extends AbstractTest {
     public void testGetAndUpdateEngineLog(){
 
         ScheduleTaskShade taskShade = DataCollection.getData().getScheduleTaskShade();
-        EngineJobCache jobCache = DataCollection.getData().getEngineJobCache();
+        EngineJobCache jobCache = DataCollection.getData().getEngineJobCache4();
         EngineJobCheckpoint checkpoint = DataCollection.getData().getEngineJobCheckpoint();
         String andUpdateEngineLog = jobDealer.getAndUpdateEngineLog(jobCache.getJobId(),checkpoint.getTaskEngineId(),
                 "11",taskShade.getDtuicTenantId());
@@ -83,6 +83,8 @@ public class TestJobDealer extends AbstractTest {
 
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void  testAfterSubmitJobVast() throws Exception {
 
         List<JobClient> jobClientList = new ArrayList<>();
@@ -90,10 +92,6 @@ public class TestJobDealer extends AbstractTest {
         jobClientList.add(jobClient);
         jobDealer.afterSubmitJobVast(jobClientList);
     }
-
-
-
-
 
 
     private Cluster addDefaultCluster(){
