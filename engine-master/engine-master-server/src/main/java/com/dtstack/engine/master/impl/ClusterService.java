@@ -646,6 +646,9 @@ public class ClusterService implements InitializingBean {
                     deploy = EDeployMode.getByType(deployMode);
                 }
                 JSONObject flinkConf = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
+                if(null == flinkConf || flinkConf.size() == 0){
+                    throw new RdosDefineException("flink配置信息为空");
+                }
                 pluginInfo = flinkConf.getJSONObject(deploy.getMode());
                 if (Objects.isNull(pluginInfo)) {
                     throw new RdosDefineException(String.format("对应模式【%s】未配置信息", deploy.name()));

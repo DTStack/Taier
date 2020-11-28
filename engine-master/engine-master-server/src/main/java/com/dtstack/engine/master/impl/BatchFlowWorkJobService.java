@@ -132,7 +132,7 @@ public class BatchFlowWorkJobService {
             batchJobService.updateStatusWithExecTime(updateJob);
         } else {
             //更新工作流状态
-            batchJobService.updateStatusByJobId(jobId, bottleStatus);
+            batchJobService.updateStatusByJobId(jobId, bottleStatus,null);
         }
 
         if (RdosTaskStatus.getStoppedStatus().contains(bottleStatus)) {

@@ -5,11 +5,8 @@ import com.dtstack.engine.common.enums.EDeployMode;
 import java.io.Serializable;
 
 /**
- * Reason:
- * Date: 2018/11/5
  * Company: www.dtstack.com
- *
- * @author xuchao
+ * @author yuebai
  */
 
 public class JobIdentifier implements Serializable {
@@ -24,7 +21,10 @@ public class JobIdentifier implements Serializable {
 
     private String engineType;
 
-    private Integer deployMode;
+    /**
+     * 默认 perjob
+     */
+    private Integer deployMode = EDeployMode.PERJOB.getType();
 
     private Long userId;
 
@@ -51,7 +51,6 @@ public class JobIdentifier implements Serializable {
         this.engineJobId = engineJobId;
         this.applicationId = applicationId;
         this.taskId = taskId;
-        this.deployMode = EDeployMode.PERJOB.getType();
     }
 
     public static JobIdentifier createInstance(String engineJobId, String applicationId, String taskId) {
@@ -76,10 +75,6 @@ public class JobIdentifier implements Serializable {
 
     public String getApplicationId() {
         return applicationId;
-    }
-
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
     }
 
     public String getTaskId() {
