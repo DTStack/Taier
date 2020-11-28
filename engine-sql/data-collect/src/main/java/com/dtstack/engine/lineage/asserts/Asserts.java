@@ -15,6 +15,10 @@ import javax.sql.DataSource;
  */
 public class Asserts extends DataCollection {
 
+    private static String table_lineage_sql = "select is_manual,lineage_table_id,input_table_id from assets_table_lineage";
+
+    private static String lineage_table_sql = "assets_lineage_table(is_manual,table_id,table_name,db_name,data_source_name)";
+
     public Asserts(DataSource dataSource, DtInsightApi dtInsightApi) {
         super(dataSource, dtInsightApi);
     }
@@ -26,6 +30,6 @@ public class Asserts extends DataCollection {
 
     @Override
     public void collect() {
-
+        
     }
 }
