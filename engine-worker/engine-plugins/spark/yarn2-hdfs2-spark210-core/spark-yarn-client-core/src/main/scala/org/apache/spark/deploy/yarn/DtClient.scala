@@ -407,16 +407,14 @@ private[spark] class DtClient(
     val fs = destDir.getFileSystem(hadoopConf)
 
     // Merge credentials obtained from registered providers
-//    val nearestTimeOfNextRenewal = credentialManager.obtainCredentials(hadoopConf, credentials)
+    val nearestTimeOfNextRenewal = credentialManager.obtainCredentials(hadoopConf, credentials)
 
-    val nearestTimeOfNextRenewal = System.currentTimeMillis() + (3600 * 24 * 1000)
-
-//    if (credentials != null) {
-//      // Add credentials to current user's UGI, so that following operations don't need to use the
-//      // Kerberos tgt to get delegations again in the client side.
-//      UserGroupInformation.getCurrentUser.addCredentials(credentials)
-//      logDebug(YarnSparkHadoopUtil.get.dumpTokens(credentials).mkString("\n"))
-//    }
+    if (credentials != null) {
+      // Add credentials to current user's UGI, so that following operations don't need to use the
+      // Kerberos tgt to get delegations again in the client side.
+      UserGroupInformation.getCurrentUser.addCredentials(credentials)
+      logDebug(YarnSparkHadoopUtil.get.dumpTokens(credentials).mkString("\n"))
+    }
 
     // If we use principal and keytab to login, also credentials can be renewed some time
     // after current time, we should pass the next renewal and updating time to credential
