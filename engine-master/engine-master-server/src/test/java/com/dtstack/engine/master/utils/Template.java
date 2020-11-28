@@ -267,4 +267,153 @@ public class Template {
         scheduleFillDataJob.setProjectId(1L);
         return scheduleFillDataJob;
     }
+
+    public static ScheduleJob getDefaultScheduleJobForSpring1Template(){
+        ScheduleJob scheduleJob = new ScheduleJob();
+        scheduleJob.setTenantId(1L);
+        scheduleJob.setProjectId(11L);
+        scheduleJob.setDtuicTenantId(1L);
+        scheduleJob.setAppType(AppType.RDOS.getType());
+        scheduleJob.setJobId("0e3f500e");
+        scheduleJob.setJobKey("cronTrigger_1925_20201126000000");
+        scheduleJob.setJobName("cronJob_mysqll1_virtual_20201126000000");
+        scheduleJob.setTaskId(1L);
+        scheduleJob.setCreateUserId(1L);
+        scheduleJob.setType(0);
+        scheduleJob.setIsRestart(0);
+        scheduleJob.setBusinessDate("20201125000000");
+        scheduleJob.setCycTime("20201126000000");
+        scheduleJob.setDependencyType(0);
+        scheduleJob.setFlowJobId("0");
+        scheduleJob.setPeriodType(2);
+        scheduleJob.setStatus(5);
+        scheduleJob.setTaskType(-1);
+        scheduleJob.setMaxRetryNum(3);
+        scheduleJob.setRetryNum(0);
+        scheduleJob.setNodeAddress("127.0.0.1:8099");
+        scheduleJob.setVersionId(300);
+        scheduleJob.setComputeType(1);
+        scheduleJob.setPhaseStatus(2);
+        return scheduleJob;
+    }
+
+    public static ScheduleJob getDefaultScheduleJobForSpring2Template(){
+        ScheduleJob scheduleJob = new ScheduleJob();
+        scheduleJob.setTenantId(1L);
+        scheduleJob.setProjectId(11L);
+        scheduleJob.setDtuicTenantId(1L);
+        scheduleJob.setAppType(AppType.RDOS.getType());
+        scheduleJob.setJobId("a2114bc5");
+        scheduleJob.setJobKey("cronTrigger_1927_20201126000000");
+        scheduleJob.setJobName("cronJob_mysqll2hive_dt_center_cronnew_schedule_20201126000000");
+        scheduleJob.setTaskId(2L);
+        scheduleJob.setCreateUserId(1L);
+        scheduleJob.setType(0);
+        scheduleJob.setIsRestart(0);
+        scheduleJob.setBusinessDate("20201125000000");
+        scheduleJob.setCycTime("20201126000000");
+        scheduleJob.setDependencyType(0);
+        scheduleJob.setFlowJobId("0");
+        scheduleJob.setPeriodType(2);
+        scheduleJob.setStatus(5);
+        scheduleJob.setTaskType(-1);
+        scheduleJob.setMaxRetryNum(3);
+        scheduleJob.setRetryNum(0);
+        scheduleJob.setNodeAddress("127.0.0.1:8099");
+        scheduleJob.setVersionId(300);
+        scheduleJob.setComputeType(1);
+        scheduleJob.setPhaseStatus(2);
+        return scheduleJob;
+    }
+
+    public static ScheduleJobJob getDefaultScheduleJobJobForSpring1Template(){
+        ScheduleJobJob scheduleJobJob = new ScheduleJobJob();
+        scheduleJobJob.setTenantId(1L);
+        scheduleJobJob.setProjectId(11L);
+        scheduleJobJob.setDtuicTenantId(1L);
+        scheduleJobJob.setAppType(AppType.RDOS.getType());
+        scheduleJobJob.setJobKey("cronTrigger_1927_20201126000000");
+        scheduleJobJob.setParentJobKey("cronTrigger_1925_20201126000000");
+        scheduleJobJob.setGmtCreate(new Timestamp(1592559742000L));
+        scheduleJobJob.setGmtModified(new Timestamp(1592559742000L));
+        return scheduleJobJob;
+    }
+
+    public static ScheduleTaskShade getDefaultScheduleTaskFlowTemplate(){
+        ScheduleTaskShade taskShade = new ScheduleTaskShade();
+        taskShade.setTenantId(1L);
+        taskShade.setProjectId(1L);
+        taskShade.setDtuicTenantId(1L);
+        taskShade.setAppType(AppType.RDOS.getType());
+        taskShade.setNodePid(2955L);
+        taskShade.setName("test_workflow_python1");
+        taskShade.setTaskType(6);
+        taskShade.setEngineType(5);
+        taskShade.setComputeType(1);
+        taskShade.setSqlText("");
+        taskShade.setTaskParams("");
+        taskShade.setTaskId(1953L);
+        taskShade.setScheduleConf("");
+        taskShade.setPeriodType(2);
+        taskShade.setScheduleStatus(1);
+        taskShade.setProjectScheduleStatus(0);
+        taskShade.setSubmitStatus(1);
+        taskShade.setModifyUserId(1L);
+        taskShade.setCreateUserId(1L);
+        taskShade.setOwnerUserId(1L);
+        taskShade.setVersionId(911);
+        taskShade.setTaskDesc("");
+        taskShade.setMainClass("");
+        taskShade.setExeArgs("");
+        taskShade.setFlowId(1941L);
+        taskShade.setIsPublishToProduce(0L);
+        taskShade.setIsExpire(0);
+        taskShade.setGmtCreate(new Timestamp(1592559742000L));
+        taskShade.setGmtModified(new Timestamp(1592559742000L));
+        return taskShade;
+    }
+
+    public static ScheduleTaskShade getDefaultScheduleTaskFlowParentTemplate(){
+        ScheduleTaskShade taskShade = getDefaultScheduleTaskFlowTemplate();
+        taskShade.setName("test_workflow");
+        taskShade.setTaskType(10);
+        taskShade.setEngineType(1);
+        taskShade.setComputeType(1);
+        taskShade.setTaskId(1941L);
+        taskShade.setFlowId(0L);
+        return taskShade;
+    }
+
+    public static ScheduleJob getDefaultScheduleJobFlowParentTemplate(){
+        ScheduleJob scheduleJob = getDefaultScheduleJobForSpring1Template();
+        scheduleJob.setJobId("a4636a9f");
+        scheduleJob.setJobKey("cronTrigger_3381_20201127000000");
+        scheduleJob.setJobName("cronJob_test_workflow_20201127000000");
+        scheduleJob.setTaskId(1941L);
+        scheduleJob.setFlowJobId("0");
+        return scheduleJob;
+    }
+
+    public static ScheduleJob getDefaultScheduleJobFlowChildTemplate(){
+        ScheduleJob scheduleJob = getDefaultScheduleJobForSpring1Template();
+        scheduleJob.setJobId("55545a40");
+        scheduleJob.setJobKey("cronTrigger_3377_20201127000000");
+        scheduleJob.setJobName("cronJob_test_workflow_python1_20201127000000");
+        scheduleJob.setTaskId(1953L);
+        scheduleJob.setFlowJobId("a4636a9f");
+        return scheduleJob;
+    }
+
+    public static ScheduleJobJob getDefaultScheduleJobJobFlowTemplate(){
+        ScheduleJobJob scheduleJobJob = new ScheduleJobJob();
+        scheduleJobJob.setTenantId(1L);
+        scheduleJobJob.setProjectId(1L);
+        scheduleJobJob.setDtuicTenantId(1L);
+        scheduleJobJob.setAppType(AppType.RDOS.getType());
+        scheduleJobJob.setJobKey("cronTrigger_3377_20201127000000");
+        scheduleJobJob.setParentJobKey("cronTrigger_3381_20201127000000");
+        scheduleJobJob.setGmtCreate(new Timestamp(1592559742000L));
+        scheduleJobJob.setGmtModified(new Timestamp(1592559742000L));
+        return scheduleJobJob;
+    }
 }
