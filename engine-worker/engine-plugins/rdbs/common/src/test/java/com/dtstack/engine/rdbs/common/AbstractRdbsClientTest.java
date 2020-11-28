@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -63,17 +64,23 @@ public class AbstractRdbsClientTest {
         props.put("username", "username");
         props.put("password", "password");
 
-        testRdbsClient.init(props);
+        AbstractRdbsClient abstractRdbsClient = PowerMockito.mock(AbstractRdbsClient.class, Mockito.CALLS_REAL_METHODS);
+        when(abstractRdbsClient.getConnFactory()).thenReturn(testConnFactory);
+        //MemberModifier.field(AbstractRdbsClient.class, "connFactory").set(abstractRdbsClient, testConnFactory);
+
+        abstractRdbsClient.init(props);
     }
 
     @Test
     public void testProcessSubmitJobWithType() throws Exception {
         JobClient jobClient = new JobClient();
         jobClient.setJobType(EJobType.MR);
+        AbstractRdbsClient abstractRdbsClient = PowerMockito.mock(AbstractRdbsClient.class, Mockito.CALLS_REAL_METHODS);
 
-        Boolean isMr = false;
+        Boolean isMr = true;
         try {
-            testRdbsClient.processSubmitJobWithType(jobClient);
+            JobResult jobResult = abstractRdbsClient.processSubmitJobWithType(jobClient);
+            Assert.assertNotNull(jobResult);
         } catch (Exception e) {
             isMr = true;
         }
@@ -83,8 +90,8 @@ public class AbstractRdbsClientTest {
 
         RdbsExeQueue rdbsExeQueue = PowerMockito.mock(RdbsExeQueue.class);
         when(rdbsExeQueue.submit(any(JobClient.class))).thenReturn("test");
-        MemberModifier.field(TestRdbsClient.class, "exeQueue").set(testRdbsClient, rdbsExeQueue);
-        JobResult jobResult = testRdbsClient.processSubmitJobWithType(jobClient);
+        MemberModifier.field(AbstractRdbsClient.class, "exeQueue").set(abstractRdbsClient, rdbsExeQueue);
+        JobResult jobResult = abstractRdbsClient.processSubmitJobWithType(jobClient);
         Assert.assertNotNull(jobResult);
     }
 
