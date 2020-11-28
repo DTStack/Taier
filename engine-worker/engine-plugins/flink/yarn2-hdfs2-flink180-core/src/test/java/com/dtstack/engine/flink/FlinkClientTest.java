@@ -1,13 +1,17 @@
 package com.dtstack.engine.flink;
 
+import com.dtstack.engine.base.filesystem.FilesystemManager;
+import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.flink.enums.ClusterMode;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
 import com.dtstack.engine.flink.factory.AbstractClientFactory;
 import com.dtstack.engine.flink.factory.PerJobClientFactory;
@@ -17,9 +21,12 @@ import com.dtstack.engine.flink.util.FileUtil;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.flink.util.HadoopConf;
+import com.dtstack.engine.worker.enums.ClassLoaderType;
 import com.google.common.collect.Maps;
+import org.apache.commons.math3.analysis.function.Pow;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
+import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HistoryServerOptions;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
@@ -50,6 +57,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.*;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -66,7 +74,7 @@ import static org.mockito.Mockito.when;
 	FlinkClusterClientManager.class, PoolHttpClient.class,
 	FileSystem.class, FileUtil.class, PublicUtil.class,
 	FlinkConfUtil.class, FlinkUtil.class, PerJobClientFactory.class,
-	AbstractClientFactory.class, FlinkClient.class})
+	AbstractClientFactory.class, FlinkClient.class, PackagedProgram.class})
 @PowerMockIgnore("javax.net.ssl.*")
 public class FlinkClientTest {
 
@@ -95,12 +103,25 @@ public class FlinkClientTest {
 		when(file.isFile()).thenReturn(true);
 		when(file.getParentFile()).thenReturn(file);
 		when(file.getAbsolutePath()).thenReturn("hdfs://user/tmp/tmpJar.jar");
+		when(file.getAbsoluteFile()).thenReturn(file);
+		URI uri = new URI("file", null, "/tmp", null);
+		when(file.toURI()).thenReturn(uri);
 
 		FileSystem fs = PowerMockito.mock(FileSystem.class);
 		when(fs.exists(any())).thenReturn(true);
 		when(fs.open(any())).thenReturn(PowerMockito.mock(FSDataInputStream.class));
 		PowerMockito.mockStatic(FileSystem.class);
 		when(FileSystem.get(any(), any())).thenReturn(fs);
+
+		FlinkConfig flinkConfig = new FlinkConfig();
+		flinkConfig.setSftpConf(new SftpConfig());
+		MemberModifier.field(FlinkClient.class, "flinkConfig").set(flinkClient, flinkConfig);
+		MemberModifier.field(FlinkClient.class, "cacheFile").set(flinkClient, Maps.newConcurrentMap());
+		MemberModifier.field(FlinkClient.class, "hadoopConf").set(flinkClient, new HadoopConf());
+		FilesystemManager filesystemManager = PowerMockito.mock(FilesystemManager.class);
+		File fileTmp = new File("/tmp");
+		when(filesystemManager.downloadFile(any(), any())).thenReturn(fileTmp);
+		MemberModifier.field(FlinkClient.class, "filesystemManager").set(flinkClient, filesystemManager);
 	}
 
 	/**
@@ -108,7 +129,6 @@ public class FlinkClientTest {
 	 */
 	@Test
 	public void testInit() throws Exception{
-
 		MemberModifier.field(FlinkClient.class, "cacheFile")
 				.set(flinkClient, Maps.newConcurrentMap());
 
@@ -119,36 +139,91 @@ public class FlinkClientTest {
 		Properties prop = new Properties();
 		prop.put("remotePluginRootDir", sqlPluginRootDir);
 		prop.put("flinkPluginRoot", sqlPluginRootDir);
-		String propStr = PublicUtil.objToString(prop);
+		prop.put("yarnConf", new HashMap<>());
+		prop.put("hadoopConf", new HashMap<>());
+		prop.put("clusterMode", ClusterMode.STANDALONE.name());
 
-
-		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
-		YarnMockUtil.mockPackagedProgram();
-		ClusterSpecification clusterSpecification = YarnMockUtil.mockClusterSpecification();
-
-		//when(flinkClusterClientManager.getClusterClient()).thenReturn(clusterClient);
-		when(flinkClientBuilder.getFlinkConfiguration()).thenReturn(new Configuration());
+		flinkClient.init(prop);
 	}
 
+	@Test
+	public void testProcessSubmitJobWithType() throws Exception {
 
+		String absolutePath = temporaryFolder.newFile("21_window_WindowJoin.jar").getAbsolutePath();
+		JobClient jobClient = YarnMockUtil.mockJobClient("perJob", absolutePath);
 
-	/*@Test
+		// test flink mr
+		jobClient.setJobType(EJobType.MR);
+
+		PerJobClientFactory perJobClientFactory = PowerMockito.mock(PerJobClientFactory.class);
+		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
+		YarnClusterDescriptor yarnClusterDescriptor = YarnMockUtil.mockYarnClusterDescriptor(clusterClient);
+		when(perJobClientFactory.createPerJobClusterDescriptor(any(JobClient.class))).thenReturn(yarnClusterDescriptor);
+		when(flinkClusterClientManager.getClientFactory()).thenReturn(perJobClientFactory);
+
+		Configuration configuration = new Configuration();
+		when(flinkClientBuilder.getFlinkConfiguration()).thenReturn(configuration);
+		ClusterSpecification clusterSpecification = YarnMockUtil.mockClusterSpecification();
+		PowerMockito.mockStatic(FlinkConfUtil.class);
+		when(FlinkConfUtil.createClusterSpecification(any(Configuration.class), any(int.class), any(Properties.class)))
+				.thenReturn(clusterSpecification);
+
+		JobResult jobResult = flinkClient.processSubmitJobWithType(jobClient);
+		Assert.assertTrue(jobResult.getMsgInfo().contains("submit job is success"));
+
+		// test flink sql
+		jobClient.setJobType(EJobType.SQL);
+
+		String sqlPluginRootDir = temporaryFolder.newFolder("sqlPluginDir").getAbsolutePath();
+		temporaryFolder.newFolder("sqlPluginDir", "sqlplugin");
+		temporaryFolder.newFile("sqlPluginDir/sqlplugin/core-test.jar").getAbsolutePath();
+		FlinkConfig flinkConfig = new FlinkConfig();
+		flinkConfig.setFlinkPluginRoot(sqlPluginRootDir);
+		SqlPluginInfo sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
+
+		MemberModifier.field(FlinkClient.class, "sqlPluginInfo").set(flinkClient, sqlPluginInfo);
+		JobResult jobResultSql = flinkClient.processSubmitJobWithType(jobClient);
+		Assert.assertTrue(jobResultSql.getMsgInfo().contains("submit job is success"));
+
+		// test flink sync
+		jobClient = YarnMockUtil.mockJobClient("session", absolutePath);
+		jobClient.setJobType(EJobType.SYNC);
+		JarFileInfo jarFileInfo = new JarFileInfo();
+		jarFileInfo.setMainClass("flinkx.main");
+		jobClient.setCoreJarInfo(jarFileInfo);
+
+		String syncPluginRootDir = temporaryFolder.newFolder("syncPluginDir").getAbsolutePath();
+		temporaryFolder.newFolder("syncPluginDir", "syncplugin");
+		temporaryFolder.newFile("syncPluginDir/syncplugin/flinkx-core-test.jar").getAbsolutePath();
+
+		FlinkConfig flinkConfigSync = new FlinkConfig();
+		flinkConfigSync.setFlinkPluginRoot(syncPluginRootDir);
+		flinkConfigSync.setMonitorAddress("http://dtstack:8081");
+		SyncPluginInfo syncPluginInfo = SyncPluginInfo.create(flinkConfigSync);
+		MemberModifier.field(FlinkClient.class, "syncPluginInfo").set(flinkClient, syncPluginInfo);
+
+		PackagedProgram packagedProgram = PowerMockito.mock(PackagedProgram.class);
+		PowerMockito.mockStatic(FlinkUtil.class);
+		when(FlinkUtil.buildProgram(any(String.class), any(String.class), any(List.class), any(EJobType.class),
+				any(), any(String[].class), any(SavepointRestoreSettings.class), any(FilesystemManager.class)))
+				.thenReturn(packagedProgram);
+
+		MemberModifier.field(FlinkClient.class, "tmpFileDirPath").set(flinkClient, "./tmp180");
+		when(flinkClusterClientManager.getClusterClient(any())).thenReturn(clusterClient);
+
+		JobResult jobResultSync = flinkClient.processSubmitJobWithType(jobClient);
+		Assert.assertTrue(jobResultSync.getMsgInfo().contains("submit job is success"));
+
+	}
+
+	@Test
 	public void testBeforeSubmitFunc() throws Exception {
 
 		String absolutePath = temporaryFolder.newFile("21_window_WindowJoin.jar").getAbsolutePath();
 		JobClient jobClient = YarnMockUtil.mockJobClient("session", absolutePath);
 
-		FlinkConfig flinkConfig = new FlinkConfig();
-		flinkConfig.setSftpConf(new SftpConfig());
-		MemberModifier.field(FlinkClient.class, "flinkConfig")
-			.set(flinkClient, flinkConfig);
-		MemberModifier.field(FlinkClient.class, "cacheFile")
-			.set(flinkClient, Maps.newConcurrentMap());
-		MemberModifier.field(FlinkClient.class, "hadoopConf")
-				.set(flinkClient, new HadoopConf());
-
 		flinkClient.beforeSubmitFunc(jobClient);
-	}*/
+	}
 
 	@Test
 	public void testGetJobLog() throws Exception {
@@ -253,10 +328,18 @@ public class FlinkClientTest {
 		String jobId = "40c01cd0c53928fff6a55e8d8b8b022c";
 		String appId = "application_1594003499276_1278";
 		String taskId = "taskId";
-		JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobId, appId, taskId);
+		JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobId, appId, taskId, false);
+		jobIdentifier.setForceCancel(false);
+
+		MemberModifier.field(FlinkClient.class, "jobHistory").set(flinkClient, "http://dtstack:8081");
+
+		ApplicationReportPBImpl report = YarnMockUtil.mockApplicationReport(null);
+		when(yarnClient.getApplicationReport(any())).thenReturn(report);
+		when(flinkClientBuilder.getYarnClient()).thenReturn(yarnClient);
+
 
 		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
-		when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
+		when(flinkClusterClientManager.getClusterClient(any())).thenReturn(clusterClient);
 
 		JobResult jobResult = flinkClient.cancelJob(jobIdentifier);
 		Assert.assertNotNull(jobResult);
@@ -321,35 +404,6 @@ public class FlinkClientTest {
 		when(file.exists()).thenReturn(false);
 
 		flinkClient.afterSubmitFunc(jobClient);
-	}
-
-	@Test
-	public void testSubmitJobWithJar() throws Exception {
-
-		String absolutePath = temporaryFolder.newFile("21_window_WindowJoin.jar").getAbsolutePath();
-		JobClient jobClient = YarnMockUtil.mockJobClient("session", absolutePath);
-
-		MemberModifier.field(FlinkClient.class, "flinkConfig")
-				.set(flinkClient, new FlinkConfig());
-		MemberModifier.field(FlinkClient.class, "hadoopConf")
-				.set(flinkClient, new HadoopConf());
-
-		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
-		YarnMockUtil.mockPackagedProgram();
-		ClusterSpecification clusterSpecification = YarnMockUtil.mockClusterSpecification();
-
-		when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
-
-		PowerMockito.mockStatic(FlinkConfUtil.class);
-		when(FlinkConfUtil.createClusterSpecification(any(Configuration.class), any(int.class), any(Properties.class)))
-				.thenReturn(clusterSpecification);
-
-		Class<? extends FlinkClient> flinkClientClass = flinkClient.getClass();
-		Method submitJobWithJarMethod = flinkClientClass.getDeclaredMethod("submitJobWithJar", JobClient.class);
-		submitJobWithJarMethod.setAccessible(true);
-		JobResult jobResult = (JobResult) submitJobWithJarMethod.invoke(flinkClient, jobClient);
-
-		Assert.assertTrue(jobResult.getMsgInfo().contains("submit job is success"));
 	}
 
 	@Test

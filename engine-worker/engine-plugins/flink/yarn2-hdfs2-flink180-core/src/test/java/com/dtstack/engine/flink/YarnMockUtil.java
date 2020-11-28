@@ -91,7 +91,7 @@ public class YarnMockUtil {
 
     public static JobClient mockJobClient(String jobType, String jarPath) throws Exception {
         String taskId = "9999";
-        String sqlText = "ADD JAR WITH /data/sftp/21_window_WindowJoin.jar AS dtstack.WindowJoin";
+        String sqlText = "ADD FILE WITH /tmp/hdfs.keytab;ADD JAR WITH /data/sftp/21_window_WindowJoin.jar AS dtstack.WindowJoin";
         ParamAction paramAction = new ParamAction();
         if ("perJob".equalsIgnoreCase(jobType)) {
             paramAction.setTaskType(0);
