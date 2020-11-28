@@ -43,6 +43,7 @@ monitor_filebeat(){
         flink_thread=`ps aux | grep -v grep | grep -v 'kubernetes-entry.sh' | grep -E 'KubernetesSessionClusterEntrypoint|KubernetesTaskExecutorRunner'`
         if [[ $flink_thread == "" ]]; then
             ps aux | grep -v grep | grep filebeat | awk -F ' ' '{print$2}' | xargs kill -9
+            break
         fi
     done
 }
