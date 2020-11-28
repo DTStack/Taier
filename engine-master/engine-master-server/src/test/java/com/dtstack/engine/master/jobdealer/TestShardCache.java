@@ -38,6 +38,19 @@ public class TestShardCache extends AbstractTest {
         Assert.assertFalse(b);
     }
 
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testRemoveIfPresent2(){
+
+        try {
+            //测试JobId为空的情况
+            boolean b = shardCache.removeIfPresent(null);
+        } catch (Exception e) {
+            Assert.assertEquals("jobId must not null.",e.getMessage());
+        }
+    }
+
 
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
@@ -47,6 +60,20 @@ public class TestShardCache extends AbstractTest {
         //jobId不存在的情况
         boolean flag1 = shardCache.updateLocalMemTaskStatus("afaf", 1);
         Assert.assertFalse(flag1);
+
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testUpdateLocalMemTaskStatus3(){
+
+        //抛出异常的情况
+        try {
+            shardCache.updateLocalMemTaskStatus(null, 1);
+        } catch (Exception e) {
+            Assert.assertEquals("jobId or status must not null.",e.getMessage());
+        }
 
     }
 
