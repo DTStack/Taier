@@ -43,36 +43,39 @@ public class ComponentVO extends Component {
         this.clusterName = clusterName;
     }
 
-    public static List<ComponentVO> toVOS(List<Component> components, boolean removeTypeName) {
+    public static List<ComponentVO> toVOS(List<Component> components, boolean removeTypeName,boolean removeSelfParams) {
         List<ComponentVO> vos = new ArrayList<>();
-        if(CollectionUtils.isEmpty(components)){
+        if (CollectionUtils.isEmpty(components)) {
             return vos;
         }
         for (Component component : components) {
-            vos.add(toVO(component,removeTypeName));
+            vos.add(toVO(component, removeTypeName,removeSelfParams));
         }
         return vos;
     }
 
-    public static ComponentVO toVO(Component component,boolean removeTypeName){
+    public static ComponentVO toVO(Component component, boolean removeTypeName, boolean removeSelfParams) {
         ComponentVO vo = new ComponentVO();
         BeanUtils.copyProperties(component, vo);
         //前端默认不展示kerberosConfig
         JSONObject jsonObject = JSONObject.parseObject(component.getComponentConfig());
-        if(removeTypeName){
+        if (removeTypeName) {
             jsonObject.remove("typeName");
             jsonObject.remove("md5zip");
         }
-        //将自定义参数移除
-        String template = component.getComponentTemplate();
-        if(null != template){
-            JSONArray jsonArray = JSONObject.parseArray(template);
-            for (Object o : jsonArray.toArray()) {
-                String key = ((JSONObject) o).getString("key");
-                String value = ((JSONObject) o).getString("value");
-                jsonObject.remove(key,value);
+        if (removeSelfParams) {
+            // hdfs yarn 才将自定义参数移除
+            String template = component.getComponentTemplate();
+            if (null != template) {
+                JSONArray jsonArray = JSONObject.parseArray(template);
+                for (Object o : jsonArray.toArray()) {
+                    String key = ((JSONObject) o).getString("key");
+                    String value = ((JSONObject) o).getString("value");
+                    jsonObject.remove(key, value);
+                }
             }
         }
+
         vo.setComponentConfig(jsonObject.toJSONString());
         return vo;
     }
