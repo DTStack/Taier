@@ -85,7 +85,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     protected BatchFlowWorkJobService batchFlowWorkJobService;
 
     private ExecutorService executorService;
-    protected final AtomicBoolean RUNNING = new AtomicBoolean(true);
+    protected final AtomicBoolean RUNNING = new AtomicBoolean(false);
     private volatile long lastRestartJobLoadTime = 0L;
 
     private LinkedBlockingQueue<ScheduleBatchJob> scheduleJobQueue = null;
@@ -99,6 +99,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         logger.info("Initializing scheduleType:{} acquireQueueJobInterval:{} queueSize:{}", getScheduleType(), env.getAcquireQueueJobInterval(), env.getQueueSize());
 
         scheduleJobQueue = new LinkedBlockingQueue<>(env.getQueueSize());
+        RUNNING.compareAndSet(false, true);
 
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(getScheduleType() + "_AcquireJob"));
         scheduledService.scheduleWithFixedDelay(

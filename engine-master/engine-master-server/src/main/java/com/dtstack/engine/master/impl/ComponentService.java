@@ -124,6 +124,9 @@ public class ComponentService {
     @Autowired
     private TenantService tenantService;
 
+    @Autowired
+    private SftpFileManage sftpFileManageBean;
+
     public static final String TYPE_NAME = "typeName";
     public static final String VERSION = "version";
 
@@ -597,7 +600,7 @@ public class ComponentService {
     private String uploadResourceToSftp(Long clusterId,  List<Resource> resources,  String kerberosFileName,
                                         SftpConfig sftpConfig, Component addComponent, Component dbComponent,String principals,String principal) {
         //上传配置文件到sftp 供后续下载
-        SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
+        SftpFileManage sftpFileManage = sftpFileManageBean.retrieveSftpManager(sftpConfig);
         String md5sum = "";
         String remoteDir = sftpConfig.getPath() + File.separator + this.buildSftpPath(clusterId, addComponent.getComponentTypeCode());
         for (Resource resource : resources) {
@@ -862,7 +865,11 @@ public class ComponentService {
     }
 
     public ComponentsResultVO addOrCheckClusterWithName(String clusterName) {
-        if (StringUtils.isBlank(clusterName)) {
+        if (StringUtils.isNotBlank(clusterName)) {
+            if (clusterName.length() > 24) {
+                throw new RdosDefineException("名称过长");
+            }
+        } else {
             throw new RdosDefineException("集群名称不能为空");
         }
         clusterName = clusterName.trim();
@@ -1164,7 +1171,7 @@ public class ComponentService {
 
             SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
             String remoteDir = sftpConfig.getPath() + File.separator + this.buildSftpPath(clusterId, component.getComponentTypeCode());
-            SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
+            SftpFileManage sftpFileManage = sftpFileManageBean.retrieveSftpManager(sftpConfig);
             if (DownloadType.Kerberos.getCode() == downloadType) {
                 remoteDir = remoteDir + File.separator + KERBEROS_PATH;
                 localDownLoadPath = localDownLoadPath + File.separator + KERBEROS_PATH;

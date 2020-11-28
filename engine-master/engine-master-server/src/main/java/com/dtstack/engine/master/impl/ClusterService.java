@@ -15,15 +15,21 @@ import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.sftp.SftpConfig;
+import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.*;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.Sort;
 import com.dtstack.schedule.common.util.Base64Util;
+import com.dtstack.schedule.common.util.ZipUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.SftpException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -56,6 +62,8 @@ public class ClusterService implements InitializingBean {
     private final static String TENANT_ID = "tenantId";
     private static final String DEPLOY_MODEL = "deployMode";
     private static final String NAMESPACE = "namespace";
+    private static final String LOCK_SUFFIX = ".lock";
+    private static final String SEPARATE = File.separator;
 
     @Autowired
     private ClusterDao clusterDao;
@@ -96,6 +104,11 @@ public class ClusterService implements InitializingBean {
     @Autowired
     private AccountService accountService;
 
+    @Autowired
+    private EnvironmentContext environmentContext;
+
+    @Autowired
+    private SftpFileManage sftpFileManageBean;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -132,8 +145,6 @@ public class ClusterService implements InitializingBean {
     @Transactional(rollbackFor = Exception.class)
     public ClusterVO addCluster(ClusterDTO clusterDTO) {
         EngineAssert.assertTrue(StringUtils.isNotEmpty(clusterDTO.getClusterName()), ErrorCode.INVALID_PARAMETERS.getDescription());
-        checkName(clusterDTO.getClusterName());
-
         Cluster cluster = new Cluster();
         cluster.setClusterName(clusterDTO.getClusterName());
         cluster.setHadoopVersion("");
@@ -146,15 +157,6 @@ public class ClusterService implements InitializingBean {
         return getCluster(cluster.getId(),true,true);
     }
 
-    private void checkName(String name) {
-        if (StringUtils.isNotBlank(name)) {
-            if (name.length() > 24) {
-                throw new RdosDefineException("名称过长");
-            }
-        } else {
-            throw new RdosDefineException("名称不能为空");
-        }
-    }
 
 
 
@@ -188,8 +190,6 @@ public class ClusterService implements InitializingBean {
             JSONObject config = buildClusterConfig(cluster);
             return config.toJSONString();
         }
-
-        LOGGER.error("无法取得集群信息，默认集群信息没有配置！");
         return StringUtils.EMPTY;
     }
 
@@ -487,6 +487,61 @@ public class ClusterService implements InitializingBean {
             return configObj.toJSONString();
         }
         return configObj.toJSONString();
+    }
+
+
+    /**
+     * 从sftp中下载获取已有的配置文件
+     */
+    public void downloadKerberosFromSftp(String sourceKey, String localKerberosConf, SftpConfig sftpConfig) throws SftpException {
+        //需要读取配置文件
+        //本地kerberos文件
+        String localTimeLock = getLocalTimeLock(localKerberosConf);
+        SftpFileManage sftpFileManage = sftpFileManageBean.retrieveSftpManager(sftpConfig);
+        try {
+            String sourceSftpPath = sftpConfig.getPath() + SEPARATE + sourceKey;
+            //sftp服务器kerberos文件
+            String timeLock = getSftpTimeLock(sftpFileManage, sourceSftpPath, localTimeLock);
+
+            if (localTimeLock == null || timeLock == null || !timeLock.equals(localTimeLock)) {
+                //需要下载替换当时的配置
+                ZipUtil.deletefile(localKerberosConf);
+                sftpFileManage.downloadDir(sourceSftpPath, localKerberosConf);
+            }
+        } catch (Exception e) {
+            throw new RdosDefineException("下载kerberos配置失败");
+        }
+    }
+
+    private String getSftpTimeLock(SftpFileManage sftpFileManage, String sourceSftpPath, String localTimeLock) throws SftpException {
+        // 获得远程sftp下的路径sourceSftpPath下文件列表
+        Vector vector = sftpFileManage.listFile(sourceSftpPath);
+        for (Object obj : vector) {
+            // 判断是否有后缀名.lock的文件
+            ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) obj;
+            if (lsEntry.getFilename().endsWith(LOCK_SUFFIX)) {
+                return lsEntry.getFilename();
+            }
+        }
+        return null;
+    }
+
+    private String getLocalTimeLock(String localKerberosConf) {
+        File localKerberosConfFile = new File(localKerberosConf);
+        if (localKerberosConfFile.exists() && localKerberosConfFile.isDirectory()) {
+            String[] list = localKerberosConfFile.list();
+            List<String> lockList = Arrays.stream(list).filter(str -> {
+                if (str.endsWith(LOCK_SUFFIX)){
+                    return true;
+                } else {
+                    return false;
+                }
+            }).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(lockList)) {
+                return lockList.get(0);
+            }
+        }
+        return null;
     }
 
 

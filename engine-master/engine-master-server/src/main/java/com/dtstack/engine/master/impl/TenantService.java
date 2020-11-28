@@ -80,6 +80,9 @@ public class TenantService {
     @Autowired
     private ComponentService componentService;
 
+    @Autowired
+    private DtUicUserConnect dtUicUserConnect;
+
     public PageResult<List<EngineTenantVO>> pageQuery( Long clusterId,
                                                        Integer engineType,
                                                        String tenantName,
@@ -189,13 +192,13 @@ public class TenantService {
     private List<UserTenant> postTenantList(String dtToken) {
         String dtUicUrl = env.getDtUicUrl();
         //uic对数据量做了限制，可能未查询到租户信息
-        return DtUicUserConnect.getUserTenants(dtUicUrl, dtToken, "");
+        return dtUicUserConnect.getUserTenants(dtUicUrl, dtToken, "");
     }
 
 
     private UserTenant getTenantByDtUicTenantId(Long dtUicTenantId,String token){
         String dtUicUrl = env.getDtUicUrl();
-        return DtUicUserConnect.getTenantByTenantId(dtUicUrl, dtUicTenantId, token);
+        return dtUicUserConnect.getTenantByTenantId(dtUicUrl, dtUicTenantId, token);
     }
 
 
