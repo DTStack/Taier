@@ -79,7 +79,6 @@ public class FlinkClientTest {
 	@Mock
     FlinkClusterClientManager flinkClusterClientManager;
 
-
 	@InjectMocks
 	private FlinkClient flinkClient;
 
@@ -97,30 +96,19 @@ public class FlinkClientTest {
 		when(file.getParentFile()).thenReturn(file);
 		when(file.getAbsolutePath()).thenReturn("hdfs://user/tmp/tmpJar.jar");
 
-//		PowerMockito.mockStatic(SFTPHandler.class);
-//		SFTPHandler sftpHandler = PowerMockito.mock(SFTPHandler.class);
-//		when(SFTPHandler.getInstance(any())).thenReturn(sftpHandler);
-//		when(sftpHandler.loadFromSftp(any(), any(), any())).thenReturn("test/path");
-//		when(sftpHandler.downloadDir(any(), any())).thenReturn(1);
-
 		FileSystem fs = PowerMockito.mock(FileSystem.class);
 		when(fs.exists(any())).thenReturn(true);
 		when(fs.open(any())).thenReturn(PowerMockito.mock(FSDataInputStream.class));
 		PowerMockito.mockStatic(FileSystem.class);
 		when(FileSystem.get(any(), any())).thenReturn(fs);
-
 	}
 
 	/**
 	 * flink client init test
 	 */
-	/*@Test
+	@Test
 	public void testInit() throws Exception{
 
-		MemberModifier.field(FlinkClient.class, "flicnkConfig")
-				.set(flinkClient, new FlinkConfig());
-		MemberModifier.field(FlinkClient.class, "hadoopConf")
-				.set(flinkClient, new HadoopConf());
 		MemberModifier.field(FlinkClient.class, "cacheFile")
 				.set(flinkClient, Maps.newConcurrentMap());
 
@@ -132,17 +120,15 @@ public class FlinkClientTest {
 		prop.put("remotePluginRootDir", sqlPluginRootDir);
 		prop.put("flinkPluginRoot", sqlPluginRootDir);
 		String propStr = PublicUtil.objToString(prop);
-		SqlPluginInfo sqlPluginInfo = SqlPluginInfo.create(PublicUtil.jsonStrToObject(propStr, FlinkConfig.class));
-		MemberModifier.field(FlinkClient.class, "sqlPluginInfo")
-				.set(flinkClient, sqlPluginInfo);
+
 
 		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
 		YarnMockUtil.mockPackagedProgram();
 		ClusterSpecification clusterSpecification = YarnMockUtil.mockClusterSpecification();
 
-		when(flinkClusterClientManager.getClusterClient()).thenReturn(clusterClient);
+		//when(flinkClusterClientManager.getClusterClient()).thenReturn(clusterClient);
 		when(flinkClientBuilder.getFlinkConfiguration()).thenReturn(new Configuration());
-	}*/
+	}
 
 
 
@@ -294,7 +280,7 @@ public class FlinkClientTest {
 		when(PoolHttpClient.get(any())).thenReturn("{\"state\":\"RUNNING\"}");
 
 		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
-		when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
+		when(flinkClusterClientManager.getClusterClient(jobIdentifier)).thenReturn(clusterClient);
 		RdosTaskStatus jobStatus2 = flinkClient.getJobStatus(jobIdentifier);
 		Assert.assertNotNull(jobStatus2);
 	}*/

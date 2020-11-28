@@ -316,13 +316,13 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 String alterSql = String.format(ADD_PART_TEMP, tableName, taskName, time);
                 String location = "";
                 if (DataSourceType.IMPALA.getVal() == sourceType) {
-                    String jdbcInfo = clusterService.impalaInfo(dtuicTenantId, true);
+                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId, EComponentType.IMPALA_SQL.getConfName(),true,Boolean.TRUE);
                     JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataBaseType.Impala.getTypeName());
                     workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, DataBaseType.Impala.getTypeName(), String.format("DESCRIBE formatted %s", tableName));
                 } else if (DataSourceType.HIVE.getVal() == sourceType || DataSourceType.HIVE1X.getVal() == sourceType) {
-                    String jdbcInfo = clusterService.hiveInfo(dtuicTenantId, true);
+                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId,EComponentType.SPARK_THRIFT.getConfName(), true,Boolean.TRUE);
                     JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
                     String engineType = DataSourceType.HIVE.getVal() == sourceType ? DataBaseType.HIVE.getTypeName() : DataBaseType.HIVE1X.getTypeName();
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, engineType);
@@ -409,7 +409,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     return null;
                 }, 3, 2000, false, Lists.newArrayList(SocketTimeoutException.class));
             } catch (Exception e) {
-                LOG.error("create partition error", e);
+                LOG.error("create partition error:", e);
                 throw new RdosDefineException("create partition error:" + ExceptionUtil.getErrorMessage(e));
             }
         }
@@ -458,12 +458,12 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             }
             pluginInfo.put(EComponentType.SFTP.getConfName(), sftpConf);
             //krb5.conf的文件名
-            String krb5Conf = hadoopConfig.getString(ConfigConstant.KRB5_CONF);
+            String krb5Conf = hadoopConfig.getString(ConfigConstant.JAVA_SECURITY_KRB5_CONF);
             if(StringUtils.isBlank(krb5Conf)){
                 //平台不传 暂时设置默认值
-                krb5Conf = ConfigConstant.KRBNAME_DEFAULT;
+                krb5Conf = ConfigConstant.KRB5_CONF;
             }
-            pluginInfo.put(ConfigConstant.KRB_NAME,krb5Conf);
+            pluginInfo.put(ConfigConstant.KRB_NAME, krb5Conf);
             pluginInfo.put(EComponentType.YARN.getConfName(), hadoopConfig);
 
         }

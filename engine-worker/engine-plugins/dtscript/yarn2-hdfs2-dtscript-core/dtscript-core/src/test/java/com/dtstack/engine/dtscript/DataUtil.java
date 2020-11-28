@@ -127,4 +127,37 @@ public class DataUtil {
                 "}";
     }
 
+    public static JobClient getJobClient2() throws Exception{
+        ParamAction paramAction = new ParamAction();
+        paramAction.setExeArgs("--files /data/Algorithm/main_v2.py " +
+                "--cmd-opts eyJvdXRwdXRzIjpbeyJoaXZlX3BvcnQiOiIxMDAwMCIsImRhdGFiYXNlIjoiZ3VjaGVuIiwibmFtZSI6ImhpdmUiLCJoZGZzX2hvc3QiOiIxNzIuMTYuMTAuMTE1Ojk4NzAsMTcyLjE2LjEwLjExNDo5ODcwIiwiaGFkb29wX3VzZXJuYW1lIjoiYWRtaW4iLCJoaXZlX2hvc3QiOiIxNzIuMTYuMTAuMTE1IiwidGFibGUiOiJzY2llbmNlX3RtcF84ODMzXzkxIn0seyJwYXRoIjoiL2R0SW5zaWdodC9zY2llbmNlL2NvbXBvbmVudF9tb2RlbC90bXAvODc1OS84ODMzLzEyIiwibmFtZSI6InB5bW9kZWwiLCJoZGZzX2hvc3QiOiIxNzIuMTYuMTAuMTE1Ojk4NzAsMTcyLjE2LjEwLjExNDo5ODcwIiwiaGFkb29wX3VzZXJuYW1lIjoiYWRtaW4ifSx7InBhdGgiOiIvZHRJbnNpZ2h0L3NjaWVuY2UvY29tcG9uZW50X21vZGVsL3RtcC84NzU5Lzg4MzMvIiwibmFtZSI6Imhpc3RvZ3JhbSIsImhkZnNfaG9zdCI6IjE3Mi4xNi4xMC4xMTU6OTg3MCwxNzIuMTYuMTAuMTE0Ojk4NzAiLCJoYWRvb3BfdXNlcm5hbWUiOiJhZG1pbiJ9XSwiY29sX3NldHRpbmdzIjp7ImNvbCI6WyJEYXRlIl0sImtleSI6WyJ1c2VyX2lkIl19LCJpbnB1dHMiOlt7InBhdGgiOiIvZHRJbnNpZ2h0L2hpdmUvd2FyZWhvdXNlL2d1Y2hlbi5kYi9icmVhZGJhc2tldCIsImNvbHVtbnMiOlsiRGF0ZSIsIlRpbWUiLCJUcmFuc2FjdGlvbiIsIkl0ZW0iLCJ1c2VyX2lkIiwicHJpY2UiXSwibmFtZSI6ImhkZnMiLCJoZGZzX2hvc3QiOiIxNzIuMTYuMTAuMTE1Ojk4NzAsMTcyLjE2LjEwLjExNDo5ODcwIiwiaGFkb29wX3VzZXJuYW1lIjoiYWRtaW4iLCJzZXAiOiIsIn1dLCJtb2RlbF9zZXR0aW5ncyI6eyJtZXRob2QiOltbIm1heCJdXSwidXNlY29weSI6ZmFsc2V9LCJjbGFzc19uYW1lIjoiQWdncmVnYXRpb25WMkFpIn0= " +
+                "--app-type python3 " +
+                "--python-version 3.x "  +
+                "--nodes node1" +
+                "--am-memory 412m" +
+                "--am-cores 1" +
+                "--worker-memory 2" +
+                "--worker-cores 2" +
+                "--app-memory 512m" +
+                "--priority 1" +
+                "--logLevel INFO" +
+                "--queue a" +
+                "--output dsds" +
+                "--user-path vds2e" +
+                "--worker-num 2" +
+                "--worker-reserved-memory 512m" +
+                "--maxAppAttempts 3" +
+                "--app-name run_pYTHON");
+        paramAction.setTaskParams("worker.cores=1\nworker.memory=512");
+        paramAction.setTaskId("35e24e9f");
+        paramAction.setName("run_Python_task_1606442812431");
+        paramAction.setEngineType("dtscript");
+        paramAction.setComputeType(1);
+        paramAction.setTaskType(3);
+        paramAction.setTenantId(395L);
+        paramAction.setDtuicTenantId(395L);
+//        paramAction.set();
+        return  new JobClient(paramAction);
+    }
+
 }

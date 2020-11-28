@@ -26,9 +26,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,14 +47,13 @@ import static org.mockito.Mockito.when;
  */
 public class ConsoleServiceTest extends AbstractTest {
 
-    @Mock
+    @MockBean
     private WorkerOperator workerOperator;
 
     @Autowired
-    @InjectMocks
     private ConsoleService consoleService;
 
-    @Mock
+    @MockBean
     private ZkService zkService;
 
     @Autowired
@@ -76,19 +74,16 @@ public class ConsoleServiceTest extends AbstractTest {
     }
 
     private void initMock() throws Exception {
-        MockitoAnnotations.initMocks(this);
         initMockZkService();
         initMockWorkOperator();
     }
 
     private void initMockWorkOperator() throws Exception {
-        PowerMockito.mock(WorkerOperator.class);
         ClusterResource clusterResource = new ClusterResource();
         when(workerOperator.clusterResource(any(),any())).thenReturn(clusterResource);
     }
 
     private void initMockZkService() {
-        PowerMockito.mock(ZkService.class);
         List<String> aliveNodes = new ArrayList<>();
         aliveNodes.add("127.0.0.1:9099");
         when(zkService.getAliveBrokersChildren()).thenReturn(aliveNodes);
@@ -111,7 +106,7 @@ public class ConsoleServiceTest extends AbstractTest {
     @Rollback
     public void testFinishJob() {
         Boolean finishJob = consoleService.finishJob("asdf", RdosTaskStatus.RUNNING.getStatus());
-        Assert.assertEquals(finishJob,true);
+        Assert.assertEquals(finishJob,false);
     }
 
     @Test
@@ -126,17 +121,30 @@ public class ConsoleServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testSearchJob() {
-        ScheduleJob one = scheduleJobDao.getOne();
-        ConsoleJobVO searchJob = consoleService.searchJob(one.getJobName());
+        EngineJobCache engineJobCache = initScheduleJobForTest();
+        ConsoleJobVO searchJob = consoleService.searchJob(engineJobCache.getJobName());
         Assert.assertNotNull(searchJob);
+    }
+
+    private EngineJobCache initScheduleJobForTest() {
+        ScheduleJob scheduleJobTemplate = Template.getScheduleJobTemplate();
+        scheduleJobTemplate.setJobName("initScheduleJobForTest");
+        scheduleJobTemplate.setJobKey("initScheduleJobForTest");
+        scheduleJobTemplate.setJobId("initScheduleJobForTest");
+        scheduleJobDao.insert(scheduleJobTemplate);
+        EngineJobCache engineJobCacheTemplate2 = Template.getEngineJobCacheTemplate2();
+        engineJobCacheTemplate2.setJobName("initScheduleJobForTest");
+        engineJobCacheTemplate2.setJobId("initScheduleJobForTest");
+        engineJobCacheDao.insert(engineJobCacheTemplate2);
+        return engineJobCacheTemplate2;
     }
 
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testListNames() {
-        ScheduleJob one = scheduleJobDao.getOne();
-        List<String> listNames = consoleService.listNames(one.getJobName());
+        EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
+        List<String> listNames = consoleService.listNames(engineJobCache.getJobName());
         Assert.assertTrue(org.apache.commons.collections.CollectionUtils.isNotEmpty(listNames));
     }
 
@@ -160,8 +168,10 @@ public class ConsoleServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testJobStick() {
-        EngineJobCache one = engineJobCacheDao.getOne();
-        Boolean jobStick = consoleService.jobStick(one.getJobId());
+        EngineJobCache engineJobCache2 = DataCollection.getData().getEngineJobCache2();
+        engineJobCache2.setJobId("abcdefg");
+        engineJobCacheDao.insert(engineJobCache2);
+        Boolean jobStick = consoleService.jobStick(engineJobCache2.getJobId());
         Assert.assertTrue(jobStick);
     }
 
@@ -193,7 +203,7 @@ public class ConsoleServiceTest extends AbstractTest {
     @Rollback
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public void testClusterResources() {
-        Cluster one = clusterDao.getOne();
+        Cluster one = DataCollection.getData().getDefaultCluster();
         ClusterResource clusterResources = consoleService.clusterResources(one.getClusterName());
         Assert.assertNotNull(clusterResources);
     }

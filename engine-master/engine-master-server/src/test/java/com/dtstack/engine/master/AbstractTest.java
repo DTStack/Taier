@@ -4,7 +4,6 @@ import com.dtstack.engine.master.config.CacheConfig;
 import com.dtstack.engine.master.config.MybatisConfig;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -15,7 +14,6 @@ import org.springframework.test.context.ContextConfiguration;
  */
 @RunWith(DtCenterSpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {EnvironmentContext.class, CacheConfig.class, MybatisConfig.class})
-@PowerMockIgnore({"javax.management.*", "javax.security.*", "javax.net.ssl.*", "javax.crypto.*"})
 @SpringBootTest
 public abstract class AbstractTest {
 

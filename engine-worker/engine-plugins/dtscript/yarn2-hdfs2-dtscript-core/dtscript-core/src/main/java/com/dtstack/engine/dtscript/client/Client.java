@@ -41,7 +41,6 @@ import java.util.concurrent.TimeUnit;
 public class Client {
 
     private static final Logger LOG = LoggerFactory.getLogger(Client.class);
-    private static final String HDFS_SUPER_GROUP = "dfs.permissions.superusergroup";
 
     private DtYarnConfiguration conf;
     private FileSystem dfs;
@@ -65,12 +64,16 @@ public class Client {
                 conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
             }
             String proxyUser = conf.get(DtYarnConstants.PROXY_USER_NAME);
-            String superGroup = conf.get(HDFS_SUPER_GROUP);
-            if (StringUtils.isNotBlank(proxyUser) && StringUtils.isNotBlank(superGroup)) {
-                UserGroupInformation hadoopUserNameUGI = UserGroupInformation.createRemoteUser(superGroup);
-                UserGroupInformation.setLoginUser(UserGroupInformation.createProxyUser(proxyUser, hadoopUserNameUGI));
-            } else if (StringUtils.isNotBlank(superGroup)) {
-                UserGroupInformation.setLoginUser(UserGroupInformation.createRemoteUser(superGroup));
+            try {
+                if (StringUtils.isNotBlank(proxyUser)) {
+                    UserGroupInformation.setLoginUser(UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getCurrentUser()));
+                } else {
+                    //重置
+                    UserGroupInformation realUser = UserGroupInformation.getCurrentUser().getRealUser();
+                    UserGroupInformation.setLoginUser(realUser);
+                }
+            } catch (IOException e) {
+                LOG.info("proxy user {} error {}  " + proxyUser);
             }
 
             this.yarnClient = getYarnClient();

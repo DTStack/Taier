@@ -20,42 +20,35 @@ import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.dao.TestClusterDao;
 import com.dtstack.engine.dao.TestComponentDao;
 import com.dtstack.engine.dao.TestKerberosConfigDao;
+import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.enums.DownloadType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.utils.Template;
-import com.dtstack.engine.master.utils.XmlFileUtil;
-import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import com.dtstack.engine.master.AbstractTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 /**
  * @author basion
@@ -67,7 +60,6 @@ import java.util.Map;
 public class ComponentServiceTest extends AbstractTest {
 
     @Autowired
-    @InjectMocks
     private ComponentService componentService;
 
     @Autowired
@@ -79,10 +71,10 @@ public class ComponentServiceTest extends AbstractTest {
     @Autowired
     TestClusterDao clusterDao;
 
-    @Mock
+    @MockBean
     private ClientOperator clientOperator;
 
-    @Mock
+    @MockBean
     private SftpFileManage sftpFileManage;
 
     /**
@@ -110,36 +102,22 @@ public class ComponentServiceTest extends AbstractTest {
     }
 
     private void initMock() throws Exception {
-        MockitoAnnotations.initMocks(this);
         initMockClientOperator();
         initMockSftpFileManager();
-        initMockXmlFileUtil();
-    }
-
-    private void initMockXmlFileUtil() {
-        PowerMockito.mockStatic(XmlFileUtil.class);
-        List<File> files = new ArrayList<>();
-        String hive = getClass().getClassLoader().getResource("hadoopConf/hive-site.xml").getFile();
-        files.add(new File(hive));
-        String core = getClass().getClassLoader().getResource("hadoopConf/core-site.xml").getFile();
-        files.add(new File(core));
-        String yarn = getClass().getClassLoader().getResource("hadoopConf/yarn-site.xml").getFile();
-        files.add(new File(yarn));
-        String hdfs = getClass().getClassLoader().getResource("hadoopConf/hdfs-site.xml").getFile();
-        files.add(new File(hdfs));
-        when(XmlFileUtil.getFilesFromZip(any(), any(), any())).thenReturn(files);
     }
 
     private void initMockSftpFileManager() {
-        PowerMockito.mock(SftpFileManage.class);
-        when(SftpFileManage.getSftpManager(any())).thenReturn(sftpFileManage);
-        when(sftpFileManage.downloadDir(any(), any())).thenAnswer((Answer<Boolean>) invocation -> {
+        SftpFileManage sftpFileManageBean = sftpFileManage;
+        when(sftpFileManage.retrieveSftpManager(any())).thenReturn(sftpFileManageBean);
+        when(sftpFileManageBean.downloadDir(anyString(), anyString())).thenAnswer((Answer<Boolean>) invocation -> {
             Object[] args = invocation.getArguments();
             String localDir = (String) args[1];
             File file = new File(localDir);
             if (!file.exists()) {
                 boolean mkdirs = file.mkdirs();
                 if (mkdirs) {
+                    String hadoopConf = getClass().getClassLoader().getResource("hadoopConf").getFile();
+                    FileUtils.copyDirectory(new File(hadoopConf),file);
                     files.add(file);
                     System.out.println("创建本地测试目录完成:" + localDir);
                 }
@@ -149,7 +127,6 @@ public class ComponentServiceTest extends AbstractTest {
     }
 
     private void initMockClientOperator() {
-        PowerMockito.mock(ClientOperator.class);
         ComponentTestResult componentTestResult = new ComponentTestResult();
         componentTestResult.setResult(true);
         when(clientOperator.testConnect(any(), any())).thenReturn(componentTestResult);
@@ -274,8 +251,9 @@ public class ComponentServiceTest extends AbstractTest {
     @Rollback
     public void testConfig() {
         Resource resource = new Resource();
-        resource.setFileName("test.zip");
-        resource.setUploadedFileName("test.zip");
+        resource.setFileName("hadoopConf.zip");
+        String hadoopConfZip = getClass().getClassLoader().getResource("zip/hadoopConf.zip").getFile();
+        resource.setUploadedFileName(hadoopConfZip);
         List<Resource> resources = new ArrayList<>();
         resources.add(resource);
         List<Object> config = componentService.config(resources, EComponentType.YARN.getTypeCode(), false);
@@ -293,10 +271,10 @@ public class ComponentServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testTestConnect() {
-        Component one = componentDao.getOne();
-        Cluster cluster = clusterDao.getOne();
+        Component one = DataCollection.getData().getDefaultK8sClusterHdfsComponent();
+        Cluster cluster = DataCollection.getData().getDefaultK8sCluster();
         Map<String, String> getSFTPConfig = componentService.getSFTPConfig(cluster.getId());
-        ComponentTestResult testConnect = componentService.testConnect(EComponentType.YARN.getTypeCode(), one.getComponentConfig(), cluster.getClusterName(), one.getHadoopVersion(), one.getEngineId(), null, getSFTPConfig, 0);
+        ComponentTestResult testConnect = componentService.testConnect(EComponentType.HDFS.getTypeCode(), one.getComponentConfig(), cluster.getClusterName(), one.getHadoopVersion(), one.getEngineId(), null, getSFTPConfig, 0);
         Assert.assertNotNull(testConnect);
     }
 

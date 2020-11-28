@@ -8,7 +8,6 @@ import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
-import com.dtstack.engine.common.akka.config.AkkaConfig;
 import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -19,15 +18,15 @@ import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.utils.EngineUtil;
+import com.dtstack.engine.master.utils.Template;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
 import static org.mockito.Mockito.*;
 
 
@@ -39,10 +38,10 @@ public class ActionServiceTest extends AbstractTest {
 
     private final static List<String> mockInfos = Lists.newArrayList("Mock Info");
 
-    @Mock
+    @MockBean
     private ClientOperator clientOperator;
 
-    @Mock
+    @MockBean
     private JobDealer jobDealer;
 
     @Autowired
@@ -58,8 +57,6 @@ public class ActionServiceTest extends AbstractTest {
 
     @Before
     public void setup() throws Exception{
-        MockitoAnnotations.initMocks(this);
-        PowerMockito.mock(ClientOperator.class);
         when(clientOperator.containerInfos(any())).thenReturn(mockInfos);
     }
 
@@ -71,6 +68,42 @@ public class ActionServiceTest extends AbstractTest {
             ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(params, ParamActionExt.class);
             Boolean result = actionService.start(paramActionExt);
             Assert.assertTrue(result);
+        } catch (Exception e) {
+            fail("Have exception, message: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testStartError() {
+        try {
+            Map<String, Object> params = getParams(getJsonString(getRandomStr()));
+            ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(params, ParamActionExt.class);
+            paramActionExt.setComputeType(null);
+            Boolean result = actionService.start(paramActionExt);
+            Assert.assertFalse(result);
+            ScheduleJob scheduleJob = scheduleJobDao.getByJobId(paramActionExt.getTaskId(),null);
+            Assert.assertEquals(scheduleJob.getStatus(),RdosTaskStatus.SUBMITFAILD.getStatus());
+
+        } catch (Exception e) {
+            fail("Have exception, message: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testStartRepeat() {
+        try {
+            ScheduleJob scheduleJobTemplate = Template.getScheduleJobTemplate();
+            scheduleJobTemplate.setJobId("testRepeat");
+            scheduleJobTemplate.setStatus(RdosTaskStatus.UNSUBMIT.getStatus());
+            scheduleJobDao.insert(scheduleJobTemplate);
+            Map<String, Object> params = getParams(getJsonString(getRandomStr()));
+            ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(params, ParamActionExt.class);
+            paramActionExt.setTaskId(scheduleJobTemplate.getJobId());
+            Boolean result = actionService.start(paramActionExt);
+            Assert.assertTrue(result);
+            ScheduleJob scheduleJob = scheduleJobDao.getByJobId(paramActionExt.getTaskId(),null);
+            Assert.assertEquals(scheduleJob.getStatus(),RdosTaskStatus.ENGINEACCEPTED.getStatus());
+
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
         }

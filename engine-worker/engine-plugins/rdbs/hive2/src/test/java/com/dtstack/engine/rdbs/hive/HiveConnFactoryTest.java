@@ -1,6 +1,5 @@
 package com.dtstack.engine.rdbs.hive;
 
-import com.dtstack.engine.rdbs.hive.HiveConnFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
