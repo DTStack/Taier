@@ -823,13 +823,31 @@ public class ClusterService implements InitializingBean {
         if (CollectionUtils.isNotEmpty(components)) {
             scheduleType = components.stream().collect(Collectors.groupingBy(c -> EComponentType.getScheduleTypeByComponent(c.getComponentTypeCode())));
         }
+        List<SchedulingVo> schedulingVos = convertComponentToScheduling(removeTypeName, kerberosConfigs, scheduleType);
+        clusterVO.setScheduling(schedulingVos);
+        return clusterVO;
+    }
+
+    private List<SchedulingVo> convertComponentToScheduling(Boolean removeTypeName, List<KerberosConfig> kerberosConfigs, Map<EComponentScheduleType, List<Component>> scheduleType) {
         List<SchedulingVo> schedulingVos = new ArrayList<>();
         //为空也返回
         for (EComponentScheduleType value : EComponentScheduleType.values()) {
             SchedulingVo schedulingVo = new SchedulingVo();
             schedulingVo.setSchedulingCode(value.getType());
             schedulingVo.setSchedulingName(value.getName());
-            List<ComponentVO> componentVOS = ComponentVO.toVOS(scheduleType.get(value),null == removeTypeName|| removeTypeName);
+
+            List<Component> componentsSchedule = scheduleType.get(value);
+            if(CollectionUtils.isEmpty(componentsSchedule)){
+                continue;
+            }
+            List<ComponentVO> componentVOS = new ArrayList<>();
+            for (Component component : componentsSchedule) {
+                // hdfs yarn 才将自定义参数移除 过滤返回给前端
+                boolean removeSelfParams = EComponentType.HDFS.getTypeCode().equals(component.getComponentTypeCode())
+                        || EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode());
+                ComponentVO componentVO = ComponentVO.toVO(component,null == removeTypeName || removeTypeName,removeSelfParams);
+                componentVOS.add(componentVO);
+            }
             if(CollectionUtils.isNotEmpty(componentVOS) && CollectionUtils.isNotEmpty(kerberosConfigs)){
                 for (ComponentVO componentVO : componentVOS) {
                     for (KerberosConfig config : kerberosConfigs) {
@@ -843,8 +861,7 @@ public class ClusterService implements InitializingBean {
             schedulingVo.setComponents(componentVOS);
             schedulingVos.add(schedulingVo);
         }
-        clusterVO.setScheduling(schedulingVos);
-        return clusterVO;
+        return schedulingVos;
     }
 
 
