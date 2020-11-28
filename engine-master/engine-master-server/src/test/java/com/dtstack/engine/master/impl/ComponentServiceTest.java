@@ -3,6 +3,7 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.Component;
+import com.dtstack.engine.api.domain.Engine;
 import com.dtstack.engine.api.domain.KerberosConfig;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.Tenant;
@@ -166,7 +167,8 @@ public class ComponentServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testUpdateCache() {
-        componentService.updateCache(1L, EComponentType.SPARK.getTypeCode());
+        Engine defaultHadoopEngine = DataCollection.getData().getDefaultHadoopEngine();
+        componentService.updateCache(defaultHadoopEngine.getId(), EComponentType.SPARK.getTypeCode());
     }
 
     @Test
@@ -257,6 +259,7 @@ public class ComponentServiceTest extends AbstractTest {
         List<Resource> resources = new ArrayList<>();
         resources.add(resource);
         List<Object> config = componentService.config(resources, EComponentType.YARN.getTypeCode(), false);
+        Assert.assertNotNull(config);
     }
 
     @Test
@@ -286,7 +289,31 @@ public class ComponentServiceTest extends AbstractTest {
         Map<String, String> getSFTPConfig = componentService.getSFTPConfig(defaultSftpComponent.getClusterId());
         Component one = componentDao.getOne();
         Cluster cluster = clusterDao.getOne();
-        String wrapperConfig = componentService.wrapperConfig(EComponentType.YARN.getTypeCode(), one.getComponentConfig(), getSFTPConfig, null, cluster.getClusterName());
+        KerberosConfig kerberosConfig = new KerberosConfig();
+        kerberosConfig.setKrbName("tt.krb5");
+        kerberosConfig.setRemotePath("console/1");
+        kerberosConfig.setClusterId(cluster.getId());
+        kerberosConfig.setOpenKerberos(1);
+        kerberosConfig.setPrincipal("hive@host.com");
+        String wrapperConfig = componentService.wrapperConfig(EComponentType.YARN.getTypeCode(), one.getComponentConfig(), getSFTPConfig, kerberosConfig, cluster.getClusterName());
+        Assert.assertTrue(StringUtils.isNoneEmpty(wrapperConfig));
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testWrapperConfigSql() {
+        Component defaultSftpComponent = DataCollection.getData().getDefaultSftpComponent();
+        Map<String, String> getSFTPConfig = componentService.getSFTPConfig(defaultSftpComponent.getClusterId());
+        Component one = DataCollection.getData().getDefaultSparkSqlComponent();
+        Cluster cluster = DataCollection.getData().getDefaultCluster();
+        KerberosConfig kerberosConfig = new KerberosConfig();
+        kerberosConfig.setKrbName("tt.krb5");
+        kerberosConfig.setRemotePath("console/1");
+        kerberosConfig.setClusterId(cluster.getId());
+        kerberosConfig.setOpenKerberos(1);
+        kerberosConfig.setPrincipal("hive@host.com");
+        String wrapperConfig = componentService.wrapperConfig(EComponentType.SPARK_THRIFT.getTypeCode(), one.getComponentConfig(), getSFTPConfig, kerberosConfig, cluster.getClusterName());
         Assert.assertTrue(StringUtils.isNoneEmpty(wrapperConfig));
     }
 
@@ -342,7 +369,7 @@ public class ComponentServiceTest extends AbstractTest {
     @Rollback
     public void testDelete() {
         Component defaultYarnComponentTemplate = Template.getDefaultYarnComponentTemplate();
-        defaultYarnComponentTemplate.setComponentTypeCode(EComponentType.SPARK_THRIFT.getTypeCode());
+        defaultYarnComponentTemplate.setComponentTypeCode(EComponentType.HIVE_SERVER.getTypeCode());
         componentDao.insert(defaultYarnComponentTemplate);
         componentService.delete(Lists.newArrayList(defaultYarnComponentTemplate.getId().intValue()));
     }

@@ -94,6 +94,8 @@ public class ConsoleServiceTest extends AbstractTest {
     @Rollback
     public void testOverview() {
         EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
+        engineJobCache.setJobId("testOverview");
+        engineJobCacheDao.insert(engineJobCache);
         Collection<Map<String, Object>> dev = consoleService.overview(engineJobCache.getNodeAddress(), "dev");
         Assert.assertNotNull(dev);
         Collection<Map<String, Object>> defaultCluster = consoleService.overview(engineJobCache.getNodeAddress(), "default");

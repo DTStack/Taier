@@ -687,6 +687,15 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultSparkSqlComponent(){
+        Component component = Template.getDefaultHdfsComponentTemplate();
+        component.setComponentTypeCode(EComponentType.SPARK_THRIFT.getTypeCode());
+        component.setComponentName(EComponentType.SPARK_THRIFT.getName());
+        component.setComponentConfig("{\"maxJobPoolSize\":\"\",\"password\":\"\",\"minJobPoolSize\":\"\",\"jdbcUrl\":\"jdbc:hive2://172.16.8.107:10000/%s\",\"queue\":\"\",\"username\":\"admin\"}");
+        return component;
+    }
+
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
     default Component getDefaultYarnComponent(){
         return Template.getDefaultYarnComponentTemplate();
     }
