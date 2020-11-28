@@ -457,7 +457,9 @@ public class ComponentService {
         String md5Key = "";
         //将componentTemplate的值放入componentConfig
         JSONObject componentConfigJbj = JSONObject.parseObject(componentConfig);
-        if(componentTemplate!=null){
+        boolean removeSelfParams = EComponentType.HDFS.getTypeCode().equals(addComponent.getComponentTypeCode())
+                || EComponentType.YARN.getTypeCode().equals(addComponent.getComponentTypeCode());
+        if(componentTemplate!=null && removeSelfParams){
             JSONArray jsonArray = JSONObject.parseArray(componentTemplate);
             for (Object o : jsonArray.toArray()) {
                 String key = ((JSONObject) o).getString("key");
@@ -476,8 +478,7 @@ public class ComponentService {
         } else {
             componentDao.insert(addComponent);
         }
-        boolean removeSelfParams = EComponentType.HDFS.getTypeCode().equals(addComponent.getComponentTypeCode())
-                || EComponentType.YARN.getTypeCode().equals(addComponent.getComponentTypeCode());
+
         ComponentVO componentVO = ComponentVO.toVO(addComponent, true,removeSelfParams);
         componentVO.setClusterName(clusterName);
         this.updateCache(engine.getId(),componentType.getTypeCode());
