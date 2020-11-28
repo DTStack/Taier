@@ -472,7 +472,9 @@ public class ComponentService {
         } else {
             componentDao.insert(addComponent);
         }
-        ComponentVO componentVO = ComponentVO.toVO(addComponent, true);
+        boolean removeSelfParams = EComponentType.HDFS.getTypeCode().equals(addComponent.getComponentTypeCode())
+                || EComponentType.YARN.getTypeCode().equals(addComponent.getComponentTypeCode());
+        ComponentVO componentVO = ComponentVO.toVO(addComponent, true,removeSelfParams);
         componentVO.setClusterName(clusterName);
         componentVO.setPrincipal(principal);
         componentVO.setPrincipals(principals);
