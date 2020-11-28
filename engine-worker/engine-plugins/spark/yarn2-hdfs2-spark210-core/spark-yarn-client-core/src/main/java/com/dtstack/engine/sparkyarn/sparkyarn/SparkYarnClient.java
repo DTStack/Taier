@@ -411,7 +411,6 @@ public class SparkYarnClient extends AbstractClient {
         sparkConf.remove("spark.files");
         sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
         sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
-        sparkConf.set("security", "false");
 
         String taskId = jobClient.getTaskId();
         if (sparkYarnConfig.isOpenKerberos()){
@@ -420,7 +419,6 @@ public class SparkYarnClient extends AbstractClient {
             String principal = KerberosUtils.getPrincipal(keytab);
             sparkConf.set("spark.yarn.keytab", keytab);
             sparkConf.set("spark.yarn.principal", principal);
-            sparkConf.set("security", String.valueOf(sparkYarnConfig.isOpenKerberos()));
         }
         if(sparkExtProp != null){
             sparkExtProp.forEach((key, value) -> {

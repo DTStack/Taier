@@ -392,13 +392,6 @@ private[spark] class DtClient(
     new Path(resolvedDestDir, qualifiedDestPath.getName())
   }
 
-  def initSecurity():Unit = {
-    val userPrincipal = sparkConf.get("spark.yarn.principal")
-    val userKeytabPath = sparkConf.get("spark.yarn.keytab")
-    UserGroupInformation.setConfiguration(yarnConf)
-    UserGroupInformation.loginUserFromKeytab(userPrincipal, userKeytabPath)
-  }
-
   /**
     * Upload any resources to the distributed cache if needed. If a resource is intended to be
     * consumed locally, set up the appropriate config for downstream code to handle it properly.
@@ -413,9 +406,6 @@ private[spark] class DtClient(
     // and add them as local resources to the application master.
     val fs = destDir.getFileSystem(hadoopConf)
 
-    if (sparkConf.get("security").equalsIgnoreCase("true")){
-      initSecurity()
-    }
     // Merge credentials obtained from registered providers
     val nearestTimeOfNextRenewal = credentialManager.obtainCredentials(hadoopConf, credentials)
 
