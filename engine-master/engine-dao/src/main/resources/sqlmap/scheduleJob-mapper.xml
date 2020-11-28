@@ -1423,6 +1423,9 @@
             <if test="logInfo != null">
                 log_info = #{logInfo},
             </if>
+            <if test="versionId != null">
+                version_id = #{versionId},
+            </if>
             gmt_modified = now()
         </set>
         WHERE job_id = #{jobId}
