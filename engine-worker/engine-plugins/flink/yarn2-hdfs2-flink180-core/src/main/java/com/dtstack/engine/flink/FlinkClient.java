@@ -295,18 +295,6 @@ public class FlinkClient extends AbstractClient {
         }
     }
 
-    private YarnConfiguration getYarnConf(String pluginInfo) {
-        org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-
-        JsonParser parser = new JsonParser();
-        JsonObject json = parser.parse(pluginInfo).getAsJsonObject().getAsJsonObject("yarnConf");
-        for (Map.Entry<String, JsonElement> keyVal : json.entrySet()) {
-            conf.set(keyVal.getKey(), keyVal.getValue().getAsString());
-        }
-
-        return new YarnConfiguration(conf);
-    }
-
     private void delFilesFromDir(Path dir, String fileName) {
         File[] jobGraphFile = dir.toFile().listFiles(new FilenameFilter() {
             @Override
