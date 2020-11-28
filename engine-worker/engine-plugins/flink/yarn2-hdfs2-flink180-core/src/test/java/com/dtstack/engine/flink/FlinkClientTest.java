@@ -328,10 +328,18 @@ public class FlinkClientTest {
 		String jobId = "40c01cd0c53928fff6a55e8d8b8b022c";
 		String appId = "application_1594003499276_1278";
 		String taskId = "taskId";
-		JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobId, appId, taskId);
+		JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobId, appId, taskId, false);
+		jobIdentifier.setForceCancel(false);
+
+		MemberModifier.field(FlinkClient.class, "jobHistory").set(flinkClient, "http://dtstack:8081");
+
+		ApplicationReportPBImpl report = YarnMockUtil.mockApplicationReport(null);
+		when(yarnClient.getApplicationReport(any())).thenReturn(report);
+		when(flinkClientBuilder.getYarnClient()).thenReturn(yarnClient);
+
 
 		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
-		when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
+		when(flinkClusterClientManager.getClusterClient(any())).thenReturn(clusterClient);
 
 		JobResult jobResult = flinkClient.cancelJob(jobIdentifier);
 		Assert.assertNotNull(jobResult);
