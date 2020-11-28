@@ -222,7 +222,7 @@ public class FlinkClient extends AbstractClient {
                 clusterSpecification.setSpSetting(spSettings);
                 clusterSpecification.setProgramArgs(programArgs);
                 clusterSpecification.setCreateProgramDelay(true);
-                clusterSpecification.setYarnConfiguration(getYarnConf(jobClient.getPluginInfo()));
+                clusterSpecification.setYarnConfiguration(hadoopConf.getYarnConfiguration());
                 clusterSpecification.setClassLoaderType(ClassLoaderType.getClassLoaderType(jobClient.getJobType()));
 
                 runResult = runJobByPerJob(clusterSpecification, jobClient);
@@ -256,7 +256,6 @@ public class FlinkClient extends AbstractClient {
         try (
                 AbstractYarnClusterDescriptor descriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
         ) {
-            descriptor.close();
             perJobClientFactory.deleteTaskIfExist(jobClient);
             ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, new JobGraph(), true);
 
