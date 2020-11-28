@@ -1,21 +1,19 @@
-package com.dtstack.engine.lineage;
+package com.dtstack.engine.lineage.batch;
 
 import com.dtstack.engine.api.service.LineageService;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnParam;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
 import com.dtstack.engine.api.vo.lineage.LineageDataSourceVO;
 import com.dtstack.engine.api.vo.lineage.LineageTableVO;
+import com.dtstack.engine.lineage.CollectAppType;
+import com.dtstack.engine.lineage.DataCollection;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.sdk.core.common.DtInsightApi;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,10 +22,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -37,20 +33,9 @@ import java.util.Set;
  * @Date 2020/11/23 11:11
  * @Created chener@dtstack.com
  */
-public class Batch {
+public class Batch extends DataCollection {
 
     private static Logger logger = LoggerFactory.getLogger(Batch.class);
-
-    public static void main(String[] args) {
-        initLog4jProperties();
-        initApi();
-        try {
-            DataSource dataSource = getDataSource();
-            doBatchJob(dataSource);
-        } catch (PropertyVetoException e) {
-            logger.error("",e);
-        }
-    }
 
     private static String QUERY_TENANT = "select id,dtuic_tenant_id from rdos_tenant where is_deleted=0";
 
@@ -62,19 +47,22 @@ public class Batch {
 
     private static final Integer PAGE_SIZE = 200;
 
-    private static DtInsightApi dtInsightApi;
-
-    private static void initApi(){
-        DtInsightApi.ApiBuilder builder = new DtInsightApi.ApiBuilder()
-                .setEndpoint(Conf.getConf(Conf.SERVER))
-                .setServerUrls(Conf.getConf(Conf.NODES).split(","))
-                .setSlb(true)
-                .setToken(Conf.getConf(Conf.TOKEN));
-        dtInsightApi = builder.buildApi();
+    public Batch(DataSource dataSource,DtInsightApi dtInsightApi){
+        super(dataSource,dtInsightApi);
     }
 
-    public static void doBatchJob(DataSource dataSource){
-        try (Connection connection = dataSource.getConnection()) {
+    @Override
+    public CollectAppType getAppType() {
+        return CollectAppType.BATCH;
+    }
+
+    @Override
+    public void collect() {
+        doBatchJob();
+    }
+
+    public void doBatchJob(){
+        try (Connection connection = getDataSource().getConnection()) {
             Statement statement = connection.prepareStatement(QUERY_TENANT);
             ResultSet resultSet = statement.executeQuery(QUERY_TENANT);
             List<BatchTenant> tenants = new ArrayList<>();
@@ -133,15 +121,14 @@ public class Batch {
         }
     }
 
-    private static void sendToEngine(List<BatchLineage> batchLineages, BatchTenant tenant) throws PropertyVetoException {
+    private void sendToEngine(List<BatchLineage> batchLineages, BatchTenant tenant) throws PropertyVetoException {
         Set<Long> dataSourceIdSet = new HashSet<>();
         for (BatchLineage batchLineage:batchLineages){
             dataSourceIdSet.add(batchLineage.getDataSourceId());
             dataSourceIdSet.add(batchLineage.getInputDataSourceId());
         }
-        DataSource dataSource = getDataSource();
         Map<Long, BatchDataSource> dataSourceMap = new HashMap<>();
-        try (Connection connection = dataSource.getConnection()) {
+        try (Connection connection = getDataSource().getConnection()) {
             PreparedStatement prepareStatement = connection.prepareStatement(QUERY_DATA_SOURCE_INFO);
             for (Long dataSourceId:dataSourceIdSet){
                 prepareStatement.setLong(1,dataSourceId);
@@ -173,7 +160,7 @@ public class Batch {
             vo.setInputTableInfo(inputTableVo);
             columnColumnVOS.add(vo);
         }
-        LineageService lineageService = dtInsightApi.getSlbApiClient(LineageService.class);
+        LineageService lineageService = getDtInsightApi().getSlbApiClient(LineageService.class);
         LineageColumnColumnParam param = new LineageColumnColumnParam();
         param.setLineageTableTableVOs(columnColumnVOS);
         lineageService.acquireOldColumnColumn(param);
@@ -191,59 +178,5 @@ public class Batch {
         tableVO.setDataSourceVO(dataSourceVO);
         return tableVO;
     }
-
-    private static void initLog4jProperties() {
-        InputStream is = Batch.class.getClassLoader().getResourceAsStream("log4j.properties");
-        Properties p = new Properties();
-        try {
-            p.load(is);
-            if(p!=null){
-                is.close();
-            }
-            PropertyConfigurator.configure(p);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            Properties prop = new Properties();
-            InputStream in = Batch.class.getClassLoader().getResourceAsStream("config.properties");
-            prop.load(in);
-            Iterator<String> it = prop.stringPropertyNames().iterator();
-            while (it.hasNext()) {
-                String key = it.next();
-                Conf.confMap.put(key, prop.getProperty(key));
-            }
-            in.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static DataSource getDataSource() throws PropertyVetoException {
-        return DataSourceHolder.getDataSource();
-    }
-
-    private static class DataSourceHolder{
-        private static DataSource mDataSource;
-        static DataSource getDataSource() throws PropertyVetoException {
-            if (mDataSource == null){
-                ComboPooledDataSource dataSource = new ComboPooledDataSource();
-                dataSource.setDriverClass(Conf.getConf(Conf.CLASS_NAME));
-                dataSource.setJdbcUrl(Conf.getConf(Conf.URL));
-                dataSource.setUser(Conf.getConf(Conf.USER));
-                dataSource.setPassword(Conf.getConf(Conf.PASSWORD));
-                dataSource.setMaxPoolSize(20);
-                dataSource.setMinPoolSize(5);
-                dataSource.setInitialPoolSize(5);
-                dataSource.setCheckoutTimeout(10000);
-                dataSource.setTestConnectionOnCheckin(true);
-                dataSource.setTestConnectionOnCheckout(true);
-                mDataSource = dataSource;
-            }
-            return mDataSource;
-        }
-    }
-
 
 }

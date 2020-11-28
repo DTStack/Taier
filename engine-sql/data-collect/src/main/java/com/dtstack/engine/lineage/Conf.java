@@ -13,11 +13,11 @@ import java.util.Map;
 public class Conf {
     public static final String CLASS_NAME = "class_name";
 
-    public static final String URL = "url";
+    public static final String URL_SUFFIX = "url";
 
-    public static final String USER = "user";
+    public static final String USER_SUFFIX = "user";
 
-    public static final String PASSWORD = "password";
+    public static final String PASSWORD_SUFFIX = "password";
 
     public static final String SERVER = "server";
 

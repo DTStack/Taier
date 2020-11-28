@@ -97,7 +97,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>com.dtstack.engine.lineage.Batch</mainClass>
+                            <mainClass>com.dtstack.engine.lineage.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
