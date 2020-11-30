@@ -264,6 +264,24 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobStream5() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setJobId("testJobId4");
+        sj.setStatus(4);
+        sj.setExecStartTime(new Timestamp(1591805197000L));
+        sj.setExecEndTime(new Timestamp(1591805197100L));
+        sj.setJobName("test2");
+        sj.setCycTime("20200609234500");
+        sj.setTaskType(EJobType.SQL.getType());
+        sj.setType(2);
+        sj.setEngineLog("");
+        sj.setSourceType(-1);
+        sj.setApplicationId("application_9527");
+        sj.setComputeType(ComputeType.STREAM.getType());
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
     default ScheduleJob getScheduleJobSubmitted() {
         ScheduleJob sj = Template.getScheduleJobTemplate();
         sj.setStatus(RdosTaskStatus.SUBMITFAILD.getStatus());
@@ -356,13 +374,29 @@ public interface DataCollection {
         EngineJobCache engineJobCache = Template.getEngineJobCacheTemplate2();
         String jobId = getData().getScheduleJobStream4().getJobId();
         engineJobCache.setJobId(jobId);
-        engineJobCache.setJobInfo(String.format("{\"pluginInfo\":{\"aa\":\"bb\"},\"engineType\":\"Kylin\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, " +
+        engineJobCache.setJobInfo(String.format("{\"pluginInfo\":{\"aa\":\"bb\"},\"openCheckpoint\":true,\"engineType\":\"Kylin\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, " +
                 "\"maxRetryNum\":3,\"taskParams\":\"openCheckpoint=true \\n sql.checkpoint.interval=2\"," +
                 "\"taskId\":\"%s\"}",jobId));
         engineJobCache.setIsFailover(1);
         return engineJobCache;
     }
 
+    /**
+     * jobCache的stage为5
+     * @return
+     */
+    @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
+    @IgnoreUniqueRandomSet
+    default EngineJobCache getEngineJobCache6() {
+        EngineJobCache engineJobCache = Template.getEngineJobCacheTemplate3();
+        String jobId = getData().getScheduleJobStream5().getJobId();
+        engineJobCache.setJobId(jobId);
+        engineJobCache.setJobInfo(String.format("{\"pluginInfo\":{\"aa\":\"bb\"},\"engineType\":\"Kylin\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, " +
+                "\"maxRetryNum\":3,\"taskParams\":\"openCheckpoint=true \\n sql.checkpoint.interval=2\"," +
+                "\"taskId\":\"%s\"}",jobId));
+        engineJobCache.setIsFailover(1);
+        return engineJobCache;
+    }
 
     /**
      * stage为5的job
@@ -520,6 +554,23 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestEngineJobStopDao.class)
+    default EngineJobStopRecord getScheduleJobStop3(){
+
+        EngineJobCache engineJobCache = getEngineJobCache6();
+        EngineJobStopRecord jsr = new EngineJobStopRecord();
+        jsr.setTaskId(engineJobCache.getJobId());
+        jsr.setComputeType(jsr.getComputeType());
+        jsr.setEngineType(jsr.getEngineType());
+        jsr.setForceCancelFlag(1);
+        jsr.setJobResource(engineJobCache.getJobResource());
+        jsr.setOperatorExpired(new java.util.Date());
+        jsr.setTaskType(10);
+        jsr.setVersion(1);
+        return jsr;
+    }
+
+
+    @DatabaseInsertOperation(dao = TestEngineJobStopDao.class)
     default EngineJobStopRecord getScheduleJobStop(){
 
         EngineJobCache engineJobCache = getEngineJobCache();
@@ -534,6 +585,7 @@ public interface DataCollection {
         jsr.setVersion(1);
         return jsr;
     }
+
 
     @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
     default ScheduleTaskShade getCronMonthTask() {
