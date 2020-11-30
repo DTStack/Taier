@@ -43,8 +43,6 @@ public interface ScheduleJobDao {
 
     List<Map<String, Object>> listThirtyDayJobs(@Param("statusList") List<Integer> statusList, @Param("type") Integer type, @Param("taskTypes") List<Integer> taskTypes, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId);
 
-    List<ScheduleJob> listRestartBatchJobList(@Param("type") int type, @Param("lastTime") Timestamp lastTime);
-
     List<ScheduleJob> listJobByJobKeys(@Param("jobKeys") Collection<String> jobKeys);
 
     List<Long> listIdByTaskIdAndStatus(@Param("taskId") Long taskId, @Param("statuses") List<Integer> status, @Param("appType") Integer appType);
