@@ -466,14 +466,20 @@ class EditCluster extends React.Component<any, any> {
     // Hadoop Kerberos认证文件Change事件
     kerFileChange = (e: any, componentTypeCode: any) => {
         const kerFile = e.target;
-        const { componentConfig } = this.state;
+        const { componentConfig, } = this.state;
+        const { form: { setFieldsValue } } = this.props
+        
         const isCanUpload = this.validateFileType(kerFile && kerFile.files && kerFile.files[0].name)
         if (isCanUpload) {
             let principals: any = [];
             (async () => {
                 const res = await Api.parseKerberos({ fileName: kerFile.files[0] })
                 principals = res?.data || []
-
+                setFieldsValue({
+                    [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
+                        principal: principals[0]
+                    }
+                })
                 this.setState({
                     componentConfig: {
                         ...componentConfig,
@@ -482,7 +488,7 @@ class EditCluster extends React.Component<any, any> {
                             kerberosFileName: kerFile,
                             kerFileName: kerFile.files[0].name,
                             principals: principals,
-                            principal: undefined
+                            principal: principals[0]
                         }
                     }
                 });

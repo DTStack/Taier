@@ -386,7 +386,7 @@ class DisplayResource extends React.Component<any, any> {
         }
     }
 
-    isPrincipal= () => {
+    isPrincipal = () => {
         const type = Object.keys(COMPONEMT_CONFIG_KEYS)
         const [principals, havePrincipal] = [{}, [...UPPER_NAME]]
         type.forEach(item => {
@@ -409,7 +409,7 @@ class DisplayResource extends React.Component<any, any> {
                 key={`${configName}.principal`}
             >
                 {getFieldDecorator(`${configName}.principal`, {
-                    initialValue: components.principal || principals[0] || ''
+                    initialValue: components?.principal || principals[0] || ''
                 })(
                     <Select style={{ width: 172 }} disabled={isView} onChange={(val) => this.handlePrincipal(val, componentTypeCode)}>
                         {
