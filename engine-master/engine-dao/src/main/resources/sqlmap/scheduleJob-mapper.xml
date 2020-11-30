@@ -776,6 +776,19 @@
         GROUP BY hour
     </select>
 
+    <select id="listRestartBatchJobList" resultType="ScheduleJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_job bj
+        where type = #{type}
+        AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
+        <if test="lastTime != null">
+            AND gmt_modified &gt;= #{lastTime}
+        </if>
+        AND is_restart = 1
+        AND is_deleted = 0
+    </select>
+
     <select id="listJobByJobKeys" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
