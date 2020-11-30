@@ -23,6 +23,7 @@ import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
+import com.dtstack.schedule.common.enums.AppType;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -189,6 +190,9 @@ public class ActionService {
                     scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
                     scheduleJob.setAppType(paramActionExt.getAppType());
                     scheduleJob.setDtuicTenantId(paramActionExt.getDtuicTenantId());
+                    if (AppType.STREAM.getType() == paramActionExt.getAppType()) {
+                        scheduleJob.setMaxRetryNum(0);
+                    }
                     scheduleJobDao.update(scheduleJob);
                     logger.info("jobId:{} update job status:{}.", scheduleJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
                 }
