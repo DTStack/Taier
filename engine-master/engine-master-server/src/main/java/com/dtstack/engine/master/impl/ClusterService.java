@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
@@ -517,6 +518,9 @@ public class ClusterService implements InitializingBean {
                 }
             }
         }
+        //kerberosConfig放到最外层
+        String kerberosConfigStr = JSONObject.toJSONString(kerberosConfigVO);
+        configObj.putAll(JSON.parseObject(kerberosConfigStr));
         configObj.put("kerberosConfig", kerberosConfigVO);
     }
 
