@@ -166,7 +166,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             //限制数据范围
             Pair<String, String> cycTime = getCycTime();
             Long startId = batchJobService.getListMinId(nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight());
-            logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{} .", getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), nodeAddress, startId);
+            logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{} .", getScheduleType(), cycTime.getLeft(), cycTime.getRight(), nodeAddress, startId);
             if (startId!=null) {
                 List<ScheduleBatchJob> listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight(),Boolean.TRUE);
                 while (CollectionUtils.isNotEmpty(listExecJobs)) {
@@ -218,8 +218,9 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                             batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), status,e.getMessage());
                         }
                     }
+                    cycTime = getCycTime();
                     listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight(),Boolean.FALSE);
-                    logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{} .", getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), nodeAddress, startId);
+                    logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{} .", getScheduleType(), cycTime.getLeft(), cycTime.getRight(), nodeAddress, startId);
                 }
             }
         } catch (Exception e) {
