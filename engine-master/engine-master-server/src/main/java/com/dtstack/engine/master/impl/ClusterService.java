@@ -558,16 +558,8 @@ public class ClusterService implements InitializingBean {
             Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getPrincipal()));
             Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getRemotePath()));
             Preconditions.checkState(Objects.nonNull(kerberosConfig.getComponentType()));
-            String remoteSftpKerberosPath = componentService.buildSftpPath(kerberosConfig.getClusterId(), component.getComponentTypeCode()) + File.separator +  KERBEROS_PATH;
-            String localKerberosPath = componentService.getLocalKerberosPath(kerberosConfig.getClusterId(), component.getComponentTypeCode());
-            KerberosConfigVerify.downloadKerberosFromSftp(remoteSftpKerberosPath, localKerberosPath, sftpConfig);
-            File file = new File(localKerberosPath);
-            Preconditions.checkState(file.exists() && file.isDirectory(), "console kerberos local path not exist");
-            File keytabFile = Arrays.stream(file.listFiles()).filter((obj) -> obj.getName().endsWith(KEYTAB_SUFFIX))
-                    .findFirst().orElseThrow(() -> new RdosDefineException("keytab文件不存在"));
             //获取本地的kerberos本地路径
-            configJsonObject.put("keytabPath", keytabFile.getPath());
-            configJsonObject.put("principalFile", keytabFile.getName());
+            configJsonObject.put("principalFile", kerberosConfig.getName());
             configJsonObject.putAll(Optional.ofNullable(configJsonObject.getJSONObject("hdfsConfig")).orElse(new JSONObject()));
             configJsonObject.remove("hdfsConfig");
             dataMap.put("kerberosConfig", configJsonObject);
