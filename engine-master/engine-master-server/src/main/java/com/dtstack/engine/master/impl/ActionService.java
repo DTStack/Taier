@@ -319,7 +319,7 @@ public class ActionService {
                     scheduleJob.setAppType(paramActionExt.getAppType());
                     scheduleJob.setDtuicTenantId(paramActionExt.getDtuicTenantId());
                     if (AppType.STREAM.getType() == paramActionExt.getAppType()) {
-                        scheduleJob.setMaxRetryNum(0);
+                        scheduleJob.setRetryNum(0);
                     }
                     scheduleJobDao.update(scheduleJob);
                     logger.info("jobId:{} update job status:{}.", scheduleJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
