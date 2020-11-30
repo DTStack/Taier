@@ -9,24 +9,21 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.client.ClientOperator;
-import com.dtstack.engine.dao.*;
+import com.dtstack.engine.dao.ComponentDao;
+import com.dtstack.engine.dao.EngineDao;
+import com.dtstack.engine.dao.QueueDao;
+import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.enums.EComponentScheduleType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.master.router.cache.ConsoleCache;
+import com.dtstack.engine.master.utils.Template;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -35,7 +32,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 /**
@@ -65,17 +61,8 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
     @Autowired
     private QueueDao queueDao;
 
-    @Spy
+    @Autowired
     private TenantService tenantService;
-
-    @Autowired
-    private ClusterDao clusterDao;
-
-    @Autowired
-    private EngineTenantDao engineTenantDao;
-
-    @MockBean
-    private ConsoleCache consoleCache;
 
     @Autowired
     private QueueService queueService;
@@ -84,22 +71,11 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
 
     @Before
     public void setup() throws Exception{
-        MockitoAnnotations.initMocks(this);
 
         ComponentTestResult componentTestResult = new ComponentTestResult();
         componentTestResult.setResult(true);
 
         when(clientOperator.testConnect(any(),any())).thenReturn(componentTestResult);
-
-        ReflectionTestUtils.setField(tenantService,"clusterDao", clusterDao);
-        ReflectionTestUtils.setField(tenantService,"queueDao", queueDao);
-        ReflectionTestUtils.setField(tenantService,"tenantDao", tenantDao);
-        ReflectionTestUtils.setField(tenantService,"engineTenantDao", engineTenantDao);
-        ReflectionTestUtils.setField(tenantService,"engineDao", engineDao);
-        ReflectionTestUtils.setField(tenantService,"consoleCache", consoleCache);
-        ReflectionTestUtils.setField(tenantService,"queueService", queueService);
-        doNothing().when(tenantService).checkClusterCanUse(any());
-
     }
 
     public void testCreateCluster() {
@@ -133,7 +109,7 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
      * @see EngineService#listClusterEngines(Long, boolean)
      */
     @Test
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Transactional
     @Rollback
     public void testGetCluster() throws Exception{
         //创建集群
@@ -162,7 +138,9 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
         queueService.addNamespaces(engineId,"testK8s");
         List<Queue> queues = queueDao.listByEngineId(engineId);
         //添加测试租户
-        Tenant tenant = DataCollection.getData().getTenant();
+        Tenant tenant = Template.getTenantTemplate();
+        tenant.setDtUicTenantId(-108L);
+        tenantDao.insert(tenant);
         tenant = tenantDao.getByDtUicTenantId(tenant.getDtUicTenantId());
         Assert.assertNotNull(tenant);
         Assert.assertNotNull(tenant.getId());

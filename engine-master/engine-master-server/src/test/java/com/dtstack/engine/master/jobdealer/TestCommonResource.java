@@ -7,6 +7,9 @@ import com.dtstack.engine.master.utils.CommonUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @Author tengzhen
@@ -21,6 +24,8 @@ public class TestCommonResource  extends AbstractTest {
 
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testNewInstance() throws Exception {
 
         ComputeResourceType resourceType = commonResource.newInstance(CommonUtils.getJobClient());

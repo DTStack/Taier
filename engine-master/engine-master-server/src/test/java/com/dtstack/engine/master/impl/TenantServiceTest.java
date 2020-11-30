@@ -5,32 +5,36 @@ import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.domain.TenantResource;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.tenant.TenantResourceVO;
 import com.dtstack.engine.api.vo.tenant.UserTenantVO;
 import com.dtstack.engine.dao.TestQueueDao;
 import com.dtstack.engine.dao.TestTenantDao;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.router.login.domain.UserTenant;
+import com.dtstack.engine.master.utils.Template;
 import org.apache.commons.collections.CollectionUtils;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 /**
@@ -54,6 +58,9 @@ public class TenantServiceTest extends AbstractTest {
     @MockBean
     private DtUicUserConnect dtUicUserConnect;
 
+    @MockBean
+    private WorkerOperator workerOperator;
+
     /**
      * do some mock before test
      */
@@ -64,6 +71,15 @@ public class TenantServiceTest extends AbstractTest {
 
     private void initMock() {
         initMockUserTenants();
+        initMockWorkerOperator();
+    }
+
+    private void initMockWorkerOperator() {
+        ComponentTestResult result = new ComponentTestResult();
+        ComponentTestResult.ClusterResourceDescription description = new ComponentTestResult.ClusterResourceDescription(3, 10000, 10, new ArrayList<>());
+        result.setClusterResourceDescription(description);
+        result.setResult(true);
+        when(workerOperator.testConnect(anyString(), anyString())).thenReturn(result);
     }
 
     private void initMockUserTenants() {
@@ -73,8 +89,8 @@ public class TenantServiceTest extends AbstractTest {
         userTenant.setTenantId(1L);
         userTenant.setTenantName("测试租户");
         tenants.add(userTenant);
-        when(dtUicUserConnect.getUserTenants(any(),any(),any())).thenReturn(tenants);
-        when(dtUicUserConnect.getTenantByTenantId(any(),any(),any())).thenReturn(userTenant);
+        when(dtUicUserConnect.getUserTenants(any(), any(), any())).thenReturn(tenants);
+        when(dtUicUserConnect.getTenantByTenantId(any(), any(), any())).thenReturn(userTenant);
     }
 
     @Test
@@ -85,7 +101,7 @@ public class TenantServiceTest extends AbstractTest {
         Tenant defaultTenant = DataCollection.getData().getDefaultTenant();
         PageResult<List<EngineTenantVO>> pageQuery = tenantService.pageQuery(defaultCluster.getId(), MultiEngineType.HADOOP.getType(), defaultTenant.getTenantName(), 10, 1);
         Assert.assertNotNull(pageQuery);
-        Assert.assertTrue(pageQuery.getTotalCount()>0);
+        Assert.assertTrue(pageQuery.getTotalCount() > 0);
     }
 
     @Test
@@ -94,7 +110,7 @@ public class TenantServiceTest extends AbstractTest {
     public void testListEngineTenant() {
         Tenant defaultTenant = DataCollection.getData().getDefaultTenant();
         List<EngineTenantVO> listEngineTenant = tenantService.listEngineTenant(defaultTenant.getDtUicTenantId(), MultiEngineType.HADOOP.getType());
-        Assert.assertEquals(listEngineTenant.size(),1);
+        Assert.assertEquals(listEngineTenant.size(), 1);
     }
 
     @Test
@@ -150,8 +166,10 @@ public class TenantServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testBindingQueue() {
-        Queue one = queueDao.getOne();
-        tenantService.bindingQueue(one.getId(), 1L, "");
+        Queue defaultQueue = DataCollection.getData().getDefaultQueue();
+        defaultQueue.setId(null);
+        queueDao.insert(defaultQueue);
+        tenantService.bindingQueue(defaultQueue.getId(), 1L, "");
     }
 
     @Test
@@ -168,7 +186,7 @@ public class TenantServiceTest extends AbstractTest {
         Tenant defaultTenant = DataCollection.getData().getDefaultTenant();
         TenantResource defaultTenantResource = DataCollection.getData().getDefaultTenantResource();
         List<TenantResourceVO> queryTaskResourceLimits = tenantService.queryTaskResourceLimits(defaultTenantResource.getDtUicTenantId().longValue());
-        Assert.assertEquals(CollectionUtils.isNotEmpty(queryTaskResourceLimits),true);
+        Assert.assertEquals(CollectionUtils.isNotEmpty(queryTaskResourceLimits), true);
     }
 
     @Test

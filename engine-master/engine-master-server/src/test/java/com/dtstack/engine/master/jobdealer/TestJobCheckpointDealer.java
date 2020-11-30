@@ -60,7 +60,6 @@ public class TestJobCheckpointDealer extends AbstractTest {
 
     @Before
     public void setup() throws Exception{
-        MockitoAnnotations.initMocks(this);
         ReflectionTestUtils.setField(jobCheckpointDealer,"workerOperator", workerOperator);
         ReflectionTestUtils.setField(jobCheckpointDealer,"engineJobCheckpointDao", engineJobCheckpointDao);
         ReflectionTestUtils.setField(jobCheckpointDealer,"engineJobCacheDao", engineJobCacheDao);
@@ -70,13 +69,14 @@ public class TestJobCheckpointDealer extends AbstractTest {
         when(workerOperator.getCheckpoints(any())).thenReturn("{\"restored\":0,\"total\":13,\"in_progress\":0,\"completed\":11,\"failed\":2}");
     }
 
-    @Test
-    public void testAfterPropertiesSet(){
+//    @Test
+//    public void testAfterPropertiesSet(){
+//        jobCheckpointDealer.afterPropertiesSet();
+//    }
 
-        jobCheckpointDealer.afterPropertiesSet();
-    }
-
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testAddCheckpointTaskForQueue() throws ExecutionException {
 
         EngineJobCheckpoint checkpoint = DataCollection.getData().getEngineJobCheckpoint();
@@ -84,7 +84,8 @@ public class TestJobCheckpointDealer extends AbstractTest {
         EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
         Integer computeType = 1;
         String taskId = checkpoint.getTaskId();
-        JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobId.getJobId(),jobId.getApplicationId(),taskId);
+        JobIdentifier jobIdentifier = new JobIdentifier(jobId.getJobId(),jobId.getApplicationId(),taskId,
+                jobId.getTenantId(),engineJobCache.getEngineType(),1,1L,"");
         String engineTypeName = "spark";
 //        jobCheckpointDealer.addCheckpointTaskForQueue(computeType,engineJobCache.getJobId(),jobIdentifier,engineTypeName);
         //2
@@ -94,6 +95,8 @@ public class TestJobCheckpointDealer extends AbstractTest {
 
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testUpdateCheckpointImmediately(){
 
         EngineJobCheckpoint checkpoint = DataCollection.getData().getEngineJobCheckpoint();
@@ -105,9 +108,14 @@ public class TestJobCheckpointDealer extends AbstractTest {
         when(workerOperator.getCheckpoints(any())).thenReturn("{\"restored\":0,\"total\":13,\"in_progress\":0,\"completed\":11," +
                 "\"failed\":2,\"history\":[{\"id\":1,\"trigger_timestamp\":101313,\"external_path\":\"Users\",\"status\":2}]}");
         jobCheckpointDealer.updateCheckpointImmediately(info,taskEngineId,2);
+
+        jobCheckpointDealer.afterPropertiesSet();
+
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testUpdateCheckpointImmediately2(){
 
         EngineJobCheckpoint checkpoint = DataCollection.getData().getEngineJobCheckpoint();
@@ -122,6 +130,8 @@ public class TestJobCheckpointDealer extends AbstractTest {
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testUpdateCheckpointImmediately3(){
 
         EngineJobCheckpoint checkpoint = DataCollection.getData().getEngineJobCheckpoint();
@@ -136,6 +146,8 @@ public class TestJobCheckpointDealer extends AbstractTest {
     }
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testUpdateJobCheckpoints(){
 
         EngineJobCache engineJobCache2 = DataCollection.getData().getEngineJobCache2();
