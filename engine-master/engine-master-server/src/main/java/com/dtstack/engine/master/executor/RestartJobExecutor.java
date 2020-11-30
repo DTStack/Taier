@@ -51,7 +51,7 @@ public class RestartJobExecutor extends AbstractJobExecutor {
     @Override
     protected Long getListMinId(String nodeAddress, Integer isRestart) {
         Long listMinId = batchJobService.getListMinId(nodeAddress, null, null, null, Restarted.RESTARTED.getStatus());
-        logger.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} .", getScheduleType().getType(), nodeAddress, isRestart, listMinId);
+        logger.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} .", getScheduleType().getType(), nodeAddress, Restarted.RESTARTED.getStatus(), listMinId);
         return listMinId;
     }
 }
