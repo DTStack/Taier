@@ -92,8 +92,8 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
             monitorNode = new MonitorNode();
             scheduledService.scheduleWithFixedDelay(
                     monitorNode,
-                    CHECK_INTERVAL * 10,
-                    CHECK_INTERVAL * 10,
+                    CHECK_INTERVAL * 10L,
+                    CHECK_INTERVAL * 10L,
                     TimeUnit.MILLISECONDS);
         }
 

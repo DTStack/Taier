@@ -59,7 +59,7 @@ import static org.mockito.Mockito.when;
         AbstractClientFactory.class, FlinkClient.class})
 @PowerMockIgnore("javax.net.ssl.*")
 public class FlinkClientTest {
-/*
+
     @Mock
     FlinkClientBuilder flinkClientBuilder;
 
@@ -87,11 +87,11 @@ public class FlinkClientTest {
         when(file.getParentFile()).thenReturn(file);
         when(file.getAbsolutePath()).thenReturn("hdfs://user/tmp/tmpJar.jar");
 
-        PowerMockito.mockStatic(SFTPHandler.class);
-        SFTPHandler sftpHandler = PowerMockito.mock(SFTPHandler.class);
-        when(SFTPHandler.getInstance(any())).thenReturn(sftpHandler);
-        when(sftpHandler.loadFromSftp(any(), any(), any())).thenReturn("test/path");
-        when(sftpHandler.downloadDir(any(), any())).thenReturn(1);
+//        PowerMockito.mockStatic(SFTPHandler.class);
+//        SFTPHandler sftpHandler = PowerMockito.mock(SFTPHandler.class);
+//        when(SFTPHandler.getInstance(any())).thenReturn(sftpHandler);
+//        when(sftpHandler.loadFromSftp(any(), any(), any())).thenReturn("test/path");
+//        when(sftpHandler.downloadDir(any(), any())).thenReturn(1);
 
         FileSystem fs = PowerMockito.mock(FileSystem.class);
         when(fs.exists(any())).thenReturn(true);
@@ -101,7 +101,7 @@ public class FlinkClientTest {
 
     }
 
-    @Test
+    /*@Test
     public void testBeforeSubmitFunc() throws Exception {
 
         String absolutePath = temporaryFolder.newFile("21_window_WindowJoin.jar").getAbsolutePath();
@@ -110,7 +110,7 @@ public class FlinkClientTest {
         FlinkConfig flinkConfig = new FlinkConfig();
         Map<String, String> map = new HashMap<>();
         map.put("test", "test");
-        flinkConfig.setSftpConf(map);
+//        flinkConfig.setSftpConf();
         MemberModifier.field(FlinkClient.class, "flinkConfig")
                 .set(flinkClient, flinkConfig);
         MemberModifier.field(FlinkClient.class, "cacheFile")
@@ -119,7 +119,7 @@ public class FlinkClientTest {
                 .set(flinkClient, new HadoopConf());
 
         flinkClient.beforeSubmitFunc(jobClient);
-    }
+    }*/
 
     @Test
     public void testCancelJob() throws Exception {
@@ -129,7 +129,7 @@ public class FlinkClientTest {
 
         JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobId, appId, taskId);
         ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
-        when(flinkClusterClientManager.getClusterClient()).thenReturn(clusterClient);
+        when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
         JobResult jobResult = flinkClient.cancelJob(jobIdentifier);
         Assert.assertNotNull(jobResult);
     }
@@ -188,7 +188,7 @@ public class FlinkClientTest {
     }
 
 
-    @Test
+    /*@Test
     public void testGetJobStatus() throws Exception {
         String jobId = "40c01cd0c53928fff6a55e8d8b8b022c";
         String appId = "application_1594003499276_1278";
@@ -206,7 +206,7 @@ public class FlinkClientTest {
         when(PoolHttpClient.get(any())).thenReturn("{\"state\":\"RUNNING\"}");
 
         ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
-        when(flinkClusterClientManager.getClusterClient()).thenReturn(clusterClient);
+        when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
         jobIdentifier.setApplicationId(null);
         RdosTaskStatus jobStatus2 = flinkClient.getJobStatus(jobIdentifier);
         Assert.assertNotNull(jobStatus2);

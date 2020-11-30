@@ -1,7 +1,9 @@
 package com.dtstack.engine.master.controller;
 
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.pojo.ParamActionExt;
+import com.dtstack.engine.api.pojo.ParamTaskAction;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
@@ -40,6 +42,18 @@ public class ActionController {
     })
     public Boolean start(@RequestBody ParamActionExt paramActionExt) {
         return actionService.start(paramActionExt);
+    }
+
+    @RequestMapping(value="/startJob", method = {RequestMethod.POST})
+    @ApiOperation(value = "开始任务")
+    public Boolean startJob(@RequestBody ParamTaskAction paramTaskAction) {
+        return actionService.startJob(paramTaskAction.getBatchTask(),paramTaskAction.getJobId(),paramTaskAction.getIsRestart(),paramTaskAction.getFlowJobId());
+    }
+
+    @RequestMapping(value="/paramActionExt", method = {RequestMethod.POST})
+    @ApiOperation(value = "提交前预处理接口")
+    public ParamActionExt paramActionExt(@RequestBody ParamTaskAction paramTaskAction) throws Exception {
+        return actionService.paramActionExt(paramTaskAction.getBatchTask(),paramTaskAction.getJobId(),paramTaskAction.getIsRestart(),paramTaskAction.getFlowJobId());
     }
 
     @RequestMapping(value="/stop", method = {RequestMethod.POST})
