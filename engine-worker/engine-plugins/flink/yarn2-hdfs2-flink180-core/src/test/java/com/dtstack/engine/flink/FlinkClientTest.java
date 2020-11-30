@@ -23,6 +23,8 @@ import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.flink.util.HadoopConf;
 import com.dtstack.engine.worker.enums.ClassLoaderType;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.math3.analysis.function.Pow;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
@@ -38,6 +40,10 @@ import org.apache.hadoop.yarn.api.records.impl.pb.ApplicationReportPBImpl;
 import org.apache.hadoop.yarn.api.records.impl.pb.NodeReportPBImpl;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.http.Header;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -74,7 +80,8 @@ import static org.mockito.Mockito.when;
 	FlinkClusterClientManager.class, PoolHttpClient.class,
 	FileSystem.class, FileUtil.class, PublicUtil.class,
 	FlinkConfUtil.class, FlinkUtil.class, PerJobClientFactory.class,
-	AbstractClientFactory.class, FlinkClient.class, PackagedProgram.class})
+	AbstractClientFactory.class, FlinkClient.class, PackagedProgram.class,
+	Jsoup.class})
 @PowerMockIgnore("javax.net.ssl.*")
 public class FlinkClientTest {
 
@@ -117,7 +124,10 @@ public class FlinkClientTest {
 		flinkConfig.setSftpConf(new SftpConfig());
 		MemberModifier.field(FlinkClient.class, "flinkConfig").set(flinkClient, flinkConfig);
 		MemberModifier.field(FlinkClient.class, "cacheFile").set(flinkClient, Maps.newConcurrentMap());
-		MemberModifier.field(FlinkClient.class, "hadoopConf").set(flinkClient, new HadoopConf());
+		HadoopConf hadoopConf = new HadoopConf();
+		hadoopConf.initHadoopConf(new HashMap<>());
+		hadoopConf.initYarnConf(new HashMap<>());
+		MemberModifier.field(FlinkClient.class, "hadoopConf").set(flinkClient, hadoopConf);
 		FilesystemManager filesystemManager = PowerMockito.mock(FilesystemManager.class);
 		File fileTmp = new File("/tmp");
 		when(filesystemManager.downloadFile(any(), any())).thenReturn(fileTmp);
@@ -254,6 +264,15 @@ public class FlinkClientTest {
 		flinkConfig.setString(String.valueOf(HistoryServerOptions.HISTORY_SERVER_WEB_PORT), "9527");
 		when(flinkClientBuilder.getFlinkConfiguration()).thenReturn(flinkConfig);
 
+		PowerMockito.mockStatic(FileUtil.class);
+		String jsonString = "{\"archive\":[{\"path\":\"/jobs/exceptions\",\"json\":\"{}\"}]}";
+		JsonParser jsonParser = new JsonParser();
+		JsonObject jsonObject = (JsonObject) jsonParser.parse(jsonString);
+		when(FileUtil.readJsonFromHdfs(any(String.class), any(org.apache.hadoop.conf.Configuration.class)))
+				.thenReturn(jsonObject);
+
+		when(PoolHttpClient.get(any())).thenReturn(null);
+
 		String jobLogFinished = flinkClient.getJobLog(jobIdentifier);
 		Assert.assertNotNull(jobLogFinished);
 	}
@@ -261,10 +280,9 @@ public class FlinkClientTest {
 	@Test
 	public void testJudgeSlots() throws Exception {
 
-		/*JobClient perJobClient = YarnMockUtil.mockJobClient("perJob", null);
+		// perjob judgeSlot
+		JobClient perJobClient = YarnMockUtil.mockJobClient("perJob", null);
 
-		ApplicationReport report = new ApplicationReportPBImpl();
-		report.setYarnApplicationState(YarnApplicationState.RUNNING);
 		List<NodeReport> nodeReports = new ArrayList<>();
 		NodeReport nodeReport = new NodeReportPBImpl();
 		nodeReport.setUsed(Resource.newInstance(0, 0));
@@ -284,22 +302,17 @@ public class FlinkClientTest {
 		JudgeResult perJudgeSlot = flinkClient.judgeSlots(perJobClient);
 		Assert.assertTrue(perJudgeSlot.available());
 
+		// session judgeSlot
 		JobClient jobClient = YarnMockUtil.mockJobClient("session", null);
-
-//		when(flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().isRunning()).thenReturn(true);
-		String webInterfaceURL = "http://dtstack01:8088";
-		ClusterClient clusterClient = PowerMockito.mock(ClusterClient.class);
-		when(clusterClient.getWebInterfaceURL()).thenReturn(webInterfaceURL);
+		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
 		when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
 
 		String taskmanagers = "{\"taskmanagers\":[{\"freeSlots\":9, \"slotsNumber\":4}]}";
 		PowerMockito.mockStatic(PoolHttpClient.class);
 		when(PoolHttpClient.get(any(String.class), anyObject(), any(int.class))).thenReturn(taskmanagers);
 
-		//when(flinkClient.getMessageByHttp(anyString())).thenReturn(taskmanagers);
-
 		JudgeResult judgeSlot = flinkClient.judgeSlots(jobClient);
-		Assert.assertTrue(judgeSlot.available());*/
+		Assert.assertTrue(judgeSlot.available());
 
 	}
 
@@ -345,35 +358,12 @@ public class FlinkClientTest {
 		Assert.assertNotNull(jobResult);
 	}
 
-	/*@Test
-	public void testGetJobStatus() throws Exception {
+	@Test
+	public void testGetRollingLogBaseInfo() throws Exception {
 		String jobId = "40c01cd0c53928fff6a55e8d8b8b022c";
 		String appId = "application_1594003499276_1278";
 		String taskId = "taskId";
-		JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobId, appId, taskId);
-
-		ApplicationReportPBImpl report = YarnMockUtil.mockApplicationReport(null);
-		when(yarnClient.getApplicationReport(any())).thenReturn(report);
-		when(flinkClientBuilder.getYarnClient()).thenReturn(yarnClient);
-
-		RdosTaskStatus jobStatus = flinkClient.getJobStatus(jobIdentifier);
-		Assert.assertNotNull(jobStatus);
-
-		PowerMockito.mockStatic(PoolHttpClient.class);
-		when(PoolHttpClient.get(any())).thenReturn("{\"state\":\"RUNNING\"}");
-
-		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
-		when(flinkClusterClientManager.getClusterClient(jobIdentifier)).thenReturn(clusterClient);
-		RdosTaskStatus jobStatus2 = flinkClient.getJobStatus(jobIdentifier);
-		Assert.assertNotNull(jobStatus2);
-	}*/
-
-	@Test
-	public void testGetJobMaster() throws Exception {
-		/*String jobId = "40c01cd0c53928fff6a55e8d8b8b022c";
-		String appId = "application_1594003499276_1278";
-		String taskId = "taskId";
-		JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobId, appId, taskId);
+		JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobId, appId, taskId, false);
 
 		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
 		when(flinkClusterClientManager.getClusterClient(any())).thenReturn(clusterClient);
@@ -382,8 +372,24 @@ public class FlinkClientTest {
 		when(yarnClient.getApplicationReport(any())).thenReturn(report);
 		when(flinkClientBuilder.getYarnClient()).thenReturn(yarnClient);
 
-		String jobMaster = flinkClient.getJobMaster(jobIdentifier);
-		Assert.assertNotNull(jobMaster);*/
+		PowerMockito.mockStatic(PoolHttpClient.class);
+		when(PoolHttpClient.get(any(String.class), any(int.class), any(Header[].class))).thenReturn("{\"app\":{\"id\":\"application_1606700198705_0193\",\"user\":\"admin\",\"name\":\"flinTest\",\"queue\":\"a\",\"state\":\"RUNNING\",\"finalStatus\":\"UNDEFINED\",\"trackingUrl\":\"http://dtstack01:8088/proxy/application_1606700198705_0193/\",\"applicationType\":\"Apache Flink\",\"amContainerLogs\":\"http://dtstack03:8042/node/containerlogs/container_e07_1606700198705_0193_01_000001/admin\"}}");
+
+		PowerMockito.mockStatic(Jsoup.class);
+		org.jsoup.nodes.Document document = PowerMockito.mock(org.jsoup.nodes.Document.class);
+		Elements elements = PowerMockito.mock(Elements.class);
+		when(elements.size()).thenReturn(1);
+		Element element = PowerMockito.mock(Element.class);
+		when(element.select(any(String.class))).thenReturn(elements);
+		when(element.attr(any(String.class))).thenReturn("http://dtstack01:8054/app/log?start=568");
+		when(element.text()).thenReturn("http://dtstack01:8054/app/log?start=568");
+		when(elements.get(any(int.class))).thenReturn(element);
+		when(document.getElementsByClass(any(String.class))).thenReturn(elements);
+		when(Jsoup.parse(any(String.class))).thenReturn(document);
+
+		List<String> logInfo = flinkClient.getRollingLogBaseInfo(jobIdentifier);
+		Assert.assertNotNull(logInfo);
+		Assert.assertTrue(logInfo.size() > 0);
 	}
 
 	@Test
@@ -405,56 +411,6 @@ public class FlinkClientTest {
 
 		flinkClient.afterSubmitFunc(jobClient);
 	}
-
-	@Test
-	public void testSubmitSqlJob() throws Exception {
-		JobClient jobClient = YarnMockUtil.mockJobClient("perJob", null);
-
-		MemberModifier.field(FlinkClient.class, "flinkConfig")
-				.set(flinkClient, new FlinkConfig());
-		MemberModifier.field(FlinkClient.class, "hadoopConf")
-				.set(flinkClient, new HadoopConf());
-		MemberModifier.field(FlinkClient.class, "cacheFile")
-				.set(flinkClient, Maps.newConcurrentMap());
-
-		String sqlPluginRootDir = temporaryFolder.newFolder("sqlPluginDir").getAbsolutePath();
-		temporaryFolder.newFolder("sqlPluginDir", "sqlplugin");
-		temporaryFolder.newFile("sqlPluginDir/sqlplugin/core-test.jar").getAbsolutePath();
-
-		Properties prop = new Properties();
-		prop.put("remotePluginRootDir", sqlPluginRootDir);
-		prop.put("flinkPluginRoot", sqlPluginRootDir);
-		String propStr = PublicUtil.objToString(prop);
-		SqlPluginInfo sqlPluginInfo = SqlPluginInfo.create(PublicUtil.jsonStrToObject(propStr, FlinkConfig.class));
-		MemberModifier.field(FlinkClient.class, "sqlPluginInfo")
-				.set(flinkClient, sqlPluginInfo);
-
-		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
-		YarnMockUtil.mockPackagedProgram();
-		ClusterSpecification clusterSpecification = YarnMockUtil.mockClusterSpecification();
-
-		when(flinkClusterClientManager.getClusterClient(null)).thenReturn(clusterClient);
-		when(flinkClientBuilder.getFlinkConfiguration()).thenReturn(new Configuration());
-
-		PowerMockito.mockStatic(FlinkConfUtil.class);
-		when(FlinkConfUtil.createClusterSpecification(any(Configuration.class), any(int.class), any(Properties.class)))
-				.thenReturn(clusterSpecification);
-
-		YarnClusterDescriptor yarnClusterDescriptor = YarnMockUtil.mockYarnClusterDescriptor(clusterClient);
-
-		PerJobClientFactory perJobClientFactory = PowerMockito.mock(PerJobClientFactory.class);
-		when(perJobClientFactory.createPerJobClusterDescriptor(any(JobClient.class)))
-				.thenReturn(yarnClusterDescriptor);
-		PowerMockito.mockStatic(PerJobClientFactory.class);
-
-		Class<? extends FlinkClient> flinkClientClass = flinkClient.getClass();
-		Method submitSqlJobMethod = flinkClientClass.getDeclaredMethod("submitSqlJob", JobClient.class);
-		submitSqlJobMethod.setAccessible(true);
-		JobResult jobResult = (JobResult) submitSqlJobMethod.invoke(flinkClient, jobClient);
-
-		Assert.assertTrue(jobResult.getMsgInfo().contains("submit job is success"));
-	}
-
 
 	@Test
 	public void testGetReqUrl() {
