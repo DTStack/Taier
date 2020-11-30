@@ -156,7 +156,7 @@ public class JobRestartDealer {
     private void setCheckpointPath(JobClient jobClient){
 
         String checkpoint = jobClient.getConfProperties().getProperty("openCheckpoint");
-        boolean openCheckpoint = Boolean.parseBoolean(checkpoint!=null ? checkpoint.trim():null);
+        boolean openCheckpoint = checkpoint != null && Boolean.parseBoolean(checkpoint.trim());
         if (!openCheckpoint){
             return;
         }
