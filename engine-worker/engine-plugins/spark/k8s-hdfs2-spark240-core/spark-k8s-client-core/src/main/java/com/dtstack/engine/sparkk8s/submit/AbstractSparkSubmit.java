@@ -21,6 +21,7 @@ package com.dtstack.engine.sparkk8s.submit;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.sftp.SftpConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.k8s.submit.ClientArguments;
@@ -28,8 +29,8 @@ import org.apache.spark.deploy.k8s.submit.DtKubernetesClientApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Date: 2020/7/9
@@ -52,8 +53,20 @@ public abstract class AbstractSparkSubmit implements SparkSubmit {
      * @param sftpDir
      * @param sparkConf
      */
-    public void fillSftpConfig(String sftpDir, SparkConf sparkConf, Map<String, String> sftpConf) {
-        sftpConf.forEach((k, v) -> sparkConf.set(SFTP_FLAG + k, v));
+    public void fillSftpConfig(String sftpDir, SparkConf sparkConf, SftpConfig sftpConfig) {
+        try {
+            Field[] fields = SftpConfig.class.getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                if (field.get(sftpConfig) != null) {
+                    sparkConf.set(SFTP_FLAG + field.getName(), field.get(sftpConfig).toString());
+                }
+            }
+        } catch (Exception e){
+            throw new RdosDefineException(e);
+        }
+
+//        sftpConf.forEach((k, v) -> sparkConf.set(SFTP_FLAG + k, v));
         sparkConf.set(SFTP_REMOTE_PATH_KEY, sftpDir);
         sparkConf.set(SFTP_LOCAL_PATH_KEY, DEFAULT_USERJAR_LOCATION);
     }

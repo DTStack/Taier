@@ -1,6 +1,7 @@
 package com.dtstack.engine.api.vo;
 
 import com.dtstack.engine.api.domain.KerberosConfig;
+import java.sql.Timestamp;
 import io.swagger.annotations.ApiModel;
 import org.springframework.beans.BeanUtils;
 
@@ -11,6 +12,10 @@ public class KerberosConfigVO extends KerberosConfig {
     private String keytabPath;
 
     private Map hdfsConfig;
+
+    private Timestamp kerberosFileTimestamp;
+
+
 
     public static KerberosConfigVO toVO(KerberosConfig config) {
         KerberosConfigVO kerberosConfigVO = new KerberosConfigVO();
@@ -32,6 +37,14 @@ public class KerberosConfigVO extends KerberosConfig {
 
     public void setHdfsConfig(Map hdfsConfig) {
         this.hdfsConfig = hdfsConfig;
+    }
+
+    public Timestamp getKerberosFileTimestamp() {
+        return kerberosFileTimestamp;
+    }
+
+    public void setKerberosFileTimestamp(Timestamp kerberosFileTimestamp) {
+        this.kerberosFileTimestamp = kerberosFileTimestamp;
     }
 }
 

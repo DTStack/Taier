@@ -4,22 +4,22 @@
 
     <sql id="select_content_fragment">
       id,tenant_id,task_id,project_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,app_type,dtuic_tenant_id,
-      schedule_status,project_schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,is_publish_to_produce,is_expire
+      schedule_status,project_schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,is_publish_to_produce
     </sql>
 
     <sql id="select_content_fragment_with_sql">
         id,tenant_id,task_id,project_id,node_pid,name,task_type,engine_type,compute_type,task_params,schedule_conf,period_type,app_type,dtuic_tenant_id,
-      schedule_status,project_schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,is_publish_to_produce,is_expire
+      schedule_status,project_schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,is_publish_to_produce
     </sql>
 
     <sql id="alias_select_content_fragment">
         ts.id,ts.tenant_id,ts.task_id,ts.project_id,ts.node_pid,ts.name,ts.task_type,ts.app_type,ts.engine_type,ts.compute_type,ts.sql_text,ts.task_params,ts.schedule_conf,ts.period_type,
-        ts.schedule_status,ts.project_schedule_status,ts.submit_status,ts.gmt_create,ts.gmt_modified,ts.modify_user_id,ts.create_user_id,ts.owner_user_id,ts.version_id,ts.is_deleted,ts.task_desc,ts.main_class,ts.exe_args,ts.flow_id,ts.is_publish_to_produce,ts.dtuic_tenant_id,ts.is_expire
+        ts.schedule_status,ts.project_schedule_status,ts.submit_status,ts.gmt_create,ts.gmt_modified,ts.modify_user_id,ts.create_user_id,ts.owner_user_id,ts.version_id,ts.is_deleted,ts.task_desc,ts.main_class,ts.exe_args,ts.flow_id,ts.is_publish_to_produce,ts.dtuic_tenant_id
     </sql>
 
     <sql id="simple_select_content_fragment">
         id,tenant_id,project_id,name,task_type,engine_type,compute_type,period_type,schedule_conf,task_id,app_type,
-        schedule_status,project_schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,flow_id,is_publish_to_produce,dtuic_tenant_id,is_expire
+        schedule_status,project_schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,flow_id,is_publish_to_produce,dtuic_tenant_id
     </sql>
 
     <sql id="select_where_fragment">
@@ -229,7 +229,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_task_shade
-        WHERE task_id = #{taskId} AND is_deleted = 0 and app_type = #{appType}
+        WHERE task_id = #{taskId} AND is_deleted = 0 and app_type = #{appType} LIMIT 1
     </select>
 
     <select id="listTaskByStatus" resultType="ScheduleTaskShade">
@@ -399,10 +399,10 @@
     <insert id="insert" parameterType="ScheduleTaskShade" useGeneratedKeys="false" keyProperty="id">
         INSERT IGNORE INTO schedule_task_shade
         (tenant_id,project_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,
-         schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,app_type,dtuic_tenant_id,task_id,is_expire,project_schedule_status)
+         schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,app_type,dtuic_tenant_id,task_id,project_schedule_status)
         VALUES
         (#{tenantId},#{projectId},#{nodePid},#{name},#{taskType},#{engineType},#{computeType},#{sqlText},#{taskParams},#{scheduleConf},#{periodType},
-         #{scheduleStatus},#{submitStatus},#{gmtCreate},#{gmtModified},#{modifyUserId},#{createUserId},#{ownerUserId},#{versionId},#{isDeleted},#{taskDesc},#{mainClass},#{exeArgs},#{flowId},#{appType},#{dtuicTenantId},#{taskId},#{isExpire},#{projectScheduleStatus})
+         #{scheduleStatus},#{submitStatus},#{gmtCreate},#{gmtModified},#{modifyUserId},#{createUserId},#{ownerUserId},#{versionId},#{isDeleted},#{taskDesc},#{mainClass},#{exeArgs},#{flowId},#{appType},#{dtuicTenantId},#{taskId},#{projectScheduleStatus})
     </insert>
 
     <update id="update" parameterType="ScheduleTaskShade">
@@ -667,6 +667,7 @@
         <if test="isDeleted != null">
             AND is_deleted = #{isDeleted}
         </if>
+        LIMIT 1
     </select>
 
 

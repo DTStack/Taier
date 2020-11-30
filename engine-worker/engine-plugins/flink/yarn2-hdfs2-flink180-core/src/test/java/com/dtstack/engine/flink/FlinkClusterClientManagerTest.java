@@ -65,7 +65,7 @@ public class FlinkClusterClientManagerTest {
 		String engineId = "engineId";
 		String appId = "application_1593762151957_0080";
 		String taskId = "taskId";
-		JobIdentifier jobIdentifier = new JobIdentifier(engineId,appId, taskId);
+		JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineId,appId, taskId);
 
 		Cache<String, ClusterClient> perJobClientCache = CacheBuilder
 			.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
@@ -85,13 +85,6 @@ public class FlinkClusterClientManagerTest {
 
 		ClusterClient clusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
 		Assert.assertNotNull(clusterClient);
-	}
-
-	@Test
-	public void testAddClient() {
-		String applicationId = "application_1593762151957_0080";
-
-		flinkClusterClientManager.addClient(applicationId, clusterClient);
 	}
 
 	@Test

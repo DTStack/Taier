@@ -1,0 +1,1 @@
+ALTER TABLE schedule_task_shade DROP COLUMN `is_expire`;

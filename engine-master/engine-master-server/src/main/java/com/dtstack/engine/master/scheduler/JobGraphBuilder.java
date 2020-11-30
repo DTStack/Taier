@@ -382,9 +382,19 @@ public class JobGraphBuilder {
         for (int idx = 0; idx < triggerDayList.size(); idx++) {
             String triggerTime = triggerDayList.get(idx);
             String nextTriggerTime = null;
-            if ((scheduleCron.getPeriodType() == ESchedulePeriodType.MIN.getVal() || scheduleCron.getPeriodType() == ESchedulePeriodType.HOUR.getVal())
-                    && (idx < triggerDayList.size() - 1)) {
-                nextTriggerTime = triggerDayList.get(idx + 1);
+            if ((scheduleCron.getPeriodType() == ESchedulePeriodType.MIN.getVal() || scheduleCron.getPeriodType() == ESchedulePeriodType.HOUR.getVal())) {
+                if ((idx < triggerDayList.size() - 1)) {
+                    //不是当前最后一个
+                    nextTriggerTime = triggerDayList.get(idx + 1);
+                } else {
+                    DateTime nextDayExecute = new DateTime(jobBuildTime.getTime()).plusDays(1);
+                    //当前最后一个
+                    List<String> nextTriggerDays = scheduleCron.getTriggerTime(nextDayExecute.toString("yyyy-MM-dd"));
+                    if (CollectionUtils.isNotEmpty(nextTriggerDays)) {
+                        nextTriggerTime = nextTriggerDays.get(0);
+                    }
+                }
+
             }
 
             ScheduleJob scheduleJob = new ScheduleJob();

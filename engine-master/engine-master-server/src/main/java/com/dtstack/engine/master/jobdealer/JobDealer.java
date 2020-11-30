@@ -249,14 +249,14 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
             Long userId = info.getLong("userId");
             String pluginInfo = info.getString("pluginInfo");
             JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId,dtuicTenantId,engineType,
-                    scheduleJobService.parseDeployTypeByTaskParams(taskParams,engineJobCache.getComputeType()).getType(),userId,pluginInfo);
+                    scheduleJobService.parseDeployTypeByTaskParams(taskParams,engineJobCache.getComputeType(),engineJobCache.getEngineType()).getType(),userId,pluginInfo);
             //从engine获取log
             engineLog = workerOperator.getEngineLog(jobIdentifier);
             if (engineLog != null) {
                 scheduleJobDao.updateEngineLog(jobId, engineLog);
             }
         } catch (Throwable e) {
-            LOG.error("getAndUpdateEngineLog error jobId:{} error:{}.", jobId, e);
+            LOG.error("getAndUpdateEngineLog error jobId:{} error:.", jobId, e);
         }
         return engineLog;
     }
@@ -313,7 +313,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                     }
                 }
             } catch (Exception e) {
-                LOG.error("----broker:{} RecoverDealer error:{}", localAddress, e);
+                LOG.error("----broker:{} RecoverDealer error:", localAddress, e);
             }
 
             LOG.info("-----重启后任务结束恢复-----");

@@ -184,7 +184,7 @@ public interface ScheduleJobDao {
 
     Integer updateStatusAndLogInfoById(@Param("id") Long id, @Param("status") Integer status, @Param("logInfo") String logInfo);
 
-    Integer updateStatusByJobId(@Param("jobId") String jobId, @Param("status") Integer status, @Param("logInfo") String logInfo);
+    Integer updateStatusByJobId(@Param("jobId") String jobId, @Param("status") Integer status, @Param("logInfo") String logInfo,@Param("versionId") Integer versionId);
 
     List<ScheduleJob> listByBusinessDateAndPeriodTypeAndStatusList(PageQuery<ScheduleJobDTO> pageQuery);
 

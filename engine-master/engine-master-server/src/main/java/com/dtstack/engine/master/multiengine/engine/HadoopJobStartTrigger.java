@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.multiengine.engine;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.engine.api.domain.ScheduleJob;
@@ -11,6 +10,7 @@ import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -18,7 +18,7 @@ import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.EDeployMode;
+import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ClusterService;
@@ -160,6 +160,13 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             if (StringUtils.isNotBlank(sql) && sql.contains(TaskConstant.UPLOADPATH)) {
                 sql = sql.replace(TaskConstant.UPLOADPATH, uploadPath);
             }
+        } else if(taskShade.getEngineType().equals(ScheduleEngineType.Hadoop.getVal())){
+            //hadoop mr提交 不用上传文件
+            String exeArgs = (String) actionParam.get("exeArgs");
+            if (StringUtils.isNotBlank(exeArgs)) {
+                //替换系统参数
+                taskExeArgs = jobParamReplace.paramReplace(exeArgs, taskParamsToReplace, scheduleJob.getCycTime());
+            }
         }
 
         if (taskExeArgs != null) {
@@ -243,10 +250,12 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
         //TODO 数据资产任务值为空 需要设置默认值
         Integer sourceType = (Integer) actionParam.getOrDefault("dataSourceType", DataSourceType.HIVE.getVal());
+        //有可能 mysql-kudu 脏数据表是hive 用以区分数据同步目标表类型 还是脏数据表类型
+        Integer dirtyDataSourceType = (Integer) actionParam.getOrDefault("dirtyDataSourceType", DataSourceType.HIVE.getVal());
         String engineIdentity = (String) actionParam.get("engineIdentity");
         // 获取脏数据存储路径
         try {
-            job = this.replaceTablePath(true, job, taskShade.getName(), sourceType, engineIdentity,taskShade.getDtuicTenantId());
+            job = this.replaceTablePath(true, job, taskShade.getName(), dirtyDataSourceType, engineIdentity,taskShade.getDtuicTenantId());
         } catch (Exception e) {
             LOG.error("create dirty table  partition error {}", scheduleJob.getJobId(), e);
         }
@@ -309,13 +318,13 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 String alterSql = String.format(ADD_PART_TEMP, tableName, taskName, time);
                 String location = "";
                 if (DataSourceType.IMPALA.getVal() == sourceType) {
-                    String jdbcInfo = clusterService.impalaInfo(dtuicTenantId, true);
+                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId, EComponentType.IMPALA_SQL.getConfName(),true,Boolean.TRUE);
                     JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataBaseType.Impala.getTypeName());
                     workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, DataBaseType.Impala.getTypeName(), String.format("DESCRIBE formatted %s", tableName));
                 } else if (DataSourceType.HIVE.getVal() == sourceType || DataSourceType.HIVE1X.getVal() == sourceType) {
-                    String jdbcInfo = clusterService.hiveInfo(dtuicTenantId, true);
+                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId,EComponentType.SPARK_THRIFT.getConfName(), true,Boolean.TRUE);
                     JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
                     String engineType = DataSourceType.HIVE.getVal() == sourceType ? DataBaseType.HIVE.getTypeName() : DataBaseType.HIVE1X.getTypeName();
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, engineType);
@@ -360,9 +369,9 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
         if (parameter.containsKey("partition") && parameter.containsKey("connection")) {
             JSONObject connection = parameter.getJSONArray("connection").getJSONObject(0);
-            String username = parameter.containsKey("username") ? parameter.getString("username") : "";
-            String password = parameter.containsKey("password") ? parameter.getString("password") : "";
-            String jdbcUrl = connection.getString("jdbcUrl");
+            String username = parameter.containsKey(ConfigConstant.USERNAME) ? parameter.getString(ConfigConstant.USERNAME) : "";
+            String password = parameter.containsKey(ConfigConstant.PASSWORD) ? parameter.getString(ConfigConstant.PASSWORD) : "";
+            String jdbcUrl = connection.getString(ConfigConstant.JDBCURL);
             String table = connection.getJSONArray("table").getString(0);
 
             String partition = parameter.getString("partition");
@@ -402,7 +411,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     return null;
                 }, 3, 2000, false, Lists.newArrayList(SocketTimeoutException.class));
             } catch (Exception e) {
-                LOG.error("create partition error", e);
+                LOG.error("create partition error:", e);
                 throw new RdosDefineException("create partition error:" + ExceptionUtil.getErrorMessage(e));
             }
         }
@@ -420,28 +429,45 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
      */
     private JSONObject buildDataSourcePluginInfo(JSONObject hadoopConfig, Integer sourceType, String username, String password, String jdbcUrl) {
         JSONObject pluginInfo = new JSONObject();
-        pluginInfo.put("jdbcUrl", jdbcUrl);
-        pluginInfo.put("username", username);
-        pluginInfo.put("password", password);
+        pluginInfo.put(ConfigConstant.JDBCURL, jdbcUrl);
+        pluginInfo.put(ConfigConstant.USERNAME, username);
+        pluginInfo.put(ConfigConstant.PASSWORD, password);
         pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataSourceType.getBaseType(sourceType).getTypeName());
         if (null == hadoopConfig) {
             return pluginInfo;
         }
-        boolean isOpenKerberos = "kerberos".equalsIgnoreCase(hadoopConfig.getString("hadoop.security.authentication"))
-                || "kerberos".equalsIgnoreCase(hadoopConfig.getString("hive.server2.authentication"))
-                || "kerberos".equalsIgnoreCase(hadoopConfig.getString("hive.server.authentication"));
+        boolean isOpenKerberos = ConfigConstant.KERBEROS.equalsIgnoreCase(hadoopConfig.getString("hadoop.security.authentication"))
+                || ConfigConstant.KERBEROS.equalsIgnoreCase(hadoopConfig.getString("hive.server2.authentication"))
+                || ConfigConstant.KERBEROS.equalsIgnoreCase(hadoopConfig.getString("hive.server.authentication"));
         if (isOpenKerberos) {
-            JSONObject config = new JSONObject();
             //开启了kerberos 用数据同步中job 中配置项
-            pluginInfo.put("openKerberos", "true");
-            config.put("openKerberos", "true");
-            config.put("remoteDir", hadoopConfig.getString("remoteDir"));
-            config.put("principalFile", hadoopConfig.getString("principalFile"));
+            pluginInfo.put(ConfigConstant.OPEN_KERBEROS, Boolean.TRUE.toString());
+            String remoteDir = hadoopConfig.getString(ConfigConstant.REMOTE_DIR);
+            if(StringUtils.isBlank(remoteDir)){
+                throw new RdosDefineException("数据同步hadoopConfig remoteDir 字段不能为空");
+            }
+            pluginInfo.put(ConfigConstant.REMOTE_DIR,remoteDir);
+
+            String principalFile = hadoopConfig.getString(ConfigConstant.PRINCIPAL_FILE);
+            if(StringUtils.isBlank(principalFile)){
+                throw new RdosDefineException("数据同步hadoopConfig principalFile 字段不能为空");
+            }
+            pluginInfo.put(ConfigConstant.PRINCIPAL_FILE,principalFile);
+
+            JSONObject sftpConf = hadoopConfig.getJSONObject(EComponentType.SFTP.getConfName());
+            if (null == sftpConf || sftpConf.size() <= 0) {
+                throw new RdosDefineException("数据同步hadoopConfig sftpConf 字段不能为空");
+            }
+            pluginInfo.put(EComponentType.SFTP.getConfName(), sftpConf);
             //krb5.conf的文件名
-            config.put("krbName", hadoopConfig.getString("java.security.krb5.conf"));
-            config.put("yarnConf", hadoopConfig);
-            pluginInfo.put("sftpConf", hadoopConfig.getJSONObject("sftpConf"));
-            pluginInfo.put("config", config);
+            String krb5Conf = hadoopConfig.getString(ConfigConstant.JAVA_SECURITY_KRB5_CONF);
+            if(StringUtils.isBlank(krb5Conf)){
+                //平台不传 暂时设置默认值
+                krb5Conf = ConfigConstant.KRB5_CONF;
+            }
+            pluginInfo.put(ConfigConstant.KRB_NAME, krb5Conf);
+            pluginInfo.put(EComponentType.YARN.getConfName(), hadoopConfig);
+
         }
         return pluginInfo;
     }
@@ -482,11 +508,11 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         if (CollectionUtils.isEmpty(componentsConfigOfComponentsVOS)) {
             return null;
         }
-        Optional<ComponentsConfigOfComponentsVO> flinkComponent = componentsConfigOfComponentsVOS.stream().filter(c -> c.getComponentTypeCode() == EComponentType.FLINK.getTypeCode()).findFirst();
+        Optional<ComponentsConfigOfComponentsVO> flinkComponent = componentsConfigOfComponentsVOS.stream().filter(c -> c.getComponentTypeCode().equals(EComponentType.FLINK.getTypeCode())).findFirst();
         if(flinkComponent.isPresent()){
             ComponentsConfigOfComponentsVO componentsVO = flinkComponent.get();
             JSONObject flinkJsonObject = JSONObject.parseObject(componentsVO.getComponentConfig());
-            EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam,computeType);
+            EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam,computeType, EngineType.Flink.name());
             JSONObject flinkConfig = flinkJsonObject.getJSONObject(eDeployMode.getMode());
             String prometheusHost = flinkConfig.getString("prometheusHost");
             String prometheusPort = flinkConfig.getString("prometheusPort");
@@ -529,13 +555,13 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
     /**
      * 获取flink任务checkpoint的存储路径
      *
-     * @param tenantId 租户id
+     * @param dtuicTenantId 租户id
      * @return checkpoint存储路径
      */
     private String getSavepointPath(Long dtuicTenantId) {
         String clusterInfoStr = clusterService.clusterInfo(dtuicTenantId);
         JSONObject clusterJson = JSONObject.parseObject(clusterInfoStr);
-        JSONObject flinkConf = clusterJson.getJSONObject("flinkConf");
+        JSONObject flinkConf = clusterJson.getJSONObject(EComponentType.FLINK.getConfName());
         if (!flinkConf.containsKey(KEY_SAVEPOINT)) {
             return null;
         }
@@ -553,7 +579,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
     private String buildSyncTaskExecArgs(String savepointPath, String taskParams) throws Exception {
         Properties properties = new Properties();
-        properties.load(new ByteArrayInputStream(taskParams.getBytes("UTF-8")));
+        properties.load(new ByteArrayInputStream(taskParams.getBytes(Charsets.UTF_8.name())));
         String interval = properties.getProperty(KEY_CHECKPOINT_INTERVAL, DEFAULT_VAL_CHECKPOINT_INTERVAL);
 
         JSONObject confProp = new JSONObject();

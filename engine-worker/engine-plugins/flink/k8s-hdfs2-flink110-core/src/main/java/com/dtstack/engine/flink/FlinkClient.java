@@ -2,6 +2,8 @@ package com.dtstack.engine.flink;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.enums.EDeployMode;
+import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
@@ -16,10 +18,8 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.util.SFTPHandler;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
-import com.dtstack.engine.flink.entity.LatencyMarkerInfo;
 import com.dtstack.engine.flink.enums.FlinkMode;
 import com.dtstack.engine.flink.factory.PerJobClientFactory;
 import com.dtstack.engine.flink.parser.AddJarOperator;
@@ -67,6 +67,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.security.AccessController.doPrivileged;
@@ -102,6 +103,10 @@ public class FlinkClient extends AbstractClient {
 
     private String jobHistory;
 
+    private FilesystemManager filesystemManager;
+
+    private final static Predicate<RdosTaskStatus> IS_END_STATUS = status -> RdosTaskStatus.getStoppedStatus().contains(status.getStatus()) || RdosTaskStatus.NOTFOUND.equals(status);
+
     @Override
     public void init(Properties prop) throws Exception {
 
@@ -116,10 +121,13 @@ public class FlinkClient extends AbstractClient {
 
         initHadoopConf(flinkConfig);
 
-        FlinkUtil.downloadK8sConfig(prop, flinkConfig);
+        filesystemManager = new FilesystemManager(hadoopConf, flinkConfig.getSftpConf());
+
+        FlinkUtil.downloadK8sConfig(prop, flinkConfig, filesystemManager);
 
         flinkClientBuilder = new FlinkClientBuilder(flinkConfig, hadoopConf, prop);
         kubernetesClient = flinkClientBuilder.getKubernetesClient();
+
 
         flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
     }
@@ -202,7 +210,7 @@ public class FlinkClient extends AbstractClient {
 
         try {
             Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
-            packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, jobClient.getJobType(), entryPointClass, programArgs, spSettings, hadoopConf, tmpConfiguration);
+            packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, jobClient.getJobType(), entryPointClass, programArgs, spSettings, tmpConfiguration, filesystemManager);
             jobGraph = PackagedProgramUtils.createJobGraph(packagedProgram, tmpConfiguration, runParallelism, false);
 
             fillJobGraphClassPath(jobGraph);
@@ -375,7 +383,7 @@ public class FlinkClient extends AbstractClient {
                 logger.info("Job[{}] Savepoint completed. Path:{}", jobID.toString(), savepointPath);
             }
         } catch (Exception e) {
-            logger.error("Stop job error: {}", e.getMessage());
+            logger.error("Stop job error:", e);
 
             if (isSession) {
                 logger.error("", e);
@@ -485,14 +493,12 @@ public class FlinkClient extends AbstractClient {
     public String getJobLog(JobIdentifier jobIdentifier) {
 
         String jobId = jobIdentifier.getEngineJobId();
-        String applicationId = jobIdentifier.getApplicationId();
-
-        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
         String reqURL;
 
-        //从jobhistory读取
-        boolean isFromJobHistory = RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus()) || rdosTaskStatus.equals(RdosTaskStatus.NOTFOUND);
-        if (StringUtils.isNotBlank(applicationId) && isFromJobHistory) {
+        if (EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode()) && IS_END_STATUS.test(getJobStatus(jobIdentifier))) {
+            /**
+             * perjob 且结束时从 jobhistory 读取
+             */
             reqURL = getJobHistoryURL();
         } else {
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
@@ -560,8 +566,8 @@ public class FlinkClient extends AbstractClient {
                 return seesionResourceInfo.judgeSlots(jobClient);
             }
         } catch (Exception e) {
-            logger.error("judgeSlots error:{}", e);
-            return JudgeResult.notOk("judgeSlots error");
+            logger.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -587,9 +593,9 @@ public class FlinkClient extends AbstractClient {
                 sftpFiles.add(addFilePath);
                 File tmpFile = null;
                 try {
-                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf, flinkConfig.getSftpConf());
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
+                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, filesystemManager, false);
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
                 }
                 if (tmpFile == null) {
                     throw new RuntimeException("JAR file does not exist: " + addFilePath);
@@ -620,7 +626,7 @@ public class FlinkClient extends AbstractClient {
         try {
             FlinkConfig flinkConfig = PublicUtil.jsonStrToObject(jobClient.getPluginInfo(), FlinkConfig.class);
             Properties prop = PublicUtil.stringToProperties(jobClient.getPluginInfo());
-            FlinkUtil.downloadK8sConfig(prop, flinkConfig);
+            FlinkUtil.downloadK8sConfig(prop, flinkConfig, filesystemManager);
         } catch (IOException e) {
             throw new RuntimeException("k8s config file download fail");
         }
@@ -650,14 +656,13 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public String getCheckpoints(JobIdentifier jobIdentifier) {
-        String appId = jobIdentifier.getApplicationId();
-        String jobId = jobIdentifier.getEngineJobId();
-
-        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+        String engineJobId = jobIdentifier.getEngineJobId();
 
         String reqURL = "";
-        boolean isFromJobHistory = RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus()) || rdosTaskStatus.equals(RdosTaskStatus.NOTFOUND);
-        if (isFromJobHistory) {
+        if (EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode()) && IS_END_STATUS.test(getJobStatus(jobIdentifier))) {
+            /**
+             * perjob 且结束时从 jobhistory 读取
+             */
             reqURL = getJobHistoryURL();
         } else {
             ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
@@ -665,7 +670,7 @@ public class FlinkClient extends AbstractClient {
         }
 
         try {
-            return getMessageByHttp(String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, jobId), reqURL);
+            return getMessageByHttp(String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, engineJobId), reqURL);
         } catch (IOException e) {
             logger.error("", e);
             return null;
@@ -726,8 +731,7 @@ public class FlinkClient extends AbstractClient {
 
             String localKeytab = confProperties.getProperty(ConfigConstrant.SECURITY_KERBEROS_LOGIN_KEYTAB);
             if (StringUtils.isNotBlank(localKeytab) && !(new File(localKeytab).exists())) {
-                SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
-                handler.downloadFile(sftpKeytab, localKeytab);
+                filesystemManager.downloadFile(sftpKeytab, localKeytab);
             }
         } catch (Exception e) {
             logger.error("Download keytab from sftp failed", e);

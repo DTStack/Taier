@@ -32,7 +32,8 @@ public enum JobCheckStatus {
     DEPENDENCY_JOB_FROZEN(12, "依赖任务链路存在任务处于冻结状态"),
     CHILD_PRE_NOT_FINISHED(13, "下游任务的上一个周期未结束"),
     DEPENDENCY_JOB_EXPIRE(14, "依赖任务链路存在任务处于过期状态"),
-    CHILD_PRE_NOT_SUCCESS(15, "下游任务的上一个周期失败");
+    CHILD_PRE_NOT_SUCCESS(15, "下游任务的上一个周期失败"),
+    RESOURCE_OVER_LIMIT(16,"任务资源大小超过租户设置的大小");
 
     private int status;
 

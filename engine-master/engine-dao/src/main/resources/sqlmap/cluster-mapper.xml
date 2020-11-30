@@ -56,7 +56,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM console_cluster
-        WHERE cluster_name = #{clusterName} AND is_deleted = 0
+        WHERE cluster_name = #{clusterName} AND is_deleted = 0 LIMIT 1
     </select>
 
     <select id="getOne" resultType="Cluster">

@@ -18,12 +18,14 @@
 
 package com.dtstack.engine.sparkk8s;
 
+import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.AbstractClient;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
@@ -68,13 +70,17 @@ public class SparkK8sClient extends AbstractClient {
 
     private volatile KubernetesClient k8sClient;
 
+    private FilesystemManager filesystemManager;
+
     @Override
     public void init(Properties prop) throws Exception {
         this.sparkDefaultProp = prop;
         this.sparkK8sConfig = PublicUtil.jsonStrToObject(PublicUtil.objToString(prop), SparkK8sConfig.class);
-        this.hdfsConfPath = SparkConfigUtil.downloadHdfsAndHiveConf(sparkK8sConfig);
 
-        String k8sConfigPath = SparkConfigUtil.downloadK8sConfig(sparkK8sConfig);
+        this.filesystemManager = new FilesystemManager(null, sparkK8sConfig.getSftpConf());
+
+        this.hdfsConfPath = SparkConfigUtil.downloadHdfsAndHiveConf(filesystemManager, sparkK8sConfig);
+        String k8sConfigPath = SparkConfigUtil.downloadK8sConfig(filesystemManager, sparkK8sConfig);
         sparkDefaultProp.setProperty(ExtendConfig.KUBERNETES_KUBE_CONFIG_KEY(),k8sConfigPath);
 
         k8sClient = getK8sClient();
@@ -150,7 +156,7 @@ public class SparkK8sClient extends AbstractClient {
     public void beforeSubmitFunc(JobClient jobClient) {
         try {
             SparkK8sConfig sparkK8sConfig = PublicUtil.jsonStrToObject(jobClient.getPluginInfo(), SparkK8sConfig.class);
-            String k8sConfigPath = SparkConfigUtil.downloadK8sConfig(sparkK8sConfig);
+            String k8sConfigPath = SparkConfigUtil.downloadK8sConfig(filesystemManager, sparkK8sConfig);
             sparkDefaultProp.setProperty(ExtendConfig.KUBERNETES_KUBE_CONFIG_KEY(), k8sConfigPath);
         } catch (IOException e) {
             throw new RuntimeException("k8s config file download fail");
@@ -193,8 +199,8 @@ public class SparkK8sClient extends AbstractClient {
                     .build();
             return sparkResourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
-            LOG.error("judgeSlots error:{}",jobClient.getTaskId(), e);
-            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
+            LOG.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -226,14 +232,14 @@ public class SparkK8sClient extends AbstractClient {
                 k8sClient.getMasterUrl();
             }
         } catch (Throwable e) {
-            LOG.error("getK8sClient error:{}", e);
+            LOG.error("getK8sClient error:", e);
             synchronized (this) {
                 if (k8sClient != null) {
                     try {
                         //判断下是否可用
                         k8sClient.getMasterUrl();
                     } catch (Throwable e1) {
-                        LOG.error("getYarnClient error:{}", e1);
+                        LOG.error("getYarnClient error:", e1);
                         k8sClient = null;
                     }
                 }

@@ -140,7 +140,7 @@ public class FailoverStrategy {
                 String currDayStr = sdfDay.format(Calendar.getInstance().getTime());
                 jobGraphBuilder.buildTaskJobGraph(currDayStr);
             } catch (Exception e) {
-                LOG.error("----jobGraphChecker error:{}", e);
+                LOG.error("----jobGraphChecker error:", e);
             }
         }
     }
@@ -174,7 +174,7 @@ public class FailoverStrategy {
                     LOG.warn("----- nodeAddress:{} 节点容灾任务结束恢复-----", node);
                 }
             } catch (Exception e) {
-                LOG.error("----faultTolerantRecover error:{}", e);
+                LOG.error("----faultTolerantRecover error:", e);
             }
         }
 
@@ -228,7 +228,7 @@ public class FailoverStrategy {
 
             LOG.warn("----- nodeAddress:{} BatchJob 任务结束恢复-----", nodeAddress);
         } catch (Exception e) {
-            LOG.error("----nodeAddress:{} faultTolerantRecoverBatchJob error:{}", nodeAddress, e);
+            LOG.error("----nodeAddress:{} faultTolerantRecoverBatchJob error:", nodeAddress, e);
         }
     }
 
@@ -320,7 +320,7 @@ public class FailoverStrategy {
             }
             LOG.warn("----- nodeAddress:{} JobCache 任务结束恢复-----", nodeAddress);
         } catch (Exception e) {
-            LOG.error("----nodeAddress:{} faultTolerantRecoverJobCache error:{}", nodeAddress, e);
+            LOG.error("----nodeAddress:{} faultTolerantRecoverJobCache error:", nodeAddress, e);
         }
     }
 
