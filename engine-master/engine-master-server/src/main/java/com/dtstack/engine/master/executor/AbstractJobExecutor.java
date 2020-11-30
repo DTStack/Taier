@@ -96,6 +96,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         logger.info("Initializing scheduleType:{} acquireQueueJobInterval:{} queueSize:{}", getScheduleType(), env.getAcquireQueueJobInterval(), env.getQueueSize());
 
         scheduleJobQueue = new LinkedBlockingQueue<>(env.getQueueSize());
+        RUNNING.compareAndSet(false, true);
 
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(getScheduleType() + "_AcquireJob"));
         scheduledService.scheduleWithFixedDelay(
@@ -130,9 +131,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
             ScheduleJob scheduleJob = null;
             try {
-                if(null == scheduleJobQueue){
-                    continue;
-                }
                 ScheduleBatchJob scheduleBatchJob = scheduleJobQueue.take();
                 scheduleJob = scheduleBatchJob.getScheduleJob();
 
