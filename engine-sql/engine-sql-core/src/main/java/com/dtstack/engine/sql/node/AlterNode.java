@@ -58,6 +58,19 @@ public class AlterNode extends Node {
      */
     private List<Pair<String,String>> renamePart;
 
+    /**
+     * 修改location
+     */
+    private String newLocation;
+
+    public String getNewLocation() {
+        return newLocation;
+    }
+
+    public void setNewLocation(String newLocation) {
+        this.newLocation = newLocation;
+    }
+
     public List<Pair<String,String>> getRenamePart() {
         return renamePart;
     }

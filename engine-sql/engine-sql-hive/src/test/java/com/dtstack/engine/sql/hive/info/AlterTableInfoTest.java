@@ -1,8 +1,10 @@
 package com.dtstack.engine.sql.hive.info;
 
+import com.dtstack.engine.sql.AlterResult;
 import com.dtstack.engine.sql.ParseResult;
 import com.dtstack.engine.sql.SqlParserImpl;
 import com.dtstack.engine.sql.SqlType;
+import com.dtstack.engine.sql.TableOperateEnum;
 import com.dtstack.engine.sql.hive.HiveSqlBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -64,5 +66,16 @@ public class AlterTableInfoTest extends HiveSqlBaseTest {
         String sql = readStringFromResource("info/alterTableRenamePartition.sql");
         ParseResult dev = hiveSqlParser.parseSql(sql, "dev", new HashMap<>());
         Assert.assertEquals(dev.getSqlType(), SqlType.ALTER);
+    }
+
+    @Test
+    public void testAlterTableLocation() throws Exception {
+        SqlParserImpl hiveSqlParser = getHiveSqlParser();
+        String sql = readStringFromResource("info/alterTableSetLocation.sql");
+        ParseResult dev = hiveSqlParser.parseSql(sql, "dev", new HashMap<>());
+        AlterResult alterResult = dev.getAlterResult();
+        Assert.assertNotNull(alterResult);
+        Assert.assertEquals(alterResult.getNewLocation(),"sd");
+        Assert.assertEquals(alterResult.getAlterType(), TableOperateEnum.ALTERTABLE_LOCATION);
     }
 }

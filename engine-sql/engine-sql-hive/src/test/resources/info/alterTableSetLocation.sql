@@ -1,0 +1,1 @@
+alter table test_chener set location "sd"

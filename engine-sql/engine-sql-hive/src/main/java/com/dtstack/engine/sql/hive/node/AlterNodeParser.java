@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class AlterNodeParser extends NodeParser {
@@ -101,6 +102,10 @@ public class AlterNodeParser extends NodeParser {
                 }
                 alterNode.setRenamePart(pairList);
                 alterNode.setAlterType(TableOperateEnum.ALTERTABLE_RENAMEPART);
+            }else if (((ASTNode) n).getType() == HiveParser.TOK_ALTERTABLE_LOCATION){
+                ASTNode node1 = (ASTNode) n.getChildren().get(0);
+                alterNode.setNewLocation(node1.getText());
+                alterNode.setAlterType(TableOperateEnum.ALTERTABLE_LOCATION);
             }
         }
         if (null  == alterNode.getTargetTable()){

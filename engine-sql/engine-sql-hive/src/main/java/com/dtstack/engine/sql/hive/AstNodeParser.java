@@ -369,6 +369,7 @@ public class AstNodeParser extends BaseSqlParser {
         alterResult.setNewPartitions(alterNode.getNewPartitions());
         alterResult.setTableProperties(alterNode.getTableProperties());
         alterResult.setRenamePart(alterNode.getRenamePart());
+        alterResult.setNewLocation(alterNode.getNewLocation());
         parseResult.setAlterResult(alterResult);
     }
 
