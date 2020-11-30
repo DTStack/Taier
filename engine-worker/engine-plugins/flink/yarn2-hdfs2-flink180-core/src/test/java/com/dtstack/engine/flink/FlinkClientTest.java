@@ -53,6 +53,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.api.support.membermodification.MemberModifier;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -342,7 +344,6 @@ public class FlinkClientTest {
 		String appId = "application_1594003499276_1278";
 		String taskId = "taskId";
 		JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobId, appId, taskId, false);
-		jobIdentifier.setForceCancel(false);
 
 		MemberModifier.field(FlinkClient.class, "jobHistory").set(flinkClient, "http://dtstack:8081");
 
@@ -350,12 +351,24 @@ public class FlinkClientTest {
 		when(yarnClient.getApplicationReport(any())).thenReturn(report);
 		when(flinkClientBuilder.getYarnClient()).thenReturn(yarnClient);
 
-
 		ClusterClient clusterClient = YarnMockUtil.mockClusterClient();
 		when(flinkClusterClientManager.getClusterClient(any())).thenReturn(clusterClient);
 
 		JobResult jobResult = flinkClient.cancelJob(jobIdentifier);
 		Assert.assertNotNull(jobResult);
+
+		// forceCancel
+		jobIdentifier = JobIdentifier.createInstance(jobId, appId, taskId, true);
+
+		PowerMockito.doAnswer(new Answer() {
+			@Override
+			public String answer(InvocationOnMock invocationOnMock) throws Throwable {
+				return "test";
+			}
+		}).when(yarnClient).killApplication(any());
+
+		JobResult forceCancel = flinkClient.cancelJob(jobIdentifier);
+		Assert.assertNotNull(forceCancel);
 	}
 
 	@Test
