@@ -481,11 +481,12 @@ public class ActionService {
         if (StringUtils.isBlank(jobId) || computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
-        ActionRetryLogVO vo = new ActionRetryLogVO();
+        
         List<ActionRetryLogVO> logs = new ArrayList<>(5);
         List<EngineJobRetry> batchJobRetrys = engineJobRetryDao.listJobRetryByJobId(jobId);
         if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
             batchJobRetrys.forEach(jobRetry->{
+                ActionRetryLogVO vo = new ActionRetryLogVO();
                 vo.setRetryNum(jobRetry.getRetryNum());
                 vo.setLogInfo(jobRetry.getLogInfo());
                 vo.setRetryTaskParams(jobRetry.getRetryTaskParams());
