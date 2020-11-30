@@ -100,10 +100,11 @@ public class KubernetesClient extends AbstractClient {
             testResult.setResult(false);
             testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
             if (StringUtils.isNotBlank(allConfig.getNamespace())
-                    && e.getMessage().contains(allConfig.getNamespace())) {
-                if (e.getMessage().contains("not found") || e.getMessage().contains("not match")){
-                    testResult.setErrorMsg("namespace不存在或者无权限");
-                }
+                    && e.getMessage().contains(allConfig.getNamespace())
+                    && e.getMessage().contains("not found")) {
+                testResult.setErrorMsg("namespace不存在或者无权限");
+            }else if (e.getMessage().contains("not match")) {
+                testResult.setErrorMsg("namespace不存在或者无权限");
             } else if (e.getMessage().contains("doesn't have permission")) {
                 testResult.setErrorMsg("namespace不存在或者无权限");
             }
