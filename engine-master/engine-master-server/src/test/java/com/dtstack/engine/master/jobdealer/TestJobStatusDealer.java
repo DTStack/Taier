@@ -1,21 +1,28 @@
 package com.dtstack.engine.master.jobdealer;
 
 import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.jobdealer.cache.ShardManager;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * @Author tengzhen
@@ -31,10 +38,14 @@ public class TestJobStatusDealer extends AbstractTest {
     @Autowired
     private ShardCache shardCache;
 
+    @Autowired
+    private WorkerOperator workerOperator;
 
-    private final Map<String, ShardManager> jobResourceShardManager = new ConcurrentHashMap<>();
+    @MockBean
+    private ClientOperator clientOperator;
 
-    private final JobStatusDealer jobStatusDealer = new JobStatusDealer();
+
+
 
 
     @Test
@@ -43,24 +54,38 @@ public class TestJobStatusDealer extends AbstractTest {
     public void testRun(){
 
         EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
-        ShardManager shardManager = getShardManager(engineJobCache);
-        shardManager.putJob(engineJobCache.getJobId(), RdosTaskStatus.RUNNING.getStatus());
+
+        ShardManager shardManager = new ShardManager(engineJobCache.getJobResource());
+                shardManager.putJob(engineJobCache.getJobId(), RdosTaskStatus.RUNNING.getStatus());
+
+        JobStatusDealer jobStatusDealer = new JobStatusDealer();
+        jobStatusDealer.setJobResource(engineJobCache.getJobResource());
         jobStatusDealer.setShardManager(shardManager);
-        new Thread(jobStatusDealer).start();
+        jobStatusDealer.setShardCache(shardCache);
+        jobStatusDealer.setApplicationContext(applicationContext);
+
+        jobStatusDealer.run();
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testRun2(){
+
+
+        EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache2();
+        ShardManager shardManager = new ShardManager(engineJobCache.getJobResource());
+        shardManager.putJob(engineJobCache.getJobId(), RdosTaskStatus.SUBMITTING.getStatus());
+
+        JobStatusDealer jobStatusDealer = new JobStatusDealer();
+        jobStatusDealer.setJobResource(engineJobCache.getJobResource());
+        jobStatusDealer.setShardManager(shardManager);
+        jobStatusDealer.setShardCache(shardCache);
+        ReflectionTestUtils.setField(jobStatusDealer,"workerOperator", workerOperator);
+        jobStatusDealer.setApplicationContext(applicationContext);
+        when(clientOperator.getJobStatus(any(),any(),any())).thenReturn(RdosTaskStatus.FINISHED);
+        jobStatusDealer.run();
     }
 
 
-    private ShardManager getShardManager(EngineJobCache engineJobCache) {
-
-        return jobResourceShardManager.computeIfAbsent(engineJobCache.getJobResource(), jr -> {
-            ShardManager shardManager = new ShardManager(engineJobCache.getJobResource());
-            JobStatusDealer jobStatusDealer = new JobStatusDealer();
-            jobStatusDealer.setJobResource(engineJobCache.getJobResource());
-            jobStatusDealer.setShardManager(shardManager);
-            jobStatusDealer.setShardCache(shardCache);
-            jobStatusDealer.setApplicationContext(applicationContext);
-            jobStatusDealer.start();
-            return shardManager;
-        });
-    }
 }

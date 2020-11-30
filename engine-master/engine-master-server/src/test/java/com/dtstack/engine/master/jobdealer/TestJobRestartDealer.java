@@ -78,6 +78,22 @@ public class TestJobRestartDealer extends AbstractTest {
 
 
 
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testCheckAndRestart4() {
+
+        //engineType为kylin
+        addDefaultCluster();
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteJobId();
+        EngineJobCache jobCache4 = DataCollection.getData().getEngineJobCache5();
+        boolean flag3 = jobRestartDealer.checkAndRestart(8, scheduleJob, jobCache4);
+        Assert.assertFalse(flag3);
+
+    }
+
+
+
     private Cluster addDefaultCluster(){
 
         Cluster cluster = new Cluster();
