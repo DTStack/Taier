@@ -62,8 +62,6 @@ public class ClusterService implements InitializingBean {
     private final static String TENANT_ID = "tenantId";
     private static final String DEPLOY_MODEL = "deployMode";
     private static final String NAMESPACE = "namespace";
-    private static final String LOCK_SUFFIX = ".lock";
-    private static final String SEPARATE = File.separator;
 
     @Autowired
     private ClusterDao clusterDao;
@@ -109,6 +107,7 @@ public class ClusterService implements InitializingBean {
 
     @Autowired
     private SftpFileManage sftpFileManageBean;
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -487,61 +486,6 @@ public class ClusterService implements InitializingBean {
             return configObj.toJSONString();
         }
         return configObj.toJSONString();
-    }
-
-
-    /**
-     * 从sftp中下载获取已有的配置文件
-     */
-    public void downloadKerberosFromSftp(String sourceKey, String localKerberosConf, SftpConfig sftpConfig) throws SftpException {
-        //需要读取配置文件
-        //本地kerberos文件
-        String localTimeLock = getLocalTimeLock(localKerberosConf);
-        SftpFileManage sftpFileManage = sftpFileManageBean.retrieveSftpManager(sftpConfig);
-        try {
-            String sourceSftpPath = sftpConfig.getPath() + SEPARATE + sourceKey;
-            //sftp服务器kerberos文件
-            String timeLock = getSftpTimeLock(sftpFileManage, sourceSftpPath, localTimeLock);
-
-            if (localTimeLock == null || timeLock == null || !timeLock.equals(localTimeLock)) {
-                //需要下载替换当时的配置
-                ZipUtil.deletefile(localKerberosConf);
-                sftpFileManage.downloadDir(sourceSftpPath, localKerberosConf);
-            }
-        } catch (Exception e) {
-            throw new RdosDefineException("下载kerberos配置失败");
-        }
-    }
-
-    private String getSftpTimeLock(SftpFileManage sftpFileManage, String sourceSftpPath, String localTimeLock) throws SftpException {
-        // 获得远程sftp下的路径sourceSftpPath下文件列表
-        Vector vector = sftpFileManage.listFile(sourceSftpPath);
-        for (Object obj : vector) {
-            // 判断是否有后缀名.lock的文件
-            ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) obj;
-            if (lsEntry.getFilename().endsWith(LOCK_SUFFIX)) {
-                return lsEntry.getFilename();
-            }
-        }
-        return null;
-    }
-
-    private String getLocalTimeLock(String localKerberosConf) {
-        File localKerberosConfFile = new File(localKerberosConf);
-        if (localKerberosConfFile.exists() && localKerberosConfFile.isDirectory()) {
-            String[] list = localKerberosConfFile.list();
-            List<String> lockList = Arrays.stream(list).filter(str -> {
-                if (str.endsWith(LOCK_SUFFIX)){
-                    return true;
-                } else {
-                    return false;
-                }
-            }).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(lockList)) {
-                return lockList.get(0);
-            }
-        }
-        return null;
     }
 
 
