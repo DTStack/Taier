@@ -1,0 +1,1 @@
+ALTER TABLE table_name SET SERDEPROPERTIES ('field.delim' = ',')

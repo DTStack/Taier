@@ -1,0 +1,1 @@
+alter table chener.chener_test rename  to chener.chener_test1

@@ -1,66 +1,98 @@
 package com.dtstack.lineage.impl;
 
 import com.dtstack.engine.api.domain.LineageColumnColumn;
-import com.dtstack.engine.master.AbstractTest;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.powermock.api.mockito.PowerMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashSet;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+import com.dtstack.engine.master.AbstractTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 /**
- * @author chener
+ * @author basion
  * @Classname LineageColumnColumnServiceTest
- * @Description TODO
- * @Date 2020/11/16 13:53
- * @Created chener@dtstack.com
+ * @Description unit test for LineageColumnColumnService
+ * @Date 2020-11-27 10:35:35
+ * @Created basion
  */
 public class LineageColumnColumnServiceTest extends AbstractTest {
+
     @Autowired
     private LineageColumnColumnService lineageColumnColumnService;
 
     /**
-     *  do some mock before test
+     * do some mock before test
      */
     @Before
-    public void setup() throws Exception{
+    public void setup() throws Exception {
+        //TODO
+    }
+
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testSaveColumnLineage() {
+        lineageColumnColumnService.saveColumnLineage(null, "");
         //TODO
     }
 
     @Test
-    public void testSaveColumnLineage(){
-        lineageColumnColumnService.saveColumnLineage(null ,null);
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testQueryColumnInputLineageByAppType() {
+        List<LineageColumnColumn> queryColumnInputLineageByAppType = lineageColumnColumnService.queryColumnInputLineageByAppType(0, 0L, "", null);
         //TODO
     }
+
     @Test
-    public void testQueryColumnInputLineageByAppType(){
-        List<LineageColumnColumn> queryColumnInputLineageByAppType = lineageColumnColumnService.queryColumnInputLineageByAppType(0 , 0L , "" ,new HashSet<>());
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testQueryColumnResultLineageByAppType() {
+        List<LineageColumnColumn> queryColumnResultLineageByAppType = lineageColumnColumnService.queryColumnResultLineageByAppType(0, 0L, "", null);
         //TODO
     }
+
     @Test
-    public void testQueryColumnResultLineageByAppType(){
-        List<LineageColumnColumn> queryColumnResultLineageByAppType = lineageColumnColumnService.queryColumnResultLineageByAppType(0 , 0L , "" ,new HashSet<>());
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testQueryColumnLineages() {
+        List<LineageColumnColumn> queryColumnLineages = lineageColumnColumnService.queryColumnLineages(0, 0L, "");
         //TODO
     }
+
     @Test
-    public void testQueryColumnLineages(){
-        List<LineageColumnColumn> queryColumnLineages = lineageColumnColumnService.queryColumnLineages(0 , 0L , "" );
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testManualAddColumnLineage() {
+        lineageColumnColumnService.manualAddColumnLineage(0, null, "");
         //TODO
     }
+
     @Test
-    public void testManualAddColumnLineage(){
-        lineageColumnColumnService.manualAddColumnLineage(0 , null ,null);
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testManualDeleteColumnLineage() {
+        lineageColumnColumnService.manualDeleteColumnLineage(0, null, "");
         //TODO
     }
+
     @Test
-    public void testManualDeleteColumnLineage(){
-        lineageColumnColumnService.manualDeleteColumnLineage(0 , null,null );
-        //TODO
-    }
-    @Test
-    public void testGenerateDefaultUniqueKey(){
-        String generateDefaultUniqueKey = lineageColumnColumnService.generateDefaultUniqueKey(0 );
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testGenerateDefaultUniqueKey() {
+        String generateDefaultUniqueKey = lineageColumnColumnService.generateDefaultUniqueKey(0);
         //TODO
     }
 }

@@ -2,6 +2,7 @@ package com.dtstack.engine.master.utils;
 
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.util.DateUtil;
+import com.dtstack.engine.master.datasource.DataSourceType;
 import com.dtstack.schedule.common.enums.AppType;
 
 import java.sql.Timestamp;
@@ -141,5 +142,32 @@ public class Template {
         lineageTableTable.setResultTableKey("-2021");
         lineageTableTable.setTableLineageKey("");
         return lineageTableTable;
+    }
+
+    public static LineageRealDataSource getDefaultHiveRealDataSourceTemplate(){
+        LineageRealDataSource lineageRealDataSource = new LineageRealDataSource();
+        lineageRealDataSource.setSourceName("testHive1");
+        lineageRealDataSource.setSourceKey("172.16.8.107#10000");
+        lineageRealDataSource.setSourceType(DataSourceType.HIVE2.getType());
+        lineageRealDataSource.setDataJason("{\"jdbcUrl\": \"jdbc:hive2://172.16.8.107:10000/default\", \"password\": \"\", \"typeName\": \"hive\", \"username\": \"admin\", \"maxJobPoolSize\": \"\", \"minJobPoolSize\": \"\"}");
+        lineageRealDataSource.setKerberosConf("-1");
+        lineageRealDataSource.setOpenKerberos(0);
+        return lineageRealDataSource;
+    }
+
+    public static LineageDataSource getDefaultHiveDataSourceTemplate(){
+        LineageDataSource lineageDataSource = new LineageDataSource();
+        lineageDataSource.setRealSourceId(null);
+        lineageDataSource.setSourceKey(null);
+        lineageDataSource.setSourceName(null);
+        lineageDataSource.setAppType(null);
+        lineageDataSource.setSourceType(null);
+        lineageDataSource.setDataJson(null);
+        lineageDataSource.setKerberosConf(null);
+        lineageDataSource.setOpenKerberos(null);
+        lineageDataSource.setAppSourceId(null);
+        lineageDataSource.setInnerSource(null);
+        lineageDataSource.setComponentId(null);
+        return lineageDataSource;
     }
 }

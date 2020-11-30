@@ -1,0 +1,1 @@
+alter table chener.chener_test set TBLPROPERTIES('comment' = '表注释内容');
