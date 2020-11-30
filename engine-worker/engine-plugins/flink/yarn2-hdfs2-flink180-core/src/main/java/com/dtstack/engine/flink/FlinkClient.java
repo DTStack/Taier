@@ -116,9 +116,7 @@ public class FlinkClient extends AbstractClient {
 
     private String jobmanagerDir;
 
-    private final static Predicate<RdosTaskStatus> IS_END_STATUS = status ->
-            status.equals(RdosTaskStatus.FINISHED) || status.equals(RdosTaskStatus.CANCELED)
-                    || status.equals(RdosTaskStatus.FAILED) || status.equals(RdosTaskStatus.KILLED);
+    private final static Predicate<RdosTaskStatus> IS_END_STATUS = status -> RdosTaskStatus.getStoppedStatus().contains(status.getStatus()) || RdosTaskStatus.NOTFOUND.equals(status);
 
     @Override
     public void init(Properties prop) throws Exception {
