@@ -218,6 +218,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                             batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), status,e.getMessage());
                         }
                     }
+                    cycTime = getCycTime();
                     listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight(),Boolean.FALSE);
                     logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{} .", getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), nodeAddress, startId);
                 }
