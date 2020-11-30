@@ -219,7 +219,7 @@ private[spark] class DtCDHClient(
           logInfo(s"Deleted staging directory $stagingDirPath")
         }
       } catch {
-        case ioe: IOException =>
+        case ioe: Exception =>
           logWarning("Failed to cleanup staging dir " + stagingDirPath, ioe)
       }
     }
