@@ -839,7 +839,7 @@ public class ClusterService implements InitializingBean {
 
             List<Component> componentsSchedule = scheduleType.get(value);
             if(CollectionUtils.isEmpty(componentsSchedule)){
-                continue;
+                componentsSchedule = new ArrayList<>();
             }
             List<ComponentVO> componentVOS = new ArrayList<>();
             for (Component component : componentsSchedule) {
