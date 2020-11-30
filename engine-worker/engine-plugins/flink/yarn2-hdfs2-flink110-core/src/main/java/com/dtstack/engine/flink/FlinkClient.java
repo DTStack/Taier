@@ -119,7 +119,7 @@ public class FlinkClient extends AbstractClient {
 
     private final static Predicate<RdosTaskStatus> IS_END_STATUS = status ->
             status.equals(RdosTaskStatus.FINISHED) || status.equals(RdosTaskStatus.CANCELED)
-                    || status.equals(RdosTaskStatus.FAILED) || status.equals(RdosTaskStatus.KILLED);
+                    || status.equals(RdosTaskStatus.FAILED) || status.equals(RdosTaskStatus.KILLED) || status.equals(RdosTaskStatus.NOTFOUND);
 
     @Override
     public void init(Properties prop) throws Exception {
