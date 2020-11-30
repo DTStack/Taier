@@ -509,7 +509,7 @@ public class ComponentService {
     private boolean isOpenKerberos(List<Resource> resources, String kerberosFileName, Component dbComponent) {
         boolean isOpenKerberos = StringUtils.isNotBlank(kerberosFileName);
         if (isOpenKerberos) {
-            if (!resources.isEmpty() && !kerberosFileName.endsWith(ZIP_SUFFIX)) {
+            if (CollectionUtils.isNotEmpty(resources) && !kerberosFileName.endsWith(ZIP_SUFFIX)) {
                 throw new RdosDefineException("kerberos上传文件非zip格式");
             }
         } else {
@@ -1512,7 +1512,7 @@ public class ComponentService {
                         testResult = this.testConnect(component.getComponentTypeCode(), component.getComponentConfig(), clusterName, component.getHadoopVersion(),
                                 component.getEngineId(), kerberosConfig, sftpMap,component.getStoreType());
                         //测试联通性
-                        if (EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
+                        if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
                             if (testResult.getResult()) {
                                 engineService.updateResource(component.getEngineId(), testResult.getClusterResourceDescription());
                                 queueService.updateQueue(component.getEngineId(), testResult.getClusterResourceDescription());
