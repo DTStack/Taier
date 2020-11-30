@@ -111,8 +111,10 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 new CustomThreadRunsPolicy(threadName, getScheduleType().name()));
     }
 
-    protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress, String cycStartTime, String cycEndTime,Boolean isEq) {
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, getScheduleType().getType(), cycStartTime, cycEndTime, JobPhaseStatus.CREATE.getCode(),isEq
+    protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress,Boolean isEq) {
+        Pair<String, String> cycTime = getCycTime();
+        logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{}  isEq {} .", getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), nodeAddress, startId,isEq);
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), JobPhaseStatus.CREATE.getCode(),isEq
         ,null,Restarted.NORMAL.getStatus());
         return getScheduleBatchJobList(scheduleJobs);
     }
@@ -157,7 +159,9 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
      * @return
      */
     protected Long getListMinId(String nodeAddress, Integer isRestart) {
-        return batchJobService.getListMinId(nodeAddress, getScheduleType().getType(), getCycTime().getLeft(), getCycTime().getRight(), isRestart);
+        Long listMinId = batchJobService.getListMinId(nodeAddress, getScheduleType().getType(), getCycTime().getLeft(), getCycTime().getRight(), isRestart);
+        logger.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} .", getScheduleType().getType(), nodeAddress, isRestart, listMinId);
+        return listMinId;
     }
 
 
@@ -167,12 +171,9 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             return;
         }
         try {
-            //限制数据范围
-            Pair<String, String> cycTime = getCycTime();
             Long startId = getListMinId(nodeAddress, Restarted.NORMAL.getStatus());
             if (startId != null) {
-                logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{} .", getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), nodeAddress, startId);
-                List<ScheduleBatchJob> listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight(), Boolean.TRUE);
+                List<ScheduleBatchJob> listExecJobs = this.listExecJob(startId, nodeAddress, Boolean.TRUE);
                 while (CollectionUtils.isNotEmpty(listExecJobs)) {
                     for (ScheduleBatchJob scheduleBatchJob : listExecJobs) {
                         // 节点检查是否能进入队列
@@ -208,7 +209,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                                     }
                                 }
                             }
-
                             startId = scheduleBatchJob.getId();
                         } catch (Exception e) {
                             logger.error("jobId:{} scheduleType:{} nodeAddress:{} emitJob2Queue error:", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, e);
@@ -216,8 +216,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                             batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), status, e.getMessage());
                         }
                     }
-                    listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight(), Boolean.FALSE);
-                    logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{} .", getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), nodeAddress, startId);
+                    listExecJobs = this.listExecJob(startId, nodeAddress, Boolean.FALSE);
                 }
             }
         } catch (Exception e) {

@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.failover;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EScheduleType;
@@ -200,16 +201,17 @@ public class FailoverStrategy {
                 }
                 List<Long> cronJobIds = Lists.newArrayList();
                 List<Long> fillJobIds = Lists.newArrayList();
-                List<Long> phaseStatus = Lists.newArrayList();
+                List<String> phaseStatus = Lists.newArrayList();
                 for (SimpleScheduleJobPO batchJob : jobs) {
                     if (EScheduleType.NORMAL_SCHEDULE.getType() == batchJob.getType()) {
                         cronJobIds.add(batchJob.getId());
+                        LOG.info("----- nodeAddress:{} distributeBatchJobs {} NORMAL_SCHEDULE -----", nodeAddress, batchJob.getJobId());
                     } else {
                         fillJobIds.add(batchJob.getId());
+                        LOG.info("----- nodeAddress:{} distributeBatchJobs {} FILL_DATA -----", nodeAddress, batchJob.getJobId());
                     }
-
                     if (JobPhaseStatus.JOIN_THE_TEAM.getCode().equals(batchJob.getPhaseStatus())) {
-                        phaseStatus.add(batchJob.getId());
+                        phaseStatus.add(batchJob.getJobId());
                     }
                     startId = batchJob.getId();
                 }
@@ -230,8 +232,9 @@ public class FailoverStrategy {
         }
     }
 
-    private void updatePhaseStatus(List<Long> phaseStatus) {
+    private void updatePhaseStatus(List<String> phaseStatus) {
         if (CollectionUtils.isNotEmpty(phaseStatus)) {
+            LOG.info("----- updatePhaseStatus {} -----", JSONObject.toJSONString(phaseStatus));
             scheduleJobDao.updateListPhaseStatus(phaseStatus, JobPhaseStatus.CREATE.getCode());
         }
     }

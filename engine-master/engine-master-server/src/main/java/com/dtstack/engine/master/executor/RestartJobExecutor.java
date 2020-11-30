@@ -5,17 +5,12 @@ import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.schedule.common.enums.Restarted;
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,35 +33,25 @@ public class RestartJobExecutor extends AbstractJobExecutor {
     }
 
     @Override
-    protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress, String cycStartTime, String cycEndTime, Boolean isEq) {
+    protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress, Boolean isEq) {
         //添加需要重跑的数据
-        return getRestartDataJob(startId,cycStartTime,nodeAddress,isEq);
+        return getRestartDataJob(startId, nodeAddress, isEq);
     }
 
-    protected List<ScheduleBatchJob> getRestartDataJob(Long startId,String cycStartTime,String nodeAddress,Boolean isEq) {
-        Timestamp lasTime = null;
-        if (!StringUtils.isBlank(cycStartTime)) {
-            DateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-            try {
-                Date parse = sdf.parse(cycStartTime);
-                if (null != parse) {
-                    lasTime = new Timestamp(parse.getTime());
-                }
-            } catch (ParseException e) {
-                logger.error("getRestartDataJob {} error ", cycStartTime, e);
-            }
-        }
-        if (null == lasTime) {
-            lasTime = new Timestamp(DateTime.now().withTime(0, 0, 0, 0).getMillis());
-        }
+    protected List<ScheduleBatchJob> getRestartDataJob(Long startId, String nodeAddress, Boolean isEq) {
+        //重跑不关心cycStart时间 只关心modifyTime
+        Timestamp lasTime = new Timestamp(DateTime.now().withTime(0, 0, 0, 0).getMillis());
         //重跑查询补数据和周期调度的
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, null, null, null,
                 JobPhaseStatus.CREATE.getCode(), isEq, lasTime, Restarted.RESTARTED.getStatus());
+        logger.info("getRestartDataJob scheduleType {} nodeAddress {} start scanning since when startId:{}  isEq {} .", getScheduleType().getType(), nodeAddress, startId, isEq);
         return getScheduleBatchJobList(scheduleJobs);
     }
 
     @Override
     protected Long getListMinId(String nodeAddress, Integer isRestart) {
-        return batchJobService.getListMinId(nodeAddress, null, null, null, Restarted.RESTARTED.getStatus());
+        Long listMinId = batchJobService.getListMinId(nodeAddress, null, null, null, Restarted.RESTARTED.getStatus());
+        logger.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} .", getScheduleType().getType(), nodeAddress, isRestart, listMinId);
+        return listMinId;
     }
 }
