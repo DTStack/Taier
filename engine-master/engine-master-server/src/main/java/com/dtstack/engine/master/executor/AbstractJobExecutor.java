@@ -170,6 +170,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         }
         try {
             Long startId = getListMinId(nodeAddress, Restarted.NORMAL.getStatus());
+            logger.info("start emitJob2Queue  scheduleType {} nodeAddress {} startId is {} .", getScheduleType().getType(), nodeAddress, startId);
             if (startId != null) {
                 List<ScheduleBatchJob> listExecJobs = this.listExecJob(startId, nodeAddress, Boolean.TRUE);
                 while (CollectionUtils.isNotEmpty(listExecJobs)) {
@@ -177,9 +178,9 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                         // 节点检查是否能进入队列
                         try {
                             Long taskIdUnique = jobRichOperator.getTaskIdUnique(scheduleBatchJob.getAppType(), scheduleBatchJob.getTaskId());
-                            ScheduleTaskShade batchTask =  batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType());
+                            ScheduleTaskShade batchTask = batchTaskShadeService.getBatchTaskById(scheduleBatchJob.getTaskId(), scheduleBatchJob.getScheduleJob().getAppType());
                             Map<Long, ScheduleTaskShade> taskCache = Maps.newHashMap();
-                            taskCache.put(taskIdUnique,batchTask);
+                            taskCache.put(taskIdUnique, batchTask);
                             if (batchTask == null) {
                                 String errMsg = JobCheckStatus.NO_TASK.getMsg();
                                 batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), RdosTaskStatus.SUBMITFAILD.getStatus(), errMsg);
@@ -195,7 +196,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                                 logger.info("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB so immediate put queue.", scheduleBatchJob.getJobId(), getScheduleType());
                                 if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status) && isPutQueue(checkRunInfo, scheduleBatchJob)) {
                                     putScheduleJob(scheduleBatchJob);
-                                } else if(!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)){
+                                } else if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
                                     logger.info("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
                                     batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(), scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
                                 }
@@ -209,6 +210,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                                     }
                                 }
                             }
+                            logger.info("startId is {} jobId is {} scheduleType {} isRestart {}", startId, scheduleBatchJob.getId(), getScheduleType().getType(),scheduleBatchJob.getIsRestart());
                             startId = scheduleBatchJob.getId();
                         } catch (Exception e) {
                             logger.error("jobId:{} scheduleType:{} nodeAddress:{} emitJob2Queue error:", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, e);
