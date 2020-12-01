@@ -223,7 +223,7 @@ public class FlinkClient extends AbstractClient {
                 clusterSpecification.setSpSetting(spSettings);
                 clusterSpecification.setProgramArgs(programArgs);
                 clusterSpecification.setCreateProgramDelay(true);
-                clusterSpecification.setYarnConfiguration(getYarnConf(jobClient.getPluginInfo()));
+                clusterSpecification.setYarnConfiguration(hadoopConf.getYarnConfiguration());
                 clusterSpecification.setClassLoaderType(ClassLoaderType.getClassLoaderType(jobClient.getJobType()));
 
                 runResult = runJobByPerJob(clusterSpecification, jobClient);
@@ -289,18 +289,6 @@ public class FlinkClient extends AbstractClient {
         } finally {
             delFilesFromDir(ConfigConstrant.IO_TMPDIR, "flink-jobgraph");
         }
-    }
-
-    private YarnConfiguration getYarnConf(String pluginInfo){
-        org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-
-        JsonParser parser = new JsonParser();
-        JsonObject json = parser.parse(pluginInfo).getAsJsonObject().getAsJsonObject("yarnConf");
-        for (Map.Entry<String, JsonElement> keyVal : json.entrySet()) {
-            conf.set(keyVal.getKey(),keyVal.getValue().getAsString());
-        }
-
-        return new YarnConfiguration(conf);
     }
 
     private void delFilesFromDir(Path dir ,String fileName){
