@@ -106,6 +106,12 @@
             <artifactId>validation-api</artifactId>
             <version>2.0.1.Final</version>
         </dependency>
+        <dependency>
+            <groupId>com.cloudera.impala.jdbc</groupId>
+            <artifactId>ImpalaJDBC41</artifactId>
+            <version>2.6.12</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <distributionManagement>

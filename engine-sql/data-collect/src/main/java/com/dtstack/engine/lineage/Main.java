@@ -35,7 +35,7 @@ public class Main {
     public static void main(String[] args) {
         initLog4jProperties();
         initApi();
-        collectBatch();
+//        collectBatch();
         collectAssert();
     }
 
@@ -79,8 +79,8 @@ public class Main {
     private static void collectBatch(){
         CollectAppType appType = CollectAppType.BATCH;
         try {
-            String url = getDataSourceKey(appType, Conf.getConf(Conf.URL_SUFFIX));
-            String user = getDataSourceKey(appType, Conf.getConf(Conf.USER_SUFFIX));
+            String url = Conf.getConf(getDataSourceKey(appType,Conf.URL_SUFFIX));
+            String user = Conf.getConf(getDataSourceKey(appType,Conf.USER_SUFFIX));
             if (StringUtils.isEmpty(url) || StringUtils.isEmpty(user)){
                 logger.info("未配置离线数据库，不同步离线");
                 return;
@@ -96,8 +96,8 @@ public class Main {
     private static void collectAssert(){
         CollectAppType appType = CollectAppType.ASSERTS;
         try {
-            String url = getDataSourceKey(appType, Conf.getConf(Conf.URL_SUFFIX));
-            String user = getDataSourceKey(appType, Conf.getConf(Conf.USER_SUFFIX));
+            String url = Conf.getConf(getDataSourceKey(appType,Conf.URL_SUFFIX));
+            String user = Conf.getConf(getDataSourceKey(appType,Conf.USER_SUFFIX));
             if (StringUtils.isEmpty(url) || StringUtils.isEmpty(user)){
                 logger.info("未配置资产数据库，不同步资产");
                 return;
@@ -124,9 +124,9 @@ public class Main {
             if (Objects.isNull(dataSource)){
                 ComboPooledDataSource comboDataSource = new ComboPooledDataSource();
                 comboDataSource.setDriverClass(Conf.getConf(Conf.CLASS_NAME));
-                comboDataSource.setJdbcUrl(getDataSourceKey(appType,Conf.getConf(Conf.URL_SUFFIX)));
-                comboDataSource.setUser(getDataSourceKey(appType,Conf.getConf(Conf.USER_SUFFIX)));
-                comboDataSource.setPassword(getDataSourceKey(appType,Conf.getConf(Conf.PASSWORD_SUFFIX)));
+                comboDataSource.setJdbcUrl(Conf.getConf(getDataSourceKey(appType,Conf.URL_SUFFIX)));
+                comboDataSource.setUser(Conf.getConf(getDataSourceKey(appType,Conf.USER_SUFFIX)));
+                comboDataSource.setPassword(Conf.getConf(getDataSourceKey(appType,Conf.PASSWORD_SUFFIX)));
                 comboDataSource.setMaxPoolSize(20);
                 comboDataSource.setMinPoolSize(5);
                 comboDataSource.setInitialPoolSize(5);

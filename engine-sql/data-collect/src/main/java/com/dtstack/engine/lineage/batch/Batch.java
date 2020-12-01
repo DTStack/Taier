@@ -1,12 +1,12 @@
 package com.dtstack.engine.lineage.batch;
 
-import com.dtstack.engine.api.dto.DataSourceDTO;
-import com.dtstack.engine.api.service.DataSourceService;
 import com.dtstack.engine.api.service.LineageService;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnParam;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
 import com.dtstack.engine.api.vo.lineage.LineageDataSourceVO;
 import com.dtstack.engine.api.vo.lineage.LineageTableVO;
+import com.dtstack.engine.lineage.CollectAppType;
+import com.dtstack.engine.lineage.DataCollection;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.sdk.core.common.DtInsightApi;
 import org.slf4j.Logger;

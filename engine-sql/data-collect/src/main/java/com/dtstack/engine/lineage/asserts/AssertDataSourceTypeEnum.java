@@ -1,11 +1,11 @@
-package com.dtstack.engine.lineage;
+package com.dtstack.engine.lineage.asserts;
 
 /**
  * @Author tengzhen
  * @Description: 资产数据源类型枚举
  * @Date: Created in 4:56 下午 2020/11/26
  */
-public enum  AssertDataSourceTypeEnum {
+public enum AssertDataSourceTypeEnum {
 
     MYSQL(1, "Mysql"),
     ORACLE(2, "Oracle SQL"),

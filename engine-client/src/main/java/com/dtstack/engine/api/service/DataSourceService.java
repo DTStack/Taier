@@ -8,6 +8,7 @@ import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Param;
 import com.dtstack.sdk.core.feign.RequestLine;
+import io.swagger.annotations.ApiOperation;
 
 import java.util.List;
 
@@ -61,5 +62,19 @@ public interface DataSourceService extends DtInsightServer {
     ApiResponse acquireOldDataSourceList(@Param("dataSourceParam") DataSourceParam dataSourceParam);
 
 
+
+    /**
+     * @author zyd
+     * @Description 根据指定条件查询数据源
+     * @Date 2020/11/30 10:05 下午
+     * @param appType: 
+     * @param sourceType: 
+     * @param sourceName: 
+     * @param dtUicTenantId: 
+     * @return: void
+     **/
+    @RequestLine("POST /node/dataSource/getDataSourceByParams")
+    ApiResponse getDataSourceByParams(@Param("appType")Integer appType,@Param("sourceType") Integer sourceType,
+                                      @Param("sourceName") String sourceName,@Param("dtUicTenantId") Long dtUicTenantId);
 
 }

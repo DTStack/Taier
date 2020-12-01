@@ -1,4 +1,4 @@
-package com.dtstack.engine.lineage;
+package com.dtstack.engine.lineage.asserts;
 
 /**
  * @author chener
@@ -7,7 +7,7 @@ package com.dtstack.engine.lineage;
  * @Date 2020/11/23 15:54
  * @Created chener@dtstack.com
  */
-public class BatchDataSource {
+public class AssertDataSource {
 
     private Long sourceId;
 

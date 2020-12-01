@@ -92,4 +92,21 @@ public class LineageDataSourceController {
 
         dataSourceService.synIdeDataSourceList();
     }
+
+
+    @RequestMapping(value="/getDataSourceByParams",method = RequestMethod.POST)
+    @ApiOperation(value = "根据指定条件查询数据源")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="appType",value = "产品类型",required = true),
+            @ApiImplicitParam(name="sourceType",value = "产品类型"),
+            @ApiImplicitParam(name="sourceName",value = "数据源名称",required = true),
+            @ApiImplicitParam(name="dtUicTenantId",value = "租户id",required = true),
+
+    })
+    public LineageDataSource getDataSourceByParams(@DtRequestParam("appType")Integer appType,@DtRequestParam("sourceType") Integer sourceType,
+                                      @DtRequestParam("sourceName") String sourceName,@DtRequestParam("dtUicTenantId") Long dtUicTenantId){
+
+       return dataSourceService.getDataSourceByParams(sourceType,sourceName,dtUicTenantId,appType);
+    }
+
 }

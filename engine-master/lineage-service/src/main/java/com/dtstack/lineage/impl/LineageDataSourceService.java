@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -44,17 +45,16 @@ import java.util.Objects;
 public class LineageDataSourceService {
     private static final Logger logger = LoggerFactory.getLogger(LineageDataSourceService.class);
 
-    @Autowired
+    @Resource
     private LineageDataSourceDao lineageDataSourceDao;
 
-    @Autowired
+    @Resource
     private LineageRealDataSourceDao lineageRealDataSourceDao;
 
-    @Autowired
+    @Resource
     private TenantDao tenantDao;
 
-
-    @Autowired
+    @Resource
     private ComponentDao componentDao;
 
     /**
@@ -122,6 +122,7 @@ public class LineageDataSourceService {
             lineageDataSourceDao.insertDataSource(dataSource);
             return dataSource.getId();
         } catch (Exception e) {
+            logger.error("新增数据源异常,dataSource:{},e:{}",JSON.toJSONString(dataSourceDTO),ExceptionUtil.getTaskLogError(e));
             throw new RdosDefineException("新增数据源异常");
         }
     }
@@ -321,9 +322,14 @@ public class LineageDataSourceService {
 
     public void acquireOldDataSourceList(List<DataSourceDTO> dataSourceDTOs) {
 
+        if(CollectionUtils.isEmpty(dataSourceDTOs)){
+            throw new RdosDefineException("数据源列表不能为空");
+        }
         if (dataSourceDTOs.size()>200){
             throw new RdosDefineException("请分批执行");
         }
+        logger.info("appType:{}类型,租户:{}一共,{}个数据源",dataSourceDTOs.get(0).getAppType(),
+                dataSourceDTOs.get(0).getDtUicTenantId(),dataSourceDTOs.size());
         for (DataSourceDTO dataSourceDTO : dataSourceDTOs) {
             addDataSource(dataSourceDTO);
         }
@@ -334,12 +340,14 @@ public class LineageDataSourceService {
         //遍历租户
         try {
             List<Long> dtUicTenantIds = tenantDao.listAllDtUicTenantIds();
+            int total = 0;
             for (Long dtUicTenantId : dtUicTenantIds) {
                 Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
                 List<Component> componentList = componentDao.listByTenantId(tenantId);
                 for (Component component : componentList) {
                     //是数据源的组件才插入
                     if(DataSourceTypeEnum.getAllTypeCodes().contains(component.getComponentTypeCode())){
+                        total++;
                         DataSourceDTO dataSourceDTO = new DataSourceDTO();
                         dataSourceDTO.setDtUicTenantId(dtUicTenantId);
                         dataSourceDTO.setDataJson(component.getComponentConfig());
@@ -356,6 +364,7 @@ public class LineageDataSourceService {
                     }
                 }
             }
+            logger.info("符合条件的离线数据源个数:{}",total);
         } catch (Exception e) {
             logger.error(this.getClass().getName()+"-synIdeDataSourceList-异常,e:{}",ExceptionUtil.stackTrack());
             throw new RdosDefineException("同步离线数据源数据异常");
