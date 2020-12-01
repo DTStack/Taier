@@ -23,22 +23,16 @@ import com.dtstack.engine.master.zookeeper.ZkService;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.Restarted;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -86,7 +80,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
     private ExecutorService executorService;
     protected final AtomicBoolean RUNNING = new AtomicBoolean(false);
-    private volatile long lastRestartJobLoadTime = 0L;
 
     private LinkedBlockingQueue<ScheduleBatchJob> scheduleJobQueue = null;
 
@@ -115,15 +108,14 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 new CustomThreadRunsPolicy(threadName, getScheduleType().name()));
     }
 
-    protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress, String cycStartTime, String cycEndTime,Boolean isEq) {
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, getScheduleType().getType(), cycStartTime, cycEndTime, JobPhaseStatus.CREATE.getCode(),isEq);
-        List<ScheduleBatchJob> listExecJobs = getScheduleBatchJobList(scheduleJobs);
-
-        //添加需要重跑的数据
-        List<ScheduleBatchJob> restartJobList = getRestartDataJob(cycStartTime);
-        listExecJobs.addAll(restartJobList);
-        return listExecJobs;
+    protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress,Boolean isEq) {
+        Pair<String, String> cycTime = getCycTime();
+        logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{}  isEq {} .", getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), nodeAddress, startId,isEq);
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), JobPhaseStatus.CREATE.getCode(),isEq
+                ,null, Restarted.NORMAL.getStatus());
+        return getScheduleBatchJobList(scheduleJobs);
     }
+
 
     public void recoverOtherNode() {
         //处理其他节点故障恢复时转移而来的数据
@@ -154,6 +146,18 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         }
     }
 
+    /**
+     * 增量从数据库获取id标示
+     *
+     * @param nodeAddress
+     * @param isRestart
+     * @return
+     */
+    protected Long getListMinId(String nodeAddress, Integer isRestart) {
+        Long listMinId = batchJobService.getListMinId(nodeAddress, getScheduleType().getType(), getCycTime().getLeft(), getCycTime().getRight(), isRestart);
+        logger.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} .", getScheduleType().getType(), nodeAddress, isRestart, listMinId);
+        return listMinId;
+    }
 
     private void emitJob2Queue() {
         String nodeAddress = zkService.getLocalAddress();
@@ -161,12 +165,9 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             return;
         }
         try {
-            //限制数据范围
-            Pair<String, String> cycTime = getCycTime();
-            Long startId = batchJobService.getListMinId(nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight());
-            logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{} .", getScheduleType(), cycTime.getLeft(), cycTime.getRight(), nodeAddress, startId);
-            if (startId!=null) {
-                List<ScheduleBatchJob> listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight(),Boolean.TRUE);
+            Long startId = getListMinId(nodeAddress, Restarted.NORMAL.getStatus());
+            if (startId != null) {
+                List<ScheduleBatchJob> listExecJobs = this.listExecJob(startId, nodeAddress, Boolean.TRUE);
                 while (CollectionUtils.isNotEmpty(listExecJobs)) {
                     for (ScheduleBatchJob scheduleBatchJob : listExecJobs) {
                         // 节点检查是否能进入队列
@@ -182,15 +183,17 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
                             Integer type = batchTask.getTaskType();
                             Integer status = batchJobService.getStatusById(scheduleBatchJob.getId());
+
+                            JobCheckRunInfo checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), batchTask);
                             if (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
-                                logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB so immediate put queue.", scheduleBatchJob.getJobId(), getScheduleType());
-                                if (status != null && status.equals(RdosTaskStatus.UNSUBMIT.getStatus())) {
+                                logger.info("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB so immediate put queue.", scheduleBatchJob.getJobId(), getScheduleType());
+                                if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status) && isPutQueue(checkRunInfo, scheduleBatchJob)) {
                                     putScheduleJob(scheduleBatchJob);
+                                } else if(!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)){
+                                    logger.info("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
+                                    batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(), scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
                                 }
-                                logger.error("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
-                                batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(),scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
                             } else {
-                                JobCheckRunInfo checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(),batchTask);
                                 if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
                                     // 更新job状态
                                     boolean updateStatus = batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.CREATE, JobPhaseStatus.JOIN_THE_TEAM);
@@ -200,20 +203,14 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                                     }
                                 }
                             }
-
-                            //重跑任务不记录id
-                            if (Restarted.RESTARTED.getStatus() != scheduleBatchJob.getIsRestart()) {
-                                startId = scheduleBatchJob.getId();
-                            }
+                            startId = scheduleBatchJob.getId();
                         } catch (Exception e) {
                             logger.error("jobId:{} scheduleType:{} nodeAddress:{} emitJob2Queue error:", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, e);
                             Integer status = RdosTaskStatus.FAILED.getStatus();
-                            batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), status,e.getMessage());
+                            batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), status, e.getMessage());
                         }
                     }
-                    cycTime = getCycTime();
-                    listExecJobs = this.listExecJob(startId, nodeAddress, cycTime.getLeft(), cycTime.getRight(),Boolean.FALSE);
-                    logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{} .", getScheduleType(), cycTime.getLeft(), cycTime.getRight(), nodeAddress, startId);
+                    listExecJobs = this.listExecJob(startId, nodeAddress, Boolean.FALSE);
                 }
             }
         } catch (Exception e) {
@@ -265,6 +262,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         try {
             if (scheduleJobQueue.contains(scheduleBatchJob)) {
                 //元素已存在，返回true
+                logger.info("jobId:{} scheduleType:{} queue has contains ", scheduleBatchJob.getJobId(), getScheduleType());
                 return;
             }
             scheduleJobQueue.put(scheduleBatchJob);
@@ -273,27 +271,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             logger.error("jobId:{} scheduleType:{} job phase rollback, error", scheduleBatchJob.getJobId(), getScheduleType(), e);
             batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.JOIN_THE_TEAM, JobPhaseStatus.CREATE);
         }
-    }
-
-    protected List<ScheduleBatchJob> getRestartDataJob(String cycStartTime) {
-        int status = RdosTaskStatus.UNSUBMIT.getStatus();
-        Timestamp lasTime = null;
-        if (!StringUtils.isBlank(cycStartTime)) {
-            DateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-            try {
-                Date parse = sdf.parse(cycStartTime);
-                if (null != parse) {
-                    lasTime = new Timestamp(parse.getTime());
-                }
-            } catch (ParseException e) {
-                logger.error("getRestartDataJob {} error ",cycStartTime,e);
-            }
-        }
-        if (null == lasTime) {
-            lasTime = new Timestamp(DateTime.now().withTime(0,0,0,0).getMillis());
-        }
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listRestartBatchJobList(getScheduleType().getType(), status, lasTime);
-        return getScheduleBatchJobList(scheduleJobs);
     }
 
     protected List<ScheduleBatchJob> getScheduleBatchJobList(List<ScheduleJob> scheduleJobs) {
@@ -316,7 +293,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         if (getScheduleType().getType() == EScheduleType.NORMAL_SCHEDULE.getType()) {
             cycTime = jobRichOperator.getCycTimeLimitEndNow();
         } else {
-            //补数据没有时间限制
+            //补数据和重跑没有时间限制
             cycTime = new ImmutablePair<>(null, null);
         }
         return cycTime;
