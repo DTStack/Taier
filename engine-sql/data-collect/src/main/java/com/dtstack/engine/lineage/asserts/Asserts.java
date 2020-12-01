@@ -1,13 +1,21 @@
 package com.dtstack.engine.lineage.asserts;
 
-import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.enums.DataSourceType;
 import com.dtstack.engine.api.service.DataSourceService;
+import com.dtstack.engine.api.service.LineageService;
+import com.dtstack.engine.api.vo.lineage.LineageColumnColumnParam;
+import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
+import com.dtstack.engine.api.vo.lineage.LineageDataSourceVO;
+import com.dtstack.engine.api.vo.lineage.LineageTableTableParam;
+import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
+import com.dtstack.engine.api.vo.lineage.LineageTableVO;
 import com.dtstack.engine.api.vo.lineage.param.DataSourceParam;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.lineage.CollectAppType;
 import com.dtstack.engine.lineage.DataCollection;
+import com.dtstack.engine.lineage.batch.BatchDataSource;
+import com.dtstack.engine.lineage.batch.BatchDataSourceTypeConvert;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.sdk.core.common.DtInsightApi;
 import com.google.common.base.Joiner;
@@ -27,7 +35,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -43,15 +50,15 @@ public class Asserts extends DataCollection {
 
     private static final String asset_tenant_sql = "select id,dtuic_tenant_id,tenant_name from assets_tenant";
 
-    private static final String table_lineage_sql = "select is_manual,lineage_table_id,input_table_id from assets_table_lineage where tenant_id = ?";
+    private static final String table_lineage_sql = "select is_manual,lineage_table_id,input_table_id from assets_table_lineage where tenant_id = ? and is_manual = 1 and is_deleted = 0";
 
     private static final String lineage_table_sql = "select id,is_manual,table_id,table_name,db_name,data_source_name,tenant_id from assets_lineage_table where id in (%s)";
 
     private static final String asset_table_sql = "select id,table_name,data_source_type,data_source_id,";
 
-    private static final String column_lineage_sql = "select is_manual,lineage_column_id,input_column_id,tenant_id from assets_column_lineage";
+    private static final String column_lineage_sql = "select is_manual,lineage_column_id,input_column_id,tenant_id from assets_column_lineage where tenant_id = ? and is_deleted = 0";
 
-    private static final String lineage_column_sql = "select lineage_table_id,column_id,column_name,table_name,db_name,data_source_name,tenant_id from assets_lineage_column";
+    private static final String lineage_column_sql = "select id,lineage_table_id,is_manual,column_name,table_name,db_name,data_source_name,tenant_id from assets_lineage_column where id inn(%s)";
 
     private static String PAGE_QUERY_DATASOURCE_BY_TENANT = "select data_source_name,data_source_json,data_source_type,tenant_id from assets_data_source where tenant_id = ? and is_deleted = 0 limit ?,?";
 
@@ -77,20 +84,20 @@ public class Asserts extends DataCollection {
             //查询数据源信息，并批量导入
             try {
                 int countDataSource = getCountDataSource(tenantDTO);
-                if(countDataSource>0){
+                if (countDataSource > 0) {
                     double val = countDataSource * 1.0d / PAGE_SIZE;
                     int pageCount = (int) Math.ceil(val);
                     for (int i = 0; i < pageCount; i++) {
                         int start = i * PAGE_SIZE;
-                        int end = (i+1) * PAGE_SIZE;
-                        List<AssertDataSource> batchDataSources = getAssertDataSources(tenantDTO.getId(),start,end);
-                        if (batchDataSources.size()>0){
-                            sendDataSourceListToEngine(batchDataSources,tenantDTO);
+                        int end = (i + 1) * PAGE_SIZE;
+                        List<AssertDataSource> batchDataSources = getAssertDataSources(tenantDTO.getId(), start, end);
+                        if (batchDataSources.size() > 0) {
+                            sendDataSourceListToEngine(batchDataSources, tenantDTO);
                         }
                     }
                 }
             } catch (Exception e) {
-                logger.error("数据源数据推送异常,e:{}",ExceptionUtil.getErrorMessage(e));
+                logger.error("数据源数据推送异常,e:{}", ExceptionUtil.getErrorMessage(e));
             }
 
 
@@ -102,42 +109,150 @@ public class Asserts extends DataCollection {
                 lineageTableIdSet.add(l.getLineageTableId());
             });
             Map<Long, AssetLineageTableDTO> assertLineageTableMap = getAssertLineageTableMap(lineageTableIdSet);
-            Set<Long> assetTableSet = new HashSet<>(20);
-            assertLineageTableMap.forEach((k, v) -> {
-                if (Objects.nonNull(v.getTableId())) {
-                    assetTableSet.add(v.getTableId());
-                }
+            List<LineageTableTableVO> tableTableVOS = new ArrayList<>();
+            for (AssetTableLineageDTO tableLineageDTO:tableLineagesByTenant){
+                LineageTableTableVO tableTableVO = new LineageTableTableVO();
+                tableTableVO.setAppType(AppType.MAP.getType());
+                LineageTableVO resultTableVo = getLineageTableVoByLineageTable(assertLineageTableMap.get(tableLineageDTO.getLineageTableId()));
+                tableTableVO.setResultTableInfo(resultTableVo);
+                LineageTableVO inputTableVo = getLineageTableVoByLineageTable(assertLineageTableMap.get(tableLineageDTO.getInputTableId()));
+                tableTableVO.setInputTableInfo(inputTableVo);
+                tableTableVO.setDtUicTenantId(tenantDTO.getDtuicTenantId());
+                tableTableVOS.add(tableTableVO);
+            }
+            sendTableLineageToEngine(tableTableVOS);
+            Set<AssetColumnLineageDTO> columnLineageByTenant = getColumnLineageByTenant(tenantDTO);
+            Set<Long> columnIdSet = new HashSet<>(60);
+            columnLineageByTenant.forEach(cl->{
+                columnIdSet.add(cl.getInputColumnId());
+                columnIdSet.add(cl.getLineageColumnId());
             });
-            Map<Long, AssetTableDTO> assertTableMap = getAssertTableMap(assetTableSet);
+
+            Map<Long, AssetLineageColumnDTO> lineageColumnMap = getLineageColumnMap(columnIdSet);
+            List<LineageColumnColumnVO> columnColumnVOS = new ArrayList<>();
+            for (AssetColumnLineageDTO columnLineageDTO:columnLineageByTenant){
+                LineageColumnColumnVO vo = new LineageColumnColumnVO();
+                vo.setDtUicTenantId(tenantDTO.getDtuicTenantId());
+                vo.setAppType(AppType.MAP.getType());
+                vo.setInputColumnName(lineageColumnMap.get(columnLineageDTO.getInputColumnId()).getColumnName());
+                vo.setResultColumnName(lineageColumnMap.get(columnLineageDTO.getLineageColumnId()).getColumnName());
+                LineageTableVO resultTableVo = getLineageTableVO(lineageColumnMap.get(columnLineageDTO.getLineageColumnId()));
+                vo.setResultTableInfo(resultTableVo);
+                LineageTableVO inputTableVo = getLineageTableVO(lineageColumnMap.get(columnLineageDTO.getInputColumnId()));
+                vo.setInputTableInfo(inputTableVo);
+                columnColumnVOS.add(vo);
+            }
+            sendColumnLineageToEngine(columnColumnVOS);
         }
-        //1.查询表级血缘
-        //2.根据血缘表id查询血缘表信息
-        //3.根据血缘表信息查询真实表信息
-        //4.根据表信息查询engine表信息
-        //5.处理数据插入
+    }
+
+    private void sendColumnLineageToEngine(List<LineageColumnColumnVO> columnColumnVOS) {
+        List<List<LineageColumnColumnVO>> partitions = Lists.partition(columnColumnVOS, 200);
+        LineageService lineageService = getDtInsightApi().getSlbApiClient(LineageService.class);
+        for (List<LineageColumnColumnVO> part : partitions){
+            LineageColumnColumnParam param = new LineageColumnColumnParam();
+            param.setLineageTableTableVOs(part);
+            lineageService.acquireOldColumnColumn(param);
+        }
+    }
+
+    private void sendTableLineageToEngine(List<LineageTableTableVO> tableTableVOS){
+        List<List<LineageTableTableVO>> partition = Lists.partition(tableTableVOS, 200);
+        LineageService lineageService = getDtInsightApi().getSlbApiClient(LineageService.class);
+        for (List<LineageTableTableVO> part : partition){
+            LineageTableTableParam param = new LineageTableTableParam();
+            param.setLineageTableTableVOs(part);
+            lineageService.acquireOldTableTable(param);
+        }
+    }
+
+    private LineageTableVO getLineageTableVoByLineageTable(AssetLineageTableDTO assetLineageTableDTO){
+        LineageTableVO tableVO = new LineageTableVO();
+        tableVO.setSchemaName(assetLineageTableDTO.getDbName());
+        tableVO.setDbName(assetLineageTableDTO.getDbName());
+        tableVO.setTableName(assetLineageTableDTO.getTableName());
+        LineageDataSourceVO dataSourceVO = new LineageDataSourceVO();
+        dataSourceVO.setSourceName(assetLineageTableDTO.getDataSourceName());
+        dataSourceVO.setAppType(AppType.MAP.getType());
+        tableVO.setDataSourceVO(dataSourceVO);
+        return tableVO;
+    }
+
+    private LineageTableVO getLineageTableVO(AssetLineageColumnDTO assetLineageColumnDTO) {
+        LineageTableVO tableVO = new LineageTableVO();
+        tableVO.setSchemaName(assetLineageColumnDTO.getDbName());
+        tableVO.setDbName(assetLineageColumnDTO.getDbName());
+        tableVO.setTableName(assetLineageColumnDTO.getTableName());
+        LineageDataSourceVO dataSourceVO = new LineageDataSourceVO();
+        dataSourceVO.setSourceName(assetLineageColumnDTO.getDataSourceName());
+        dataSourceVO.setAppType(AppType.MAP.getType());
+        tableVO.setDataSourceVO(dataSourceVO);
+        return tableVO;
+    }
+
+    private Map<Long, AssetLineageColumnDTO> getLineageColumnMap(Set<Long> columnIdSet) {
+        Map<Long,AssetLineageColumnDTO> resMap = new HashMap<>(60);
+        DataSource dataSource = getDataSource();
+        List<String> sqls = new ArrayList<>();
+        List<Long> idList = Lists.newArrayList(columnIdSet);
+        //超过100条，分批查询
+        List<List<Long>> partitions = Lists.partition(idList, batch_size);
+        for (List<Long> ids : partitions) {
+            sqls.add(Joiner.on(",").join(ids));
+        }
+        try (Connection connection = dataSource.getConnection()) {
+            for (int i = 0; i < partitions.size(); i++) {
+                String sql = sqls.get(i);
+                List<Long> params = partitions.get(i);
+                String preparedSql = String.format(lineage_column_sql, sql);
+                PreparedStatement prepareStatement = connection.prepareStatement(preparedSql);
+                for (int j = 0; j < params.size(); j++) {
+                    prepareStatement.setLong(j + 1, params.get(j));
+                }
+                ResultSet resultSet = prepareStatement.executeQuery();
+                while (resultSet.next()) {
+                    //id,lineage_table_id,is_manual,column_name,table_name,db_name,data_source_name,tenant_id
+                    AssetLineageColumnDTO columnDTO = new AssetLineageColumnDTO();
+                    columnDTO.setId(resultSet.getLong(1));
+                    columnDTO.setLineageTableId(resultSet.getLong(2));
+                    columnDTO.setIsManual(resultSet.getInt(3));
+                    columnDTO.setColumnName(resultSet.getString(4));
+                    columnDTO.setTableName(resultSet.getString(5));
+                    columnDTO.setDbName(resultSet.getString(6));
+                    columnDTO.setDataSourceName(resultSet.getString(7));
+                    columnDTO.setTenantId(resultSet.getLong(8));
+                    resMap.put(columnDTO.getId(), columnDTO);
+                }
+                resultSet.close();
+                prepareStatement.close();
+            }
+        } catch (SQLException e) {
+            logger.error("",e);
+        }
+        return resMap;
     }
 
     /**
+     * @param tenantId:
      * @author zyd
      * @Description 获取资产数据源列表
      * @Date 2020/12/1 11:54 上午
-     * @param tenantId: 
      * @return: java.util.List<BatchDataSource>
      **/
-    private List<AssertDataSource> getAssertDataSources(Long tenantId,int start,int end) throws Exception {
+    private List<AssertDataSource> getAssertDataSources(Long tenantId, int start, int end) throws Exception {
 
         List<AssertDataSource> assertDataSources = new ArrayList<>();
         DataSource dataSource = getDataSource();
-        try(Connection connection = dataSource.getConnection();
-            PreparedStatement statement = connection.prepareStatement(PAGE_QUERY_DATASOURCE_BY_TENANT);
-        ){
-            statement.setLong(1,tenantId);
-            statement.setLong(2,start);
-            statement.setLong(3,end);
-            try(
-            ResultSet resultSet = statement.executeQuery();
-            ){
-                while (resultSet.next()){
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(PAGE_QUERY_DATASOURCE_BY_TENANT);
+        ) {
+            statement.setLong(1, tenantId);
+            statement.setLong(2, start);
+            statement.setLong(3, end);
+            try (
+                    ResultSet resultSet = statement.executeQuery();
+            ) {
+                while (resultSet.next()) {
                     AssertDataSource dataSource1 = new AssertDataSource();
                     dataSource1.setSourceName(resultSet.getString(1));
                     dataSource1.setDataJson(resultSet.getString(2));
@@ -146,9 +261,9 @@ public class Asserts extends DataCollection {
                     assertDataSources.add(dataSource1);
                 }
             }
-        }catch (Exception e){
-            logger.error(this.getClass()+":getAssertDataSources"+"分页查询数据源异常，tenantId:{},e:{}",
-                    tenantId,ExceptionUtil.getErrorMessage(e));
+        } catch (Exception e) {
+            logger.error(this.getClass() + ":getAssertDataSources" + "分页查询数据源异常，tenantId:{},e:{}",
+                    tenantId, ExceptionUtil.getErrorMessage(e));
         }
         return assertDataSources;
     }
@@ -163,32 +278,20 @@ public class Asserts extends DataCollection {
 
         DataSource dataSource = getDataSource();
         int countDataSource = 0;
-        try(
-            Connection connection = dataSource.getConnection();
-            PreparedStatement statement =  connection.prepareStatement(QUERY_DATASOURCE_COUNT_BY_TENANT);
-        ){
-            statement.setLong(1,tenant.getId());
-            try(ResultSet resultSet = statement.executeQuery();){
-                if(resultSet.next()){
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(QUERY_DATASOURCE_COUNT_BY_TENANT);
+        ) {
+            statement.setLong(1, tenant.getId());
+            try (ResultSet resultSet = statement.executeQuery();) {
+                if (resultSet.next()) {
                     countDataSource = resultSet.getInt(1);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("查询数据源个数异常,e:{}", ExceptionUtil.getTaskLogError(e));
         }
         return countDataSource;
-    }
-
-    private Map<Long, AssetTableDTO> getAssertTableMap(Set<Long> tableIds) {
-        Map<Long, AssetTableDTO> tableMap = new HashMap<>(20);
-        String inSqlPart = Joiner.on(",").join(tableIds);
-        DataSource dataSource = getDataSource();
-        try (Connection connection = dataSource.getConnection()) {
-            //TODO
-        } catch (SQLException e) {
-            logger.error("",e);
-        }
-        return tableMap;
     }
 
     private static final int batch_size = 100;
@@ -236,6 +339,12 @@ public class Asserts extends DataCollection {
         return resMap;
     }
 
+    /**
+     * 表级血缘只抓取手动维护的。因为字段级血缘包含了表级血缘
+     *
+     * @param tenantDTO
+     * @return
+     */
     private Set<AssetTableLineageDTO> getTableLineagesByTenant(AssetTenantDTO tenantDTO) {
         DataSource dataSource = getDataSource();
         Set<AssetTableLineageDTO> res = new HashSet<>();
@@ -254,6 +363,27 @@ public class Asserts extends DataCollection {
             }
         } catch (SQLException e) {
             logger.error("", e);
+        }
+        return res;
+    }
+
+    private Set<AssetColumnLineageDTO> getColumnLineageByTenant(AssetTenantDTO tenantDTO) {
+        Set<AssetColumnLineageDTO> res = new HashSet<>();
+        DataSource dataSource = getDataSource();
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement prepareStatement = connection.prepareStatement(column_lineage_sql)) {
+            prepareStatement.setLong(1, tenantDTO.getId());
+            try (ResultSet resultSet = prepareStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    AssetColumnLineageDTO columnLineageDTO = new AssetColumnLineageDTO();
+                    columnLineageDTO.setIsManual(resultSet.getInt(1));
+                    columnLineageDTO.setLineageColumnId(resultSet.getLong(2));
+                    columnLineageDTO.setInputColumnId(resultSet.getLong(3));
+                    res.add(columnLineageDTO);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return res;
     }
@@ -277,7 +407,7 @@ public class Asserts extends DataCollection {
         return res;
     }
 
-    private  void sendDataSourceListToEngine(List<AssertDataSource> assertDataSourceList, AssetTenantDTO tenant) {
+    private void sendDataSourceListToEngine(List<AssertDataSource> assertDataSourceList, AssetTenantDTO tenant) {
 
         DataSourceService dataSourceService = getDtInsightApi().getSlbApiClient(DataSourceService.class);
         DataSourceParam dataSourceParam = new DataSourceParam();
@@ -287,9 +417,9 @@ public class Asserts extends DataCollection {
             //数据源类型进行转换
             String nameByTypeCode = AssertDataSourceTypeEnum.getNameByTypeCode(assertDataSource.getSourceType());
             DataSourceType byName = DataSourceType.getByName(nameByTypeCode);
-            if(byName==null){
-                logger.error("数据源类型不支持,tenantId:{},sourceTypeName:{},sourceType:{}",tenant.getDtuicTenantId(),
-                        nameByTypeCode,assertDataSource.getSourceType());
+            if (byName == null) {
+                logger.error("数据源类型不支持,tenantId:{},sourceTypeName:{},sourceType:{}", tenant.getDtuicTenantId(),
+                        nameByTypeCode, assertDataSource.getSourceType());
                 continue;
             }
             dataSourceDTO.setSourceType(byName.getType());

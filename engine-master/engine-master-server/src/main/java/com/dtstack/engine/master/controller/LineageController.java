@@ -3,6 +3,7 @@ package com.dtstack.engine.master.controller;
 import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnParam;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
+import com.dtstack.engine.api.vo.lineage.LineageTableTableParam;
 import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
 import com.dtstack.engine.api.vo.lineage.SqlParseInfo;
 import com.dtstack.engine.api.vo.lineage.TableLineageParseInfo;
@@ -221,8 +222,8 @@ public class LineageController {
 
     @RequestMapping(value = "/acquireOldTableTable", method = {RequestMethod.POST})
     @ApiOperation(value = "批量同步表级血缘")
-    public void acquireOldTableTable(@RequestBody List<LineageTableTableVO> lineageTableTableVOs){
-        lineageService.acquireOldTableTable(lineageTableTableVOs);
+    public void acquireOldTableTable(@RequestBody LineageTableTableParam lineageTableTableParam){
+        lineageService.acquireOldTableTable(lineageTableTableParam.getLineageTableTableVOs());
     }
 
     @RequestMapping(value = "/acquireOldColumnColumn", method = {RequestMethod.POST})

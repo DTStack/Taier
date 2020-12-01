@@ -9,6 +9,7 @@ import com.dtstack.engine.lineage.CollectAppType;
 import com.dtstack.engine.lineage.DataCollection;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.sdk.core.common.DtInsightApi;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,10 +167,13 @@ public class Batch extends DataCollection {
             vo.setInputTableInfo(inputTableVo);
             columnColumnVOS.add(vo);
         }
+        List<List<LineageColumnColumnVO>> partition = Lists.partition(columnColumnVOS, 200);
         LineageService lineageService = getDtInsightApi().getSlbApiClient(LineageService.class);
-        LineageColumnColumnParam param = new LineageColumnColumnParam();
-        param.setLineageTableTableVOs(columnColumnVOS);
-        lineageService.acquireOldColumnColumn(param);
+        for (List<LineageColumnColumnVO> part : partition){
+            LineageColumnColumnParam param = new LineageColumnColumnParam();
+            param.setLineageTableTableVOs(part);
+            lineageService.acquireOldColumnColumn(param);
+        }
     }
 
     private static LineageTableVO getLineageTableVO(String tableNam, BatchDataSource batchDataSource) {
@@ -178,7 +182,7 @@ public class Batch extends DataCollection {
         tableVO.setDbName(batchDataSource.getDbName());
         tableVO.setTableName(tableNam);
         LineageDataSourceVO dataSourceVO = new LineageDataSourceVO();
-        dataSourceVO.setSourceType(batchDataSource.getSourceType());
+        dataSourceVO.setSourceType(BatchDataSourceTypeConvert.getEngineSourceTypeByBatchType(batchDataSource.getSourceType()));
         dataSourceVO.setSourceName(batchDataSource.getSourceName());
         dataSourceVO.setAppType(AppType.RDOS.getType());
         tableVO.setDataSourceVO(dataSourceVO);

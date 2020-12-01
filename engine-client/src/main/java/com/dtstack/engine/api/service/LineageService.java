@@ -4,6 +4,7 @@ import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnParam;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
+import com.dtstack.engine.api.vo.lineage.LineageTableTableParam;
 import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
 import com.dtstack.engine.api.vo.lineage.SqlParseInfo;
 import com.dtstack.engine.api.vo.lineage.TableLineageParseInfo;
@@ -164,10 +165,18 @@ public interface LineageService extends DtInsightServer {
     ApiResponse<List<LineageColumnColumnVO>> queryColumnLineages(@Param("appType")Long appType,@Param("tableId")Long tableId,@Param("columnName")String columnName);
 
     /**
-     * 推送历史血缘数据
+     * 推送历史血缘数据，字段级血缘会自动添加相应的表级血缘
      * @param lineageTableTableVOs
      * @return
      */
     @RequestLine("POST /node/lineage/acquireOldColumnColumn")
-    ApiResponse<List<LineageColumnColumnVO>> acquireOldColumnColumn(LineageColumnColumnParam lineageTableTableVOs);
+    ApiResponse acquireOldColumnColumn(LineageColumnColumnParam lineageTableTableVOs);
+
+    /**
+     * 推送历史血缘数据。常用于推送手动维护的血缘信息
+     * @param lineageTableTableParam
+     * @return
+     */
+    @RequestLine("POST /node/lineage/acquireOldTableTable")
+    ApiResponse acquireOldTableTable(LineageTableTableParam lineageTableTableParam);
 }
