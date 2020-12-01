@@ -114,9 +114,10 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
     protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress,Boolean isEq) {
         Pair<String, String> cycTime = getCycTime();
-        logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{}  isEq {} .", getScheduleType(), cycTime.getLeft(), cycTime.getRight(), nodeAddress, startId,isEq);
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), JobPhaseStatus.CREATE.getCode(),isEq
                 ,null, Restarted.NORMAL.getStatus());
+        logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{}  isEq {}  queryJobSize {}.", getScheduleType(), cycTime.getLeft(), cycTime.getRight(), nodeAddress, startId,isEq,
+                scheduleJobs.size());
         return getScheduleBatchJobList(scheduleJobs);
     }
 
@@ -158,8 +159,9 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
      * @return
      */
     protected Long getListMinId(String nodeAddress, Integer isRestart) {
-        Long listMinId = batchJobService.getListMinId(nodeAddress, getScheduleType().getType(), getCycTime().getLeft(), getCycTime().getRight(), isRestart);
-        logger.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} .", getScheduleType(), nodeAddress, isRestart, listMinId);
+        Pair<String, String> cycTime = getCycTime();
+        Long listMinId = batchJobService.getListMinId(nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), isRestart);
+        logger.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} . cycStartTime {} cycEndTime {}", getScheduleType(), nodeAddress, isRestart, listMinId, cycTime.getLeft(), cycTime.getRight());
         return listMinId;
     }
 
