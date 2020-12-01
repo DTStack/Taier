@@ -212,7 +212,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                                     }
                                 }
                             }
-                            logger.info("startId is {} jobId is {} scheduleType {} isRestart {}", startId, scheduleBatchJob.getId(), getScheduleType(),scheduleBatchJob.getIsRestart());
+                            logger.info("startId is {} jobId is {} scheduleType {} isRestart {}", startId, scheduleBatchJob.getJobId(), getScheduleType(),scheduleBatchJob.getIsRestart());
                             startId = scheduleBatchJob.getId();
                         } catch (Exception e) {
                             logger.error("jobId:{} scheduleType:{} nodeAddress:{} emitJob2Queue error:", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, e);
