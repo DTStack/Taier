@@ -114,7 +114,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
     protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress,Boolean isEq) {
         Pair<String, String> cycTime = getCycTime();
-        logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{}  isEq {} .", getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), nodeAddress, startId,isEq);
+        logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{}  isEq {} .", getScheduleType(), cycTime.getLeft(), cycTime.getRight(), nodeAddress, startId,isEq);
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), JobPhaseStatus.CREATE.getCode(),isEq
                 ,null, Restarted.NORMAL.getStatus());
         return getScheduleBatchJobList(scheduleJobs);
@@ -159,7 +159,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
      */
     protected Long getListMinId(String nodeAddress, Integer isRestart) {
         Long listMinId = batchJobService.getListMinId(nodeAddress, getScheduleType().getType(), getCycTime().getLeft(), getCycTime().getRight(), isRestart);
-        logger.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} .", getScheduleType().getType(), nodeAddress, isRestart, listMinId);
+        logger.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} .", getScheduleType(), nodeAddress, isRestart, listMinId);
         return listMinId;
     }
 
@@ -170,7 +170,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         }
         try {
             Long startId = getListMinId(nodeAddress, Restarted.NORMAL.getStatus());
-            logger.info("start emitJob2Queue  scheduleType {} nodeAddress {} startId is {} .", getScheduleType().getType(), nodeAddress, startId);
+            logger.info("start emitJob2Queue  scheduleType {} nodeAddress {} startId is {} ", getScheduleType(), nodeAddress, startId);
             if (startId != null) {
                 List<ScheduleBatchJob> listExecJobs = this.listExecJob(startId, nodeAddress, Boolean.TRUE);
                 while (CollectionUtils.isNotEmpty(listExecJobs)) {
@@ -210,7 +210,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                                     }
                                 }
                             }
-                            logger.info("startId is {} jobId is {} scheduleType {} isRestart {}", startId, scheduleBatchJob.getId(), getScheduleType().getType(),scheduleBatchJob.getIsRestart());
+                            logger.info("startId is {} jobId is {} scheduleType {} isRestart {}", startId, scheduleBatchJob.getId(), getScheduleType(),scheduleBatchJob.getIsRestart());
                             startId = scheduleBatchJob.getId();
                         } catch (Exception e) {
                             logger.error("jobId:{} scheduleType:{} nodeAddress:{} emitJob2Queue error:", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, e);
