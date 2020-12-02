@@ -44,14 +44,15 @@ public class RestartJobExecutor extends AbstractJobExecutor {
         //重跑查询补数据和周期调度的
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, null, null, null,
                 JobPhaseStatus.CREATE.getCode(), isEq, lasTime, Restarted.RESTARTED.getStatus());
-        logger.info("getRestartDataJob scheduleType {} nodeAddress {} start scanning since when startId:{}  isEq {} .", getScheduleType().getType(), nodeAddress, startId, isEq);
+        logger.info("getRestartDataJob scheduleType {} nodeAddress {} start scanning since when startId:{}  isEq {} queryJobSize {}. lastTime {}", getScheduleType(), nodeAddress, startId, isEq,
+                scheduleJobs.size(),lasTime.getTime());
         return getScheduleBatchJobList(scheduleJobs);
     }
 
     @Override
     protected Long getListMinId(String nodeAddress, Integer isRestart) {
         Long listMinId = batchJobService.getListMinId(nodeAddress, null, null, null, Restarted.RESTARTED.getStatus());
-        logger.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} .", getScheduleType().getType(), nodeAddress, Restarted.RESTARTED.getStatus(), listMinId);
+        logger.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} .", getScheduleType(), nodeAddress, Restarted.RESTARTED.getStatus(), listMinId);
         return listMinId;
     }
 }
