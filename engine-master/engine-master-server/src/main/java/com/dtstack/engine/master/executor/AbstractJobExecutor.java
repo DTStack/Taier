@@ -112,11 +112,11 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                 new CustomThreadRunsPolicy(threadName, getScheduleType().name()));
     }
 
-    protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress,Boolean isEq) {
+    protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress, Boolean isEq) {
         Pair<String, String> cycTime = getCycTime();
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), JobPhaseStatus.CREATE.getCode(),isEq
-                ,null, Restarted.NORMAL.getStatus());
-        logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{}  isEq {}  queryJobSize {}.", getScheduleType(), cycTime.getLeft(), cycTime.getRight(), nodeAddress, startId,isEq,
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), JobPhaseStatus.CREATE.getCode(), isEq
+                , null, Restarted.NORMAL.getStatus());
+        logger.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{}  isEq {}  queryJobSize {}.", getScheduleType(), nodeAddress, cycTime.getLeft(), cycTime.getRight(), startId, isEq,
                 scheduleJobs.size());
         return getScheduleBatchJobList(scheduleJobs);
     }
@@ -193,6 +193,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                             Integer type = batchTask.getTaskType();
                             Integer status = batchJobService.getStatusById(scheduleBatchJob.getId());
 
+                            checkJobVersion(scheduleBatchJob.getScheduleJob(),batchTask);
                             JobCheckRunInfo checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), new HashSet<>(), new HashMap<>(), taskCache);
                             if (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
                                 logger.info("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB so immediate put queue.", scheduleBatchJob.getJobId(), getScheduleType());
@@ -225,6 +226,17 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             }
         } catch (Exception e) {
             logger.error("scheduleType:{} nodeAddress:{} emitJob2Queue error:", getScheduleType(), nodeAddress, e);
+        }
+    }
+
+    private void checkJobVersion(ScheduleJob scheduleJob, ScheduleTaskShade batchTask) {
+        if (null == scheduleJob || null == batchTask || null == scheduleJob.getVersionId() || null == batchTask.getVersionId()) {
+            return;
+        }
+        //同步taskShade最新的versionId
+        if (!batchTask.getVersionId().equals(scheduleJob.getVersionId())) {
+            logger.info("update scheduleJob jobId {} versionId from {} to {} taskId {}", scheduleJob.getJobId(),scheduleJob.getVersionId(), batchTask.getVersionId(),batchTask.getTaskId());
+            scheduleJobDao.updateStatusByJobId(scheduleJob.getJobId(), null, null, batchTask.getVersionId());
         }
     }
 
