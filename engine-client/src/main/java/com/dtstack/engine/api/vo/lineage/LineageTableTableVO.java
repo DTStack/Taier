@@ -31,6 +31,9 @@ public class LineageTableTableVO {
     @ApiModelProperty("血缘批次唯一码")
     private String uniqueKey;
 
+    @ApiModelProperty("是否手动维护")
+    private Boolean isManual;
+
     public Integer getAppType() {
         return appType;
     }
@@ -77,5 +80,13 @@ public class LineageTableTableVO {
 
     public void setUniqueKey(String uniqueKey) {
         this.uniqueKey = uniqueKey;
+    }
+
+    public Boolean getManual() {
+        return isManual;
+    }
+
+    public void setManual(Boolean manual) {
+        isManual = manual;
     }
 }

@@ -76,7 +76,7 @@ public class LineageColumnColumnServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testManualAddColumnLineage() {
-        lineageColumnColumnService.manualAddColumnLineage(0, null, "");
+        lineageColumnColumnService.manualAddColumnLineage(0, null, "",null);
         //TODO
     }
 

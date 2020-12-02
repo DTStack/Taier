@@ -10,6 +10,7 @@ import com.dtstack.engine.lineage.DataCollection;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.sdk.core.common.DtInsightApi;
 import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,6 +167,13 @@ public class Batch extends DataCollection {
             LineageTableVO inputTableVo = getLineageTableVO(lineage.getInputTableName(),dataSourceMap.get(lineage.getInputDataSourceId()));
             vo.setInputTableInfo(inputTableVo);
             columnColumnVOS.add(vo);
+        }
+        sendColumnLineageToEngine(columnColumnVOS);
+    }
+
+    private void sendColumnLineageToEngine(List<LineageColumnColumnVO> columnColumnVOS){
+        if(CollectionUtils.isEmpty(columnColumnVOS)){
+            return;
         }
         List<List<LineageColumnColumnVO>> partition = Lists.partition(columnColumnVOS, 200);
         LineageService lineageService = getDtInsightApi().getSlbApiClient(LineageService.class);

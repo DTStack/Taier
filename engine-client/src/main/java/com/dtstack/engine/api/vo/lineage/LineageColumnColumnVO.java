@@ -55,6 +55,20 @@ public class LineageColumnColumnVO {
     @ApiModelProperty(value = "使用双亲表示法，标识树数据结构",notes = "当前节点的父节点在列表中的下标")
     private Integer parentIndex;
 
+    /**
+     * 是否手动维护
+     */
+    @ApiModelProperty("是否手动维护")
+    private Boolean isManual;
+
+    public Boolean getManual() {
+        return isManual;
+    }
+
+    public void setManual(Boolean manual) {
+        isManual = manual;
+    }
+
     public Integer getAppType() {
         return appType;
     }

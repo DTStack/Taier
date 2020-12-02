@@ -76,7 +76,7 @@ public class LineageTableTableServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testManualAddTableLineage() {
-        lineageTableTableService.manualAddTableLineage(0, null, "");
+        lineageTableTableService.manualAddTableLineage(0, null, "",null);
         //TODO
     }
 

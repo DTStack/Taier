@@ -152,17 +152,22 @@ public class LineageTableTableService {
      * @param appType
      * @param lineageTableTable
      */
-    public void manualAddTableLineage(Integer appType, LineageTableTable lineageTableTable,String uniqueKey){
+    public void manualAddTableLineage(Integer appType, LineageTableTable lineageTableTable,String uniqueKey,Integer lineageSource){
         //需要确保表存在
         //添加血缘
         //添加血缘ref
-        lineageTableTable.setLineageSource(LineageOriginType.MANUAL_ADD.getType());
-        if (StringUtils.isEmpty(uniqueKey)){
+        if (Objects.isNull(lineageSource)){
+            lineageTableTable.setLineageSource(LineageOriginType.MANUAL_ADD.getType());
+        }
+        if (StringUtils.isEmpty(lineageTableTable.getTableLineageKey())){
             lineageTableTable.setTableLineageKey(generateTableTableKey(lineageTableTable));
         }
         //TODO 处理好tableKey
         lineageTableTableDao.batchInsertTableTable(Lists.newArrayList(lineageTableTable));
         Long lineageTableTableId = lineageTableTable.getId();
+        if (StringUtils.isEmpty(uniqueKey)){
+            uniqueKey = generateDefaultUniqueKey(appType);
+        }
         LineageTableTableUniqueKeyRef ref = new LineageTableTableUniqueKeyRef();
         ref.setAppType(appType);
         ref.setLineageTableTableId(lineageTableTableId);
@@ -210,6 +215,9 @@ public class LineageTableTableService {
         }
         if (AppType.DQ.getType() == appType){
             return AppType.DQ.name();
+        }
+        if (AppType.MAP.getType() == appType){
+            return AppType.MAP.name();
         }
         return UUID.randomUUID().toString();
     }

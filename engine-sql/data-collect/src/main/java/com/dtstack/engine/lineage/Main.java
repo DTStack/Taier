@@ -35,7 +35,7 @@ public class Main {
     public static void main(String[] args) {
         initLog4jProperties();
         initApi();
-//        collectBatch();
+        collectBatch();
         collectAssert();
     }
 
@@ -127,9 +127,9 @@ public class Main {
                 comboDataSource.setJdbcUrl(Conf.getConf(getDataSourceKey(appType,Conf.URL_SUFFIX)));
                 comboDataSource.setUser(Conf.getConf(getDataSourceKey(appType,Conf.USER_SUFFIX)));
                 comboDataSource.setPassword(Conf.getConf(getDataSourceKey(appType,Conf.PASSWORD_SUFFIX)));
-                comboDataSource.setMaxPoolSize(20);
-                comboDataSource.setMinPoolSize(5);
-                comboDataSource.setInitialPoolSize(5);
+                comboDataSource.setMaxPoolSize(5);
+                comboDataSource.setMinPoolSize(1);
+                comboDataSource.setInitialPoolSize(3);
                 comboDataSource.setCheckoutTimeout(10000);
                 comboDataSource.setTestConnectionOnCheckin(true);
                 comboDataSource.setTestConnectionOnCheckout(true);

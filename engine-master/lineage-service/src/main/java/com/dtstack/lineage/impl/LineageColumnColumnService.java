@@ -4,6 +4,7 @@ import com.dtstack.engine.api.domain.LineageColumnColumn;
 import com.dtstack.engine.api.domain.LineageColumnColumnUniqueKeyRef;
 import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageTableTable;
+import com.dtstack.engine.api.enums.LineageOriginType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.lineage.dao.LineageColumnColumnUniqueKeyRefDao;
@@ -137,8 +138,10 @@ public class LineageColumnColumnService {
         return Lists.newArrayList(lineageSet);
     }
 
-    public void manualAddColumnLineage(Integer appType, LineageColumnColumn lineageColumnColumn,String uniqueKey){
-        //TODO 检查表信息lineageDataSetInfoService.getOne
+    public void manualAddColumnLineage(Integer appType, LineageColumnColumn lineageColumnColumn,String uniqueKey,Integer lineageSource){
+        if (Objects.isNull(lineageSource)){
+            lineageColumnColumn.setLineageSource(LineageOriginType.MANUAL_ADD.getType());
+        }
         if (StringUtils.isEmpty(lineageColumnColumn.getColumnLineageKey())){
             lineageColumnColumn.setColumnLineageKey(generateColumnColumnKey(lineageColumnColumn));
         }

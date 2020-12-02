@@ -19,6 +19,7 @@ import com.dtstack.engine.lineage.batch.BatchDataSourceTypeConvert;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.sdk.core.common.DtInsightApi;
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -35,7 +36,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author chener
@@ -50,7 +53,7 @@ public class Asserts extends DataCollection {
 
     private static final String asset_tenant_sql = "select id,dtuic_tenant_id,tenant_name from assets_tenant";
 
-    private static final String table_lineage_sql = "select is_manual,lineage_table_id,input_table_id from assets_table_lineage where tenant_id = ? and is_manual = 1 and is_deleted = 0";
+    private static final String table_lineage_sql = "select is_manual,lineage_table_id,input_table_id,tenant_id from assets_table_lineage where tenant_id = ? and is_manual = 1 and is_deleted = 0";
 
     private static final String lineage_table_sql = "select id,is_manual,table_id,table_name,db_name,data_source_name,tenant_id from assets_lineage_table where id in (%s)";
 
@@ -58,7 +61,7 @@ public class Asserts extends DataCollection {
 
     private static final String column_lineage_sql = "select is_manual,lineage_column_id,input_column_id,tenant_id from assets_column_lineage where tenant_id = ? and is_deleted = 0";
 
-    private static final String lineage_column_sql = "select id,lineage_table_id,is_manual,column_name,table_name,db_name,data_source_name,tenant_id from assets_lineage_column where id inn(%s)";
+    private static final String lineage_column_sql = "select id,lineage_table_id,is_manual,column_name,table_name,db_name,data_source_name,tenant_id from assets_lineage_column where id in (%s)";
 
     private static String PAGE_QUERY_DATASOURCE_BY_TENANT = "select data_source_name,data_source_json,data_source_type,tenant_id from assets_data_source where tenant_id = ? and is_deleted = 0 limit ?,?";
 
@@ -113,11 +116,22 @@ public class Asserts extends DataCollection {
             for (AssetTableLineageDTO tableLineageDTO:tableLineagesByTenant){
                 LineageTableTableVO tableTableVO = new LineageTableTableVO();
                 tableTableVO.setAppType(AppType.MAP.getType());
-                LineageTableVO resultTableVo = getLineageTableVoByLineageTable(assertLineageTableMap.get(tableLineageDTO.getLineageTableId()));
+                AssetLineageTableDTO lineageTableDTO = assertLineageTableMap.get(tableLineageDTO.getLineageTableId());
+                if (Objects.isNull(lineageTableDTO)){
+                    continue;
+                }
+                LineageTableVO resultTableVo = getLineageTableVoByLineageTable(lineageTableDTO);
                 tableTableVO.setResultTableInfo(resultTableVo);
-                LineageTableVO inputTableVo = getLineageTableVoByLineageTable(assertLineageTableMap.get(tableLineageDTO.getInputTableId()));
+                AssetLineageTableDTO lineageTableDTO1 = assertLineageTableMap.get(tableLineageDTO.getInputTableId());
+                if (Objects.isNull(lineageTableDTO1)){
+                    continue;
+                }
+                LineageTableVO inputTableVo = getLineageTableVoByLineageTable(lineageTableDTO1);
                 tableTableVO.setInputTableInfo(inputTableVo);
                 tableTableVO.setDtUicTenantId(tenantDTO.getDtuicTenantId());
+                if (tableLineageDTO.getIsManual() == 1){
+                    tableTableVO.setManual(true);
+                }
                 tableTableVOS.add(tableTableVO);
             }
             sendTableLineageToEngine(tableTableVOS);
@@ -134,12 +148,23 @@ public class Asserts extends DataCollection {
                 LineageColumnColumnVO vo = new LineageColumnColumnVO();
                 vo.setDtUicTenantId(tenantDTO.getDtuicTenantId());
                 vo.setAppType(AppType.MAP.getType());
-                vo.setInputColumnName(lineageColumnMap.get(columnLineageDTO.getInputColumnId()).getColumnName());
-                vo.setResultColumnName(lineageColumnMap.get(columnLineageDTO.getLineageColumnId()).getColumnName());
+                AssetLineageColumnDTO inputColumnDTO = lineageColumnMap.get(columnLineageDTO.getInputColumnId());
+                if (Objects.isNull(inputColumnDTO)){
+                    continue;
+                }
+                vo.setInputColumnName(inputColumnDTO.getColumnName());
+                AssetLineageColumnDTO lineageColumnDTO = lineageColumnMap.get(columnLineageDTO.getLineageColumnId());
+                if (Objects.isNull(lineageColumnDTO)){
+                    continue;
+                }
+                vo.setResultColumnName(lineageColumnDTO.getColumnName());
                 LineageTableVO resultTableVo = getLineageTableVO(lineageColumnMap.get(columnLineageDTO.getLineageColumnId()));
                 vo.setResultTableInfo(resultTableVo);
                 LineageTableVO inputTableVo = getLineageTableVO(lineageColumnMap.get(columnLineageDTO.getInputColumnId()));
                 vo.setInputTableInfo(inputTableVo);
+                if (columnLineageDTO.getIsManual() == 1){
+                    vo.setManual(true);
+                }
                 columnColumnVOS.add(vo);
             }
             sendColumnLineageToEngine(columnColumnVOS);
@@ -147,6 +172,9 @@ public class Asserts extends DataCollection {
     }
 
     private void sendColumnLineageToEngine(List<LineageColumnColumnVO> columnColumnVOS) {
+        if (CollectionUtils.isEmpty(columnColumnVOS)){
+            return;
+        }
         List<List<LineageColumnColumnVO>> partitions = Lists.partition(columnColumnVOS, 200);
         LineageService lineageService = getDtInsightApi().getSlbApiClient(LineageService.class);
         for (List<LineageColumnColumnVO> part : partitions){
@@ -157,6 +185,9 @@ public class Asserts extends DataCollection {
     }
 
     private void sendTableLineageToEngine(List<LineageTableTableVO> tableTableVOS){
+        if (CollectionUtils.isEmpty(tableTableVOS)){
+            return;
+        }
         List<List<LineageTableTableVO>> partition = Lists.partition(tableTableVOS, 200);
         LineageService lineageService = getDtInsightApi().getSlbApiClient(LineageService.class);
         for (List<LineageTableTableVO> part : partition){
@@ -198,7 +229,8 @@ public class Asserts extends DataCollection {
         //超过100条，分批查询
         List<List<Long>> partitions = Lists.partition(idList, batch_size);
         for (List<Long> ids : partitions) {
-            sqls.add(Joiner.on(",").join(ids));
+            List<String> holders = ids.stream().map(id -> "?").collect(Collectors.toList());
+            sqls.add(Joiner.on(",").join(holders));
         }
         try (Connection connection = dataSource.getConnection()) {
             for (int i = 0; i < partitions.size(); i++) {
@@ -307,7 +339,8 @@ public class Asserts extends DataCollection {
         //超过100条，分批查询
         List<List<Long>> partitions = Lists.partition(idList, batch_size);
         for (List<Long> ids : partitions) {
-            sqls.add(Joiner.on(",").join(ids));
+            List<String> holders = ids.stream().map(id -> "?").collect(Collectors.toList());
+            sqls.add(Joiner.on(",").join(holders));
         }
         try (Connection connection = dataSource.getConnection()) {
             for (int i = 0; i < partitions.size(); i++) {
