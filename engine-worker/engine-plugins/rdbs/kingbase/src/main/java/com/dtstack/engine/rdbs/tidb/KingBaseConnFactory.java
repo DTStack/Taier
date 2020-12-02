@@ -14,7 +14,7 @@ public class KingBaseConnFactory extends AbstractConnFactory {
 
     @Override
     public String getCreateProcedureHeader(String procName) {
-        return String.format("create  procedure \"%s\" Authid Current_User as\n", procName);
+        return String.format("create  procedure \"%s\" \n", procName);
     }
 
     @Override
