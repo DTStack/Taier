@@ -36,7 +36,8 @@ public enum EngineTypeComponentType {
     ORACLE_SQL(ScheduleEngineType.ORACLE, EComponentType.ORACLE_SQL),
     KUBERNETES(ScheduleEngineType.KUBERNETES, EComponentType.KUBERNETES),
     GREENPLUM_SQL(ScheduleEngineType.GREENPLUM, EComponentType.GREENPLUM_SQL),
-    PRESTO_SQL(ScheduleEngineType.Presto, EComponentType.PRESTO_SQL);
+    PRESTO_SQL(ScheduleEngineType.Presto, EComponentType.PRESTO_SQL),
+    KING_BASE(ScheduleEngineType.KING_BASE,EComponentType.KING_BASE);
 
     private ScheduleEngineType scheduleEngineType;
 

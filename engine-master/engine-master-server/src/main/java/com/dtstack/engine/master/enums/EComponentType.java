@@ -28,7 +28,8 @@ public enum EComponentType {
     GREENPLUM_SQL(14, "Greenplum SQL", "greenplumConf"),
     KUBERNETES(15, "Kubernetes", "kubernetesConf"),
     PRESTO_SQL(16, "Presto SQL", "prestoConf"),
-    NFS(17, "NFS", "nfsConf");
+    NFS(17, "NFS", "nfsConf"),
+    KING_BASE(18,"KingBase","KingBaseConf");
 
     private Integer typeCode;
 
