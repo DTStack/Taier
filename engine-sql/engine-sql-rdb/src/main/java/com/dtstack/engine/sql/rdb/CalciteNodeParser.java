@@ -252,7 +252,9 @@ public class CalciteNodeParser extends BaseSqlParser {
             sqlNode = parse(parseResult.getStandardSql(), builder.build());
         } catch (SqlParseException e) {
             LOG.error("sql解析异常========>>>>:{}", e.getMessage());
-            return SqlTypeRegexUtil.getParseResultByRegexSql(parseResult);
+            ParseResult parseResultByRegexSql = SqlTypeRegexUtil.getParseResultByRegexSql(parseResult);
+            parseResultByRegexSql.setFailedMsg(e.getMessage());
+            return parseResultByRegexSql;
         }
         LineageParser lineageParser = LineageParser.ParserProxy.getParser(sqlNode, currentDb, tableColumnsMap);
         getMainTableAndColumnLineage(currentDb, tableColumnsMap, parseResult, sqlNode, lineageParser);

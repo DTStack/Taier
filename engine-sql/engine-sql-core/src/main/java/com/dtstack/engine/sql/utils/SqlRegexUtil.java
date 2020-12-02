@@ -43,7 +43,7 @@ public class SqlRegexUtil {
 
     public static final String CREATE_TABLE_LIKE_REGEX = "(?i)create\\s+table\\s+(if\\s+not\\s+exists\\s+){0,1}(?<table>[a-zA-Z0-9_.]+\\s+)like\\s+(?<likeTable>[a-zA-Z0-9_.]+)";
 
-    public static final String CREATE_TABLE_REGEX = "(?i)create\\s+table\\s+(if\\s+not\\s+exists\\s+)?(?<table>[a-zA-Z0-9_.]+)\\s*.*";
+    public static final String CREATE_TABLE_REGEX = "(?i)create\\s+table\\s+(if\\s+not\\s+exists\\s+){0,1}`{0,1}(?<table>[a-zA-Z0-9_.]+)`{0,1}";
 
     /**
      *

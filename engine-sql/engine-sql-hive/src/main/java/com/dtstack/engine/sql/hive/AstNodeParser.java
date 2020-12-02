@@ -88,6 +88,7 @@ public class AstNodeParser extends BaseSqlParser {
             LOG.error("sql解析异常========>>>>:{}", e.getMessage());
             //用正则匹配一下
             ParseResult p = SqlTypeRegexUtil.getParseResultByRegexSql(parseResult);
+            p.setFailedMsg(e.getMessage());
             return p;
         }
         return getParseResult(originSql, currentDb, tableColumnsMap, parseResult, root);
@@ -190,6 +191,7 @@ public class AstNodeParser extends BaseSqlParser {
             LOG.error("sql解析异常========>>>>:{}", e.getMessage());
             //用正则匹配一下
             ParseResult p = SqlTypeRegexUtil.getParseResultByRegexSql(parseResult);
+            p.setFailedMsg(e.getMessage());
             return p;
         }
         NodeParser nodeParser = ASTNodeLineageParser.ParserProxy.getParser((ASTNode) root.getChild(0), originSql);

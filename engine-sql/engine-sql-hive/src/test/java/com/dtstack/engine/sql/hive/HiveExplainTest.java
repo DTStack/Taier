@@ -3,6 +3,7 @@ package com.dtstack.engine.sql.hive;
 import com.dtstack.engine.sql.ParseResult;
 import com.dtstack.engine.sql.SqlParserImpl;
 import com.dtstack.engine.sql.SqlType;
+import com.dtstack.engine.sql.Table;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -23,5 +24,14 @@ public class HiveExplainTest extends HiveSqlBaseTest {
         ParseResult parseResult = hiveSqlParser.parseSql(sql, "dev", new HashMap<>());
         SqlType sqlType = parseResult.getSqlType();
         Assert.assertEquals(sqlType,SqlType.ALTER);
+    }
+
+    @Test
+    public void testTableWithBlank() throws Exception {
+        String sql = readStringFromResource("info/hiveBlank.sql");
+        ParseResult parseResult = getHiveSqlParser().parseSql(sql, "dev", new HashMap<>());
+        Table mainTable = parseResult.getMainTable();
+        Assert.assertEquals(mainTable.getName(),"ods_bidb_ctn_info_szyt_dii");
+        Assert.assertEquals(SqlType.CREATE,parseResult.getSqlType());
     }
 }
