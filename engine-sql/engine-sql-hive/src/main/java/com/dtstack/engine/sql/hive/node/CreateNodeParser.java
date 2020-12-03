@@ -1,6 +1,7 @@
 package com.dtstack.engine.sql.hive.node;
 
 import com.dtstack.engine.sql.Column;
+import com.dtstack.engine.sql.SqlType;
 import com.dtstack.engine.sql.Table;
 import com.dtstack.engine.sql.TableOperateEnum;
 import com.dtstack.engine.sql.node.CreateNode;
@@ -23,6 +24,9 @@ public class CreateNodeParser extends NodeParser {
         CreateNode createNode = new CreateNode(defultDb,tableColumnsMap);
         //  再次校验一下
         if (root.getType() == HiveParser.TOK_CREATETABLE || root.getType() == HiveParser.TOK_CREATEVIEW){
+            if (root.getType() == HiveParser.TOK_CREATEVIEW){
+                createNode.setExtraSqlType(SqlType.CREATE_VIEW);
+            }
             ArrayList<org.apache.hadoop.hive.ql.lib.Node> targetNode = root.getChildren();
             for (org.apache.hadoop.hive.ql.lib.Node node : targetNode ){
                 if (((ASTNode)node).getType() == HiveParser.TOK_TABNAME){

@@ -2,6 +2,7 @@ package com.dtstack.engine.sql.node;
 
 
 import com.dtstack.engine.sql.Column;
+import com.dtstack.engine.sql.SqlType;
 import com.google.common.collect.Lists;
 import javafx.util.Pair;
 import org.dtstack.apache.calcite.sql.SqlBasicCall;
@@ -54,6 +55,11 @@ public class CreateNode extends Node {
     private SqlKind sqlKind;
 
     /**
+     * 附加slq类型
+     */
+    private SqlType extraSqlType;
+
+    /**
      * 查询
      */
     private Node query;
@@ -62,6 +68,14 @@ public class CreateNode extends Node {
      * stored as txt,orc,parquet...
      */
     private String storedAs;
+
+    public SqlType getExtraSqlType() {
+        return extraSqlType;
+    }
+
+    public void setExtraSqlType(SqlType extraSqlType) {
+        this.extraSqlType = extraSqlType;
+    }
 
     public String getStoredAs() {
         return storedAs;

@@ -305,6 +305,7 @@ public class AstNodeParser extends BaseSqlParser {
             table = ((InsertNode) node).getTargetTable();
             parseResult.setSqlType(SqlType.INSERT);
         } else if (node instanceof CreateNode) {
+            parseResult.setExtraSqlType(((CreateNode) node).getExtraSqlType());
             table = ((CreateNode) node).getName();
             if (((CreateNode) node).getSqlKind().equals(SqlKind.SELECT)) {
                 parseResult.setSqlType(SqlType.CREATE_AS);
