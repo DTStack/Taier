@@ -153,31 +153,28 @@ public class ScheduleJobJobService {
      * @return
      */
     private Map<Integer, List<ScheduleJobJob>> getSpecifiedLevelJobJobs(String rootKey, int level, boolean getChild, String parentFlowJobJobKey) {
-        ScheduleJob rootJob = scheduleJobDao.getByJobKey(rootKey);
-
         Map<Integer, List<ScheduleJobJob>> result = new HashMap<>();
         List<String> jobKeys = new ArrayList<>();
-        List<Long> taskIdList = new ArrayList<>();
 
         jobKeys.add(rootKey);
-        taskIdList.add(rootJob.getTaskId());
         int j = 1;
         for (int i = level; i > 0; i--) {
             List<ScheduleJobJobTaskDTO> jobJobs;
             if (getChild) {
                 jobJobs = scheduleJobJobDao.listByParentJobKeysWithOutSelfTask(jobKeys);
             } else {
-                jobJobs = scheduleJobJobDao.listByJobKeysWithOutSelfTask(jobKeys, taskIdList);
+                jobJobs = scheduleJobJobDao.listByJobKeysWithOutSelfTask(jobKeys);
             }
 
+            List<String> finalJobKeys = jobKeys;
             jobJobs = jobJobs.stream().filter(jobjob -> {
                 String temp;
-                if (getChild) {
+                if (!getChild) {
                     temp = jobjob.getJobKey();
                 } else {
                     temp = jobjob.getParentJobKey();
                 }
-                return !temp.equals(parentFlowJobJobKey);
+                return finalJobKeys.contains(temp);
             }).collect(Collectors.toList());
 
             if (CollectionUtils.isEmpty(jobJobs)) {
@@ -188,14 +185,13 @@ public class ScheduleJobJobService {
             for (ScheduleJobJobTaskDTO jobJob : jobJobs) {
                 if (getChild) {
                     jobKeys.add(jobJob.getJobKey());
-                    taskIdList.add(jobJob.getTaskId());
                 } else {
                     jobKeys.add(jobJob.getParentJobKey());
-                    taskIdList.add(jobJob.getTaskId());
                 }
             }
 
             List<ScheduleJobJob> jobJobList = jobJobs.stream().map(ScheduleJobJobTaskDTO::toJobJob).collect(Collectors.toList());
+            logger.info("count info --- rootKey:{} jobJobList size:{} j:{}", rootKey, jobJobList.size(), j);
             result.put(j, jobJobList);
             j++;
         }

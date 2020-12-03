@@ -32,7 +32,7 @@ public interface ScheduleJobJobDao {
 
     List<ScheduleJobJobTaskDTO> listByParentJobKeysWithOutSelfTask(@Param("jobKeyList") List<String> jobKeyList);
 
-    List<ScheduleJobJobTaskDTO> listByJobKeysWithOutSelfTask(@Param("jobKeyList") List<String> jobKeys, @Param("selfTaskIdList") List<Long> taskIdList);
+    List<ScheduleJobJobTaskDTO> listByJobKeysWithOutSelfTask(@Param("jobKeyList") List<String> jobKeys);
 
     void deleteByJobKey(@Param("jobKeyList") List<String> jobKeyList);
 }
