@@ -210,7 +210,6 @@ public class SparkYarnClient extends AbstractClient {
         ApplicationId appId = null;
 
         try {
-            logger.info("Login user is {}", UserGroupInformation.getCurrentUser());
             ClientExt clientExt = ClientExtFactory.getClientExt(filesystemManager, clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
             String proxyUserName = sparkYarnConfig.getDtProxyUserName();
@@ -295,7 +294,7 @@ public class SparkYarnClient extends AbstractClient {
 
         try {
             ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
-            ClientExt clientExt = new ClientExt(filesystemManager, clientArguments, yarnConf, sparkConf, sparkYarnConfig);
+            ClientExt clientExt = new ClientExt(filesystemManager, clientArguments, yarnConf, sparkConf);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
 
             String proxyUserName = sparkYarnConfig.getDtProxyUserName();

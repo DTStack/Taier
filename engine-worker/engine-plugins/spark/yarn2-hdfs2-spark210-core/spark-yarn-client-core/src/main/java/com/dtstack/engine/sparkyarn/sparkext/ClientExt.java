@@ -47,8 +47,8 @@ public class ClientExt extends DtClient {
 
     private FilesystemManager filesystemManager;
 
-    public ClientExt(FilesystemManager filesystemManager, ClientArguments args, Configuration hadoopConf, SparkConf sparkConf, SparkYarnConfig sparkYarnConfig) {
-        super(args, hadoopConf, sparkConf, sparkYarnConfig);
+    public ClientExt(FilesystemManager filesystemManager, ClientArguments args, Configuration hadoopConf, SparkConf sparkConf) {
+        super(args, hadoopConf, sparkConf);
         this.filesystemManager = filesystemManager;
         this.sparkConf = sparkConf;
         this.hadoopConf = hadoopConf;

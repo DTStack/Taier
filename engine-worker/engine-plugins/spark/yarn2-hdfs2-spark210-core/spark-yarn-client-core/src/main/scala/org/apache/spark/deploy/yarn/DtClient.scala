@@ -24,9 +24,6 @@ import java.nio.charset.StandardCharsets
 import java.util.zip.{ZipEntry, ZipOutputStream}
 import java.util.{Properties, UUID}
 
-import com.dtstack.engine.base.util.KerberosUtils
-import com.dtstack.engine.common.constrant.ConfigConstant
-import com.dtstack.engine.sparkyarn.sparkyarn.SparkYarnConfig
 import com.google.common.base.Objects
 import com.google.common.io.Files
 import org.apache.hadoop.conf.Configuration
@@ -62,8 +59,7 @@ import scala.util.{Failure, Success, Try}
 private[spark] class DtClient(
                                val args: ClientArguments,
                                val hadoopConf: Configuration,
-                               val sparkConf: SparkConf,
-                               val sparkYarnConf: SparkYarnConfig)
+                               val sparkConf: SparkConf)
   extends Logging {
 
   import DtClient._
@@ -410,14 +406,32 @@ private[spark] class DtClient(
     // and add them as local resources to the application master.
     val fs = destDir.getFileSystem(hadoopConf)
 
-    logInfo(s"Current ugi is : ${UserGroupInformation.getCurrentUser}")
+    // Merge credentials obtained from registered providers
+    val nearestTimeOfNextRenewal = credentialManager.obtainCredentials(hadoopConf, credentials)
 
+    if (credentials != null) {
+      // Add credentials to current user's UGI, so that following operations don't need to use the
+      // Kerberos tgt to get delegations again in the client side.
+      UserGroupInformation.getCurrentUser.addCredentials(credentials)
+      logDebug(YarnSparkHadoopUtil.get.dumpTokens(credentials).mkString("\n"))
+    }
 
-    val keytabPath = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + sparkYarnConf.getPrincipalFile
-    val principal = sparkYarnConf.getPrincipal
+    // If we use principal and keytab to login, also credentials can be renewed some time
+    // after current time, we should pass the next renewal and updating time to credential
+    // renewer and updater.
+    if (loginFromKeytab && nearestTimeOfNextRenewal > System.currentTimeMillis() &&
+      nearestTimeOfNextRenewal != Long.MaxValue) {
 
-    UserGroupInformation.setConfiguration(yarnConf)
-    UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath)
+      // Valid renewal time is 75% of next renewal time, and the valid update time will be
+      // slightly later then renewal time (80% of next renewal time). This is to make sure
+      // credentials are renewed and updated before expired.
+      val currTime = System.currentTimeMillis()
+      val renewalTime = (nearestTimeOfNextRenewal - currTime) * 0.75 + currTime
+      val updateTime = (nearestTimeOfNextRenewal - currTime) * 0.8 + currTime
+
+      sparkConf.set(CREDENTIALS_RENEWAL_TIME, renewalTime.toLong)
+      sparkConf.set(CREDENTIALS_UPDATE_TIME, updateTime.toLong)
+    }
 
     // Used to keep track of URIs added to the distributed cache. If the same URI is added
     // multiple times, YARN will fail to launch containers for the app with an internal
