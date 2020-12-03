@@ -159,8 +159,8 @@ public class ScheduleJobJobService {
         List<String> jobKeys = new ArrayList<>();
 
         jobKeys.add(rootKey);
-        int j = 1;
-        for (int i = level; i > 0; i--) {
+        int jobLoop = 1;
+        for (int leveCount = level; leveCount > 0; leveCount--) {
             List<ScheduleJobJobTaskDTO> jobJobs;
             if (getChild) {
                 jobJobs = scheduleJobJobDao.listByParentJobKeysWithOutSelfTask(jobKeys);
@@ -193,9 +193,9 @@ public class ScheduleJobJobService {
             }
 
             List<ScheduleJobJob> jobJobList = jobJobs.stream().map(ScheduleJobJobTaskDTO::toJobJob).collect(Collectors.toList());
-            logger.info("count info --- rootKey:{} jobJobList size:{} j:{}", rootKey, jobJobList.size(), j);
-            result.put(j, jobJobList);
-            j++;
+            logger.info("count info --- rootKey:{} jobJobList size:{} jobLoop:{}", rootKey, jobJobList.size(), jobLoop);
+            result.put(jobLoop, jobJobList);
+            jobLoop++;
         }
 
         return result;
@@ -213,7 +213,7 @@ public class ScheduleJobJobService {
     private com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpringForFlowWork(ScheduleJob flowJob) throws Exception {
         com.dtstack.engine.master.vo.ScheduleJobVO vo = null;
         // 递归获取level层的子节点
-        Map<Integer, List<ScheduleJobJob>> result = getSpecifiedLevelJobJobs(flowJob.getJobKey(), Integer.MAX_VALUE, true, null);
+        Map<Integer, List<ScheduleJobJob>> result = getSpecifiedLevelJobJobs(flowJob.getJobKey(), 10, true, null);
         List<ScheduleJobJob> firstLevel = result.get(1);
         if (CollectionUtils.isNotEmpty(firstLevel)) {
             Set<String> allJobKeys = new HashSet<>();
