@@ -55,7 +55,7 @@ public class  JobStatusDealer implements Runnable {
      */
     private final static int NOT_FOUND_LIMIT_INTERVAL = 3 * 60 * 1000;
 
-    public static final long INTERVAL = 3000;
+    public static final long INTERVAL = 3500;
     private final static int MULTIPLES = 5;
     private int logOutput = 0;
 
@@ -268,11 +268,12 @@ public class  JobStatusDealer implements Runnable {
     }
 
     public void start() {
+        long jobStatusCheckInterVal = environmentContext.getJobStatusCheckInterVal();
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,
-                JobStatusDealer.INTERVAL,
+                jobStatusCheckInterVal,
                 TimeUnit.MILLISECONDS);
         logger.info("{} thread start ...", jobResource + this.getClass().getSimpleName());
 
