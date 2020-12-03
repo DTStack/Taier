@@ -78,7 +78,6 @@ public class AlterTableInfoTest extends HiveSqlBaseTest {
         ParseResult dev = hiveSqlParser.parseSql(sql, "dev", new HashMap<>());
         AlterResult alterResult = dev.getAlterResult();
         Assert.assertNotNull(alterResult);
-        Assert.assertEquals(alterResult.getNewLocation(),"sd");
         Assert.assertEquals(alterResult.getAlterType(), TableOperateEnum.ALTERTABLE_LOCATION);
     }
 

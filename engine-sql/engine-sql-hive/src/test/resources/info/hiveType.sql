@@ -1,0 +1,20 @@
+create table test_type(
+t_tinyint tinyint,
+t_smallint smallint ,
+t_int int,
+t_bigint bigint,
+t_float float ,
+t_double double,
+t_decimal decimal ,
+t_boolean boolean,
+t_string string,
+t_varchar varchar(10) ,
+t_char char(10),
+t_binary binary,
+t_timestamp timestamp ,
+t_date date,
+t_array ARRAY<string>,
+t_map MAP<STRING,STRING>,
+t_struct struct<s_p1:int,s_p2:int>,
+t_union uniontype<int,string>
+)
