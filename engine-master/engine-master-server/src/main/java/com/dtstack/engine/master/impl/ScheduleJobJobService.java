@@ -191,6 +191,7 @@ public class ScheduleJobJobService {
             }
 
             List<ScheduleJobJob> jobJobList = jobJobs.stream().map(ScheduleJobJobTaskDTO::toJobJob).collect(Collectors.toList());
+            logger.info("count info --- rootKey:{} jobJobList size:{} j:{}", rootKey, jobJobList.size(), j);
             result.put(j, jobJobList);
             j++;
         }
