@@ -915,5 +915,34 @@ public class ClusterService implements InitializingBean {
         DataSourceType sourceType = DataSourceType.getSourceType(type);
         return accountInfo(dtUicTenantId,dtUicUserId,sourceType);
     }
+
+    public Boolean isSameCluster(Long dtUicTenantId, List<Long> dtUicTenantIds) {
+        if (dtUicTenantId ==null) {
+            throw new RdosDefineException("租户id不能为null");
+        }
+
+        if (CollectionUtils.isEmpty(dtUicTenantIds)) {
+            return Boolean.FALSE;
+        }
+
+        ClusterVO clusterByTenant = getClusterByTenant(dtUicTenantId);
+
+        if (clusterByTenant == null) {
+            throw new RdosDefineException("租户id:"+dtUicTenantId+"不存在!");
+        }
+
+        for (Long uicTenantId : dtUicTenantIds) {
+            ClusterVO clusterVO = getClusterByTenant(uicTenantId);
+
+            if (clusterVO != null) {
+                if (clusterByTenant.getClusterId().equals(clusterVO.getClusterId())) {
+                    // dtUicTenantIds集合中存在和 dtUicTenantId相同的集群
+                    return Boolean.TRUE;
+                }
+            }
+        }
+
+        return Boolean.FALSE;
+    }
 }
 

@@ -213,4 +213,9 @@ public class ClusterController{
     public String prestoInfo(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("fullKerberos") Boolean fullKerberos) {
         return getConfigByKey(dtUicTenantId, EComponentType.PRESTO_SQL.getConfName(), fullKerberos);
     }
+
+    @RequestMapping(value="/isSameCluster", method = {RequestMethod.POST})
+    public Boolean isSameCluster(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("aimTenantIds") List<Long> dtUicTenantIds){
+        return clusterService.isSameCluster(dtUicTenantId,dtUicTenantIds);
+    }
 }

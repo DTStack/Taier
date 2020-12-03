@@ -141,5 +141,6 @@ public interface ClusterService extends DtInsightServer {
     @RequestLine("POST /node/cluster/prestoInfo")
     ApiResponse<String> prestoInfo(@Param("tenantId") Long dtUicTenantId, @Param("fullKerberos") Boolean fullKerberos);
 
-
+    @RequestLine("POST /node/cluster/isSameCluster")
+    ApiResponse<Boolean> isSameCluster(@Param("tenantId") Long dtUicTenantId,@Param("aimTenantIds") List<Long> dtUicTenantIds);
 }
