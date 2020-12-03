@@ -2366,11 +2366,10 @@ public class ScheduleJobService {
         String jobKey = scheduleJob.getJobKey();
         List<ScheduleJobJob> scheduleJobJobList = batchJobJobService.getJobChild(jobKey);
         List<String> jobKeyList = Lists.newArrayList();
-        List<ScheduleJob> scheduleJobList = Lists.newArrayList();
 
         String parentJobDayStr = getJobTriggerTimeFromJobKey(scheduleJob.getJobKey());
         if (Strings.isNullOrEmpty(parentJobDayStr)) {
-            return scheduleJobList;
+            return Lists.newArrayList();
         }
 
         for (ScheduleJobJob scheduleJobJob : scheduleJobJobList) {
@@ -2389,11 +2388,12 @@ public class ScheduleJobService {
         }
 
         if (CollectionUtils.isEmpty(jobKeyList)) {
-            return scheduleJobList;
+            return Lists.newArrayList();
         }
 
-
-        for (ScheduleJob childScheduleJob : scheduleJobDao.listJobByJobKeys(jobKeyList)) {
+        List<ScheduleJob> scheduleJobList = Lists.newArrayList();
+        List<ScheduleJob> listJobs = scheduleJobDao.listJobByJobKeys(jobKeyList);
+        for (ScheduleJob childScheduleJob : listJobs) {
 
             //判断job 对应的task是否被删除
             ScheduleTaskShade jobRefTask = batchTaskShadeService.getBatchTaskById(childScheduleJob.getTaskId(), appType);
@@ -2407,6 +2407,7 @@ public class ScheduleJobService {
                 continue;
             }
             scheduleJobList.addAll(getAllChildJobWithSameDay(childScheduleJob, isOnlyNextChild, appType));
+            logger.info("count info --- scheduleJob jobKey:{} flowJobId:{} jobJobList size:{}", scheduleJob.getJobKey(), scheduleJob.getFlowJobId(),scheduleJobList.size());
         }
 
         return scheduleJobList;
