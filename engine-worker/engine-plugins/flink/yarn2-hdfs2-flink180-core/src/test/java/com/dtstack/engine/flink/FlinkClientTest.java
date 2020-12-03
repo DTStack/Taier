@@ -6,6 +6,7 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.http.HttpClient;
 import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
@@ -41,6 +42,7 @@ import org.apache.hadoop.yarn.api.records.impl.pb.NodeReportPBImpl;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.http.Header;
+import org.apache.tools.ant.taskdefs.condition.Http;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -83,7 +85,7 @@ import static org.mockito.Mockito.when;
 	FileSystem.class, FileUtil.class, PublicUtil.class,
 	FlinkConfUtil.class, FlinkUtil.class, PerJobClientFactory.class,
 	AbstractClientFactory.class, FlinkClient.class, PackagedProgram.class,
-	Jsoup.class})
+	Jsoup.class, HttpClient.class})
 @PowerMockIgnore("javax.net.ssl.*")
 public class FlinkClientTest {
 
@@ -253,6 +255,13 @@ public class FlinkClientTest {
 
 		ClusterClient currClient = YarnMockUtil.mockClusterClient();
 		when(flinkClusterClientManager.getClusterClient(any())).thenReturn(currClient);
+		MemberModifier.field(FlinkClient.class, "flinkClusterClientManager").set(flinkClient, flinkClusterClientManager);
+
+		Configuration flinkConfig = new Configuration();
+		flinkConfig.setString(HistoryServerOptions.HISTORY_SERVER_WEB_ADDRESS, "dtstack01");
+		flinkConfig.setString(String.valueOf(HistoryServerOptions.HISTORY_SERVER_WEB_PORT), "9527");
+		flinkConfig.setString(HistoryServerOptions.HISTORY_SERVER_WEB_ADDRESS, "hisserver01");
+		when(flinkClientBuilder.getFlinkConfiguration()).thenReturn(flinkConfig);
 
 		String jobLog = flinkClient.getJobLog(jobIdentifier);
 		Assert.assertNotNull(jobLog);
@@ -260,11 +269,6 @@ public class FlinkClientTest {
 		ApplicationReportPBImpl reportFinish = YarnMockUtil.mockApplicationReport(YarnApplicationState.FINISHED);
 		when(yarnClient.getApplicationReport(any())).thenReturn(reportFinish);
 		when(flinkClientBuilder.getYarnClient()).thenReturn(yarnClient);
-
-		Configuration flinkConfig = new Configuration();
-		flinkConfig.setString(HistoryServerOptions.HISTORY_SERVER_WEB_ADDRESS, "dtstack01");
-		flinkConfig.setString(String.valueOf(HistoryServerOptions.HISTORY_SERVER_WEB_PORT), "9527");
-		when(flinkClientBuilder.getFlinkConfiguration()).thenReturn(flinkConfig);
 
 		PowerMockito.mockStatic(FileUtil.class);
 		String jsonString = "{\"archive\":[{\"path\":\"/jobs/exceptions\",\"json\":\"{}\"}]}";
@@ -326,6 +330,9 @@ public class FlinkClientTest {
 		ApplicationReportPBImpl report = YarnMockUtil.mockApplicationReport(null);
 		when(yarnClient.getApplicationReport(any())).thenReturn(report);
 		when(flinkClientBuilder.getYarnClient()).thenReturn(yarnClient);
+		Configuration flinkConfig = new Configuration();
+		flinkConfig.setString(HistoryServerOptions.HISTORY_SERVER_WEB_ADDRESS, "hisserver01");
+		when(flinkClientBuilder.getFlinkConfiguration()).thenReturn(flinkConfig);
 
 		ClusterClient currClient = YarnMockUtil.mockClusterClient();
 		when(flinkClusterClientManager.getClusterClient(any())).thenReturn(currClient);
@@ -399,6 +406,9 @@ public class FlinkClientTest {
 		when(elements.get(any(int.class))).thenReturn(element);
 		when(document.getElementsByClass(any(String.class))).thenReturn(elements);
 		when(Jsoup.parse(any(String.class))).thenReturn(document);
+
+		PowerMockito.mockStatic(HttpClient.class);
+		when(HttpClient.get(anyString())).thenReturn("{\"taskmanagers\":[{\"id\":\"container_1604299248544_0242_01_000003\",\"path\":\"akka.tcp://flink@dtstack3:42432/user/taskmanager_0\",\"dataPort\":37926,\"timeSinceLastHeartbeat\":1606801669257,\"slotsNumber\":1,\"freeSlots\":0,\"hardware\":{\"cpuCores\":8,\"physicalMemory\":16656789504,\"freeMemory\":437977088,\"managedMemory\":469762055}}]}");
 
 		List<String> logInfo = flinkClient.getRollingLogBaseInfo(jobIdentifier);
 		Assert.assertNotNull(logInfo);
