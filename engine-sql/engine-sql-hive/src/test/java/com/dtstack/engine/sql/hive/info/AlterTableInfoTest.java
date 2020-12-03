@@ -6,10 +6,13 @@ import com.dtstack.engine.sql.SqlParserImpl;
 import com.dtstack.engine.sql.SqlType;
 import com.dtstack.engine.sql.TableOperateEnum;
 import com.dtstack.engine.sql.hive.HiveSqlBaseTest;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.math3.util.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author chener
@@ -77,5 +80,16 @@ public class AlterTableInfoTest extends HiveSqlBaseTest {
         Assert.assertNotNull(alterResult);
         Assert.assertEquals(alterResult.getNewLocation(),"sd");
         Assert.assertEquals(alterResult.getAlterType(), TableOperateEnum.ALTERTABLE_LOCATION);
+    }
+
+    @Test
+    public void testHiveProp() throws Exception {
+        String sql = "ALTER TABLE asdadasd SET TBLPROPERTIES('comment' = '这是新的。。。。当时的');";
+        SqlParserImpl hiveSqlParser = getHiveSqlParser();
+        ParseResult parseResult = hiveSqlParser.parseSql(sql, "dev", new HashMap<>());
+        SqlType sqlType = parseResult.getSqlType();
+        Assert.assertEquals(sqlType, SqlType.ALTER);
+        List<Pair<String, String>> tableProperties = parseResult.getAlterResult().getTableProperties();
+        Assert.assertTrue(CollectionUtils.isNotEmpty(tableProperties));
     }
 }

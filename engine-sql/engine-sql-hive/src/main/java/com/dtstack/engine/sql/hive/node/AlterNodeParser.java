@@ -10,6 +10,7 @@ import com.dtstack.engine.sql.node.AlterNode;
 import com.dtstack.engine.sql.node.Identifier;
 import com.dtstack.engine.sql.node.Node;
 import org.antlr.runtime.CommonToken;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
 import org.apache.hadoop.hive.ql.parse.ASTNode;
 import org.apache.hadoop.hive.ql.parse.HiveParser;
@@ -87,6 +88,14 @@ public class AlterNodeParser extends NodeParser {
                 for (org.apache.hadoop.hive.ql.lib.Node properties : propertiesList ){
                     if (((ASTNode)properties).getType() == HiveParser.TOK_TABLEPROPERTY){
                         pairList.add(new Pair<>(((ASTNode)children.get(0)).getText(),((ASTNode)children.get(1)).getText()));
+                    }else if (((ASTNode)properties).getType() == HiveParser.TOK_TABLEPROPERTIES){
+                        //TODO 遇到时处理
+                    }else if (((ASTNode)properties).getType() == HiveParser.TOK_TABLEPROPLIST) {
+                        List<? extends org.apache.hadoop.hive.ql.lib.Node> children1 = properties.getChildren();
+                        for (org.apache.hadoop.hive.ql.lib.Node cNode : children1) {
+                            List<? extends org.apache.hadoop.hive.ql.lib.Node> propChild = cNode.getChildren();
+                            pairList.add(new Pair<>(removeHeadTailQuota(((ASTNode) propChild.get(0)).getText()), removeHeadTailQuota(((ASTNode) propChild.get(1)).getText())));
+                        }
                     }
                 }
                 alterNode.setTableProperties(pairList);
@@ -166,4 +175,20 @@ public class AlterNodeParser extends NodeParser {
         partition.setPartKeyValues(partKeyValues);
         return partition;
     }
+
+        private String removeHeadTailQuota(String str){
+            if(StringUtils.isEmpty(str)){
+                return str;
+            }
+            char[] chars = str.toCharArray();
+            int startInd = 0;
+            if (chars[0] == '\'' || chars[0] == '\"' ){
+                startInd = 1;
+            }
+            int endInd = chars.length;
+            if (chars[chars.length-1] == '\'' || chars[chars.length-1] == '\"' ){
+                endInd = chars.length-1;
+            }
+            return str.substring(startInd,endInd);
+        }
 }
