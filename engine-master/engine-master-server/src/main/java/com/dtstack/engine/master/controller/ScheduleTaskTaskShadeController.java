@@ -32,8 +32,8 @@ public class ScheduleTaskTaskShadeController {
     }
 
     @RequestMapping(value="/getAllParentTask", method = {RequestMethod.POST})
-    public List<ScheduleTaskTaskShade> getAllParentTask(@DtRequestParam("taskId") Long taskId) {
-        return scheduleTaskTaskShadeService.getAllParentTask(taskId);
+    public List<ScheduleTaskTaskShade> getAllParentTask(@DtRequestParam("taskId") Long taskId,@DtRequestParam("appType")Integer appType) {
+        return scheduleTaskTaskShadeService.getAllParentTask(taskId,appType);
     }
 
     @RequestMapping(value="/displayOffSpring", method = {RequestMethod.POST})

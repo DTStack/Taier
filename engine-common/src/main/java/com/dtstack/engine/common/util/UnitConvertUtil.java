@@ -49,4 +49,15 @@ public class UnitConvertUtil {
 
         return 512;
     }
+
+
+    public static int getNormalizedMem(String rawMem) {
+        if (rawMem.endsWith("G") || rawMem.endsWith("g")) {
+            return Integer.parseInt(rawMem.trim().substring(0, rawMem.length() - 1)) * 1024;
+        } else if (rawMem.endsWith("M") || rawMem.endsWith("m")) {
+            return Integer.parseInt(rawMem.trim().substring(0, rawMem.length() - 1));
+        } else {
+            return Integer.parseInt(rawMem.trim());
+        }
+    }
 }

@@ -51,7 +51,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
@@ -59,7 +59,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-api</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
@@ -67,7 +67,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-common</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
@@ -75,7 +75,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
@@ -83,7 +83,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-app</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
@@ -91,7 +91,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-common</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
@@ -99,7 +99,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-hs</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
@@ -107,7 +107,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-client</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>

@@ -170,7 +170,7 @@ public class ActionServiceTest extends AbstractTest {
         computeType = scheduleJob.getComputeType();
         String mock_engine_log = "{err: test_mock_engine_log}";
         when(jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(),
-                scheduleJob.getApplicationId(), scheduleJob.getPluginInfoId())).thenReturn(mock_engine_log);
+                scheduleJob.getApplicationId(), scheduleJob.getDtuicTenantId())).thenReturn(mock_engine_log);
         try {
             String engineLog = "\"engineLog\":\"" + mock_engine_log + "\"" ;
             String logInfo = "\"logInfo\":\"" + scheduleJob.getLogInfo() + "\"";
@@ -218,7 +218,7 @@ public class ActionServiceTest extends AbstractTest {
         } catch (Exception e) {}
 
         String mock_engine_log = "{err: test_mock_engine_log}";
-        when(jobDealer.getAndUpdateEngineLog(jobId, engineJobRetry.getEngineJobId(), engineJobRetry.getApplicationId(), scheduleJob.getPluginInfoId())).thenReturn(mock_engine_log);
+        when(jobDealer.getAndUpdateEngineLog(jobId, engineJobRetry.getEngineJobId(), engineJobRetry.getApplicationId(), scheduleJob.getDtuicTenantId())).thenReturn(mock_engine_log);
 
         try {
             ActionRetryLogVO actionRetryLogVO = actionService.retryLogDetail(jobId, computeType, engineJobRetry.getRetryNum() + 1);

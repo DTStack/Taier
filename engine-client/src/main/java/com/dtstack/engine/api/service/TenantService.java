@@ -40,5 +40,11 @@ public interface TenantService extends DtInsightServer {
 
     @RequestLine("POST /node/tenant/bindingQueue")
     ApiResponse<Void> bindingQueue(@Param("queueId") Long queueId,
-                             @Param("tenantId") Long dtUicTenantId);
+                             @Param("tenantId") Long dtUicTenantId,
+                              @Param("taskTypeResourceJson") String taskTypeResourceJson);
+
+
+    @RequestLine("POST /node/tenant/queryResourceLimitByTenantIdAndTaskType")
+    ApiResponse<String> queryResourceLimitByTenantIdAndTaskType(@Param("dtUicTenantId") Long dtUicTenantId,
+                                   @Param("taskType") Integer taskType);
 }

@@ -6,6 +6,10 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.CommonConfigurationKeys;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +22,8 @@ import java.util.Map;
  */
 
 public class HadoopConfTool {
+
+    private static final Logger LOG = LoggerFactory.getLogger(KerberosUtils.class);
 
     public static final String DFS_NAME_SERVICES = "dfs.nameservices";
     public static final String FS_DEFAULTFS = "fs.defaultFS";
@@ -125,5 +131,27 @@ public class HadoopConfTool {
 
     public static void setFsHdfsImplDisableCache(Configuration conf){
         conf.setBoolean(FS_HDFS_IMPL_DISABLE_CACHE, true);
+    }
+
+    public static void setDefaultYarnConf(Configuration yarnConf, Map<String, Object> yarnMap) {
+        yarnConf.setBoolean(CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_KEY, true);
+
+        if (yarnMap == null) {
+            return;
+        }
+
+        if (yarnMap.get(YarnConfiguration.RESOURCEMANAGER_CONNECT_MAX_WAIT_MS) != null) {
+            yarnConf.set(YarnConfiguration.RESOURCEMANAGER_CONNECT_MAX_WAIT_MS, (String) yarnMap.get(YarnConfiguration.RESOURCEMANAGER_CONNECT_MAX_WAIT_MS));
+        } else {
+            yarnConf.setLong(YarnConfiguration.RESOURCEMANAGER_CONNECT_MAX_WAIT_MS, 15000L);
+        }
+
+        if (yarnMap.get(YarnConfiguration.RESOURCEMANAGER_CONNECT_RETRY_INTERVAL_MS) != null) {
+            yarnConf.set(YarnConfiguration.RESOURCEMANAGER_CONNECT_RETRY_INTERVAL_MS, (String) yarnMap.get(YarnConfiguration.RESOURCEMANAGER_CONNECT_RETRY_INTERVAL_MS));
+        } else {
+            yarnConf.setLong(YarnConfiguration.RESOURCEMANAGER_CONNECT_RETRY_INTERVAL_MS, 5000L);
+        }
+
+        LOG.info("yarn.resourcemanager.connect.max-wait.ms:{} yarn.resourcemanager.connect.retry-interval.ms:{}", yarnConf.getLong(YarnConfiguration.RESOURCEMANAGER_CONNECT_MAX_WAIT_MS, -1), yarnConf.getLong(YarnConfiguration.RESOURCEMANAGER_CONNECT_RETRY_INTERVAL_MS, -1));
     }
 }

@@ -33,10 +33,7 @@ public class ScheduleTaskShadeController {
 
     @RequestMapping(value = "/addOrUpdate", method = {RequestMethod.POST})
     @ApiOperation(value = "添加或更新任务", notes = "例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息")
-    public void addOrUpdate(@RequestBody @Validated ScheduleTaskShadeDTO batchTaskShadeDTO, BindingResult bindingResult) throws BindException {
-        if (bindingResult.hasErrors()) {
-            throw new BindException(bindingResult);
-        }
+    public void addOrUpdate(@RequestBody ScheduleTaskShadeDTO batchTaskShadeDTO) {
         scheduleTaskShadeService.addOrUpdate(batchTaskShadeDTO);
     }
 
@@ -165,5 +162,13 @@ public class ScheduleTaskShadeController {
                                                                  @DtRequestParam("projectIds") List<Long> projectIds, @DtRequestParam("appType") Integer appType,
                                                                  @DtRequestParam("taskTypes") List<Integer> taskTypes) {
         return scheduleTaskShadeService.countTaskByTypes(tenantId, dtuicTenantId, projectIds, appType, taskTypes);
+    }
+
+    @ApiOperation(value = "校验任务资源参数限制")
+    @RequestMapping(value="/checkResourceLimit", method = {RequestMethod.POST})
+    public List<String> checkResourceLimit(@DtRequestParam("dtuicTenantId") Long dtuicTenantId,
+                                           @DtRequestParam("taskType") Integer taskType,
+                                           @DtRequestParam("resourceParams") String resourceParams){
+        return scheduleTaskShadeService.checkResourceLimit(dtuicTenantId,taskType,resourceParams,null);
     }
 }

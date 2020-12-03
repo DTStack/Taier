@@ -58,20 +58,27 @@ public class SparkYarnConfig extends BaseConfig {
 
     private String jvmOptions = "-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing";
 
-    private boolean openKerberos;
-
     private String carbonStorePath;
 
-    private Map<String, String> sftpConf;
-
     private Map<String, String> kerberosConfig;
+
+    private boolean monitorAcceptedApp = false;
+
+    private int asyncCheckYarnClientThreadNum = 3;
+    private String dtProxyUserName;
+
+    public String getDtProxyUserName() {
+        return dtProxyUserName;
+    }
+
+    public void setDtProxyUserName(String dtProxyUserName) {
+        this.dtProxyUserName = dtProxyUserName;
+    }
 
 
     public String getTypeName() {
         return typeName;
     }
-
-    private boolean monitorAcceptedApp = false;
 
     public void setTypeName(String typeName) {
         this.typeName = typeName;
@@ -83,6 +90,14 @@ public class SparkYarnConfig extends BaseConfig {
 
     public void setHiveConf(Map<String, Object> hiveConf) {
         this.hiveConf = hiveConf;
+    }
+
+    public int getAsyncCheckYarnClientThreadNum() {
+        return asyncCheckYarnClientThreadNum;
+    }
+
+    public void setAsyncCheckYarnClientThreadNum(int asyncCheckYarnClientThreadNum) {
+        this.asyncCheckYarnClientThreadNum = asyncCheckYarnClientThreadNum;
     }
 
     public String getSparkYarnArchive() {

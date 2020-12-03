@@ -382,9 +382,19 @@ public class JobGraphBuilder {
         for (int idx = 0; idx < triggerDayList.size(); idx++) {
             String triggerTime = triggerDayList.get(idx);
             String nextTriggerTime = null;
-            if ((scheduleCron.getPeriodType() == ESchedulePeriodType.MIN.getVal() || scheduleCron.getPeriodType() == ESchedulePeriodType.HOUR.getVal())
-                    && (idx < triggerDayList.size() - 1)) {
-                nextTriggerTime = triggerDayList.get(idx + 1);
+            if ((scheduleCron.getPeriodType() == ESchedulePeriodType.MIN.getVal() || scheduleCron.getPeriodType() == ESchedulePeriodType.HOUR.getVal())) {
+                if ((idx < triggerDayList.size() - 1)) {
+                    //不是当前最后一个
+                    nextTriggerTime = triggerDayList.get(idx + 1);
+                } else {
+                    DateTime nextDayExecute = new DateTime(jobBuildTime.getTime()).plusDays(1);
+                    //当前最后一个
+                    List<String> nextTriggerDays = scheduleCron.getTriggerTime(nextDayExecute.toString("yyyy-MM-dd"));
+                    if (CollectionUtils.isNotEmpty(nextTriggerDays)) {
+                        nextTriggerTime = nextTriggerDays.get(0);
+                    }
+                }
+
             }
 
             ScheduleJob scheduleJob = new ScheduleJob();
@@ -460,7 +470,7 @@ public class JobGraphBuilder {
             scheduleJob.setBusinessDate(businessDate);
 
             //任务流中的子任务，起始节点将任务流节点作为父任务加入
-            if (task.getFlowId() > 0 && !whetherHasParentTask(task.getTaskId())) {
+            if (task.getFlowId() > 0 && !whetherHasParentTask(task.getTaskId(),task.getAppType())) {
                 List<String> keys = getJobKeys(Lists.newArrayList(task.getFlowId()), scheduleJob, scheduleCron, keyPreStr);
                 scheduleBatchJob.addBatchJobJob(createNewJobJob(scheduleJob, jobKey, keys.get(0), timestampNow));
             }
@@ -594,7 +604,7 @@ public class JobGraphBuilder {
      */
     public List<String> getDependencyJobKeys(EScheduleType scheduleType, ScheduleJob scheduleJob, ScheduleCron scheduleCron, String keyPreStr) {
 
-        List<ScheduleTaskTaskShade> taskTasks = taskTaskShadeService.getAllParentTask(scheduleJob.getTaskId());
+        List<ScheduleTaskTaskShade> taskTasks = taskTaskShadeService.getAllParentTask(scheduleJob.getTaskId(),scheduleJob.getAppType());
         List<Long> pIdList = Lists.newArrayList();
         for (ScheduleTaskTaskShade batchTaskTask : taskTasks) {
             if (batchTaskTask.getParentTaskId() != -1) {
@@ -669,8 +679,8 @@ public class JobGraphBuilder {
      * @param taskId
      * @return true-有父任务，false-无
      */
-    private boolean whetherHasParentTask(Long taskId) {
-        List<ScheduleTaskTaskShade> taskTasks = taskTaskShadeService.getAllParentTask(taskId);
+    private boolean whetherHasParentTask(Long taskId,Integer appType) {
+        List<ScheduleTaskTaskShade> taskTasks = taskTaskShadeService.getAllParentTask(taskId,appType);
         return CollectionUtils.isNotEmpty(taskTasks);
     }
 

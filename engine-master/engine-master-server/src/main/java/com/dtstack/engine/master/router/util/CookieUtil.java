@@ -1,7 +1,11 @@
 package com.dtstack.engine.master.router.util;
 
 
+import com.google.common.base.Charsets;
+
 import javax.servlet.http.Cookie;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 /**
  * @author toutian
@@ -34,6 +38,15 @@ public class CookieUtil {
     public static long getUserId(Cookie[] cookies) {
         Object value = getCookieValue(cookies, DT_USERID);
         return value == null ? -1 : Long.parseLong(value.toString());
+    }
+
+    public static String getDtUserName(Cookie[] cookies) {
+        Object value = getCookieValue(cookies, dtUsername);
+        try {
+            return value == null ? "" : URLDecoder.decode(value.toString(), Charsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+        }
+        return "";
     }
 
     private static Object getCookieValue(Cookie[] cookies, String key) {

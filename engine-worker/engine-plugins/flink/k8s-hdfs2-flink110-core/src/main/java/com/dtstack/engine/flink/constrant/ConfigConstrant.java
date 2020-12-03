@@ -38,7 +38,7 @@ public class ConfigConstrant {
     public final static String JOBMANAGER_LOG_NAME = "jobmanager.log";
     public final static String TASKMANAGER_LOG_NAME = "taskmanager.log";
 
-    public final static Integer TASKNAME_MAX_LENGTH = 34;
+    public final static Integer TASKNAME_MAX_LENGTH = 42;
 
     // ------------------------------------------------------------------------
     // Resource Configs
@@ -91,5 +91,29 @@ public class ConfigConstrant {
     public static final String JOBMANAGER_LOG_URL_FORMAT = "%s/jobmanager/log";
     public static final String TASKMANAGER_LOG_URL_FORMAT = "%s/taskmanagers/%s/log";
     public static final String TASKMANAGERS_KEY = "taskmanagers";
+
+    // ------------------------------------------------------------------------
+    // Kubernetes Configs
+    // ------------------------------------------------------------------------
+
+    public static final String KUBERNETES_HOST_ALIASES_ENV = "KUBERNETES_HOST_ALIASES";
+
+    // ------------------------------------------------------------------------
+    // Sftp Configs
+    // ------------------------------------------------------------------------
+
+    public static final String KEY_USERNAME = "username";
+    public static final String KEY_PASSWORD = "password";
+    public static final String KEY_HOST = "host";
+    public static final String KEY_PORT = "port";
+    public static final String KEY_SFTPFILES_PATH = "sftpFilesPath";
+
+    public static final String SFTP_USERNAME_ENV = "SFTP_USERNAME";
+    public static final String SFTP_PASSWORD_ENV = "SFTP_PASSWORD";
+    public static final String SFTP_HOST_ENV = "SFTP_HOST";
+    public static final String SFTP_PORT_ENV = "SFTP_PORT";
+    public static final String SFTPFILES_PATH_ENV = "SFTPFILES_PATH";
+
+    public static final String DEFAULT_PORT = "22";
 
 }

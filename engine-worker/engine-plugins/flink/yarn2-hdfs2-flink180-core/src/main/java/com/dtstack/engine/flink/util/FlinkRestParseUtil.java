@@ -2,6 +2,8 @@ package com.dtstack.engine.flink.util;
 
 import com.dtstack.engine.common.util.PublicUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,6 +18,8 @@ import java.util.Map;
  */
 
 public class FlinkRestParseUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(FlinkRestParseUtil.class);
 
     /**
      * 数据样例
@@ -46,18 +50,18 @@ public class FlinkRestParseUtil {
      */
     public final static String EXCEPTION_INFO = "/jobs/%s/exceptions";
 
-    public final static String JOB_ACCUMULATOR_INFO = "/jobs/%s/accumulators";
-
-    public static String parseEngineLog(Map<String,String> jsonMap) throws IOException {
-
-        String except = jsonMap.get("exception");
-        Map<String,Object> logMap = new HashMap<>();
-
-        if(StringUtils.isNotEmpty(except)) {
-            Map<String,Object> exceptMap = PublicUtil.jsonStrToObject(except, Map.class);
-            logMap.putAll(exceptMap);
+    public static String parseEngineLog(String except) {
+        try {
+            if(StringUtils.isNotBlank(except)) {
+                Map<String,Object> logMap = new HashMap<>();
+                Map<String,Object> exceptMap = PublicUtil.jsonStrToObject(except, Map.class);
+                logMap.putAll(exceptMap);
+                return PublicUtil.objToString(logMap);
+            }
+        } catch (Exception e) {
+            logger.error("", e);
         }
-        return PublicUtil.objToString(logMap);
+        return null;
     }
 
 }

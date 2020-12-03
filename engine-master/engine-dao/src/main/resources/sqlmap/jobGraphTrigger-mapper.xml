@@ -18,7 +18,7 @@
         <include refid="select_content_fragment"/>
         FROM schedule_job_graph_trigger
         WHERE trigger_time = #{triggerTime}
-        AND trigger_type = #{triggerType} and is_deleted = 0
+        AND trigger_type = #{triggerType} and is_deleted = 0 LIMIT 1
     </select>
 
     <delete id="deleteToday">

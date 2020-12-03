@@ -37,6 +37,10 @@ public class ContainerStatusNotifier implements Runnable {
 
     private ScheduledExecutorService scheduledExecutorService;
 
+    private volatile Boolean isCompleted = false;
+
+    private long interResultTimeStamp;
+
     public ContainerStatusNotifier(ApplicationContainerProtocol protocol, Configuration conf, DtContainerId xlearningContainerId) {
         this.protocol = protocol;
         this.conf = conf;
@@ -44,10 +48,11 @@ public class ContainerStatusNotifier implements Runnable {
         // 自定义 CustomThreadFactory 对线程设置为守护线程
         this.scheduledExecutorService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(containerId.toString() + "heartbeat"));
         this.heartbeatRequest = new HeartbeatRequest();
-        this.heartbeatRequest.setContainerUserDir(System.getProperty("user.dir"));
         this.heartbeatResponse = new HeartbeatResponse();
-        this.heartbeatInterval = this.conf.getInt(DtYarnConfiguration.XLEARNING_CONTAINER_HEARTBEAT_INTERVAL, DtYarnConfiguration.DEFAULT_XLEARNING_CONTAINER_HEARTBEAT_INTERVAL);
-        this.heartbeatRetryMax = this.conf.getInt(DtYarnConfiguration.XLEARNING_CONTAINER_HEARTBEAT_RETRY, DtYarnConfiguration.DEFAULT_XLEARNING_CONTAINER_HEARTBEAT_RETRY);
+        this.heartbeatRequest.setContainerUserDir(System.getProperty("user.dir"));
+        this.isCompleted = false;
+        this.heartbeatInterval = this.conf.getInt(DtYarnConfiguration.DTSCRIPT_CONTAINER_HEARTBEAT_INTERVAL, DtYarnConfiguration.DEFAULT_DTSCRIPT_CONTAINER_HEARTBEAT_INTERVAL);
+        this.heartbeatRetryMax = this.conf.getInt(DtYarnConfiguration.DTSCRIPT_CONTAINER_HEARTBEAT_RETRY, DtYarnConfiguration.DEFAULT_DTSCRIPT_CONTAINER_HEARTBEAT_RETRY);
     }
 
     public void setContainerErrorMessage(String msg) {
@@ -71,11 +76,14 @@ public class ContainerStatusNotifier implements Runnable {
         heartbeatWithRetry();
     }
 
+    public Boolean getCompleted() {
+        return isCompleted;
+    }
+
     public HeartbeatResponse heartbeatWithRetry() {
         int retry = 0;
         while (true) {
             try {
-                LOG.debug("Begin Send HeartBeat to ApplicationMaster");
                 heartbeatResponse = protocol.heartbeat(containerId, heartbeatRequest);
                 LOG.debug("Send HeartBeat to ApplicationMaster");
                 return heartbeatResponse;
@@ -94,7 +102,16 @@ public class ContainerStatusNotifier implements Runnable {
     }
 
     public void heartbeatResponseHandle(HeartbeatResponse heartbeatResponse) {
-        LOG.info("handle response: " + heartbeatResponse.toString());
+        LOG.debug("Received the heartbeat response from the AM. CurrentJob finished " + heartbeatResponse.getIsCompleted()
+                + " , currentInnerModelSavedTimeStamp is " + heartbeatResponse.getInterResultTimeStamp());
+        if (!heartbeatResponse.getIsCompleted()) {
+            if (!heartbeatResponse.getInterResultTimeStamp().equals(interResultTimeStamp)) {
+                this.interResultTimeStamp = heartbeatResponse.getInterResultTimeStamp();
+            }
+            LOG.debug("container " + containerId + " currentStatus:" + heartbeatRequest.getXlearningContainerStatus());
+        }
+
+        this.isCompleted = heartbeatResponse.getIsCompleted();
     }
 
     @Override
@@ -104,7 +121,7 @@ public class ContainerStatusNotifier implements Runnable {
     }
 
     public void start() {
-        scheduledExecutorService.scheduleAtFixedRate(this, 0L, 3L, TimeUnit.SECONDS);
+        scheduledExecutorService.scheduleAtFixedRate(this, 0L, heartbeatInterval, TimeUnit.MILLISECONDS);
     }
 
     public void stop() {

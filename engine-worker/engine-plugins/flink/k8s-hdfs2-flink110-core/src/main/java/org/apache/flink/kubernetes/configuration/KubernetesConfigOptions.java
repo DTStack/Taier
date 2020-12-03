@@ -162,6 +162,12 @@ public class KubernetesConfigOptions {
             .defaultValue("log4j.properties")
             .withDescription("The task run log file name.");
 
+    public static final ConfigOption<String> KUBERNETES_HOST_ALIASES =
+            key("kubernetes.host.aliases")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("the host aliases.");
+
     /**
      * The flink rest service exposed type.
      */

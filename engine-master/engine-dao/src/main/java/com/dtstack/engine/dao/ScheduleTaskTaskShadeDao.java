@@ -14,11 +14,11 @@ public interface ScheduleTaskTaskShadeDao {
 
     ScheduleTaskTaskShade getOne(@Param("id") long id);
 
-    ScheduleTaskTaskShade getOneByTaskId(@Param("taskId") Long taskId, @Param("parentTaskId") Long parentTaskId);
+    ScheduleTaskTaskShade getOneByTaskId(@Param("taskId") Long taskId, @Param("parentTaskId") Long parentTaskId,@Param("appType")Integer appType);
 
-    List<ScheduleTaskTaskShade> listChildTask(@Param("parentTaskId") long parentTaskId);
+    List<ScheduleTaskTaskShade> listChildTask(@Param("parentTaskId") long parentTaskId,@Param("appType")Integer appType);
 
-    List<ScheduleTaskTaskShade> listParentTask(@Param("childTaskId") long childTaskId);
+    List<ScheduleTaskTaskShade> listParentTask(@Param("childTaskId") long childTaskId,@Param("appType")Integer appType);
 
     Integer deleteByTaskId(@Param("taskId") long taskId,@Param("appType")Integer appType);
 

@@ -60,8 +60,8 @@ public class ScheduleTaskTaskShadeService {
         }
     }
 
-    public List<ScheduleTaskTaskShade> getAllParentTask( Long taskId) {
-        return scheduleTaskTaskShadeDao.listParentTask(taskId);
+    public List<ScheduleTaskTaskShade> getAllParentTask( Long taskId,Integer appType) {
+        return scheduleTaskTaskShadeDao.listParentTask(taskId,appType);
     }
 
 
@@ -124,11 +124,11 @@ public class ScheduleTaskTaskShadeService {
         }
 
         if(DisplayDirect.FATHER_CHILD.getType().equals(directType) || DisplayDirect.FATHER.getType().equals(directType)){//展开上游节点
-            taskTasks = scheduleTaskTaskShadeDao.listParentTask(taskShade.getTaskId());
+            taskTasks = scheduleTaskTaskShadeDao.listParentTask(taskShade.getTaskId(),taskShade.getAppType());
         }
 
         if(DisplayDirect.FATHER_CHILD.getType().equals(directType) || DisplayDirect.CHILD.getType().equals(directType)){//展开下游节点
-            childTaskTasks = scheduleTaskTaskShadeDao.listChildTask(taskShade.getTaskId());
+            childTaskTasks = scheduleTaskTaskShadeDao.listChildTask(taskShade.getTaskId(),taskShade.getAppType());
         }
 
         if (CollectionUtils.isEmpty(taskTasks) && CollectionUtils.isEmpty(childTaskTasks)) {
@@ -223,7 +223,7 @@ public class ScheduleTaskTaskShadeService {
     public com.dtstack.engine.master.vo.ScheduleTaskVO getFlowWorkOffSpring(ScheduleTaskShade taskShade, int level, Integer directType, Integer appType) {
         com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
         List<ScheduleTaskTaskShade> childTaskTasks = null;
-        childTaskTasks = scheduleTaskTaskShadeDao.listChildTask(taskShade.getTaskId());
+        childTaskTasks = scheduleTaskTaskShadeDao.listChildTask(taskShade.getTaskId(),taskShade.getAppType());
         if (CollectionUtils.isEmpty(childTaskTasks)) {
             return vo;
         }

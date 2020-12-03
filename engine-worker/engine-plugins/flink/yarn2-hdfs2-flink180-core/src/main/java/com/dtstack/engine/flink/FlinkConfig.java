@@ -54,9 +54,14 @@ public class FlinkConfig extends BaseConfig {
 
     private String yarnAccepterTaskNumber;
 
+    private int asyncCheckYarnClientThreadNum = 3;
+
     private Map<String, String> kerberosConfig;
 
     private int flinkSessionSlotCount;
+
+    // monitor 选举时间 5s
+    private int monitorElectionWaitTime = 5 * 1000;
 
     private String flinkSessionName = "Flink session";
 
@@ -103,6 +108,21 @@ public class FlinkConfig extends BaseConfig {
         this.sessionCheckJarPath = sessionCheckJarPath;
     }
 
+    public int getAsyncCheckYarnClientThreadNum() {
+        return asyncCheckYarnClientThreadNum;
+    }
+
+    public void setAsyncCheckYarnClientThreadNum(int asyncCheckYarnClientThreadNum) {
+        this.asyncCheckYarnClientThreadNum = asyncCheckYarnClientThreadNum;
+    }
+
+    public int getMonitorElectionWaitTime() {
+        return monitorElectionWaitTime;
+    }
+
+    public void setMonitorElectionWaitTime(int monitorElectionWaitTime) {
+        this.monitorElectionWaitTime = monitorElectionWaitTime;
+    }
 
     public boolean getMonitorAcceptedApp() {
         return monitorAcceptedApp;

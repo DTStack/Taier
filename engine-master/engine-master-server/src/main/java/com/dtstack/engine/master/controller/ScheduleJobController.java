@@ -317,8 +317,8 @@ public class ScheduleJobController {
 
     @RequestMapping(value="/createTodayTaskShade", method = {RequestMethod.POST})
     @ApiOperation(value = "生成当天任务实例")
-    public void createTodayTaskShade(@DtRequestParam("taskId") Long taskId,@DtRequestParam("appType") Integer appType) {
-        scheduleJobService.createTodayTaskShade(taskId, appType);
+    public void createTodayTaskShade(@DtRequestParam("taskId") Long taskId,@DtRequestParam("appType") Integer appType,@DtRequestParam("date") String date) {
+        scheduleJobService.createTodayTaskShade(taskId, appType,date);
     }
 
     @RequestMapping(value="/listByBusinessDateAndPeriodTypeAndStatusList", method = {RequestMethod.POST})

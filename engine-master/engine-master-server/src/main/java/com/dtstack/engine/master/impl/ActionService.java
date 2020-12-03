@@ -384,7 +384,7 @@ public class ActionService {
             vo.setLogInfo(jobRetry.getLogInfo());
             String engineLog = jobRetry.getEngineLog();
             if (StringUtils.isBlank(jobRetry.getEngineLog())){
-                engineLog = jobDealer.getAndUpdateEngineLog(jobId, jobRetry.getEngineJobId(), jobRetry.getApplicationId(), scheduleJob.getPluginInfoId());
+                engineLog = jobDealer.getAndUpdateEngineLog(jobId, jobRetry.getEngineJobId(), jobRetry.getApplicationId(), scheduleJob.getDtuicTenantId());
                 if (engineLog != null){
                     logger.info("engineJobRetryDao.updateEngineLog id:{}, jobId:{}, engineLog:{}", jobRetry.getId(), jobRetry.getJobId(), engineLog);
                     engineJobRetryDao.updateEngineLog(jobRetry.getId(), engineLog);

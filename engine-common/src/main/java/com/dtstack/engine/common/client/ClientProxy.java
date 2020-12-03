@@ -50,13 +50,23 @@ public class ClientProxy implements IClient {
 
     @Override
     public void init(Properties prop) throws Exception {
-        ClassLoaderCallBackMethod.callbackAndReset(new CallBack<String>() {
-            @Override
-            public String execute() throws Exception {
-                targetClient.init(prop);
-                return null;
-            }
-        }, targetClient.getClass().getClassLoader(), true);
+        try {
+            CompletableFuture.supplyAsync(() -> {
+                try {
+                    return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<String>() {
+                        @Override
+                        public String execute() throws Exception {
+                            targetClient.init(prop);
+                            return null;
+                        }
+                    }, targetClient.getClass().getClassLoader(), true);
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
+                }
+            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new RdosDefineException(e);
+        }
     }
 
     @Override
