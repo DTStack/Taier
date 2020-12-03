@@ -1,8 +1,9 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.domain.TenantResource;
+import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
@@ -10,19 +11,12 @@ import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
-import com.dtstack.engine.common.enums.JobCheckStatus;
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UnitConvertUtil;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.dao.TenantResourceDao;
-import com.dtstack.engine.master.executor.CronJobExecutor;
-import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
@@ -35,7 +29,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -59,12 +52,6 @@ public class ScheduleTaskShadeService {
 
     @Autowired
     private TenantResourceDao tenantResourceDao;
-
-    @Autowired
-    private CronJobExecutor cronJobExecutor;
-
-    @Autowired
-    private FillJobExecutor fillJobExecutor;
 
     /**
      * web 接口
@@ -100,10 +87,6 @@ public class ScheduleTaskShadeService {
     public void deleteTask( Long taskId,  long modifyUserId, Integer appType) {
         scheduleTaskShadeDao.delete(taskId, modifyUserId,appType);
         scheduleTaskTaskShadeService.clearDataByTaskId(taskId,appType);
-    }
-
-    public List<ScheduleTaskShade> listTaskByType(Long projectId, Integer taskType, String taskName) {
-        return scheduleTaskShadeDao.listByType(projectId, taskType, taskName);
     }
 
     /**
@@ -207,8 +190,8 @@ public class ScheduleTaskShadeService {
         return scheduleTaskShadeDao.getByName(projectId, name,appType,flowId);
     }
 
-    public void updateTaskName( long id,  String taskName,Integer appType) {
-        scheduleTaskShadeDao.updateTaskName(id, taskName,appType);
+    public void updateTaskName(long taskId,  String taskName,Integer appType) {
+        scheduleTaskShadeDao.updateTaskName(taskId, taskName,appType);
     }
 
 

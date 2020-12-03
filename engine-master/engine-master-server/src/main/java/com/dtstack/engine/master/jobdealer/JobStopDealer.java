@@ -147,13 +147,6 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         return addStopJobs(jobs, ForceCancelFlag.NO.getFlag());
     }
 
-    private boolean checkJobCanStop(Integer status) {
-        if (status == null) {
-            return true;
-        }
-
-        return RdosTaskStatus.getCanStopStatus().contains(status);
-    }
 
 
     @Override
@@ -382,10 +375,6 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         public long stopJobId;
         public boolean isForceCancel;
 
-        public JobElement(String jobId, long stopJobId) {
-            this.jobId = jobId;
-            this.stopJobId = stopJobId;
-        }
 
         public JobElement(String jobId, long stopJobId, boolean isForceCancel) {
             this.jobId = jobId;

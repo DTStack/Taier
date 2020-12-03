@@ -3,6 +3,7 @@ package com.dtstack.engine.master.jobdealer;
 import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.master.AbstractTest;
@@ -42,20 +43,56 @@ public class TestJobRestartDealer extends AbstractTest {
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
-    public void testCheckAndRestart() {
+    public void testCheckAndRestart1() {
         addDefaultCluster();
         EngineJobCache jobCache = DataCollection.getData().getEngineJobCache();
-        EngineJobCheckpoint checkpoint = DataCollection.getData().getEngineJobCheckpoint();
-        boolean flag = jobRestartDealer.checkAndRestart(2, jobCache.getJobId(), checkpoint.getTaskEngineId(), "1");
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteJobId();
+        boolean flag = jobRestartDealer.checkAndRestart(2, scheduleJob, jobCache);
         Assert.assertFalse(flag);
-        boolean flag2 = jobRestartDealer.checkAndRestart(8, jobCache.getJobId(), checkpoint.getTaskEngineId(), "1");
+
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testCheckAndRestart2() {
+        addDefaultCluster();
+        EngineJobCache jobCache = DataCollection.getData().getEngineJobCache();
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteJobId();
+        boolean flag2 = jobRestartDealer.checkAndRestart(8, scheduleJob,jobCache );
         Assert.assertFalse(flag2);
-        //失败重试
-        EngineJobCache jobCache2 = DataCollection.getData().getEngineJobCache2();
-        boolean flag3 = jobRestartDealer.checkAndRestart(8, jobCache2.getJobId(), checkpoint.getTaskEngineId(), "1");
+
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testCheckAndRestart3() {
+        addDefaultCluster();
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteJobId();
+        EngineJobCache jobCache4 = DataCollection.getData().getEngineJobCache4();
+        boolean flag3 = jobRestartDealer.checkAndRestart(8, scheduleJob, jobCache4);
         Assert.assertTrue(flag3);
 
     }
+
+
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testCheckAndRestart4() {
+
+        //engineType为kylin
+        addDefaultCluster();
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteJobId();
+        EngineJobCache jobCache4 = DataCollection.getData().getEngineJobCache5();
+        boolean flag3 = jobRestartDealer.checkAndRestart(8, scheduleJob, jobCache4);
+        Assert.assertFalse(flag3);
+
+    }
+
+
 
 
     private Cluster addDefaultCluster(){

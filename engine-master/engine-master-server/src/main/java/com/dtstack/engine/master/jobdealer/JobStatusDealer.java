@@ -9,17 +9,18 @@ import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.pojo.JobStatusFrequency;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.bo.JobCompletedInfo;
-import com.dtstack.engine.master.bo.JobStatusFrequency;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.jobdealer.cache.ShardManager;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -54,7 +55,7 @@ public class  JobStatusDealer implements Runnable {
      */
     private final static int NOT_FOUND_LIMIT_INTERVAL = 3 * 60 * 1000;
 
-    public static final long INTERVAL = 3000;
+    public static final long INTERVAL = 3500;
     private final static int MULTIPLES = 5;
     private int logOutput = 0;
 
@@ -151,8 +152,7 @@ public class  JobStatusDealer implements Runnable {
             String taskParams = info.getString("taskParams");
             String pluginInfo = info.getString("pluginInfo");
             Long userId = info.getLong("userId");
-            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getDtuicTenantId(),engineType,
-                    scheduleJobService.parseDeployTypeByTaskParams(taskParams,scheduleJob.getComputeType(),engineType).getType(),userId, pluginInfo);
+            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getDtuicTenantId(),engineType, TaskParamsUtil.parseDeployTypeByTaskParams(taskParams,scheduleJob.getComputeType(),engineType).getType(),userId, pluginInfo);
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
 
@@ -268,11 +268,12 @@ public class  JobStatusDealer implements Runnable {
     }
 
     public void start() {
+        long jobStatusCheckInterVal = environmentContext.getJobStatusCheckInterVal();
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,
-                JobStatusDealer.INTERVAL,
+                jobStatusCheckInterVal,
                 TimeUnit.MILLISECONDS);
         logger.info("{} thread start ...", jobResource + this.getClass().getSimpleName());
 

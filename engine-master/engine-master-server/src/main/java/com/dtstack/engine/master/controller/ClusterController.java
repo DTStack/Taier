@@ -142,7 +142,7 @@ public class ClusterController{
 
     @RequestMapping(value="/getConfigByKey", method = {RequestMethod.POST})
     public String getConfigByKey(@DtRequestParam("dtUicTenantId")Long dtUicTenantId, @DtRequestParam("key") String key, @DtRequestParam("fullKerberos") Boolean fullKerberos) {
-        return clusterService.getConfigByKey(dtUicTenantId, key, fullKerberos);
+        return clusterService.getConfigByKey(dtUicTenantId, key, fullKerberos,Boolean.FALSE);
     }
 
     @RequestMapping(value="/clusters", method = {RequestMethod.POST})
@@ -201,7 +201,7 @@ public class ClusterController{
     @RequestMapping(value="/getCluster", method = {RequestMethod.POST})
     @ApiOperation(value = "获取集群信息详情")
     public ClusterVO getCluster(@DtRequestParam("clusterId") Long clusterId, @DtRequestParam("kerberosConfig") Boolean kerberosConfig,@DtRequestParam("removeTypeName") Boolean removeTypeName) {
-        return clusterService.getCluster(clusterId, kerberosConfig, removeTypeName);
+        return clusterService.getCluster(clusterId, kerberosConfig, removeTypeName,true);
     }
 
     @RequestMapping(value="/getAllCluster", method = {RequestMethod.POST})

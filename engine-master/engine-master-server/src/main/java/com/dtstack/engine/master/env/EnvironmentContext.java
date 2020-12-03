@@ -395,7 +395,7 @@ public class EnvironmentContext {
     }
 
     public Integer getScheduleJobScope() {
-        return Integer.valueOf(environment.getProperty("job.back.scope", "1000*60"));
+        return Integer.valueOf(environment.getProperty("job.back.scope", "60000"));
     }
 
     public Integer getJobExecutorPoolCorePoolSize(){
@@ -412,6 +412,10 @@ public class EnvironmentContext {
 
     public Integer getJobExecutorPoolQueueSize(){
         return Integer.valueOf(environment.getProperty("job.executor.pool.queue.size", "1000"));
+    }
+
+    public long getJobStatusCheckInterVal() {
+        return Long.parseLong(environment.getProperty("job.status.check.interval", "3500"));
     }
 
     public String getComponentJdbcToReplace() {

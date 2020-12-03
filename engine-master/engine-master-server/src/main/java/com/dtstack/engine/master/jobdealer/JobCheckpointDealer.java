@@ -199,7 +199,7 @@ public class JobCheckpointDealer implements InitializingBean {
                 }
             }
         } catch (IOException e) {
-            logger.error("taskID:{} ,engineTaskId:{}, error log:", taskId, engineTaskId, e);
+            logger.error("taskID:{} ,engineTaskId:{}, error:", taskId, engineTaskId, e);
         }
     }
 

@@ -90,24 +90,32 @@ public class KubernetesClient extends AbstractClient {
             client.getVersion();
             testResult.setResult(true);
             String namespace = allConfig.getNamespace();
-            if(StringUtils.isNotBlank(namespace)){
+            if (StringUtils.isNotBlank(namespace)) {
                 //新建集群的时候测试联通性 没有namespace 绑定租户的时候含有namespace 需要区分一下
                 configMap = testKubernetesNamespace(client, namespace);
             }
 
         } catch (Exception e) {
+            LOG.error("test error {}", allConfig.getNamespace(), e);
+            testResult.setResult(false);
+            testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
             if (StringUtils.isNotBlank(allConfig.getNamespace())
                     && e.getMessage().contains(allConfig.getNamespace())
                     && e.getMessage().contains("not found")) {
-                throw new RdosDefineException(String.format("namespace %s 不存在", allConfig.getNamespace()));
+                testResult.setErrorMsg("namespace不存在或者无权限");
+            } else if (e.getMessage().contains("not match")) {
+                testResult.setErrorMsg("namespace不存在或者无权限");
+            } else if (e.getMessage().contains("doesn't have permission")) {
+                testResult.setErrorMsg("namespace不存在或者无权限");
             }
-            throw e;
         } finally {
             if (Objects.nonNull(client)) {
-                try {
-                    client.configMaps().delete(configMap);
-                } catch (Exception e) {
-                    LOG.error("delete namespace {} config error", allConfig.getNamespace(), e);
+                if (null != configMap) {
+                    try {
+                        client.configMaps().delete(configMap);
+                    } catch (Exception e) {
+                        LOG.error("delete namespace {} config error", allConfig.getNamespace(), e);
+                    }
                 }
                 client.close();
             }

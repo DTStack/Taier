@@ -3,7 +3,7 @@ package com.dtstack.engine.flink;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.worker.enums.ClassLoaderType;
+import com.dtstack.engine.base.enums.ClassLoaderType;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobSubmissionResult;
 import org.apache.flink.client.deployment.ClusterSpecification;
@@ -12,9 +12,7 @@ import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.yarn.YarnClusterDescriptor;
-import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
-import org.apache.hadoop.yarn.api.records.YarnApplicationState;
+import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.api.records.impl.pb.ApplicationIdPBImpl;
 import org.apache.hadoop.yarn.api.records.impl.pb.ApplicationReportPBImpl;
 import org.apache.hadoop.yarn.client.api.YarnClient;
@@ -22,6 +20,7 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.powermock.api.mockito.PowerMockito;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +29,26 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 public class YarnMockUtil {
+
+    public static List<ApplicationReport> mockApplicationReports() {
+        ApplicationReport report = PowerMockito.mock(ApplicationReport.class);
+        when(report.getYarnApplicationState()).thenReturn(YarnApplicationState.RUNNING);
+        when(report.getName()).thenReturn("Flink session");
+        when(report.getQueue()).thenReturn("default");
+        ApplicationId appId = PowerMockito.mock(ApplicationIdPBImpl.class);
+        when(appId.toString()).thenReturn("application_123456");
+        when(report.getApplicationId()).thenReturn(appId);
+        ApplicationResourceUsageReport resourceUsageReport = PowerMockito.mock(ApplicationResourceUsageReport.class);
+        Resource resource = PowerMockito.mock(Resource.class);
+        when(resource.getMemory()).thenReturn(1024);
+        when(resource.getVirtualCores()).thenReturn(10);
+        when(resourceUsageReport.getNeededResources()).thenReturn(resource);
+        when(report.getApplicationResourceUsageReport()).thenReturn(resourceUsageReport);
+
+        List<ApplicationReport> reports = new ArrayList<>();
+        reports.add(report);
+        return reports;
+    }
 
     public static ClusterClient mockClusterClient() throws Exception {
 
@@ -91,7 +110,7 @@ public class YarnMockUtil {
 
     public static JobClient mockJobClient(String jobType, String jarPath) throws Exception {
         String taskId = "9999";
-        String sqlText = "ADD JAR WITH /data/sftp/21_window_WindowJoin.jar AS dtstack.WindowJoin";
+        String sqlText = "ADD FILE WITH /tmp/hdfs.keytab;ADD JAR WITH /data/sftp/21_window_WindowJoin.jar AS dtstack.WindowJoin";
         ParamAction paramAction = new ParamAction();
         if ("perJob".equalsIgnoreCase(jobType)) {
             paramAction.setTaskType(0);

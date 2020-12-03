@@ -80,6 +80,9 @@ public class TenantService {
     @Autowired
     private ComponentService componentService;
 
+    @Autowired
+    private DtUicUserConnect dtUicUserConnect;
+
     public PageResult<List<EngineTenantVO>> pageQuery( Long clusterId,
                                                        Integer engineType,
                                                        String tenantName,
@@ -189,19 +192,22 @@ public class TenantService {
     private List<UserTenant> postTenantList(String dtToken) {
         String dtUicUrl = env.getDtUicUrl();
         //uic对数据量做了限制，可能未查询到租户信息
-        return DtUicUserConnect.getUserTenants(dtUicUrl, dtToken, "");
+        return dtUicUserConnect.getUserTenants(dtUicUrl, dtToken, "");
     }
 
 
     private UserTenant getTenantByDtUicTenantId(Long dtUicTenantId,String token){
         String dtUicUrl = env.getDtUicUrl();
-        return DtUicUserConnect.getTenantByTenantId(dtUicUrl, dtUicTenantId, token);
+        return dtUicUserConnect.getTenantByTenantId(dtUicUrl, dtUicTenantId, token);
     }
 
 
     @Transactional(rollbackFor = Exception.class)
     public void bindingTenant( Long dtUicTenantId,  Long clusterId,
                                Long queueId,  String dtToken,String namespace) throws Exception {
+        if (null == queueId && StringUtils.isBlank(namespace)) {
+            throw new RdosDefineException("队列或namespace名称不能为空");
+        }
         Cluster cluster = clusterDao.getOne(clusterId);
         EngineAssert.assertTrue(cluster != null, "集群不存在", ErrorCode.DATA_NOT_FIND);
 
@@ -232,8 +238,8 @@ public class TenantService {
 
 
     public void checkClusterCanUse(Long clusterId) throws Exception {
-        ClusterVO clusterVO = clusterService.getCluster(clusterId, true, true);
-        List<ComponentTestResult> testConnectionVO = componentService.testConnects(clusterVO.getClusterName());
+        Cluster cluster = clusterDao.getOne(clusterId);
+        List<ComponentTestResult> testConnectionVO = componentService.testConnects(cluster.getClusterName());
         boolean canUse = true;
         StringBuilder msg = new StringBuilder();
         msg.append("此集群不可用,测试连通性为通过：\n");
@@ -313,6 +319,7 @@ public class TenantService {
             throw new RdosDefineException("所选队列存在子队列，选择正确的子队列", ErrorCode.DATA_NOT_FIND);
         }
 
+        LOGGER.info("switch queue, tenantId:{} queueId:{} engineId:{}",tenantId,queueId,engineId);
         int result = engineTenantDao.updateQueueId(tenantId, engineId, queueId);
         if(result == 0){
             throw new RdosDefineException("更新引擎队列失败");
@@ -339,6 +346,7 @@ public class TenantService {
         try {
             //修改租户各个任务资源限制
             updateTenantTaskResource(tenantId,dtUicTenantId,taskTypeResourceJson);
+            LOGGER.info("switch queue, tenantId:{} queueId:{} queueName:{} engineId:{}",tenantId,queueId,queue.getQueueName(),queue.getEngineId());
             updateTenantQueue(tenantId, dtUicTenantId, queue.getEngineId(), queueId);
         } catch (Exception e) {
             LOGGER.error("", e);

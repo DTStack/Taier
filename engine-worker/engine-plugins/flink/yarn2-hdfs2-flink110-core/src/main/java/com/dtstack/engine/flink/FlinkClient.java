@@ -36,7 +36,7 @@ import com.dtstack.engine.flink.resource.FlinkPerJobResourceInfo;
 import com.dtstack.engine.flink.resource.FlinkYarnSeesionResourceInfo;
 import com.dtstack.engine.flink.util.*;
 import com.dtstack.engine.common.client.AbstractClient;
-import com.dtstack.engine.worker.enums.ClassLoaderType;
+import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.*;
@@ -69,7 +69,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
@@ -117,9 +116,8 @@ public class FlinkClient extends AbstractClient {
 
     private String jobmanagerDir;
 
-    private final static Predicate<RdosTaskStatus> IS_END_STATUS = status ->
-            status.equals(RdosTaskStatus.FINISHED) || status.equals(RdosTaskStatus.CANCELED)
-                    || status.equals(RdosTaskStatus.FAILED) || status.equals(RdosTaskStatus.KILLED);
+    private final static Predicate<RdosTaskStatus> IS_END_STATUS = status -> RdosTaskStatus.getStoppedStatus().contains(status.getStatus()) || RdosTaskStatus.NOTFOUND.equals(status);
+
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -222,7 +220,7 @@ public class FlinkClient extends AbstractClient {
                 clusterSpecification.setSpSetting(spSettings);
                 clusterSpecification.setProgramArgs(programArgs);
                 clusterSpecification.setCreateProgramDelay(true);
-                clusterSpecification.setYarnConfiguration(getYarnConf(jobClient.getPluginInfo()));
+                clusterSpecification.setYarnConfiguration(hadoopConf.getYarnConfiguration());
                 clusterSpecification.setClassLoaderType(ClassLoaderType.getClassLoaderType(jobClient.getJobType()));
 
                 runResult = runJobByPerJob(clusterSpecification, jobClient);
@@ -288,18 +286,6 @@ public class FlinkClient extends AbstractClient {
         } finally {
             delFilesFromDir(ConfigConstrant.IO_TMPDIR, "flink-jobgraph");
         }
-    }
-
-    private YarnConfiguration getYarnConf(String pluginInfo){
-        org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-
-        JsonParser parser = new JsonParser();
-        JsonObject json = parser.parse(pluginInfo).getAsJsonObject().getAsJsonObject("yarnConf");
-        for (Map.Entry<String, JsonElement> keyVal : json.entrySet()) {
-            conf.set(keyVal.getKey(),keyVal.getValue().getAsString());
-        }
-
-        return new YarnConfiguration(conf);
     }
 
     private void delFilesFromDir(Path dir ,String fileName){
@@ -486,7 +472,7 @@ public class FlinkClient extends AbstractClient {
                 String jobUrl = String.format("%s/jobs/%s", webInterfaceURL, jobId);
                 response = PoolHttpClient.get(jobUrl);
             } catch (Exception e) {
-                logger.error("request job status error: {}", e.getMessage());
+                logger.error("request job status error:", e);
             }
         }
 

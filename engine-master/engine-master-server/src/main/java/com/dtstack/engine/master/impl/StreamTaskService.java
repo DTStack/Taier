@@ -48,8 +48,6 @@ public class StreamTaskService {
     @Autowired
     private WorkerOperator workerOperator;
 
-    @Autowired
-    private ScheduleJobService scheduleJobService;
     /**
      * 查询checkPoint
      */
@@ -120,7 +118,7 @@ public class StreamTaskService {
 
         //只获取运行中的任务的log—url
         Integer status = scheduleJob.getStatus();
-        if (!RdosTaskStatus.RUNNING.getStatus().equals(status.intValue())) {
+        if (!RdosTaskStatus.RUNNING.getStatus().equals(status)) {
             throw new RdosDefineException(String.format("job:%s not running status ", taskId), ErrorCode.INVALID_TASK_STATUS);
         }
 
@@ -150,14 +148,19 @@ public class StreamTaskService {
             return rollingLogBaseInfo;
 
         }catch (Exception e){
-            if (jobClient != null) {
-                RdosTaskStatus jobStatus = workerOperator.getJobStatus(jobIdentifier);;
-                Integer statusCode = jobStatus.getStatus();
-                if (RdosTaskStatus.getStoppedStatus().contains(statusCode)) {
-                    throw new RdosDefineException(String.format("job:%s had stop ", taskId), ErrorCode.INVALID_TASK_STATUS, e);
+            if (e instanceof RdosDefineException) {
+                throw (RdosDefineException) e;
+            } else {
+                if (jobClient != null) {
+                    RdosTaskStatus jobStatus = workerOperator.getJobStatus(jobIdentifier);
+                    Integer statusCode = jobStatus.getStatus();
+                    if (RdosTaskStatus.getStoppedStatus().contains(statusCode)) {
+                        throw new RdosDefineException(String.format("job:%s had stop ", taskId), ErrorCode.INVALID_TASK_STATUS, e);
+                    }
                 }
+                throw new RdosDefineException(String.format("get job:%s ref application url error..", taskId), ErrorCode.UNKNOWN_ERROR, e);
             }
-            throw new RdosDefineException(String.format("get job:%s ref application url error..", taskId), ErrorCode.UNKNOWN_ERROR, e);
+
         }
 
     }

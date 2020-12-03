@@ -1,14 +1,17 @@
 package com.dtstack.engine.master;
 
-import com.dtstack.engine.master.listener.RunnerListener;
 import com.dtstack.engine.master.utils.CommonUtils;
-import org.junit.runner.notification.RunNotifier;
+import com.dtstack.engine.master.utils.ValueUtils;
 import org.junit.runners.model.InitializationError;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 
 public class DtCenterSpringJUnit4ClassRunner extends SpringJUnit4ClassRunner {
-    private RunnerListener runnerListener;
+
+    private final static AtomicBoolean init = new AtomicBoolean(false);
+
     /**
      * 设置 user.dir,使用项目根目录下的配置文件
      */
@@ -22,21 +25,17 @@ public class DtCenterSpringJUnit4ClassRunner extends SpringJUnit4ClassRunner {
     @Override
     protected Object createTest() throws Exception {
         Object test = super.createTest();
-        if (test instanceof RunnerListener && runnerListener == null) {
-            runnerListener = (RunnerListener)test;
-            runnerListener.runsBeforeClass();
+        synchronized (DtCenterSpringJUnit4ClassRunner.class) {
+            if (init.compareAndSet(false, true)) {
+                try {
+                    ValueUtils.initData();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
         return test;
-    }
-
-    @Override
-    public void run(RunNotifier notifier) {
-        super.run(notifier);
-        if (runnerListener != null) {
-            runnerListener.runsAfterClass();
-        }
 
     }
-
 
 }
