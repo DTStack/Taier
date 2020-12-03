@@ -24,6 +24,7 @@ public enum ComputeResourceType {
     TiDB,
     GreenPlum,
     Dummy,
-    Presto;
+    Presto,
+    KingBase;
 
 }

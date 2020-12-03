@@ -14,9 +14,12 @@ public class GetConn {
 
     public Connection conn = null;
     public PreparedStatement pst = null;
-    public String url = "jdbc:kingbase8://172.16.100.181:54321/TEST";
-    public String user = "SYSTEM";
-    public String pass = "abc123";
+//    public String url = "jdbc:kingbase8://172.16.100.181:54321/TEST";
+//    public String user = "SYSTEM";
+//    public String pass = "abc123";
+      public String url = "jdbc:kingbase8://119.45.4.7:54321/TEST";
+      public String user = "root";
+      public String pass = "root";
 
     public GetConn(String sql) {
         try {

@@ -100,6 +100,8 @@ public enum EngineTypeComponentType {
                 return EngineTypeComponentType.GREENPLUM_SQL;
             case "presto":
                 return EngineTypeComponentType.PRESTO_SQL;
+            case "kingbase":
+                return EngineTypeComponentType.KING_BASE;
             default:
                 throw new UnsupportedOperationException("未知引擎类型:" + engineName);
         }

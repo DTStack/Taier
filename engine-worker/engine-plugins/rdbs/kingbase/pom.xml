@@ -21,13 +21,6 @@
             <artifactId>plugins.rdbs.common</artifactId>
             <version>1.0.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-common</artifactId>
-            <version>1.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-
 
         <dependency>
             <groupId>com.kingbase8</groupId>
@@ -92,10 +85,10 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
-                                <copy todir="${basedir}/target/../../../../../pluginLibs/tidb/"
+                                <copy todir="${basedir}/target/../../../../../pluginLibs/kingbase/"
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/tidb/"
+                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/kingbase/"
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
