@@ -28,4 +28,24 @@ public class CreateSqlTest extends HiveSqlBaseTest {
         Assert.assertEquals(sqlType, SqlType.CREATE_AS);
         Assert.assertEquals(parseResult.getExtraSqlType(), SqlType.CREATE_VIEW);
     }
+
+    /**
+     * hive中database和schema是同一个概念
+     */
+    private static final String create_database = "create database if not exists test_db comment 'comment' location 'hdfs_path' MANAGEDLOCATION 'mlocation' WITH DBPROPERTIES (comment = '')";
+
+    private static final String create_schema = "create schema if not exists test_db";
+
+    private static final String drop_database = "drop database if exists test_db CASCADE";
+
+    private static final String alter_db1 = "alter database test_db set dbproperties(comment='asd',location='sd')";
+
+    private static final String alter_db2 = "alter database test_db set owner hive";
+
+    private static final String alter_db3 = "alter database set location 'sd'";
+
+    private static final String alter_db4 = "alter schema set managelocation 'asd'";
+
+    private static final String use_db = "use test";
+
 }
