@@ -19,7 +19,7 @@
 package org.apache.flink.client.program;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.worker.enums.ClassLoaderType;
+import com.dtstack.engine.base.enums.ClassLoaderType;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.Plan;
@@ -27,7 +27,6 @@ import org.apache.flink.runtime.execution.librarycache.FlinkUserCodeClassLoaders
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
