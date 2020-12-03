@@ -311,7 +311,7 @@ function getComponentConfigPrames (values: any, components: any, config: any) {
                 })
             }
         } else {
-            val.value = formConfig?.[val.key.split('%').join('.')] 
+            val.value = formConfig?.[val.key.split('%').join('.')]
         }
     })
     componentTemplate = getCustomParams(customParams, componentTemplate)
