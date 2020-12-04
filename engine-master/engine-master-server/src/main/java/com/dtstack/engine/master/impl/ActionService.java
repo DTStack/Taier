@@ -150,10 +150,10 @@ public class ActionService {
         return false;
     }
 
-    public Boolean startJob(ScheduleTaskShade batchTask,String jobId,Integer isRestart, String flowJobId) {
-        logger.info("startJob ScheduleTaskShade: {} jobId:{} isRestart:{} flowJobId:{} ", JSONObject.toJSONString(batchTask), jobId, isRestart, flowJobId);
+    public Boolean startJob(ScheduleTaskShade batchTask,String jobId, String flowJobId) {
+        logger.info("startJob ScheduleTaskShade: {} jobId:{} flowJobId:{} ", JSONObject.toJSONString(batchTask), jobId, flowJobId);
         try {
-            ParamActionExt paramActionExt = paramActionExt(batchTask, jobId, isRestart, flowJobId);
+            ParamActionExt paramActionExt = paramActionExt(batchTask, jobId, flowJobId);
             if (paramActionExt == null) {
                 throw new RdosDefineException("extraInfo can't null or empty string");
             }
@@ -168,9 +168,9 @@ public class ActionService {
         return Boolean.FALSE;
     }
 
-    public ParamActionExt paramActionExt(ScheduleTaskShade batchTask, String jobId, Integer isRestart, String flowJobId) throws Exception {
-        logger.info("startJob ScheduleTaskShade: {} jobId:{} isRestart:{} flowJobId:{} ", JSONObject.toJSONString(batchTask), jobId, isRestart, flowJobId);
-        ScheduleJob scheduleJob = buildScheduleJob(batchTask, jobId, isRestart, flowJobId);
+    public ParamActionExt paramActionExt(ScheduleTaskShade batchTask, String jobId, String flowJobId) throws Exception {
+        logger.info("startJob ScheduleTaskShade: {} jobId:{} flowJobId:{} ", JSONObject.toJSONString(batchTask), jobId, flowJobId);
+        ScheduleJob scheduleJob = buildScheduleJob(batchTask, jobId, flowJobId);
         ParamActionExt paramActionExt = paramActionExt(batchTask, scheduleJob, JSONObject.parseObject(batchTask.getExtraInfo()));
         if (paramActionExt == null) {
             throw new RdosDefineException("extraInfo can't null or empty string");
@@ -183,7 +183,7 @@ public class ActionService {
         return this.parseParamActionExt(scheduleJob, batchTask, extraInfo);
     }
 
-    private ScheduleJob buildScheduleJob(ScheduleTaskShade batchTask, String jobId, Integer isRestart, String flowJobId) throws IOException, ParseException {
+    private ScheduleJob buildScheduleJob(ScheduleTaskShade batchTask, String jobId, String flowJobId) throws IOException, ParseException {
         String cycTime = jobRichOperator.getCycTime(0);
         String scheduleConf = batchTask.getScheduleConf();
         ScheduleCron scheduleCron = ScheduleFactory.parseFromJson(scheduleConf);
@@ -196,14 +196,13 @@ public class ActionService {
         scheduleJob.setTenantId(batchTask.getTenantId());
         scheduleJob.setProjectId(getOrDefault(batchTask.getProjectId(), -1L));
         //dtuicTenantId() 取 tenantId字段
-        scheduleJob.setDtuicTenantId(getOrDefault(batchTask.getTenantId(), -1L));
+        scheduleJob.setDtuicTenantId(getOrDefault(batchTask.getDtuicTenantId(), -1L));
         scheduleJob.setAppType(getOrDefault(batchTask.getAppType(), 0));
         scheduleJob.setJobKey(String.format("%s%s%s", "tempJob", batchTask.getTaskId() + batchTask.getAppType(), new DateTime().toString("yyyyMMdd")));
         scheduleJob.setTaskId(-1L);
         scheduleJob.setCreateUserId(getOrDefault(batchTask.getCreateUserId(), -1L));
 
         scheduleJob.setType(EScheduleType.TEMP_JOB.getType());
-        scheduleJob.setIsRestart(getOrDefault(isRestart, 0));
         scheduleJob.setBusinessDate(getOrDefault(jobRichOperator.getCycTime(-1), ""));
         scheduleJob.setCycTime(getOrDefault(cycTime, ""));
 
