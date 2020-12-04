@@ -2064,7 +2064,9 @@ public class ScheduleJobService {
         for (ScheduleJobJob scheduleJobJob : scheduleJobJobList) {
             //排除自依赖
             String childJobKey = scheduleJobJob.getJobKey();
-            if (parentTaskId.equals(getTaskIdFromJobKey(childJobKey))) {
+            Long taskShadeIdFromJobKey = getTaskShadeIdFromJobKey(childJobKey);
+            ScheduleTaskShade taskShade = batchTaskShadeService.getById(taskShadeIdFromJobKey);
+            if(null != taskShade && taskShade.getTaskId().equals(parentTaskId)){
                 continue;
             }
 
@@ -2114,16 +2116,21 @@ public class ScheduleJobService {
     }
 
 
-    public Long getTaskIdFromJobKey(String jobKey) {
+    /**
+     * 此处获取的时候schedule_task_shade 的id 不是task_id
+     * @param jobKey
+     * @return
+     */
+    public Long getTaskShadeIdFromJobKey(String jobKey) {
         String[] strings = jobKey.split("_");
         if (strings.length < 2) {
             logger.error("it's not a legal job key, str is {}.", jobKey);
             return -1L;
         }
 
-        String taskId = strings[strings.length - 2];
+        String id = strings[strings.length - 2];
         try {
-            return MathUtil.getLongVal(taskId);
+            return MathUtil.getLongVal(id);
         } catch (Exception e) {
             logger.error("it's not a legal job key, str is {}.", jobKey);
             return -1L;
@@ -2375,7 +2382,8 @@ public class ScheduleJobService {
         for (ScheduleJobJob scheduleJobJob : scheduleJobJobList) {
             //排除自依赖
             String childJobKey = scheduleJobJob.getJobKey();
-            if (scheduleJob.getTaskId() != null && scheduleJob.getTaskId().equals(getTaskIdFromJobKey(childJobKey))) {
+            ScheduleTaskShade taskShade = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), appType);
+            if (null != taskShade && taskShade.getId().equals(getTaskShadeIdFromJobKey(childJobKey))) {
                 continue;
             }
 
