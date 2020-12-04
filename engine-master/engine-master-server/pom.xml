@@ -24,7 +24,7 @@
         <dependency>
             <groupId>com.dtstack.engine</groupId>
             <artifactId>engine-common</artifactId>
-            <version>1.0.0</version>
+            <version>4.0.1</version>
             <exclusions>
                 <exclusion>
                     <artifactId>zookeeper</artifactId>
