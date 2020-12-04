@@ -18,7 +18,7 @@ engine-common 版本说明：
 pom: 
 <dependency>
   <groupId>com.dtstack.engine</groupId>
-  <artifactId>sdk-engine-client</artifactId>
+  <artifactId>engine-common</artifactId>
   <version>4.0.1</version>
 </dependency>
 
@@ -32,7 +32,7 @@ pom:
 pom: 
 <dependency>
   <groupId>com.dtstack.engine</groupId>
-  <artifactId>sdk-engine-client</artifactId>
+  <artifactId>engine-common</artifactId>
   <version>4.1.1</version>
 </dependency>
 
