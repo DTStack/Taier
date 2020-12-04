@@ -443,6 +443,9 @@ public class Asserts extends DataCollection {
         List<DataSourceDTO> dataSourceDtos = new ArrayList<>();
         for (AssertDataSource assertDataSource : assertDataSourceList) {
             DataSourceDTO dataSourceDTO = new DataSourceDTO();
+            if(StringUtils.isBlank(assertDataSource.getDataJson())){
+                assertDataSource.setSourceType(1000);
+            }
             //数据源类型进行转换
             String nameByTypeCode = AssertDataSourceTypeEnum.getNameByTypeCode(assertDataSource.getSourceType());
             DataSourceType byName = DataSourceType.getByName(nameByTypeCode);

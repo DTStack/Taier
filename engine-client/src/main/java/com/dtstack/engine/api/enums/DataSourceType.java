@@ -19,7 +19,9 @@ public enum DataSourceType {
     LIBRA(7,"LibrA SQL"),
     MYSQL(8,"Mysql"),
     GREENPLUM(9,"Greenplum SQL"),
-    SQLSERVER(10,"SqlServer SQL")
+    SQLSERVER(10,"SqlServer SQL"),
+    //手动添加的数据源
+    CUSTOM(11,"custom")
     ;
     private int type;
 
