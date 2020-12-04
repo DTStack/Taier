@@ -715,7 +715,7 @@ public class ClusterService implements InitializingBean {
             } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK == type.getComponentType()) {
                 if (clusterVO.getDtUicUserId() != null && clusterVO.getDtUicTenantId() != null) {
                     String ldapUserName = this.getLdapUserName(clusterVO.getDtUicUserId());
-                    pluginInfo.put("dtProxyUserName", ldapUserName);
+                    pluginInfo.put(LDAP_USER_NAME, ldapUserName);
                 }
             }
             pluginInfo.put(ConfigConstant.MD5_SUM_KEY, getZipFileMD5(clusterConfigJson));

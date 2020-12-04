@@ -1345,22 +1345,6 @@ public class ScheduleJobService {
 
 
     /**
-     * 批量更新
-     * FIXME 暂时一条条插入,最好优化成批量提交
-     *
-     * @param batchJobList
-     */
-    @Transactional
-    public void updateJobListForRestart(List<ScheduleBatchJob> batchJobList) {
-
-        for (ScheduleBatchJob scheduleBatchJob : batchJobList) {
-            if (scheduleBatchJob.getScheduleJob() != null) {
-                scheduleJobDao.update(scheduleBatchJob.getScheduleJob());
-            }
-        }
-    }
-
-    /**
      * 补数据的时候，选中什么业务日期，参数替换结果是业务日期+1天
      */
     @Transactional
@@ -2293,7 +2277,7 @@ public class ScheduleJobService {
      *
      * @param jobs
      */
-    public Integer BatchJobsBatchUpdate( String jobs) {
+    public Integer BatchJobsBatchUpdate(String jobs) {
         if (StringUtils.isBlank(jobs)) {
             return 0;
         }
