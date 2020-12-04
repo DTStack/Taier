@@ -36,8 +36,7 @@ public enum EngineTypeComponentType {
     ORACLE_SQL(ScheduleEngineType.ORACLE, EComponentType.ORACLE_SQL),
     KUBERNETES(ScheduleEngineType.KUBERNETES, EComponentType.KUBERNETES),
     GREENPLUM_SQL(ScheduleEngineType.GREENPLUM, EComponentType.GREENPLUM_SQL),
-    PRESTO_SQL(ScheduleEngineType.Presto, EComponentType.PRESTO_SQL),
-    KING_BASE(ScheduleEngineType.KING_BASE,EComponentType.KING_BASE);
+    PRESTO_SQL(ScheduleEngineType.Presto, EComponentType.PRESTO_SQL);
 
     private ScheduleEngineType scheduleEngineType;
 
@@ -100,8 +99,6 @@ public enum EngineTypeComponentType {
                 return EngineTypeComponentType.GREENPLUM_SQL;
             case "presto":
                 return EngineTypeComponentType.PRESTO_SQL;
-            case "kingbase":
-                return EngineTypeComponentType.KING_BASE;
             default:
                 throw new UnsupportedOperationException("未知引擎类型:" + engineName);
         }
