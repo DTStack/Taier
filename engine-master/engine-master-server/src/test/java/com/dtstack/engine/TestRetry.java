@@ -14,6 +14,6 @@ public class TestRetry {
             throw new Exception("time out");
         }, 3, 30000, false, null);
 
-        Thread.sleep(100000000);
+        Thread.sleep(100000);
     }
 }
