@@ -12,7 +12,9 @@ public enum AssertDataSourceTypeEnum {
     SQL_SERVER(3, "SqlServer SQL"),
     HIVE2(7,"Hive2Server"),
     HIVE1(27, "Hive1Server"),
-    TIDB(31, "TiDB SQL");
+    TIDB(31, "TiDB SQL"),
+    //手动添加的数据源
+    CUSTOM(1000,"custom");
 
     private int typeCode;
 

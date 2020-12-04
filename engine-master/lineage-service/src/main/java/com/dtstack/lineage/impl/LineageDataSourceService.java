@@ -33,6 +33,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author chener
@@ -101,8 +102,16 @@ public class LineageDataSourceService {
 
     private Long addDataSource(DataSourceDTO dataSourceDTO) {
         try {
+            //是否是自定义数据源
+            boolean isCustom = dataSourceDTO.getSourceType().equals(DataSourceType.CUSTOM.getType());
             //生成sourceKey
-            String sourceKey = generateSourceKey(dataSourceDTO.getDataJson());
+            String sourceKey;
+            if(!isCustom) {
+                sourceKey = generateSourceKey(dataSourceDTO.getDataJson());
+            }else{
+                sourceKey = "custom_"+dataSourceDTO.getSourceName();
+                dataSourceDTO.setDataJson("-1");
+            }
             //根据sourceKey和appType查找数据源
             LineageDataSource dataSourceParam = new LineageDataSource();
             dataSourceParam.setSourceKey(sourceKey);
@@ -114,8 +123,11 @@ public class LineageDataSourceService {
                 //已经有了该数据源
                 return dataSourceByParams.get(0).getId();
             }
-            //插入物理数据愿
-            Long realSourceId =  addRealDataSource(dataSourceDTO,sourceKey);
+            Long realSourceId = 0L;
+            if(!isCustom) {
+                //只有非自定义数据源才插入物理数据愿
+                 realSourceId = addRealDataSource(dataSourceDTO, sourceKey);
+            }
             //插入逻辑数据源
             //查询组件
             LineageDataSource dataSource = convertLineageDataSource(dataSourceDTO, sourceKey, realSourceId);

@@ -22,6 +22,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -447,6 +448,9 @@ public class Asserts extends DataCollection {
         List<DataSourceDTO> dataSourceDtos = new ArrayList<>();
         for (AssertDataSource assertDataSource : assertDataSourceList) {
             DataSourceDTO dataSourceDTO = new DataSourceDTO();
+            if(StringUtils.isBlank(assertDataSource.getDataJson())){
+                assertDataSource.setSourceType(1000);
+            }
             //数据源类型进行转换
             String nameByTypeCode = AssertDataSourceTypeEnum.getNameByTypeCode(assertDataSource.getSourceType());
             DataSourceType byName = DataSourceType.getByName(nameByTypeCode);
