@@ -18,8 +18,8 @@
 
 package com.dtstack.sql.flink.table;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.dtstack.google.common.collect.Lists;
+import com.dtstack.google.common.collect.Maps;
 
 import java.io.Serializable;
 import java.util.List;

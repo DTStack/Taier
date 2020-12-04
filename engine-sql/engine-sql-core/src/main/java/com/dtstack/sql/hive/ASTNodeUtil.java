@@ -1,7 +1,7 @@
 package com.dtstack.sql.hive;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.dtstack.google.common.collect.Lists;
+import com.dtstack.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hive.ql.lib.Node;

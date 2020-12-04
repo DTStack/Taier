@@ -170,6 +170,16 @@ public class SqlRegexUtil {
 
     private static Pattern descSqlPattern = Pattern.compile("(?i)^(describe|desc)\\s*.*");
 
+    public static final Pattern CACHE_TABLE_PATTEN = Pattern.compile("(?i)(?<cache>cache)\\s+table\\s+.*");
+
+    public static boolean isCacheTable(String originSql){
+        String sql = originSql.trim().replace("\r", "")
+                .replace("\n", "")
+                .replace("\t", "");
+        Matcher cacheMatcher = CACHE_TABLE_PATTEN.matcher(sql);
+        return cacheMatcher.matches();
+    }
+
     public static boolean isCreateTemp(String originSql) {
         String sql = originSql.trim().replace("\r", "")
                 .replace("\n", "")

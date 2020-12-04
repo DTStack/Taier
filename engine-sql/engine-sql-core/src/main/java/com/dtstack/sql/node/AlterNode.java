@@ -5,8 +5,8 @@ import com.dtstack.sql.Column;
 import com.dtstack.sql.PartCondition;
 import com.dtstack.sql.Partition;
 import com.dtstack.sql.TableOperateEnum;
-import org.dtstack.apache.calcite.sql.SqlNode;
 import org.apache.commons.math3.util.Pair;
+import org.dtstack.apache.calcite.sql.SqlNode;
 
 import java.util.List;
 import java.util.Map;

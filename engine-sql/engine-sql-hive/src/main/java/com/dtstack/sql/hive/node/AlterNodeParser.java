@@ -89,11 +89,11 @@ public class AlterNodeParser extends NodeParser {
                         pairList.add(new Pair<>(((ASTNode)children.get(0)).getText(),((ASTNode)children.get(1)).getText()));
                     }else if (((ASTNode)properties).getType() == HiveParser.TOK_TABLEPROPERTIES){
                         //TODO 遇到时处理
-                    }else if (((ASTNode)properties).getType() == HiveParser.TOK_TABLEPROPLIST) {
+                    }else if (((ASTNode)properties).getType() == HiveParser.TOK_TABLEPROPLIST){
                         List<? extends org.apache.hadoop.hive.ql.lib.Node> children1 = properties.getChildren();
-                        for (org.apache.hadoop.hive.ql.lib.Node cNode : children1) {
+                        for (org.apache.hadoop.hive.ql.lib.Node cNode:children1){
                             List<? extends org.apache.hadoop.hive.ql.lib.Node> propChild = cNode.getChildren();
-                            pairList.add(new Pair<>(removeHeadTailQuota(((ASTNode) propChild.get(0)).getText()), removeHeadTailQuota(((ASTNode) propChild.get(1)).getText())));
+                            pairList.add(new Pair<>(removeHeadTailQuota(((ASTNode)propChild.get(0)).getText()),removeHeadTailQuota(((ASTNode)propChild.get(1)).getText())));
                         }
                     }
                 }
@@ -175,19 +175,19 @@ public class AlterNodeParser extends NodeParser {
         return partition;
     }
 
-        private String removeHeadTailQuota(String str){
-            if(StringUtils.isEmpty(str)){
-                return str;
-            }
-            char[] chars = str.toCharArray();
-            int startInd = 0;
-            if (chars[0] == '\'' || chars[0] == '\"' ){
-                startInd = 1;
-            }
-            int endInd = chars.length;
-            if (chars[chars.length-1] == '\'' || chars[chars.length-1] == '\"' ){
-                endInd = chars.length-1;
-            }
-            return str.substring(startInd,endInd);
+    private String removeHeadTailQuota(String str){
+        if(StringUtils.isEmpty(str)){
+            return str;
         }
+        char[] chars = str.toCharArray();
+        int startInd = 0;
+        if (chars[0] == '\'' || chars[0] == '\"' ){
+            startInd = 1;
+        }
+        int endInd = chars.length;
+        if (chars[chars.length-1] == '\'' || chars[chars.length-1] == '\"' ){
+            endInd = chars.length-1;
+        }
+        return str.substring(startInd,endInd);
+    }
 }

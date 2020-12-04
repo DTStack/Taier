@@ -19,6 +19,6 @@ public class AlterSqlParserTest {
     public void deleteSqlTest() throws Exception {
         String sql = "alter table ee.ss add column type varchar(20)";
         ParseResult parseResult = calciteNodeParser.parseSql(sql, "shixi", new HashMap<>());
-        Assert.assertEquals(parseResult.getSqlType(), SqlType.DELETE);
+        Assert.assertEquals(parseResult.getSqlType(), SqlType.ALTER);
     }
 }

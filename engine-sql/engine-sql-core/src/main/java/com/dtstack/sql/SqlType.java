@@ -1,7 +1,7 @@
 package com.dtstack.sql;
 
-import org.dtstack.apache.calcite.sql.SqlKind;
 import org.apache.hadoop.hive.ql.parse.HiveParser;
+import org.dtstack.apache.calcite.sql.SqlKind;
 
 import java.util.Arrays;
 import java.util.List;
@@ -55,13 +55,17 @@ public enum SqlType {
      */
     CREATE_TEMP("create_temp",200),
 
+    /**
+     * 新增cache table语法，该语法也是创建的临时表
+     */
+    CACHE_TABLE("cache_table",201),
+
     INVALIDATE_TABLE("invalidate_table",300),
 
     /**
      * 创建视图
      */
     CREATE_VIEW("create_view",401),
-
     // 其它操作
     OTHER("other", 500),
 

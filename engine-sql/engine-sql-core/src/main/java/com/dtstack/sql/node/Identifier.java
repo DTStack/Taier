@@ -2,9 +2,9 @@ package com.dtstack.sql.node;
 
 import com.dtstack.sql.Column;
 import com.dtstack.sql.KeywordsHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.dtstack.apache.calcite.sql.SqlIdentifier;
 import org.dtstack.apache.calcite.sql.SqlNode;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;

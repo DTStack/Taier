@@ -20,9 +20,9 @@
 
 package com.dtstack.sql.flink.table.source;
 
+import com.dtstack.google.common.base.Strings;
+import com.dtstack.google.common.collect.Maps;
 import com.dtstack.sql.flink.table.AbstractTableInfo;
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 
 import java.util.Map;
 

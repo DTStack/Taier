@@ -1,8 +1,9 @@
 package com.dtstack.sql.node;
 
+import com.dtstack.google.common.collect.Lists;
 import com.dtstack.sql.Column;
 import com.dtstack.sql.calcite.Operator;
-import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.dtstack.apache.calcite.sql.SqlBasicCall;
 import org.dtstack.apache.calcite.sql.SqlCall;
 import org.dtstack.apache.calcite.sql.SqlIdentifier;
@@ -11,7 +12,6 @@ import org.dtstack.apache.calcite.sql.SqlNode;
 import org.dtstack.apache.calcite.sql.SqlNodeList;
 import org.dtstack.apache.calcite.sql.SqlSelect;
 import org.dtstack.apache.calcite.sql.fun.SqlCase;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

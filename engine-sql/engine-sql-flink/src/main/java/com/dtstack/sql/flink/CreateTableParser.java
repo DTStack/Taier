@@ -20,8 +20,8 @@
 
 package com.dtstack.sql.flink;
 
+import com.dtstack.google.common.collect.Maps;
 import com.dtstack.sql.flink.util.DtStringUtil;
-import com.google.common.collect.Maps;
 
 import java.util.List;
 import java.util.Map;

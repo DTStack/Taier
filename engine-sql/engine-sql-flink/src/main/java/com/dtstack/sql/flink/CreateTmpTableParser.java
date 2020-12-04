@@ -20,8 +20,8 @@
 
 package com.dtstack.sql.flink;
 
+import com.dtstack.google.common.collect.Lists;
 import com.dtstack.sql.flink.util.DtStringUtil;
-import com.google.common.collect.Lists;
 import org.apache.calcite.sql.SqlBasicCall;
 import org.apache.calcite.sql.SqlJoin;
 import org.apache.calcite.sql.SqlKind;

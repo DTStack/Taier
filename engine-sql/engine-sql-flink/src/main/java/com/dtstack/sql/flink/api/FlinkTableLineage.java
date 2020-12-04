@@ -1,5 +1,6 @@
 package com.dtstack.sql.flink.api;
 
+
 import java.util.List;
 
 /**
@@ -10,40 +11,31 @@ import java.util.List;
  * @Created chener@dtstack.com
  */
 public class FlinkTableLineage {
-    private List<String> sourceTables;
-    private List<String> sideTables;
-    private List<String> sinkTables;
+    private List<TableMata> sourceTables;
+    private List<TableMata> sideTables;
+    private List<TableMata> sinkTables;
 
-    public List<String> getSourceTables() {
+    public List<TableMata> getSourceTables() {
         return sourceTables;
     }
 
-    public void setSourceTables(List<String> sourceTables) {
+    public void setSourceTables(List<TableMata> sourceTables) {
         this.sourceTables = sourceTables;
     }
 
-    public List<String> getSideTables() {
+    public List<TableMata> getSideTables() {
         return sideTables;
     }
 
-    public void setSideTables(List<String> sideTables) {
+    public void setSideTables(List<TableMata> sideTables) {
         this.sideTables = sideTables;
     }
 
-    public List<String> getSinkTables() {
+    public List<TableMata> getSinkTables() {
         return sinkTables;
     }
 
-    public void setSinkTables(List<String> sinkTables) {
+    public void setSinkTables(List<TableMata> sinkTables) {
         this.sinkTables = sinkTables;
-    }
-
-    @Override
-    public String toString() {
-        return "TableLineage{" +
-                "sourceTables=" + sourceTables +
-                ", sideTables=" + sideTables +
-                ", sinkTables=" + sinkTables +
-                '}';
     }
 }

@@ -1,7 +1,7 @@
 package com.dtstack.sql;
 
 
-import com.google.common.collect.Lists;
+import com.dtstack.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.List;

@@ -25,6 +25,7 @@ import com.dtstack.sql.ParseResult;
 import com.dtstack.sql.QueryTableTree;
 import com.dtstack.sql.SelectColumn;
 import com.dtstack.sql.SqlType;
+import org.apache.commons.lang3.StringUtils;
 import org.dtstack.apache.calcite.sql.SqlBasicCall;
 import org.dtstack.apache.calcite.sql.SqlFunction;
 import org.dtstack.apache.calcite.sql.SqlIdentifier;
@@ -38,7 +39,6 @@ import org.dtstack.apache.calcite.sql.SqlSelect;
 import org.dtstack.apache.calcite.sql.SqlWith;
 import org.dtstack.apache.calcite.sql.SqlWithItem;
 import org.dtstack.apache.calcite.sql.fun.SqlCase;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -201,7 +201,7 @@ public class SelectSqlNodeParser extends BaseSqlNodeParser {
         return tableOrColumn;
     }
 
-    private void parseSqlSelect(SqlSelect sqlSelect,String alias, QueryTableTree root){
+    private void parseSqlSelect(SqlSelect sqlSelect, String alias, QueryTableTree root){
         //deal from
         dealFrom(sqlSelect.getFrom(), alias, root);
 
@@ -279,7 +279,7 @@ public class SelectSqlNodeParser extends BaseSqlNodeParser {
 
     }
 
-    private void dealSelectColumns(SqlNodeList selectList,String tableName, QueryTableTree current) {
+    private void dealSelectColumns(SqlNodeList selectList, String tableName, QueryTableTree current) {
         List<SelectColumn> columns = new ArrayList<>();
         for (SqlNode sqlNode : selectList) {
             dealSingleColumn(sqlNode, tableName, columns, null);

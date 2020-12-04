@@ -17,8 +17,9 @@
  */
 package com.dtstack.sql.flink;
 
+import com.dtstack.google.common.collect.Lists;
 import com.dtstack.sql.flink.api.FlinkTableLineage;
-import org.apache.commons.compress.utils.Lists;
+import com.dtstack.sql.flink.api.TableMata;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,19 +50,29 @@ public class BloodParser {
     private static List<FlinkTableLineage> buildBlood(SqlTree sqlTree){
         List<FlinkTableLineage> flinkTableLineages = new ArrayList<>();
         for(InsertSqlParser.SqlParseResult sqlParseResult : sqlTree.getExecSqlList()){
-            List<String> sourceTables = Lists.newArrayList();
-            List<String> sideTables = Lists.newArrayList();
+            FlinkTableLineage data = new FlinkTableLineage();
+            List<TableMata> sourceTables = Lists.newArrayList();
+            List<TableMata> sideTables = Lists.newArrayList();
             parseSource(sqlParseResult.getSourceTableList(), sqlTree.getTmpTableMap(), sourceTables, sideTables, sqlTree.getPreDealTableMap());
-            FlinkTableLineage flinkTableLineage = new FlinkTableLineage();
-            flinkTableLineage.setSideTables(sideTables);
-            flinkTableLineage.setSinkTables(sqlParseResult.getTargetTableList());
-            flinkTableLineage.setSourceTables(sourceTables);
-            flinkTableLineages.add(flinkTableLineage);
+            data.setSourceTables(sourceTables);
+            data.setSideTables(sideTables);
+            data.setSinkTables(getSinkTableMeta(sqlParseResult.getTargetTableList(), sqlTree.getPreDealTableMap()));
+            flinkTableLineages.add(data);
         }
         return flinkTableLineages;
     }
 
-    private static void parseSource(List<String> tableNames, Map<String, CreateTmpTableParser.SqlParserResult> tmpTableCache, List<String> sourceTables, List<String> sideTables, Map<String, CreateTableParser.SqlParserResult> preDealTableMap){
+    private static List<TableMata> getSinkTableMeta(List<String> tableNames,  Map<String, CreateTableParser.SqlParserResult> preDealTableMap){
+        List<TableMata> result = Lists.newArrayList();
+        for (String tableName: tableNames){
+            CreateTableParser.SqlParserResult sqlParserResult = preDealTableMap.get(tableName);
+            TableMata tableMata = new TableMata(tableName, sqlParserResult.getPropMap());
+            result.add(tableMata);
+        }
+        return result;
+    }
+
+    private static void parseSource(List<String> tableNames, Map<String, CreateTmpTableParser.SqlParserResult> tmpTableCache, List<TableMata> sourceTables, List<TableMata> sideTables, Map<String, CreateTableParser.SqlParserResult> preDealTableMap){
         for(String tableName : tableNames){
             if(tmpTableCache.containsKey(tableName)){
                 CreateTmpTableParser.SqlParserResult sqlParserResult = tmpTableCache.get(tableName);
@@ -70,175 +81,13 @@ public class BloodParser {
             }
             //判断是否是维表（需要字段信息）
             CreateTableParser.SqlParserResult sqlParserResult = preDealTableMap.get(tableName);
+            TableMata tableMata = new TableMata(tableName, sqlParserResult.getPropMap());
             if(AbstractTableInfoParser.checkIsSideTable(sqlParserResult.getFieldsInfoStr())){
-                sideTables.add(tableName);
+                sideTables.add(tableMata);
             } else {
-                sourceTables.add(tableName);
+                sourceTables.add(tableMata);
             }
         }
-    }
-
-    public static void main(String[] args) {
-        String sql = "-- name 21763_side_join_start_join_side\n" +
-                "-- type FlinkSQL\n" +
-                "-- author admin@dtstack.com\n" +
-                "-- create time 2020-02-25 17:45:37\n" +
-                "-- desc \n" +
-                "\n" +
-                "CREATE TABLE MyTable(\n" +
-                "    id INT,\n" +
-                "    channel VARCHAR,\n" +
-                "    pv varchar,\n" +
-                "    xctime varchar,\n" +
-                "    name varchar\n" +
-                " )WITH(\n" +
-                "    type ='kafka10',\n" +
-                "    bootstrapServers ='172.16.8.107:9092',\n" +
-                "    zookeeperQuorum ='172.16.8.107:2181/kafka',\n" +
-                "    offsetReset ='latest',\n" +
-                "    topic ='feiyutest',\n" +
-                "    timezone='Asia/Shanghai',\n" +
-                "    topicIsPattern ='false',\n" +
-                "    parallelism ='1'\n" +
-                " );\n" +
-                "\n" +
-                "CREATE TABLE sideTableA(\n" +
-                "    id INT,\n" +
-                "    channel varchar,\n" +
-                "    time_info varchar,\n" +
-                "    name varchar,\n" +
-                "    price double,\n" +
-                "    PRIMARY KEY(channel),\n" +
-                "    PERIOD FOR SYSTEM_TIME\n" +
-                " )WITH(\n" +
-                "    type ='mysql',\n" +
-                "    url ='jdbc:mysql://172.16.10.134:3306/yeluo_test',\n" +
-                "    userName ='dtstack',\n" +
-                "    password ='abc123',\n" +
-                "    tableName ='sideTableA',\n" +
-                "    parallelism ='1'\n" +
-                " );\n" +
-                "\n" +
-                " CREATE TABLE MyTableB(\n" +
-                "    id INT,\n" +
-                "    channel varchar,\n" +
-                "    address varchar,\n" +
-                "    name varchar\n" +
-                " )WITH(\n" +
-                "    type ='kafka10',\n" +
-                "    bootstrapServers ='172.16.8.107:9092',\n" +
-                "    zookeeperQuorum ='172.16.8.107:2181/kafka',\n" +
-                "    offsetReset ='latest',\n" +
-                "    topic ='est_test',\n" +
-                "    timezone='Asia/Shanghai',\n" +
-                "    topicIsPattern ='false',\n" +
-                "    parallelism ='1'\n" +
-                " );\n" +
-                "\n" +
-                "  CREATE TABLE sideTableC(\n" +
-                "    channel varchar,\n" +
-                "    address varchar,\n" +
-                "    name varchar,\n" +
-                "    PRIMARY KEY(channel),\n" +
-                "    PERIOD FOR SYSTEM_TIME\n" +
-                " )WITH(\n" +
-                "    type ='mysql',\n" +
-                "    url ='jdbc:mysql://172.16.10.134:3306/yeluo_test',\n" +
-                "    userName ='dtstack',\n" +
-                "    password ='abc123',\n" +
-                "    tableName ='sideTableC',\n" +
-                "    parallelism ='1'\n" +
-                " );\n" +
-                "\n" +
-                " CREATE TABLE MyTableD(\n" +
-                "    id INT,\n" +
-                "    channel VARCHAR,\n" +
-                "    pv varchar,\n" +
-                "    xctime varchar,\n" +
-                "    name varchar\n" +
-                " )WITH(\n" +
-                "    type ='kafka10',\n" +
-                "    bootstrapServers ='172.16.8.107:9092',\n" +
-                "    zookeeperQuorum ='172.16.8.107:2181/kafka',\n" +
-                "    offsetReset ='latest',\n" +
-                "    topic ='feiyutest',\n" +
-                "    timezone='Asia/Shanghai',\n" +
-                "    topicIsPattern ='false',\n" +
-                "    parallelism ='1'\n" +
-                " );\n" +
-                "\n" +
-                " CREATE TABLE MyTableF(\n" +
-                "    id INT,\n" +
-                "    channel VARCHAR,\n" +
-                "    pv varchar,\n" +
-                "    xctime varchar,\n" +
-                "    name varchar\n" +
-                " )WITH(\n" +
-                "    type ='kafka10',\n" +
-                "    bootstrapServers ='172.16.8.107:9092',\n" +
-                "    zookeeperQuorum ='172.16.8.107:2181/kafka',\n" +
-                "    offsetReset ='latest',\n" +
-                "    topic ='feiyutest',\n" +
-                "    timezone='Asia/Shanghai',\n" +
-                "    topicIsPattern ='false',\n" +
-                "    parallelism ='1'\n" +
-                " );\n" +
-                "\n" +
-                "CREATE TABLE MyResult(\n" +
-                "    id double,\n" +
-                "    xctime VARCHAR,\n" +
-                "    name VARCHAR,\n" +
-                "    name1 VARCHAR,\n" +
-                "    name2 VARCHAR,\n" +
-                "    name3 varchar,\n" +
-                "    time_info VARCHAR,\n" +
-                "    address VARCHAR\n" +
-                " )WITH(\n" +
-                "    type ='mysql',\n" +
-                "    url ='jdbc:mysql://172.16.10.134:3306/yeluo_test',\n" +
-                "    userName ='dtstack',\n" +
-                "    password ='abc123',\n" +
-                "    tableName ='MyResult',\n" +
-                "    parallelism ='1'\n" +
-                " );\n" +
-                "\n" +
-                "insert \n" +
-                "into\n" +
-                "    MyResult\n" +
-                "    select\n" +
-                "        cast(t1.id as double) AS id,\n" +
-                "        t1.xctime as xctime,\n" +
-                "        t1.name as name,\n" +
-                "        t2.name as name1,\n" +
-                "        t3.name as name2,\n" +
-                "        t4.name as name3,\n" +
-                "        t2.time_info as time_info,\n" +
-                "        t3.address as address     \n" +
-                "    from\n" +
-                "    (\n" +
-                "    select\n" +
-                "    id, \n" +
-                "    name,\n" +
-                "    channel,\n" +
-                "    pv,\n" +
-                "    xctime\n" +
-                "    from \n" +
-                "        MyTable \n" +
-                "    ) t1    \n" +
-                "    left join\n" +
-                "        sideTableA t2                           \n" +
-                "        on  t1.channel = t2.channel                                   \n" +
-                "    join MyTableB t3\n" +
-                "        on t1.channel = t3.channel\n" +
-                "    join sideTableC t4\n" +
-                "        on t1.channel = t4.channel  \n" +
-                "    join MyTableD t5\n" +
-                "        on t1.channel = t5.channel\n" +
-                "    join MyTableF t6\n" +
-                "        on t1.channel = t6.channel          \n" +
-                "    where t1.name = 'xc';";
-        List<FlinkTableLineage> blood = BloodParser.getBlood(sql);
-        System.out.println(blood);
     }
 
 }

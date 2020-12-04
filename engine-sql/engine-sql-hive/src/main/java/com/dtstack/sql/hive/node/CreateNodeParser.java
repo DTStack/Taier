@@ -7,9 +7,9 @@ import com.dtstack.sql.TableOperateEnum;
 import com.dtstack.sql.node.CreateNode;
 import com.dtstack.sql.node.Identifier;
 import com.dtstack.sql.node.Node;
-import org.dtstack.apache.calcite.sql.SqlKind;
 import org.apache.hadoop.hive.ql.parse.ASTNode;
 import org.apache.hadoop.hive.ql.parse.HiveParser;
+import org.dtstack.apache.calcite.sql.SqlKind;
 
 import java.util.ArrayList;
 import java.util.HashMap;

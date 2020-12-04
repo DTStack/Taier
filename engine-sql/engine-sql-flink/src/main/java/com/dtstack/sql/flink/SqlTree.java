@@ -21,9 +21,9 @@
 package com.dtstack.sql.flink;
 
 
+import com.dtstack.google.common.collect.Lists;
+import com.dtstack.google.common.collect.Maps;
 import com.dtstack.sql.flink.table.AbstractTableInfo;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import java.util.List;
 import java.util.Map;

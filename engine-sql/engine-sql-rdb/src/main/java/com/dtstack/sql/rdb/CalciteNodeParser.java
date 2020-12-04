@@ -1,6 +1,7 @@
 
 package com.dtstack.sql.rdb;
 
+import com.dtstack.google.common.collect.Lists;
 import com.dtstack.sql.AlterResult;
 import com.dtstack.sql.BaseSqlParser;
 import com.dtstack.sql.Column;
@@ -21,8 +22,9 @@ import com.dtstack.sql.rdb.node.AlterSqlNodeParser;
 import com.dtstack.sql.utils.SqlFormatUtil;
 import com.dtstack.sql.utils.SqlRegexUtil;
 import com.dtstack.sql.utils.SqlTypeRegexUtil;
-import com.google.common.collect.Lists;
 import javafx.util.Pair;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dtstack.apache.calcite.avatica.util.Casing;
 import org.dtstack.apache.calcite.avatica.util.Quoting;
 import org.dtstack.apache.calcite.sql.SqlBasicCall;
@@ -44,8 +46,6 @@ import org.dtstack.apache.calcite.sql.ddl.SqlCreateView;
 import org.dtstack.apache.calcite.sql.parser.SqlParseException;
 import org.dtstack.apache.calcite.sql.parser.SqlParser;
 import org.dtstack.apache.calcite.sql.parser.ddl.SqlDdlParserImpl;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -765,7 +765,7 @@ public class CalciteNodeParser extends BaseSqlParser {
      * @param parseResult
      * @return
      */
-    private Boolean isNotParseSql(String standardSql,ParseResult parseResult){
+    private Boolean isNotParseSql(String standardSql, ParseResult parseResult){
         //CREATE LIKE 需要自己处理
         if ((SqlRegexUtil.isCreateLike(standardSql))) {
             try {

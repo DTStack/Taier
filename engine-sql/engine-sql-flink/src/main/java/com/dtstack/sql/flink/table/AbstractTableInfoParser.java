@@ -20,6 +20,8 @@
 
 package com.dtstack.sql.flink.table;
 
+import com.dtstack.google.common.base.Strings;
+import com.dtstack.google.common.collect.Maps;
 import com.dtstack.sql.flink.CreateTableParser;
 import com.dtstack.sql.flink.ETableType;
 import com.dtstack.sql.flink.table.side.AbstractSideTableInfo;
@@ -27,8 +29,6 @@ import com.dtstack.sql.flink.table.side.StreamSideFactory;
 import com.dtstack.sql.flink.table.sink.StreamSinkFactory;
 import com.dtstack.sql.flink.table.source.StreamSourceFactory;
 import com.dtstack.sql.flink.util.DtMathUtil;
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;

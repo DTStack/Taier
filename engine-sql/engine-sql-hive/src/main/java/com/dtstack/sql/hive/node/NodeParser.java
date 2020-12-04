@@ -208,7 +208,7 @@ public abstract class NodeParser {
         return joinCall;
     }
 
-    private void getComboListFromUnionAll(List<SelectNode> comboFromlist, ASTNode union,String defultDb,Map<String, List<Column>> tableColumnsMap,Map<String, String> aliasToTable) {
+    private void getComboListFromUnionAll(List<SelectNode> comboFromlist, ASTNode union, String defultDb, Map<String, List<Column>> tableColumnsMap, Map<String, String> aliasToTable) {
         if (((ASTNode) union).getType() == HiveParser.TOK_QUERY) {
             SelectNodeParser selectNodeParser = new SelectNodeParser();
             comboFromlist.add(selectNodeParser.parseSql((ASTNode) union, defultDb, tableColumnsMap, aliasToTable));

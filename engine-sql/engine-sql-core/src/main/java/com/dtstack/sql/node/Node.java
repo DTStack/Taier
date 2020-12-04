@@ -93,7 +93,7 @@ public abstract class Node {
      * @param node
      * @return
      */
-    public Pair<String,SqlNode> removeAs(SqlNode node){
+    public Pair<String, SqlNode> removeAs(SqlNode node){
         if (node instanceof SqlBasicCall){
             SqlOperator operator = ((SqlBasicCall)node).getOperator();
             if (SqlKind.AS == operator.kind){

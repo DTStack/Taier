@@ -19,6 +19,7 @@
 
 package com.dtstack.sql.rdb.node;
 
+import com.dtstack.google.common.collect.Lists;
 import com.dtstack.sql.BaseSqlParser;
 import com.dtstack.sql.Column;
 import com.dtstack.sql.KeywordsHelper;
@@ -30,7 +31,8 @@ import com.dtstack.sql.rdb.SqlNodeParserFactory;
 import com.dtstack.sql.rdb.SqlNodeParserImpl;
 import com.dtstack.sql.utils.SqlFormatUtil;
 import com.dtstack.sql.utils.SqlRegexUtil;
-import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dtstack.apache.calcite.avatica.util.Casing;
 import org.dtstack.apache.calcite.avatica.util.Quoting;
 import org.dtstack.apache.calcite.sql.SqlBasicCall;
@@ -50,8 +52,6 @@ import org.dtstack.apache.calcite.sql.ddl.SqlCreateTable;
 import org.dtstack.apache.calcite.sql.parser.SqlParseException;
 import org.dtstack.apache.calcite.sql.parser.SqlParser;
 import org.dtstack.apache.calcite.sql.parser.ddl.SqlDdlParserImpl;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -373,7 +373,7 @@ public class SqlNodeParser extends BaseSqlParser {
         return new ArrayList<>(tables);
     }
 
-    private SqlNode parse(String sql,SqlParser.Config config) throws SqlParseException {
+    private SqlNode parse(String sql, SqlParser.Config config) throws SqlParseException {
         SqlParser parser = SqlParser.create(sql, config);
         try {
             return parser.parseQuery();

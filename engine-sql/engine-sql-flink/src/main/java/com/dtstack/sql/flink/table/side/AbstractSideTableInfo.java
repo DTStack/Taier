@@ -20,8 +20,8 @@
 
 package com.dtstack.sql.flink.table.side;
 
+import com.dtstack.google.common.collect.Lists;
 import com.dtstack.sql.flink.table.AbstractTableInfo;
-import com.google.common.collect.Lists;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.table.runtime.typeutils.BaseRowTypeInfo;

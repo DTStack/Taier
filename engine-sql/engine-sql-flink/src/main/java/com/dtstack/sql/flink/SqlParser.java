@@ -20,10 +20,10 @@
 
 package com.dtstack.sql.flink;
 
+import com.dtstack.google.common.base.Strings;
+import com.dtstack.google.common.collect.Lists;
 import com.dtstack.sql.flink.table.AbstractTableInfo;
 import com.dtstack.sql.flink.util.DtStringUtil;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;

@@ -17,13 +17,16 @@ public class HiveUglySqlHandler implements IUglySqlHandler {
     private int uglySqlMode = 0b00000000;
     private int sqlMode = 0b00000000;
 
+    private static final int CACHE_TABLE = 0b00000010;
+
+
     public int getSqlMode() {
         return sqlMode;
     }
 
     @Override
     public boolean isTemp() {
-        return (this.getSqlMode() & CREATE_TEMP) == CREATE_TEMP;
+        return (this.getSqlMode() & IUglySqlHandler.CREATE_TEMP) == IUglySqlHandler.CREATE_TEMP;
     }
 
 
@@ -38,8 +41,9 @@ public class HiveUglySqlHandler implements IUglySqlHandler {
     private void initSqlMode() {
         this.sqlMode = 0b00000000;
         this.uglySqlMode = 0b00000000;
-        if (SqlRegexUtil.isCreateTemp(formattedSql)) {
-            uglySqlMode = uglySqlMode + CREATE_TEMP;
+        Matcher cacheMatcher = SqlRegexUtil.CACHE_TABLE_PATTEN.matcher(formattedSql);
+        if (cacheMatcher.matches()){
+            uglySqlMode = uglySqlMode + CACHE_TABLE;
         }
         sqlMode = uglySqlMode;
     }
@@ -51,7 +55,19 @@ public class HiveUglySqlHandler implements IUglySqlHandler {
         }
         Matcher matcher = null;
         String group = "";
-
+        switch (sqlMode) {
+            case CACHE_TABLE:
+                matcher = SqlRegexUtil.CACHE_TABLE_PATTEN.matcher(formattedSql);
+                if (matcher.find()) {
+                    group = matcher.group("cache");
+                    formattedSql = formattedSql.replaceFirst(group, "create ");
+                    //临时表也需要解析血缘，因为，临时表可能作为中间表，最终血缘落在普通表上。
+//                    formattedSql = "";
+                }
+                break;
+            default:
+                return false;
+        }
         return true;
     }
 

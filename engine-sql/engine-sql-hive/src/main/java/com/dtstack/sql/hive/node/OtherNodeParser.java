@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * 用来解析 一些表结构操作 数据库操作
  */
-public class OtherNodeParser extends NodeParser{
+public class OtherNodeParser extends NodeParser {
 
 
     /**

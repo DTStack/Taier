@@ -26,7 +26,7 @@ public class DeleteSqlParserTest  {
     public void selectSqlTest() throws Exception {
         String sql = "select *  from user";
         ParseResult parseResult = calciteNodeParser.parseSql(sql, "shixi", new HashMap<>());
-        Assert.assertEquals(parseResult.getSqlType(), SqlType.DELETE);
+        Assert.assertEquals(parseResult.getSqlType(), SqlType.QUERY);
     }
 
 }

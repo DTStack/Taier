@@ -19,6 +19,7 @@
 
 package com.dtstack.sql.hive.hive;
 
+import com.dtstack.google.common.collect.Lists;
 import com.dtstack.sql.AlterColumnResult;
 import com.dtstack.sql.AlterResult;
 import com.dtstack.sql.Column;
@@ -28,7 +29,6 @@ import com.dtstack.sql.Partition;
 import com.dtstack.sql.SqlType;
 import com.dtstack.sql.TableOperateEnum;
 import com.dtstack.sql.hive.ASTNodeUtil;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math3.util.Pair;
@@ -67,23 +67,23 @@ public class AlterAstNodeParser extends BaseAstNodeSqlParser {
         parseResult.setSqlType(SqlType.ALTER);
         if(ASTNodeUtil.contains(root, HiveParser.TOK_ALTERTABLE_RENAME)){
             renameTable(root);
-        } else if(ASTNodeUtil.contains(root,HiveParser.TOK_ALTERTABLE_PROPERTIES)){
+        } else if(ASTNodeUtil.contains(root, HiveParser.TOK_ALTERTABLE_PROPERTIES)){
             alterProperty(root);
-        } else if(ASTNodeUtil.contains(root,HiveParser.TOK_ALTERTABLE_SERDEPROPERTIES)){
+        } else if(ASTNodeUtil.contains(root, HiveParser.TOK_ALTERTABLE_SERDEPROPERTIES)){
             alterSerder(root);
-        } else if(ASTNodeUtil.contains(root,HiveParser.TOK_ALTERTABLE_ADDPARTS)){
+        } else if(ASTNodeUtil.contains(root, HiveParser.TOK_ALTERTABLE_ADDPARTS)){
             addPartition(root);
-        } else if(ASTNodeUtil.contains(root,HiveParser.TOK_ALTERTABLE_RENAMEPART)){
+        } else if(ASTNodeUtil.contains(root, HiveParser.TOK_ALTERTABLE_RENAMEPART)){
             renamePartition(root);
-        } else if(ASTNodeUtil.contains(root,HiveParser.TOK_ALTERTABLE_DROPPARTS)){
+        } else if(ASTNodeUtil.contains(root, HiveParser.TOK_ALTERTABLE_DROPPARTS)){
             dropPartition(root);
-        } else if(ASTNodeUtil.contains(root,HiveParser.TOK_ALTERTABLE_LOCATION)){
+        } else if(ASTNodeUtil.contains(root, HiveParser.TOK_ALTERTABLE_LOCATION)){
             alterPath(root);
-        } else if(ASTNodeUtil.contains(root,HiveParser.TOK_ALTERTABLE_RENAMECOL)){
+        } else if(ASTNodeUtil.contains(root, HiveParser.TOK_ALTERTABLE_RENAMECOL)){
             alterColumn(root);
-        } else if(ASTNodeUtil.contains(root,HiveParser.TOK_ALTERTABLE_ADDCOLS)){
+        } else if(ASTNodeUtil.contains(root, HiveParser.TOK_ALTERTABLE_ADDCOLS)){
             addColumn(root);
-        } else if(ASTNodeUtil.contains(root,HiveParser.TOK_ALTERTABLE_REPLACECOLS)){
+        } else if(ASTNodeUtil.contains(root, HiveParser.TOK_ALTERTABLE_REPLACECOLS)){
             replaceColumn(root);
         }
 
@@ -115,7 +115,7 @@ public class AlterAstNodeParser extends BaseAstNodeSqlParser {
     private void alterColumn(ASTNode root) {
         alterResult.setAlterType(TableOperateEnum.ALTERTABLE_RENAMECOL);
 
-        ASTNode renameColNode = ASTNodeUtil.getNode(root,HiveParser.TOK_ALTERTABLE_RENAMECOL);
+        ASTNode renameColNode = ASTNodeUtil.getNode(root, HiveParser.TOK_ALTERTABLE_RENAMECOL);
 
         AlterColumnResult alterColumnResult = new AlterColumnResult();
         alterColumnResult.setOldColumn(renameColNode.getChild(0).getText());
@@ -153,13 +153,13 @@ public class AlterAstNodeParser extends BaseAstNodeSqlParser {
      */
     private void alterPath(ASTNode root) {
         alterResult.setAlterType(TableOperateEnum.ALTERTABLE_LOCATION);
-        if(ASTNodeUtil.contains(root,HiveParser.TOK_PARTSPEC)){
-            ASTNode partSpecNode = ASTNodeUtil.getNode(root,HiveParser.TOK_PARTSPEC);
+        if(ASTNodeUtil.contains(root, HiveParser.TOK_PARTSPEC)){
+            ASTNode partSpecNode = ASTNodeUtil.getNode(root, HiveParser.TOK_PARTSPEC);
             List<Pair<String,String>> pairs = getPart(partSpecNode);
             alterResult.setNewLocationPart(pairs.get(0));
         }
 
-        List<String> values = ASTNodeUtil.getNodeValue(ASTNodeUtil.getNode(root,HiveParser.TOK_ALTERTABLE_LOCATION));
+        List<String> values = ASTNodeUtil.getNodeValue(ASTNodeUtil.getNode(root, HiveParser.TOK_ALTERTABLE_LOCATION));
         alterResult.setNewLocation(values.get(0));
     }
 
@@ -171,7 +171,7 @@ public class AlterAstNodeParser extends BaseAstNodeSqlParser {
         alterResult.setAlterType(TableOperateEnum.ALTERTABLE_DROPPARTS);
         List<String> values;
         List<PartCondition> partConditions = Lists.newArrayList();
-        List<ASTNode> nodes = ASTNodeUtil.getNodes(root,HiveParser.TOK_PARTVAL);
+        List<ASTNode> nodes = ASTNodeUtil.getNodes(root, HiveParser.TOK_PARTVAL);
         for (ASTNode node : nodes) {
             values = ASTNodeUtil.getNodeValue(node);
             partConditions.add(new PartCondition(values.get(0),values.get(1),values.get(2)));
@@ -185,11 +185,11 @@ public class AlterAstNodeParser extends BaseAstNodeSqlParser {
      */
     private void renamePartition(ASTNode root) {
         alterResult.setAlterType(TableOperateEnum.ALTERTABLE_RENAMEPART);
-        ASTNode partSpecNode = ASTNodeUtil.getNode(root,HiveParser.TOK_PARTSPEC);
+        ASTNode partSpecNode = ASTNodeUtil.getNode(root, HiveParser.TOK_PARTSPEC);
         alterResult.setOldPart(getPart(partSpecNode).get(0));
 
-        partSpecNode = ASTNodeUtil.getNode(root,HiveParser.TOK_ALTERTABLE_RENAMEPART);
-        partSpecNode = ASTNodeUtil.getNode(partSpecNode,HiveParser.TOK_PARTSPEC);
+        partSpecNode = ASTNodeUtil.getNode(root, HiveParser.TOK_ALTERTABLE_RENAMEPART);
+        partSpecNode = ASTNodeUtil.getNode(partSpecNode, HiveParser.TOK_PARTSPEC);
         alterResult.setNewPart(getPart(partSpecNode).get(0));
     }
 
@@ -200,7 +200,7 @@ public class AlterAstNodeParser extends BaseAstNodeSqlParser {
     private void addPartition(ASTNode root) {
         alterResult.setAlterType(TableOperateEnum.ALTERTABLE_ADDPARTS);
         List<Partition> newPartitions = Lists.newArrayList();
-        ASTNode addPartsNode = ASTNodeUtil.getNode(root,HiveParser.TOK_ALTERTABLE_ADDPARTS);
+        ASTNode addPartsNode = ASTNodeUtil.getNode(root, HiveParser.TOK_ALTERTABLE_ADDPARTS);
         int size = addPartsNode.getChildCount();
         List<String> values;
         Partition partition;
@@ -235,7 +235,7 @@ public class AlterAstNodeParser extends BaseAstNodeSqlParser {
         Map<String,String> tableDb = ASTNodeUtil.getTableNameAndDbName(root);
         alterResult.setOldTableName(tableDb.get(ASTNodeUtil.TABLE_NAME_KEY));
 
-        ASTNode renameNode = ASTNodeUtil.getNode(root,HiveParser.TOK_ALTERTABLE_RENAME);
+        ASTNode renameNode = ASTNodeUtil.getNode(root, HiveParser.TOK_ALTERTABLE_RENAME);
         tableDb = ASTNodeUtil.getTableNameAndDbName(renameNode);
         alterResult.setNewTableName(tableDb.get(ASTNodeUtil.TABLE_NAME_KEY));
     }
@@ -246,7 +246,7 @@ public class AlterAstNodeParser extends BaseAstNodeSqlParser {
      */
     private void alterProperty(ASTNode root){
         alterResult.setAlterType(TableOperateEnum.ALTERTABLE_PROPERTIES);
-        List<ASTNode> propertyNodes = ASTNodeUtil.getNodes(root,HiveParser.TOK_TABLEPROPERTY);
+        List<ASTNode> propertyNodes = ASTNodeUtil.getNodes(root, HiveParser.TOK_TABLEPROPERTY);
         if(CollectionUtils.isNotEmpty(propertyNodes)){
             alterResult.setTableProperties(getProperties(propertyNodes));
         }
@@ -258,7 +258,7 @@ public class AlterAstNodeParser extends BaseAstNodeSqlParser {
      */
     private void alterSerder(ASTNode root){
         alterResult.setAlterType(TableOperateEnum.ALTERTABLE_SERDEPROPERTIES);
-        List<ASTNode> propertyNodes = ASTNodeUtil.getNodes(root,HiveParser.TOK_TABLEPROPERTY);
+        List<ASTNode> propertyNodes = ASTNodeUtil.getNodes(root, HiveParser.TOK_TABLEPROPERTY);
         if(CollectionUtils.isNotEmpty(propertyNodes)){
             alterResult.setSerdeProperties(getProperties(propertyNodes));
         }
@@ -277,7 +277,7 @@ public class AlterAstNodeParser extends BaseAstNodeSqlParser {
 
     private List<Pair<String,String>> getPart(ASTNode partSpecNode){
         List<Pair<String,String>> parts = Lists.newArrayList();
-        List<ASTNode> partNodes = ASTNodeUtil.getNodes(partSpecNode,HiveParser.TOK_PARTVAL);
+        List<ASTNode> partNodes = ASTNodeUtil.getNodes(partSpecNode, HiveParser.TOK_PARTVAL);
         List<String> values;
         for (ASTNode partNode : partNodes) {
             values = ASTNodeUtil.getNodeValue(partNode);

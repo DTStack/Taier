@@ -19,7 +19,7 @@
 
 package com.dtstack.sql.flink;
 
-import com.google.common.collect.Lists;
+import com.dtstack.google.common.collect.Lists;
 import org.apache.calcite.sql.SqlAsOperator;
 import org.apache.calcite.sql.SqlBasicCall;
 import org.apache.calcite.sql.SqlIdentifier;

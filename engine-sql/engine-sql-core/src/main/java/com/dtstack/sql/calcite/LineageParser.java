@@ -1,6 +1,7 @@
 package com.dtstack.sql.calcite;
 
 
+import com.dtstack.google.common.collect.Lists;
 import com.dtstack.sql.Column;
 import com.dtstack.sql.node.BasicCall;
 import com.dtstack.sql.node.CreateNode;
@@ -13,8 +14,8 @@ import com.dtstack.sql.node.Node;
 import com.dtstack.sql.node.NodeList;
 import com.dtstack.sql.node.SelectNode;
 import com.dtstack.sql.node.UnionCall;
-import com.google.common.collect.Lists;
 import javafx.util.Pair;
+import org.apache.commons.lang3.StringUtils;
 import org.dtstack.apache.calcite.sql.SqlBasicCall;
 import org.dtstack.apache.calcite.sql.SqlDelete;
 import org.dtstack.apache.calcite.sql.SqlInsert;
@@ -23,7 +24,6 @@ import org.dtstack.apache.calcite.sql.SqlNode;
 import org.dtstack.apache.calcite.sql.SqlSelect;
 import org.dtstack.apache.calcite.sql.ddl.SqlCreateTable;
 import org.dtstack.apache.calcite.sql.ddl.SqlCreateView;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

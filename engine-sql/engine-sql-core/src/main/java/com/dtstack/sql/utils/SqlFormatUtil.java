@@ -1,7 +1,7 @@
 package com.dtstack.sql.utils;
 
+import com.dtstack.google.common.collect.Lists;
 import com.dtstack.sql.hive.ASTNodeUtil;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hive.ql.parse.ASTNode;

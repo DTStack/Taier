@@ -1,5 +1,6 @@
 package com.dtstack.sql.calcite;
 
+import com.dtstack.google.common.collect.Lists;
 import com.dtstack.sql.node.BasicCall;
 import com.dtstack.sql.node.Identifier;
 import com.dtstack.sql.node.JoinCall;
@@ -8,7 +9,6 @@ import com.dtstack.sql.node.Node;
 import com.dtstack.sql.node.NodeList;
 import com.dtstack.sql.node.SelectNode;
 import com.dtstack.sql.node.UnionCall;
-import com.google.common.collect.Lists;
 import javafx.util.Pair;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;

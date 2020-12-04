@@ -1,5 +1,6 @@
 package com.dtstack.sql.hive;
 
+import com.dtstack.google.common.collect.Lists;
 import com.dtstack.sql.AlterResult;
 import com.dtstack.sql.BaseSqlParser;
 import com.dtstack.sql.Column;
@@ -24,9 +25,7 @@ import com.dtstack.sql.node.SelectNode;
 import com.dtstack.sql.utils.SqlFormatUtil;
 import com.dtstack.sql.utils.SqlRegexUtil;
 import com.dtstack.sql.utils.SqlTypeRegexUtil;
-import com.google.common.collect.Lists;
 import javafx.util.Pair;
-import org.dtstack.apache.calcite.sql.SqlKind;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hive.ql.lib.Node;
@@ -34,6 +33,7 @@ import org.apache.hadoop.hive.ql.parse.ASTNode;
 import org.apache.hadoop.hive.ql.parse.HiveParser;
 import org.apache.hadoop.hive.ql.parse.ParseDriver;
 import org.apache.hadoop.hive.ql.parse.ParseException;
+import org.dtstack.apache.calcite.sql.SqlKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,6 +86,9 @@ public class AstNodeParser extends BaseSqlParser {
             parseResult.setExtraSqlType(SqlType.CREATE_TEMP);
         }
         String formattedSql = this.uglySqlHandler.parseUglySql(originSql);
+        if (SqlRegexUtil.isCacheTable(parseResult.getStandardSql())){
+            parseResult.setExtraSqlType(SqlType.CACHE_TABLE);
+        }
         if (StringUtils.isEmpty(formattedSql)) {
             return parseResult;
         }

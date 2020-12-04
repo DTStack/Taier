@@ -1,6 +1,5 @@
 package com.dtstack.sql.hive;
 
-import com.dtstack.sql.utils.SqlFormatUtil;
 import com.dtstack.sql.hive.node.AlterNodeParser;
 import com.dtstack.sql.hive.node.CreateNodeParser;
 import com.dtstack.sql.hive.node.DeleteNodeParser;
@@ -9,6 +8,7 @@ import com.dtstack.sql.hive.node.InsertNodeParser;
 import com.dtstack.sql.hive.node.NodeParser;
 import com.dtstack.sql.hive.node.OtherNodeParser;
 import com.dtstack.sql.hive.node.SelectNodeParser;
+import com.dtstack.sql.utils.SqlFormatUtil;
 import org.apache.hadoop.hive.ql.lib.Node;
 import org.apache.hadoop.hive.ql.parse.ASTNode;
 import org.apache.hadoop.hive.ql.parse.HiveParser;

@@ -20,11 +20,11 @@
 
 package com.dtstack.sql.flink.table;
 
+import com.dtstack.google.common.base.Preconditions;
+import com.dtstack.google.common.collect.Lists;
+import com.dtstack.google.common.collect.Maps;
 import com.dtstack.sql.flink.util.ClassUtil;
 import com.dtstack.sql.flink.util.DtStringUtil;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.java.tuple.Tuple2;
 

@@ -1,7 +1,7 @@
 package com.dtstack.sql.formate;
 
+import com.dtstack.google.common.base.Strings;
 import com.dtstack.sql.utils.DtStringUtil;
-import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +58,7 @@ public class SqlFormatter {
 
     private static final String ANNOTATE_LIST = "annotateList";
 
-    private static final String SQL = "com/dtstack/engine/sql";
+    private static final String SQL = "sql";
 
     public static String format(String sql) throws Exception {
         Map<String, Object> map = addSplitWithNote(sql);
