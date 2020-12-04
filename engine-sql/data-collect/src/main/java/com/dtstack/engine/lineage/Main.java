@@ -1,10 +1,10 @@
 package com.dtstack.engine.lineage;
 
+import com.cloudera.impala.jdbc41.internal.com.cloudera.altus.shaded.org.apache.commons.lang3.StringUtils;
 import com.dtstack.engine.lineage.asserts.Asserts;
 import com.dtstack.engine.lineage.batch.Batch;
 import com.dtstack.sdk.core.common.DtInsightApi;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

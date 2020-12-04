@@ -19,7 +19,7 @@ import java.util.Objects;
  * @Created chener@dtstack.com
  */
 public class TableLineageAdapter {
-    public static TableLineage sqlTableLineage2ApiTableLineage(com.dtstack.engine.sql.TableLineage sqlTableLineage){
+    public static TableLineage sqlTableLineage2ApiTableLineage(com.dtstack.sql.TableLineage sqlTableLineage){
         if (Objects.isNull(sqlTableLineage)){
             return null;
         }
@@ -33,7 +33,7 @@ public class TableLineageAdapter {
         return tableLineage;
     }
 
-    public static LineageTableTable sqlTableLineage2DbTableLineage(com.dtstack.engine.sql.TableLineage sqlTableLineage, Map<String, LineageDataSetInfo> tableMap, LineageOriginType originType){
+    public static LineageTableTable sqlTableLineage2DbTableLineage(com.dtstack.sql.TableLineage sqlTableLineage, Map<String, LineageDataSetInfo> tableMap, LineageOriginType originType){
         String keyPref = "%s.%s";
         LineageTableTable tableTable = new LineageTableTable();
         LineageDataSetInfo inputTable = tableMap.get(String.format(keyPref,sqlTableLineage.getFromDb(),sqlTableLineage.getFromTable()));

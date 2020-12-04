@@ -1,10 +1,7 @@
 package com.dtstack.lineage.adapter;
 
 
-import com.dtstack.engine.api.domain.LineageColumnColumn;
-import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
-
-import java.util.List;
+import com.dtstack.sql.Column;
 
 /**
  * @author chener
@@ -14,7 +11,7 @@ import java.util.List;
  * @Created chener@dtstack.com
  */
 public class ColumnAdapter {
-    public static com.dtstack.engine.api.pojo.lineage.Column sqlColumn2ApiColumn(com.dtstack.engine.sql.Column sqlColumn){
+    public static com.dtstack.engine.api.pojo.lineage.Column sqlColumn2ApiColumn(Column sqlColumn){
         com.dtstack.engine.api.pojo.lineage.Column column = new com.dtstack.engine.api.pojo.lineage.Column();
         column.setAlias(sqlColumn.getAlias());
         column.setComment(sqlColumn.getComment());
@@ -25,8 +22,8 @@ public class ColumnAdapter {
         return column;
     }
 
-    public static com.dtstack.engine.sql.Column apiColumn2SqlColumn(com.dtstack.engine.api.pojo.lineage.Column apiColumn){
-        com.dtstack.engine.sql.Column sqlColumn = new com.dtstack.engine.sql.Column();
+    public static Column apiColumn2SqlColumn(com.dtstack.engine.api.pojo.lineage.Column apiColumn){
+        Column sqlColumn = new Column();
         sqlColumn.setAlias(apiColumn.getAlias());
         sqlColumn.setComment(apiColumn.getComment());
         sqlColumn.setIndex(apiColumn.getIndex());

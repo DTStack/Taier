@@ -18,7 +18,7 @@ import java.util.Map;
  * @Created chener@dtstack.com
  */
 public class ColumnLineageAdapter {
-    public static ColumnLineage sqlColumnLineage2ApiColumnLineage(com.dtstack.engine.sql.ColumnLineage sqlColumnLineage) {
+    public static ColumnLineage sqlColumnLineage2ApiColumnLineage(com.dtstack.sql.ColumnLineage sqlColumnLineage) {
         ColumnLineage apiColumnLineage = new ColumnLineage();
         apiColumnLineage.setFromDb(sqlColumnLineage.getFromDb());
         apiColumnLineage.setFromSchema(sqlColumnLineage.getFromDb());
@@ -40,7 +40,7 @@ public class ColumnLineageAdapter {
      * @param tableMap
      * @return
      */
-    public static LineageColumnColumn sqlColumnLineage2ColumnColumn(com.dtstack.engine.sql.ColumnLineage sqlColumnLineage, Integer appType, Map<String, LineageDataSetInfo> tableMap) {
+    public static LineageColumnColumn sqlColumnLineage2ColumnColumn(com.dtstack.sql.ColumnLineage sqlColumnLineage, Integer appType, Map<String, LineageDataSetInfo> tableMap) {
         String keyPref = "%s.%s";
         LineageColumnColumn lineageColumnColumn = new LineageColumnColumn();
         LineageDataSetInfo inputTable = tableMap.get(String.format(keyPref, sqlColumnLineage.getFromDb(), sqlColumnLineage.getFromTable()));

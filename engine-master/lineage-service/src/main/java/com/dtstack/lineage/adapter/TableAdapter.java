@@ -4,6 +4,7 @@ import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.vo.lineage.LineageDataSourceVO;
 import com.dtstack.engine.api.vo.lineage.LineageTableVO;
+import com.dtstack.sql.Table;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Objects;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
  * @Created chener@dtstack.com
  */
 public class TableAdapter {
-    public static com.dtstack.engine.api.pojo.lineage.Table sqlTable2ApiTable(com.dtstack.engine.sql.Table sqlTable) {
+    public static com.dtstack.engine.api.pojo.lineage.Table sqlTable2ApiTable(Table sqlTable) {
         if (Objects.isNull(sqlTable)) {
             return null;
         }

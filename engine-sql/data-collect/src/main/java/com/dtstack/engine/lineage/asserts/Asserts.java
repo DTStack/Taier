@@ -11,19 +11,15 @@ import com.dtstack.engine.api.vo.lineage.LineageTableTableParam;
 import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
 import com.dtstack.engine.api.vo.lineage.LineageTableVO;
 import com.dtstack.engine.api.vo.lineage.param.DataSourceParam;
-import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.lineage.AppType;
 import com.dtstack.engine.lineage.CollectAppType;
 import com.dtstack.engine.lineage.DataCollection;
-import com.dtstack.engine.lineage.batch.BatchDataSource;
-import com.dtstack.engine.lineage.batch.BatchDataSourceTypeConvert;
-import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.sdk.core.common.DtInsightApi;
 import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -100,7 +96,7 @@ public class Asserts extends DataCollection {
                     }
                 }
             } catch (Exception e) {
-                logger.error("数据源数据推送异常,e:{}", ExceptionUtil.getErrorMessage(e));
+                logger.error("数据源数据推送异常,e:{}", e);
             }
 
 
@@ -295,7 +291,7 @@ public class Asserts extends DataCollection {
             }
         } catch (Exception e) {
             logger.error(this.getClass() + ":getAssertDataSources" + "分页查询数据源异常，tenantId:{},e:{}",
-                    tenantId, ExceptionUtil.getErrorMessage(e));
+                    tenantId, tenantId,e);
         }
         return assertDataSources;
     }
@@ -321,7 +317,7 @@ public class Asserts extends DataCollection {
                 }
             }
         } catch (Exception e) {
-            logger.error("查询数据源个数异常,e:{}", ExceptionUtil.getTaskLogError(e));
+            logger.error("查询数据源个数异常,e:{}", e);
         }
         return countDataSource;
     }

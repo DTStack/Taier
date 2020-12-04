@@ -12,7 +12,7 @@ import java.util.Objects;
  * @Created chener@dtstack.com
  */
 public class SqlTypeAdapter {
-    public static com.dtstack.engine.api.vo.lineage.SqlType sqlType2ApiSqlType(com.dtstack.engine.sql.SqlType sqlType){
+    public static com.dtstack.engine.api.vo.lineage.SqlType sqlType2ApiSqlType(com.dtstack.sql.SqlType sqlType){
         if (Objects.isNull(sqlType)){
             return null;
         }

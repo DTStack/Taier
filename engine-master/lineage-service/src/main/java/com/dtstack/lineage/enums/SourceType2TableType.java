@@ -1,10 +1,9 @@
 package com.dtstack.lineage.enums;
 
 import com.dtstack.engine.api.enums.DataSourceType;
-import com.dtstack.engine.sql.enums.ETableType;
+import com.dtstack.sql.enums.ETableType;
 import com.google.common.collect.Sets;
 
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 

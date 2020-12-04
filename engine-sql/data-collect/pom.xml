@@ -75,11 +75,11 @@
             <version>8.0.11</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-common</artifactId>
-            <version>1.0.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.dtstack.engine</groupId>-->
+<!--            <artifactId>engine-common</artifactId>-->
+<!--            <version>1.0.0</version>-->
+<!--        </dependency>-->
     </dependencies>
 
     <properties>

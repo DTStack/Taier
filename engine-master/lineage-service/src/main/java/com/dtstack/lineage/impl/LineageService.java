@@ -17,12 +17,12 @@ import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryColumnLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageParam;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.sql.ColumnLineage;
-import com.dtstack.engine.sql.ParseResult;
-import com.dtstack.engine.sql.SqlParserImpl;
-import com.dtstack.engine.sql.Table;
-import com.dtstack.engine.sql.TableLineage;
-import com.dtstack.engine.sql.parse.SqlParserFactory;
+import com.dtstack.sql.ColumnLineage;
+import com.dtstack.sql.ParseResult;
+import com.dtstack.sql.SqlParserImpl;
+import com.dtstack.sql.Table;
+import com.dtstack.sql.TableLineage;
+import com.dtstack.sql.parse.SqlParserFactory;
 import com.dtstack.lineage.adapter.ColumnAdapter;
 import com.dtstack.lineage.adapter.ColumnLineageAdapter;
 import com.dtstack.lineage.adapter.SqlTypeAdapter;
@@ -33,7 +33,6 @@ import com.dtstack.schedule.common.enums.AppType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -246,7 +244,7 @@ public class LineageService {
         SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
         ColumnLineageParseInfo parseInfo = new ColumnLineageParseInfo();
         try {
-            Map<String, List<com.dtstack.engine.sql.Column>> sqlColumnMap = new HashMap<>();
+            Map<String, List<com.dtstack.sql.Column>> sqlColumnMap = new HashMap<>();
             for (Map.Entry<String, List<Column>> entry : tableColumnsMap.entrySet()) {
                 String key = entry.getKey();
                 List<Column> value = entry.getValue();
@@ -324,7 +322,7 @@ public class LineageService {
             Set<com.dtstack.engine.api.pojo.lineage.Table> tables = resTables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toSet());
             //TODO 获取表字段信息
             Map<String, List<Column>> tableColumnMap = lineageDataSetInfoService.getColumnsBySourceIdAndListTable(lineageDataSource.getId(), Lists.newArrayList(tables));
-            Map<String, List<com.dtstack.engine.sql.Column>> sqlTableColumnMap = new HashMap<>();
+            Map<String, List<com.dtstack.sql.Column>> sqlTableColumnMap = new HashMap<>();
             for (Map.Entry<String,List<Column>> entry:tableColumnMap.entrySet()){
                 sqlTableColumnMap.put(parseColumnLineageParam.getDefaultDb()+"."+entry.getKey(),entry.getValue().stream().map(ColumnAdapter::apiColumn2SqlColumn).collect(Collectors.toList()));
             }
