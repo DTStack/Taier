@@ -271,7 +271,7 @@ public class ScheduleJobJobService {
             while (it.hasNext()) {
                 ScheduleJobJobDTO jobJob = it.next();
                 // 4.0 getTaskIdFromJobKey 获取的是task_shade 的id
-                if (batchTaskShade.getId() == batchJobService.getTaskIdFromJobKey(jobJob.getJobKey()).longValue()) {
+                if (batchTaskShade.getId().equals(batchJobService.getTaskShadeIdFromJobKey(jobJob.getJobKey()))) {
                     it.remove();
                     continue;
                 }
@@ -381,7 +381,8 @@ public class ScheduleJobJobService {
         }
 
         if (CollectionUtils.isNotEmpty(root.getChildren())) {
-            root.getChildren().removeIf(jobJobDTO -> job.getTaskId().equals(batchJobService.getTaskIdFromJobKey(jobJobDTO.getJobKey())));
+            root.getChildren().removeIf(jobJobDTO -> batchJobService.getTaskShadeIdFromJobKey(jobJobDTO.getJobKey()).equals(batchTaskShade.getId()));
+//            root.getChildren().removeIf(jobJobDTO -> job.getTaskId().equals(batchJobService.getTaskIdFromJobKey(jobJobDTO.getJobKey())));
 
             List<ScheduleJobVO> fatherVOs = new ArrayList<>();
             for (ScheduleJobJobDTO jobJobDTO : root.getChildren()) {
