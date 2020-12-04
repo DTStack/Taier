@@ -12,7 +12,7 @@
 
     <artifactId>engine-common</artifactId>
     <name>engine-common</name>
-    <version>4.0.1</version>
+    <version>${common.version}</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

@@ -8,6 +8,7 @@ engine-client 版本说明：
    <version>4.0.x</version>(如果是4.1的需求 就是<version>4.1.x</version>，x 表示当前发布数)
    4. 每一次deploy正式版本的时候必须标明版本号，时间，原因等，SNAPSHOT版本不需要记录。
    
+   **注意： 线上依赖必须是正式版本，不能是SNAPSHOT**
 版本记录
   
   4.0
@@ -16,6 +17,7 @@ engine-client 版本说明：
 版本：4.0.1
 时间：2020-10-17 11:20:10
 原因：sdk上线
+添加人: 大智
 pom: 
 <dependency>
   <groupId>com.dtstack.engine</groupId>
