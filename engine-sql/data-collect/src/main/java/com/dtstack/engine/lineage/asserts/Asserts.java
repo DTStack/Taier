@@ -1,5 +1,6 @@
 package com.dtstack.engine.lineage.asserts;
 
+import com.cloudera.impala.jdbc41.internal.com.cloudera.altus.shaded.org.apache.commons.lang3.StringUtils;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.enums.DataSourceType;
 import com.dtstack.engine.api.service.DataSourceService;
