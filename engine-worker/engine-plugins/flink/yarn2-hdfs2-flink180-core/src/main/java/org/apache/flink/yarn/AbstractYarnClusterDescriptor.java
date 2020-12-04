@@ -20,7 +20,6 @@ package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
 import com.dtstack.engine.base.util.HadoopConfTool;
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
@@ -870,7 +869,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
             systemShipFiles.add(file.getAbsoluteFile());
         }
 
-        String logLevel = flinkConfiguration.getString("logLevel", "info").toLowerCase();
+        String logLevel = configuration.getString("logLevel", "info").toLowerCase();
         /**
          * check if there is a logback or log4j file
          * log4j.properties > logback.xml

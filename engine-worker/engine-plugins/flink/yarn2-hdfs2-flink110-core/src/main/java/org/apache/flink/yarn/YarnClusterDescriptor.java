@@ -19,6 +19,7 @@
 package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
+import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.google.common.base.Strings;
