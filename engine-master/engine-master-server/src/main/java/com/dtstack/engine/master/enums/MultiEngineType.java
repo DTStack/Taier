@@ -16,7 +16,8 @@ public enum MultiEngineType {
     TIDB(4,"TiDB"),
     ORACLE(5,"Oracle"),
     GREENPLUM(6, "Greenplum"),
-    PRESTO(7, "Presto");
+    PRESTO(7, "Presto"),
+    KING_BASE(8,"KingBase");
 
     private int type;
 

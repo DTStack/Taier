@@ -119,6 +119,10 @@ public enum EComponentType {
     //Presto引擎组件
     public static List<EComponentType> PrestoComponents = Lists.newArrayList(EComponentType.PRESTO_SQL);
 
+    //KingBase引擎组件
+    public static List<EComponentType> KingBaseComponents = Lists.newArrayList(EComponentType.KING_BASE);
+
+
 
     public static MultiEngineType getEngineTypeByComponent(EComponentType componentType) {
         if (HadoopComponents.contains(componentType)) {
@@ -138,6 +142,9 @@ public enum EComponentType {
         }
         if (PrestoComponents.contains(componentType)) {
             return MultiEngineType.PRESTO;
+        }
+        if(KingBaseComponents.contains(componentType)){
+            return MultiEngineType.KING_BASE;
         }
         return null;
     }
@@ -186,6 +193,8 @@ public enum EComponentType {
                 return "kubernetes";
             case NFS:
                 return "nfs";
+            case KING_BASE:
+                return "kingbase";
         }
         return "";
     }
@@ -221,7 +230,7 @@ public enum EComponentType {
 
     //SQL组件
     public static List<EComponentType> sqlComponent = Lists.newArrayList(EComponentType.SPARK_THRIFT, EComponentType.HIVE_SERVER, EComponentType.TIDB_SQL, EComponentType.ORACLE_SQL,
-            EComponentType.LIBRA_SQL, EComponentType.IMPALA_SQL, EComponentType.GREENPLUM_SQL, EComponentType.PRESTO_SQL);
+            EComponentType.LIBRA_SQL, EComponentType.IMPALA_SQL, EComponentType.GREENPLUM_SQL, EComponentType.PRESTO_SQL,EComponentType.KING_BASE);
 
     //对应引擎的组件不能删除
     public static List<EComponentType> requireComponent = Lists.newArrayList(EComponentType.ORACLE_SQL, EComponentType.TIDB_SQL, EComponentType.ORACLE_SQL,
