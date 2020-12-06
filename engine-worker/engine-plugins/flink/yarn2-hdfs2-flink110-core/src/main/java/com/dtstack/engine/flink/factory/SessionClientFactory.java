@@ -63,6 +63,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.kerby.config.Conf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -286,7 +287,7 @@ public class SessionClientFactory extends AbstractClientFactory {
             enumSet.add(YarnApplicationState.ACCEPTED);
 
             YarnClient yarnClient = flinkClientBuilder.getYarnClient();
-            if (Objects.isNull(yarnClient)) {
+            if (null == yarnClient) {
                 throw new RdosDefineException("getYarnClient error, Yarn Client is null!");
             }
 
@@ -479,7 +480,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                                         break;
                                                     } else {
                                                         try {
-                                                            Thread.sleep(6 * CHECK_INTERVAL);
+                                                            Thread.sleep(6L * CHECK_INTERVAL);
                                                         } catch (Exception e) {
                                                             LOG.error("", e);
                                                         }

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * @author sishu.yss
  */
 @Component
-@PropertySource(value = "file:${user.dir}/conf/application.properties")
+@PropertySource(value = "file:${user.dir.conf}/application.properties")
 public class EnvironmentContext {
 
     @Autowired
@@ -331,7 +331,7 @@ public class EnvironmentContext {
     }
 
     public String getLocalKerberosDir() {
-        return environment.getProperty("local.kerberos.dir", System.getProperty("user.dir") + "/kerberosConfig");
+        return environment.getProperty("local.kerberos.dir", System.getProperty("user.dir") + "/kerberosUploadTempDir");
     }
 
     public String getKerberosTemplatepath() {
@@ -391,11 +391,11 @@ public class EnvironmentContext {
     }
 
     public long getConsoleStopExpireTime() {
-        return Long.parseLong(environment.getProperty("consoleStopExpireTime", Long.toString(60 * 1000 * 24)));
+        return Long.parseLong(environment.getProperty("consoleStopExpireTime", Long.toString(60 * 1000L * 24)));
     }
 
     public Integer getScheduleJobScope() {
-        return Integer.valueOf(environment.getProperty("job.back.scope", "1000*60"));
+        return Integer.valueOf(environment.getProperty("job.back.scope", "60000"));
     }
 
     public Integer getJobExecutorPoolCorePoolSize(){

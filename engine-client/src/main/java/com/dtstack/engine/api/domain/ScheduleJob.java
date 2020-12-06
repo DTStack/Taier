@@ -107,6 +107,16 @@ public class ScheduleJob extends AppTenantEntity {
 
     private Integer phaseStatus;
 
+    private Boolean isForce;
+
+    public Boolean getForce() {
+        return isForce;
+    }
+
+    public void setForce(Boolean force) {
+        isForce = force;
+    }
+
     public String getEngineJobId() {
         return engineJobId;
     }

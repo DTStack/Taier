@@ -14,6 +14,7 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.api.support.membermodification.MemberModifier;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -40,6 +41,14 @@ public class SyncPluginInfoTest {
 	}
 
 	@Test
+	public void testCreate() {
+		FlinkConfig flinkConfig = new FlinkConfig();
+		flinkConfig.setFlinkPluginRoot("root");
+		flinkConfig.setRemotePluginRootDir("remote");
+		SyncPluginInfo.create(flinkConfig);
+	}
+
+	@Test
 	public void testCreateSyncPluginArgs() throws Exception {
 		JobClient jobClient = PowerMockito.mock(JobClient.class);
 		when(jobClient.getClassArgs()).thenReturn("args");
@@ -63,5 +72,15 @@ public class SyncPluginInfoTest {
 
 		JarFileInfo jarFileInfo = syncPluginInfo.createAddJarInfo();
 		Assert.assertNotNull(jarFileInfo);
+	}
+
+	@Test
+	public void testGetClassPaths() throws Exception {
+		List<String> programArgList = new ArrayList<>();
+		programArgList.add("-job");
+		programArgList.add("test");
+
+		MemberModifier.field(SyncPluginInfo.class, "flinkRemoteSyncPluginRoot").set(syncPluginInfo, "pluginPath");
+		syncPluginInfo.getClassPaths(programArgList);
 	}
 }

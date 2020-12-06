@@ -107,6 +107,7 @@ public class JobRestartDealer {
             return false;
         }
 
+
         JobClient jobClient = checkResult.getValue();
         // 是否需要重新提交
         int alreadyRetryNum = getAlreadyRetryNum(scheduleJob.getJobId());
