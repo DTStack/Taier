@@ -98,7 +98,8 @@ class Resource extends React.Component<any, any> {
                 let queuesListSource = res.data.queues || [];
                 switch (res.data.scheduleInfo.type) {
                     case SCHEDULE_TYPE.Fair:
-                        queuesListSource = res.data?.scheduleInfo?.rootQueue?.childQueues
+                        const childQueues = res.data?.scheduleInfo?.rootQueue?.childQueues
+                        queuesListSource = childQueues?.queue ?? childQueues
                         type = SCHEDULE_TYPE.Fair
                         break
                     case SCHEDULE_TYPE.FIFO:
