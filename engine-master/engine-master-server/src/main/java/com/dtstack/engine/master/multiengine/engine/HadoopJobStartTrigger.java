@@ -407,7 +407,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     workerOperator.executeQuery(DataSourceType.getBaseType(sourceType).getTypeName(),pluginInfo.toJSONString(),sql,"");
                     cleanFileName(parameter);
                     return null;
-                }, 3, 2000, false, Lists.newArrayList(SocketTimeoutException.class));
+                }, environmentContext.getRetryFrequency(), environmentContext.getRetryInterval(), false, null);
             } catch (Exception e) {
                 LOG.error("create partition error:", e);
                 throw new RdosDefineException("create partition error:" + ExceptionUtil.getErrorMessage(e));
