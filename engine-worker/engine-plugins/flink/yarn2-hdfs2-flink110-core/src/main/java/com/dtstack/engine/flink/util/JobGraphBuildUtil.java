@@ -29,7 +29,7 @@ public class JobGraphBuildUtil {
     private static final Logger logger = LoggerFactory.getLogger(JobGraphBuildUtil.class);
 
     private static final String SPLIT = "->";
-    private static final String matchPattern = "(.*)->\\s\\((.*\\w)\\,(\\w.*)\\)";
+    private static final String matchPattern = "(.*)->\\s\\((.*\\w)\\,(\\sSourceConversion.*)\\)";
 
 
     public static String buildLatencyMarker(JobGraph jobGraph) {
