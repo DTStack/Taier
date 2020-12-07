@@ -47,7 +47,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.dtstack.engine.master.impl.ComponentService.TYPE_NAME;
+import static com.dtstack.engine.common.constrant.ConfigConstant.LDAP_USER_NAME;
+import static com.dtstack.engine.master.impl.ComponentService.*;
 import static java.lang.String.format;
 
 @Service
