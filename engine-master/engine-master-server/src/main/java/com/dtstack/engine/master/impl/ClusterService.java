@@ -455,6 +455,25 @@ public class ClusterService implements InitializingBean {
         return getCluster(engine.getClusterId(), true,false);
     }
 
+    public Cluster getCluster(Long dtUicTenantId) {
+        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
+        if (tenantId == null) {
+            return null;
+        }
+
+        List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
+        if (CollectionUtils.isEmpty(engineIds)) {
+            return null;
+        }
+
+        Engine engine = engineDao.getOne(engineIds.get(0));
+        if(Objects.isNull(engine)){
+            return null;
+        }
+
+        return clusterDao.getOne(engine.getClusterId());
+    }
+
     public String getConfigByKey(Long dtUicTenantId,  String key, Boolean fullKerberos,Boolean isWrapper) {
         ClusterVO cluster = getClusterByTenant(dtUicTenantId);
         //根据组件区分kerberos
@@ -900,6 +919,35 @@ public class ClusterService implements InitializingBean {
     public String dbInfo(Long dtUicTenantId, Long dtUicUserId, Integer type) {
         DataSourceType sourceType = DataSourceType.getSourceType(type);
         return accountInfo(dtUicTenantId,dtUicUserId,sourceType);
+    }
+
+    public Boolean isSameCluster(Long dtUicTenantId, List<Long> dtUicTenantIds) {
+        if (dtUicTenantId ==null) {
+            throw new RdosDefineException("租户id不能为null");
+        }
+
+        if (CollectionUtils.isEmpty(dtUicTenantIds)) {
+            return Boolean.FALSE;
+        }
+
+        Cluster cluster = getCluster(dtUicTenantId);
+
+        if (cluster == null) {
+            throw new RdosDefineException("租户id:"+dtUicTenantId+"不存在!");
+        }
+
+        for (Long uicTenantId : dtUicTenantIds) {
+            Cluster cluster1 = getCluster(uicTenantId);
+
+            if (cluster1 != null) {
+                if (cluster.getId().equals(cluster1.getId())) {
+                    // dtUicTenantIds集合中存在和 dtUicTenantId相同的集群
+                    return Boolean.TRUE;
+                }
+            }
+        }
+
+        return Boolean.FALSE;
     }
 }
 
