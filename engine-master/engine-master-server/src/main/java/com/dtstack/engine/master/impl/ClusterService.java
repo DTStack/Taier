@@ -16,21 +16,20 @@ import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.*;
 import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.Sort;
 import com.dtstack.schedule.common.util.Base64Util;
-import com.dtstack.schedule.common.util.ZipUtil;
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.SftpException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -45,9 +44,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.dtstack.engine.master.impl.ComponentService.TYPE_NAME;
+import static com.dtstack.engine.common.constrant.ConfigConstant.LDAP_USER_NAME;
+import static com.dtstack.engine.master.impl.ComponentService.*;
 import static java.lang.String.format;
 
 @Service
@@ -622,11 +623,10 @@ public class ClusterService implements InitializingBean {
             }
             if (EComponentType.HIVE_SERVER == type.getComponentType()) {
                 this.buildHiveVersion(clusterVO, pluginInfo);
-            } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK==type.getComponentType()) {
+            } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK == type.getComponentType()) {
                 if (clusterVO.getDtUicUserId() != null && clusterVO.getDtUicTenantId() != null) {
-                    AccountVo accountVo = accountService.getAccountVo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId(), AccountType.LDAP.getVal());
-                    String ldapUserName = StringUtils.isBlank(accountVo.getName()) ? "" : accountVo.getName();
-                    pluginInfo.put("dtProxyUserName", ldapUserName);
+                    String ldapUserName = this.getLdapUserName(clusterVO.getDtUicUserId());
+                    pluginInfo.put(LDAP_USER_NAME, ldapUserName);
                 }
             }
             pluginInfo.put(ConfigConstant.MD5_SUM_KEY, getZipFileMD5(clusterConfigJson));
@@ -642,11 +642,12 @@ public class ClusterService implements InitializingBean {
             throw new RdosDefineException("hive组件不能为空");
         }
         String jdbcUrl = pluginInfo.getString("jdbcUrl");
-        jdbcUrl = jdbcUrl.replace("/%s", "");
+        //%s替换成默认的 供插件使用
+        jdbcUrl = jdbcUrl.replace("/%s", environmentContext.getComponentJdbcToReplace());
         pluginInfo.put("jdbcUrl", jdbcUrl);
         String typeName = componentService.convertComponentTypeToClient(clusterVO.getClusterName(),
                 EComponentType.HIVE_SERVER.getTypeCode(), hiveServer.getHadoopVersion(),hiveServer.getStoreType());
-        pluginInfo.put(TYPE_NAME,typeName);
+        pluginInfo.put("typeName",typeName);
     }
 
     private void buildKubernetesConfig(JSONObject clusterConfigJson, ClusterVO clusterVO, JSONObject pluginInfo) {
@@ -689,6 +690,27 @@ public class ClusterService implements InitializingBean {
             }
         }
         return pluginInfo;
+    }
+
+    Cache<Long, String> ldapCache = CacheBuilder
+            .newBuilder()
+            .expireAfterWrite(1, TimeUnit.MINUTES)
+            .build();
+
+    private String getLdapUserName(Long dtUicUserId) {
+        if (StringUtils.isBlank(environmentContext.getUicToken()) || StringUtils.isBlank(environmentContext.getDtUicUrl())) {
+            return null;
+        }
+        String ldapUserName = null;
+        if (environmentContext.isOpenLdapCache()) {
+            ldapUserName = ldapCache.getIfPresent(dtUicUserId);
+            if (null != ldapUserName) {
+                return ldapUserName;
+            }
+        }
+        ldapUserName = DtUicUserConnect.getLdapUserName(dtUicUserId, environmentContext.getUicToken(), environmentContext.getDtUicUrl());
+        ldapCache.put(dtUicUserId, ldapUserName);
+        return ldapUserName;
     }
 
 

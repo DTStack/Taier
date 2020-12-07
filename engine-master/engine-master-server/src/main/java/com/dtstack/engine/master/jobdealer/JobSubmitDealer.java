@@ -1,8 +1,11 @@
 package com.dtstack.engine.master.jobdealer;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EQueueSourceType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -13,12 +16,14 @@ import com.dtstack.engine.common.pojo.SimpleJobDelay;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.util.SleepUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.queue.JobPartitioner;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -48,6 +53,7 @@ public class JobSubmitDealer implements Runnable {
     private WorkerOperator workerOperator;
     private EngineJobCacheDao engineJobCacheDao;
     private ShardCache shardCache;
+    private ScheduleJobDao scheduleJobDao;
 
     private long jobRestartDelay;
     private long jobLackingDelay;
@@ -69,6 +75,7 @@ public class JobSubmitDealer implements Runnable {
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
         this.engineJobCacheDao = applicationContext.getBean(EngineJobCacheDao.class);
         this.shardCache = applicationContext.getBean(ShardCache.class);
+        this.scheduleJobDao = applicationContext.getBean(ScheduleJobDao.class);
         EnvironmentContext environmentContext = applicationContext.getBean(EnvironmentContext.class);
         if (null == priorityQueue) {
             throw new RdosDefineException("priorityQueue must not null.");
@@ -278,6 +285,8 @@ public class JobSubmitDealer implements Runnable {
 
                 jobClient.doStatusCallBack(RdosTaskStatus.COMPUTING.getStatus());
 
+                // 保存提交用户用户名
+                saveSubmitUserName(jobClient);
                 // 提交任务
                 jobResult = workerOperator.submitJob(jobClient);
 
@@ -303,6 +312,29 @@ public class JobSubmitDealer implements Runnable {
             handlerFailedWithRetry(jobClient, false, e);
         } catch (Throwable e) {
             handlerFailedWithRetry(jobClient, true, e);
+        }
+    }
+
+    /**
+     * 报存提交的时候用户名
+     * @param jobClient
+     */
+    private void saveSubmitUserName(JobClient jobClient) {
+        try {
+            JSONObject pluginInfo = JSONObject.parseObject(jobClient.getPluginInfo());
+            if (null == pluginInfo || pluginInfo.isEmpty()) {
+                return;
+            }
+            String ldapUserName = pluginInfo.getString(ConfigConstant.LDAP_USER_NAME);
+            if (StringUtils.isNotBlank(ldapUserName)) {
+                logger.info("update jobId {} ldap userName {}", jobClient.getTaskId(), ldapUserName);
+                ScheduleJob updateJob = new ScheduleJob();
+                updateJob.setJobId(jobClient.getTaskId());
+                updateJob.setSubmitUserName(ldapUserName);
+                scheduleJobDao.update(updateJob);
+            }
+        } catch (Exception e) {
+            logger.info("update jobId {} ldap userName error", jobClient.getTaskId(), e);
         }
     }
 
