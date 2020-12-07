@@ -33,10 +33,7 @@ public class ScheduleTaskShadeController {
 
     @RequestMapping(value = "/addOrUpdate", method = {RequestMethod.POST})
     @ApiOperation(value = "添加或更新任务", notes = "例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息")
-    public void addOrUpdate(@RequestBody @Validated ScheduleTaskShadeDTO batchTaskShadeDTO, BindingResult bindingResult) throws BindException {
-        if (bindingResult.hasErrors()) {
-            throw new BindException(bindingResult);
-        }
+    public void addOrUpdate(@RequestBody ScheduleTaskShadeDTO batchTaskShadeDTO) {
         scheduleTaskShadeService.addOrUpdate(batchTaskShadeDTO);
     }
 

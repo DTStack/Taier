@@ -19,9 +19,8 @@
 package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
-import com.dtstack.engine.worker.enums.ClassLoaderType;
+import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.VisibleForTesting;
@@ -113,7 +112,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.flink.configuration.ConfigConstants.DEFAULT_FLINK_USR_LIB_DIR;
-import static org.apache.flink.configuration.ConfigConstants.ENV_FLINK_CONF_DIR;
 import static org.apache.flink.configuration.ConfigConstants.ENV_FLINK_LIB_DIR;
 import static org.apache.flink.runtime.entrypoint.component.FileJobGraphRetriever.JOB_GRAPH_FILE_PATH;
 import static org.apache.flink.util.Preconditions.checkArgument;
@@ -660,7 +658,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 				currentProxy = currentProxyField.get(h);
 			}catch (Exception e){
 				//兼容Hadoop 2.7.3.2.6.4.91-3
-				LOG.warn("get currentProxy error:{}", ExceptionUtil.getErrorMessage(e));
+				LOG.error("get currentProxy error:", e);
 				Field proxyDescriptorField = h.getClass().getDeclaredField("proxyDescriptor");
 				proxyDescriptorField.setAccessible(true);
 				Object proxyDescriptor = proxyDescriptorField.get(h);
@@ -682,7 +680,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
 			return String.format("http://%s/proxy",addr);
 		}catch (Exception e){
-			LOG.warn("get monitor error:{}", ExceptionUtil.getErrorMessage(e));
+			LOG.error("get monitor error:", e);
 		}
 
 		return url;

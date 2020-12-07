@@ -421,4 +421,12 @@ public class EnvironmentContext {
     public Integer getRetryInterval() {
         return Integer.valueOf(environment.getProperty("retry.interval", "30000"));
     }
+
+    public long getJobStatusCheckInterVal() {
+        return Long.parseLong(environment.getProperty("job.status.check.interval", "3500"));
+    }
+
+    public String getComponentJdbcToReplace() {
+        return environment.getProperty("component.jdbc.replace", "/default");
+    }
 }

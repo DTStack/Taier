@@ -10,6 +10,7 @@ import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -17,7 +18,7 @@ import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.EDeployMode;
+import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ClusterService;
@@ -317,13 +318,13 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 String alterSql = String.format(ADD_PART_TEMP, tableName, taskName, time);
                 String location = "";
                 if (DataSourceType.IMPALA.getVal() == sourceType) {
-                    String jdbcInfo = clusterService.impalaInfo(dtuicTenantId, true);
+                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId, EComponentType.IMPALA_SQL.getConfName(),true,Boolean.TRUE);
                     JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataBaseType.Impala.getTypeName());
                     workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, DataBaseType.Impala.getTypeName(), String.format("DESCRIBE formatted %s", tableName));
                 } else if (DataSourceType.HIVE.getVal() == sourceType || DataSourceType.HIVE1X.getVal() == sourceType) {
-                    String jdbcInfo = clusterService.hiveInfo(dtuicTenantId, true);
+                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId,EComponentType.SPARK_THRIFT.getConfName(), true,Boolean.TRUE);
                     JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
                     String engineType = DataSourceType.HIVE.getVal() == sourceType ? DataBaseType.HIVE.getTypeName() : DataBaseType.HIVE1X.getTypeName();
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, engineType);
@@ -410,7 +411,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     return null;
                 }, environmentContext.getRetryFrequency(), environmentContext.getRetryInterval(), false, null);
             } catch (Exception e) {
-                LOG.error("create partition error", e);
+                LOG.error("create partition error:", e);
                 throw new RdosDefineException("create partition error:" + ExceptionUtil.getErrorMessage(e));
             }
         }
@@ -447,11 +448,11 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             }
             pluginInfo.put(ConfigConstant.REMOTE_DIR,remoteDir);
 
-            String principalFile = hadoopConfig.getString(ConfigConstant.PRINCIPALFILE);
+            String principalFile = hadoopConfig.getString(ConfigConstant.PRINCIPAL_FILE);
             if(StringUtils.isBlank(principalFile)){
                 throw new RdosDefineException("数据同步hadoopConfig principalFile 字段不能为空");
             }
-            pluginInfo.put(ConfigConstant.PRINCIPALFILE,principalFile);
+            pluginInfo.put(ConfigConstant.PRINCIPAL_FILE,principalFile);
 
             JSONObject sftpConf = hadoopConfig.getJSONObject(EComponentType.SFTP.getConfName());
             if (null == sftpConf || sftpConf.size() <= 0) {
@@ -459,7 +460,12 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             }
             pluginInfo.put(EComponentType.SFTP.getConfName(), sftpConf);
             //krb5.conf的文件名
-            pluginInfo.put(ConfigConstant.KRBNAME, hadoopConfig.getString(ConfigConstant.KRB5_CONF));
+            String krb5Conf = hadoopConfig.getString(ConfigConstant.JAVA_SECURITY_KRB5_CONF);
+            if(StringUtils.isBlank(krb5Conf)){
+                //平台不传 暂时设置默认值
+                krb5Conf = ConfigConstant.KRB5_CONF;
+            }
+            pluginInfo.put(ConfigConstant.KRB_NAME, krb5Conf);
             pluginInfo.put(EComponentType.YARN.getConfName(), hadoopConfig);
 
         }
@@ -502,11 +508,11 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         if (CollectionUtils.isEmpty(componentsConfigOfComponentsVOS)) {
             return null;
         }
-        Optional<ComponentsConfigOfComponentsVO> flinkComponent = componentsConfigOfComponentsVOS.stream().filter(c -> c.getComponentTypeCode() == EComponentType.FLINK.getTypeCode()).findFirst();
+        Optional<ComponentsConfigOfComponentsVO> flinkComponent = componentsConfigOfComponentsVOS.stream().filter(c -> c.getComponentTypeCode().equals(EComponentType.FLINK.getTypeCode())).findFirst();
         if(flinkComponent.isPresent()){
             ComponentsConfigOfComponentsVO componentsVO = flinkComponent.get();
             JSONObject flinkJsonObject = JSONObject.parseObject(componentsVO.getComponentConfig());
-            EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam,computeType);
+            EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam,computeType, EngineType.Flink.name());
             JSONObject flinkConfig = flinkJsonObject.getJSONObject(eDeployMode.getMode());
             String prometheusHost = flinkConfig.getString("prometheusHost");
             String prometheusPort = flinkConfig.getString("prometheusPort");
@@ -549,7 +555,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
     /**
      * 获取flink任务checkpoint的存储路径
      *
-     * @param tenantId 租户id
+     * @param dtuicTenantId 租户id
      * @return checkpoint存储路径
      */
     private String getSavepointPath(Long dtuicTenantId) {

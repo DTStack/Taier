@@ -43,8 +43,6 @@ public interface ScheduleJobDao {
 
     List<Map<String, Object>> listThirtyDayJobs(@Param("statusList") List<Integer> statusList, @Param("type") Integer type, @Param("taskTypes") List<Integer> taskTypes, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId);
 
-    List<ScheduleJob> listRestartBatchJobList(@Param("type") int type, @Param("status") Integer taskStatus, @Param("lastTime") Timestamp lastTime);
-
     List<ScheduleJob> listJobByJobKeys(@Param("jobKeys") Collection<String> jobKeys);
 
     List<Long> listIdByTaskIdAndStatus(@Param("taskId") Long taskId, @Param("statuses") List<Integer> status, @Param("appType") Integer appType);
@@ -241,7 +239,7 @@ public interface ScheduleJobDao {
 
     Long getListMinId(@Param("nodeAddress") String nodeAddress, @Param("scheduleType") Integer scheduleType, @Param("cycStartTime") String left, @Param("cycEndTime") String right, @Param("phaseStatus") Integer code,@Param("isRestart") Integer isRestart);
 
-    Integer updateListPhaseStatus(@Param("ids") List<Long> ids, @Param("update") Integer update);
+    Integer updateListPhaseStatus(@Param("jobIds") List<String> ids, @Param("update") Integer update);
 
     Integer updateJobStatusAndPhaseStatus(@Param("jobId") String jobId, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus);
 

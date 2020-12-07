@@ -1,5 +1,6 @@
 package com.dtstack.engine.sparkyarn.sparkext;
 
+import com.dtstack.engine.base.filesystem.FilesystemManager;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.yarn.ClientArguments;
@@ -20,8 +21,8 @@ public class CarbondataClientExt extends ClientExt{
 
     private static final String CARBON_HIVE_CONF_NAME = "carbon-hive-site.xml";
 
-    public CarbondataClientExt(ClientArguments args, Configuration hadoopConf, SparkConf sparkConf) {
-        super(args, hadoopConf, sparkConf);
+    public CarbondataClientExt(FilesystemManager filesystemManager, ClientArguments args, Configuration hadoopConf, SparkConf sparkConf) {
+        super(filesystemManager, args, hadoopConf, sparkConf);
     }
 
     /***
