@@ -32,7 +32,7 @@ public class HadoopConf {
 
     public void initHadoopConf(Map<String, Object> conf){
 
-        configuration = new Configuration();
+        configuration = new Configuration(false);
         HadoopConfTool.setFsHdfsImplDisableCache(configuration);
         conf.keySet().forEach(key ->{
             Object value = conf.get(key);

@@ -174,7 +174,7 @@ public class HadoopConfTool {
     }
 
     public static Configuration deserializeHadoopConf(byte[] bytes) {
-        Configuration hadoopConf = new Configuration();
+        Configuration hadoopConf = new Configuration(false);
         try (
                 ByteArrayInputStream in = new ByteArrayInputStream(bytes);
                 DataInputStream datain = new DataInputStream(in);
@@ -188,7 +188,8 @@ public class HadoopConfTool {
     }
 
     public static Configuration deserializeYanrConf(byte[] bytes) {
-        YarnConfiguration yanrConf = new YarnConfiguration();
+        Configuration hadoopConf = new Configuration(false);
+        YarnConfiguration yanrConf = new YarnConfiguration(hadoopConf);
         try (
                 ByteArrayInputStream in = new ByteArrayInputStream(bytes);
                 DataInputStream datain = new DataInputStream(in);
