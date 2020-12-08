@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * @author sishu.yss
  */
 @Component
-@PropertySource(value = "file:${user.dir}/conf/application.properties")
+@PropertySource(value = "file:${user.dir.conf}/application.properties")
 public class EnvironmentContext {
 
     @Autowired
@@ -391,11 +391,11 @@ public class EnvironmentContext {
     }
 
     public long getConsoleStopExpireTime() {
-        return Long.parseLong(environment.getProperty("consoleStopExpireTime", Long.toString(60 * 1000 * 24)));
+        return Long.parseLong(environment.getProperty("consoleStopExpireTime", Long.toString(60 * 1000L * 24)));
     }
 
     public Integer getScheduleJobScope() {
-        return Integer.valueOf(environment.getProperty("job.back.scope", "1000*60"));
+        return Integer.valueOf(environment.getProperty("job.back.scope", "60000"));
     }
 
     public Integer getJobExecutorPoolCorePoolSize(){
@@ -412,6 +412,18 @@ public class EnvironmentContext {
 
     public Integer getJobExecutorPoolQueueSize(){
         return Integer.valueOf(environment.getProperty("job.executor.pool.queue.size", "1000"));
+    }
+
+    public Integer getRetryFrequency() {
+        return Integer.valueOf(environment.getProperty("retry.frequency", "3"));
+    }
+
+    public Integer getRetryInterval() {
+        return Integer.valueOf(environment.getProperty("retry.interval", "30000"));
+    }
+
+    public long getJobStatusCheckInterVal() {
+        return Long.parseLong(environment.getProperty("job.status.check.interval", "3500"));
     }
 
     public String getComponentJdbcToReplace() {

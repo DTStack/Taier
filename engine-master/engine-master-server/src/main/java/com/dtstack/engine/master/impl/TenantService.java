@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.dtstack.engine.api.domain.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -18,9 +17,6 @@ import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -28,14 +24,12 @@ import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.router.login.domain.TenantAdmin;
 import com.dtstack.engine.master.router.login.domain.UserTenant;
-import com.dtstack.fasterxml.jackson.databind.util.BeanUtil;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.Sort;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -43,11 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.io.IOException;
 import java.util.*;
 
 
@@ -92,7 +81,7 @@ public class TenantService {
     private ComponentService componentService;
 
     @Autowired
-    private QueueService queueService;
+    private DtUicUserConnect dtUicUserConnect;
 
     public PageResult<List<EngineTenantVO>> pageQuery( Long clusterId,
                                                        Integer engineType,
@@ -203,19 +192,22 @@ public class TenantService {
     private List<UserTenant> postTenantList(String dtToken) {
         String dtUicUrl = env.getDtUicUrl();
         //uic对数据量做了限制，可能未查询到租户信息
-        return DtUicUserConnect.getUserTenants(dtUicUrl, dtToken, "");
+        return dtUicUserConnect.getUserTenants(dtUicUrl, dtToken, "");
     }
 
 
     private UserTenant getTenantByDtUicTenantId(Long dtUicTenantId,String token){
         String dtUicUrl = env.getDtUicUrl();
-        return DtUicUserConnect.getTenantByTenantId(dtUicUrl, dtUicTenantId, token);
+        return dtUicUserConnect.getTenantByTenantId(dtUicUrl, dtUicTenantId, token);
     }
 
 
     @Transactional(rollbackFor = Exception.class)
     public void bindingTenant( Long dtUicTenantId,  Long clusterId,
                                Long queueId,  String dtToken,String namespace) throws Exception {
+        if (null == queueId && StringUtils.isBlank(namespace)) {
+            throw new RdosDefineException("队列或namespace名称不能为空");
+        }
         Cluster cluster = clusterDao.getOne(clusterId);
         EngineAssert.assertTrue(cluster != null, "集群不存在", ErrorCode.DATA_NOT_FIND);
 
@@ -229,14 +221,12 @@ public class TenantService {
         if(null == hadoopEngine){
             return;
         }
-        if(StringUtils.isNotBlank(namespace)){
+        if (StringUtils.isNotBlank(namespace)) {
             //k8s
-           queueId = queueService.addNamespaces(hadoopEngine.getId(),namespace);
-        }
-        if(queueId != null){
+            componentService.addOrUpdateNamespaces(cluster.getId(), namespace, null, dtUicTenantId);
+        } else if (queueId != null) {
             updateTenantQueue(tenant.getId(), dtUicTenantId, hadoopEngine.getId(), queueId);
         }
-
     }
 
     private void checkTenantBindStatus(Long tenantId) {
@@ -248,8 +238,8 @@ public class TenantService {
 
 
     public void checkClusterCanUse(Long clusterId) throws Exception {
-        ClusterVO clusterVO = clusterService.getCluster(clusterId, true, true);
-        List<ComponentTestResult> testConnectionVO = componentService.testConnects(clusterVO.getClusterName());
+        Cluster cluster = clusterDao.getOne(clusterId);
+        List<ComponentTestResult> testConnectionVO = componentService.testConnects(cluster.getClusterName());
         boolean canUse = true;
         StringBuilder msg = new StringBuilder();
         msg.append("此集群不可用,测试连通性为通过：\n");
@@ -329,6 +319,7 @@ public class TenantService {
             throw new RdosDefineException("所选队列存在子队列，选择正确的子队列", ErrorCode.DATA_NOT_FIND);
         }
 
+        LOGGER.info("switch queue, tenantId:{} queueId:{} engineId:{}",tenantId,queueId,engineId);
         int result = engineTenantDao.updateQueueId(tenantId, engineId, queueId);
         if(result == 0){
             throw new RdosDefineException("更新引擎队列失败");
@@ -355,9 +346,10 @@ public class TenantService {
         try {
             //修改租户各个任务资源限制
             updateTenantTaskResource(tenantId,dtUicTenantId,taskTypeResourceJson);
+            LOGGER.info("switch queue, tenantId:{} queueId:{} queueName:{} engineId:{}",tenantId,queueId,queue.getQueueName(),queue.getEngineId());
             updateTenantQueue(tenantId, dtUicTenantId, queue.getEngineId(), queueId);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("", e);
             throw new RdosDefineException("切换队列失败");
         }
     }
@@ -387,7 +379,7 @@ public class TenantService {
             Integer taskType = jsonObj.getInteger("taskType");
             tenantResource.setTaskType(taskType);
             EScheduleJobType eJobType = EScheduleJobType.getEJobType(taskType);
-            if(Objects.isNull(eJobType)){
+            if(null == eJobType){
                 throw new RdosDefineException("传入任务类型错误");
             }else{
                 tenantResource.setEngineType(eJobType.getName());
@@ -411,7 +403,7 @@ public class TenantService {
             List<TenantResource> tenantResources = tenantResourceDao.selectByUicTenantId(dtUicTenantId);
             return convertTenantResourceToVO(tenantResources);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("", e);
             throw new RdosDefineException("查询失败");
         }
     }
@@ -447,10 +439,10 @@ public class TenantService {
         try {
             tenantResource = tenantResourceDao.selectByUicTenantIdAndTaskType(dtUicTenantId, taskType);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("", e);
             throw new RdosDefineException("查找资源限制失败");
         }
-        if(Objects.nonNull(tenantResource)){
+        if(null != tenantResource){
             return tenantResource.getResourceLimit();
         }else{
             return "";

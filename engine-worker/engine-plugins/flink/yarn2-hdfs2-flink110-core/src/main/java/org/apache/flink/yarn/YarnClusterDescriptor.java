@@ -19,9 +19,8 @@
 package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
-import com.dtstack.engine.worker.enums.ClassLoaderType;
+import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.VisibleForTesting;
@@ -113,7 +112,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.flink.configuration.ConfigConstants.DEFAULT_FLINK_USR_LIB_DIR;
-import static org.apache.flink.configuration.ConfigConstants.ENV_FLINK_CONF_DIR;
 import static org.apache.flink.configuration.ConfigConstants.ENV_FLINK_LIB_DIR;
 import static org.apache.flink.runtime.entrypoint.component.FileJobGraphRetriever.JOB_GRAPH_FILE_PATH;
 import static org.apache.flink.util.Preconditions.checkArgument;
@@ -833,7 +831,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		final Path homeDir = fs.getHomeDirectory();
 
 		// hard coded check for the GoogleHDFS client because its not overriding the getScheme() method.
-		if (!fs.getClass().getSimpleName().equals("GoogleHadoopFileSystem") &&
+		if (!"GoogleHadoopFileSystem".equals(fs.getClass().getSimpleName()) &&
 				fs.getScheme().startsWith("file")) {
 			LOG.warn("The file system scheme is '" + fs.getScheme() + "'. This indicates that the "
 					+ "specified Hadoop configuration path is wrong and the system is using the default Hadoop configuration values."

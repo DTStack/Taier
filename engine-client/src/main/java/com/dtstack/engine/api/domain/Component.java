@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel
 public class Component extends BaseEntity {
 
-    @Unique
     private Long engineId;
 
     private String componentName;

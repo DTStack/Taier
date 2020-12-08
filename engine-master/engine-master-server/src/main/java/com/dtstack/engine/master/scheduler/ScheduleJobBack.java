@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.scheduler;
 
 import com.dtstack.engine.api.vo.Pair;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -20,7 +21,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -74,14 +74,14 @@ public class ScheduleJobBack {
             Date curDate = dateFormat.parse(dayFormat.format(new Date()) + " " + time);
             return curDate.getTime();
         } catch (ParseException e) {
-            e.printStackTrace();
+            log.error("ScheduleJobBack.getTimeMillis error:", e);
         }
         return 0;
     }
 
     public void process() {
         try (Connection connection = dataSource.getConnection()) {
-            if (Objects.isNull(connection)) {
+            if (null == connection) {
                 log.error("back up get connect error");
             }
             log.info("back up schedule job start");
@@ -103,7 +103,7 @@ public class ScheduleJobBack {
             log.info("back up schedule job lastJobBackId {}",lastJobBackId);
             //schedule_job表
             for (Pair<Integer, String> pair : timePeriodTypeMapping) {
-                String limitDate = Objects.isNull(pair.getKey()) ? "" : String.format("'%s'",
+                String limitDate = null == pair.getKey() ? "" : String.format("'%s'",
                         new DateTime().minusDays(pair.getKey()).withTime(0,0,0,0).toString("yyyyMMddHHmmss"));
                 //走ID索引
                 Long lastJobId = this.getLastId(connection, String.format("SELECT id from schedule_job where cyc_time >%s limit 1;",limitDate));
@@ -135,6 +135,9 @@ public class ScheduleJobBack {
             if (rs != null) {
                 rs.close();
             }
+            if(statement !=null){
+                statement.close();
+            }
         }
     }
 
@@ -162,6 +165,7 @@ public class ScheduleJobBack {
             if (statement != null) {
                 statement.close();
             }
+
         }
     }
 
@@ -185,7 +189,7 @@ public class ScheduleJobBack {
 
         try (Statement statement = connection.createStatement()) {
             String backUpTableName = tableName + BACK_TABLE_SUFFIX;
-            String limitDate = Objects.isNull(maxDays) ? "" : String.format("'%s'", new DateTime().minusDays(maxDays).toString("yyyyMMddHHmmss"));
+            String limitDate = null == maxDays ? "" : String.format("'%s'", new DateTime().minusDays(maxDays).toString("yyyyMMddHHmmss"));
             String where = where_sql.replace("#{limitDate}", limitDate)
                     .replace("#{periodType}", String.format("(%s)", periodType));
             log.info("start to backUpTables :{}  {}", tableName, where);

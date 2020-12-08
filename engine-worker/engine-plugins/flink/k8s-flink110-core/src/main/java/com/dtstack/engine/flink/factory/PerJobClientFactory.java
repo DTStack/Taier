@@ -193,7 +193,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
             ClusterClient clusterClient = clusterDescriptor.deploySessionCluster(clusterSpecification).getClusterClient();
             return clusterClient;
         } catch (ClusterDeploymentException e) {
-            if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId) != null) {
+            if (flinkClientBuilder.getFlinkKubeClient().getInternalService(projobClusterId).isPresent()) {
                 flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(projobClusterId);
             }
             throw new RdosDefineException(e);
@@ -224,7 +224,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
             if (StringUtils.isEmpty(serviceName)) {
                 continue;
             }
-            String regex = String.format("(%s)-[0-9a-z]{8}", effectiveTaskName);
+            String regex = String.format("(%s)-[0-9a-z]{4}", effectiveTaskName);
             Boolean isEffective = serviceName.matches(regex);
             if (StringUtils.startsWith(serviceName, effectiveTaskName) && isEffective) {
                 flinkClientBuilder.getFlinkKubeClient().stopAndCleanupCluster(serviceName);
