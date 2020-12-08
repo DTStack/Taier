@@ -207,10 +207,10 @@ public class ScheduleJobService {
         for (Map<String, Object> info : data) {
             count += MathUtil.getIntegerVal(info.get("count"));
         }
-        PageQuery pageQuery = new PageQuery(pageIndex, pageSize);
+        PageQuery<List<Map<String, Object>>> pageQuery = new PageQuery<>(pageIndex, pageSize);
         List<Map<String, Object>> dataMaps = scheduleJobDao.selectStatusAndType(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getUnStandardFormattedDate(DateUtil.calTodayMills()),
                 DateUtil.getUnStandardFormattedDate(DateUtil.TOMORROW_ZERO()), tenantId, projectId, appType, dtuicTenantId, statusCode, pageQuery.getStart(), pageQuery.getPageSize());
-        return new PageResult(dataMaps, count, pageQuery);
+        return new PageResult<>(dataMaps, count, pageQuery);
     }
 
     /**
@@ -257,33 +257,33 @@ public class ScheduleJobService {
             endTime = DateUtil.TOMORROW_ZERO();
         }
 
-        PageQuery pageQuery = new PageQuery(1, 10);
+        PageQuery<List<Map<String, Object>>> pageQuery = new PageQuery<>(1, 10);
         List<Map<String, Object>> list = scheduleJobDao.listTopRunTime(projectId, new Timestamp(startTime), new Timestamp(endTime), pageQuery, appType,dtuicTenantId);
 
         List<JobTopOrderVO> jobTopOrderVOS = new ArrayList<>();
+        if(CollectionUtils.isNotEmpty(jobTopOrderVOS)) {
+            for (Map<String, Object> info : list) {
+                //b.id, b.taskId, b.cycTime, b.type, eb.execTime
+                Long jobId = MathUtil.getLongVal(info.get("id"));
+                Long taskId = MathUtil.getLongVal(info.get("taskId"));
+                String cycTime = MathUtil.getString(info.get("cycTime"));
+                Integer type = MathUtil.getIntegerVal(info.get("type"));
+                Long execTime = MathUtil.getLongVal(info.get("execTime"));
+                execTime = execTime == null ? 0 : execTime;
 
-        for (Map<String, Object> info : list) {
-            //b.id, b.taskId, b.cycTime, b.type, eb.execTime
-            Long jobId = MathUtil.getLongVal(info.get("id"));
-            Long taskId = MathUtil.getLongVal(info.get("taskId"));
-            String cycTime = MathUtil.getString(info.get("cycTime"));
-            Integer type = MathUtil.getIntegerVal(info.get("type"));
-            Long execTime = MathUtil.getLongVal(info.get("execTime"));
-            execTime = execTime == null ? 0 : execTime;
+                JobTopOrderVO jobTopOrderVO = new JobTopOrderVO();
+                jobTopOrderVO.setRunTime(DateUtil.getTimeDifference(execTime * 1000));
+                jobTopOrderVO.setJobId(jobId);
+                jobTopOrderVO.setTaskId(taskId);
+                jobTopOrderVO.setCycTime(DateUtil.addTimeSplit(cycTime));
+                jobTopOrderVO.setType(type);
+                jobTopOrderVO.setTaskType(MathUtil.getIntegerVal(info.get("taskType")));
+                jobTopOrderVO.setIsDeleted(MathUtil.getIntegerVal(info.get("isDeleted")));
+                jobTopOrderVO.setCreateUserId(MathUtil.getLongVal(info.get("createUserId")));
 
-            JobTopOrderVO jobTopOrderVO = new JobTopOrderVO();
-            jobTopOrderVO.setRunTime(DateUtil.getTimeDifference(execTime * 1000));
-            jobTopOrderVO.setJobId(jobId);
-            jobTopOrderVO.setTaskId(taskId);
-            jobTopOrderVO.setCycTime(DateUtil.addTimeSplit(cycTime));
-            jobTopOrderVO.setType(type);
-            jobTopOrderVO.setTaskType(MathUtil.getIntegerVal(info.get("taskType")));
-            jobTopOrderVO.setIsDeleted(MathUtil.getIntegerVal(info.get("isDeleted")));
-            jobTopOrderVO.setCreateUserId(MathUtil.getLongVal(info.get("createUserId")));
-
-            jobTopOrderVOS.add(jobTopOrderVO);
+                jobTopOrderVOS.add(jobTopOrderVO);
+            }
         }
-
         return jobTopOrderVOS;
     }
 
@@ -293,7 +293,8 @@ public class ScheduleJobService {
     public List<JobTopErrorVO> errorTopOrder( Long projectId,  Long tenantId,  Integer appType,  Long dtuicTenantId) {
 
         Timestamp time = new Timestamp(DateUtil.getLastDay(30));
-        PageQuery pageQuery = new PageQuery(1, 10);
+        PageQuery<Object> pageQuery = new PageQuery<>(1, 10);
+        //TODO 参数过多，封装成对象
         List<Map<String, Object>> list = scheduleJobDao.listTopErrorByType(dtuicTenantId,tenantId, projectId, EScheduleType.NORMAL_SCHEDULE.getType(), time, FAILED_STATUS, pageQuery, appType);
         List<JobTopErrorVO> jobTopErrorVOS = new ArrayList<>();
 
@@ -321,6 +322,7 @@ public class ScheduleJobService {
         List<Integer> failedList = RdosTaskStatus.getCollectionStatus(RdosTaskStatus.FAILED.getStatus());
         statusList.addAll(finishedList);
         statusList.addAll(failedList);
+        //TODO 参数过多，封装成对象，冗余代码，抽成一个方法
         List<Object> todayJobList = finishData(scheduleJobDao.listTodayJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
         List<Object> yesterdayJobList = finishData(scheduleJobDao.listYesterdayJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
         List<Object> monthJobList = finishData(scheduleJobDao.listMonthJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
@@ -328,9 +330,7 @@ public class ScheduleJobService {
         for (int i = 0; i < TOTAL_HOUR_DAY; i++) {
             monthJobList.set(i, (Long) monthJobList.get(i) / 30);
         }
-
-        ScheduleJobChartVO data = new ScheduleJobChartVO(todayJobList, yesterdayJobList, monthJobList);
-        return data;
+        return new ScheduleJobChartVO(todayJobList, yesterdayJobList, monthJobList);
     }
 
     /**
@@ -356,6 +356,9 @@ public class ScheduleJobService {
                                                       String cycStartTime,  String cycEndTime) {
         Map<String, Object> stringObjectMap = scheduleJobDao.countScienceJobStatus(runStatus, projectIds, type, convertStringToList(taskType), tenantId, cycStartTime, cycEndTime);
         ScheduleJobScienceJobStatusVO scienceJobStatusVO = new ScheduleJobScienceJobStatusVO();
+        if(null == stringObjectMap){
+            return scienceJobStatusVO;
+        }
         scienceJobStatusVO.setTotal(stringObjectMap.get("total")==null?0:Integer.parseInt(stringObjectMap.get("total").toString()));
         scienceJobStatusVO.setDeployCount(stringObjectMap.get("deployCount")==null?0:Integer.parseInt(stringObjectMap.get("deployCount").toString()));
         scienceJobStatusVO.setFailCount(stringObjectMap.get("failCount")==null?0:Integer.parseInt(stringObjectMap.get("failCount").toString()));
@@ -371,6 +374,7 @@ public class ScheduleJobService {
             if (dataMap.get("hour") != null) {
                 dataMap.put(MathUtil.getString(data.get("hour")), dataMap.get(MathUtil.getString(data.get("hour"))) + MathUtil.getLongVal(data.get("data")));
             }
+            //TODO 这行可以去掉吧
             dataMap.put(MathUtil.getString(data.get("hour")), MathUtil.getLongVal(data.get("data")));
         }
 
@@ -381,12 +385,7 @@ public class ScheduleJobService {
             } else {
                 hour = "" + i;
             }
-
-            if (dataMap.containsKey(hour)) {
-                dataList.add(dataMap.get(hour));
-            } else {
-                dataList.add(0L);
-            }
+            dataList.add(dataMap.getOrDefault(hour, 0L));
         }
         return dataList;
     }
@@ -437,7 +436,7 @@ public class ScheduleJobService {
         int count = 0;
         List<com.dtstack.engine.api.vo.ScheduleJobVO> result = new ArrayList<>();
 
-        if (StringUtils.isNotBlank(vo.getTaskName()) || Objects.nonNull(vo.getOwnerId())) {
+        if (StringUtils.isNotBlank(vo.getTaskName()) || null != vo.getOwnerId()) {
             List<ScheduleTaskShade> batchTaskShades = scheduleTaskShadeDao.listByNameLikeWithSearchType(vo.getProjectId(), vo.getTaskName(),
                     vo.getAppType(), vo.getOwnerId(), vo.getProjectIds(), batchJobDTO.getSearchType());
             if (CollectionUtils.isNotEmpty(batchTaskShades)) {
@@ -835,7 +834,7 @@ public class ScheduleJobService {
         batchJobDTO.setTaskPeriodId(convertStringToList(vo.getTaskPeriodId()));
         batchJobDTO.setAppType(vo.getAppType());
 
-        if (vo.getProjectIds() != null && vo.getProjectIds().size() > 0) {
+        if (CollectionUtils.isNotEmpty(vo.getProjectIds())) {
             batchJobDTO.setProjectIds(vo.getProjectIds());
         }
 

@@ -509,6 +509,7 @@
             AND ts.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{startTime} AND cyc_time !='' LIMIT 1)
             AND ts.cyc_time <![CDATA[>=]]> #{startTime}
         </if>
+        <!-- TODO 为什么要加这行   -->
         <if test="endTime != null and endTime != ''">
             AND ts.id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<]]> #{endTime} AND cyc_time !='' ORDER BY id DESC LIMIT 1)
             AND ts.cyc_time <![CDATA[<]]> #{endTime}
@@ -562,7 +563,10 @@
         taskType,
         bj.exec_time AS execTime,bj.is_deleted as isDeleted,bj.create_user_id AS createUserId
         FROM schedule_job bj
-        WHERE bj.is_deleted = 0 AND bj.app_type = #{appType}
+        WHERE bj.is_deleted = 0
+        <if test="appType !=null and appType !=-1">
+            AND bj.app_type = #{appType}
+        </if>
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
             AND bj.dtuic_tenant_id = #{dtuicTenantId}
         </if>
@@ -586,12 +590,14 @@
         <if test="tenantId!=null">
             AND bj.tenant_id = #{tenantId}
         </if>
+        <if test="appType !=null and appType != -1">
+            AND bj.app_type = #{appType}
+        </if>
         AND bj.status in
         <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
             #{status}
         </foreach>
         AND bj.type = #{type}
-        AND bj.app_type = #{appType}
         AND bj.cyc_time is not null and bj.cyc_time >= #{time}
         group by bj.task_id
         ORDER BY count(1) desc limit #{pageQuery.start}, #{pageQuery.pageSize}
@@ -681,8 +687,10 @@
         FROM schedule_job bj
         WHERE bj.exec_start_time is not null and to_days(bj.exec_start_time) = to_days(NOW())
         AND bj.type = #{type}
-        AND bj.app_type = #{appType}
         AND bj.is_deleted = 0
+        <if test="appType != null and appType != -1">
+            AND bj.app_type = #{appType}
+        </if>
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
             AND bj.dtuic_tenant_id = #{dtuicTenantId}
         </if>
@@ -732,7 +740,9 @@
         FROM schedule_job bj
         WHERE bj.exec_start_time is not null and to_days(bj.exec_start_time) = to_days(NOW()) - 1
         and bj.type = #{type}
-        and bj.app_type = #{appType}
+        <if test="appType != null and appType != -1">
+            AND bj.app_type = #{appType}
+        </if>
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
             AND bj.dtuic_tenant_id = #{dtuicTenantId}
         </if>
@@ -757,7 +767,9 @@
         FROM schedule_job bj
         WHERE bj.exec_start_time is not null and to_days(bj.exec_start_time) >= to_days(NOW()) - 30
         and bj.type = #{type}
-        and bj.app_type = #{appType}
+        <if test="appType != null and appType != -1">
+            AND bj.app_type = #{appType}
+        </if>
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
             AND bj.dtuic_tenant_id = #{dtuicTenantId}
         </if>

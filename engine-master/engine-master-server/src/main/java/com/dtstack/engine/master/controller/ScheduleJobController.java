@@ -35,6 +35,7 @@ public class ScheduleJobController {
     }
 
 
+    //TODO 参数过多，最后封装成一个对象
     @RequestMapping(value="/getStatusJobList", method = {RequestMethod.POST})
     public PageResult getStatusJobList(@DtRequestParam("projectId") Long projectId, @DtRequestParam("tenantId") Long tenantId, @DtRequestParam("appType") Integer appType,
                                        @DtRequestParam("dtuicTenantId") Long dtuicTenantId, @DtRequestParam("status") Integer status, @DtRequestParam("pageSize") int pageSize, @DtRequestParam("pageIndex") int pageIndex) {
@@ -47,6 +48,7 @@ public class ScheduleJobController {
         return scheduleJobService.getStatusCount(projectId, tenantId, appType, dtuicTenantId);
     }
 
+    // TODO 参数过多，封装成对象
     @RequestMapping(value="/runTimeTopOrder", method = {RequestMethod.POST})
     @ApiOperation(value = "运行时长top排序")
     public List<JobTopOrderVO> runTimeTopOrder(@DtRequestParam(value = "projectId", required = false) Long projectId,
