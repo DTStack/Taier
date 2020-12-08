@@ -395,6 +395,31 @@ public class ComponentService {
         return hadoopEngine;
     }
 
+    //TODO -- upload kerberos zip
+    public String uploadKerberos(List<Resource> resources, Long clusterId, Integer componentCode, String kerberosFileName) {
+
+        if (CollectionUtils.isEmpty(resources)) {
+            throw new RdosDefineException("请上传kerberos文件！");
+        }
+
+        if (!kerberosFileName.endsWith(ZIP_SUFFIX)) {
+            throw new RdosDefineException("kerberos上传文件非zip格式");
+        }
+
+        Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
+
+        SftpConfig sftpConfig = getSFTPConfig(sftpComponent, componentCode, "");
+        SftpFileManage sftpFileManage = sftpFileManageBean.retrieveSftpManager(sftpConfig);
+
+        String remoteDir = sftpConfig.getPath() + File.separator + this.buildSftpPath(clusterId, componentCode);
+        Component addComponent = new ComponentDTO();
+        addComponent.setComponentTypeCode(componentCode);
+
+        Resource resource = resources.get(0);
+        updateComponentKerberosFile(clusterId, addComponent, sftpFileManage, remoteDir, resource, principals, principal);
+
+        return null;
+    }
 
     @Transactional(rollbackFor = Exception.class)
     public ComponentVO addOrUpdateComponent( Long clusterId,  String componentConfig,
@@ -517,11 +542,7 @@ public class ComponentService {
 
     private boolean isOpenKerberos(List<Resource> resources, String kerberosFileName, Component dbComponent) {
         boolean isOpenKerberos = StringUtils.isNotBlank(kerberosFileName);
-        if (isOpenKerberos) {
-            if (!resources.isEmpty() && !kerberosFileName.endsWith(ZIP_SUFFIX)) {
-                throw new RdosDefineException("kerberos上传文件非zip格式");
-            }
-        } else {
+        if (!isOpenKerberos) {
             if (null != dbComponent) {
                 KerberosConfig componentKerberos = kerberosDao.getByComponentType(dbComponent.getId(), dbComponent.getComponentTypeCode());
                 if (componentKerberos != null) {
@@ -795,7 +816,7 @@ public class ComponentService {
         LOGGER.info("fileKeyTab Unzip fileName:{}",fileKeyTab.getAbsolutePath());
 
         if (fileConf==null) {
-            throw new RdosDefineException("上传的Hadoop-Kerberos文件的zip文件中必须有conf文件，请添加conf文件");
+            throw new RdosDefineException("上传的Hadoop-Kerberos文件的zip文件中必须有krb5.conf文件，请添加krb5.conf文件");
         }
         LOGGER.info("conf Unzip fileName:{}",fileConf.getAbsolutePath());
 
@@ -819,19 +840,29 @@ public class ComponentService {
             isFirstOpenKerberos = true;
         }
         kerberosConfig.setOpenKerberos(1);
-        kerberosConfig.setPrincipal(principal);
+
         kerberosConfig.setName(fileKeyTab.getName());
         kerberosConfig.setRemotePath(remoteDirKerberos);
         kerberosConfig.setClusterId(clusterId);
         kerberosConfig.setComponentType(addComponent.getComponentTypeCode());
         kerberosConfig.setKrbName(fileConf.getName());
-        kerberosConfig.setPrincipals(principals);
+        if (StringUtils.isNotEmpty(principal)) {
+            kerberosConfig.setPrincipal(principal);
+        }
+        if (StringUtils.isNotEmpty(principals)) {
+            kerberosConfig.setPrincipal(principals);
+        }
+
         if (isFirstOpenKerberos) {
             kerberosDao.insert(kerberosConfig);
         } else {
             kerberosDao.update(kerberosConfig);
         }
         return remoteDirKerberos;
+    }
+
+    private void uploadKerberosFile (Long clusterId, Component addComponent, SftpFileManage sftpFileManage, String remoteDir, Resource resource) {
+
     }
 
     private String parsePrincipal(String principal, List<PrincipalName> principalLists) {
