@@ -74,7 +74,7 @@ public interface ScheduleJobDao {
     List<ScheduleJob> minOrHourJobQuery(PageQuery<ScheduleJobDTO> pageQuery);
 
 
-    List<Map<Integer, Long>> getJobsStatusStatistics(@Param("model") ScheduleJobDTO object);
+    List<Map<String, Long>> getJobsStatusStatistics(@Param("model") ScheduleJobDTO object);
 
     Integer batchInsert(Collection batchJobs);
 

@@ -18,3 +18,8 @@ entrance/dependency-reduced-pom.xml
 kerberosConfig/
 tmpK8sConf/
 /conf
+keytab/
+tmp/
+tmp1100/
+tmpSave/
+*jacoco.exec

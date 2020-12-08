@@ -2,7 +2,9 @@ package com.dtstack.engine.rdbs.common.executor;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.logstore.AbstractLogStore;
 import com.dtstack.engine.common.logstore.LogStoreFactory;
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +57,10 @@ public class StatusUpdateDealer {
         @Override
         public void run() {
             try {
-                LogStoreFactory.getLogStore().updateModifyTime(jobCache.keySet());
+                AbstractLogStore logStore = LogStoreFactory.getLogStore();
+                if (null != logStore && MapUtils.isNotEmpty(jobCache)) {
+                    logStore.updateModifyTime(jobCache.keySet());
+                }
             } catch (Throwable e) {
                 LOG.error("", e);
             }
@@ -66,7 +71,10 @@ public class StatusUpdateDealer {
         @Override
         public void run() {
             try {
-                LogStoreFactory.getLogStore().timeOutDeal();
+                AbstractLogStore logStore = LogStoreFactory.getLogStore();
+                if (null != logStore) {
+                    logStore.timeOutDeal();
+                }
             } catch (Throwable e) {
                 LOG.error("", e);
             }
