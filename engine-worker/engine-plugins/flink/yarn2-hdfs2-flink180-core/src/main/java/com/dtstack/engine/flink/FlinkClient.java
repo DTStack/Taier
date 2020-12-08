@@ -35,7 +35,7 @@ import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.resource.FlinkPerJobResourceInfo;
 import com.dtstack.engine.flink.resource.FlinkYarnSeesionResourceInfo;
 import com.dtstack.engine.flink.util.*;
-import com.dtstack.engine.worker.enums.ClassLoaderType;
+import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.*;
@@ -116,9 +116,7 @@ public class FlinkClient extends AbstractClient {
 
     private String jobmanagerDir;
 
-    private final static Predicate<RdosTaskStatus> IS_END_STATUS = status ->
-            status.equals(RdosTaskStatus.FINISHED) || status.equals(RdosTaskStatus.CANCELED)
-                    || status.equals(RdosTaskStatus.FAILED) || status.equals(RdosTaskStatus.KILLED);
+    private final static Predicate<RdosTaskStatus> IS_END_STATUS = status -> RdosTaskStatus.getStoppedStatus().contains(status.getStatus()) || RdosTaskStatus.NOTFOUND.equals(status);
 
     @Override
     public void init(Properties prop) throws Exception {

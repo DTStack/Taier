@@ -5,7 +5,7 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
-import com.dtstack.engine.worker.enums.ClassLoaderType;
+import com.dtstack.engine.base.enums.ClassLoaderType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.program.JobWithJars;
 import org.apache.flink.client.program.PackagedProgram;

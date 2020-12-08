@@ -119,7 +119,7 @@ public class BatchFlowWorkJobService {
                 bottleStatus = RdosTaskStatus.FROZEN.getStatus();
             }
         }
-        logger.error("jobId:{} bottleStatus:{}", jobId,bottleStatus);
+        logger.info("jobId:{} bottleStatus:{}", jobId,bottleStatus);
         if (RdosTaskStatus.FINISHED.getStatus().equals(bottleStatus) || RdosTaskStatus.FAILED.getStatus().equals(bottleStatus)
                 || RdosTaskStatus.PARENTFAILED.getStatus().equals(bottleStatus) || RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)) {
             //更新结束时间时间
@@ -136,7 +136,7 @@ public class BatchFlowWorkJobService {
         }
 
         if (RdosTaskStatus.getStoppedStatus().contains(bottleStatus)) {
-            logger.error("jobId:{} is WORK_FLOW or ALGORITHM_LAB son is execution complete update phaseStatus to execute_over.", jobId);
+            logger.info("jobId:{} is WORK_FLOW or ALGORITHM_LAB son is execution complete update phaseStatus to execute_over.", jobId);
             batchJobService.updatePhaseStatusById(id, JobPhaseStatus.CREATE, JobPhaseStatus.EXECUTE_OVER);
         }
         return canRemove;

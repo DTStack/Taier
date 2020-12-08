@@ -3,7 +3,7 @@ package com.dtstack.engine.hadoop;
 import com.dtstack.engine.common.JobParam;
 import com.dtstack.engine.common.callback.ClassLoaderCallBackMethod;
 import com.dtstack.engine.hadoop.program.PackagedProgram;
-import com.dtstack.engine.worker.enums.ClassLoaderType;
+import com.dtstack.engine.base.enums.ClassLoaderType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
