@@ -118,3 +118,9 @@ export const pieOption = {
         }
     ]
 }
+
+export const SCHEDULE_TYPE = {
+    Capacity: 'capacityScheduler',
+    Fair: 'fairScheduler',
+    FIFO: 'fifoScheduler'
+}
