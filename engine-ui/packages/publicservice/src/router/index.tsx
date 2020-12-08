@@ -1,7 +1,12 @@
-import * as React from "react"
-import routerConf from './router-conf';
-import {  Router, Switch, Route,Redirect } from 'react-router-dom';
-import {history}from '@/utils/index'
+import React from 'react';
+import routerConf from './routerConf';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from 'react-router-dom';
+import { history } from '@/utils';
 
 function renderRouteConf(container, router, contextPath) {
   const routeChildren = [];
@@ -19,7 +24,7 @@ function renderRouteConf(container, router, contextPath) {
           key={routePath}
           exact
           path={routePath}
-          render={(props) => {
+          render={props => {
             return React.createElement(
               routeItem.layout,
               props,
@@ -28,15 +33,22 @@ function renderRouteConf(container, router, contextPath) {
           }}
         />
       );
-    }else if(routeItem.redirect){
-      routeChildren.push(<Redirect key={routeItem.path}  exact from={routeItem.path} to={routeItem.redirect}/>);
-    }else if (routeContainer && routeItem.component) {
+    } else if (routeItem.redirect) {
+      routeChildren.push(
+        <Redirect
+          key={routeItem.path}
+          exact
+          from={routeItem.path}
+          to={routeItem.redirect}
+        />
+      );
+    } else if (routeContainer && routeItem.component) {
       routeChildren.push(
         <Route
           key={routePath}
           exact
           path={routePath}
-          render={(props) => {
+          render={props => {
             return React.createElement(
               routeContainer,
               props,
@@ -56,25 +68,17 @@ function renderRouteConf(container, router, contextPath) {
       );
     }
     if (Array.isArray(routeItem.children)) {
-      routeItem.children.forEach((r) => {
+      routeItem.children.forEach(r => {
         renderRoute(routeItem.component, r, routePath);
       });
     }
   };
-
-  router.forEach((r) => {
+  router.forEach(r => {
     renderRoute(container, r, contextPath);
   });
-
   return <Switch>{routeChildren}</Switch>;
 }
 const routeChildren = renderRouteConf(null, routerConf, '/');
-export default class Routers extends React.Component {
-  render() {
-    return (
-      <Router history={history}>
-        {routeChildren}
-      </Router>
-    );
-  }
-}
+const Routers = () =>  <Router history={history}>{routeChildren}</Router>;
+
+export default Routers;
