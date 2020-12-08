@@ -18,6 +18,19 @@ public class ClusterResource implements Serializable {
 
     private List<JSONObject> queues;
 
+    /**
+     * 原始调度队列信息，通过rest api获取，带有调度类型信息。调度类型有fifoScheduler、capacityScheduler、fairScheduler
+     */
+    private JSONObject scheduleInfo;
+
+    public JSONObject getScheduleInfo() {
+        return scheduleInfo;
+    }
+
+    public void setScheduleInfo(JSONObject scheduleInfo) {
+        this.scheduleInfo = scheduleInfo;
+    }
+
     public ResourceMetrics getResourceMetrics() {
         return resourceMetrics;
     }
