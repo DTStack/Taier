@@ -28,6 +28,7 @@ import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
 import com.dtstack.engine.master.utils.TaskParamsUtil;
+import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.ForceCancelFlag;
 import com.google.common.base.Preconditions;
@@ -316,6 +317,9 @@ public class ActionService {
                     scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
                     scheduleJob.setAppType(paramActionExt.getAppType());
                     scheduleJob.setDtuicTenantId(paramActionExt.getDtuicTenantId());
+                    if (AppType.STREAM.getType() == paramActionExt.getAppType()) {
+                        scheduleJob.setRetryNum(0);
+                    }
                     scheduleJobDao.update(scheduleJob);
                     logger.info("jobId:{} update job status:{}.", scheduleJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
                 }

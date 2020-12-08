@@ -18,7 +18,7 @@
     <select id="listJobRetryByJobId" resultType="EngineJobRetry">
         select
         <include refid="select_content_fragment"/>
-        from schedule_engine_job_retry where job_id=#{jobId} and is_deleted=0 limit 5;
+        from schedule_engine_job_retry where job_id=#{jobId} and is_deleted=0 ORDER BY id DESC  limit 5;
     </select>
 
     <select id="getJobRetryByJobId" resultType="EngineJobRetry">
