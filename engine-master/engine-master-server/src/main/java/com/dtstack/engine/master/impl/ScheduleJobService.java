@@ -2625,7 +2625,6 @@ public class ScheduleJobService {
             return JSONObject.toJSONString(jobCheckRunInfo);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RdosDefineException("测试任务是否可以运行异常")
         }
         return "";
     }

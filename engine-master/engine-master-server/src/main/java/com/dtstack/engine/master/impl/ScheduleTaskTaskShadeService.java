@@ -5,6 +5,7 @@ import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.common.enums.DisplayDirect;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleTaskTaskShadeDao;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
@@ -12,6 +13,8 @@ import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +31,8 @@ public class ScheduleTaskTaskShadeService {
 
     private static final Long IS_WORK_FLOW_SUBNODE = 0L;
 
+    private static final Logger logger = LoggerFactory.getLogger(ScheduleTaskTaskShadeService.class);
+
     @Autowired
     private ScheduleTaskTaskShadeDao scheduleTaskTaskShadeDao;
 
@@ -38,25 +43,32 @@ public class ScheduleTaskTaskShadeService {
         scheduleTaskTaskShadeDao.deleteByTaskId(taskId,appType);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void saveTaskTaskList( String taskLists) {
         if(StringUtils.isBlank(taskLists)){
             return;
         }
-        List<ScheduleTaskTaskShade> taskTaskList = JSONObject.parseArray(taskLists, ScheduleTaskTaskShade.class);
-        Map<String, ScheduleTaskTaskShade> keys = new HashMap<>();
-        // 去重
-        for (ScheduleTaskTaskShade scheduleTaskTaskShade : taskTaskList) {
-            keys.put(String.format("%s.%s.%s", scheduleTaskTaskShade.getTaskId(), scheduleTaskTaskShade.getParentTaskId(), scheduleTaskTaskShade.getProjectId()), scheduleTaskTaskShade);
-            Preconditions.checkNotNull(scheduleTaskTaskShade.getTaskId());
-            Preconditions.checkNotNull(scheduleTaskTaskShade.getAppType());
-            //清除原来关系
-            scheduleTaskTaskShadeDao.deleteByTaskId(scheduleTaskTaskShade.getTaskId(), scheduleTaskTaskShade.getAppType());
-        }
+        try {
+            List<ScheduleTaskTaskShade> taskTaskList = JSONObject.parseArray(taskLists, ScheduleTaskTaskShade.class);
+            Map<String, ScheduleTaskTaskShade> keys = new HashMap<>(16);
+            // 去重
+            for (ScheduleTaskTaskShade scheduleTaskTaskShade : taskTaskList) {
+                keys.put(String.format("%s.%s.%s", scheduleTaskTaskShade.getTaskId(), scheduleTaskTaskShade.getParentTaskId(), scheduleTaskTaskShade.getProjectId()), scheduleTaskTaskShade);
+                // todo 这里如果不存在直接抛出空指针异常，需要优化
+                Preconditions.checkNotNull(scheduleTaskTaskShade.getTaskId());
+                Preconditions.checkNotNull(scheduleTaskTaskShade.getAppType());
+                //清除原来关系
+                scheduleTaskTaskShadeDao.deleteByTaskId(scheduleTaskTaskShade.getTaskId(), scheduleTaskTaskShade.getAppType());
+            }
 
-        // 保存现有任务关系
-        for (ScheduleTaskTaskShade taskTaskShade : keys.values()) {
-            scheduleTaskTaskShadeDao.insert(taskTaskShade);
+            // 保存现有任务关系
+            for (ScheduleTaskTaskShade taskTaskShade : keys.values()) {
+                //todo 这一步可以放到上面的for循环里执行
+                scheduleTaskTaskShadeDao.insert(taskTaskShade);
+            }
+        } catch (Exception e) {
+            logger.error("saveTaskTaskList error:{}", ExceptionUtil.getErrorMessage(e));
+            throw new RdosDefineException("保存任务依赖列表异常");
         }
     }
 
@@ -73,15 +85,13 @@ public class ScheduleTaskTaskShadeService {
 
         ScheduleTaskShade task = null;
         try {
+            //todo 校验taskId和appType，sql查询字段为null时性能不好
             task = taskShadeService.getBatchTaskById(taskId,appType);
         } catch (RdosDefineException rdosDefineException) {
             if (rdosDefineException.getErrorCode().equals(ErrorCode.CAN_NOT_FIND_TASK)) {
                 return null;
             }
             throw rdosDefineException;
-        }
-        if (task == null) {
-            return null;
         }
 
         if (level == null || level < 1) {
@@ -104,7 +114,7 @@ public class ScheduleTaskTaskShadeService {
 
         com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
         vo.setCurrentProject(currentProjectId.equals(taskShade.getProjectId()));
-        if (taskShade.getTaskType().intValue() == EScheduleJobType.WORK_FLOW.getVal()) {
+        if (EScheduleJobType.WORK_FLOW.getVal().equals(taskShade.getTaskType())) {
             com.dtstack.engine.master.vo.ScheduleTaskVO subTaskVO = getAllFlowSubTasks(taskShade.getTaskId(),taskShade.getAppType());
             vo.setSubNodes(subTaskVO);
         }
@@ -198,10 +208,9 @@ public class ScheduleTaskTaskShadeService {
      * @return
      */
     public com.dtstack.engine.master.vo.ScheduleTaskVO getAllFlowSubTasks( Long taskId,  Integer appType) {
+
+        //todo 校验taskid和appType是否为空
         ScheduleTaskShade task = taskShadeService.getBatchTaskById(taskId,appType);
-        if (task == null) {
-            return null;
-        }
         com.dtstack.engine.master.vo.ScheduleTaskVO parentNode = new com.dtstack.engine.master.vo.ScheduleTaskVO(task, true);
         com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO();
 
@@ -220,6 +229,7 @@ public class ScheduleTaskTaskShadeService {
      * @param directType
      * @return
      */
+    //todo 感觉这块逻辑有点绕，循环调用了，需要优化
     public com.dtstack.engine.master.vo.ScheduleTaskVO getFlowWorkOffSpring(ScheduleTaskShade taskShade, int level, Integer directType, Integer appType) {
         com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
         List<ScheduleTaskTaskShade> childTaskTasks = null;

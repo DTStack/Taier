@@ -71,6 +71,8 @@ public class ScheduleTaskShadeService {
      * 例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息
      */
     public void addOrUpdate(ScheduleTaskShadeDTO batchTaskShadeDTO) {
+
+        //todo 缺少参数校验
         //保存batch_task_shade
         if (scheduleTaskShadeDao.getOne(batchTaskShadeDTO.getTaskId(),batchTaskShadeDTO.getAppType()) != null) {
             //更新提交时间
@@ -83,7 +85,7 @@ public class ScheduleTaskShadeService {
             if (null == batchTaskShadeDTO.getNodePid()) {
                 batchTaskShadeDTO.setNodePid(0L);
             }
-            if (Objects.isNull(batchTaskShadeDTO.getDtuicTenantId()) || batchTaskShadeDTO.getDtuicTenantId() <= 0) {
+            if (null == batchTaskShadeDTO.getDtuicTenantId() || batchTaskShadeDTO.getDtuicTenantId() <= 0) {
                 throw new RdosDefineException("租户dtuicTenantId 不能为空");
             }
             if (null == batchTaskShadeDTO.getFlowId()) {
@@ -99,6 +101,7 @@ public class ScheduleTaskShadeService {
      */
     public void deleteTask( Long taskId,  long modifyUserId, Integer appType) {
         scheduleTaskShadeDao.delete(taskId, modifyUserId,appType);
+        //todo 没有进行参数校验，上面是逻辑删除，下面为什么是逻辑删除
         scheduleTaskTaskShadeService.clearDataByTaskId(taskId,appType);
     }
 
@@ -195,6 +198,8 @@ public class ScheduleTaskShadeService {
      */
     public List<ScheduleTaskShade> getTasksByName( long projectId,
                                                    String name,  Integer appType) {
+
+        //todo 缺少参数校验
         return scheduleTaskShadeDao.listByNameLike(projectId, name,appType,null,null);
     }
 
@@ -204,10 +209,13 @@ public class ScheduleTaskShadeService {
         if (null == appType ){
             appType = 1;
         }
+        //todo projectId和name没有校验
         return scheduleTaskShadeDao.getByName(projectId, name,appType,flowId);
     }
 
     public void updateTaskName( long id,  String taskName,Integer appType) {
+
+        //todo 缺少参数校验
         scheduleTaskShadeDao.updateTaskName(id, taskName,appType);
     }
 
@@ -256,6 +264,7 @@ public class ScheduleTaskShadeService {
     public PageResult<List<ScheduleTaskShadeVO>> pageQuery(ScheduleTaskShadeDTO dto) {
         PageQuery<ScheduleTaskShadeDTO> query = new PageQuery<>(dto.getPageIndex(),dto.getPageSize(),"gmt_modified",dto.getSort());
         query.setModel(dto);
+        //todo 未对tenantId和projectId进行校验
         Integer count = scheduleTaskShadeDao.simpleCount(dto);
         List<ScheduleTaskShadeVO> data = new ArrayList<>();
         if (count > 0) {
@@ -276,6 +285,7 @@ public class ScheduleTaskShadeService {
 
 
     public ScheduleTaskShade getBatchTaskById( Long taskId, Integer appType) {
+        //todo 确少对taskId和appType的校验
         ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId, appType);
         if (taskShade == null || Deleted.DELETED.getStatus().equals(taskShade.getIsDeleted())) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
@@ -345,6 +355,7 @@ public class ScheduleTaskShadeService {
             batchTaskDTO.setSearchType(1);
         }
         pageQuery.setModel(batchTaskDTO);
+        //todo 先查询count，count数大于0再分页查询
         List<ScheduleTaskShade> batchTasks = scheduleTaskShadeDao.generalQuery(pageQuery);
 
         int count = scheduleTaskShadeDao.generalCount(batchTaskDTO);
@@ -428,6 +439,7 @@ public class ScheduleTaskShadeService {
     public void frozenTask(List<Long> taskIdList, int scheduleStatus,
                            Long projectId, Long userId,
                            Integer appType) {
+        //todo 缺少对参数的校验
         scheduleTaskShadeDao.batchUpdateTaskScheduleStatus(taskIdList, scheduleStatus, appType);
     }
 
@@ -438,12 +450,14 @@ public class ScheduleTaskShadeService {
      * @return
      */
     public ScheduleTaskVO dealFlowWorkTask( Long taskId, Integer appType,List<Integer> taskTypes,Long ownerId) {
+
+        //todo 缺少对参数的校验
         ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId,appType);
         if (taskShade == null) {
             return null;
         }
         ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
-        if (EScheduleJobType.WORK_FLOW.getVal().intValue() == vo.getTaskType()) {
+        if (EScheduleJobType.WORK_FLOW.getVal().equals(vo.getTaskType())) {
             List<ScheduleTaskShade> subtasks = this.getFlowWorkSubTasks(vo.getTaskId(),appType,taskTypes,ownerId);
             if (CollectionUtils.isNotEmpty(subtasks)) {
                 List<ScheduleTaskVO> list = Lists.newArrayList();
@@ -463,6 +477,7 @@ public class ScheduleTaskShadeService {
     public List<ScheduleTaskShade> getFlowWorkSubTasks( Long taskId,  Integer appType,List<Integer> taskTypes,Long ownerId) {
         ScheduleTaskShadeDTO batchTaskShadeDTO = new ScheduleTaskShadeDTO();
         batchTaskShadeDTO.setIsDeleted(Deleted.NORMAL.getStatus());
+        //todo 为什么要把taskId的值赋给flowId
         batchTaskShadeDTO.setFlowId(taskId);
         batchTaskShadeDTO.setAppType(appType);
         batchTaskShadeDTO.setTaskTypeList(taskTypes);
