@@ -135,7 +135,7 @@ public class AccountService {
         pluginInfo.put("jdbcUrl", jdbc.getString("jdbcUrl"));
         pluginInfo.put("username", accountVo.getName());
         pluginInfo.put("password", accountVo.getPassword());
-        pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,dataBaseType.getTypeName());
+        pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,dataBaseType.getTypeName().toLowerCase());
         try {
             workerOperator.executeQuery(dataBaseType.getTypeName().toLowerCase(), pluginInfo.toJSONString(), "show databases", "");
         } catch (Exception e) {

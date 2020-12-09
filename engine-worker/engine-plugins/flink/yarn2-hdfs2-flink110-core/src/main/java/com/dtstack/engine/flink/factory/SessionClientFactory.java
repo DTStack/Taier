@@ -594,7 +594,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         private void retry() {
             //重试
             try {
-                if(sessionClientFactory.isLeader.get()){
+                if(sessionClientFactory.isLeader.get() && sessionClientFactory.flinkConfig.getSessionStartAuto()){
                     stopFlinkYarnSession();
                 }
                 LOG.warn("-- retry Flink yarn-session client ----");

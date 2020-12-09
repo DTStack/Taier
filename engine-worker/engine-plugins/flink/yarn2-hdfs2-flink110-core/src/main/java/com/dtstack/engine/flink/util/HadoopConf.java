@@ -32,7 +32,7 @@ public class HadoopConf {
 
     public void initHadoopConf(Map<String, Object> conf){
 
-        configuration = new Configuration();
+        configuration = new Configuration(false);
         HadoopConfTool.setFsHdfsImplDisableCache(configuration);
         conf.keySet().forEach(key ->{
             Object value = conf.get(key);
@@ -43,6 +43,7 @@ public class HadoopConf {
             }
         });
         configuration.setBoolean(CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_KEY, true);
+        conf.put(CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_KEY, true);
     }
 
     public void initYarnConf(Map<String, Object> conf){
@@ -57,6 +58,7 @@ public class HadoopConf {
             }
         });
         HadoopConfTool.setDefaultYarnConf(yarnConfiguration, conf);
+        conf.put(CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_KEY, true);
     }
 
     public Configuration getConfiguration(){
