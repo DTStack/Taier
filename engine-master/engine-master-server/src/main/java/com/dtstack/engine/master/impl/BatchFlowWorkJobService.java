@@ -45,7 +45,7 @@ public class BatchFlowWorkJobService {
      * <br>&nbsp;&nbsp;b.子任务不存在运行失败时，存在提交失败，工作流状态更新为提交失败</br>
      * <br>&nbsp;&nbsp;b.子任务不存在运行失败时，不存在提交失败，存在上游失败时，工作流状态更新为上游失败</br>
      * <br>&nbsp;&nbsp;c.子任务存在取消状态时，工作流状态更新为取消</br>
-     * <br>&nbsp;&nbsp;e.若子任务中同时存在运行失败或取消状态，工作流状态更新为取消状态</br>
+     * <br>&nbsp;&nbsp;e.若子任务中同时存在运行失败或取消状态，工作流状态更新为失败状态</br>
      * <br>&nbsp;&nbsp;f.其他工作流更新为运行中状态</br>
      *
      * @param jobId
@@ -62,9 +62,9 @@ public class BatchFlowWorkJobService {
         } else {
             for (ScheduleJob scheduleJob : subJobs) {
                 Integer status = scheduleJob.getStatus();
-                // 工作流失败状态细化 优先级： 运行失败>提交失败>上游失败
+                // 工作流失败状态细化 优先级： 运行失败>提交失败>上游失败 > 取消（手动取消或者自动取消）
                 if (RdosTaskStatus.FROZEN_STATUS.contains(status) || RdosTaskStatus.STOP_STATUS.contains(status)) {
-                    if (!RdosTaskStatus.PARENTFAILED.getStatus().equals(bottleStatus) && !RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)) {
+                    if (!RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus) && !RdosTaskStatus.PARENTFAILED.getStatus().equals(bottleStatus)) {
                         if (RdosTaskStatus.AUTOCANCELED.getStatus().equals(status)) {
                             bottleStatus = RdosTaskStatus.AUTOCANCELED.getStatus();
                         } else {
@@ -75,14 +75,14 @@ public class BatchFlowWorkJobService {
                     continue;
                 }
                 if (RdosTaskStatus.PARENTFAILED_STATUS.contains(status)) {
-                    if ( !RdosTaskStatus.CANCELED.getStatus().equals(bottleStatus) && !RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)){
+                    if (!RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)){
                         bottleStatus = RdosTaskStatus.PARENTFAILED.getStatus();
                     }
                     canRemove = true;
                     continue;
                 }
                 if (RdosTaskStatus.SUBMITFAILD_STATUS.contains(status)) {
-                    if (!RdosTaskStatus.CANCELED.getStatus().equals(bottleStatus) && !RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) ){
+                    if (!RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) ){
                         bottleStatus = RdosTaskStatus.SUBMITFAILD.getStatus();
                     }
                     canRemove = true;
