@@ -18,16 +18,15 @@ import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.RetryUtil;
-import com.dtstack.engine.sparkyarn.sparkyarn.parser.AddJarOperator;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExt;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExtFactory;
+import com.dtstack.engine.sparkyarn.sparkyarn.parser.AddJarOperator;
 import com.dtstack.engine.sparkyarn.sparkyarn.util.HadoopConf;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -439,9 +438,7 @@ public class SparkYarnClient extends AbstractClient {
         if (sparkYarnConfig.isOpenKerberos()){
             String[] kerberosFiles = KerberosUtils.getKerberosFile(sparkYarnConfig, null);
             String keytab = kerberosFiles[0];
-            String principal = KerberosUtils.getPrincipal(keytab);
-            sparkConf.set("spark.yarn.keytab", keytab);
-            sparkConf.set("spark.yarn.principal", principal);
+            KerberosUtils.getPrincipal(keytab);
         }
         if(sparkExtProp != null){
             sparkExtProp.forEach((key, value) -> {
