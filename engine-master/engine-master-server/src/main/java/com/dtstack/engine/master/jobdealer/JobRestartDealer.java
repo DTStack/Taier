@@ -8,6 +8,7 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.bo.EngineJobRetry;
