@@ -1093,9 +1093,6 @@ public class JobGraphBuilder {
         NumericNode fatherNode = (NumericNode) jsonObject.get("task");
         //生成jobList
         ScheduleTaskShade batchTask = batchTaskShadeService.getBatchTaskById(fatherNode.asLong(), appType);
-        if (batchTask == null || batchTask.getIsDeleted() == Deleted.DELETED.getStatus()) {
-            return null;
-        }
 
         String preStr = FILL_DATA_TYPE + "_" + fillJobName;
         Map<String, ScheduleBatchJob> result = Maps.newLinkedHashMap();

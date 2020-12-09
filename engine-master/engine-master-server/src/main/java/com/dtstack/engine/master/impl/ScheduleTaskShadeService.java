@@ -201,7 +201,7 @@ public class ScheduleTaskShadeService {
     public ScheduleTaskShade getByName( long projectId,
                                         String name,  Integer appType, Long flowId) {
         //如果appType没传那就默认为ide
-        if (Objects.isNull(appType)){
+        if (null == appType ){
             appType = 1;
         }
         return scheduleTaskShadeDao.getByName(projectId, name,appType,flowId);

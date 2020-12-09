@@ -293,7 +293,7 @@ public class ComponentService {
                             fileMap = JSONObject.parseObject(jsonStr, Map.class);
                         }
                     }
-                    if (Objects.nonNull(fileMap)) {
+                    if (null != fileMap ) {
                         confMap.put(file.getName(), fileMap);
                     }
                 }
@@ -450,21 +450,24 @@ public class ComponentService {
         if (StringUtils.isBlank(componentConfig) && !EComponentType.KUBERNETES.getTypeCode().equals(componentCode)) {
             throw new RdosDefineException("组件信息不能为空");
         }
-        if (Objects.isNull(componentCode)) {
+        if ( null == componentCode ) {
             throw new RdosDefineException("组件类型不能为空");
         }
-        if (Objects.isNull(clusterId)) {
+        if ( null == clusterId ) {
             throw new RdosDefineException("集群Id不能为空");
         }
         ComponentDTO componentDTO = new ComponentDTO();
         componentDTO.setComponentConfig(componentConfig);
         componentDTO.setComponentTypeCode(componentCode);
-
-        String clusterName = clusterDao.getOne(clusterId).getClusterName();
+        Cluster cluster = clusterDao.getOne(clusterId);
+        if(null == cluster){
+            throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
+        }
+        String clusterName = cluster.getClusterName();
         EComponentType componentType = EComponentType.getByCode(componentDTO.getComponentTypeCode());
         MultiEngineType engineType = EComponentType.getEngineTypeByComponent(componentType);
         Engine engine = engineDao.getByClusterIdAndEngineType(clusterId, engineType.getType());
-        if (Objects.isNull(engine)) {
+        if ( null == engine ) {
             //创建引擎
             engine = new Engine();
             engine.setClusterId(clusterId);
@@ -479,7 +482,7 @@ public class ComponentService {
         if (EComponentType.YARN.getTypeCode().equals(componentCode) || EComponentType.KUBERNETES.getTypeCode().equals(componentCode)) {
             Component resourceComponent = componentDao.getByClusterIdAndComponentType(clusterId,
                     EComponentType.YARN.getTypeCode().equals(componentCode) ? EComponentType.KUBERNETES.getTypeCode() : EComponentType.YARN.getTypeCode());
-            if (Objects.nonNull(resourceComponent)) {
+            if (null != resourceComponent ) {
                 throw new RdosDefineException("资源组件只能选择单项");
             }
         }
@@ -494,12 +497,12 @@ public class ComponentService {
                 throw new RdosDefineException("kerberos上传文件非zip格式");
             }
         }
-        if (Objects.nonNull(dbComponent)) {
+        if (null != dbComponent ) {
             //更新
             isUpdate = true;
             if (!isOpenKerberos) {
                 KerberosConfig componentKerberos = kerberosDao.getByComponentType(dbComponent.getId(), dbComponent.getComponentTypeCode());
-                if (Objects.nonNull(componentKerberos)) {
+                if (null != componentKerberos ) {
                     isOpenKerberos = true;
                 }
             }
@@ -851,7 +854,7 @@ public class ComponentService {
                     }
                 }
                 datas.add(data);
-            } else if(EComponentType.KUBERNETES.getTypeCode() == componentType) {
+            } else if(EComponentType.KUBERNETES.getTypeCode().equals(componentType)) {
                 Resource resource = resources.get(0);
                 //解压缩获得配置文件
                 String xmlZipLocation = resource.getUploadedFileName();

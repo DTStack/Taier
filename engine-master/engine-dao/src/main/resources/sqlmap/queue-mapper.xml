@@ -91,7 +91,7 @@
         <include refid="select_content_fragment"/>
         FROM console_queue
         WHERE is_deleted = 0
-        <if test="ids.size() > 0">
+        <if test="ids!=null and ids.size() > 0">
             and id in
             <foreach collection="ids" item="id" open="(" separator="," close=")">
                 #{id}

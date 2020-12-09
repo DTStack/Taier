@@ -120,12 +120,15 @@ public class TenantService {
     public List<EngineTenantVO> listEngineTenant( Long dtuicTenantId,
                                                   Integer engineType) {
         EngineTenant engineTenant = engineTenantDao.getByTenantIdAndEngineType(dtuicTenantId, engineType);
+        //todo 判空
         List<EngineTenantVO> engineTenantVOS = engineTenantDao.listEngineTenant(engineTenant.getEngineId());
         fillQueue(engineTenantVOS);
         return engineTenantVOS;
     }
 
     private void fillQueue(List<EngineTenantVO> engineTenantVOS){
+
+        //todo 可以用lamba表达式替换
         List<Long> queueIds = new ArrayList<>();
         for (EngineTenantVO engineTenantVO : engineTenantVOS) {
             if(engineTenantVO.getQueueId() != null){
@@ -133,7 +136,7 @@ public class TenantService {
             }
         }
 
-        Map<Long, Queue> queueMap = new HashMap<>();
+        Map<Long, Queue> queueMap = new HashMap<>(16);
         List<Queue> queueList = queueDao.listByIds(queueIds);
         for (Queue queue : queueList) {
             queueMap.put(queue.getId(), queue);

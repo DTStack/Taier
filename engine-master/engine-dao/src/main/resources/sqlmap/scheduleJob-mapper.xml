@@ -1337,7 +1337,10 @@
 
     <update id="stopUnsubmitJob">
         UPDATE  schedule_job
-        set status = #{status} where status = 0 and  job_name like #{likeName} and project_id = #{projectId} and app_type = #{appType};
+        set status = #{status} where status = 0 and
+        job_name like #{likeName} and
+        project_id = #{projectId} and
+        app_type = #{appType};
     </update>
 
     <select id="getByTaskIdAndStatusOrderByIdLimit" resultType="ScheduleJob">
