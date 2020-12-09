@@ -77,4 +77,11 @@
         WHERE cluster_id =  (SELECT cluster_id from console_engine cn WHERE cn.id =(SELECT engine_id from console_component WHERE id = #{componentId}))
         AND component_type = (SELECT component_type_code from console_component WHERE id = #{componentId})
     </update>
+
+    <select id="listAll" resultType="KerberosConfig">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_kerberos
+        WHERE is_deleted = 0
+    </select>
 </mapper>

@@ -18,6 +18,7 @@ import com.dtstack.engine.api.vo.Pair;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -36,6 +37,7 @@ import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.utils.FileUtil;
+import com.dtstack.engine.master.utils.Krb5FileUtil;
 import com.dtstack.engine.master.utils.XmlFileUtil;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.Deleted;
@@ -58,6 +60,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -401,13 +405,11 @@ public class ComponentService {
         if (CollectionUtils.isEmpty(resources)) {
             throw new RdosDefineException("请上传kerberos文件！");
         }
-
         if (!kerberosFileName.endsWith(ZIP_SUFFIX)) {
             throw new RdosDefineException("kerberos上传文件非zip格式");
         }
 
         Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
-
         SftpConfig sftpConfig = getSFTPConfig(sftpComponent, componentCode, "");
         SftpFileManage sftpFileManage = sftpFileManageBean.retrieveSftpManager(sftpConfig);
 
@@ -416,9 +418,97 @@ public class ComponentService {
         addComponent.setComponentTypeCode(componentCode);
 
         Resource resource = resources.get(0);
-        updateComponentKerberosFile(clusterId, addComponent, sftpFileManage, remoteDir, resource, principals, principal);
+        updateComponentKerberosFile(clusterId, addComponent, sftpFileManage, remoteDir, resource, null, null);
 
-        return null;
+        List<KerberosConfig> kerberosConfigs = kerberosDao.listAll();
+        return mergeKrb5(kerberosConfigs);
+    }
+
+    private synchronized String mergeKrb5(List<KerberosConfig> kerberosConfigs) {
+        String mergeKrb5Content = "";
+        if (CollectionUtils.isEmpty(kerberosConfigs)) {
+            LOGGER.error("KerberosConfigs is null");
+            return mergeKrb5Content;
+        }
+
+        String mergeDirPath = ConfigConstant.LOCAL_KRB5_MERGE_DIR_PARENT + ConfigConstant.SP + UUID.randomUUID();
+        List<String> localKrb5Paths = new ArrayList<>();
+        Map<String, SftpFileManage> sftpFileManages = new HashMap<>();
+        try {
+            String mergeKrb5Path = mergeDirPath + ConfigConstant.SP + ConfigConstant.MERGE_KRB5_NAME;
+            for (KerberosConfig kerberosConfig : kerberosConfigs) {
+                String krb5Name = kerberosConfig.getKrbName();
+                String remotePath = kerberosConfig.getRemotePath();
+                Long clusterId = kerberosConfig.getClusterId();
+                Integer componentCode = kerberosConfig.getComponentType();
+
+                String remoteKrb5Path = remotePath + ConfigConstant.SP + krb5Name;
+                String localKrb5Path = mergeDirPath + remoteKrb5Path;
+                Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
+                SftpConfig sftpConfig = getSFTPConfig(sftpComponent, componentCode, "");
+                SftpFileManage sftpFileManage = sftpFileManageBean.retrieveSftpManager(sftpConfig);
+                boolean downRes = sftpFileManage.downloadFile(remoteKrb5Path, localKrb5Path);
+                if (downRes) {
+                    localKrb5Paths.add(localKrb5Path);
+                    sftpFileManages.put(localKrb5Path, sftpFileManage);
+                    if (!new File(mergeKrb5Path).exists()) {
+                        FileUtils.copyFile(new File(localKrb5Path), new File(mergeKrb5Path));
+                        continue;
+                    }
+                    try {
+                        mergeKrb5Content = Krb5FileUtil.mergeKrb5Content(mergeKrb5Path, localKrb5Path);
+                    } catch (Exception e) {
+                        LOGGER.error("merge krb5.conf[{}] error : {}", localKrb5Path, e.getMessage());
+                    }
+                }
+            }
+            for (String localKrb5Path : localKrb5Paths) {
+                SftpFileManage sftpFileManage = sftpFileManages.get(localKrb5Path);
+                File localKrb5File = new File(localKrb5Path);
+                String componentKrb5ParentDir = localKrb5File.getParent();
+                sftpFileManage.uploadFile(componentKrb5ParentDir, mergeKrb5Path);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Merge krb5 error! {}", e.getMessage());
+        } finally {
+            try {
+                File mergeDir = new File(mergeDirPath);
+                FileUtils.deleteDirectory(mergeDir);
+            } catch (Exception e) {
+            }
+        }
+        return mergeKrb5Content;
+    }
+
+    public void updateKrb5Conf(String krb5Content) {
+        String mergeDirPath = ConfigConstant.LOCAL_KRB5_MERGE_DIR_PARENT + ConfigConstant.SP + UUID.randomUUID();
+        String mergeKrb5Path = mergeDirPath + ConfigConstant.SP + ConfigConstant.MERGE_KRB5_NAME;
+        try {
+            if (!new File(mergeDirPath).exists()) {
+                new File(mergeDirPath).mkdirs();
+            }
+            Files.write(Paths.get(mergeKrb5Path), Collections.singleton(krb5Content));
+            List<KerberosConfig> kerberosConfigs = kerberosDao.listAll();
+            for (KerberosConfig kerberosConfig : kerberosConfigs) {
+                String remotePath = kerberosConfig.getRemotePath();
+                Long clusterId = kerberosConfig.getClusterId();
+                Integer componentCode = kerberosConfig.getComponentType();
+
+                Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
+                SftpConfig sftpConfig = getSFTPConfig(sftpComponent, componentCode, "");
+                SftpFileManage sftpFileManage = sftpFileManageBean.retrieveSftpManager(sftpConfig);
+                sftpFileManage.uploadFile(remotePath, mergeKrb5Path);
+                LOGGER.info("Update krb5 remotePath {}", remotePath);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Update krb5 error! {}", e.getMessage());
+        } finally {
+            try {
+                File mergeDir = new File(mergeDirPath);
+                FileUtils.deleteDirectory(mergeDir);
+            } catch (Exception e) {
+            }
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -439,7 +529,6 @@ public class ComponentService {
         ComponentDTO componentDTO = new ComponentDTO();
         componentDTO.setComponentConfig(componentConfig);
         componentDTO.setComponentTypeCode(componentCode);
-
 
         String clusterName = clusterDao.getOne(clusterId).getClusterName();
         //校验引擎是否添加
@@ -633,9 +722,8 @@ public class ComponentService {
             }
             try {
                 if (resource.getFileName().equalsIgnoreCase(kerberosFileName)) {
-                    // 更新Kerberos文件
-                    LOGGER.info("start upload kerberosFile:{}",kerberosFileName);
-                    this.updateComponentKerberosFile(clusterId, addComponent, sftpFileManage, remoteDir, resource,principals,principal);
+                    // 更新Kerberos信息
+                    this.updateComponentKerberosFile(clusterId, addComponent, sftpFileManage, remoteDir, resource, principals, principal);
                 } else {
                     LOGGER.info("start upload hadoop config file:{}",kerberosFileName);
                     this.updateComponentConfigFile(dbComponent, sftpFileManage, remoteDir, resource);
@@ -790,46 +878,48 @@ public class ComponentService {
      */
     private String updateComponentKerberosFile(Long clusterId, Component addComponent, SftpFileManage sftpFileManage, String remoteDir, Resource resource,
                                                String principals, String principal) {
-        // kerberos认证文件 远程删除 kerberos下的文件
+
+        File keyTabFile = null;
+        File krb5ConfFile = null;
         String remoteDirKerberos = remoteDir + File.separator + KERBEROS_PATH;
-        LOGGER.info("updateComponentKerberosFile remote path:{}",remoteDirKerberos);
-        //删除本地文件夹
-        String kerberosPath = this.getLocalKerberosPath(clusterId, addComponent.getComponentTypeCode());
-        try {
-            FileUtils.deleteDirectory(new File(kerberosPath));
-        } catch (IOException e) {
-            LOGGER.error("delete old kerberos directory {} error", kerberosPath, e);
-        }
-        //解压到本地
-        List<File> files = ZipUtil.upzipFile(resource.getUploadedFileName(), kerberosPath);
+        if (resource != null) {
+            // kerberos认证文件 远程删除 kerberos下的文件
+            LOGGER.info("updateComponentKerberosFile remote path:{}",remoteDirKerberos);
+            //删除本地文件夹
+            String kerberosPath = this.getLocalKerberosPath(clusterId, addComponent.getComponentTypeCode());
+            try {
+                FileUtils.deleteDirectory(new File(kerberosPath));
+            } catch (IOException e) {
+                LOGGER.error("delete old kerberos directory {} error", kerberosPath, e);
+            }
+            //解压到本地
+            List<File> files = ZipUtil.upzipFile(resource.getUploadedFileName(), kerberosPath);
+            if (CollectionUtils.isEmpty(files)) {
+                throw new RdosDefineException("Hadoop-Kerberos文件解压错误");
+            }
 
-        if (CollectionUtils.isEmpty(files)) {
-            throw new RdosDefineException("Hadoop-Kerberos文件解压错误");
-        }
+            keyTabFile = files.stream().filter(f -> f.getName().endsWith(KEYTAB_SUFFIX)).findFirst().orElse(null);
+            krb5ConfFile = files.stream().filter(f -> f.getName().equalsIgnoreCase(KRB5_CONF)).findFirst().orElse(null);
+            if (keyTabFile == null) {
+                throw new RdosDefineException("上传的Hadoop-Kerberos文件的zip文件中必须有keytab文件，请添加keytab文件");
+            }
+            LOGGER.info("fileKeyTab Unzip fileName:{}",keyTabFile.getAbsolutePath());
+            if (krb5ConfFile == null) {
+                throw new RdosDefineException("上传的Hadoop-Kerberos文件的zip文件中必须有krb5.conf文件，请添加krb5.conf文件");
+            }
+            LOGGER.info("conf Unzip fileName:{}",krb5ConfFile.getAbsolutePath());
 
-        File fileKeyTab = files.stream().filter(f -> f.getName().endsWith(KEYTAB_SUFFIX)).findFirst().orElse(null);
-        File fileConf = files.stream().filter(f -> f.getName().equalsIgnoreCase(KRB5_CONF)).findFirst().orElse(null);
+            //获取principal
+            List<PrincipalName> principalLists = this.getPrincipal(keyTabFile);
+            principal = parsePrincipal(principal, principalLists);
 
-        if (fileKeyTab==null) {
-            throw new RdosDefineException("上传的Hadoop-Kerberos文件的zip文件中必须有keytab文件，请添加keytab文件");
-        }
-        LOGGER.info("fileKeyTab Unzip fileName:{}",fileKeyTab.getAbsolutePath());
-
-        if (fileConf==null) {
-            throw new RdosDefineException("上传的Hadoop-Kerberos文件的zip文件中必须有krb5.conf文件，请添加krb5.conf文件");
-        }
-        LOGGER.info("conf Unzip fileName:{}",fileConf.getAbsolutePath());
-
-        //获取principal
-        List<PrincipalName> principalLists = this.getPrincipal(fileKeyTab);
-        principal = parsePrincipal(principal, principalLists);
-
-        //删除sftp原来kerberos 的文件夹
-        sftpFileManage.deleteDir(remoteDirKerberos);
-        //上传kerberos解压后的文件
-        for (File file : files) {
-            LOGGER.info("upload sftp file:{}",file.getAbsolutePath());
-            sftpFileManage.uploadFile(remoteDirKerberos, file.getPath());
+            //删除sftp原来kerberos 的文件夹
+            sftpFileManage.deleteDir(remoteDirKerberos);
+            //上传kerberos解压后的文件
+            for (File file : files) {
+                LOGGER.info("upload sftp file:{}",file.getAbsolutePath());
+                sftpFileManage.uploadFile(remoteDirKerberos, file.getPath());
+            }
         }
 
         //更新数据库kerberos信息
@@ -840,12 +930,16 @@ public class ComponentService {
             isFirstOpenKerberos = true;
         }
         kerberosConfig.setOpenKerberos(1);
-
-        kerberosConfig.setName(fileKeyTab.getName());
         kerberosConfig.setRemotePath(remoteDirKerberos);
         kerberosConfig.setClusterId(clusterId);
         kerberosConfig.setComponentType(addComponent.getComponentTypeCode());
-        kerberosConfig.setKrbName(fileConf.getName());
+        if (keyTabFile != null) {
+            kerberosConfig.setName(keyTabFile.getName());
+        }
+        if (krb5ConfFile != null) {
+            kerberosConfig.setKrbName(krb5ConfFile.getName());
+        }
+
         if (StringUtils.isNotEmpty(principal)) {
             kerberosConfig.setPrincipal(principal);
         }
