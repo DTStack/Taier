@@ -311,7 +311,7 @@ function getComponentConfigPrames (values: any, components: any, config: any) {
                 })
             }
         } else {
-            val.value = formConfig?.[val.key.split('%').join('.')] 
+            val.value = formConfig?.[val.key.split('%').join('.')]
         }
     })
     componentTemplate = getCustomParams(customParams, componentTemplate)
@@ -360,6 +360,7 @@ function getMoadifyComps (values: any, componentConfig: any) {
             const { configInfo = {}, params = {}, hadoopVersion = '', kerberosFileName = '', uploadFileName = '', storeType = '', principal = '', principals = [] } = formConfig;
             const formValues = handleFormValues(configInfo, params, componentTypeCode);
             const isUploadFileComps = checkUplaodFileComps(Number(componentTypeCode))
+            // console.log('compConfigInfo===========formValues', config, formConfig)
             const isModify = (hadoopVersion && !_.isEqual(compHadoopVersion, hadoopVersion)) ||
                 (uploadFileName && !_.isEqual(compUploadFileName, handleUploadFile(uploadFileName))) ||
                     (kerberosFileName && !_.isEqual(compKerberosFileName, handleUploadFile(kerberosFileName))) ||
@@ -371,7 +372,6 @@ function getMoadifyComps (values: any, componentConfig: any) {
             if (!_.isEqual(compConfigInfo, formValues) && !isUploadFileComps) {
                 modifyCompsArr = [...modifyCompsArr, componentTypeCode];
             }
-            // console.log('compConfigInfo===========formValues', compConfigInfo, formValues)
         }
     })
     return modifyCompsArr;

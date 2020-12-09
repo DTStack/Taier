@@ -465,15 +465,15 @@ class EditCluster extends React.Component<any, any> {
 
     // Hadoop Kerberos认证文件Change事件
     kerFileChange = (e: any, componentTypeCode: any) => {
-        const kerFile = e.target;
-        const { componentConfig, } = this.state;
+        const kerFile = e;
+        const { componentConfig } = this.state;
         const { form: { setFieldsValue } } = this.props
-        
-        const isCanUpload = this.validateFileType(kerFile && kerFile.files && kerFile.files[0].name)
+
+        const isCanUpload = this.validateFileType(kerFile && kerFile.name)
         if (isCanUpload) {
             let principals: any = [];
             (async () => {
-                const res = await Api.parseKerberos({ fileName: kerFile.files[0] })
+                const res = await Api.parseKerberos({ fileName: kerFile })
                 principals = res?.data || []
                 setFieldsValue({
                     [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
@@ -486,7 +486,7 @@ class EditCluster extends React.Component<any, any> {
                         [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
                             ...componentConfig[COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]],
                             kerberosFileName: kerFile,
-                            kerFileName: kerFile.files[0].name,
+                            kerFileName: kerFile.name,
                             principals: principals,
                             principal: principals[0]
                         }
@@ -764,8 +764,8 @@ class EditCluster extends React.Component<any, any> {
         const { compTypeKey, popoverVisible, clusterName, modify, selectValue,
             deleteComps, defaultValue, componentConfig, testLoading, saveCompsData } = this.state;
         const { location: { state: { cluster: { clusterName: realClusterName } } } } = this.props
-        const { getFieldDecorator, getFieldValue } = this.props.form;
-        const { mode } = this.props.location.state || {} as any;
+        const { getFieldDecorator, getFieldValue, setFieldsValue } = this.props.form;
+        const { mode, cluster } = this.props.location.state || {} as any;
         const isView = mode === 'view';
         const componentBtn = !isView && (
             <SelectPopver
@@ -845,10 +845,12 @@ class EditCluster extends React.Component<any, any> {
                                                                 <div className="c-editCluster__container__componentWrap__resource" style={{ width: 210 }}>
                                                                     <DisplayResource
                                                                         {...this.state}
+                                                                        cluster={cluster}
                                                                         isView={isView}
                                                                         components={comps}
                                                                         saveCompsData={saveCompsData}
                                                                         getFieldValue={getFieldValue}
+                                                                        setFieldsValue={setFieldsValue}
                                                                         getFieldDecorator={getFieldDecorator}
                                                                         downloadFile={this.downloadFile}
                                                                         paramsfileChange={this.paramsfileChange}

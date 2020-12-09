@@ -91,6 +91,22 @@ export default {
         return http.post(req.GET_COMPONENTSTORE, params);
     },
 
+    // 上传kerberos文件
+    uploadKerberos (params: {
+        kerberosFile: any;
+        clusterId: number;
+        componentCode: number;
+    }) {
+        return http.post(req.UPLOAD_KERBEROS, params);
+    },
+
+    // 更新krb5.conf文件
+    updateKrb5Conf (params: {
+        krb5Context: string;
+    }) {
+        return http.post(req.UPDATE_KRB5CONF, params);
+    },
+
     // 任务管理模块
     // 概览-获取集群
     getClusterDetail (params: any) {
