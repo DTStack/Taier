@@ -361,7 +361,8 @@
 
 
     <select id="listDependencyTask" resultType="java.util.Map">
-        SELECT ts.task_id as id ,ts.task_id,ts.name,ts.create_user_id as createUserId FROM schedule_task_shade ts
+        SELECT ts.task_id as id ,ts.task_id,ts.name,ts.create_user_id as createUserId
+        FROM schedule_task_shade ts
         WHERE ts.project_id = #{projectId} and ts.submit_status = 1
         and ts.task_id NOT IN
         <foreach item="id" index="index" collection="taskIds" open="(" separator="," close=")">
@@ -375,7 +376,7 @@
         FROM schedule_task_shade ts
         WHERE ts.project_id = #{projectId} and ts.submit_status = 1
         and ts.compute_type = 1 and ts.task_type in (0,2) and ts.is_deleted = 0
-        <if test="taskIds != null">
+        <if test="taskIds != null and taskIds.size()>0 ">
             and ts.task_id NOT IN
             <foreach item="id" index="index" collection="taskIds" open="(" separator="," close=")">
                 #{id}
@@ -707,6 +708,8 @@
 
 
     <update id="updateProjectScheduleStatus">
-        update schedule_task_shade set project_schedule_status = #{scheduleStatus} where project_id = #{projectId} and app_type = #{appType}
+        update schedule_task_shade
+        set project_schedule_status = #{scheduleStatus}
+        where project_id = #{projectId} and app_type = #{appType}
     </update>
 </mapper>

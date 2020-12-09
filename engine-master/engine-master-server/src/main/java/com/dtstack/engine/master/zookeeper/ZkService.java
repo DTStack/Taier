@@ -159,9 +159,8 @@ public class ZkService implements InitializingBean, DisposableBean {
     public BrokerHeartNode getBrokerHeartNode(String node) {
         try {
             String nodePath = String.format("%s/%s/%s", this.brokersNode, node, HEART_NODE);
-            BrokerHeartNode nodeSign = objectMapper.readValue(zkClient.getData()
+            return objectMapper.readValue(zkClient.getData()
                     .forPath(nodePath), BrokerHeartNode.class);
-            return nodeSign;
         } catch (Exception e) {
             logger.error("{}:getBrokerHeartNode error:", node, e);
         }

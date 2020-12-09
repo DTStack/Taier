@@ -132,6 +132,7 @@ public class ScheduleTaskShadeService {
     public ScheduleTaskShadeCountTaskVO countTaskByType( Long tenantId, Long dtuicTenantId,
                                                 Long projectId,  Integer appType,
                                                 List<Integer> taskTypes){
+        //todo 缺少对参数的校验
         List<Map<String, Object>> maps = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, Lists.newArrayList(projectId), appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
         if (CollectionUtils.isEmpty(maps)) {
             return new ScheduleTaskShadeCountTaskVO();
@@ -488,7 +489,7 @@ public class ScheduleTaskShadeService {
 
 
     public ScheduleTaskShade findTaskId( Long taskId, Integer isDeleted,  Integer appType) {
-        if(Objects.isNull(taskId)){
+        if(null == taskId ){
             return null;
         }
         List<ScheduleTaskShade> batchTaskShades = scheduleTaskShadeDao.listByTaskIds(Lists.newArrayList(taskId), isDeleted,appType);
@@ -507,6 +508,7 @@ public class ScheduleTaskShadeService {
      * @return
      */
     public List<ScheduleTaskShade> findTaskIds( List<Long> taskIds, Integer isDeleted,  Integer appType,  boolean isSimple) {
+       //todo 没有校验appType
         if(CollectionUtils.isEmpty(taskIds)){
             return null;
         }
@@ -527,8 +529,10 @@ public class ScheduleTaskShadeService {
      * @return
      */
     public void info( Long taskId, Integer appType,String info) {
+
+        //todo 缺少对taskId和appType的校验
         JSONObject extInfo = JSONObject.parseObject(scheduleTaskShadeDao.getExtInfoByTaskId(taskId, appType));
-        if (Objects.isNull(extInfo)) {
+        if (null == extInfo ) {
             extInfo = new JSONObject();
         }
         extInfo.put(TaskConstant.INFO, info);
@@ -537,11 +541,14 @@ public class ScheduleTaskShadeService {
 
 
     public List<Map<String, Object>> listDependencyTask( List<Long> taskId,  Integer appType,  String name,  Long projectId) {
+
+        //todo 缺少对参数的校验
         return scheduleTaskShadeDao.listDependencyTask(projectId, name, taskId);
     }
 
 
     public List<Map<String, Object>> listByTaskIdsNotIn( List<Long> taskId,  Integer appType,  Long projectId) {
+        //todo 缺少对参数的校验
         return scheduleTaskShadeDao.listByTaskIdsNotIn(projectId, taskId);
     }
 
@@ -562,7 +569,7 @@ public class ScheduleTaskShadeService {
 
         TenantResource tenantResource = tenantResourceDao.selectByUicTenantIdAndTaskType(dtuicTenantId,taskType);
         List<String> exceedMessage = new ArrayList<>();
-        if(Objects.isNull(tenantResource)){
+        if(null == tenantResource ){
             return exceedMessage;
         }
         try {

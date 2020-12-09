@@ -55,6 +55,7 @@ public class ScheduleJobJobService {
                                                                         Long projectId,
                                                                         Integer level) throws Exception {
 
+        //todo 缺少对参数的校验
         ScheduleJob job = scheduleJobDao.getOne(jobId);
         if (job == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
@@ -69,7 +70,9 @@ public class ScheduleJobJobService {
                 ScheduleJob flowJob = scheduleJobDao.getByJobId(job.getFlowJobId(), Deleted.NORMAL.getStatus());
                 //工作流下全部实例,层级level使用int最大值
                 com.dtstack.engine.master.vo.ScheduleJobVO subJobVO = displayOffSpringForFlowWork(flowJob);
-                subJobVO.setProjectId(flowJob.getProjectId());
+                if(null!=subJobVO) {
+                    subJobVO.setProjectId(flowJob.getProjectId());
+                }
                 return subJobVO;
             } catch (Exception e) {
                 logger.error("get flow work subJob error", e);
@@ -153,7 +156,7 @@ public class ScheduleJobJobService {
      * @return
      */
     private Map<Integer, List<ScheduleJobJob>> getSpecifiedLevelJobJobs(String rootKey, int level, boolean getChild, String parentFlowJobJobKey) {
-        Map<Integer, List<ScheduleJobJob>> result = new HashMap<>();
+        Map<Integer, List<ScheduleJobJob>> result = new HashMap<>(16);
         List<String> jobKeys = new ArrayList<>();
 
         jobKeys.add(rootKey);
@@ -217,8 +220,8 @@ public class ScheduleJobJobService {
             Set<String> allJobKeys = new HashSet<>();
             getAllJobKeys(result, allJobKeys);
 
-            Map<String, ScheduleJob> keyJobMap = new HashMap<>();
-            Map<Long, ScheduleTaskShade> idTaskMap = new HashMap<>();
+            Map<String, ScheduleJob> keyJobMap = new HashMap<>(16);
+            Map<Long, ScheduleTaskShade> idTaskMap = new HashMap<>(16);
             getRelationData(allJobKeys, keyJobMap, idTaskMap);
 
             ScheduleJobJob beginJobJob = null;
@@ -296,14 +299,16 @@ public class ScheduleJobJobService {
 
 
     private ScheduleTaskVO getTaskVo(ScheduleTaskShade batchTaskShade, ScheduleJob job) {
-        ScheduleTaskVO taskVO = new ScheduleTaskVO(batchTaskShade, true);
-        return taskVO;
+
+        return  new ScheduleTaskVO(batchTaskShade, true);
     }
 
     /**
      * 为工作流节点展开子节点
      */
     public com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpringWorkFlow( Long jobId, Integer appType) throws Exception {
+
+        //todo 缺少对参数的校验
         ScheduleJob job = batchJobService.getJobById(jobId);
         ScheduleTaskShade batchTaskShade = batchTaskShadeService.getBatchTaskById(job.getTaskId(),appType);
         com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);

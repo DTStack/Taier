@@ -49,6 +49,8 @@ public class EngineService {
     private TenantDao tenantDao;
 
     public List<QueueVO> getQueue( Long engineId){
+
+        //todo 校验engieId不能为空
         List<Queue> queueList = queueDao.listByEngineId(engineId);
         return QueueVO.toVOs(queueList);
     }
@@ -62,7 +64,8 @@ public class EngineService {
      * ]
      */
     public List<EngineSupportVO> listSupportEngine( Long dtUicTenantId){
-        JSONArray array = new JSONArray();
+
+        //todo 校验dtUicTenantId不能为空
         List<EngineSupportVO> vos = Lists.newArrayList();
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
         if (tenantId == null){

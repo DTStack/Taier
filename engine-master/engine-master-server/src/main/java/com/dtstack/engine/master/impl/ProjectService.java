@@ -21,7 +21,9 @@ public class ProjectService {
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
 
     public void updateSchedule(Long projectId, Integer appType, Integer scheduleStatus) {
-        if (Objects.isNull(projectId) || Objects.isNull(appType) || Objects.isNull(scheduleStatus)) {
+
+        if (null == projectId || null == appType || null == scheduleStatus) {
+            //todo 参数为空是否需要返回提示
             return;
         }
         logger.info("update project {} status {} ",projectId,scheduleStatus);
