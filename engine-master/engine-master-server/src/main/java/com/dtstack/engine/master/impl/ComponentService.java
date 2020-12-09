@@ -454,18 +454,19 @@ public class ComponentService {
 
         String md5Key = "";
         //将componentTemplate的值放入componentConfig
-        JSONObject componentConfigJbj = JSONObject.parseObject(componentConfig);
         boolean removeSelfParams = EComponentType.HDFS.getTypeCode().equals(addComponent.getComponentTypeCode())
                 || EComponentType.YARN.getTypeCode().equals(addComponent.getComponentTypeCode());
         if(componentTemplate!=null && removeSelfParams){
+            JSONObject componentConfigJbj = JSONObject.parseObject(componentConfig);
             JSONArray jsonArray = JSONObject.parseArray(componentTemplate);
             for (Object o : jsonArray.toArray()) {
                 String key = ((JSONObject) o).getString("key");
                 String value = ((JSONObject) o).getString("value");
                 componentConfigJbj.put(key,value);
             }
+            componentConfig = JSON.toJSONString(componentConfigJbj);
         }
-        componentConfig = JSON.toJSONString(componentConfigJbj);
+
         md5Key = updateResource(clusterId, componentConfig, resources, kerberosFileName, componentCode, principals, principal, addComponent, dbComponent, md5Key);
         addComponent.setComponentConfig(this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion,md5Key,addComponent.getStoreType()));
 
