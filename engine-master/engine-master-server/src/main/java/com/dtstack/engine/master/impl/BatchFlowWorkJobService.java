@@ -64,8 +64,12 @@ public class BatchFlowWorkJobService {
                 Integer status = scheduleJob.getStatus();
                 // 工作流失败状态细化 优先级： 运行失败>提交失败>上游失败
                 if (RdosTaskStatus.FROZEN_STATUS.contains(status) || RdosTaskStatus.STOP_STATUS.contains(status)) {
-                    if ( !RdosTaskStatus.PARENTFAILED.getStatus().equals(bottleStatus) && !RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)) {
-                        bottleStatus = RdosTaskStatus.CANCELED.getStatus();
+                    if (!RdosTaskStatus.PARENTFAILED.getStatus().equals(bottleStatus) && !RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)) {
+                        if (RdosTaskStatus.AUTOCANCELED.getStatus().equals(status)) {
+                            bottleStatus = RdosTaskStatus.AUTOCANCELED.getStatus();
+                        } else {
+                            bottleStatus = RdosTaskStatus.CANCELED.getStatus();
+                        }
                     }
                     canRemove = true;
                     continue;
