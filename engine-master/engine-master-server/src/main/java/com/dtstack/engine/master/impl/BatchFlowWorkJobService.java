@@ -63,6 +63,13 @@ public class BatchFlowWorkJobService {
             for (ScheduleJob scheduleJob : subJobs) {
                 Integer status = scheduleJob.getStatus();
                 // 工作流失败状态细化 优先级： 运行失败>提交失败>上游失败
+                if (RdosTaskStatus.FROZEN_STATUS.contains(status) || RdosTaskStatus.STOP_STATUS.contains(status)) {
+                    if ( !RdosTaskStatus.PARENTFAILED.getStatus().equals(bottleStatus) && !RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)) {
+                        bottleStatus = RdosTaskStatus.CANCELED.getStatus();
+                    }
+                    canRemove = true;
+                    continue;
+                }
                 if (RdosTaskStatus.PARENTFAILED_STATUS.contains(status)) {
                     if ( !RdosTaskStatus.CANCELED.getStatus().equals(bottleStatus) && !RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)){
                         bottleStatus = RdosTaskStatus.PARENTFAILED.getStatus();
@@ -79,17 +86,11 @@ public class BatchFlowWorkJobService {
                 }
 
                 if (RdosTaskStatus.RUN_FAILED_STATUS.contains(status)) {
-                    if (!RdosTaskStatus.CANCELED.getStatus().equals(bottleStatus) ){
-                        bottleStatus = RdosTaskStatus.FAILED.getStatus();
-                    }
-                    canRemove = true;
-                    continue;
-                }
-                if (RdosTaskStatus.FROZEN_STATUS.contains(status) || RdosTaskStatus.STOP_STATUS.contains(status)) {
-                    bottleStatus = RdosTaskStatus.CANCELED.getStatus();
+                    bottleStatus = RdosTaskStatus.FAILED.getStatus();
                     canRemove = true;
                     break;
                 }
+
             }
             //子任务不存在失败/取消的状态
             for (ScheduleJob scheduleJob : subJobs) {
