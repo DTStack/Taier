@@ -1,22 +1,24 @@
 package com.dtstack.engine.dao;
 
 import com.dtstack.engine.api.domain.Cluster;
-import com.dtstack.engine.api.domain.User;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 /**
- * @Author tengzhen
- * @Description:
- * @Date: Created in 8:53 下午 2020/11/9
+ * @author chener
+ * @Classname TestClusterDao
+ * @Description TODO
+ * @Date 2020/11/24 20:22
+ * @Created chener@dtstack.com
  */
 public interface TestClusterDao {
 
+    @Insert({"INSERT INTO console_cluster(id,cluster_name,hadoop_version)VALUES(#{cluster.id},#{cluster.clusterName},#{cluster.hadoopVersion})"})
+    @Options()
+    Integer insert(@Param("cluster") Cluster cluster);
 
-    @Insert({" INSERT INTO console_cluster (cluster_name,hadoop_version)" +
-            "        values(#{cluster.clusterName},#{cluster.hadoopVersion})"})
-    @Options(useGeneratedKeys=true, keyProperty = "cluster.id", keyColumn = "id")
-    void insert(@Param("cluster") Cluster cluster);
-
+    @Select({"select * from console_cluster limit 1"})
+    Cluster getOne();
 }

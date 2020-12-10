@@ -1,6 +1,8 @@
 package com.dtstack.engine.master.config;
 
 import com.dtstack.engine.common.akka.config.AkkaConfig;
+import com.dtstack.engine.common.client.ClientOperator;
+import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.master.akka.AkkaMasterServerImpl;
 import com.dtstack.engine.master.akka.MasterServer;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -26,6 +28,16 @@ public class MasterServerBeanConfig {
         }
         MasterServer masterServer = new AkkaMasterServerImpl(environmentContext);
         return masterServer;
+    }
+
+    @Bean
+    public ClientOperator clientOperator(){
+        return ClientOperator.getInstance();
+    }
+
+    @Bean
+    public SftpFileManage sftpFileManage() {
+        return SftpFileManage.getInstance();
     }
 
 }

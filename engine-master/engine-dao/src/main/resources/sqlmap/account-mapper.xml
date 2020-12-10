@@ -74,5 +74,6 @@
         <if test="name !=null ">
             AND a.name = #{name}
         </if>
+        LIMIT 1
     </select>
 </mapper>

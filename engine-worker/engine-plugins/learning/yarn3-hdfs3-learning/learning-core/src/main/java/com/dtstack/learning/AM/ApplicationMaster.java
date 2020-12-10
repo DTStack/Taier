@@ -1,5 +1,6 @@
 package com.dtstack.learning.AM;
 
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.learning.AM.ApplicationContainerListener;
 import com.dtstack.learning.AM.ApplicationMessageService;
 import com.dtstack.learning.AM.ApplicationWebService;
@@ -378,6 +379,8 @@ public class ApplicationMaster extends CompositeService {
           }
         }
 
+        FSDataOutputStream out = null;
+        FileSystem fs = null;
         try {
           FsPermission LOG_FILE_PERMISSION = FsPermission.createImmutable((short) 0777);
           Path logdir = new Path(conf.get(LearningConfiguration.XLEARNING_HISTORY_LOG_DIR,
@@ -386,22 +389,30 @@ public class ApplicationMaster extends CompositeService {
           Path jobLogPath = new Path(xlearningConf.get("fs.defaultFS"), logdir);
           LOG.info("jobLogPath:" + jobLogPath.toString());
           LOG.info("Start write the log to " + jobLogPath.toString());
-          FileSystem fs = FileSystem.get(xlearningConf);
-          FSDataOutputStream out = fs.create(jobLogPath);
+          fs = FileSystem.get(xlearningConf);
+          out = fs.create(jobLogPath);
           fs.setPermission(jobLogPath, new FsPermission(LOG_FILE_PERMISSION));
           if (conf.getBoolean(LearningConfiguration.XLEARNING_HOST_LOCAL_ENABLE, LearningConfiguration.DEFAULT_XLEARNING_HOST_LOCAL_ENABLE)) {
             Path hostLocaldir = new Path(conf.get(LearningConfiguration.XLEARNING_HISTORY_LOG_DIR,
                     LearningConfiguration.DEFAULT_XLEARNING_HISTORY_LOG_DIR) + "/" + conf.get("hadoop.job.ugi").split(",")[0]
                     + "/" + envs.get(LearningConstants.Environment.XLEARNING_APP_NAME.toString()));
             Path hostLocalPath = new Path(xlearningConf.get("fs.defaultFS"), hostLocaldir);
+            FSDataOutputStream hostLocalOut = null;
             try {
-              FSDataOutputStream hostLocalOut = fs.create(hostLocalPath);
+              hostLocalOut = fs.create(hostLocalPath);
               fs.setPermission(hostLocalPath, new FsPermission(LOG_FILE_PERMISSION));
               hostLocalOut.writeBytes(containerHostnames.toString().substring(1, containerHostnames.toString().length() - 1));
-              hostLocalOut.close();
               LOG.info("host local enable is true, write " + hostLocalPath.toString() + " success");
             } catch (Exception e) {
               LOG.info("write host local file error, " + e);
+            } finally {
+              if (hostLocalOut != null){
+                try {
+                  hostLocalOut.close();
+                } catch (IOException e) {
+                  LOG.error("close hostLocalOut error.", e);
+                }
+              }
             }
           }
 
@@ -678,11 +689,18 @@ public class ApplicationMaster extends CompositeService {
           }
 
           out.writeBytes(new Gson().toJson(logMessage));
-          out.close();
-          fs.close();
           LOG.info("Writing the history log file successed.");
         } catch (Exception e) {
           LOG.error("Writing the history log file Error." + e);
+        } finally {
+          if (out != null){
+            try {
+              out.close();
+              fs.close();
+            } catch (IOException e) {
+              LOG.error("close resource error.", e);
+            }
+          }
         }
       }
     });
@@ -719,7 +737,7 @@ public class ApplicationMaster extends CompositeService {
               }
             }
           } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("ApplicationMaster.buildInputFileStatus error:{}", e);
           }
           input2FileStatus.put(inputPathTuple[1], fileStatus);
           this.inputPath.append(inputPathTuple[1]).append(",");
@@ -901,10 +919,12 @@ public class ApplicationMaster extends CompositeService {
               + "/" + envs.get(LearningConstants.Environment.XLEARNING_APP_NAME.toString());
       Path hostLocalPath = new Path(hostLocaldir);
       String line;
+      FSDataInputStream in = null;
+      BufferedReader br = null;
       try {
         if (hostLocalPath.getFileSystem(xlConf).exists(hostLocalPath)) {
-          FSDataInputStream in = hostLocalPath.getFileSystem(xlConf).open(hostLocalPath);
-          BufferedReader br = new BufferedReader(new InputStreamReader(in));
+          in = hostLocalPath.getFileSystem(xlConf).open(hostLocalPath);
+          br = new BufferedReader(new InputStreamReader(in));
           line = br.readLine();
           hostLocals = line.split(",");
           LOG.info("now in buildContainerRequest, host local is: " + Arrays.toString(hostLocals));
@@ -912,6 +932,15 @@ public class ApplicationMaster extends CompositeService {
         }
       } catch (IOException e) {
         LOG.info("open and read the host local from " + hostLocalPath + " error, " + e);
+      } finally {
+        if(br != null){
+          try {
+            br.close();
+            in.close();
+          } catch (IOException e) {
+            LOG.error("close io resource error.", e);
+          }
+        }
       }
     }
 
@@ -1765,8 +1794,7 @@ public class ApplicationMaster extends CompositeService {
                 LOG.info(mxnetSchedulerStdoutLog);
               }
             } catch (Exception e) {
-              LOG.warn("Exception in thread mxnetSchedulerRedirectThread");
-              e.printStackTrace();
+              LOG.warn("Exception in thread mxnetSchedulerRedirectThread",e);
             }
           }
         });
@@ -1784,8 +1812,7 @@ public class ApplicationMaster extends CompositeService {
                 LOG.debug(mxnetSchedulerStderrLog);
               }
             } catch (Exception e) {
-              LOG.warn("Error in thread mxnetSchedulerStderrRedirectThread");
-              e.printStackTrace();
+              LOG.warn("Error in thread mxnetSchedulerStderrRedirectThread",e);
             }
           }
         });
@@ -1866,8 +1893,7 @@ public class ApplicationMaster extends CompositeService {
                 LOG.info(xgboostSchedulerStdoutLog);
               }
             } catch (Exception e) {
-              LOG.warn("Exception in thread xgboostSchedulerRedirectThread");
-              e.printStackTrace();
+              LOG.warn("Exception in thread xgboostSchedulerRedirectThread",e);
             }
           }
         });
@@ -1885,8 +1911,7 @@ public class ApplicationMaster extends CompositeService {
                 LOG.info(xgboostSchedulerStderrLog);
               }
             } catch (Exception e) {
-              LOG.warn("Error in thread xgboostSchedulerStderrRedirectThread");
-              e.printStackTrace();
+              LOG.warn("Error in thread xgboostSchedulerStderrRedirectThread",e);
             }
           }
         });
@@ -1978,8 +2003,7 @@ public class ApplicationMaster extends CompositeService {
                 LOG.info(xflowSchedulerStdoutLog);
               }
             } catch (Exception e) {
-              LOG.warn("Exception in thread xflowSchedulerRedirectThread");
-              e.printStackTrace();
+              LOG.warn("Exception in thread xflowSchedulerRedirectThread",e);
             }
           }
         });
@@ -1997,8 +2021,7 @@ public class ApplicationMaster extends CompositeService {
                 LOG.info(xflowSchedulerStderrLog);
               }
             } catch (Exception e) {
-              LOG.warn("Error in thread xflowSchedulerStderrRedirectThread");
-              e.printStackTrace();
+              LOG.warn("Error in thread xflowSchedulerStderrRedirectThread",e);
             }
           }
         });
@@ -2528,9 +2551,7 @@ public class ApplicationMaster extends CompositeService {
    * @param args Command line args
    */
   public static void main(String[] args) {
-    ApplicationMaster appMaster;
-    try {
-      appMaster = new ApplicationMaster();
+    try(ApplicationMaster appMaster = new ApplicationMaster()) {
       appMaster.init();
       if (appMaster.run()) {
         LOG.info("Application completed successfully.");

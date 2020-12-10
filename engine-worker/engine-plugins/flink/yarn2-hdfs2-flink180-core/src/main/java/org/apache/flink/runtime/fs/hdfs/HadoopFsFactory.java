@@ -18,6 +18,8 @@
 
 package org.apache.flink.runtime.fs.hdfs;
 
+import com.dtstack.engine.base.util.HadoopConfTool;
+import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.core.fs.FileSystemFactory;
@@ -25,6 +27,7 @@ import org.apache.flink.core.fs.LimitedConnectionsFileSystem;
 import org.apache.flink.core.fs.LimitedConnectionsFileSystem.ConnectionLimitingSettings;
 import org.apache.flink.core.fs.UnsupportedFileSystemSchemeException;
 import org.apache.flink.runtime.util.HadoopUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +43,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  *
  * <p>This factory calls Hadoop's mechanism to find a file system implementation for a given file
  * system scheme (a {@link org.apache.hadoop.fs.FileSystem}) and wraps it as a Flink file system
- * (a {@link FileSystem}).
+ * (a {@link org.apache.flink.core.fs.FileSystem}).
  */
 public class HadoopFsFactory implements FileSystemFactory {
 
@@ -63,9 +66,9 @@ public class HadoopFsFactory implements FileSystemFactory {
         flinkConfig = config;
         hadoopConfig = null; // reset the Hadoop Config
 
-        byte[]  hadoopConfByte = config.getBytes(HadoopUtils.HADOOP_CONF_BYTES, null);
-        if(hadoopConfByte != null) {
-            hadoopConfig =  HadoopUtils.deserializeHadoopConf(hadoopConfByte);
+        byte[] hadoopConfBytes = flinkConfig.getBytes(ConfigConstrant.HADOOP_CONF_BYTES_KEY, null);
+        if (hadoopConfBytes != null) {
+            hadoopConfig = HadoopConfTool.deserializeHadoopConf(hadoopConfBytes);
         }
 
     }

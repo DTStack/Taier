@@ -17,8 +17,6 @@ public class RdosSubscribe implements MessageListener {
 
     private SessionCache sessionCache;
 
-    private ConsoleCache consoleCache;
-
     @Override
     public void onMessage(Message message, byte[] pattern) {
         try {
@@ -31,8 +29,6 @@ public class RdosSubscribe implements MessageListener {
 
             if (RdosTopic.SESSION.equals(topic)) {
                 sessionCache.remove(itemValue.toString());
-            } else if (RdosTopic.CONSOLE.equals(topic)) {
-                consoleCache.remove(itemValue.toString());
             }
         } catch (Exception e) {
             LOGGER.error("{}", e);
@@ -45,9 +41,5 @@ public class RdosSubscribe implements MessageListener {
 
     public void setSessionCache(SessionCache sessionCache) {
         this.sessionCache = sessionCache;
-    }
-
-    public void setConsoleCache(ConsoleCache consoleCache) {
-        this.consoleCache = consoleCache;
     }
 }

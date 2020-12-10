@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.failover;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EScheduleType;
@@ -139,7 +140,7 @@ public class FailoverStrategy {
                 String currDayStr = sdfDay.format(Calendar.getInstance().getTime());
                 jobGraphBuilder.buildTaskJobGraph(currDayStr);
             } catch (Exception e) {
-                LOG.error("----jobGraphChecker error:{}", e);
+                LOG.error("----jobGraphChecker error:", e);
             }
         }
     }
@@ -173,7 +174,7 @@ public class FailoverStrategy {
                     LOG.warn("----- nodeAddress:{} 节点容灾任务结束恢复-----", node);
                 }
             } catch (Exception e) {
-                LOG.error("----faultTolerantRecover error:{}", e);
+                LOG.error("----faultTolerantRecover error:", e);
             }
         }
 
@@ -200,16 +201,17 @@ public class FailoverStrategy {
                 }
                 List<Long> cronJobIds = Lists.newArrayList();
                 List<Long> fillJobIds = Lists.newArrayList();
-                List<Long> phaseStatus = Lists.newArrayList();
+                List<String> phaseStatus = Lists.newArrayList();
                 for (SimpleScheduleJobPO batchJob : jobs) {
                     if (EScheduleType.NORMAL_SCHEDULE.getType() == batchJob.getType()) {
                         cronJobIds.add(batchJob.getId());
+                        LOG.info("----- nodeAddress:{} distributeBatchJobs {} NORMAL_SCHEDULE -----", nodeAddress, batchJob.getJobId());
                     } else {
                         fillJobIds.add(batchJob.getId());
+                        LOG.info("----- nodeAddress:{} distributeBatchJobs {} FILL_DATA -----", nodeAddress, batchJob.getJobId());
                     }
-
                     if (JobPhaseStatus.JOIN_THE_TEAM.getCode().equals(batchJob.getPhaseStatus())) {
-                        phaseStatus.add(batchJob.getId());
+                        phaseStatus.add(batchJob.getJobId());
                     }
                     startId = batchJob.getId();
                 }
@@ -226,12 +228,13 @@ public class FailoverStrategy {
 
             LOG.warn("----- nodeAddress:{} BatchJob 任务结束恢复-----", nodeAddress);
         } catch (Exception e) {
-            LOG.error("----nodeAddress:{} faultTolerantRecoverBatchJob error:{}", nodeAddress, e);
+            LOG.error("----nodeAddress:{} faultTolerantRecoverBatchJob error:", nodeAddress, e);
         }
     }
 
-    private void updatePhaseStatus(List<Long> phaseStatus) {
+    private void updatePhaseStatus(List<String> phaseStatus) {
         if (CollectionUtils.isNotEmpty(phaseStatus)) {
+            LOG.info("----- updatePhaseStatus {} -----", JSONObject.toJSONString(phaseStatus));
             scheduleJobDao.updateListPhaseStatus(phaseStatus, JobPhaseStatus.CREATE.getCode());
         }
     }
@@ -317,7 +320,7 @@ public class FailoverStrategy {
             }
             LOG.warn("----- nodeAddress:{} JobCache 任务结束恢复-----", nodeAddress);
         } catch (Exception e) {
-            LOG.error("----nodeAddress:{} faultTolerantRecoverJobCache error:{}", nodeAddress, e);
+            LOG.error("----nodeAddress:{} faultTolerantRecoverJobCache error:", nodeAddress, e);
         }
     }
 

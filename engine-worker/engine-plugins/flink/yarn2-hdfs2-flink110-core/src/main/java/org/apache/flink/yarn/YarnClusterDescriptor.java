@@ -19,9 +19,9 @@
 package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
-import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
-import com.dtstack.engine.worker.enums.ClassLoaderType;
+import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.VisibleForTesting;
@@ -113,7 +113,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.flink.configuration.ConfigConstants.DEFAULT_FLINK_USR_LIB_DIR;
-import static org.apache.flink.configuration.ConfigConstants.ENV_FLINK_CONF_DIR;
 import static org.apache.flink.configuration.ConfigConstants.ENV_FLINK_LIB_DIR;
 import static org.apache.flink.runtime.entrypoint.component.FileJobGraphRetriever.JOB_GRAPH_FILE_PATH;
 import static org.apache.flink.util.Preconditions.checkArgument;
@@ -575,14 +574,6 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 			}
 		}
 
-		//fix zhaoshang 适配
-        String shipFileConf = System.getProperty("user.dir") + File.separator + "/shipFileConf";
-        File file = new File(shipFileConf);
-        if (file.exists() && file.isDirectory()) {
-            shipFiles.addAll(Arrays.asList(file.listFiles()));
-        }
-
-
 		// flinkx get classpath
 		jobGraph.getClasspaths().forEach(jarFile -> {
 			try {
@@ -660,7 +651,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 				currentProxy = currentProxyField.get(h);
 			}catch (Exception e){
 				//兼容Hadoop 2.7.3.2.6.4.91-3
-				LOG.warn("get currentProxy error:{}", ExceptionUtil.getErrorMessage(e));
+				LOG.error("get currentProxy error:", e);
 				Field proxyDescriptorField = h.getClass().getDeclaredField("proxyDescriptor");
 				proxyDescriptorField.setAccessible(true);
 				Object proxyDescriptor = proxyDescriptorField.get(h);
@@ -682,7 +673,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
 			return String.format("http://%s/proxy",addr);
 		}catch (Exception e){
-			LOG.warn("get monitor error:{}", ExceptionUtil.getErrorMessage(e));
+			LOG.error("get monitor error:", e);
 		}
 
 		return url;
@@ -833,7 +824,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		final Path homeDir = fs.getHomeDirectory();
 
 		// hard coded check for the GoogleHDFS client because its not overriding the getScheme() method.
-		if (!fs.getClass().getSimpleName().equals("GoogleHadoopFileSystem") &&
+		if (!"GoogleHadoopFileSystem".equals(fs.getClass().getSimpleName()) &&
 				fs.getScheme().startsWith("file")) {
 			LOG.warn("The file system scheme is '" + fs.getScheme() + "'. This indicates that the "
 					+ "specified Hadoop configuration path is wrong and the system is using the default Hadoop configuration values."
@@ -852,19 +843,24 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		String logConfigFilePath = configuration.getString(YarnConfigOptionsInternal.APPLICATION_LOG_CONFIG_FILE);
 
 		if (logConfigFilePath == null) {
-			String logLevel = flinkConfiguration.getString("logLevel", "info").toLowerCase();
+			String logLevel = configuration.getString("logLevel", "info").toLowerCase();
 
-			String log4jConfigFilePath = "." + File.separator + FLINK_LOG_DIR + File.separator + logLevel + File.separator + CONFIG_FILE_LOG4J_NAME;
-			File log4jFile = new File(log4jConfigFilePath);
-			if (log4jFile.exists()) {
-				logConfigFilePath = log4jConfigFilePath;
+			// TODO: 2020/11/11 默认上传一份日志配置文件 log4j.properties > logback.xml
+			String configFileParentPath = "." + File.separator + FLINK_LOG_DIR + File.separator + logLevel;
+			String uploadConfigFilePath = configFileParentPath + File.separator + CONFIG_FILE_LOG4J_NAME;
+			File uploadFile = new File(uploadConfigFilePath);
+			if ( uploadFile.exists() ) {
+				logConfigFilePath = uploadConfigFilePath;
 			} else {
-				log4jConfigFilePath = System.getenv(ENV_FLINK_CONF_DIR) + File.separator + CONFIG_FILE_LOG4J_NAME;
-				log4jFile = new File(log4jConfigFilePath);
-				if (log4jFile.exists()) {
-					logConfigFilePath = log4jConfigFilePath;
+				uploadConfigFilePath = configFileParentPath + File.separator + CONFIG_FILE_LOGBACK_NAME;
+				uploadFile = new File(uploadConfigFilePath);
+				if ( uploadFile.exists() ) {
+					logConfigFilePath = uploadConfigFilePath;
+				} else {
+					LOG.warn("No log configuration file to upload was found. Please check if there are any log configuration files in the [{}] ", configFileParentPath);
 				}
 			}
+
 		}
 		if (logConfigFilePath != null) {
 			LOG.info("logConfigFilePath:{}", logConfigFilePath);
@@ -1009,6 +1005,62 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 			tmpFileDir.mkdirs();
 		}
 
+		// Upload the hdfs-site.xml and yarn-site.xml
+		File tmpHdfsSiteFile = null;
+		File tmpYarnSiteFile = null;
+		Path remoteHdfsSitePath = null;
+		Path remoteYarnSitePath = null;
+		try {
+
+			// Write hdfs-site.xml
+			tmpHdfsSiteFile = File.createTempFile(appId + "-hdfs-site.xml", null, tmpFileDir);
+			byte[] hadoopConfBytes = configuration.getBytes(ConfigConstrant.HADOOP_CONF_BYTES_KEY, null);
+			HadoopConfTool.writeHadoopXml(HadoopConfTool.deserializeHadoopConf(hadoopConfBytes), tmpHdfsSiteFile);
+
+			String hdfsSiteKey = "hdfs-site.xml";
+			LOG.info("Adding HDFS configuration {} to the AM container local resource bucket", hdfsSiteKey);
+			remoteHdfsSitePath = setupSingleLocalResource(
+					hdfsSiteKey,
+					fs,
+					appId,
+					new Path(tmpHdfsSiteFile.getAbsolutePath()),
+					localResources,
+					homeDir,
+					"");
+			envShipFileList.append(hdfsSiteKey).append("=").append(remoteHdfsSitePath).append(",");
+			paths.add(remoteHdfsSitePath);
+			classPathBuilder.append(hdfsSiteKey).append(File.pathSeparator);
+			configuration.setString(ConfigConstants.HDFS_SITE_CONFIG, hdfsSiteKey);
+
+			// Write yarn-site.xml
+			tmpYarnSiteFile = File.createTempFile(appId + "-yarn-site.xml", null, tmpFileDir);
+			byte[] yarnConfBytes = configuration.getBytes(ConfigConstrant.YARN_CONF_BYTES_KEY, null);
+			HadoopConfTool.writeHadoopXml(HadoopConfTool.deserializeYanrConf(yarnConfBytes), tmpYarnSiteFile);
+
+			String yarnSiteKey = "yarn-site.xml";
+			LOG.info("Adding YARN configuration {} to the AM container local resource bucket", yarnSiteKey);
+			remoteYarnSitePath = setupSingleLocalResource(
+					yarnSiteKey,
+					fs,
+					appId,
+					new Path(tmpYarnSiteFile.getAbsolutePath()),
+					localResources,
+					homeDir,
+					"");
+			envShipFileList.append(yarnSiteKey).append("=").append(remoteYarnSitePath).append(",");
+			paths.add(remoteYarnSitePath);
+			classPathBuilder.append(yarnSiteKey).append(File.pathSeparator);
+		} finally {
+			if (tmpHdfsSiteFile != null && !tmpHdfsSiteFile.delete()) {
+				LOG.warn("Fail to delete temporary file {}.", tmpHdfsSiteFile.toPath());
+			}
+
+			if (tmpYarnSiteFile != null && !tmpYarnSiteFile.delete()) {
+				LOG.warn("Fail to delete temporary file {}.", tmpYarnSiteFile.toPath());
+			}
+		}
+
+
 		// Upload the flink configuration
 		// write out configuration file
 		File tmpConfigurationFile = null;
@@ -1052,7 +1104,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 				}
 
 				final String jobGraphFilename = "job.graph";
-				flinkConfiguration.setString(JOB_GRAPH_FILE_PATH, jobGraphFilename);
+				configuration.setString(JOB_GRAPH_FILE_PATH, jobGraphFilename);
 
 				Path pathFromYarnURL = setupSingleLocalResource(
 						jobGraphFilename,
@@ -1083,20 +1135,8 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		//and KRB5 configuration files. We are adding these files as container local resources for the container
 		//applications (JM/TMs) to have proper secure cluster setup
 		Path remoteKrb5Path = null;
-		Path remoteYarnSiteXmlPath = null;
 		boolean hasKrb5 = false;
 		if (System.getenv("IN_TESTS") != null) {
-			File f = new File(System.getenv("YARN_CONF_DIR"), Utils.YARN_SITE_FILE_NAME);
-			LOG.info("Adding Yarn configuration {} to the AM container local resource bucket", f.getAbsolutePath());
-			Path yarnSitePath = new Path(f.getAbsolutePath());
-			remoteYarnSiteXmlPath = setupSingleLocalResource(
-					Utils.YARN_SITE_FILE_NAME,
-					fs,
-					appId,
-					yarnSitePath,
-					localResources,
-					homeDir,
-					"");
 
 			String krb5Config = System.getProperty("java.security.krb5.conf");
 			if (krb5Config != null && krb5Config.length() != 0) {
@@ -1175,8 +1215,8 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		}
 
 		//To support Yarn Secure Integration Test Scenario
-		if (remoteYarnSiteXmlPath != null) {
-			appMasterEnv.put(YarnConfigKeys.ENV_YARN_SITE_XML_PATH, remoteYarnSiteXmlPath.toString());
+		if (remoteYarnSitePath != null) {
+			appMasterEnv.put(YarnConfigKeys.ENV_YARN_SITE_XML_PATH, remoteYarnSitePath.toString());
 		}
 		if (remoteKrb5Path != null) {
 			appMasterEnv.put(YarnConfigKeys.ENV_KRB5_PATH, remoteKrb5Path.toString());

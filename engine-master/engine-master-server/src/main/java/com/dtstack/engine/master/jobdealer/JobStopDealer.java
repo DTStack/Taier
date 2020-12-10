@@ -111,10 +111,10 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         }
 
         List<ScheduleJob> needSendStopJobs = new ArrayList<>(jobs.size());
-        List<Long> unSubmitJob = new ArrayList<>(jobs.size());
+        List<String> unSubmitJob = new ArrayList<>(jobs.size());
         for (ScheduleJob job : jobs) {
             if (RdosTaskStatus.UNSUBMIT.getStatus().equals(job.getStatus()) || SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
-                unSubmitJob.add(job.getId());
+                unSubmitJob.add(job.getJobId());
             } else {
                 needSendStopJobs.add(job);
             }
@@ -173,6 +173,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
     @Override
     public void destroy() throws Exception {
+        delayStopProcessor.close();
         delayStopProcessorService.shutdownNow();
         scheduledService.shutdownNow();
         asyncDealStopJobService.shutdownNow();
@@ -238,17 +239,19 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
                     Thread.sleep(500);
                 } catch (Throwable e) {
-                    logger.error("when acquire stop jobs happens error:{}", e);
+                    logger.error("when acquire stop jobs happens error:", e);
                 }
             }
         }
     }
 
     private class DelayStopProcessor implements Runnable {
+        private Boolean open = Boolean.TRUE;
+
         @Override
         public void run() {
             logger.info("DelayStopProcessor thread is start...");
-            while (true) {
+            while (open) {
                 try {
                     StoppedJob<JobElement> stoppedJob = stopJobQueue.take();
                     asyncDealStopJobService.submit(() -> asyncDealStopJob(stoppedJob));
@@ -257,6 +260,11 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 }
             }
         }
+
+        public void close(){
+            open = Boolean.FALSE;
+        }
+
     }
 
     private void asyncDealStopJob(StoppedJob<JobElement> stoppedJob) {

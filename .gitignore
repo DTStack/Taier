@@ -17,9 +17,10 @@ entrance/dependency-reduced-pom.xml
 .DS_Store
 kerberosConfig/
 tmpK8sConf/
+/conf
 keytab/
 tmp/
 tmp1100/
 tmpSave/
-/conf
+*jacoco.exec
 /javadocs

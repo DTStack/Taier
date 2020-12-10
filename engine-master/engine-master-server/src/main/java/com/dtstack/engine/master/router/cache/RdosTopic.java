@@ -9,7 +9,5 @@ public interface RdosTopic {
 
     String SESSION = "rdos:session";
 
-    String AUTH = "rdos:auth";
-
     String CONSOLE = "rdos:console";
 }

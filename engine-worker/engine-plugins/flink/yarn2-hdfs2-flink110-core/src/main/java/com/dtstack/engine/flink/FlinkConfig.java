@@ -70,9 +70,9 @@ public class FlinkConfig extends BaseConfig {
 
     private int checkSubmitJobGraphInterval = 0;
 
-    private long submitTimeout = 5;
+    private int monitorElectionWaitTime = 5 * 1000;
 
-    private String krbName;
+    private long submitTimeout = 5;
 
     private int zkConnectionTimeout = 5000;
 
@@ -125,12 +125,12 @@ public class FlinkConfig extends BaseConfig {
         this.monitorAcceptedApp = monitorAcceptedApp;
     }
 
-    public String getKrbName() {
-        return krbName;
+    public int getMonitorElectionWaitTime() {
+        return monitorElectionWaitTime;
     }
 
-    public void setKrbName(String krbName) {
-        this.krbName = krbName;
+    public void setMonitorElectionWaitTime(int monitorElectionWaitTime) {
+        this.monitorElectionWaitTime = monitorElectionWaitTime;
     }
 
     public String getTypeName() {

@@ -1,7 +1,9 @@
 package com.dtstack.engine.hadoop.util;
 
 
+import com.dtstack.engine.base.util.HadoopConfTool;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 import java.util.Map;
@@ -23,7 +25,7 @@ public class HadoopConf {
     }
 
     public void initHadoopConf(Map<String, Object> conf){
-        if(Objects.isNull(conf)){
+        if(null == conf){
             return;
         }
 
@@ -37,10 +39,12 @@ public class HadoopConf {
                 configuration.setBoolean(key, (boolean) value);
             }
         });
+        configuration.setBoolean(CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_KEY, true);
+
     }
 
     public void initYarnConf(Map<String, Object> conf){
-        if(Objects.isNull(conf)){
+        if(null == conf){
             return;
         }
 
@@ -54,6 +58,7 @@ public class HadoopConf {
                 yarnConfiguration.setBoolean(key, (boolean) value);
             }
         });
+        HadoopConfTool.setDefaultYarnConf(yarnConfiguration, conf);
     }
 
     public Configuration getConfiguration(){

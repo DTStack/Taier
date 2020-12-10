@@ -61,6 +61,7 @@
         <if test="accountId!=null">
             AND account_id = #{accountId}
         </if>
+        LIMIT 1
     </select>
 
     <update id="update" parameterType="AccountTenant">
@@ -138,7 +139,7 @@
                  left join console_account ca on ca.id = cat.account_id
         WHERE cat.user_id = #{userId} AND cat.tenant_id = #{tenantId}
           AND cat.is_deleted = 0
-          AND ca.type = #{engineType}
+          AND ca.type = #{engineType} LIMIT 1
     </select>
 
 </mapper>

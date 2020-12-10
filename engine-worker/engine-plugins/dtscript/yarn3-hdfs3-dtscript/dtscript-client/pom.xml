@@ -32,12 +32,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.dtscript.yarn2-hdfs2-dtscript-core.dtscript-core</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
             <version>${hadoop3.version}</version>
@@ -151,7 +145,8 @@
                                     <exclude>org.slf4j:slf4j-log4j12</exclude>
                                     <exclude>log4j:log4j</exclude>
                                     <exclude>org.slf4j:slf4j-api</exclude>
-                                    <exclude>com.dtstack.rdos:dt-yarn-shell-core</exclude>
+<!--                                    <exclude>com.dtstack.engine:plugins.dtscript.yarn3-hdfs3-dtscript.dtscript-core</exclude>-->
+<!--                                    <exclude>com.dtstack.engine:plugins.dtscript.yarn2-hdfs2-dtscript-core.dtscript-core</exclude>-->
                                 </excludes>
                             </artifactSet>
                             <filters>
