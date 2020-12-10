@@ -161,18 +161,35 @@ function checkFormHaveValue (loadTemplate: any) {
 function handleBatchParams (data: any) {
     let batchParams: any = {}
     for (const key in data) {
+        batchParams[key.split('.').join('%')] = data[key];
         if (_.isObject(data[key]) && !_.isArray(data[key])) {
             let groupBatchParams: any = {}
             for (let groupKey in data[key]) {
-                groupBatchParams[groupKey.split('.').join('%')] = data[key][groupKey];
+                groupBatchParams[groupKey.split('.').join('%')] = data[key][groupKey]
             }
-            batchParams[key.split('.').join('%')] = groupBatchParams;
-        } else {
-            batchParams[key.split('.').join('%')] = data[key];
+            batchParams[key.split('.').join('%')] = groupBatchParams
         }
     }
-    // console.log('batchParams=====sa======', batchParams)
     return batchParams;
+}
+
+// 处理自定义参数
+function handleBatchCustomParams (data: any[]) {
+    let batchParams: any = {}
+    data.forEach((item: any) => {
+        if (item.groupParams) {
+            let params = {}
+            item.groupParams.forEach((groupItem: any) => {
+                params[`%${groupItem.id}-key`] = groupItem?.key ?? ''
+                params[`%${groupItem.id}-value`] = groupItem?.value ?? ''
+            })
+            batchParams[item.key] = params
+            return batchParams
+        }
+        batchParams[`%${item.id}-key`] = item?.key ?? ''
+        batchParams[`%${item.id}-value`] = item?.value ?? ''
+    })
+    return batchParams
 }
 
 // 返回模板和自定义参数键值对
@@ -209,13 +226,9 @@ function handleCancleParams (params: any) {
     let dealParams: any = []
     params.forEach((param: any) => {
         let p: any = {};
-        if (param.key) {
-            p.key = param.key;
-            p.groupParams = param.groupParams.filter((groupParam: any) => Object.keys(groupParam).length > 1)
-            dealParams = [...dealParams, p]
-        } else {
-            if (Object.keys(param).length > 1) { dealParams = [...dealParams, param] }
-        }
+        p.key = param.key;
+        if (p.groupParams) p.groupParams = param?.groupParams?.filter((groupParam: any) => Object.keys(groupParam).length > 1)
+        dealParams = [...dealParams, { ...param, ...p }]
     })
     // console.log('dealParams======sss', dealParams)
     return dealParams;
@@ -393,5 +406,6 @@ export default {
     handleBatchParams,
     handleFormValues,
     getMoadifyComps,
-    handleCancleParams
+    handleCancleParams,
+    handleBatchCustomParams
 }

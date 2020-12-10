@@ -185,7 +185,7 @@
     width: 100%;
     min-height: 550px;
     position: relative;
-    padding: 20px;
+    padding: 12px 20px 20px 20px;
     display: flex;
     flex-direction: column;
     .c-editCluster__turnBack {
@@ -201,13 +201,16 @@
     }
     .c-editCluster__header {
         margin-bottom: 12px;
-        margin-top: 12px;
         height: 32px;
         display: flex;
         justify-content: space-between;
+        align-items: center;
         .c-editCluster__header__btn {
             padding: 0 12px;
             height: 32px;
+        }
+        .cluster-btn {
+            margin-right: 12px;
         }
     }
 }
