@@ -6,7 +6,9 @@ required:
   maxTotal: 16
   maxIdle: 16
   minIdle: 16
+  timeout: 0
   isUsePool: true
+  maxWaitMillis: 3600000
   fileTimeout : 300000
   auth:
     - password: 1

@@ -41,18 +41,19 @@ import java.util.concurrent.TimeUnit;
 public class Client {
 
     private static final Logger LOG = LoggerFactory.getLogger(Client.class);
-    private static final String HDFS_SUPER_GROUP = "dfs.permissions.superusergroup";
 
     private DtYarnConfiguration conf;
     private FileSystem dfs;
     private volatile YarnClient yarnClient;
     private volatile Path appJarSrc;
     private ThreadPoolExecutor threadPoolExecutor;
+    private volatile BaseConfig baseConfig;
 
     private static FsPermission JOB_FILE_PERMISSION = FsPermission.createImmutable((short) 0644);
 
     public Client(DtYarnConfiguration conf, BaseConfig allConfig) throws Exception {
         this.conf = conf;
+        this.baseConfig = allConfig;
         this.threadPoolExecutor = new ThreadPoolExecutor(
                 conf.getInt(DtYarnConfiguration.DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM, DtYarnConfiguration.DEFAULT_DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM),
                 conf.getInt(DtYarnConfiguration.DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM, DtYarnConfiguration.DEFAULT_DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM),
@@ -65,12 +66,16 @@ public class Client {
                 conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
             }
             String proxyUser = conf.get(DtYarnConstants.PROXY_USER_NAME);
-            String superGroup = conf.get(HDFS_SUPER_GROUP);
-            if (StringUtils.isNotBlank(proxyUser) && StringUtils.isNotBlank(superGroup)) {
-                UserGroupInformation hadoopUserNameUGI = UserGroupInformation.createRemoteUser(superGroup);
-                UserGroupInformation.setLoginUser(UserGroupInformation.createProxyUser(proxyUser, hadoopUserNameUGI));
-            } else if (StringUtils.isNotBlank(superGroup)) {
-                UserGroupInformation.setLoginUser(UserGroupInformation.createRemoteUser(superGroup));
+            try {
+                if (StringUtils.isNotBlank(proxyUser)) {
+                    UserGroupInformation.setLoginUser(UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getCurrentUser()));
+                } else {
+                    //重置
+                    UserGroupInformation realUser = UserGroupInformation.getCurrentUser().getRealUser();
+                    UserGroupInformation.setLoginUser(realUser);
+                }
+            } catch (IOException e) {
+                LOG.info("proxy user {} error {}  " + proxyUser);
             }
 
             this.yarnClient = getYarnClient();
@@ -270,7 +275,12 @@ public class Client {
             capability.setMemory(conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY));
             capability.setVirtualCores(conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_CORES, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_CORES));
             applicationContext.setResource(capability);
-            ByteBuffer tokenBuffer = SecurityUtil.getDelegationTokens(conf, getYarnClient());
+
+            ByteBuffer tokenBuffer = null;
+            if(null != baseConfig && baseConfig.isOpenKerberos()){
+                tokenBuffer = SecurityUtil.getDelegationTokens(conf, getYarnClient());
+            }
+
             ContainerLaunchContext amContainer = ContainerLaunchContext.newInstance(
                     localResources, appMasterEnv, appMasterLaunchcommands, null, tokenBuffer, null);
 
@@ -411,7 +421,7 @@ public class Client {
                 dfs.getStatus();
             }
         } catch (Throwable e) {
-            LOG.error("getFileSystem error:{}", e);
+            LOG.error("getFileSystem error:", e);
             synchronized (this) {
                 if (dfs != null) {
                     boolean flag = true;
@@ -419,7 +429,7 @@ public class Client {
                         //判断下是否可用
                         dfs.getStatus();
                     } catch (Throwable e1) {
-                        LOG.error("getFileSystem error:{}", e1);
+                        LOG.error("getFileSystem error:", e1);
                         flag = false;
                     }
                     if (!flag) {

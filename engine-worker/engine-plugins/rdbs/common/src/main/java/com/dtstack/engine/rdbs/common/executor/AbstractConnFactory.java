@@ -3,6 +3,7 @@ package com.dtstack.engine.rdbs.common.executor;
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
@@ -63,7 +64,8 @@ public abstract class AbstractConnFactory {
         try {
             String propStr = PublicUtil.objToString(properties);
             baseConfig = PublicUtil.jsonStrToObject(propStr, BaseConfig.class);
-            if (null != properties.get("yarnConf")) {
+            //非kerberos 不进行yarnConf初始化
+            if (baseConfig.isOpenKerberos() && null != properties.get("yarnConf")) {
                 Map<String, Object> yarnMap = (Map<String, Object>) properties.get("yarnConf");
                 yarnConf = KerberosUtils.convertMapConfToConfiguration(yarnMap);
             }
@@ -71,13 +73,6 @@ public abstract class AbstractConnFactory {
         } catch (Exception e) {
             throw new RdosDefineException("get conn exception:" + e.toString());
         }
-    }
-
-    protected List<String> splitSql(String sql) {
-        if(StringUtils.isBlank(sql)) {
-            return Collections.emptyList();
-        }
-        return Arrays.asList(sql.split(";"));
     }
 
     public void testConn() {

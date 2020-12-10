@@ -10,6 +10,7 @@ import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -17,7 +18,7 @@ import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.EDeployMode;
+import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ClusterService;
@@ -25,6 +26,7 @@ import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
+import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.dtstack.schedule.common.enums.DataBaseType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
@@ -80,9 +82,6 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
     @Autowired
     private WorkerOperator workerOperator;
-    
-    @Autowired
-    private ScheduleJobService scheduleJobService;
 
     private DateTimeFormatter dayFormatterAll = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
@@ -317,13 +316,13 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 String alterSql = String.format(ADD_PART_TEMP, tableName, taskName, time);
                 String location = "";
                 if (DataSourceType.IMPALA.getVal() == sourceType) {
-                    String jdbcInfo = clusterService.impalaInfo(dtuicTenantId, true);
+                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId, EComponentType.IMPALA_SQL.getConfName(),true,Boolean.TRUE);
                     JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataBaseType.Impala.getTypeName());
                     workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, DataBaseType.Impala.getTypeName(), String.format("DESCRIBE formatted %s", tableName));
                 } else if (DataSourceType.HIVE.getVal() == sourceType || DataSourceType.HIVE1X.getVal() == sourceType) {
-                    String jdbcInfo = clusterService.hiveInfo(dtuicTenantId, true);
+                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId,EComponentType.SPARK_THRIFT.getConfName(), true,Boolean.TRUE);
                     JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
                     String engineType = DataSourceType.HIVE.getVal() == sourceType ? DataBaseType.HIVE.getTypeName() : DataBaseType.HIVE1X.getTypeName();
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, engineType);
@@ -408,9 +407,9 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     workerOperator.executeQuery(DataSourceType.getBaseType(sourceType).getTypeName(),pluginInfo.toJSONString(),sql,"");
                     cleanFileName(parameter);
                     return null;
-                }, 3, 2000, false, Lists.newArrayList(SocketTimeoutException.class));
+                }, environmentContext.getRetryFrequency(), environmentContext.getRetryInterval(), false, null);
             } catch (Exception e) {
-                LOG.error("create partition error", e);
+                LOG.error("create partition error:", e);
                 throw new RdosDefineException("create partition error:" + ExceptionUtil.getErrorMessage(e));
             }
         }
@@ -447,11 +446,12 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             }
             pluginInfo.put(ConfigConstant.REMOTE_DIR,remoteDir);
 
-            String principalFile = hadoopConfig.getString(ConfigConstant.PRINCIPALFILE);
+            String principalFile = hadoopConfig.getString(ConfigConstant.PRINCIPAL_FILE);
             if(StringUtils.isBlank(principalFile)){
                 throw new RdosDefineException("数据同步hadoopConfig principalFile 字段不能为空");
             }
-            pluginInfo.put(ConfigConstant.PRINCIPALFILE,principalFile);
+            pluginInfo.put(ConfigConstant.PRINCIPAL_FILE,principalFile);
+            pluginInfo.putIfAbsent(ConfigConstant.PRINCIPAL,hadoopConfig.getString(ConfigConstant.PRINCIPAL));
 
             JSONObject sftpConf = hadoopConfig.getJSONObject(EComponentType.SFTP.getConfName());
             if (null == sftpConf || sftpConf.size() <= 0) {
@@ -459,12 +459,12 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             }
             pluginInfo.put(EComponentType.SFTP.getConfName(), sftpConf);
             //krb5.conf的文件名
-            String krb5Conf = hadoopConfig.getString(ConfigConstant.KRB5_CONF);
+            String krb5Conf = hadoopConfig.getString(ConfigConstant.JAVA_SECURITY_KRB5_CONF);
             if(StringUtils.isBlank(krb5Conf)){
                 //平台不传 暂时设置默认值
-                krb5Conf = ConfigConstant.KRBNAME_DEFAULT;
+                krb5Conf = ConfigConstant.KRB5_CONF;
             }
-            pluginInfo.put(ConfigConstant.KRBNAME,krb5Conf);
+            pluginInfo.put(ConfigConstant.KRB_NAME, krb5Conf);
             pluginInfo.put(EComponentType.YARN.getConfName(), hadoopConfig);
 
         }
@@ -487,7 +487,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             try {
                 JSONObject reader = (JSONObject) JSONPath.eval(jsonJob, "$.job.content[0].reader");
                 Object increCol = JSONPath.eval(reader, "$.parameter.increColumn");
-                if (Objects.nonNull(increCol) && Objects.nonNull(job.getExecStartTime()) && Objects.nonNull(job.getExecEndTime())) {
+                if (null != increCol && null != job.getExecStartTime() && null != job.getExecEndTime()) {
                     String lastEndLocation = this.queryLastLocation(dtuicTenantId, job.getEngineJobId(), job.getExecStartTime().getTime(), job.getExecEndTime().getTime(), taskparams, job.getComputeType(), jobId);
                     LOG.info("job {} last job {} applicationId {} startTime {} endTime {} location {}", job, job.getJobId(), job.getEngineJobId(), job.getExecStartTime(), job.getExecEndTime(), lastEndLocation);
                     reader.getJSONObject("parameter").put("startLocation", lastEndLocation);
@@ -507,11 +507,11 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         if (CollectionUtils.isEmpty(componentsConfigOfComponentsVOS)) {
             return null;
         }
-        Optional<ComponentsConfigOfComponentsVO> flinkComponent = componentsConfigOfComponentsVOS.stream().filter(c -> c.getComponentTypeCode() == EComponentType.FLINK.getTypeCode()).findFirst();
+        Optional<ComponentsConfigOfComponentsVO> flinkComponent = componentsConfigOfComponentsVOS.stream().filter(c -> c.getComponentTypeCode().equals(EComponentType.FLINK.getTypeCode())).findFirst();
         if(flinkComponent.isPresent()){
             ComponentsConfigOfComponentsVO componentsVO = flinkComponent.get();
             JSONObject flinkJsonObject = JSONObject.parseObject(componentsVO.getComponentConfig());
-            EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam,computeType);
+            EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams(taskParam,computeType,EngineType.Flink.name());
             JSONObject flinkConfig = flinkJsonObject.getJSONObject(eDeployMode.getMode());
             String prometheusHost = flinkConfig.getString("prometheusHost");
             String prometheusPort = flinkConfig.getString("prometheusPort");
@@ -554,7 +554,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
     /**
      * 获取flink任务checkpoint的存储路径
      *
-     * @param tenantId 租户id
+     * @param dtuicTenantId 租户id
      * @return checkpoint存储路径
      */
     private String getSavepointPath(Long dtuicTenantId) {
@@ -618,6 +618,9 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             } else if (taskType.equals(EScheduleJobType.KERAS.getVal())){
                 fileName = String.format("keras_%s_%s_%s_%s.py", tenantId, projectId,
                         taskName, System.currentTimeMillis());
+            } else if (taskType.equals(EScheduleJobType.PYTORCH.getVal())) {
+                fileName = String.format("pytorch_%s_%s_%s_%s.py", tenantId, projectId,
+                        taskName, System.currentTimeMillis());
             }
 
             if (fileName != null) {
@@ -627,7 +630,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 }
 
                 JSONObject pluginInfoWithComponentType = componentService.getPluginInfoWithComponentType(dtuicTenantId, EComponentType.HDFS);
-                String typeName = pluginInfoWithComponentType.getString(ComponentService.TYPE_NAME);
+                String hdfsVersion = pluginInfoWithComponentType.getString(ComponentService.VERSION);
+                String typeName = EComponentType.HDFS.name().toLowerCase() + componentService.formatHadoopVersion(hdfsVersion,EComponentType.HDFS);
                 String hdfsUploadPath = workerOperator.uploadStringToHdfs(typeName, pluginInfoWithComponentType.toJSONString(), content, hdfsPath);
                 if(StringUtils.isBlank(hdfsUploadPath)){
                     throw new RdosDefineException("Update task to HDFS failure hdfsUploadPath is blank");

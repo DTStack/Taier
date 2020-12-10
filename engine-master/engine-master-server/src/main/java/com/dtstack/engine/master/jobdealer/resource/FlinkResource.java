@@ -5,17 +5,11 @@ import com.dtstack.engine.api.domain.Engine;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.dao.ClusterDao;
-import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.master.impl.ComponentService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Map;
@@ -83,7 +77,7 @@ public class FlinkResource extends CommonResource {
         long tenantId = jobClient.getTenantId();
 
         ClusterVO cluster = clusterService.getClusterByTenant(tenantId);
-        if (Objects.isNull(cluster)){
+        if (null == cluster){
             throw new RdosDefineException("No found cluster by tenantId: " + tenantId);
         }
 
@@ -100,7 +94,7 @@ public class FlinkResource extends CommonResource {
                 break;
             }
         }
-        if (Objects.isNull(hadoopEngine)) {
+        if (null == hadoopEngine) {
             throw new RdosDefineException("No found hadoopEngine");
         }
 

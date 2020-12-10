@@ -1,5 +1,6 @@
 package com.dtstack.engine.sparkyarn.sparkyarn;
 
+import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
@@ -26,6 +27,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -34,13 +36,13 @@ import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.yarn.ClientArguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.security.PrivilegedExceptionAction;
@@ -84,6 +86,8 @@ public class SparkYarnClient extends AbstractClient {
 
     private static final String CLUSTER_INFO_WS_FORMAT = "%s/ws/v1/cluster";
 
+    private static final String USER_DIR = System.getProperty("user.dir");
+
     /**如果请求 CLUSTER_INFO_WS_FORMAT 返回信息包含该特征则表示是alive*/
     private static final String ALIVE_WEB_FLAG = "clusterInfo";
 
@@ -97,7 +101,17 @@ public class SparkYarnClient extends AbstractClient {
 
     private Properties sparkExtProp;
 
+    private FilesystemManager filesystemManager;
+
     private ThreadPoolExecutor threadPoolExecutor;
+
+    private static String userDir = System.getProperty("user.dir");
+
+    private static final String SPARK_CONF_DIR = "sparkconf";
+
+    public static final String SPARK_LOG4J_FILE_NAME = "log4j-spark.properties";
+
+    public static final String SPARK_LOCAL_LOG4J_KEY = "spark_local_log4j_key";
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -111,6 +125,8 @@ public class SparkYarnClient extends AbstractClient {
         parseWebAppAddr();
         logger.info("UGI info: " + UserGroupInformation.getCurrentUser());
         yarnClient = this.buildYarnClient();
+
+        this.filesystemManager = new FilesystemManager(yarnConf, sparkYarnConfig.getSftpConf());
 
         if (sparkYarnConfig.getMonitorAcceptedApp()) {
             AcceptedApplicationMonitor.start(yarnConf, sparkYarnConfig.getQueue(), sparkYarnConfig);
@@ -195,14 +211,16 @@ public class SparkYarnClient extends AbstractClient {
         }
 
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
-        SparkConf sparkConf = buildBasicSparkConf();
+        SparkConf sparkConf = buildBasicSparkConf(jobClient);
         sparkConf.setAppName(appName);
+        setSparkLog4jLocalFilePath(sparkConf, jobClient);
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
+        setSparkLog4jConfiguration(sparkConf);
 
         ApplicationId appId = null;
 
         try {
-            ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
+            ClientExt clientExt = ClientExtFactory.getClientExt(filesystemManager, clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
             String proxyUserName = sparkYarnConfig.getDtProxyUserName();
             if (StringUtils.isNotBlank(proxyUserName)) {
@@ -234,7 +252,6 @@ public class SparkYarnClient extends AbstractClient {
         if(Strings.isNullOrEmpty(appName)){
             return JobResult.createErrorResult("an application name must be set in your configuration");
         }
-
         ApplicationId appId = null;
 
         List<String> argList = new ArrayList<>();
@@ -279,14 +296,16 @@ public class SparkYarnClient extends AbstractClient {
             pythonExtPath = pythonExtPath + "," + dependencyResource;
         }
 
-        SparkConf sparkConf = buildBasicSparkConf();
+        SparkConf sparkConf = buildBasicSparkConf(jobClient);
         sparkConf.set("spark.submit.pyFiles", pythonExtPath);
         sparkConf.setAppName(appName);
+        setSparkLog4jLocalFilePath(sparkConf, jobClient);
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
+        setSparkLog4jConfiguration(sparkConf);
 
         try {
             ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
-            ClientExt clientExt = new ClientExt(clientArguments, yarnConf, sparkConf);
+            ClientExt clientExt = new ClientExt(filesystemManager, clientArguments, yarnConf, sparkConf);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
 
             String proxyUserName = sparkYarnConfig.getDtProxyUserName();
@@ -353,14 +372,16 @@ public class SparkYarnClient extends AbstractClient {
         argList.add(sqlExeJson);
 
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
-        SparkConf sparkConf = buildBasicSparkConf();
+        SparkConf sparkConf = buildBasicSparkConf(jobClient);
         sparkConf.setAppName(jobClient.getJobName());
+        setSparkLog4jLocalFilePath(sparkConf, jobClient);
         fillExtSparkConf(sparkConf, confProp);
+        setSparkLog4jConfiguration(sparkConf);
 
         ApplicationId appId = null;
 
         try {
-            ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
+            ClientExt clientExt = ClientExtFactory.getClientExt(filesystemManager, clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
             String proxyUserName = sparkYarnConfig.getDtProxyUserName();
             if (StringUtils.isNotBlank(proxyUserName)) {
@@ -396,7 +417,17 @@ public class SparkYarnClient extends AbstractClient {
         return map;
     }
 
-    private SparkConf buildBasicSparkConf(){
+    private void setSparkLog4jLocalFilePath(SparkConf sparkConf, JobClient jobClient) {
+        Properties confProp = jobClient.getConfProperties();
+        String logLevel = MathUtil.getString(confProp.get(LOG_LEVEL_KEY), "info");
+        String path = userDir + File.separator + SPARK_CONF_DIR + File.separator + logLevel.toLowerCase() + File.separator + SPARK_LOG4J_FILE_NAME;
+        File file = new File(path);
+        if (file.exists()) {
+            sparkConf.set(SPARK_LOCAL_LOG4J_KEY, path);
+        }
+    }
+
+    private SparkConf buildBasicSparkConf(JobClient jobClient){
 
         SparkConf sparkConf = new SparkConf();
         sparkConf.remove("spark.jars");
@@ -405,8 +436,10 @@ public class SparkYarnClient extends AbstractClient {
         sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
         sparkConf.set("security", "false");
 
+        String taskId = jobClient.getTaskId();
         if (sparkYarnConfig.isOpenKerberos()){
-            String keytab = KerberosUtils.getKeytabPath(sparkYarnConfig);
+            String[] kerberosFiles = KerberosUtils.getKerberosFile(sparkYarnConfig, null);
+            String keytab = kerberosFiles[0];
             String principal = KerberosUtils.getPrincipal(keytab);
             sparkConf.set("spark.yarn.keytab", keytab);
             sparkConf.set("spark.yarn.principal", principal);
@@ -420,6 +453,26 @@ public class SparkYarnClient extends AbstractClient {
             });
         }
         return sparkConf;
+    }
+
+    private void setSparkLog4jConfiguration(SparkConf sparkConf) {
+        String localPath = sparkConf.get(SPARK_LOCAL_LOG4J_KEY, "");
+        if (StringUtils.isBlank(localPath)) {
+            return;
+        }
+        String configuration = "-Dlog4j.configuration=" + SPARK_LOG4J_FILE_NAME;
+        String driverExtraJavaOptions = sparkConf.get("spark.driver.extraJavaOptions", "");
+        if (StringUtils.isBlank(driverExtraJavaOptions)) {
+            sparkConf.set("spark.driver.extraJavaOptions", configuration);
+        } else {
+            sparkConf.set("spark.driver.extraJavaOptions", driverExtraJavaOptions + " " + configuration);
+        }
+        String executorExtraJavaOptions = sparkConf.get("spark.executor.extraJavaOptions", "");
+        if (StringUtils.isBlank(executorExtraJavaOptions)) {
+            sparkConf.set("spark.executor.extraJavaOptions", configuration);
+        } else {
+            sparkConf.set("spark.executor.extraJavaOptions", executorExtraJavaOptions + " " + configuration);
+        }
     }
 
     /**
@@ -542,7 +595,7 @@ public class SparkYarnClient extends AbstractClient {
             }, yarnConf);
         } catch (Exception e) {
             logger.error("", e);
-            return RdosTaskStatus.RUNNING;
+            return RdosTaskStatus.NOTFOUND;
         }
     }
 
@@ -656,8 +709,8 @@ public class SparkYarnClient extends AbstractClient {
                     return resourceInfo.judgeSlots(jobClient);
             }, yarnConf);
         } catch (Exception e) {
-            logger.error("judgeSlots error", e);
-            return JudgeResult.notOk("judgeSlots error");
+            logger.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 

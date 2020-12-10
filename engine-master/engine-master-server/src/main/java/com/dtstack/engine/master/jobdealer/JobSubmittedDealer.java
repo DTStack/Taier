@@ -64,8 +64,8 @@ public class JobSubmittedDealer implements Runnable {
                 if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
                     JobResult jobResult = jobClient.getJobResult();
                     String appId = jobResult.getData(JobResult.EXT_ID_KEY);
-                    String jobGraph = jobResult.getData(JobResult.JOB_GRAPH);
-                    scheduleJobDao.updateJobSubmitSuccess(jobClient.getTaskId(), jobClient.getEngineTaskId(), appId, jobClient.getJobResult().getJsonStr(), JobGraphUtil.formatJSON(jobClient.getEngineTaskId(),jobGraph));
+                    String jobGraph = JobGraphUtil.formatJSON(jobClient.getEngineTaskId(), jobResult.getData(JobResult.JOB_GRAPH));
+                    scheduleJobDao.updateJobSubmitSuccess(jobClient.getTaskId(), jobClient.getEngineTaskId(), appId, jobClient.getJobResult().getJsonStr(), jobGraph);
                     jobDealer.updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
                     jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
                     shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITTED.getStatus());

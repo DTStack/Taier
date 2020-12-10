@@ -22,12 +22,15 @@ public class WorkerMain {
             LogbackComponent.setupLogger();
             Config workerConfig = AkkaConfig.init(ConfigFactory.load());
             TaskLogStoreDealer.getInstance();
-            AkkaWorkerServerImpl.getAkkaWorkerServer().start(workerConfig);
+
+            if (!AkkaConfig.isLocalMode()) {
+                AkkaWorkerServerImpl.getAkkaWorkerServer().start(workerConfig);
+            }
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
             System.setSecurityManager(new NoExitSecurityManager());
             logger.info("engine-worker start end...");
         } catch (Throwable e) {
-            logger.error("engine-worker start error:{}", e);
+            logger.error("engine-worker start error:", e);
             System.exit(-1);
         }
     }

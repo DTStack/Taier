@@ -428,7 +428,7 @@ public class ApplicationMaster extends CompositeService {
                                  Map<String, String> containerEnv,
                                  List<String> containerLaunchcommands,
                                  Container container, int index) throws IOException {
-        System.out.println("container nodeId: " + container.getNodeId().toString());
+        LOG.info("container nodeId: " + container.getNodeId().toString());
         LOG.info("Setting up launch context for containerID="
                 + container.getId());
 

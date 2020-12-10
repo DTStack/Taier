@@ -18,7 +18,9 @@
 
 package com.dtstack.engine.flink.factory;
 
+import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.flink.FlinkClientBuilder;
 import org.apache.flink.client.deployment.ClusterClientFactory;
 import org.apache.flink.client.deployment.ClusterDescriptor;
 import org.apache.flink.client.deployment.StandaloneClusterId;
@@ -38,19 +40,18 @@ public class StandaloneClientFactory implements IClientFactory {
 
     private Configuration flinkConfiguration;
 
-    public StandaloneClientFactory(Configuration flinkConfiguration) {
-        this.flinkConfiguration = flinkConfiguration;
+    public StandaloneClientFactory(FlinkClientBuilder flinkClientBuilder) {
+        this.flinkConfiguration = flinkClientBuilder.getFlinkConfiguration();
     }
 
     @Override
-    public ClusterClient getClusterClient() {
+    public ClusterClient getClusterClient(JobIdentifier jobIdentifier) {
         ClusterClientFactory<StandaloneClusterId> standaloneClientFactory = new org.apache.flink.client.deployment.StandaloneClientFactory();
         final StandaloneClusterId clusterId = standaloneClientFactory.getClusterId(flinkConfiguration);
         if (clusterId == null) {
             throw new RdosDefineException("No cluster id was specified. Please specify a cluster to which you would like to connect.");
         }
-        try {
-            final ClusterDescriptor<StandaloneClusterId> clusterDescriptor = standaloneClientFactory.createClusterDescriptor(flinkConfiguration);
+        try (final ClusterDescriptor<StandaloneClusterId> clusterDescriptor = standaloneClientFactory.createClusterDescriptor(flinkConfiguration)) {
             ClusterClient<StandaloneClusterId> clusterClient = clusterDescriptor.retrieve(clusterId).getClusterClient();
             return clusterClient;
         } catch (Exception e) {

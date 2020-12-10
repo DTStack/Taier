@@ -15,9 +15,8 @@
     <packaging>pom</packaging>
 
     <properties>
-        <junit.version>4.11</junit.version>
+        <junit.version>4.12</junit.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <learning3.version>4.0.0-gpu-SNAPSHOT</learning3.version>
     </properties>
 
     <url>http://maven.apache.org</url>
