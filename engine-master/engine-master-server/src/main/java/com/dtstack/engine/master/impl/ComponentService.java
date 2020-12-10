@@ -432,8 +432,7 @@ public class ComponentService {
         }
 
         String mergeDirPath = ConfigConstant.LOCAL_KRB5_MERGE_DIR_PARENT + ConfigConstant.SP + UUID.randomUUID();
-        List<String> localKrb5Paths = new ArrayList<>();
-        Map<String, SftpFileManage> sftpFileManages = new HashMap<>();
+        Map<String, KerberosConfig> KerberosConfigMap = new HashMap<>();
         try {
             String mergeKrb5Path = mergeDirPath + ConfigConstant.SP + ConfigConstant.MERGE_KRB5_NAME;
             for (KerberosConfig kerberosConfig : kerberosConfigs) {
@@ -449,8 +448,7 @@ public class ComponentService {
                 SftpFileManage sftpFileManage = sftpFileManageBean.retrieveSftpManager(sftpConfig);
                 boolean downRes = sftpFileManage.downloadFile(remoteKrb5Path, localKrb5Path);
                 if (downRes) {
-                    localKrb5Paths.add(localKrb5Path);
-                    sftpFileManages.put(localKrb5Path, sftpFileManage);
+                    KerberosConfigMap.put(localKrb5Path, kerberosConfig);
                     if (!new File(mergeKrb5Path).exists()) {
                         FileUtils.copyFile(new File(localKrb5Path), new File(mergeKrb5Path));
                         continue;
@@ -462,11 +460,11 @@ public class ComponentService {
                     }
                 }
             }
-            for (String localKrb5Path : localKrb5Paths) {
-                SftpFileManage sftpFileManage = sftpFileManages.get(localKrb5Path);
-                File localKrb5File = new File(localKrb5Path);
-                String componentKrb5ParentDir = localKrb5File.getParent();
-                sftpFileManage.uploadFile(componentKrb5ParentDir, mergeKrb5Path);
+            LOGGER.info("mergeKrb5Content is {}", mergeKrb5Content);
+            for (String localKrb5Path : KerberosConfigMap.keySet()) {
+                KerberosConfig kerberosConfig = KerberosConfigMap.get(localKrb5Path);
+                kerberosConfig.setMergeKrbContent(mergeKrb5Content);
+                kerberosDao.update(kerberosConfig);
             }
         } catch (Exception e) {
             LOGGER.error("Merge krb5 error! {}", e.getMessage());
@@ -481,33 +479,16 @@ public class ComponentService {
     }
 
     public void updateKrb5Conf(String krb5Content) {
-        String mergeDirPath = ConfigConstant.LOCAL_KRB5_MERGE_DIR_PARENT + ConfigConstant.SP + UUID.randomUUID();
-        String mergeKrb5Path = mergeDirPath + ConfigConstant.SP + ConfigConstant.MERGE_KRB5_NAME;
         try {
-            if (!new File(mergeDirPath).exists()) {
-                new File(mergeDirPath).mkdirs();
-            }
-            Files.write(Paths.get(mergeKrb5Path), Collections.singleton(krb5Content));
             List<KerberosConfig> kerberosConfigs = kerberosDao.listAll();
             for (KerberosConfig kerberosConfig : kerberosConfigs) {
                 String remotePath = kerberosConfig.getRemotePath();
-                Long clusterId = kerberosConfig.getClusterId();
-                Integer componentCode = kerberosConfig.getComponentType();
-
-                Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
-                SftpConfig sftpConfig = getSFTPConfig(sftpComponent, componentCode, "");
-                SftpFileManage sftpFileManage = sftpFileManageBean.retrieveSftpManager(sftpConfig);
-                sftpFileManage.uploadFile(remotePath, mergeKrb5Path);
+                kerberosConfig.setMergeKrbContent(krb5Content);
+                kerberosDao.update(kerberosConfig);
                 LOGGER.info("Update krb5 remotePath {}", remotePath);
             }
         } catch (Exception e) {
             LOGGER.error("Update krb5 error! {}", e.getMessage());
-        } finally {
-            try {
-                File mergeDir = new File(mergeDirPath);
-                FileUtils.deleteDirectory(mergeDir);
-            } catch (Exception e) {
-            }
         }
     }
 
@@ -953,10 +934,6 @@ public class ComponentService {
             kerberosDao.update(kerberosConfig);
         }
         return remoteDirKerberos;
-    }
-
-    private void uploadKerberosFile (Long clusterId, Component addComponent, SftpFileManage sftpFileManage, String remoteDir, Resource resource) {
-
     }
 
     private String parsePrincipal(String principal, List<PrincipalName> principalLists) {

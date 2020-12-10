@@ -845,32 +845,6 @@ public class ClusterService implements InitializingBean {
     private List<SchedulingVo> convertComponentToScheduling(Boolean removeTypeName, List<KerberosConfig> kerberosConfigs, Map<EComponentScheduleType, List<Component>> scheduleType) {
         List<SchedulingVo> schedulingVos = new ArrayList<>();
 
-        String mergeKrb5Content = "";
-        String mergeKrb5LocalPath = "";
-        try {
-            if (CollectionUtils.isNotEmpty(kerberosConfigs)) {
-                KerberosConfig kerberosConfig = kerberosConfigs.get(0);
-                String remotePath = kerberosConfig.getRemotePath();
-                Long clusterId = kerberosConfig.getClusterId();
-                Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
-                SftpConfig sftpConfig = componentService.getSFTPConfig(sftpComponent, kerberosConfig.getComponentType(), "");
-                SftpFileManage sftpFileManage = sftpFileManageBean.retrieveSftpManager(sftpConfig);
-                String mergeKrb5RemotePath = remotePath + ConfigConstant.SP + ConfigConstant.MERGE_KRB5_NAME;
-                String mergeDirPath = ConfigConstant.LOCAL_KRB5_MERGE_DIR_PARENT + ConfigConstant.SP + UUID.randomUUID();
-                mergeKrb5LocalPath = mergeDirPath + ConfigConstant.SP + ConfigConstant.MERGE_KRB5_NAME;
-                sftpFileManage.downloadFile(mergeKrb5RemotePath, mergeKrb5LocalPath);
-                mergeKrb5Content = FileUtils.readFileToString(new File(mergeKrb5LocalPath));
-            }
-        } catch (IOException e) {
-            LOGGER.warn("get mergeKrb5.conf error: {}", e.getMessage());
-        } finally {
-            try {
-                File mergeDir = new File(mergeKrb5LocalPath);
-                FileUtils.deleteDirectory(mergeDir.getParentFile());
-            } catch (Exception e) {
-            }
-        }
-
         //为空也返回
         for (EComponentScheduleType value : EComponentScheduleType.values()) {
             SchedulingVo schedulingVo = new SchedulingVo();
@@ -895,7 +869,7 @@ public class ClusterService implements InitializingBean {
                         if(componentVO.getComponentTypeCode().equals(config.getComponentType())){
                             componentVO.setPrincipal(config.getPrincipal());
                             componentVO.setPrincipals(config.getPrincipals());
-                            componentVO.setMergeKrb5Content(mergeKrb5Content);
+                            componentVO.setMergeKrb5Content(config.getMergeKrbContent());
                         }
                     }
                 }

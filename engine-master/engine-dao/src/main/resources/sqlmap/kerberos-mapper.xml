@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.KerberosDao">
 
     <sql id="select_content_fragment">
-      id,cluster_id,open_kerberos,name,remote_path,principal,gmt_create,gmt_modified,is_deleted,component_type,krb_name,principals
+      id,cluster_id,open_kerberos,name,remote_path,principal,gmt_create,gmt_modified,is_deleted,component_type,krb_name,principals,merge_krb_content
     </sql>
 
     <sql id="update_fragment">
@@ -34,6 +34,9 @@
             </if>
             <if test="krbName != null">
                 krb_name = #{krbName},
+            </if>
+            <if test="mergeKrbContent != null">
+                merge_krb_content = #{mergeKrbContent},
             </if>
             gmt_modified =now()
         </set>
