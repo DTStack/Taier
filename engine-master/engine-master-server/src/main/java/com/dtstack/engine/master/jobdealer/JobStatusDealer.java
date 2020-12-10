@@ -28,10 +28,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -83,8 +81,6 @@ public class  JobStatusDealer implements Runnable {
 
     private ScheduleJobService scheduleJobService;
 
-    private Set<String> dealingJobs = new HashSet<>();
-
     @Override
     public void run() {
         try {
@@ -97,7 +93,7 @@ public class  JobStatusDealer implements Runnable {
                 return;
             }
 
-            jobs = jobs.stream().filter(job -> !dealingJobs.contains(job.getKey()) && !RdosTaskStatus.needClean(job.getValue())).collect(Collectors.toList());
+            jobs = jobs.stream().filter(job -> !RdosTaskStatus.needClean(job.getValue())).collect(Collectors.toList());
 
             Semaphore buildSemaphore = new Semaphore(taskStatusDealerPoolSize);
             CountDownLatch ctl = new CountDownLatch(jobs.size());
