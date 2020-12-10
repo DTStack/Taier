@@ -117,6 +117,21 @@ public class ScheduleJob extends AppTenantEntity {
         isForce = force;
     }
 
+
+    /**
+     * 提交用户名
+     */
+    @ApiModelProperty(notes = "任务提交用户")
+    private String submitUserName;
+
+    public String getSubmitUserName() {
+        return submitUserName;
+    }
+
+    public void setSubmitUserName(String submitUserName) {
+        this.submitUserName = submitUserName;
+    }
+
     public String getEngineJobId() {
         return engineJobId;
     }

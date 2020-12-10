@@ -35,7 +35,7 @@ import java.util.Map;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({DtContainer.class, DtYarnConfiguration.class,RPC.class, FileSystem.class})
-@PowerMockIgnore({"javax.net.ssl.*","org.apache.hadoop.security.UserGroupInformation"})
+@PowerMockIgnore({"javax.net.ssl.*","org.apache.hadoop.security.UserGroupInformation.*"})
 public class DtContainerTest {
 
     @Rule
@@ -98,8 +98,15 @@ public class DtContainerTest {
         PowerMockito.when(FileSystem.getLocal(Mockito.any(Configuration.class))).thenReturn(fileSystem);
         PowerMockito.when(FileSystem.create(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(stream);
 
+
+//        PowerMockito.mockStatic(SecurityUtil.class);
+
+
         DtContainer.main(null);
     }
 
+    public void testUploadOutputFiles() throws Exception {
+
+    }
 
 }
