@@ -968,7 +968,7 @@ public class ScheduleJobService {
         if (StringUtils.isNotBlank(msg) && msg.length() > 500) {
             msg = msg.substring(0, 500) + "...";
         }
-        return scheduleJobDao.updateStatusByJobId(jobId, status, msg);
+        return scheduleJobDao.updateStatusByJobId(jobId, status, msg,null);
     }
 
     public Integer updateStatusByJobId(String jobId, Integer status,Integer versionId) {
