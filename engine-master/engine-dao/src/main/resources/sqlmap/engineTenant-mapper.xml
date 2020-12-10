@@ -62,7 +62,7 @@
         <include refid="select_content_fragment"/>
         from console_engine_tenant
         where is_deleted = 0
-        <if test="engineIds.size() > 0">
+        <if test="engineIds !=null and engineIds.size() > 0">
             and engine_id in
             <foreach collection="engineIds" item="engineId" open="(" separator="," close=")">
                 #{engineId}
@@ -73,7 +73,7 @@
     <select id="listTenantIdByQueueIds" resultType="java.lang.Long">
         select tenant_id from console_engine_tenant
         where is_deleted = 0
-        <if test="queueIds.size() > 0">
+        <if test="queueIds !=null and queueIds.size() > 0">
             and queue_id in
             <foreach collection="queueIds" item="queueId" open="(" separator="," close=")">
                 #{queueId}

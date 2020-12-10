@@ -101,7 +101,7 @@ public class ScheduleTaskShadeService {
      */
     public void deleteTask( Long taskId,  long modifyUserId, Integer appType) {
         scheduleTaskShadeDao.delete(taskId, modifyUserId,appType);
-        //todo 没有进行参数校验，上面是逻辑删除，下面为什么是逻辑删除
+        //todo 没有进行参数校验，上面是逻辑删除，下面为什么是物理删除
         scheduleTaskTaskShadeService.clearDataByTaskId(taskId,appType);
     }
 

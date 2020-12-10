@@ -123,7 +123,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM console_account_tenant
-        WHERE id = #{id}
+        WHERE id = #{id} and is_deleted = 0
     </select>
 
     <select id="getByUserIdAndTenantIdAndEngineType" resultType="AccountTenant">

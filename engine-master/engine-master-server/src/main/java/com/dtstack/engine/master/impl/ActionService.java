@@ -11,6 +11,7 @@ import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.CustomThreadRunsPolicy;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
@@ -137,6 +138,8 @@ public class ActionService {
      * @throws Exception
      */
     public Boolean stop(List<String> jobIds) {
+
+        //todo 增加判断jobIds如果为空，直接返回
         List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.getRdosJobByJobIds(jobIds));
         jobStopDealer.addStopJobs(jobs);
         return true;
@@ -245,7 +248,7 @@ public class ActionService {
         if (StringUtils.isBlank(jobId)||computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
-
+        // todo 不是要根据根据jobid 和 计算类型，查询job的状态吗，怎么只根据jobId查询了
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         if (scheduleJob != null) {
         	return scheduleJob.getStatus();
@@ -261,7 +264,7 @@ public class ActionService {
         if (CollectionUtils.isEmpty(jobIds)||computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
-
+        // todo computeType需要用到吗
         Map<String,Integer> result = null;
         List<ScheduleJob> scheduleJobs = scheduleJobDao.getRdosJobByJobIds(jobIds);
         if (CollectionUtils.isNotEmpty(scheduleJobs)) {
@@ -349,6 +352,8 @@ public class ActionService {
         if (StringUtils.isBlank(jobId) || computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
+
+        //todo 参数computeType没有用到
         ActionRetryLogVO vo = new ActionRetryLogVO();
         List<ActionRetryLogVO> logs = new ArrayList<>(5);
         List<EngineJobRetry> batchJobRetrys = engineJobRetryDao.listJobRetryByJobId(jobId);
@@ -374,7 +379,7 @@ public class ActionService {
         if (retryNum == null || retryNum <= 0) {
             retryNum = 1;
         }
-
+        //todo computeType没有用到
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         //数组库中存储的retryNum为0开始的索引位置
         EngineJobRetry jobRetry = engineJobRetryDao.getJobRetryByJobId(jobId, retryNum - 1);
@@ -434,6 +439,7 @@ public class ActionService {
     public List<String> containerInfos(ParamAction paramAction) throws Exception {
         checkParam(paramAction);
         //从数据库补齐数据
+        // todo 只用到了taskId，computeType和engineType都没用到
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(paramAction.getTaskId());
         if(scheduleJob != null){
             paramAction.setEngineTaskId(scheduleJob.getEngineJobId());
@@ -446,6 +452,7 @@ public class ActionService {
 
     public String generateUniqueSign(){
 
+        //todo 感觉写法有点问题，如果异常会一直运行，需要优化
         String uniqueSign;
         int index = 100;
         while(true){
@@ -456,7 +463,7 @@ public class ActionService {
                 index = index+1;
                 uniqueSign = UUID.randomUUID().toString().replace("-","");
                 int len = uniqueSign.length();
-                StringBuffer sb =new StringBuffer();
+                StringBuilder sb =new StringBuilder();
                 for(int i=0;i<length;i++){
                     int a = random.nextInt(len) + 1;
                     sb.append(uniqueSign.substring(a-1, a));
@@ -468,9 +475,17 @@ public class ActionService {
                 engineUniqueSignDao.insert(generateUniqueSign);
                 break;
             }catch(Exception e){
+                logger.error("generateUniqueSign error:{}", ExceptionUtil.getErrorMessage(e));
             }
         }
         return uniqueSign;
+    }
+
+    public static void main(String[] args) {
+
+        ActionService actionService = new ActionService();
+        String s = actionService.generateUniqueSign();
+        System.out.println(s);
     }
 
     /**
@@ -478,6 +493,8 @@ public class ActionService {
      * @return
      */
     public String resetTaskStatus( String jobId,  Integer computeType){
+
+        //todo 缺少对jobId的校验，computeType没有用到
         //check jobstatus can reset
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         Preconditions.checkNotNull(scheduleJob, "not exists job with id " + jobId);
@@ -502,6 +519,11 @@ public class ActionService {
         }
 
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType());
+        //todo 重复的代码
+        return toVOS(scheduleJobs);
+    }
+
+    private List<ActionJobStatusVO> toVOS(List<ScheduleJob> scheduleJobs){
         if (CollectionUtils.isNotEmpty(scheduleJobs)) {
             List<ActionJobStatusVO> result = new ArrayList<>(scheduleJobs.size());
             for (ScheduleJob scheduleJob : scheduleJobs) {
@@ -510,23 +532,15 @@ public class ActionService {
             }
             return result;
         }
-        return Collections.EMPTY_LIST;
+        return new ArrayList<>();
     }
-
 
     public List<ActionJobStatusVO> listJobStatusByJobIds( List<String> jobIds) throws Exception {
         if (CollectionUtils.isNotEmpty(jobIds)) {
             List<ScheduleJob> scheduleJobs = scheduleJobDao.getRdosJobByJobIds(jobIds);
-            if (CollectionUtils.isNotEmpty(scheduleJobs)) {
-                List<ActionJobStatusVO> result = new ArrayList<>(scheduleJobs.size());
-                for (ScheduleJob scheduleJob : scheduleJobs) {
-                    ActionJobStatusVO vo = batJobConvertMap(scheduleJob);
-                    result.add(vo);
-                }
-                return result;
-            }
+            return toVOS(scheduleJobs);
         }
-        return Collections.EMPTY_LIST;
+        return new ArrayList<>();
     }
 
     private ActionJobStatusVO batJobConvertMap(ScheduleJob scheduleJob){

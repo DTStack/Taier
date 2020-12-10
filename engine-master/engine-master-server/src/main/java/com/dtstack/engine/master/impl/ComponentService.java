@@ -205,7 +205,9 @@ public class ComponentService {
      */
     public void updateCache(Long engineId, Integer componentCode) {
         Set<Long> dtUicTenantIds = new HashSet<>();
-        if (Objects.nonNull(componentCode) && (
+
+        //todo 条件中使用了复杂表达式，应该优化
+        if ( null != componentCode && (
                 EComponentType.TIDB_SQL.getTypeCode() == componentCode ||
                         EComponentType.LIBRA_SQL.getTypeCode() == componentCode ||
                         EComponentType.GREENPLUM_SQL.getTypeCode() == componentCode ||
@@ -216,7 +218,7 @@ public class ComponentService {
             List<EngineTenantVO> tenantVOS = engineTenantDao.listEngineTenant(engineId);
             if (CollectionUtils.isNotEmpty(tenantVOS)) {
                 for (EngineTenantVO tenantVO : tenantVOS) {
-                    if (Objects.nonNull(tenantVO) && Objects.nonNull(tenantVO.getTenantId())) {
+                    if ( null != tenantVO &&  null != tenantVO.getTenantId()) {
                         dtUicTenantIds.add(tenantVO.getTenantId());
                     }
                 }
@@ -795,11 +797,16 @@ public class ComponentService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void closeKerberos( Long componentId) {
-        kerberosDao.deleteByComponentId(componentId);
-        Component updateComponent = new Component();
-        updateComponent.setId(componentId);
-        updateComponent.setKerberosFileName("");
-        componentDao.update(updateComponent);
+        //todo 缺少对componentId的校验
+        try {
+            kerberosDao.deleteByComponentId(componentId);
+            Component updateComponent = new Component();
+            updateComponent.setId(componentId);
+            updateComponent.setKerberosFileName("");
+            componentDao.update(updateComponent);
+        } catch (Exception e) {
+            throw new  RdosDefineException("移除kerberos配置异常");
+        }
     }
 
     public ComponentsResultVO addOrCheckClusterWithName( String clusterName) {
@@ -808,7 +815,7 @@ public class ComponentService {
         }
         clusterName = clusterName.trim();
         Cluster cluster = clusterDao.getByClusterName(clusterName);
-        if (Objects.isNull(cluster)) {
+        if ( null == cluster) {
             //创建集群
             ClusterDTO clusterDTO = new ClusterDTO();
             clusterDTO.setClusterName(clusterName);
@@ -918,14 +925,14 @@ public class ComponentService {
 
         ComponentTestResult componentTestResult = workerOperator.testConnect(pluginType,
                 this.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterName));
-        if (Objects.isNull(componentTestResult)) {
+        if ( null == componentTestResult ) {
             componentTestResult = new ComponentTestResult();
             componentTestResult.setResult(false);
             componentTestResult.setErrorMsg("测试联通性失败");
             return componentTestResult;
         }
         componentTestResult.setComponentTypeCode(componentType);
-        if (componentTestResult.getResult() && Objects.nonNull(engineId)) {
+        if (componentTestResult.getResult() && null != engineId) {
             updateCache(engineId, componentType);
         }
         return componentTestResult;
@@ -1337,16 +1344,20 @@ public class ComponentService {
         if (CollectionUtils.isEmpty(componentIds)) {
             return;
         }
-        for (Integer componentId : componentIds) {
-            Component component = componentDao.getOne(componentId.longValue());
-            EngineAssert.assertTrue(component != null, ErrorCode.DATA_NOT_FIND.getDescription());
+        try {
+            for (Integer componentId : componentIds) {
+                Component component = componentDao.getOne(componentId.longValue());
+                EngineAssert.assertTrue(component != null, ErrorCode.DATA_NOT_FIND.getDescription());
 
-            if (EComponentType.requireComponent.contains(EComponentType.getByCode(component.getComponentTypeCode()))){
-                throw new RdosDefineException(component.getComponentName() + " 是必选组件，不可删除");
+                if (EComponentType.requireComponent.contains(EComponentType.getByCode(component.getComponentTypeCode()))){
+                    throw new RdosDefineException(component.getComponentName() + " 是必选组件，不可删除");
+                }
+                component.setIsDeleted(Deleted.DELETED.getStatus());
+                componentDao.deleteById(componentId.longValue());
+                kerberosDao.deleteByComponentId(componentId.longValue());
             }
-            component.setIsDeleted(Deleted.DELETED.getStatus());
-            componentDao.deleteById(componentId.longValue());
-            kerberosDao.deleteByComponentId(componentId.longValue());
+        } catch (Exception e) {
+            throw new RdosDefineException("删除组件异常");
         }
     }
 
@@ -1383,7 +1394,7 @@ public class ComponentService {
         Map<String, String> sftpMap = getSftpMap(components);
         CountDownLatch countDownLatch = new CountDownLatch(components.size());
         for (Component component : components) {
-            if (EComponentType.YARN.getTypeCode() != component.getComponentTypeCode()) {
+            if (!EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
                 continue;
             }
             KerberosConfig kerberosConfig = kerberosDao.getByComponentType(
@@ -1397,7 +1408,7 @@ public class ComponentService {
                                 component.getComponentConfig(), clusterName, component.getHadoopVersion(),
                                 component.getEngineId(), kerberosConfig, finalSftpMap);
 
-                        if (refreshResult.getResult() && EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
+                        if (refreshResult.getResult() && EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
                             engineService.updateResource(component.getEngineId(), refreshResult.getClusterResourceDescription());
                             queueService.updateQueue(component.getEngineId(), refreshResult.getClusterResourceDescription());
                         }
@@ -1446,7 +1457,7 @@ public class ComponentService {
                     try {
                         testResult = this.testConnect(component.getComponentTypeCode(), component.getComponentConfig(), clusterName, component.getHadoopVersion(), component.getEngineId(), kerberosConfig, finalSftpMap);
                         //测试联通性
-                        if (EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
+                        if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
                             if (testResult.getResult()) {
                                 engineService.updateResource(component.getEngineId(), testResult.getClusterResourceDescription());
                                 queueService.updateQueue(component.getEngineId(), testResult.getClusterResourceDescription());
@@ -1482,7 +1493,7 @@ public class ComponentService {
 
     private List<Component> getComponents(Cluster cluster){
 
-        if (Objects.isNull(cluster)) {
+        if (null == cluster ) {
             throw new RdosDefineException("集群不存在");
         }
         List<Engine> engines = engineDao.listByClusterId(cluster.getId());
@@ -1500,7 +1511,7 @@ public class ComponentService {
 
     private Map<String, String> getSftpMap(List<Component> components) {
         Optional<Component> componentOptional = components.stream()
-                .filter(c -> EComponentType.SFTP.getTypeCode() == c.getComponentTypeCode())
+                .filter(c -> EComponentType.SFTP.getTypeCode().equals(c.getComponentTypeCode()))
                 .findFirst();
         Map<String, String> sftpMap = null;
         try {
@@ -1508,6 +1519,7 @@ public class ComponentService {
                 sftpMap = (Map) JSONObject.parseObject(componentOptional.get().getComponentConfig(), Map.class);
             }
         } catch (Exception e) {
+            LOGGER.error("getSftpMap error:{}",e.getMessage());
         }
         return sftpMap;
     }

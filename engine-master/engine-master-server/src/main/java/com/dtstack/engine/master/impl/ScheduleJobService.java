@@ -578,7 +578,13 @@ public class ScheduleJobService {
      */
     public ScheduleJobVO getRelatedJobs( String jobId,  String query) throws Exception {
         QueryJobDTO vo = JSONObject.parseObject(query, QueryJobDTO.class);
+        if(null == vo){
+            return null;
+        }
         ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, Deleted.NORMAL.getStatus());
+        if(null == scheduleJob){
+            return null;
+        }
         Map<Long, ScheduleTaskForFillDataDTO> shadeMap = this.prepare(Lists.newArrayList(scheduleJob));
         List<ScheduleJobVO> transfer = this.transfer(Lists.newArrayList(scheduleJob), shadeMap);
         if (CollectionUtils.isEmpty(transfer)) {
@@ -617,7 +623,9 @@ public class ScheduleJobService {
     }
 
 
+    //todo 这块逻辑不是很清楚
     private void dealFlowWorkSubJobs(List<ScheduleJobVO> vos) throws Exception {
+
         Map<String, ScheduleJobVO> record = Maps.newHashMap();
         Map<String, Integer> voIndex = Maps.newHashMap();
         vos.forEach(job -> voIndex.put(job.getJobId(), vos.indexOf(job)));
@@ -668,6 +676,7 @@ public class ScheduleJobService {
     }
 
     private List<ScheduleJobVO> transfer(List<ScheduleJob> scheduleJobs, Map<Long, ScheduleTaskForFillDataDTO> batchTaskShadeMap) {
+
         List<ScheduleJobVO> vos = new ArrayList<>(scheduleJobs.size());
         for (ScheduleJob scheduleJob : scheduleJobs) {
             ScheduleTaskForFillDataDTO taskShade = batchTaskShadeMap.get(scheduleJob.getTaskId());
@@ -760,7 +769,7 @@ public class ScheduleJobService {
 
     private Map<Integer, List<Integer>> getStatusMap(Boolean splitFiledFlag) {
         Map<Integer, List<Integer>> statusMap;
-        if (Objects.nonNull(splitFiledFlag) && splitFiledFlag) {
+        if (null !=splitFiledFlag && splitFiledFlag) {
             statusMap = RdosTaskStatus.getStatusFailedDetail();
         } else {
             statusMap = RdosTaskStatus.getCollectionStatus();
@@ -864,8 +873,8 @@ public class ScheduleJobService {
         if (CollectionUtils.isNotEmpty(vo.getTaskIds())) {
             batchJobDTO.setTaskIds(vo.getTaskIds());
         }
-        if (Objects.nonNull(vo.getTaskId())) {
-            if (Objects.isNull(batchJobDTO.getTaskIds())) {
+        if ( null != vo.getTaskId()) {
+            if ( null == batchJobDTO.getTaskIds()) {
                 batchJobDTO.setTaskIds(new ArrayList<>());
             }
             batchJobDTO.getTaskIds().add(vo.getTaskId());

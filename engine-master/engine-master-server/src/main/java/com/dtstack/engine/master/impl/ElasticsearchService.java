@@ -122,7 +122,7 @@ public class ElasticsearchService implements InitializingBean, DisposableBean {
 
 
             String scrollId = searchResponse.getScrollId();
-            while (searchHits != null && searchHits.length > 0) {
+            while (searchHits.length > 0) {
                 SearchScrollRequest scrollRequest = new SearchScrollRequest(scrollId);
                 scrollRequest.scroll(scroll);
                 searchResponse = restHighLevelClient.searchScroll(scrollRequest);
