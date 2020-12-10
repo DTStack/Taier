@@ -64,6 +64,7 @@ public class ClusterService implements InitializingBean {
     private final static String TENANT_ID = "tenantId";
     private static final String DEPLOY_MODEL = "deployMode";
     private static final String NAMESPACE = "namespace";
+    private static final String MAILBOX_CUTTING = "@";
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -715,6 +716,9 @@ public class ClusterService implements InitializingBean {
             } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK == type.getComponentType()) {
                 if (clusterVO.getDtUicUserId() != null && clusterVO.getDtUicTenantId() != null) {
                     String ldapUserName = this.getLdapUserName(clusterVO.getDtUicUserId());
+                    if (ldapUserName.contains(MAILBOX_CUTTING)) {
+                        ldapUserName = ldapUserName.substring(0, ldapUserName.indexOf(MAILBOX_CUTTING));
+                    }
                     pluginInfo.put(LDAP_USER_NAME, ldapUserName);
                 }
             }
@@ -724,6 +728,8 @@ public class ClusterService implements InitializingBean {
 
         return pluginInfo;
     }
+
+
 
     Cache<Long, String> ldapCache = CacheBuilder
             .newBuilder()
