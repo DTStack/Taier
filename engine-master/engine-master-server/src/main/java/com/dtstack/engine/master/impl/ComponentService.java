@@ -60,8 +60,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -1131,13 +1129,14 @@ public class ComponentService {
         JSONObject dataInfo = new JSONObject();
         dataInfo.put("componentName", EComponentType.getByCode(componentType).getName().toLowerCase());
         if (null != kerberosConfig) {
-            dataInfo.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
+            dataInfo.put("kerberosFileTimestamp", kerberosConfig.getGmtModified());
             //开启了kerberos
             dataInfo.put("openKerberos", kerberosConfig.getOpenKerberos());
             dataInfo.put("remoteDir", kerberosConfig.getRemotePath());
             dataInfo.put("principalFile", kerberosConfig.getName());
             dataInfo.put("krbName", kerberosConfig.getKrbName());
             dataInfo.put("principal", kerberosConfig.getPrincipal());
+            dataInfo.put(MERGE_KRB5_CONTENT_KEY, kerberosConfig.getMergeKrbContent());
         }
         dataInfo.put(EComponentType.SFTP.getConfName(), sftpConfig);
         if (EComponentType.SFTP.getTypeCode() == componentType) {
@@ -1208,6 +1207,7 @@ public class ComponentService {
             dataInfo.put("principal", kerberosConfig.getPrincipal());
             dataInfo.put("krbName", kerberosConfig.getKrbName());
             dataInfo.put("kerberosFileTimestamp", kerberosConfig.getGmtModified());
+            dataInfo.put(MERGE_KRB5_CONTENT_KEY, kerberosConfig.getMergeKrbContent());
             //补充yarn参数
             Cluster cluster = clusterDao.getByClusterName(clusterName);
             if (null != cluster) {

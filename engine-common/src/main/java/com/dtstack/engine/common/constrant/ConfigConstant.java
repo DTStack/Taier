@@ -25,6 +25,7 @@ public class ConfigConstant {
     public static final String LOCAL_KRB5_DIR_PARENT = USER_DIR + "/kerberos/krb5";
     public static final String LOCAL_KRB5_MERGE_DIR_PARENT = USER_DIR + "/kerberos/merge";
     public static final String MERGE_KRB5_NAME = "mergeKrb5.conf";
+    public static final String MERGE_KRB5_CONTENT_KEY = "mergeKrbContent";
 
     public static final String TYPE_NAME_KEY = "typeName";
     public static final String CUSTOMER_PRIORITY_VAL = "job.priority";
