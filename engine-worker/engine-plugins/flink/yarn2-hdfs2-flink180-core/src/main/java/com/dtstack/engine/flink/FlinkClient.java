@@ -32,7 +32,7 @@ import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.resource.FlinkPerJobResourceInfo;
 import com.dtstack.engine.flink.resource.FlinkYarnSeesionResourceInfo;
 import com.dtstack.engine.flink.util.*;
-import com.dtstack.engine.worker.enums.ClassLoaderType;
+import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.*;
@@ -113,9 +113,7 @@ public class FlinkClient extends AbstractClient {
 
     private String jobmanagerDir;
 
-    private final static Predicate<RdosTaskStatus> IS_END_STATUS = status ->
-            status.equals(RdosTaskStatus.FINISHED) || status.equals(RdosTaskStatus.CANCELED)
-                    || status.equals(RdosTaskStatus.FAILED) || status.equals(RdosTaskStatus.KILLED);
+    private final static Predicate<RdosTaskStatus> IS_END_STATUS = status -> RdosTaskStatus.getStoppedStatus().contains(status.getStatus()) || RdosTaskStatus.NOTFOUND.equals(status);
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -219,7 +217,7 @@ public class FlinkClient extends AbstractClient {
                 clusterSpecification.setSpSetting(spSettings);
                 clusterSpecification.setProgramArgs(programArgs);
                 clusterSpecification.setCreateProgramDelay(true);
-                clusterSpecification.setYarnConfiguration(getYarnConf(jobClient.getPluginInfo()));
+                clusterSpecification.setYarnConfiguration(hadoopConf.getYarnConfiguration());
                 clusterSpecification.setClassLoaderType(ClassLoaderType.getClassLoaderType(jobClient.getJobType()));
 
                 runResult = runJobByPerJob(clusterSpecification, jobClient);
@@ -253,7 +251,6 @@ public class FlinkClient extends AbstractClient {
         try (
                 AbstractYarnClusterDescriptor descriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
         ) {
-            descriptor.close();
             perJobClientFactory.deleteTaskIfExist(jobClient);
             ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, new JobGraph(), true);
 
@@ -291,18 +288,6 @@ public class FlinkClient extends AbstractClient {
         } finally {
             delFilesFromDir(ConfigConstrant.IO_TMPDIR, "flink-jobgraph");
         }
-    }
-
-    private YarnConfiguration getYarnConf(String pluginInfo) {
-        org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-
-        JsonParser parser = new JsonParser();
-        JsonObject json = parser.parse(pluginInfo).getAsJsonObject().getAsJsonObject("yarnConf");
-        for (Map.Entry<String, JsonElement> keyVal : json.entrySet()) {
-            conf.set(keyVal.getKey(), keyVal.getValue().getAsString());
-        }
-
-        return new YarnConfiguration(conf);
     }
 
     private void delFilesFromDir(Path dir, String fileName) {
@@ -1029,50 +1014,4 @@ public class FlinkClient extends AbstractClient {
         jobHistory = String.format("http://%s:%s", webAddress, port);
         return jobHistory;
     }
-
-    public static void main(String[] args) throws Exception {
-
-        FileInputStream fileInputStream = null;
-        InputStreamReader inputStreamReader = null;
-        BufferedReader reader = null;
-
-        try {
-            System.setProperty("HADOOP_USER_NAME", "admin");
-
-            // input params json file path
-            String filePath = args[0];
-            File paramsFile = new File(filePath);
-            fileInputStream = new FileInputStream(paramsFile);
-            inputStreamReader = new InputStreamReader(fileInputStream);
-            reader = new BufferedReader(inputStreamReader);
-            String request = reader.readLine();
-            Map params = PublicUtil.jsonStrToObject(request, Map.class);
-            ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-            JobClient jobClient = new JobClient(paramAction);
-
-            String pluginInfo = jobClient.getPluginInfo();
-            Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
-            String md5plugin = MD5Util.getMd5String(pluginInfo);
-            properties.setProperty("md5sum", md5plugin);
-
-            FlinkClient client = new FlinkClient();
-            client.init(properties);
-
-            JobResult jobResult = client.submitJob(jobClient);
-            String appId = jobResult.getData("extid");
-            String jobId = jobResult.getData("jobid");
-            logger.info("submit success!, jobId: " + jobId + ", appId: " + appId);
-            logger.info(jobResult.getJsonStr());
-            System.exit(0);
-        } catch (Exception e) {
-            logger.error("submit error!", e);
-        } finally {
-            if (reader != null){
-                reader.close();
-                inputStreamReader.close();
-                fileInputStream.close();
-            }
-        }
-    }
-
 }

@@ -5,6 +5,7 @@ import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
 import com.google.gson.Gson;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
@@ -13,10 +14,13 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -42,7 +46,7 @@ import static org.powermock.api.mockito.PowerMockito.whenNew;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({JobConf.class, ClientTest.class, RetryUtil.class,
         ConverterUtils.class,
-        Gson.class, UserGroupInformation.class, YarnClient.class,
+        Gson.class, YarnClient.class,
         FileSystem.class, DtYarnConstants.class, ApplicationConstants.class})
 @PowerMockIgnore("javax.net.ssl.*")
 public class ClientTest {
@@ -54,6 +58,9 @@ public class ClientTest {
     private BaseConfig baseConfig = new BaseConfig();
 
     private static Properties properties;
+
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @InjectMocks
     private ClientTest client;
@@ -91,12 +98,13 @@ public class ClientTest {
     public void testInit() throws Exception {
         DtYarnConfiguration yarnConfiguration = new DtYarnConfiguration();
         DtYarnConfiguration mockYarnConfiguration = spy(yarnConfiguration);
+        BaseConfig baseConfig = PowerMockito.mock(BaseConfig.class);
         String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
 
         ClientArguments clientArguments = mock(ClientArguments.class);
-        mockStatic(UserGroupInformation.class);
-        UserGroupInformation userGroupInformation = mock(UserGroupInformation.class);
-        when(UserGroupInformation.createRemoteUser(appSubmitterUserName)).thenReturn(userGroupInformation);
+//        mockStatic(UserGroupInformation.class);
+//        UserGroupInformation userGroupInformation = mock(UserGroupInformation.class);
+//        when(UserGroupInformation.createRemoteUser(appSubmitterUserName)).thenReturn(userGroupInformation);
 
         mock(ThreadPoolExecutor.class);
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1,1,1000L,
@@ -104,11 +112,14 @@ public class ClientTest {
 
         whenNew(ThreadPoolExecutor.class).withAnyArguments().thenReturn(threadPoolExecutor);
 
+        when(mockYarnConfiguration.get("hadoop.job.ugi")).thenReturn("admin,admin");
 
-        Client client = mock(Client.class);
 
+        String jarPath = temporaryFolder.newFile("worker").getAbsolutePath();
+        mockStatic(JobConf.class);
+        when(JobConf.findContainingJar(any())).thenReturn(jarPath);
 
-        Assert.assertNotNull(client.init(clientArguments));
+        Client client = new Client(mockYarnConfiguration, baseConfig);
 
     }
 

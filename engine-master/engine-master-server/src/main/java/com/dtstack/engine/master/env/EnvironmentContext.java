@@ -170,6 +170,15 @@ public class EnvironmentContext {
         return environment.getProperty("dtuic.url");
     }
 
+
+    public String getUicToken() {
+        return environment.getProperty("dtuic.token");
+    }
+
+    public boolean isOpenLdapCache(){
+        return Boolean.parseBoolean(environment.getProperty("open.ldap.cache", "true"));
+    }
+
     /**
      *  ===es====
      */
@@ -412,6 +421,10 @@ public class EnvironmentContext {
 
     public Integer getJobExecutorPoolQueueSize(){
         return Integer.valueOf(environment.getProperty("job.executor.pool.queue.size", "1000"));
+    }
+
+    public long getJobStatusCheckInterVal() {
+        return Long.parseLong(environment.getProperty("job.status.check.interval", "3500"));
     }
 
     public String getComponentJdbcToReplace() {

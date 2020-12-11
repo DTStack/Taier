@@ -65,6 +65,7 @@ public class ConfigConstant {
 
     public static final String REMOTE_DIR = "remoteDir";
     public static final String PRINCIPAL_FILE = "principalFile";
+    public static final String PRINCIPAL = "principal";
     public static final String KRB_NAME = "krbName";
     public static final String OPEN_KERBEROS = "openKerberos";
     public static final String KRBNAME_DEFAULT = "krb5.conf";
@@ -73,6 +74,8 @@ public class ConfigConstant {
     public static final String KEYTAB_SUFFIX = ".keytab";
     public static final String KERBEROS_CONFIG = "kerberosConfig";
 
+
+    public static final String LDAP_USER_NAME = "dtProxyUserName";
 
     public static final String ZIP_SUFFIX = ".zip";
     public static final String USER_DIR_UNZIP = System.getProperty("user.dir") + File.separator + "unzip";

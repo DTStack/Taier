@@ -39,6 +39,11 @@ monitor_filebeat(){
             msg="\n----------------------------------------\nWarning, filebeat failed !!! \n----------------------------------------\n"
             echo -e $msg >> $FLINK_HOME/log/$logfile
         fi
+
+        flink_thread=`ps aux | grep -v grep | grep -v 'kubernetes-entry.sh' | grep -E 'KubernetesSessionClusterEntrypoint|KubernetesTaskExecutorRunner'`
+        if [[ $flink_thread == "" ]]; then
+            ps aux | grep -v grep | grep filebeat | awk -F ' ' '{print$2}' | xargs kill -9
+        fi
     done
 }
 
@@ -87,7 +92,7 @@ if [[ $SFTPFILES_PATH != "" ]]; then
                 set timeout -1
                 send "mget $file_path \r"
                 expect "sftp>"
-                send "bye\r"
+                send "bye \r"
                 expect eof
 EOF
             ((y++))
@@ -121,4 +126,3 @@ filebeat_command="$FILEBEAT_HOME/bin/filebeat -c $FILEBEAT_HOME/conf/filebeat-dt
 command="$filebeat_command & $@"
 echo "Start command: $command"
 exec $FILEBEAT_HOME/bin/filebeat -c $FILEBEAT_HOME/conf/filebeat-dtstack.yml & "$@" & monitor_filebeat
-

@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
@@ -17,24 +18,22 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.*;
 import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.Sort;
 import com.dtstack.schedule.common.util.Base64Util;
-import com.dtstack.schedule.common.util.ZipUtil;
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.SftpException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -45,10 +44,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.dtstack.engine.common.constrant.ConfigConstant.*;
-import static com.dtstack.engine.master.impl.ComponentService.TYPE_NAME;
+import static com.dtstack.engine.common.constrant.ConfigConstant.LDAP_USER_NAME;
+import static com.dtstack.engine.master.impl.ComponentService.*;
 import static java.lang.String.format;
 
 @Service
@@ -64,10 +64,6 @@ public class ClusterService implements InitializingBean {
     private final static String TENANT_ID = "tenantId";
     private static final String DEPLOY_MODEL = "deployMode";
     private static final String NAMESPACE = "namespace";
-    private static final String LOCK_SUFFIX = ".lock";
-    private static final String SEPARATE = File.separator;
-
-    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     private ClusterDao clusterDao;
@@ -113,6 +109,7 @@ public class ClusterService implements InitializingBean {
 
     @Autowired
     private SftpFileManage sftpFileManageBean;
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -275,6 +272,7 @@ public class ClusterService implements InitializingBean {
             pluginJson.fluentPut("openKerberos", null != openKerberos && openKerberos > 0)
                     .fluentPut("remoteDir", remotePath)
                     .fluentPut("principalFile", kerberosConfig.getName())
+                    .fluentPut("principal", kerberosConfig.getPrincipal())
                     .fluentPut("krbName", kerberosConfig.getKrbName())
                     .fluentPut("kerberosFileTimestamp", kerberosConfig.getGmtModified());
             //如果 hiveSQL  impalaSQL中没有yarnConf 需要添加yarnConf做kerberos认证
@@ -458,23 +456,40 @@ public class ClusterService implements InitializingBean {
         return getCluster(engine.getClusterId(), true,false);
     }
 
+    public Cluster getCluster(Long dtUicTenantId) {
+        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
+        if (tenantId == null) {
+            return null;
+        }
+
+        List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
+        if (CollectionUtils.isEmpty(engineIds)) {
+            return null;
+        }
+
+        Engine engine = engineDao.getOne(engineIds.get(0));
+        if(Objects.isNull(engine)){
+            return null;
+        }
+
+        return clusterDao.getOne(engine.getClusterId());
+    }
+
     public String getConfigByKey(Long dtUicTenantId,  String key, Boolean fullKerberos,Boolean isWrapper) {
         ClusterVO cluster = getClusterByTenant(dtUicTenantId);
-        JSONObject config = buildClusterConfig(cluster);
         //根据组件区分kerberos
         EComponentType componentType = EComponentType.getByConfName(key);
         Component component = componentDao.getByClusterIdAndComponentType(cluster.getId(),componentType.getTypeCode());
+        if(null == component){
+            return "{}";
+        }
+        JSONObject configObj = JSONObject.parseObject(component.getComponentConfig());
+        //返回版本
+        configObj.put(ComponentService.VERSION, component.getHadoopVersion());
         KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(),componentType.getTypeCode());
-        JSONObject configObj = config.getJSONObject(key);
-        if (configObj != null) {
-            //返回版本
-            configObj.put(ComponentService.VERSION, component.getHadoopVersion());
-            // TODO 维持各个应用原来数据接口
-            addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
-            if (null != fullKerberos && fullKerberos) {
-                //将sftp中keytab配置转换为本地路径
-                this.fullKerberosFilePath(dtUicTenantId, configObj,component);
-            }
+        if(null != kerberosConfig){
+            // 添加组件的kerberos配置信息 应用层使用
+            this.addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
 
             if(BooleanUtils.isTrue(isWrapper)){
                 Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode());
@@ -491,140 +506,7 @@ public class ClusterService implements InitializingBean {
             }
             return configObj.toJSONString();
         }
-        return "{}";
-    }
-
-    private <T> T fullKerberosFilePath(Long dtUicTenantId, T data,Component component) {
-        SftpConfig sftpConfig = JSONObject.parseObject(this.sftpInfo(dtUicTenantId), SftpConfig.class);
-        if (StringUtils.isNotBlank(sftpConfig.getHost())) {
-            JSONObject dataMap = this.getJsonObject(data);
-            this.accordToKerberosFile(sftpConfig, dataMap,component);
-            data = this.convertJsonOverBack(data, dataMap);
-        }
-        return data;
-    }
-
-    private <T> T convertJsonOverBack(T data, JSONObject dataMap) {
-        if (data instanceof String) {
-            data = (T) dataMap.toString();
-        } else {
-            try {
-                data = objectMapper.readValue(dataMap.toString(), (Class<T>) data.getClass());
-            } catch (IOException e) {
-                LOGGER.error("", e);
-            }
-        }
-        return data;
-    }
-
-
-    private <T> JSONObject getJsonObject(T data) {
-        JSONObject dataMap = null;
-        if (data instanceof String) {
-            dataMap = JSONObject.parseObject((String)data);
-        } else {
-            dataMap = (JSONObject)JSONObject.toJSON(data);
-        }
-
-        return dataMap;
-    }
-
-
-    /**
-     * 添加kerberos的配置文件地址为本地路径
-     * @param sftp
-     * @param dataMap
-     */
-    private void accordToKerberosFile(SftpConfig sftpConfig, JSONObject dataMap, Component component) {
-        try {
-            JSONObject configJsonObject = dataMap.getJSONObject("kerberosConfig");
-            if (null == configJsonObject) {
-                return;
-            }
-            KerberosConfig kerberosConfig = PublicUtil.strToObject(configJsonObject.toString(), KerberosConfig.class);
-            if (null == kerberosConfig) {
-                return;
-            }
-            if (kerberosConfig.getOpenKerberos() <= 0) {
-                return;
-            }
-            Preconditions.checkState(null != kerberosConfig.getClusterId());
-            Preconditions.checkState(null != kerberosConfig.getOpenKerberos());
-            Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getPrincipal()));
-            Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getRemotePath()));
-            Preconditions.checkState(null != kerberosConfig.getComponentType());
-            Preconditions.checkState(Objects.nonNull(kerberosConfig.getComponentType()));
-            String remoteSftpKerberosPath = componentService.buildSftpPath(kerberosConfig.getClusterId(), component.getComponentTypeCode()) + File.separator +  KERBEROS_PATH;
-            String localKerberosPath = componentService.getLocalKerberosPath(kerberosConfig.getClusterId(), component.getComponentTypeCode());
-            this.downloadKerberosFromSftp(remoteSftpKerberosPath, localKerberosPath, sftpConfig);
-            File file = new File(localKerberosPath);
-            Preconditions.checkState(file.exists() && file.isDirectory(), "console kerberos local path not exist");
-            File keytabFile = Arrays.stream(file.listFiles()).filter((obj) -> obj.getName().endsWith(KEYTAB_SUFFIX))
-                    .findFirst().orElseThrow(() -> new RdosDefineException("keytab文件不存在"));
-            //获取本地的kerberos本地路径
-            configJsonObject.put("keytabPath", keytabFile.getPath());
-            configJsonObject.put("principalFile", keytabFile.getName());
-            configJsonObject.putAll(Optional.ofNullable(configJsonObject.getJSONObject("hdfsConfig")).orElse(new JSONObject()));
-            configJsonObject.remove("hdfsConfig");
-            dataMap.put("kerberosConfig", configJsonObject);
-        } catch (Exception e) {
-            LOGGER.error("accordToKerberosFile error {}", dataMap, e);
-            throw new RdosDefineException("下载kerberos文件失败");
-        }
-    }
-
-    /**
-     * 从sftp中下载获取已有的配置文件
-     */
-    public void downloadKerberosFromSftp(String sourceKey, String localKerberosConf, SftpConfig sftpConfig) throws SftpException {
-        //需要读取配置文件
-        //本地kerberos文件
-        String localTimeLock = getLocalTimeLock(localKerberosConf);
-        SftpFileManage sftpFileManage = sftpFileManageBean.retrieveSftpManager(sftpConfig);
-        try {
-            String sourceSftpPath = sftpConfig.getPath() + SEPARATE + sourceKey;
-            //sftp服务器kerberos文件
-            String timeLock = getSftpTimeLock(sftpFileManage, sourceSftpPath, localTimeLock);
-
-            if (localTimeLock == null || timeLock == null || !timeLock.equals(localTimeLock)) {
-                //需要下载替换当时的配置
-                ZipUtil.deletefile(localKerberosConf);
-                sftpFileManage.downloadDir(sourceSftpPath, localKerberosConf);
-            }
-        } catch (Exception e) {
-            throw new RdosDefineException("下载kerberos配置失败");
-        }
-    }
-
-    private String getSftpTimeLock(SftpFileManage sftpFileManage, String sourceSftpPath, String localTimeLock) throws SftpException {
-        // 获得远程sftp下的路径sourceSftpPath下文件列表
-        Vector vector = sftpFileManage.listFile(sourceSftpPath);
-        for (Object obj : vector) {
-            // 判断是否有后缀名.lock的文件
-            ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) obj;
-            if (lsEntry.getFilename().endsWith(LOCK_SUFFIX)) {
-                return lsEntry.getFilename();
-            }
-        }
-        return null;
-    }
-
-    private String getLocalTimeLock(String localKerberosConf) {
-        File localKerberosConfFile = new File(localKerberosConf);
-        if (localKerberosConfFile.exists() && localKerberosConfFile.isDirectory()) {
-            String[] list = localKerberosConfFile.list();
-            List<String> lockList = Arrays.stream(list).filter(str -> {
-                if (str.endsWith(LOCK_SUFFIX)){
-                    return true;
-                } else {
-                    return false;
-                }
-            }).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(lockList)) {
-                return lockList.get(0);
-            }
-        }
-        return null;
+        return configObj.toJSONString();
     }
 
 
@@ -636,19 +518,36 @@ public class ClusterService implements InitializingBean {
      * @param kerberosConfig
      * @param configObj
      */
-    public void addKerberosConfigWithHdfs(String key, ClusterVO cluster, KerberosConfig kerberosConfig, JSONObject configObj) {
-        if (null != kerberosConfig) {
-            KerberosConfigVO kerberosConfigVO = KerberosConfigVO.toVO(kerberosConfig);
-            if (!Objects.equals(EComponentType.HDFS.getConfName(), key)) {
+    private void addKerberosConfigWithHdfs(String key, ClusterVO cluster, KerberosConfig kerberosConfig, JSONObject configObj) {
+        if (null == cluster || null == kerberosConfig || null == configObj) {
+            return;
+        }
+        KerberosConfigVO kerberosConfigVO = KerberosConfigVO.toVO(kerberosConfig);
+        if (!Objects.equals(EComponentType.HDFS.getConfName(), key)) {
+            //添加hdfs组件的配置信息到kerberosConfig中
+            Optional<ComponentVO> hdfsOptional = Optional.empty();
+            if (CollectionUtils.isNotEmpty(cluster.getScheduling())) {
+                hdfsOptional = cluster
+                        .getScheduling()
+                        .stream()
+                        .flatMap(s -> s.getComponents().stream())
+                        .filter(c -> EComponentType.HDFS.getTypeCode().equals(c.getComponentTypeCode()))
+                        .findFirst();
+            }
+            if (hdfsOptional.isPresent()) {
+                kerberosConfigVO.setHdfsConfig(JSONObject.parseObject(hdfsOptional.get().getComponentConfig()));
+            } else {
                 Component hdfsComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
                 if (null == hdfsComponent) {
                     throw new RdosDefineException("开启kerberos后需要预先保存hdfs组件");
                 }
-                kerberosConfigVO.setHdfsConfig(JSONObject.parseObject(hdfsComponent.getComponentConfig()));
             }
             kerberosConfigVO.setKerberosFileTimestamp(kerberosConfig.getGmtModified());
-            configObj.put("kerberosConfig", kerberosConfigVO);
         }
+        //kerberosConfig放到最外层
+        String kerberosConfigStr = JSONObject.toJSONString(kerberosConfigVO);
+        configObj.putAll(JSON.parseObject(kerberosConfigStr));
+        configObj.put("kerberosConfig", kerberosConfigVO);
     }
 
     public JSONObject convertPluginInfo(JSONObject clusterConfigJson, EngineTypeComponentType type, ClusterVO clusterVO,Integer deployMode) {
@@ -724,11 +623,10 @@ public class ClusterService implements InitializingBean {
             }
             if (EComponentType.HIVE_SERVER == type.getComponentType()) {
                 this.buildHiveVersion(clusterVO, pluginInfo);
-            } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK==type.getComponentType()) {
+            } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK == type.getComponentType()) {
                 if (clusterVO.getDtUicUserId() != null && clusterVO.getDtUicTenantId() != null) {
-                    AccountVo accountVo = accountService.getAccountVo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId(), AccountType.LDAP.getVal());
-                    String ldapUserName = StringUtils.isBlank(accountVo.getName()) ? "" : accountVo.getName();
-                    pluginInfo.put("dtProxyUserName", ldapUserName);
+                    String ldapUserName = this.getLdapUserName(clusterVO.getDtUicUserId());
+                    pluginInfo.put(LDAP_USER_NAME, ldapUserName);
                 }
             }
             pluginInfo.put(ConfigConstant.MD5_SUM_KEY, getZipFileMD5(clusterConfigJson));
@@ -744,11 +642,12 @@ public class ClusterService implements InitializingBean {
             throw new RdosDefineException("hive组件不能为空");
         }
         String jdbcUrl = pluginInfo.getString("jdbcUrl");
-        jdbcUrl = jdbcUrl.replace("/%s", "");
+        //%s替换成默认的 供插件使用
+        jdbcUrl = jdbcUrl.replace("/%s", environmentContext.getComponentJdbcToReplace());
         pluginInfo.put("jdbcUrl", jdbcUrl);
         String typeName = componentService.convertComponentTypeToClient(clusterVO.getClusterName(),
                 EComponentType.HIVE_SERVER.getTypeCode(), hiveServer.getHadoopVersion(),hiveServer.getStoreType());
-        pluginInfo.put(TYPE_NAME,typeName);
+        pluginInfo.put("typeName",typeName);
     }
 
     private void buildKubernetesConfig(JSONObject clusterConfigJson, ClusterVO clusterVO, JSONObject pluginInfo) {
@@ -791,6 +690,27 @@ public class ClusterService implements InitializingBean {
             }
         }
         return pluginInfo;
+    }
+
+    Cache<Long, String> ldapCache = CacheBuilder
+            .newBuilder()
+            .expireAfterWrite(1, TimeUnit.MINUTES)
+            .build();
+
+    private String getLdapUserName(Long dtUicUserId) {
+        if (StringUtils.isBlank(environmentContext.getUicToken()) || StringUtils.isBlank(environmentContext.getDtUicUrl())) {
+            return null;
+        }
+        String ldapUserName = null;
+        if (environmentContext.isOpenLdapCache()) {
+            ldapUserName = ldapCache.getIfPresent(dtUicUserId);
+            if (null != ldapUserName) {
+                return ldapUserName;
+            }
+        }
+        ldapUserName = DtUicUserConnect.getLdapUserName(dtUicUserId, environmentContext.getUicToken(), environmentContext.getDtUicUrl());
+        ldapCache.put(dtUicUserId, ldapUserName);
+        return ldapUserName;
     }
 
 
@@ -929,12 +849,16 @@ public class ClusterService implements InitializingBean {
         clusterDao.deleteCluster(clusterId);
     }
 
+    public ClusterVO getCluster( Long clusterId,  Boolean kerberosConfig, Boolean removeTypeName) {
+        return getCluster(clusterId,kerberosConfig,removeTypeName,false);
+    }
+
     /**
      * 获取集群信息详情 需要根据组件分组
      * @param clusterId
      * @return
      */
-    public ClusterVO getCluster( Long clusterId,  Boolean kerberosConfig, Boolean removeTypeName) {
+    public ClusterVO getCluster(Long clusterId,  Boolean kerberosConfig, Boolean removeTypeName,boolean isFullPrincipal) {
         Cluster cluster = clusterDao.getOne(clusterId);
         EngineAssert.assertTrue(cluster != null, ErrorCode.DATA_NOT_FIND.getDescription());
         ClusterVO clusterVO = ClusterVO.toVO(cluster);
@@ -944,23 +868,56 @@ public class ClusterService implements InitializingBean {
         }
         List<Long> engineIds = engines.stream().map(Engine::getId).collect(Collectors.toList());
         List<Component> components = componentDao.listByEngineIds(engineIds);
+        List<KerberosConfig> kerberosConfigs = null;
+        if(isFullPrincipal){
+            kerberosConfigs =  kerberosDao.getByClusters(clusterId);
+        }
 
         Map<EComponentScheduleType, List<Component>> scheduleType = new HashMap<>();
         if (CollectionUtils.isNotEmpty(components)) {
             scheduleType = components.stream().collect(Collectors.groupingBy(c -> EComponentType.getScheduleTypeByComponent(c.getComponentTypeCode())));
         }
+        List<SchedulingVo> schedulingVos = convertComponentToScheduling(removeTypeName, kerberosConfigs, scheduleType);
+        clusterVO.setScheduling(schedulingVos);
+        return clusterVO;
+    }
+
+    private List<SchedulingVo> convertComponentToScheduling(Boolean removeTypeName, List<KerberosConfig> kerberosConfigs, Map<EComponentScheduleType, List<Component>> scheduleType) {
         List<SchedulingVo> schedulingVos = new ArrayList<>();
         //为空也返回
         for (EComponentScheduleType value : EComponentScheduleType.values()) {
             SchedulingVo schedulingVo = new SchedulingVo();
             schedulingVo.setSchedulingCode(value.getType());
             schedulingVo.setSchedulingName(value.getName());
-            schedulingVo.setComponents(ComponentVO.toVOS(scheduleType.get(value), Objects.isNull(removeTypeName) || removeTypeName));
+
+            List<Component> componentsSchedule = scheduleType.get(value);
+            if(CollectionUtils.isEmpty(componentsSchedule)){
+                componentsSchedule = new ArrayList<>();
+            }
+            List<ComponentVO> componentVOS = new ArrayList<>();
+            for (Component component : componentsSchedule) {
+                // hdfs yarn 才将自定义参数移除 过滤返回给前端
+                boolean removeSelfParams = EComponentType.HDFS.getTypeCode().equals(component.getComponentTypeCode())
+                        || EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode());
+                ComponentVO componentVO = ComponentVO.toVO(component,null == removeTypeName || removeTypeName,removeSelfParams);
+                componentVOS.add(componentVO);
+            }
+            if(CollectionUtils.isNotEmpty(componentVOS) && CollectionUtils.isNotEmpty(kerberosConfigs)){
+                for (ComponentVO componentVO : componentVOS) {
+                    for (KerberosConfig config : kerberosConfigs) {
+                        if(componentVO.getComponentTypeCode().equals(config.getComponentType())){
+                            componentVO.setPrincipal(config.getPrincipal());
+                            componentVO.setPrincipals(config.getPrincipals());
+                        }
+                    }
+                }
+            }
+            schedulingVo.setComponents(componentVOS);
             schedulingVos.add(schedulingVo);
         }
-        clusterVO.setScheduling(schedulingVos);
-        return clusterVO;
+        return schedulingVos;
     }
+
 
 
     public List<ClusterEngineVO> getAllCluster() {
@@ -984,6 +941,35 @@ public class ClusterService implements InitializingBean {
     public String dbInfo(Long dtUicTenantId, Long dtUicUserId, Integer type) {
         DataSourceType sourceType = DataSourceType.getSourceType(type);
         return accountInfo(dtUicTenantId,dtUicUserId,sourceType);
+    }
+
+    public Boolean isSameCluster(Long dtUicTenantId, List<Long> dtUicTenantIds) {
+        if (dtUicTenantId ==null) {
+            throw new RdosDefineException("租户id不能为null");
+        }
+
+        if (CollectionUtils.isEmpty(dtUicTenantIds)) {
+            return Boolean.FALSE;
+        }
+
+        Cluster cluster = getCluster(dtUicTenantId);
+
+        if (cluster == null) {
+            throw new RdosDefineException("租户id:"+dtUicTenantId+"不存在!");
+        }
+
+        for (Long uicTenantId : dtUicTenantIds) {
+            Cluster cluster1 = getCluster(uicTenantId);
+
+            if (cluster1 != null) {
+                if (cluster.getId().equals(cluster1.getId())) {
+                    // dtUicTenantIds集合中存在和 dtUicTenantId相同的集群
+                    return Boolean.TRUE;
+                }
+            }
+        }
+
+        return Boolean.FALSE;
     }
 }
 

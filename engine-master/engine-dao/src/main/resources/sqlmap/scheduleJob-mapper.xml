@@ -6,7 +6,7 @@
     <sql id="select_content_fragment">
       bj.id,bj.tenant_id,bj.project_id,bj.dtuic_tenant_id,bj.app_type,bj.job_id,bj.job_key,bj.job_name,bj.task_id,bj.gmt_create,bj.gmt_modified,bj.create_user_id,bj.is_deleted,bj.type,bj.is_restart,
       bj.business_date,bj.cyc_time,dependency_type,flow_job_id,bj.period_type,bj.status,bj.task_type,bj.fill_id,bj.exec_start_time,bj.exec_end_time,bj.exec_time,bj.submit_time,bj.retry_num,max_retry_num,
-      bj.node_address,bj.version_id,bj.next_cyc_time,bj.log_info,bj.compute_type
+      bj.node_address,bj.version_id,bj.next_cyc_time,bj.log_info,bj.compute_type,bj.submit_user_name
     </sql>
 
     <sql id="select_where_fragment">
@@ -375,9 +375,6 @@
 
     <sql id="update_fragment">
         <set>
-            <if test="id != null">
-                id = #{id},
-            </if>
             <if test="tenantId != null and tenantId > 0">
                 tenant_id = #{tenantId},
             </if>
@@ -437,6 +434,9 @@
             </if>
             <if test="phaseStatus != null">
                 phase_status = #{phaseStatus},
+            </if>
+            <if test="submitUserName != null">
+                submit_user_name = #{submitUserName},
             </if>
             <if test="versionId != null">
                 version_id = #{versionId},
@@ -780,19 +780,6 @@
         GROUP BY hour
     </select>
 
-    <select id="listRestartBatchJobList" resultType="ScheduleJob">
-        SELECT
-        <include refid="select_content_fragment"/>
-        FROM schedule_job bj
-        where type = #{type}
-        AND status = #{status}
-        <if test="lastTime != null">
-            AND gmt_modified &gt;= #{lastTime}
-        </if>
-        AND is_restart = 1
-        AND is_deleted = 0
-    </select>
-
     <select id="listJobByJobKeys" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
@@ -1027,7 +1014,7 @@
         UPDATE
         schedule_job
         <include refid="update_fragment"/>
-        WHERE id = #{id} AND is_deleted = 0
+        WHERE job_id = #{jobId} AND is_deleted = 0
     </update>
 
     <update id="updateStatusWithExecTime" parameterType="ScheduleJob">
@@ -1376,6 +1363,12 @@
         <if test="cycEndTime != null">
             AND cyc_time &lt; #{cycEndTime}
         </if>
+        <if test="lastTime != null">
+            AND gmt_modified &gt;= #{lastTime}
+        </if>
+        <if test="isRestart != null">
+            AND is_restart = #{isRestart}
+        </if>
         AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
         AND is_deleted = 0
         AND `phase_status` = #{phaseStatus}
@@ -1425,6 +1418,9 @@
             </if>
             <if test="logInfo != null">
                 log_info = #{logInfo},
+            </if>
+            <if test="versionId != null">
+                version_id = #{versionId},
             </if>
             gmt_modified = now()
         </set>
@@ -1639,6 +1635,9 @@
         <if test="cycEndTime != null">
             AND cyc_time &lt; #{cycEndTime}
         </if>
+        <if test="isRestart != null">
+            AND is_restart = #{isRestart}
+        </if>
         AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
         AND is_deleted = 0
         AND `phase_status` = #{phaseStatus}
@@ -1663,9 +1662,9 @@
     <update id="updateListPhaseStatus">
         update `schedule_job`
         set `phase_status`=#{update}
-        where `id` IN
-        <foreach collection="ids" separator="," open="(" close=")" item="id">
-            #{id}
+        where job_id IN
+        <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
+            #{jobId}
         </foreach>
         and `is_deleted`=0;
     </update>

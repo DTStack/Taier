@@ -2,6 +2,7 @@ package com.dtstack.engine.master.jobdealer.resource;
 
 import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.Queue;
+import com.dtstack.engine.api.enums.ScheduleEngineType;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.dao.EngineTenantDao;
@@ -66,9 +67,9 @@ public class JobComputeResourcePlain {
         //%s_default
         String groupName = clusterName + SPLIT + RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT;
 
-        String namespace = clusterService.getNamespace(jobClient.getParamAction(),
-                jobClient.getTenantId(), jobClient.getEngineType(), jobClient.getComputeType());
-        if (StringUtils.isNotBlank(namespace)) {
+        if (ScheduleEngineType.KUBERNETES.getEngineName().equals(jobClient.getEngineType())) {
+            String namespace = clusterService.getNamespace(jobClient.getParamAction(),
+                    jobClient.getTenantId(), jobClient.getEngineType(), jobClient.getComputeType());
             groupName = clusterName + SPLIT + namespace;
         } else {
             Queue queue = clusterService.getQueue(jobClient.getTenantId(), clusterId);

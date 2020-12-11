@@ -136,10 +136,6 @@
         <foreach collection="jobKeyList" item="key" open="(" separator="," close=")">
             #{key}
         </foreach>
-        and bj.task_id not in
-        <foreach collection="selfTaskIdList" item="key" open="(" separator="," close=")">
-            #{key}
-        </foreach>
         and bjj.is_deleted = 0
         and bj.is_deleted = 0
     </select>

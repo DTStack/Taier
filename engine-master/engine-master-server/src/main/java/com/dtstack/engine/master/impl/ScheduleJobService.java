@@ -948,8 +948,8 @@ public class ScheduleJobService {
         return scheduleJobDao.updateStatusAndLogInfoById(id, status, msg);
     }
 
-    public Integer updateStatusByJobId(String jobId, Integer status) {
-        return scheduleJobDao.updateStatusByJobId(jobId, status, null);
+    public Integer updateStatusByJobId(String jobId, Integer status,Integer versionId) {
+        return scheduleJobDao.updateStatusByJobId(jobId, status, null,versionId);
     }
 
     public Long startJob(ScheduleJob scheduleJob) throws Exception {
@@ -1025,7 +1025,7 @@ public class ScheduleJobService {
                 if (Objects.nonNull(info)) {
                     ParamActionExt paramActionExt = actionService.paramActionExt(batchTask, scheduleJob, info);
                     if (paramActionExt != null) {
-                        this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus());
+                        this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus(),batchTask.getVersionId());
                         actionService.start(paramActionExt);
                         return;
                     }
@@ -1892,7 +1892,9 @@ public class ScheduleJobService {
         for (ScheduleJobJob scheduleJobJob : scheduleJobJobList) {
             //排除自依赖
             String childJobKey = scheduleJobJob.getJobKey();
-            if (parentTaskId.equals(getTaskIdFromJobKey(childJobKey))) {
+            Long taskShadeIdFromJobKey = getTaskShadeIdFromJobKey(childJobKey);
+            ScheduleTaskShade taskShade = batchTaskShadeService.getById(taskShadeIdFromJobKey);
+            if(null != taskShade && taskShade.getTaskId().equals(parentTaskId)){
                 continue;
             }
 
@@ -1942,16 +1944,21 @@ public class ScheduleJobService {
     }
 
 
-    public Long getTaskIdFromJobKey(String jobKey) {
+    /**
+     * 此处获取的时候schedule_task_shade 的id 不是task_id
+     * @param jobKey
+     * @return
+     */
+    public Long getTaskShadeIdFromJobKey(String jobKey) {
         String[] strings = jobKey.split("_");
         if (strings.length < 2) {
             logger.error("it's not a legal job key, str is {}.", jobKey);
             return -1L;
         }
 
-        String taskId = strings[strings.length - 2];
+        String id = strings[strings.length - 2];
         try {
-            return MathUtil.getLongVal(taskId);
+            return MathUtil.getLongVal(id);
         } catch (Exception e) {
             logger.error("it's not a legal job key, str is {}.", jobKey);
             return -1L;
@@ -2059,7 +2066,7 @@ public class ScheduleJobService {
      *
      * @param jobs
      */
-    public Integer BatchJobsBatchUpdate( String jobs) {
+    public Integer BatchJobsBatchUpdate(String jobs) {
         if (StringUtils.isBlank(jobs)) {
             return 0;
         }
@@ -2146,17 +2153,17 @@ public class ScheduleJobService {
         String jobKey = scheduleJob.getJobKey();
         List<ScheduleJobJob> scheduleJobJobList = batchJobJobService.getJobChild(jobKey);
         List<String> jobKeyList = Lists.newArrayList();
-        List<ScheduleJob> scheduleJobList = Lists.newArrayList();
 
         String parentJobDayStr = getJobTriggerTimeFromJobKey(scheduleJob.getJobKey());
         if (Strings.isNullOrEmpty(parentJobDayStr)) {
-            return scheduleJobList;
+            return Lists.newArrayList();
         }
 
         for (ScheduleJobJob scheduleJobJob : scheduleJobJobList) {
             //排除自依赖
             String childJobKey = scheduleJobJob.getJobKey();
-            if (scheduleJob.getTaskId() != null && scheduleJob.getTaskId().equals(getTaskIdFromJobKey(childJobKey))) {
+            ScheduleTaskShade taskShade = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), appType);
+            if (null != taskShade && taskShade.getId().equals(getTaskShadeIdFromJobKey(childJobKey))) {
                 continue;
             }
 
@@ -2169,11 +2176,12 @@ public class ScheduleJobService {
         }
 
         if (CollectionUtils.isEmpty(jobKeyList)) {
-            return scheduleJobList;
+            return Lists.newArrayList();
         }
 
-
-        for (ScheduleJob childScheduleJob : scheduleJobDao.listJobByJobKeys(jobKeyList)) {
+        List<ScheduleJob> scheduleJobList = Lists.newArrayList();
+        List<ScheduleJob> listJobs = scheduleJobDao.listJobByJobKeys(jobKeyList);
+        for (ScheduleJob childScheduleJob : listJobs) {
 
             //判断job 对应的task是否被删除
             ScheduleTaskShade jobRefTask = batchTaskShadeService.getBatchTaskById(childScheduleJob.getTaskId(), appType);
@@ -2187,6 +2195,7 @@ public class ScheduleJobService {
                 continue;
             }
             scheduleJobList.addAll(getAllChildJobWithSameDay(childScheduleJob, isOnlyNextChild, appType));
+            logger.info("count info --- scheduleJob jobKey:{} flowJobId:{} jobJobList size:{}", scheduleJob.getJobKey(), scheduleJob.getFlowJobId(),scheduleJobList.size());
         }
 
         return scheduleJobList;
@@ -2343,7 +2352,7 @@ public class ScheduleJobService {
      * @param logInfo
      */
     public void updateJobStatusAndLogInfo( String jobId,  Integer status,  String logInfo) {
-        scheduleJobDao.updateStatusByJobId(jobId, status, logInfo);
+        scheduleJobDao.updateStatusByJobId(jobId, status, logInfo,null);
     }
 
 
@@ -2563,8 +2572,8 @@ public class ScheduleJobService {
         return Boolean.FALSE;
     }
 
-    public Long getListMinId(String nodeAddress,Integer scheduleType, String left, String right) {
-        return scheduleJobDao.getListMinId(nodeAddress, scheduleType, left, right, JobPhaseStatus.CREATE.getCode());
+    public Long getListMinId(String nodeAddress,Integer scheduleType, String left, String right,Integer isRestart) {
+        return scheduleJobDao.getListMinId(nodeAddress, scheduleType, left, right, JobPhaseStatus.CREATE.getCode(),isRestart);
     }
 
     public String getJobGraphJSON(String jobId) {

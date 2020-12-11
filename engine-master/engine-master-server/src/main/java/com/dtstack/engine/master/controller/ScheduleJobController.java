@@ -244,7 +244,7 @@ public class ScheduleJobController {
 
 
     @RequestMapping(value="/getSameDayChildJob", method = {RequestMethod.POST})
-    @ApiOperation(value = "离线调用")
+    @ApiOperation(value = "离线计算重跑任务及其下游")
     public List<ScheduleJob> getSameDayChildJob(@DtRequestParam("batchJob") String batchJob,
                                                 @DtRequestParam("isOnlyNextChild") boolean isOnlyNextChild, @DtRequestParam("appType") Integer appType) {
         return scheduleJobService.getSameDayChildJob(batchJob, isOnlyNextChild, appType);
