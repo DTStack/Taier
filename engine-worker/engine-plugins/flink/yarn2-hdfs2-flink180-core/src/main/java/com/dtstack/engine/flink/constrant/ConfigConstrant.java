@@ -40,6 +40,9 @@ public class ConfigConstrant {
     public static final String  SESSION_CHECK_MAIN_CLASS= "com.dtstack.engine.flink.check.FlinkSessionCheck";
     public static final String DEFAULT_SESSION_CHECK_PATH = "/pluginLibs/flinkcommon";
 
+    public static final String HADOOP_CONF_BYTES_KEY = "hadoop.conf.bytes";
+    public static final String YARN_CONF_BYTES_KEY = "yarn.conf.bytes";
+
 
     // ------------------------------------------------------------------------
     // Resource Configs
