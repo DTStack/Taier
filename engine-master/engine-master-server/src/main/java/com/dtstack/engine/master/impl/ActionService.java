@@ -169,12 +169,8 @@ public class ActionService {
             return this.start(paramActionExt);
         } catch (Exception e) {
             logger.error("", e);
-            if (e instanceof RdosDefineException) {
-                throw (RdosDefineException)e;
-            }
+            return Boolean.FALSE;
         }
-
-        return Boolean.FALSE;
     }
 
     public ParamActionExt paramActionExt(ScheduleTaskShade batchTask, String jobId, String flowJobId) throws Exception {

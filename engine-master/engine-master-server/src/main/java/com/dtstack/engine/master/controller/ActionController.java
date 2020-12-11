@@ -45,7 +45,7 @@ public class ActionController {
     }
 
     @RequestMapping(value="/startJob", method = {RequestMethod.POST})
-    @ApiOperation(value = "开始任务")
+    @ApiOperation(value = "立即执行任务")
     public Boolean startJob(@RequestBody ParamTaskAction paramTaskAction) {
         return actionService.startJob(paramTaskAction.getBatchTask(),paramTaskAction.getJobId(),paramTaskAction.getFlowJobId());
     }
