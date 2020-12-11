@@ -253,7 +253,9 @@ public class ConsoleService {
         int start = (currentPage - 1) * pageSize;
         try {
             count = engineJobCacheDao.countByJobResource(jobResource, stage, nodeAddress);
-            // todo 逻辑有点乱，构造了太多list和map
+
+            // todo 查询的结果不是通过分页查出来的
+
             if (count > 0) {
                 List<EngineJobCache> engineJobCaches = engineJobCacheDao.listByJobResource(jobResource, stage, nodeAddress, start, pageSize);
                 List<String> jobIds = engineJobCaches.stream().map(EngineJobCache::getJobId).collect(Collectors.toList());

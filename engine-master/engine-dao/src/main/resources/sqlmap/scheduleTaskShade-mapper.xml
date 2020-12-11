@@ -632,7 +632,11 @@
             <include refid="alias_select_content_fragment"/>
         FROM
             schedule_task_shade ts
-            LEFT JOIN ( SELECT DISTINCT task_id FROM schedule_task_task_shade WHERE task_id IN ( SELECT task_id FROM schedule_task_shade WHERE flow_id = #{workFlowId} and is_deleted = 0 )  and is_deleted = 0) tts ON ts.task_id = tts.task_id
+            LEFT JOIN ( SELECT DISTINCT task_id
+            FROM schedule_task_task_shade WHERE task_id IN
+            ( SELECT task_id FROM schedule_task_shade
+            WHERE flow_id = #{workFlowId} and is_deleted = 0 )
+            and is_deleted = 0) tts ON ts.task_id = tts.task_id
         WHERE
             ts.flow_id = #{workFlowId}
             AND tts.task_id IS NULL

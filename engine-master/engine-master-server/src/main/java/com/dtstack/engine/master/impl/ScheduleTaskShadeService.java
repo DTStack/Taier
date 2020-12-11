@@ -253,6 +253,7 @@ public class ScheduleTaskShadeService {
      */
     public ScheduleTaskShade getWorkFlowTopNode(Long taskId) {
         if (taskId != null) {
+            //todo sql有点不懂
             return scheduleTaskShadeDao.getWorkFlowTopNode(taskId);
         } else {
             return null;

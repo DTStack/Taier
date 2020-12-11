@@ -903,7 +903,7 @@ public class ComponentService {
 
     public String buildSftpPath(Long clusterId, Integer componentCode) {
         Cluster one = clusterDao.getOne(clusterId);
-        if(Objects.isNull(one)){
+        if( null == one ){
             throw new RdosDefineException("集群不存在");
         }
         return AppType.CONSOLE + "_" + one.getClusterName() + File.separator + EComponentType.getByCode(componentCode).name() ;
@@ -949,7 +949,7 @@ public class ComponentService {
     public String wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig,String clusterName) {
         JSONObject dataInfo = new JSONObject();
         dataInfo.put("componentName", EComponentType.getByCode(componentType).getName().toLowerCase());
-        if (Objects.nonNull(kerberosConfig)) {
+        if ( null != kerberosConfig ) {
             dataInfo.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
             //开启了kerberos
             dataInfo.put("openKerberos", kerberosConfig.getOpenKerberos());
@@ -982,7 +982,9 @@ public class ComponentService {
             dataInfo.put("jdbcUrl", jdbcUrl);
             dataInfo.put("username", dataInfo.getString("username"));
             dataInfo.put("password", dataInfo.getString("password"));
-            if (Objects.nonNull(kerberosConfig)) {
+            if ( null != kerberosConfig ) {
+
+                // todo 这部分判断了两遍
                 //开启了kerberos
                 dataInfo.put("openKerberos", kerberosConfig.getOpenKerberos());
                 dataInfo.put("remoteDir", kerberosConfig.getRemotePath());
@@ -990,10 +992,11 @@ public class ComponentService {
                 dataInfo.put("krbName", kerberosConfig.getKrbName());
                 dataInfo.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
                 //补充yarn参数
+                //todo 重复代码，抽象出一个方法
                 Cluster cluster = clusterDao.getByClusterName(clusterName);
-                if(Objects.nonNull(cluster)){
+                if( null != cluster ){
                     Component yarnComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode());
-                    if(Objects.nonNull(yarnComponent)){
+                    if(null != yarnComponent ){
                         Map yarnMap = JSONObject.parseObject(yarnComponent.getComponentConfig(), Map.class);
                         dataInfo.put(EComponentType.YARN.getConfName(), yarnMap);
                     }
@@ -1007,15 +1010,15 @@ public class ComponentService {
             dataInfo.put(EComponentType.HDFS.getConfName(), map);
             //补充yarn参数
             Cluster cluster = clusterDao.getByClusterName(clusterName);
-            if(Objects.nonNull(cluster)){
+            if( null != cluster ){
                 Component yarnComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode());
-                if(Objects.nonNull(yarnComponent)){
+                if( null != yarnComponent ){
                     Map yarnMap = JSONObject.parseObject(yarnComponent.getComponentConfig(), Map.class);
                     dataInfo.put(EComponentType.YARN.getConfName(), yarnMap);
                 }
             }
         } else if (EComponentType.KUBERNETES.getTypeCode() == componentType) {
-            //
+
             dataInfo = new JSONObject();
             JSONObject confObj = new JSONObject();
             if(componentConfig.contains("kubernetes.context")){
@@ -1118,11 +1121,11 @@ public class ComponentService {
                 if (DownloadType.Kerberos.getCode() == downloadType) {
                     Long clusterId = componentDao.getClusterIdByComponentId(componentId);
                     KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType);
-                    if (Objects.nonNull(kerberosConfig)) {
+                    if ( null != kerberosConfig ) {
                         zipFilename = kerberosConfig.getName() + ZIP_SUFFIX;
                     }
                 }
-                ZipUtil.zipFile(USER_DIR_DOWNLOAD + File.separator + zipFilename, Arrays.stream(files).collect(Collectors.toList()));
+                ZipUtil.zipFile(USER_DIR_DOWNLOAD + File.separator + zipFilename, Arrays.asList(files));
             }
             try {
                 FileUtils.forceDelete(file);
@@ -1168,10 +1171,11 @@ public class ComponentService {
                 if (data instanceof Map) {
                     if (EFrontType.CHECKBOX.name().equalsIgnoreCase(clientTemplate.getType())) {
                         List myData = new ArrayList();
+                        // todo 这段逻辑没看懂
                         ((Map) data).put(clientTemplate.getKey(), myData);
                         data = myData;
                     } else if(EFrontType.GROUP.name().equalsIgnoreCase(clientTemplate.getType())) {
-                        Map myData = new HashMap();
+                        Map myData = new HashMap(16);
                         ((Map) data).put(clientTemplate.getKey(), myData);
                         data = myData;
                     } else {
@@ -1242,14 +1246,14 @@ public class ComponentService {
             }
             //yarn是第一配置的
             ClusterVO cluster = clusterService.getClusterByName(clusterName);
-            if (Objects.isNull(cluster)) {
+            if ( null == cluster ) {
                 //如果没有配置hdfs hdfs给默认值 和yarn保持一致
                 return String.format("yarn%s-hdfs%s-hadoop%s", this.formatHadoopVersion(version),
                         this.formatHadoopVersion(version), this.formatHadoopVersion(version));
             }
             Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
             //hdfs  和 yarn 的版本要保持一致
-            if (Objects.nonNull(hdfs)) {
+            if ( null != hdfs ) {
                 if (!version.equalsIgnoreCase(hdfs.getHadoopVersion())) {
                     throw new RdosDefineException("hdfs 和 yarn 版本不一致");
                 }
@@ -1271,13 +1275,13 @@ public class ComponentService {
 
         Component yarn = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode());
         Component kubernetes = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.KUBERNETES.getTypeCode());
-        if (Objects.isNull(yarn) && Objects.isNull(kubernetes)) {
+        if ( null == yarn && null == kubernetes ) {
             throw new RdosDefineException("请先配置资源组件");
         }
-        String resourceSign = Objects.isNull(yarn) ? "k8s" : "yarn" + this.formatHadoopVersion(yarn.getHadoopVersion());
+        String resourceSign = null == yarn ? "k8s" : "yarn" + this.formatHadoopVersion(yarn.getHadoopVersion());
         if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
             //hdfs  和 yarn 的版本要保持一致
-            if(Objects.nonNull(yarn)){
+            if(null != yarn ){
                 if(!version.equalsIgnoreCase(yarn.getHadoopVersion())){
                     throw new RdosDefineException("hdfs 和 yarn 版本不一致");
                 }
@@ -1285,7 +1289,7 @@ public class ComponentService {
             return String.format("%s-hdfs%s-hadoop%s", resourceSign, this.formatHadoopVersion(version), this.formatHadoopVersion(version));
         }
         Component hdfs = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
-        if (Objects.isNull(hdfs)) {
+        if (null == hdfs ) {
             throw new RdosDefineException("请先配置HDFS");
         }
         String storageSign = "hdfs" + this.formatHadoopVersion(hdfs.getHadoopVersion());
@@ -1300,7 +1304,7 @@ public class ComponentService {
         //flink  需要根据yarn hdfs version 拼接 如yarn2-hdfs2-flink180;
         if (EComponentType.FLINK.getTypeCode().equals(componentType)) {
             //kubernetes 仅有110
-            if(Objects.nonNull(kubernetes)){
+            if( null != kubernetes ){
                 version = "110";
             }
             return String.format("%s-%s-flink%s", resourceSign, storageSign, version);
@@ -1444,6 +1448,11 @@ public class ComponentService {
 
         List<Component> components = getComponents(cluster);
 
+        if(CollectionUtils.isEmpty(components)){
+            return new ArrayList<>();
+        }
+
+        //todo 这里sftpMap有可能为null,如果为null要直接返回吗？
         Map<String, String> sftpMap = getSftpMap(components);
 
         List<ComponentTestResult> testResults = new ArrayList<>(components.size());

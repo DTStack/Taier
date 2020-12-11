@@ -108,7 +108,7 @@ public class ScheduleJobJobService {
         for (ScheduleJob scheduleJob : jobs) {
             keyJobMap.put(scheduleJob.getJobKey(), scheduleJob);
             taskIds.add(scheduleJob.getTaskId());
-            if (Objects.isNull(appType) && Objects.nonNull(scheduleJob.getAppType())) {
+            if (null == appType &&  null != scheduleJob.getAppType()) {
                 appType = scheduleJob.getAppType();
             }
         }
@@ -250,7 +250,9 @@ public class ScheduleJobJobService {
         return vo;
     }
 
+    // todo 递归调用，特别注意
     public com.dtstack.engine.master.vo.ScheduleJobVO getOffSpring(ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap, Map<Long, ScheduleTaskShade> idTaskMap, boolean isSubTask) {
+
         ScheduleJob job = keyJobMap.get(root.getJobKey());
         com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
         vo.setProjectId(job.getProjectId());

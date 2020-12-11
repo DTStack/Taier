@@ -274,6 +274,7 @@ public class JobGraphBuilder {
             logger.info("Start clean batchJobList, batch-number:{} startId:{}", batchIdx, startId);
             startId = scheduleJobList.get(scheduleJobList.size() - 1).getId();
             List<String> jobKeyList = new ArrayList<>();
+            //todo jobIdList没用到，可以删除
             List<Long> jobIdList = new ArrayList<>();
             for ( ScheduleJob scheduleJob : scheduleJobList) {
                 jobKeyList.add(scheduleJob.getJobKey());
@@ -419,7 +420,8 @@ public class JobGraphBuilder {
             scheduleJob.setJobName(targetJobName);
             scheduleJob.setPeriodType(scheduleCron.getPeriodType());
             scheduleJob.setTaskId(task.getTaskId());
-            if (task.getFlowId() == 0) {  //普通任务
+            //普通任务
+            if (task.getFlowId() == 0) {
                 scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
             } else {
                 String flowJobTime = triggerTime;
@@ -432,7 +434,7 @@ public class JobGraphBuilder {
                     }
                 }
                 ScheduleTaskShade flowTaskShade = batchTaskShadeService.getBatchTaskById(task.getFlowId(), task.getAppType());
-                if (Objects.isNull(flowTaskShade)) {
+                if ( null == flowTaskShade ) {
                     scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
                 } else {
                     scheduleJob.setFlowJobId(this.buildFlowReplaceId(flowTaskShade.getTaskId(),flowJobTime,flowTaskShade.getAppType()));
@@ -558,6 +560,8 @@ public class JobGraphBuilder {
     private void dealSelfDependency(Integer selfReliance, ScheduleJob scheduleJob, ScheduleCron scheduleCron, boolean isFirst,
                                     ScheduleBatchJob scheduleBatchJob, String keyPreStr, EScheduleType scheduleType, String jobKey,
                                     Timestamp timestampNow) {
+
+        // todo 直接改成如果等于NO_SELF_DEPENDENCY就返回不好吗
         if (!DependencyType.SELF_DEPENDENCY_SUCCESS.getType().equals(selfReliance)
                 && !DependencyType.SELF_DEPENDENCY_END.getType().equals(selfReliance)
                 && !DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_SUCCESS.getType().equals(selfReliance)
@@ -567,7 +571,8 @@ public class JobGraphBuilder {
 
         String preSelfJobKey = getSelfDependencyJobKeys(scheduleJob, scheduleCron, keyPreStr);
         if (preSelfJobKey != null) {
-            if (isFirst) {//需要查库判断是否存在
+            //需要查库判断是否存在
+            if (isFirst) {
                 ScheduleJob dbScheduleJob = batchJobService.getJobByJobKeyAndType(preSelfJobKey, scheduleType.getType());
                 if (dbScheduleJob != null) {
                     scheduleBatchJob.addBatchJobJob(createNewJobJob(scheduleJob, jobKey, preSelfJobKey, timestampNow));
@@ -709,7 +714,7 @@ public class JobGraphBuilder {
         //现在task中 taskId + appType 才是唯一
         //现在采用taskShade表的id
         ScheduleTaskShade shade = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), scheduleJob.getAppType());
-        if (Objects.nonNull(shade)) {
+        if (null != shade ) {
             return generateJobKey(keyPreStr, shade.getId(), preTriggerDateStr);
         }
         return null;
@@ -726,6 +731,9 @@ public class JobGraphBuilder {
     public static String getPrePeriodJobTriggerDateStr(String batchJobCycTime, ScheduleCron cron) {
         DateTime triggerDate = new DateTime(DateUtil.getTimestamp(batchJobCycTime, dtfFormatString));
         Date preTriggerDate = getPreJob(triggerDate.toDate(), cron);
+        if(null == preTriggerDate){
+            return null;
+        }
         return DateUtil.getFormattedDate(preTriggerDate.getTime(), dtfFormatString);
     }
 

@@ -582,9 +582,6 @@ public class ScheduleJobService {
             return null;
         }
         ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, Deleted.NORMAL.getStatus());
-        if(null == scheduleJob){
-            return null;
-        }
         Map<Long, ScheduleTaskForFillDataDTO> shadeMap = this.prepare(Lists.newArrayList(scheduleJob));
         List<ScheduleJobVO> transfer = this.transfer(Lists.newArrayList(scheduleJob), shadeMap);
         if (CollectionUtils.isEmpty(transfer)) {
@@ -713,6 +710,7 @@ public class ScheduleJobService {
         }
         return vos;
     }
+
 
     /**
      * 获取任务的状态统计信息
@@ -1422,6 +1420,7 @@ public class ScheduleJobService {
                 String triggerDay = cycTime.toString(DAY_PATTERN);
                 Map<String, ScheduleBatchJob> result;
                 if (StringUtils.isNotBlank(beginTime) && StringUtils.isNotBlank(endTime)) {
+                    // todo 这一步逻辑较为复杂
                     result = jobGraphBuilder.buildFillDataJobGraph(jsonNode, fillName, false, triggerDay, userId, beginTime, endTime, projectId, tenantId, isRoot, appType, scheduleFillDataJob.getId(),dtuicTenantId);
                 } else {
                     result = jobGraphBuilder.buildFillDataJobGraph(jsonNode, fillName, false, triggerDay, userId, projectId, tenantId, isRoot, appType, scheduleFillDataJob.getId(),dtuicTenantId);
@@ -2401,10 +2400,11 @@ public class ScheduleJobService {
                                                         boolean isOnlyNextChild,  Integer appType) {
 
         String jobKey = scheduleJob.getJobKey();
+        //查询子工作任务
         List<ScheduleJobJob> scheduleJobJobList = batchJobJobService.getJobChild(jobKey);
         List<String> jobKeyList = Lists.newArrayList();
 
-        String parentJobDayStr = getJobTriggerTimeFromJobKey(scheduleJob.getJobKey());
+        String parentJobDayStr = getJobTriggerTimeFromJobKey(jobKey);
         if (Strings.isNullOrEmpty(parentJobDayStr)) {
             return Lists.newArrayList();
         }
@@ -2835,4 +2835,5 @@ public class ScheduleJobService {
     public String getJobGraphJSON(String jobId) {
         return scheduleJobDao.getJobGraph(jobId);
     }
+
 }

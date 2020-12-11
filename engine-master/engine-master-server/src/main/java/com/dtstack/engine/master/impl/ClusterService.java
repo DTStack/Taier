@@ -476,6 +476,7 @@ public class ClusterService implements InitializingBean {
         //根据组件区分kerberos
         EComponentType componentType = EComponentType.getByConfName(key);
         Component component = componentDao.getByClusterIdAndComponentType(cluster.getId(),componentType.getTypeCode());
+        // todo 校验component是否为空
         KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(),componentType.getTypeCode());
         JSONObject configObj = config.getJSONObject(key);
         if (configObj != null) {
@@ -490,6 +491,7 @@ public class ClusterService implements InitializingBean {
 
             if(BooleanUtils.isTrue(isWrapper)){
                 Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode());
+               // todo 校验sftpComponent是否为空
                 Map sftpMap = null;
                 try {
                     sftpMap = PublicUtil.strToObject(sftpComponent.getComponentConfig(), Map.class);
@@ -550,21 +552,21 @@ public class ClusterService implements InitializingBean {
     private void accordToKerberosFile(SftpConfig sftpConfig, JSONObject dataMap, Component component) {
         try {
             JSONObject configJsonObject = dataMap.getJSONObject("kerberosConfig");
-            if (Objects.isNull(configJsonObject)) {
+            if ( null == configJsonObject ) {
                 return;
             }
             KerberosConfig kerberosConfig = PublicUtil.strToObject(configJsonObject.toString(), KerberosConfig.class);
-            if (Objects.isNull(kerberosConfig)) {
+            if ( null == kerberosConfig ) {
                 return;
             }
             if (kerberosConfig.getOpenKerberos() <= 0) {
                 return;
             }
-            Preconditions.checkState(Objects.nonNull(kerberosConfig.getClusterId()));
-            Preconditions.checkState(Objects.nonNull(kerberosConfig.getOpenKerberos()));
+            Preconditions.checkState( null != kerberosConfig.getClusterId());
+            Preconditions.checkState( null != kerberosConfig.getOpenKerberos() );
             Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getPrincipal()));
             Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getRemotePath()));
-            Preconditions.checkState(Objects.nonNull(kerberosConfig.getComponentType()));
+            Preconditions.checkState( null != kerberosConfig.getComponentType());
             //获取本地的kerberos本地路径
             configJsonObject.put("principalFile", kerberosConfig.getName());
             configJsonObject.putAll(Optional.ofNullable(configJsonObject.getJSONObject("hdfsConfig")).orElse(new JSONObject()));
@@ -585,11 +587,11 @@ public class ClusterService implements InitializingBean {
      * @param configObj
      */
     public void addKerberosConfigWithHdfs(String key, ClusterVO cluster, KerberosConfig kerberosConfig, JSONObject configObj) {
-        if (Objects.nonNull(kerberosConfig)) {
+        if ( null != kerberosConfig ) {
             KerberosConfigVO kerberosConfigVO = KerberosConfigVO.toVO(kerberosConfig);
             if (!Objects.equals(EComponentType.HDFS.getConfName(), key)) {
                 Component hdfsComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
-                if (Objects.isNull(hdfsComponent)) {
+                if (null == hdfsComponent ) {
                     throw new RdosDefineException("开启kerberos后需要预先保存hdfs组件");
                 }
                 kerberosConfigVO.setHdfsConfig(JSONObject.parseObject(hdfsComponent.getComponentConfig()));

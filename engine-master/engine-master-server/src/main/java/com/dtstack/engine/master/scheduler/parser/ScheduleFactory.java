@@ -40,8 +40,8 @@ public class ScheduleFactory {
     public static ScheduleCron parseFromJson(String jsonStr) throws IOException, ParseException {
         Map<String, Object> jsonMap = objMapper.readValue(jsonStr, Map.class);
         Preconditions.checkState(jsonMap.containsKey(PERIOD_TYPE_KEY), "schedule param must contain " + PERIOD_TYPE_KEY);
-        Preconditions.checkNotNull(jsonMap.containsKey(BEGIN_DATE_KEY), "schedule param must contain " +  BEGIN_DATE_KEY);
-        Preconditions.checkNotNull(jsonMap.containsKey(END_DATE_KEY), "schedule param must contain " +  END_DATE_KEY);
+        Preconditions.checkState(jsonMap.containsKey(BEGIN_DATE_KEY), "schedule param must contain " +  BEGIN_DATE_KEY);
+        Preconditions.checkState(jsonMap.containsKey(END_DATE_KEY), "schedule param must contain " +  END_DATE_KEY);
 
         int periodType = MathUtil.getIntegerVal(jsonMap.get(PERIOD_TYPE_KEY));
         ScheduleCron scheduleCron = null;
