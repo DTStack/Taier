@@ -58,7 +58,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -979,7 +978,6 @@ public class ScheduleJobService {
                 logger.error(" job  {} run fail with info is null",rdosJobByJobId.getJobId(),e);
             }
         }
-        return;
     }
 
     /**
