@@ -183,49 +183,30 @@
 .c-editCluster__containerWrap {
     height: 100%;
     width: 100%;
-    min-height: 550px;
     position: relative;
     padding: 20px;
-    display: flex;
-    flex-direction: column;
-    .c-editCluster__turnBack {
-        font-size: 14px;
-        font-weight: bold;
-        color: #999;
-        cursor: pointer;
-    }
-    .c-editCluster__title {
-        font-size: 14px;
-        color: #333;
-        font-weight: bold;
-    }
-    .c-editCluster__header {
-        margin-bottom: 12px;
-        margin-top: 12px;
-        height: 32px;
-        display: flex;
-        justify-content: space-between;
-        .c-editCluster__header__btn {
-            padding: 0 12px;
-            height: 32px;
-        }
-    }
 }
 
 .c-editCluster__container {
-    position: relative;
-    flex: 1;
+    position: absolute;
     background: #fff;
+    top: 52px;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
     .c-editCluster__container__commonTabs {
-        display: flex;
-        flex-direction: column;
         height: 100%;
-        box-shadow:0px 2px 8px 0px rgba(6,14,26,0.08);
         >.ant-tabs-bar {
             height: 44px;
         }
         >.ant-tabs-content {
-            flex: 1;
+            position: absolute;
+            top: 44px;
+            right: 0px;
+            bottom: 0px;
+            left: 0px;
+            margin-left: 0;
+            height: unset;
         }
         .ant-tabs-extra-content {
             float: left !important;
@@ -266,7 +247,16 @@
             width: 200px !important;
         }
         >.ant-tabs-content {
-            flex: unset;
+            position: absolute;
+            left: 200px;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            height: unset;
+            margin-top: 0;
+            border: 0;
+            padding-bottom: 40px;
+            padding-left: 0;
         }
         >.ant-tabs-bar {
             height: 100%;
@@ -290,7 +280,7 @@
             >.ant-tabs-extra-content {
                 height: 40px;
                 position: absolute;
-                bottom: 0;
+                bottom: 1px;
             }      
         }
         .c-editCluster__container__componentWrap {
@@ -417,6 +407,68 @@
     }
 }
 
+// new 
+.c-fileConfig__container {
+    width: 200px;
+    padding: 20px 12px;
+    position: absolute;
+    top: 0;
+    bottom: 40px;
+    overflow-y: scroll;
+    border-right: 1px solid #E8E8E8;
+    .c-fileConfig__downloadTemp {
+        margin-left: 55px;
+        color: #3F87FF;
+        cursor: pointer;
+    }
+    .c-fileConfig__config {
+        .config-desc {
+            color: #999;
+            font-size: 10px;
+         }
+        & + .config-file {
+            width: 176px;
+            height: 20px;
+            display: block;
+            padding: 0 16px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 12px;
+            line-height: 20px;
+            position: relative;
+            .anticon-paper-clip {
+                position: absolute;
+                left: 0;
+                top: 4px;
+                color: #666;
+            }
+            .anticon-delete {
+                position: absolute;
+                right: 0;
+                top: 4px;
+                color: #666;
+                display: none;
+            }
+            &:hover {
+                background-color: #F2F9FF;
+                .anticon-delete {
+                    display: block;
+                }
+            }
+        }
+     
+    }
+}
+
+.c-formConfig__container {
+    position: absolute;
+    right: 0;
+    left: 200px;
+    bottom: 40px;
+    top: 0;
+}
+
 .c-editCluster__icon {
     &:hover {
         color: #2491f7;
@@ -442,4 +494,33 @@
     &:hover {
         color: #FF5F5C;
     }
+}
+
+.c-componentButton__title {
+    width: 240px;
+    height: 40px;
+    line-height: 40px;
+    font-weight: 500;
+    font-size: 14px;
+    padding-left: 20px;
+    margin: -16px -16px 10px -36px; 
+    border-bottom: 1px solid #E8E8E8;
+}
+
+.c-componentButton__content {
+    margin-left: -16px;
+    .ant-col {
+        margin-bottom: 12px;
+    }
+}
+
+.c-toolbar__container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-top: 1px solid #E8E8E8;
 }
