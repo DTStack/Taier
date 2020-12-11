@@ -25,6 +25,12 @@
             <groupId>com.dtstack.engine</groupId>
             <artifactId>lineage-service</artifactId>
             <version>1.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.hive</groupId>
+                    <artifactId>hive-exec</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

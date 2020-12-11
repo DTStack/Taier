@@ -1,18 +1,10 @@
 package com.dtstack.lineage.impl;
 
 import com.dtstack.engine.api.domain.LineageColumnColumn;
-import org.junit.Assert;
+import com.dtstack.engine.master.AbstractTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-import com.dtstack.engine.master.AbstractTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;

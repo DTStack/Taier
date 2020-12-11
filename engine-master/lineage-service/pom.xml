@@ -16,7 +16,7 @@
         <dependency>
             <groupId>com.dtstack.engine</groupId>
             <artifactId>engine-sql-parser</artifactId>
-            <version>1.0.0</version>
+            <version>4.2.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.dtstack.engine</groupId>
