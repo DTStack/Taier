@@ -152,12 +152,14 @@ export const COMPUTE_COMPONENTS: any = [
 export enum ALARM_TYPE {
     MSG = 1,
     EMAIL = 2,
-    DING = 3
+    DING = 3,
+    CUSTOM = 4
 }
 export const ALARM_TYPE_TEXT = {
     [ALARM_TYPE.MSG]: '短信通道',
     [ALARM_TYPE.EMAIL]: '邮件通道',
-    [ALARM_TYPE.DING]: '钉钉通道'
+    [ALARM_TYPE.DING]: '钉钉通道',
+    [ALARM_TYPE.CUSTOM]: '自定义通道'
 }
 
 export const CHANNEL_MODE_VALUE = {
@@ -204,7 +206,8 @@ export const CHANNEL_CONF_TEXT = {
     JAR: '{"classname":"com.dtstack.sender.sms.xxxsender"}',
     API: '{\n"cookiestore": false,\n"configs": [{\n"url": "",\n"method": "get",\n"header": {},\n"body": {}\n}],\n"context": {}\n} ',
     SMS_YP: '请按照此格式输入配置信息：\n{"yp_api_key":"xxxxxx"}',
-    MAIL_DT: '{\n"mail.smtp.host":"smtp.yeah.net",\n"mail.smtp.port":"25",\n"mail.smtp.ssl.enable":"false",\n"mail.smtp.username":"daishu@dtstack.com",\n"mail.smtp.password":"xxxx",\n"mail.smtp.from":"daishu@dtstack.com"\n}'
+    MAIL_DT: '{\n"mail.smtp.host":"smtp.yeah.net",\n"mail.smtp.port":"25",\n"mail.smtp.ssl.enable":"false",\n"mail.smtp.username":"daishu@dtstack.com",\n"mail.smtp.password":"xxxx",\n"mail.smtp.from":"daishu@dtstack.com"\n}',
+    CUSTOM: '{"className":"com.Test"}'
 }
 
 // 任务状态

@@ -20,7 +20,7 @@ const AlarmChannel: React.FC = (props: any) => {
         const [loading, setLoading] = useState<boolean>(false);
         const [alarmList, setAlarmList] = useState<any[]>([])
         const { currentPage, pageSize } = pagination;
-        const { alertGateType } = params;
+        const { alertGateType, reFreshKey } = params;
         useEffect(() => {
             const getAlarmRuleList = async () => {
                 setLoading(true);
@@ -36,7 +36,7 @@ const AlarmChannel: React.FC = (props: any) => {
                 setLoading(false);
             }
             getAlarmRuleList().then();
-        }, [currentPage, alertGateType, pageSize])
+        }, [currentPage, alertGateType, pageSize, reFreshKey])
         return [{ loading, alarmList }]
     }
     const refreshTable = () => {
@@ -64,7 +64,14 @@ const AlarmChannel: React.FC = (props: any) => {
     const initColumns = () => {
         return [{
             title: '通道名称',
-            dataIndex: 'alertGateName'
+            dataIndex: 'alertGateName',
+            render: (alertGateName: string, record: any) => {
+                const showText = `${ALARM_TYPE_TEXT[record.alertGateType].slice(0, 2)}默认通道`;
+                return <span>
+                    {alertGateName}
+                    {record.isDefault && <Button className="alarm-btn" disabled>{showText}</Button>}
+                </span>
+            }
         }, {
             title: '告警类型',
             dataIndex: 'alertGateType',
@@ -85,7 +92,12 @@ const AlarmChannel: React.FC = (props: any) => {
             dataIndex: 'opera',
             render: (text: any, record) => {
                 const { alertId } = record
+                const showText = `${ALARM_TYPE_TEXT[record.alertGateType].slice(0, 2)}默认通道`;
                 return <span>
+                    {!record.isDefault && <>
+                        <a onClick={() => { setDefaultChannel(record) }}>{`设为${showText}`}</a>
+                        <span className="ant-divider" ></span>
+                    </>}
                     <a onClick={() => { editAlarm(alertId) }}>编辑</a>
                     <span className="ant-divider" ></span>
                     <Popconfirm
@@ -96,17 +108,6 @@ const AlarmChannel: React.FC = (props: any) => {
                         <a>删除</a>
                     </Popconfirm>
                 </span>
-            }
-        }, {
-            title: '默认通道',
-            dataIndex: 'isDefault',
-            render: (text, record: any) => {
-                const showText = `${ALARM_TYPE_TEXT[record.alertGateType].slice(0, 2)}默认通道`;
-                if (text) {
-                    return <Button className="alarm-btn" disabled>{showText}</Button>
-                } else {
-                    return <Button style={{ width: 130 }} onClick={() => { setDefaultChannel(record) }}>{`设为${showText}`}</Button>
-                }
             }
         }]
     }
