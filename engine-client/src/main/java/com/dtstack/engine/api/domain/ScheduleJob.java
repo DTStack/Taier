@@ -107,6 +107,21 @@ public class ScheduleJob extends AppTenantEntity {
 
     private Integer phaseStatus;
 
+
+    /**
+     * 执行引擎任务id
+     */
+    @ApiModelProperty(notes = "任务提交用户")
+    private String submitUserName;
+
+    public String getSubmitUserName() {
+        return submitUserName;
+    }
+
+    public void setSubmitUserName(String submitUserName) {
+        this.submitUserName = submitUserName;
+    }
+
     public String getEngineJobId() {
         return engineJobId;
     }
