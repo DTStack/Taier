@@ -15,14 +15,6 @@
         <spring.version>5.2.3.RELEASE</spring.version>
         <fastjson>2.9.6</fastjson>
         <common.version>4.1.1</common.version>
-
-        <!-- Sonar -->
-        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-
-        <!--将所有jacoco定位到同样的父目录位置-->
-        <sonar.language>java</sonar.language>
-        <jacoco.version>0.8.5</jacoco.version>
     </properties>
 
     <modules>
@@ -68,7 +60,7 @@
         <dependency>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>${jacoco.version}</version>
+            <version>0.7.8</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -101,27 +93,14 @@
                         <exclude>**/Base*.java</exclude>
                         <exclude>com/dtstack/engine/rdbs/presto/TestPrestoDB.java</exclude>
                     </excludes>
-                    <argLine>
-                        -javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar=destfile=${project.basedir}/target/jacoco.exec
-                    </argLine>
-                    <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco.version}</version>
+                <version>0.7.8</version>
                 <configuration>
-                    <!--指定生成.exec文件的存放位置-->
-                    <destFile>${project.basedir}/target/jacoco.exec</destFile>
-                    <!--Jacoco是根据.exec文件生成最终的报告，所以需指定.exec的存放路径-->
-                    <dataFile>${project.basedir}/target/jacoco.exec</dataFile>
-                    <!--重要！用追加的模式-->
-                    <append>true</append>
-                    <excludes>
-                        <exclude>**/org/**/*</exclude>
-                        <exclude>**/com/dtstack/engine/api/**</exclude>
-                    </excludes>
+                    <dataFile>target/jacoco.exec</dataFile>
                 </configuration>
                 <executions>
                     <execution>
@@ -144,7 +123,7 @@
                     </execution>
                     <execution>
                         <id>jacoco-site</id>
-                        <phase>test</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
