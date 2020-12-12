@@ -4,6 +4,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.security.krb5.KrbException;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,11 +19,8 @@ public class Krb5FileUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Krb5FileUtil.class);
 
-    public static String mergeKrb5Content(String mergeKrb5Path, String localKrb5Path) throws Exception {
-        Map<String, HashMap<String, String>> localKrb5Content = readKrb5(localKrb5Path);
-        Map<String, HashMap<String, String>> mergeKrb5Content = readKrb5(mergeKrb5Path);
-
-        Set<String> mapKeys = mergeKrb5ContentKey(localKrb5Content, localKrb5Content);
+    public static String mergeKrb5Content(Map<String, HashMap<String, String>> mergeKrb5Content, Map<String, HashMap<String, String>> localKrb5Content) throws Exception {
+        Set<String> mapKeys = mergeKrb5ContentKey(mergeKrb5Content, localKrb5Content);
 
         for (String key: mapKeys) {
             HashMap<String, String> localKrb5Section = localKrb5Content.get(key);
@@ -45,13 +43,26 @@ public class Krb5FileUtil {
                 }
             });
         }
-
-        String fileContent = writeKrb5(mergeKrb5Path, mergeKrb5Content);
-        return fileContent;
+        String content = convertMapToString(mergeKrb5Content);
+        return content;
     }
 
-    public static String writeKrb5(String filePath, Map<String, HashMap<String, String>> krb5) throws Exception {
+    public static String resetMergeKrb5Content(String oldKrb5Content, String newKrb5Content) throws Exception {
+        Map<String, HashMap<String, String>> localKrb5Content = readKrb5ByString(oldKrb5Content);
+        Map<String, HashMap<String, String>> mergeKrb5Content = readKrb5ByString(newKrb5Content);
+        String content = mergeKrb5Content(mergeKrb5Content, localKrb5Content);
+        return content;
+    }
 
+    public static String mergeKrb5ContentByPath(String mergeKrb5Path, String localKrb5Path) throws Exception {
+        Map<String, HashMap<String, String>> localKrb5Content = readKrb5ByPath(localKrb5Path);
+        Map<String, HashMap<String, String>> mergeKrb5Content = readKrb5ByPath(mergeKrb5Path);
+        String content = mergeKrb5Content(mergeKrb5Content, localKrb5Content);
+        Files.write(Paths.get(mergeKrb5Path), Collections.singleton(content));
+        return content;
+    }
+
+    private static String convertMapToString(Map<String, HashMap<String, String>> krb5) {
         StringBuffer content = new StringBuffer();
         for (String key : krb5.keySet()) {
             if (StringUtils.isNotEmpty(key)) {
@@ -64,7 +75,6 @@ public class Krb5FileUtil {
                 content.append(optionStr).append(System.lineSeparator());
             }
         }
-        Files.write(Paths.get(filePath), Collections.singleton(content));
         return content.toString();
     }
 
@@ -76,17 +86,9 @@ public class Krb5FileUtil {
         return mapKeys;
     }
 
-    public static Map<String, HashMap<String, String>> readKrb5(String krb5Path) {
-        Map<String, HashMap<String, String>> krb5Contents = new HashMap<>();
-
-        String section = "";
-        boolean flag = true;
-        String currentKey = "";
-        StringBuffer content = new StringBuffer();
-
+    public static Map<String, HashMap<String, String>> readKrb5ByPath(String krb5Path) {
         List<String> lines = new ArrayList<>();
         File krb5File = new File(krb5Path);
-
         try(
                 InputStreamReader inputReader = new InputStreamReader(new FileInputStream(krb5File));
                 BufferedReader br = new BufferedReader(inputReader);
@@ -102,8 +104,24 @@ public class Krb5FileUtil {
             LOGGER.error("krb5.conf read error:", e);
             throw new RdosDefineException("krb5.conf read error");
         }
+        return convertKrb5ToMap(lines);
+    }
 
-        for (String line : lines) {
+    public static Map<String, HashMap<String, String>> readKrb5ByString(String krb5Content) {
+        String[] krb5Lines = krb5Content.split("[\\r\\n|\\r|\\n]");
+        List<String> krb5LinesList = Arrays.asList(krb5Lines);
+        return convertKrb5ToMap(krb5LinesList);
+    }
+
+    private static Map<String, HashMap<String, String>> convertKrb5ToMap(List<String> krb5Lines) {
+        Map<String, HashMap<String, String>> krb5Contents = new HashMap<>();
+
+        String section = "";
+        boolean flag = true;
+        String currentKey = "";
+        StringBuffer content = new StringBuffer();
+
+        for (String line : krb5Lines) {
             line = StringUtils.trim(line);
             if (StringUtils.isNotEmpty(line) && !StringUtils.startsWith(line, "#") && !StringUtils.startsWith(line, ";")) {
                 if (line.startsWith("[") && line.endsWith("]")){
@@ -142,5 +160,43 @@ public class Krb5FileUtil {
             }
         }
         return krb5Contents;
+    }
+
+    public static boolean checkKrb5Content(String content) {
+
+        if (StringUtils.isEmpty(content)) {
+            throw new RdosDefineException("merge krb5.conf content is null");
+        }
+        String[] krb5Lines = content.split("[\\r\\n|\\r|\\n]");
+        String var6 = null;
+        for (int i=0; i < krb5Lines.length; i++) {
+            String krb5Line = krb5Lines[i];
+            if (!krb5Line.isEmpty() && !krb5Line.startsWith("#") && !krb5Line.startsWith(";")) {
+                if (krb5Line.startsWith("[")) {
+                    if (!krb5Line.endsWith("]")) {
+                        throw new RdosDefineException("Illegal config content:" + krb5Line);
+                    }
+
+                    String configContent = krb5Line.substring(1, krb5Line.length() - 1).trim();
+                    if (configContent.isEmpty()) {
+                        throw new RdosDefineException("Illegal config content:" + krb5Line);
+                    }
+
+                    var6 = configContent + " = {";
+                } else if (krb5Line.startsWith("{")) {
+                    if (var6 == null) {
+                        throw new RdosDefineException("Config file should not start with \"{\"");
+                    }
+
+                    var6 = var6 + " {";
+                    if (krb5Line.length() > 1) {
+                        var6 = krb5Line.substring(1).trim();
+                    }
+                } else if (var6 != null) {
+                    var6 = krb5Line;
+                }
+            }
+        }
+        return true;
     }
 }

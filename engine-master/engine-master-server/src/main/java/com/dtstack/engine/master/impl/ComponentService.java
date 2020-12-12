@@ -397,12 +397,15 @@ public class ComponentService {
         return hadoopEngine;
     }
 
-    //TODO -- upload kerberos zip
-    public String uploadKerberos(List<Resource> resources, Long clusterId, Integer componentCode, String kerberosFileName) {
+    @Transactional(rollbackFor = Exception.class)
+    public String uploadKerberos(List<Resource> resources, Long clusterId, Integer componentCode) {
 
         if (CollectionUtils.isEmpty(resources)) {
             throw new RdosDefineException("请上传kerberos文件！");
         }
+
+        Resource resource = resources.get(0);
+        String kerberosFileName = resource.getFileName();
         if (!kerberosFileName.endsWith(ZIP_SUFFIX)) {
             throw new RdosDefineException("kerberos上传文件非zip格式");
         }
@@ -414,8 +417,6 @@ public class ComponentService {
         String remoteDir = sftpConfig.getPath() + File.separator + this.buildSftpPath(clusterId, componentCode);
         Component addComponent = new ComponentDTO();
         addComponent.setComponentTypeCode(componentCode);
-
-        Resource resource = resources.get(0);
         updateComponentKerberosFile(clusterId, addComponent, sftpFileManage, remoteDir, resource, null, null);
 
         List<KerberosConfig> kerberosConfigs = kerberosDao.listAll();
@@ -431,7 +432,9 @@ public class ComponentService {
 
         String mergeDirPath = ConfigConstant.LOCAL_KRB5_MERGE_DIR_PARENT + ConfigConstant.SP + UUID.randomUUID();
         Map<String, KerberosConfig> KerberosConfigMap = new HashMap<>();
+        List<Long> clusterDownloadRecords = new ArrayList();
         try {
+            String oldMergeKrb5Content = null;
             String mergeKrb5Path = mergeDirPath + ConfigConstant.SP + ConfigConstant.MERGE_KRB5_NAME;
             for (KerberosConfig kerberosConfig : kerberosConfigs) {
                 String krb5Name = kerberosConfig.getKrbName();
@@ -439,30 +442,43 @@ public class ComponentService {
                 Long clusterId = kerberosConfig.getClusterId();
                 Integer componentCode = kerberosConfig.getComponentType();
 
+                if (StringUtils.isNotEmpty(kerberosConfig.getMergeKrbContent()) && StringUtils.isEmpty(oldMergeKrb5Content)) {
+                    oldMergeKrb5Content = kerberosConfig.getMergeKrbContent();
+                }
+
                 String remoteKrb5Path = remotePath + ConfigConstant.SP + krb5Name;
                 String localKrb5Path = mergeDirPath + remoteKrb5Path;
-                Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
-                SftpConfig sftpConfig = getSFTPConfig(sftpComponent, componentCode, "");
-                SftpFileManage sftpFileManage = sftpFileManageBean.retrieveSftpManager(sftpConfig);
-                boolean downRes = sftpFileManage.downloadFile(remoteKrb5Path, localKrb5Path);
-                if (downRes) {
-                    KerberosConfigMap.put(localKrb5Path, kerberosConfig);
-                    if (!new File(mergeKrb5Path).exists()) {
-                        FileUtils.copyFile(new File(localKrb5Path), new File(mergeKrb5Path));
+                try {
+                    Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
+                    SftpConfig sftpConfig = getSFTPConfig(sftpComponent, componentCode, "");
+                    SftpFileManage sftpFileManage = sftpFileManageBean.retrieveSftpManager(sftpConfig);
+                    if (clusterDownloadRecords.contains(clusterId)) {
                         continue;
                     }
-                    try {
-                        mergeKrb5Content = Krb5FileUtil.mergeKrb5Content(mergeKrb5Path, localKrb5Path);
-                    } catch (Exception e) {
-                        LOGGER.error("merge krb5.conf[{}] error : {}", localKrb5Path, e.getMessage());
+                    boolean downRes = sftpFileManage.downloadFile(remoteKrb5Path, localKrb5Path);
+                    LOGGER.info("mergeKrb5 remoteKrb5Path[{}] download result {}", remoteKrb5Path, downRes);
+                    if (downRes) {
+                        clusterDownloadRecords.add(clusterId);
+                        KerberosConfigMap.put(localKrb5Path, kerberosConfig);
+                        if (!new File(mergeKrb5Path).exists()) {
+                            FileUtils.copyFile(new File(localKrb5Path), new File(mergeKrb5Path));
+                            continue;
+                        }
+                        mergeKrb5Content = Krb5FileUtil.mergeKrb5ContentByPath(mergeKrb5Path, localKrb5Path);
                     }
+                } catch (Exception e) {
+                    LOGGER.error("merge krb5.conf[{}] error : {}", localKrb5Path, e.getMessage());
                 }
+            }
+            if (StringUtils.isNotEmpty(oldMergeKrb5Content)) {
+                mergeKrb5Content = Krb5FileUtil.resetMergeKrb5Content(oldMergeKrb5Content, mergeKrb5Content);
             }
             LOGGER.info("mergeKrb5Content is {}", mergeKrb5Content);
             for (String localKrb5Path : KerberosConfigMap.keySet()) {
                 KerberosConfig kerberosConfig = KerberosConfigMap.get(localKrb5Path);
                 kerberosConfig.setMergeKrbContent(mergeKrb5Content);
                 kerberosDao.update(kerberosConfig);
+                LOGGER.info("Krb5[{}] merge successed!", localKrb5Path);
             }
         } catch (Exception e) {
             LOGGER.error("Merge krb5 error! {}", e.getMessage());
@@ -476,8 +492,10 @@ public class ComponentService {
         return mergeKrb5Content;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void updateKrb5Conf(String krb5Content) {
         try {
+            Krb5FileUtil.checkKrb5Content(krb5Content);
             List<KerberosConfig> kerberosConfigs = kerberosDao.listAll();
             for (KerberosConfig kerberosConfig : kerberosConfigs) {
                 String remotePath = kerberosConfig.getRemotePath();
@@ -487,6 +505,7 @@ public class ComponentService {
             }
         } catch (Exception e) {
             LOGGER.error("Update krb5 error! {}", e.getMessage());
+            throw new RdosDefineException(e);
         }
     }
 

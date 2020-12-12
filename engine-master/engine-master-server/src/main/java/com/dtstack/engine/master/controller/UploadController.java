@@ -56,9 +56,9 @@ public class UploadController {
 
     @RequestMapping(value="/component/uploadKerberos", method = {RequestMethod.POST})
     public String uploadKerberos(@RequestParam("kerberosFile") List<MultipartFile> files, @RequestParam("clusterId") Long clusterId,
-                                 @RequestParam("componentCode") Integer componentCode, @RequestParam("kerberosFileName") String kerberosFileName) {
+                                 @RequestParam("componentCode") Integer componentCode) {
         List<Resource> resources = getResourcesFromFiles(files);
-        return componentService.uploadKerberos(resources, clusterId, componentCode, kerberosFileName);
+        return componentService.uploadKerberos(resources, clusterId, componentCode);
     }
 
     private List<Resource> getResourcesFromFiles(List<MultipartFile> files) {
