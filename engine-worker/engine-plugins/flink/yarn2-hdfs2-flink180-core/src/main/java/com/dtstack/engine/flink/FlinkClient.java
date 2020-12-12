@@ -639,7 +639,7 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
-        String jobId = jobIdentifier.getEngineJobId();
+
         String reqURL;
 
         if (EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode()) && IS_END_STATUS.test(getJobStatus(jobIdentifier))) {
@@ -652,11 +652,17 @@ public class FlinkClient extends AbstractClient {
             reqURL = currClient.getWebInterfaceURL();
         }
 
+        String jobId =  null;
+
         try {
+            jobId = jobIdentifier.getEngineJobId();
+            if (jobId == null) {
+                throw new RdosDefineException("jobId is null.");
+            }
             String except = getExceptionInfo(jobId, reqURL);
             return FlinkRestParseUtil.parseEngineLog(except);
         } catch (Exception e) {
-            logger.error("", e);
+            logger.error("getExceptionInfo faild. The reason is {}.", e);
             Map<String, String> map = new LinkedHashMap<>(8);
             map.put("jobId", jobId);
             map.put("exception", ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION);
