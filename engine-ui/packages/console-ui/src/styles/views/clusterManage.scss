@@ -184,7 +184,21 @@
     height: 100%;
     width: 100%;
     position: relative;
-    padding: 20px;
+    padding: 12px 20px 20px 20px;
+    .c-editCluster__header {
+        margin-bottom: 12px;
+        height: 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .c-editCluster__header__btn {
+            padding: 0 12px;
+            height: 32px;
+        }
+        .cluster-btn {
+            margin-right: 12px;
+        }
+    }
 }
 
 .c-editCluster__container {
@@ -423,41 +437,46 @@
     }
     .c-fileConfig__config {
         .config-desc {
+            word-break: break-all;
             color: #999;
             font-size: 10px;
+            line-height: 24px;
+            display: inline-block;
          }
-        & + .config-file {
-            width: 176px;
-            height: 20px;
-            display: block;
-            padding: 0 16px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+    }
+    .config-file {
+        width: 176px;
+        height: 20px;
+        display: block;
+        padding: 0 52px 0 16px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 12px;
+        line-height: 20px;
+        position: relative;
+        color: #3F87FF;
+        .anticon-delete, .anticon-paper-clip, .anticon-edit, .anticon-download {
+            position: absolute;
+            top: 4px;
+            color: #666;
             font-size: 12px;
-            line-height: 20px;
-            position: relative;
-            .anticon-paper-clip {
-                position: absolute;
-                left: 0;
-                top: 4px;
-                color: #666;
-            }
-            .anticon-delete {
-                position: absolute;
-                right: 0;
-                top: 4px;
-                color: #666;
-                display: none;
-            }
-            &:hover {
-                background-color: #F2F9FF;
-                .anticon-delete {
-                    display: block;
-                }
-            }
         }
-     
+        .anticon-paper-clip {
+            left: 0;
+        }
+        .anticon-delete {
+            right: 0;
+        }
+        .anticon-download {
+            right: 20px;
+        }
+        .anticon-edit {
+            right: 40px;
+        }
+        &:hover {
+            background-color: #F2F9FF;
+        }
     }
 }
 

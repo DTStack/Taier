@@ -90,6 +90,8 @@ export const VERSION_TYPE = {
     6: 'SparkThrift'
 }
 
-export const DOWNLOAD_TYPE = {
-    'PARAMES': 2
+export const FILE_TYPE = {
+    KERNEROS: 0,
+    CONFIGS: 1,
+    PARAMES: 2
 }

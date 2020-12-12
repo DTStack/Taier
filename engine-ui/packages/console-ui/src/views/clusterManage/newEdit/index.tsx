@@ -1,9 +1,10 @@
 import * as React from 'react'
-import { Form, Breadcrumb, Tabs } from 'antd'
-import Api from '../../../api/console'
+import { Form, Breadcrumb, Tabs, Button } from 'antd'
+import { hashHistory } from 'react-router';
 
+import Api from '../../../api/console'
 import ComponentButton from './buttons/componentbBtn'
-import { getActionType, initialScheduling, giveMeAKey } from './help'
+import { getActionType, initialScheduling, giveMeAKey, isViewMode } from './help'
 import { TABS_TITLE } from './const'
 
 import FileConfig from './fileConfig'
@@ -16,13 +17,15 @@ interface IState {
     versionData: any;
     clusterName: string;
     activeKey: number;
+    saveCompsData: any[];
 }
 class EditCluster extends React.Component<any, IState> {
     state: IState = {
         initialCompData: initialScheduling(), // 初始各组件的存储值
         versionData: {},
         clusterName: '',
-        activeKey: 0
+        activeKey: 0,
+        saveCompsData: []
     }
 
     componentDidMount () {
@@ -44,7 +47,7 @@ class EditCluster extends React.Component<any, IState> {
                 this.setState({
                     initialCompData: initData,
                     clusterName: res.data.clusterName
-                })
+                }, this.getSaveComponentList)
             }
         })
     }
@@ -59,9 +62,38 @@ class EditCluster extends React.Component<any, IState> {
         })
     }
 
+    getSaveComponentList= async () => {
+        const { clusterName } = this.state
+        const res = await Api.getComponentStore({ clusterName })
+        if (res.code == 1 && res.data) {
+            let saveCompsData = []
+            res.data.forEach((item: any) => {
+                saveCompsData.push({
+                    key: item?.componentTypeCode,
+                    value: item?.componentName
+                })
+            })
+            this.setState({
+                saveCompsData
+            })
+        }
+    }
+
     onTabChange = (key: string) => {
         this.setState({
             activeKey: Number(key)
+        })
+    }
+
+    turnCompMode = (type: string) => {
+        const { cluster } = this.props.location.state || {} as any;
+        // this.setState({ testLoading: false })
+        hashHistory.push({
+            pathname: '/console/clusterManage/editCluster',
+            state: {
+                mode: type,
+                cluster
+            }
         })
     }
 
@@ -71,19 +103,26 @@ class EditCluster extends React.Component<any, IState> {
 
     render () {
         const { mode } = this.props.location.state || {} as any
-        const { clusterName, activeKey, initialCompData, versionData } = this.state
+        const { clusterName, activeKey, initialCompData, versionData, saveCompsData } = this.state
 
         return (
             <div className="c-editCluster__containerWrap">
-                <Breadcrumb>
-                    <Breadcrumb.Item>
-                        <a onClick={() => { this.props.router.push('/console/clusterManage') }}>
+                <div className="c-editCluster__header">
+                    <Breadcrumb>
+                        <Breadcrumb.Item onClick={() => { this.props.router.push('/console/clusterManage') }}>
                             多集群管理
-                        </a>
-                    </Breadcrumb.Item>
-                    <Breadcrumb.Item>{getActionType(mode)}</Breadcrumb.Item>
-                    <Breadcrumb.Item>{clusterName}</Breadcrumb.Item>
-                </Breadcrumb>
+                        </Breadcrumb.Item>
+                        <Breadcrumb.Item>{getActionType(mode)}</Breadcrumb.Item>
+                        <Breadcrumb.Item>{clusterName}</Breadcrumb.Item>
+                    </Breadcrumb>
+                    {isViewMode(mode) ? <span>
+                        <Button className="cluster-btn" type="primary" onClick={this.turnCompMode.bind(this, 'edit')}>编辑</Button>
+                    </span>
+                        : <span>
+                            <Button className="cluster-btn" ghost>测试所有组件连通性</Button>
+                            <Button className="cluster-btn" type="primary" onClick={this.turnCompMode.bind(this, 'view')}>完成</Button>
+                        </span>}
+                </div>
                 <div className="c-editCluster__container shadow">
                     <Tabs
                         tabPosition="top"
@@ -120,8 +159,11 @@ class EditCluster extends React.Component<any, IState> {
                                         >
                                             <FileConfig
                                                 comp={comp}
-                                                versionData={versionData}
+                                                view={isViewMode(mode)}
                                                 form={this.props.form}
+                                                versionData={versionData}
+                                                clusterName={clusterName}
+                                                saveCompsData={saveCompsData}
                                             />
                                             <FormConfig />
                                             <ToolBar />

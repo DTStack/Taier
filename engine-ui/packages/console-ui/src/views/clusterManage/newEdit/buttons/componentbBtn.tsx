@@ -16,24 +16,19 @@ interface IProps {
 }
 
 interface IState {
-    initialValues: any[];
     addComps: any[];
     deleteComps: any[];
 }
 
 export default class ComponentButton extends React.Component<IProps, IState> {
     state: IState = {
-        initialValues: [],
         addComps: [],
         deleteComps: []
     }
 
-    componentDidMount () {
+    getInitialValues = () => {
         const { comps } = this.props
-        const initialValues = comps.map((comp) => comp?.componentTypeCode)
-        this.setState({
-            initialValues
-        })
+        return comps.map((comp: any) => comp?.componentTypeCode)
     }
 
     handleSelectValue = () => {
@@ -44,7 +39,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 
     handleCheckValues = (value: any[]) => {
         const { activeKey } = this.props
-        const { initialValues } = this.state
+        const initialValues = this.getInitialValues()
         if (isSourceTab(activeKey)) {
             return
         }
@@ -60,7 +55,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
     }
 
     handleRadioValues = (e: any) => {
-        const { initialValues } = this.state
+        const initialValues = this.getInitialValues()
         // 和初始值取不一致时，新增为选中组件，删除已有组件
         if (!_.isEqual(initialValues[0], e.target.value)) {
             const deleteComps = initialValues
@@ -79,7 +74,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 
     renderContent = () => {
         const { activeKey } = this.props
-        const { initialValues } = this.state
+        const initialValues = this.getInitialValues()
 
         if (isSourceTab(activeKey)) {
             return (<>
@@ -125,7 +120,6 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 
     handleCancel = () => {
         this.setState({
-            initialValues: [],
             addComps: [],
             deleteComps: []
         })
