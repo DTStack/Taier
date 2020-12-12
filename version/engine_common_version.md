@@ -16,7 +16,7 @@ engine-common 版本说明：
 版本：4.0.1
 时间：2020-12-04 11:27:10
 添加人: 大智
-原因：插件迁移到超哥团队，插件代码有依赖common包，所以打包出来给插件那边依赖
+原因：插件迁移到计算引擎团队，插件代码有依赖common包，所以打包出来给插件那边依赖
 pom: 
 <dependency>
   <groupId>com.dtstack.engine</groupId>
@@ -31,7 +31,7 @@ pom:
 版本：4.1.1
 时间：2020-12-04 11:27:10
 添加人: 大智
-原因：插件迁移到超哥团队，插件代码有依赖common包，所以打包出来给插件那边依赖
+原因：插件迁移到计算引擎团队，插件代码有依赖common包，所以打包出来给插件那边依赖
 pom: 
 <dependency>
   <groupId>com.dtstack.engine</groupId>
