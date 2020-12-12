@@ -184,7 +184,7 @@ public class ScheduleJobService {
 
 
     /**
-     * 获取运
+     * 获取指定状态的工作任务列表
      *
      * @param projectId
      * @param tenantId
@@ -194,7 +194,7 @@ public class ScheduleJobService {
      */
     public PageResult getStatusJobList( Long projectId,  Long tenantId,  Integer appType,
                                         Long dtuicTenantId,  Integer status,  int pageSize,  int pageIndex) {
-        if (Objects.isNull(status) || Objects.isNull(dtuicTenantId)) {
+        if ( null == status || null == dtuicTenantId ) {
             return null;
         }
         List<Integer> statusCode = RdosTaskStatus.getCollectionStatus(status);
@@ -203,11 +203,16 @@ public class ScheduleJobService {
         }
         List<Map<String, Object>> data = scheduleJobDao.countByStatusAndType(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getUnStandardFormattedDate(DateUtil.calTodayMills()),
                 DateUtil.getUnStandardFormattedDate(DateUtil.TOMORROW_ZERO()), tenantId, projectId, appType, dtuicTenantId, statusCode);
+        if(CollectionUtils.isEmpty(data)){
+            return null;
+        }
         int count = 0;
         for (Map<String, Object> info : data) {
-            count += MathUtil.getIntegerVal(info.get("count"));
+            if(null != info.get("count")) {
+                count += MathUtil.getIntegerVal(info.get("count"));
+            }
         }
-        PageQuery<List<Map<String, Object>>> pageQuery = new PageQuery<>(pageIndex, pageSize);
+        PageQuery<Object> pageQuery = new PageQuery<>(pageIndex, pageSize);
         List<Map<String, Object>> dataMaps = scheduleJobDao.selectStatusAndType(EScheduleType.NORMAL_SCHEDULE.getType(), DateUtil.getUnStandardFormattedDate(DateUtil.calTodayMills()),
                 DateUtil.getUnStandardFormattedDate(DateUtil.TOMORROW_ZERO()), tenantId, projectId, appType, dtuicTenantId, statusCode, pageQuery.getStart(), pageQuery.getPageSize());
         return new PageResult<>(dataMaps, count, pageQuery);
@@ -248,7 +253,7 @@ public class ScheduleJobService {
     public List<JobTopOrderVO> runTimeTopOrder( Long projectId,
                                                 Long startTime,
                                                 Long endTime,  Integer appType,  Long dtuicTenantId) {
-
+        //todo appType需要判断是否为空吗
         if (null != startTime && null != endTime) {
             startTime = startTime * 1000;
             endTime = endTime * 1000;
@@ -257,11 +262,11 @@ public class ScheduleJobService {
             endTime = DateUtil.TOMORROW_ZERO();
         }
 
-        PageQuery<List<Map<String, Object>>> pageQuery = new PageQuery<>(1, 10);
+        PageQuery<Object> pageQuery = new PageQuery<>(1, 10);
         List<Map<String, Object>> list = scheduleJobDao.listTopRunTime(projectId, new Timestamp(startTime), new Timestamp(endTime), pageQuery, appType,dtuicTenantId);
 
         List<JobTopOrderVO> jobTopOrderVOS = new ArrayList<>();
-        if(CollectionUtils.isNotEmpty(jobTopOrderVOS)) {
+        if(CollectionUtils.isNotEmpty(list)) {
             for (Map<String, Object> info : list) {
                 //b.id, b.taskId, b.cycTime, b.type, eb.execTime
                 Long jobId = MathUtil.getLongVal(info.get("id"));
@@ -273,11 +278,14 @@ public class ScheduleJobService {
 
                 JobTopOrderVO jobTopOrderVO = new JobTopOrderVO();
                 jobTopOrderVO.setRunTime(DateUtil.getTimeDifference(execTime * 1000));
-                jobTopOrderVO.setJobId(jobId);
-                jobTopOrderVO.setTaskId(taskId);
-                jobTopOrderVO.setCycTime(DateUtil.addTimeSplit(cycTime));
-                jobTopOrderVO.setType(type);
-                jobTopOrderVO.setTaskType(MathUtil.getIntegerVal(info.get("taskType")));
+                jobTopOrderVO.setJobId( null != jobId ? jobId : 0);
+                jobTopOrderVO.setTaskId( null != taskId ? taskId : 0);
+                if(null != cycTime) {
+                    jobTopOrderVO.setCycTime(DateUtil.addTimeSplit(cycTime));
+                }
+                jobTopOrderVO.setType( null != type ? type : 0);
+                Integer taskType = MathUtil.getIntegerVal(info.get("taskType"));
+                jobTopOrderVO.setTaskType( null != taskType ? taskType : 0);
                 jobTopOrderVO.setIsDeleted(MathUtil.getIntegerVal(info.get("isDeleted")));
                 jobTopOrderVO.setCreateUserId(MathUtil.getLongVal(info.get("createUserId")));
 
@@ -371,10 +379,11 @@ public class ScheduleJobService {
         List<Object> dataList = new ArrayList<>();
 
         for (Map<String, Object> data : metadata) {
+            // todo 这段逻辑有点问题
             if (dataMap.get("hour") != null) {
                 dataMap.put(MathUtil.getString(data.get("hour")), dataMap.get(MathUtil.getString(data.get("hour"))) + MathUtil.getLongVal(data.get("data")));
             }
-            //TODO 这行可以去掉吧
+            //TODO 这行应该加载else判断里吧
             dataMap.put(MathUtil.getString(data.get("hour")), MathUtil.getLongVal(data.get("data")));
         }
 

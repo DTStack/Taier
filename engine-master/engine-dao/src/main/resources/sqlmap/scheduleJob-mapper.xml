@@ -307,8 +307,6 @@
             <if test="model.cycStartDay != null and model.cycEndDay != null">
                 AND id >= (SELECT id FROM schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} AND cyc_time !='' LIMIT 1)
                 AND id <![CDATA[<=]]> (SELECT id FROM schedule_job WHERE cyc_time <![CDATA[<]]> #{model.cycEndDay} AND cyc_time !='' ORDER BY id DESC LIMIT 1)
-                AND cyc_time <![CDATA[>=]]> #{model.cycStartDay}
-                AND cyc_time <![CDATA[<]]> #{model.cycEndDay}
             </if>
 
             <if test="model.flowJobId != null">
@@ -509,12 +507,12 @@
             AND ts.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{startTime} AND cyc_time !='' LIMIT 1)
             AND ts.cyc_time <![CDATA[>=]]> #{startTime}
         </if>
-        <!-- TODO 为什么要加这行   -->
+        <!-- TODO 判断ts.id，为什么要加这行   -->
         <if test="endTime != null and endTime != ''">
             AND ts.id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<]]> #{endTime} AND cyc_time !='' ORDER BY id DESC LIMIT 1)
             AND ts.cyc_time <![CDATA[<]]> #{endTime}
         </if>
-        <if test="statuses != null">
+        <if test="statuses != null and statuses.size()>0 ">
             AND ts.status in
             <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
                 #{status}
@@ -548,7 +546,7 @@
         <if test="endTime != null and endTime != ''">
             AND bj.cyc_time <![CDATA[<]]> #{endTime}
         </if>
-        <if test="statuses != null">
+        <if test="statuses != null and statuses.size()>0 ">
             AND bj.status in
             <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
                 #{status}
