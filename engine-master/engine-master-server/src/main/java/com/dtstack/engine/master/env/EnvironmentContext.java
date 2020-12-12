@@ -423,6 +423,14 @@ public class EnvironmentContext {
         return Integer.valueOf(environment.getProperty("job.executor.pool.queue.size", "1000"));
     }
 
+    public Integer getRetryFrequency() {
+        return Integer.valueOf(environment.getProperty("retry.frequency", "3"));
+    }
+
+    public Integer getRetryInterval() {
+        return Integer.valueOf(environment.getProperty("retry.interval", "30000"));
+    }
+
     public long getJobStatusCheckInterVal() {
         return Long.parseLong(environment.getProperty("job.status.check.interval", "3500"));
     }
