@@ -518,7 +518,7 @@ public class ComponentService {
     private boolean isOpenKerberos(List<Resource> resources, String kerberosFileName, Component dbComponent) {
         boolean isOpenKerberos = StringUtils.isNotBlank(kerberosFileName);
         if (isOpenKerberos) {
-            if (!resources.isEmpty() && !kerberosFileName.endsWith(ZIP_SUFFIX)) {
+            if (CollectionUtils.isNotEmpty(resources) && !kerberosFileName.endsWith(ZIP_SUFFIX)) {
                 throw new RdosDefineException("kerberos上传文件非zip格式");
             }
         } else {
