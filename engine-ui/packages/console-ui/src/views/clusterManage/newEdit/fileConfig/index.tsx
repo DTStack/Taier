@@ -65,7 +65,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 key={`${typeCode}.hadoopVersion`}
             >
                 {getFieldDecorator(`${typeCode}.hadoopVersion`, {
-                    initialValue: initialValue
+                    initialValue: comp?.hadoopVersion ?? initialValue
                 })(
                     <Select style={{ width: 172 }} disabled={view}>
                         {version.map((ver: any) => {
@@ -134,7 +134,8 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             })
             form.setFieldsValue({
                 [`${typeCode}`]: {
-                    principal: res?.data[0] ?? ''
+                    principal: res?.data[0] ?? '',
+                    principals: res.data
                 }
             })
         }
@@ -150,7 +151,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 label="Hadoop Kerberos认证文件"
                 fileInfo={{
                     typeCode,
-                    name: 'KerberosFile',
+                    name: 'kerberosFileName',
                     value: comp.kerberosFileName,
                     desc: '仅支持.zip格式',
                     loading: loading[FILE_TYPE.KERNEROS],
@@ -180,7 +181,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         return (
             <UploadFile
                 fileInfo={{
-                    typeCode,
+                    typeCode: typeCode,
                     name: 'paramsFile',
                     value: comp.paramsFile,
                     desc: '仅支持json格式',
@@ -220,10 +221,11 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 fileInfo={{
                     typeCode,
                     name: 'uploadFileName',
+                    value: comp.uploadFileName,
                     desc: getFileDesc(typeCode),
                     loading: loading[FILE_TYPE.CONFIGS],
                     uploadProps: {
-                        name: 'configsFile',
+                        name: 'uploadFileName',
                         accept: '.zip',
                         type: FILE_TYPE.CONFIGS
                     }
@@ -231,6 +233,9 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 view={view}
                 form={this.props.form}
                 uploadFile={this.uploadFile}
+                rules={[
+                    { required: true, message: `配置文件为空` }
+                ]}
                 icons={comp?.id && <Icon
                     type="download"
                     style={{ right: view ? 0 : 20 }}
@@ -276,6 +281,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
     renderPrincipal = () => {
         const { comp, form, view } = this.props
         const { principals } = this.state
+        const principalsList = !principals.length ? principals : comp.principals
         const typeCode = comp?.componentTypeCode ?? ''
 
         return (
@@ -289,7 +295,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 })(
                     <Select style={{ width: 172 }} disabled={view}>
                         {
-                            principals.map((ver: any, key) => {
+                            principalsList.map((ver: any, key) => {
                                 return <Option value={ver} key={key}>{ver}</Option>
                             })
                         }

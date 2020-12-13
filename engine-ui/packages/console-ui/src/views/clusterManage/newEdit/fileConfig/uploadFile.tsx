@@ -9,20 +9,21 @@ interface IProp {
     deleteIcon?: boolean;
     uploadFile: Function;
     view?: boolean;
+    rules?: any;
 }
 
 const FormItem = Form.Item
 
 export default class UploadFile extends React.PureComponent<IProp, any> {
     render () {
-        const { label, form, icons, deleteIcon, fileInfo, uploadFile, view } = this.props
+        const { label, form, icons, deleteIcon, fileInfo, uploadFile, view, rules } = this.props
         const uploadFileProps = {
             name: fileInfo.uploadProps.name,
             accept: fileInfo.uploadProps.accept,
             beforeUpload: (file: any) => {
                 uploadFile(file, fileInfo.uploadProps.type, () => {
                     this.props.form.setFieldsValue({
-                        [`${fileInfo.typecode}.${fileInfo.name}`]: file
+                        [`${fileInfo.typeCode}.${fileInfo.name}`]: file
                     })
                 })
                 return false;
@@ -34,8 +35,9 @@ export default class UploadFile extends React.PureComponent<IProp, any> {
                 label={label ?? '参数上传'}
                 colon={false}
             >
-                {form.getFieldDecorator(`${fileInfo.typecode}.${fileInfo.name}`, {
-                    initialValue: fileInfo?.value || ''
+                {form.getFieldDecorator(`${fileInfo.typeCode}.${fileInfo.name}`, {
+                    initialValue: fileInfo?.value || '',
+                    rules: rules ?? []
                 })(<div />)}
                 {!view && <div className="c-fileConfig__config">
                     <Upload {...uploadFileProps}>
@@ -43,13 +45,13 @@ export default class UploadFile extends React.PureComponent<IProp, any> {
                     </Upload>
                     <span className="config-desc">{fileInfo.desc}</span>
                 </div>}
-                {form.getFieldValue(`${fileInfo.typecode}.${fileInfo.name}`) && <span className="config-file">
+                {form.getFieldValue(`${fileInfo.typeCode}.${fileInfo.name}`) && <span className="config-file">
                     <Icon type="paper-clip" />
-                    {form.getFieldValue(`${fileInfo.typecode}.${fileInfo.name}`)?.name ?? fileInfo?.value}
+                    {form.getFieldValue(`${fileInfo.typeCode}.${fileInfo.name}`)?.name ?? fileInfo?.value}
                     {icons ?? icons}
                     {!deleteIcon ? !view && <Icon type="delete" onClick={() => {
                         form.setFieldsValue({
-                            [`${fileInfo.typecode}.${fileInfo.name}`]: ''
+                            [`${fileInfo.typeCode}.${fileInfo.name}`]: ''
                         })
                     }} /> : null}
                 </span>}

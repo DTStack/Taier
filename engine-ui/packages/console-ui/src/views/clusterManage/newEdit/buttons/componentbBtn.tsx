@@ -27,7 +27,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
     }
 
     getInitialValues = () => {
-        const { comps } = this.props
+        const { comps = [] } = this.props
         return comps.map((comp: any) => comp?.componentTypeCode)
     }
 

@@ -1,11 +1,12 @@
 import * as React from 'react'
 import { Form, Breadcrumb, Tabs, Button } from 'antd'
 import { hashHistory } from 'react-router';
+import * as _ from 'lodash'
 
 import Api from '../../../api/console'
 import ComponentButton from './buttons/componentbBtn'
-import { getActionType, initialScheduling, giveMeAKey, isViewMode } from './help'
-import { TABS_TITLE } from './const'
+import { getActionType, initialScheduling, giveMeAKey, isViewMode, isNeedTemp } from './help'
+import { TABS_TITLE, COMPONENT_CONFIG_NAME, DEFAULT_COMP_VERSION } from './const'
 
 import FileConfig from './fileConfig'
 import FormConfig from './formConfig'
@@ -79,6 +80,27 @@ class EditCluster extends React.Component<any, IState> {
         }
     }
 
+    // 获取组件模板
+    getLoadTemplate = async (key?: string, params?: any) => {
+        const { getFieldValue } = this.props.form
+        const { clusterName, initialCompData, activeKey } = this.state
+        const typeCode = key ?? initialCompData[activeKey][0].componentTypeCode
+        const comp = initialCompData[activeKey].find(comp => comp.componentTypeCode == typeCode)
+
+        if (!isNeedTemp(typeCode) && !comp.componentTemplate) {
+            Api.getLoadTemplate({
+                clusterName,
+                componentType: typeCode,
+                version: params?.compVersion ?? DEFAULT_COMP_VERSION[typeCode] ?? '',
+                storeType: params?.storeType ?? getFieldValue(`${typeCode}.storeType`) ?? ''
+            }).then((res: any) => {
+                if (res.code == 1) {
+                    this.saveComp({ componentTemplate: JSON.stringify(res.data), typeCode })
+                }
+            })
+        }
+    }
+
     onTabChange = (key: string) => {
         this.setState({
             activeKey: Number(key)
@@ -99,10 +121,46 @@ class EditCluster extends React.Component<any, IState> {
 
     handleConfirm = (addComps: any[], deleteComps: any[]) => {
         console.log(addComps, deleteComps)
+        // 先删除组件，再添加
+        const { initialCompData, activeKey } = this.state
+        let newCompData = initialCompData
+        let currentCompArr = newCompData[activeKey]
+        if (deleteComps.length > 0) {
+            deleteComps.forEach(code => {
+                currentCompArr = currentCompArr.filter(comp => comp.componentCode == code)
+            })
+        }
+        if (addComps.length > 0) {
+            addComps.forEach(code => {
+                currentCompArr.push({
+                    componentTypeCode: code,
+                    componentName: COMPONENT_CONFIG_NAME[code]
+                })
+            })
+        }
+        newCompData[activeKey] = currentCompArr
+        this.setState({
+            initialCompData: newCompData
+        }, this.getLoadTemplate)
+    }
+
+    saveComp = (params: any) => {
+        const { activeKey, initialCompData } = this.state
+        let newCompData = _.cloneDeep(initialCompData)
+        let newComp = initialCompData[activeKey].map(comp => {
+            if (comp.componentTypeCode == params.typeCode) {
+                return { ...comp, ...params }
+            }
+            return comp
+        })
+        newCompData[activeKey] = newComp
+        this.setState({
+            initialCompData: newCompData
+        })
     }
 
     render () {
-        const { mode } = this.props.location.state || {} as any
+        const { mode, cluster } = this.props.location.state || {} as any
         const { clusterName, activeKey, initialCompData, versionData, saveCompsData } = this.state
 
         return (
@@ -141,18 +199,21 @@ class EditCluster extends React.Component<any, IState> {
                                 }
                                 key={String(key)}
                             >
+                                {comps?.length == 0 && <div key={activeKey} className='empty-logo'>
+                                    <img src="public/img/emptyLogo.svg" />
+                                </div>}
                                 <Tabs
                                     tabPosition="left"
-                                    tabBarExtraContent={<ComponentButton
+                                    tabBarExtraContent={!isViewMode(mode) && <ComponentButton
                                         key={giveMeAKey()}
                                         activeKey={activeKey}
                                         comps={comps}
                                         handleConfirm={this.handleConfirm}
                                     />}
                                     className="c-editCluster__container__componentTabs"
-                                    // onChange={(key: any) => this.getLoadTemplate(key)}
+                                    onChange={(key: any) => this.getLoadTemplate(key)}
                                 >
-                                    {comps?.map((comp: any) => {
+                                    {comps?.length > 0 && comps.map((comp: any) => {
                                         return (<TabPane
                                             tab={comp.componentName}
                                             key={`${comp.componentTypeCode}`}
@@ -165,8 +226,18 @@ class EditCluster extends React.Component<any, IState> {
                                                 clusterName={clusterName}
                                                 saveCompsData={saveCompsData}
                                             />
-                                            <FormConfig />
-                                            <ToolBar />
+                                            <FormConfig
+                                                comp={comp}
+                                                view={isViewMode(mode)}
+                                                form={this.props.form}
+                                            />
+                                            {!isViewMode(mode) && <ToolBar
+                                                comp={comp}
+                                                clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
+                                                initialCompData={initialCompData}
+                                                form={this.props.form}
+                                                saveComp={this.saveComp}
+                                            />}
                                         </TabPane>)
                                     })}
                                 </Tabs>

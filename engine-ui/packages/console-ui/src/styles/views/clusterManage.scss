@@ -210,6 +210,9 @@
     right: 20px;
     .c-editCluster__container__commonTabs {
         height: 100%;
+        >.ant-tabs-tabpane {
+            position: relative;
+        }
         >.ant-tabs-bar {
             height: 44px;
         }
@@ -221,6 +224,9 @@
             left: 0px;
             margin-left: 0;
             height: unset;
+            >.ant-tabs-tabpane {
+                position: relative;
+            }
         }
         .ant-tabs-extra-content {
             float: left !important;
@@ -331,13 +337,18 @@
             }
         }
     }
-    .c-editCluster__container__emptyLogo {
+    
+    .empty-logo {
         position: absolute;
         top: 50%;
         left: 55%;
         margin-top: -100px;
         margin-left: -100px;
         z-index: 1;
+        > img {
+            height: 200px;
+            width: 200px;
+        }
     }
 }
 
@@ -486,6 +497,23 @@
     left: 200px;
     bottom: 40px;
     top: 0;
+    padding: 20px;
+    overflow-y: scroll;
+    .c-formConfig__group {
+        .group__title {
+            font-weight: 600;
+            color: #333333;
+            line-height: 20px;
+            font-size: 14px;
+        }
+        .group__content {
+            background: #FAFAFA;
+            border-radius: 2px;
+            padding: 12px 20px;
+            margin-top: 12px;
+            margin-bottom: 12px;
+        }
+    }
 }
 
 .c-editCluster__icon {
