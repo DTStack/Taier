@@ -97,12 +97,12 @@ export default {
         clusterId: number;
         componentCode: number;
     }) {
-        return http.post(req.UPLOAD_KERBEROS, params);
+        return http.postAsFormData(req.UPLOAD_KERBEROS, params);
     },
 
     // 更新krb5.conf文件
     updateKrb5Conf (params: {
-        krb5Context: string;
+        krb5Content: string;
     }) {
         return http.post(req.UPDATE_KRB5CONF, params);
     },

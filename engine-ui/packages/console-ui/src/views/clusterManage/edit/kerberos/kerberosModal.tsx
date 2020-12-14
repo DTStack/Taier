@@ -13,7 +13,7 @@ interface IProps {
 }
 
 interface IState {
-    krb5Context: string;
+    krb5Content: string;
 }
 
 const editorOptions: any = {
@@ -27,14 +27,14 @@ const editorOptions: any = {
 
 export default class KerberosModal extends React.Component<IProps, IState> {
     state: IState = {
-        krb5Context: ''
+        krb5Content: ''
     }
 
     _editor: any;
 
     editorParamsChange = (preValue: string, nextValue: string) => {
         this.setState({
-            krb5Context: nextValue
+            krb5Content: nextValue
         })
     }
 
@@ -42,8 +42,8 @@ export default class KerberosModal extends React.Component<IProps, IState> {
 
     onOK = async () => {
         const { onCancel } = this.props
-        const { krb5Context } = this.state
-        const res = await Api.updateKrb5Conf({ krb5Context })
+        const { krb5Content } = this.state
+        const res = await Api.updateKrb5Conf({ krb5Content })
         if (res.code == 1) {
             onCancel()
             message.success('更新成功')

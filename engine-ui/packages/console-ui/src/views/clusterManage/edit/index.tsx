@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash';
 import { hashHistory } from 'react-router';
 import {
     Form, Card, Tabs, Button, message, Modal, Icon,
-    notification, Popconfirm, Breadcrumb } from 'antd';
+    Popconfirm, Breadcrumb } from 'antd';
 import Api from '../../../api/console';
 
 import req from '../../../consts/reqUrls';
@@ -724,26 +724,6 @@ class EditCluster extends React.Component<any, any> {
         })
     }
 
-    refreshYarnQueue (clusterName: string) {
-        this.setState({ testLoading: true });
-        Api.refreshQueue({ clusterName }).then((res: any) => {
-            if (res.code == 1) {
-                const target = res.data.find(v => v.componentTypeCode == COMPONENT_TYPE_VALUE.YARN)
-                if (target?.result || res.data.length == 0) {
-                    message.success('刷新成功')
-                } else {
-                    notification['error']({
-                        message: '刷新失败',
-                        description: `${target.errorMsg}`,
-                        style: { wordBreak: 'break-word' }
-                    });
-                }
-            }
-        }).finally(() => {
-            this.setState({ testLoading: false })
-        })
-    }
-
     handleCommonVersion = (val: string, componentTypeCode: number) => {
         if (componentTypeCode === COMPONENT_TYPE_VALUE.YARN || componentTypeCode === COMPONENT_TYPE_VALUE.HDFS) {
             this.setState({
@@ -822,7 +802,6 @@ class EditCluster extends React.Component<any, any> {
                     </Breadcrumb>
                     {isView
                         ? <span>
-                            {/* <Button style={{ marginRight: 10 }} loading={testLoading} onClick={this.refreshYarnQueue.bind(this, clusterName)}>刷新</Button> */}
                             <Button className="cluster-btn" type="primary" onClick={this.turnEditComp.bind(this, 'edit')}>编辑</Button>
                         </span>
                         : <span>
@@ -914,7 +893,7 @@ class EditCluster extends React.Component<any, any> {
                                                             >
                                                                 <Button className="c-editCluster__container__componentFooter__btn">取消</Button>
                                                             </Popconfirm>
-                                                            <Button className="c-editCluster__container__componentFooter__btn" type="primary" style={{ marginLeft: 8 }} onClick={this.saveComponent.bind(this, comps)} >保存</Button>
+                                                            <Button className="c-editCluster__container__componentFooter__btn" type="primary" style={{ marginLeft: 8 }} onClick={this.saveComponent.bind(this, comps)}>保存{`${COMPONEMT_CONFIG_NAME_ENUM[comps.componentTypeCode]}`}组件</Button>
                                                         </div>}
                                                     </TabPane>
                                                 )

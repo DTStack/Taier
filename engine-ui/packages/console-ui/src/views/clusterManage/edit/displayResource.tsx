@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Form, Select, Icon, Upload, Button } from 'antd';
+import { Form, Select, Icon, Upload, Button, message, notification } from 'antd';
 import utils from 'dt-common/src/utils';
 import {
     COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEY_ENUM, COMPONEMT_CONFIG_KEYS, UPPER_NAME
@@ -15,7 +15,8 @@ class DisplayResource extends React.Component<any, any> {
         visible: false,
         compVersion: [],
         saveCompsData: [],
-        krbconfig: '123123'
+        krbconfig: '',
+        kerberosLoading: false
     }
     componentDidMount () {
         const { clusterName } = this.props;
@@ -56,6 +57,24 @@ class DisplayResource extends React.Component<any, any> {
         }
     }
 
+    refreshYarnQueue = () => {
+        const { clusterName } = this.props
+        Api.refreshQueue({ clusterName }).then((res: any) => {
+            if (res.code == 1) {
+                const target = res.data.find(v => v.componentTypeCode == COMPONENT_TYPE_VALUE.YARN)
+                if (target?.result || res.data.length == 0) {
+                    message.success('刷新成功')
+                } else {
+                    notification['error']({
+                        message: '刷新失败',
+                        description: `${target.errorMsg}`,
+                        style: { wordBreak: 'break-word' }
+                    });
+                }
+            }
+        })
+    }
+
     // 配置文件
     renderConfigsFile = (configName: any) => {
         const { getFieldDecorator, components, isView, uploadLoading,
@@ -65,7 +84,7 @@ class DisplayResource extends React.Component<any, any> {
         const noticeContent = this.getNoticeContent(components.componentTypeCode);
         return (
             <FormItem
-                label="配置文件"
+                label={<span>配置文件<a style={{ marginLeft: 76 }} onClick={this.refreshYarnQueue}>刷新队列</a></span>}
                 colon={false}
             >
                 {getFieldDecorator(`${configName}.uploadFileName`, {
@@ -105,30 +124,29 @@ class DisplayResource extends React.Component<any, any> {
     }
 
     uploadKerberos = async (params: any, callBack: Function) => {
+        this.setState({ kerberosLoading: true })
         const res = await Api.uploadKerberos(params)
         if (res.code == 1) {
             this.setState({ krbconfig: res.data })
-            callBack && callBack()
         }
+        callBack && callBack()
+        this.setState({ kerberosLoading: false })
     }
 
     // Hadoop Kerberos认证文件
     renderKerberosFile = (configName: any) => {
         const { getFieldDecorator, components, isView, kerFileChange, getFieldValue,
-            downloadFile, deleteKerFile, setFieldsValue, kerUploadLoading, cluster } = this.props;
+            downloadFile, deleteKerFile, setFieldsValue, cluster } = this.props;
         const uploadConfigProp = {
-            name: 'configFile',
+            name: 'kerberosFile',
             accept: '.zip',
             beforeUpload: (file: any) => {
+                console.log(file)
                 const params = {
                     kerberosFile: file,
                     clusterId: cluster?.clusterId,
                     componentCode: components.componentTypeCode
                 }
-                // kerFileChange(file, components.componentTypeCode)
-                // setFieldsValue({
-                //     [`${configName}.kerberosFileName`]: file.name
-                // })
                 this.uploadKerberos(params, () => {
                     kerFileChange(file, components.componentTypeCode)
                     setFieldsValue({
@@ -149,7 +167,7 @@ class DisplayResource extends React.Component<any, any> {
             <div className="c-displayResource__kerberos">
                 {!isView && <>
                     <Upload {...uploadConfigProp}>
-                        <Button style={{ width: 172 }} icon="upload" loading={kerUploadLoading}>点击上传</Button>
+                        <Button style={{ width: 172 }} icon="upload" loading={this.state.kerberosLoading}>点击上传</Button>
                     </Upload>
                     <span className="notice">仅支持.zip格式</span>
                 </>}
@@ -464,7 +482,7 @@ class DisplayResource extends React.Component<any, any> {
                 {this.renderDisplayResource()}
                 <KerberosModal
                     visible={this.state.visible}
-                    krbconfig={krbconfig || components.krbconfig}
+                    krbconfig={krbconfig || components.mergeKrb5Content || ''}
                     onCancel={this.hanleVisible}
                 />
             </div>
