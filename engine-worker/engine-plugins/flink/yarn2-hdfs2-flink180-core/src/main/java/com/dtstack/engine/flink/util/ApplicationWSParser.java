@@ -76,7 +76,7 @@ public class ApplicationWSParser {
 
             Matcher matcher = ERR_INFO_BYTE_PATTERN.matcher(jobErrByteStr);
             if (matcher.find()) {
-                logName = matcher.group(1);
+                logName = StringUtils.trimToEmpty(matcher.group(1));
 
                 infoTotalBytes = matcher.group(2);
             }
