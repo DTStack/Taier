@@ -31,30 +31,22 @@ export function giveMeAKey (): string {
     return (new Date().getTime() + '' + ~~(Math.random() * 100000))
 }
 
-export function getFileDesc (typeCode: number): string {
-    switch (typeCode) {
-        case COMPONENT_TYPE_VALUE.YARN:
-            return 'zip格式，至少包括yarn-site.xml'
-        case COMPONENT_TYPE_VALUE.HDFS:
-            return 'zip格式，至少包括core-site.xml、hdfs-site.xml、hive-site.xml'
-        case COMPONENT_TYPE_VALUE.KUBERNETES:
-            return 'zip格式，至少包括kubernetes.config'
-        default:
-            return null
-    }
-}
-
 export function isViewMode (mode: string): boolean {
     return mode == 'view'
+}
+
+export function isFileParam (key: string): boolean {
+    return ['kerberosFileName', 'uploadFileName'].indexOf(key) > -1
+}
+
+export function isOtherVersion (code: number): boolean {
+    return [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK,
+        COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER, COMPONENT_TYPE_VALUE.HIVE_SERVER].indexOf(code) > -1
 }
 
 // 模版中存在id则为自定义参数
 export function getCustomerParams (temps: any): any[] {
     return temps.filter(temp => temp.id)
-}
-
-export function isFileParam (key: string): boolean {
-    return ['kerberosFileName', 'uploadFileName'].indexOf(key) > -1
 }
 
 /**
@@ -73,7 +65,6 @@ function handleSingleParam (params: any) {
         }
     }
     for (let key in customParamArr) {
-        // customParamConfig[customParamArr[key].key] = customParamArr[key].value
         let config: any = {}
         config.key = customParamArr[key].key
         config.value = customParamArr[key].value
@@ -100,35 +91,68 @@ export function handleCustomParam (params: any): any {
     }
     return customParam.concat(handleSingleParam(params))
 }
+
 /**
  * @param comp 表单组件值
- * 自定义参数和componentTemplate和并, 表单回显值
+ * componentTemplate用于表单回显值
+ * 需要包含表单对应的value
+ * 和并自定义参数
  */
 export function handleComponentTemplate (comp: any, initialCompData: any): any {
     let newComponentTemplate = JSON.parse(initialCompData.componentTemplate).filter(v => !v.id)
+    const componentConfig = handleComponentConfig(comp)
     const customParamConfig = handleCustomParam(comp.customParam)
     let isGroup = false
-    for (let key in customParamConfig) {
-        if (!customParamConfig[key]?.id) {
-            isGroup = true
-            newComponentTemplate.map(temp => {
-                if (temp.key == key && temp.type == CONFIG_ITEM_TYPE.GROUP) {
-                    return temp.values.concat(customParamConfig[key])
-                }
-                return temp
+
+    // componentTemplate 存入 componentConfig 对应值
+    for (let [key, values] of Object.entries(componentConfig)) {
+        if (!_.isString(values) && !_.isArray(values)) {
+            for (let [groupKey, value] of Object.entries(values)) {
+                newComponentTemplate.map(temps => {
+                    if (temps.key == key) {
+                        temps.values = temps.values.filter(temp => !temp.id)
+                        temps.values.map(temp => {
+                            if (temp.key == groupKey) {
+                                temp.value = value
+                            }
+                        })
+                    }
+                })
+            }
+        } else {
+            newComponentTemplate.map(temps => {
+                if (temps.key == key) temps.value = values
             })
         }
     }
-    // console.log('newComponentTemplate === ', newComponentTemplate.concat(customParamConfig), customParamConfig)
+
+    if (Object.values(customParamConfig).length == 0) {
+        return newComponentTemplate
+    }
+
+    // 和并自定义参数
+    for (let config in customParamConfig) {
+        if (!customParamConfig[config]?.id) {
+            isGroup = true
+            for (let [key, value] of Object.entries(customParamConfig[config])) {
+                newComponentTemplate.map(temp => {
+                    if (temp.key == key && temp.type == CONFIG_ITEM_TYPE.GROUP) {
+                        temp.values = temp.values.concat(value)
+                    }
+                })
+            }
+        }
+    }
     if (!isGroup) return newComponentTemplate.concat(customParamConfig)
     return newComponentTemplate
 }
 
 /**
  * @param comp
- * 返回包含自定义参数的componentConfig
+ * @param turnp 格式 => 为tue时对应componentConfig格式为{%-key:value}
+ * 返回componentConfig
  */
-export function handleComponentConfig (comp: any): any {
+export function handleComponentConfig (comp: any, turnp?: boolean): any {
     // 处理componentConfig
     let componentConfig = {}
     for (let [key, values] of Object.entries(comp.componentConfig)) {
@@ -136,11 +160,25 @@ export function handleComponentConfig (comp: any): any {
         if (!_.isString(values) && !_.isArray(values)) {
             let groupConfig = {}
             for (let [groupKey, value] of Object.entries(values)) {
-                groupConfig[groupKey.split('%').join('.')] = value
+                if (turnp) {
+                    groupConfig[groupKey.split('.').join('%')] = value
+                } else {
+                    groupConfig[groupKey.split('%').join('.')] = value
+                }
             }
             componentConfig[key] = groupConfig
         }
     }
+    return componentConfig
+}
+
+/**
+ * @param comp
+ * 返回包含自定义参数的componentConfig
+ */
+export function handleComponentConfigAndCustom (comp: any): any {
+    // 处理componentConfig
+    let componentConfig = handleComponentConfig(comp)
 
     // 自定义参数和componentConfig和并
     let customParamConfig = handleCustomParam(comp.customParam)
@@ -207,11 +245,11 @@ export function getModifyComp (comps: any, initialCompData: any[]): any {
         /**
          * 对比之前先处理一遍表单的数据和自定义参数
          */
-        const compConfig = handleComponentConfig(comp)
+        const compConfig = handleComponentConfigAndCustom(comp)
+        console.log(_.isEqual(compConfig, JSON.parse(initialComp.componentConfig)), compConfig, JSON.parse(initialComp.componentConfig))
         if (!_.isEqual(compConfig, JSON.parse(initialComp.componentConfig))) {
             modifyComps.add(typeCode)
         }
     }
-    // console.log('modifyComps ==== ', modifyComps)
     return modifyComps
 }

@@ -64,10 +64,8 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
     rendeConfigForm = () => {
         const { comp, form, view } = this.props;
         const typeCode = comp?.componentTypeCode ?? ''
-        const template = JSON.parse(comp?.componentTemplate ?? null)
+        const template = comp?.componentTemplate ? JSON.parse(comp?.componentTemplate) : []
         let isHaveGroup = false
-
-        if (!comp?.componentTemplate) return
 
         return <>
             {template.map((temps: any) => {
@@ -96,6 +94,11 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                             </div>
                         )
                     }
+                } else if (temps.dependencyValue) {
+                    const dependencyValue = form.getFieldValue(`${typeCode}.componentConfig.${temps.dependencyKey}`) ?? []
+                    if (dependencyValue.includes(temps?.dependencyValue)) {
+                        this.renderConfigItem(temps)
+                    }
                 } else {
                     return this.renderConfigItem(temps)
                 }
@@ -112,7 +115,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
     renderKubernetsConfig = () => {
         const { comp, form } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        const config = JSON.parse(comp?.componentConfig) ?? {}
+        const config = comp?.componentConfig ? JSON.parse(comp?.componentConfig) : {}
         return <>
             {!config && <div className="c-componentConfig__kubernetsContent">
                 配置文件参数已被加密，此处不予显示
@@ -126,8 +129,9 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
     renderYarnOrHdfsConfig = () => {
         const { comp, view, form } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        const template = JSON.parse(comp?.componentTemplate) || []
-        const config = JSON.parse(comp?.componentConfig) ?? {}
+        const template = comp?.componentTemplate ? JSON.parse(comp?.componentTemplate) : []
+        const compConfig = comp?.componentConfig ? JSON.parse(comp?.componentConfig) : {}
+        const config = form.getFieldValue(`${typeCode}.specialConfig`) ?? compConfig
         const keyAndValue = Object.entries(config);
         return <>
             {keyAndValue.map(([key, value]: any[]) => {

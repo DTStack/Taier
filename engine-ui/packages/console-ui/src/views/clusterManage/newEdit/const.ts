@@ -110,3 +110,9 @@ export const DEFAULT_COMP_VERSION = {
     [COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER]: '2.x',
     [COMPONENT_TYPE_VALUE.HIVE_SERVER]: '2.x'
 }
+
+export const CONFIG_FILE_DESC = {
+    [COMPONENT_TYPE_VALUE.YARN]: 'zip格式，至少包括yarn-site.xml',
+    [COMPONENT_TYPE_VALUE.HDFS]: 'zip格式，至少包括core-site.xml、hdfs-site.xml、hive-site.xml',
+    [COMPONENT_TYPE_VALUE.KUBERNETES]: 'zip格式，至少包括kubernetes.config'
+}

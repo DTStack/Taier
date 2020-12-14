@@ -10,13 +10,14 @@ interface IProp {
     uploadFile: Function;
     view?: boolean;
     rules?: any;
+    notDesc?: boolean;
 }
 
 const FormItem = Form.Item
 
 export default class UploadFile extends React.PureComponent<IProp, any> {
     render () {
-        const { label, form, icons, deleteIcon, fileInfo, uploadFile, view, rules } = this.props
+        const { label, form, icons, deleteIcon, fileInfo, uploadFile, view, rules, notDesc } = this.props
         const uploadFileProps = {
             name: fileInfo.uploadProps.name,
             accept: fileInfo.uploadProps.accept,
@@ -45,7 +46,7 @@ export default class UploadFile extends React.PureComponent<IProp, any> {
                     </Upload>
                     <span className="config-desc">{fileInfo.desc}</span>
                 </div>}
-                {form.getFieldValue(`${fileInfo.typeCode}.${fileInfo.name}`) && <span className="config-file">
+                {form.getFieldValue(`${fileInfo.typeCode}.${fileInfo.name}`) && !notDesc && <span className="config-file">
                     <Icon type="paper-clip" />
                     {form.getFieldValue(`${fileInfo.typeCode}.${fileInfo.name}`)?.name ?? fileInfo?.value}
                     {icons ?? icons}

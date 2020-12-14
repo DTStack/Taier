@@ -59,7 +59,8 @@ export default class ComponentButton extends React.Component<IProps, IState> {
         // 和初始值取不一致时，新增为选中组件，删除已有组件
         if (!_.isEqual(initialValues[0], e.target.value)) {
             const deleteComps = initialValues
-            const addComps = [...e.target.value]
+            let addComps = []
+            addComps.push(e.target.value)
             this.setState({
                 deleteComps, addComps
             })

@@ -4,8 +4,9 @@ import { Form, Select, message, Icon } from 'antd'
 import req from '../../../../consts/reqUrls'
 import Api from '../../../../api/console'
 import UploadFile from './uploadFile'
-import { COMPONENT_TYPE_VALUE, VERSION_TYPE, FILE_TYPE } from '../const'
-import { getFileDesc } from '../help'
+import { COMPONENT_TYPE_VALUE, VERSION_TYPE, FILE_TYPE,
+    CONFIG_FILE_DESC, DEFAULT_COMP_VERSION } from '../const'
+import { isOtherVersion, handleComponentConfig } from '../help'
 
 interface IProps {
     comp: any;
@@ -37,27 +38,8 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         const { getFieldDecorator } = this.props.form
         const { versionData, comp, view } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        let version = []
-        let initialValue = ''
-        switch (typeCode) {
-            case COMPONENT_TYPE_VALUE.FLINK:
-            case COMPONENT_TYPE_VALUE.SPARK: {
-                version = versionData[VERSION_TYPE[typeCode]]
-                initialValue = versionData[VERSION_TYPE[typeCode]][0].value
-                break
-            }
-            case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
-            case COMPONENT_TYPE_VALUE.HIVE_SERVER: {
-                version = versionData[VERSION_TYPE[typeCode]]
-                initialValue = versionData[VERSION_TYPE[typeCode]][1].value
-                break
-            }
-            default: {
-                version = versionData.hadoopVersion
-                initialValue = versionData.hadoopVersion[0].value
-                break
-            }
-        }
+        let version = isOtherVersion(typeCode) ? versionData[VERSION_TYPE[typeCode]] : versionData.hadoopVersion
+        let initialValue = isOtherVersion(typeCode) ? DEFAULT_COMP_VERSION[typeCode] : versionData.hadoopVersion[0].value
         return (
             <FormItem
                 label="组件版本"
@@ -91,7 +73,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
     }
 
     uploadFile = (file: any, loadingType: number, callBack: Function) => {
-        const { comp } = this.props
+        const { comp, form } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         this.setState((preState) => ({
             loading: {
@@ -104,16 +86,29 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             componentType: typeCode
         }).then((res: any) => {
             if (res.code === 1) {
-                if (loadingType == FILE_TYPE.KERNEROS) {
-                    this.getPrincipalsList(file)
+                switch (loadingType) {
+                    case FILE_TYPE.KERNEROS:
+                        this.getPrincipalsList(file)
+                        break
+                    case FILE_TYPE.PARAMES:
+                        form.setFieldsValue({
+                            [typeCode]: {
+                                componentConfig: {
+                                    ...handleComponentConfig({ componentConfig: res.data[0] }, true)
+                                }
+                            }
+                        })
+                        break
+                    case FILE_TYPE.CONFIGS:
+                        form.setFieldsValue({
+                            [typeCode]: {
+                                specialConfig: res.data[0]
+                            }
+                        })
+                        break
                 }
                 callBack && callBack()
                 message.success('文件上传成功')
-                // form.setFieldsValue({
-                //     [COMPONEMT_CONFIG_KEY_ENUM[componentTypeCode]]: {
-                //         configInfo: { ...dealData.handleBatchParams(res.data[0]) }
-                //     }
-                // })
             }
             this.setState((preState) => ({
                 loading: {
@@ -195,6 +190,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 view={view}
                 form={this.props.form}
                 uploadFile={this.uploadFile}
+                notDesc={true}
                 label={
                     <span>
                         参数批量上传
@@ -222,7 +218,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     typeCode,
                     name: 'uploadFileName',
                     value: comp.uploadFileName,
-                    desc: getFileDesc(typeCode),
+                    desc: CONFIG_FILE_DESC[typeCode],
                     loading: loading[FILE_TYPE.CONFIGS],
                     uploadProps: {
                         name: 'uploadFileName',
@@ -283,6 +279,8 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         const { principals } = this.state
         const principalsList = !principals.length ? principals : comp.principals
         const typeCode = comp?.componentTypeCode ?? ''
+
+        if (principalsList.length == 0) return
 
         return (
             <FormItem

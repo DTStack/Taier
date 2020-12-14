@@ -26,7 +26,7 @@ export default class TestRestIcon extends React.Component<any, any> {
                 return <Tooltip
                     title={
                         <a
-                            style={{ color: '#fff' }}
+                            style={{ color: '#fff', overflow: 'scroll' }}
                             onClick={ this.showDetailErrMessage.bind(this, testResult)}
                         >
                             {testResult.errorMsg}
