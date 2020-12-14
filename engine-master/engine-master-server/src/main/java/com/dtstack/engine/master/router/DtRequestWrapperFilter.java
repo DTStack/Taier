@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.router;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.router.util.MultiReadHttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -56,7 +57,11 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
             reader.close();
             String reqBody = builder.toString();
             if (StringUtils.isNotBlank(reqBody)) {
-                request.setAttribute(DT_REQUEST_BODY, JSONObject.parseObject(reqBody));
+                try {
+                    request.setAttribute(DT_REQUEST_BODY, JSONObject.parseObject(reqBody));
+                } catch (Exception e) {
+                    logger.warn(ExceptionUtil.getErrorMessage(e));
+                }
             }
             logger.info("Uri: " + uri + ", Params: " + reqBody);
         }
