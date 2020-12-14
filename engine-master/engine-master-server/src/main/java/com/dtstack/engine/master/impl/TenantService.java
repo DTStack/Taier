@@ -205,9 +205,6 @@ public class TenantService {
     @Transactional(rollbackFor = Exception.class)
     public void bindingTenant( Long dtUicTenantId,  Long clusterId,
                                Long queueId,  String dtToken,String namespace) throws Exception {
-        if (null == queueId && StringUtils.isBlank(namespace)) {
-            throw new RdosDefineException("队列或namespace名称不能为空");
-        }
         Cluster cluster = clusterDao.getOne(clusterId);
         EngineAssert.assertTrue(cluster != null, "集群不存在", ErrorCode.DATA_NOT_FIND);
 
@@ -225,8 +222,10 @@ public class TenantService {
             //k8s
             componentService.addOrUpdateNamespaces(cluster.getId(), namespace, null, dtUicTenantId);
         } else if (queueId != null) {
+            //hadoop
             updateTenantQueue(tenant.getId(), dtUicTenantId, hadoopEngine.getId(), queueId);
         }
+        //oracle tidb queueId可以为空
     }
 
     private void checkTenantBindStatus(Long tenantId) {
