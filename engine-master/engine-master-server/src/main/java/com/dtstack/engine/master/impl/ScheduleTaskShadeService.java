@@ -714,7 +714,7 @@ public class ScheduleTaskShadeService {
 
     public void infoCommit(Long taskId, Integer appType, String info) {
         JSONObject extInfo = JSONObject.parseObject(scheduleTaskCommitMapper.getExtInfoByTaskId(taskId, appType));
-        if (Objects.isNull(extInfo)) {
+        if (extInfo == null) {
             extInfo = new JSONObject();
         }
         extInfo.put(TaskConstant.INFO, info);
