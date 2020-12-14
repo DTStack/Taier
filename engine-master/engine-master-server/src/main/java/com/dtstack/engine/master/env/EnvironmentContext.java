@@ -421,4 +421,13 @@ public class EnvironmentContext {
     public Integer getRetryInterval() {
         return Integer.valueOf(environment.getProperty("retry.interval", "30000"));
     }
+
+    public Integer setIdleConnectionTestPeriod() {
+        return Integer.valueOf(environment.getProperty("idle.connection.test.period", "60"));
+    }
+
+
+    public Integer setMaxIdleTime() {
+        return Integer.valueOf(environment.getProperty("max.idle.time", "60"));
+    }
 }
