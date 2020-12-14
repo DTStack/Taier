@@ -2,7 +2,6 @@ package com.dtstack.engine.flink;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
@@ -25,7 +24,6 @@ import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.DtStringUtil;
-import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UrlUtil;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;

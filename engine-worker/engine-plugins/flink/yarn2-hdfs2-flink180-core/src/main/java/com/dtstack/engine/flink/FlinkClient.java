@@ -2,7 +2,6 @@ package com.dtstack.engine.flink;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.KerberosUtils;
