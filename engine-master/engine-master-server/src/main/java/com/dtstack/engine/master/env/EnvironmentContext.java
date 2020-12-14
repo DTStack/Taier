@@ -421,12 +421,21 @@ public class EnvironmentContext {
     public Integer getRetryInterval() {
         return Integer.valueOf(environment.getProperty("retry.interval", "30000"));
     }
-
+    
     public long getJobStatusCheckInterVal() {
         return Long.parseLong(environment.getProperty("job.status.check.interval", "3500"));
     }
 
     public String getComponentJdbcToReplace() {
         return environment.getProperty("component.jdbc.replace", "/default");
+    }
+
+    public Integer setIdleConnectionTestPeriod() {
+        return Integer.valueOf(environment.getProperty("idle.connection.test.period", "60"));
+    }
+
+
+    public Integer setMaxIdleTime() {
+        return Integer.valueOf(environment.getProperty("max.idle.time", "60"));
     }
 }
