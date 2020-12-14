@@ -26,6 +26,9 @@
             <if test="queueState != null">
                 queue_state = #{queueState},
             </if>
+            <if test="queuePath != null">
+                queue_path = #{queuePath},
+            </if>
 
             gmt_modified =now()
         </set>

@@ -27,6 +27,12 @@ public class StreamTaskController {
         return streamTaskService.getCheckPoint(taskId, triggerStart, triggerEnd);
     }
 
+    @RequestMapping(value="/getSavePoint", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询savePoint")
+    public EngineJobCheckpoint getSavePoint(@DtRequestParam("taskId") String taskId) {
+        return streamTaskService.getSavePoint(taskId);
+    }
+
     @RequestMapping(value="/getByTaskIdAndEngineTaskId", method = {RequestMethod.POST})
     public EngineJobCheckpoint getByTaskIdAndEngineTaskId(@DtRequestParam("taskId") String taskId, @DtRequestParam("engineTaskId") String engineTaskId) {
         return streamTaskService.getByTaskIdAndEngineTaskId(taskId, engineTaskId);

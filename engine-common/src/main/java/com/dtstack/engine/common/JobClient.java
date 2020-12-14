@@ -108,6 +108,8 @@ public class JobClient extends OrderObject {
 
     private Long submitCacheTime;
 
+    private Boolean isForceCancel;
+
 
     public JobClient() {
 
@@ -132,11 +134,7 @@ public class JobClient extends OrderObject {
         this.appType = paramAction.getAppType();
         this.queueSourceType = EQueueSourceType.NORMAL.getCode();
 
-        if (paramAction.getComputeType().equals(ComputeType.STREAM.getType())) {
-            this.maxRetryNum = 0;
-        } else {
-            this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 3 : paramAction.getMaxRetryNum();
-        }
+        this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 0 : paramAction.getMaxRetryNum();
         if (paramAction.getPluginInfo() != null) {
             this.pluginInfo = PublicUtil.objToString(paramAction.getPluginInfo());
         }
@@ -192,6 +190,13 @@ public class JobClient extends OrderObject {
         return action;
     }
 
+    public Boolean getForceCancel() {
+        return isForceCancel;
+    }
+
+    public void setForceCancel(Boolean forceCancel) {
+        isForceCancel = forceCancel;
+    }
 
     public void setPluginWrapperInfo(Map pluginInfoMap) {
         if (null == pluginInfoMap) {
@@ -489,7 +494,6 @@ public class JobClient extends OrderObject {
                 ", again=" + again +
                 ", groupName='" + groupName + '\'' +
                 ", priorityLevel=" + priorityLevel +
-                ", pluginInfo='" + pluginInfo + '\'' +
                 ", generateTime=" + generateTime +
                 ", maxRetryNum=" + maxRetryNum +
                 ", lackingCount=" + lackingCount +

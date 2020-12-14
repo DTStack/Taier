@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel
 public class Component extends BaseEntity {
 
-    @Unique
     private Long engineId;
 
     private String componentName;
@@ -33,6 +32,20 @@ public class Component extends BaseEntity {
      */
     @ApiModelProperty(notes = "kerberos文件名称")
     private String kerberosFileName;
+
+    /**
+     * 存储组件名称
+     */
+    @ApiModelProperty(notes = "存储组件名称")
+    private Integer storeType;
+
+    public Integer getStoreType() {
+        return storeType;
+    }
+
+    public void setStoreType(Integer storeType) {
+        this.storeType = storeType;
+    }
 
     public String getKerberosFileName() {
         return kerberosFileName;

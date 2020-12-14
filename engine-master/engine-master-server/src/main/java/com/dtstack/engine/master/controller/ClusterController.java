@@ -9,12 +9,16 @@ import com.dtstack.engine.api.vo.ClusterEngineVO;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.sdk.core.feign.Param;
+import com.dtstack.engine.master.router.DtRequestParam;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.dtstack.engine.master.router.DtRequestParam;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -201,7 +205,7 @@ public class ClusterController{
     @RequestMapping(value="/getCluster", method = {RequestMethod.POST})
     @ApiOperation(value = "获取集群信息详情")
     public ClusterVO getCluster(@DtRequestParam("clusterId") Long clusterId, @DtRequestParam("kerberosConfig") Boolean kerberosConfig,@DtRequestParam("removeTypeName") Boolean removeTypeName) {
-        return clusterService.getCluster(clusterId, kerberosConfig, removeTypeName);
+        return clusterService.getCluster(clusterId, kerberosConfig, removeTypeName,true);
     }
 
     @RequestMapping(value="/getAllCluster", method = {RequestMethod.POST})
@@ -212,5 +216,16 @@ public class ClusterController{
     @RequestMapping(value="/prestoInfo", method = {RequestMethod.POST})
     public String prestoInfo(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("fullKerberos") Boolean fullKerberos) {
         return getConfigByKey(dtUicTenantId, EComponentType.PRESTO_SQL.getConfName(), fullKerberos);
+    }
+
+
+    @ApiOperation(value = "判断的租户和另一个租户是否在一个集群")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="tenantId",value="租户id",required=true, dataType = "Long", allowMultiple = true),
+            @ApiImplicitParam(name="aimTenantIds",value="租户id集合",required=true, dataType = "Long", allowMultiple = true)
+    })
+    @RequestMapping(value="/isSameCluster", method = {RequestMethod.POST})
+    public Boolean isSameCluster(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("aimTenantIds") List<Long> dtUicTenantIds){
+        return clusterService.isSameCluster(dtUicTenantId,dtUicTenantIds);
     }
 }

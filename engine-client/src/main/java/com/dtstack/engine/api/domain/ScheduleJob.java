@@ -107,6 +107,31 @@ public class ScheduleJob extends AppTenantEntity {
 
     private Integer phaseStatus;
 
+    private Boolean isForce;
+
+    public Boolean getForce() {
+        return isForce;
+    }
+
+    public void setForce(Boolean force) {
+        isForce = force;
+    }
+
+
+    /**
+     * 提交用户名
+     */
+    @ApiModelProperty(notes = "任务提交用户")
+    private String submitUserName;
+
+    public String getSubmitUserName() {
+        return submitUserName;
+    }
+
+    public void setSubmitUserName(String submitUserName) {
+        this.submitUserName = submitUserName;
+    }
+
     public String getEngineJobId() {
         return engineJobId;
     }

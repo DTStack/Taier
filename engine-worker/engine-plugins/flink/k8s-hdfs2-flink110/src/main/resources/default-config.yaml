@@ -16,11 +16,11 @@ perjob:
     high-availability.zookeeper.quorum:
     high-availability.storageDir: hdfs://ns1/flink110/ha
 
-    historyserver.web.address:
-    historyserver.web.port: 8082
-
+    state.backend: RocksDB
     state.checkpoints.dir: hdfs://ns1/dtInsight/flink110/checkpoints
     state.checkpoints.num-retained: 11
+    state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints
+    state.backend.incremental: true
 
     metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
     metrics.reporter.promgateway.host:
@@ -39,16 +39,10 @@ perjob:
 
   optional:
     jarTmpDir: ./tmp110
-    namespace: default
     pluginLoadMode: classpath
     submitTimeout: 5
-    flinkInterval: 5 SECONDS
     classloader.resolve-order: parent-first
     taskparams.taskmanager.heap.mb: 20
-
-    state.backend: RocksDB
-    state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints
-    state.backend.incremental: true
 
     prometheusHost:
     prometheusPort: 9090
@@ -58,6 +52,7 @@ perjob:
     gatewayJobName: pushgateway
     high-availability: ZOOKEEPER
 
+    kubernetes.container.image.pull-secret:
     kubernetes.host.aliases:
 
 session:
@@ -76,11 +71,11 @@ session:
     high-availability.zookeeper.quorum:
     high-availability.storageDir: hdfs://ns1/flink110/ha
 
-    historyserver.web.address:
-    historyserver.web.port: 8082
-
+    state.backend: RocksDB
     state.checkpoints.dir: hdfs://ns1/dtInsight/flink110/checkpoints
     state.checkpoints.num-retained: 11
+    state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints
+    state.backend.incremental: true
 
     metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
     metrics.reporter.promgateway.host:
@@ -94,21 +89,16 @@ session:
       values: [true,false]
 
     kubernetes.rest-service.exposed.type: NodePort
-    kubernetes.container.image: registry.cn-hangzhou.aliyuncs.com/dtstack-dev/dt-flink:1.10
+    kubernetes.container.image:
     flinkx.hosts:
 
   optional:
     jarTmpDir: ./tmp110
-    namespace: default
     pluginLoadMode: classpath
     submitTimeout: 5
     flinkInterval: 5 SECONDS
     classloader.resolve-order: parent-first
     taskparams.taskmanager.heap.mb: 20
-
-    state.backend: RocksDB
-    state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints
-    state.backend.incremental: true
 
     prometheusHost:
     prometheusPort: 9090
@@ -119,4 +109,7 @@ session:
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
     high-availability: ZOOKEEPER
+
+    kubernetes.container.image.pull-secret:
+    kubernetes.host.aliases:
 

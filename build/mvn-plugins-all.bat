@@ -15,7 +15,7 @@ if (%hadoop3Version%)==() (
 
 echo "Hadoop3Version: %hadoop3Version% Building..."
 
-mvn -T 12 clean package -DskipTests -Dhadoop2.version=%hadoop2Version% -Dhadoop3.version=%hadoop3Version% -pl ^
+mvn -T 1C clean package -DskipTests -Dhadoop2.version=%hadoop2Version% -Dhadoop3.version=%hadoop3Version% -pl ^
 engine-worker/engine-plugins/dummy,^
 engine-worker/engine-plugins/flink/common,^
 engine-worker/engine-plugins/flink/yarn3-hdfs3-flink180,^

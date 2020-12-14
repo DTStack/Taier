@@ -1,9 +1,10 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleTaskCommit;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.domain.TenantResource;
+import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
@@ -11,8 +12,6 @@ import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
-import com.dtstack.engine.common.enums.JobCheckStatus;
-import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
@@ -20,8 +19,6 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UnitConvertUtil;
 import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.dao.TenantResourceDao;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.executor.CronJobExecutor;
@@ -38,7 +35,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -92,7 +88,7 @@ public class ScheduleTaskShadeService {
             if (null == batchTaskShadeDTO.getNodePid()) {
                 batchTaskShadeDTO.setNodePid(0L);
             }
-            if (Objects.isNull(batchTaskShadeDTO.getDtuicTenantId()) || batchTaskShadeDTO.getDtuicTenantId() <= 0) {
+            if (null == batchTaskShadeDTO.getDtuicTenantId() || batchTaskShadeDTO.getDtuicTenantId() <= 0) {
                 throw new RdosDefineException("租户dtuicTenantId 不能为空");
             }
             if (null == batchTaskShadeDTO.getFlowId()) {
@@ -109,10 +105,6 @@ public class ScheduleTaskShadeService {
     public void deleteTask( Long taskId,  long modifyUserId, Integer appType) {
         scheduleTaskShadeDao.delete(taskId, modifyUserId,appType);
         scheduleTaskTaskShadeService.clearDataByTaskId(taskId,appType);
-    }
-
-    public List<ScheduleTaskShade> listTaskByType(Long projectId, Integer taskType, String taskName) {
-        return scheduleTaskShadeDao.listByType(projectId, taskType, taskName);
     }
 
     /**
@@ -210,14 +202,14 @@ public class ScheduleTaskShadeService {
     public ScheduleTaskShade getByName( long projectId,
                                         String name,  Integer appType, Long flowId) {
         //如果appType没传那就默认为ide
-        if (Objects.isNull(appType)){
+        if (null == appType){
             appType = 1;
         }
         return scheduleTaskShadeDao.getByName(projectId, name,appType,flowId);
     }
 
-    public void updateTaskName( long id,  String taskName,Integer appType) {
-        scheduleTaskShadeDao.updateTaskName(id, taskName,appType);
+    public void updateTaskName(long taskId,  String taskName,Integer appType) {
+        scheduleTaskShadeDao.updateTaskName(taskId, taskName,appType);
     }
 
 
@@ -286,9 +278,6 @@ public class ScheduleTaskShadeService {
 
     public ScheduleTaskShade getBatchTaskById( Long taskId, Integer appType) {
         ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId, appType);
-        if (taskShade == null || Deleted.DELETED.getStatus().equals(taskShade.getIsDeleted())) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-        }
         return taskShade;
     }
 
@@ -482,7 +471,7 @@ public class ScheduleTaskShadeService {
 
 
     public ScheduleTaskShade findTaskId( Long taskId, Integer isDeleted,  Integer appType) {
-        if(Objects.isNull(taskId)){
+        if(null == taskId){
             return null;
         }
         List<ScheduleTaskShade> batchTaskShades = scheduleTaskShadeDao.listByTaskIds(Lists.newArrayList(taskId), isDeleted,appType);
@@ -522,7 +511,7 @@ public class ScheduleTaskShadeService {
      */
     public void info( Long taskId, Integer appType,String info) {
         JSONObject extInfo = JSONObject.parseObject(scheduleTaskShadeDao.getExtInfoByTaskId(taskId, appType));
-        if (Objects.isNull(extInfo)) {
+        if (null == extInfo) {
             extInfo = new JSONObject();
         }
         extInfo.put(TaskConstant.INFO, info);
@@ -556,7 +545,7 @@ public class ScheduleTaskShadeService {
 
         TenantResource tenantResource = tenantResourceDao.selectByUicTenantIdAndTaskType(dtuicTenantId,taskType);
         List<String> exceedMessage = new ArrayList<>();
-        if(Objects.isNull(tenantResource)){
+        if(null == tenantResource){
             return exceedMessage;
         }
         try {
