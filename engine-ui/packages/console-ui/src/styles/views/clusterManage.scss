@@ -185,7 +185,7 @@
     width: 100%;
     min-height: 550px;
     position: relative;
-    padding: 20px;
+    padding: 12px 20px 20px 20px;
     display: flex;
     flex-direction: column;
     .c-editCluster__turnBack {
@@ -201,13 +201,16 @@
     }
     .c-editCluster__header {
         margin-bottom: 12px;
-        margin-top: 12px;
         height: 32px;
         display: flex;
         justify-content: space-between;
+        align-items: center;
         .c-editCluster__header__btn {
             padding: 0 12px;
             height: 32px;
+        }
+        .cluster-btn {
+            margin-right: 12px;
         }
     }
 }
@@ -323,7 +326,7 @@
             .c-editCluster__container__componentFooter__btn {
                 padding: 0;
                 height: 28px;
-                width: 88px;
+                width: 108px;
             }
         }
     }
@@ -369,8 +372,49 @@
     .c-displayResource__notice {
         font-size: 10px;
         color: #999;
-        line-height: 16px;
+        line-height: 20px;
         padding-top: 5px;
+    }
+    .c-displayResource__kerberos {
+        .notice {
+            font-size: 10px;
+            color: #999;
+            line-height: 20px
+        }
+        .config-file {
+            width: 176px;
+            height: 20px;
+            display: block;
+            padding: 0 52px 0 16px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 12px;
+            line-height: 20px;
+            position: relative;
+            color: #3F87FF;
+            .anticon-delete, .anticon-paper-clip, .anticon-edit, .anticon-download {
+                position: absolute;
+                top: 4px;
+                color: #666;
+                font-size: 12px;
+            }
+            .anticon-paper-clip {
+                left: 0;
+            }
+            .anticon-delete {
+                right: 0;
+            }
+            .anticon-download {
+                right: 20px;
+            }
+            .anticon-edit {
+                right: 40px;
+            }
+            &:hover {
+                background-color: #F2F9FF;
+            }
+        }    
     }
     >.ant-form-item {
         margin-bottom: 20px;
@@ -441,5 +485,12 @@
     color: #FF5F5C;
     &:hover {
         color: #FF5F5C;
+    }
+}
+
+.c-kerberosModal__edior {
+    background-color: #F5F5F5;
+    > .CodeMirror {
+        background-color: #F5F5F5;
     }
 }

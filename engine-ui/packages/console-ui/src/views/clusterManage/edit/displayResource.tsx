@@ -1,18 +1,22 @@
 import * as React from 'react';
-import { Form, Select, Icon } from 'antd';
+import { Form, Select, Icon, Upload, Button, message, notification } from 'antd';
 import utils from 'dt-common/src/utils';
 import {
     COMPONENT_TYPE_VALUE, COMPONEMT_CONFIG_KEY_ENUM, COMPONEMT_CONFIG_KEYS, UPPER_NAME
 } from '../../../consts';
 import Api from '../../../api/console'
-import dealData from './dealData';
+import dealData from './dealData'
+import KerberosModal from './kerberos/kerberosModal'
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 class DisplayResource extends React.Component<any, any> {
     state: any = {
+        visible: false,
         compVersion: [],
-        saveCompsData: []
+        saveCompsData: [],
+        krbconfig: '',
+        kerberosLoading: false
     }
     componentDidMount () {
         const { clusterName } = this.props;
@@ -53,6 +57,24 @@ class DisplayResource extends React.Component<any, any> {
         }
     }
 
+    refreshYarnQueue = () => {
+        const { clusterName } = this.props
+        Api.refreshQueue({ clusterName }).then((res: any) => {
+            if (res.code == 1) {
+                const target = res.data.find(v => v.componentTypeCode == COMPONENT_TYPE_VALUE.YARN)
+                if (target?.result || res.data.length == 0) {
+                    message.success('刷新成功')
+                } else {
+                    notification['error']({
+                        message: '刷新失败',
+                        description: `${target.errorMsg}`,
+                        style: { wordBreak: 'break-word' }
+                    });
+                }
+            }
+        })
+    }
+
     // 配置文件
     renderConfigsFile = (configName: any) => {
         const { getFieldDecorator, components, isView, uploadLoading,
@@ -62,7 +84,7 @@ class DisplayResource extends React.Component<any, any> {
         const noticeContent = this.getNoticeContent(components.componentTypeCode);
         return (
             <FormItem
-                label="配置文件"
+                label={<span>配置文件<a style={{ marginLeft: 76 }} onClick={this.refreshYarnQueue}>刷新队列</a></span>}
                 colon={false}
             >
                 {getFieldDecorator(`${configName}.uploadFileName`, {
@@ -101,54 +123,74 @@ class DisplayResource extends React.Component<any, any> {
         )
     }
 
+    uploadKerberos = async (params: any, callBack: Function) => {
+        this.setState({ kerberosLoading: true })
+        const res = await Api.uploadKerberos(params)
+        if (res.code == 1) {
+            this.setState({ krbconfig: res.data })
+        }
+        callBack && callBack()
+        this.setState({ kerberosLoading: false })
+    }
+
     // Hadoop Kerberos认证文件
     renderKerberosFile = (configName: any) => {
-        const { getFieldDecorator, components, isView, kerUploadLoading, kerFileChange,
-            downloadFile, deleteKerFile } = this.props;
-        const config = this.getComponentConfig();
-        const { kerFileName } = config;
-        return (
-            <FormItem
-                label="Hadoop Kerberos认证文件"
-                colon={false}
-            >
-                {getFieldDecorator(`${configName}.kerberosFileName`, {
-                    initialValue: components.kerberosFileName || ''
-                })(
-                    <div>
-                        {!isView && <label
-                            style={{ lineHeight: '32px', textIndent: 'initial', height: 32, width: 172 }}
-                            className="ant-btn"
-                            htmlFor={`my${configName}KerberosFile`}
-                        >
-                            <span>
-                                {kerUploadLoading ? <Icon className="blue-loading" type="loading" style={{ marginRight: 8 }} /> : <Icon type="upload" style={{ marginRight: 8 }} />}
-                                上传文件
-                            </span>
-                        </label>}
-                        <input
-                            type="file"
-                            id={`my${configName}KerberosFile`}
-                            onClick={(e: any) => { e.target.value = null }}
-                            onChange={(e: any) => kerFileChange(e, components.componentTypeCode)}
-                            accept=".zip"
-                            style={{ display: 'none' }}
-                        />
-                        {!isView && <div className="c-displayResource__notice">仅支持.zip格式</div>}
-                        {kerFileName && <div className="c-displayResource__downloadFile" style={{ fontSize: 12, color: '#3F87FF' }}>
-                            <span>
-                                <Icon type="paper-clip" style={{ marginRight: 2, color: '#666666FF' }} />
-                                {utils.textOverflowExchange(kerFileName, 9)}
-                            </span>
-                            <span>
-                                {components.id && <Icon type="download" style={{ color: '#666666FF' }} onClick={() => components.id && downloadFile(components, 0)} />}
-                                {!isView && <Icon type="delete" style={{ color: '#666666FF', marginLeft: 6 }} onClick={() => deleteKerFile(components.componentTypeCode)} />}
-                            </span>
-                        </div>}
-                    </div>
-                )}
-            </FormItem>
-        )
+        const { getFieldDecorator, components, isView, kerFileChange, getFieldValue,
+            downloadFile, deleteKerFile, setFieldsValue, cluster } = this.props;
+        const uploadConfigProp = {
+            name: 'kerberosFile',
+            accept: '.zip',
+            beforeUpload: (file: any) => {
+                console.log(file)
+                const params = {
+                    kerberosFile: file,
+                    clusterId: cluster?.clusterId,
+                    componentCode: components.componentTypeCode
+                }
+                this.uploadKerberos(params, () => {
+                    kerFileChange(file, components.componentTypeCode)
+                    setFieldsValue({
+                        [`${configName}.kerberosFileName`]: file.name
+                    })
+                })
+                return false;
+            },
+            fileList: []
+        }
+        return (<FormItem
+            label='Hadoop Kerberos认证文件'
+            colon={false}
+        >
+            {getFieldDecorator(`${configName}.kerberosFileName`, {
+                initialValue: components.kerberosFileName || ''
+            })(<div />)}
+            <div className="c-displayResource__kerberos">
+                {!isView && <>
+                    <Upload {...uploadConfigProp}>
+                        <Button style={{ width: 172 }} icon="upload" loading={this.state.kerberosLoading}>点击上传</Button>
+                    </Upload>
+                    <span className="notice">仅支持.zip格式</span>
+                </>}
+                {getFieldValue(`${configName}.kerberosFileName`) && <span className="config-file">
+                    <Icon type="paper-clip" />
+                    {getFieldValue(`${configName}.kerberosFileName`)}
+                    {!isView && <>
+                        <Icon type="edit" onClick={() => this.setState({ visible: true })} />
+                        <Icon type="delete" onClick={() => {
+                            setFieldsValue({
+                                [`${configName}.kerberosFileName`]: ''
+                            })
+                            deleteKerFile(components.componentTypeCode)
+                        }} />
+                    </>}
+                    {components.id && <Icon
+                        type="download"
+                        style={{ right: isView ? 0 : 20 }}
+                        onClick={() => downloadFile(components, 0)}
+                    />}
+                </span>}
+            </div>
+        </FormItem>)
     }
 
     // 参数批量上传文件
@@ -428,10 +470,21 @@ class DisplayResource extends React.Component<any, any> {
         )
     }
 
+    hanleVisible = () => {
+        this.setState({ visible: false })
+    }
+
     render () {
+        const { krbconfig } = this.state
+        const { components } = this.props
         return (
             <div className="c-displayResource__container">
                 {this.renderDisplayResource()}
+                <KerberosModal
+                    visible={this.state.visible}
+                    krbconfig={krbconfig || components.mergeKrb5Content || ''}
+                    onCancel={this.hanleVisible}
+                />
             </div>
         )
     }
