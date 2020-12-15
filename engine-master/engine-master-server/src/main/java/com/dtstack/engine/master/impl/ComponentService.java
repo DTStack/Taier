@@ -431,7 +431,6 @@ public class ComponentService {
         }
 
         String mergeDirPath = ConfigConstant.LOCAL_KRB5_MERGE_DIR_PARENT + ConfigConstant.SP + UUID.randomUUID();
-        Map<String, KerberosConfig> KerberosConfigMap = new HashMap<>();
         List<Long> clusterDownloadRecords = new ArrayList();
         try {
             String oldMergeKrb5Content = null;
@@ -456,10 +455,9 @@ public class ComponentService {
                         continue;
                     }
                     boolean downRes = sftpFileManage.downloadFile(remoteKrb5Path, localKrb5Path);
-                    LOGGER.info("mergeKrb5 remoteKrb5Path[{}] download result {}", remoteKrb5Path, downRes);
+                    LOGGER.info("download remoteKrb5Path[{}] result {}", remoteKrb5Path, downRes);
                     if (downRes) {
                         clusterDownloadRecords.add(clusterId);
-                        KerberosConfigMap.put(localKrb5Path, kerberosConfig);
                         if (!new File(mergeKrb5Path).exists()) {
                             FileUtils.copyFile(new File(localKrb5Path), new File(mergeKrb5Path));
                             continue;
@@ -474,11 +472,10 @@ public class ComponentService {
                 mergeKrb5Content = Krb5FileUtil.resetMergeKrb5Content(oldMergeKrb5Content, mergeKrb5Content);
             }
             LOGGER.info("mergeKrb5Content is {}", mergeKrb5Content);
-            for (String localKrb5Path : KerberosConfigMap.keySet()) {
-                KerberosConfig kerberosConfig = KerberosConfigMap.get(localKrb5Path);
+            for (KerberosConfig kerberosConfig : kerberosConfigs) {
                 kerberosConfig.setMergeKrbContent(mergeKrb5Content);
                 kerberosDao.update(kerberosConfig);
-                LOGGER.info("Krb5[{}] merge successed!", localKrb5Path);
+                LOGGER.info("Krb5[{}/krb5.conf] merge successed!", kerberosConfig.getRemotePath());
             }
         } catch (Exception e) {
             LOGGER.error("Merge krb5 error! {}", e.getMessage());
