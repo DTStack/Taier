@@ -438,4 +438,13 @@ public class EnvironmentContext {
     public String getComponentJdbcToReplace() {
         return environment.getProperty("component.jdbc.replace", "/default");
     }
+
+    public Integer setIdleConnectionTestPeriod() {
+        return Integer.valueOf(environment.getProperty("idle.connection.test.period", "60"));
+    }
+
+
+    public Integer setMaxIdleTime() {
+        return Integer.valueOf(environment.getProperty("max.idle.time", "60"));
+    }
 }
