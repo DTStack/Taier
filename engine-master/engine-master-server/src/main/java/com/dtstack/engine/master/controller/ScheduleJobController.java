@@ -49,7 +49,7 @@ public class ScheduleJobController {
 
     @RequestMapping(value="/getStatusCountByProjectIds", method = {RequestMethod.POST})
     @ApiOperation(value = "获取各个状态任务的数量")
-    public List<ScheduleJobStatusVO> getStatusCountByProjectIds(@DtRequestParam("projectId") List<Long> projectIds, @DtRequestParam("tenantId") Long tenantId, @DtRequestParam("appType") Integer appType, @DtRequestParam("dtuicTenantId") Long dtuicTenantId) {
+    public List<ScheduleJobStatusVO> getStatusCountByProjectIds(@DtRequestParam("projectIds") List<Long> projectIds, @DtRequestParam("tenantId") Long tenantId, @DtRequestParam("appType") Integer appType, @DtRequestParam("dtuicTenantId") Long dtuicTenantId) {
         return scheduleJobService.getStatusCountByProjectIds(projectIds, tenantId, appType, dtuicTenantId);
     }
 

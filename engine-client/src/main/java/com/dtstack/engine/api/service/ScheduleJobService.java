@@ -63,6 +63,17 @@ public interface ScheduleJobService extends DtInsightServer {
     ApiResponse<ScheduleJobStatusVO> getStatusCount(@Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId);
 
     /**
+     * 按照projectIds获取各个状态任务的数量
+     *
+     * @param projectIds
+     * @param tenantId
+     * @param appType
+     * @param dtuicTenantId
+     * @return
+     */
+    @RequestLine("POST /node/scheduleJob/getStatusCountByProjectIds")
+    ApiResponse<List<ScheduleJobStatusVO>> getStatusCountByProjectIds(@Param("projectIds") List<Long> projectIds, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId);
+    /**
      * 运行时长top排序
      */
     @RequestLine("POST /node/scheduleJob/runTimeTopOrder")
