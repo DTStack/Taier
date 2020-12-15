@@ -713,15 +713,15 @@ public class ClusterService implements InitializingBean {
                 String typeName = componentService.convertComponentTypeToClient(clusterVO.getClusterName(),
                         EComponentType.HIVE_SERVER.getTypeCode(), hiveServer.getHadoopVersion());
                 pluginInfo.put("typeName",typeName);
-            } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK == type.getComponentType()) {
-                if (clusterVO.getDtUicUserId() != null && clusterVO.getDtUicTenantId() != null) {
-                    String ldapUserName = this.getLdapUserName(clusterVO.getDtUicUserId());
-                    LOGGER.info("dtUicUserId:{},dtUicTenantId:{},ldapUserName:{}",clusterVO.getDtUicUserId(),clusterVO.getDtUicTenantId() ,ldapUserName);
-                    if (StringUtils.isNotBlank(ldapUserName) && ldapUserName.contains(MAILBOX_CUTTING)) {
-                        ldapUserName = ldapUserName.substring(0, ldapUserName.indexOf(MAILBOX_CUTTING));
-                    }
-                    pluginInfo.put(LDAP_USER_NAME, ldapUserName);
+            }
+
+            if (clusterVO.getDtUicUserId() != null && clusterVO.getDtUicTenantId() != null) {
+                String ldapUserName = this.getLdapUserName(clusterVO.getDtUicUserId());
+                LOGGER.info("dtUicUserId:{},dtUicTenantId:{},ldapUserName:{}",clusterVO.getDtUicUserId(),clusterVO.getDtUicTenantId() ,ldapUserName);
+                if (StringUtils.isNotBlank(ldapUserName) && ldapUserName.contains(MAILBOX_CUTTING)) {
+                    ldapUserName = ldapUserName.substring(0, ldapUserName.indexOf(MAILBOX_CUTTING));
                 }
+                pluginInfo.put(LDAP_USER_NAME, ldapUserName);
             }
             pluginInfo.put(ConfigConstant.MD5_SUM_KEY, getZipFileMD5(clusterConfigJson));
             removeMd5FieldInHadoopConf(pluginInfo);
