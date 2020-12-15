@@ -36,7 +36,9 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Date: 2020/5/29
@@ -70,7 +72,14 @@ public abstract class AbstractClientFactory implements IClientFactory {
     public YarnClusterDescriptor getClusterDescriptor(Configuration configuration, YarnConfiguration yarnConfiguration) {
         ClusterClientFactory<ApplicationId> clusterClientFactory = new YarnClusterClientFactory();
         YarnClusterClientFactory yarnClusterClientFactory = (YarnClusterClientFactory) clusterClientFactory;
-        return yarnClusterClientFactory.createClusterDescriptor(configuration, yarnConfiguration);
+
+        YarnConfiguration newYarnConfig = new YarnConfiguration();
+        Iterator<Map.Entry<String, String>> iterator = yarnConfiguration.iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> next = iterator.next();
+            newYarnConfig.set(next.getKey(), next.getValue());
+        }
+        return yarnClusterClientFactory.createClusterDescriptor(configuration, newYarnConfig);
     }
 
     /**
