@@ -32,6 +32,15 @@ public class KerberosConfig extends BaseEntity {
     @ApiModelProperty(notes = "krb5 的文件名称")
     private String krbName;
 
+    private String mergeKrbContent;
+
+    public String getMergeKrbContent() {
+        return mergeKrbContent;
+    }
+
+    public void setMergeKrbContent(String mergeKrbContent) {
+        this.mergeKrbContent = mergeKrbContent;
+    }
 
     public String getPrincipals() {
         return principals;
