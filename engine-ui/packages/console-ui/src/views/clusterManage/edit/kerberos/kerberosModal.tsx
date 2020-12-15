@@ -61,7 +61,7 @@ export default class KerberosModal extends React.Component<IProps, IState> {
             <div style={editorStyle}>
                 <Editor
                     sync
-                    value={krbconfig || '123123'}
+                    value={krbconfig || ''}
                     className="c-kerberosModal__edior"
                     ref={(e: any) => this._editor = e}
                     style={{ height: '100%' }}
