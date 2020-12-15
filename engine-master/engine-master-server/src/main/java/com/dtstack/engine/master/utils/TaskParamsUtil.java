@@ -1,8 +1,9 @@
 package com.dtstack.engine.master.utils;
 
 import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.master.enums.EDeployMode;
-import com.dtstack.engine.master.impl.ActionService;
+import com.dtstack.engine.common.enums.EDeployMode;
+import com.dtstack.engine.common.enums.EngineType;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +18,21 @@ import java.util.Properties;
 public class TaskParamsUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskParamsUtil.class);
+
+    /**
+     * 除了flink任务有perjob和session之分外，
+     * 其他任务默认全部为perjob模式
+     * @param taskParams
+     * @param computeType
+     * @param engineType
+     * @return
+     */
+    public static EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType, String engineType) {
+        if (StringUtils.isBlank(engineType) || !EngineType.isFlink(engineType)){
+            return EDeployMode.PERJOB;
+        }
+        return parseDeployTypeByTaskParams(taskParams, computeType);
+    }
 
     /**
      * 解析对应数据同步任务的环境参数 获取对应数据同步模式

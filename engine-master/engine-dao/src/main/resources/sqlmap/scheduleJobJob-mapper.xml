@@ -64,9 +64,9 @@
 
     <insert id="insert" parameterType="ScheduleJobJob" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO schedule_job_job
-        (job_key,parent_job_key,gmt_create,gmt_modified,is_deleted,dtuic_tenant_id,app_type)
+        (job_key,parent_job_key,gmt_create,gmt_modified,is_deleted,dtuic_tenant_id,app_type,tenant_id,project_id)
         VALUES
-        (#{jobKey},#{parentJobKey},#{gmtCreate},#{gmtModified},#{isDeleted},#{dtuicTenantId},#{appType})
+        (#{jobKey},#{parentJobKey},#{gmtCreate},#{gmtModified},#{isDeleted},#{dtuicTenantId},#{appType},#{tenantId},#{projectId})
     </insert>
 
     <insert id="batchInsert" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
@@ -134,10 +134,6 @@
         WHERE
         bjj.job_key IN
         <foreach collection="jobKeyList" item="key" open="(" separator="," close=")">
-            #{key}
-        </foreach>
-        and bj.task_id not in
-        <foreach collection="selfTaskIdList" item="key" open="(" separator="," close=")">
             #{key}
         </foreach>
         and bjj.is_deleted = 0

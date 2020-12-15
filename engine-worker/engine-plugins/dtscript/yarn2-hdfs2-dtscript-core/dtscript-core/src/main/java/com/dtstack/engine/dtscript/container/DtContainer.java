@@ -298,17 +298,20 @@ public class DtContainer {
 
         LOG.info("start read file");
         StringBuffer sb = new StringBuffer();
-        InputStream is = new FileInputStream(filePath);
         String line;
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is, DtYarnConfiguration.UTF8));
-        line = reader.readLine();
-        while (line != null) {
-            sb.append(line);
-            sb.append("\n");
+        try (InputStream is = new FileInputStream(filePath);
+             BufferedReader reader = new BufferedReader(
+                     new InputStreamReader(is, DtYarnConfiguration.UTF8))){
             line = reader.readLine();
+            while (line != null) {
+                sb.append(line);
+                sb.append("\n");
+                line = reader.readLine();
+            }
+        } catch (IOException e) {
+            LOG.error("read file failed");
+            throw new RuntimeException(e);
         }
-        reader.close();
-        is.close();
         LOG.info("end read file");
         return sb.toString();
     }

@@ -3,18 +3,19 @@ package com.dtstack.engine.master.jobdealer;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.common.BlockCallerPolicy;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.pojo.JobStatusFrequency;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.bo.JobCompletedInfo;
-import com.dtstack.engine.master.bo.JobStatusFrequency;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.jobdealer.cache.ShardManager;
 import com.dtstack.engine.master.env.EnvironmentContext;
@@ -38,9 +39,9 @@ import java.util.stream.Collectors;
  * @author toutian
  *         create: 2020/01/17
  */
-public class JobStatusDealer implements Runnable {
+public class  JobStatusDealer implements Runnable {
 
-    private static Logger logger = LoggerFactory.getLogger(JobStatusDealer.class);
+    private final static Logger logger = LoggerFactory.getLogger(JobStatusDealer.class);
 
     /**
      * 最大允许查询不到任务信息的次数--超过这个次数任务会被设置为CANCELED
@@ -52,7 +53,7 @@ public class JobStatusDealer implements Runnable {
      */
     private final static int NOT_FOUND_LIMIT_INTERVAL = 3 * 60 * 1000;
 
-    public static final long INTERVAL = 2000;
+    public static final long INTERVAL = 3500;
     private final static int MULTIPLES = 5;
     private int logOutput = 0;
 
@@ -74,11 +75,9 @@ public class JobStatusDealer implements Runnable {
     /**
      * 记录job 连续某个状态的频次
      */
-    private Map<String, JobStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();
+    private final Map<String, JobStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();
 
     private ExecutorService taskStatusPool;
-
-    private ScheduledExecutorService scheduledService;
 
     private ScheduleJobService scheduleJobService;
 
@@ -157,8 +156,7 @@ public class JobStatusDealer implements Runnable {
             String taskParams = info.getString("taskParams");
             String pluginInfo = info.getString("pluginInfo");
             Long userId = info.getLong("userId");
-            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getDtuicTenantId(),engineType,
-                    TaskParamsUtil.parseDeployTypeByTaskParams(taskParams,scheduleJob.getComputeType()).getType(),userId, pluginInfo);
+            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getDtuicTenantId(),engineType, TaskParamsUtil.parseDeployTypeByTaskParams(taskParams,scheduleJob.getComputeType(),engineType).getType(),userId, pluginInfo);
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
 
@@ -169,7 +167,7 @@ public class JobStatusDealer implements Runnable {
                 rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, jobId);
                 Integer status = rdosTaskStatus.getStatus();
                 // 重试状态 先不更新状态
-                boolean isRestart = jobRestartDealer.checkAndRestart(status, jobId, engineTaskId, appId);
+                boolean isRestart = jobRestartDealer.checkAndRestart(status, scheduleJob,engineJobCache);
                 if (isRestart) {
                     logger.info("----- jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
                     return;
@@ -254,7 +252,7 @@ public class JobStatusDealer implements Runnable {
 
         this.taskStatusDealerPoolSize = environmentContext.getTaskStatusDealerPoolSize();
         this.taskStatusPool = new ThreadPoolExecutor(taskStatusDealerPoolSize, taskStatusDealerPoolSize, 60L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(1000), new CustomThreadFactory(jobResource + this.getClass().getSimpleName() + "DealJob"));
+                new LinkedBlockingQueue<>(1000), new CustomThreadFactory(jobResource + this.getClass().getSimpleName() + "DealJob"), new BlockCallerPolicy());
     }
 
     private void setBean() {
@@ -274,11 +272,12 @@ public class JobStatusDealer implements Runnable {
     }
 
     public void start() {
-        scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
+        long jobStatusCheckInterVal = environmentContext.getJobStatusCheckInterVal();
+        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(jobResource + this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,
-                JobStatusDealer.INTERVAL,
+                jobStatusCheckInterVal,
                 TimeUnit.MILLISECONDS);
         logger.info("{} thread start ...", jobResource + this.getClass().getSimpleName());
 

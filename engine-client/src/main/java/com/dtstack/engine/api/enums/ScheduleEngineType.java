@@ -33,7 +33,8 @@ public enum ScheduleEngineType {
     SQLSERVER(19, "sqlserver"),
     MAX_COMPUTE(20, "maxcompute"),
     DUMMY(21, "dummy"),
-    Presto(22, "presto");
+    Presto(22, "presto"),
+    KING_BASE(23,"kingbase");
 
     private int val;
 
@@ -114,39 +115,9 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.DUMMY;
             case "presto":
                 return ScheduleEngineType.Presto;
+            case "kingbase":
+                return ScheduleEngineType.KING_BASE;
         }
         return null;
     }
-
-    public static ScheduleEngineType getEngineType(int val) {
-        for (ScheduleEngineType type : ScheduleEngineType.values()) {
-            if (type.val == val) {
-                return type;
-            }
-        }
-
-        return null;
-    }
-
-    public static String getEngineName(int val) {
-        ScheduleEngineType scheduleEngineType = getEngineType(val);
-        return scheduleEngineType.getEngineName().toLowerCase();
-    }
-
-    public static ScheduleEngineType getByEScriptType(Integer scriptType) {
-        return getByPythonVersion(++scriptType);
-    }
-
-    public static ScheduleEngineType getByPythonVersion(Integer version) {
-        ScheduleEngineType scheduleEngineType;
-        if (version.equals(2)) {
-            scheduleEngineType = Python2;
-        } else if (version.equals(3)) {
-            scheduleEngineType = Python3;
-        } else {
-            throw new UnsupportedOperationException("python不支持2.x和3.x之外的版本类型");
-        }
-        return scheduleEngineType;
-    }
-
 }

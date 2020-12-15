@@ -1,9 +1,13 @@
 package com.dtstack.engine.master.jobdealer;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.enums.EQueueSourceType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.*;
 import com.dtstack.engine.common.pojo.JobResult;
@@ -12,12 +16,14 @@ import com.dtstack.engine.common.pojo.SimpleJobDelay;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.util.SleepUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.queue.JobPartitioner;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -47,6 +53,7 @@ public class JobSubmitDealer implements Runnable {
     private WorkerOperator workerOperator;
     private EngineJobCacheDao engineJobCacheDao;
     private ShardCache shardCache;
+    private ScheduleJobDao scheduleJobDao;
 
     private long jobRestartDelay;
     private long jobLackingDelay;
@@ -68,21 +75,10 @@ public class JobSubmitDealer implements Runnable {
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
         this.engineJobCacheDao = applicationContext.getBean(EngineJobCacheDao.class);
         this.shardCache = applicationContext.getBean(ShardCache.class);
+        this.scheduleJobDao = applicationContext.getBean(ScheduleJobDao.class);
         EnvironmentContext environmentContext = applicationContext.getBean(EnvironmentContext.class);
         if (null == priorityQueue) {
             throw new RdosDefineException("priorityQueue must not null.");
-        }
-        if (null == jobPartitioner) {
-            throw new RdosDefineException("jobPartitioner must not null.");
-        }
-        if (null == workerOperator) {
-            throw new RdosDefineException("workerOperator must not null.");
-        }
-        if (null == engineJobCacheDao) {
-            throw new RdosDefineException("engineJobCacheDao must not null.");
-        }
-        if (null == environmentContext) {
-            throw new RdosDefineException("environmentContext must not null.");
         }
 
         jobRestartDelay = environmentContext.getJobRestartDelay();
@@ -114,8 +110,7 @@ public class JobSubmitDealer implements Runnable {
                     simpleJobDelay = delayJobQueue.take();
                     jobClient = simpleJobDelay.getJob();
                     if (jobClient != null) {
-                        engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.PRIORITY.getStage(), localAddress, jobClient.getPriority(), null);
-                        jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
+                        jobClient.setQueueSourceType(EQueueSourceType.DELAY.getCode());
                         queue.put(jobClient);
                         logger.info("jobId:{} stage:{} take job from delayJobQueue queue size:{} and add to priorityQueue.", jobClient.getTaskId(), simpleJobDelay.getStage(), delayJobQueue.size());
                     }
@@ -148,7 +143,7 @@ public class JobSubmitDealer implements Runnable {
             jobClient.doStatusCallBack(RdosTaskStatus.LACKING.getStatus());
         } catch (InterruptedException e) {
             queue.put(jobClient);
-            logger.error("jobId:{} delayJobQueue.put failed.", e);
+            logger.error("jobId:{} delayJobQueue.put failed.",jobClient.getTaskId(), e);
         }
         logger.info("jobId:{} success add job to lacking delayJobQueue, job's lackingCount:{}.", jobClient.getTaskId(), jobClient.getLackingCount());
     }
@@ -163,10 +158,7 @@ public class JobSubmitDealer implements Runnable {
             try {
                 JobClient jobClient = queue.take();
                 logger.info("jobId:{} jobResource:{} queue size:{} take job from priorityQueue.", jobClient.getTaskId(), jobResource, queue.size());
-                if (checkIsFinished(jobClient.getTaskId())) {
-                    shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
-                    jobClient.doStatusCallBack(RdosTaskStatus.CANCELED.getStatus());
-                    logger.info("jobId:{} checkIsFinished is true, job is Finished.", jobClient.getTaskId());
+                if (checkIsFinished(jobClient)) {
                     continue;
                 }
                 if (checkJobSubmitExpired(jobClient.getGenerateTime())) {
@@ -190,10 +182,50 @@ public class JobSubmitDealer implements Runnable {
         }
     }
 
-    private boolean checkIsFinished(String jobId) {
-        EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
-        if (engineJobCache == null) {
-            return true;
+    private boolean checkIsFinished(JobClient jobClient) {
+        EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobClient.getTaskId());
+        try {
+            if (null == jobClient.getQueueSourceType() || EQueueSourceType.NORMAL.getCode() == jobClient.getQueueSourceType()) {
+                if (null == engineJobCache) {
+                    shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
+                    jobClient.doStatusCallBack(RdosTaskStatus.CANCELED.getStatus());
+                    logger.info("jobId:{} checkIsFinished is true, job is Finished.", jobClient.getTaskId());
+                    return true;
+                }
+            } else {
+                if (null == engineJobCache) {
+                    //如果任务出现资源不足 一直deploy加大延时  界面杀死重跑立马完成之后 deployQueue数据未移除
+                    //重新放入之后直接取消 导致状态更新waitEngine 状态不一致 所以需要判断下数据是否存在
+                    logger.info("jobId:{} stage:{} take job from delayJobQueue  but engine job cache has deleted", jobClient.getTaskId(), delayJobQueue.size());
+                    return true;
+                } else {
+                    //如果任务存在 还需要判断cache表数据是否为重跑后插入生成的
+                    boolean checkCanSubmit = true;
+                    if (null != jobClient.getSubmitCacheTime()) {
+                        long insertDbCacheTime = engineJobCache.getGmtCreate().getTime();
+                        checkCanSubmit = insertDbCacheTime <= jobClient.getSubmitCacheTime();
+
+                    }
+                    if (checkCanSubmit) {
+                        engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.PRIORITY.getStage(), localAddress, jobClient.getPriority(), null);
+                        jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
+                        return false;
+                    } else {
+                        //插入cache表的时间 比 jobClient 第一次提交时间晚 认为任务重新提交过 当前延时队列的jobClient 抛弃 不做任何处理
+                        logger.info("jobId:{} checkIsFinished is true checkCanSubmit is false jobClient cacheSubmitTime {} cacheDB SubmitTime {}, job is Finished.",
+                                jobClient.getTaskId(), jobClient.getSubmitCacheTime(), engineJobCache.getGmtCreate().getTime());
+                        return true;
+                    }
+
+                }
+            }
+        } finally {
+            //重置状态
+            jobClient.setQueueSourceType(EQueueSourceType.NORMAL.getCode());
+            if (null != engineJobCache && null == jobClient.getSubmitCacheTime()) {
+                logger.info("jobId:{} set submitCacheTime is {},", jobClient.getTaskId(), engineJobCache.getGmtCreate().getTime());
+                jobClient.setSubmitCacheTime(engineJobCache.getGmtCreate().getTime());
+            }
         }
         return false;
     }
@@ -246,13 +278,15 @@ public class JobSubmitDealer implements Runnable {
         JobResult jobResult = null;
         try {
 
-            // 判断资源
+            // 判断资源workerOperator
             JudgeResult judgeResult = workerOperator.judgeSlots(jobClient);
             if (JudgeResult.JudgeType.OK == judgeResult.getResult()) {
                 logger.info("jobId:{} engineType:{} submit jobClient:{} to engine start.", jobClient.getTaskId(), jobClient.getEngineType(), jobClient);
 
                 jobClient.doStatusCallBack(RdosTaskStatus.COMPUTING.getStatus());
 
+                // 保存提交用户用户名
+                saveSubmitUserName(jobClient);
                 // 提交任务
                 jobResult = workerOperator.submitJob(jobClient);
 
@@ -278,6 +312,29 @@ public class JobSubmitDealer implements Runnable {
             handlerFailedWithRetry(jobClient, false, e);
         } catch (Throwable e) {
             handlerFailedWithRetry(jobClient, true, e);
+        }
+    }
+
+    /**
+     * 报存提交的时候用户名
+     * @param jobClient
+     */
+    private void saveSubmitUserName(JobClient jobClient) {
+        try {
+            JSONObject pluginInfo = JSONObject.parseObject(jobClient.getPluginInfo());
+            if (null == pluginInfo || pluginInfo.isEmpty()) {
+                return;
+            }
+            String ldapUserName = pluginInfo.getString(ConfigConstant.LDAP_USER_NAME);
+            if (StringUtils.isNotBlank(ldapUserName)) {
+                logger.info("update jobId {} ldap userName {}", jobClient.getTaskId(), ldapUserName);
+                ScheduleJob updateJob = new ScheduleJob();
+                updateJob.setJobId(jobClient.getTaskId());
+                updateJob.setSubmitUserName(ldapUserName);
+                scheduleJobDao.update(updateJob);
+            }
+        } catch (Exception e) {
+            logger.info("update jobId {} ldap userName error", jobClient.getTaskId(), e);
         }
     }
 

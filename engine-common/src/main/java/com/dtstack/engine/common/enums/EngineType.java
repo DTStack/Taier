@@ -1,44 +1,30 @@
 package com.dtstack.engine.common.enums;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
- * Reason:
- * Date: 2017/2/20
  * Company: www.dtstack.com
- *
- * @author xuchao
+ * @author toutian
  */
 
 public enum EngineType {
-    Flink('0'),
-    Spark('1'),
-    Datax('2'),
-    Learning('3'),
-    DtScript('4'),
-    Mysql('5'),
-    Oracle('6'),
-    Sqlserver('7'),
-    Maxcompute('8'),
-    Hadoop('9'),
-    Hive('a'),
-    PostgreSQL('b'),
-    Kylin('c'),
-    Impala('d'),
-    TiDB('e'),
-    GreenPlum('f'),
-    Dummy('g'),
-    Presto('h');
-    private char val;
-
-    EngineType(char val) {
-        this.val = val;
-    }
-
-    public char getVal() {
-        return val;
-    }
+    Flink,
+    Spark,
+    Datax,
+    Learning,
+    DtScript,
+    Mysql,
+    Oracle,
+    Sqlserver,
+    Maxcompute,
+    Hadoop,
+    Hive,
+    PostgreSQL,
+    Kylin,
+    Impala,
+    TiDB,
+    GreenPlum,
+    Dummy,
+    Presto,
+    KingBase;
 
     public static EngineType getEngineType(String type) {
 
@@ -79,18 +65,11 @@ public enum EngineType {
                 return EngineType.Dummy;
             case "presto":
                 return EngineType.Presto;
+            case "kingbase":
+                return EngineType.KingBase;
             default:
                 throw new UnsupportedOperationException("unsupported operation exception");
         }
-    }
-
-    public static EngineType getEngineType(char val) {
-        for (EngineType type : EngineType.values()) {
-            if (type.val == val) {
-                return type;
-            }
-        }
-        throw new UnsupportedOperationException("unsupported operation exception");
     }
 
     public static boolean isFlink(String engineType) {
@@ -100,63 +79,6 @@ public enum EngineType {
         }
 
         return false;
-    }
-
-    public static boolean isSpark(String engineType) {
-        engineType = engineType.toLowerCase();
-        if (engineType.startsWith("spark")) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public static boolean isHadoop(String engineType) {
-        engineType = engineType.toLowerCase();
-        if (engineType.startsWith("hadoop")) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public static boolean isMysql(String engineType) {
-        engineType = engineType.toLowerCase();
-        if (engineType.startsWith("mysql")) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public static boolean isLearning(String engineType) {
-        engineType = engineType.toLowerCase();
-        if (engineType.startsWith("learning")) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public static boolean isDtScript(String engineType) {
-        engineType = engineType.toLowerCase();
-        if (engineType.startsWith("dtscript")) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private final static Pattern PATTERN = Pattern.compile("([a-zA-Z]+).*");
-
-    public static String getEngineTypeWithoutVersion(String engineType) {
-
-        Matcher matcher = PATTERN.matcher(engineType);
-        if (!matcher.find()) {
-            return engineType;
-        }
-
-        return matcher.group(1);
     }
 
 }

@@ -60,6 +60,7 @@ perjob:
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
     yarn.application-attempts: 0
+    yarn.application-attempt-failures-validity-interval: 3600000
     high-availability: ZOOKEEPER
 
 session:
@@ -123,9 +124,10 @@ session:
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
     yarn.application-attempts: 0
+    yarn.application-attempt-failures-validity-interval: 3600000
     high-availability: ZOOKEEPER
 
-    checkSubmitJobGraphInterval: 0
+    checkSubmitJobGraphInterval: 30
 
 standalone:
   dependencyKey: deploymode

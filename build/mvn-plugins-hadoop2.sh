@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-echo 'DAGSchedulex Building...'
+echo 'Dependency Hadoop-2.7.3&Yarn Building...'
 
 hadoop2Version=$1
 if [ -z $hadoop2Version ] ; then
@@ -57,5 +57,6 @@ engine-worker/engine-plugins/rdbs/impala,\
 engine-worker/engine-plugins/rdbs/tidb,\
 engine-worker/engine-plugins/rdbs/greenplum,\
 engine-worker/engine-plugins/rdbs/presto,\
+engine-worker/engine-plugins/rdbs/kingbase,\
 engine-entrance \
 -am

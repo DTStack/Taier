@@ -133,9 +133,9 @@ public abstract class AbstractRdbsClient extends AbstractClient {
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
             Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
-            if(Objects.isNull(connFactory)){
+            if(null == connFactory){
                 synchronized (AbstractRdbsClient.class){
-                    if(Objects.isNull(connFactory)){
+                    if(null == connFactory){
                         connFactory = getConnFactory();
                     }
                 }
@@ -186,7 +186,7 @@ public abstract class AbstractRdbsClient extends AbstractClient {
                     List<Object> objects = Lists.newArrayList();
 
                     for (int i = 1; i <= columns; ++i) {
-                        if (i == timeStamp && Objects.nonNull(dateFormat)) {
+                        if (i == timeStamp && null != dateFormat) {
                             objects.add(dateFormat.format(res.getObject(i)));
                         } else {
                             objects.add(res.getObject(i));

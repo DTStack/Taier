@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ import java.util.function.Consumer;
  * author: toutian
  * create: 2018/1/18
  */
+@Component
 public class DtUicUserConnect {
 
     private static Logger LOGGER = LoggerFactory.getLogger(DtUicUserConnect.class);
@@ -47,7 +49,7 @@ public class DtUicUserConnect {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    public static void getInfo(String token, String url, Consumer<DtUicUser> resultHandler) {
+    public void getInfo(String token, String url, Consumer<DtUicUser> resultHandler) {
         try {
             String result = PoolHttpClient.get(String.format(LONGIN_TEMPLATE, url, token),null);
             if (StringUtils.isBlank(result)) {
@@ -80,7 +82,7 @@ public class DtUicUserConnect {
 
     }
 
-    public static boolean removeUicInfo(String token, String url) {
+    public boolean removeUicInfo(String token, String url) {
         Map<String, Object> cookies = Maps.newHashMap();
         cookies.put("dt_token", token);
         String result = PoolHttpClient.post(String.format(LONGIN_OUT_TEMPLATE, url), null, cookies);
@@ -99,7 +101,7 @@ public class DtUicUserConnect {
         return false;
     }
 
-    public static List<UserTenant> getUserTenants(String url, String token, String tenantName) {
+    public List<UserTenant> getUserTenants(String url, String token, String tenantName) {
         Map<String, Object> cookies = Maps.newHashMap();
         cookies.put("dt_token", token);
         List<UserTenant> userTenantList = Lists.newArrayList();
@@ -130,7 +132,7 @@ public class DtUicUserConnect {
      * @param tenantId
      * @return
      */
-    public static Map<String, Object> getUicTenantInfo(String url, Long tenantId,String token) {
+    public Map<String, Object> getUicTenantInfo(String url, Long tenantId,String token) {
         Map<String, Object> cookies = Maps.newHashMap();
         cookies.put("dt_token", token);
         try {
@@ -149,7 +151,7 @@ public class DtUicUserConnect {
         return Maps.newHashMap();
     }
 
-    public static List<Map<String, Object>> getAllUicUsers(String url, String productCode, Long tenantId, String dtToken) {
+    public List<Map<String, Object>> getAllUicUsers(String url, String productCode, Long tenantId, String dtToken) {
         try {
             String result = PoolHttpClient.get(String.format(GET_ALL_UIC_USER_TEMPLATE, new Object[]{url, tenantId, productCode, dtToken}), null);
             if (StringUtils.isBlank(result)) {
@@ -167,7 +169,7 @@ public class DtUicUserConnect {
     }
 
 
-    public static UserTenant getTenantByTenantId(String url,Long dtUicTenantId,String token){
+    public UserTenant getTenantByTenantId(String url,Long dtUicTenantId,String token){
         Map<String, Object> cookies = Maps.newHashMap();
         cookies.put("dt_token", token);
 
@@ -192,7 +194,7 @@ public class DtUicUserConnect {
         return null;
     }
 
-    public static void registerEvent(String uicUrl, PlatformEventType eventType, String callbackUrl, boolean active) {
+    public void registerEvent(String uicUrl, PlatformEventType eventType, String callbackUrl, boolean active) {
         Map<String, Object> dataMap = new HashMap();
         dataMap.put("eventCode", eventType.name());
         dataMap.put("productCode", "RDOS");
@@ -206,5 +208,22 @@ public class DtUicUserConnect {
             LOGGER.error("registerEvent {}",eventType.getComment(), e);
         }
 
+    }
+
+    public static String getLdapUserName(Long dtUicUserId,String dtToken,String uicUrl){
+        try {
+            String data = PoolHttpClient.get(String.format("%s/api/user/get-info-by-id?userId=%s&dtToken=%s", uicUrl,dtUicUserId,dtToken),(Map) null);
+            JSONObject jsonObject = JSONObject.parseObject(data);
+            JSONObject dataObj = null;
+            if(null != jsonObject){
+                dataObj = jsonObject.getJSONObject("data");
+            }
+            if(null != dataObj && dataObj.getBooleanValue("ldapUser")){
+                return dataObj.getString("userName");
+            }
+        } catch (Exception e) {
+            LOGGER.error("getLdapUserName userId {} ",dtUicUserId,e);
+        }
+        return "";
     }
 }

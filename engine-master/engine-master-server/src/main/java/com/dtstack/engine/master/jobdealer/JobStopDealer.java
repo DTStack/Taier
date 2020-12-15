@@ -147,13 +147,6 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         return addStopJobs(jobs, ForceCancelFlag.NO.getFlag());
     }
 
-    private boolean checkJobCanStop(Integer status) {
-        if (status == null) {
-            return true;
-        }
-
-        return RdosTaskStatus.getCanStopStatus().contains(status);
-    }
 
 
     @Override
@@ -173,6 +166,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
     @Override
     public void destroy() throws Exception {
+        delayStopProcessor.close();
         delayStopProcessorService.shutdownNow();
         scheduledService.shutdownNow();
         asyncDealStopJobService.shutdownNow();
@@ -245,10 +239,12 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
     }
 
     private class DelayStopProcessor implements Runnable {
+        private Boolean open = Boolean.TRUE;
+
         @Override
         public void run() {
             logger.info("DelayStopProcessor thread is start...");
-            while (true) {
+            while (open) {
                 try {
                     StoppedJob<JobElement> stoppedJob = stopJobQueue.take();
                     asyncDealStopJobService.submit(() -> asyncDealStopJob(stoppedJob));
@@ -257,6 +253,11 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 }
             }
         }
+
+        public void close(){
+            open = Boolean.FALSE;
+        }
+
     }
 
     private void asyncDealStopJob(StoppedJob<JobElement> stoppedJob) {
@@ -374,10 +375,6 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         public long stopJobId;
         public boolean isForceCancel;
 
-        public JobElement(String jobId, long stopJobId) {
-            this.jobId = jobId;
-            this.stopJobId = stopJobId;
-        }
 
         public JobElement(String jobId, long stopJobId, boolean isForceCancel) {
             this.jobId = jobId;

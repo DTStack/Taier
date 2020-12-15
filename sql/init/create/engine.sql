@@ -41,7 +41,7 @@ CREATE TABLE `schedule_engine_job_cache` (
   `job_priority` BIGINT(20) DEFAULT NULL COMMENT '任务优先级',
   `job_resource` VARCHAR(256) DEFAULT NULL COMMENT 'job的计算引擎资源类型',
   `is_failover` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0：不是，1：由故障恢复来的任务',
-  `wait_reason` VARCHAR(256) DEFAULT NULL COMMENT '任务等待原因',
+  `wait_reason` text DEFAULT NULL COMMENT '任务等待原因',
   PRIMARY KEY (`id`),
   unique KEY `index_job_id` (`job_id`(128))
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
@@ -216,6 +216,7 @@ CREATE TABLE `console_kerberos` (
     `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
     `krb_name` varchar(26) DEFAULT NULL COMMENT 'krb5_conf名称',
     `component_type` int(11) DEFAULT NULL COMMENT '组件类型',
+    `principals` TEXT COMMENT 'keytab用户文件列表',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
@@ -376,6 +377,7 @@ CREATE TABLE `schedule_job`
   `compute_type`    tinyint(1)   NOT NULL DEFAULT '1' COMMENT '计算类型STREAM(0), BATCH(1)',
   `phase_status`    tinyint(1) NOT NULL DEFAULT '0' COMMENT '运行状态: CREATE(0):创建,JOIN_THE_TEAM(1):入队,LEAVE_THE_TEAM(2):出队',
   `job_graph`       TEXT DEFAULT NULL COMMENT 'jobGraph构建json',
+  `submit_user_name` VARCHAR(20) DEFAULT NULL COMMENT '任务提交用户名',
   PRIMARY KEY (`id`),
   KEY `index_task_id` (`task_id`),
   UNIQUE KEY `index_job_id` (`job_id`(128),`is_deleted`),
@@ -457,8 +459,22 @@ CREATE TABLE `console_tenant_resource` (
   `is_deleted` int(10) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_uic_tenantid_tasktype` (`dt_uic_tenant_id`,`task_type`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8 COMMENT='租户资源限制表'
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8 COMMENT='租户资源限制表';
 
+CREATE TABLE `schedule_task_commit` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_id` int(11) NOT NULL COMMENT '任务id',
+  `app_type` int(11) NOT NULL DEFAULT '0' COMMENT 'RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8)',
+  `commit_id` varchar(128) NOT NULL COMMENT '提交id',
+  `task_json` text COMMENT '额外参数',
+  `extra_info` mediumtext COMMENT '存储task运行时所需的额外信息',
+  `is_commit` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否提交：0未提交 1已提交',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '过期策略：0永不过期 1过期取消',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_job_id` (`commit_id`(128),`is_deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 

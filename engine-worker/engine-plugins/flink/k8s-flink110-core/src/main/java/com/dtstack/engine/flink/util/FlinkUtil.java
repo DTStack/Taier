@@ -6,7 +6,7 @@ import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.enums.FlinkMode;
-import com.dtstack.engine.worker.enums.ClassLoaderType;
+import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.dtstack.schedule.common.util.ZipUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.program.PackagedProgram;
@@ -150,7 +150,7 @@ public class FlinkUtil {
         return FlinkMode.mode(modeStr);
     }
 
-    public static void downloadK8sConfig(Properties prop, FlinkConfig flinkConfig, FilesystemManager filesystemManager) {
+    public static void downloadK8sConfig(Properties prop, FlinkConfig flinkConfig, FilesystemManager filesystemManager) throws IOException {
         String tmpK8sConfig = String.format("%s/%s", USER_DIR, tmpK8sConfigDir);
 
         String remoteDir = flinkConfig.getRemoteDir();

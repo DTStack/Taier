@@ -149,7 +149,7 @@ public class DtHdfsClient extends AbstractClient {
         //测试hdfs联通性
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
-            if (Objects.isNull(testConnectConf)) {
+            if (null == testConnectConf) {
                 componentTestResult.setResult(false);
                 componentTestResult.setErrorMsg("配置信息不能你为空");
                 return componentTestResult;
@@ -159,12 +159,14 @@ public class DtHdfsClient extends AbstractClient {
                 try {
                     Configuration configuration = this.initYarnConf(testConnectConf.getHadoopConf());
                     fs = FileSystem.get(configuration);
+                    Path path = new Path(configuration.get("yarn.nodemanager.remote-app-log-dir"));
+                    fs.exists(path);
                 } catch (Exception e) {
                     componentTestResult.setResult(false);
                     componentTestResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
                     return componentTestResult;
                 } finally {
-                    if (Objects.nonNull(fs)) {
+                    if (null != fs) {
                         try {
                             fs.close();
                         } catch (IOException e) {

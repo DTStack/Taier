@@ -15,16 +15,12 @@ public class LogStoreFactory {
     public static AbstractLogStore getLogStore() {
         return getLogStore(null);
     }
-    public static AbstractLogStore getLogStore(Map<String, String> dbConfig) {
+    public static synchronized AbstractLogStore getLogStore(Map<String, String> dbConfig) {
         if (logStore == null) {
-            synchronized (LogStoreFactory.class) {
-                if (logStore == null) {
-                    if (dbConfig == null) {
-                        return null;
-                    }
-                    logStore = MysqlLogStore.getInstance(dbConfig);
-                }
+            if (dbConfig == null) {
+                return null;
             }
+            logStore = MysqlLogStore.getInstance(dbConfig);
         }
         return logStore;
     }
