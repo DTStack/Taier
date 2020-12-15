@@ -264,7 +264,12 @@ const AlarmRule: React.FC = (props: any) => {
                             <Upload {...uploadConfigProp}>
                                 <Button style={{ width: 164 }} icon="upload">点击上传</Button>
                             </Upload>
-                            <span className="config-desc">仅支持jar格式，<a>查看配置文件说明</a></span>
+                            <span className="config-desc">
+                                仅支持jar格式，
+                                <a href={`/api/console/service/alert/downloadJar?alertGateType=${alertGateType}`}>
+                                查看配置文件说明
+                                </a>
+                            </span>
                         </div>
                         {getFieldValue('file') && <span className="config-file">
                             <Icon type="paper-clip" />

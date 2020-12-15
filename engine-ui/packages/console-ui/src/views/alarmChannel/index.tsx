@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button, Form, Pagination,
     Popconfirm, message, Modal } from 'antd';
 import Api from '../../api/console';
-import { ALARM_TYPE_TEXT } from '../../consts';
+import { ALARM_TYPE_TEXT, ALARM_TYPE } from '../../consts';
 interface PaginationTypes {
     currentPage: number;
     pageSize: number;
@@ -69,7 +69,7 @@ const AlarmChannel: React.FC = (props: any) => {
                 const showText = `${ALARM_TYPE_TEXT[record.alertGateType].slice(0, 2)}默认通道`;
                 return <span>
                     {alertGateName}
-                    {record.isDefault && <Button className="alarm-btn" disabled>{showText}</Button>}
+                    {record.isDefault ? <Button className="alarm-btn" disabled>{showText}</Button> : null}
                 </span>
             }
         }, {
@@ -94,7 +94,7 @@ const AlarmChannel: React.FC = (props: any) => {
                 const { alertId } = record
                 const showText = `${ALARM_TYPE_TEXT[record.alertGateType].slice(0, 2)}默认通道`;
                 return <span>
-                    {!record.isDefault && <>
+                    {!record.isDefault && record.alertGateType !== ALARM_TYPE.CUSTOM && <>
                         <a onClick={() => { setDefaultChannel(record) }}>{`设为${showText}`}</a>
                         <span className="ant-divider" ></span>
                     </>}
