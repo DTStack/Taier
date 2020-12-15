@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pojo.ParamAction;
@@ -34,6 +35,7 @@ import com.dtstack.schedule.common.enums.ForceCancelFlag;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +94,8 @@ public class ActionService {
 
     @Autowired
     private MultiEngineFactory multiEngineFactory;
+
+    private final ObjectMapper objMapper = new ObjectMapper();
 
 
     private static int length = 8;
@@ -161,12 +165,8 @@ public class ActionService {
             return this.start(paramActionExt);
         } catch (Exception e) {
             logger.error("", e);
-            if (e instanceof RdosDefineException) {
-                throw (RdosDefineException)e;
-            }
+            return Boolean.FALSE;
         }
-
-        return Boolean.FALSE;
     }
 
     public ParamActionExt paramActionExt(ScheduleTaskShade batchTask, String jobId, String flowJobId) throws Exception {
@@ -187,6 +187,13 @@ public class ActionService {
     private ScheduleJob buildScheduleJob(ScheduleTaskShade batchTask, String jobId, String flowJobId) throws IOException, ParseException {
         String cycTime = jobRichOperator.getCycTime(0);
         String scheduleConf = batchTask.getScheduleConf();
+        // 立即执行不需要重试
+        if (StringUtils.isNotBlank(scheduleConf)) {
+            Map jsonMap = objMapper.readValue(scheduleConf, Map.class);
+            jsonMap.put("isFailRetry",false);
+            scheduleConf = JSON.toJSONString(jsonMap);
+            batchTask.setScheduleConf(scheduleConf);
+        }
         ScheduleCron scheduleCron = ScheduleFactory.parseFromJson(scheduleConf);
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setJobId(jobId);
@@ -219,6 +226,10 @@ public class ActionService {
     }
 
     public ParamActionExt parseParamActionExt(ScheduleJob scheduleJob, ScheduleTaskShade batchTask, JSONObject info) throws Exception {
+        if (info == null) {
+            throw new RdosDefineException("extraInfo can't null or empty string");
+        }
+
         Integer multiEngineType = info.getInteger("multiEngineType");
         String ldapUserName = info.getString("ldapUserName");
         if (org.apache.commons.lang.StringUtils.isNotBlank(ldapUserName)) {
@@ -228,14 +239,14 @@ public class ActionService {
         }
         Map<String, Object> actionParam = PublicUtil.strToMap(info.toJSONString());
         JobStartTriggerBase jobTriggerService = multiEngineFactory.getJobTriggerService(multiEngineType);
-        jobTriggerService.readyForTaskStartTrigger(actionParam,batchTask,scheduleJob);
+        jobTriggerService.readyForTaskStartTrigger(actionParam, batchTask, scheduleJob);
         actionParam.put("name", scheduleJob.getJobName());
         actionParam.put("taskId", scheduleJob.getJobId());
         actionParam.put("taskType", EScheduleJobType.getEngineJobType(batchTask.getTaskType()));
         actionParam.put("appType", batchTask.getAppType());
         Object tenantId = actionParam.get("tenantId");
-        if(Objects.isNull(tenantId)){
-            actionParam.put("tenantId",batchTask.getDtuicTenantId());
+        if (Objects.isNull(tenantId)) {
+            actionParam.put("tenantId", batchTask.getDtuicTenantId());
         }
         // 出错重试配置,兼容之前的任务，没有这个参数则默认重试
         JSONObject scheduleConf = JSONObject.parseObject(batchTask.getScheduleConf());
