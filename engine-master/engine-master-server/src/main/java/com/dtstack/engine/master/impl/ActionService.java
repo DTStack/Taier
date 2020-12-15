@@ -230,6 +230,10 @@ public class ActionService {
     }
 
     public ParamActionExt parseParamActionExt(ScheduleJob scheduleJob, ScheduleTaskShade batchTask, JSONObject info) throws Exception {
+        if (info == null) {
+            throw new RdosDefineException("extraInfo can't null or empty string");
+        }
+
         Integer multiEngineType = info.getInteger("multiEngineType");
         String ldapUserName = info.getString("ldapUserName");
         if (org.apache.commons.lang.StringUtils.isNotBlank(ldapUserName)) {
@@ -239,14 +243,14 @@ public class ActionService {
         }
         Map<String, Object> actionParam = PublicUtil.strToMap(info.toJSONString());
         JobStartTriggerBase jobTriggerService = multiEngineFactory.getJobTriggerService(multiEngineType);
-        jobTriggerService.readyForTaskStartTrigger(actionParam,batchTask,scheduleJob);
+        jobTriggerService.readyForTaskStartTrigger(actionParam, batchTask, scheduleJob);
         actionParam.put("name", scheduleJob.getJobName());
         actionParam.put("taskId", scheduleJob.getJobId());
         actionParam.put("taskType", EScheduleJobType.getEngineJobType(batchTask.getTaskType()));
         actionParam.put("appType", batchTask.getAppType());
         Object tenantId = actionParam.get("tenantId");
-        if(Objects.isNull(tenantId)){
-            actionParam.put("tenantId",batchTask.getDtuicTenantId());
+        if (Objects.isNull(tenantId)) {
+            actionParam.put("tenantId", batchTask.getDtuicTenantId());
         }
         // 出错重试配置,兼容之前的任务，没有这个参数则默认重试
         JSONObject scheduleConf = JSONObject.parseObject(batchTask.getScheduleConf());
@@ -261,7 +265,7 @@ public class ActionService {
         }
         if (EJobType.SYNC.getType() == scheduleJob.getTaskType()) {
             //数据同步需要解析是perjob 还是session
-            EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams(batchTask.getTaskParams(),batchTask.getComputeType());
+            EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams(batchTask.getTaskParams(), batchTask.getComputeType());
             actionParam.put("deployMode", eDeployMode.getType());
         }
         return PublicUtil.mapToObject(actionParam, ParamActionExt.class);
