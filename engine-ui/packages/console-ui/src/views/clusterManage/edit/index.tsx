@@ -797,7 +797,6 @@ class EditCluster extends React.Component<any, any> {
                 <div className="c-editCluster__header">
                     <Breadcrumb>
                         <Breadcrumb.Item onClick={this.turnClusteManage}>多集群管理</Breadcrumb.Item>
-                        <Breadcrumb.Item>{dealData.getActionType(mode)}</Breadcrumb.Item>
                         <Breadcrumb.Item>{clusterName}</Breadcrumb.Item>
                     </Breadcrumb>
                     {isView
