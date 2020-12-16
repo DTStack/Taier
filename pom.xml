@@ -14,6 +14,7 @@
         <hadoop3.version>3.0.0</hadoop3.version>
         <spring.version>5.2.3.RELEASE</spring.version>
         <fastjson>2.9.6</fastjson>
+        <common.version>4.1.1</common.version>
     </properties>
 
     <modules>
@@ -46,6 +47,11 @@
                 </exclusions>
             </dependency>
 
+            <dependency>
+                <groupId>com.dtstack.engine</groupId>
+                <artifactId>engine-common</artifactId>
+                <version>${common.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>

@@ -30,6 +30,7 @@ import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
 import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.ForceCancelFlag;
+import com.dtstack.schedule.common.enums.AppType;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -317,6 +318,9 @@ public class ActionService {
                     scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
                     scheduleJob.setAppType(paramActionExt.getAppType());
                     scheduleJob.setDtuicTenantId(paramActionExt.getDtuicTenantId());
+                    if (AppType.STREAM.getType() == paramActionExt.getAppType()) {
+                        scheduleJob.setRetryNum(0);
+                    }
                     scheduleJobDao.update(scheduleJob);
                     logger.info("jobId:{} update job status:{}.", scheduleJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
                 }
@@ -481,11 +485,12 @@ public class ActionService {
         if (StringUtils.isBlank(jobId) || computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
-        ActionRetryLogVO vo = new ActionRetryLogVO();
+
         List<ActionRetryLogVO> logs = new ArrayList<>(5);
         List<EngineJobRetry> batchJobRetrys = engineJobRetryDao.listJobRetryByJobId(jobId);
         if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
             batchJobRetrys.forEach(jobRetry->{
+                ActionRetryLogVO vo = new ActionRetryLogVO();
                 vo.setRetryNum(jobRetry.getRetryNum());
                 vo.setLogInfo(jobRetry.getLogInfo());
                 vo.setRetryTaskParams(jobRetry.getRetryTaskParams());
