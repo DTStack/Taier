@@ -668,7 +668,7 @@ class EditCluster extends React.Component<any, any> {
     }
 
     handleComplete = () => {
-        const { validateFieldsAndScroll, setFieldsValue } = this.props.form;
+        const { validateFieldsAndScroll } = this.props.form;
         const showConfirm = (arr: any[]) => {
             const compsName = arr.map((code: number) => `"${COMPONEMT_CONFIG_NAME_ENUM[code]}"`)
             confirm({
@@ -680,16 +680,17 @@ class EditCluster extends React.Component<any, any> {
                 onOk: () => {
                 },
                 onCancel: () => {
-                    const { componentConfig } = this.state
-                    arr.map((code: number) => {
-                        const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[code]] ?? { configInfo: {} }
-                        // 表单格式的对应值
-                        const formConfigInfo = dealData.handleBatchParams(config.configInfo)
-                        setFieldsValue({
-                            [COMPONEMT_CONFIG_KEY_ENUM[code]]: { configInfo: formConfigInfo }
-                        })
-                    })
-                    this.turnEditComp('view')
+                    // const { componentConfig } = this.state
+                    // arr.map((code: number) => {
+                    //     const config = componentConfig[COMPONEMT_CONFIG_KEY_ENUM[code]] ?? { configInfo: {} }
+                    //     // 表单格式的对应值
+                    //     const formConfigInfo = dealData.handleBatchParams(config.configInfo)
+                    //     setFieldsValue({
+                    //         [COMPONEMT_CONFIG_KEY_ENUM[code]]: { configInfo: formConfigInfo }
+                    //     })
+                    // })
+                    // this.turnEditComp('view')
+                    this.turnClusteManage()
                 }
             })
         }
@@ -698,7 +699,8 @@ class EditCluster extends React.Component<any, any> {
             const { cloneComponentConfig } = this.state;
             let modifyCompsArr = dealData.getMoadifyComps(values, cloneComponentConfig);
             if (!modifyCompsArr.length) {
-                this.turnEditComp('view')
+                // this.turnEditComp('view')
+                this.turnClusteManage()
                 return
             }
             showConfirm(modifyCompsArr)

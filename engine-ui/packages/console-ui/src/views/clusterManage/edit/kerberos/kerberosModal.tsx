@@ -57,6 +57,7 @@ export default class KerberosModal extends React.Component<IProps, IState> {
             visible={visible}
             onCancel={() => onCancel()}
             onOk={this.onOK}
+            okText="保存"
         >
             <div style={editorStyle}>
                 <Editor
