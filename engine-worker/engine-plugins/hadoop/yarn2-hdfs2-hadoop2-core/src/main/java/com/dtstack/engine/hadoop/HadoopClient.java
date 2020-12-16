@@ -86,8 +86,6 @@ public class HadoopClient extends AbstractClient {
         HadoopConfTool.setFsHdfsImplDisableCache(conf);
 
         conf.set("mapreduce.framework.name", "yarn");
-        conf.set("yarn.scheduler.maximum-allocation-mb", "1024");
-        conf.set("yarn.nodemanager.resource.memory-mb", "1024");
         conf.set("mapreduce.map.memory.mb","1024");
         conf.set("mapreduce.reduce.memory.mb","1024");
         conf.setBoolean("mapreduce.app-submission.cross-platform", true);
@@ -209,7 +207,7 @@ public class HadoopClient extends AbstractClient {
             setHadoopUserName(config);
             JobParam jobParam = new JobParam(jobClient);
             Map<String, Object> plugininfo = PublicUtil.jsonStrToObject(jobClient.getPluginInfo(),Map.class);
-            Configuration jobConf = new Configuration(conf);
+            Configuration jobConf = fillJobConfig(jobClient, conf);
             if(plugininfo.containsKey(QUEUE)){
                 jobConf.set(MRJobConfig.QUEUE_NAME, plugininfo.get(QUEUE).toString());
             }
@@ -223,6 +221,18 @@ public class HadoopClient extends AbstractClient {
             return JobResult.createErrorResult(ex);
         }
 
+    }
+
+    private Configuration fillJobConfig(JobClient jobClient, Configuration conf) {
+        Configuration jobConf = new Configuration(conf);
+        Properties confProps = jobClient.getConfProperties();
+        if (confProps != null) {
+            confProps.stringPropertyNames()
+                    .stream()
+                    .filter(key -> key.toString().contains("."))
+                    .forEach(key -> jobConf.set(key.toString(), confProps.getProperty(key)));
+        }
+        return jobConf;
     }
 
     private void downloadHdfsFile(String from, String to) throws IOException {
