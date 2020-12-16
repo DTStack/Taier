@@ -170,6 +170,15 @@ public class EnvironmentContext {
         return environment.getProperty("dtuic.url");
     }
 
+
+    public String getUicToken() {
+        return environment.getProperty("dtuic.token");
+    }
+
+    public boolean isOpenLdapCache(){
+        return Boolean.parseBoolean(environment.getProperty("open.ldap.cache", "true"));
+    }
+
     /**
      *  ===es====
      */
@@ -421,7 +430,7 @@ public class EnvironmentContext {
     public Integer getRetryInterval() {
         return Integer.valueOf(environment.getProperty("retry.interval", "30000"));
     }
-    
+
     public long getJobStatusCheckInterVal() {
         return Long.parseLong(environment.getProperty("job.status.check.interval", "3500"));
     }

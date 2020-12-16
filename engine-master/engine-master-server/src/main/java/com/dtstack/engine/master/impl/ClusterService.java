@@ -20,12 +20,14 @@ import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.*;
 import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.Sort;
-import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
 import com.dtstack.schedule.common.util.Base64Util;
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -42,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.dtstack.engine.common.constrant.ConfigConstant.*;
@@ -61,6 +64,7 @@ public class ClusterService implements InitializingBean {
     private final static String TENANT_ID = "tenantId";
     private static final String DEPLOY_MODEL = "deployMode";
     private static final String NAMESPACE = "namespace";
+    private static final String MAILBOX_CUTTING = "@";
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -709,11 +713,14 @@ public class ClusterService implements InitializingBean {
                 String typeName = componentService.convertComponentTypeToClient(clusterVO.getClusterName(),
                         EComponentType.HIVE_SERVER.getTypeCode(), hiveServer.getHadoopVersion());
                 pluginInfo.put("typeName",typeName);
-            } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK==type.getComponentType()) {
+            } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK == type.getComponentType()) {
                 if (clusterVO.getDtUicUserId() != null && clusterVO.getDtUicTenantId() != null) {
-                    AccountVo accountVo = accountService.getAccountVo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId(), AccountType.LDAP.getVal());
-                    String ldapUserName = StringUtils.isBlank(accountVo.getName()) ? "" : accountVo.getName();
-                    pluginInfo.put("dtProxyUserName", ldapUserName);
+                    String ldapUserName = this.getLdapUserName(clusterVO.getDtUicUserId());
+                    LOGGER.info("dtUicUserId:{},dtUicTenantId:{},ldapUserName:{}",clusterVO.getDtUicUserId(),clusterVO.getDtUicTenantId() ,ldapUserName);
+                    if (StringUtils.isNotBlank(ldapUserName) && ldapUserName.contains(MAILBOX_CUTTING)) {
+                        ldapUserName = ldapUserName.substring(0, ldapUserName.indexOf(MAILBOX_CUTTING));
+                    }
+                    pluginInfo.put(LDAP_USER_NAME, ldapUserName);
                 }
             }
             pluginInfo.put(ConfigConstant.MD5_SUM_KEY, getZipFileMD5(clusterConfigJson));
@@ -721,6 +728,29 @@ public class ClusterService implements InitializingBean {
         }
 
         return pluginInfo;
+    }
+
+
+
+    Cache<Long, String> ldapCache = CacheBuilder
+            .newBuilder()
+            .expireAfterWrite(1, TimeUnit.MINUTES)
+            .build();
+
+    private String getLdapUserName(Long dtUicUserId) {
+        if (StringUtils.isBlank(environmentContext.getUicToken()) || StringUtils.isBlank(environmentContext.getDtUicUrl())) {
+            return null;
+        }
+        String ldapUserName = null;
+        if (environmentContext.isOpenLdapCache()) {
+            ldapUserName = ldapCache.getIfPresent(dtUicUserId);
+            if (null != ldapUserName) {
+                return ldapUserName;
+            }
+        }
+        ldapUserName = DtUicUserConnect.getLdapUserName(dtUicUserId, environmentContext.getUicToken(), environmentContext.getDtUicUrl());
+        ldapCache.put(dtUicUserId, ldapUserName);
+        return ldapUserName;
     }
 
 
