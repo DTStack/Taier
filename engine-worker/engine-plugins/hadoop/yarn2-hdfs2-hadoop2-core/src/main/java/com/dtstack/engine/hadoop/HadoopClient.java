@@ -263,8 +263,8 @@ public class HadoopClient extends AbstractClient {
         try {
             return KerberosUtils.login(config, () -> resourceInfo.judgeSlots(jobClient), conf);
         } catch (Exception e) {
-            LOG.error("JudgeSlots error:", e);
-            return JudgeResult.notOk("judgeSlots error");
+            LOG.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -424,7 +424,9 @@ public class HadoopClient extends AbstractClient {
                 //测试hdfs联通性
                 return this.checkHdfsConnect(allConfig);
             }
-            return KerberosUtils.login(allConfig, () -> testYarnConnect(testResult, allConfig),conf);
+            return KerberosUtils.login(allConfig,
+                    () -> testYarnConnect(testResult, allConfig),
+                    KerberosUtils.convertMapConfToConfiguration(allConfig.getYarnConf()));
 
         } catch (Exception e) {
             LOG.error("test yarn connect error", e);
@@ -603,6 +605,13 @@ public class HadoopClient extends AbstractClient {
                             totalMem, usedMem, totalCores, usedCores);
 
                     clusterResource.setNodes(clusterNodes);
+                    String webAddress = getYarnWebAddress(yarnClient);
+                    String schedulerUrl = String.format(YARN_SCHEDULER_FORMAT, webAddress);
+                    String schedulerInfoMsg = PoolHttpClient.get(schedulerUrl, null);
+                    JSONObject schedulerInfo = JSONObject.parseObject(schedulerInfoMsg);
+                    if(schedulerInfo.containsKey("scheduler")){
+                        clusterResource.setScheduleInfo(schedulerInfo.getJSONObject("scheduler").getJSONObject("schedulerInfo"));
+                    }
                     clusterResource.setQueues(getQueueResource(yarnClient));
                     clusterResource.setResourceMetrics(metrics);
 

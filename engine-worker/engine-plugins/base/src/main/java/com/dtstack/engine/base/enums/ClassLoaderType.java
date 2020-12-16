@@ -1,4 +1,4 @@
-package com.dtstack.engine.worker.enums;
+package com.dtstack.engine.base.enums;
 
 import com.dtstack.engine.common.enums.EJobType;
 

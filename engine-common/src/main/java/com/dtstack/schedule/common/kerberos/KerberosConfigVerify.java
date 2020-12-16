@@ -2,7 +2,8 @@ package com.dtstack.schedule.common.kerberos;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.SFTPHandler;
+import com.dtstack.engine.common.sftp.SftpConfig;
+import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import com.dtstack.schedule.common.util.ZipUtil;
 import com.jcraft.jsch.ChannelSftp;
@@ -13,9 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,19 +39,6 @@ public class KerberosConfigVerify {
     private static final String XML_SUFFIX = ".xml";
 
     private static final String _HOST = "_HOST";
-
-    /**
-     * 从上传的zip文件中解析kerberos配置
-     *
-     * @param tmpFilePath       zip文件目录
-     * @param localKerberosConf 解压的本地目录
-     * @return
-     * @throws Exception
-     */
-    public static Map<String, Map<String, String>> parseKerberosFromUpload(String tmpFilePath, String localKerberosConf) throws Exception {
-        List<File> unzipFileList = getFilesFromZip(tmpFilePath, localKerberosConf);
-        return parseConfMap(unzipFileList, localKerberosConf);
-    }
 
     public static Map<String, Map<String, String>> parseConfMap(List<File> unzipFileList, String unZipLocation) throws Exception {
         Map<String, File> confFileMap = new HashMap<>();
@@ -132,28 +117,23 @@ public class KerberosConfigVerify {
      * @return
      * @throws SftpException
      */
-    public static void downloadKerberosFromSftp(String sourceKey, String localKerberosConf, Map<String, String> sftpMap) throws SftpException {
+    public static void downloadKerberosFromSftp(String sourceKey, String localKerberosConf, SftpConfig sftpConfig) throws SftpException {
         //需要读取配置文件
         //本地kerberos文件
         String localTimeLock = getLocalTimeLock(localKerberosConf);
-        SFTPHandler handler = null;
+        SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
         try {
-            handler = SFTPHandler.getInstance(sftpMap);
-            String sourceSftpPath = sftpMap.get("path") + SEPARATE + sourceKey;
+            String sourceSftpPath = sftpConfig.getPath() + SEPARATE + sourceKey;
             //sftp服务器kerberos文件
-            String timeLock = getSftpTimeLock(handler, sourceSftpPath, localTimeLock);
+            String timeLock = getSftpTimeLock(sftpFileManage, sourceSftpPath, localTimeLock);
 
             if (localTimeLock == null || timeLock == null || !timeLock.equals(localTimeLock)) {
                 //需要下载替换当时的配置
                 delFile(new File(localKerberosConf));
-                handler.downloadDir(sourceSftpPath, localKerberosConf);
+                sftpFileManage.downloadDir(sourceSftpPath, localKerberosConf);
             }
         } catch (Exception e) {
             throw new RdosDefineException("下载kerberos配置失败");
-        } finally {
-            if(handler != null) {
-                handler.close();
-            }
         }
     }
 
@@ -193,9 +173,11 @@ public class KerberosConfigVerify {
         return finalConfMap;
     }
 
-    private static String getSftpTimeLock(SFTPHandler handler, String sourceSftpPath, String localTimeLock) throws SftpException {
-        Vector vector = handler.listFile(sourceSftpPath);
+    private static String getSftpTimeLock(SftpFileManage sftpFileManage, String sourceSftpPath, String localTimeLock) throws SftpException {
+        // 获得远程sftp下的路径sourceSftpPath下文件列表
+        Vector vector = sftpFileManage.listFile(sourceSftpPath);
         for (Object obj : vector) {
+            // 判断是否有后缀名.lock的文件
             ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) obj;
             if (lsEntry.getFilename().endsWith(LOCK_SUFFIX)) {
                 return lsEntry.getFilename();
@@ -217,57 +199,5 @@ public class KerberosConfigVerify {
             }
         }
         return null;
-    }
-
-    /**
-     * 上传lock临时文件
-     *
-     * @param srcDir
-     * @param dstDir
-     * @param handler
-     * @throws IOException
-     */
-    public static void uploadLockFile(String srcDir, String dstDir, SFTPHandler handler) throws IOException {
-        String filename = System.currentTimeMillis() + LOCK_SUFFIX;
-        String lockFile = srcDir + SEPARATE + filename;
-
-        deleteLockFile(srcDir, dstDir, handler);
-        new File(lockFile).createNewFile();
-
-        handler.upload(dstDir, filename, srcDir, true);
-    }
-
-    private static void deleteLockFile(String srcDir, String dstDir, SFTPHandler handler) {
-        File srcDirFile = new File(srcDir);
-
-        //删除本地lock文件
-        if(srcDirFile.exists() && srcDirFile.isDirectory()) {
-            File[] files = srcDirFile.listFiles();
-            for (File file : files) {
-                if (file.isFile() && file.getName().endsWith(".lock")) {
-                    file.delete();
-                }
-            }
-        }
-
-        //删除ftp中文件夹
-        handler.deleteDir(dstDir);
-    }
-
-    public static Map<String, Object> replaceHost(Map<String, Object> confMap) {
-        String canonicalHostName;
-        try {
-            canonicalHostName = InetAddress.getLocalHost().getCanonicalHostName();
-        } catch (UnknownHostException e) {
-            logger.error("", e);
-            throw new RdosDefineException("本地地址获取失败");
-        }
-        for (String key : confMap.keySet()) {
-            String value = confMap.get(key).toString();
-            if (value.contains(_HOST)) {
-                confMap.replace(key, value.replace(_HOST, canonicalHostName));
-            }
-        }
-        return confMap;
     }
 }

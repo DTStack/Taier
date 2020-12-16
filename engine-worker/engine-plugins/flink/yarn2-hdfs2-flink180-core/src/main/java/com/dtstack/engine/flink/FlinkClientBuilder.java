@@ -1,5 +1,6 @@
 package com.dtstack.engine.flink;
 
+import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -67,7 +68,10 @@ public class FlinkClientBuilder {
         config.setString("akka.tcp.timeout", ConfigConstrant.AKKA_TCP_TIMEOUT);
         // JVM Param
         config.setString(CoreOptions.FLINK_JVM_OPTIONS, ConfigConstrant.JVM_OPTIONS);
-        config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));
+
+        config.setBytes(ConfigConstrant.HADOOP_CONF_BYTES_KEY, HadoopConfTool.serializeHadoopConf(hadoopConf));
+        config.setBytes(ConfigConstrant.YARN_CONF_BYTES_KEY, HadoopConfTool.serializeHadoopConf(yarnConf));
+
         config.setLong("submitTimeout", 5);
 
         if (extProp != null) {

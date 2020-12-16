@@ -70,7 +70,7 @@ public class Template {
         engineJobCache.setJobInfo("{\"engineType\":\"2\",\"taskType\":2,\"computeType\":0, \"tenantId\":9}");
         engineJobCache.setStage(2);
         engineJobCache.setNodeAddress("node01");
-        engineJobCache.setJobResource("test");
+        engineJobCache.setJobResource("dtScript_dev_default_batch_Yarn");
 
         return engineJobCache;
     }

@@ -1,5 +1,7 @@
 package com.dtstack.engine.common.constrant;
 
+import java.io.File;
+
 /**
  * 常量
  * Date: 2018/1/19
@@ -10,9 +12,19 @@ package com.dtstack.engine.common.constrant;
 
 public class ConfigConstant {
 
+    public static final String SPLIT = "_";
+    public static final String RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT = "default";
+    /**
+     * first clusterName，second queueName
+     */
+    public static final String DEFAULT_GROUP_NAME = String.join(SPLIT, RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT, RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT);
+
+    public static final String USER_DIR = System.getProperty("user.dir");
+    public static final String LOCAL_KEYTAB_DIR_PARENT = USER_DIR + "/kerberos/keytab";
+    public static final String LOCAL_KRB5_DIR_PARENT = USER_DIR + "/kerberos/krb5";
+
     public static final String TYPE_NAME_KEY = "typeName";
     public static final String CUSTOMER_PRIORITY_VAL = "job.priority";
-    public static final String DEFAULT_GROUP_NAME = "default_default";
 
     public static final String MD5_SUM_KEY = "md5zip";
 
@@ -49,12 +61,20 @@ public class ConfigConstant {
     public static final Long DEFAULT_CHECKPOINT_TIMEOUT = 600000L;
 
     public static final String KERBEROS = "kerberos";
+    public static final String KERBEROS_PATH = "kerberos";
+
     public static final String REMOTE_DIR = "remoteDir";
-    public static final String PRINCIPALFILE = "principalFile";
-    public static final String KRBNAME = "krbName";
+    public static final String PRINCIPAL_FILE = "principalFile";
+    public static final String KRB_NAME = "krbName";
     public static final String OPEN_KERBEROS = "openKerberos";
-    public static final String KRB5_CONF = "java.security.krb5.conf";
+    public static final String JAVA_SECURITY_KRB5_CONF = "java.security.krb5.conf";
+    public static final String KRB5_CONF = "krb5.conf";
+    public static final String KEYTAB_SUFFIX = ".keytab";
+    public static final String KERBEROS_CONFIG = "kerberosConfig";
 
 
+    public static final String ZIP_SUFFIX = ".zip";
+    public static final String USER_DIR_UNZIP = System.getProperty("user.dir") + File.separator + "unzip";
+    public static final String USER_DIR_DOWNLOAD = System.getProperty("user.dir") + File.separator + "download";
 
 }

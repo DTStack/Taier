@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * create: 2019/10/22
  */
 @Component
-public class QueueListener implements InitializingBean, Listener {
+public class QueueListener implements InitializingBean, Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(QueueListener.class);
 
@@ -85,7 +85,7 @@ public class QueueListener implements InitializingBean, Listener {
                 this.allNodesJobQueueTypes = tmpAllNodesJobQueueTypes;
             }
         } catch (Throwable e) {
-            logger.error("allNodesJobQueueInfo error:{}", e);
+            logger.error("allNodesJobQueueInfo error:", e);
         }
 
         if (checkJobMaxPriorityStrategy) {
@@ -112,7 +112,7 @@ public class QueueListener implements InitializingBean, Listener {
                 this.allNodesGroupQueueJobResources = tmpAllNodesGroupQueueJobResources;
             }
         } catch (Throwable e) {
-            logger.error("allNodesGroupQueueInfo error:{}", e);
+            logger.error("allNodesGroupQueueInfo error:", e);
         }
     }
 
@@ -127,10 +127,4 @@ public class QueueListener implements InitializingBean, Listener {
         }
         return allNodesGroupQueueJobResources;
     }
-
-    @Override
-    public void close() throws Exception {
-        scheduledService.shutdownNow();
-    }
-
 }

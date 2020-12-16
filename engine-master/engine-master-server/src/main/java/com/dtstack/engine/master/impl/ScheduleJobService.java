@@ -25,7 +25,7 @@ import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
-import com.dtstack.engine.master.enums.EDeployMode;
+import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
@@ -62,7 +62,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -967,8 +966,8 @@ public class ScheduleJobService {
         return scheduleJobDao.updateStatusAndLogInfoById(id, status, msg);
     }
 
-    public Integer updateStatusByJobId(String jobId, Integer status) {
-        return scheduleJobDao.updateStatusByJobId(jobId, status, null);
+    public Integer updateStatusByJobId(String jobId, Integer status,Integer versionId) {
+        return scheduleJobDao.updateStatusByJobId(jobId, status, null,versionId);
     }
 
     public Long startJob(ScheduleJob scheduleJob) throws Exception {
@@ -1073,10 +1072,11 @@ public class ScheduleJobService {
                 }
                 if (EJobType.SYNC.getType() == scheduleJob.getTaskType()) {
                     //数据同步需要解析是perjob 还是session
-                    EDeployMode eDeployMode = this.parseDeployTypeByTaskParams(batchTask.getTaskParams(),batchTask.getComputeType());
+                    EDeployMode eDeployMode = this.parseDeployTypeByTaskParams(batchTask.getTaskParams(),batchTask.getComputeType(), EngineType.Flink.name());
                     actionParam.put("deployMode", eDeployMode.getType());
                 }
-                this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus());
+                //运行时候 更新最新的versionId
+                this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus(),batchTask.getVersionId());
                 ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(actionParam, ParamActionExt.class);
                 actionService.start(paramActionExt);
                 return;
@@ -1093,7 +1093,7 @@ public class ScheduleJobService {
      * @param taskParams
      * @return
      */
-    public EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType) {
+    private EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType) {
         try {
             if (!StringUtils.isBlank(taskParams)) {
                 Properties properties = com.dtstack.engine.common.util.PublicUtil.stringToProperties(taskParams);
@@ -1116,6 +1116,21 @@ public class ScheduleJobService {
         } else {
             return EDeployMode.SESSION;
         }
+    }
+
+    /**
+     * 除了flink任务有perjob和session之分外，
+     * 其他任务默认全部为perjob模式
+     * @param taskParams
+     * @param computeType
+     * @param engineType
+     * @return
+     */
+    public EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType, String engineType) {
+        if (StringUtils.isBlank(engineType) || !EngineType.isFlink(engineType)){
+            return EDeployMode.PERJOB;
+        }
+        return parseDeployTypeByTaskParams(taskParams, computeType);
     }
 
 
@@ -2063,7 +2078,9 @@ public class ScheduleJobService {
         for (ScheduleJobJob scheduleJobJob : scheduleJobJobList) {
             //排除自依赖
             String childJobKey = scheduleJobJob.getJobKey();
-            if (parentTaskId.equals(getTaskIdFromJobKey(childJobKey))) {
+            Long taskShadeIdFromJobKey = getTaskShadeIdFromJobKey(childJobKey);
+            ScheduleTaskShade taskShade = batchTaskShadeService.getById(taskShadeIdFromJobKey);
+            if(null != taskShade && taskShade.getTaskId().equals(parentTaskId)){
                 continue;
             }
 
@@ -2113,16 +2130,21 @@ public class ScheduleJobService {
     }
 
 
-    public Long getTaskIdFromJobKey(String jobKey) {
+    /**
+     * 此处获取的时候schedule_task_shade 的id 不是task_id
+     * @param jobKey
+     * @return
+     */
+    public Long getTaskShadeIdFromJobKey(String jobKey) {
         String[] strings = jobKey.split("_");
         if (strings.length < 2) {
             logger.error("it's not a legal job key, str is {}.", jobKey);
             return -1L;
         }
 
-        String taskId = strings[strings.length - 2];
+        String id = strings[strings.length - 2];
         try {
-            return MathUtil.getLongVal(taskId);
+            return MathUtil.getLongVal(id);
         } catch (Exception e) {
             logger.error("it's not a legal job key, str is {}.", jobKey);
             return -1L;
@@ -2365,17 +2387,17 @@ public class ScheduleJobService {
         String jobKey = scheduleJob.getJobKey();
         List<ScheduleJobJob> scheduleJobJobList = batchJobJobService.getJobChild(jobKey);
         List<String> jobKeyList = Lists.newArrayList();
-        List<ScheduleJob> scheduleJobList = Lists.newArrayList();
 
         String parentJobDayStr = getJobTriggerTimeFromJobKey(scheduleJob.getJobKey());
         if (Strings.isNullOrEmpty(parentJobDayStr)) {
-            return scheduleJobList;
+            return Lists.newArrayList();
         }
 
         for (ScheduleJobJob scheduleJobJob : scheduleJobJobList) {
             //排除自依赖
             String childJobKey = scheduleJobJob.getJobKey();
-            if (scheduleJob.getTaskId() != null && scheduleJob.getTaskId().equals(getTaskIdFromJobKey(childJobKey))) {
+            ScheduleTaskShade taskShade = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), appType);
+            if (null != taskShade && taskShade.getId().equals(getTaskShadeIdFromJobKey(childJobKey))) {
                 continue;
             }
 
@@ -2388,11 +2410,12 @@ public class ScheduleJobService {
         }
 
         if (CollectionUtils.isEmpty(jobKeyList)) {
-            return scheduleJobList;
+            return Lists.newArrayList();
         }
 
-
-        for (ScheduleJob childScheduleJob : scheduleJobDao.listJobByJobKeys(jobKeyList)) {
+        List<ScheduleJob> scheduleJobList = Lists.newArrayList();
+        List<ScheduleJob> listJobs = scheduleJobDao.listJobByJobKeys(jobKeyList);
+        for (ScheduleJob childScheduleJob : listJobs) {
 
             //判断job 对应的task是否被删除
             ScheduleTaskShade jobRefTask = batchTaskShadeService.getBatchTaskById(childScheduleJob.getTaskId(), appType);
@@ -2406,6 +2429,7 @@ public class ScheduleJobService {
                 continue;
             }
             scheduleJobList.addAll(getAllChildJobWithSameDay(childScheduleJob, isOnlyNextChild, appType));
+            logger.info("count info --- scheduleJob jobKey:{} flowJobId:{} jobJobList size:{}", scheduleJob.getJobKey(), scheduleJob.getFlowJobId(),scheduleJobList.size());
         }
 
         return scheduleJobList;
@@ -2562,7 +2586,7 @@ public class ScheduleJobService {
      * @param logInfo
      */
     public void updateJobStatusAndLogInfo( String jobId,  Integer status,  String logInfo) {
-        scheduleJobDao.updateStatusByJobId(jobId, status, logInfo);
+        scheduleJobDao.updateStatusByJobId(jobId, status, logInfo,null);
     }
 
 
@@ -2781,8 +2805,8 @@ public class ScheduleJobService {
         return Boolean.FALSE;
     }
 
-    public Long getListMinId(String nodeAddress,Integer scheduleType, String left, String right) {
-        return scheduleJobDao.getListMinId(nodeAddress, scheduleType, left, right, JobPhaseStatus.CREATE.getCode());
+    public Long getListMinId(String nodeAddress,Integer scheduleType, String left, String right,Integer isRestart) {
+        return scheduleJobDao.getListMinId(nodeAddress, scheduleType, left, right, JobPhaseStatus.CREATE.getCode(),isRestart);
     }
 
     public String getJobGraphJSON(String jobId) {
