@@ -532,7 +532,8 @@ public class ScheduleJobService {
         if (job == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listAfterOrBeforeJobs(job.getTaskId(), isAfter, job.getCycTime());
+        //需要根据查询的job的类型来
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listAfterOrBeforeJobs(job.getTaskId(), isAfter, job.getCycTime(),job.getAppType(),job.getType());
         Collections.sort(scheduleJobs, new Comparator<ScheduleJob>() {
 
             public int compare(ScheduleJob o1, ScheduleJob o2) {
@@ -1268,22 +1269,6 @@ public class ScheduleJobService {
         }
     }
 
-
-    /**
-     * 批量更新
-     * FIXME 暂时一条条插入,最好优化成批量提交
-     *
-     * @param batchJobList
-     */
-    @Transactional
-    public void updateJobListForRestart(List<ScheduleBatchJob> batchJobList) {
-
-        for (ScheduleBatchJob scheduleBatchJob : batchJobList) {
-            if (scheduleBatchJob.getScheduleJob() != null) {
-                scheduleJobDao.update(scheduleBatchJob.getScheduleJob());
-            }
-        }
-    }
 
     /**
      * 补数据的时候，选中什么业务日期，参数替换结果是业务日期+1天
@@ -2228,7 +2213,7 @@ public class ScheduleJobService {
      *
      * @param jobs
      */
-    public Integer BatchJobsBatchUpdate( String jobs) {
+    public Integer BatchJobsBatchUpdate(String jobs) {
         if (StringUtils.isBlank(jobs)) {
             return 0;
         }

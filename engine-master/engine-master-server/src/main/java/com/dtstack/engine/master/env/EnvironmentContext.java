@@ -170,6 +170,15 @@ public class EnvironmentContext {
         return environment.getProperty("dtuic.url");
     }
 
+
+    public String getUicToken() {
+        return environment.getProperty("dtuic.token");
+    }
+
+    public boolean isOpenLdapCache(){
+        return Boolean.parseBoolean(environment.getProperty("open.ldap.cache", "true"));
+    }
+
     /**
      *  ===es====
      */
