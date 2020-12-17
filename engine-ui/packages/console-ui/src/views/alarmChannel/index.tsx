@@ -94,10 +94,6 @@ const AlarmChannel: React.FC = (props: any) => {
                 const { alertId } = record
                 const showText = `${ALARM_TYPE_TEXT[record.alertGateType].slice(0, 2)}默认通道`;
                 return <span>
-                    {!record.isDefault && record.alertGateType !== ALARM_TYPE.CUSTOM && <>
-                        <a onClick={() => { setDefaultChannel(record) }}>{`设为${showText}`}</a>
-                        <span className="ant-divider" ></span>
-                    </>}
                     <a onClick={() => { editAlarm(alertId) }}>编辑</a>
                     <span className="ant-divider" ></span>
                     <Popconfirm
@@ -107,6 +103,10 @@ const AlarmChannel: React.FC = (props: any) => {
                     >
                         <a>删除</a>
                     </Popconfirm>
+                    {!record.isDefault && record.alertGateType !== ALARM_TYPE.CUSTOM && <>
+                        <span className="ant-divider" ></span>
+                        <a onClick={() => { setDefaultChannel(record) }}>{`设为${showText}`}</a>
+                    </>}
                 </span>
             }
         }]

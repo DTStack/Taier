@@ -163,11 +163,11 @@ const AlarmRule: React.FC = (props: any) => {
                 <Form>
                     <FormItem
                         {...{ ...formItemCenterLayout, ...wrapperCol }}
-                        label='告警类型'>
+                        label='通道类型'>
                         {getFieldDecorator('alertGateType', {
                             rules: [{
                                 required: true,
-                                message: '请选择告警类型'
+                                message: '请选择通道类型'
                             }],
                             initialValue: ALARM_TYPE.MSG
                         })(
@@ -219,8 +219,8 @@ const AlarmRule: React.FC = (props: any) => {
                                 max: 32,
                                 message: '通道标识不超过32个字符'
                             }, {
-                                pattern: /^[A-Za-z_]+$/,
-                                message: '只支持英文字符、下划线'
+                                pattern: /^[A-Za-z0-9_]+$/,
+                                message: '只支持英文、数字、下划线'
                             }]
                         })(
                             <Input disabled={!!id} />
@@ -303,7 +303,7 @@ const AlarmRule: React.FC = (props: any) => {
                                     }]
                                 })(
                                     <TextArea
-                                        placeholder={`请按照此格式填写："【企业名称】$` + `{message}，请及时处理`}
+                                        placeholder={`请按照此格式填写：<企业名称>$` + `{message}，请及时处理`}
                                         rows={4}
                                     />
                                 )}
@@ -321,7 +321,7 @@ const AlarmRule: React.FC = (props: any) => {
                                     }],
                                     initialValue: ''
                                 })(
-                                    alertGateCode == ALARM_TYPE.CUSTOM ? <Input
+                                    alertGateType !== ALARM_TYPE.CUSTOM ? <Input
                                         placeholder={`输入${testText}测试号码，多个${testText}用英文逗号隔开`}
                                         addonAfter={<span onClick={() => { testAlarm() }}>点击测试</span>}
                                     /> : <Button ghost onClick={() => { testAlarm() }}>消息发送测试</Button>
