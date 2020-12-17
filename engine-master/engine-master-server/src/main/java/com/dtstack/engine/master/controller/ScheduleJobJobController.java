@@ -20,9 +20,8 @@ public class ScheduleJobJobController {
 
     @RequestMapping(value="/displayOffSpring", method = {RequestMethod.POST})
     public ScheduleJobVO displayOffSpring(@DtRequestParam("jobId") Long jobId,
-                                          @DtRequestParam("projectId") Long projectId,
                                           @DtRequestParam("level") Integer level) throws Exception {
-        return scheduleJobJobService.displayOffSpring(jobId, projectId, level);
+        return scheduleJobJobService.displayOffSpring(jobId, level);
     }
 
     @RequestMapping(value="/displayOffSpringWorkFlow", method = {RequestMethod.POST})

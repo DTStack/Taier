@@ -206,14 +206,8 @@ public class ComponentService {
     public void updateCache(Long engineId, Integer componentCode) {
         Set<Long> dtUicTenantIds = new HashSet<>();
 
-        //todo 条件中使用了复杂表达式，应该优化
-        if ( null != componentCode && (
-                EComponentType.TIDB_SQL.getTypeCode() == componentCode ||
-                        EComponentType.LIBRA_SQL.getTypeCode() == componentCode ||
-                        EComponentType.GREENPLUM_SQL.getTypeCode() == componentCode ||
-                        EComponentType.ORACLE_SQL.getTypeCode() == componentCode) ||
-                EComponentType.PRESTO_SQL.getTypeCode() == componentCode) {
-
+        if ( null != componentCode && EComponentType.noQueueComponents.contains(
+                EComponentType.getByCode(componentCode))) {
             //tidb 和libra 没有queue
             List<EngineTenantVO> tenantVOS = engineTenantDao.listEngineTenant(engineId);
             if (CollectionUtils.isNotEmpty(tenantVOS)) {
@@ -228,7 +222,6 @@ public class ComponentService {
             if (CollectionUtils.isEmpty(refreshQueues)) {
                 return;
             }
-
             List<Long> queueIds = refreshQueues.stream().map(BaseEntity::getId).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(queueIds)) {
                 return;
@@ -1084,7 +1077,6 @@ public class ComponentService {
             }
 
             localDownLoadPath = USER_DIR_DOWNLOAD + File.separator + component.getComponentName();
-
             SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
             String remoteDir = sftpConfig.getPath() + File.separator + this.buildSftpPath(clusterId, component.getComponentTypeCode());
             SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
@@ -1115,27 +1107,33 @@ public class ComponentService {
         }
         String zipFilename = StringUtils.isBlank(uploadFileName) ? "download.zip" : uploadFileName;
         if (file.isDirectory()) {
-            File[] files = file.listFiles();
-            //压缩成zip包
-            if (null != files ) {
-                if (DownloadType.Kerberos.getCode() == downloadType) {
-                    Long clusterId = componentDao.getClusterIdByComponentId(componentId);
-                    KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType);
-                    if ( null != kerberosConfig ) {
-                        zipFilename = kerberosConfig.getName() + ZIP_SUFFIX;
-                    }
-                }
-                ZipUtil.zipFile(USER_DIR_DOWNLOAD + File.separator + zipFilename, Arrays.asList(files));
-            }
-            try {
-                FileUtils.forceDelete(file);
-            } catch (IOException e) {
-                LOGGER.error("delete upload file {} error", file.getName(), e);
-            }
-            return new File(USER_DIR_DOWNLOAD + File.separator + zipFilename);
+            //将文件夹压缩成zip文件
+            return zipFile(componentId, downloadType, componentType, file, zipFilename);
         } else {
             return new File(localDownLoadPath);
         }
+    }
+
+
+    private File zipFile(Long componentId, Integer downloadType, Integer componentType, File file, String zipFilename) {
+        File[] files = file.listFiles();
+        //压缩成zip包
+        if (null != files ) {
+            if (DownloadType.Kerberos.getCode() == downloadType) {
+                Long clusterId = componentDao.getClusterIdByComponentId(componentId);
+                KerberosConfig kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType);
+                if ( null != kerberosConfig ) {
+                    zipFilename = kerberosConfig.getName() + ZIP_SUFFIX;
+                }
+            }
+            ZipUtil.zipFile(USER_DIR_DOWNLOAD + File.separator + zipFilename, Arrays.asList(files));
+        }
+        try {
+            FileUtils.forceDelete(file);
+        } catch (IOException e) {
+            LOGGER.error("delete upload file {} error", file.getName(), e);
+        }
+        return new File(USER_DIR_DOWNLOAD + File.separator + zipFilename);
     }
 
 
@@ -1451,10 +1449,7 @@ public class ComponentService {
         if(CollectionUtils.isEmpty(components)){
             return new ArrayList<>();
         }
-
-        //todo 这里sftpMap有可能为null,如果为null要直接返回吗？
         Map<String, String> sftpMap = getSftpMap(components);
-
         List<ComponentTestResult> testResults = new ArrayList<>(components.size());
         CountDownLatch countDownLatch = new CountDownLatch(components.size());
         for (Component component : components) {
@@ -1526,6 +1521,8 @@ public class ComponentService {
         try {
             if (componentOptional.isPresent()) {
                 sftpMap = (Map) JSONObject.parseObject(componentOptional.get().getComponentConfig(), Map.class);
+            }else{
+                throw new RdosDefineException("缺少sftp组件");
             }
         } catch (Exception e) {
             LOGGER.error("getSftpMap error:{}",e.getMessage());

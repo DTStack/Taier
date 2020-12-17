@@ -426,25 +426,17 @@ public class ScheduleJobService {
             //无条件：只查询工作流父节点
             batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
         }
-
-        String searchType = vo.getSearchType();
         PageQuery<ScheduleJobDTO> pageQuery = new PageQuery<>(vo.getCurrentPage(), vo.getPageSize(), "gmt_modified", Sort.DESC.name());
 
-        if (StringUtils.isEmpty(searchType) || "fuzzy".equalsIgnoreCase(searchType)) {
-            batchJobDTO.setSearchType(1);
-        } else if ("precise".equalsIgnoreCase(searchType)) {
-            batchJobDTO.setSearchType(2);
-        } else if ("front".equalsIgnoreCase(searchType)) {
-            batchJobDTO.setSearchType(3);
-        } else if ("tail".equalsIgnoreCase(searchType)) {
-            batchJobDTO.setSearchType(4);
-        } else {
-            batchJobDTO.setSearchType(1);
-        }
+        // 设置是模糊匹配类型还是精确匹配
+        String searchType = vo.getSearchType();
+        changeSearchType(batchJobDTO, searchType);
+        batchJobDTO.setPageQuery(true);
         pageQuery.setModel(batchJobDTO);
+
         int count = 0;
         List<com.dtstack.engine.api.vo.ScheduleJobVO> result = new ArrayList<>();
-
+        //先将满足条件的taskId查出来，缩小过滤范围
         if (StringUtils.isNotBlank(vo.getTaskName()) || null != vo.getOwnerId()) {
             List<ScheduleTaskShade> batchTaskShades = scheduleTaskShadeDao.listByNameLikeWithSearchType(vo.getProjectId(), vo.getTaskName(),
                     vo.getAppType(), vo.getOwnerId(), vo.getProjectIds(), batchJobDTO.getSearchType());
@@ -454,8 +446,6 @@ public class ScheduleJobService {
                 return new PageResult<>(result, count, pageQuery);
             }
         }
-        batchJobDTO.setPageQuery(true);
-
         if (AppType.DATASCIENCE.getType() == vo.getAppType()) {
             batchJobDTO.setQueryWorkFlowModel(QueryWorkFlowModel.Eliminate_Workflow_SubNodes.getType());
             count = queryScienceJob(batchJobDTO, queryAll, pageQuery, result);
@@ -464,6 +454,23 @@ public class ScheduleJobService {
         }
         
         return new PageResult<>(result, count, pageQuery);
+    }
+
+    private void changeSearchType(ScheduleJobDTO batchJobDTO, String searchType) {
+        if (StringUtils.isEmpty(searchType) || "fuzzy".equalsIgnoreCase(searchType)) {
+            //全模糊匹配
+            batchJobDTO.setSearchType(1);
+        } else if ("precise".equalsIgnoreCase(searchType)) {
+            //精确匹配
+            batchJobDTO.setSearchType(2);
+        } else if ("front".equalsIgnoreCase(searchType)) {
+            //右模糊匹配
+            batchJobDTO.setSearchType(3);
+        } else if ("tail".equalsIgnoreCase(searchType)) {
+            batchJobDTO.setSearchType(4);
+        } else {
+            batchJobDTO.setSearchType(1);
+        }
     }
 
     /**
@@ -483,7 +490,6 @@ public class ScheduleJobService {
                 Map<Long, ScheduleTaskForFillDataDTO> shadeMap = this.prepare(scheduleJobs);
                 List<ScheduleJobVO> batchJobVOS = this.transfer(scheduleJobs, shadeMap);
 
-
                 if (queryAll) {
                     //处理工作流下级
                     dealFlowWorkSubJobs(batchJobVOS);
@@ -491,7 +497,6 @@ public class ScheduleJobService {
                     //前端异步获取relatedJobs
                     //dealFlowWorkJobs(vos, shadeMap);
                 }
-
                 if (CollectionUtils.isNotEmpty(batchJobVOS)) {
                     batchJobVOS.forEach(batchJobVO -> result.add(batchJobVO));
                 }
@@ -512,13 +517,16 @@ public class ScheduleJobService {
      * @throws Exception
      */
     private int queryScienceJob(ScheduleJobDTO batchJobDTO, boolean queryAll, PageQuery<ScheduleJobDTO> pageQuery, List<com.dtstack.engine.api.vo.ScheduleJobVO> result) throws Exception {
+
         int count = scheduleJobDao.generalScienceCount(batchJobDTO);
         if (count > 0) {
             List<ScheduleJob> scheduleJobs = scheduleJobDao.generalScienceQuery(pageQuery);
             if (CollectionUtils.isNotEmpty(scheduleJobs)) {
-                Map<Long, ScheduleTaskForFillDataDTO> shadeMap = this.prepare(scheduleJobs);
-                List<ScheduleJobVO> batchJobVOS = this.transfer(scheduleJobs, shadeMap);
 
+                //获取任务id->任务的map
+                Map<Long, ScheduleTaskForFillDataDTO> shadeMap = this.prepare(scheduleJobs);
+
+                List<ScheduleJobVO> batchJobVOS = this.transfer(scheduleJobs, shadeMap);
 
                 if (queryAll) {
                     //处理工作流下级
@@ -527,7 +535,6 @@ public class ScheduleJobService {
                     //前端异步获取relatedJobs
                     //dealFlowWorkJobs(vos, shadeMap);
                 }
-
                 if (CollectionUtils.isNotEmpty(batchJobVOS)) {
                     batchJobVOS.forEach(batchJobVO -> result.add(batchJobVO));
                 }
@@ -591,6 +598,9 @@ public class ScheduleJobService {
             return null;
         }
         ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, Deleted.NORMAL.getStatus());
+        if(null == scheduleJob){
+            throw new RdosDefineException("该实例对象不存在");
+        }
         Map<Long, ScheduleTaskForFillDataDTO> shadeMap = this.prepare(Lists.newArrayList(scheduleJob));
         List<ScheduleJobVO> transfer = this.transfer(Lists.newArrayList(scheduleJob), shadeMap);
         if (CollectionUtils.isEmpty(transfer)) {
@@ -598,38 +608,34 @@ public class ScheduleJobService {
         }
         ScheduleJobVO batchJobVO = transfer.get(0);
 
-        if (scheduleJob != null) {
-            if (EScheduleJobType.WORK_FLOW.getVal().intValue() == batchJobVO.getBatchTask().getTaskType()) {
-                vo.setSplitFiledFlag(true);
-                //除去任务类型中的工作流类型的条件，用于展示下游节点
-                if (StringUtils.isNotBlank(vo.getTaskType())) {
-                    vo.setTaskType(vo.getTaskType().replace(String.valueOf(EScheduleJobType.WORK_FLOW.getVal()), ""));
-                }
-                ScheduleJobDTO batchJobDTO = createQuery(vo);
-                batchJobDTO.setPageQuery(false);
-                batchJobDTO.setFlowJobId(jobId);
-                PageQuery<ScheduleJobDTO> pageQuery = new PageQuery<>(vo.getCurrentPage(), vo.getPageSize(), "gmt_modified", Sort.DESC.name());
-                pageQuery.setModel(batchJobDTO);
-                batchJobDTO.setNeedQuerySonNode(true);
-                List<ScheduleJob> subJobs = scheduleJobDao.generalQuery(pageQuery);
-                Map<Long, ScheduleTaskForFillDataDTO> subShadeMap = this.prepare(subJobs);
-                List<ScheduleJobVO> subJobVOs = this.transfer(subJobs, subShadeMap);
-
-                List<com.dtstack.engine.api.vo.ScheduleJobVO> relatedJobVOs= new ArrayList<>(subJobVOs.size());
-                subJobVOs.forEach(subJobVO -> relatedJobVOs.add(subJobVO));
-                batchJobVO.setRelatedJobs(relatedJobVOs);
-                return batchJobVO;
-            } else {
-                throw new RdosDefineException("只有工作流任务有下属节点");
+        if (EScheduleJobType.WORK_FLOW.getVal().equals(batchJobVO.getBatchTask().getTaskType())) {
+            vo.setSplitFiledFlag(true);
+            //除去任务类型中的工作流类型的条件，用于展示下游节点
+            if (StringUtils.isNotBlank(vo.getTaskType())) {
+                vo.setTaskType(vo.getTaskType().replace(String.valueOf(EScheduleJobType.WORK_FLOW.getVal()), ""));
             }
+            ScheduleJobDTO batchJobDTO = createQuery(vo);
+            batchJobDTO.setPageQuery(false);
+            batchJobDTO.setFlowJobId(jobId);
+            PageQuery<ScheduleJobDTO> pageQuery = new PageQuery<>(vo.getCurrentPage(), vo.getPageSize(), "gmt_modified", Sort.DESC.name());
+            pageQuery.setModel(batchJobDTO);
+            batchJobDTO.setNeedQuerySonNode(true);
+            List<ScheduleJob> subJobs = scheduleJobDao.generalQuery(pageQuery);
+            Map<Long, ScheduleTaskForFillDataDTO> subShadeMap = this.prepare(subJobs);
+            List<ScheduleJobVO> subJobVOs = this.transfer(subJobs, subShadeMap);
+            //将子节点列表转换成client包中的子节点列表
+            List<com.dtstack.engine.api.vo.ScheduleJobVO> relatedJobVOs= new ArrayList<>(subJobVOs.size());
+            subJobVOs.forEach(subJobVO -> relatedJobVOs.add(subJobVO));
+            batchJobVO.setRelatedJobs(relatedJobVOs);
+            return batchJobVO;
         } else {
-            throw new RdosDefineException("该实例对象不存在");
+            throw new RdosDefineException("只有工作流任务有下属节点");
         }
 
     }
 
 
-    //todo 这块逻辑不是很清楚
+    //处理工作流子节点
     private void dealFlowWorkSubJobs(List<ScheduleJobVO> vos) throws Exception {
 
         Map<String, ScheduleJobVO> record = Maps.newHashMap();
@@ -641,6 +647,7 @@ public class ScheduleJobService {
             ScheduleJobVO jobVO = iterator.next();
             String flowJobId = jobVO.getFlowJobId();
             if (!"0".equals(flowJobId)) {
+                //是工作流子节点
                 if (record.containsKey(flowJobId)) {
                     ScheduleJobVO flowVo = record.get(flowJobId);
                     flowVo.getRelatedJobs().add(jobVO);
@@ -648,7 +655,9 @@ public class ScheduleJobService {
                 } else {
                     ScheduleJobVO flowVO;
                     if (voIndex.containsKey(flowJobId)) {
+                        //查出来的任务列表中有该子结点的工作流
                         flowVO = copy.get(voIndex.get(flowJobId));
+                        //将工作流子节点设置为工作流关联jobs
                         flowVO.setRelatedJobs(Lists.newArrayList(jobVO));
                         iterator.remove();
                     } else {
@@ -660,6 +669,7 @@ public class ScheduleJobService {
                         List<ScheduleJobVO> flowVOs = this.transfer(Lists.newArrayList(flow), batchTaskShadeMap);
                         flowVO = flowVOs.get(0);
                         flowVO.setRelatedJobs(Lists.newArrayList(jobVO));
+                        //将工作流子结点替换成工作流
                         vos.set(vos.indexOf(jobVO), flowVO);
                     }
                     record.put(flowJobId, flowVO);
@@ -683,13 +693,15 @@ public class ScheduleJobService {
 
     private List<ScheduleJobVO> transfer(List<ScheduleJob> scheduleJobs, Map<Long, ScheduleTaskForFillDataDTO> batchTaskShadeMap) {
 
+        if(CollectionUtils.isEmpty(scheduleJobs)){
+            return Collections.EMPTY_LIST;
+        }
         List<ScheduleJobVO> vos = new ArrayList<>(scheduleJobs.size());
         for (ScheduleJob scheduleJob : scheduleJobs) {
             ScheduleTaskForFillDataDTO taskShade = batchTaskShadeMap.get(scheduleJob.getTaskId());
             if (taskShade == null) {
                 continue;
             }
-
             //维持旧接口 数据结构
             ScheduleEngineJob engineJob = new ScheduleEngineJob();
             engineJob.setStatus(scheduleJob.getStatus());
@@ -822,12 +834,13 @@ public class ScheduleJobService {
         this.setBizDay(batchJobDTO, vo.getBizStartDay(), vo.getBizEndDay(), vo.getTenantId(), vo.getProjectId());
 
         this.setCycDay(batchJobDTO, vo.getCycStartDay(), vo.getCycEndDay(), vo.getTenantId(), vo.getProjectId());
+
         //执行耗时
         if (null != vo.getExecTime()) {
             batchJobDTO.setExecTime(vo.getExecTime() * 1000);
         }
-        //分页
-        batchJobDTO.setPageQuery(true);
+        // baseQuery里已经设置了分页，这里去掉
+
         if(vo.getExecStartDay()!=null){
             batchJobDTO.setExecStartDay(new Date(vo.getExecStartDay()));
         }
@@ -838,6 +851,7 @@ public class ScheduleJobService {
     }
 
     private void createBaseQuery(QueryJobDTO vo, ScheduleJobDTO batchJobDTO) {
+
         batchJobDTO.setTenantId(vo.getTenantId());
         batchJobDTO.setProjectId(vo.getProjectId());
         batchJobDTO.setTaskTypes(convertStringToList(vo.getTaskType()));
@@ -873,10 +887,6 @@ public class ScheduleJobService {
 
         //分页
         batchJobDTO.setPageQuery(true);
-        //bugfix #19764 为对入参做处理
-        if (!Strings.isNullOrEmpty(vo.getJobStatuses())) {
-            batchJobDTO.setJobStatuses(Arrays.stream(vo.getJobStatuses().split(",")).map(Integer::parseInt).collect(Collectors.toList()));
-        }
         if (CollectionUtils.isNotEmpty(vo.getTaskIds())) {
             batchJobDTO.setTaskIds(vo.getTaskIds());
         }
@@ -895,6 +905,7 @@ public class ScheduleJobService {
             batchJobDTO.setBizStartDay(bizStart);
             batchJobDTO.setBizEndDay(bizEnd);
 
+            //设置调度始日期为业务开始日期的下一天
             batchJobDTO.setCycStartDay(dayFormatterAll.print(getTime(bizStartDay * 1000, -1).getTime()));
             batchJobDTO.setCycEndDay(dayFormatterAll.print(getTime(bizEndDay * 1000, -2).getTime()));
         }
@@ -1322,7 +1333,7 @@ public class ScheduleJobService {
         if (jobSizeInfo == null) {
             //if empty
             List<String> aliveNodes = zkService.getAliveBrokersChildren();
-            jobSizeInfo = new HashMap<String, Integer>(aliveNodes.size());
+            jobSizeInfo = new HashMap<>(aliveNodes.size());
             int size = jobSize / aliveNodes.size() + 1;
             for (String aliveNode : aliveNodes) {
                 jobSizeInfo.put(aliveNode, size);
@@ -1385,10 +1396,15 @@ public class ScheduleJobService {
                                 Long tenantId,
                                 Boolean isRoot,  Integer appType,  Long dtuicTenantId) throws Exception {
 
-        taskJsonStr = StringUtils.isEmpty(taskJsonStr) ? "{}" : taskJsonStr;
-        //TODO taskJsonStr为空的时候会报错，是否直接返回？
-        ArrayNode jsonNode = objMapper.readValue(taskJsonStr, ArrayNode.class);
-
+        if(StringUtils.isEmpty(taskJsonStr)){
+            throw new RdosDefineException("(taskJsonStr 参数不能为空)", ErrorCode.INVALID_PARAMETERS);
+        }
+        ArrayNode jsonNode = null;
+        try {
+            jsonNode = objMapper.readValue(taskJsonStr, ArrayNode.class);
+        } catch (IOException e) {
+            throw new RdosDefineException("takJsonStr格式错误");
+        }
         //计算从fromDay--toDay之间的天数
         DateTime fromDateTime = new DateTime(fromDay * 1000L);
         DateTime toDateTime = new DateTime(toDay * 1000L);
@@ -1399,24 +1415,7 @@ public class ScheduleJobService {
         DateTime currDateTime = DateTime.now();
         currDateTime = currDateTime.withTime(0, 0, 0, 0);
 
-        if (fillName == null) {
-            throw new RdosDefineException("(fillName 参数不能为空)", ErrorCode.INVALID_PARAMETERS);
-        }
-
-        //补数据的名称中-作为分割名称和后缀信息的分隔符,故不允许使用
-        if (fillName.contains("-")) {
-            throw new RdosDefineException("(fillName 参数不能包含字符 '-')", ErrorCode.INVALID_PARAMETERS);
-        }
-
-        if (!toDateTime.isBefore(currDateTime)) {
-            throw new RdosDefineException("(补数据业务日期开始时间不能晚于结束时间)", ErrorCode.INVALID_PARAMETERS);
-        }
-
-        //判断补数据的名字每个project必须是唯一的
-        boolean existsName = scheduleFillDataJobService.checkExistsName(fillName, projectId);
-        if (existsName) {
-            throw new RdosDefineException("补数据任务名称已存在", ErrorCode.NAME_ALREADY_EXIST);
-        }
+        checkFillDataParams(taskJsonStr, fillName, projectId, toDateTime, currDateTime);
 
         Map<String, ScheduleBatchJob> addBatchMap = Maps.newLinkedHashMap();
         //存储fill_job name
@@ -1429,7 +1428,6 @@ public class ScheduleJobService {
                 String triggerDay = cycTime.toString(DAY_PATTERN);
                 Map<String, ScheduleBatchJob> result;
                 if (StringUtils.isNotBlank(beginTime) && StringUtils.isNotBlank(endTime)) {
-                    // todo 这一步逻辑较为复杂
                     result = jobGraphBuilder.buildFillDataJobGraph(jsonNode, fillName, false, triggerDay, userId, beginTime, endTime, projectId, tenantId, isRoot, appType, scheduleFillDataJob.getId(),dtuicTenantId);
                 } else {
                     result = jobGraphBuilder.buildFillDataJobGraph(jsonNode, fillName, false, triggerDay, userId, projectId, tenantId, isRoot, appType, scheduleFillDataJob.getId(),dtuicTenantId);
@@ -1456,6 +1454,40 @@ public class ScheduleJobService {
         }
 
         return fillName;
+    }
+
+
+    /**
+     * @author newman
+     * @Description 校验补数据任务参数
+     * @Date 2020-12-14 17:47
+     * @param taskJsonStr:
+     * @param fillName:
+     * @param projectId:
+     * @param toDateTime:
+     * @param currDateTime:
+     * @return: void
+     **/
+    private void checkFillDataParams(String taskJsonStr, String fillName, Long projectId, DateTime toDateTime, DateTime currDateTime) {
+
+        if (fillName == null) {
+            throw new RdosDefineException("(fillName 参数不能为空)", ErrorCode.INVALID_PARAMETERS);
+        }
+
+        //补数据的名称中-作为分割名称和后缀信息的分隔符,故不允许使用
+        if (fillName.contains("-")) {
+            throw new RdosDefineException("(fillName 参数不能包含字符 '-')", ErrorCode.INVALID_PARAMETERS);
+        }
+
+        if (!toDateTime.isBefore(currDateTime)) {
+            throw new RdosDefineException("(补数据业务日期开始时间不能晚于结束时间)", ErrorCode.INVALID_PARAMETERS);
+        }
+
+        //判断补数据的名字每个project必须是唯一的
+        boolean existsName = scheduleFillDataJobService.checkExistsName(fillName, projectId);
+        if (existsName) {
+            throw new RdosDefineException("补数据任务名称已存在", ErrorCode.NAME_ALREADY_EXIST);
+        }
     }
 
 
@@ -1732,20 +1764,8 @@ public class ScheduleJobService {
         PageQuery<ScheduleJobDTO> pageQuery = new PageQuery<>(vo.getCurrentPage(), vo.getPageSize());
         setPageQueryDefaultOrder(pageQuery, batchJobDTO);
 
-        if (StringUtils.isEmpty(searchType) || "fuzzy".equalsIgnoreCase(searchType)) {
-            batchJobDTO.setSearchType(1);
-        } else if ("precise".equalsIgnoreCase(searchType)) {
-            batchJobDTO.setSearchType(2);
-        } else if ("front".equalsIgnoreCase(searchType)) {
-            batchJobDTO.setSearchType(3);
-        } else if ("tail".equalsIgnoreCase(searchType)) {
-            batchJobDTO.setSearchType(4);
-        } else {
-            batchJobDTO.setSearchType(1);
-        }
+        changeSearchType(batchJobDTO, searchType);
         pageQuery.setModel(batchJobDTO);
-
-
 
 
         batchJobDTO.setPageQuery(true);
@@ -2394,7 +2414,7 @@ public class ScheduleJobService {
         if (null == job ) {
             return new ArrayList<>();
         }
-        return this.getAllChildJobWithSameDay(job, isOnlyNextChild, appType);
+        return this.getAllChildJobWithSameDay(job, isOnlyNextChild, appType,10);
     }
 
     /**
@@ -2403,16 +2423,22 @@ public class ScheduleJobService {
      * 限定同一天并且不是自依赖
      *
      * @param scheduleJob
+     * @param level 层数，防止循环依赖一直递归
      * @return
      */
     public List<ScheduleJob> getAllChildJobWithSameDay(ScheduleJob scheduleJob,
-                                                        boolean isOnlyNextChild,  Integer appType) {
+                                                        boolean isOnlyNextChild,  Integer appType,int level) {
 
+        if(level<=0){
+            //最多执行10层，死循环时跳出
+            return Lists.newArrayList();
+        }
         String jobKey = scheduleJob.getJobKey();
         //查询子工作任务
         List<ScheduleJobJob> scheduleJobJobList = batchJobJobService.getJobChild(jobKey);
         List<String> jobKeyList = Lists.newArrayList();
 
+        //从jobKey获取父任务的触发时间
         String parentJobDayStr = getJobTriggerTimeFromJobKey(jobKey);
         if (Strings.isNullOrEmpty(parentJobDayStr)) {
             return Lists.newArrayList();
@@ -2453,7 +2479,8 @@ public class ScheduleJobService {
             if (isOnlyNextChild) {
                 continue;
             }
-            scheduleJobList.addAll(getAllChildJobWithSameDay(childScheduleJob, isOnlyNextChild, appType));
+            level --;
+            scheduleJobList.addAll(getAllChildJobWithSameDay(childScheduleJob, isOnlyNextChild, appType,level));
             logger.info("count info --- scheduleJob jobKey:{} flowJobId:{} jobJobList size:{}", scheduleJob.getJobKey(), scheduleJob.getFlowJobId(),scheduleJobList.size());
         }
 
@@ -2768,6 +2795,9 @@ public class ScheduleJobService {
     public void deleteJobsByJobKey( List<String> jobKeyList) {
 
         //todo 校验jobKeyList不能为空，是要物理删除还是逻辑删除
+        if(CollectionUtils.isEmpty(jobKeyList)){
+            return;
+        }
         scheduleJobDao.deleteByJobKey(jobKeyList);
         scheduleJobJobDao.deleteByJobKey(jobKeyList);
     }

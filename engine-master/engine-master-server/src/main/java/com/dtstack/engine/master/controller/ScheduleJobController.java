@@ -35,7 +35,6 @@ public class ScheduleJobController {
     }
 
 
-    //TODO 参数过多，最后封装成一个对象
     @RequestMapping(value="/getStatusJobList", method = {RequestMethod.POST})
     public PageResult getStatusJobList(@DtRequestParam("projectId") Long projectId, @DtRequestParam("tenantId") Long tenantId, @DtRequestParam("appType") Integer appType,
                                        @DtRequestParam("dtuicTenantId") Long dtuicTenantId, @DtRequestParam("status") Integer status, @DtRequestParam("pageSize") int pageSize, @DtRequestParam("pageIndex") int pageIndex) {
@@ -256,7 +255,7 @@ public class ScheduleJobController {
     @ApiOperation(value = "查询出指定job的所有关联的子job")
     public List<ScheduleJob> getAllChildJobWithSameDay(@RequestBody ScheduleJob scheduleJob,
                                                        @RequestParam("isOnlyNextChild") boolean isOnlyNextChild, @RequestParam("appType") Integer appType) {
-        return scheduleJobService.getAllChildJobWithSameDay(scheduleJob, isOnlyNextChild, appType);
+        return scheduleJobService.getAllChildJobWithSameDay(scheduleJob, isOnlyNextChild, appType,10);
     }
 
 

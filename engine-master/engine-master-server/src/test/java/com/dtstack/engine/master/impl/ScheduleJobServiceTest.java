@@ -445,7 +445,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteJobkey();
         Integer appType = scheduleJob.getAppType();
 
-        List<ScheduleJob> allChildJobWithSameDay = sheduleJobService.getAllChildJobWithSameDay(scheduleJob, true, appType);
+        List<ScheduleJob> allChildJobWithSameDay = sheduleJobService.getAllChildJobWithSameDay(scheduleJob, true, appType,10);
         Assert.assertEquals(allChildJobWithSameDay.size(),1);
 
         ScheduleJob scheduleJobQuery = allChildJobWithSameDay.get(0);

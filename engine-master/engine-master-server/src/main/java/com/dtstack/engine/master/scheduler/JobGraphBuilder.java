@@ -121,7 +121,7 @@ public class JobGraphBuilder {
             if (hasBuild) {
                 return;
             }
-
+            //清理周期实例脏数据
             cleanDirtyJobGraph(triggerDay);
 
             int totalTask = batchTaskShadeService.countTaskByStatus(ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus());
@@ -274,11 +274,8 @@ public class JobGraphBuilder {
             logger.info("Start clean batchJobList, batch-number:{} startId:{}", batchIdx, startId);
             startId = scheduleJobList.get(scheduleJobList.size() - 1).getId();
             List<String> jobKeyList = new ArrayList<>();
-            //todo jobIdList没用到，可以删除
-            List<Long> jobIdList = new ArrayList<>();
             for ( ScheduleJob scheduleJob : scheduleJobList) {
                 jobKeyList.add(scheduleJob.getJobKey());
-                jobIdList.add(scheduleJob.getId());
             }
             batchJobService.deleteJobsByJobKey(jobKeyList);
             logger.info("batch-number:{} done! Cleaning dirty jobs size:{}", batchIdx, scheduleJobList.size());
@@ -385,11 +382,11 @@ public class JobGraphBuilder {
             String nextTriggerTime = null;
             if ((scheduleCron.getPeriodType() == ESchedulePeriodType.MIN.getVal() || scheduleCron.getPeriodType() == ESchedulePeriodType.HOUR.getVal())) {
                 if ((idx < triggerDayList.size() - 1)) {
-                    //不是当前最后一个
+                    //当前不是最后一个
                     nextTriggerTime = triggerDayList.get(idx + 1);
                 } else {
                     DateTime nextDayExecute = new DateTime(jobBuildTime.getTime()).plusDays(1);
-                    //当前最后一个
+                    //当前最后一个，则获取下个周期的第一个
                     List<String> nextTriggerDays = scheduleCron.getTriggerTime(nextDayExecute.toString("yyyy-MM-dd"));
                     if (CollectionUtils.isNotEmpty(nextTriggerDays)) {
                         nextTriggerTime = nextTriggerDays.get(0);
@@ -424,6 +421,7 @@ public class JobGraphBuilder {
             if (task.getFlowId() == 0) {
                 scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
             } else {
+                //工作流子节点
                 String flowJobTime = triggerTime;
                 //非 小时&分钟 任务
                 if (scheduleCron.getPeriodType() != ESchedulePeriodType.MIN.getVal() && scheduleCron.getPeriodType() != ESchedulePeriodType.HOUR.getVal()) {
@@ -467,11 +465,11 @@ public class JobGraphBuilder {
             scheduleJob.setNextCycTime(nextTriggerTime);
 
 
-            //执行时间 -1 天
+            //业务时间等于执行时间 -1 天
             String businessDate = generateBizDateFromCycTime(triggerTime);
             scheduleJob.setBusinessDate(businessDate);
 
-            //任务流中的子任务，起始节点将任务流节点作为父任务加入
+            //任务流中的子任务且没有父任务依赖，起始节点将任务流节点作为父任务加入
             if (task.getFlowId() > 0 && !whetherHasParentTask(task.getTaskId(),task.getAppType())) {
                 List<String> keys = getJobKeys(Lists.newArrayList(task.getFlowId()), scheduleJob, scheduleCron, keyPreStr);
                 scheduleBatchJob.addBatchJobJob(createNewJobJob(scheduleJob, jobKey, keys.get(0), timestampNow));
@@ -551,7 +549,7 @@ public class JobGraphBuilder {
      * @param scheduleCron
      * @param isFirst
      * @param scheduleBatchJob
-     * @param keyPreStr
+     * @param keyPreStr 生成jobKey的前缀
      * @param scheduleType
      * @param jobKey
      * @param timestampNow
@@ -561,14 +559,12 @@ public class JobGraphBuilder {
                                     ScheduleBatchJob scheduleBatchJob, String keyPreStr, EScheduleType scheduleType, String jobKey,
                                     Timestamp timestampNow) {
 
-        // todo 直接改成如果等于NO_SELF_DEPENDENCY就返回不好吗
-        if (!DependencyType.SELF_DEPENDENCY_SUCCESS.getType().equals(selfReliance)
-                && !DependencyType.SELF_DEPENDENCY_END.getType().equals(selfReliance)
-                && !DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_SUCCESS.getType().equals(selfReliance)
-                && !DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_END.getType().equals(selfReliance)) {
+        // 修改 直接改成如果等于NO_SELF_DEPENDENCY就返回
+        if(DependencyType.NO_SELF_DEPENDENCY.getType().equals(selfReliance)){
             return;
         }
 
+        //获取上一个周期的jobKey
         String preSelfJobKey = getSelfDependencyJobKeys(scheduleJob, scheduleCron, keyPreStr);
         if (preSelfJobKey != null) {
             //需要查库判断是否存在
@@ -613,6 +609,7 @@ public class JobGraphBuilder {
         List<Long> pIdList = Lists.newArrayList();
         for (ScheduleTaskTaskShade batchTaskTask : taskTasks) {
             if (batchTaskTask.getParentTaskId() != -1) {
+                //获取父任务id
                 pIdList.add(batchTaskTask.getParentTaskId());
             }
         }
@@ -701,7 +698,6 @@ public class JobGraphBuilder {
             } catch (Exception e) {
                 //FIXME 如果解析失败该任务是加入到队列里面还是提示直接不管该task
                 logger.error("parse task" + pTask.getId() + " error", e);
-                continue;
             }
         }
         return jobKeyList;
@@ -709,8 +705,10 @@ public class JobGraphBuilder {
 
 
     public String getSelfDependencyJobKeys(ScheduleJob scheduleJob, ScheduleCron cron, String keyPreStr) {
+
+        //获取上一个执行周期的触发时间
         String preTriggerDateStr = getPrePeriodJobTriggerDateStr(scheduleJob.getCycTime(), cron);
-        //源逻辑是拿batchJob的taskId 作为key
+        //原逻辑是拿batchJob的taskId 作为key
         //现在task中 taskId + appType 才是唯一
         //现在采用taskShade表的id
         ScheduleTaskShade shade = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), scheduleJob.getAppType());
@@ -729,6 +727,7 @@ public class JobGraphBuilder {
      * @return
      */
     public static String getPrePeriodJobTriggerDateStr(String batchJobCycTime, ScheduleCron cron) {
+
         DateTime triggerDate = new DateTime(DateUtil.getTimestamp(batchJobCycTime, dtfFormatString));
         Date preTriggerDate = getPreJob(triggerDate.toDate(), cron);
         if(null == preTriggerDate){
@@ -769,13 +768,13 @@ public class JobGraphBuilder {
             List<Integer> dayArr = getSortDayList(timeFields[3]);
             int currDay = dateTime.get(DateTimeFieldType.dayOfMonth());
             int index = dayArr.indexOf(currDay);
-
-            if (index == -1) {//找不到该运行时间,不应该出现
+            //找不到该运行时间,不应该出现
+            if (index == -1) {
                 logger.error("can't find dayOfMonth:{} in cronStr:{}!", currDay, cron);
                 return null;
             }
-
-            if (index == 0) {//上个月的最后一天
+            //上个月的最后一天
+            if (index == 0) {
                 dateTime = dateTime.minusMonths(1);
                 dateTime = dateTime.withDayOfMonth(dayArr.get(dayArr.size() - 1));
             } else {//上一天
@@ -786,15 +785,17 @@ public class JobGraphBuilder {
             List<Integer> dayArr = getSortDayList(timeFields[5]);
             int currDay = dateTime.get(DateTimeFieldType.dayOfWeek());
             int index = dayArr.indexOf(currDay);
-            if (index == -1) {//找不到该运行时间,不应该出现
+            //找不到该运行时间,不应该出现
+            if (index == -1) {
                 logger.error("can't find dayOfWeek:{} in cronStr:{}!", currDay, cron);
                 return null;
             }
-
-            if (index == 0) {//上周的最后一个执行天
+            //上周的最后一个执行天
+            if (index == 0) {
                 dateTime = dateTime.minusWeeks(1);
                 dateTime = dateTime.withDayOfWeek(dayArr.get(dayArr.size() - 1));
-            } else {//上一天
+            } else {
+                //上一天
                 dateTime = dateTime.withDayOfWeek(dayArr.get(index - 1));
             }
 
@@ -924,8 +925,8 @@ public class JobGraphBuilder {
 
             dependencyTime = time;
         }
-
-        if (dependencyTime == -1) {//说明应该是上一个月的最后一个执行时间
+        //说明应该是上一个月的最后一个执行时间
+        if (dependencyTime == -1) {
             dependencyTime = timeList.get(timeList.size() - 1);
             dateTime = dateTime.minusMonths(1);
         }
@@ -1056,7 +1057,7 @@ public class JobGraphBuilder {
     public Map<String, ScheduleBatchJob> buildFillDataJobGraph(ArrayNode jsonObject, String fillJobName, boolean needFather,
                                                                String triggerDay, Long createUserId,
                                                                String beginTime, String endTime, Long projectId, Long tenantId, Boolean isRoot,Integer appType,Long fillId,Long dtuicTenantId) throws Exception {
-        Map<String, ScheduleBatchJob> result = new HashMap<>();
+        Map<String, ScheduleBatchJob> result = new HashMap<>(16);
         if (jsonObject != null && jsonObject.size() > 0) {
             for (JsonNode jsonNode : jsonObject) {
                 Map<String, ScheduleBatchJob> stringScheduleBatchJobMap = buildFillDataJobGraph(jsonNode, fillJobName, needFather, triggerDay, createUserId, beginTime, endTime, projectId, tenantId, isRoot,appType,fillId,dtuicTenantId);
@@ -1087,6 +1088,7 @@ public class JobGraphBuilder {
      * @param projectId
      * @param tenantId
      * @param isRoot
+     * @param fillId 补数据id
      * @return
      */
     public Map<String, ScheduleBatchJob> buildFillDataJobGraph(JsonNode jsonObject, String fillJobName, boolean needFather,

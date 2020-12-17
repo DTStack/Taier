@@ -253,7 +253,6 @@ public class ScheduleTaskShadeService {
      */
     public ScheduleTaskShade getWorkFlowTopNode(Long taskId) {
         if (taskId != null) {
-            //todo sql有点不懂
             return scheduleTaskShadeDao.getWorkFlowTopNode(taskId);
         } else {
             return null;
@@ -287,7 +286,10 @@ public class ScheduleTaskShadeService {
 
 
     public ScheduleTaskShade getBatchTaskById( Long taskId, Integer appType) {
-        //todo 确少对taskId和appType的校验
+
+        if(null == taskId || null == appType){
+            throw new RdosDefineException("taskId或appType不能为空");
+        }
         ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId, appType);
         if (taskShade == null || Deleted.DELETED.getStatus().equals(taskShade.getIsDeleted())) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
@@ -479,7 +481,6 @@ public class ScheduleTaskShadeService {
     public List<ScheduleTaskShade> getFlowWorkSubTasks( Long taskId,  Integer appType,List<Integer> taskTypes,Long ownerId) {
         ScheduleTaskShadeDTO batchTaskShadeDTO = new ScheduleTaskShadeDTO();
         batchTaskShadeDTO.setIsDeleted(Deleted.NORMAL.getStatus());
-        //todo 为什么要把taskId的值赋给flowId
         batchTaskShadeDTO.setFlowId(taskId);
         batchTaskShadeDTO.setAppType(appType);
         batchTaskShadeDTO.setTaskTypeList(taskTypes);

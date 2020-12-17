@@ -52,10 +52,7 @@ public class ScheduleJobJobService {
      * @author toutian
      */
     public com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpring( Long jobId,
-                                                                        Long projectId,
                                                                         Integer level) throws Exception {
-
-        //todo 缺少对参数的校验
         ScheduleJob job = scheduleJobDao.getOne(jobId);
         if (job == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
@@ -68,7 +65,7 @@ public class ScheduleJobJobService {
             //如果是工作流子节点则返回整个工作流子节点依赖关系
             try {
                 ScheduleJob flowJob = scheduleJobDao.getByJobId(job.getFlowJobId(), Deleted.NORMAL.getStatus());
-                //工作流下全部实例,层级level使用int最大值
+                //工作流下全部实例,层级level使用int最大值，这个改成最大10层，否则可能会oom
                 com.dtstack.engine.master.vo.ScheduleJobVO subJobVO = displayOffSpringForFlowWork(flowJob);
                 if(null!=subJobVO) {
                     subJobVO.setProjectId(flowJob.getProjectId());
@@ -78,7 +75,6 @@ public class ScheduleJobJobService {
                 logger.error("get flow work subJob error", e);
             }
         }
-
         // 递归获取level层的子节点
         Map<Integer, List<ScheduleJobJob>> result = getSpecifiedLevelJobJobs(job.getJobKey(), level, true, null);
         ScheduleJobJobDTO root = new ScheduleJobJobDTO();
@@ -104,6 +100,9 @@ public class ScheduleJobJobService {
         List<Long> taskIds = new ArrayList<>();
 
         List<ScheduleJob> jobs = scheduleJobDao.listJobByJobKeys(allJobKeys);
+        if(CollectionUtils.isEmpty(jobs)){
+            return;
+        }
         Integer appType = null;
         for (ScheduleJob scheduleJob : jobs) {
             keyJobMap.put(scheduleJob.getJobKey(), scheduleJob);
@@ -149,7 +148,7 @@ public class ScheduleJobJobService {
 
     /**
      * @param rootKey
-     * @param level
+     * @param level 这里设置为10，防止一直递归
      * @param getChild
      * @param parentFlowJobJobKey 若root节点为工作流里的子节点，则为工作流父节点的jobKey值，否则为NULL
      *                            在业务上不需要展示从工作流子节点到父节点的关系
@@ -168,8 +167,8 @@ public class ScheduleJobJobService {
             } else {
                 jobJobs = scheduleJobJobDao.listByJobKeysWithOutSelfTask(jobKeys);
             }
-
             List<String> finalJobKeys = jobKeys;
+            //过滤掉重复的jobKey
             jobJobs = jobJobs.stream().filter(jobjob -> {
                 String temp;
                 if (!getChild) {
@@ -183,7 +182,6 @@ public class ScheduleJobJobService {
             if (CollectionUtils.isEmpty(jobJobs)) {
                 return result;
             }
-
             jobKeys = new ArrayList<>();
             for (ScheduleJobJobTaskDTO jobJob : jobJobs) {
                 if (getChild) {
@@ -192,24 +190,15 @@ public class ScheduleJobJobService {
                     jobKeys.add(jobJob.getParentJobKey());
                 }
             }
-
             List<ScheduleJobJob> jobJobList = jobJobs.stream().map(ScheduleJobJobTaskDTO::toJobJob).collect(Collectors.toList());
             logger.info("count info --- rootKey:{} jobJobList size:{} jobLoop:{}", rootKey, jobJobList.size(), jobLoop);
             result.put(jobLoop, jobJobList);
             jobLoop++;
         }
-
         return result;
     }
 
-    private Long getJobTaskIdFromJobKey(String jobKey) {
-        String[] fields = jobKey.split("_");
-        if (fields.length < 3) {
-            return null;
-        }
 
-        return MathUtil.getLongVal(fields[fields.length - 2]);
-    }
 
     private com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpringForFlowWork(ScheduleJob flowJob) throws Exception {
         com.dtstack.engine.master.vo.ScheduleJobVO vo = null;
@@ -250,8 +239,8 @@ public class ScheduleJobJobService {
         return vo;
     }
 
-    // todo 递归调用，特别注意
-    public com.dtstack.engine.master.vo.ScheduleJobVO getOffSpring(ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap, Map<Long, ScheduleTaskShade> idTaskMap, boolean isSubTask) {
+    public com.dtstack.engine.master.vo.ScheduleJobVO getOffSpring(
+            ScheduleJobJobDTO root, Map<String, ScheduleJob> keyJobMap, Map<Long, ScheduleTaskShade> idTaskMap, boolean isSubTask) {
 
         ScheduleJob job = keyJobMap.get(root.getJobKey());
         com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
@@ -260,32 +249,16 @@ public class ScheduleJobJobService {
         if (batchTaskShade == null) {
             return null;
         }
-
         //展示非工作流中的任务节点时，过滤掉工作流中的节点
         if (!isSubTask) {
             if (!vo.getFlowJobId().equals("0")) {
                 return null;
             }
         }
-
-        vo.setBatchTask(getTaskVo(batchTaskShade, job));
+        vo.setBatchTask(getTaskVo(batchTaskShade));
         if (CollectionUtils.isNotEmpty(root.getChildren())) {
-            Iterator<ScheduleJobJobDTO> it = root.getChildren().iterator();
-            while (it.hasNext()) {
-                ScheduleJobJobDTO jobJob = it.next();
-                // 4.0 getTaskIdFromJobKey 获取的是task_shade 的id
-                if (batchTaskShade.getId().equals(batchJobService.getTaskShadeIdFromJobKey(jobJob.getJobKey()))) {
-                    it.remove();
-                    continue;
-                }
-
-                String jobDayStr = batchJobService.getJobTriggerTimeFromJobKey(job.getJobKey());
-                String jobJobDayStr = batchJobService.getJobTriggerTimeFromJobKey(jobJob.getJobKey());
-                if (!jobDayStr.equals(jobJobDayStr)) {
-                    it.remove();
-                }
-            }
-
+            //移除不符合条件的jobjob
+            filterJobJob(root, job, batchTaskShade);
             List<ScheduleJobVO> subJobVOs = new ArrayList<>(root.getChildren().size());
             for (ScheduleJobJobDTO jobJobDTO : root.getChildren()) {
                 com.dtstack.engine.master.vo.ScheduleJobVO subVO = getOffSpring(jobJobDTO, keyJobMap, idTaskMap, isSubTask);
@@ -299,8 +272,26 @@ public class ScheduleJobJobService {
         return vo;
     }
 
+    private void filterJobJob(ScheduleJobJobDTO root, ScheduleJob job, ScheduleTaskShade batchTaskShade) {
+        Iterator<ScheduleJobJobDTO> it = root.getChildren().iterator();
+        while (it.hasNext()) {
+            ScheduleJobJobDTO jobJob = it.next();
+            // 4.0 getTaskIdFromJobKey 获取的是task_shade 的id
+            if (batchTaskShade.getId().equals(batchJobService.getTaskShadeIdFromJobKey(jobJob.getJobKey()))) {
+                it.remove();
+                continue;
+            }
+            String jobDayStr = batchJobService.getJobTriggerTimeFromJobKey(job.getJobKey());
+            String jobJobDayStr = batchJobService.getJobTriggerTimeFromJobKey(jobJob.getJobKey());
+            if (!jobDayStr.equals(jobJobDayStr)) {
+                //如果执行时间不是同一天，移除
+                it.remove();
+            }
+        }
+    }
 
-    private ScheduleTaskVO getTaskVo(ScheduleTaskShade batchTaskShade, ScheduleJob job) {
+
+    private ScheduleTaskVO getTaskVo(ScheduleTaskShade batchTaskShade) {
 
         return  new ScheduleTaskVO(batchTaskShade, true);
     }
@@ -342,7 +333,6 @@ public class ScheduleJobJobService {
         if (job == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
-
         if (level == null || level < 1) {
             level = 1;
         }
@@ -378,17 +368,17 @@ public class ScheduleJobJobService {
         }
         com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
         ScheduleTaskShade batchTaskShade = idTaskMap.get(job.getTaskId());
-
-        vo.setBatchTask(getTaskVo(batchTaskShade, job));
-
+        vo.setBatchTask(getTaskVo(batchTaskShade));
         if (StringUtils.isBlank(job.getJobKey())) {
             return vo;
         }
-
         if (CollectionUtils.isNotEmpty(root.getChildren())) {
-            root.getChildren().removeIf(jobJobDTO -> batchJobService.getTaskShadeIdFromJobKey(jobJobDTO.getJobKey()).equals(batchTaskShade.getId()));
+            root.getChildren().removeIf(jobJobDTO ->
+                    batchJobService.getTaskShadeIdFromJobKey(jobJobDTO.getJobKey()).equals(batchTaskShade.getId()));
 //            root.getChildren().removeIf(jobJobDTO -> job.getTaskId().equals(batchJobService.getTaskIdFromJobKey(jobJobDTO.getJobKey())));
-
+            if(CollectionUtils.isEmpty(root.getChildren())){
+                return vo;
+            }
             List<ScheduleJobVO> fatherVOs = new ArrayList<>();
             for (ScheduleJobJobDTO jobJobDTO : root.getChildren()) {
                 com.dtstack.engine.master.vo.ScheduleJobVO item = this.getForefathers(jobJobDTO, keyJobMap, idTaskMap);
@@ -398,7 +388,6 @@ public class ScheduleJobJobService {
             }
             vo.setJobVOS(fatherVOs);
         }
-
         return vo;
     }
 

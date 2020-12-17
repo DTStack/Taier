@@ -73,7 +73,7 @@
     <select id="listTenantIdByQueueIds" resultType="java.lang.Long">
         select tenant_id from console_engine_tenant
         where is_deleted = 0
-        <if test="queueIds !=null and queueIds.size() > 0">
+        <if test="queueIds !=null">
             and queue_id in
             <foreach collection="queueIds" item="queueId" open="(" separator="," close=")">
                 #{queueId}

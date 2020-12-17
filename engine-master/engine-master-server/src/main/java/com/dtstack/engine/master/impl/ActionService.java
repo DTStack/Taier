@@ -452,7 +452,6 @@ public class ActionService {
 
     public String generateUniqueSign(){
 
-        //todo 感觉写法有点问题，如果异常会一直运行，需要优化
         String uniqueSign;
         int index = 100;
         while(true){
@@ -476,6 +475,9 @@ public class ActionService {
                 break;
             }catch(Exception e){
                 logger.error("generateUniqueSign error:{}", ExceptionUtil.getErrorMessage(e));
+                if(index>105){
+                    throw new RdosDefineException("generateUniqueSign error");
+                }
             }
         }
         return uniqueSign;

@@ -79,13 +79,11 @@ public class ScheduleTaskTaskShadeService {
 
     public com.dtstack.engine.master.vo.ScheduleTaskVO displayOffSpring( Long taskId,
                                                                          Long projectId,
-                                                                         Long userId,
                                                                          Integer level,
                                                                          Integer directType, Integer appType) {
 
         ScheduleTaskShade task = null;
         try {
-            //todo 校验taskId和appType，sql查询字段为null时性能不好
             task = taskShadeService.getBatchTaskById(taskId,appType);
         } catch (RdosDefineException rdosDefineException) {
             if (rdosDefineException.getErrorCode().equals(ErrorCode.CAN_NOT_FIND_TASK)) {
@@ -93,15 +91,13 @@ public class ScheduleTaskTaskShadeService {
             }
             throw rdosDefineException;
         }
-
         if (level == null || level < 1) {
             level = 1;
         }
-
         if(directType == null){
             directType = 0;
         }
-
+        //获取任务的依赖树
         return this.getOffSpring(task, level, directType, projectId,appType);
     }
 
@@ -115,10 +111,12 @@ public class ScheduleTaskTaskShadeService {
         com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
         vo.setCurrentProject(currentProjectId.equals(taskShade.getProjectId()));
         if (EScheduleJobType.WORK_FLOW.getVal().equals(taskShade.getTaskType())) {
+            //如果是工作流，则获取工作流子节点
             com.dtstack.engine.master.vo.ScheduleTaskVO subTaskVO = getAllFlowSubTasks(taskShade.getTaskId(),taskShade.getAppType());
             vo.setSubNodes(subTaskVO);
         }
         if (level == 0) {
+            //控制最多展示多少层，防止一直循环。
             return vo;
         }
 
@@ -133,11 +131,13 @@ public class ScheduleTaskTaskShadeService {
             return getOnlyAllFlowSubTasks(taskShade.getFlowId(),appType);
         }
 
-        if(DisplayDirect.FATHER_CHILD.getType().equals(directType) || DisplayDirect.FATHER.getType().equals(directType)){//展开上游节点
+        //展开上游节点
+        if(DisplayDirect.FATHER_CHILD.getType().equals(directType) || DisplayDirect.FATHER.getType().equals(directType)){
             taskTasks = scheduleTaskTaskShadeDao.listParentTask(taskShade.getTaskId(),taskShade.getAppType());
         }
 
-        if(DisplayDirect.FATHER_CHILD.getType().equals(directType) || DisplayDirect.CHILD.getType().equals(directType)){//展开下游节点
+        //展开下游节点
+        if(DisplayDirect.FATHER_CHILD.getType().equals(directType) || DisplayDirect.CHILD.getType().equals(directType)){
             childTaskTasks = scheduleTaskTaskShadeDao.listChildTask(taskShade.getTaskId(),taskShade.getAppType());
         }
 
@@ -148,6 +148,7 @@ public class ScheduleTaskTaskShadeService {
         List<ScheduleTaskVO> parentTaskList = null;
         List<ScheduleTaskVO> childTaskList = null;
         if(!CollectionUtils.isEmpty(taskTasks)){
+            //向上展开
             Set<Long> taskIds = new HashSet<>(taskTasks.size());
             taskTasks.forEach(taskTask -> taskIds.add(taskTask.getParentTaskId()));
             parentTaskList = getRefTask(taskIds, level, DisplayDirect.FATHER.getType(), currentProjectId,appType);
@@ -157,6 +158,7 @@ public class ScheduleTaskTaskShadeService {
         }
 
         if(!CollectionUtils.isEmpty(childTaskTasks)){
+            //向下展开
             Set<Long> taskIds = new HashSet<>(childTaskTasks.size());
             childTaskTasks.forEach(taskTask -> taskIds.add(taskTask.getTaskId()));
             childTaskList = getRefTask(taskIds, level, DisplayDirect.CHILD.getType(), currentProjectId,appType);
@@ -195,7 +197,7 @@ public class ScheduleTaskTaskShadeService {
         com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO();
         ScheduleTaskShade beginTaskShade = taskShadeService.getWorkFlowTopNode(flowId);
         if(beginTaskShade!=null) {
-            vo = getFlowWorkOffSpring(beginTaskShade, 1, DisplayDirect.CHILD.getType(),appType);
+            vo = getFlowWorkOffSpring(beginTaskShade, 1, DisplayDirect.CHILD.getType(),appType,10);
         }
         return vo;
     }
@@ -209,28 +211,32 @@ public class ScheduleTaskTaskShadeService {
      */
     public com.dtstack.engine.master.vo.ScheduleTaskVO getAllFlowSubTasks( Long taskId,  Integer appType) {
 
-        //todo 校验taskid和appType是否为空
         ScheduleTaskShade task = taskShadeService.getBatchTaskById(taskId,appType);
         com.dtstack.engine.master.vo.ScheduleTaskVO parentNode = new com.dtstack.engine.master.vo.ScheduleTaskVO(task, true);
         com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO();
-
+        //获取工作流最顶层结点
         ScheduleTaskShade beginTaskShade = taskShadeService.getWorkFlowTopNode(taskId);
         if(beginTaskShade!=null) {
-            vo = getFlowWorkOffSpring(beginTaskShade, 1, DisplayDirect.CHILD.getType(),appType);
+            //获取工作流下游结点
+            vo = getFlowWorkOffSpring(beginTaskShade, 1, DisplayDirect.CHILD.getType(),appType,10);
         }
         parentNode.setSubTaskVOS(Arrays.asList(vo));
         return parentNode;
     }
 
     /**
-     * 向下展开工作流全部节点
+     * 向下展开工作流全部节点,增加max参数，万一循环依赖
+     * 最多查询10层就返回，防止内存溢出
      * @param taskShade
      * @param level
      * @param directType
      * @return
      */
-    //todo 感觉这块逻辑有点绕，循环调用了，需要优化
-    public com.dtstack.engine.master.vo.ScheduleTaskVO getFlowWorkOffSpring(ScheduleTaskShade taskShade, int level, Integer directType, Integer appType) {
+    private com.dtstack.engine.master.vo.ScheduleTaskVO getFlowWorkOffSpring(ScheduleTaskShade taskShade, int level, Integer directType, Integer appType,int max) {
+
+        if(max<=0){
+            return null;
+        }
         com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
         List<ScheduleTaskTaskShade> childTaskTasks = null;
         childTaskTasks = scheduleTaskTaskShadeDao.listChildTask(taskShade.getTaskId(),taskShade.getAppType());
@@ -239,24 +245,34 @@ public class ScheduleTaskTaskShadeService {
         }
         Set<Long> taskIds = new HashSet<>(childTaskTasks.size());
         childTaskTasks.forEach(taskTask -> taskIds.add(taskTask.getTaskId()));
-        List<ScheduleTaskVO> childTaskList = getFlowWorkSubTasksRefTask(taskIds, level, DisplayDirect.CHILD.getType(),appType);
+        max--;
+        List<ScheduleTaskVO> childTaskList = getFlowWorkSubTasksRefTask(taskIds, level, DisplayDirect.CHILD.getType(),appType,max);
         if (childTaskList != null) {
             vo.setSubTaskVOS(childTaskList);
         }
         return vo;
     }
 
-    public List<ScheduleTaskVO> getFlowWorkSubTasksRefTask(Set<Long> taskIds, int level, Integer directType, Integer appType) {
+    /**
+     * @author newman
+     * @Description 获取所有工作流子节点的子任务
+     * @Date 2020-12-17 10:25
+     * @param taskIds:
+     * @param level:
+     * @param directType:
+     * @param appType:
+     * @return: java.util.List<com.dtstack.engine.api.vo.ScheduleTaskVO>
+     **/
+    private List<ScheduleTaskVO> getFlowWorkSubTasksRefTask(Set<Long> taskIds, int level, Integer directType, Integer appType,int max) {
 
         //获得所有父节点task
         List<ScheduleTaskShade> tasks = taskShadeService.getTaskByIds(new ArrayList<>(taskIds),appType);
         if (CollectionUtils.isEmpty(tasks)) {
             return null;
         }
-
         List<ScheduleTaskVO> refTaskVoList = new ArrayList<>(tasks.size());
         for (ScheduleTaskShade task : tasks) {
-            refTaskVoList.add(this.getFlowWorkOffSpring(task, level, directType,appType));
+            refTaskVoList.add(this.getFlowWorkOffSpring(task, level, directType,appType,max));
         }
 
         return refTaskVoList;
