@@ -6,6 +6,7 @@ import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.executor.AbstractJobExecutor;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,4 +148,23 @@ public class BatchFlowWorkJobService {
         return canRemove;
     }
 
+    /**
+     * 工作流自己为自动取消或冻结的状态的时候 直接把子任务状态全部更新 防止重复check
+     * 出现工作流为自动取消 但是子任务为等待提交 需要经过下一轮check才变更为自动取消
+     *
+     * @param flowJobId
+     * @param status
+     */
+    public void batchUpdateFlowSubJobStatus(String flowJobId, Integer status) {
+        if (StringUtils.isBlank(flowJobId) || "0".equalsIgnoreCase(flowJobId)) {
+            return;
+        }
+        if (RdosTaskStatus.EXPIRE.getStatus().equals(status) || RdosTaskStatus.FROZEN.getStatus().equals(status)) {
+            List<ScheduleJob> subJobs = batchJobService.getSubJobsAndStatusByFlowId(flowJobId);
+            for (ScheduleJob subJob : subJobs) {
+                logger.info("jobId:{} is WORK_FLOW or ALGORITHM_LAB son update status with flowJobId {} status {}", subJob.getJobId(), flowJobId, status);
+                batchJobService.updateStatusByJobId(subJob.getJobId(), status, null);
+            }
+        }
+    }
 }
