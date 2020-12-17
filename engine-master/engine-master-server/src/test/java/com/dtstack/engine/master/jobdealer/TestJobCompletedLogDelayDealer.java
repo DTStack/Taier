@@ -11,6 +11,9 @@ import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @Author tengzhen
@@ -35,6 +38,8 @@ public class TestJobCompletedLogDelayDealer extends AbstractTest {
 
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testRun(){
 
         EngineJobCache engineJobCache2 = DataCollection.getData().getEngineJobCache2();

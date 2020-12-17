@@ -38,7 +38,8 @@ public enum EScheduleJobType {
     TENSORFLOW_1_X(22, "TensorFlow 1.x", 3, 5),
     KERAS(23, "Keras", 3, 6),
     PRESTO_SQL(24, "Presto", 0, 30),
-    PYTORCH(25, "Pytorch", 3, 40);
+    PYTORCH(25, "Pytorch", 3, 40),
+    KINGBASE(26,"kingbase",0,41);
 
 
     private Integer type;

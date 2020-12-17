@@ -17,14 +17,14 @@
         <dependency>
             <groupId>com.dtstack.engine</groupId>
             <artifactId>engine-common</artifactId>
-            <version>1.0.0</version>
+            <version>${common.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-worker-server</artifactId>
-            <version>1.0.0</version>
+            <artifactId>engine-common</artifactId>
+            <version>${common.version}</version>
             <scope>provided</scope>
         </dependency>
 

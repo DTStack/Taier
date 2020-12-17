@@ -33,7 +33,8 @@ public enum ScheduleEngineType {
     SQLSERVER(19, "sqlserver"),
     MAX_COMPUTE(20, "maxcompute"),
     DUMMY(21, "dummy"),
-    Presto(22, "presto");
+    Presto(22, "presto"),
+    KING_BASE(23,"kingbase");
 
     private int val;
 
@@ -114,6 +115,8 @@ public enum ScheduleEngineType {
                 return ScheduleEngineType.DUMMY;
             case "presto":
                 return ScheduleEngineType.Presto;
+            case "kingbase":
+                return ScheduleEngineType.KING_BASE;
         }
         return null;
     }

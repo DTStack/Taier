@@ -639,7 +639,7 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
-        String jobId = jobIdentifier.getEngineJobId();
+
         String reqURL;
 
         if (EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode()) && IS_END_STATUS.test(getJobStatus(jobIdentifier))) {
@@ -652,11 +652,17 @@ public class FlinkClient extends AbstractClient {
             reqURL = currClient.getWebInterfaceURL();
         }
 
+        String jobId =  null;
+
         try {
+            jobId = jobIdentifier.getEngineJobId();
+            if (jobId == null) {
+                throw new RdosDefineException("jobId is null.");
+            }
             String except = getExceptionInfo(jobId, reqURL);
             return FlinkRestParseUtil.parseEngineLog(except);
         } catch (Exception e) {
-            logger.error("", e);
+            logger.error("getExceptionInfo faild. The reason is {}.", e);
             Map<String, String> map = new LinkedHashMap<>(8);
             map.put("jobId", jobId);
             map.put("exception", ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION);
@@ -1014,50 +1020,4 @@ public class FlinkClient extends AbstractClient {
         jobHistory = String.format("http://%s:%s", webAddress, port);
         return jobHistory;
     }
-
-    public static void main(String[] args) throws Exception {
-
-        FileInputStream fileInputStream = null;
-        InputStreamReader inputStreamReader = null;
-        BufferedReader reader = null;
-
-        try {
-            System.setProperty("HADOOP_USER_NAME", "admin");
-
-            // input params json file path
-            String filePath = args[0];
-            File paramsFile = new File(filePath);
-            fileInputStream = new FileInputStream(paramsFile);
-            inputStreamReader = new InputStreamReader(fileInputStream);
-            reader = new BufferedReader(inputStreamReader);
-            String request = reader.readLine();
-            Map params = PublicUtil.jsonStrToObject(request, Map.class);
-            ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-            JobClient jobClient = new JobClient(paramAction);
-
-            String pluginInfo = jobClient.getPluginInfo();
-            Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
-            String md5plugin = MD5Util.getMd5String(pluginInfo);
-            properties.setProperty("md5sum", md5plugin);
-
-            FlinkClient client = new FlinkClient();
-            client.init(properties);
-
-            JobResult jobResult = client.submitJob(jobClient);
-            String appId = jobResult.getData("extid");
-            String jobId = jobResult.getData("jobid");
-            logger.info("submit success!, jobId: " + jobId + ", appId: " + appId);
-            logger.info(jobResult.getJsonStr());
-            System.exit(0);
-        } catch (Exception e) {
-            logger.error("submit error!", e);
-        } finally {
-            if (reader != null){
-                reader.close();
-                inputStreamReader.close();
-                fileInputStream.close();
-            }
-        }
-    }
-
 }

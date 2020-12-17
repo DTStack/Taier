@@ -26,13 +26,14 @@
         <module>tidb</module>
         <module>greenplum</module>
         <module>presto</module>
+        <module>kingbase</module>
     </modules>
 
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
             <artifactId>engine-common</artifactId>
-            <version>1.0.0</version>
+            <version>${common.version}</version>
             <scope>provided</scope>
         </dependency>
 
