@@ -28,6 +28,8 @@ public class FlinkConfig extends BaseConfig {
 
     private String typeName;
 
+    private int sessionRetryNum = 3;
+
     private String flinkJobMgrUrl;
 
     private String jarTmpDir;
@@ -226,6 +228,14 @@ public class FlinkConfig extends BaseConfig {
 
     public void setFlinkSessionSlotCount(int flinkSessionSlotCount) {
         this.flinkSessionSlotCount = flinkSessionSlotCount;
+    }
+
+    public int getSessionRetryNum() {
+        return sessionRetryNum;
+    }
+
+    public void setSessionRetryNum(int sessionRetryNum) {
+        this.sessionRetryNum = sessionRetryNum;
     }
 
     public String getFlinkSessionName() {
