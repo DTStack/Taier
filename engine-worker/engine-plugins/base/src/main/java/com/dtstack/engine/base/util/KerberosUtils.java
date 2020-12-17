@@ -27,11 +27,8 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.PrivilegedExceptionAction;
-import java.util.*;
 import java.sql.Timestamp;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -114,14 +111,21 @@ public class KerberosUtils {
                 String finalPrincipal = principal;
                 logger.info("kerberos login, principal:{}, keytabPath:{}, krb5ConfPath:{}", principal, keytabPath, krb5ConfPath);
 
-                ugi = ugiMap.computeIfAbsent(threadName, k -> {
-                    return createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath);
-                });
+                /*
+                 * 如果用已经带有token的ugi进行认证时，在HDFS DELEGATION TOKEN那里会出现认证错误
+                 * 在这里先每次创建UGI进行避开
+                     ugi = ugiMap.computeIfAbsent(threadName, k -> {
+                        return createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath);
+                        });
+                 */
+
+                ugi = createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath);
+
                 KerberosTicket ticket = getTGT(ugi);
                 if (!checkTGT(ticket) || isOverrideDownLoad) {
                     logger.info("Relogin after the ticket expired, principal: {}, current thread: {}", principal, Thread.currentThread().getName());
                     ugi = createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath);
-                    ugiMap.put(threadName, ugi);
+//                    ugiMap.put(threadName, ugi);
                 }
                 logger.info("userGroupInformation current user = {} ugi user  = {} ", UserGroupInformation.getCurrentUser(), ugi.getUserName());
             }
