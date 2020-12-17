@@ -52,16 +52,34 @@ public class KerberosUtils {
     private static final String TIME_FILE = ".lock";
     private static final String KEYTAB_FILE = ".keytab";
 
+
     /**
-     * @param config        任务外层配置
+     * @see HadoopKerberosName#setConfiguration(org.apache.hadoop.conf.Configuration)
+     * @param ugi
      * @param supplier
-     * @param configuration 集群如yarn配置信息
+     * @param <T>
+     * @return
+     */
+    private static <T> T loginKerberosWithCallBack(UserGroupInformation ugi, Supplier<T> supplier) {
+        try {
+            return ugi.doAs((PrivilegedExceptionAction<T>) supplier::get);
+        } catch (Exception e) {
+            logger.error("{}", e.getMessage());
+            throw new RdosDefineException("doAs error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 重载login方法 ，增加IsCreateNewUGI 来检查是否重新create ugi
+     * @param config
+     * @param supplier
+     * @param configuration
+     * @param isCreateNewUGI
      * @param <T>
      * @return
      * @throws Exception
      */
-    public static <T> T login(BaseConfig config, Supplier<T> supplier, Configuration configuration) throws Exception {
-
+    public static <T> T login(BaseConfig config, Supplier<T> supplier, Configuration configuration, boolean isCreateNewUGI) throws Exception {
         if (Objects.isNull(config) || !config.isOpenKerberos()) {
             return supplier.get();
         }
@@ -113,19 +131,21 @@ public class KerberosUtils {
 
                 /*
                  * 如果用已经带有token的ugi进行认证时，在HDFS DELEGATION TOKEN那里会出现认证错误
-                 * 在这里先每次创建UGI进行避开
-                     ugi = ugiMap.computeIfAbsent(threadName, k -> {
-                        return createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath);
-                        });
+                 * 如果是SPARK 在这里先每次创建UGI进行避开
                  */
-
-                ugi = createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath);
+                if (isCreateNewUGI) {
+                    ugi = createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath);
+                } else {
+                    ugi = ugiMap.computeIfAbsent(threadName, k -> createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath));
+                }
 
                 KerberosTicket ticket = getTGT(ugi);
                 if (!checkTGT(ticket) || isOverrideDownLoad) {
                     logger.info("Relogin after the ticket expired, principal: {}, current thread: {}", principal, Thread.currentThread().getName());
                     ugi = createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath);
-//                    ugiMap.put(threadName, ugi);
+                    if (!isCreateNewUGI) {
+                        ugiMap.put(threadName, ugi);
+                    }
                 }
                 logger.info("userGroupInformation current user = {} ugi user  = {} ", UserGroupInformation.getCurrentUser(), ugi.getUserName());
             }
@@ -137,19 +157,15 @@ public class KerberosUtils {
     }
 
     /**
-     * @see HadoopKerberosName#setConfiguration(org.apache.hadoop.conf.Configuration)
-     * @param ugi
+     * @param config        任务外层配置
      * @param supplier
+     * @param configuration 集群如yarn配置信息
      * @param <T>
      * @return
+     * @throws Exception
      */
-    private static <T> T loginKerberosWithCallBack(UserGroupInformation ugi, Supplier<T> supplier) {
-        try {
-            return ugi.doAs((PrivilegedExceptionAction<T>) supplier::get);
-        } catch (Exception e) {
-            logger.error("{}", e.getMessage());
-            throw new RdosDefineException("doAs error: " + e.getMessage());
-        }
+    public static <T> T login(BaseConfig config, Supplier<T> supplier, Configuration configuration) throws Exception {
+        return login(config, supplier, configuration, false);
     }
 
     private static void writeTimeLockFile(Timestamp timestamp, String localFile) {
@@ -201,6 +217,7 @@ public class KerberosUtils {
     }
 
     private synchronized static UserGroupInformation createUGI(String krb5ConfPath, Configuration config, String principal, String keytabPath) {
+        logger.info("Creating a new UGI.");
         try {
             checkParams(principal, krb5ConfPath, keytabPath);
             // krb5ConfPath = mergeKrb5(krb5ConfPath, principal);
