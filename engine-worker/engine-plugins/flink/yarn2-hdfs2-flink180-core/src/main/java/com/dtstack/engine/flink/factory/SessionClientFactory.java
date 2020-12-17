@@ -162,8 +162,14 @@ public class SessionClientFactory extends AbstractClientFactory {
     }
 
     public LeaderLatch getLeaderLatch() {
-        String localPath = String.format("%s/%s-%s", SESSION_CHECK_LEADER_ELECTION, this.sessionAppNameSuffix, FLINK_VERSION);
-        LeaderLatch ll = new LeaderLatch(this.zkClient, localPath);
+
+        String lockPath = String.format("%s/%s-%s/%s",
+                SESSION_CHECK_LEADER_ELECTION,
+                this.sessionAppNameSuffix,
+                FLINK_VERSION,
+                flinkConfig.getFlinkSessionName());
+
+        LeaderLatch ll = new LeaderLatch(this.zkClient, lockPath);
         return ll;
     }
 
