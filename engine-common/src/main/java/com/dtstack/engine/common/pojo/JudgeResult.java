@@ -20,6 +20,13 @@ public class JudgeResult implements Serializable {
         return judgeResult;
     }
 
+    public static JudgeResult exception(String reason) {
+        JudgeResult judgeResult = new JudgeResult();
+        judgeResult.setResult(JudgeType.EXCEPTION);
+        judgeResult.setReason(reason);
+        return judgeResult;
+    }
+
     public static JudgeResult limitError(String reason) {
         JudgeResult judgeResult = new JudgeResult();
         judgeResult.setResult(JudgeType.LIMIT_ERROR);
@@ -51,6 +58,7 @@ public class JudgeResult implements Serializable {
     public enum JudgeType {
         OK,
         NOT_OK,
-        LIMIT_ERROR
+        LIMIT_ERROR,
+        EXCEPTION
     }
 }
