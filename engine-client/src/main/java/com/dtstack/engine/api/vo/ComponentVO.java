@@ -19,6 +19,16 @@ public class ComponentVO extends Component {
 
     private String principal;
 
+    private String mergeKrb5Content;
+
+    public String getMergeKrb5Content() {
+        return mergeKrb5Content;
+    }
+
+    public void setMergeKrb5Content(String mergeKrb5Content) {
+        this.mergeKrb5Content = mergeKrb5Content;
+    }
+
     public String getPrincipals() {
         return principals;
     }

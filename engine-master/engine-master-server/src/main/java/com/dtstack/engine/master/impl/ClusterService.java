@@ -47,6 +47,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.dtstack.engine.common.constrant.ConfigConstant.MERGE_KRB5_CONTENT_KEY;
 import static com.dtstack.engine.common.constrant.ConfigConstant.LDAP_USER_NAME;
 import static com.dtstack.engine.master.impl.ComponentService.*;
 import static java.lang.String.format;
@@ -274,7 +275,8 @@ public class ClusterService implements InitializingBean {
                     .fluentPut("principalFile", kerberosConfig.getName())
                     .fluentPut("principal", kerberosConfig.getPrincipal())
                     .fluentPut("krbName", kerberosConfig.getKrbName())
-                    .fluentPut("kerberosFileTimestamp", kerberosConfig.getGmtModified());
+                    .fluentPut("kerberosFileTimestamp", kerberosConfig.getGmtModified())
+                    .fluentPut(MERGE_KRB5_CONTENT_KEY, kerberosConfig.getMergeKrbContent());
             //如果 hiveSQL  impalaSQL中没有yarnConf 需要添加yarnConf做kerberos认证
             pluginJson.putIfAbsent(EComponentType.YARN.getConfName(),clusterConfigJson.getJSONObject(EComponentType.YARN.getConfName()));
         }
