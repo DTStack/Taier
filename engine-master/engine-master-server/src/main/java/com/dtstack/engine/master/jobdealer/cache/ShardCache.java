@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 /**
  * company: www.dtstack.com
@@ -58,6 +59,20 @@ public class ShardCache implements ApplicationContextAware {
             shardManager.putJob(jobId, status);
             return true;
         }
+        return removeWithForeach(jobId);
+    }
+
+
+    public boolean updateLocalMemTaskStatus(String jobId, Integer status, Consumer<String> consumer) {
+        if (jobId == null || status == null) {
+            throw new IllegalArgumentException("jobId or status must not null.");
+        }
+        ShardManager shardManager = getShardManager(jobId);
+        if (shardManager != null) {
+            shardManager.putJob(jobId, status);
+            return true;
+        }
+        consumer.accept(jobId);
         return removeWithForeach(jobId);
     }
 
