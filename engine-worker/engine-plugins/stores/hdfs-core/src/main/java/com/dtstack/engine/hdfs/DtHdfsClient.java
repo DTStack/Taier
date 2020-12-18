@@ -3,6 +3,7 @@ package com.dtstack.engine.hdfs;
 
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -56,6 +57,7 @@ public class DtHdfsClient extends AbstractClient {
                 configuration.setBoolean(key, (boolean) value);
             }
         });
+        HadoopConfTool.setDefaultYarnConf(configuration, conf);
         return configuration;
     }
 
