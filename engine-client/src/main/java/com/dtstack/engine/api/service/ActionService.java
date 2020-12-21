@@ -41,7 +41,7 @@ public interface ActionService extends DtInsightServer {
      */
     @RequestLine("POST /node/action/paramActionExt")
     @Headers(value={"Content-Type: application/json"})
-    ApiResponse<ParamActionExt> paramActionExt(ParamActionExt paramActionExt);
+    ApiResponse<ParamActionExt> paramActionExt(ParamTaskAction paramActionExt);
 
 
     /**
