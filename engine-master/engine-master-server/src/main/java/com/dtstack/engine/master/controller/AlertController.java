@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.client.AlertGateFacade;
 import com.dtstack.engine.alert.client.AlertServiceProvider;
 import com.dtstack.engine.alert.domian.PageResult;
@@ -14,15 +15,15 @@ import com.dtstack.engine.api.domain.po.AlertGatePO;
 import com.dtstack.engine.api.domain.po.ClusterAlertPO;
 import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
-import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
 import com.dtstack.engine.common.enums.AlertGateTypeEnum;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.sftp.SftpConfig;
+import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.master.config.MvcConfig;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.env.EnvironmentContext;
-import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.utils.CheckUtils;
 import com.dtstack.lang.data.R;
@@ -102,16 +103,16 @@ public class AlertController {
                 // 查询默认集群的sftp
                 Component sftpComponent = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode());
                 if (sftpComponent != null) {
-//                    SftpConfig sftpConfig = getSftpConfig();
-//                    if (sftpConfig != null) {
-//                        try {
-//                            String remoteDir = sftpConfig.getPath() + File.separator + filePath;
-//                            SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
-//                            sftpManager.uploadFile(remoteDir ,destPath);
-//                        } catch (Exception e) {
-//                            log.error("上传sftp失败:",e);
-//                        }
-//                    }
+                    SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
+                    if (sftpConfig != null) {
+                        try {
+                            String remoteDir = sftpConfig.getPath() + File.separator + filePath;
+                            SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
+                            sftpManager.uploadFile(remoteDir ,destPath);
+                        } catch (Exception e) {
+                            log.error("上传sftp失败:",e);
+                        }
+                    }
                 }
             }
 

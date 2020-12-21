@@ -2,6 +2,7 @@ package com.dtstack.engine.alert.factory;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
@@ -11,11 +12,18 @@ import java.util.concurrent.TimeUnit;
  *
  * @author xiaochen
  */
+@Component
 public class ChannelCache {
     private static final Cache<String, Object> cache = CacheBuilder.newBuilder()
             .maximumSize(1000L).initialCapacity(1000).expireAfterAccess(10, TimeUnit.MINUTES).build();
 
-    public static Object getChannelInstance(String jarPath, String className) throws Exception {
+    private static final Cache<String, String> cacheSftpJar = CacheBuilder.newBuilder()
+            .maximumSize(1000L).initialCapacity(1000).expireAfterAccess(5, TimeUnit.MINUTES).build();
+
+
+    public Object getChannelInstance(String jarPath, String className) throws Exception {
+
+
         if (jarPath.contains("/normal")) {
             String key = jarPath + className;
 
