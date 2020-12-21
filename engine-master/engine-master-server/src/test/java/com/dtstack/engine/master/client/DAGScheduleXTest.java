@@ -1,8 +1,6 @@
 package com.dtstack.engine.master.client;
 
 import com.alibaba.fastjson.JSON;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.enums.DbType;
 import com.dtstack.engine.api.enums.EComponentApiType;
@@ -28,12 +26,10 @@ import com.dtstack.engine.api.vo.tenant.UserTenantVO;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightApi;
 import org.assertj.core.util.Lists;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static junit.framework.TestCase.fail;
 
@@ -70,7 +66,7 @@ public class DAGScheduleXTest {
     public void testStart19() {
         try {
             DtInsightApi api = builder.buildApi();
-            TaskParamService apiClient = api.getApiClient(TaskParamService.class);
+            TaskParamApiClient apiClient = api.getApiClient(TaskParamApiClient.class);
             TaskTemplateVO taskTemplateVO = new TaskTemplateVO();
             taskTemplateVO.setComputeType(1);
             taskTemplateVO.setEngineType(5);

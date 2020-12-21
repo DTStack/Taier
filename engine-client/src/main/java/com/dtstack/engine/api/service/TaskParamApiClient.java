@@ -13,7 +13,7 @@ import com.dtstack.sdk.core.feign.RequestLine;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public interface TaskParamService extends DtInsightServer {
+public interface TaskParamApiClient extends DtInsightServer {
 
     /**
      *  获取指定任务类型的任务参数
