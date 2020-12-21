@@ -12,6 +12,6 @@ import java.util.Comparator;
 public class JobClientComparator implements Comparator<JobClient> {
     @Override
     public int compare(JobClient o1, JobClient o2) {
-        return Long.compare(o2.getPriority(), o1.getPriority());
+        return Long.compare(o1.getPriority(), o2.getPriority());
     }
 }

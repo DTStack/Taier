@@ -15,6 +15,8 @@ public interface DtYarnConstants {
 
   String WORKER = "worker";
 
+  String PROXY_USER_NAME = "dtProxyUserName";
+
   String GPU = "yarn.io/gpu";
 
   enum Environment {

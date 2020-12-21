@@ -34,16 +34,14 @@ public class RMCallbackHandler implements CallbackHandler {
     public RMCallbackHandler() {
         releaseContainers = Collections.synchronizedList(new ArrayList<Container>());
         acquiredWorkerContainers = Collections.synchronizedList(new ArrayList<Container>());
-        blackHosts = Collections.synchronizedSet(new HashSet<String>());
         acquiredWorkerContainersCount = new AtomicInteger(0);
+        blackHosts = Collections.synchronizedSet(new HashSet<String>());
         workerContainersExclusive = new AtomicBoolean(false);
     }
 
     public List<String> getBlackHosts() {
         List<String> blackHostList = new ArrayList<>(blackHosts.size());
-        for (String host : blackHosts) {
-            blackHostList.add(host);
-        }
+        blackHostList.addAll(blackHosts);
         return blackHostList;
     }
 
@@ -83,14 +81,14 @@ public class RMCallbackHandler implements CallbackHandler {
      */
     @Override
     public void onContainersAllocated(List<Container> containers) {
-        List<Container> allocatedContainers = new ArrayList<>(containers.size());
         for (Container acquiredContainer : containers) {
             LOG.info("Acquired container " + acquiredContainer.getId()
                     + " on host " + acquiredContainer.getNodeId().getHost()
                     + " , with the resource " + acquiredContainer.getResource().toString());
             String host = acquiredContainer.getNodeId().getHost();
             if (!blackHosts.contains(host)) {
-                allocatedContainers.add(acquiredContainer);
+                acquiredWorkerContainers.add(acquiredContainer);
+                acquiredWorkerContainersCount.incrementAndGet();
                 if (workerContainersExclusive.get()) {
                     blackHosts.add(acquiredContainer.getNodeId().getHost());
                 }
@@ -99,16 +97,8 @@ public class RMCallbackHandler implements CallbackHandler {
                 releaseContainers.add(acquiredContainer);
             }
         }
-        acquiredWorkerContainers.addAll(allocatedContainers);
-        acquiredWorkerContainersCount.addAndGet(allocatedContainers.size());
         LOG.info("Current acquired worker container " + acquiredWorkerContainersCount.get()
                 + " / " + neededWorkerContainersCount);
-    }
-
-    public void removeLaunchFailed(String nodeHost) {
-        if (workerContainersExclusive.get()) {
-            blackHosts.remove(nodeHost);
-        }
     }
 
     @Override
@@ -133,15 +123,4 @@ public class RMCallbackHandler implements CallbackHandler {
         LOG.error("Error from RMCallback: ", e);
     }
 
-    public void resetAllocatedWorkerContainerNumber() {
-        acquiredWorkerContainersCount.set(0);
-    }
-
-    public void resetAcquiredWorkerContainers() {
-        acquiredWorkerContainers.clear();
-    }
-
-    public void removeReleaseContainers(List<Container> removeContainers) {
-        releaseContainers.removeAll(removeContainers);
-    }
 }

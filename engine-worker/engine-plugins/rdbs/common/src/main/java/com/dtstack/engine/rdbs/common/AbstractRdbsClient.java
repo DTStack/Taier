@@ -123,8 +123,8 @@ public abstract class AbstractRdbsClient extends AbstractClient {
         try {
             return resourceInfo.judgeSlots(jobClient);
         } catch (Exception e) {
-            LOG.error("JudgeSlots error " + e.getMessage());
-            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
+            LOG.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -198,6 +198,7 @@ public abstract class AbstractRdbsClient extends AbstractClient {
             }
         } catch (Exception e) {
             LOG.error("execue sql {} error",sql,e);
+            throw new RdosDefineException(e);
         } finally {
             try {
                 if (res != null) {

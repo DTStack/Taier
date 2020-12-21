@@ -33,9 +33,12 @@ import com.dtstack.engine.api.vo.SchedulePeriodInfoVO;
 import com.dtstack.engine.api.vo.ScheduleRunDetailVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
+import com.dtstack.engine.common.enums.EngineType;
+import org.joda.time.DateTime;
+import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
-import com.dtstack.engine.master.enums.EDeployMode;
+import com.dtstack.engine.common.enums.EDeployMode;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +60,9 @@ import java.util.Objects;
 public class ScheduleJobServiceTest extends AbstractTest {
     @Autowired
     ScheduleJobService sheduleJobService;
+
+    @Autowired
+    private ScheduleJobDao scheduleJobDao;
 
     @Test
     @Transactional
@@ -253,8 +259,13 @@ public class ScheduleJobServiceTest extends AbstractTest {
         long jobId = Long.valueOf(job.getId());
 
         try {
+            ScheduleJob afterJob = job;
+            afterJob.setJobId("testAfter");
+            afterJob.setJobKey("testAfterkey");
+            afterJob.setCycTime(DateTime.now().toString("yyyy-mm-dd HH:mm:ss"));
+            scheduleJobDao.insert(afterJob);
             List<SchedulePeriodInfoVO> schedulePeriodInfoVOS = sheduleJobService.displayPeriods(true, jobId, job.getProjectId(), 10);
-            Assert.assertTrue(schedulePeriodInfoVOS.size() == 1 && schedulePeriodInfoVOS.get(0).getTaskId().equals(job.getTaskId()));
+            Assert.assertNotNull(schedulePeriodInfoVOS);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -274,7 +285,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testParseDeployTypeByTaskParams() {
-        EDeployMode eDeployMode = sheduleJobService.parseDeployTypeByTaskParams("flinkTaskRunMode=session",0);
+        EDeployMode eDeployMode = sheduleJobService.parseDeployTypeByTaskParams("flinkTaskRunMode=session",0, EngineType.Flink.name());
         Assert.assertEquals(eDeployMode, EDeployMode.SESSION);
     }
 

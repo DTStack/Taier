@@ -2,25 +2,29 @@ package com.dtstack.engine.flink;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.base.enums.ClassLoaderType;
+import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.KerberosUtils;
+import com.dtstack.engine.common.JarFileInfo;
+import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.JobParam;
+import com.dtstack.engine.common.client.AbstractClient;
+import com.dtstack.engine.common.constrant.ConfigConstant;
+import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.EDeployMode;
+import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.HttpClient;
 import com.dtstack.engine.common.http.PoolHttpClient;
-import com.dtstack.engine.common.pojo.JudgeResult;
-import com.dtstack.engine.common.util.*;
-import com.dtstack.engine.common.JarFileInfo;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.JobParam;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
-import com.dtstack.engine.common.util.SFTPHandler;
+import com.dtstack.engine.common.pojo.JudgeResult;
+import com.dtstack.engine.common.util.DtStringUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UrlUtil;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
@@ -33,15 +37,9 @@ import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.resource.FlinkPerJobResourceInfo;
 import com.dtstack.engine.flink.resource.FlinkYarnSeesionResourceInfo;
 import com.dtstack.engine.flink.util.*;
-import com.dtstack.engine.common.client.AbstractClient;
-import com.dtstack.engine.worker.enums.ClassLoaderType;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
@@ -55,7 +53,7 @@ import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.PackagedProgramUtils;
-import org.apache.flink.configuration.HistoryServerOptions;
+import org.apache.flink.configuration.JobManagerOptions;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.Preconditions;
@@ -73,10 +71,12 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -109,7 +109,9 @@ public class FlinkClient extends AbstractClient {
 
     private FlinkClusterClientManager flinkClusterClientManager;
 
-    private String jobHistory;
+    private FilesystemManager filesystemManager;
+
+    private final static Predicate<RdosTaskStatus> IS_END_STATUS = status -> RdosTaskStatus.getStoppedStatus().contains(status.getStatus()) || RdosTaskStatus.NOTFOUND.equals(status);
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -125,10 +127,12 @@ public class FlinkClient extends AbstractClient {
         sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
 
         hadoopConf = FlinkClientBuilder.initHadoopConf(flinkConfig);
-        flinkClientBuilder = FlinkClientBuilder.create(flinkConfig, hadoopConf.getConfiguration(), hadoopConf.getYarnConfiguration());
+        flinkClientBuilder = new FlinkClientBuilder(flinkConfig, hadoopConf.getConfiguration(), hadoopConf.getYarnConfiguration());
         flinkClientBuilder.initFlinkGlobalConfiguration(flinkExtProp);
 
-        flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
+        flinkClusterClientManager = new FlinkClusterClientManager(flinkClientBuilder);
+
+        filesystemManager = new FilesystemManager(hadoopConf.getYarnConfiguration(), flinkConfig.getSftpConf());
 
         if (flinkConfig.getMonitorAcceptedApp()) {
             AcceptedApplicationMonitor.start(hadoopConf.getYarnConfiguration(), flinkConfig.getQueue(), flinkConfig);
@@ -164,7 +168,7 @@ public class FlinkClient extends AbstractClient {
 
     private JobResult submitJobWithJar(JobClient jobClient, List<URL> classPaths, List<String> programArgList) {
         if (flinkConfig.isOpenKerberos()){
-            FileUtil.downloadKafkaKeyTab(jobClient, flinkConfig);
+            FileUtil.downloadKafkaKeyTab(jobClient, filesystemManager);
         }
 
         if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
@@ -199,7 +203,7 @@ public class FlinkClient extends AbstractClient {
         try {
             if (FlinkYarnMode.isPerJob(taskRunMode)) {
                 // perjob模式延后创建PackagedProgram
-                jarFile = FlinkUtil.downloadJar(jarPath, tmpFileDirPath, hadoopConf.getConfiguration());
+                jarFile = FlinkUtil.downloadJar(jarPath, tmpFileDirPath, filesystemManager, true);
                 ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getApplicationPriority(), jobClient.getConfProperties());
                 clusterSpecification.setConfiguration(flinkClientBuilder.getFlinkConfiguration());
                 clusterSpecification.setClasspaths(classPaths);
@@ -208,7 +212,7 @@ public class FlinkClient extends AbstractClient {
                 clusterSpecification.setSpSetting(spSettings);
                 clusterSpecification.setProgramArgs(programArgs);
                 clusterSpecification.setCreateProgramDelay(true);
-                clusterSpecification.setYarnConfiguration(getYarnConf(jobClient.getPluginInfo()));
+                clusterSpecification.setYarnConfiguration(hadoopConf.getYarnConfiguration());
                 clusterSpecification.setClassLoaderType(ClassLoaderType.getClassLoaderType(jobClient.getJobType()));
 
                 runResult = runJobByPerJob(clusterSpecification, jobClient);
@@ -216,7 +220,7 @@ public class FlinkClient extends AbstractClient {
                 packagedProgram = clusterSpecification.getProgram();
             } else {
                 Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
-                packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, jobClient.getJobType(), entryPointClass, programArgs, spSettings, hadoopConf.getConfiguration(), flinkClientBuilder.getFlinkConfiguration());
+                packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, jobClient.getJobType(), entryPointClass, programArgs, spSettings, flinkClientBuilder.getFlinkConfiguration(), filesystemManager);
                 jobGraph = PackagedProgramUtils.createJobGraph(packagedProgram, flinkClientBuilder.getFlinkConfiguration(), runParallelism, false);
 
                 //只有当程序本身没有指定并行度的时候该参数才生效
@@ -240,19 +244,20 @@ public class FlinkClient extends AbstractClient {
      */
     private Pair<String, String> runJobByPerJob(ClusterSpecification clusterSpecification, JobClient jobClient) throws Exception{
         logger.info("--------job:{} run by PerJob mode-----.", jobClient.getTaskId());
-        PerJobClientFactory perJobClientFactory = flinkClusterClientManager.getPerJobClientFactory();
-        YarnClusterDescriptor descriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
-        perJobClientFactory.deleteTaskIfExist(jobClient);
-        ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, new JobGraph(),true).getClusterClient();
+        PerJobClientFactory perJobClientFactory = (PerJobClientFactory) flinkClusterClientManager.getClientFactory();
+        try (
+                YarnClusterDescriptor descriptor = perJobClientFactory.createPerJobClusterDescriptor(jobClient);
+        ) {
+            perJobClientFactory.deleteTaskIfExist(jobClient);
+            ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, new JobGraph(),true).getClusterClient();
 
-        String applicationId = clusterClient.getClusterId().toString();
-        String flinkJobId = clusterSpecification.getJobGraph().getJobID().toString();
+            String applicationId = clusterClient.getClusterId().toString();
+            String flinkJobId = clusterSpecification.getJobGraph().getJobID().toString();
+            delFilesFromDir(ConfigConstrant.IO_TMPDIR, applicationId);
 
-        delFilesFromDir(ConfigConstrant.IO_TMPDIR, applicationId);
-
-        flinkClusterClientManager.addClient(applicationId, clusterClient);
-
-        return Pair.create(flinkJobId, applicationId);
+            perJobClientFactory.dealWithDeployCluster(applicationId, clusterClient);
+            return Pair.create(flinkJobId, applicationId);
+        }
     }
 
     /**
@@ -260,7 +265,7 @@ public class FlinkClient extends AbstractClient {
      */
     private Pair<String, String> runJobByYarnSession(JobGraph jobGraph) throws Exception {
         try {
-            ClusterClient clusterClient = flinkClusterClientManager.getClusterClient();
+            ClusterClient clusterClient = flinkClusterClientManager.getClusterClient(null);
             JobExecutionResult jobExecutionResult = ClientUtils.submitJob(clusterClient, jobGraph, flinkConfig.getSubmitTimeout(), TimeUnit.MINUTES);
 
             logger.info("Program execution finished");
@@ -268,26 +273,11 @@ public class FlinkClient extends AbstractClient {
 
             return Pair.create(jobExecutionResult.getJobID().toString(), null);
         } catch (Exception e) {
-            //累加失败次数
-            if (flinkClusterClientManager.getSessionClientFactory() != null) {
-                flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().incrSubmitError();
-            }
+            flinkClusterClientManager.dealWithClientError();
             throw e;
         } finally {
             delFilesFromDir(ConfigConstrant.IO_TMPDIR, "flink-jobgraph");
         }
-    }
-
-    private YarnConfiguration getYarnConf(String pluginInfo){
-        org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-
-        JsonParser parser = new JsonParser();
-        JsonObject json = parser.parse(pluginInfo).getAsJsonObject().getAsJsonObject("yarnConf");
-        for (Map.Entry<String, JsonElement> keyVal : json.entrySet()) {
-            conf.set(keyVal.getKey(),keyVal.getValue().getAsString());
-        }
-
-        return new YarnConfiguration(conf);
     }
 
     private void delFilesFromDir(Path dir ,String fileName){
@@ -385,10 +375,11 @@ public class FlinkClient extends AbstractClient {
         try {
             return KerberosUtils.login(flinkConfig, () -> {
                 String appId = jobIdentifier.getApplicationId();
+                RdosTaskStatus rdosTaskStatus = null;
                 try {
-                    RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
-                    //NOTFOUND 视为已经job已经结束
-                    if (RdosTaskStatus.NOTFOUND != rdosTaskStatus && !RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
+                    rdosTaskStatus = getJobStatus(jobIdentifier);
+
+                    if (rdosTaskStatus != null && !RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
                         ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
                         JobID jobId = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
 
@@ -404,6 +395,11 @@ public class FlinkClient extends AbstractClient {
                     }
                     return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
                 } catch (Exception e) {
+
+                    if (rdosTaskStatus != null){
+                        logger.warn("current jobId is : {} and jobStatus is: {}", jobIdentifier.getTaskId(), rdosTaskStatus.name());
+                    }
+
                     logger.error("jobId:{} engineJobId:{} applicationId:{} cancelJob error, try to cancel with yarnClient.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), e);
 
                     if (StringUtils.isEmpty(appId)) {
@@ -434,32 +430,64 @@ public class FlinkClient extends AbstractClient {
      */
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
-        String jobId = jobIdentifier.getEngineJobId();
+        String engineJobId = jobIdentifier.getEngineJobId();
         String applicationId = jobIdentifier.getApplicationId();
 
-        if(!Strings.isNullOrEmpty(applicationId)){
-            return getPerJobStatus(applicationId);
+        if (StringUtils.isEmpty(engineJobId)) {
+            logger.warn("{} getJobStatus is NOTFOUND, because engineJobId is empty.", jobIdentifier.getTaskId());
+            return RdosTaskStatus.NOTFOUND;
         }
 
-        if(Strings.isNullOrEmpty(jobId)){
-            return null;
+        long getClusterEndTime = 0L;
+        ClusterClient clusterClient = null;
+        try {
+            long getClusterStartTime = System.currentTimeMillis();
+            clusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+            getClusterEndTime = System.currentTimeMillis();
+            logger.info("getClusterClient cost: {}", getClusterEndTime - getClusterStartTime);
+        } catch (Exception e) {
+            logger.error("Get clusterClient error:", e);
         }
 
-        String reqUrl = getReqUrl() + "/jobs/" + jobId;
+        String jobUrlPath = String.format(ConfigConstrant.JOB_URL_FORMAT, engineJobId);
         String response = null;
-        try{
-            response = PoolHttpClient.get(reqUrl);
-        } catch (RdosDefineException e){
-            return RdosTaskStatus.NOTFOUND;
-        } catch (IOException e) {
+        Exception urlException = null;
+        if (clusterClient != null) {
+            try {
+                String webInterfaceURL = clusterClient.getWebInterfaceURL();
+                String jobUrl = webInterfaceURL + jobUrlPath;
+                response = PoolHttpClient.get(jobUrl);
+            } catch (Exception e) {
+                urlException = e;
+            }
+        }
+
+        if (StringUtils.isEmpty(response)) {
+            try {
+                response = getMessageFromJobArchive(engineJobId, jobUrlPath);
+            } catch (Exception e) {
+                if (urlException != null) {
+                    logger.error("Get job status error from webInterface: {}", urlException.getMessage());
+                }
+                logger.error("request job status error from jobArchive: {}", e.getMessage());
+            }
+        }
+
+        if (StringUtils.isEmpty(response)) {
+            if (StringUtils.isNotEmpty(applicationId)) {
+                RdosTaskStatus rdosTaskStatus = getPerJobStatus(applicationId);
+                long getPerJobStatusEndTime = System.currentTimeMillis();
+                logger.info("getPerJobStatus cost {}", getPerJobStatusEndTime - getClusterEndTime);
+                return rdosTaskStatus;
+            }
             return RdosTaskStatus.NOTFOUND;
         }
 
-        if (response == null) {
-            return RdosTaskStatus.NOTFOUND;
-        }
-
         try{
+            if (response == null) {
+                throw new RdosDefineException("Get status response is null");
+            }
+
             Map<String, Object> statusMap = PublicUtil.jsonStrToObject(response, Map.class);
             Object stateObj = statusMap.get("state");
             if(stateObj == null){
@@ -470,10 +498,9 @@ public class FlinkClient extends AbstractClient {
             state = StringUtils.upperCase(state);
             return RdosTaskStatus.getTaskStatus(state);
         }catch (Exception e){
-            logger.error("", e);
+            logger.error("{} getJobStatus error: {}", jobIdentifier.getTaskId(), e.getMessage());
             return RdosTaskStatus.NOTFOUND;
         }
-
     }
 
     /**
@@ -481,47 +508,55 @@ public class FlinkClient extends AbstractClient {
      * @param applicationId
      * @return
      */
-    public RdosTaskStatus getPerJobStatus(String applicationId){
-        ApplicationId appId = ConverterUtils.toApplicationId(applicationId);
+    public RdosTaskStatus getPerJobStatus(String applicationId) {
         try {
-            ApplicationReport report = flinkClientBuilder.getYarnClient().getApplicationReport(appId);
-            YarnApplicationState applicationState = report.getYarnApplicationState();
-            switch(applicationState) {
-                case KILLED:
-                    return RdosTaskStatus.KILLED;
-                case NEW:
-                case NEW_SAVING:
-                    return RdosTaskStatus.CREATED;
-                case SUBMITTED:
-                    //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
-                    return RdosTaskStatus.WAITCOMPUTE;
-                case ACCEPTED:
-                    return RdosTaskStatus.SCHEDULED;
-                case RUNNING:
-                    return RdosTaskStatus.RUNNING;
-                case FINISHED:
-                    //state 为finished状态下需要兼顾判断finalStatus.
-                    FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
-                    if(finalApplicationStatus == FinalApplicationStatus.FAILED){
-                        return RdosTaskStatus.FAILED;
-                    }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
-                        return RdosTaskStatus.FINISHED;
-                    }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
-                        return RdosTaskStatus.KILLED;
-                    }else if(finalApplicationStatus == FinalApplicationStatus.UNDEFINED){
-                        return RdosTaskStatus.FAILED;
-                    }else{
-                        return RdosTaskStatus.RUNNING;
-                    }
+            return KerberosUtils.login(flinkConfig, () -> {
+                ApplicationId appId = ConverterUtils.toApplicationId(applicationId);
+                try {
+                    ApplicationReport report = flinkClientBuilder.getYarnClient().getApplicationReport(appId);
+                    YarnApplicationState applicationState = report.getYarnApplicationState();
+                    switch (applicationState) {
+                        case KILLED:
+                            return RdosTaskStatus.KILLED;
+                        case NEW:
+                        case NEW_SAVING:
+                            return RdosTaskStatus.CREATED;
+                        case SUBMITTED:
+                            //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
+                            return RdosTaskStatus.WAITCOMPUTE;
+                        case ACCEPTED:
+                            return RdosTaskStatus.SCHEDULED;
+                        case RUNNING:
+                            return RdosTaskStatus.RUNNING;
+                        case FINISHED:
+                            //state 为finished状态下需要兼顾判断finalStatus.
+                            FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
+                            if (finalApplicationStatus == FinalApplicationStatus.FAILED) {
+                                return RdosTaskStatus.FAILED;
+                            } else if (finalApplicationStatus == FinalApplicationStatus.SUCCEEDED) {
+                                return RdosTaskStatus.FINISHED;
+                            } else if (finalApplicationStatus == FinalApplicationStatus.KILLED) {
+                                return RdosTaskStatus.KILLED;
+                            } else if (finalApplicationStatus == FinalApplicationStatus.UNDEFINED) {
+                                return RdosTaskStatus.FAILED;
+                            } else {
+                                return RdosTaskStatus.RUNNING;
+                            }
 
-                case FAILED:
-                    return RdosTaskStatus.FAILED;
-                default:
-                    throw new RdosDefineException("Unsupported application state");
-            }
-        } catch (YarnException | IOException e) {
+                        case FAILED:
+                            return RdosTaskStatus.FAILED;
+                        default:
+                            throw new RdosDefineException("Unsupported application state");
+                    }
+                } catch (YarnException | IOException e) {
+                    logger.error("", e);
+                    return RdosTaskStatus.NOTFOUND;
+                }
+            }, hadoopConf.getYarnConfiguration());
+        } catch (Exception e) {
             logger.error("", e);
-            return RdosTaskStatus.NOTFOUND;
+            //防止因为kerberos 认证不过出现notfound最后变为failed
+            return RdosTaskStatus.RUNNING;
         }
     }
 
@@ -534,21 +569,29 @@ public class FlinkClient extends AbstractClient {
     }
 
     public String getReqUrl(){
-        return flinkClusterClientManager.getClusterClient().getWebInterfaceURL();
+        return flinkClusterClientManager.getClusterClient(null).getWebInterfaceURL();
     }
 
 
     @Override
-    public String getJobMaster(JobIdentifier jobIdentifier){
-        ApplicationId applicationId = (ApplicationId) flinkClusterClientManager.getClusterClient(jobIdentifier).getClusterId();
-        String url = null;
+    public String getJobMaster(JobIdentifier jobIdentifier) {
         try {
-            url = flinkClientBuilder.getYarnClient().getApplicationReport(applicationId).getTrackingUrl();
-            url = StringUtils.substringBefore(url.split("//")[1], "/");
-        } catch (Exception e){
-            logger.error("Getting URL failed" + e);
+            return KerberosUtils.login(flinkConfig, () -> {
+                ApplicationId applicationId = (ApplicationId) flinkClusterClientManager.getClusterClient(jobIdentifier).getClusterId();
+
+                String url = null;
+                try {
+                    url = flinkClientBuilder.getYarnClient().getApplicationReport(applicationId).getTrackingUrl();
+                    url = StringUtils.substringBefore(url.split("//")[1], "/");
+                } catch (Exception e) {
+                    logger.error("Getting URL failed" + e);
+                }
+                return url;
+            }, hadoopConf.getYarnConfiguration());
+        } catch (Exception e) {
+            logger.error("", e);
+            return null;
         }
-        return url;
     }
 
     private JobResult submitSyncJob(JobClient jobClient) {
@@ -573,64 +616,74 @@ public class FlinkClient extends AbstractClient {
         }
     }
 
-    private String getMessageByHttp(String path, String reqURL) throws IOException {
-        String reqUrl = String.format("%s%s", reqURL, path);
-        return PoolHttpClient.get(reqUrl);
+    private String getMessageByHttp(String path, String reqURL) {
+        try {
+            String reqUrl = String.format("%s%s", reqURL, path);
+            return PoolHttpClient.get(reqUrl);
+        } catch (Exception e) {
+            logger.error("", e);
+            throw new RdosDefineException(e);
+        }
     }
 
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
-
-        String jobId = jobIdentifier.getEngineJobId();
-        String applicationId = jobIdentifier.getApplicationId();
-
-        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
-        String reqURL;
-
-        //从jobhistory读取
-        if(StringUtils.isNotBlank(applicationId) && (rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
-                || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED))){
-            reqURL = getJobHistoryURL();
-        }else{
-            ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
-            reqURL = currClient.getWebInterfaceURL();
-        }
-
-        Map<String,String> retMap = Maps.newHashMap();
-
+        String engineJobId = jobIdentifier.getEngineJobId();
+        String exceptMessage = "";
         try {
-            String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
-            String except = getExceptionInfo(exceptPath, reqURL);
-            retMap.put("exception", except);
-            return FlinkRestParseUtil.parseEngineLog(retMap);
-        } catch(RdosDefineException e){
-            //http 请求失败时返回空日志
-            logger.error("", e);
-            return null;
+            if (engineJobId == null) {
+                logger.warn("{} getJobLog is null, because engineJobId is empty", jobIdentifier.getTaskId());
+                throw new RdosDefineException(jobIdentifier.getTaskId() + " engineJobId is null.");
+            }
+            String exceptionUrlPath = String.format(ConfigConstrant.JOB_EXCEPTIONS_URL_FORMAT, engineJobId);
+            RdosTaskStatus jobStatus = getJobStatus(jobIdentifier);
+            Boolean isEndStatus = IS_END_STATUS.test(jobStatus);
+            Boolean isPerjob = EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode());
+
+            if (isPerjob && isEndStatus) {
+                exceptMessage = getMessageFromJobArchive(engineJobId, exceptionUrlPath);
+            } else {
+                ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+                String reqURL = currClient.getWebInterfaceURL();
+                exceptMessage = getMessageByHttp(exceptionUrlPath, reqURL);
+            }
+            return FlinkRestParseUtil.parseEngineLog(exceptMessage);
         } catch (Exception e) {
-            logger.error("", e);
+            logger.error("Get job log error, {}", e.getMessage());
             Map<String, String> map = new LinkedHashMap<>(8);
-            map.put("jobId", jobId);
-            map.put("reqURL", reqURL);
+            map.put("jobId", engineJobId);
             map.put("exception", ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION);
             map.put("engineLogErr", ExceptionUtil.getErrorMessage(e));
             return new Gson().toJson(map);
         }
     }
 
-    /**
-     *  perjob模式下任务完成后进入jobHistory会有一定的时间
-     */
-    private String getExceptionInfo(String exceptPath, String reqURL) {
-        String exceptionInfo = "";
-        try {
-            exceptionInfo = getMessageByHttp(exceptPath, reqURL);
-            return exceptionInfo;
-        } catch (Exception e) {
-            logger.error("", e);
-        }
+    public String getMessageFromJobArchive(String jobId, String urlPath) throws Exception {
+        String archiveDir = flinkExtProp.getProperty(JobManagerOptions.ARCHIVE_DIR.key());
+        String jobArchivePath = archiveDir + ConfigConstrant.SP + jobId;
 
-        return exceptionInfo;
+        return KerberosUtils.login(flinkConfig, () -> {
+            try {
+                InputStream is = FileUtil.readStreamFromFile(jobArchivePath, hadoopConf.getConfiguration());
+                JsonParser jsonParser = new JsonParser();
+                try (InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+                    JsonObject jobArchiveAll = (JsonObject) jsonParser.parse(reader);
+                    Preconditions.checkNotNull(jobArchiveAll, "jobArchive is null");
+
+                    JsonArray jsonArray = jobArchiveAll.getAsJsonArray("archive");
+                    for (JsonElement ele: jsonArray) {
+                        JsonObject obj = ele.getAsJsonObject();
+                        if (StringUtils.equals(obj.get("path").getAsString(), urlPath)) {
+                            String exception = obj.get("json").getAsString();
+                            return exception;
+                        }
+                    }
+                }
+                throw new RdosDefineException(String.format("Not found Message from jobArchive, jobId[%s], urlPath[%s]", jobId, urlPath));
+            } catch (Exception e) {
+                throw new RdosDefineException(e);
+            }
+        }, hadoopConf.getConfiguration());
     }
 
     @Override
@@ -640,21 +693,22 @@ public class FlinkClient extends AbstractClient {
         boolean isPerJob = ComputeType.STREAM == jobClient.getComputeType() || FlinkYarnMode.isPerJob(taskRunMode);
 
         try {
-            FlinkPerJobResourceInfo perJobResourceInfo = FlinkPerJobResourceInfo.FlinkPerJobResourceInfoBuilder()
-                    .withYarnClient(flinkClientBuilder.getYarnClient())
-                    .withQueueName(flinkConfig.getQueue())
-                    .withYarnAccepterTaskNumber(flinkConfig.getYarnAccepterTaskNumber())
-                    .build();
+            JudgeResult judgeResult = KerberosUtils.login(flinkConfig, () -> {
+                FlinkPerJobResourceInfo perJobResourceInfo = FlinkPerJobResourceInfo.FlinkPerJobResourceInfoBuilder()
+                        .withYarnClient(flinkClientBuilder.getYarnClient())
+                        .withQueueName(flinkConfig.getQueue())
+                        .withYarnAccepterTaskNumber(flinkConfig.getYarnAccepterTaskNumber())
+                        .build();
 
-            JudgeResult judgeResult = perJobResourceInfo.judgeSlots(jobClient);
+                return perJobResourceInfo.judgeSlots(jobClient);
+            }, hadoopConf.getYarnConfiguration());
 
             if (!judgeResult.available() || isPerJob){
                 return judgeResult;
             } else {
-                if (flinkClusterClientManager.getSessionClientFactory()!=null&&
-                        !flinkClusterClientManager.getSessionClientFactory().getSessionHealthCheckedInfo().isRunning()) {
-                    logger.warn("wait flink client recover...");
-                    return JudgeResult.notOk( "wait flink client recover");
+                ClusterClient clusterClient = flinkClusterClientManager.getClusterClient(null);
+                if (clusterClient == null) {
+                    return JudgeResult.notOk("wait flink session client recover");
                 }
                 FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
                 String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
@@ -662,8 +716,8 @@ public class FlinkClient extends AbstractClient {
                 return yarnSeesionResourceInfo.judgeSlots(jobClient);
             }
         } catch (Exception e){
-            logger.error("judgeSlots error:{}", e);
-            throw new RdosDefineException("JudgeSlots error " + e.getMessage());
+            logger.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
+            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -802,8 +856,7 @@ public class FlinkClient extends AbstractClient {
             String tmpSql = sqlItera.next();
             if (PrepareOperator.verificKeytab(tmpSql)) {
                 sqlItera.remove();
-                SFTPHandler handler = SFTPHandler.getInstance(flinkConfig.getSftpConf());
-                String localDir = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+                String localDir = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
 
                 if (!new File(localDir).exists()) {
                     new File(localDir).mkdirs();
@@ -814,17 +867,20 @@ public class FlinkClient extends AbstractClient {
                 keytabFileName = keytabFile.getName();
                 String remoteDir = keytabFile.getParent();
 
-                String localPath = handler.loadFromSftp(keytabFileName, remoteDir, localDir);
-                logger.info("Download file to :" + localPath);
+                String remoteFile = remoteDir + File.separator + keytabFileName;
+                String localFile = localDir + File.separator + keytabFileName;
+                //download file and close
+                File downloadFile = filesystemManager.downloadFile(remoteFile, localFile);
+                logger.info("Download file to :" + downloadFile.toPath());
             } else if (PrepareOperator.verific(tmpSql)) {
                 sqlItera.remove();
                 JarFileInfo jarFileInfo = PrepareOperator.parseSql(tmpSql);
                 String addFilePath = jarFileInfo.getJarPath();
                 File tmpFile = null;
                 try {
-                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf.getConfiguration(), flinkConfig.getSftpConf());
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
+                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, filesystemManager, false);
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
                 }
 
                 fileList.add(tmpFile.getAbsolutePath());
@@ -867,7 +923,7 @@ public class FlinkClient extends AbstractClient {
 
         cacheFile.remove(jobClient.getTaskId());
 
-        String localDirStr = ConfigConstrant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
+        String localDirStr = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
         File localDir = new File(localDirStr);
         if (localDir.exists()){
             try {
@@ -880,26 +936,30 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public String getCheckpoints(JobIdentifier jobIdentifier) {
-        String appId = jobIdentifier.getApplicationId();
-        String jobId = jobIdentifier.getEngineJobId();
 
-        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
-
-        String reqURL;
-        if(rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
-                || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED)){
-            reqURL = getJobHistoryURL();
-        }else{
-            ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
-            reqURL = currClient.getWebInterfaceURL();
+        String checkpointMsg = "";
+        String engineJobId = jobIdentifier.getEngineJobId();
+        if (StringUtils.isEmpty(engineJobId)) {
+            logger.warn("{} getCheckpoints is null, because engineJobId is empty", jobIdentifier.getTaskId());
+            return checkpointMsg;
         }
 
         try {
-            return getMessageByHttp(String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, jobId), reqURL);
-        } catch (IOException e) {
-            logger.error("", e);
-            return null;
+            String checkpointUrlPath = String.format(ConfigConstrant.JOB_CHECKPOINTS_URL_FORMAT, engineJobId);
+            RdosTaskStatus taskStatus = getJobStatus(jobIdentifier);
+            Boolean isEndStatus = IS_END_STATUS.test(taskStatus);
+            Boolean isPerjob = EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode());
+            if (isPerjob && isEndStatus) {
+                checkpointMsg = getMessageFromJobArchive(engineJobId, checkpointUrlPath);
+            } else {
+                ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+                String reqURL = currClient.getWebInterfaceURL();
+                checkpointMsg = getMessageByHttp(checkpointUrlPath, reqURL);
+            }
+        } catch (Exception e) {
+            logger.error("Get checkpoint error, {}", e.getMessage());
         }
+        return checkpointMsg;
     }
 
     private boolean existsJobOnFlink(String engineJobId){
@@ -924,47 +984,4 @@ public class FlinkClient extends AbstractClient {
             packagedProgram.getClasspaths().clear();
         }
     }
-
-    private String getJobHistoryURL() {
-        if (StringUtils.isNotBlank(jobHistory)) {
-            return jobHistory;
-        }
-        String webAddress = flinkClientBuilder.getFlinkConfiguration().getValue(HistoryServerOptions.HISTORY_SERVER_WEB_ADDRESS);
-        String port = flinkClientBuilder.getFlinkConfiguration().getValue(HistoryServerOptions.HISTORY_SERVER_WEB_PORT);
-        if (StringUtils.isBlank(webAddress) || StringUtils.isBlank(port)) {
-            throw new RdosDefineException("History Server webAddress:" + webAddress + " port:" + port);
-        }
-        jobHistory = String.format("http://%s:%s", webAddress, port);
-        return jobHistory;
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        System.setProperty("HADOOP_USER_NAME", "admin");
-
-        // input params json file path
-        String filePath = args[0];
-        File paramsFile = new File(filePath);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(paramsFile)));
-        String request = reader.readLine();
-        Map params =  PublicUtil.jsonStrToObject(request, Map.class);
-        ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-        JobClient jobClient = new JobClient(paramAction);
-
-        String pluginInfo = jobClient.getPluginInfo();
-        Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
-        String md5plugin = MD5Util.getMd5String(pluginInfo);
-        properties.setProperty("md5sum", md5plugin);
-
-        FlinkClient client = new FlinkClient();
-        client.init(properties);
-
-        JobResult jobResult = client.submitJob(jobClient);
-        String appId = jobResult.getData("extid");
-        String jobId = jobResult.getData("jobid");
-        logger.info("submit success!, jobId: " + jobId + ", appId: " + appId);
-        logger.info(jobResult.getJsonStr());
-        System.exit(0);
-    }
-
 }

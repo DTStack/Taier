@@ -21,10 +21,10 @@ import org.apache.hadoop.service.AbstractService;
 import org.apache.hadoop.yarn.api.records.NodeId;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 
@@ -38,11 +38,11 @@ public class ApplicationContainerListener
 
     private Server server;
 
-    private List<ContainerEntity> entities;
+    private ConcurrentHashMap<DtContainerId, ContainerEntity> allContainers;
 
-    private AtomicInteger lanes = new AtomicInteger();
+    private volatile boolean isFinished = false;
 
-    private volatile boolean failed = false;
+    private volatile boolean emergencyFailed = false;
 
     public String getFailedMsg() {
         return failedMsg;
@@ -60,151 +60,147 @@ public class ApplicationContainerListener
         super("slotManager");
         setConfig(conf);
         this.conf = conf;
-        if (conf.get(DtYarnConfiguration.CONTAINER_MAX_ATTEMPTS) != null){
-            maxAttempts = Integer.parseInt(conf.get(DtYarnConfiguration.CONTAINER_MAX_ATTEMPTS));
+        if (conf.get(DtYarnConfiguration.APP_MAX_ATTEMPTS) != null) {
+            maxAttempts = Integer.parseInt(conf.get(DtYarnConfiguration.APP_MAX_ATTEMPTS));
+            LOG.info("MaxAttempts: " + maxAttempts);
         }
         this.applicationContext = applicationContext;
-        this.entities = Collections.synchronizedList(new ArrayList<>());
+        this.allContainers = new ConcurrentHashMap<DtContainerId, ContainerEntity>();
         this.containerLostDetector = new ContainerLostDetector(this);
     }
 
-    public List<ContainerEntity> getEntities() {
-        return entities;
+    public Collection<ContainerEntity> getAllContainers() {
+        return allContainers.values();
     }
 
     @Override
     public void start() {
 
-       try{
-           final Configuration newConf = new Configuration(conf);
-           Configuration conf = SecurityUtil.disableSecureRpc(getConfig());
+        try {
+            final Configuration newConf = new Configuration(conf);
+            Configuration conf = SecurityUtil.disableSecureRpc(getConfig());
 
-           RPC.Builder builder = new RPC.Builder(conf)
-                   .setProtocol(ApplicationContainerProtocol.class)
-                   .setInstance(this)
-                   .setBindAddress("0.0.0.0")
-                   .setPort(0);
+            RPC.Builder builder = new RPC.Builder(conf)
+                    .setProtocol(ApplicationContainerProtocol.class)
+                    .setInstance(this)
+                    .setBindAddress("0.0.0.0")
+                    .setPort(0);
 
-           server = builder.build();
-           server.start();
-           containerLostDetector.start();
+            server = builder.build();
+            server.start();
+            containerLostDetector.start();
 
-           ServiceAuthorizationManager serviceAuthorizationManager = server.getServiceAuthorizationManager();
-           serviceAuthorizationManager.refreshWithLoadedConfiguration(newConf, new DTPolicyProvider());
-           LOG.info(serviceAuthorizationManager);
+            ServiceAuthorizationManager serviceAuthorizationManager = server.getServiceAuthorizationManager();
+            serviceAuthorizationManager.refreshWithLoadedConfiguration(newConf, new DTPolicyProvider());
+            LOG.info(serviceAuthorizationManager);
 
-           LOG.info("----start rpc success----");
+            LOG.info("----start rpc success----");
         } catch (Exception e) {
             LOG.error("Error starting application containers handler server!", e);
-            e.printStackTrace();
-            return;
-        }finally {
-           //SecurityUtil.setSecurityInfoProviders(new SecurityInfo[0]);
-       }
+        }
 
     }
 
-
-    public boolean isFinished() {
-        if (failed) {
+    public boolean isTrainCompleted() {
+        if (emergencyFailed) {
             return true;
         }
 
-        for(ContainerEntity entity : entities) {
-            if(entity.getDtContainerStatus() != DtContainerStatus.SUCCEEDED) {
-                return false;
+        if (allContainers.isEmpty()) {
+            return false;
+        }
+
+        boolean isCompleted = true;
+        int failedNum = 0;
+        for (Map.Entry<DtContainerId, ContainerEntity> e : allContainers.entrySet()) {
+            if (e.getValue().getDtContainerStatus().equals(DtContainerStatus.FAILED)) {
+                failedNum += 1;
+            } else {
+                if (e.getValue().getDtContainerStatus().equals(DtContainerStatus.UNDEFINED)
+                        || e.getValue().getDtContainerStatus().equals(DtContainerStatus.INITIALIZING)
+                        || e.getValue().getDtContainerStatus().equals(DtContainerStatus.RUNNING)) {
+                    isCompleted = false;
+                }
             }
+        }
+
+        Double jobFailedNum = allContainers.size() * this.getConfig().getDouble(DtYarnConfiguration.DTSCRIPT_CONTAINER_MAX_FAILURES_RATE, DtYarnConfiguration.DEFAULT_DTSCRIPT_CONTAINER_MAX_FAILURES_RATE);
+        if (failedNum >= jobFailedNum) {
+            return true;
+        }
+
+        return isCompleted;
+    }
+
+    public boolean isAllWorkerContainersSucceeded() {
+        if (emergencyFailed) {
+            return false;
+        }
+
+        if (allContainers.isEmpty()) {
+            return false;
+        }
+
+        int failedNum = 0;
+        for (Map.Entry<DtContainerId, ContainerEntity> e : allContainers.entrySet()) {
+            if (!e.getValue().getDtContainerStatus().equals(DtContainerStatus.SUCCEEDED)) {
+                failedNum += 1;
+            }
+        }
+        LOG.warn("isAllWorkerContainersSucceeded containerFailedNum:" + failedNum);
+
+        Double jobFailedNum = allContainers.size() * this.getConfig().getDouble(DtYarnConfiguration.DTSCRIPT_CONTAINER_MAX_FAILURES_RATE, DtYarnConfiguration.DEFAULT_DTSCRIPT_CONTAINER_MAX_FAILURES_RATE);
+        if (failedNum >= jobFailedNum) {
+            return false;
         }
 
         return true;
     }
 
-    public boolean isFailed() {
-        return failed;
-    }
-
-
     public int getServerPort() {
         return server.getPort();
     }
 
-
-    public void registerContainer(boolean isNew, int lane, DtContainerId containerId, NodeId nodeId) {
-        if(isNew) {
-            entities.add(new ContainerEntity(lane, containerId, DtContainerStatus.UNDEFINED, nodeId.getHost(), nodeId.getPort(), 1));
-        } else {
-            int attempt =  entities.get(lane).getAttempts();
-            entities.set(lane, new ContainerEntity(lane, containerId, DtContainerStatus.UNDEFINED, nodeId.getHost(), nodeId.getPort(), attempt + 1));
-        }
+    public void setFinished() {
+        isFinished = true;
     }
 
-    private ContainerEntity getLaneOf(DtContainerId containerId) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("getLaneOf containerId: " + containerId);
-        }
-        for(ContainerEntity containerEntity : entities) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("getLaneOf entities.get(i).getContainerId: " + containerEntity.getContainerId().getContainerId());
-            }
-            if(containerId.equals(containerEntity.getContainerId())) {
-                return containerEntity;
-            }
-        }
-        return null;
-    }
-
-    public List<ContainerEntity> getFailedContainerEntities() {
-        // container entities
-        List<ContainerEntity> failedEntities = new ArrayList<>();
-        for(ContainerEntity entity : entities) {
-            if(entity.getDtContainerStatus() == DtContainerStatus.FAILED) {
-                if(entity.getAttempts() < maxAttempts) {
-                    failedEntities.add(entity);
-                }
-            }
-        }
-        return failedEntities;
+    public void registerContainer(DtContainerId containerId, NodeId nodeId) {
+        ContainerEntity containerEntity = new ContainerEntity(containerId, DtContainerStatus.UNDEFINED, nodeId.getHost(), nodeId.getPort());
+        allContainers.put(containerId, containerEntity);
     }
 
     public List<String> getNodeAddress() {
-        return entities.stream().map(e->e.getNodeHost()).collect(Collectors.toList());
+        return allContainers.values().stream().map(e -> e.getNodeHost()).collect(Collectors.toList());
     }
 
     @Override
     public HeartbeatResponse heartbeat(DtContainerId containerId, HeartbeatRequest heartbeatRequest) {
 
-        try{
-            DtContainerStatus currentContainerStatus = heartbeatRequest.getXlearningContainerStatus();
+        DtContainerStatus currentContainerStatus = heartbeatRequest.getXlearningContainerStatus();
+        LOG.debug("Received heartbeat from container " + containerId.toString() + ", status is " + currentContainerStatus.toString());
 
-            LOG.warn("Received heartbeat from container " + containerId.toString() + ", status is " + currentContainerStatus.toString());
-
-            ContainerEntity oldEntity = getLaneOf(containerId);
-            if(oldEntity != null) {
-                DtContainerStatus status = heartbeatRequest.getXlearningContainerStatus();
-                oldEntity.setLastBeatTime(System.currentTimeMillis());
-                if(oldEntity.getDtContainerStatus() != status) {
-                    LOG.info("Received heartbeat container status change from container " + containerId.toString() + ", status is " + currentContainerStatus.toString());
-                    oldEntity.setDtContainerStatus(status);
-                    if(status == DtContainerStatus.TIMEOUT) {
-                        failed = true;
-                        failedMsg = "container timeout. " + heartbeatRequest.getErrMsg();
-                        LOG.error(failedMsg);
-                    } else if((status == DtContainerStatus.FAILED) && oldEntity.getAttempts() >= maxAttempts) {
-                        failed = true;
-                        failedMsg = "container max attempts exceed. \n" + heartbeatRequest.getErrMsg();
-                        LOG.error(failedMsg);
-                    }
-                }
-            } else {
-                LOG.warn("entities: " + entities + ", getLaneOf(containerId:"+containerId+") is not found");
-            }
-
-            return new HeartbeatResponse(100L);
-        }catch (Exception e){
-            LOG.error("-----", e);
-            throw e;
+        ContainerEntity containerEntity = allContainers.get(containerId);
+        if (containerEntity == null) {
+            emergencyFailed = true;
+            failedMsg = "Emergency Failed!!! containerId:" + containerId + " is not found, allContainers: " + allContainers + "; " + heartbeatRequest.getErrMsg();
+            LOG.error(failedMsg);
+            return new HeartbeatResponse(true, System.currentTimeMillis());
         }
 
+        if (containerEntity.getLastBeatTime() != null) {
+            containerEntity.setLastBeatTime(System.currentTimeMillis());
+        }
+
+        if (containerEntity.getDtContainerStatus() != currentContainerStatus) {
+            LOG.info("Received heartbeat from container " + containerId.toString() + ", Update status " + containerEntity.getDtContainerStatus().toString() + " to " + currentContainerStatus.toString());
+            containerEntity.setDtContainerStatus(currentContainerStatus);
+            if (currentContainerStatus.equals(DtContainerStatus.SUCCEEDED) || currentContainerStatus.equals(DtContainerStatus.FAILED)) {
+                LOG.info("container " + containerId.toString() + " is " + currentContainerStatus);
+            }
+        }
+
+        return new HeartbeatResponse(isFinished, System.currentTimeMillis());
     }
 
     @Override

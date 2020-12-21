@@ -129,8 +129,19 @@ public class ScheduleTask extends AppTenantEntity {
     private Long flowId;
 
 
+    /**
+     * 作废字段
+     */
+    @Deprecated
     private Integer isExpire;
 
+    public Integer getIsExpire() {
+        return isExpire;
+    }
+
+    public void setIsExpire(Integer isExpire) {
+        this.isExpire = isExpire;
+    }
 
     public String getName() {
         return name;
@@ -282,13 +293,5 @@ public class ScheduleTask extends AppTenantEntity {
 
     public void setProjectScheduleStatus(Integer projectScheduleStatus) {
         this.projectScheduleStatus = projectScheduleStatus;
-    }
-
-    public Integer getIsExpire() {
-        return isExpire;
-    }
-
-    public void setIsExpire(Integer isExpire) {
-        this.isExpire = isExpire;
     }
 }

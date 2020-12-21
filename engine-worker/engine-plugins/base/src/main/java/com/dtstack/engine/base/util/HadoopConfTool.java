@@ -1,12 +1,20 @@
 package com.dtstack.engine.base.util;
 
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.CommonConfigurationKeys;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.*;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +26,8 @@ import java.util.Map;
  */
 
 public class HadoopConfTool {
+
+    private static final Logger LOG = LoggerFactory.getLogger(KerberosUtils.class);
 
     public static final String DFS_NAME_SERVICES = "dfs.nameservices";
     public static final String FS_DEFAULTFS = "fs.defaultFS";
@@ -125,5 +135,81 @@ public class HadoopConfTool {
 
     public static void setFsHdfsImplDisableCache(Configuration conf){
         conf.setBoolean(FS_HDFS_IMPL_DISABLE_CACHE, true);
+    }
+
+    public static void setDefaultYarnConf(Configuration yarnConf, Map<String, Object> yarnMap) {
+        yarnConf.setBoolean(CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_KEY, true);
+
+        if (yarnMap == null) {
+            return;
+        }
+
+        if (yarnMap.get(YarnConfiguration.RESOURCEMANAGER_CONNECT_MAX_WAIT_MS) != null) {
+            yarnConf.set(YarnConfiguration.RESOURCEMANAGER_CONNECT_MAX_WAIT_MS, (String) yarnMap.get(YarnConfiguration.RESOURCEMANAGER_CONNECT_MAX_WAIT_MS));
+        } else {
+            yarnConf.setLong(YarnConfiguration.RESOURCEMANAGER_CONNECT_MAX_WAIT_MS, 15000L);
+        }
+
+        if (yarnMap.get(YarnConfiguration.RESOURCEMANAGER_CONNECT_RETRY_INTERVAL_MS) != null) {
+            yarnConf.set(YarnConfiguration.RESOURCEMANAGER_CONNECT_RETRY_INTERVAL_MS, (String) yarnMap.get(YarnConfiguration.RESOURCEMANAGER_CONNECT_RETRY_INTERVAL_MS));
+        } else {
+            yarnConf.setLong(YarnConfiguration.RESOURCEMANAGER_CONNECT_RETRY_INTERVAL_MS, 5000L);
+        }
+
+        LOG.info("yarn.resourcemanager.connect.max-wait.ms:{} yarn.resourcemanager.connect.retry-interval.ms:{}", yarnConf.getLong(YarnConfiguration.RESOURCEMANAGER_CONNECT_MAX_WAIT_MS, -1), yarnConf.getLong(YarnConfiguration.RESOURCEMANAGER_CONNECT_RETRY_INTERVAL_MS, -1));
+    }
+
+    public static byte[] serializeHadoopConf(Configuration hadoopConf)  {
+
+        try (
+                ByteArrayOutputStream out =  new ByteArrayOutputStream();
+                DataOutputStream dataout = new DataOutputStream(out);
+         ){
+            hadoopConf.write(dataout);
+            return out.toByteArray();
+        } catch(Exception e) {
+            LOG.error("Serialize hadoopConf happens error: {}", e.getMessage());
+            throw new RdosDefineException(e);
+        }
+    }
+
+    public static Configuration deserializeHadoopConf(byte[] bytes) {
+        Configuration hadoopConf = new Configuration(false);
+        try (
+                ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+                DataInputStream datain = new DataInputStream(in);
+        ) {
+            hadoopConf.readFields(datain);
+            return hadoopConf;
+        } catch (IOException e) {
+            LOG.error("Deserialize hadoopConf happens error: {}", e.getMessage());
+            throw new RdosDefineException(e);
+        }
+    }
+
+    public static Configuration deserializeYanrConf(byte[] bytes) {
+        Configuration hadoopConf = new Configuration(false);
+        YarnConfiguration yanrConf = new YarnConfiguration(hadoopConf);
+        try (
+                ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+                DataInputStream datain = new DataInputStream(in);
+        ) {
+            yanrConf.readFields(datain);
+            return yanrConf;
+        } catch (IOException e) {
+            LOG.error("Deserialize yanrConf happens error: {}", e.getMessage());
+            throw new RdosDefineException(e);
+        }
+    }
+
+    public static void writeHadoopXml(Configuration hadoopConf, File outFile) {
+        try (
+                FileWriter fwrt = new FileWriter(outFile);
+        ) {
+            hadoopConf.writeXml(fwrt);
+        } catch (Exception e) {
+            LOG.error("WriteHadoopXml happens error: {}", e.getMessage());
+            throw new RdosDefineException(e);
+        }
     }
 }

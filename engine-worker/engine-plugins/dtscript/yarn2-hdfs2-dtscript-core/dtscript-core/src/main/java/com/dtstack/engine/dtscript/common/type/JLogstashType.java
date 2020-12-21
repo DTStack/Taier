@@ -48,8 +48,8 @@ public class JLogstashType extends AbstractAppType {
         List<String> jlogstashArgs = new ArrayList<>(20);
         jlogstashArgs.add(javaHome + "java");
         jlogstashArgs.add(clientArguments.getJvmOpts());
-        jlogstashArgs.add("-Xms" + clientArguments.getWorkerMemory() + "m");
-        jlogstashArgs.add("-Xmx" + clientArguments.getWorkerMemory() + "m");
+        jlogstashArgs.add("-Xms" + (clientArguments.getWorkerMemory() - clientArguments.getWorkerReservedMemory()) + "m");
+        jlogstashArgs.add("-Xmx" + (clientArguments.getWorkerMemory() - clientArguments.getWorkerReservedMemory())  + "m");
         jlogstashArgs.add("-cp " + root + "/jlogstash*.jar");
         jlogstashArgs.add("com.dtstack.jlogstash.JlogstashMain");
         jlogstashArgs.add("-l stdout");

@@ -20,6 +20,8 @@ package com.dtstack.engine.flink.factory;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.flink.FlinkClientBuilder;
+import com.dtstack.engine.flink.FlinkConfig;
+import com.dtstack.engine.flink.enums.ClusterMode;
 import org.apache.flink.client.deployment.ClusterClientFactory;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
@@ -34,7 +36,9 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Date: 2020/5/29
@@ -45,10 +49,37 @@ public abstract class AbstractClientFactory implements IClientFactory {
 
     public FlinkClientBuilder flinkClientBuilder;
 
+    public static IClientFactory createClientFactory(FlinkClientBuilder flinkClientBuilder) {
+        FlinkConfig flinkConfig = flinkClientBuilder.getFlinkConfig();
+        ClusterMode clusterMode = ClusterMode.getClusteMode(flinkConfig.getClusterMode());
+        IClientFactory clientFactory;
+        switch (clusterMode) {
+            case PER_JOB:
+                clientFactory = new PerJobClientFactory(flinkClientBuilder);
+                break;
+            case SESSION:
+                clientFactory = new SessionClientFactory(flinkClientBuilder);
+                break;
+            case STANDALONE:
+                clientFactory = new StandaloneClientFactory(flinkClientBuilder);
+                break;
+            default:
+                throw new RdosDefineException("not support clusterMode: " + clusterMode);
+        }
+        return clientFactory;
+    }
+
     public YarnClusterDescriptor getClusterDescriptor(Configuration configuration, YarnConfiguration yarnConfiguration) {
         ClusterClientFactory<ApplicationId> clusterClientFactory = new YarnClusterClientFactory();
         YarnClusterClientFactory yarnClusterClientFactory = (YarnClusterClientFactory) clusterClientFactory;
-        return yarnClusterClientFactory.createClusterDescriptor(configuration, yarnConfiguration);
+
+        YarnConfiguration newYarnConfig = new YarnConfiguration();
+        Iterator<Map.Entry<String, String>> iterator = yarnConfiguration.iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> next = iterator.next();
+            newYarnConfig.set(next.getKey(), next.getValue());
+        }
+        return yarnClusterClientFactory.createClusterDescriptor(configuration, newYarnConfig);
     }
 
     /**

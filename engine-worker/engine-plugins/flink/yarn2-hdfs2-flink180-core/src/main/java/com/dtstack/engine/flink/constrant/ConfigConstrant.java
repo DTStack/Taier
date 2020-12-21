@@ -40,6 +40,9 @@ public class ConfigConstrant {
     public static final String  SESSION_CHECK_MAIN_CLASS= "com.dtstack.engine.flink.check.FlinkSessionCheck";
     public static final String DEFAULT_SESSION_CHECK_PATH = "/pluginLibs/flinkcommon";
 
+    public static final String HADOOP_CONF_BYTES_KEY = "hadoop.conf.bytes";
+    public static final String YARN_CONF_BYTES_KEY = "yarn.conf.bytes";
+
 
     // ------------------------------------------------------------------------
     // Resource Configs
@@ -78,8 +81,6 @@ public class ConfigConstrant {
 
     public static final String KAFKA_SFTP_KEYTAB = "kafka.sftp.keytab";
     public static final String SECURITY_KERBEROS_LOGIN_KEYTAB= "security.kerberos.login.keytab";
-    public static final String LOCAL_KEYTAB_DIR_PARENT = USER_DIR + "/keytab";
-
 
     // ------------------------------------------------------------------------
     // Restful Url Format Configs
@@ -87,9 +88,12 @@ public class ConfigConstrant {
 
     public static final int HTTP_MAX_RETRY = 3;
     public static final String HTTP_AUTHENTICATION_TOKEN_KEY = "http.authentication.token";
-    public static final String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
     public static final String TASKMANAGERS_URL_FORMAT = "%s/taskmanagers";
     public static final String JOBMANAGER_LOG_URL_FORMAT = "%s/jobmanager/log";
+    public static final String JOB_EXCEPTIONS_URL_FORMAT = "/jobs/%s/exceptions";
+    public final static String JOB_ACCUMULATOR_URL_FORMAT = "/jobs/%s/accumulators";
+    public static final String JOB_URL_FORMAT = "/jobs/%s";
+    public static final String JOB_CHECKPOINTS_URL_FORMAT = "/jobs/%s/checkpoints";
     public static final String TASKMANAGERS_KEY = "taskmanagers";
 
     public static final String YARN_APPLICATION_URL_FORMAT = "%s/ws/v1/cluster/apps/%s";

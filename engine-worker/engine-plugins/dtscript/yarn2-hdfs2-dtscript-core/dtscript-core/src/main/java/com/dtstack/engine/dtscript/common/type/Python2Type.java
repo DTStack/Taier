@@ -5,9 +5,8 @@ import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
-import java.util.List;
 
-public class Python2Type extends AbstractAppType {
+public class Python2Type extends AbstractPythonType {
 
     @Override
     public String cmdPrefix(YarnConfiguration config) {
@@ -20,8 +19,5 @@ public class Python2Type extends AbstractAppType {
         return "PYTHON2";
     }
 
-    @Override
-    public void env(List<String> envList) {
-        super.env(envList);
-    }
+
 }

@@ -2,10 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dtstack.engine.dao.ScheduleJobDao">
 
+    <!--  缺少 engine_log 字段，字段过长不需要通用  -->
     <sql id="select_content_fragment">
       bj.id,bj.tenant_id,bj.project_id,bj.dtuic_tenant_id,bj.app_type,bj.job_id,bj.job_key,bj.job_name,bj.task_id,bj.gmt_create,bj.gmt_modified,bj.create_user_id,bj.is_deleted,bj.type,bj.is_restart,
       bj.business_date,bj.cyc_time,dependency_type,flow_job_id,bj.period_type,bj.status,bj.task_type,bj.fill_id,bj.exec_start_time,bj.exec_end_time,bj.exec_time,bj.submit_time,bj.retry_num,max_retry_num,
-      bj.node_address,bj.version_id,bj.next_cyc_time,bj.log_info
+      bj.node_address,bj.version_id,bj.next_cyc_time,bj.log_info,bj.compute_type,bj.submit_user_name
     </sql>
 
     <sql id="select_where_fragment">
@@ -374,9 +375,6 @@
 
     <sql id="update_fragment">
         <set>
-            <if test="id != null">
-                id = #{id},
-            </if>
             <if test="tenantId != null and tenantId > 0">
                 tenant_id = #{tenantId},
             </if>
@@ -437,6 +435,9 @@
             <if test="phaseStatus != null">
                 phase_status = #{phaseStatus},
             </if>
+            <if test="submitUserName != null">
+                submit_user_name = #{submitUserName},
+            </if>
         </set>
     </sql>
 
@@ -463,6 +464,7 @@
         <include refid="select_content_fragment"/>
         from schedule_job bj
         where task_id = #{taskId}
+        AND app_type = #{appType} AND type = #{type}
         <choose>
             <when test="isAfter">
                 AND cyc_time > #{cycTime}
@@ -776,19 +778,6 @@
         GROUP BY hour
     </select>
 
-    <select id="listRestartBatchJobList" resultType="ScheduleJob">
-        SELECT
-        <include refid="select_content_fragment"/>
-        FROM schedule_job bj
-        where type = #{type}
-        AND status = #{status}
-        <if test="lastTime != null">
-            AND gmt_modified &gt;= #{lastTime}
-        </if>
-        AND is_restart = 1
-        AND is_deleted = 0
-    </select>
-
     <select id="listJobByJobKeys" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
@@ -842,7 +831,7 @@
 
     <select id="getByJobId" resultType="ScheduleJob">
         SELECT
-        <include refid="select_content_fragment"/>
+        <include refid="select_content_fragment"/>,bj.engine_log
         FROM schedule_job bj
         where job_id = #{jobId}
         <if test="isDeleted!=null">
@@ -1023,7 +1012,7 @@
         UPDATE
         schedule_job
         <include refid="update_fragment"/>
-        WHERE id = #{id} AND is_deleted = 0
+        WHERE job_id = #{jobId} AND is_deleted = 0
     </update>
 
     <update id="updateStatusWithExecTime" parameterType="ScheduleJob">
@@ -1372,6 +1361,12 @@
         <if test="cycEndTime != null">
             AND cyc_time &lt; #{cycEndTime}
         </if>
+        <if test="lastTime != null">
+            AND gmt_modified &gt;= #{lastTime}
+        </if>
+        <if test="isRestart != null">
+            AND is_restart = #{isRestart}
+        </if>
         AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
         AND is_deleted = 0
         AND `phase_status` = #{phaseStatus}
@@ -1421,6 +1416,9 @@
             </if>
             <if test="logInfo != null">
                 log_info = #{logInfo},
+            </if>
+            <if test="versionId != null">
+                version_id = #{versionId},
             </if>
             gmt_modified = now()
         </set>
@@ -1598,7 +1596,7 @@
     </update>
 
     <select id="getByName" parameterType="java.lang.String" resultType="ScheduleJob">
-        select * from schedule_job where job_name = #{jobName} and is_deleted=0;
+        select * from schedule_job where job_name = #{jobName} and is_deleted=0 LIMIT 1;
     </select>
 
     <update id="updateRetryNum">
@@ -1635,6 +1633,9 @@
         <if test="cycEndTime != null">
             AND cyc_time &lt; #{cycEndTime}
         </if>
+        <if test="isRestart != null">
+            AND is_restart = #{isRestart}
+        </if>
         AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
         AND is_deleted = 0
         AND `phase_status` = #{phaseStatus}
@@ -1659,15 +1660,18 @@
     <update id="updateListPhaseStatus">
         update `schedule_job`
         set `phase_status`=#{update}
-        where `id` IN
-        <foreach collection="ids" separator="," open="(" close=")" item="id">
-            #{id}
+        where job_id IN
+        <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
+            #{jobId}
         </foreach>
         and `is_deleted`=0;
     </update>
 
     <update id="updateJobStatusAndPhaseStatus">
-        update schedule_job set gmt_modified=now(),status=#{status},`phase_status` = #{phaseStatus} where job_id=#{jobId};
+        update schedule_job set gmt_modified=now(),status=#{status},`phase_status` = #{phaseStatus},
+        application_id = null, engine_job_id = null, engine_log = null, log_info = null,
+        retry_task_params = null, exec_end_time = null, exec_start_time = null, exec_time = 0, gmt_modified=now()
+        where job_id=#{jobId};
     </update>
 
     <select id="getJobGraph" resultType="java.lang.String">

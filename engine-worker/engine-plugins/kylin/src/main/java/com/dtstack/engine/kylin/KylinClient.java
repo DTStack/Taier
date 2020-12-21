@@ -238,7 +238,7 @@ public class KylinClient extends AbstractClient {
     private JsonElement getLastJob(){
         KylinHttpClient.RequestResult requestResult = kylinHttpClient.getJobList(kylinConfig.getCubeName(), 1);
         if(requestResult.getStatusCode() != HttpStatus.SC_OK){
-            logger.warn("Check the job status of kylin error:{}", requestResult.getMsg());
+            logger.info("Check the job status of kylin not ok:{}", requestResult.getMsg());
             return JsonNull.INSTANCE;
         }
 

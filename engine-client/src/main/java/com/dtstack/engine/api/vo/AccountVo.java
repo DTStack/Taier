@@ -43,7 +43,16 @@ public class AccountVo  extends BaseEntity {
 
     private Integer engineType;
 
+    @ApiModelProperty(notes = "账号类型")
+    private Integer accountType;
 
+    public Integer getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(Integer accountType) {
+        this.accountType = accountType;
+    }
 
     public Integer getEngineType() {
         return engineType;

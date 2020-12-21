@@ -170,6 +170,15 @@ public class EnvironmentContext {
         return environment.getProperty("dtuic.url");
     }
 
+
+    public String getUicToken() {
+        return environment.getProperty("dtuic.token");
+    }
+
+    public boolean isOpenLdapCache(){
+        return Boolean.parseBoolean(environment.getProperty("open.ldap.cache", "true"));
+    }
+
     /**
      *  ===es====
      */
@@ -414,7 +423,32 @@ public class EnvironmentContext {
         return Integer.valueOf(environment.getProperty("job.executor.pool.queue.size", "1000"));
     }
 
-    public Boolean getOpenConsoleSftp(){
+    public Boolean getOpenConsoleSftp() {
         return Boolean.parseBoolean(environment.getProperty("console.sftp.open", "false"));
+    }
+
+    public Integer getRetryFrequency() {
+        return Integer.valueOf(environment.getProperty("retry.frequency", "3"));
+    }
+
+    public Integer getRetryInterval() {
+        return Integer.valueOf(environment.getProperty("retry.interval", "30000"));
+    }
+
+    public long getJobStatusCheckInterVal() {
+        return Long.parseLong(environment.getProperty("job.status.check.interval", "3500"));
+    }
+
+    public String getComponentJdbcToReplace() {
+        return environment.getProperty("component.jdbc.replace", "/default");
+    }
+
+    public Integer setIdleConnectionTestPeriod() {
+        return Integer.valueOf(environment.getProperty("idle.connection.test.period", "60"));
+    }
+
+
+    public Integer setMaxIdleTime() {
+        return Integer.valueOf(environment.getProperty("max.idle.time", "60"));
     }
 }
