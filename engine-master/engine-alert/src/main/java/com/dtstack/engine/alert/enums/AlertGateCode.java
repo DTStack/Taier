@@ -26,6 +26,8 @@ public enum AlertGateCode {
     AG_GATE_DING_JAR("ding_jar"),
 
     AG_GATE_PHONE_TC("phone_tc"),
+
+    AG_GATE_CUSTOM_JAR("custom_jar"),
     ;
 
     private String code;

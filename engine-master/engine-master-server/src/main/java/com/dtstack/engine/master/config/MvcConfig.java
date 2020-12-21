@@ -27,7 +27,7 @@ import java.util.List;
 @Configuration
 public class MvcConfig extends DelegatingWebMvcConfiguration {
 
-    @Value("${engine.console.upload.path:/upload}")
+    @Value("${engine.console.upload.path:${user.dir}/upload}")
     private String uploadPath;
 
     @Autowired

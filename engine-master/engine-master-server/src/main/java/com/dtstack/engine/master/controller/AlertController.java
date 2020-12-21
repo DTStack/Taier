@@ -9,18 +9,26 @@ import com.dtstack.engine.alert.param.AlertParam;
 import com.dtstack.engine.alert.param.DingAlertParam;
 import com.dtstack.engine.alert.param.MailAlertParam;
 import com.dtstack.engine.alert.param.SmsAlertParam;
+import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.po.AlertGatePO;
 import com.dtstack.engine.api.domain.po.ClusterAlertPO;
 import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
+import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
+import com.dtstack.engine.common.enums.AlertGateTypeEnum;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.config.MvcConfig;
+import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.utils.CheckUtils;
 import com.dtstack.lang.data.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +61,12 @@ public class AlertController {
     @Autowired
     private MvcConfig mvcConfig;
 
+    @Autowired
+    private ComponentService componentService;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
+
 
 
     @ApiOperation("新增编辑告警通道 用于替换console接口: /api/console/service/alert/edit")
@@ -60,6 +74,15 @@ public class AlertController {
     public Boolean edit(@RequestParam(value = "file", required = false) MultipartFile file,
                                     AlertGateVO alertGateVO) throws Exception {
         CheckUtils.checkAlertGateVOFormat(alertGateVO);
+
+        if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(alertGateVO.getAlertGateType()) && StringUtils.isBlank(alertGateVO.getAlertGateCode())) {
+            alertGateVO.setAlertGateCode(AlertGateCode.AG_GATE_CUSTOM_JAR.code());
+        }
+
+        if (alertGateVO.getId() == null) {
+            alertGateFacade.checkAlertGateSourceExist(alertGateVO.getAlertGateSource());
+        }
+
         //暂时默认为0
         alertGateVO.setClusterId(0);
         if (file != null) {
@@ -73,14 +96,30 @@ public class AlertController {
                 destFile.createNewFile();
             }
             file.transferTo(destFile);
+
+            // 上传sftp
+            if (environmentContext.getOpenConsoleSftp()) {
+                // 查询默认集群的sftp
+                Component sftpComponent = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode());
+                if (sftpComponent != null) {
+//                    SftpConfig sftpConfig = getSftpConfig();
+//                    if (sftpConfig != null) {
+//                        try {
+//                            String remoteDir = sftpConfig.getPath() + File.separator + filePath;
+//                            SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
+//                            sftpManager.uploadFile(remoteDir ,destPath);
+//                        } catch (Exception e) {
+//                            log.error("上传sftp失败:",e);
+//                        }
+//                    }
+                }
+            }
+
             alertGateVO.setFilePath(destFile.getAbsolutePath());
         } else {
             alertGateVO.setFilePath(null);
         }
 
-        if (alertGateVO.getId() == null) {
-            alertGateFacade.checkAlertGateSourceExist(alertGateVO.getAlertGateSource());
-        }
         return alertGateFacade.editGate(alertGateVO);
     }
 

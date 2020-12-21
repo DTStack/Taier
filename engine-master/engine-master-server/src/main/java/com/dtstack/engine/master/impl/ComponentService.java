@@ -1130,7 +1130,6 @@ public class ComponentService {
         }
     }
 
-
     /**
      * 加载各个组件的默认值
      * 解析yml文件转换为前端渲染格式

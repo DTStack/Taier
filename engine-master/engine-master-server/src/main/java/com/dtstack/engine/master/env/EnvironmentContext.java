@@ -413,4 +413,8 @@ public class EnvironmentContext {
     public Integer getJobExecutorPoolQueueSize(){
         return Integer.valueOf(environment.getProperty("job.executor.pool.queue.size", "1000"));
     }
+
+    public Boolean getOpenConsoleSftp(){
+        return Boolean.parseBoolean(environment.getProperty("console.sftp.open", "false"));
+    }
 }
