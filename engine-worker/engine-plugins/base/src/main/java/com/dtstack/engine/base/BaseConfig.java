@@ -24,6 +24,16 @@ public class BaseConfig {
 
     private Timestamp kerberosFileTimestamp;
 
+    private String dtProxyUserName;
+
+    public String getDtProxyUserName() {
+        return dtProxyUserName;
+    }
+
+    public void setDtProxyUserName(String dtProxyUserName) {
+        this.dtProxyUserName = dtProxyUserName;
+    }
+
     public SftpConfig getSftpConf() {
         return sftpConf;
     }

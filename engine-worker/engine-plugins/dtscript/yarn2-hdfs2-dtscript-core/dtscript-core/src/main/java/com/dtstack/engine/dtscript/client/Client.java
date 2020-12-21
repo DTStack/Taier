@@ -63,18 +63,6 @@ public class Client {
                 UserGroupInformation ugi = UserGroupInformation.createRemoteUser(appSubmitterUserName);
                 conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
             }
-            String proxyUser = conf.get(DtYarnConstants.PROXY_USER_NAME);
-            try {
-                if (StringUtils.isNotBlank(proxyUser)) {
-                    UserGroupInformation.setLoginUser(UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getCurrentUser()));
-                } else {
-                    //重置
-                    UserGroupInformation realUser = UserGroupInformation.getCurrentUser().getRealUser();
-                    UserGroupInformation.setLoginUser(realUser);
-                }
-            } catch (IOException e) {
-                LOG.info("proxy user {} error {}  " + proxyUser);
-            }
 
             this.yarnClient = getYarnClient();
             Path appJarSrc = new Path(JobConf.findContainingJar(ApplicationMaster.class));
