@@ -6,9 +6,10 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.ContextLoaderListener;
 
+import javax.servlet.ServletContextEvent;
 import java.io.File;
 import java.io.IOException;
 
@@ -17,7 +18,8 @@ import java.io.IOException;
  * author: toutian
  * create: 2020/07/08
  */
-public class LogbackComponent implements ApplicationListener {
+@Component
+public class LogbackComponent extends ContextLoaderListener {
 
     private static Logger LOGGER = LoggerFactory.getLogger(LogbackComponent.class);
 
@@ -55,7 +57,7 @@ public class LogbackComponent implements ApplicationListener {
     }
 
     @Override
-    public void onApplicationEvent(ApplicationEvent event) {
+    public void contextInitialized(ServletContextEvent event) {
         try {
             setupLogger();
         } catch (Throwable e) {
