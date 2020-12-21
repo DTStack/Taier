@@ -12,15 +12,20 @@ import com.dtstack.engine.api.domain.po.ClusterAlertPO;
 import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
+import com.dtstack.engine.common.enums.AlertGateTypeEnum;
 import com.dtstack.engine.dao.AlertGateDao;
 import com.dtstack.engine.dao.ClusterAlertDao;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
 
 @Service
 public class AlertGateFacade {
@@ -140,4 +145,31 @@ public class AlertGateFacade {
         Assert.isNull(exist,"通道标识已存在");
     }
 
+    public List<ClusterAlertPO> selectAlertByIds(List<String> alertGateSources) {
+        if (CollectionUtils.isEmpty(alertGateSources)) {
+            return Lists.newArrayList();
+        }
+        List<ClusterAlertPO> pos = Lists.newArrayList();
+        List<Integer> defaultAlert = Lists.newArrayList();
+        List<String> customizeAlert = Lists.newArrayList();
+
+        for (String alertGateSource : alertGateSources) {
+            Integer defaultFile = AlertGateTypeEnum.isDefaultFile(alertGateSource);
+            if (defaultFile != null) {
+                defaultAlert.add(defaultFile);
+            } else {
+                customizeAlert.add(alertGateSource);
+            }
+        }
+
+        if (!CollectionUtils.isEmpty(defaultAlert)) {
+            pos.addAll(alertGateDao.selectDefaultAlert(defaultAlert,1));
+        }
+
+        if (!CollectionUtils.isEmpty(customizeAlert)) {
+            pos.addAll(alertGateDao.selectAlertByIds(alertGateSources));
+        }
+
+        return pos;
+    }
 }

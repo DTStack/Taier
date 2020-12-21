@@ -3,7 +3,7 @@ package com.dtstack.engine.entrance;
 import com.dtstack.engine.master.config.CacheConfig;
 import com.dtstack.engine.master.config.MasterServerBeanConfig;
 import com.dtstack.engine.master.config.MybatisConfig;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 

@@ -12,7 +12,7 @@ import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.*;
 import com.dtstack.engine.master.scheduler.parser.*;
 import com.dtstack.schedule.common.enums.Deleted;

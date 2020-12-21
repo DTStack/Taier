@@ -1,6 +1,7 @@
 package com.dtstack.engine.dao;
 
 import com.dtstack.engine.api.domain.po.AlertGatePO;
+import com.dtstack.engine.api.domain.po.ClusterAlertPO;
 
 import java.util.List;
 
@@ -21,5 +22,9 @@ public interface AlertGateDao {
     List<AlertGatePO> list(AlertGatePO alertGatePO);
 
     AlertGatePO get(AlertGatePO alertGatePO);
+
+    List<ClusterAlertPO> selectAlertByIds(List<String> alertGateSources);
+
+    List<ClusterAlertPO> selectDefaultAlert(List<Integer> alertTypes, Integer isDefault);
 
 }

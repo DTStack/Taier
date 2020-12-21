@@ -60,5 +60,36 @@
 
         limit 1
     </select>
+    <select id="selectAlertByIds" resultType="com.dtstack.engine.api.domain.po.ClusterAlertPO">
+        select <include refid="baseField"/>
+        FROM dt_alert_gate
+        WHERE is_deleted = 0
+        AND alert_gate_source IN
+        <foreach collection="alertGateSources" separator="," open="(" close=")" item="alertGateSource">
+            #{alertGateSource}
+        </foreach>
+    </select>
+    <select id="selectDefaultAlert" resultType="com.dtstack.engine.api.domain.po.ClusterAlertPO">
+        select
+        g.id
+        ,g.alert_gate_name
+        ,g.alert_gate_type
+        ,g.alert_gate_code
+        ,g.alert_gate_status
+        ,g.alert_gate_json
+        ,g.alert_gate_source
+        ,g.file_path
+        ,g.is_deleted
+        ,g.gmt_created
+        ,g.gmt_modified
+        FROM dt_alert_gate g join dt_cluster_alert a on a.alert_id = g.id
+        WHERE g.is_deleted = 0
+        AND a.is_default = #{isDefault}
+        AND g.alert_gate_type IN
+        <foreach collection="alertTypes" separator="," open="(" close=")" item="alertType">
+            #{alertType}
+        </foreach>
+    </select>
+
 
 </mapper>

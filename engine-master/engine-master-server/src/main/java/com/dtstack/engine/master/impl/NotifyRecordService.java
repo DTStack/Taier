@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.api.domain.po.ClusterAlertPO;
 import com.dtstack.engine.api.dto.NotifyRecordReadDTO;
 import com.dtstack.engine.api.dto.UserMessageDTO;
 import com.dtstack.engine.api.enums.MailType;
@@ -132,4 +133,8 @@ public class NotifyRecordService {
         return MailType.SIMPLE;
     }
 
+    public void sendAlarmNew(Long tenantId, Long projectId, Long notifyRecordId, Integer appType, String title, Long contentId, List<ClusterAlertPO> clusterAlertPOS, List<UserMessageDTO> receivers, String webhook) {
+
+
+    }
 }

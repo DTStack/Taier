@@ -1,7 +1,7 @@
-package com.dtstack.engine.master.env;
+package com.dtstack.engine.common.env;
 
 import com.dtstack.engine.common.util.AddressUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;

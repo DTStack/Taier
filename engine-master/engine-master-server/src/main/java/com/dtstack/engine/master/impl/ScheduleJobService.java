@@ -27,7 +27,7 @@ import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import com.dtstack.engine.master.multiengine.factory.MultiEngineFactory;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;

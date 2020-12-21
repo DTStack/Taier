@@ -23,7 +23,7 @@ import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.master.config.MvcConfig;
 import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.utils.CheckUtils;
 import com.dtstack.lang.data.R;

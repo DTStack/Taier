@@ -1,16 +1,21 @@
 package com.dtstack.engine.master.controller;
 
+import com.dtstack.engine.alert.client.AlertGateFacade;
+import com.dtstack.engine.api.domain.po.ClusterAlertPO;
 import com.dtstack.engine.api.dto.NotifyRecordReadDTO;
 import com.dtstack.engine.api.dto.SetAlarmUserDTO;
 import com.dtstack.engine.api.dto.UserMessageDTO;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.param.AlarmSendParam;
 import com.dtstack.engine.api.param.NotifyRecordPageQueryParam;
 import com.dtstack.engine.api.param.NotifyRecordParam;
 import com.dtstack.engine.api.param.SetAlarmNotifyRecordParam;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.impl.NotifyRecordService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +42,9 @@ public class NotifyRecordController {
 
     @Autowired
     private NotifyRecordService notifyRecordService;
+
+    @Autowired
+    private AlertGateFacade alertGateFacade;
 
     @ApiOperation("获取一条指定通知记录 用于替换console: /api/console/service/notifyRecord/getOne")
     @PostMapping("/getOne")
@@ -93,5 +101,21 @@ public class NotifyRecordController {
                 param.getContentId(), userDTOS, param.getSenderTypes(), param.getWebhook(), param.getMailType());
     }
 
+    @ApiOperation("发送消息: 新接口")
+    @PostMapping("/sendAlarmNew")
+    public void sendAlarmNew(@RequestBody AlarmSendParam param) {
+        List<String> alertGateSources = param.getAlertGateSources();
+        if (CollectionUtils.isEmpty(alertGateSources)) {
+            throw  new RdosDefineException("发送告警必须设置通道");
+        }
 
+        List<ClusterAlertPO> clusterAlertPOS = alertGateFacade.selectAlertByIds(alertGateSources);
+        try {
+            notifyRecordService.sendAlarmNew(param.getTenantId(), param.getProjectId(), param.getNotifyRecordId(), param.getAppType(), param.getTitle(),
+                    param.getContentId(),clusterAlertPOS, param.getReceivers(), param.getWebhook());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new RdosDefineException(e.getMessage());
+        }
+    }
 }
