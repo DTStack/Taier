@@ -16,24 +16,23 @@ import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.enums.*;
+import com.dtstack.engine.master.enums.EComponentScheduleType;
+import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.enums.EngineTypeComponentType;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.Sort;
 import com.dtstack.schedule.common.util.Base64Util;
-import com.dtstack.schedule.common.util.ZipUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.SftpException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -107,14 +106,7 @@ public class ClusterService implements InitializingBean {
     private AccountDao accountDao;
 
     @Autowired
-    private AccountService accountService;
-
-    @Autowired
     private EnvironmentContext environmentContext;
-
-    @Autowired
-    private SftpFileManage sftpFileManageBean;
-
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -547,28 +539,22 @@ public class ClusterService implements InitializingBean {
             pluginInfo.put(EComponentType.YARN.getConfName(), clusterConfigJson.getJSONObject(EComponentType.YARN.getConfName()));
 
         } else if (EComponentType.LIBRA_SQL == type.getComponentType()) {
-            JSONObject libraConf = clusterConfigJson.getJSONObject(EComponentType.LIBRA_SQL.getConfName());
-            pluginInfo = this.convertSQLComponent(libraConf, pluginInfo);
+            pluginInfo = clusterConfigJson.getJSONObject(EComponentType.LIBRA_SQL.getConfName());
             pluginInfo.put(TYPE_NAME, "postgresql");
         } else if (EComponentType.IMPALA_SQL == type.getComponentType()) {
-            JSONObject impalaConf = clusterConfigJson.getJSONObject(EComponentType.IMPALA_SQL.getConfName());
-            pluginInfo = this.convertSQLComponent(impalaConf, pluginInfo);
+            pluginInfo = clusterConfigJson.getJSONObject(EComponentType.IMPALA_SQL.getConfName());
             pluginInfo.put(TYPE_NAME, "impala");
         } else if (EComponentType.TIDB_SQL == type.getComponentType()) {
-            JSONObject tiDBConf = JSONObject.parseObject(tiDBInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
-            pluginInfo = this.convertSQLComponent(tiDBConf, pluginInfo);
+            pluginInfo = JSONObject.parseObject(tiDBInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
             pluginInfo.put(TYPE_NAME, "tidb");
         } else if (EComponentType.ORACLE_SQL == type.getComponentType()) {
-            JSONObject oracleConf = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
-            pluginInfo = this.convertSQLComponent(oracleConf, pluginInfo);
+            pluginInfo = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
             pluginInfo.put(TYPE_NAME, "oracle");
         } else if (EComponentType.GREENPLUM_SQL == type.getComponentType()) {
-            JSONObject greenplumConf = JSONObject.parseObject(greenplumInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
-            pluginInfo = this.convertSQLComponent(greenplumConf, pluginInfo);
+            pluginInfo = JSONObject.parseObject(greenplumInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
             pluginInfo.put(TYPE_NAME, "greenplum");
         } else if (EComponentType.PRESTO_SQL == type.getComponentType()) {
-            JSONObject prestoConf = JSONObject.parseObject(prestoInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
-            pluginInfo = this.convertSQLComponent(prestoConf, pluginInfo);
+            pluginInfo = JSONObject.parseObject(prestoInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
             pluginInfo.put(TYPE_NAME, "presto");
         } else {
             //flink spark 需要区分任务类型
@@ -705,17 +691,6 @@ public class ClusterService implements InitializingBean {
         return ldapUserName;
     }
 
-
-    public JSONObject convertSQLComponent(JSONObject jdbcInfo, JSONObject pluginInfo) {
-        pluginInfo = new JSONObject();
-        if (Objects.isNull(jdbcInfo)) {
-            return pluginInfo;
-        }
-        pluginInfo.put("jdbcUrl", jdbcInfo.getString("jdbcUrl"));
-        pluginInfo.put("username", jdbcInfo.getString("username"));
-        pluginInfo.put("password", jdbcInfo.getString("password"));
-        return pluginInfo;
-    }
 
     private void removeMd5FieldInHadoopConf(JSONObject pluginInfo) {
         if (!pluginInfo.containsKey(EComponentType.HDFS.getConfName())) {
