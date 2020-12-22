@@ -254,8 +254,6 @@ public class ConsoleService {
         try {
             count = engineJobCacheDao.countByJobResource(jobResource, stage, nodeAddress);
 
-            // todo 查询的结果不是通过分页查出来的
-
             if (count > 0) {
                 List<EngineJobCache> engineJobCaches = engineJobCacheDao.listByJobResource(jobResource, stage, nodeAddress, start, pageSize);
                 List<String> jobIds = engineJobCaches.stream().map(EngineJobCache::getJobId).collect(Collectors.toList());
@@ -280,7 +278,6 @@ public class ConsoleService {
                     this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant);
                     data.add(theJobMap);
                 }
-
             }
         } catch (Exception e) {
             logger.error("groupDetail error{}", e);

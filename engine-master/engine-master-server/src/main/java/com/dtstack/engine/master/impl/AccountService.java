@@ -141,39 +141,49 @@ public class AccountService {
     }
 
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void bindAccountTenant(AccountVo accountVo) {
 
-        checkAccountVo(accountVo);
-        Account dbAccountByName = new Account();
-        dbAccountByName.setName(accountVo.getName());
-        dbAccountByName.setPassword(StringUtils.isBlank(accountVo.getPassword()) ? "" : Base64Util.baseEncode(accountVo.getPassword()));
-        dbAccountByName.setType(getAccountTypeByMultiEngineType(accountVo.getEngineType()));
-        dbAccountByName.setCreateUserId(accountVo.getUserId());
-        dbAccountByName.setModifyUserId(accountVo.getUserId());
-        accountDao.insert(dbAccountByName);
-        log.info("add db account {} [{}] ", dbAccountByName.getName(), dbAccountByName.getId());
-        //bindUserId 是从uic获取 需要转换下
-        User dtUicUserId = userDao.getByDtUicUserId(accountVo.getBindUserId());
-        //bindTenantId 需要转换为租户id
-        Long tenantId = tenantDao.getIdByDtUicTenantId(accountVo.getBindTenantId());
-        if ( null == tenantId ) {
-            throw new RdosDefineException("租户不存在");
-        }
-        if ( null != dtUicUserId ) {
-            AccountTenant dbAccountTenant = accountTenantDao.getByAccount(dtUicUserId.getId(), tenantId, dbAccountByName.getId(), Deleted.NORMAL.getStatus());
-            if ( null != dbAccountTenant ) {
-                throw new RdosDefineException("该账号已绑定对应产品账号");
+        try {
+            checkAccountVo(accountVo);
+            Account dbAccountByName = insertAccount(accountVo);
+            //bindUserId 是从uic获取 需要转换下
+            User dtUicUserId = userDao.getByDtUicUserId(accountVo.getBindUserId());
+            //bindTenantId 需要转换为租户id
+            Long tenantId = tenantDao.getIdByDtUicTenantId(accountVo.getBindTenantId());
+            if ( null == tenantId ) {
+                throw new RdosDefineException("租户不存在");
             }
-        } else {
-            this.addUser(accountVo.getUsername(), accountVo.getBindUserId(), accountVo.getPhone(), accountVo.getEmail());
-            //添加新用户到user表
-            dtUicUserId = userDao.getByDtUicUserId(accountVo.getBindUserId());
+            if ( null != dtUicUserId ) {
+                AccountTenant dbAccountTenant = accountTenantDao.getByAccount(dtUicUserId.getId(), tenantId, dbAccountByName.getId(), Deleted.NORMAL.getStatus());
+                if ( null != dbAccountTenant ) {
+                    throw new RdosDefineException("该账号已绑定对应产品账号");
+                }
+            } else {
+                this.addUser(accountVo.getUsername(), accountVo.getBindUserId(), accountVo.getPhone(), accountVo.getEmail());
+                //添加新用户到user表
+                dtUicUserId = userDao.getByDtUicUserId(accountVo.getBindUserId());
+            }
+            if (StringUtils.isNotBlank(accountVo.getModifyUserName())) {
+                this.addUser(accountVo.getModifyUserName(), accountVo.getUserId(), "", accountVo.getModifyUserName());
+            }
+            insertAccountTenant(accountVo, dbAccountByName, dtUicUserId, tenantId);
+        } catch (Exception e) {
+            throw new RdosDefineException("绑定账户租户关系异常");
         }
+    }
 
-        if (StringUtils.isNotBlank(accountVo.getModifyUserName())) {
-            this.addUser(accountVo.getModifyUserName(), accountVo.getUserId(), "", accountVo.getModifyUserName());
-        }
+    /**
+     * @author newman
+     * @Description 插入账户租户关系对象
+     * @Date 2020-12-22 11:56
+     * @param accountVo:
+     * @param dbAccountByName:
+     * @param dtUicUserId:
+     * @param tenantId:
+     * @return: void
+     **/
+    private void insertAccountTenant(AccountVo accountVo, Account dbAccountByName, User dtUicUserId, Long tenantId) {
         AccountTenant accountTenant = new AccountTenant();
         accountTenant.setUserId(dtUicUserId.getId());
         accountTenant.setTenantId(tenantId);
@@ -184,6 +194,25 @@ public class AccountService {
         accountTenantDao.insert(accountTenant);
         log.info("bind db account id [{}]username [{}] to user [{}] tenant {}  success ", accountTenant.getAccountId(), dbAccountByName.getName(),
                 accountTenant.getUserId(), tenantId);
+    }
+
+    /**
+     * @author newman
+     * @Description 插入账号信息
+     * @Date 2020-12-22 11:53
+     * @param accountVo:
+     * @return: com.dtstack.engine.api.domain.Account
+     **/
+    private Account insertAccount(AccountVo accountVo) {
+        Account dbAccountByName = new Account();
+        dbAccountByName.setName(accountVo.getName());
+        dbAccountByName.setPassword(StringUtils.isBlank(accountVo.getPassword()) ? "" : Base64Util.baseEncode(accountVo.getPassword()));
+        dbAccountByName.setType(getAccountTypeByMultiEngineType(accountVo.getEngineType()));
+        dbAccountByName.setCreateUserId(accountVo.getUserId());
+        dbAccountByName.setModifyUserId(accountVo.getUserId());
+        accountDao.insert(dbAccountByName);
+        log.info("add db account {} [{}] ", dbAccountByName.getName(), dbAccountByName.getId());
+        return dbAccountByName;
     }
 
 
@@ -455,18 +484,15 @@ public class AccountService {
         if ( null == tenant ) {
             return;
         }
-
         User user = userDao.getByDtUicUserId(accountVo.getBindUserId());
         if ( null == user ) {
             return;
         }
-
         //检查同租户下用户是否已被绑定
         Account one = accountDao.getOne(tenant.getId(), user.getId(), accountType, null);
         if ( null != one ) {
             throw new RdosDefineException("用户"+ user.getUserName() + "已绑定");
         }
-
         //检查同租户下用户名是否被绑定
         Account exit = accountDao.getOne(tenant.getId(), null, accountType, accountVo.getName());
         if ( null != exit ) {

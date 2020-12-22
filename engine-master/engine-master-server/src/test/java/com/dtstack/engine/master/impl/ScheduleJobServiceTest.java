@@ -284,8 +284,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Rollback
     public void testStopJob() throws Exception {
         ScheduleJob runningJob = DataCollection.getData().getScheduleJobDefiniteTaskId();
-        String result = sheduleJobService.stopJob(runningJob.getId(), runningJob.getCreateUserId(), runningJob.getProjectId(), runningJob.getTenantId(),
-                runningJob.getDtuicTenantId(), true, runningJob.getAppType());
+        String result = sheduleJobService.stopJob(runningJob.getId(),runningJob.getAppType());
 
         Assert.assertEquals(result, "");
     }

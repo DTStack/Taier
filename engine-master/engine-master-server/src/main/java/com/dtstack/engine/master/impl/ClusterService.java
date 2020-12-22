@@ -197,7 +197,6 @@ public class ClusterService implements InitializingBean {
      */
     public String clusterInfo( Long tenantId) {
 
-        //todo 缺少对tenantId的校验
         ClusterVO cluster = getClusterByTenant(tenantId);
         if (cluster != null) {
             JSONObject config = buildClusterConfig(cluster);
@@ -476,7 +475,9 @@ public class ClusterService implements InitializingBean {
         //根据组件区分kerberos
         EComponentType componentType = EComponentType.getByConfName(key);
         Component component = componentDao.getByClusterIdAndComponentType(cluster.getId(),componentType.getTypeCode());
-        // todo 校验component是否为空
+        if(null == component){
+            return "{}";
+        }
         KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(),componentType.getTypeCode());
         JSONObject configObj = config.getJSONObject(key);
         if (configObj != null) {
@@ -488,10 +489,12 @@ public class ClusterService implements InitializingBean {
                 //将sftp中keytab配置转换为本地路径
                 this.fullKerberosFilePath(dtUicTenantId, configObj,component);
             }
-
             if(BooleanUtils.isTrue(isWrapper)){
                 Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode());
-               // todo 校验sftpComponent是否为空
+                if(null == sftpComponent){
+                    LOGGER.error("can't find sftpComponent,clusterId:{}",cluster.getId());
+                    throw new RdosDefineException("can't find sftpComponent");
+                }
                 Map sftpMap = null;
                 try {
                     sftpMap = PublicUtil.strToObject(sftpComponent.getComponentConfig(), Map.class);
@@ -867,7 +870,6 @@ public class ClusterService implements InitializingBean {
         if(CollectionUtils.isNotEmpty(engineTenants)){
             throw new RdosDefineException(String.format("集群下%s有租户，无法删除",cluster.getClusterName()));
         }
-        // todo 物理删除？需要改成逻辑删除吗
         clusterDao.deleteCluster(clusterId);
     }
 
@@ -921,7 +923,6 @@ public class ClusterService implements InitializingBean {
 
     public String pluginInfoForType(Long dtUicTenantId, Boolean fullKerberos, Integer pluginType) {
 
-        //todo 缺少对参数的校验
         EComponentType type = EComponentType.getByCode(pluginType);
         return getConfigByKey(dtUicTenantId, type.getConfName(),fullKerberos,Boolean.FALSE);
     }

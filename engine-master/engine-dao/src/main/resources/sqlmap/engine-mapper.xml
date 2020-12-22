@@ -80,4 +80,18 @@
         set sync_type = #{syncType}
         where cluster_id = #{clusterId} and engine_type = #{engineType} and is_deleted = 0
     </update>
+
+    <select id="getEngineByIdsAndType" resultType="Engine">
+        select
+        <include refid="select_content_fragment"/>
+        from console_engine
+        where is_deleted = 0 and engine_type = #{engineType}
+        <if test="engineIds !=null and engineIds.size() > 0">
+            and id in
+            <foreach collection="engineIds" item="engineId" open="(" separator="," close=")">
+                #{engineId}
+            </foreach>
+        </if>
+        limit 1;
+    </select>
 </mapper>

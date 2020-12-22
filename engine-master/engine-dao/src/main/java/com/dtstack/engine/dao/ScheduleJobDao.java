@@ -1,9 +1,11 @@
 package com.dtstack.engine.dao;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.StatusCount;
 import com.dtstack.engine.api.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.api.dto.ScheduleJobDTO;
 import com.dtstack.engine.api.pager.PageQuery;
+import com.dtstack.engine.api.vo.JobTopErrorVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;
@@ -26,7 +28,6 @@ public interface ScheduleJobDao {
 
     ScheduleJob getByJobKey(@Param("jobKey") String jobKey);
 
-    //TODO 参数过多，应封装成对象穿参数
     List<Map<String, Object>> countByStatusAndType(@Param("type") Integer type, @Param("startTime") String startTime, @Param("endTime") String endTime, @Param("tenantId") Long tenantId, @Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId, @Param("statuses") List<Integer> status);
 
     List<Map<String, Object>> selectStatusAndType(@Param("type") Integer type, @Param("startTime") String startTime, @Param("endTime") String endTime, @Param("tenantId") Long tenantId, @Param("projectId") Long projectId, @Param("appType") Integer appType,
@@ -34,7 +35,7 @@ public interface ScheduleJobDao {
 
     List<Map<String, Object>> listTopRunTime(@Param("projectId") Long projectId, @Param("startTime") Timestamp startTime, @Param("endTime") Timestamp endTime, @Param("pageQuery") PageQuery pageQuery, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId);
 
-    List<Map<String, Object>> listTopErrorByType(@Param("dtuicTenantId") Long dtuicTenantId, @Param("tenantId") Long tenantId, @Param("projectId") Long projectId, @Param("type") Integer type, @Param("time") Timestamp time, @Param("statuses") List<Integer> status, @Param("pageQuery") PageQuery pageQuery, @Param("appType") Integer appType);
+    List<JobTopErrorVO> listTopErrorByType(@Param("dtuicTenantId") Long dtuicTenantId, @Param("tenantId") Long tenantId, @Param("projectId") Long projectId, @Param("type") Integer type, @Param("time") Timestamp time, @Param("statuses") List<Integer> status, @Param("pageQuery") PageQuery pageQuery, @Param("appType") Integer appType);
 
     List<Map<String, Object>> listTodayJobs(@Param("statusList") List<Integer> statusList, @Param("type") Integer type, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId, @Param("appType") Integer appType, @Param("dtuicTenantId") Long dtuicTenantId);
 
@@ -75,7 +76,7 @@ public interface ScheduleJobDao {
     List<ScheduleJob> minOrHourJobQuery(PageQuery<ScheduleJobDTO> pageQuery);
 
 
-    List<Map<String, Integer>> getJobsStatusStatistics(@Param("model") ScheduleJobDTO object);
+    List<StatusCount> getJobsStatusStatistics(@Param("model") ScheduleJobDTO object);
 
     Integer batchInsert(Collection batchJobs);
 

@@ -50,7 +50,6 @@ public class EngineService {
 
     public List<QueueVO> getQueue( Long engineId){
 
-        //todo 校验engieId不能为空
         List<Queue> queueList = queueDao.listByEngineId(engineId);
         return QueueVO.toVOs(queueList);
     }

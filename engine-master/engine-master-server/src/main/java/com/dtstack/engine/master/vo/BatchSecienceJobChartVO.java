@@ -48,11 +48,7 @@ public class BatchSecienceJobChartVO extends ChartDataVO {
         List<Object> dataList = new ArrayList<>();
 
         for (Map<String, Object> data : metadata) {
-            if (dataMap.get("day") != null) {
 
-                dataMap.put(MapUtils.getString(data, "day"), dataMap.get(MapUtils.getString(data, "day")) + MapUtils.getLong(data,"cnt"));
-            }
-            //TODO 这个是否可以去掉
             dataMap.put(MapUtils.getString(data, "day"), MapUtils.getLong(data,"cnt"));
         }
         List<Object> xValue = getXValue();

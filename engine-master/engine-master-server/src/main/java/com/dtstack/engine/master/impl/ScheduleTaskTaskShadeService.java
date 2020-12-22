@@ -50,20 +50,20 @@ public class ScheduleTaskTaskShadeService {
         }
         try {
             List<ScheduleTaskTaskShade> taskTaskList = JSONObject.parseArray(taskLists, ScheduleTaskTaskShade.class);
+            if(CollectionUtils.isEmpty(taskTaskList)){
+                return;
+            }
             Map<String, ScheduleTaskTaskShade> keys = new HashMap<>(16);
             // 去重
             for (ScheduleTaskTaskShade scheduleTaskTaskShade : taskTaskList) {
                 keys.put(String.format("%s.%s.%s", scheduleTaskTaskShade.getTaskId(), scheduleTaskTaskShade.getParentTaskId(), scheduleTaskTaskShade.getProjectId()), scheduleTaskTaskShade);
-                // todo 这里如果不存在直接抛出空指针异常，需要优化
                 Preconditions.checkNotNull(scheduleTaskTaskShade.getTaskId());
                 Preconditions.checkNotNull(scheduleTaskTaskShade.getAppType());
                 //清除原来关系
                 scheduleTaskTaskShadeDao.deleteByTaskId(scheduleTaskTaskShade.getTaskId(), scheduleTaskTaskShade.getAppType());
             }
-
             // 保存现有任务关系
             for (ScheduleTaskTaskShade taskTaskShade : keys.values()) {
-                //todo 这一步可以放到上面的for循环里执行
                 scheduleTaskTaskShadeDao.insert(taskTaskShade);
             }
         } catch (Exception e) {

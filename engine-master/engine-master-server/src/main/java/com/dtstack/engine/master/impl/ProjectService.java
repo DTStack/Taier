@@ -23,7 +23,6 @@ public class ProjectService {
     public void updateSchedule(Long projectId, Integer appType, Integer scheduleStatus) {
 
         if (null == projectId || null == appType || null == scheduleStatus) {
-            //todo 参数为空是否需要返回提示
             return;
         }
         logger.info("update project {} status {} ",projectId,scheduleStatus);

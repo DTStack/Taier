@@ -93,9 +93,8 @@ public class ScheduleTaskShadeController {
     @RequestMapping(value="/frozenTask", method = {RequestMethod.POST})
     @ApiOperation(value = "冻结任务")
     public void frozenTask(@DtRequestParam("taskIdList") List<Long> taskIdList, @DtRequestParam("scheduleStatus") int scheduleStatus,
-                           @DtRequestParam("projectId") Long projectId, @DtRequestParam("userId") Long userId,
                            @DtRequestParam("appType") Integer appType) {
-        scheduleTaskShadeService.frozenTask(taskIdList, scheduleStatus, projectId, userId, appType);
+        scheduleTaskShadeService.frozenTask(taskIdList, scheduleStatus, appType);
     }
 
 
@@ -135,7 +134,7 @@ public class ScheduleTaskShadeController {
 
     @RequestMapping(value="/listDependencyTask", method = {RequestMethod.POST})
     public List<Map<String, Object>> listDependencyTask(@DtRequestParam("taskIds") List<Long> taskId, @DtRequestParam("appType") Integer appType, @DtRequestParam("name") String name, @DtRequestParam("projectId") Long projectId) {
-        return scheduleTaskShadeService.listDependencyTask(taskId, appType, name, projectId);
+        return scheduleTaskShadeService.listDependencyTask(taskId, name, projectId);
     }
 
     @RequestMapping(value="/listByTaskIdsNotIn", method = {RequestMethod.POST})

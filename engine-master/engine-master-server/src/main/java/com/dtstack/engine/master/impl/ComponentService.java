@@ -134,34 +134,19 @@ public class ComponentService {
 
     public List<ComponentsConfigOfComponentsVO> listConfigOfComponents(Long dtUicTenantId, Integer engineType) {
 
-        //todo 缺少对参数的校验
         List<ComponentsConfigOfComponentsVO> componentsVOS = Lists.newArrayList();
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
         if (tenantId == null) {
             return componentsVOS;
         }
-
         List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
         if (CollectionUtils.isEmpty(engineIds)) {
             return componentsVOS;
         }
-
-        List<Engine> engines = engineDao.listByEngineIds(engineIds);
-        if (CollectionUtils.isEmpty(engines)) {
+        Engine targetEngine = engineDao.getEngineByIdsAndType(engineIds,engineType);
+        if(null == targetEngine){
             return componentsVOS;
         }
-
-        Engine targetEngine = null;
-        for (Engine engine : engines) {
-            if (engine.getEngineType() == engineType) {
-                targetEngine = engine;
-                break;
-            }
-        }
-        if (targetEngine == null) {
-            return componentsVOS;
-        }
-
         List<Component> componentList = componentDao.listByEngineId(targetEngine.getId());
         for (Component component : componentList) {
             ComponentsConfigOfComponentsVO componentsConfigOfComponentsVO = new ComponentsConfigOfComponentsVO();
@@ -174,7 +159,6 @@ public class ComponentService {
 
     public Component getOne( Long id) {
 
-        //todo 校验id是否为空
         Component component = componentDao.getOne(id);
         if (component == null) {
             throw new RdosDefineException("组件不存在");
@@ -942,14 +926,6 @@ public class ComponentService {
     public String wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig,String clusterName) {
         JSONObject dataInfo = new JSONObject();
         dataInfo.put("componentName", EComponentType.getByCode(componentType).getName().toLowerCase());
-        if ( null != kerberosConfig ) {
-            dataInfo.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
-            //开启了kerberos
-            dataInfo.put("openKerberos", kerberosConfig.getOpenKerberos());
-            dataInfo.put("remoteDir", kerberosConfig.getRemotePath());
-            dataInfo.put("principalFile", kerberosConfig.getName());
-            dataInfo.put("krbName", kerberosConfig.getKrbName());
-        }
         dataInfo.put(EComponentType.SFTP.getConfName(), sftpConfig);
         if (EComponentType.SFTP.getTypeCode() == componentType) {
             dataInfo = JSONObject.parseObject(componentConfig);
@@ -976,8 +952,6 @@ public class ComponentService {
             dataInfo.put("username", dataInfo.getString("username"));
             dataInfo.put("password", dataInfo.getString("password"));
             if ( null != kerberosConfig ) {
-
-                // todo 这部分判断了两遍
                 //开启了kerberos
                 dataInfo.put("openKerberos", kerberosConfig.getOpenKerberos());
                 dataInfo.put("remoteDir", kerberosConfig.getRemotePath());
@@ -985,15 +959,7 @@ public class ComponentService {
                 dataInfo.put("krbName", kerberosConfig.getKrbName());
                 dataInfo.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
                 //补充yarn参数
-                //todo 重复代码，抽象出一个方法
-                Cluster cluster = clusterDao.getByClusterName(clusterName);
-                if( null != cluster ){
-                    Component yarnComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode());
-                    if(null != yarnComponent ){
-                        Map yarnMap = JSONObject.parseObject(yarnComponent.getComponentConfig(), Map.class);
-                        dataInfo.put(EComponentType.YARN.getConfName(), yarnMap);
-                    }
-                }
+                putYarnConfig(clusterName, dataInfo);
             }
         } else if (EComponentType.YARN.getTypeCode() == componentType) {
             Map map = JSONObject.parseObject(componentConfig, Map.class);
@@ -1002,16 +968,8 @@ public class ComponentService {
             Map map = JSONObject.parseObject(componentConfig, Map.class);
             dataInfo.put(EComponentType.HDFS.getConfName(), map);
             //补充yarn参数
-            Cluster cluster = clusterDao.getByClusterName(clusterName);
-            if( null != cluster ){
-                Component yarnComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode());
-                if( null != yarnComponent ){
-                    Map yarnMap = JSONObject.parseObject(yarnComponent.getComponentConfig(), Map.class);
-                    dataInfo.put(EComponentType.YARN.getConfName(), yarnMap);
-                }
-            }
+            putYarnConfig(clusterName, dataInfo);
         } else if (EComponentType.KUBERNETES.getTypeCode() == componentType) {
-
             dataInfo = new JSONObject();
             JSONObject confObj = new JSONObject();
             if(componentConfig.contains("kubernetes.context")){
@@ -1023,6 +981,25 @@ public class ComponentService {
             dataInfo.put("componentName", EComponentType.KUBERNETES.getName());
         }
         return dataInfo.toJSONString();
+    }
+
+    /**
+     * @author newman
+     * @Description 设置yarn配置
+     * @Date 2020-12-22 11:40
+     * @param clusterName:
+     * @param dataInfo:
+     * @return: void
+     **/
+    private void putYarnConfig(String clusterName, JSONObject dataInfo) {
+        Cluster cluster = clusterDao.getByClusterName(clusterName);
+        if (null != cluster) {
+            Component yarnComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.YARN.getTypeCode());
+            if (null != yarnComponent) {
+                Map yarnMap = JSONObject.parseObject(yarnComponent.getComponentConfig(), Map.class);
+                dataInfo.put(EComponentType.YARN.getConfName(), yarnMap);
+            }
+        }
     }
 
     /**

@@ -222,18 +222,14 @@ public class ScheduleJobJobService {
                     break;
                 }
             }
-
             if (beginJobJob == null) {
                 logger.error("displayOffSpringForFlowWork end with no subTasks with flowJobKey [{}]", flowJob.getJobKey());
                 return null;
             }
-
             ScheduleJobJobDTO root = new ScheduleJobJobDTO();
             root.setJobKey(beginJobJob.getJobKey());
             //第一层作为root
             getTree(root, result, 2, true);
-
-
             vo = getOffSpring(root, keyJobMap, idTaskMap, true);
         }
         return vo;
@@ -301,9 +297,14 @@ public class ScheduleJobJobService {
      */
     public com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpringWorkFlow( Long jobId, Integer appType) throws Exception {
 
-        //todo 缺少对参数的校验
         ScheduleJob job = batchJobService.getJobById(jobId);
+        if(null == job){
+            throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
+        }
         ScheduleTaskShade batchTaskShade = batchTaskShadeService.getBatchTaskById(job.getTaskId(),appType);
+        if(null == batchTaskShade){
+            throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
+        }
         com.dtstack.engine.master.vo.ScheduleJobVO vo = new com.dtstack.engine.master.vo.ScheduleJobVO(job);
         vo.setBatchTask(new ScheduleTaskVO(batchTaskShade, true));
         if (batchTaskShade.getTaskType().intValue() == EScheduleJobType.WORK_FLOW.getVal() || batchTaskShade.getTaskType().intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {

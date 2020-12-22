@@ -139,7 +139,9 @@ public class ActionService {
      */
     public Boolean stop(List<String> jobIds) {
 
-        //todo 增加判断jobIds如果为空，直接返回
+        if(CollectionUtils.isEmpty(jobIds)){
+            throw new RdosDefineException("jobIds不能为空");
+        }
         List<ScheduleJob> jobs = new ArrayList<>(scheduleJobDao.getRdosJobByJobIds(jobIds));
         jobStopDealer.addStopJobs(jobs);
         return true;
@@ -243,12 +245,11 @@ public class ActionService {
     /**
      * 根据jobid 和 计算类型，查询job的状态
      */
-    public Integer status( String jobId, Integer computeType) throws Exception {
+    public Integer status( String jobId) throws Exception {
 
-        if (StringUtils.isBlank(jobId)||computeType==null){
-            throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        if (StringUtils.isBlank(jobId)){
+            throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
-        // todo 不是要根据根据jobid 和 计算类型，查询job的状态吗，怎么只根据jobId查询了
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         if (scheduleJob != null) {
         	return scheduleJob.getStatus();
@@ -259,12 +260,11 @@ public class ActionService {
     /**
      * 根据jobid 和 计算类型，查询job的状态
      */
-    public Map<String, Integer> statusByJobIds( List<String> jobIds, Integer computeType) throws Exception {
+    public Map<String, Integer> statusByJobIds( List<String> jobIds) throws Exception {
 
-        if (CollectionUtils.isEmpty(jobIds)||computeType==null){
-            throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        if (CollectionUtils.isEmpty(jobIds)){
+            throw new RdosDefineException("jobIds  is not allow empty", ErrorCode.INVALID_PARAMETERS);
         }
-        // todo computeType需要用到吗
         Map<String,Integer> result = null;
         List<ScheduleJob> scheduleJobs = scheduleJobDao.getRdosJobByJobIds(jobIds);
         if (CollectionUtils.isNotEmpty(scheduleJobs)) {
@@ -280,10 +280,10 @@ public class ActionService {
      * 根据jobid 和 计算类型，查询job开始运行的时间
      * return 毫秒级时间戳
      */
-    public Long startTime( String jobId, Integer computeType) throws Exception {
+    public Long startTime( String jobId ) throws Exception {
 
-        if (StringUtils.isBlank(jobId)||computeType==null){
-            throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        if (StringUtils.isBlank(jobId) ){
+            throw new RdosDefineException("jobId  is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         Date startTime = null;
@@ -329,11 +329,10 @@ public class ActionService {
     /**
      * 根据jobid 从es中获取日志
      */
-    public String logFromEs(String jobId, Integer computeType) throws Exception {
+    public String logFromEs(String jobId) throws Exception {
         if (StringUtils.isBlank(jobId)) {
             throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
-
         String engineLog = "";
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         if (scheduleJob != null) {
@@ -347,13 +346,12 @@ public class ActionService {
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
-    public List<ActionRetryLogVO> retryLog( String jobId, Integer computeType) throws Exception {
+    public List<ActionRetryLogVO> retryLog( String jobId) throws Exception {
 
-        if (StringUtils.isBlank(jobId) || computeType==null){
-            throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        if (StringUtils.isBlank(jobId)){
+            throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
-        //todo 参数computeType没有用到
         ActionRetryLogVO vo = new ActionRetryLogVO();
         List<ActionRetryLogVO> logs = new ArrayList<>(5);
         List<EngineJobRetry> batchJobRetrys = engineJobRetryDao.listJobRetryByJobId(jobId);
@@ -371,15 +369,14 @@ public class ActionService {
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
-    public ActionRetryLogVO retryLogDetail( String jobId, Integer computeType,  Integer retryNum) throws Exception {
+    public ActionRetryLogVO retryLogDetail( String jobId, Integer retryNum) throws Exception {
 
-        if (StringUtils.isBlank(jobId) || computeType==null){
-            throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        if (StringUtils.isBlank(jobId)){
+            throw new RdosDefineException("jobId  is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
         if (retryNum == null || retryNum <= 0) {
             retryNum = 1;
         }
-        //todo computeType没有用到
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         //数组库中存储的retryNum为0开始的索引位置
         EngineJobRetry jobRetry = engineJobRetryDao.getJobRetryByJobId(jobId, retryNum - 1);
@@ -407,10 +404,10 @@ public class ActionService {
     /**
      * 根据jobids 和 计算类型，查询job
      */
-    public List<ActionJobEntityVO> entitys( List<String> jobIds, Integer computeType) throws Exception {
+    public List<ActionJobEntityVO> entitys( List<String> jobIds) throws Exception {
 
-        if (CollectionUtils.isEmpty(jobIds)||computeType==null){
-            throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        if (CollectionUtils.isEmpty(jobIds)){
+            throw new RdosDefineException("jobId  is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         List<ActionJobEntityVO> result = null;
@@ -439,7 +436,6 @@ public class ActionService {
     public List<String> containerInfos(ParamAction paramAction) throws Exception {
         checkParam(paramAction);
         //从数据库补齐数据
-        // todo 只用到了taskId，computeType和engineType都没用到
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(paramAction.getTaskId());
         if(scheduleJob != null){
             paramAction.setEngineTaskId(scheduleJob.getEngineJobId());
@@ -494,16 +490,15 @@ public class ActionService {
      * 重置任务状态为未提交
      * @return
      */
-    public String resetTaskStatus( String jobId,  Integer computeType){
+    public String resetTaskStatus( String jobId){
 
-        //todo 缺少对jobId的校验，computeType没有用到
         //check jobstatus can reset
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobId);
         Preconditions.checkNotNull(scheduleJob, "not exists job with id " + jobId);
         Integer currStatus = scheduleJob.getStatus();
 
         if(!RdosTaskStatus.canReset(currStatus)){
-            throw new RdosDefineException(String.format("computeType(%d) taskId(%s) can't reset status, current status(%d)", computeType, jobId, currStatus.intValue()));
+            throw new RdosDefineException(String.format("taskId(%s) can't reset status, current status(%d)", jobId, currStatus.intValue()));
         }
 
         //do reset status
@@ -521,7 +516,6 @@ public class ActionService {
         }
 
         List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobStatus(new Timestamp(time), ComputeType.BATCH.getType());
-        //todo 重复的代码
         return toVOS(scheduleJobs);
     }
 

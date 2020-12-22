@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -67,7 +68,9 @@ public class StreamTaskService {
      */
     public List<ScheduleJob> getEngineStreamJob( List<String> taskIds){
 
-        //todo 对taskIds判空
+        if(CollectionUtils.isEmpty(taskIds)){
+            return Collections.EMPTY_LIST;
+        }
         List<ScheduleJob> jobs = scheduleJobDao.getRdosJobByJobIds(taskIds);
 
         if (CollectionUtils.isNotEmpty(jobs)){
@@ -75,7 +78,6 @@ public class StreamTaskService {
                 scheduleJob.setStatus(RdosTaskStatus.getShowStatus(scheduleJob.getStatus()));
             }
         }
-
         return jobs;
     }
 
