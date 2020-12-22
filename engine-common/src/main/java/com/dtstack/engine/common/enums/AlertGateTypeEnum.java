@@ -8,7 +8,7 @@ package com.dtstack.engine.common.enums;
  */
 public enum AlertGateTypeEnum {
 
-    MAIL(1,"邮箱"), SMS(2,"短信"), DINGDING(3,"钉钉"),CUSTOMIZE(4,"自定义");
+    SMS(1,"短信"),MAIL(2,"邮箱") , DINGDING(3,"钉钉"),CUSTOMIZE(4,"自定义");
 
     private Integer type;
 
@@ -21,12 +21,12 @@ public enum AlertGateTypeEnum {
         this.msg = name;
     }
 
-    public static String getEnumByCode(Integer alertGateType) {
+    public static AlertGateTypeEnum getEnumByCode(Integer alertGateType) {
         AlertGateTypeEnum[] values = AlertGateTypeEnum.values();
 
         for (AlertGateTypeEnum value : values) {
             if (value.getType().equals(alertGateType)) {
-                return value.name();
+                return value;
             }
         }
 
@@ -55,4 +55,11 @@ public enum AlertGateTypeEnum {
         return type;
     }
 
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
 }

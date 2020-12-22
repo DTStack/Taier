@@ -27,4 +27,6 @@ public interface AlertGateDao {
 
     List<ClusterAlertPO> selectDefaultAlert(List<Integer> alertTypes, Integer isDefault);
 
+    List<ClusterAlertPO> allGate();
+
 }

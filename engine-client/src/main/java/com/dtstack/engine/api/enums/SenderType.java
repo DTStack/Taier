@@ -8,15 +8,15 @@ package com.dtstack.engine.api.enums;
  */
 public enum SenderType {
 
-    MAIL(1), SMS(2), WEICHAT(3), DINGDING(4),PHONE(5);
+    MAIL(1), SMS(2), WEICHAT(3), DINGDING(4),PHONE(5),CUSTOMIZE(6);
 
-    private int type;
+    private Integer type;
 
-    SenderType(int type) {
+    SenderType(Integer type) {
         this.type = type;
     }
 
-    public int getType() {
+    public Integer getType() {
         return type;
     }
 

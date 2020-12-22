@@ -134,7 +134,7 @@ public class NotifyRecordService {
     }
 
     public void sendAlarmNew(Long tenantId, Long projectId, Long notifyRecordId, Integer appType, String title, Long contentId, List<ClusterAlertPO> clusterAlertPOS, List<UserMessageDTO> receivers, String webhook) {
-
+        notifyService.sendAlarm(tenantId, projectId, notifyRecordId,AppType.getValue(appType), title, contentId,receivers,webhook,clusterAlertPOS);
 
     }
 }

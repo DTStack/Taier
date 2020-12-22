@@ -13,6 +13,7 @@ import com.dtstack.lang.data.R;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -29,6 +30,9 @@ import java.util.Map;
 public class MailJarService implements AlertService {
 
     private final Logger log = LoggerFactory.getLogger(MailJarService.class);
+
+    @Autowired
+    private ChannelCache channelCache;
 
     @Override
     public R send(AlertParam param) {
@@ -51,7 +55,7 @@ public class MailJarService implements AlertService {
         // 用了插件模式，建议只传
         Map<String, Object> confMap = JsonUtils.parseMap(param.getAlertGatePO().getAlertGateJson());
         try {
-            IMailChannel sender = (IMailChannel) ChannelCache.getChannelInstance(jarPath, className);
+            IMailChannel sender = (IMailChannel) channelCache.getChannelInstance(jarPath, className);
             R r = sender.sendMail(recipients, subject, message, attachFiles, confMap);
             log.info("[sendMail] end, cost={}, mails={}, subject={}, message={}, result={}", (System.currentTimeMillis() - startTime),
                     recipients, subject, message, r);

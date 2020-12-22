@@ -17,6 +17,7 @@ import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
 import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
+import com.dtstack.engine.common.constrant.GlobalConst;
 import com.dtstack.engine.common.enums.AlertGateTypeEnum;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.sftp.SftpConfig;
@@ -39,6 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -98,6 +100,7 @@ public class AlertController {
             }
             file.transferTo(destFile);
 
+            String dbPath = destPath;
             // 上传sftp
             if (environmentContext.getOpenConsoleSftp()) {
                 // 查询默认集群的sftp
@@ -109,6 +112,8 @@ public class AlertController {
                             String remoteDir = sftpConfig.getPath() + File.separator + filePath;
                             SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
                             sftpManager.uploadFile(remoteDir ,destPath);
+
+                            dbPath = dbPath + GlobalConst.PATH_CUT + remoteDir + file.getOriginalFilename();
                         } catch (Exception e) {
                             log.error("上传sftp失败:",e);
                         }
@@ -116,7 +121,7 @@ public class AlertController {
                 }
             }
 
-            alertGateVO.setFilePath(destFile.getAbsolutePath());
+            alertGateVO.setFilePath(dbPath);
         } else {
             alertGateVO.setFilePath(null);
         }
@@ -154,6 +159,11 @@ public class AlertController {
         return alertGateFacade.deleteGate(alertGateVO.getId());
     }
 
+    @ApiOperation("获取告警通道分页")
+    @PostMapping("/list/show")
+    public List<ClusterAlertPO> listShow() {
+        return alertGateFacade.listShow();
+    }
 
     @ApiOperation("jar上传接口")
     @PostMapping("/jarUpload")

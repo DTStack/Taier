@@ -1,20 +1,29 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.domian.Notice;
 import com.dtstack.engine.alert.send.NoticeSender;
 import com.dtstack.engine.api.domain.NotifyRecordContent;
 import com.dtstack.engine.api.domain.NotifyRecordRead;
+import com.dtstack.engine.api.domain.po.ClusterAlertPO;
 import com.dtstack.engine.api.dto.NotifyRecordReadDTO;
 import com.dtstack.engine.api.dto.UserMessageDTO;
 import com.dtstack.engine.api.enums.MailType;
+import com.dtstack.engine.api.enums.SenderType;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.common.enums.AlertGateTypeEnum;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.NotifyRecordContentDao;
 import com.dtstack.engine.dao.NotifyRecordReadDao;
 import com.dtstack.engine.master.enums.ReadStatus;
 import com.dtstack.schedule.common.enums.AppType;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +38,7 @@ import java.util.List;
 @Service
 public class NotifyService {
 
+    private Logger logger = LoggerFactory.getLogger(getClass());
     @Autowired
     private NotifyRecordContentDao notifyRecordContentDao;
 
@@ -128,13 +138,15 @@ public class NotifyService {
         String content = notifyRecordContentDao.getContent(tenantId, projectId, appType.getType(), contentId);
         for (UserMessageDTO receiver : receivers) {
             if (CollectionUtils.isNotEmpty(senderTypes)) {
-                sendNoticeAsync(tenantId, projectId, notifyRecordId, appType, title, contentId, receiver, senderTypes, null, content, webhook);
+                sendNoticeAsync(tenantId, projectId, notifyRecordId, appType, title, contentId, receiver, senderTypes, null, content, webhook,null,null);
             }
             addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, receiver);
         }
     }
 
-    private void sendNoticeAsync(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, Long contentId, UserMessageDTO receiver, List<Integer> senderTypes, MailType mailType, String content, String webhook) {
+    private void sendNoticeAsync(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, Long contentId,
+                                 UserMessageDTO receiver, List<Integer> senderTypes, MailType mailType, String content,
+                                 String webhook, Object data,Long alertId) {
         if (mailType == null) {
             mailType = MailType.SIMPLE;
         }
@@ -151,6 +163,8 @@ public class NotifyService {
             notice.setProjectId(projectId);
             notice.setMailType(mailType);
             notice.setWebhook(webhook);
+            notice.setData(data);
+            notice.setAlertId(alertId);
             noticeSender.sendNoticeAsync(notice);
         }
     }
@@ -165,5 +179,83 @@ public class NotifyService {
         recordRead.setReadStatus(ReadStatus.UNREAD.getStatus());
         recordRead.setUserId(receiver.getUserId());
         notifyRecordReadDao.insert(recordRead);
+    }
+
+    public void sendAlarm(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, Long contentId, List<UserMessageDTO> receivers, String webhook, List<ClusterAlertPO> clusterAlertPOS) {
+        if (CollectionUtils.isEmpty(clusterAlertPOS)) {
+            return;
+        }
+
+        if (projectId == null) {
+            projectId = 0L;
+        }
+
+        String content = notifyRecordContentDao.getContent(tenantId, projectId, appType.getType(), contentId);
+
+        for (ClusterAlertPO alertPO : clusterAlertPOS) {
+            try {
+                send(tenantId, projectId, notifyRecordId, appType,title,content,contentId,receivers,alertPO,webhook);
+            } catch (Exception e) {
+                logger.error("通道:{},发送异常:{}",alertPO.getAlertGateSource(),e.getStackTrace());
+            }
+        }
+
+    }
+
+    private void send(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, List<UserMessageDTO> receivers, ClusterAlertPO alertPO, String webhook) {
+        if (AlertGateTypeEnum.MAIL.getType().equals(alertPO.getAlertGateType())) {
+            // 发送邮件
+            sendMail(tenantId,projectId,notifyRecordId,appType,title,content,contentId,receivers,alertPO);
+        } else if (AlertGateTypeEnum.SMS.getType().equals(alertPO.getAlertGateType())) {
+            sendSms(tenantId,projectId,notifyRecordId,appType,title,content,contentId,receivers,alertPO);
+        } else if (AlertGateTypeEnum.DINGDING.getType().equals(alertPO.getAlertGateType())) {
+            sendDingding(tenantId,projectId,notifyRecordId,appType,title,content,contentId,alertPO,webhook);
+        } else if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(alertPO.getAlertGateType())) {
+            sendCustom(tenantId,projectId,notifyRecordId,appType,title,content,contentId,alertPO);
+        }
+    }
+
+    private void sendCustom(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, ClusterAlertPO alertPO) {
+        List<Integer> senderTypes = Lists.newArrayList();
+        senderTypes.add(SenderType.CUSTOMIZE.getType());
+        UserMessageDTO userDTO = new UserMessageDTO();
+        userDTO.setUserId(-1L);
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("title",title);
+        jsonObject.put("content",content);
+
+        sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,userDTO, senderTypes,null,content,null,jsonObject.toJSONString(),alertPO.getAlertId().longValue());
+        addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, userDTO);
+    }
+
+    private void sendDingding(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, ClusterAlertPO alertPO,String webhook) {
+        if (StringUtils.isBlank(webhook)) {
+            throw new RdosDefineException("webhook不合法！");
+        }
+        List<Integer> senderTypes = Lists.newArrayList();
+        senderTypes.add(SenderType.DINGDING.getType());
+        UserMessageDTO userDTO = new UserMessageDTO();
+        userDTO.setUserId(-1L);
+        sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,userDTO, senderTypes,null,content,null,null,alertPO.getAlertId().longValue());
+        addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, userDTO);
+    }
+
+    private void sendSms(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, List<UserMessageDTO> receivers, ClusterAlertPO alertPO) {
+        for (UserMessageDTO receiver : receivers) {
+            List<Integer> senderTypes = Lists.newArrayList();
+            senderTypes.add(SenderType.SMS.getType());
+            sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,receiver, senderTypes,null,content,null,null,alertPO.getAlertId().longValue());
+            addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, receiver);
+        }
+    }
+
+    private void sendMail(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, List<UserMessageDTO> receivers, ClusterAlertPO alertPO) {
+        for (UserMessageDTO receiver : receivers) {
+            List<Integer> senderTypes = Lists.newArrayList();
+            senderTypes.add(SenderType.MAIL.getType());
+            sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,receiver, senderTypes,MailType.SIMPLE,content,null,null,alertPO.getAlertId().longValue());
+            addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, receiver);
+        }
     }
 }

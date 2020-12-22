@@ -13,6 +13,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -29,6 +30,9 @@ import java.util.Map;
 public class DingJarService extends AbstractDingService {
 
     private final Logger log = LoggerFactory.getLogger(DingDTService.class);
+
+    @Autowired
+    private ChannelCache channelCache;
 
     @Override
     public AlertGateCode alertGateCode() {
@@ -61,7 +65,7 @@ public class DingJarService extends AbstractDingService {
         String className = config.getString("className");
         long startTime = System.currentTimeMillis();
         try {
-            IDingChannel sender = (IDingChannel) ChannelCache.getChannelInstance(jarPath, className);
+            IDingChannel sender = (IDingChannel) channelCache.getChannelInstance(jarPath, className);
             R r = sender.sendDing(dings, message, dynamicParams, extMap);
             log.info("[sendDing] end, time cost={}, dings={}, message={}, result={}", (System.currentTimeMillis() - startTime), dings, message, r);
             return r;

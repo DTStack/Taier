@@ -59,16 +59,15 @@ public class ChannelCache {
             }
         }
 
-        if (environmentContext.getOpenConsoleSftp()) {
+        if (environmentContext.getOpenConsoleSftp() && StringUtils.isNotBlank(sftpPath)) {
             String ifPresent = cacheSftpJar.getIfPresent(jarPath);
             if (StringUtils.isBlank(ifPresent)) {
                 com.dtstack.engine.api.domain.Component sftpComponent = componentDao.getByClusterIdAndComponentType(-1L, 10);
                 SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
                 if (sftpConfig != null) {
                     try {
-                        String remoteDir = sftpConfig.getPath() + jarPath;
                         SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
-                        sftpManager.downloadFile(remoteDir, destPath);
+                        sftpManager.downloadFile(sftpPath, destPath);
                         cacheSftpJar.put(jarPath, System.currentTimeMillis() + "");
                     } catch (Exception e) {
                         logger.error("下载sftp失败:", e);

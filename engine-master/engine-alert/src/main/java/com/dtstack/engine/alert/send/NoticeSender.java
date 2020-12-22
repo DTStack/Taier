@@ -2,6 +2,7 @@ package com.dtstack.engine.alert.send;
 
 
 import com.dtstack.engine.alert.domian.Notice;
+import com.dtstack.engine.alert.send.customize.TencentCloudCustomizeSender;
 import com.dtstack.engine.alert.send.ding.NoticeDingSender;
 import com.dtstack.engine.alert.send.mail.NoticeMailSender;
 import com.dtstack.engine.alert.send.phone.TencentCloudPhoneSender;
@@ -53,6 +54,8 @@ public class NoticeSender implements Runnable, NoticeSenderApi, DisposableBean {
     @Autowired
     private TencentCloudPhoneSender tencentCloudPhoneSender;
 
+    @Autowired
+    private TencentCloudCustomizeSender tencentCloudCustomizeSender;
 
     @PostConstruct
     public void init() {
@@ -72,14 +75,16 @@ public class NoticeSender implements Runnable, NoticeSenderApi, DisposableBean {
         boolean result = false;
         long id = recordService.addSenderRecord(notice.getContentId(), notice.getNotifyRecordId(), notice.getUserDTO().getUserId(),
                 notice.getSenderType(), notice.getAppType(), notice.getProjectId(), notice.getTenantId());
-        if (SenderType.MAIL.getType() == notice.getSenderType()) {
+        if (SenderType.MAIL.getType().equals(notice.getSenderType())) {
             result = noticeMailSender.send(notice);
-        } else if (SenderType.SMS.getType() == notice.getSenderType()) {
+        } else if (SenderType.SMS.getType().equals(notice.getSenderType())) {
             result = noticePhoneMsgSender.send(notice);
-        } else if (SenderType.DINGDING.getType() == notice.getSenderType()) {
+        } else if (SenderType.DINGDING.getType().equals(notice.getSenderType())) {
             result = noticeDingSender.send(notice);
-        } else if (SenderType.PHONE.getType() == notice.getSenderType()) {
+        } else if (SenderType.PHONE.getType().equals(notice.getSenderType())) {
             result = tencentCloudPhoneSender.send(notice);
+        } else if (SenderType.CUSTOMIZE.getType().equals(notice.getSenderType())) {
+            result = tencentCloudCustomizeSender.send(notice);
         }
         int status = result ? SendStatus.SENDSUCCESS.getStatus() : SendStatus.SENDFAILURE.getStatus();
         recordService.updateSenderRecord(id, status);

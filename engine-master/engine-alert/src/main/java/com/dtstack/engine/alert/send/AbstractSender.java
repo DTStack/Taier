@@ -45,8 +45,18 @@ public abstract class AbstractSender {
     protected ClusterAlertPO getDefaultClusterAlertPO(Notice notice, AGgateType aGgateType) {
         ClusterAlertPO query = new ClusterAlertPO();
         query.setClusterId(0);
-        query.setIsDefault(1);
+        Long alertId = notice.getAlertId();
+        if (alertId ==null){
+            if (AGgateType.AG_GATE_TYPE_CUSTOMIZE.equals(aGgateType)) {
+                throw new RdosDefineException("自定义告警没有默认参数");
+            } else {
+                query.setIsDefault(1);
+            }
+        } else {
+            query.setAlertId(alertId.intValue());
+        }
         query.setAlertGateType(aGgateType.type());
+
         return clusterAlertDao.get(query);
     }
 
@@ -61,6 +71,8 @@ public abstract class AbstractSender {
                 return AGgateType.AG_GATE_TYPE_DING;
             case PHONE:
                 return AGgateType.AG_GATE_TYPE_PHONE;
+            case CUSTOMIZE:
+                return AGgateType.AG_GATE_TYPE_CUSTOMIZE;
             default:
                 throw new IllegalArgumentException("unsupported convert SenderType : " + senderType.name());
         }

@@ -34,6 +34,10 @@ public class Notice {
 
     private MailType mailType;
 
+    private Object data;
+
+    private Long alertId;
+
     public String getWebhook() {
         return webhook;
     }
@@ -120,5 +124,21 @@ public class Notice {
 
     public void setMailType(MailType mailType) {
         this.mailType = mailType;
+    }
+
+    public Object getData() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = data;
+    }
+
+    public Long getAlertId() {
+        return alertId;
+    }
+
+    public void setAlertId(Long alertId) {
+        this.alertId = alertId;
     }
 }

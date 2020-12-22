@@ -172,4 +172,28 @@ public class AlertGateFacade {
 
         return pos;
     }
+
+    public List<ClusterAlertPO> listShow() {
+        // 查询所有通道
+        List<ClusterAlertPO> pos = alertGateDao.allGate();
+
+        List<ClusterAlertPO> aimPos = Lists.newArrayList();
+
+        for (ClusterAlertPO po : pos) {
+            if (po.getIsDefault().equals(1) && !AlertGateTypeEnum.CUSTOMIZE.getType().equals(po.getAlertGateType())) {
+                AlertGateTypeEnum enumByCode = AlertGateTypeEnum.getEnumByCode(po.getAlertGateType());
+
+                if (enumByCode != null) {
+                    po.setAlertGateSource(AlertGateTypeEnum.getDefaultFiled(enumByCode));
+                    po.setAlertGateName(enumByCode.getMsg());
+                    aimPos.add(po);
+                }
+            } else if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(po.getAlertGateType())) {
+                aimPos.add(po);
+            }
+        }
+
+        return aimPos;
+
+    }
 }
