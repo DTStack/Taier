@@ -72,6 +72,7 @@ const AlarmRule: React.FC = (props: any) => {
                 const testKey = textAlertKey(values.alertGateType);
                 let testValue = values.alertGateType !== ALARM_TYPE.CUSTOM ? values[testKey].split(',') : ''
                 let res = await Api.testAlert(Object.assign({}, values, {
+                    id: id || '',
                     filePath: ruleData?.filePath || '',
                     isDefault: values.isDefault ? 1 : 0,
                     file: values?.file?.file ?? values?.file ?? '',
@@ -158,6 +159,13 @@ const AlarmRule: React.FC = (props: any) => {
     const isCreate = utils.getParameterByName('isCreate');
     const alertGateType = getFieldValue('alertGateType');
     const alertGateCode = getFieldValue('alertGateCode');
+
+    const handleAlertGateType = () => {
+        getFieldValue('file') && setFieldsValue({
+            [`file`]: ''
+        })
+        setFileList([])
+    }
 
     return (
         <div className='alarm-rule__wrapper'>
