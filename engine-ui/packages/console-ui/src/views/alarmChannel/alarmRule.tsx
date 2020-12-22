@@ -120,13 +120,6 @@ const AlarmRule: React.FC = (props: any) => {
         callBack()
     }
 
-    const handleAlertGateType = () => {
-        getFieldValue('file') && setFieldsValue({
-            [`file`]: ''
-        })
-        setFileList([])
-    }
-
     const uploadProp = {
         name: 'file',
         accept: '.jar',
