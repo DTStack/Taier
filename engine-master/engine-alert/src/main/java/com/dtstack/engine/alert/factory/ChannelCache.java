@@ -43,9 +43,6 @@ public class ChannelCache {
     @Value("${user.dir}")
     private String uploadPath;
 
-    @Value("${console.upload.path}")
-    private String oldPath;
-
     public Object getChannelInstance(String jarPath, String className) throws Exception {
         String destPath = jarPath;
         String sftpPath = null;

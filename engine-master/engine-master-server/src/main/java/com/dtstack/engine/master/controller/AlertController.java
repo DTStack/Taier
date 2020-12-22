@@ -19,12 +19,12 @@ import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
 import com.dtstack.engine.common.constrant.GlobalConst;
 import com.dtstack.engine.common.enums.AlertGateTypeEnum;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.master.config.MvcConfig;
 import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.utils.CheckUtils;
 import com.dtstack.lang.data.R;
@@ -200,8 +200,10 @@ public class AlertController {
             file.transferTo(destFile);
             alertGateTestVO.setFilePath(destFile.getAbsolutePath());
         } else {
-            String pluginPath = mvcConfig.getPluginPath(false,alertGateTestVO.getAlertGateSource()) + "/" + alertGateTestVO.getFilePath();
-            alertGateTestVO.setFilePath(pluginPath);
+            AlertGateVO vo = alertGateFacade.getGateById(alertGateTestVO.getId());
+            if (vo!=null) {
+                alertGateTestVO.setFilePath(vo.getFilePath());
+            }
         }
         log.info("testAlert jar path :{}", alertGateTestVO.getFilePath());
 

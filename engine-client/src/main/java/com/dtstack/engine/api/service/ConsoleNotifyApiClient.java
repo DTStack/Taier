@@ -2,6 +2,7 @@ package com.dtstack.engine.api.service;
 
 import com.dtstack.engine.api.dto.NotifyRecordReadDTO;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.param.AlarmSendParam;
 import com.dtstack.engine.api.param.NotifyRecordPageQueryParam;
 import com.dtstack.engine.api.param.NotifyRecordParam;
 import com.dtstack.engine.api.param.SetAlarmNotifyRecordParam;
@@ -89,4 +90,13 @@ public interface ConsoleNotifyApiClient extends DtInsightServer {
     @RequestLine("POST /node/notifyRecord/sendAlarm")
     @Headers(value={"Content-Type: application/json"})
     ApiResponse<Void> setAlarm(SetAlarmNotifyRecordParam param);
+
+    /**
+     * 发送消息 新接口
+     *
+     * @param param
+     * @return
+     */
+    @RequestLine("POST /api/console/service/notifyRecord/sendAlarmNew")
+    ApiResponse<Void> sendAlarmNew(AlarmSendParam param);
 }
