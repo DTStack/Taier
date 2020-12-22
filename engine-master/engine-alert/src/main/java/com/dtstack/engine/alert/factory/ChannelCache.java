@@ -1,6 +1,7 @@
 package com.dtstack.engine.alert.factory;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.constrant.GlobalConst;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.sftp.SftpFileManage;
@@ -47,8 +48,15 @@ public class ChannelCache {
 
     public Object getChannelInstance(String jarPath, String className) throws Exception {
         String destPath = jarPath;
-        if (!jarPath.contains(oldPath)) {
-            destPath = uploadPath + jarPath;
+        String sftpPath = null;
+
+        if (jarPath.contains(GlobalConst.PATH_CUT)) {
+            try {
+                sftpPath = jarPath.substring(0, jarPath.indexOf(GlobalConst.PATH_CUT));
+                destPath = jarPath.substring(jarPath.indexOf(GlobalConst.PATH_CUT)+GlobalConst.PATH_CUT.length());
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+            }
         }
 
         if (environmentContext.getOpenConsoleSftp()) {
