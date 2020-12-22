@@ -603,16 +603,17 @@ public class SessionClientFactory extends AbstractClientFactory {
         private synchronized void retry() {
 
             int temp_num = retry_num.incrementAndGet();
-            if (temp_num >= sessionClientFactory.flinkConfig.getSessionRetryNum()) {
+            if (temp_num > sessionClientFactory.flinkConfig.getSessionRetryNum()) {
                 LOG.error("session retry times is exhausted. Please check if the requested resources are available in the YARN cluster and release it.");
                 return;
             }
             //重试
             try {
+                LOG.warn("ThreadName : {} retry times is {}", Thread.currentThread().getName(), temp_num);
+                LOG.warn("---- retry Flink yarn-session client ----", temp_num);
                 if(sessionClientFactory.isLeader.get() && sessionClientFactory.flinkConfig.getSessionStartAuto()){
                     stopFlinkYarnSession();
                 }
-                LOG.warn("-- [{}] : retry Flink yarn-session client ----", temp_num);
                 startTime = System.currentTimeMillis();
                 this.lastAppState = YarnApplicationState.NEW;
                 this.sessionClientFactory.startAndGetSessionClusterClient();
