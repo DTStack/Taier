@@ -718,7 +718,8 @@ public class ClusterService implements InitializingBean {
                 LOGGER.info("dtUicUserId:{},dtUicTenantId:{},ldapUserName:{}",clusterVO.getDtUicUserId(),clusterVO.getDtUicTenantId() ,ldapUserName);
                 if (StringUtils.isNotBlank(ldapUserName) && ldapUserName.contains(MAILBOX_CUTTING)) {
                     ldapUserName = ldapUserName.substring(0, ldapUserName.indexOf(MAILBOX_CUTTING));
-                } else {
+                }
+                if (StringUtils.isBlank(ldapUserName)) {
                     ldapUserName = environmentContext.getHadoopUserName();
                 }
                 pluginInfo.put(LDAP_USER_NAME, ldapUserName);
