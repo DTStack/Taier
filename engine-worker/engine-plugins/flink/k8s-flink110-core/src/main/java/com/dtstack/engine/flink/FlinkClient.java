@@ -579,7 +579,7 @@ public class FlinkClient extends AbstractClient {
             }
         } catch (Exception e) {
             logger.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
-            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
+            return JudgeResult.exception("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -668,12 +668,15 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public String getCheckpoints(JobIdentifier jobIdentifier) {
-        String engineJobId = jobIdentifier.getEngineJobId();
-
-        String checkpointUrlPath = String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, engineJobId);
         String checkpointMsg = "";
+        String engineJobId = jobIdentifier.getEngineJobId();
+        if (StringUtils.isEmpty(engineJobId)) {
+            logger.warn("{} getCheckpoints is null, because engineJobId is empty", jobIdentifier.getTaskId());
+            return checkpointMsg;
+        }
 
         try {
+            String checkpointUrlPath = String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, engineJobId);
             RdosTaskStatus taskStatus = processJobStatus(jobIdentifier);
             Boolean isEndStatus = IS_END_STATUS.test(taskStatus);
             Boolean isPerjob = EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode());

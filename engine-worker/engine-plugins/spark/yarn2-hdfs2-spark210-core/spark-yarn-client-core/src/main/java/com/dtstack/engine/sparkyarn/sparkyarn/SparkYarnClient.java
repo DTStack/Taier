@@ -223,7 +223,7 @@ public class SparkYarnClient extends AbstractClient {
             clientExt.setSparkYarnConfig(sparkYarnConfig);
             String proxyUserName = sparkYarnConfig.getDtProxyUserName();
             if (StringUtils.isNotBlank(proxyUserName)) {
-                logger.info("ugi proxyUser is {}", proxyUserName);
+                logger.info("jobId {} ugi proxyUser is {}",jobClient.getTaskId(), proxyUserName);
                 appId = UserGroupInformation.createProxyUser(proxyUserName, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<ApplicationId>) () -> clientExt.submitApplication(jobClient.getApplicationPriority()));
             } else {
                 appId = clientExt.submitApplication(jobClient.getApplicationPriority());
@@ -708,7 +708,7 @@ public class SparkYarnClient extends AbstractClient {
             }, yarnConf);
         } catch (Exception e) {
             logger.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
-            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
+            return JudgeResult.exception("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
