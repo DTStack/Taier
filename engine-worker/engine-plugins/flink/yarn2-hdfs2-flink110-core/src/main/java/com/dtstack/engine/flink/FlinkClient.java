@@ -639,8 +639,7 @@ public class FlinkClient extends AbstractClient {
         String exceptMessage = "";
         try {
             if (engineJobId == null) {
-                logger.warn("{} getJobLog is null, because engineJobId is empty", jobIdentifier.getTaskId());
-                throw new RdosDefineException(jobIdentifier.getTaskId() + " engineJobId is null.");
+                logger.error("{} getJobLog is null, because engineJobId is empty", jobIdentifier.getTaskId());
             }
             String exceptionUrlPath = String.format(ConfigConstrant.JOB_EXCEPTIONS_URL_FORMAT, engineJobId);
             RdosTaskStatus jobStatus = getJobStatus(jobIdentifier);
