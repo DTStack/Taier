@@ -2396,7 +2396,9 @@ public class ScheduleJobService {
     }
     public List<ScheduleJob> getByIds( List<Long> ids) {
 
-        //todo 需要对ids进行校验，为空直接返回空数组
+        if(CollectionUtils.isEmpty(ids)){
+            return Collections.EMPTY_LIST;
+        }
         return scheduleJobDao.listByJobIds(ids);
     }
 

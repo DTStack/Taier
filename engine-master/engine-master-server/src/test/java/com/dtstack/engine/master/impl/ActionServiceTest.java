@@ -281,7 +281,7 @@ public class ActionServiceTest extends AbstractTest {
         ScheduleJob engineJob = DataCollection.getData().getScheduleJobToUnsumbittedStatus();
         String jobId = engineJob.getJobId();
         Integer computeType = engineJob.getComputeType();
-        String resultId = actionService.resetTaskStatus(jobId, computeType);
+        String resultId = actionService.resetTaskStatus(jobId);
         Assert.assertEquals(resultId, jobId);
         ScheduleJob result = scheduleJobDao.getRdosJobByJobId(jobId);
         Assert.assertEquals(result.getStatus(), RdosTaskStatus.UNSUBMIT.getStatus());
