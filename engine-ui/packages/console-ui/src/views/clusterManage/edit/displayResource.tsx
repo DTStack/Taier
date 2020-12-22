@@ -110,7 +110,7 @@ class DisplayResource extends React.Component<any, any> {
                             style={{ display: 'none' }}
                         />
                         {!isView && <div className="c-displayResource__notice">{noticeContent}</div>}
-                        {fileName && <div className="c-displayResource__downloadFile" style={{ fontSize: 12, color: '#3F87FF' }}>
+                        {fileName && <div className="c-displayResource__downloadFile" style={{ fontSize: 12, color: '#333' }}>
                             <span>
                                 <Icon type="paper-clip" style={{ marginRight: 2, color: '#666666FF' }} />
                                 {utils.textOverflowExchange(fileName, 9)}

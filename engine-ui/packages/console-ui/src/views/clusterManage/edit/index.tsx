@@ -798,7 +798,9 @@ class EditCluster extends React.Component<any, any> {
             <div className="c-editCluster__containerWrap" ref={(el) => { this.container = el; }}>
                 <div className="c-editCluster__header">
                     <Breadcrumb>
-                        <Breadcrumb.Item onClick={this.turnClusteManage}>多集群管理</Breadcrumb.Item>
+                        <Breadcrumb.Item>
+                            <a onClick={this.turnClusteManage}>告警通道</a>
+                        </Breadcrumb.Item>
                         <Breadcrumb.Item>{clusterName}</Breadcrumb.Item>
                     </Breadcrumb>
                     {isView
