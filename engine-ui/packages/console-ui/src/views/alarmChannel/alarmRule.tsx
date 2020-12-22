@@ -72,6 +72,7 @@ const AlarmRule: React.FC = (props: any) => {
                 const testKey = textAlertKey(values.alertGateType);
                 let testValue = values.alertGateType !== ALARM_TYPE.CUSTOM ? values[testKey].split(',') : ''
                 let res = await Api.testAlert(Object.assign({}, values, {
+                    id: id || '',
                     filePath: ruleData?.filePath || '',
                     isDefault: values.isDefault ? 1 : 0,
                     file: values?.file?.file ?? values?.file ?? '',
