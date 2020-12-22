@@ -151,6 +151,13 @@ const AlarmRule: React.FC = (props: any) => {
     const alertGateType = getFieldValue('alertGateType');
     const alertGateCode = getFieldValue('alertGateCode');
 
+    const handleAlertGateType = () => {
+        getFieldValue('file') && setFieldsValue({
+            [`file`]: ''
+        })
+        setFileList([])
+    }
+
     return (
         <div className='alarm-rule__wrapper'>
             <Breadcrumb>
@@ -171,7 +178,7 @@ const AlarmRule: React.FC = (props: any) => {
                             }],
                             initialValue: ALARM_TYPE.MSG
                         })(
-                            <Radio.Group name='channelMode'>
+                            <Radio.Group name='channelMode' onChange={handleAlertGateType} disabled={!isCreate}>
                                 {
                                     Object.entries(ALARM_TYPE_TEXT).map(([key, value]) => {
                                         return <Radio key={key} value={Number(key)}>{value}</Radio>
@@ -193,7 +200,7 @@ const AlarmRule: React.FC = (props: any) => {
                         )}
                     </FormItem>}
                     {
-                        alertGateCode?.includes('jar') ? (
+                        alertGateCode?.includes('jar') && !showConfigFile(alertGateType) ? (
                             <FormItem {...formItemCenterLayout} label='上传文件'>
                                 {getFieldDecorator('file', {
                                     rules: [{
@@ -273,7 +280,7 @@ const AlarmRule: React.FC = (props: any) => {
                         </div>
                         {getFieldValue('file') && <span className="config-file">
                             <Icon type="paper-clip" />
-                            {getFieldValue('file')?.name ?? getFieldValue('file') }
+                            {getFieldValue('file')?.name ?? getFieldValue('file') ?? '' }
                             <Icon type="delete" onClick={() => {
                                 setFieldsValue({
                                     [`file`]: ''
