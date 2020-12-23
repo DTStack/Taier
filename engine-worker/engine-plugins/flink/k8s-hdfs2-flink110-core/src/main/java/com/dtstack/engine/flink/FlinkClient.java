@@ -58,7 +58,6 @@ import org.slf4j.LoggerFactory;
 import sun.security.action.GetPropertyAction;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
@@ -567,7 +566,7 @@ public class FlinkClient extends AbstractClient {
             }
         } catch (Exception e) {
             logger.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
-            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
+            return JudgeResult.exception("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -656,25 +655,30 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public String getCheckpoints(JobIdentifier jobIdentifier) {
+        String checkpointMsg = "";
         String engineJobId = jobIdentifier.getEngineJobId();
-
-        String reqURL = "";
-        if (EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode()) && IS_END_STATUS.test(getJobStatus(jobIdentifier))) {
-            /**
-             * perjob 且结束时从 jobhistory 读取
-             */
-            reqURL = getJobHistoryURL();
-        } else {
-            ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
-            reqURL = currClient.getWebInterfaceURL();
+        if (StringUtils.isEmpty(engineJobId)) {
+            logger.warn("{} getCheckpoints is null, because engineJobId is empty", jobIdentifier.getTaskId());
+            return checkpointMsg;
         }
 
         try {
-            return getMessageByHttp(String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, engineJobId), reqURL);
-        } catch (IOException e) {
-            logger.error("", e);
-            return null;
+            String checkpointUrlPath = String.format(ConfigConstrant.FLINK_CP_URL_FORMAT, engineJobId);
+            RdosTaskStatus taskStatus = getJobStatus(jobIdentifier);
+            Boolean isEndStatus = IS_END_STATUS.test(taskStatus);
+            Boolean isPerjob = EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode());
+            if (isPerjob && isEndStatus) {
+                String reqURL = getJobHistoryURL();
+                checkpointMsg = getMessageByHttp(checkpointUrlPath, reqURL);
+            } else {
+                ClusterClient currClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
+                String reqURL = currClient.getWebInterfaceURL();
+                checkpointMsg = getMessageByHttp(checkpointUrlPath, reqURL);
+            }
+        } catch (Exception e) {
+            logger.error("Get checkpoint error, {}", e.getMessage());
         }
+        return checkpointMsg;
     }
 
     private boolean existsJobOnFlink(String engineJobId) {

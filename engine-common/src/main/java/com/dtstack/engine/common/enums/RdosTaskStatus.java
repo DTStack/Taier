@@ -160,7 +160,7 @@ public enum RdosTaskStatus implements Serializable {
     }
 
     public static boolean canReset(Integer currStatus){
-        return STOPPED_STATUS.contains(currStatus) || RdosTaskStatus.UNSUBMIT.getStatus().equals(currStatus);
+        return STOPPED_STATUS.contains(currStatus) || RdosTaskStatus.UNSUBMIT.getStatus().equals(currStatus) || RdosTaskStatus.CANCELLING.getStatus().equals(currStatus) ;
 
     }
 
@@ -186,7 +186,7 @@ public enum RdosTaskStatus implements Serializable {
     }
 
     public final static List<Integer> UNSUBMIT_STATUS = Lists.newArrayList(UNSUBMIT.getStatus());
-    public final static List<Integer> RUNNING_STATUS = Lists.newArrayList(RUNNING.getStatus());
+    public final static List<Integer> RUNNING_STATUS = Lists.newArrayList(RUNNING.getStatus(), NOTFOUND.getStatus());
     public final static List<Integer> FINISH_STATUS = Lists.newArrayList(FINISHED.getStatus(), MANUALSUCCESS.getStatus());
     public final static List<Integer> FAILED_STATUS = Lists.newArrayList(FAILED.getStatus(), SUBMITFAILD.getStatus(),
             PARENTFAILED.getStatus(), FAILING.getStatus());
@@ -293,10 +293,6 @@ public enum RdosTaskStatus implements Serializable {
 
     public static Map<Integer, List<Integer>> getStatusFailedDetail() {
         return STATUS_FAILED_DETAIL;
-    }
-
-    public static List<Integer> getStatusFailedDetail(Integer status) {
-        return STATUS_FAILED_DETAIL.computeIfAbsent(status, k -> new ArrayList<>(0));
     }
 
     public static int getShowStatus(Integer status) {

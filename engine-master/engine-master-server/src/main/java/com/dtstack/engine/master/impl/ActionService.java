@@ -24,6 +24,7 @@ import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
+import com.dtstack.schedule.common.enums.AppType;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -194,6 +195,9 @@ public class ActionService {
                     scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
                     scheduleJob.setAppType(paramActionExt.getAppType());
                     scheduleJob.setDtuicTenantId(paramActionExt.getDtuicTenantId());
+                    if (AppType.STREAM.getType() == paramActionExt.getAppType()) {
+                        scheduleJob.setRetryNum(0);
+                    }
                     scheduleJobDao.update(scheduleJob);
                     logger.info("jobId:{} update job status:{}.", scheduleJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
                 }
@@ -351,12 +355,12 @@ public class ActionService {
         if (StringUtils.isBlank(jobId)){
             throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
-
         ActionRetryLogVO vo = new ActionRetryLogVO();
         List<ActionRetryLogVO> logs = new ArrayList<>(5);
         List<EngineJobRetry> batchJobRetrys = engineJobRetryDao.listJobRetryByJobId(jobId);
         if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
             batchJobRetrys.forEach(jobRetry->{
+                ActionRetryLogVO vo = new ActionRetryLogVO();
                 vo.setRetryNum(jobRetry.getRetryNum());
                 vo.setLogInfo(jobRetry.getLogInfo());
                 vo.setRetryTaskParams(jobRetry.getRetryTaskParams());
@@ -498,7 +502,8 @@ public class ActionService {
         Integer currStatus = scheduleJob.getStatus();
 
         if(!RdosTaskStatus.canReset(currStatus)){
-            throw new RdosDefineException(String.format("taskId(%s) can't reset status, current status(%d)", jobId, currStatus.intValue()));
+            logger.error("jobId:{} can not update status current status is :{} ", jobId, currStatus);
+            throw new RdosDefineException(String.format("computeType(%d) taskId(%s) can't reset status, current status(%d)", computeType, jobId, currStatus));
         }
 
         //do reset status
@@ -528,7 +533,7 @@ public class ActionService {
             }
             return result;
         }
-        return new ArrayList<>();
+        return Collections.EMPTY_LIST;
     }
 
     public List<ActionJobStatusVO> listJobStatusByJobIds( List<String> jobIds) throws Exception {
@@ -536,7 +541,7 @@ public class ActionService {
             List<ScheduleJob> scheduleJobs = scheduleJobDao.getRdosJobByJobIds(jobIds);
             return toVOS(scheduleJobs);
         }
-        return new ArrayList<>();
+        return Collections.EMPTY_LIST;
     }
 
     private ActionJobStatusVO batJobConvertMap(ScheduleJob scheduleJob){

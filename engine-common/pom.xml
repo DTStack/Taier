@@ -12,6 +12,7 @@
 
     <artifactId>engine-common</artifactId>
     <name>engine-common</name>
+    <version>${common.version}</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -21,7 +22,7 @@
         <dependency>
             <groupId>com.dtstack.engine</groupId>
             <artifactId>sdk-engine-client</artifactId>
-            <version>4.0.3-SNAPSHOT</version>
+            <version>4.0.4-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -199,4 +200,15 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <url>http://nexus.dev.dtstack.cn/nexus/content/repositories/dtstack-release/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshot</id>
+            <url>http://nexus.dev.dtstack.cn/nexus/content/repositories/dtstack-snapshot/</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>

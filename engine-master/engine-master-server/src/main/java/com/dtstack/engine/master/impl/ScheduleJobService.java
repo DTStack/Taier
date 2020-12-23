@@ -316,9 +316,12 @@ public class ScheduleJobService {
         List<Integer> failedList = RdosTaskStatus.getCollectionStatus(RdosTaskStatus.FAILED.getStatus());
         statusList.addAll(finishedList);
         statusList.addAll(failedList);
-        List<Object> todayJobList = finishData(scheduleJobDao.listTodayJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
-        List<Object> yesterdayJobList = finishData(scheduleJobDao.listYesterdayJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
-        List<Object> monthJobList = finishData(scheduleJobDao.listMonthJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
+        String today = DateTime.now().plusDays(0).withTime(0,0,0,0).toString(timeFormatter);
+        String yesterday = DateTime.now().plusDays(-1).withTime(0,0,0,0).toString(timeFormatter);
+        String lastMonth = DateTime.now().plusDays(-30).withTime(0,0,0,0).toString(timeFormatter);
+        List<Object> todayJobList = finishData(scheduleJobDao.listTodayJobs(today,statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
+        List<Object> yesterdayJobList = finishData(scheduleJobDao.listYesterdayJobs(yesterday,today,statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
+        List<Object> monthJobList = finishData(scheduleJobDao.listMonthJobs(lastMonth,statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
 
         for (int i = 0; i < TOTAL_HOUR_DAY; i++) {
             monthJobList.set(i, (Long) monthJobList.get(i) / 30);
@@ -533,7 +536,8 @@ public class ScheduleJobService {
         if (job == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listAfterOrBeforeJobs(job.getTaskId(), isAfter, job.getCycTime());
+        //需要根据查询的job的类型来
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listAfterOrBeforeJobs(job.getTaskId(), isAfter, job.getCycTime(),job.getAppType(),job.getType());
         Collections.sort(scheduleJobs, new Comparator<ScheduleJob>() {
 
             public int compare(ScheduleJob o1, ScheduleJob o2) {
@@ -1409,22 +1413,6 @@ public class ScheduleJobService {
         }
     }
 
-
-    /**
-     * 批量更新
-     * FIXME 暂时一条条插入,最好优化成批量提交
-     *
-     * @param batchJobList
-     */
-    @Transactional
-    public void updateJobListForRestart(List<ScheduleBatchJob> batchJobList) {
-
-        for (ScheduleBatchJob scheduleBatchJob : batchJobList) {
-            if (scheduleBatchJob.getScheduleJob() != null) {
-                scheduleJobDao.update(scheduleBatchJob.getScheduleJob());
-            }
-        }
-    }
 
     /**
      * 补数据的时候，选中什么业务日期，参数替换结果是业务日期+1天
@@ -2336,7 +2324,7 @@ public class ScheduleJobService {
      *
      * @param jobs
      */
-    public Integer BatchJobsBatchUpdate( String jobs) {
+    public Integer BatchJobsBatchUpdate(String jobs) {
         if (StringUtils.isBlank(jobs)) {
             return 0;
         }

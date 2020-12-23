@@ -132,11 +132,7 @@ public class JobClient extends OrderObject {
         this.appType = paramAction.getAppType();
         this.queueSourceType = EQueueSourceType.NORMAL.getCode();
 
-        if (paramAction.getComputeType().equals(ComputeType.STREAM.getType())) {
-            this.maxRetryNum = 0;
-        } else {
-            this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 3 : paramAction.getMaxRetryNum();
-        }
+        this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 0 : paramAction.getMaxRetryNum();
         if (paramAction.getPluginInfo() != null) {
             this.pluginInfo = PublicUtil.objToString(paramAction.getPluginInfo());
         }

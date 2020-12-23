@@ -27,10 +27,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -71,6 +69,8 @@ public class JobStatusDealer implements Runnable {
     private long jobLogDelay;
     private JobCompletedLogDelayDealer jobCompletedLogDelayDealer;
 
+    private int taskStatusDealerPoolSize;
+
     /**
      * 记录job 连续某个状态的频次
      */
@@ -79,8 +79,6 @@ public class JobStatusDealer implements Runnable {
     private ExecutorService taskStatusPool;
 
     private ScheduleJobService scheduleJobService;
-
-    private Set<String> dealingJobs = new HashSet<>();
 
     @Override
     public void run() {
@@ -94,11 +92,13 @@ public class JobStatusDealer implements Runnable {
                 return;
             }
 
-            jobs = jobs.stream().filter(job -> !dealingJobs.contains(job.getKey()) && !RdosTaskStatus.needClean(job.getValue())).collect(Collectors.toList());
+            jobs = jobs.stream().filter(job -> !RdosTaskStatus.needClean(job.getValue())).collect(Collectors.toList());
 
+            Semaphore buildSemaphore = new Semaphore(taskStatusDealerPoolSize);
+            CountDownLatch ctl = new CountDownLatch(jobs.size());
             for (Map.Entry<String, Integer> job : jobs) {
                 try {
-                    dealingJobs.add(job.getKey());
+                    buildSemaphore.acquire();
                     taskStatusPool.submit(() -> {
                         try {
                             logger.info("jobId:{} before dealJob status:{}", job.getKey(), job.getValue());
@@ -106,14 +106,18 @@ public class JobStatusDealer implements Runnable {
                         } catch (Throwable e) {
                             logger.error("jobId:{}", job.getKey(), e);
                         } finally {
-                            dealingJobs.remove(job.getKey());
+                            buildSemaphore.release();
+                            ctl.countDown();
                         }
                     });
                 } catch (Throwable e) {
                     logger.error("jobId:{} [acquire pool error]:",job.getKey(), e);
-                    dealingJobs.remove(job.getKey());
+                    buildSemaphore.release();
+                    ctl.countDown();
                 }
             }
+            ctl.await();
+
         } catch (Throwable e) {
             logger.error("jobResource:{} run error:", jobResource, e);
         }
@@ -246,7 +250,7 @@ public class JobStatusDealer implements Runnable {
         setBean();
         createLogDelayDealer();
 
-        int taskStatusDealerPoolSize = environmentContext.getTaskStatusDealerPoolSize();
+        this.taskStatusDealerPoolSize = environmentContext.getTaskStatusDealerPoolSize();
         this.taskStatusPool = new ThreadPoolExecutor(taskStatusDealerPoolSize, taskStatusDealerPoolSize, 60L, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(1000), new CustomThreadFactory(jobResource + this.getClass().getSimpleName() + "DealJob"), new BlockCallerPolicy());
     }

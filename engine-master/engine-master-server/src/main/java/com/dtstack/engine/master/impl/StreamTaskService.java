@@ -97,11 +97,11 @@ public class StreamTaskService {
             ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(taskId);
             if (scheduleJob != null) {
                 status = scheduleJob.getStatus();
+                return RdosTaskStatus.getShowStatus(status);
             }
-            return RdosTaskStatus.getShowStatus(status);
-        }else{
-            return null;
         }
+
+        return null;
     }
 
     /**
