@@ -625,7 +625,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     content = content.replaceAll("\r\n", System.getProperty("line.separator"));
                 }
 
-                JSONObject pluginInfoWithComponentType = componentService.getPluginInfoWithComponentType(dtuicTenantId, EComponentType.HDFS);
+                JSONObject pluginInfoWithComponentType = clusterService.pluginInfoJSON(dtuicTenantId,ScheduleEngineType.Hadoop.getEngineName(),null,null);
                 String typeName = pluginInfoWithComponentType.getString(ComponentService.TYPE_NAME);
                 String hdfsUploadPath = workerOperator.uploadStringToHdfs(typeName, pluginInfoWithComponentType.toJSONString(), content, hdfsPath);
                 if(StringUtils.isBlank(hdfsUploadPath)){
