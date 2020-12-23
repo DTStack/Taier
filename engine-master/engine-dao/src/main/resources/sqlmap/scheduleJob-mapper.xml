@@ -683,7 +683,7 @@
     <select id="listTodayJobs" resultType="java.util.HashMap">
         SELECT DATE_FORMAT(bj.exec_start_time, '%H') AS hour, COUNT(1) AS data
         FROM schedule_job bj
-        WHERE bj.exec_start_time is not null and to_days(bj.exec_start_time) = to_days(NOW())
+        WHERE bj.exec_start_time is not null and bj.exec_start_time >= #{today}
         AND bj.type = #{type}
         AND bj.app_type = #{appType}
         AND bj.is_deleted = 0
@@ -734,7 +734,8 @@
     <select id="listYesterdayJobs" resultType="java.util.HashMap">
         SELECT DATE_FORMAT(bj.exec_start_time, '%H') AS hour, COUNT(1) AS data
         FROM schedule_job bj
-        WHERE bj.exec_start_time is not null and to_days(bj.exec_start_time) = to_days(NOW()) - 1
+        WHERE bj.exec_start_time is not null and bj.exec_start_time >= #{yesterday}
+        and bj.exec_start_time &lt; #{today}
         and bj.type = #{type}
         and bj.app_type = #{appType}
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
@@ -759,7 +760,7 @@
     <select id="listMonthJobs" resultType="java.util.HashMap">
         SELECT DATE_FORMAT(bj.exec_start_time, '%H') AS hour, COUNT(1) AS data
         FROM schedule_job bj
-        WHERE bj.exec_start_time is not null and to_days(bj.exec_start_time) >= to_days(NOW()) - 30
+        WHERE bj.exec_start_time is not null and bj.exec_start_time >= #{lastMonth}
         and bj.type = #{type}
         and bj.app_type = #{appType}
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
