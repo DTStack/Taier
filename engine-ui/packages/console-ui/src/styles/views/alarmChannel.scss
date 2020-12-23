@@ -7,16 +7,20 @@
             float: right;
         }
     }
-    .alarm-btn {
-        background-color: rgba(63, 135, 255, 0.1);
-        color: #3f87ff;
-        pointer-events: none;
-        border: 0;
-        margin-left: 12px;
-        border-radius: 14px;
-        padding: 0 10px;
+    .alarm-name {
         height: 28px;
         line-height: 28px;
+        .alarm-btn {
+            background-color: rgba(63, 135, 255, 0.1);
+            color: #3f87ff;
+            pointer-events: none;
+            border: 0;
+            margin-left: 12px;
+            border-radius: 14px;
+            padding: 0 10px;
+            height: 28px;
+            line-height: 28px;
+        }
     }
 }
 .alarm-rule__wrapper {
