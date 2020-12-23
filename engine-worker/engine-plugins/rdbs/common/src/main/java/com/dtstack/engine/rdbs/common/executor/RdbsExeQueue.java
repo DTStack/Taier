@@ -340,12 +340,16 @@ public class RdbsExeQueue {
             try {
                 conn = connFactory.getConn();
                 if (isCancel.get()) {
-                    LOG.info("job:{} is canceled", jobName);
+                    LOG.info("job:{} is canceled", engineJobId);
                     return false;
                 }
 
                 //创建存储过程
                 procCreateStmt = conn.createStatement();
+                if (LogStoreFactory.getLogStore() != null) {
+                    //更新状态为running 防止存储过程执行太长 导致状态一直schedule
+                    LogStoreFactory.getLogStore().updateStatus(engineJobId, RdosTaskStatus.RUNNING.getStatus());
+                }
                 procCreateStmt.execute(jobSqlProc);
 
                 //调用存储过程
@@ -379,7 +383,7 @@ public class RdbsExeQueue {
 
                 closeDBResources(stmt, conn);
 
-                LOG.info("job:{} exe end...", jobName, exeResult);
+                LOG.info("job:{} exe {} end...", engineJobId, exeResult);
                 //修改指定任务的状态--成功或者失败
                 if (LogStoreFactory.getLogStore() != null) {
                     LogStoreFactory.getLogStore().updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
@@ -444,7 +448,7 @@ public class RdbsExeQueue {
                                     tidbDDLCheck = true;
                                 }
                             } catch (Exception e) {
-                                LOG.error("", e);
+                                LOG.error("check tidb {} sql error ",jobId, e);
                             }
                         }
                         if (tidbDDLCheck) {
