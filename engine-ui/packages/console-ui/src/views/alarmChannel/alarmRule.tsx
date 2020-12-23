@@ -166,7 +166,7 @@ const AlarmRule: React.FC = (props: any) => {
                 <Breadcrumb.Item> <a onClick={() => {
                     props.router.push('/console/alarmChannel')
                 }}>告警通道</a></Breadcrumb.Item>
-                <Breadcrumb.Item>{`${isCreate ? '新增' : '编辑'}告警通道`}</Breadcrumb.Item>
+                <Breadcrumb.Item>{`${isCreate ? '新增告警通道' : `${ruleData?.alertGateSource}`}`}</Breadcrumb.Item>
             </Breadcrumb>
             <Card bordered={false}>
                 <Form>

@@ -73,7 +73,7 @@ const AlarmChannel: React.FC = (props: any) => {
                 </span>
             }
         }, {
-            title: '告警类型',
+            title: '通道类型',
             dataIndex: 'alertGateType',
             filters: Object.entries(ALARM_TYPE_TEXT).map(([key, value]) => {
                 return {
