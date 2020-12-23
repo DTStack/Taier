@@ -26,14 +26,7 @@ import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.api.dto.ScheduleJobDTO;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.ChartDataVO;
-import com.dtstack.engine.api.vo.ChartMetaDataVO;
-import com.dtstack.engine.api.vo.JobTopErrorVO;
-import com.dtstack.engine.api.vo.JobTopOrderVO;
-import com.dtstack.engine.api.vo.ScheduleJobChartVO;
-import com.dtstack.engine.api.vo.ScheduleJobVO;
-import com.dtstack.engine.api.vo.SchedulePeriodInfoVO;
-import com.dtstack.engine.api.vo.ScheduleRunDetailVO;
+import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.enums.EDeployMode;
@@ -70,6 +63,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -100,9 +94,6 @@ public class ScheduleJobServiceTest extends AbstractTest {
 
     @Autowired
     private ScheduleJobJobDao scheduleJobJobDao;
-
-    @Autowired
-    private ScheduleJobDao scheduleJobDao;
 
     @Before
     public void init() throws Exception {
@@ -269,7 +260,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
             afterJob.setJobKey("testAfterkey");
             afterJob.setCycTime(DateTime.now().toString("yyyy-mm-dd HH:mm:ss"));
             scheduleJobDao.insert(afterJob);
-            List<SchedulePeriodInfoVO> schedulePeriodInfoVOS = sheduleJobService.displayPeriods(true, jobId, job.getProjectId(), 10);
+            List<SchedulePeriodInfoVO> schedulePeriodInfoVOS = scheduleJobService.displayPeriods(true, jobId, job.getProjectId(), 10);
             Assert.assertTrue(schedulePeriodInfoVOS.size() == 1 && schedulePeriodInfoVOS.get(0).getTaskId().equals(job.getTaskId()));
         } catch (Exception e) {
             e.printStackTrace();
