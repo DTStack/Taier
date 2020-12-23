@@ -355,7 +355,6 @@ public class ActionService {
         if (StringUtils.isBlank(jobId)){
             throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
-        ActionRetryLogVO vo = new ActionRetryLogVO();
         List<ActionRetryLogVO> logs = new ArrayList<>(5);
         List<EngineJobRetry> batchJobRetrys = engineJobRetryDao.listJobRetryByJobId(jobId);
         if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
@@ -503,7 +502,7 @@ public class ActionService {
 
         if(!RdosTaskStatus.canReset(currStatus)){
             logger.error("jobId:{} can not update status current status is :{} ", jobId, currStatus);
-            throw new RdosDefineException(String.format("computeType(%d) taskId(%s) can't reset status, current status(%d)", computeType, jobId, currStatus));
+            throw new RdosDefineException(String.format(" taskId(%s) can't reset status, current status(%d)", jobId, currStatus));
         }
 
         //do reset status
