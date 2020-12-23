@@ -19,7 +19,10 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.enums.*;
+import com.dtstack.engine.master.enums.EComponentScheduleType;
+import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.enums.EngineTypeComponentType;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.schedule.common.enums.DataSourceType;
@@ -50,6 +53,7 @@ import java.util.stream.Collectors;
 import static com.dtstack.engine.common.constrant.ConfigConstant.MERGE_KRB5_CONTENT_KEY;
 import static com.dtstack.engine.common.constrant.ConfigConstant.LDAP_USER_NAME;
 import static com.dtstack.engine.master.impl.ComponentService.*;
+import static com.dtstack.engine.master.impl.ComponentService.TYPE_NAME;
 import static java.lang.String.format;
 
 @Service
@@ -65,6 +69,7 @@ public class ClusterService implements InitializingBean {
     private final static String TENANT_ID = "tenantId";
     private static final String DEPLOY_MODEL = "deployMode";
     private static final String NAMESPACE = "namespace";
+    private static final String MAILBOX_CUTTING = "@";
 
     @Autowired
     private ClusterDao clusterDao;
@@ -103,14 +108,7 @@ public class ClusterService implements InitializingBean {
     private AccountDao accountDao;
 
     @Autowired
-    private AccountService accountService;
-
-    @Autowired
     private EnvironmentContext environmentContext;
-
-    @Autowired
-    private SftpFileManage sftpFileManageBean;
-
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -563,28 +561,22 @@ public class ClusterService implements InitializingBean {
             pluginInfo.put(EComponentType.YARN.getConfName(), clusterConfigJson.getJSONObject(EComponentType.YARN.getConfName()));
 
         } else if (EComponentType.LIBRA_SQL == type.getComponentType()) {
-            JSONObject libraConf = clusterConfigJson.getJSONObject(EComponentType.LIBRA_SQL.getConfName());
-            pluginInfo = this.convertSQLComponent(libraConf, pluginInfo);
+            pluginInfo = clusterConfigJson.getJSONObject(EComponentType.LIBRA_SQL.getConfName());
             pluginInfo.put(TYPE_NAME, "postgresql");
         } else if (EComponentType.IMPALA_SQL == type.getComponentType()) {
-            JSONObject impalaConf = clusterConfigJson.getJSONObject(EComponentType.IMPALA_SQL.getConfName());
-            pluginInfo = this.convertSQLComponent(impalaConf, pluginInfo);
+            pluginInfo = clusterConfigJson.getJSONObject(EComponentType.IMPALA_SQL.getConfName());
             pluginInfo.put(TYPE_NAME, "impala");
         } else if (EComponentType.TIDB_SQL == type.getComponentType()) {
-            JSONObject tiDBConf = JSONObject.parseObject(tiDBInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
-            pluginInfo = this.convertSQLComponent(tiDBConf, pluginInfo);
+            pluginInfo = JSONObject.parseObject(tiDBInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
             pluginInfo.put(TYPE_NAME, "tidb");
         } else if (EComponentType.ORACLE_SQL == type.getComponentType()) {
-            JSONObject oracleConf = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
-            pluginInfo = this.convertSQLComponent(oracleConf, pluginInfo);
+            pluginInfo = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
             pluginInfo.put(TYPE_NAME, "oracle");
         } else if (EComponentType.GREENPLUM_SQL == type.getComponentType()) {
-            JSONObject greenplumConf = JSONObject.parseObject(greenplumInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
-            pluginInfo = this.convertSQLComponent(greenplumConf, pluginInfo);
+            pluginInfo = JSONObject.parseObject(greenplumInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
             pluginInfo.put(TYPE_NAME, "greenplum");
         } else if (EComponentType.PRESTO_SQL == type.getComponentType()) {
-            JSONObject prestoConf = JSONObject.parseObject(prestoInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
-            pluginInfo = this.convertSQLComponent(prestoConf, pluginInfo);
+            pluginInfo = JSONObject.parseObject(prestoInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
             pluginInfo.put(TYPE_NAME, "presto");
         } else {
             //flink spark 需要区分任务类型
@@ -628,6 +620,10 @@ public class ClusterService implements InitializingBean {
             } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK == type.getComponentType()) {
                 if (clusterVO.getDtUicUserId() != null && clusterVO.getDtUicTenantId() != null) {
                     String ldapUserName = this.getLdapUserName(clusterVO.getDtUicUserId());
+                    LOGGER.info("dtUicUserId:{},dtUicTenantId:{},ldapUserName:{}",clusterVO.getDtUicUserId(),clusterVO.getDtUicTenantId() ,ldapUserName);
+                    if (StringUtils.isNotBlank(ldapUserName) && ldapUserName.contains(MAILBOX_CUTTING)) {
+                        ldapUserName = ldapUserName.substring(0, ldapUserName.indexOf(MAILBOX_CUTTING));
+                    }
                     pluginInfo.put(LDAP_USER_NAME, ldapUserName);
                 }
             }
@@ -694,6 +690,8 @@ public class ClusterService implements InitializingBean {
         return pluginInfo;
     }
 
+
+
     Cache<Long, String> ldapCache = CacheBuilder
             .newBuilder()
             .expireAfterWrite(1, TimeUnit.MINUTES)
@@ -715,17 +713,6 @@ public class ClusterService implements InitializingBean {
         return ldapUserName;
     }
 
-
-    public JSONObject convertSQLComponent(JSONObject jdbcInfo, JSONObject pluginInfo) {
-        pluginInfo = new JSONObject();
-        if (Objects.isNull(jdbcInfo)) {
-            return pluginInfo;
-        }
-        pluginInfo.put("jdbcUrl", jdbcInfo.getString("jdbcUrl"));
-        pluginInfo.put("username", jdbcInfo.getString("username"));
-        pluginInfo.put("password", jdbcInfo.getString("password"));
-        return pluginInfo;
-    }
 
     private void removeMd5FieldInHadoopConf(JSONObject pluginInfo) {
         if (!pluginInfo.containsKey(EComponentType.HDFS.getConfName())) {

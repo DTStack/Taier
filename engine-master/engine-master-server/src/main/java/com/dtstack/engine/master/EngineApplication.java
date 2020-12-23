@@ -32,7 +32,6 @@ public class EngineApplication {
             SystemPropertyUtil.setSystemUserDir();
             JSON.DEFAULT_GENERATE_FEATURE |= SerializerFeature.DisableCircularReferenceDetect.getMask();
             SpringApplication application = new SpringApplication(EngineApplication.class);
-            application.addListeners(new LogbackComponent());
             application.run(args);
             System.setSecurityManager(new NoExitSecurityManager());
         } catch (Throwable t) {

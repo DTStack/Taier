@@ -6,6 +6,7 @@ import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.executor.AbstractJobExecutor;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class BatchFlowWorkJobService {
      * <br>&nbsp;&nbsp;b.子任务不存在运行失败时，存在提交失败，工作流状态更新为提交失败</br>
      * <br>&nbsp;&nbsp;b.子任务不存在运行失败时，不存在提交失败，存在上游失败时，工作流状态更新为上游失败</br>
      * <br>&nbsp;&nbsp;c.子任务存在取消状态时，工作流状态更新为取消</br>
-     * <br>&nbsp;&nbsp;e.若子任务中同时存在运行失败或取消状态，工作流状态更新为取消状态</br>
+     * <br>&nbsp;&nbsp;e.若子任务中同时存在运行失败或取消状态，工作流状态更新为失败状态</br>
      * <br>&nbsp;&nbsp;f.其他工作流更新为运行中状态</br>
      *
      * @param jobId
@@ -62,16 +63,27 @@ public class BatchFlowWorkJobService {
         } else {
             for (ScheduleJob scheduleJob : subJobs) {
                 Integer status = scheduleJob.getStatus();
-                // 工作流失败状态细化 优先级： 运行失败>提交失败>上游失败
+                // 工作流失败状态细化 优先级： 运行失败>提交失败>上游失败 > 取消（手动取消或者自动取消）
+                if (RdosTaskStatus.FROZEN_STATUS.contains(status) || RdosTaskStatus.STOP_STATUS.contains(status)) {
+                    if (!RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus) && !RdosTaskStatus.PARENTFAILED.getStatus().equals(bottleStatus)) {
+                        if (RdosTaskStatus.AUTOCANCELED.getStatus().equals(status)) {
+                            bottleStatus = RdosTaskStatus.AUTOCANCELED.getStatus();
+                        } else {
+                            bottleStatus = RdosTaskStatus.CANCELED.getStatus();
+                        }
+                    }
+                    canRemove = true;
+                    continue;
+                }
                 if (RdosTaskStatus.PARENTFAILED_STATUS.contains(status)) {
-                    if ( !RdosTaskStatus.CANCELED.getStatus().equals(bottleStatus) && !RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)){
+                    if (!RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)){
                         bottleStatus = RdosTaskStatus.PARENTFAILED.getStatus();
                     }
                     canRemove = true;
                     continue;
                 }
                 if (RdosTaskStatus.SUBMITFAILD_STATUS.contains(status)) {
-                    if (!RdosTaskStatus.CANCELED.getStatus().equals(bottleStatus) && !RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) ){
+                    if (!RdosTaskStatus.FAILED.getStatus().equals(bottleStatus) ){
                         bottleStatus = RdosTaskStatus.SUBMITFAILD.getStatus();
                     }
                     canRemove = true;
@@ -79,17 +91,11 @@ public class BatchFlowWorkJobService {
                 }
 
                 if (RdosTaskStatus.RUN_FAILED_STATUS.contains(status)) {
-                    if (!RdosTaskStatus.CANCELED.getStatus().equals(bottleStatus) ){
-                        bottleStatus = RdosTaskStatus.FAILED.getStatus();
-                    }
-                    canRemove = true;
-                    continue;
-                }
-                if (RdosTaskStatus.FROZEN_STATUS.contains(status) || RdosTaskStatus.STOP_STATUS.contains(status)) {
-                    bottleStatus = RdosTaskStatus.CANCELED.getStatus();
+                    bottleStatus = RdosTaskStatus.FAILED.getStatus();
                     canRemove = true;
                     break;
                 }
+
             }
             //子任务不存在失败/取消的状态
             for (ScheduleJob scheduleJob : subJobs) {
@@ -142,4 +148,23 @@ public class BatchFlowWorkJobService {
         return canRemove;
     }
 
+    /**
+     * 工作流自己为自动取消或冻结的状态的时候 直接把子任务状态全部更新 防止重复check
+     * 出现工作流为自动取消 但是子任务为等待提交 需要经过下一轮check才变更为自动取消
+     *
+     * @param flowJobId
+     * @param status
+     */
+    public void batchUpdateFlowSubJobStatus(String flowJobId, Integer status) {
+        if (StringUtils.isBlank(flowJobId) || "0".equalsIgnoreCase(flowJobId)) {
+            return;
+        }
+        if (RdosTaskStatus.EXPIRE.getStatus().equals(status) || RdosTaskStatus.FROZEN.getStatus().equals(status)) {
+            List<ScheduleJob> subJobs = batchJobService.getSubJobsAndStatusByFlowId(flowJobId);
+            for (ScheduleJob subJob : subJobs) {
+                logger.info("jobId:{} is WORK_FLOW or ALGORITHM_LAB son update status with flowJobId {} status {}", subJob.getJobId(), flowJobId, status);
+                batchJobService.updateStatusByJobId(subJob.getJobId(), status, null);
+            }
+        }
+    }
 }
