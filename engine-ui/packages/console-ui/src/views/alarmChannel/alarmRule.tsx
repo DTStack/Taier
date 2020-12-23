@@ -119,14 +119,25 @@ const AlarmRule: React.FC = (props: any) => {
         }
         callBack()
     }
+    const validataFileType = (file: any, messages: string, callBack: Function) => {
+        const reg = /\.(jar)$/
+        const name = file.name
+        if (name && !reg.test(name.toLocaleLowerCase())) {
+            message.warning(messages)
+            return
+        }
+        callBack && callBack()
+    }
     const uploadProp = {
         name: 'file',
         accept: '.jar',
         beforeUpload: (file: any) => {
             console.log(file);
-            let fileList = [file];
-            fileList = fileList.slice(-1);
-            setFileList(fileList)
+            validataFileType(file, 'jar文件只能是.jar文件', () => {
+                let fileList = [file];
+                fileList = fileList.slice(-1);
+                setFileList(fileList)
+            })
             return false;
         },
         onRemove: () => {
@@ -139,8 +150,10 @@ const AlarmRule: React.FC = (props: any) => {
         name: 'configFile',
         accept: '.jar',
         beforeUpload: (file: any) => {
-            setFieldsValue({
-                [`file`]: file
+            validataFileType(file, '配置文件只能是.jar文件', () => {
+                setFieldsValue({
+                    [`file`]: file
+                })
             })
             return false;
         },
