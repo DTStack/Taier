@@ -43,6 +43,11 @@ public class ComponentController {
         return componentService.getKerberosConfig(clusterId, componentType);
     }
 
+    @RequestMapping(value="/updateKrb5Conf", method = {RequestMethod.POST})
+    public void updateKrb5Conf(@DtRequestParam("krb5Content") String krb5Content) {
+        componentService.updateKrb5Conf(krb5Content);
+    }
+
     @RequestMapping(value="/closeKerberos", method = {RequestMethod.POST})
     @ApiOperation(value="移除kerberos配置")
     public void closeKerberos(@DtRequestParam("componentId") Long componentId) {
