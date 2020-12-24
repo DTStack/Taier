@@ -549,7 +549,7 @@ public class SparkYarnClient extends AbstractClient {
                     logger.error("", e);
                     return RdosTaskStatus.NOTFOUND;
                 }
-            }, yarnConf, true);
+            }, yarnConf, false);
         } catch (Exception e) {
             logger.error("", e);
             return RdosTaskStatus.RUNNING;
