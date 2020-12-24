@@ -144,7 +144,12 @@ public class ScheduleJobService {
      * @author toutian
      */
     public ScheduleJob getJobById( long jobId) {
-        return scheduleJobDao.getOne(jobId);
+        ScheduleJob scheduleJob = scheduleJobDao.getOne(jobId);
+        if (StringUtils.isBlank(scheduleJob.getSubmitUserName())) {
+            // 如果拿不到用户时，使用默认的用户
+            scheduleJob.setSubmitUserName(environmentContext.getHadoopUserName());
+        }
+        return scheduleJob;
     }
 
     public ScheduleJob getJobByJobKeyAndType(String jobKey, int type) {
@@ -297,9 +302,12 @@ public class ScheduleJobService {
         List<Integer> failedList = RdosTaskStatus.getCollectionStatus(RdosTaskStatus.FAILED.getStatus());
         statusList.addAll(finishedList);
         statusList.addAll(failedList);
-        List<Object> todayJobList = finishData(scheduleJobDao.listTodayJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
-        List<Object> yesterdayJobList = finishData(scheduleJobDao.listYesterdayJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
-        List<Object> monthJobList = finishData(scheduleJobDao.listMonthJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
+        String today = DateTime.now().plusDays(0).withTime(0,0,0,0).toString(timeFormatter);
+        String yesterday = DateTime.now().plusDays(-1).withTime(0,0,0,0).toString(timeFormatter);
+        String lastMonth = DateTime.now().plusDays(-30).withTime(0,0,0,0).toString(timeFormatter);
+        List<Object> todayJobList = finishData(scheduleJobDao.listTodayJobs(today,statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
+        List<Object> yesterdayJobList = finishData(scheduleJobDao.listYesterdayJobs(yesterday,today,statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
+        List<Object> monthJobList = finishData(scheduleJobDao.listMonthJobs(lastMonth,statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
 
         for (int i = 0; i < TOTAL_HOUR_DAY; i++) {
             monthJobList.set(i, (Long) monthJobList.get(i) / 30);

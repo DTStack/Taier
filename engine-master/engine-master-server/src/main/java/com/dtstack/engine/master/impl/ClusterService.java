@@ -16,7 +16,6 @@ import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.EComponentScheduleType;
@@ -52,7 +51,6 @@ import java.util.stream.Collectors;
 
 import static com.dtstack.engine.common.constrant.ConfigConstant.MERGE_KRB5_CONTENT_KEY;
 import static com.dtstack.engine.common.constrant.ConfigConstant.LDAP_USER_NAME;
-import static com.dtstack.engine.master.impl.ComponentService.*;
 import static com.dtstack.engine.master.impl.ComponentService.TYPE_NAME;
 import static java.lang.String.format;
 
@@ -145,6 +143,8 @@ public class ClusterService implements InitializingBean {
     @Transactional(rollbackFor = Exception.class)
     public ClusterVO addCluster(ClusterDTO clusterDTO) {
         EngineAssert.assertTrue(StringUtils.isNotEmpty(clusterDTO.getClusterName()), ErrorCode.INVALID_PARAMETERS.getDescription());
+        checkName(clusterDTO.getClusterName());
+
         Cluster cluster = new Cluster();
         cluster.setClusterName(clusterDTO.getClusterName());
         cluster.setHadoopVersion("");
@@ -157,6 +157,15 @@ public class ClusterService implements InitializingBean {
         return getCluster(cluster.getId(),true,true);
     }
 
+    private void checkName(String name) {
+        if (StringUtils.isNotBlank(name)) {
+            if (name.length() > 24) {
+                throw new RdosDefineException("名称过长");
+            }
+        } else {
+            throw new RdosDefineException("名称不能为空");
+        }
+    }
 
 
 

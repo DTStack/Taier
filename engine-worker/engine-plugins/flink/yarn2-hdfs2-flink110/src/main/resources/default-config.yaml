@@ -14,7 +14,7 @@ perjob:
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink110
     high-availability.zookeeper.quorum:
-    high-availability.storageDir: hdfs://ns1/flink110/ha
+    high-availability.storageDir: hdfs://ns1/dtInsight/flink110/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082
@@ -22,6 +22,11 @@ perjob:
     state.checkpoints.dir: hdfs://ns1/dtInsight/flink110/checkpoints
     state.checkpoints.num-retained: 11
 
+    web.timeout: 100000
+    blob.service.cleanup.interval: 900
+    jobstore.expiration-time: 900
+
+    akka.ask.timeout: 60 s
     metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
@@ -78,7 +83,7 @@ session:
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink110
     high-availability.zookeeper.quorum:
-    high-availability.storageDir: hdfs://ns1/flink110/ha
+    high-availability.storageDir: hdfs://ns1/dtInsight/flink110/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082
@@ -144,7 +149,7 @@ standalone:
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink110
     high-availability.zookeeper.quorum:
-    high-availability.storageDir: hdfs://ns1/flink110/ha
+    high-availability.storageDir: hdfs://ns1/dtInsight/flink110/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082
