@@ -9,12 +9,14 @@ import com.dtstack.engine.api.vo.ClusterEngineVO;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.sdk.core.feign.Param;
+import com.dtstack.engine.master.router.DtRequestParam;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.dtstack.engine.master.router.DtRequestParam;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 

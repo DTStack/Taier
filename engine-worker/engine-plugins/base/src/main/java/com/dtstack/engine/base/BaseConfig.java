@@ -24,6 +24,16 @@ public class BaseConfig {
 
     private Timestamp kerberosFileTimestamp;
 
+    private String mergeKrbContent;
+
+    public String getMergeKrbContent() {
+        return mergeKrbContent;
+    }
+
+    public void setMergeKrbContent(String mergeKrbContent) {
+        this.mergeKrbContent = mergeKrbContent;
+    }
+
     public SftpConfig getSftpConf() {
         return sftpConf;
     }

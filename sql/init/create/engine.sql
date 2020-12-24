@@ -217,6 +217,7 @@ CREATE TABLE `console_kerberos` (
     `krb_name` varchar(26) DEFAULT NULL COMMENT 'krb5_conf名称',
     `component_type` int(11) DEFAULT NULL COMMENT '组件类型',
     `principals` TEXT COMMENT 'keytab用户文件列表',
+    `merge_krb_content` TEXT COMMENT '合并后的krb5',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
@@ -388,7 +389,8 @@ CREATE TABLE `schedule_job`
   KEY `index_engine_job_id` (`engine_job_id`(128)),
   KEY `index_status` (`status`),
   KEY `index_gmt_modified` (`gmt_modified`),
-  KEY `idx_cyctime` (`cyc_time`)
+  KEY `idx_cyctime` (`cyc_time`),
+  KEY `idx_exec_start_time` (`exec_start_time`)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8;
