@@ -433,6 +433,10 @@ public class JobRichOperator {
         if (null != scheduleBatchJob.getScheduleJob() && Restarted.RESTARTED.getStatus() == scheduleBatchJob.getScheduleJob().getIsRestart()) {
             return false;
         }
+        if (null != scheduleBatchJob.getScheduleJob() && !"0".equalsIgnoreCase(scheduleBatchJob.getScheduleJob().getFlowJobId())) {
+            //工作流子任务不检验自动取消的逻辑
+            return false;
+        }
         //判断task任务是否配置了允许过期（暂时允许全部任务过期 不做判断）
         //超过时间限制
         String nextCycTime = scheduleBatchJob.getScheduleJob().getNextCycTime();

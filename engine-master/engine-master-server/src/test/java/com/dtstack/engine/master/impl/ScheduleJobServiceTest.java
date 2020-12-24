@@ -35,6 +35,7 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
+import org.joda.time.DateTime;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.dataCollection.DataCollection;
@@ -58,7 +59,11 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -250,6 +255,11 @@ public class ScheduleJobServiceTest extends AbstractTest {
         long jobId = Long.valueOf(job.getId());
 
         try {
+            ScheduleJob afterJob = job;
+            afterJob.setJobId("testAfter");
+            afterJob.setJobKey("testAfterkey");
+            afterJob.setCycTime(DateTime.now().toString("yyyy-mm-dd HH:mm:ss"));
+            scheduleJobDao.insert(afterJob);
             List<SchedulePeriodInfoVO> schedulePeriodInfoVOS = scheduleJobService.displayPeriods(true, jobId, job.getProjectId(), 10);
             Assert.assertTrue(schedulePeriodInfoVOS.size() == 1 && schedulePeriodInfoVOS.get(0).getTaskId().equals(job.getTaskId()));
         } catch (Exception e) {
