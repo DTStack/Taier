@@ -45,7 +45,7 @@ export default class KerberosModal extends React.Component<IProps, IState> {
         const { krb5Content } = this.state
         const res = await Api.updateKrb5Conf({ krb5Content })
         if (res.code == 1) {
-            onCancel()
+            onCancel(krb5Content)
             message.success('更新成功')
         }
     }

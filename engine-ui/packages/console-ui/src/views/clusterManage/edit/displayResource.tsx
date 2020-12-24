@@ -470,18 +470,19 @@ class DisplayResource extends React.Component<any, any> {
         )
     }
 
-    hanleVisible = () => {
-        this.setState({ visible: false })
+    hanleVisible = (krbconfig: any) => {
+        this.setState({ visible: false, krbconfig })
     }
 
     render () {
-        const { krbconfig } = this.state
+        const { krbconfig, visible } = this.state
         const { components } = this.props
         return (
             <div className="c-displayResource__container">
                 {this.renderDisplayResource()}
                 <KerberosModal
-                    visible={this.state.visible}
+                    key={visible}
+                    visible={visible}
                     krbconfig={krbconfig || components.mergeKrb5Content || ''}
                     onCancel={this.hanleVisible}
                 />
