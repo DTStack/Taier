@@ -137,8 +137,6 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             if (savepointArgs != null) {
                 taskExeArgs += " " + savepointArgs;
             }
-        } else if (taskShade.getTaskType().equals(EScheduleJobType.TENSORFLOW_1_X.getVal()) || taskShade.getTaskType().equals(EScheduleJobType.KERAS.getVal())) {
-            taskExeArgs = this.buildTensorflowOrKeras(actionParam, taskShade, scheduleJob, taskParamsToReplace);
         } else if (taskShade.getEngineType().equals(ScheduleEngineType.Learning.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.Shell.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.DtScript.getVal())
