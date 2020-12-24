@@ -947,7 +947,7 @@ public class ComponentService {
             kerberosConfig.setPrincipal(principal);
         }
         if (StringUtils.isNotEmpty(principals)) {
-            kerberosConfig.setPrincipal(principals);
+            kerberosConfig.setPrincipals(principals);
         }
 
         if (isFirstOpenKerberos) {
