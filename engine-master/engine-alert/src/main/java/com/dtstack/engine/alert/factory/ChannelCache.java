@@ -49,8 +49,8 @@ public class ChannelCache {
 
         if (jarPath.contains(GlobalConst.PATH_CUT)) {
             try {
-                sftpPath = jarPath.substring(0, jarPath.indexOf(GlobalConst.PATH_CUT));
-                destPath = jarPath.substring(jarPath.indexOf(GlobalConst.PATH_CUT)+GlobalConst.PATH_CUT.length());
+                destPath = jarPath.substring(0, jarPath.indexOf(GlobalConst.PATH_CUT));
+                sftpPath = jarPath.substring(jarPath.indexOf(GlobalConst.PATH_CUT)+GlobalConst.PATH_CUT.length());
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }

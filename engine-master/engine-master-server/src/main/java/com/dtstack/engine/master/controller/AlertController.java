@@ -10,6 +10,7 @@ import com.dtstack.engine.alert.param.AlertParam;
 import com.dtstack.engine.alert.param.DingAlertParam;
 import com.dtstack.engine.alert.param.MailAlertParam;
 import com.dtstack.engine.alert.param.SmsAlertParam;
+import com.dtstack.engine.alert.serivce.AlertGateService;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.po.AlertGatePO;
 import com.dtstack.engine.api.domain.po.ClusterAlertPO;
@@ -70,7 +71,8 @@ public class AlertController {
     @Autowired
     private EnvironmentContext environmentContext;
 
-
+    @Autowired
+    private AlertGateService alertGateService;
 
     @ApiOperation("新增编辑告警通道 用于替换console接口: /api/console/service/alert/edit")
     @PostMapping("/edit")
@@ -113,7 +115,7 @@ public class AlertController {
                             SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
                             sftpManager.uploadFile(remoteDir ,destPath);
 
-                            dbPath = dbPath + GlobalConst.PATH_CUT + remoteDir + file.getOriginalFilename();
+                            dbPath = dbPath + GlobalConst.PATH_CUT + remoteDir + File.separator + file.getOriginalFilename();
                         } catch (Exception e) {
                             log.error("上传sftp失败:",e);
                         }
@@ -200,9 +202,11 @@ public class AlertController {
             file.transferTo(destFile);
             alertGateTestVO.setFilePath(destFile.getAbsolutePath());
         } else {
-            AlertGateVO vo = alertGateFacade.getGateById(alertGateTestVO.getId());
-            if (vo!=null) {
-                alertGateTestVO.setFilePath(vo.getFilePath());
+            if (alertGateTestVO.getId() != null) {
+                AlertGatePO alertGatePO = alertGateService.getSuitGateById(alertGateTestVO.getId());
+                if (alertGatePO != null) {
+                    alertGateTestVO.setFilePath(alertGatePO.getFilePath());
+                }
             }
         }
         log.info("testAlert jar path :{}", alertGateTestVO.getFilePath());

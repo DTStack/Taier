@@ -2,6 +2,7 @@ package com.dtstack.engine.dao;
 
 import com.dtstack.engine.api.domain.po.AlertGatePO;
 import com.dtstack.engine.api.domain.po.ClusterAlertPO;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -23,9 +24,9 @@ public interface AlertGateDao {
 
     AlertGatePO get(AlertGatePO alertGatePO);
 
-    List<ClusterAlertPO> selectAlertByIds(List<String> alertGateSources);
+    List<ClusterAlertPO> selectAlertByIds(@Param("alertGateSources") List<String> alertGateSources);
 
-    List<ClusterAlertPO> selectDefaultAlert(List<Integer> alertTypes, Integer isDefault);
+    List<ClusterAlertPO> selectDefaultAlert(@Param("alertTypes") List<Integer> alertTypes, @Param("isDefault") Integer isDefault);
 
     List<ClusterAlertPO> allGate();
 
