@@ -964,8 +964,8 @@ public class ScheduleJobService {
     }
 
     public Integer updateStatusAndLogInfoById(Long id, Integer status, String msg) {
-        if (StringUtils.isNotBlank(msg) && msg.length() > 500) {
-            msg = msg.substring(0, 500) + "...";
+        if (StringUtils.isNotBlank(msg) && msg.length() > 5000) {
+            msg = msg.substring(0, 5000) + "...";
         }
         return scheduleJobDao.updateStatusAndLogInfoById(id, status, msg);
     }

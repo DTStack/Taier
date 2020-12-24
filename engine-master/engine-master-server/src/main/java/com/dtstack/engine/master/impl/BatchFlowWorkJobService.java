@@ -4,9 +4,9 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.executor.AbstractJobExecutor;
+import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * company: www.dtstack.com
@@ -35,6 +36,8 @@ public class BatchFlowWorkJobService {
 
     @Autowired
     private ScheduleJobService batchJobService;
+
+    Predicate<Integer> isSpecialType = type ->  type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal();
 
     /**
      * <br>1.工作流下无子任务更新为完成状态</br>
@@ -152,17 +155,16 @@ public class BatchFlowWorkJobService {
      * 工作流自己为自动取消或冻结的状态的时候 直接把子任务状态全部更新 防止重复check
      * 出现工作流为自动取消 但是子任务为等待提交 需要经过下一轮check才变更为自动取消
      *
-     * @param flowJobId
      * @param status
      */
-    public void batchUpdateFlowSubJobStatus(String flowJobId, Integer status) {
-        if (StringUtils.isBlank(flowJobId) || "0".equalsIgnoreCase(flowJobId)) {
+    public void batchUpdateFlowSubJobStatus(ScheduleJob scheduleJob, Integer status) {
+        if (null == scheduleJob || !isSpecialType.test(scheduleJob.getTaskType())) {
             return;
         }
         if (RdosTaskStatus.EXPIRE.getStatus().equals(status) || RdosTaskStatus.FROZEN.getStatus().equals(status)) {
-            List<ScheduleJob> subJobs = batchJobService.getSubJobsAndStatusByFlowId(flowJobId);
+            List<ScheduleJob> subJobs = batchJobService.getSubJobsAndStatusByFlowId(scheduleJob.getJobId());
             for (ScheduleJob subJob : subJobs) {
-                logger.info("jobId:{} is WORK_FLOW or ALGORITHM_LAB son update status with flowJobId {} status {}", subJob.getJobId(), flowJobId, status);
+                logger.info("jobId:{} is WORK_FLOW or ALGORITHM_LAB son update status with flowJobId {} status {}", subJob.getJobId(), scheduleJob.getJobId(), status);
                 batchJobService.updateStatusByJobId(subJob.getJobId(), status, null);
             }
         }
