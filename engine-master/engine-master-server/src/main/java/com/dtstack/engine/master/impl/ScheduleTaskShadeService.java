@@ -131,15 +131,11 @@ public class ScheduleTaskShadeService {
     public ScheduleTaskShadeCountTaskVO countTaskByType( Long tenantId, Long dtuicTenantId,
                                                 Long projectId,  Integer appType,
                                                 List<Integer> taskTypes){
-        List<Map<String, Object>> maps = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, Lists.newArrayList(projectId), appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
-        if (CollectionUtils.isEmpty(maps)) {
-            return new ScheduleTaskShadeCountTaskVO();
+        List<ScheduleTaskShadeCountTaskVO> ScheduleTaskShadeCountTaskVOs = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, Lists.newArrayList(projectId), appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
+        if (CollectionUtils.isEmpty(ScheduleTaskShadeCountTaskVOs)) {
+            return null;
         }
-
-        ScheduleTaskShadeCountTaskVO scheduleTaskShadeCountTaskVO = new ScheduleTaskShadeCountTaskVO();
-        Map<String, Object> stringObjectMap = maps.get(0);
-        buildVO(scheduleTaskShadeCountTaskVO, stringObjectMap);
-        return scheduleTaskShadeCountTaskVO;
+        return ScheduleTaskShadeCountTaskVOs.get(0);
     }
 
     private void buildVO(ScheduleTaskShadeCountTaskVO scheduleTaskShadeCountTaskVO, Map<String, Object> stringObjectMap) {
@@ -151,16 +147,7 @@ public class ScheduleTaskShadeService {
                                                 List<Long> projectIds,  Integer appType,
                                                 List<Integer> taskTypes){
 
-        List<Map<String, Object>> maps = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, projectIds, appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
-        List<ScheduleTaskShadeCountTaskVO> scheduleTaskShadeCountTaskVOS = Lists.newArrayList();
-        if(CollectionUtils.isNotEmpty(scheduleTaskShadeCountTaskVOS)) {
-            for (Map<String, Object> map : maps) {
-                ScheduleTaskShadeCountTaskVO scheduleTaskShadeCountTaskVO = new ScheduleTaskShadeCountTaskVO();
-                buildVO(scheduleTaskShadeCountTaskVO, map);
-                scheduleTaskShadeCountTaskVOS.add(scheduleTaskShadeCountTaskVO);
-            }
-        }
-        return scheduleTaskShadeCountTaskVOS;
+        return scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, projectIds, appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
     }
 
 
