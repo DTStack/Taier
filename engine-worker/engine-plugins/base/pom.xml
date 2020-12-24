@@ -20,6 +20,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <!--base 模块以provided方式依赖hadoop-2.7.3, 避免高低版本间api不兼容问题-->
+
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
@@ -38,21 +40,21 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-common</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-client</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
             <scope>provided</scope>
         </dependency>
 

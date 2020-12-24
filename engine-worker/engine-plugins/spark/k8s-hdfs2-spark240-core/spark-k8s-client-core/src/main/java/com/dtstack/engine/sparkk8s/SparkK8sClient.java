@@ -208,7 +208,7 @@ public class SparkK8sClient extends AbstractClient {
     public String getJobMaster(JobIdentifier jobIdentifier) {
         String masterUrl = "";
         KubernetesClient k8sClient = getK8sClient();
-        if (!Objects.isNull(k8sClient)) {
+        if (null != k8sClient) {
             masterUrl = k8sClient.getMasterUrl().toString();
         }
         LOG.info("spark k8s client master url is:{}", masterUrl);

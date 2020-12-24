@@ -80,18 +80,6 @@ public class JobSubmitDealer implements Runnable {
         if (null == priorityQueue) {
             throw new RdosDefineException("priorityQueue must not null.");
         }
-        if (null == jobPartitioner) {
-            throw new RdosDefineException("jobPartitioner must not null.");
-        }
-        if (null == workerOperator) {
-            throw new RdosDefineException("workerOperator must not null.");
-        }
-        if (null == engineJobCacheDao) {
-            throw new RdosDefineException("engineJobCacheDao must not null.");
-        }
-        if (null == environmentContext) {
-            throw new RdosDefineException("environmentContext must not null.");
-        }
 
         jobRestartDelay = environmentContext.getJobRestartDelay();
         jobLackingDelay = environmentContext.getJobLackingDelay();
@@ -290,7 +278,7 @@ public class JobSubmitDealer implements Runnable {
         JobResult jobResult = null;
         try {
 
-            // 判断资源
+            // 判断资源workerOperator
             JudgeResult judgeResult = workerOperator.judgeSlots(jobClient);
             if (JudgeResult.JudgeType.OK == judgeResult.getResult()) {
                 logger.info("jobId:{} engineType:{} submit jobClient:{} to engine start.", jobClient.getTaskId(), jobClient.getEngineType(), jobClient);

@@ -162,6 +162,7 @@ CREATE TABLE `console_component` (
  `upload_file_name` varchar(50) DEFAULT '' COMMENT '上传文件zip名称',
  `component_template` text COMMENT '前端展示模版json',
  `kerberos_file_name` varchar(50) DEFAULT '' COMMENT '上传kerberos文件zip名称',
+ `store_type` tinyint(1) DEFAULT '4' COMMENT '组件存储类型: HDFS、NFS 默认HDFS',
   PRIMARY KEY (`id`),
   UNIQUE INDEX `index_component`(`engine_id`, `component_type_code`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
@@ -215,6 +216,8 @@ CREATE TABLE `console_kerberos` (
     `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
     `krb_name` varchar(26) DEFAULT NULL COMMENT 'krb5_conf名称',
     `component_type` int(11) DEFAULT NULL COMMENT '组件类型',
+    `principals` TEXT COMMENT 'keytab用户文件列表',
+    `merge_krb_content` TEXT COMMENT '合并后的krb5',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
@@ -457,8 +460,22 @@ CREATE TABLE `console_tenant_resource` (
   `is_deleted` int(10) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_uic_tenantid_tasktype` (`dt_uic_tenant_id`,`task_type`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8 COMMENT='租户资源限制表'
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8 COMMENT='租户资源限制表';
 
+CREATE TABLE `schedule_task_commit` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_id` int(11) NOT NULL COMMENT '任务id',
+  `app_type` int(11) NOT NULL DEFAULT '0' COMMENT 'RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8)',
+  `commit_id` varchar(128) NOT NULL COMMENT '提交id',
+  `task_json` text COMMENT '额外参数',
+  `extra_info` mediumtext COMMENT '存储task运行时所需的额外信息',
+  `is_commit` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否提交：0未提交 1已提交',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '过期策略：0永不过期 1过期取消',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_job_id` (`commit_id`(128),`is_deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 

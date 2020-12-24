@@ -384,6 +384,9 @@ public class FlinkClient extends AbstractClient {
                             targetClusterClient.cancel(jobId);
                         } else {
                             // per job cancel
+                            if(jobIdentifier.isForceCancel()){
+                                return killApplication(jobIdentifier);
+                            }
                             String savepoint = targetClusterClient.cancelWithSavepoint(jobId, null);
                             logger.info("taskId: {}, flink job savepoint path {}", jobIdentifier.getTaskId(), savepoint);
                         }
@@ -394,26 +397,31 @@ public class FlinkClient extends AbstractClient {
                     if (rdosTaskStatus != null){
                         logger.warn("taskId: {}, cancel job error jobStatus is: {}", jobIdentifier.getTaskId(), rdosTaskStatus.name());
                     }
-                    logger.error("taskId: {} engineJobId:{} applicationId:{} cancelJob error, try to cancel with yarnClient.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), e);
 
-                    if (StringUtils.isEmpty(appId)) {
-                        return JobResult.createErrorResult(e);
-                    }
-
-                    try {
-                        ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
-                        flinkClientBuilder.getYarnClient().killApplication(applicationId);
-                        logger.info("taskId: {} engineJobId: {} applicationId: {} yarnClient kill application success.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId());
-                        return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
-                    } catch (Exception killException) {
-                        logger.error("taskId: {} engineJobId: {} applicationId: {} yarnClient kill application error:", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), killException);
-                        return JobResult.createErrorResult(e);
-                    }
+                    logger.error("taskId:{} engineJobId:{} applicationId:{} cancelJob error, try to cancel with yarnClient.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), e);
+                    return JobResult.createErrorResult(e);
                 }
             }, hadoopConf.getYarnConfiguration());
         } catch (Exception exception) {
-            logger.error("taskId: {} engineJobId:{} applicationId:{} cancelJob error:", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), exception);
+            logger.error("taskId:{} engineJobId:{} applicationId:{} cancelJob error:", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), exception);
             return JobResult.createErrorResult(exception);
+        }
+    }
+
+    /**
+     * 强制关闭yarn application
+     * @param jobIdentifier
+     * @return
+     */
+    private JobResult killApplication(JobIdentifier jobIdentifier){
+        try {
+            ApplicationId applicationId = ConverterUtils.toApplicationId(jobIdentifier.getApplicationId());
+            flinkClientBuilder.getYarnClient().killApplication(applicationId);
+            logger.info("taskId:{} engineJobId:{} applicationId:{} yarnClient kill application success.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId());
+            return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
+        } catch (Exception killException) {
+            logger.error("taskId:{} engineJobId:{} applicationId:{} yarnClient kill application error:", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), killException);
+            return JobResult.createErrorResult(killException);
         }
     }
 
@@ -631,7 +639,6 @@ public class FlinkClient extends AbstractClient {
         try {
             if (engineJobId == null) {
                 logger.error("{} getJobLog is null, because engineJobId is empty", jobIdentifier.getTaskId());
-                throw new RdosDefineException(jobIdentifier.getTaskId() + " engineJobId is null.");
             }
             String exceptionUrlPath = String.format(ConfigConstrant.JOB_EXCEPTIONS_URL_FORMAT, engineJobId);
 

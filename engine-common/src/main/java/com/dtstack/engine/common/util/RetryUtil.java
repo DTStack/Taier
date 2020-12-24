@@ -20,7 +20,7 @@ public final class RetryUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(RetryUtil.class);
 
-    private static final long MAX_SLEEP_MILLISECOND = 256 * 1000;
+    private static final long MAX_SLEEP_MILLISECOND = 256 * 1000L;
 
     /**
      * 重试次数工具方法.
@@ -99,8 +99,6 @@ public final class RetryUtil {
                 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
                 new CustomThreadFactory("asyncRetryPool"));
     }
-
-
     private static class Retry {
 
         public <T> T doRetry(Callable<T> callable, int retryTimes, long sleepTimeInMilliSecond, boolean exponential, List<Class<?>> retryExceptionClasss)

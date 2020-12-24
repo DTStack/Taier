@@ -75,13 +75,6 @@ public abstract class AbstractConnFactory {
         }
     }
 
-    protected List<String> splitSql(String sql) {
-        if(StringUtils.isBlank(sql)) {
-            return Collections.emptyList();
-        }
-        return Arrays.asList(sql.split(";"));
-    }
-
     public void testConn() {
         Connection conn = null;
         Statement stmt = null;

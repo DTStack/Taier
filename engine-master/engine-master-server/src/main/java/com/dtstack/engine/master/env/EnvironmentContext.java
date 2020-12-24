@@ -12,8 +12,9 @@ import org.springframework.stereotype.Component;
  * @author sishu.yss
  */
 @Component
-@PropertySource(value = "file:${user.dir}/conf/application.properties")
+@PropertySource(value = "file:${user.dir.conf}/application.properties")
 public class EnvironmentContext {
+
 
     @Autowired
     private Environment environment;
@@ -180,7 +181,7 @@ public class EnvironmentContext {
     }
 
     /**
-     *  ===es====
+     * ===es====
      */
     public String getElasticsearchAddress() {
         return environment.getProperty("es.address");
@@ -340,7 +341,7 @@ public class EnvironmentContext {
     }
 
     public String getLocalKerberosDir() {
-        return environment.getProperty("local.kerberos.dir", System.getProperty("user.dir") + "/kerberosConfig");
+        return environment.getProperty("local.kerberos.dir", System.getProperty("user.dir") + "/kerberosUploadTempDir");
     }
 
     public String getKerberosTemplatepath() {
@@ -372,7 +373,7 @@ public class EnvironmentContext {
     }
 
 
-    public int getBuildJobErrorRetry(){
+    public int getBuildJobErrorRetry() {
         return Integer.parseInt(environment.getProperty("build.job.retry", "3"));
     }
 
@@ -395,31 +396,31 @@ public class EnvironmentContext {
         return environment.getProperty("job.back.cron", "23:00:00");
     }
 
-    public boolean openScheduleJobCron(){
+    public boolean openScheduleJobCron() {
         return Boolean.parseBoolean(environment.getProperty("job.back.cron.open", "false"));
     }
 
     public long getConsoleStopExpireTime() {
-        return Long.parseLong(environment.getProperty("consoleStopExpireTime", Long.toString(60 * 1000 * 24)));
+        return Long.parseLong(environment.getProperty("consoleStopExpireTime", Long.toString(60 * 1000L * 24)));
     }
 
     public Integer getScheduleJobScope() {
-        return Integer.valueOf(environment.getProperty("job.back.scope", "1000*60"));
+        return Integer.valueOf(environment.getProperty("job.back.scope", "60000"));
     }
 
-    public Integer getJobExecutorPoolCorePoolSize(){
+    public Integer getJobExecutorPoolCorePoolSize() {
         return Integer.valueOf(environment.getProperty("job.executor.pool.core.size", "10"));
     }
 
-    public Integer getJobExecutorPoolMaximumPoolSize(){
+    public Integer getJobExecutorPoolMaximumPoolSize() {
         return Integer.valueOf(environment.getProperty("job.executor.pool.maximum.size", "10"));
     }
 
-    public Long getJobExecutorPoolKeepAliveTime(){
+    public Long getJobExecutorPoolKeepAliveTime() {
         return Long.valueOf(environment.getProperty("job.executor.pool.keep.alive.time", "1000"));
     }
 
-    public Integer getJobExecutorPoolQueueSize(){
+    public Integer getJobExecutorPoolQueueSize() {
         return Integer.valueOf(environment.getProperty("job.executor.pool.queue.size", "1000"));
     }
 
@@ -437,6 +438,18 @@ public class EnvironmentContext {
 
     public String getComponentJdbcToReplace() {
         return environment.getProperty("component.jdbc.replace", "/default");
+    }
+
+    public Integer getMaxBatchTask() {
+        return Integer.parseInt(environment.getProperty("max.batch.task", "100"));
+    }
+
+    public Integer getMaxBatchTaskInsert() {
+        return Integer.parseInt(environment.getProperty("max.batch.task.insert", "50"));
+    }
+
+    public Integer getMaxBatchTaskSplInsert() {
+        return Integer.parseInt(environment.getProperty("max.batch.task.sql.insert", "10"));
     }
 
     public Integer setIdleConnectionTestPeriod() {

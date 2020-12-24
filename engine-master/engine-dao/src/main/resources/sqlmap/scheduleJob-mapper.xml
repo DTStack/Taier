@@ -435,6 +435,9 @@
             <if test="phaseStatus != null">
                 phase_status = #{phaseStatus},
             </if>
+            <if test="versionId != null">
+                version_id = #{versionId},
+            </if>
             <if test="submitUserName != null">
                 submit_user_name = #{submitUserName},
             </if>

@@ -26,6 +26,16 @@ public class BaseConfig {
 
     private String dtProxyUserName;
 
+    private String mergeKrbContent;
+
+    public String getMergeKrbContent() {
+        return mergeKrbContent;
+    }
+
+    public void setMergeKrbContent(String mergeKrbContent) {
+        this.mergeKrbContent = mergeKrbContent;
+    }
+
     public String getDtProxyUserName() {
         return dtProxyUserName;
     }

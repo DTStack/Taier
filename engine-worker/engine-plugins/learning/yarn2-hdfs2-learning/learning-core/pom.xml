@@ -77,7 +77,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks>
+                           <!-- <tasks>
                                 <copy file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
                                 <copy todir="${basedir}/target/../../../../../../pluginLibs/yarn2-hdfs2-learning/"
@@ -87,7 +87,7 @@
                                              includes="${jar.name}-*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
-                            </tasks>
+                            </tasks>-->
                         </configuration>
                     </execution>
                 </executions>
