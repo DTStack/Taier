@@ -69,6 +69,7 @@ public class KerberosUtils {
         if (Objects.isNull(config) || !config.isOpenKerberos()) {
             String proxyUserName = config.getDtProxyUserName();
             if (StringUtils.isNotEmpty(proxyUserName)) {
+                logger.info("dtProxyUserName is {}", proxyUserName);
                 UserGroupInformation proxyUGI = UserGroupInformation.createProxyUser(proxyUserName, UserGroupInformation.getLoginUser());
                 return proxyUGI.doAs((PrivilegedExceptionAction<T>) supplier::get);
             }
