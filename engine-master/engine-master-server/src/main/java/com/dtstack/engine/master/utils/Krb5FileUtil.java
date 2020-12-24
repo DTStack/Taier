@@ -71,7 +71,11 @@ public class Krb5FileUtil {
             }
             Map<String, String> options = krb5.get(key);
             for(String option : options.keySet()) {
-                String optionStr = String.format("%s = %s", option, options.get(option));
+                String optionValue = options.get(option);
+                String optionStr = option;
+                if (StringUtils.isNotEmpty(optionValue)) {
+                    optionStr = String.format("%s = %s", option, optionValue);
+                }
                 content.append(optionStr).append(System.lineSeparator());
             }
         }

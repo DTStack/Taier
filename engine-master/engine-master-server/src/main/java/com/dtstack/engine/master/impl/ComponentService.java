@@ -907,6 +907,13 @@ public class ComponentService {
             //获取principal
             List<PrincipalName> principalLists = this.getPrincipal(keyTabFile);
             principal = parsePrincipal(principal, principalLists);
+            if (StringUtils.isEmpty(principals)) {
+                List<String> principalNames = new ArrayList<>();
+                for(PrincipalName principalName : principalLists) {
+                    principalNames.add(principalName.getName());
+                }
+                principals = StringUtils.join(principalNames, ",");
+            }
 
             //删除sftp原来kerberos 的文件夹
             sftpFileManage.deleteDir(remoteDirKerberos);
@@ -939,7 +946,7 @@ public class ComponentService {
             kerberosConfig.setPrincipal(principal);
         }
         if (StringUtils.isNotEmpty(principals)) {
-            kerberosConfig.setPrincipal(principals);
+            kerberosConfig.setPrincipals(principals);
         }
 
         if (isFirstOpenKerberos) {
