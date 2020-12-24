@@ -86,6 +86,10 @@ session:
     state.checkpoints.dir: hdfs://ns1/dtInsight/flink180/checkpoints
     state.checkpoints.num-retained: 11
 
+    web.timeout: 100000
+    blob.service.cleanup.interval: 900
+    jobstore.expiration-time: 900
+    akka.ask.timeout: 60 s
     metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091

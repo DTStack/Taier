@@ -631,7 +631,7 @@ public class FlinkClient extends AbstractClient {
         String exceptMessage = "";
         try {
             if (engineJobId == null) {
-                logger.warn("{} getJobLog is null, because engineJobId is empty", jobIdentifier.getTaskId());
+                logger.error("{} getJobLog is null, because engineJobId is empty", jobIdentifier.getTaskId());
                 throw new RdosDefineException(jobIdentifier.getTaskId() + " engineJobId is null.");
             }
             String exceptionUrlPath = String.format(ConfigConstrant.JOB_EXCEPTIONS_URL_FORMAT, engineJobId);
@@ -716,7 +716,7 @@ public class FlinkClient extends AbstractClient {
             }
         } catch (Exception e){
             logger.error("taskId:{} judgeSlots error: ", jobClient.getTaskId(), e);
-            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
+            return JudgeResult.exception("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
