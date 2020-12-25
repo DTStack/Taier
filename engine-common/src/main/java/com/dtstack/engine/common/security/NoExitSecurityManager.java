@@ -16,6 +16,8 @@ public class NoExitSecurityManager extends SecurityManager {
     @Override
     public void checkExit(int status) {
         super.checkExit(status);
-        throw new ExitException(status);
+        if (-2 != status) {
+            throw new ExitException(status);
+        }
     }
 }
