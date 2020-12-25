@@ -46,7 +46,13 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
                 "/console/service/alert/setDefaultAlert","/service/alert/getByAlertId","/console/service/alert/delete",
                 //多集群管理
                 "/node/cluster/pageQuery","/node/component/cluster/getCluster","/node/component/getComponentVersion",
-                "/node/component/addOrCheckClusterWithName","/node/component/testConnects","/node/cluster/deleteCluster");
+                "/node/component/addOrCheckClusterWithName","/node/component/testConnects","/node/cluster/deleteCluster",
+                // 安全审计
+                "/node/securityAudit/pageQuery","/node/securityAudit/getOperationList",
+                // 告警
+                "/node/alert/edit","/node/alert/setDefaultAlert","/node/alert/page","/node/alert/getByAlertId","/node/alert/delete"
+                ,"/node/alert/list/show","/node/alert/testAlert"
+                );
     }
 
     @Autowired

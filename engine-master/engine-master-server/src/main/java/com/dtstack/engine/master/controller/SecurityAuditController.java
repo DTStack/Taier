@@ -6,6 +6,7 @@ import com.dtstack.engine.api.param.SecurityLogParam;
 import com.dtstack.engine.api.vo.security.ApiOperateTypeVO;
 import com.dtstack.engine.api.vo.security.SecurityLogVO;
 import com.dtstack.engine.master.impl.SecurityAuditService;
+import com.dtstack.engine.master.router.login.SessionUtil;
 import com.dtstack.engine.master.utils.CacheUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,6 +29,9 @@ public class SecurityAuditController {
     @Autowired
     private SecurityAuditService securityAuditService;
 
+    @Autowired
+    private SessionUtil sessionUtil;
+
 
     @ApiOperation("添加安全日志接口免登陆，需将参数加密传输,用于替换console: /api/console/service/securityAudit/addSecurityLog")
     @PostMapping("/addSecurityLog")
@@ -45,7 +49,7 @@ public class SecurityAuditController {
     @ApiOperation("pageQuery 分页查询安全日志 用于替换console: /api/console/service/securityAudit/pageQuery")
     @PostMapping("/pageQuery")
     public PageResult<List<SecurityLogVO>> pageQuery(@RequestBody SecurityLogParam param, @CookieValue("dt_token") String token) {
-        UserDTO user = CacheUtils.getUser(token);
+        UserDTO user = sessionUtil.getUser(token,UserDTO.class);
         param.setTenantId(user.getTenantId());
         param.setRoot(user.getRootUser() == 1);
 

@@ -1,18 +1,13 @@
 package com.dtstack.engine.master.router.login;
 
-import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.api.dto.UserDTO;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.master.router.callback.ApiResult;
 import com.dtstack.engine.master.router.util.CookieUtil;
-import net.bytebuddy.asm.Advice;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
