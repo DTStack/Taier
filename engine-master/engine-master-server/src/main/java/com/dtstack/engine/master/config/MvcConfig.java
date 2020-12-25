@@ -1,4 +1,5 @@
 
+
 package com.dtstack.engine.master.config;
 
 import com.dtstack.engine.master.router.DtArgumentCookieResolver;
@@ -9,11 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -70,7 +73,12 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        converters.add(0, new MappingJackson2HttpMessageConverter());
+        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
+        List<MediaType> mediaTypes = new ArrayList<>();
+        mediaTypes.add(MediaType.TEXT_PLAIN);
+        mediaTypes.add(MediaType.APPLICATION_JSON);
+        mappingJackson2HttpMessageConverter.setSupportedMediaTypes(mediaTypes);
+            converters.add(0, mappingJackson2HttpMessageConverter);
         super.configureMessageConverters(converters);
     }
 
