@@ -664,7 +664,7 @@ public class SparkYarnClient extends AbstractClient {
                             .withYarnAccepterTaskNumber(sparkYarnConfig.getYarnAccepterTaskNumber())
                             .build();
                     return resourceInfo.judgeSlots(jobClient);
-            }, yarnConf);
+            }, yarnConf, false);
         } catch (Exception e) {
             logger.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
             return JudgeResult.exception("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
