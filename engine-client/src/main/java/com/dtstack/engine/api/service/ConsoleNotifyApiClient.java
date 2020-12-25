@@ -11,6 +11,8 @@ import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Headers;
 import com.dtstack.sdk.core.feign.RequestLine;
 
+import java.util.List;
+
 /**
  * @author yuebai
  * @date 2019-05-17
@@ -36,7 +38,7 @@ public interface ConsoleNotifyApiClient extends DtInsightServer {
      */
     @RequestLine("POST /node/notifyRecord/pageQuery")
     @Headers(value={"Content-Type: application/json"})
-    ApiResponse<PageResult<NotifyRecordReadDTO>> pageQuery(NotifyRecordPageQueryParam param);
+    ApiResponse<PageResult<List<NotifyRecordReadDTO>>> pageQuery(NotifyRecordPageQueryParam param);
 
     /**
      * 标记已读
