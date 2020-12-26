@@ -19,6 +19,7 @@ import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.utils.EngineUtil;
 import com.dtstack.engine.master.utils.Template;
+import com.dtstack.schedule.common.enums.AppType;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
@@ -99,6 +100,7 @@ public class ActionServiceTest extends AbstractTest {
             Map<String, Object> params = getParams(getJsonString(getRandomStr()));
             ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(params, ParamActionExt.class);
             paramActionExt.setTaskId(scheduleJobTemplate.getJobId());
+            paramActionExt.setAppType(AppType.RDOS.getType());
             Boolean result = actionService.start(paramActionExt);
             Assert.assertTrue(result);
             ScheduleJob scheduleJob = scheduleJobDao.getByJobId(paramActionExt.getTaskId(),null);
