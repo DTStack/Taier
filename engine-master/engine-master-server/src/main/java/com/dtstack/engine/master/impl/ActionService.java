@@ -303,6 +303,10 @@ public class ActionService {
         if(paramAction.getEngineType() == null){
             throw new RdosDefineException("param engineType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
+
+        if (paramAction.getAppType() == null) {
+            throw new RdosDefineException("param appType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        }
     }
 
     /**
