@@ -188,6 +188,7 @@ public class ActionService {
         if (paramActionExt == null) {
             throw new RdosDefineException("extraInfo can't null or empty string");
         }
+        paramActionExt.setCycTime(scheduleJob.getCycTime());
         return paramActionExt;
     }
 
