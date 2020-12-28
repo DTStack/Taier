@@ -114,9 +114,11 @@
         <appender-ref ref="schedule" />
     </logger>
 
+
     <logger name="com.dtstack.engine.alert" level="info" additivity="false">
         <appender-ref ref="alert" />
     </logger>
+
 
     <root level="info">
         <appender-ref ref="allAppender" />
