@@ -225,7 +225,7 @@ public class ActionService {
 
         scheduleJob.setType(EScheduleType.TEMP_JOB.getType());
         scheduleJob.setBusinessDate(getOrDefault(jobRichOperator.getCycTime(-1), ""));
-        scheduleJob.setCycTime(getOrDefault(cycTime, ""));
+        scheduleJob.setCycTime(getOrDefault(cycTime, DateTime.now().toString("yyyyMMddHHmmss")));
 
         scheduleJob.setDependencyType(getOrDefault(scheduleCron.getSelfReliance(), 0));
         scheduleJob.setFlowJobId(getOrDefault(flowJobId, "0"));
