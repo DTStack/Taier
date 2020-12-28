@@ -18,16 +18,15 @@ import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.RetryUtil;
-import com.dtstack.engine.sparkyarn.sparkyarn.parser.AddJarOperator;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExt;
 import com.dtstack.engine.sparkyarn.sparkext.ClientExtFactory;
+import com.dtstack.engine.sparkyarn.sparkyarn.parser.AddJarOperator;
 import com.dtstack.engine.sparkyarn.sparkyarn.util.HadoopConf;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -164,7 +163,7 @@ public class SparkYarnClient extends AbstractClient {
                     jobResult = submitPythonJob(jobClient);
                 }
                 return jobResult;
-            }, yarnConf);
+            }, yarnConf, true);
         } catch (Exception e) {
             logger.info("", e);
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
@@ -436,7 +435,6 @@ public class SparkYarnClient extends AbstractClient {
         sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
         sparkConf.set("security", "false");
 
-        String taskId = jobClient.getTaskId();
         if (sparkYarnConfig.isOpenKerberos()){
             String[] kerberosFiles = KerberosUtils.getKerberosFile(sparkYarnConfig, null);
             String keytab = kerberosFiles[0];
@@ -536,7 +534,7 @@ public class SparkYarnClient extends AbstractClient {
                     logger.error("", e);
                     return JobResult.createErrorResult(e.getMessage());
                 }
-            }, yarnConf);
+            }, yarnConf, true);
         } catch (Exception e) {
             logger.error("cancelJob error:", e);
             return JobResult.createErrorResult(e);
@@ -592,7 +590,7 @@ public class SparkYarnClient extends AbstractClient {
                     logger.error("", e);
                     return RdosTaskStatus.NOTFOUND;
                 }
-            }, yarnConf);
+            }, yarnConf, false);
         } catch (Exception e) {
             logger.error("", e);
             return RdosTaskStatus.NOTFOUND;
@@ -688,7 +686,7 @@ public class SparkYarnClient extends AbstractClient {
                 }
 
                 return sparkJobLog.toString();
-            }, yarnConf);
+            }, yarnConf, true);
         } catch (Exception e) {
             logger.error("", e);
             sparkJobLog.addAppLog(jobIdentifier.getEngineJobId(), "get log from yarn err:" + e.getMessage());
@@ -707,7 +705,7 @@ public class SparkYarnClient extends AbstractClient {
                             .withYarnAccepterTaskNumber(sparkYarnConfig.getYarnAccepterTaskNumber())
                             .build();
                     return resourceInfo.judgeSlots(jobClient);
-            }, yarnConf);
+            }, yarnConf, false);
         } catch (Exception e) {
             logger.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
             return JudgeResult.exception("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
@@ -799,7 +797,7 @@ public class SparkYarnClient extends AbstractClient {
                 yarnClient1.init(yarnConf);
                 yarnClient1.start();
                 return yarnClient1;
-            }, yarnConf);
+            }, yarnConf,true);
         } catch (Exception e) {
             logger.error("buildYarnClient initSecurity happens error", e);
             throw new RdosDefineException(e);
