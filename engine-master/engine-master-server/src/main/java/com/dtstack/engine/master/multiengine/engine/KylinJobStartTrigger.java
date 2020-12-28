@@ -27,7 +27,7 @@ public class KylinJobStartTrigger extends JobStartTriggerBase {
         if (taskShade.getEngineType().equals(ScheduleEngineType.Kylin.getVal())) {
             List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String)actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
             Map<String,Object> pluginInfo = (Map<String,Object>) actionParam.get("pluginInfo");
-            if (Objects.nonNull(pluginInfo)) {
+            if (null != pluginInfo) {
                String taskExeArgs = taskShade.getExeArgs();
                 JSONObject jsonObject = (JSONObject) JSONObject.parse(taskExeArgs);
                 if (!jsonObject.getBooleanValue("noPartition")) {
@@ -52,7 +52,7 @@ public class KylinJobStartTrigger extends JobStartTriggerBase {
                             SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("yyyyMMddHHmmss");
                             // 加28800000 是为了加八小时
                             startTime = simpleDateFormat1.parse(targetVal).getTime() + 28800000;
-                            endTime = simpleDateFormat1.parse(String.valueOf(Long.valueOf(targetVal) + 1)).getTime() + 28800000;
+                            endTime = simpleDateFormat1.parse(String.valueOf(Long.parseLong(targetVal) + 1)).getTime() + 28800000;
                         }
                     } else {
                         throw new RdosDefineException("任务参数错误");

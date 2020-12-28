@@ -14,7 +14,7 @@ perjob:
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink180
     high-availability.zookeeper.quorum:
-    high-availability.storageDir: hdfs://ns1/flink180/ha
+    high-availability.storageDir: hdfs://ns1/dtInsight/flink180/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082
@@ -78,7 +78,7 @@ session:
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink180
     high-availability.zookeeper.quorum:
-    high-availability.storageDir: hdfs://ns1/flink180/ha
+    high-availability.storageDir: hdfs://ns1/dtInsight/flink180/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082
@@ -148,7 +148,7 @@ standalone:
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink180
     high-availability.zookeeper.quorum:
-    high-availability.storageDir: hdfs://ns1/flink180/ha
+    high-availability.storageDir: hdfs://ns1/dtInsight/flink180/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082

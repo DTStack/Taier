@@ -1,8 +1,10 @@
 package com.dtstack.engine.api.vo;
 
-import com.dtstack.engine.api.domain.Engine;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.Engine;
 import io.swagger.annotations.ApiModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
@@ -10,6 +12,8 @@ import java.util.List;
 
 @ApiModel
 public class EngineVO extends Engine {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EngineVO.class);
 
     private Long engineId;
 
@@ -20,6 +24,19 @@ public class EngineVO extends Engine {
     private List<ComponentVO> components;
 
     private JSONObject resource;
+
+    /**
+     * yarn 还是k8s调度
+     */
+    private String resourceType;
+
+    public String getResourceType() {
+        return resourceType;
+    }
+
+    public void setResourceType(String resourceType) {
+        this.resourceType = resourceType;
+    }
 
     public static EngineVO toVO(Engine engine) {
         EngineVO vo = new EngineVO();
@@ -34,7 +51,7 @@ public class EngineVO extends Engine {
             vo.setResource(resource);
 
         } catch (Throwable e) {
-            e.printStackTrace();
+            LOGGER.error("EngineVO.toVO error:",e);
         }
         return vo;
     }

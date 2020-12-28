@@ -47,35 +47,19 @@ public class Client {
     private volatile YarnClient yarnClient;
     private volatile Path appJarSrc;
     private ThreadPoolExecutor threadPoolExecutor;
+    private volatile BaseConfig baseConfig;
 
     private static FsPermission JOB_FILE_PERMISSION = FsPermission.createImmutable((short) 0644);
 
     public Client(DtYarnConfiguration conf, BaseConfig allConfig) throws Exception {
         this.conf = conf;
+        this.baseConfig = allConfig;
         this.threadPoolExecutor = new ThreadPoolExecutor(
                 conf.getInt(DtYarnConfiguration.DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM, DtYarnConfiguration.DEFAULT_DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM),
                 conf.getInt(DtYarnConfiguration.DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM, DtYarnConfiguration.DEFAULT_DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM),
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory("dtscript_yarnclient"));
         KerberosUtils.login(allConfig, () -> {
-            String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
-            if (conf.get("hadoop.job.ugi") == null) {
-                UserGroupInformation ugi = UserGroupInformation.createRemoteUser(appSubmitterUserName);
-                conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
-            }
-            String proxyUser = conf.get(DtYarnConstants.PROXY_USER_NAME);
-            try {
-                if (StringUtils.isNotBlank(proxyUser)) {
-                    UserGroupInformation.setLoginUser(UserGroupInformation.createProxyUser(proxyUser, UserGroupInformation.getCurrentUser()));
-                } else {
-                    //重置
-                    UserGroupInformation realUser = UserGroupInformation.getCurrentUser().getRealUser();
-                    UserGroupInformation.setLoginUser(realUser);
-                }
-            } catch (IOException e) {
-                LOG.info("proxy user {} error {}  " + proxyUser);
-            }
-
             this.yarnClient = getYarnClient();
             Path appJarSrc = new Path(JobConf.findContainingJar(ApplicationMaster.class));
             this.appJarSrc = appJarSrc;
@@ -86,15 +70,10 @@ public class Client {
     public YarnConfiguration init(ClientArguments clientArguments) throws IOException, YarnException, ParseException, ClassNotFoundException {
 
         YarnConfiguration conf = new YarnConfiguration((YarnConfiguration) this.conf);
-        String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
-        LOG.info("Got appSubmitterUserName: " + appSubmitterUserName);
-        if (conf.get("hadoop.job.ugi") == null) {
-            UserGroupInformation ugi = UserGroupInformation.createRemoteUser(appSubmitterUserName);
-            conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
+        String appSubmitterUserName = conf.get("hadoop.username");
+        if (StringUtils.isEmpty(conf.get("hadoop.job.ugi")) && StringUtils.isNotEmpty(appSubmitterUserName)) {
+            conf.set("hadoop.job.ugi", appSubmitterUserName + "," + appSubmitterUserName);
         }
-        LOG.info("Got hadoop.job.ugi: " + conf.get("hadoop.job.ugi"));
-
-        conf.set("ipc.client.fallback-to-simple-auth-allowed", "true");
 
         if (clientArguments.nodes != null) {
             conf.set(DtYarnConfiguration.CONTAINER_REQUEST_NODES, clientArguments.nodes);
@@ -127,7 +106,6 @@ public class Client {
                 conf.set(confArg, clientArguments.confs.getProperty(confArg));
             }
         }
-
         return conf;
     }
 
@@ -167,13 +145,11 @@ public class Client {
             localResources.put(DtYarnConstants.LEARNING_JOB_CONFIGURATION,
                     Utilities.createApplicationResource(getFileSystem(), jobConfPath, LocalResourceType.FILE));
 
-
             Path appMasterJar = Utilities.getRemotePath(conf, applicationId, DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH);
             LOG.info("Copying " + appJarSrc + " to remote path " + appMasterJar.toString());
             getFileSystem().copyFromLocalFile(false, true, appJarSrc, appMasterJar);
             localResources.put(DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH,
                     Utilities.createApplicationResource(getFileSystem(), appMasterJar, LocalResourceType.FILE));
-
 
             StringBuilder classPathEnv = new StringBuilder("${CLASSPATH}:./*");
 
@@ -229,6 +205,7 @@ public class Client {
 
             appMasterEnv.put("CLASSPATH", classPathEnv.toString());
             appMasterEnv.put("HADOOP_HOME", conf.get(DtYarnConfiguration.DT_HADOOP_HOME_DIR));
+            appMasterEnv.put(DtYarnConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.username"));
             appMasterEnv.put(DtYarnConstants.Environment.OUTPUTS.toString(), clientArguments.outputs.toString());
             appMasterEnv.put(DtYarnConstants.Environment.INPUTS.toString(), clientArguments.inputs.toString());
             appMasterEnv.put(DtYarnConstants.Environment.APP_TYPE.toString(), clientArguments.appType.name());
@@ -236,7 +213,6 @@ public class Client {
             appMasterEnv.put(DtYarnConstants.Environment.APP_JAR_LOCATION.toString(), appMasterJar.toUri().toString());
             appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString(), jobConfPath.toString());
             appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_CONTAINER_MAX_MEMORY.toString(), String.valueOf(newAppResponse.getMaximumResourceCapability().getMemory()));
-
 
             LOG.info("Building application master launch command");
             List<String> appMasterArgs = new ArrayList<>(20);
@@ -273,7 +249,12 @@ public class Client {
             capability.setMemory(conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY));
             capability.setVirtualCores(conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_CORES, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_CORES));
             applicationContext.setResource(capability);
-            ByteBuffer tokenBuffer = SecurityUtil.getDelegationTokens(conf, getYarnClient());
+
+            ByteBuffer tokenBuffer = null;
+            if(null != baseConfig && baseConfig.isOpenKerberos()){
+                tokenBuffer = SecurityUtil.getDelegationTokens(conf, getYarnClient());
+            }
+
             ContainerLaunchContext amContainer = ContainerLaunchContext.newInstance(
                     localResources, appMasterEnv, appMasterLaunchcommands, null, tokenBuffer, null);
 

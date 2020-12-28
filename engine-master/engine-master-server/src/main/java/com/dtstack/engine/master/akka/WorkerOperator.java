@@ -18,7 +18,6 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
-import com.dtstack.schedule.common.enums.AppType;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -30,7 +29,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
 @Component
@@ -38,7 +36,7 @@ public class WorkerOperator {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkerOperator.class);
 
-    @Autowired
+    @Autowired(required = false)
     private MasterServer masterServer;
 
     @Autowired
@@ -47,13 +45,16 @@ public class WorkerOperator {
     @Autowired
     private ClusterService clusterService;
 
+    @Autowired
+    private ClientOperator clientOperator;
+
 
     private void buildPluginInfo(JobClient jobClient){
         //补充插件配置信息
         try {
             //jobClient中如果有pluginInfo(数据质量)以jobClient自带优先
             JSONObject info = JSONObject.parseObject(jobClient.getPluginInfo());
-            if (Objects.nonNull(info) && !info.isEmpty()) {
+            if (null != info && !info.isEmpty()) {
                 return;
             }
             jobClient.setPluginWrapperInfo(pluginWrapper.wrapperPluginInfo(jobClient.getParamAction()));
@@ -64,19 +65,19 @@ public class WorkerOperator {
     }
 
     private String getPluginInfo(JobIdentifier jobIdentifier){
-        if (Objects.nonNull(jobIdentifier)) {
+        if (null != jobIdentifier) {
             JSONObject info = JSONObject.parseObject(jobIdentifier.getPluginInfo());
-            if (Objects.nonNull(info) && !info.isEmpty()) {
+            if (null != info && !info.isEmpty()) {
                 return jobIdentifier.getPluginInfo();
             }
         }
 
-        if (Objects.isNull(jobIdentifier) || Objects.isNull(jobIdentifier.getEngineType()) || Objects.isNull(jobIdentifier.getTenantId())) {
+        if (null == jobIdentifier || null == jobIdentifier.getEngineType() || null == jobIdentifier.getTenantId()) {
             logger.error("pluginInfo params lost {}", jobIdentifier);
             throw new RdosDefineException("pluginInfo params lost");
         }
         JSONObject info = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(), jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode());
-        if(Objects.isNull(info)){
+        if(null == info){
             return null;
         }
         return info.toJSONString();
@@ -85,7 +86,7 @@ public class WorkerOperator {
     public JudgeResult judgeSlots(JobClient jobClient) throws Exception {
         this.buildPluginInfo(jobClient);
         if (AkkaConfig.isLocalMode()) {
-            return ClientOperator.getInstance().judgeSlots(jobClient);
+            return clientOperator.judgeSlots(jobClient);
         }
         Object result = callbackAndReset(jobClient, () -> masterServer.sendMessage(new MessageJudgeSlots(jobClient)));
 
@@ -98,9 +99,8 @@ public class WorkerOperator {
 
     public JobResult submitJob(JobClient jobClient) throws Exception {
         this.buildPluginInfo(jobClient);
-//        pluginWrapper.savePluginInfoToDB(jobClient.getTaskId(),jobClient.getPluginInfo());
         if (AkkaConfig.isLocalMode()){
-            return ClientOperator.getInstance().submitJob(jobClient);
+            return clientOperator.submitJob(jobClient);
         }
         try {
             return (JobResult) callbackAndReset(jobClient, () -> masterServer.sendMessage(new MessageSubmitJob(jobClient)));
@@ -111,7 +111,7 @@ public class WorkerOperator {
 
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
         if (AkkaConfig.isLocalMode()){
-            RdosTaskStatus status = ClientOperator.getInstance().getJobStatus(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier);
+            RdosTaskStatus status = clientOperator.getJobStatus(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier);
             if (null == status) {
                 status = RdosTaskStatus.NOTFOUND;
             }
@@ -150,7 +150,7 @@ public class WorkerOperator {
 
     public String getEngineLog(JobIdentifier jobIdentifier) {
         if (AkkaConfig.isLocalMode()){
-            String engineLog = ClientOperator.getInstance().getEngineLog(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier);
+            String engineLog = clientOperator.getEngineLog(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier);
             if (null == engineLog) {
                 engineLog = org.apache.commons.lang3.StringUtils.EMPTY;
             }
@@ -170,7 +170,7 @@ public class WorkerOperator {
 
     public String getCheckpoints(JobIdentifier jobIdentifier) {
         if (AkkaConfig.isLocalMode()){
-            String checkPoints = ClientOperator.getInstance().getCheckpoints(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier);
+            String checkPoints = clientOperator.getCheckpoints(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier);
             if (null == checkPoints) {
                 checkPoints = org.apache.commons.lang3.StringUtils.EMPTY;
             }
@@ -187,7 +187,7 @@ public class WorkerOperator {
 
     public List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier) {
         if (AkkaConfig.isLocalMode()) {
-            List<String> rollingLogBaseInfo = ClientOperator.getInstance().getRollingLogBaseInfo(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier);
+            List<String> rollingLogBaseInfo = clientOperator.getRollingLogBaseInfo(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier);
             if (null == rollingLogBaseInfo || rollingLogBaseInfo.size() == 0) {
                 rollingLogBaseInfo = Lists.newArrayList();
             }
@@ -204,7 +204,7 @@ public class WorkerOperator {
 
     public String getJobMaster(JobIdentifier jobIdentifier) throws Exception {
         if (AkkaConfig.isLocalMode()){
-            String jobMaster = ClientOperator.getInstance().getJobMaster(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier);
+            String jobMaster = clientOperator.getJobMaster(jobIdentifier.getEngineType(), this.getPluginInfo(jobIdentifier), jobIdentifier);
             if (null == jobMaster) {
                 jobMaster = org.apache.commons.lang3.StringUtils.EMPTY;
             }
@@ -216,7 +216,7 @@ public class WorkerOperator {
     public JobResult stopJob(JobClient jobClient) throws Exception {
         this.buildPluginInfo(jobClient);
         if (AkkaConfig.isLocalMode()){
-            return ClientOperator.getInstance().stopJob(jobClient);
+            return clientOperator.stopJob(jobClient);
         }
         if (jobClient.getEngineTaskId() == null) {
             return JobResult.createSuccessResult(jobClient.getTaskId());
@@ -228,7 +228,7 @@ public class WorkerOperator {
         this.buildPluginInfo(jobClient);
         if (AkkaConfig.isLocalMode()){
             try {
-                List<String> containerInfos = ClientOperator.getInstance().containerInfos(jobClient);
+                List<String> containerInfos = clientOperator.containerInfos(jobClient);
                 if (null == containerInfos) {
                     containerInfos = new ArrayList<>(0);
                 }
@@ -248,7 +248,7 @@ public class WorkerOperator {
 
     public List<ClientTemplate> getDefaultPluginConfig(String engineType, String configType) {
         if (AkkaConfig.isLocalMode()) {
-            List<ClientTemplate> defaultPluginConfig = ClientOperator.getInstance().getDefaultPluginConfig(engineType, configType);
+            List<ClientTemplate> defaultPluginConfig = clientOperator.getDefaultPluginConfig(engineType, configType);
             if (CollectionUtils.isEmpty(defaultPluginConfig)) {
                 return new ArrayList<>(0);
             }
@@ -264,8 +264,8 @@ public class WorkerOperator {
 
     public ComponentTestResult testConnect(String engineType, String pluginInfo) {
         if (AkkaConfig.isLocalMode()) {
-            ComponentTestResult testResult = ClientOperator.getInstance().testConnect(engineType, pluginInfo);
-            if (Objects.isNull(testResult)) {
+            ComponentTestResult testResult = clientOperator.testConnect(engineType, pluginInfo);
+            if (null == testResult) {
                 testResult = new ComponentTestResult();
             }
             return testResult;
@@ -281,21 +281,21 @@ public class WorkerOperator {
 
     public List<List<Object>> executeQuery(String engineType, String pluginInfo, String sql, String database) throws Exception {
         if (AkkaConfig.isLocalMode()) {
-            return ClientOperator.getInstance().executeQuery(engineType, pluginInfo, sql, database);
+            return clientOperator.executeQuery(engineType, pluginInfo, sql, database);
         }
         return (List<List<Object>>) masterServer.sendMessage(new MessageExecuteQuery(engineType, pluginInfo, sql, database));
     }
 
     public String uploadStringToHdfs(String engineType, String pluginInfo, String bytes, String hdfsPath) throws Exception {
         if (AkkaConfig.isLocalMode()) {
-            return ClientOperator.getInstance().uploadStringToHdfs(engineType, pluginInfo, bytes, hdfsPath);
+            return clientOperator.uploadStringToHdfs(engineType, pluginInfo, bytes, hdfsPath);
         }
         return (String) masterServer.sendMessage(new MessageUploadInfo(engineType, pluginInfo, bytes, hdfsPath));
     }
 
     public ClusterResource clusterResource(String engineType, String pluginInfo) throws Exception {
         if (AkkaConfig.isLocalMode()) {
-            return ClientOperator.getInstance().getClusterResource(engineType, pluginInfo);
+            return clientOperator.getClusterResource(engineType, pluginInfo);
         }
         return (ClusterResource) masterServer.sendMessage(new MessageResourceInfo(engineType, pluginInfo));
     }

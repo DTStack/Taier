@@ -18,3 +18,10 @@ entrance/dependency-reduced-pom.xml
 kerberosConfig/
 tmpK8sConf/
 /conf
+keytab/
+tmp/
+tmp1100/
+tmpSave/
+*jacoco.exec
+engine-master/engine-master-server/download/
+engine-master/engine-master-server/unzip/

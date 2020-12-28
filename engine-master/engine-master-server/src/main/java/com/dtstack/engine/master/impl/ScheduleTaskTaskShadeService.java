@@ -72,14 +72,8 @@ public class ScheduleTaskTaskShadeService {
                                                                          Integer directType, Integer appType) {
 
         ScheduleTaskShade task = null;
-        try {
-            task = taskShadeService.getBatchTaskById(taskId,appType);
-        } catch (RdosDefineException rdosDefineException) {
-            if (rdosDefineException.getErrorCode().equals(ErrorCode.CAN_NOT_FIND_TASK)) {
-                return null;
-            }
-            throw rdosDefineException;
-        }
+        task = taskShadeService.getBatchTaskById(taskId,appType);
+
         if (task == null) {
             return null;
         }
