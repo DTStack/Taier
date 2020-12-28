@@ -456,7 +456,6 @@ public class EnvironmentContext {
         return Integer.valueOf(environment.getProperty("idle.connection.test.period", "60"));
     }
 
-
     public Integer setMaxIdleTime() {
         return Integer.valueOf(environment.getProperty("max.idle.time", "60"));
     }

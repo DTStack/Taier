@@ -402,7 +402,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 RetryUtil.executeWithRetry(() -> {
                     LOG.info("create partition dtuicTenantId {} {}", dtuicTenantId, sql);
                     JSONObject pluginInfo = buildDataSourcePluginInfo(parameter.getJSONObject("hadoopConfig"), sourceType, username, password, jdbcUrl);
-                    workerOperator.executeQuery(DataSourceType.getBaseType(sourceType).getTypeName(),pluginInfo.toJSONString(),sql,"");
+                    String realDataBase =  pluginInfo.getString("realDataBase");
+                    workerOperator.executeQuery(DataSourceType.getBaseType(sourceType).getTypeName(),pluginInfo.toJSONString(),sql, null != realDataBase ? realDataBase : "");
                     cleanFileName(parameter);
                     return null;
                 }, environmentContext.getRetryFrequency(), environmentContext.getRetryInterval(), false, null);
@@ -413,6 +414,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         }
         return jobJSON.toJSONString();
     }
+
 
     /**
      * 拼接数据源的连接信息
@@ -425,7 +427,21 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
      */
     private JSONObject buildDataSourcePluginInfo(JSONObject hadoopConfig, Integer sourceType, String username, String password, String jdbcUrl) {
         JSONObject pluginInfo = new JSONObject();
-        pluginInfo.put(ConfigConstant.JDBCURL, jdbcUrl);
+        //解析jdbcUrl中的database,将数据库名称替换成default，防止数据库不存在报 NoSuchDatabaseException
+        try {
+            String jdbcUrlStr = jdbcUrl;
+            if(jdbcUrl.contains(";")) {
+                //是开启了kerbers的url
+                jdbcUrlStr = jdbcUrl.substring(0,jdbcUrl.indexOf(";"));
+            }
+            String realDataBase = jdbcUrlStr.substring(jdbcUrlStr.lastIndexOf("/")+1);
+            String newJdbcUrl = jdbcUrl.replaceFirst(realDataBase, "default");
+            pluginInfo.put("realDataBase",realDataBase);
+            pluginInfo.put(ConfigConstant.JDBCURL, newJdbcUrl);
+        } catch (Exception e) {
+            //替换database异常，则走原来逻辑
+            pluginInfo.put(ConfigConstant.JDBCURL,jdbcUrl);
+        }
         pluginInfo.put(ConfigConstant.USERNAME, username);
         pluginInfo.put(ConfigConstant.PASSWORD, password);
         pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataSourceType.getBaseType(sourceType).getTypeName());

@@ -389,7 +389,8 @@ CREATE TABLE `schedule_job`
   KEY `index_engine_job_id` (`engine_job_id`(128)),
   KEY `index_status` (`status`),
   KEY `index_gmt_modified` (`gmt_modified`),
-  KEY `idx_cyctime` (`cyc_time`)
+  KEY `idx_cyctime` (`cyc_time`),
+  KEY `idx_exec_start_time` (`exec_start_time`)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 0
   DEFAULT CHARSET = utf8;
@@ -474,8 +475,8 @@ CREATE TABLE `schedule_task_commit` (
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_job_id` (`commit_id`(128),`is_deleted`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  UNIQUE KEY `index_job_id` (`commit_id`,`is_deleted`,`task_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 
 

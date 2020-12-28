@@ -1681,4 +1681,5 @@
     <select id="getJobGraph" resultType="java.lang.String">
         select job_graph from schedule_job where job_id = #{jobId}
     </select>
+
 </mapper>

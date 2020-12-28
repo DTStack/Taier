@@ -244,4 +244,5 @@ public interface ScheduleJobDao {
     Integer updateJobStatusAndPhaseStatus(@Param("jobId") String jobId, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus);
 
     String getJobGraph(@Param("jobId") String jobId);
+
 }
