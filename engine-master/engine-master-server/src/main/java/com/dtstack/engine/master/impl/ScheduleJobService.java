@@ -233,7 +233,10 @@ public class ScheduleJobService {
             }
             all += count;
             RdosTaskStatus taskStatus = RdosTaskStatus.getTaskStatus(code);
-            scheduleJobStatusCountVO.setTaskName(taskStatus.name());
+            if (taskStatus != null) {
+                scheduleJobStatusCountVO.setTaskName(taskStatus.name());
+                scheduleJobStatusCountVO.setTaskStatusName(taskStatus.name());
+            }
             scheduleJobStatusCountVO.setCount(count);
             scheduleJobStatusCountVOS.add(scheduleJobStatusCountVO);
         }
