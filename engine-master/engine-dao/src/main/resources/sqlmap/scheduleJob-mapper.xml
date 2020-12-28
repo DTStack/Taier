@@ -6,7 +6,7 @@
     <sql id="select_content_fragment">
       bj.id,bj.tenant_id,bj.project_id,bj.dtuic_tenant_id,bj.app_type,bj.job_id,bj.job_key,bj.job_name,bj.task_id,bj.gmt_create,bj.gmt_modified,bj.create_user_id,bj.is_deleted,bj.type,bj.is_restart,
       bj.business_date,bj.cyc_time,dependency_type,flow_job_id,bj.period_type,bj.status,bj.task_type,bj.fill_id,bj.exec_start_time,bj.exec_end_time,bj.exec_time,bj.submit_time,bj.retry_num,max_retry_num,
-      bj.node_address,bj.version_id,bj.next_cyc_time,bj.log_info,bj.compute_type
+      bj.node_address,bj.version_id,bj.next_cyc_time,bj.log_info,bj.compute_type,bj.submit_user_name
     </sql>
 
     <sql id="select_where_fragment">
@@ -375,9 +375,6 @@
 
     <sql id="update_fragment">
         <set>
-            <if test="id != null">
-                id = #{id},
-            </if>
             <if test="tenantId != null and tenantId > 0">
                 tenant_id = #{tenantId},
             </if>
@@ -438,6 +435,9 @@
             <if test="phaseStatus != null">
                 phase_status = #{phaseStatus},
             </if>
+            <if test="submitUserName != null">
+                submit_user_name = #{submitUserName},
+            </if>
         </set>
     </sql>
 
@@ -464,6 +464,7 @@
         <include refid="select_content_fragment"/>
         from schedule_job bj
         where task_id = #{taskId}
+        AND app_type = #{appType} AND type = #{type}
         <choose>
             <when test="isAfter">
                 AND cyc_time > #{cycTime}
@@ -679,7 +680,7 @@
     <select id="listTodayJobs" resultType="java.util.HashMap">
         SELECT DATE_FORMAT(bj.exec_start_time, '%H') AS hour, COUNT(1) AS data
         FROM schedule_job bj
-        WHERE bj.exec_start_time is not null and to_days(bj.exec_start_time) = to_days(NOW())
+        WHERE bj.exec_start_time is not null and bj.exec_start_time >= #{today}
         AND bj.type = #{type}
         AND bj.app_type = #{appType}
         AND bj.is_deleted = 0
@@ -730,7 +731,8 @@
     <select id="listYesterdayJobs" resultType="java.util.HashMap">
         SELECT DATE_FORMAT(bj.exec_start_time, '%H') AS hour, COUNT(1) AS data
         FROM schedule_job bj
-        WHERE bj.exec_start_time is not null and to_days(bj.exec_start_time) = to_days(NOW()) - 1
+        WHERE bj.exec_start_time is not null and bj.exec_start_time >= #{yesterday}
+        and bj.exec_start_time &lt; #{today}
         and bj.type = #{type}
         and bj.app_type = #{appType}
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
@@ -755,7 +757,7 @@
     <select id="listMonthJobs" resultType="java.util.HashMap">
         SELECT DATE_FORMAT(bj.exec_start_time, '%H') AS hour, COUNT(1) AS data
         FROM schedule_job bj
-        WHERE bj.exec_start_time is not null and to_days(bj.exec_start_time) >= to_days(NOW()) - 30
+        WHERE bj.exec_start_time is not null and bj.exec_start_time >= #{lastMonth}
         and bj.type = #{type}
         and bj.app_type = #{appType}
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
@@ -1011,7 +1013,7 @@
         UPDATE
         schedule_job
         <include refid="update_fragment"/>
-        WHERE id = #{id} AND is_deleted = 0
+        WHERE job_id = #{jobId} AND is_deleted = 0
     </update>
 
     <update id="updateStatusWithExecTime" parameterType="ScheduleJob">

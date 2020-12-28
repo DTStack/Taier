@@ -15,17 +15,22 @@ import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.sftp.SftpConfig;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.enums.*;
+import com.dtstack.engine.master.enums.EComponentScheduleType;
+import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.enums.EngineTypeComponentType;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.Sort;
-import com.dtstack.schedule.common.kerberos.KerberosConfigVerify;
 import com.dtstack.schedule.common.util.Base64Util;
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -42,9 +47,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.dtstack.engine.common.constrant.ConfigConstant.*;
+import static com.dtstack.engine.common.constrant.ConfigConstant.KERBEROS_PATH;
+import static com.dtstack.engine.common.constrant.ConfigConstant.LDAP_USER_NAME;
 import static com.dtstack.engine.master.impl.ComponentService.TYPE_NAME;
 import static java.lang.String.format;
 
@@ -61,6 +68,7 @@ public class ClusterService implements InitializingBean {
     private final static String TENANT_ID = "tenantId";
     private static final String DEPLOY_MODEL = "deployMode";
     private static final String NAMESPACE = "namespace";
+    private static final String MAILBOX_CUTTING = "@";
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -605,28 +613,22 @@ public class ClusterService implements InitializingBean {
             pluginInfo.put(EComponentType.YARN.getConfName(), clusterConfigJson.getJSONObject(EComponentType.YARN.getConfName()));
 
         } else if (EComponentType.LIBRA_SQL == type.getComponentType()) {
-            JSONObject libraConf = clusterConfigJson.getJSONObject(EComponentType.LIBRA_SQL.getConfName());
-            pluginInfo = this.convertSQLComponent(libraConf, pluginInfo);
+            pluginInfo = clusterConfigJson.getJSONObject(EComponentType.LIBRA_SQL.getConfName());
             pluginInfo.put("typeName", "postgresql");
         } else if (EComponentType.IMPALA_SQL == type.getComponentType()) {
-            JSONObject impalaConf = clusterConfigJson.getJSONObject(EComponentType.IMPALA_SQL.getConfName());
-            pluginInfo = this.convertSQLComponent(impalaConf, pluginInfo);
+            pluginInfo = clusterConfigJson.getJSONObject(EComponentType.IMPALA_SQL.getConfName());
             pluginInfo.put("typeName", "impala");
         } else if (EComponentType.TIDB_SQL == type.getComponentType()) {
-            JSONObject tiDBConf = JSONObject.parseObject(tiDBInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
-            pluginInfo = this.convertSQLComponent(tiDBConf, pluginInfo);
+            pluginInfo = JSONObject.parseObject(tiDBInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
             pluginInfo.put("typeName", "tidb");
         } else if (EComponentType.ORACLE_SQL == type.getComponentType()) {
-            JSONObject oracleConf = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
-            pluginInfo = this.convertSQLComponent(oracleConf, pluginInfo);
+            pluginInfo = JSONObject.parseObject(oracleInfo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId()));
             pluginInfo.put("typeName", "oracle");
         } else if (EComponentType.GREENPLUM_SQL == type.getComponentType()) {
-            JSONObject greenplumConf = JSONObject.parseObject(greenplumInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
-            pluginInfo = this.convertSQLComponent(greenplumConf, pluginInfo);
+            pluginInfo = JSONObject.parseObject(greenplumInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
             pluginInfo.put("typeName", "greenplum");
         } else if (EComponentType.PRESTO_SQL == type.getComponentType()) {
-            JSONObject prestoConf = JSONObject.parseObject(prestoInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
-            pluginInfo = this.convertSQLComponent(prestoConf, pluginInfo);
+            pluginInfo = JSONObject.parseObject(prestoInfo(clusterVO.getDtUicTenantId(),clusterVO.getDtUicUserId()));
             pluginInfo.put("typeName", "presto");
         } else {
             //flink spark 需要区分任务类型
@@ -709,11 +711,14 @@ public class ClusterService implements InitializingBean {
                 String typeName = componentService.convertComponentTypeToClient(clusterVO.getClusterName(),
                         EComponentType.HIVE_SERVER.getTypeCode(), hiveServer.getHadoopVersion());
                 pluginInfo.put("typeName",typeName);
-            } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK==type.getComponentType()) {
+            } else if (EComponentType.DT_SCRIPT == type.getComponentType() || EComponentType.SPARK == type.getComponentType()) {
                 if (clusterVO.getDtUicUserId() != null && clusterVO.getDtUicTenantId() != null) {
-                    AccountVo accountVo = accountService.getAccountVo(clusterVO.getDtUicTenantId(), clusterVO.getDtUicUserId(), AccountType.LDAP.getVal());
-                    String ldapUserName = StringUtils.isBlank(accountVo.getName()) ? "" : accountVo.getName();
-                    pluginInfo.put("dtProxyUserName", ldapUserName);
+                    String ldapUserName = this.getLdapUserName(clusterVO.getDtUicUserId());
+                    LOGGER.info("dtUicUserId:{},dtUicTenantId:{},ldapUserName:{}",clusterVO.getDtUicUserId(),clusterVO.getDtUicTenantId() ,ldapUserName);
+                    if (StringUtils.isNotBlank(ldapUserName) && ldapUserName.contains(MAILBOX_CUTTING)) {
+                        ldapUserName = ldapUserName.substring(0, ldapUserName.indexOf(MAILBOX_CUTTING));
+                    }
+                    pluginInfo.put(LDAP_USER_NAME, ldapUserName);
                 }
             }
             pluginInfo.put(ConfigConstant.MD5_SUM_KEY, getZipFileMD5(clusterConfigJson));
@@ -724,16 +729,28 @@ public class ClusterService implements InitializingBean {
     }
 
 
-    public JSONObject convertSQLComponent(JSONObject jdbcInfo, JSONObject pluginInfo) {
-        pluginInfo = new JSONObject();
-        if (Objects.isNull(jdbcInfo)) {
-            return pluginInfo;
+
+    Cache<Long, String> ldapCache = CacheBuilder
+            .newBuilder()
+            .expireAfterWrite(1, TimeUnit.MINUTES)
+            .build();
+
+    private String getLdapUserName(Long dtUicUserId) {
+        if (StringUtils.isBlank(environmentContext.getUicToken()) || StringUtils.isBlank(environmentContext.getDtUicUrl())) {
+            return null;
         }
-        pluginInfo.put("jdbcUrl", jdbcInfo.getString("jdbcUrl"));
-        pluginInfo.put("username", jdbcInfo.getString("username"));
-        pluginInfo.put("password", jdbcInfo.getString("password"));
-        return pluginInfo;
+        String ldapUserName = null;
+        if (environmentContext.isOpenLdapCache()) {
+            ldapUserName = ldapCache.getIfPresent(dtUicUserId);
+            if (null != ldapUserName) {
+                return ldapUserName;
+            }
+        }
+        ldapUserName = DtUicUserConnect.getLdapUserName(dtUicUserId, environmentContext.getUicToken(), environmentContext.getDtUicUrl());
+        ldapCache.put(dtUicUserId, ldapUserName);
+        return ldapUserName;
     }
+
 
     private void removeMd5FieldInHadoopConf(JSONObject pluginInfo) {
         if (!pluginInfo.containsKey(EComponentType.HDFS.getConfName())) {
