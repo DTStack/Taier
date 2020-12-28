@@ -337,9 +337,12 @@ public class ScheduleJobService {
         List<Integer> failedList = RdosTaskStatus.getCollectionStatus(RdosTaskStatus.FAILED.getStatus());
         statusList.addAll(finishedList);
         statusList.addAll(failedList);
-        List<Object> todayJobList = finishData(scheduleJobDao.listTodayJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
-        List<Object> yesterdayJobList = finishData(scheduleJobDao.listYesterdayJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
-        List<Object> monthJobList = finishData(scheduleJobDao.listMonthJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
+        String today = DateTime.now().plusDays(0).withTime(0,0,0,0).toString(timeFormatter);
+        String yesterday = DateTime.now().plusDays(-1).withTime(0,0,0,0).toString(timeFormatter);
+        String lastMonth = DateTime.now().plusDays(-30).withTime(0,0,0,0).toString(timeFormatter);
+        List<Object> todayJobList = finishData(scheduleJobDao.listTodayJobs(today,statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
+        List<Object> yesterdayJobList = finishData(scheduleJobDao.listYesterdayJobs(yesterday,today,statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
+        List<Object> monthJobList = finishData(scheduleJobDao.listMonthJobs(lastMonth,statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
 
         for (int i = 0; i < TOTAL_HOUR_DAY; i++) {
             monthJobList.set(i, (Long) monthJobList.get(i) / 30);
@@ -977,8 +980,8 @@ public class ScheduleJobService {
     }
 
     public Integer updateStatusAndLogInfoById(Long id, Integer status, String msg) {
-        if (StringUtils.isNotBlank(msg) && msg.length() > 500) {
-            msg = msg.substring(0, 500) + "...";
+        if (StringUtils.isNotBlank(msg) && msg.length() > 5000) {
+            msg = msg.substring(0, 5000) + "...";
         }
         return scheduleJobDao.updateStatusAndLogInfoById(id, status, msg);
     }
