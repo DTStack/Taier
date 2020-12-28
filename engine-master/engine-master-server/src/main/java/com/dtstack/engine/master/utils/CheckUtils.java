@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.enums.AGgateType;
 import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
+import com.dtstack.engine.common.enums.AlertGateTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
@@ -66,6 +67,16 @@ public class CheckUtils {
         Assert.isTrue(stringLength(alertGateVO.getAlertGateSource(),32)
                         && match(alertGateVO.getAlertGateSource(),"^\\w+$")
                 ,"通道标识只支持英文、字符、下划线，限制32个字符");
+
+        String alertGateSource = alertGateVO.getAlertGateSource();
+        AlertGateTypeEnum[] values = AlertGateTypeEnum.values();
+
+        for (AlertGateTypeEnum alertGateTypeEnum : values) {
+            String defaultFiled = AlertGateTypeEnum.getDefaultFiled(alertGateTypeEnum);
+            if (alertGateSource.equals(defaultFiled)) {
+                throw new IllegalArgumentException("通道标识不能为默认:"+defaultFiled);
+            }
+        }
 
     }
 
