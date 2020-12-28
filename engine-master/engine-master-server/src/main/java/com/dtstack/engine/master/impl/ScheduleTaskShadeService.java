@@ -731,9 +731,10 @@ public class ScheduleTaskShadeService {
             try {
                 for (ScheduleTaskCommit scheduleTaskCommit : scheduleTaskCommits) {
                     String taskJson = scheduleTaskCommit.getTaskJson();
+                    String extraInfo = scheduleTaskCommit.getExtraInfo();
                     ScheduleTaskShadeDTO scheduleTaskShadeDTO = JSONObject.parseObject(taskJson, ScheduleTaskShadeDTO.class);
-                    scheduleTaskShadeDTO.setExtraInfo(taskJson);
                     addOrUpdate(scheduleTaskShadeDTO);
+                    info(scheduleTaskShadeDTO.getTaskId(),scheduleTaskShadeDTO.getAppType(),extraInfo);
                     scheduleTaskCommitMapper.updateTaskCommit(scheduleTaskCommit.getId());
                     minId = scheduleTaskCommit.getId();
                 }
