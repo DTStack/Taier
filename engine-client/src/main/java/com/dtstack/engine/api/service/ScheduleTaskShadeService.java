@@ -34,6 +34,34 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
     ApiResponse<Void> addOrUpdate( ScheduleTaskShadeDTO batchTaskShadeDTO);
 
     /**
+     * 批量新增任务接口
+     *
+     * @param batchTaskShadeDTO
+     * @return
+     */
+    @RequestLine("POST /node/scheduleTaskShade/addOrUpdateBatchTask")
+    @Headers(value = {"Content-Type: application/json"})
+    ApiResponse<String> addOrUpdateBatchTask(List<ScheduleTaskShadeDTO> batchTaskShadeDTO);
+
+    /**
+     * 保存任务提交engine的额外信息,不会直接提交，只有commit之后才会提交
+     *
+     * @param taskId
+     * @param appType
+     * @param info
+     */
+    @RequestLine("POST /node/scheduleTaskShade/infoCommit")
+    ApiResponse<Void> infoCommit(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("extraInfo") String info);
+
+    /**
+     * 提交任务
+     *
+     * @param commitId
+     */
+    @RequestLine("POST /node/scheduleTaskShade/taskCommit")
+    ApiResponse<Void> taskCommit(@Param("commitId") String commitId);
+
+    /**
      * web 接口
      * task删除时触发同步清理
      */
@@ -181,4 +209,6 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
     ApiResponse<List<String>> checkResourceLimit(@Param("dtuicTenantId") Long dtuicTenantId,
                                            @Param("taskType") Integer taskType,
                                            @Param("resourceParams") String resourceParams);
+
+
 }
