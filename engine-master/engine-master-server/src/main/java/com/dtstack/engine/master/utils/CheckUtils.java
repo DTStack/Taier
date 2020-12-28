@@ -74,7 +74,7 @@ public class CheckUtils {
         for (AlertGateTypeEnum alertGateTypeEnum : values) {
             String defaultFiled = AlertGateTypeEnum.getDefaultFiled(alertGateTypeEnum);
             if (alertGateSource.equals(defaultFiled)) {
-                throw new IllegalArgumentException("通道标识不能为默认:"+defaultFiled);
+                throw new IllegalArgumentException("通道标识不能为:"+defaultFiled);
             }
         }
 
