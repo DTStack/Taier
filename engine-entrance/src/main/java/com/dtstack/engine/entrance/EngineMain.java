@@ -27,7 +27,7 @@ public class EngineMain {
             JavaPolicyUtils.checkJavaPolicy();
         } catch (Throwable e) {
             logger.error("EngineMain start error:", e);
-            System.exit(e.getMessage().contains("java.security.policy") ? -2 : -1);
+            System.exit(-1);
         }
     }
 
