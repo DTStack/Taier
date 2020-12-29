@@ -734,7 +734,8 @@ public class ScheduleTaskShadeService {
                     String extraInfo = scheduleTaskCommit.getExtraInfo();
                     ScheduleTaskShadeDTO scheduleTaskShadeDTO = JSONObject.parseObject(taskJson, ScheduleTaskShadeDTO.class);
                     addOrUpdate(scheduleTaskShadeDTO);
-                    info(scheduleTaskShadeDTO.getTaskId(),scheduleTaskShadeDTO.getAppType(),extraInfo);
+                    String info = getInfo(extraInfo);
+                    info(scheduleTaskShadeDTO.getTaskId(),scheduleTaskShadeDTO.getAppType(),info);
                     scheduleTaskCommitMapper.updateTaskCommit(scheduleTaskCommit.getId());
                     minId = scheduleTaskCommit.getId();
                 }
@@ -747,5 +748,15 @@ public class ScheduleTaskShadeService {
         }
 
         return Boolean.TRUE;
+    }
+
+    private String getInfo(String extraInfo) {
+        JSONObject extInfo = JSONObject.parseObject(extraInfo);
+
+        if (extInfo == null) {
+            return null;
+        }
+        
+        return extInfo.getString(TaskConstant.INFO);
     }
 }
