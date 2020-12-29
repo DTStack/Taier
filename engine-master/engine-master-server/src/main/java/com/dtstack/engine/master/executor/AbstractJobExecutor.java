@@ -162,11 +162,12 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     }
 
     private void emitJob2Queue() {
-        String nodeAddress = zkService.getLocalAddress();
-        if (StringUtils.isBlank(nodeAddress)) {
-            return;
-        }
+        String nodeAddress = "";
         try {
+            nodeAddress = zkService.getLocalAddress();
+            if (StringUtils.isBlank(nodeAddress)) {
+                return;
+            }
             Long startId = getListMinId(nodeAddress, Restarted.NORMAL.getStatus());
             logger.info("start emitJob2Queue  scheduleType {} nodeAddress {} startId is {} ", getScheduleType(), nodeAddress, startId);
             if (startId != null) {
@@ -271,6 +272,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         }
         logger.info("jobId:{} checkRunInfo.status:{} errMsg:{} status:{} update status.", scheduleBatchJob.getJobId(), checkRunInfo.getStatus(), errMsg, status);
         batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getId(), status, errMsg);
+        batchFlowWorkJobService.batchUpdateFlowSubJobStatus(scheduleBatchJob.getScheduleJob(),status);
         return Boolean.FALSE;
     }
 

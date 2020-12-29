@@ -222,13 +222,7 @@ public class SparkYarnClient extends AbstractClient {
         try {
             ClientExt clientExt = ClientExtFactory.getClientExt(filesystemManager, clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
-            String proxyUserName = sparkYarnConfig.getDtProxyUserName();
-            if (StringUtils.isNotBlank(proxyUserName)) {
-                logger.info("jobId {} ugi proxyUser is {}",jobClient.getTaskId(), proxyUserName);
-                appId = UserGroupInformation.createProxyUser(proxyUserName, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<ApplicationId>) () -> clientExt.submitApplication(jobClient.getApplicationPriority()));
-            } else {
-                appId = clientExt.submitApplication(jobClient.getApplicationPriority());
-            }
+            appId = clientExt.submitApplication(jobClient.getApplicationPriority());
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             logger.info("", ex);
@@ -307,14 +301,7 @@ public class SparkYarnClient extends AbstractClient {
             ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
             ClientExt clientExt = new ClientExt(filesystemManager, clientArguments, yarnConf, sparkConf);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
-
-            String proxyUserName = sparkYarnConfig.getDtProxyUserName();
-            if (StringUtils.isNotBlank(proxyUserName)) {
-                logger.info("ugi proxyUser is {}", proxyUserName);
-                appId = UserGroupInformation.createProxyUser(proxyUserName, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<ApplicationId>) () -> clientExt.submitApplication(jobClient.getApplicationPriority()));
-            } else {
-                appId = clientExt.submitApplication(jobClient.getApplicationPriority());
-            }
+            appId = clientExt.submitApplication(jobClient.getApplicationPriority());
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             logger.info("", ex);
@@ -383,13 +370,7 @@ public class SparkYarnClient extends AbstractClient {
         try {
             ClientExt clientExt = ClientExtFactory.getClientExt(filesystemManager, clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
-            String proxyUserName = sparkYarnConfig.getDtProxyUserName();
-            if (StringUtils.isNotBlank(proxyUserName)) {
-                logger.info("ugi proxyUser is {}", proxyUserName);
-                appId = UserGroupInformation.createProxyUser(proxyUserName, UserGroupInformation.getLoginUser()).doAs((PrivilegedExceptionAction<ApplicationId>) () -> clientExt.submitApplication(jobClient.getApplicationPriority()));
-            } else {
-                appId = clientExt.submitApplication(jobClient.getApplicationPriority());
-            }
+            appId = clientExt.submitApplication(jobClient.getApplicationPriority());
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
@@ -710,7 +691,7 @@ public class SparkYarnClient extends AbstractClient {
             }, yarnConf);
         } catch (Exception e) {
             logger.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
-            return JudgeResult.notOk("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
+            return JudgeResult.exception("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 

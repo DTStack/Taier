@@ -65,16 +65,6 @@ public class SparkYarnConfig extends BaseConfig {
     private boolean monitorAcceptedApp = false;
 
     private int asyncCheckYarnClientThreadNum = 3;
-    private String dtProxyUserName;
-
-    public String getDtProxyUserName() {
-        return dtProxyUserName;
-    }
-
-    public void setDtProxyUserName(String dtProxyUserName) {
-        this.dtProxyUserName = dtProxyUserName;
-    }
-
 
     public String getTypeName() {
         return typeName;

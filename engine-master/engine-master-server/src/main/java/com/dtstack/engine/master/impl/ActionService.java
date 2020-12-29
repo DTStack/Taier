@@ -306,6 +306,10 @@ public class ActionService {
         if(paramAction.getEngineType() == null){
             throw new RdosDefineException("param engineType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
+
+        if (paramAction.getAppType() == null) {
+            throw new RdosDefineException("param appType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        }
     }
 
     /**
@@ -507,7 +511,7 @@ public class ActionService {
         if (StringUtils.isBlank(jobId) || computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
-        
+
         List<ActionRetryLogVO> logs = new ArrayList<>(5);
         List<EngineJobRetry> batchJobRetrys = engineJobRetryDao.listJobRetryByJobId(jobId);
         if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
@@ -643,7 +647,8 @@ public class ActionService {
         Integer currStatus = scheduleJob.getStatus();
 
         if(!RdosTaskStatus.canReset(currStatus)){
-            throw new RdosDefineException(String.format("computeType(%d) taskId(%s) can't reset status, current status(%d)", computeType, jobId, currStatus.intValue()));
+            logger.error("jobId:{} can not update status current status is :{} ", jobId, currStatus);
+            throw new RdosDefineException(String.format("computeType(%d) taskId(%s) can't reset status, current status(%d)", computeType, jobId, currStatus));
         }
 
         //do reset status

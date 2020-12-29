@@ -77,7 +77,7 @@ public class FileUtil {
         }
     }
 
-    private static InputStream readStreamFromFile(String filePath, Configuration hadoopConf) throws URISyntaxException, IOException {
+    public static InputStream readStreamFromFile(String filePath, Configuration hadoopConf) throws URISyntaxException, IOException {
         Pair<String, String> pair = parseHdfsUri(filePath);
         if(pair == null){
             throw new RdosDefineException("can't parse hdfs url from given uriStr:" + filePath);
@@ -90,7 +90,7 @@ public class FileUtil {
         FileSystem fs = FileSystem.get(uri, hadoopConf);
         Path hdfsFilePath = new Path(hdfsFilePathStr);
         if(!fs.exists(hdfsFilePath)){
-            throw new RuntimeException("Files not exit in hdfs");
+            throw new RuntimeException(String.format("File[%s] not exit in hdfs", filePath));
         }
 
         return fs.open(hdfsFilePath);

@@ -1,5 +1,6 @@
 package com.dtstack.engine.flink.util;
 
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -61,7 +62,7 @@ public class FlinkRestParseUtil {
         } catch (Exception e) {
             logger.error("", e);
         }
-        return null;
+        throw new RdosDefineException("parseEngineLog error");
     }
 
 }

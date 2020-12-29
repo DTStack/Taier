@@ -84,13 +84,13 @@ public class ApplicationMaster extends CompositeService {
     private ApplicationMaster(String name) {
         super(name);
         Path jobConfPath = new Path(DtYarnConstants.LEARNING_JOB_CONFIGURATION);
+        conf.addResource(jobConfPath);
+
         LOG.info("hadoop.job.ugi: " + conf.get("hadoop.job.ugi"));
         LOG.info("user.dir: " + System.getProperty("user.dir"));
-//        System.setProperty(DtYarnConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.job.ugi").split(",")[0]);
         LOG.info("user.name: " + System.getProperty("user.name"));
-        LOG.info("HADOOP_USER_NAME: " + System.getProperty(DtYarnConstants.Environment.HADOOP_USER_NAME.toString()));
+        LOG.info("HADOOP_USER_NAME: " + System.getenv(DtYarnConstants.Environment.HADOOP_USER_NAME.toString()));
 
-        conf.addResource(jobConfPath);
         envs = System.getenv();
         applicationContext = new RunningAppContext(this);
         messageService = new ApplicationMessageService(this.applicationContext, conf);
@@ -98,7 +98,6 @@ public class ApplicationMaster extends CompositeService {
         containerListener = new ApplicationContainerListener(applicationContext, conf);
 
         heartBeatInterval = conf.getLong(DtYarnConfiguration.DTSCRIPT_CONTAINER_HEARTBEAT_INTERVAL, DtYarnConfiguration.DEFAULT_DTSCRIPT_CONTAINER_HEARTBEAT_INTERVAL);
-
 
         if (envs.containsKey(ApplicationConstants.Environment.CONTAINER_ID.toString())) {
             ContainerId containerId = ConverterUtils
@@ -188,9 +187,6 @@ public class ApplicationMaster extends CompositeService {
             amrmAsync.stop();
         } catch (Exception e) {
             LOG.error("Error while unregister Application", e);
-        } finally {
-            Utilities.cleanStagingRemotePath((YarnConfiguration) this.conf, this.applicationAttemptId.getApplicationId());
-            LOG.info("cleanStagingRemotePath ApplicationId:" + this.applicationAttemptId.getApplicationId());
         }
     }
 
@@ -452,19 +448,25 @@ public class ApplicationMaster extends CompositeService {
 
     public static void main(String[] args) {
         ApplicationMaster appMaster = null;
+        boolean result = false;
         try {
             appMaster = new ApplicationMaster();
             appMaster.init();
-            boolean tag = appMaster.run();
-            if (tag) {
-                LOG.info("Application completed successfully.");
-                System.exit(0);
-            } else {
-                LOG.info("Application failed.");
-                System.exit(1);
-            }
+            result = appMaster.run();
+
         } catch (Exception e) {
-            LOG.fatal("Error running ApplicationMaster", e);
+            LOG.error("Error running ApplicationMaster", e);
+        } finally {
+            if (appMaster != null) {
+                Utilities.cleanStagingRemotePath((YarnConfiguration) appMaster.conf, appMaster.applicationAttemptId.getApplicationId());
+                LOG.info("cleanStagingRemotePath ApplicationId:" + appMaster.applicationAttemptId.getApplicationId());
+            }
+        }
+        if (result) {
+            LOG.info("Application completed successfully.");
+            System.exit(0);
+        } else {
+            LOG.error("Application failed.");
             System.exit(1);
         }
     }

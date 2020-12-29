@@ -47,6 +47,12 @@ public class ScheduleJobController {
         return scheduleJobService.getStatusCount(projectId, tenantId, appType, dtuicTenantId);
     }
 
+    @RequestMapping(value="/getStatusCountByProjectIds", method = {RequestMethod.POST})
+    @ApiOperation(value = "获取各个状态任务的数量")
+    public List<ScheduleJobStatusVO> getStatusCountByProjectIds(@DtRequestParam("projectIds") List<Long> projectIds, @DtRequestParam("tenantId") Long tenantId, @DtRequestParam("appType") Integer appType, @DtRequestParam("dtuicTenantId") Long dtuicTenantId) {
+        return scheduleJobService.getStatusCountByProjectIds(projectIds, tenantId, appType, dtuicTenantId);
+    }
+
     @RequestMapping(value="/runTimeTopOrder", method = {RequestMethod.POST})
     @ApiOperation(value = "运行时长top排序")
     public List<JobTopOrderVO> runTimeTopOrder(@DtRequestParam(value = "projectId", required = false) Long projectId,

@@ -144,7 +144,12 @@ public class ScheduleJobService {
      * @author toutian
      */
     public ScheduleJob getJobById( long jobId) {
-        return scheduleJobDao.getOne(jobId);
+        ScheduleJob scheduleJob = scheduleJobDao.getOne(jobId);
+        if (StringUtils.isBlank(scheduleJob.getSubmitUserName())) {
+            // 如果拿不到用户时，使用默认的用户
+            scheduleJob.setSubmitUserName(environmentContext.getHadoopUserName());
+        }
+        return scheduleJob;
     }
 
     public ScheduleJob getJobByJobKeyAndType(String jobKey, int type) {
@@ -209,13 +214,32 @@ public class ScheduleJobService {
             }
             all += count;
             RdosTaskStatus taskStatus = RdosTaskStatus.getTaskStatus(code);
-            scheduleJobStatusCountVO.setTaskName(taskStatus.name());
+            if (taskStatus != null) {
+                scheduleJobStatusCountVO.setTaskName(taskStatus.name());
+                scheduleJobStatusCountVO.setTaskStatusName(taskStatus.name());
+            }
             scheduleJobStatusCountVO.setCount(count);
             scheduleJobStatusCountVOS.add(scheduleJobStatusCountVO);
         }
         scheduleJobStatusVO.setAll(all);
         scheduleJobStatusVO.setScheduleJobStatusCountVO(scheduleJobStatusCountVOS);
         return scheduleJobStatusVO;
+    }
+
+    public List<ScheduleJobStatusVO> getStatusCountByProjectIds(List<Long> projectIds, Long tenantId, Integer appType, Long dtuicTenantId) {
+        List<ScheduleJobStatusVO> scheduleJobStatusVOS = Lists.newArrayList();
+
+        if (CollectionUtils.isEmpty(projectIds)) {
+            return scheduleJobStatusVOS;
+        }
+
+        for (Long projectId : projectIds) {
+            ScheduleJobStatusVO statusCount = getStatusCount(projectId, tenantId, appType, dtuicTenantId);
+            statusCount.setProjectId(projectId);
+            scheduleJobStatusVOS.add(statusCount);
+        }
+
+        return scheduleJobStatusVOS;
     }
 
     /**
@@ -297,9 +321,12 @@ public class ScheduleJobService {
         List<Integer> failedList = RdosTaskStatus.getCollectionStatus(RdosTaskStatus.FAILED.getStatus());
         statusList.addAll(finishedList);
         statusList.addAll(failedList);
-        List<Object> todayJobList = finishData(scheduleJobDao.listTodayJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
-        List<Object> yesterdayJobList = finishData(scheduleJobDao.listYesterdayJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
-        List<Object> monthJobList = finishData(scheduleJobDao.listMonthJobs(statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
+        String today = DateTime.now().plusDays(0).withTime(0,0,0,0).toString(timeFormatter);
+        String yesterday = DateTime.now().plusDays(-1).withTime(0,0,0,0).toString(timeFormatter);
+        String lastMonth = DateTime.now().plusDays(-30).withTime(0,0,0,0).toString(timeFormatter);
+        List<Object> todayJobList = finishData(scheduleJobDao.listTodayJobs(today,statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
+        List<Object> yesterdayJobList = finishData(scheduleJobDao.listYesterdayJobs(yesterday,today,statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
+        List<Object> monthJobList = finishData(scheduleJobDao.listMonthJobs(lastMonth,statusList, EScheduleType.NORMAL_SCHEDULE.getType(), projectId, tenantId, appType,dtuicTenantId));
 
         for (int i = 0; i < TOTAL_HOUR_DAY; i++) {
             monthJobList.set(i, (Long) monthJobList.get(i) / 30);
@@ -509,7 +536,8 @@ public class ScheduleJobService {
         if (job == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listAfterOrBeforeJobs(job.getTaskId(), isAfter, job.getCycTime());
+        //需要根据查询的job的类型来
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listAfterOrBeforeJobs(job.getTaskId(), isAfter, job.getCycTime(),job.getAppType(),job.getType());
         Collections.sort(scheduleJobs, new Comparator<ScheduleJob>() {
 
             public int compare(ScheduleJob o1, ScheduleJob o2) {
@@ -942,8 +970,8 @@ public class ScheduleJobService {
     }
 
     public Integer updateStatusAndLogInfoById(Long id, Integer status, String msg) {
-        if (StringUtils.isNotBlank(msg) && msg.length() > 500) {
-            msg = msg.substring(0, 500) + "...";
+        if (StringUtils.isNotBlank(msg) && msg.length() > 5000) {
+            msg = msg.substring(0, 5000) + "...";
         }
         return scheduleJobDao.updateStatusAndLogInfoById(id, status, msg);
     }
@@ -2579,4 +2607,6 @@ public class ScheduleJobService {
     public String getJobGraphJSON(String jobId) {
         return scheduleJobDao.getJobGraph(jobId);
     }
+
+
 }

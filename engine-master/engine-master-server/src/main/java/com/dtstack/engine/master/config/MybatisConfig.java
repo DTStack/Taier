@@ -46,6 +46,8 @@ public class MybatisConfig {
         dataSource.setMinPoolSize(environmentContext.getMinPoolSize());
         dataSource.setInitialPoolSize(environmentContext.getInitialPoolSize());
         dataSource.setCheckoutTimeout(environmentContext.getCheckTimeout());
+        dataSource.setIdleConnectionTestPeriod(environmentContext.setIdleConnectionTestPeriod());
+        dataSource.setMaxIdleTime(environmentContext.setMaxIdleTime());
         dataSource.setTestConnectionOnCheckin(true);
         dataSource.setTestConnectionOnCheckout(true);
         return dataSource;
