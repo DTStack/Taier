@@ -13,8 +13,8 @@ public enum AGgateType {
     AG_GATE_TYPE_SMS(1, "sms"),
     AG_GATE_TYPE_MAIL(2, "mail"),
     AG_GATE_TYPE_DING(3, "ding"),
+    AG_GATE_TYPE_CUSTOMIZE(4,"customize"),
     AG_GATE_TYPE_PHONE(5, "phone"),
-    AG_GATE_TYPE_CUSTOMIZE(6,"customize"),
     ;
 
     private int type;

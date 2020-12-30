@@ -225,7 +225,7 @@ public class NotifyService {
         jsonObject.put("title",title);
         jsonObject.put("content",content);
 
-        sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,userDTO, senderTypes,null,content,null,jsonObject.toJSONString(),alertPO.getAlertId().longValue());
+        sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,userDTO, senderTypes,null,content,null,jsonObject.toJSONString(),alertPO.getId().longValue());
         addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, userDTO);
     }
 
@@ -237,7 +237,7 @@ public class NotifyService {
         senderTypes.add(SenderType.DINGDING.getType());
         UserMessageDTO userDTO = new UserMessageDTO();
         userDTO.setUserId(-1L);
-        sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,userDTO, senderTypes,null,content,null,null,alertPO.getAlertId().longValue());
+        sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,userDTO, senderTypes,null,content,webhook,null,alertPO.getId().longValue());
         addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, userDTO);
     }
 
@@ -245,7 +245,7 @@ public class NotifyService {
         for (UserMessageDTO receiver : receivers) {
             List<Integer> senderTypes = Lists.newArrayList();
             senderTypes.add(SenderType.SMS.getType());
-            sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,receiver, senderTypes,null,content,null,null,alertPO.getAlertId().longValue());
+            sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,receiver, senderTypes,null,content,null,null,alertPO.getId().longValue());
             addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, receiver);
         }
     }
@@ -254,7 +254,7 @@ public class NotifyService {
         for (UserMessageDTO receiver : receivers) {
             List<Integer> senderTypes = Lists.newArrayList();
             senderTypes.add(SenderType.MAIL.getType());
-            sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,receiver, senderTypes,MailType.SIMPLE,content,null,null,alertPO.getAlertId().longValue());
+            sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,receiver, senderTypes,MailType.SIMPLE,content,null,null,alertPO.getId().longValue());
             addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, receiver);
         }
     }
