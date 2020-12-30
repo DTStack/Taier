@@ -32,9 +32,9 @@ import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
 import com.dtstack.engine.master.utils.TaskParamsUtil;
+import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.ForceCancelFlag;
-import com.dtstack.schedule.common.enums.AppType;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -185,6 +185,9 @@ public class ActionService {
         if (paramActionExt == null) {
             throw new RdosDefineException("extraInfo can't null or empty string");
         }
+        
+        paramActionExt.setCycTime(scheduleJob.getCycTime());
+        paramActionExt.setTaskSourceId(batchTask.getTaskId());
         return paramActionExt;
     }
 
@@ -221,7 +224,7 @@ public class ActionService {
 
         scheduleJob.setType(EScheduleType.TEMP_JOB.getType());
         scheduleJob.setBusinessDate(getOrDefault(jobRichOperator.getCycTime(-1), ""));
-        scheduleJob.setCycTime(getOrDefault(cycTime, ""));
+        scheduleJob.setCycTime(getOrDefault(cycTime, DateTime.now().toString("yyyyMMddHHmmss")));
 
         scheduleJob.setDependencyType(getOrDefault(scheduleCron.getSelfReliance(), 0));
         scheduleJob.setFlowJobId(getOrDefault(flowJobId, "0"));
