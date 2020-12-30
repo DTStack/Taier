@@ -7,10 +7,7 @@ import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.exception.AlertGateException;
 import com.dtstack.engine.alert.factory.AlertService;
 import com.dtstack.engine.alert.factory.AlertServiceFactory;
-import com.dtstack.engine.alert.param.AlertParam;
-import com.dtstack.engine.alert.param.DingAlertParam;
-import com.dtstack.engine.alert.param.MailAlertParam;
-import com.dtstack.engine.alert.param.SmsAlertParam;
+import com.dtstack.engine.alert.param.*;
 import com.dtstack.engine.alert.serivce.AlertGateService;
 import com.dtstack.engine.api.domain.po.AlertGatePO;
 import com.dtstack.engine.api.domain.po.AlertTemplatePO;
@@ -63,6 +60,8 @@ public class AlertServiceProvider {
                 return new DingAlertParam();
             case AG_GATE_TYPE_MAIL:
                 return new MailAlertParam();
+            case AG_GATE_TYPE_CUSTOMIZE:
+                return new CustomizeAlertParam();
             default:
                 throw new RuntimeException("un support AGgateType");
         }
