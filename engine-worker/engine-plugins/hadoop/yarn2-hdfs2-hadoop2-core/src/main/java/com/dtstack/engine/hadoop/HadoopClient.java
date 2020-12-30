@@ -760,7 +760,7 @@ public class HadoopClient extends AbstractClient {
             for (Object user : users) {
                 JSONObject userJSONObject = (JSONObject)user;
                 userJSONObject.put("maxResource", userJSONObject.getJSONObject("userResourceLimit"));
-                userJSONObject.put("maxAMResource", userJSONObject.getJSONObject("userResourceLimit"));
+                userJSONObject.put("maxAMResource", queueInfo.getJSONObject("userAMResourceLimit"));
             }
             queueInfo.put("users", users);
         }
