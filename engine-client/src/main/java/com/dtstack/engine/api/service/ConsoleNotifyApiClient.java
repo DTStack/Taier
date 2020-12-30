@@ -99,6 +99,6 @@ public interface ConsoleNotifyApiClient extends DtInsightServer {
      * @param param
      * @return
      */
-    @RequestLine("POST /api/console/service/notifyRecord/sendAlarmNew")
+    @RequestLine("POST /node/notifyRecord/sendAlarmNew")
     ApiResponse<Void> sendAlarmNew(AlarmSendParam param);
 }

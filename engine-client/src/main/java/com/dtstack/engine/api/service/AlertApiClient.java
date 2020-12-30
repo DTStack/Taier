@@ -20,6 +20,6 @@ public interface AlertApiClient extends DtInsightServer {
      *
      * @return
      */
-    @RequestLine("POST /api/console/service/alert/list/show")
+    @RequestLine("POST /node/alert/list/show")
     ApiResponse<List<ClusterAlertResultDTO>> listShow();
 }
