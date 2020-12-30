@@ -211,22 +211,29 @@ public class NotifyService {
         } else if (AlertGateTypeEnum.DINGDING.getType().equals(alertPO.getAlertGateType())) {
             sendDingding(tenantId,projectId,notifyRecordId,appType,title,content,contentId,alertPO,webhook);
         } else if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(alertPO.getAlertGateType())) {
-            sendCustom(tenantId,projectId,notifyRecordId,appType,title,content,contentId,alertPO);
+            sendCustom(tenantId,projectId,notifyRecordId,appType,title,content,contentId,alertPO,receivers);
         }
     }
 
-    private void sendCustom(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, ClusterAlertPO alertPO) {
+    private void sendCustom(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, ClusterAlertPO alertPO,List<UserMessageDTO> receivers) {
         List<Integer> senderTypes = Lists.newArrayList();
         senderTypes.add(SenderType.CUSTOMIZE.getType());
-        UserMessageDTO userDTO = new UserMessageDTO();
-        userDTO.setUserId(-1L);
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("title",title);
         jsonObject.put("content",content);
 
-        sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,userDTO, senderTypes,null,content,null,jsonObject.toJSONString(),alertPO.getId().longValue());
-        addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, userDTO);
+        if (CollectionUtils.isEmpty(receivers)) {
+            UserMessageDTO userDTO = new UserMessageDTO();
+            userDTO.setUserId(-1L);
+            sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,userDTO, senderTypes,null,content,null,jsonObject.toJSONString(),alertPO.getId().longValue());
+            addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, userDTO);
+        } else {
+            for (UserMessageDTO receiver : receivers) {
+                sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,receiver, senderTypes,null,content,null,jsonObject.toJSONString(),alertPO.getId().longValue());
+                addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, receiver);
+            }
+        }
     }
 
     private void sendDingding(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, ClusterAlertPO alertPO,String webhook) {
