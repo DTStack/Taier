@@ -702,6 +702,7 @@ public class ScheduleTaskShadeService {
                 } else {
                     scheduleTaskCommitMapper.insertBatch(scheduleTaskCommits);
                 }
+                LOG.info("提交任务commitId:{}",commitId);
                 return commitId;
             }
 
@@ -723,6 +724,7 @@ public class ScheduleTaskShadeService {
 
 
     public Boolean taskCommit(String commitId) {
+        LOG.info("提交任务commitId:{}",commitId);
         Long minId = scheduleTaskCommitMapper.findMinIdOfTaskCommitByCommitId(commitId);
 
         List<ScheduleTaskCommit> scheduleTaskCommits = scheduleTaskCommitMapper.findTaskCommitByCommitId(minId,commitId,environmentContext.getMaxBatchTaskSplInsert());
