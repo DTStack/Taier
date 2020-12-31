@@ -691,6 +691,7 @@ public class ScheduleTaskShadeService {
                 } else {
                     scheduleTaskCommitMapper.insertBatch(scheduleTaskCommits);
                 }
+                LOG.info("提交任务commitId:{}",commitId);
                 return commitId;
             }
 
@@ -701,17 +702,20 @@ public class ScheduleTaskShadeService {
         }
     }
 
-    public void infoCommit(Long taskId, Integer appType, String info) {
-        JSONObject extInfo = JSONObject.parseObject(scheduleTaskCommitMapper.getExtInfoByTaskId(taskId, appType));
-        if (extInfo == null) {
-            extInfo = new JSONObject();
+    public void infoCommit(Long taskId, Integer appType, String info,String commitId) {
+        if (StringUtils.isNotBlank(commitId)){
+            JSONObject extInfo = JSONObject.parseObject(scheduleTaskCommitMapper.getExtInfoByTaskId(taskId, appType,commitId));
+            if (extInfo == null) {
+                extInfo = new JSONObject();
+            }
+            extInfo.put(TaskConstant.INFO, info);
+            scheduleTaskCommitMapper.updateTaskExtInfo(taskId, appType, extInfo.toJSONString(),commitId);
         }
-        extInfo.put(TaskConstant.INFO, info);
-        scheduleTaskCommitMapper.updateTaskExtInfo(taskId, appType, extInfo.toJSONString());
     }
 
 
     public Boolean taskCommit(String commitId) {
+        LOG.info("提交任务commitId:{}",commitId);
         Long minId = scheduleTaskCommitMapper.findMinIdOfTaskCommitByCommitId(commitId);
 
         List<ScheduleTaskCommit> scheduleTaskCommits = scheduleTaskCommitMapper.findTaskCommitByCommitId(minId,commitId,environmentContext.getMaxBatchTaskSplInsert());
