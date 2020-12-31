@@ -57,6 +57,11 @@ public class AlertEvent {
      */
     private Map<String, Object> extCfg;
 
+    /**
+     * 自定义告警的数据参数
+     */
+    private Object data;
+
     public List<String> getPhones() {
         return phones;
     }
@@ -135,5 +140,13 @@ public class AlertEvent {
 
     public void setaGgateType(AGgateType aGgateType) {
         this.aGgateType = aGgateType;
+    }
+
+    public Object getData() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = data;
     }
 }
