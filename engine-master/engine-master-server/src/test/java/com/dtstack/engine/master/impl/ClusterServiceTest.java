@@ -206,6 +206,26 @@ public class ClusterServiceTest extends AbstractTest {
         return tenant;
     }
 
+    @Test
+    public void testPluginJson(){
+
+        JSONObject dumy = clusterService.pluginInfoJSON(null, "dummy", 1L, 0);
+        Assert.assertEquals("dummy",dumy.getString("typeName"));
+    }
+
+    @Test
+    public void testPluginInfo(){
+        String s = clusterService.pluginInfo(null, null, null, null);
+        Assert.assertEquals("{}",s);
+    }
+
+    @Test
+    public void testGetCluster2(){
+
+        Cluster cluster = clusterService.getCluster(1L);
+        Assert.assertNotNull(cluster);
+    }
+
 
     private void checkQueryWithUicTenantId(Tenant tenant) {
         Long dtUicTenantId = tenant.getDtUicTenantId();
@@ -358,6 +378,14 @@ public class ClusterServiceTest extends AbstractTest {
                 "\"sparkPythonExtLibPath\":\"/dtInsight/pythons/pyspark.zip,hdfs://ns1/dtInsight/pythons/py4j-0.10.7-src.zip\",\"sparkSqlProxyPath\":\"hdfs://ns1/dtInsight/spark/client/spark-sql-proxy.jar\",\"sparkYarnArchive\":" +
                 "\"hdfs://ns1/dtInsight/sparkjars/jars\"}}";
         return componentService.addOrUpdateComponent(clusterVO.getClusterId(), componentConfig, null, "hadoop2", "", "[]", EComponentType.SPARK.getTypeCode(),null,"","");
+    }
+
+
+    @Test
+    public void testIsSameCluster(){
+
+        Boolean sameCluster = clusterService.isSameCluster(1L, Lists.newArrayList(1L));
+        Assert.assertTrue(sameCluster);
     }
 
 

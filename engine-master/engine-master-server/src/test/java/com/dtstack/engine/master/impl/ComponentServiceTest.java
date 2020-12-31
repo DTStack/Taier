@@ -27,6 +27,7 @@ import com.dtstack.engine.master.enums.DownloadType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.utils.Template;
+import com.dtstack.schedule.common.util.ZipUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.dtstack.engine.common.constrant.ConfigConstant.USER_DIR_UNZIP;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -265,6 +267,24 @@ public class ComponentServiceTest extends AbstractTest {
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
+    public void testConfig2() {
+        Resource resource = new Resource();
+        resource.setFileName("a.json");
+        String jsonFile = getClass().getClassLoader().getResource("json/a.json").getFile();
+        resource.setUploadedFileName(jsonFile);
+        List<Resource> resources = new ArrayList<>();
+        resources.add(resource);
+        try {
+            List<Object> config = componentService.config(resources, EComponentType.FLINK.getTypeCode(), false);
+        } catch (Exception e) {
+            Assert.assertEquals("JSON文件格式错误",e.getMessage());
+        }
+
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testBuildSftpPath() {
         String buildSftpPath = componentService.buildSftpPath(1L, EComponentType.SPARK.getTypeCode());
         Assert.assertNotNull(buildSftpPath);
@@ -336,6 +356,19 @@ public class ComponentServiceTest extends AbstractTest {
         System.out.println("组件类型=" + defaultHdfsComponent.getComponentTypeCode());
         File downloadFile = componentService.downloadFile(defaultHdfsComponent.getId(), DownloadType.Kerberos.getCode(), defaultHdfsComponent.getComponentTypeCode(), "hadoop3", defaultCluster.getClusterName());
         Assert.assertNotNull(downloadFile);
+
+        //测试componentId为null的情况
+        File file = componentService.downloadFile(null, DownloadType.Kerberos.getCode(), EComponentType.HDFS.getTypeCode(), null, null);
+        Assert.assertNotNull(file);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testDownloadFile2() {
+        //测试componentId为null的情况
+        File file = componentService.downloadFile(null, DownloadType.Kerberos.getCode(), EComponentType.HDFS.getTypeCode(), null, null);
+        Assert.assertNotNull(file);
     }
 
     @Test
@@ -445,5 +478,82 @@ public class ComponentServiceTest extends AbstractTest {
         Cluster defaultCluster = DataCollection.getData().getDefaultCluster();
         Boolean isYarnSupportGpus = componentService.isYarnSupportGpus(defaultCluster.getClusterName());
         Assert.assertTrue(!isYarnSupportGpus);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testParseKerberos() {
+        List<Resource> resources = getResources();
+
+        try {
+            List<String> list = componentService.parseKerberos(resources);
+        } catch (Exception e) {
+            Assert.assertEquals("Hadoop-Kerberos文件解压错误",e.getMessage());
+        }
+    }
+
+    private List<Resource> getResources() {
+        File file1 = new File(USER_DIR_UNZIP + File.separator+".keytab");
+        File file2 = new File("USER_DIR_UNZIP + File.separator"+"b.txt");
+        List<File> files = Lists.newArrayList(file1, file2);
+        ZipUtil.zipFile(USER_DIR_UNZIP + File.separator+"kerberos.zip",files);
+        List<Resource> resources = Lists.newArrayList();
+        Resource resource = new Resource();
+        resource.setFileName("kerberos.zip");
+        resource.setKey("abcdefg");
+        resource.setSize(20);
+        resource.setUploadedFileName(USER_DIR_UNZIP + File.separator+"kerberos.zip");
+        resource.setContentType("fajflajflajgljalgjalg");
+        resources.add(resource);
+        return resources;
+    }
+
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testUploadKerberos(){
+
+        Cluster defaultCluster = DataCollection.getData().getDefaultCluster();
+        List<Resource> resources = getResources();
+        try {
+            String kerberos = componentService.uploadKerberos(resources, defaultCluster.getId(), 10);
+        } catch (Exception e) {
+            Assert.assertEquals("Hadoop-Kerberos文件解压错误",e.getMessage());
+        }
+    }
+
+
+    @Test
+    public void testUpdateKrb5Conf(){
+
+        componentService.updateKrb5Conf("[libdefaults]\n" +
+                "default_realm = DTSTACK.COM\n" +
+                "dns_lookup_kdc = false\n" +
+                "dns_lookup_realm = false\n" +
+                "ticket_lifetime = 600\n" +
+                "renew_lifetime = 3600 \n" +
+                "forwardable = true\n" +
+                "default_tgs_enctypes = rc4-hmac aes256-cts\n" +
+                "default_tkt_enctypes = rc4-hmac aes256-cts\n" +
+                "permitted_enctypes = rc4-hmac aes256-cts\n" +
+                "udp_preference_limit = 1\n" +
+                "kdc_timeout = 3000\n" +
+                "\n" +
+                "[realms]\n" +
+                "DTSTACK.COM = {\n" +
+                "kdc = eng-cdh1\n" +
+                "admin_server = eng-cdh1\n" +
+                "default_domain = DTSTACK.COM\n" +
+                "}\n" +
+                "\n" +
+                "[domain_realm]\n" +
+                " .k.com = K.COM\n" +
+                " k.com = K.COM\n" +
+                " krb01.k.com = K.COM\n" +
+                " eng-cdh1 = DTSTACK.COM\n" +
+                " eng-cdh2 = DTSTACK.COM\n" +
+                " eng-cdh3 = DTSTACK.COM");
     }
 }

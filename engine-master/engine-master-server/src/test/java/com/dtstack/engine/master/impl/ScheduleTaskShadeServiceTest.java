@@ -10,6 +10,7 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskV
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.dao.TenantResourceDao;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.schedule.common.enums.EProjectScheduleStatus;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
@@ -22,6 +23,8 @@ import org.junit.Test;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -202,5 +205,39 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
                 "## 任务优先级, 范围:1-1000\n" +
                 "job.priority=10", scheduleTaskShadeDTO.getTaskId()).size() <= 0);
 
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void  testAddOrUpdateBatchTask(){
+
+        ScheduleTaskShade shade = DataCollection.getData().getScheduleTaskShade();
+        ScheduleTaskShadeDTO shadeDTO = new ScheduleTaskShadeDTO();
+        BeanUtils.copyProperties(shade,shadeDTO);
+        String commitId = scheduleTaskShadeService.addOrUpdateBatchTask(Lists.newArrayList(shadeDTO));
+        Assert.assertNotNull(commitId);
+    }
+
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testInfoCommit(){
+
+        scheduleTaskShadeService.infoCommit(-1L,1,"提交了");
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testTaskCommit(){
+
+        ScheduleTaskShade shade = DataCollection.getData().getScheduleTaskShade();
+        ScheduleTaskShadeDTO shadeDTO = new ScheduleTaskShadeDTO();
+        BeanUtils.copyProperties(shade,shadeDTO);
+        String commitId = scheduleTaskShadeService.addOrUpdateBatchTask(Lists.newArrayList(shadeDTO));
+        Boolean flag = scheduleTaskShadeService.taskCommit(commitId);
+        Assert.assertTrue(flag);
     }
 }

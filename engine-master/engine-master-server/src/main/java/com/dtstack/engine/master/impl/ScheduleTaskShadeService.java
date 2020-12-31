@@ -711,6 +711,7 @@ public class ScheduleTaskShadeService {
     }
 
 
+
     public Boolean taskCommit(String commitId) {
         Long minId = scheduleTaskCommitMapper.findMinIdOfTaskCommitByCommitId(commitId);
 
