@@ -145,7 +145,7 @@ public class ScheduleJobService {
      */
     public ScheduleJob getJobById( long jobId) {
         ScheduleJob scheduleJob = scheduleJobDao.getOne(jobId);
-        if (StringUtils.isBlank(scheduleJob.getSubmitUserName())) {
+        if (null!= scheduleJob && StringUtils.isBlank(scheduleJob.getSubmitUserName())) {
             // 如果拿不到用户时，使用默认的用户
             scheduleJob.setSubmitUserName(environmentContext.getHadoopUserName());
         }

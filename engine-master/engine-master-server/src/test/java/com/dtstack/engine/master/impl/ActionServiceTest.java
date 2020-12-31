@@ -67,6 +67,7 @@ public class ActionServiceTest extends AbstractTest {
         try {
             Map<String, Object> params = getParams(getJsonString(getRandomStr()));
             ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(params, ParamActionExt.class);
+            paramActionExt.setAppType(AppType.RDOS.getType());
             Boolean result = actionService.start(paramActionExt);
             Assert.assertTrue(result);
         } catch (Exception e) {
@@ -294,6 +295,7 @@ public class ActionServiceTest extends AbstractTest {
         ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobThird();
         try {
             ParamAction paramAction = PublicUtil.mapToObject(getParams(getJsonString(scheduleJob.getJobId())), ParamAction.class);
+            paramAction.setAppType(AppType.RDOS.getType());
             List<String> result = actionService.containerInfos(paramAction);
             Assert.assertEquals(result, mockInfos);
         } catch (Exception e) {

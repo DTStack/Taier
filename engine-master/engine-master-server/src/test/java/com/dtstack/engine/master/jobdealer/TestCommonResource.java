@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.Engine;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.common.JobClient;
@@ -50,7 +49,6 @@ public class TestCommonResource  extends AbstractTest {
     @Autowired
     private ComponentService componentService;
 
-
     @Before
     public void setUp(){
         when(clusterService.getClusterByTenant(any())).thenReturn(new ClusterVO());
@@ -61,7 +59,6 @@ public class TestCommonResource  extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testNewInstance() throws Exception {
-
         JobClient jobClient = CommonUtils.getJobClient();
         ComputeResourceType resourceType = commonResource.newInstance(jobClient);
         Assert.assertNotNull(resourceType);
@@ -98,15 +95,9 @@ public class TestCommonResource  extends AbstractTest {
         jobClient.setEngineType(EngineType.Dummy.name());
         commonResource.newInstance(jobClient);
 
-        jobClient.setEngineType(EngineType.Flink.name());
-        try {
-            commonResource.newInstance(jobClient);
-        } catch (Exception e) {
-            Assert.assertEquals("No found engines by clusterId: null",e.getMessage());
-        }
-
-
     }
+
+
 
 
     @Test
