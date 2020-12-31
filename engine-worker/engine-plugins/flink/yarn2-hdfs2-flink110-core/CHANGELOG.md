@@ -64,6 +64,11 @@ org.apache.flink.client.ClientUtils
 		}
     2. 重载submitJob方法， 增加入参timeout和timeUnit，get方法设置超时时间
 ```
+org.apache.flink.table.planner.plan.QueryOperationConverter
+```
+改动项：
+    1. convertToDataStreamScan方法中创建DataStreamTable对象时isAccRetract参数为true, 解决sql双group by操作缺少撤回问题
+```
 
 
 calcite
