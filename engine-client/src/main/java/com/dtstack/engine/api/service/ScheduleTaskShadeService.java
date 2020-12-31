@@ -51,7 +51,7 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
      * @param info
      */
     @RequestLine("POST /node/scheduleTaskShade/infoCommit")
-    ApiResponse<Void> infoCommit(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("extraInfo") String info);
+    ApiResponse<Void> infoCommit(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("extraInfo") String info,@Param("commitId") String commitId);
 
     /**
      * 提交任务

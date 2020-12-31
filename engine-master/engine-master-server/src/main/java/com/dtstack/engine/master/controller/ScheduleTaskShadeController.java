@@ -45,8 +45,8 @@ public class ScheduleTaskShadeController {
 
     @RequestMapping(value="/infoCommit", method = {RequestMethod.POST})
     @ApiOperation(value = "保存任务提交engine的额外信息,不会直接提交，只有commit之后才会提交")
-    public void infoCommit(@DtRequestParam("taskId") Long taskId, @DtRequestParam("appType") Integer appType, @DtRequestParam("extraInfo") String info) {
-        scheduleTaskShadeService.infoCommit(taskId, appType, info);
+    public void infoCommit(@DtRequestParam("taskId") Long taskId, @DtRequestParam("appType") Integer appType, @DtRequestParam("extraInfo") String info, @DtRequestParam("commitId") String commitId) {
+        scheduleTaskShadeService.infoCommit(taskId, appType, info,commitId);
     }
 
     @RequestMapping(value="/taskCommit", method = {RequestMethod.POST})

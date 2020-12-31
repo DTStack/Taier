@@ -712,13 +712,13 @@ public class ScheduleTaskShadeService {
         }
     }
 
-    public void infoCommit(Long taskId, Integer appType, String info) {
-        JSONObject extInfo = JSONObject.parseObject(scheduleTaskCommitMapper.getExtInfoByTaskId(taskId, appType));
+    public void infoCommit(Long taskId, Integer appType, String info,String commitId) {
+        JSONObject extInfo = JSONObject.parseObject(scheduleTaskCommitMapper.getExtInfoByTaskId(taskId, appType,commitId));
         if (extInfo == null) {
             extInfo = new JSONObject();
         }
         extInfo.put(TaskConstant.INFO, info);
-        scheduleTaskCommitMapper.updateTaskExtInfo(taskId, appType, extInfo.toJSONString());
+        scheduleTaskCommitMapper.updateTaskExtInfo(taskId, appType, extInfo.toJSONString(),commitId);
     }
 
 
