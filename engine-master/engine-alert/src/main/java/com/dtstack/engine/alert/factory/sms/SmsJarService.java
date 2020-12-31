@@ -53,8 +53,8 @@ public class SmsJarService implements AlertService {
         }
 
         long startTime = System.currentTimeMillis();
+        String jarPath = config.getString("jarPath");
         try {
-            String jarPath = config.getString("jarPath");
             if (StringUtils.isBlank(jarPath)) {
                 jarPath = param.getAlertGatePO().getFilePath();
             }
@@ -65,7 +65,7 @@ public class SmsJarService implements AlertService {
             return r;
         } catch (Exception e) {
             log.info("[sendSms] error, cost={}, phones={}, message={}",(System.currentTimeMillis() - startTime), phones, message, e);
-            return R.fail(e.getMessage());
+            return R.fail("jarPath:"+jarPath +"加载失败，请检查配置！");
         }
 
     }

@@ -71,7 +71,7 @@ public class DingJarService extends AbstractDingService {
             return r;
         } catch (Exception e) {
             log.error("[sendDing] error, time cost={}, dings={}, message={}", (System.currentTimeMillis() - startTime), dings, message, e);
-            return R.fail(e.getMessage());
+            return R.fail("jarPath:"+jarPath +"加载失败，请检查配置！");
         }
 
 
