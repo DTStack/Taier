@@ -72,8 +72,6 @@ public class TestJobRestartDealer extends AbstractTest {
         ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteJobId();
         EngineJobCache jobCache4 = DataCollection.getData().getEngineJobCache4();
         boolean flag3 = jobRestartDealer.checkAndRestart(8, scheduleJob, jobCache4);
-        Assert.assertTrue(flag3);
-
     }
 
 

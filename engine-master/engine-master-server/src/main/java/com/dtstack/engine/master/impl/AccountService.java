@@ -416,32 +416,6 @@ public class AccountService {
 
     }
 
-    public AccountVo getAccountVo(Long dtUicTenantId, Long dtUicUserId,Integer accountType) {
-        AccountVo accountVo = new AccountVo();
-        Tenant tenant = tenantDao.getByDtUicTenantId(dtUicTenantId);
-        if (Objects.isNull(tenant)) {
-            return accountVo;
-        }
-
-        User user = userDao.getByDtUicUserId(dtUicUserId);
-        if (Objects.isNull(user)) {
-            return accountVo;
-        }
-
-        Account one = accountDao.getOne(tenant.getId(), user.getId(), accountType,null);
-        if (Objects.isNull(one)) {
-            return accountVo;
-        }
-
-        accountVo.setBindTenantId(dtUicTenantId);
-        accountVo.setAccountType(accountType);
-        accountVo.setBindUserId(dtUicUserId);
-        accountVo.setUsername(user.getUserName());
-        accountVo.setName(one.getName());
-        accountVo.setPassword(StringUtils.isBlank(one.getPassword()) ? "" : Base64Util.baseDecode(one.getPassword()));
-        return accountVo;
-    }
-
     private void checkAccountVo(AccountVo accountVo) {
         Integer accountType = getAccountTypeByMultiEngineType(accountVo.getEngineType());
         if (accountType != AccountType.LDAP.getVal()) {

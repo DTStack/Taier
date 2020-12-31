@@ -3,20 +3,23 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.*;
+import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.client.ClientOperator;
-import com.dtstack.engine.dao.ComponentDao;
-import com.dtstack.engine.dao.EngineDao;
-import com.dtstack.engine.dao.QueueDao;
-import com.dtstack.engine.dao.TenantDao;
+import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.enums.EComponentScheduleType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.master.jobdealer.resource.ComputeResourceType;
+import com.dtstack.engine.master.jobdealer.resource.FlinkResource;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.schedule.common.enums.AppType;
 import com.google.common.collect.Lists;
@@ -28,14 +31,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -74,6 +76,9 @@ public class ClusterServiceTest extends AbstractTest {
 
     @Autowired
     private EngineService engineService;
+
+    @Autowired
+    private ClusterDao clusterDao;
 
     private String testClusterName = "testcase";
 
@@ -164,8 +169,11 @@ public class ClusterServiceTest extends AbstractTest {
         Queue queue = this.testInsertQueue(engineId);
         //添加测试租户
         Tenant tenant = this.testBindTenant(clusterVO, queue);
+        this.testIsSame(clusterVO,queue,tenant);
         //切换队列
         this.testUpdateQueue(engineId, tenant);
+
+        this.testFlinkResource(tenant);
 
         this.checkQueryWithUicTenantId(tenant);
 
@@ -194,6 +202,38 @@ public class ClusterServiceTest extends AbstractTest {
         }
     }
 
+    private void testFlinkResource(Tenant tenant) {
+        try {
+            JobClient jobClient = new JobClient();
+            jobClient.setTenantId(tenant.getDtUicTenantId());
+            jobClient.setComputeType(ComputeType.BATCH);
+            Properties properties = PublicUtil.stringToProperties("## 任务运行方式：\n" +
+                    "## per_job:单独为任务创建flink yarn session，适用于低频率，大数据量同步\n" +
+                    "## session：多个任务共用一个flink yarn session，适用于高频率、小数据量同步，默认session\n" +
+                    "## flinkTaskRunMode=per_job\n" +
+                    "## per_job模式下jobManager配置的内存大小，默认1024（单位M)\n" +
+                    "## jobmanager.memory.mb=1024\n" +
+                    "## per_job模式下taskManager配置的内存大小，默认1024（单位M）\n" +
+                    "## taskmanager.memory.mb=1024\n" +
+                    "## per_job模式下每个taskManager 对应 slot的数量\n" +
+                    "## slots=1\n" +
+                    "## checkpoint保存时间间隔\n" +
+                    "## flink.checkpoint.interval=300000\n" +
+                    "## 任务优先级, 范围:1-1000\n" +
+                    "## job.priority=10");
+            ReflectionTestUtils.setField(jobClient,"confProperties",properties);
+            FlinkResource commonResource = new FlinkResource();
+            commonResource.setClusterDao(clusterDao);
+            commonResource.setEngineDao(engineDao);
+            commonResource.setClusterService(clusterService);
+            commonResource.setComponentService(componentService);
+            ComputeResourceType computeResourceType = commonResource.getComputeResourceType(jobClient);
+            Assert.assertEquals(computeResourceType,ComputeResourceType.FlinkYarnSession);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public Tenant testBindTenant(ClusterVO clusterVO, Queue queue) throws Exception {
         Tenant tenant = Template.getTenantTemplate();
         tenant.setDtUicTenantId(-107L);
@@ -203,6 +243,19 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNotNull(tenant.getId());
         //绑定租户
         tenantService.bindingTenant(tenant.getDtUicTenantId(), clusterVO.getClusterId(), queue.getId(),"","");
+        return tenant;
+    }
+
+    public Tenant testIsSame(ClusterVO clusterVO, Queue queue,Tenant tenant) throws Exception {
+        Tenant sameTenant = Template.getTenantTemplate();
+        sameTenant.setDtUicTenantId(-108L);
+        tenantDao.insert(sameTenant);
+        tenant = tenantDao.getByDtUicTenantId(tenant.getDtUicTenantId());
+        Assert.assertNotNull(tenant);
+        Assert.assertNotNull(tenant.getId());
+        //绑定租户
+        tenantService.bindingTenant(sameTenant.getDtUicTenantId(), clusterVO.getClusterId(), queue.getId(),"","");
+        clusterService.isSameCluster(-108L,Lists.newArrayList(tenant.getDtUicTenantId()));
         return tenant;
     }
 

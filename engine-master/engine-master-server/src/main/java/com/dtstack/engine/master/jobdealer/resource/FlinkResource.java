@@ -42,7 +42,7 @@ public class FlinkResource extends CommonResource {
         ComputeType computeType = jobClient.getComputeType();
         String modeStr = properties.getProperty(FLINK_TASK_RUN_MODE_KEY);
 
-        if (EComponentType.YARN.getTypeCode() == componentType.getTypeCode()) {
+        if (EComponentType.YARN.getTypeCode().equals(componentType.getTypeCode())) {
             if (StringUtils.isEmpty(modeStr)) {
                 if (ComputeType.STREAM == computeType) {
                     return ComputeResourceType.Yarn;
@@ -55,7 +55,7 @@ public class FlinkResource extends CommonResource {
             } else if (PER_JOB.equalsIgnoreCase(modeStr)) {
                 return ComputeResourceType.Yarn;
             }
-        } else if (EComponentType.KUBERNETES.getTypeCode() == componentType.getTypeCode()) {
+        } else if (EComponentType.KUBERNETES.getTypeCode().equals(componentType.getTypeCode())) {
             if (StringUtils.isEmpty(modeStr)) {
                 if (ComputeType.STREAM == computeType) {
                     return ComputeResourceType.Kubernetes;
@@ -100,9 +100,9 @@ public class FlinkResource extends CommonResource {
 
         List<Component> componentList = componentService.listComponent(hadoopEngine.getId());
         for (Component component : componentList) {
-            if (component.getComponentTypeCode() == EComponentType.KUBERNETES.getTypeCode()) {
+            if (EComponentType.KUBERNETES.getTypeCode().equals(component.getComponentTypeCode())) {
                 return EComponentType.KUBERNETES;
-            } else if (component.getComponentTypeCode() == EComponentType.YARN.getTypeCode()) {
+            } else if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
                 return EComponentType.YARN;
             }
         }
