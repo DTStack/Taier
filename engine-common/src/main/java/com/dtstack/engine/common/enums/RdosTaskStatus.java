@@ -163,7 +163,7 @@ public enum RdosTaskStatus implements Serializable {
     }
 
     public static boolean canReset(Integer currStatus){
-        return STOPPED_STATUS.contains(currStatus) || RdosTaskStatus.UNSUBMIT.getStatus().equals(currStatus) || RdosTaskStatus.CANCELLING.getStatus().equals(currStatus) ;
+        return STOPPED_STATUS.contains(currStatus) || RdosTaskStatus.UNSUBMIT.getStatus().equals(currStatus);
 
     }
 
