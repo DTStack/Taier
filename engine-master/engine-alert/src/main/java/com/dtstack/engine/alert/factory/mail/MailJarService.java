@@ -63,7 +63,7 @@ public class MailJarService implements AlertService {
         } catch (Exception e) {
             log.info("[sendMail] error, cost={}, mails={}, subject={}, message={}", (System.currentTimeMillis() - startTime),
                     recipients, subject, message, e);
-            return R.fail(e.getMessage());
+            return R.fail("jarPath:"+jarPath +"加载失败，请检查配置！");
         }
     }
 
