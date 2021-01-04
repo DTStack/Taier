@@ -7,9 +7,17 @@
             float: right;
         }
     }
-    .alarm-name {
-        height: 28px;
-        line-height: 28px;
+    .alarm-name-wrap {
+        position: relative;
+        display: block;
+        height: 14px;
+        .alarm-name {
+            max-width: 180px;
+            display: inline-block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
         .alarm-btn {
             background-color: rgba(63, 135, 255, 0.1);
             color: #3f87ff;
@@ -19,7 +27,8 @@
             border-radius: 14px;
             padding: 0 10px;
             height: 28px;
-            line-height: 28px;
+            position: absolute;
+            top: -6px;
         }
     }
 }

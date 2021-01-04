@@ -67,8 +67,8 @@ const AlarmChannel: React.FC = (props: any) => {
             dataIndex: 'alertGateName',
             render: (alertGateName: string, record: any) => {
                 const showText = `${ALARM_TYPE_TEXT[record.alertGateType].slice(0, 2)}默认通道`;
-                return <span className="alarm-name">
-                    {alertGateName}
+                return <span className="alarm-name-wrap">
+                    <span className="alarm-name">{alertGateName}</span>
                     {record.isDefault ? <Button className="alarm-btn" disabled>{showText}</Button> : null}
                 </span>
             }
