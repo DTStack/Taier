@@ -42,6 +42,7 @@ perjob:
     namespace: default
     pluginLoadMode: classpath
     submitTimeout: 5
+    yarnAccepterTaskNumber: 3
     flinkInterval: 5 SECONDS
     classloader.resolve-order: parent-first
     taskparams.taskmanager.heap.mb: 20
@@ -102,6 +103,7 @@ session:
     namespace: default
     pluginLoadMode: classpath
     submitTimeout: 5
+    yarnAccepterTaskNumber: 3
     flinkInterval: 5 SECONDS
     classloader.resolve-order: parent-first
     taskparams.taskmanager.heap.mb: 20
