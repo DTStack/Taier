@@ -234,7 +234,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 ]}
                 icons={comp?.id && <Icon
                     type="download"
-                    style={{ right: view ? 0 : 20 }}
+                    style={{ right: 0 }}
                     onClick={() => this.downloadFile(FILE_TYPE.CONFIGS)}
                 />}
             />

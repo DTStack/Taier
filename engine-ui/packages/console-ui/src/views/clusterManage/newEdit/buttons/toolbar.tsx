@@ -19,43 +19,41 @@ export default class ToolBar extends React.PureComponent<IProps, any> {
         // 整理相关参数, 更新初始值
         form.validateFields(null, {}, (err: any, values: any) => {
             console.log(err, values)
-            if (err) {
-                if (Object.keys(err).includes(String(typeCode))) {
-                    message.error('请检查配置');
-                    return;
-                }
+            if (err && Object.keys(err).includes(String(typeCode))) {
+                message.error('请检查配置');
+                return;
             }
-            if (!err) {
-                // const arr = getModifyComp(values, initialCompData)
-                const currentComp = values[typeCode]
-                const params = {
-                    storeType: currentComp?.storeType ?? '',
-                    principal: currentComp?.principal ?? '',
-                    principals: currentComp?.principals ?? '',
-                    hadoopVersion: currentComp.hadoopVersion ?? '',
-                    componentTemplate: isNeedTemp(typeCode) ? JSON.stringify(handleCustomParam(currentComp.customParam)) : JSON.stringify(handleComponentTemplate(values[typeCode], comp)),
-                    componentConfig: isNeedTemp(typeCode) ? JSON.stringify(currentComp?.specialConfig) : JSON.stringify(handleComponentConfigAndCustom(values[typeCode]))
-                }
-                // TODO resources2, kerberosFileName 这个两个参数后期可以去掉
-                Api.saveComponent({
-                    ...params,
-                    clusterId: clusterInfo.clusterId,
-                    componentCode: typeCode,
-                    clusterName: clusterInfo.clusterName,
-                    resources1: currentComp?.uploadFileName ?? '',
-                    resources2: '',
-                    kerberosFileName: ''
-                }).then((res: any) => {
-                    if (res.code == 1) {
-                        saveComp({
-                            ...params,
-                            uploadFileName: currentComp?.uploadFileName ?? '',
-                            kerberosFileName: currentComp?.kerberosFileName ?? ''
-                        })
-                        message.success('保存成功')
-                    }
-                })
+            // const arr = getModifyComp(values, initialCompData)
+            const currentComp = values[typeCode]
+            const params = {
+                storeType: currentComp?.storeType ?? '',
+                principal: currentComp?.principal ?? '',
+                principals: currentComp?.principals ?? '',
+                hadoopVersion: currentComp.hadoopVersion ?? '',
+                componentTemplate: isNeedTemp(typeCode)
+                    ? (!currentComp.customParam ? '[]' : JSON.stringify(handleCustomParam(currentComp.customParam)))
+                    : JSON.stringify(handleComponentTemplate(values[typeCode], comp)),
+                componentConfig: isNeedTemp(typeCode) ? JSON.stringify(currentComp?.specialConfig) : JSON.stringify(handleComponentConfigAndCustom(values[typeCode]))
             }
+            // TODO resources2, kerberosFileName 这个两个参数后期可以去掉
+            Api.saveComponent({
+                ...params,
+                clusterId: clusterInfo.clusterId,
+                componentCode: typeCode,
+                clusterName: clusterInfo.clusterName,
+                resources1: currentComp?.uploadFileName ?? '',
+                resources2: '',
+                kerberosFileName: ''
+            }).then((res: any) => {
+                if (res.code == 1) {
+                    saveComp({
+                        ...params,
+                        uploadFileName: currentComp?.uploadFileName ?? '',
+                        kerberosFileName: currentComp?.kerberosFileName ?? ''
+                    })
+                    message.success('保存成功')
+                }
+            })
         })
     }
 

@@ -9,6 +9,9 @@ interface IProp {
     form: any;
     view: boolean;
     template: any;
+    maxWidth?: number;
+    labelCol?: number;
+    wrapperCol?: number;
 }
 
 interface IState {
@@ -74,7 +77,7 @@ export default class CustomParams extends React.PureComponent<IProp, IState> {
     }
 
     render () {
-        const { typeCode, form, view, template } = this.props
+        const { typeCode, form, view, template, maxWidth, labelCol, wrapperCol } = this.props
         const { customParams } = this.state
         const groupKey = template.key
 
@@ -86,7 +89,7 @@ export default class CustomParams extends React.PureComponent<IProp, IState> {
             {customParams && customParams.map((param: any) => {
                 const fieldName = groupKey ? `${typeCode}.customParam.${groupKey}` : `${typeCode}.customParam`
                 return param.id && (<Row key={param.id}>
-                    <Col span={formItemLayout.labelCol.sm.span}>
+                    <Col span={labelCol ?? formItemLayout.labelCol.sm.span}>
                         <FormItem key={param.id + '-key'}>
                             {form.getFieldDecorator(`${fieldName}.%${param.id}-key`, {
                                 rules: [{
@@ -100,7 +103,7 @@ export default class CustomParams extends React.PureComponent<IProp, IState> {
                             <span style={{ marginLeft: 2 }}>:</span>
                         </FormItem>
                     </Col>
-                    <Col span={formItemLayout.wrapperCol.sm.span}>
+                    <Col span={wrapperCol ?? formItemLayout.wrapperCol.sm.span}>
                         <FormItem key={param.id + '-value'}>
                             {form.getFieldDecorator(`${fieldName}.%${param.id}-value`, {
                                 rules: [{
@@ -109,7 +112,7 @@ export default class CustomParams extends React.PureComponent<IProp, IState> {
                                 }],
                                 initialValue: param.value || ''
                             })(
-                                <Input disabled={view} style={{ maxWidth: 680 }} />
+                                <Input disabled={view} style={{ maxWidth: maxWidth ? 680 : 'unset' }} />
                             )}
                         </FormItem>
                     </Col>

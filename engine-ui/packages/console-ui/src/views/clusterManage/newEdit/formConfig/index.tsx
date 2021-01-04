@@ -18,7 +18,11 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
     renderConfigItem = (temp: any, groupKey?: string) => {
         const { view, form, comp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        const fieldName = groupKey ? `${typeCode}.componentConfig.${groupKey}` : `${typeCode}.componentConfig`
+        let fieldName = typeCode + '.componentConfig'
+        if (groupKey) {
+            fieldName = typeCode + '.componentConfig.' + groupKey
+        }
+        // const fieldName = groupKey ? `${typeCode}.componentConfig.${groupKey}` : `${typeCode}.componentConfig`;
         let content: any
         switch (temp.type) {
             case CONFIG_ITEM_TYPE.RADIO:
@@ -27,25 +31,26 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                         return <Radio key={comp.key} value={comp.value}>{comp.key}</Radio>
                     })}
                 </RadioGroup>
-                break
+                break;
             case CONFIG_ITEM_TYPE.SELECT:
                 content = <Select disabled={view} style={{ width: 200 }}>
                     {temp.values.map((comp: any) => {
                         return <Option key={comp.key} value={comp.value}>{comp.key}</Option>
                     })}
                 </Select>
-                break
+                break;
             case CONFIG_ITEM_TYPE.CHECKBOX:
                 content = <CheckboxGroup disabled={view} className="c-componentConfig__checkboxGroup">
                     {temp.values.map((comp: any) => {
                         return <Checkbox key={comp.key} value={comp.value}>{comp.key}</Checkbox>
                     })}
                 </CheckboxGroup>
-                break
+                break;
             default:
                 content = <Input disabled={view} style={{ maxWidth: 680 }} />
-                break
+                break;
         }
+
         return !temp.id && <FormItem
             label={<Tooltip title={temp.key}>{temp.key}</Tooltip>}
             key={temp.key}
@@ -95,9 +100,9 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                         )
                     }
                 } else if (temps.dependencyValue) {
-                    const dependencyValue = form.getFieldValue(`${typeCode}.componentConfig.${temps.dependencyKey}`) ?? []
-                    if (dependencyValue.includes(temps?.dependencyValue)) {
-                        this.renderConfigItem(temps)
+                    const dependencyValue = form.getFieldValue(`${typeCode}.componentConfig.${temps.dependencyKey}`) ?? ''
+                    if (dependencyValue == temps?.dependencyValue) {
+                        return this.renderConfigItem(temps)
                     }
                 } else {
                     return this.renderConfigItem(temps)
@@ -108,6 +113,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                 form={form}
                 view={view}
                 template={template}
+                maxWidth={680}
             />}
         </>
     }
@@ -137,12 +143,12 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
             {keyAndValue.map(([key, value]: any[]) => {
                 return (
                     <Row key={key} className="zipConfig-item">
-                        <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 4}>
+                        <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 2}>
                             {key.length > 38
                                 ? <Tooltip title={key}>{key.substr(0, 38) + '...'}</Tooltip>
                                 : key}：
                         </Col>
-                        <Col className="formitem-textvalue" span={formItemLayout.wrapperCol.sm.span - 1}>
+                        <Col className="formitem-textvalue" span={formItemLayout.wrapperCol.sm.span + 1}>
                             {`${value}`}
                         </Col>
                     </Row>
@@ -156,6 +162,8 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                 form={form}
                 view={view}
                 template={template}
+                labelCol={formItemLayout.labelCol.sm.span + 2}
+                wrapperCol={formItemLayout.wrapperCol.sm.span - 2}
             />
         </>
     }
