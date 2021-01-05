@@ -295,6 +295,9 @@
                         line-height: 40px;
                         padding: 0 0 0 20px;
                     }
+                    .ant-tabs-tab-active {
+                        background-color: rgba(36, 145, 247, 0.1);
+                    }
                 }
             }
             >.ant-tabs-extra-content {
@@ -583,7 +586,6 @@
     }
 }
 
-<<<<<<< HEAD
 .c-componentButton__title {
     width: 240px;
     height: 40px;
@@ -611,12 +613,15 @@
     line-height: 40px;
     text-align: center;
     border-top: 1px solid #E8E8E8;
+    button {
+        padding: 0 12px;
+        height: 28px;
+    }
 }
-=======
+
 .c-kerberosModal__edior {
     background-color: #F5F5F5;
     > .CodeMirror {
         background-color: #F5F5F5;
     }
 }
->>>>>>> test_4.1.x

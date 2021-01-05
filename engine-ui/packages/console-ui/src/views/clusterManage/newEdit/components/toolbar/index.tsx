@@ -1,9 +1,10 @@
 import * as React from 'react'
 import { Popconfirm, Button, message } from 'antd'
-import Api from '../../../../api/console';
+import Api from '../../../../../api/console'
+import { COMPONENT_CONFIG_NAME } from '../../const'
 
 import { handleComponentTemplate, handleComponentConfigAndCustom,
-    handleComponentConfig, isNeedTemp, handleCustomParam } from '../help'
+    handleComponentConfig, isNeedTemp, handleCustomParam, getParamsByTemp } from '../../help'
 interface IProps {
     form: any;
     comp: any;
@@ -28,7 +29,7 @@ export default class ToolBar extends React.PureComponent<IProps, any> {
             const params = {
                 storeType: currentComp?.storeType ?? '',
                 principal: currentComp?.principal ?? '',
-                principals: currentComp?.principals ?? '',
+                principals: currentComp?.principals ?? [],
                 hadoopVersion: currentComp.hadoopVersion ?? '',
                 componentTemplate: isNeedTemp(typeCode)
                     ? (!currentComp.customParam ? '[]' : JSON.stringify(handleCustomParam(currentComp.customParam)))
@@ -48,6 +49,8 @@ export default class ToolBar extends React.PureComponent<IProps, any> {
                 if (res.code == 1) {
                     saveComp({
                         ...params,
+                        id: res.data.id,
+                        componentTypeCode: typeCode,
                         uploadFileName: currentComp?.uploadFileName ?? '',
                         kerberosFileName: currentComp?.kerberosFileName ?? ''
                     })
@@ -61,16 +64,20 @@ export default class ToolBar extends React.PureComponent<IProps, any> {
         const { form, comp, initialCompData } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         const initialComp = initialCompData.find(comp => comp.componentTypeCode == typeCode)
+
         form.setFieldsValue({
             [typeCode]: {
                 componentConfig: handleComponentConfig({
                     componentConfig: JSON.parse(initialComp.componentConfig)
-                }, true)
+                }, true),
+                customParam: getParamsByTemp(JSON.parse(initialComp.componentTemplate))
             }
         })
     }
 
     render () {
+        const typeCode = this.props.comp?.componentTypeCode ?? ''
+        // const { onConfirm } = this.props
         return (
             <div className="c-toolbar__container">
                 <Popconfirm
@@ -79,9 +86,9 @@ export default class ToolBar extends React.PureComponent<IProps, any> {
                     cancelText="取消"
                     onConfirm={this.onConfirm}
                 >
-                    <Button style={{ width: 88 }}>取消</Button>
+                    <Button>取消</Button>
                 </Popconfirm>
-                <Button type="primary" style={{ marginLeft: 8, width: 88 }} onClick={this.onOk}>保存</Button>
+                <Button style={{ marginLeft: 8 }} type="primary" onClick={this.onOk}>保存{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件</Button>
             </div>
         )
     }

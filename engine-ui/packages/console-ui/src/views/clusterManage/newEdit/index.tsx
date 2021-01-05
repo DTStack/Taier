@@ -1,24 +1,27 @@
 import * as React from 'react'
-import { Form, Breadcrumb, Tabs, Button, message } from 'antd'
-import { hashHistory } from 'react-router';
+import { Form, Breadcrumb, Tabs, Button,
+    message, Modal, Icon } from 'antd'
+import { hashHistory } from 'react-router'
 import * as _ from 'lodash'
 
 import Api from '../../../api/console'
-import { getActionType, initialScheduling, giveMeAKey, isViewMode,
+import { initialScheduling, giveMeAKey, isViewMode,
     isNeedTemp, getModifyComp } from './help'
 import { TABS_TITLE, COMPONENT_CONFIG_NAME, DEFAULT_COMP_VERSION } from './const'
 
 import FileConfig from './fileConfig'
 import FormConfig from './formConfig'
-import ToolBar from './buttons/toolbar'
-import ComponentButton from './buttons/componentbBtn'
-import TestRestIcon from '../../../components/testResultIcon';
+import ToolBar from './components/toolbar'
+import ComponentButton from './components/compsBtn'
+import TestRestIcon from '../../../components/testResultIcon'
 
-const TabPane = Tabs.TabPane;
+const TabPane = Tabs.TabPane
+const confirm = Modal.confirm
 interface IState {
     initialCompData: any[];
     versionData: any;
     clusterName: string;
+    commVersion: string;
     activeKey: number;
     saveCompsData: any[];
     testLoading: boolean;
@@ -29,6 +32,7 @@ class EditCluster extends React.Component<any, IState> {
         initialCompData: initialScheduling(), // 初始各组件的存储值
         versionData: {},
         clusterName: '',
+        commVersion: '',
         activeKey: 0,
         saveCompsData: [],
         testLoading: false,
@@ -93,7 +97,7 @@ class EditCluster extends React.Component<any, IState> {
         const typeCode = key ?? initialCompData[activeKey][0].componentTypeCode
         const comp = initialCompData[activeKey].find(comp => comp.componentTypeCode == typeCode)
 
-        if (!isNeedTemp(typeCode) && !comp.componentTemplate) {
+        if (!isNeedTemp(Number(typeCode)) && !comp.componentTemplate) {
             Api.getLoadTemplate({
                 clusterName,
                 componentType: typeCode,
@@ -101,10 +105,19 @@ class EditCluster extends React.Component<any, IState> {
                 storeType: params?.storeType ?? getFieldValue(`${typeCode}.storeType`) ?? ''
             }).then((res: any) => {
                 if (res.code == 1) {
-                    this.saveComp({ componentTemplate: JSON.stringify(res.data), typeCode })
+                    this.saveComp({
+                        componentTemplate: JSON.stringify(res.data),
+                        componentTypeCode: Number(typeCode)
+                    })
                 }
             })
         }
+    }
+
+    handleCommVersion = (version: string) => {
+        this.setState({
+            commVersion: version
+        })
     }
 
     onTabChange = (key: string) => {
@@ -134,11 +147,17 @@ class EditCluster extends React.Component<any, IState> {
         let currentCompArr = newCompData[activeKey]
         if (deleteComps.length > 0) {
             deleteComps.forEach(code => {
-                currentCompArr = currentCompArr.filter(comp => comp.componentCode == code)
+                currentCompArr = currentCompArr.filter(comp => comp.componentTypeCode != code)
                 newTestStatus = {
                     ...newTestStatus,
                     [code]: null
                 }
+                this.props.form.setFieldsValue({
+                    [code]: {
+                        componentConfig: {},
+                        specialConfig: {}
+                    }
+                })
             })
         }
         if (addComps.length > 0) {
@@ -160,7 +179,7 @@ class EditCluster extends React.Component<any, IState> {
         const { activeKey, initialCompData } = this.state
         let newCompData = _.cloneDeep(initialCompData)
         let newComp = initialCompData[activeKey].map(comp => {
-            if (comp.componentTypeCode == params.typeCode) {
+            if (comp.componentTypeCode == params.componentTypeCode) {
                 return { ...comp, ...params }
             }
             return comp
@@ -168,7 +187,37 @@ class EditCluster extends React.Component<any, IState> {
         newCompData[activeKey] = newComp
         this.setState({
             initialCompData: newCompData
-        }, () => console.log('initialCompData == ', initialCompData))
+        })
+    }
+
+    /** 完成操作交互后续可能会有变更 */
+    handleComplete = () => {
+        const { validateFieldsAndScroll } = this.props.form;
+        const { initialCompData } = this.state
+        const showConfirm = (arr: any[]) => {
+            const compsName = Array.from(arr).map((code: number) => `"${COMPONENT_CONFIG_NAME[code]}"`)
+            confirm({
+                title: `${compsName.join('、')}尚未保存，是否需要保存？`,
+                content: null,
+                icon: <Icon style={{ color: '#FAAD14' }} type="exclamation-circle" theme="filled" />,
+                okText: '保存',
+                cancelText: '取消',
+                onOk: () => {
+                },
+                onCancel: () => {
+                    this.props.router.push('/console/clusterManage')
+                }
+            })
+        }
+        validateFieldsAndScroll((err: any, values: any) => {
+            console.log(err, values)
+            let modifyCompsArr = getModifyComp(values, initialCompData);
+            if (!modifyCompsArr.size) {
+                this.props.router.push('/console/clusterManage')
+                return
+            }
+            showConfirm(modifyCompsArr)
+        })
     }
 
     testConnects = () => {
@@ -181,13 +230,10 @@ class EditCluster extends React.Component<any, IState> {
                 return
             }
             if (!err) {
-                let modifyCompsName = []
                 const modifyComps = getModifyComp(values, initialCompData)
                 if (modifyComps.size > 0) {
                     console.log(modifyComps)
-                    modifyComps.forEach((code) => {
-                        modifyCompsName.push(COMPONENT_CONFIG_NAME[code])
-                    })
+                    const modifyCompsName = Array.from(modifyComps).map((code: number) => COMPONENT_CONFIG_NAME[code])
                     message.error(`组件 ${modifyCompsName.join('、')} 参数变更未保存，请先保存再测试组件连通性`)
                     return
                 }
@@ -213,17 +259,15 @@ class EditCluster extends React.Component<any, IState> {
     render () {
         const { mode, cluster } = this.props.location.state || {} as any
         const { clusterName, activeKey, initialCompData, versionData,
-            saveCompsData, testLoading, testStatus } = this.state
-        console.log(testStatus)
+            saveCompsData, testLoading, testStatus, commVersion } = this.state
 
         return (
             <div className="c-editCluster__containerWrap">
                 <div className="c-editCluster__header">
                     <Breadcrumb>
-                        <Breadcrumb.Item onClick={() => { this.props.router.push('/console/clusterManage') }}>
-                            多集群管理
+                        <Breadcrumb.Item>
+                            <a onClick={() => { this.props.router.push('/console/clusterManage') }}>多集群管理</a>
                         </Breadcrumb.Item>
-                        <Breadcrumb.Item>{getActionType(mode)}</Breadcrumb.Item>
                         <Breadcrumb.Item>{clusterName}</Breadcrumb.Item>
                     </Breadcrumb>
                     {isViewMode(mode) ? <span>
@@ -231,7 +275,7 @@ class EditCluster extends React.Component<any, IState> {
                     </span>
                         : <span>
                             <Button className="cluster-btn" ghost loading={testLoading} onClick={this.testConnects} >测试所有组件连通性</Button>
-                            <Button className="cluster-btn" type="primary" onClick={this.turnCompMode.bind(this, 'view')}>完成</Button>
+                            <Button className="cluster-btn" type="primary" onClick={this.handleComplete}>完成</Button>
                         </span>}
                 </div>
                 <div className="c-editCluster__container shadow">
@@ -279,8 +323,10 @@ class EditCluster extends React.Component<any, IState> {
                                                 view={isViewMode(mode)}
                                                 form={this.props.form}
                                                 versionData={versionData}
-                                                clusterName={clusterName}
+                                                commVersion={commVersion}
                                                 saveCompsData={saveCompsData}
+                                                clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
+                                                handleCommVersion={this.handleCommVersion}
                                             />
                                             <FormConfig
                                                 comp={comp}

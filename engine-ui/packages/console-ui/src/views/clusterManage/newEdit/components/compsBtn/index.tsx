@@ -3,8 +3,9 @@ import { Button, Popconfirm, Checkbox, Radio,
     Row, Col } from 'antd'
 import * as _ from 'lodash'
 
-import { isSourceTab } from '../help'
-import { CONFIG_BUTTON_TYPE } from '../const'
+import ModifyCompsModal from '../modifyModal'
+import { isSourceTab } from '../../help'
+import { CONFIG_BUTTON_TYPE } from '../../const'
 
 const CheckboxGroup = Checkbox.Group;
 const RadioGroup = Radio.Group;
@@ -18,12 +19,14 @@ interface IProps {
 interface IState {
     addComps: any[];
     deleteComps: any[];
+    visible: boolean;
 }
 
 export default class ComponentButton extends React.Component<IProps, IState> {
     state: IState = {
         addComps: [],
-        deleteComps: []
+        deleteComps: [],
+        visible: false
     }
 
     getInitialValues = () => {
@@ -116,30 +119,47 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 
     handleConfirm = () => {
         const { addComps, deleteComps } = this.state
-        this.props.handleConfirm(addComps, deleteComps)
+        if (deleteComps.length > 0) {
+            this.setState({
+                visible: true
+            })
+        } else {
+            this.props.handleConfirm(addComps, deleteComps)
+        }
     }
 
     handleCancel = () => {
         this.setState({
             addComps: [],
-            deleteComps: []
+            deleteComps: [],
+            visible: false
         })
     }
 
     render () {
+        const { visible, deleteComps, addComps } = this.state
         return (
-            <Popconfirm
-                icon={null}
-                placement="topRight"
-                title={this.renderContent()}
-                onConfirm={this.handleConfirm}
-                onCancel={this.handleCancel}
-            >
-                <Button className="c-editCluster__componentButton">
-                    <i className="iconfont iconzujianpeizhi" style={{ marginRight: 2 }} />
-                    组件配置
-                </Button>
-            </Popconfirm>
+            <>
+                <Popconfirm
+                    icon={null}
+                    placement="topRight"
+                    title={this.renderContent()}
+                    onConfirm={this.handleConfirm}
+                    onCancel={this.handleCancel}
+                >
+                    <Button className="c-editCluster__componentButton">
+                        <i className="iconfont iconzujianpeizhi" style={{ marginRight: 2 }} />
+                        组件配置
+                    </Button>
+                </Popconfirm>
+                <ModifyCompsModal
+                    visible={visible}
+                    addComps={addComps}
+                    deleteComps={deleteComps}
+                    onCancel={this.handleCancel}
+                    onOk={() => this.props.handleConfirm(addComps, deleteComps)}
+                />
+            </>
         )
     }
 }

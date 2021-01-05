@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Input, Form, Radio, Select, Checkbox, Tooltip, Row, Col } from 'antd'
 import { COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from '../const'
 import { formItemLayout } from '../../../../consts'
-import CustomParams from './customerParams'
+import CustomParams from '../components/customParams'
 interface IProps {
     comp: any;
     form: any;

@@ -44,6 +44,10 @@ export function isOtherVersion (code: number): boolean {
         COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER, COMPONENT_TYPE_VALUE.HIVE_SERVER].indexOf(code) > -1
 }
 
+export function isSameVersion (code: number): boolean {
+    return [COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN].indexOf(code) > -1
+}
+
 // 模版中存在id则为自定义参数
 export function getCustomerParams (temps: any): any[] {
     return temps.filter(temp => temp.id)
@@ -90,6 +94,34 @@ export function handleCustomParam (params: any): any {
         }
     }
     return customParam.concat(handleSingleParam(params))
+}
+
+/**
+ * @param temp 初始模版值
+ * 处理初始模版值返回只包含自定义参数的键值
+ * 结构如下
+ * { %1532398855125918-key: key, %1532398855125918-value: value}
+ */
+export function getParamsByTemp (temp: any[]): any {
+    let batchParams: any = {}
+    temp.forEach((item: any) => {
+        if (item.groupParams) {
+            let params = {}
+            item.groupParams.forEach((groupItem: any) => {
+                if (groupItem.id) {
+                    params['%' + groupItem.id + '-key'] = groupItem?.key ?? ''
+                    params['%' + groupItem.id + '-value'] = groupItem?.value ?? ''
+                }
+            })
+            batchParams[item.key] = params
+            return batchParams
+        }
+        if (item.id) {
+            batchParams['%' + item.id + '-key'] = item?.key ?? ''
+            batchParams['%' + item.id + '-value'] = item?.value ?? ''
+        }
+    })
+    return batchParams
 }
 
 /**
@@ -222,6 +254,7 @@ export function getInitialComp (initialCompDataArr: any[], typeCode: number): an
  * @param initialCompData 各组件初始值
  *
  * 通过比对表单值和初始值对比是否变更
+ * 返回含有组件code数组
  *
  */
 export function getModifyComp (comps: any, initialCompData: any[]): any {
@@ -229,7 +262,8 @@ export function getModifyComp (comps: any, initialCompData: any[]): any {
     * 基本参数对比
     * 文件对比，只比较文件名称
     */
-    const defaulParams = ['storeType', 'principal', 'hadoopVersion', 'kerberosFileName', 'uploadFileName']
+    const defaulParams = ['storeType', 'principal', 'hadoopVersion', 'kerberosFileName',
+        'uploadFileName']
     let modifyComps = new Set()
     for (let [typeCode, comp] of Object.entries(comps)) {
         const initialComp = getInitialComp(initialCompData, Number(typeCode))
@@ -243,12 +277,19 @@ export function getModifyComp (comps: any, initialCompData: any[]): any {
             }
         }
         /**
-         * 对比之前先处理一遍表单的数据和自定义参数
+         * 除 hdfs、yarn、kerberos组件
+         * 对比之前先处理一遍表单的数据和自定义参数, 获取含有自定义参数的componentConfig
          */
-        const compConfig = handleComponentConfigAndCustom(comp)
-        console.log(_.isEqual(compConfig, JSON.parse(initialComp.componentConfig)), compConfig, JSON.parse(initialComp.componentConfig))
-        if (!_.isEqual(compConfig, JSON.parse(initialComp.componentConfig))) {
-            modifyComps.add(typeCode)
+        if (!isNeedTemp(Number(typeCode))) {
+            const compConfig = handleComponentConfigAndCustom(comp)
+            if (!_.isEqual(compConfig, JSON.parse(initialComp.componentConfig))) {
+                modifyComps.add(typeCode)
+            }
+        } else {
+            /** 比对 hdfs、yarn 自定义参数 */
+            if (comp['customParam'] && !_.isEqual(comp['customParam'], getParamsByTemp(JSON.parse(initialComp.componentTemplate)))) {
+                modifyComps.add(typeCode)
+            }
         }
     }
     return modifyComps

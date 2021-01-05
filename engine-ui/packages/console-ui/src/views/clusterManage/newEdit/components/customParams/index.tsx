@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { Form, Row, Col, Input } from 'antd'
-import { formItemLayout } from '../../../../consts'
-import { getCustomerParams, giveMeAKey } from '../help'
-import { CONFIG_ITEM_TYPE } from '../const'
+import { formItemLayout } from '../../../../../consts'
+import { getCustomerParams, giveMeAKey } from '../../help'
+import { CONFIG_ITEM_TYPE } from '../../const'
 
 interface IProp {
     typeCode: number;

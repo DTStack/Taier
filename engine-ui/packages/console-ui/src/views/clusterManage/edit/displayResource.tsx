@@ -6,7 +6,7 @@ import {
 } from '../../../consts';
 import Api from '../../../api/console'
 import dealData from './dealData'
-import KerberosModal from './kerberos/kerberosModal'
+import KerberosModal from '../newEdit/components/kerberosModal'
 
 const FormItem = Form.Item;
 const Option = Select.Option;
