@@ -67,6 +67,8 @@ export default {
     // 4.1版本
     GET_COMPONENTSTORE: `${CONSOLE_BASE_URL}/component/getComponentStore`, // 获取存储组件列表
     PARSE_KERBEROS: `${CONSOLE_BASE_URL}/upload/component/parseKerberos`,
+    UPLOAD_KERBEROS: `${CONSOLE_BASE_URL}/upload/component/uploadKerberos`, // 上传kerberos文件
+    UPDATE_KRB5CONF: `${CONSOLE_BASE_URL}/component/updateKrb5Conf`, // 更新krb5文件
 
     // 资源管理
     GET_ALL_CLUSTER: `${CONSOLE_BASE_URL}/cluster/getAllCluster`,

@@ -11,11 +11,18 @@ import { formItemCenterLayout, ALARM_TYPE_TEXT, ALARM_TYPE,
     NUM_COMMA, PHONE_REG, EMAIL_COMMA, EMAIL_REG
 } from '../../consts';
 import { canTestAlarm, showAlertTemplete, textAlertKey,
-    showAlertGateJson } from './help';
+    showAlertGateJson, showAlertGateCode, showIsDefault,
+    showConfigFile } from './help';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 const TextArea = Input.TextArea;
+const wrapperCol = {
+    wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 9 }
+    }
+}
 const AlarmRule: React.FC = (props: any) => {
     const [fileList, setFileList] = useState<any[]>([])
     const { getFieldDecorator, getFieldValue, validateFields, setFieldsValue } = props.form;
@@ -55,7 +62,7 @@ const AlarmRule: React.FC = (props: any) => {
         } else if (alertGateCode.includes('api')) {
             text = CHANNEL_CONF_TEXT.API
         } else {
-            text = ''
+            text = CHANNEL_CONF_TEXT.CUSTOM
         }
         return text;
     }
@@ -63,11 +70,12 @@ const AlarmRule: React.FC = (props: any) => {
         validateFields(async (err, values) => {
             if (!err) {
                 const testKey = textAlertKey(values.alertGateType);
-                let testValue = values[testKey].split(',')
+                let testValue = values.alertGateType !== ALARM_TYPE.CUSTOM ? values[testKey].split(',') : ''
                 let res = await Api.testAlert(Object.assign({}, values, {
+                    id: id || '',
                     filePath: ruleData?.filePath || '',
                     isDefault: values.isDefault ? 1 : 0,
-                    file: values.file?.file || '',
+                    file: values?.file?.file ?? values?.file ?? '',
                     [testKey]: testValue
                 }));
                 if (res.code === 1) {
@@ -85,7 +93,7 @@ const AlarmRule: React.FC = (props: any) => {
                 let res = await Api.addOrUpdateAlarmRule(Object.assign({}, values, {
                     id: id || '',
                     isDefault: values.isDefault ? 1 : 0,
-                    file: fileList.length ? values.file?.file : ''
+                    file: values?.file?.file ?? values?.file ?? ''
                 }));
                 if (res.code === 1) {
                     const msg = id ? '编辑成功' : '新增成功'
@@ -111,14 +119,25 @@ const AlarmRule: React.FC = (props: any) => {
         }
         callBack()
     }
+    const validataFileType = (file: any, messages: string, callBack: Function) => {
+        const reg = /\.(jar)$/
+        const name = file.name
+        if (name && !reg.test(name.toLocaleLowerCase())) {
+            message.warning(messages)
+            return
+        }
+        callBack && callBack()
+    }
     const uploadProp = {
         name: 'file',
         accept: '.jar',
         beforeUpload: (file: any) => {
             console.log(file);
-            let fileList = [file];
-            fileList = fileList.slice(-1);
-            setFileList(fileList)
+            validataFileType(file, 'jar文件只能是.jar文件', () => {
+                let fileList = [file];
+                fileList = fileList.slice(-1);
+                setFileList(fileList)
+            })
             return false;
         },
         onRemove: () => {
@@ -127,28 +146,53 @@ const AlarmRule: React.FC = (props: any) => {
         },
         fileList
     };
+    const uploadConfigProp = {
+        name: 'configFile',
+        accept: '.jar',
+        beforeUpload: (file: any) => {
+            validataFileType(file, '配置文件只能是.jar文件', () => {
+                setFieldsValue({
+                    [`file`]: file
+                })
+            })
+            return false;
+        },
+        fileList: []
+    }
     let testText: string = isEmail ? '邮箱' : '手机号码';
     let alertKey: string = textAlertKey(getFieldValue('alertGateType'));
     const isCreate = utils.getParameterByName('isCreate');
+    const alertGateType = getFieldValue('alertGateType');
+    const alertGateCode = getFieldValue('alertGateCode');
+
+    const handleAlertGateType = () => {
+        getFieldValue('file') && setFieldsValue({
+            [`file`]: ''
+        })
+        setFileList([])
+    }
+
     return (
         <div className='alarm-rule__wrapper'>
             <Breadcrumb>
                 <Breadcrumb.Item> <a onClick={() => {
                     props.router.push('/console/alarmChannel')
                 }}>告警通道</a></Breadcrumb.Item>
-                <Breadcrumb.Item>{`${isCreate ? '新增' : '编辑'}告警通道`}</Breadcrumb.Item>
+                <Breadcrumb.Item>{`${isCreate ? '新增告警通道' : `${ruleData?.alertGateName}`}`}</Breadcrumb.Item>
             </Breadcrumb>
             <Card bordered={false}>
                 <Form>
-                    <FormItem {...formItemCenterLayout} label='告警类型'>
+                    <FormItem
+                        {...{ ...formItemCenterLayout, ...wrapperCol }}
+                        label='通道类型'>
                         {getFieldDecorator('alertGateType', {
                             rules: [{
                                 required: true,
-                                message: '请选择告警类型'
+                                message: '请选择通道类型'
                             }],
                             initialValue: ALARM_TYPE.MSG
                         })(
-                            <Radio.Group name='channelMode'>
+                            <Radio.Group name='channelMode' onChange={handleAlertGateType} disabled={!isCreate}>
                                 {
                                     Object.entries(ALARM_TYPE_TEXT).map(([key, value]) => {
                                         return <Radio key={key} value={Number(key)}>{value}</Radio>
@@ -157,7 +201,7 @@ const AlarmRule: React.FC = (props: any) => {
                             </Radio.Group>
                         )}
                     </FormItem>
-                    <FormItem {...formItemCenterLayout} label='通道模式'>
+                    {showAlertGateCode(alertGateType) && <FormItem {...formItemCenterLayout} label='通道模式'>
                         {getFieldDecorator('alertGateCode', {
                             rules: [{
                                 required: true,
@@ -168,9 +212,9 @@ const AlarmRule: React.FC = (props: any) => {
                                 {getChannelModeOpts()}
                             </Select>
                         )}
-                    </FormItem>
+                    </FormItem>}
                     {
-                        getFieldValue('alertGateCode')?.includes('jar') ? (
+                        alertGateCode?.includes('jar') && !showConfigFile(alertGateType) ? (
                             <FormItem {...formItemCenterLayout} label='上传文件'>
                                 {getFieldDecorator('file', {
                                     rules: [{
@@ -196,8 +240,8 @@ const AlarmRule: React.FC = (props: any) => {
                                 max: 32,
                                 message: '通道标识不超过32个字符'
                             }, {
-                                pattern: /^[A-Za-z_]+$/,
-                                message: '只支持英文字符、下划线'
+                                pattern: /^[A-Za-z0-9_]+$/,
+                                message: '只支持英文、数字、下划线'
                             }]
                         })(
                             <Input disabled={!!id} />
@@ -219,7 +263,7 @@ const AlarmRule: React.FC = (props: any) => {
                             <Input placeholder='请输入通道名称，不超过32个字符' />
                         )}
                     </FormItem>
-                    <FormItem {...formItemCenterLayout} label={' '} colon={false}>
+                    {showIsDefault(alertGateType) && <FormItem {...formItemCenterLayout} label={' '} colon={false}>
                         {getFieldDecorator('isDefault', {
                             valuePropName: 'checked',
                             initialValue: false
@@ -229,9 +273,37 @@ const AlarmRule: React.FC = (props: any) => {
                         <Tooltip title='各应用的告警走默认通道，故默认通道需谨慎设置，支持用户后续更改，每个通道类有且仅有一个默认通道。' arrowPointAtCenter>
                             <Icon type="info-circle" />
                         </Tooltip>
-                    </FormItem>
+                    </FormItem>}
+                    {showConfigFile(alertGateType) && <FormItem {...{ ...formItemCenterLayout, ...wrapperCol }} label='配置文件'>
+                        {getFieldDecorator('file', {
+                            rules: [{
+                                required: true, message: '文件不可为空！'
+                            }],
+                            initialValue: ruleData?.filePath
+                        })(<div />)}
+                        <div className="c-alarmRule__config">
+                            <Upload {...uploadConfigProp}>
+                                <Button style={{ width: 164 }} icon="upload">点击上传</Button>
+                            </Upload>
+                            <span className="config-desc">
+                                仅支持jar格式，
+                                <a href={`/api/console/service/alert/downloadJar?alertGateType=${alertGateType}`}>
+                                查看配置文件说明
+                                </a>
+                            </span>
+                        </div>
+                        {getFieldValue('file') && <span className="config-file">
+                            <Icon type="paper-clip" />
+                            {getFieldValue('file')?.name ?? getFieldValue('file') ?? '' }
+                            <Icon type="delete" onClick={() => {
+                                setFieldsValue({
+                                    [`file`]: ''
+                                })
+                            }} />
+                        </span>}
+                    </FormItem>}
                     {
-                        showAlertGateJson(getFieldValue('alertGateCode')) ? <FormItem {...formItemCenterLayout} label='通道配置信息'>
+                        showAlertGateJson(alertGateCode, alertGateType) ? <FormItem {...formItemCenterLayout} label='通道配置信息'>
                             {getFieldDecorator('alertGateJson', {
                                 rules: [{
                                     required: true,
@@ -243,7 +315,7 @@ const AlarmRule: React.FC = (props: any) => {
                         </FormItem> : null
                     }
                     {
-                        showAlertTemplete(getFieldValue('alertGateType'), getFieldValue('alertGateCode')) ? (
+                        showAlertTemplete(alertGateType, alertGateCode) ? (
                             <FormItem {...formItemCenterLayout} label='通知消息模版'>
                                 {getFieldDecorator('alertTemplate', {
                                     rules: [{
@@ -252,7 +324,7 @@ const AlarmRule: React.FC = (props: any) => {
                                     }]
                                 })(
                                     <TextArea
-                                        placeholder={`请按照此格式填写："【企业名称】$` + `{message}，请及时处理`}
+                                        placeholder={`请按照此格式填写：<企业名称>$` + `{message}，请及时处理`}
                                         rows={4}
                                     />
                                 )}
@@ -260,7 +332,7 @@ const AlarmRule: React.FC = (props: any) => {
                         ) : null
                     }
                     {
-                        canTestAlarm(getFieldValue('alertGateType')) ? (
+                        canTestAlarm(alertGateType) ? (
                             <FormItem {...formItemCenterLayout} label=' ' colon={false}>
                                 {getFieldDecorator(`${alertKey}`, {
                                     rules: [{
@@ -270,9 +342,10 @@ const AlarmRule: React.FC = (props: any) => {
                                     }],
                                     initialValue: ''
                                 })(
-                                    <Input
+                                    alertGateType !== ALARM_TYPE.CUSTOM ? <Input
                                         placeholder={`输入${testText}测试号码，多个${testText}用英文逗号隔开`}
-                                        addonAfter={<span onClick={() => { testAlarm() }}>点击测试</span>} />
+                                        addonAfter={<span onClick={() => { testAlarm() }}>点击测试</span>}
+                                    /> : <Button ghost onClick={() => { testAlarm() }}>消息发送测试</Button>
                                 )}
                             </FormItem>
                         ) : null

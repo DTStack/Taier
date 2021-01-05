@@ -331,9 +331,8 @@
             align-items: center;
             background-color: #fff;
             .c-editCluster__container__componentFooter__btn {
-                padding: 0;
+                padding: 0 12px;
                 height: 28px;
-                width: 88px;
             }
         }
     }
@@ -384,8 +383,49 @@
     .c-displayResource__notice {
         font-size: 10px;
         color: #999;
-        line-height: 16px;
+        line-height: 20px;
         padding-top: 5px;
+    }
+    .c-displayResource__kerberos {
+        .notice {
+            font-size: 10px;
+            color: #999;
+            line-height: 20px
+        }
+        .config-file {
+            width: 176px;
+            height: 20px;
+            display: block;
+            padding: 0 52px 0 16px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 12px;
+            line-height: 20px;
+            position: relative;
+            color: #333;
+            .anticon-delete, .anticon-paper-clip, .anticon-edit, .anticon-download {
+                position: absolute;
+                top: 4px;
+                color: #666;
+                font-size: 12px;
+            }
+            .anticon-paper-clip {
+                left: 0;
+            }
+            .anticon-delete {
+                right: 0;
+            }
+            .anticon-download {
+                right: 20px;
+            }
+            .anticon-edit {
+                right: 40px;
+            }
+            &:hover {
+                background-color: #F2F9FF;
+            }
+        }    
     }
     >.ant-form-item {
         margin-bottom: 20px;
@@ -543,6 +583,7 @@
     }
 }
 
+<<<<<<< HEAD
 .c-componentButton__title {
     width: 240px;
     height: 40px;
@@ -571,3 +612,11 @@
     text-align: center;
     border-top: 1px solid #E8E8E8;
 }
+=======
+.c-kerberosModal__edior {
+    background-color: #F5F5F5;
+    > .CodeMirror {
+        background-color: #F5F5F5;
+    }
+}
+>>>>>>> test_4.1.x

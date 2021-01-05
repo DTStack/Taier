@@ -7,12 +7,20 @@
             float: right;
         }
     }
-    .alarm-btn {
-        width: 130px;
-        background-color: rgba(63, 135, 255, 0.1);
-        color: #3f87ff;
-        pointer-events: none;
-        border: 0;
+    .alarm-name {
+        height: 28px;
+        line-height: 28px;
+        .alarm-btn {
+            background-color: rgba(63, 135, 255, 0.1);
+            color: #3f87ff;
+            pointer-events: none;
+            border: 0;
+            margin-left: 12px;
+            border-radius: 14px;
+            padding: 0 10px;
+            height: 28px;
+            line-height: 28px;
+        }
     }
 }
 .alarm-rule__wrapper {
@@ -45,6 +53,46 @@
                 button:nth-child(2) {
                     margin-left: 10px;
                 }
+            }
+        }
+    }
+}
+.c-alarmRule__config {
+    display: flex;
+    .config-desc {
+       margin-left: 12px;
+       color: #999;
+       font-size: 10px;
+    }
+    & + .config-file {
+        width: 176px;
+        height: 20px;
+        display: block;
+        padding: 0 16px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 12px;
+        margin-top: 12px;
+        line-height: 20px;
+        position: relative;
+        .anticon-paper-clip {
+            position: absolute;
+            left: 0;
+            top: 4px;
+            color: #666;
+        }
+        .anticon-delete {
+            position: absolute;
+            right: 0;
+            top: 4px;
+            color: #666;
+            display: none;
+        }
+        &:hover {
+            background-color: #F2F9FF;
+            .anticon-delete {
+                display: block;
             }
         }
     }
