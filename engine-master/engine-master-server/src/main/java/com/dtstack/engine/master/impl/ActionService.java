@@ -1,26 +1,30 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.domain.EngineJobRetry;
+import com.dtstack.engine.api.domain.EngineUniqueSign;
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.pojo.ParamAction;
+import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.api.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.CustomThreadRunsPolicy;
+import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.common.JobClient;
-import com.dtstack.engine.master.enums.JobPhaseStatus;
-import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import com.dtstack.engine.master.multiengine.factory.MultiEngineFactory;
@@ -28,11 +32,13 @@ import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
 import com.dtstack.engine.master.utils.TaskParamsUtil;
+import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.ForceCancelFlag;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +49,10 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 接收http请求
@@ -91,6 +100,8 @@ public class ActionService {
 
     @Autowired
     private MultiEngineFactory multiEngineFactory;
+
+    private final ObjectMapper objMapper = new ObjectMapper();
 
 
     private static int length = 8;
@@ -150,31 +161,33 @@ public class ActionService {
         return false;
     }
 
-    public Boolean startJob(ScheduleTaskShade batchTask,String jobId,Integer isRestart, String flowJobId) {
-        logger.info("startJob ScheduleTaskShade: {} jobId:{} isRestart:{} flowJobId:{} ", JSONObject.toJSONString(batchTask), jobId, isRestart, flowJobId);
+    public Boolean startJob(ScheduleTaskShade batchTask,String jobId, String flowJobId) {
+        logger.info("startJob ScheduleTaskShade: {} jobId:{} flowJobId:{} ", JSONObject.toJSONString(batchTask), jobId, flowJobId);
         try {
-            ParamActionExt paramActionExt = paramActionExt(batchTask, jobId, isRestart, flowJobId);
+            ParamActionExt paramActionExt = paramActionExt(batchTask, jobId, flowJobId);
             if (paramActionExt == null) {
                 throw new RdosDefineException("extraInfo can't null or empty string");
             }
             return this.start(paramActionExt);
         } catch (Exception e) {
             logger.error("", e);
-            if (e instanceof RdosDefineException) {
-                throw (RdosDefineException)e;
-            }
+            return Boolean.FALSE;
         }
-
-        return Boolean.FALSE;
     }
 
-    public ParamActionExt paramActionExt(ScheduleTaskShade batchTask, String jobId, Integer isRestart, String flowJobId) throws Exception {
-        logger.info("startJob ScheduleTaskShade: {} jobId:{} isRestart:{} flowJobId:{} ", JSONObject.toJSONString(batchTask), jobId, isRestart, flowJobId);
-        ScheduleJob scheduleJob = buildScheduleJob(batchTask, jobId, isRestart, flowJobId);
+    public ParamActionExt paramActionExt(ScheduleTaskShade batchTask, String jobId, String flowJobId) throws Exception {
+        if (StringUtils.isBlank(jobId)) {
+            jobId = this.generateUniqueSign();
+        }
+        logger.info("startJob ScheduleTaskShade: {} jobId:{} flowJobId:{} ", JSONObject.toJSONString(batchTask), jobId, flowJobId);
+        ScheduleJob scheduleJob = buildScheduleJob(batchTask, jobId, flowJobId);
         ParamActionExt paramActionExt = paramActionExt(batchTask, scheduleJob, JSONObject.parseObject(batchTask.getExtraInfo()));
         if (paramActionExt == null) {
             throw new RdosDefineException("extraInfo can't null or empty string");
         }
+        
+        paramActionExt.setCycTime(scheduleJob.getCycTime());
+        paramActionExt.setTaskSourceId(batchTask.getTaskId());
         return paramActionExt;
     }
 
@@ -183,9 +196,16 @@ public class ActionService {
         return this.parseParamActionExt(scheduleJob, batchTask, extraInfo);
     }
 
-    private ScheduleJob buildScheduleJob(ScheduleTaskShade batchTask, String jobId, Integer isRestart, String flowJobId) throws IOException, ParseException {
+    private ScheduleJob buildScheduleJob(ScheduleTaskShade batchTask, String jobId, String flowJobId) throws IOException, ParseException {
         String cycTime = jobRichOperator.getCycTime(0);
         String scheduleConf = batchTask.getScheduleConf();
+        // 立即执行不需要重试
+        if (StringUtils.isNotBlank(scheduleConf)) {
+            Map jsonMap = objMapper.readValue(scheduleConf, Map.class);
+            jsonMap.put("isFailRetry",false);
+            scheduleConf = JSON.toJSONString(jsonMap);
+            batchTask.setScheduleConf(scheduleConf);
+        }
         ScheduleCron scheduleCron = ScheduleFactory.parseFromJson(scheduleConf);
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setJobId(jobId);
@@ -196,16 +216,15 @@ public class ActionService {
         scheduleJob.setTenantId(batchTask.getTenantId());
         scheduleJob.setProjectId(getOrDefault(batchTask.getProjectId(), -1L));
         //dtuicTenantId() 取 tenantId字段
-        scheduleJob.setDtuicTenantId(getOrDefault(batchTask.getTenantId(), -1L));
+        scheduleJob.setDtuicTenantId(getOrDefault(batchTask.getDtuicTenantId(), -1L));
         scheduleJob.setAppType(getOrDefault(batchTask.getAppType(), 0));
         scheduleJob.setJobKey(String.format("%s%s%s", "tempJob", batchTask.getTaskId() + batchTask.getAppType(), new DateTime().toString("yyyyMMdd")));
         scheduleJob.setTaskId(-1L);
         scheduleJob.setCreateUserId(getOrDefault(batchTask.getCreateUserId(), -1L));
 
         scheduleJob.setType(EScheduleType.TEMP_JOB.getType());
-        scheduleJob.setIsRestart(getOrDefault(isRestart, 0));
         scheduleJob.setBusinessDate(getOrDefault(jobRichOperator.getCycTime(-1), ""));
-        scheduleJob.setCycTime(getOrDefault(cycTime, ""));
+        scheduleJob.setCycTime(getOrDefault(cycTime, DateTime.now().toString("yyyyMMddHHmmss")));
 
         scheduleJob.setDependencyType(getOrDefault(scheduleCron.getSelfReliance(), 0));
         scheduleJob.setFlowJobId(getOrDefault(flowJobId, "0"));
@@ -219,6 +238,10 @@ public class ActionService {
     }
 
     public ParamActionExt parseParamActionExt(ScheduleJob scheduleJob, ScheduleTaskShade batchTask, JSONObject info) throws Exception {
+        if (info == null) {
+            throw new RdosDefineException("extraInfo can't null or empty string");
+        }
+
         Integer multiEngineType = info.getInteger("multiEngineType");
         String ldapUserName = info.getString("ldapUserName");
         if (org.apache.commons.lang.StringUtils.isNotBlank(ldapUserName)) {
@@ -228,14 +251,14 @@ public class ActionService {
         }
         Map<String, Object> actionParam = PublicUtil.strToMap(info.toJSONString());
         JobStartTriggerBase jobTriggerService = multiEngineFactory.getJobTriggerService(multiEngineType);
-        jobTriggerService.readyForTaskStartTrigger(actionParam,batchTask,scheduleJob);
+        jobTriggerService.readyForTaskStartTrigger(actionParam, batchTask, scheduleJob);
         actionParam.put("name", scheduleJob.getJobName());
         actionParam.put("taskId", scheduleJob.getJobId());
         actionParam.put("taskType", EScheduleJobType.getEngineJobType(batchTask.getTaskType()));
         actionParam.put("appType", batchTask.getAppType());
         Object tenantId = actionParam.get("tenantId");
-        if(Objects.isNull(tenantId)){
-            actionParam.put("tenantId",batchTask.getDtuicTenantId());
+        if (Objects.isNull(tenantId)) {
+            actionParam.put("tenantId", batchTask.getDtuicTenantId());
         }
         // 出错重试配置,兼容之前的任务，没有这个参数则默认重试
         JSONObject scheduleConf = JSONObject.parseObject(batchTask.getScheduleConf());
@@ -317,6 +340,9 @@ public class ActionService {
                     scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
                     scheduleJob.setAppType(paramActionExt.getAppType());
                     scheduleJob.setDtuicTenantId(paramActionExt.getDtuicTenantId());
+                    if (AppType.STREAM.getType() == paramActionExt.getAppType()) {
+                        scheduleJob.setRetryNum(0);
+                    }
                     scheduleJobDao.update(scheduleJob);
                     logger.info("jobId:{} update job status:{}.", scheduleJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
                 }
@@ -481,11 +507,12 @@ public class ActionService {
         if (StringUtils.isBlank(jobId) || computeType==null){
             throw new RdosDefineException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
-        ActionRetryLogVO vo = new ActionRetryLogVO();
+
         List<ActionRetryLogVO> logs = new ArrayList<>(5);
         List<EngineJobRetry> batchJobRetrys = engineJobRetryDao.listJobRetryByJobId(jobId);
         if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
             batchJobRetrys.forEach(jobRetry->{
+                ActionRetryLogVO vo = new ActionRetryLogVO();
                 vo.setRetryNum(jobRetry.getRetryNum());
                 vo.setLogInfo(jobRetry.getLogInfo());
                 vo.setRetryTaskParams(jobRetry.getRetryTaskParams());
@@ -616,7 +643,8 @@ public class ActionService {
         Integer currStatus = scheduleJob.getStatus();
 
         if(!RdosTaskStatus.canReset(currStatus)){
-            throw new RdosDefineException(String.format("computeType(%d) taskId(%s) can't reset status, current status(%d)", computeType, jobId, currStatus.intValue()));
+            logger.error("jobId:{} can not update status current status is :{} ", jobId, currStatus);
+            throw new RdosDefineException(String.format("computeType(%d) taskId(%s) can't reset status, current status(%d)", computeType, jobId, currStatus));
         }
 
         //do reset status

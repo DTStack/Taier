@@ -62,6 +62,8 @@ public class FlinkConfig extends BaseConfig {
 
     private String flinkSessionName = "Flink session";
 
+    private int sessionRetryNum = 5;
+
     private boolean sessionStartAuto = false;
 
     private boolean flinkHighAvailability = false;
@@ -113,6 +115,15 @@ public class FlinkConfig extends BaseConfig {
 
     public void setSessionCheckJarPath(String sessionCheckJarPath) {
         this.sessionCheckJarPath = sessionCheckJarPath;
+    }
+
+
+    public int getSessionRetryNum() {
+        return sessionRetryNum;
+    }
+
+    public void setSessionRetryNum(int sessionRetryNum) {
+        this.sessionRetryNum = sessionRetryNum;
     }
 
     private boolean monitorAcceptedApp = false;

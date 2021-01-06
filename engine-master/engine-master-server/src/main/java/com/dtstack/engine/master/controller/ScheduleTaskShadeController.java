@@ -37,6 +37,30 @@ public class ScheduleTaskShadeController {
         scheduleTaskShadeService.addOrUpdate(batchTaskShadeDTO);
     }
 
+    @RequestMapping(value = "/addOrUpdateBatchTask", method = {RequestMethod.POST})
+    @ApiOperation(value = "批量添加或更新任务", notes = "例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息")
+    public String addOrUpdateBatchTask(@RequestBody List<ScheduleTaskShadeDTO> batchTaskShadeDTOs) {
+        return scheduleTaskShadeService.addOrUpdateBatchTask(batchTaskShadeDTOs);
+    }
+
+    @RequestMapping(value="/infoCommit", method = {RequestMethod.POST})
+    @ApiOperation(value = "保存任务提交engine的额外信息,不会直接提交，只有commit之后才会提交")
+    public void infoCommit(@DtRequestParam("taskId") Long taskId, @DtRequestParam("appType") Integer appType, @DtRequestParam("extraInfo") String info, @DtRequestParam("commitId") String commitId) {
+        scheduleTaskShadeService.infoCommit(taskId, appType, info,commitId);
+    }
+
+    @RequestMapping(value="/taskCommit", method = {RequestMethod.POST})
+    @ApiOperation(value = "提交任务")
+    public void taskCommit(@DtRequestParam("commitId") String commitId) {
+        scheduleTaskShadeService.taskCommit(commitId);
+    }
+
+    @RequestMapping(value="/info", method = {RequestMethod.POST})
+    @ApiOperation(value = "保存任务提交engine的额外信息")
+    public void info(@DtRequestParam("taskId") Long taskId, @DtRequestParam("appType") Integer appType, @DtRequestParam("extraInfo") String info) {
+        scheduleTaskShadeService.info(taskId, appType, info);
+    }
+
     @RequestMapping(value="/deleteTask", method = {RequestMethod.POST})
     @ApiOperation(value = "删除任务", notes = "task删除时触发同步清理")
     public void deleteTask(@DtRequestParam("taskId") Long taskId, @DtRequestParam("modifyUserId") long modifyUserId, @DtRequestParam("appType") Integer appType) {
@@ -127,11 +151,7 @@ public class ScheduleTaskShadeController {
     }
 
 
-    @RequestMapping(value="/info", method = {RequestMethod.POST})
-    @ApiOperation(value = "保存任务提交engine的额外信息")
-    public void info(@DtRequestParam("taskId") Long taskId, @DtRequestParam("appType") Integer appType, @DtRequestParam("extraInfo") String info) {
-        scheduleTaskShadeService.info(taskId, appType, info);
-    }
+
 
     @RequestMapping(value="/listDependencyTask", method = {RequestMethod.POST})
     public List<Map<String, Object>> listDependencyTask(@DtRequestParam("taskIds") List<Long> taskId, @DtRequestParam("appType") Integer appType, @DtRequestParam("name") String name, @DtRequestParam("projectId") Long projectId) {
@@ -171,4 +191,7 @@ public class ScheduleTaskShadeController {
                                            @DtRequestParam("resourceParams") String resourceParams){
         return scheduleTaskShadeService.checkResourceLimit(dtuicTenantId,taskType,resourceParams,null);
     }
+
+
+
 }

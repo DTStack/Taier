@@ -271,6 +271,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         }
         logger.info("jobId:{} checkRunInfo.status:{} errMsg:{} status:{} update status.", scheduleBatchJob.getJobId(), checkRunInfo.getStatus(), errMsg, status);
         batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getJobId(), status, errMsg);
+        batchFlowWorkJobService.batchUpdateFlowSubJobStatus(scheduleBatchJob.getScheduleJob(),status);
         return Boolean.FALSE;
     }
 

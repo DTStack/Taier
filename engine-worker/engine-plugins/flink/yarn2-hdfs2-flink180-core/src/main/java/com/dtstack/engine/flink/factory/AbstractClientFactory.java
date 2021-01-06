@@ -35,7 +35,9 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Date: 2020/5/13
@@ -76,12 +78,19 @@ public abstract class AbstractClientFactory implements IClientFactory {
             YarnConfiguration yarnConfiguration,
             String configurationDirectory) {
 
+        YarnConfiguration newYarnConfig = new YarnConfiguration();
+        Iterator<Map.Entry<String, String>> iterator = yarnConfiguration.iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> next = iterator.next();
+            newYarnConfig.set(next.getKey(), next.getValue());
+        }
+
         YarnClient yarnClient = YarnClient.createYarnClient();
-        yarnClient.init(yarnConfiguration);
+        yarnClient.init(newYarnConfig);
         yarnClient.start();
         return new YarnClusterDescriptor(
                 configuration,
-                yarnConfiguration,
+                newYarnConfig,
                 configurationDirectory,
                 yarnClient,
                 false);

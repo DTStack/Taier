@@ -119,6 +119,9 @@ public enum EComponentType {
     public static List<EComponentType> PrestoComponents = Lists.newArrayList(EComponentType.PRESTO_SQL);
 
 
+
+
+
     public static MultiEngineType getEngineTypeByComponent(EComponentType componentType) {
         if (HadoopComponents.contains(componentType)) {
             return MultiEngineType.HADOOP;

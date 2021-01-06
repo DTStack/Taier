@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.engine.dao.KerberosDao">
 
     <sql id="select_content_fragment">
-      id,cluster_id,open_kerberos,name,remote_path,principal,gmt_create,gmt_modified,is_deleted,component_type,krb_name,principals
+      id,cluster_id,open_kerberos,name,remote_path,principal,gmt_create,gmt_modified,is_deleted,component_type,krb_name,principals,merge_krb_content
     </sql>
 
     <sql id="update_fragment">
@@ -34,6 +34,9 @@
             </if>
             <if test="krbName != null">
                 krb_name = #{krbName},
+            </if>
+            <if test="mergeKrbContent != null">
+                merge_krb_content = #{mergeKrbContent},
             </if>
             gmt_modified =now()
         </set>
@@ -77,4 +80,11 @@
         WHERE cluster_id =  (SELECT cluster_id from console_engine cn WHERE cn.id =(SELECT engine_id from console_component WHERE id = #{componentId}))
         AND component_type = (SELECT component_type_code from console_component WHERE id = #{componentId})
     </update>
+
+    <select id="listAll" resultType="KerberosConfig">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_kerberos
+        WHERE is_deleted = 0
+    </select>
 </mapper>

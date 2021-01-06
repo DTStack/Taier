@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.ScheduleTaskCommitMapper">
+
+    <sql id="filed">
+        id,
+        task_id,
+        app_type,
+        commit_id,
+        task_json,
+        extra_info,
+        is_commit,
+        is_deleted,
+        gmt_create,
+        gmt_modified
+    </sql>
+
+    <insert id="insertBatch">
+        INSERT INTO schedule_task_commit
+        (task_id,
+        app_type,
+        commit_id,
+        task_json,
+        extra_info,
+        is_commit,
+        is_deleted)
+        VALUES
+        <foreach collection="scheduleTaskCommits" item="scheduleTaskCommit" separator=",">
+            (#{scheduleTaskCommit.taskId},
+            #{scheduleTaskCommit.appType},
+            #{scheduleTaskCommit.commitId},
+            #{scheduleTaskCommit.taskJson},
+            #{scheduleTaskCommit.extraInfo},
+            #{scheduleTaskCommit.isCommit},
+            #{scheduleTaskCommit.isDeleted})
+        </foreach>
+    </insert>
+
+    <select id="getExtInfoByTaskId" resultType="java.lang.String">
+        SELECT
+        extra_info
+        FROM schedule_task_commit
+        WHERE task_id = #{taskId} AND app_type = #{appType} AND  is_commit = 0 AND is_deleted = 0 AND commit_id = #{commitId} limit 1
+    </select>
+
+    <update id="updateTaskExtInfo">
+        UPDATE schedule_task_commit
+        SET extra_info = #{info}
+        WHERE task_id = #{taskId} AND app_type = #{appType} AND is_commit = 0 AND is_deleted = 0 and commit_id = #{commitId}
+    </update>
+
+    <update id="updateTaskCommit">
+        UPDATE schedule_task_commit
+        SET is_commit = 1
+        WHERE id = #{id}
+    </update>
+
+    <select id="findMinIdOfTaskCommitByCommitId" resultType="java.lang.Long">
+        SELECT
+        Min(id)
+        FROM schedule_task_commit
+        WHERE commit_id = #{commitId} AND is_commit = 0 AND is_deleted = 0
+    </select>
+
+    <select id="findTaskCommitByCommitId" resultType="com.dtstack.engine.api.domain.ScheduleTaskCommit">
+        SELECT
+        <include refid="filed"/>
+        FROM schedule_task_commit
+        WHERE commit_id = #{commitId} AND is_commit = 0 AND is_deleted = 0 AND id >= ${minId}
+        ORDER BY id DESC
+        LIMIT ${limit}
+    </select>
+
+</mapper>
