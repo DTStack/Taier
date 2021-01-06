@@ -176,11 +176,26 @@ public class LineageController {
         return lineageService.queryTableInputLineage(queryTableLineageParam);
     }
 
+    @RequestMapping(value = "/queryTableInputLineageCount", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询表上游血缘表数量")
+    public Integer queryTableInputLineageCount(@RequestBody QueryTableLineageParam queryTableLineageParam){
+        checkQueryColumnLineageParam(queryTableLineageParam);
+        return lineageService.queryTableInputLineage(queryTableLineageParam).size();
+    }
+
+
     @RequestMapping(value = "/queryTableResultLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "查询表下游血缘")
     public List<LineageTableTableVO> queryTableResultLineage(@RequestBody QueryTableLineageParam queryTableLineageParam) {
         checkQueryColumnLineageParam(queryTableLineageParam);
         return lineageService.queryTableResultLineage(queryTableLineageParam);
+    }
+
+    @RequestMapping(value = "/queryTableResultLineageCount", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询表下游血缘表数量")
+    public Integer queryTableResultLineageCount(@RequestBody QueryTableLineageParam queryTableLineageParam) {
+        checkQueryColumnLineageParam(queryTableLineageParam);
+        return lineageService.queryTableResultLineage(queryTableLineageParam).size();
     }
 
     @RequestMapping(value = "/queryTableLineages", method = {RequestMethod.POST})
@@ -206,11 +221,25 @@ public class LineageController {
         return lineageService.queryColumnInputLineage(queryColumnLineageParam);
     }
 
+    @RequestMapping(value = "/queryColumnInputLineageCount", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询字段上游血缘字段数量")
+    public Integer queryColumnInputLineageCount(@RequestBody QueryColumnLineageParam queryColumnLineageParam) {
+        checkQueryColumnLineageParam(queryColumnLineageParam);
+        return lineageService.queryColumnInputLineage(queryColumnLineageParam).size();
+    }
+
     @RequestMapping(value = "/queryColumnResultLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "查询字段下游血缘")
     public List<LineageColumnColumnVO> queryColumnResultLineage(@RequestBody QueryColumnLineageParam queryColumnLineageParam) {
         checkQueryColumnLineageParam(queryColumnLineageParam);
         return lineageService.queryColumnResultLineage(queryColumnLineageParam);
+    }
+
+    @RequestMapping(value = "/queryColumnResultLineageCount", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询字段下游血缘")
+    public Integer queryColumnResultLineageCount(@RequestBody QueryColumnLineageParam queryColumnLineageParam) {
+        checkQueryColumnLineageParam(queryColumnLineageParam);
+        return lineageService.queryColumnResultLineage(queryColumnLineageParam).size();
     }
 
     @RequestMapping(value = "/queryColumnLineages", method = {RequestMethod.POST})

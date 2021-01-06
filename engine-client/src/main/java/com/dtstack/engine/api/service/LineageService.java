@@ -117,6 +117,15 @@ public interface LineageService extends DtInsightServer {
     ApiResponse<List<LineageTableTableVO>> queryTableInputLineage(@Param("appType") Long appType,@Param("tableId") Long tableId);
 
     /**
+     * 根据表id查询表上游血缘表数量
+     * @param appType
+     * @param tableId
+     * @return 返回当前表的上游血缘表数量。
+     */
+    @RequestLine("POST /node/lineage/queryTableInputLineageCount")
+    ApiResponse<Integer> queryTableInputLineageCount(@Param("appType") Long appType,@Param("tableId") Long tableId);
+
+    /**
      * 根据表id查询表下游血缘关系
      * @param appType
      * @param tableId
@@ -124,6 +133,15 @@ public interface LineageService extends DtInsightServer {
      */
     @RequestLine("POST /node/lineage/queryTableResultLineage")
     ApiResponse<List<LineageTableTableVO>> queryTableResultLineage(@Param("appType")Long appType, @Param("tableId")Long tableId);
+
+    /**
+     * 根据表id查询表下游血缘表数量
+     * @param appType
+     * @param tableId
+     * @return 返回当前表的下游血缘表数量。
+     */
+    @RequestLine("POST /node/lineage/queryTableResultLineageCount")
+    ApiResponse<Integer> queryTableResultLineageCount(@Param("appType")Long appType, @Param("tableId")Long tableId);
 
     /**
      * 根据表id查询表上下游血缘关系
@@ -141,8 +159,18 @@ public interface LineageService extends DtInsightServer {
      * @param columnName
      * @return 返回当前字段的上游血缘列表。使用双亲表示法表示树。
      */
-    @RequestLine("POST /node/lineage/queryColumnInoutLineage")
-    ApiResponse<List<LineageColumnColumnVO>> queryColumnInoutLineage(@Param("appType")Long appType,@Param("tableId")Long tableId,@Param("columnName")String columnName);
+    @RequestLine("POST /node/lineage/queryColumnInputLineage")
+    ApiResponse<List<LineageColumnColumnVO>> queryColumnInputLineage(@Param("appType")Long appType,@Param("tableId")Long tableId,@Param("columnName")String columnName);
+
+    /**
+     * 查询字段上游血缘字段数量
+     * @param appType
+     * @param tableId
+     * @param columnName
+     * @return 返回当前字段的上游血缘字段数量。
+     */
+    @RequestLine("POST /node/lineage/queryColumnInputLineageCount")
+    ApiResponse<Integer> queryColumnInputLineageCount(@Param("appType")Long appType,@Param("tableId")Long tableId,@Param("columnName")String columnName);
 
     /**
      * 查询字段下游字段血缘
@@ -153,6 +181,16 @@ public interface LineageService extends DtInsightServer {
      */
     @RequestLine("POST /node/lineage/queryColumnResultLineage")
     ApiResponse<List<LineageColumnColumnVO>> queryColumnResultLineage(@Param("appType")Long appType,@Param("tableId")Long tableId,@Param("columnName")String columnName);
+
+    /**
+     * 查询字段下游血缘字段数量
+     * @param appType
+     * @param tableId
+     * @param columnName
+     * @return 返回当前表的下游血缘字段数量。
+     */
+    @RequestLine("POST /node/lineage/queryColumnResultLineageCount")
+    ApiResponse<Integer> queryColumnResultLineageCount(@Param("appType")Long appType,@Param("tableId")Long tableId,@Param("columnName")String columnName);
 
     /**
      * 查询字段所有血缘关系
