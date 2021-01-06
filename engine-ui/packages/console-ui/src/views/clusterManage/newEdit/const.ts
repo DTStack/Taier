@@ -37,7 +37,7 @@ export const COMPONENT_CONFIG_NAME = {
     6: 'SparkThrift',
     7: 'CarbonData ThriftServer',
     8: 'LibrA SQL',
-    9: 'Hive Server',
+    9: 'HiveServer',
     10: 'SFTP',
     11: 'Impala SQL',
     12: 'TiDB SQL',

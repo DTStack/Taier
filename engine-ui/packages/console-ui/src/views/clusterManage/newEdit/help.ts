@@ -53,6 +53,16 @@ export function getCustomerParams (temps: any): any[] {
     return temps.filter(temp => temp.id)
 }
 
+export function getCompsId (currentComps: any[], typeCodes: any[]): any[] {
+    let ids = []
+    currentComps.forEach(comp => {
+        if (typeCodes.indexOf(comp?.componentTypeCode) > -1 && comp?.id) {
+            ids.push(comp.id)
+        }
+    })
+    return ids
+}
+
 /**
  * @param param
  * 处理单条自定义参数的key\value值

@@ -6,8 +6,9 @@ import * as _ from 'lodash'
 
 import Api from '../../../api/console'
 import { initialScheduling, giveMeAKey, isViewMode,
-    isNeedTemp, getModifyComp } from './help'
-import { TABS_TITLE, COMPONENT_CONFIG_NAME, DEFAULT_COMP_VERSION } from './const'
+    isNeedTemp, getModifyComp, isSameVersion, getCompsId } from './help'
+import { TABS_TITLE, COMPONENT_CONFIG_NAME, DEFAULT_COMP_VERSION,
+    COMPONENT_TYPE_VALUE } from './const'
 
 import FileConfig from './fileConfig'
 import FormConfig from './formConfig'
@@ -97,27 +98,38 @@ class EditCluster extends React.Component<any, IState> {
         const typeCode = key ?? initialCompData[activeKey][0].componentTypeCode
         const comp = initialCompData[activeKey].find(comp => comp.componentTypeCode == typeCode)
 
-        if (!isNeedTemp(Number(typeCode)) && !comp.componentTemplate) {
-            Api.getLoadTemplate({
+        if ((!isNeedTemp(Number(typeCode)) && !comp.componentTemplate) || params?.compVersion || params?.storeType) {
+            const res = await Api.getLoadTemplate({
                 clusterName,
                 componentType: typeCode,
                 version: params?.compVersion ?? DEFAULT_COMP_VERSION[typeCode] ?? '',
                 storeType: params?.storeType ?? getFieldValue(`${typeCode}.storeType`) ?? ''
-            }).then((res: any) => {
-                if (res.code == 1) {
-                    this.saveComp({
-                        componentTemplate: JSON.stringify(res.data),
-                        componentTypeCode: Number(typeCode)
-                    })
-                }
             })
+            if (res.code == 1) {
+                this.saveComp({
+                    componentTemplate: JSON.stringify(res.data),
+                    componentTypeCode: Number(typeCode)
+                })
+            }
+            this.getSaveComponentList()
         }
     }
 
-    handleCommVersion = (version: string) => {
-        this.setState({
-            commVersion: version
-        })
+    handleCompVersion = (typeCode: string, version: string) => {
+        if (isSameVersion(Number(typeCode))) {
+            this.setState({
+                commVersion: version
+            })
+            this.props.form.setFieldsValue({
+                [COMPONENT_TYPE_VALUE.YARN]: {
+                    hadoopVersion: version
+                },
+                [COMPONENT_TYPE_VALUE.HDFS]: {
+                    hadoopVersion: version
+                }
+            })
+        }
+        this.getLoadTemplate(typeCode, { compVersion: version })
     }
 
     onTabChange = (key: string) => {
@@ -138,14 +150,21 @@ class EditCluster extends React.Component<any, IState> {
         })
     }
 
-    handleConfirm = (addComps: any[], deleteComps: any[]) => {
+    handleConfirm = async (addComps: any[], deleteComps: any[]) => {
         console.log(addComps, deleteComps)
         // 先删除组件，再添加
         const { initialCompData, activeKey, testStatus } = this.state
         let newCompData = initialCompData
         let newTestStatus = testStatus
         let currentCompArr = newCompData[activeKey]
-        if (deleteComps.length > 0) {
+        let res: any
+        const componentIds = getCompsId(currentCompArr, deleteComps)
+
+        if (componentIds.length) {
+            res = await Api.deleteComponent({ componentIds })
+        }
+
+        if (deleteComps.length && (res?.code == 1 || !componentIds.length)) {
             deleteComps.forEach(code => {
                 currentCompArr = currentCompArr.filter(comp => comp.componentTypeCode != code)
                 newTestStatus = {
@@ -160,7 +179,8 @@ class EditCluster extends React.Component<any, IState> {
                 })
             })
         }
-        if (addComps.length > 0) {
+
+        if (addComps.length) {
             addComps.forEach(code => {
                 currentCompArr.push({
                     componentTypeCode: code,
@@ -168,6 +188,7 @@ class EditCluster extends React.Component<any, IState> {
                 })
             })
         }
+
         newCompData[activeKey] = currentCompArr
         this.setState({
             initialCompData: newCompData,
@@ -326,7 +347,7 @@ class EditCluster extends React.Component<any, IState> {
                                                 commVersion={commVersion}
                                                 saveCompsData={saveCompsData}
                                                 clusterInfo={{ clusterName, clusterId: cluster.clusterId }}
-                                                handleCommVersion={this.handleCommVersion}
+                                                handleCompVersion={this.handleCompVersion}
                                             />
                                             <FormConfig
                                                 comp={comp}

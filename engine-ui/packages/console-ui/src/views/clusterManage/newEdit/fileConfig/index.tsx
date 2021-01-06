@@ -18,7 +18,7 @@ interface IProps {
     saveCompsData: any[];
     versionData: any;
     clusterInfo: any;
-    handleCommVersion: Function;
+    handleCompVersion: Function;
 }
 
 interface IState {
@@ -44,19 +44,9 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
 
     /** hdfs 和 yarn 组件版本一致，version提取至上层 */
     handleVersion = (version: any) => {
-        const { comp, form, handleCommVersion } = this.props
+        const { comp, handleCompVersion } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        if (isSameVersion(typeCode)) {
-            handleCommVersion(version)
-            form.setFieldsValue({
-                [COMPONENT_TYPE_VALUE.YARN]: {
-                    hadoopVersion: version
-                },
-                [COMPONENT_TYPE_VALUE.HDFS]: {
-                    hadoopVersion: version
-                }
-            })
-        }
+        handleCompVersion(typeCode, version)
     }
 
     renderCompsVersion = () => {
