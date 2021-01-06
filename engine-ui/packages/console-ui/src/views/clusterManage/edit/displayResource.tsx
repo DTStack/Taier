@@ -23,7 +23,7 @@ class DisplayResource extends React.Component<any, any> {
     getNoticeContent = (componentTypeCode: number) => {
         switch (componentTypeCode) {
             case COMPONENT_TYPE_VALUE.YARN:
-                return 'zip格式，至少包括yarn-site.xml';
+                return 'zip格式，至少包括yarn-site.xml和core-site.xml';
             case COMPONENT_TYPE_VALUE.HDFS:
                 return 'zip格式，至少包括core-site.xml、hdfs-site.xml、hive-site.xml';
             case COMPONENT_TYPE_VALUE.KUBERNETES:
