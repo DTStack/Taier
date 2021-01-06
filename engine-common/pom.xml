@@ -22,7 +22,7 @@
         <dependency>
             <groupId>com.dtstack.engine</groupId>
             <artifactId>sdk-engine-client</artifactId>
-            <version>4.0.5-SNAPSHOT</version>
+            <version>4.1.6_lineage-SNAPSHOT</version>
         </dependency>
 
         <dependency>
