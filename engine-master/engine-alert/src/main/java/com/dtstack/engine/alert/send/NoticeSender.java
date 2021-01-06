@@ -8,6 +8,7 @@ import com.dtstack.engine.alert.send.mail.NoticeMailSender;
 import com.dtstack.engine.alert.send.phone.TencentCloudPhoneSender;
 import com.dtstack.engine.alert.send.sms.NoticePhoneMsgSender;
 import com.dtstack.engine.alert.serivce.ISenderService;
+import com.dtstack.engine.api.dto.UserMessageDTO;
 import com.dtstack.engine.api.enums.SendStatus;
 import com.dtstack.engine.api.enums.SenderType;
 import com.google.common.collect.Queues;
@@ -20,6 +21,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -73,7 +75,9 @@ public class NoticeSender implements Runnable, NoticeSenderApi, DisposableBean {
     @Override
     public boolean sendNoticeNow(Notice notice) {
         boolean result = false;
-        long id = recordService.addSenderRecord(notice.getContentId(), notice.getNotifyRecordId(), notice.getUserDTO().getUserId(),
+        Optional<UserMessageDTO> userDTO = Optional.ofNullable(notice.getUserDTO());
+        long userId = userDTO.isPresent() ? userDTO.get().getUserId() : 0L;
+        long id = recordService.addSenderRecord(notice.getContentId(), notice.getNotifyRecordId(), userId,
                 notice.getSenderType(), notice.getAppType(), notice.getProjectId(), notice.getTenantId());
         if (SenderType.MAIL.getType().equals(notice.getSenderType())) {
             result = noticeMailSender.send(notice);

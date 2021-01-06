@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.domian.Notice;
 import com.dtstack.engine.alert.send.AbstractSender;
 import com.dtstack.engine.api.domain.po.ClusterAlertPO;
+import com.dtstack.engine.api.dto.UserMessageDTO;
 import com.google.common.collect.Lists;
 import org.apache.http.entity.StringEntity;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @Author: sanyue
@@ -40,7 +42,8 @@ public class NoticeDingSender extends AbstractSender {
         text.put("content", content);
         data.put("text", text);
         Map<String, Object> at = new HashMap<>(2);
-        String telephone = notice.getUserDTO().getTelephone();
+        Optional<UserMessageDTO> userDTO = Optional.ofNullable(notice.getUserDTO());
+        String telephone = userDTO.isPresent() ? userDTO.get().getTelephone() :  "";
         at.put("atMobiles", Lists.newArrayList(telephone));
         at.put("isAtAll", false);
         data.put("at", at);
