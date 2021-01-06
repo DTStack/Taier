@@ -98,26 +98,30 @@ public class JobGraphBuilderTrigger implements Runnable {
 
     @Override
     public void run() {
-        if (RUNNING.get()) {
+        try {
+            if (RUNNING.get()) {
 
-            DateTime dateTime = DateTime.now();
-            dateTime = dateTime.plusDays(1);
+                DateTime dateTime = DateTime.now();
+                dateTime = dateTime.plusDays(1);
 
-            String triggerDay = dateTime.toString(dateTimeFormatter);
-            if (getTimeMillis(environmentContext.getJobGraphBuildCron()) > System.currentTimeMillis()) {
-                logger.warn("---trigger to build job graph time not reach---");
-                return;
+                String triggerDay = dateTime.toString(dateTimeFormatter);
+                if (getTimeMillis(environmentContext.getJobGraphBuildCron()) > System.currentTimeMillis()) {
+                    logger.warn("---trigger to build job graph time not reach---");
+                    return;
+                }
+                logger.warn("---trigger to build job graph start---");
+                try {
+                    jobGraphBuilder.buildTaskJobGraph(triggerDay);
+                } catch (Exception e) {
+                    logger.error("", e);
+                }
+                //注意不需要将jobList直接加入到缓存队列里面。等待执行到当天数据的时候再去获取
+                logger.warn("---trigger to build day:{} job graph end!--", triggerDay);
+            } else {
+                logger.warn("---triggering, but Running is false---");
             }
-            logger.warn("---trigger to build job graph start---");
-            try {
-                jobGraphBuilder.buildTaskJobGraph(triggerDay);
-            } catch (Exception e) {
-                logger.error("", e);
-            }
-            //注意不需要将jobList直接加入到缓存队列里面。等待执行到当天数据的时候再去获取
-            logger.warn("---trigger to build day:{} job graph end!--", triggerDay);
-        } else {
-            logger.warn("---triggering, but Running is false---");
+        } catch (Exception e) {
+            logger.error("---trigger job graph error---",e);
         }
     }
 }
