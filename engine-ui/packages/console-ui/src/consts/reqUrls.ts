@@ -2,7 +2,7 @@
 
 export const CONSOLE_BASE_URL = '/node';
 export const CONSOLE_BASE_UPLOAD_URL = '/node';
-export const CONSOLE_PERFORM_URL = '/api/console'
+
 export default {
 
     // ===== 用户相关 ===== //
@@ -82,10 +82,10 @@ export default {
     ACCOUNT_UNBIND: `${CONSOLE_BASE_URL}/account/unbindAccount`,
 
     // 告警通道
-    ADD_OR_UPDATE_ALARM: `${CONSOLE_PERFORM_URL}/service/alert/edit`,
-    GET_ALARM_RULE_LIST: `${CONSOLE_PERFORM_URL}/service/alert/page`,
-    DEL_ALARM_RULE_LIST: `${CONSOLE_PERFORM_URL}/service/alert/delete`,
-    GET_ALARM_BY_ID: `${CONSOLE_PERFORM_URL}/service/alert/getByAlertId`,
-    SET_DEFAULT_ALERT: `${CONSOLE_PERFORM_URL}/service/alert/setDefaultAlert`,
-    TEST_ALERT: `${CONSOLE_PERFORM_URL}/service/alert/testAlert`
+    ADD_OR_UPDATE_ALARM: `${CONSOLE_BASE_URL}/alert/edit`,
+    GET_ALARM_RULE_LIST: `${CONSOLE_BASE_URL}/alert/page`,
+    DEL_ALARM_RULE_LIST: `${CONSOLE_BASE_URL}/alert/delete`,
+    GET_ALARM_BY_ID: `${CONSOLE_BASE_URL}/alert/getByAlertId`,
+    SET_DEFAULT_ALERT: `${CONSOLE_BASE_URL}/alert/setDefaultAlert`,
+    TEST_ALERT: `${CONSOLE_BASE_URL}/alert/testAlert`
 }
