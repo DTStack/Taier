@@ -129,20 +129,32 @@ public class NotifyService {
     }
 
     public void sendAlarm(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, Long contentId, List<UserMessageDTO> receivers, List<Integer> senderTypes, String webhook, MailType mailType) {
-        if (CollectionUtils.isEmpty(receivers)) {
-            return;
-        }
         if (projectId == null) {
             projectId = 0L;
         }
         String content = notifyRecordContentDao.getContent(tenantId, projectId, appType.getType(), contentId);
+        boolean isNeedToSendDingDing = senderTypes.contains(SenderType.DINGDING.getType());
+        if (isNeedToSendDingDing) {
+            senderTypes.remove(SenderType.DINGDING.getType());
+        }
+        //发送除钉钉外的
+        send(tenantId, projectId, notifyRecordId, appType, title, contentId, receivers, senderTypes, webhook, content, null, null);
+        if (isNeedToSendDingDing) {
+            //钉钉没有告警联系人
+            sendNoticeAsync(tenantId, projectId, notifyRecordId, appType, title, contentId, null, Lists.newArrayList(SenderType.DINGDING.getType()),
+                    null, content, webhook, null, null);
+        }
+    }
+
+    private void send(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, Long contentId, List<UserMessageDTO> receivers, List<Integer> senderTypes, String webhook, String content,Object data,Long alertId) {
         for (UserMessageDTO receiver : receivers) {
             if (CollectionUtils.isNotEmpty(senderTypes)) {
-                sendNoticeAsync(tenantId, projectId, notifyRecordId, appType, title, contentId, receiver, senderTypes, null, content, webhook,null,null);
+                sendNoticeAsync(tenantId, projectId, notifyRecordId, appType, title, contentId, receiver, senderTypes, null, content, webhook,data,alertId);
             }
             addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, receiver);
         }
     }
+
 
     private void sendNoticeAsync(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, Long contentId,
                                  UserMessageDTO receiver, List<Integer> senderTypes, MailType mailType, String content,
