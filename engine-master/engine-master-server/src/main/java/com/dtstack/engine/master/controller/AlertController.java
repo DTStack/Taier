@@ -6,10 +6,7 @@ import com.dtstack.engine.alert.client.AlertServiceProvider;
 import com.dtstack.engine.alert.domian.PageResult;
 import com.dtstack.engine.alert.enums.AGgateType;
 import com.dtstack.engine.alert.enums.AlertGateCode;
-import com.dtstack.engine.alert.param.AlertParam;
-import com.dtstack.engine.alert.param.DingAlertParam;
-import com.dtstack.engine.alert.param.MailAlertParam;
-import com.dtstack.engine.alert.param.SmsAlertParam;
+import com.dtstack.engine.alert.param.*;
 import com.dtstack.engine.alert.serivce.AlertGateService;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.po.AlertGatePO;
@@ -261,6 +258,15 @@ public class AlertController {
             conf.put("atMobiles", "");
             conf.put("isAtAll", Boolean.FALSE);
             result = dingAlertParam;
+        }
+
+        if (parse == AlertGateCode.AG_GATE_CUSTOM_JAR) {
+            CustomizeAlertParam customizeAlertParam = new CustomizeAlertParam();
+            customizeAlertParam.setAGgateType(AGgateType.AG_GATE_TYPE_CUSTOMIZE);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("content",alertGateTestVO.getAlertTemplate());
+            customizeAlertParam.setData(jsonObject.toJSONString());
+            result = customizeAlertParam;
         }
 
         result.setSource(alertGateTestVO.getAlertGateSource());
