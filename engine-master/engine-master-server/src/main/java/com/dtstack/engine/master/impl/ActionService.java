@@ -473,10 +473,6 @@ public class ActionService {
                 engineUniqueSignDao.insert(generateUniqueSign);
                 break;
             }catch(Exception e){
-                logger.error("generateUniqueSign error:{}", ExceptionUtil.getErrorMessage(e));
-                if(index>105){
-                    throw new RdosDefineException("generateUniqueSign error");
-                }
             }
         }
         return uniqueSign;

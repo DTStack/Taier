@@ -2428,45 +2428,25 @@ public class ScheduleJobService {
         //查询子工作任务
         List<ScheduleJobJob> scheduleJobJobList = batchJobJobService.getJobChild(jobKey);
         List<String> jobKeyList = Lists.newArrayList();
-
         //从jobKey获取父任务的触发时间
         String parentJobDayStr = getJobTriggerTimeFromJobKey(jobKey);
         if (Strings.isNullOrEmpty(parentJobDayStr)) {
             return Lists.newArrayList();
         }
-
-        for (ScheduleJobJob scheduleJobJob : scheduleJobJobList) {
-            //排除自依赖
-            String childJobKey = scheduleJobJob.getJobKey();
-            ScheduleTaskShade taskShade = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), appType);
-            if (null != taskShade && taskShade.getId().equals(getTaskShadeIdFromJobKey(childJobKey))) {
-                continue;
-            }
-
-            //排除不是同一天执行的
-            if (!parentJobDayStr.equals(getJobTriggerTimeFromJobKey(childJobKey))) {
-                continue;
-            }
-
-            jobKeyList.add(scheduleJobJob.getJobKey());
-        }
-
+        //获取满足条件的jobKeyList
+        filterJobKeyList(scheduleJob, appType, scheduleJobJobList, jobKeyList, parentJobDayStr);
         if (CollectionUtils.isEmpty(jobKeyList)) {
             return Lists.newArrayList();
         }
-
         List<ScheduleJob> scheduleJobList = Lists.newArrayList();
         List<ScheduleJob> listJobs = scheduleJobDao.listJobByJobKeys(jobKeyList);
         for (ScheduleJob childScheduleJob : listJobs) {
-
             //判断job 对应的task是否被删除
             ScheduleTaskShade jobRefTask = batchTaskShadeService.getBatchTaskById(childScheduleJob.getTaskId(), appType);
             if (jobRefTask == null || Deleted.DELETED.getStatus().equals(jobRefTask.getIsDeleted())) {
                 continue;
             }
-
             scheduleJobList.add(childScheduleJob);
-
             if (isOnlyNextChild) {
                 continue;
             }
@@ -2474,9 +2454,24 @@ public class ScheduleJobService {
             scheduleJobList.addAll(getAllChildJobWithSameDay(childScheduleJob, isOnlyNextChild, appType,level));
             logger.info("count info --- scheduleJob jobKey:{} flowJobId:{} jobJobList size:{}", scheduleJob.getJobKey(), scheduleJob.getFlowJobId(),scheduleJobList.size());
         }
-
         return scheduleJobList;
 
+    }
+
+    private void filterJobKeyList(ScheduleJob scheduleJob, Integer appType, List<ScheduleJobJob> scheduleJobJobList, List<String> jobKeyList, String parentJobDayStr) {
+        for (ScheduleJobJob scheduleJobJob : scheduleJobJobList) {
+            //排除自依赖
+            String childJobKey = scheduleJobJob.getJobKey();
+            ScheduleTaskShade taskShade = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId(), appType);
+            if (null != taskShade && taskShade.getId().equals(getTaskShadeIdFromJobKey(childJobKey))) {
+                continue;
+            }
+            //排除不是同一天执行的
+            if (!parentJobDayStr.equals(getJobTriggerTimeFromJobKey(childJobKey))) {
+                continue;
+            }
+            jobKeyList.add(scheduleJobJob.getJobKey());
+        }
     }
 
 

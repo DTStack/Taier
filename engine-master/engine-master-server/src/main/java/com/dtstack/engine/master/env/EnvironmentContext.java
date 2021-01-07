@@ -447,4 +447,19 @@ public class EnvironmentContext {
     public Integer setMaxIdleTime() {
         return Integer.valueOf(environment.getProperty("max.idle.time", "60"));
     }
+
+    /**控制任务展开层数**/
+    public Integer getJobJobLevel(){
+        return Integer.valueOf(environment.getProperty("max.jobJob.level","20"));
+    }
+
+    /**控制工作流节点展开层数**/
+    public Integer getWorkFlowLevel(){
+        return Integer.valueOf(environment.getProperty("max.workFlow.level","20"));
+    }
+
+    public Boolean getUseOptimize(){
+
+        return Boolean.parseBoolean(environment.getProperty("engine.useOptimize","true"));
+    }
 }
