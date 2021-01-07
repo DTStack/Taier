@@ -3,7 +3,7 @@ CREATE TABLE `dt_alert_gate` (
   `id` bigint(11) NOT NULL AUTO_INCREMENT,
   `alert_gate_name` varchar(32) DEFAULT NULL,
   `alert_gate_type` smallint(2) DEFAULT NULL,
-  `alert_gate_code` varchar(8) DEFAULT NULL,
+  `alert_gate_code` varchar(16) DEFAULT NULL,
   `alert_gate_status` smallint(2) DEFAULT NULL,
   `alert_gate_json` varchar(1024) DEFAULT NULL,
   `is_deleted` smallint(2) DEFAULT NULL,
