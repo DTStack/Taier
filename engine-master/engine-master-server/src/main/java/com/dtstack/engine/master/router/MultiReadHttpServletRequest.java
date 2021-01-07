@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.router.util;
+package com.dtstack.engine.master.router;
 
 import org.apache.commons.io.IOUtils;
 

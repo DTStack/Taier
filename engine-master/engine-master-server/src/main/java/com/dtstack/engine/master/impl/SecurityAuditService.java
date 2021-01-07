@@ -160,15 +160,21 @@ public class SecurityAuditService {
 
     public List<ApiOperateTypeVO> getOperationList(@Param("appTag") String appTag){
         List<ApiOperateTypeVO> result = new ArrayList<>();
-        if (DataInsightAppType.valueOf(appTag).equals(DataInsightAppType.API)){
-
-            Map<Integer,String>  map= ActionType.getApiMap();
-            for (Map.Entry<Integer,String> entry : map.entrySet()){
-                ApiOperateTypeVO api = new ApiOperateTypeVO();
-                api.setCode(entry.getKey());
-                api.setName(entry.getValue());
-                result.add(api);
-            }
+        Map<Integer, String> map = null;
+        if (DataInsightAppType.valueOf(appTag).equals(DataInsightAppType.API)) {
+            map = ActionType.getApiMap();
+        }
+        if (DataInsightAppType.valueOf(appTag).equals(DataInsightAppType.STREAM)) {
+            map = ActionType.getStreamMap();
+        }
+        if (map == null || map.size() == 0) {
+            return result;
+        }
+        for (Map.Entry<Integer, String> entry : map.entrySet()) {
+            ApiOperateTypeVO api = new ApiOperateTypeVO();
+            api.setCode(entry.getKey());
+            api.setName(entry.getValue());
+            result.add(api);
         }
         return result;
     }

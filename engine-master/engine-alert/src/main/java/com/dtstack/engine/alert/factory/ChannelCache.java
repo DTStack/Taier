@@ -75,10 +75,11 @@ public class ChannelCache {
 
         if (jarPath.contains("/normal")) {
             String key = jarPath + className;
+            String finalDestPath = destPath;
 
             return cache.get(key, () -> {
                 JarClassLoader loader = new JarClassLoader();
-                return loader.getInstance(jarPath, className);
+                return loader.getInstance(finalDestPath, className);
             });
         }
         //tmp路径下的插件 不走缓存

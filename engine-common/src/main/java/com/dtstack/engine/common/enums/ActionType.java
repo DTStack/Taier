@@ -37,7 +37,16 @@ public enum ActionType {
 
     API_INTO(18, "进入API", ""),
 
-    API_RESET_TOKEN(19, "重置api的token", "%s , 申请者：%s 重置token");
+    API_RESET_TOKEN(19, "重置api的token", "%s , 申请者：%s 重置token"),
+    DATA_PREVIEW(20, "数据预览", "数据源类型：%s , 数据源名称：%s , 连接信息：%s "),
+    PACKAGE_CREATE(21, "任务打包", "发布包名称：%s"),
+    PACKAGE_DOWNLOAD(22, "下载发布包", "发布包名称：%s"),
+    PACKAGE_DELETE(23, "删除发布包", "发布包名称：%s"),
+    PACKAGE_UPLOAD(24, "上传发布包", "发布包名称：%s"),
+    RESOURCE_UPLOAD(25, "上传资源", "编辑%s，上传资源：%s"),
+    RESOURCE_DOWNLOAD(26, "下载资源", "编辑%s，下载资源：%s"),
+    RESOURCE_DELETE(27, "删除资源", "编辑%s，删除资源：%s")
+    ;
 
 
 
@@ -95,6 +104,29 @@ public enum ActionType {
             }
         }
         return "";
+    }
+
+    public static Map<Integer, String> getCommonMap() {
+        Map<Integer, String> map = new HashMap();
+        map.put(LOG_OUT.getCode(), LOG_OUT.getComment());
+        map.put(COME_IN.getCode(), COME_IN.getComment());
+        map.put(ADD_USER.getCode(), ADD_USER.getComment());
+        map.put(REMOVE_USER.getCode(), REMOVE_USER.getComment());
+        map.put(CHANGE_MODE.getCode(), CHANGE_MODE.getComment());
+        return map;
+    }
+
+    public static Map<Integer, String> getStreamMap() {
+        Map<Integer, String> map = getCommonMap();
+        map.put(DATA_PREVIEW.getCode(), DATA_PREVIEW.getComment());
+        map.put(PACKAGE_CREATE.getCode(), PACKAGE_CREATE.getComment());
+        map.put(PACKAGE_DOWNLOAD.getCode(), PACKAGE_DOWNLOAD.getComment());
+        map.put(PACKAGE_DELETE.getCode(), PACKAGE_DELETE.getComment());
+        map.put(PACKAGE_UPLOAD.getCode(), PACKAGE_UPLOAD.getComment());
+        map.put(RESOURCE_UPLOAD.getCode(), RESOURCE_UPLOAD.getComment());
+        map.put(RESOURCE_DOWNLOAD.getCode(), RESOURCE_DOWNLOAD.getComment());
+        map.put(RESOURCE_DELETE.getCode(), RESOURCE_DELETE.getComment());
+        return map;
     }
 
 }

@@ -3,6 +3,7 @@ package com.dtstack.engine.master.utils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.enums.AGgateType;
+import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
 import com.dtstack.engine.common.enums.AlertGateTypeEnum;
@@ -81,19 +82,23 @@ public class CheckUtils {
     }
 
     public static void checkFormat(AlertGateTestVO alertGateTestVO) {
+        if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(alertGateTestVO.getAlertGateType()) && StringUtils.isBlank(alertGateTestVO.getAlertGateCode())) {
+            alertGateTestVO.setAlertGateCode(AlertGateCode.AG_GATE_CUSTOM_JAR.code());
+        }
+
         if (alertGateTestVO.getAlertGateCode().contains(AGgateType.AG_GATE_TYPE_SMS.getValue())) {
             List<String> phones = alertGateTestVO.getPhones();
-            Assert.isTrue(CollectionUtils.isNotEmpty(phones),"手机号列表不能为空");
+            Assert.isTrue(CollectionUtils.isNotEmpty(phones), "手机号列表不能为空");
             for (String phone : phones) {
-                Assert.isTrue(CheckUtils.isMobile(phone),phone+"不符合手机号规则");
+                Assert.isTrue(CheckUtils.isMobile(phone), phone + "不符合手机号规则");
 
             }
         }
         if (alertGateTestVO.getAlertGateCode().contains(AGgateType.AG_GATE_TYPE_MAIL.getValue())) {
             List<String> emails = alertGateTestVO.getEmails();
-            Assert.isTrue(CollectionUtils.isNotEmpty(emails),"邮箱列表不能为空");
+            Assert.isTrue(CollectionUtils.isNotEmpty(emails), "邮箱列表不能为空");
             for (String email : emails) {
-                Assert.isTrue(CheckUtils.isEmail(email),email+"不符合邮箱规则");
+                Assert.isTrue(CheckUtils.isEmail(email), email + "不符合邮箱规则");
             }
         }
         checkAlertGateVOFormat(alertGateTestVO);
