@@ -24,8 +24,6 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
 
     private static Logger LOGGER = LoggerFactory.getLogger(LoginInterceptor.class);
 
-    private final List<String> ROOT_PATH = Lists.newArrayList("/node/status");
-
     @Autowired
     private LoginService loginService;
 
@@ -49,13 +47,6 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
             loginService.login(dtUicUser, token, userVO -> {
                 if (userVO == null) {
                     throw new RdosDefineException(ErrorCode.USER_IS_NULL);
-                }
-
-                if (ROOT_PATH.contains(requestURI)) {
-                    // 需要root权限
-                    if (userVO.getRootUser() != 1) {
-                        throw new RdosDefineException(ErrorCode.PERMISSION_LIMIT);
-                    }
                 }
 
                 sessionUtil.setUser(token, userVO);
