@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 public class CheckUtils {
     public static final String REGEX_EMAIL = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
     public static final String REGEX_MOBILE = "^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$";
+    public static final String REGEX_EMAIL_NEW = "^[0-9a-zA-Z_.-]+[@][0-9a-zA-Z_.-]+([.][a-zA-Z]+){1,2}$";
 
     public static boolean isMobile(String mobile) {
         Pattern p = Pattern.compile(REGEX_MOBILE);
@@ -33,7 +34,7 @@ public class CheckUtils {
 
 
     public static boolean isEmail(String mobile) {
-        Pattern p = Pattern.compile(REGEX_EMAIL);
+        Pattern p = Pattern.compile(REGEX_EMAIL_NEW);
         Matcher m = p.matcher(mobile);
         return m.matches();
     }
