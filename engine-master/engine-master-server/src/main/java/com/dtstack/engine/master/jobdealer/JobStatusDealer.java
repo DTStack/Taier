@@ -18,7 +18,7 @@ import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.bo.JobCompletedInfo;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.jobdealer.cache.ShardManager;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.google.common.collect.Maps;

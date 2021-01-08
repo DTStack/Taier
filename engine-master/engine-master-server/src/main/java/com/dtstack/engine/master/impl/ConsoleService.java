@@ -4,25 +4,25 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.api.vo.console.*;
+import com.dtstack.engine.api.vo.console.ConsoleJobInfoVO;
+import com.dtstack.engine.api.vo.console.ConsoleJobVO;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.config.TaskResourceBeanConfig;
-import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.jobdealer.cache.ShardCache;
+import com.dtstack.engine.master.config.TaskResourceBeanConfig;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
+import com.dtstack.engine.master.jobdealer.JobDealer;
+import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;
@@ -117,7 +117,7 @@ public class ConsoleService {
         }
     }
 
-    public ConsoleJobVO searchJob( String jobName) {
+    public ConsoleJobVO searchJob(String jobName) {
         Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
         String jobId = null;
         ScheduleJob scheduleJob = scheduleJobDao.getByName(jobName);
@@ -262,6 +262,8 @@ public class ConsoleService {
                 Set<Long> dtuicTenantIds = rdosJobByJobIds.stream().map(ScheduleJob::getDtuicTenantId).collect(Collectors.toSet());
                 Map<Long, Tenant> tenantMap = tenantDao.listAllTenantByDtUicTenantIds(new ArrayList<>(dtuicTenantIds)).stream()
                         .collect(Collectors.toMap(Tenant::getDtUicTenantId, t -> t));
+
+                Map<String,String> pluginInfoCache = new HashMap<>();
                 for (EngineJobCache engineJobCache : engineJobCaches) {
                     Map<String, Object> theJobMap = PublicUtil.objectToMap(engineJobCache);
                     ScheduleJob scheduleJob = scheduleJobMap.getOrDefault(engineJobCache.getJobId(), new ScheduleJob());
@@ -275,7 +277,7 @@ public class ConsoleService {
                             logger.error(" get tenant error {}", scheduleJob.getDtuicTenantId(),e);
                         }
                     }
-                    this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant);
+                    this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant,pluginInfoCache);
                     data.add(theJobMap);
                 }
 
@@ -288,7 +290,7 @@ public class ConsoleService {
         return result;
     }
 
-    private void fillJobInfo(Map<String, Object> theJobMap, ScheduleJob scheduleJob, EngineJobCache engineJobCache, Tenant tenant) {
+    private void fillJobInfo(Map<String, Object> theJobMap, ScheduleJob scheduleJob, EngineJobCache engineJobCache, Tenant tenant,Map<String,String> pluginInfoCache) {
         theJobMap.put("status", scheduleJob.getStatus());
         theJobMap.put("execStartTime", scheduleJob.getExecStartTime());
         theJobMap.put("generateTime", engineJobCache.getGmtCreate());
@@ -305,7 +307,7 @@ public class ConsoleService {
         if (!jobInfoJSON.containsKey(PluginWrapper.PLUGIN_INFO)) {
             //获取插件信息
             String pluginInfo = pluginWrapper.getPluginInfo(jobInfoJSON.getString("taskParams"), engineJobCache.getComputeType(), engineJobCache.getEngineType(),
-                    null == tenant ? -1L : tenant.getDtUicTenantId(), jobInfoJSON.getLong("userId"));
+                    Objects.isNull(tenant) ? -1L : tenant.getDtUicTenantId(), jobInfoJSON.getLong("userId"),pluginInfoCache);
             jobInfoJSON.put(PluginWrapper.PLUGIN_INFO, JSONObject.parseObject(pluginInfo));
             theJobMap.put("jobInfo", jobInfoJSON);
         }

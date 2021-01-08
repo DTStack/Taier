@@ -1,7 +1,7 @@
-package com.dtstack.engine.master.env;
+package com.dtstack.engine.common.env;
 
 import com.dtstack.engine.common.util.AddressUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
@@ -422,6 +422,10 @@ public class EnvironmentContext {
 
     public Integer getJobExecutorPoolQueueSize() {
         return Integer.valueOf(environment.getProperty("job.executor.pool.queue.size", "1000"));
+    }
+
+    public Boolean getOpenConsoleSftp() {
+        return Boolean.parseBoolean(environment.getProperty("console.sftp.open", "false"));
     }
 
     public Integer getRetryFrequency() {

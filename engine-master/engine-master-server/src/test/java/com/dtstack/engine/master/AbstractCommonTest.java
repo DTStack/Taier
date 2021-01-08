@@ -2,7 +2,7 @@ package com.dtstack.engine.master;
 
 import com.dtstack.engine.master.config.CacheConfig;
 import com.dtstack.engine.master.config.MybatisConfig;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
