@@ -30,7 +30,7 @@ import java.util.Map;
 @Component
 public class CustomizeApiService implements AlertService {
 
-    private final Logger log = LoggerFactory.getLogger(DingDTService.class);
+    private final Logger log = LoggerFactory.getLogger(CustomizeApiService.class);
 
     @Autowired
     private ChannelCache channelCache;
