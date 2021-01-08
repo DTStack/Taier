@@ -20,6 +20,7 @@ package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
 import com.dtstack.engine.base.util.HadoopConfTool;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.google.common.base.Strings;
@@ -49,6 +50,7 @@ import org.apache.flink.core.plugin.PluginConfig;
 import org.apache.flink.core.plugin.PluginUtils;
 import org.apache.flink.runtime.clusterframework.BootstrapTools;
 import org.apache.flink.runtime.entrypoint.ClusterEntrypoint;
+import org.apache.flink.runtime.execution.librarycache.FlinkUserCodeClassLoaders;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
 import org.apache.flink.util.FlinkException;
@@ -546,7 +548,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		String url = getUrlFormat(clusterSpecification.getYarnConfiguration()) + "/" + appId;
 		PackagedProgram program = buildProgram(url,clusterSpecification);
 		clusterSpecification.setProgram(program);
-		JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, clusterSpecification.getConfiguration(), clusterSpecification.getParallelism(), false);
+		JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, this.flinkConfiguration, clusterSpecification.getParallelism(), false);
 		dealPluginByLoadMode(jobGraph);
 		clusterSpecification.setJobGraph(jobGraph);
 		return jobGraph;
@@ -597,28 +599,13 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		return jobGraph;
 	}
 
-	private PackagedProgram buildProgram(String monitorUrl,ClusterSpecification clusterSpecification) throws Exception{
+	private PackagedProgram buildProgram(String monitorUrl, ClusterSpecification clusterSpecification) throws Exception{
 		String[] args = clusterSpecification.getProgramArgs();
 		for (int i = 0; i < args.length; i++) {
 			if("-monitor".equals(args[i])){
 				args[i + 1] = monitorUrl;
 				break;
 			}
-		}
-
-		ClassLoaderType classLoaderType = clusterSpecification.getClassLoaderType();
-		if (ClassLoaderType.CHILD_FIRST == classLoaderType) {
-			flinkConfiguration.setString(CoreOptions.CLASSLOADER_RESOLVE_ORDER, "child-first");
-			flinkConfiguration.setString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_FALSE);
-		} else if (ClassLoaderType.PARENT_FIRST == classLoaderType) {
-			flinkConfiguration.setString(CoreOptions.CLASSLOADER_RESOLVE_ORDER, "parent-first");
-			flinkConfiguration.setString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_FALSE);
-		} else if (ClassLoaderType.CHILD_FIRST_CACHE == classLoaderType) {
-			flinkConfiguration.setString(CoreOptions.CLASSLOADER_RESOLVE_ORDER, "child-first");
-			flinkConfiguration.setString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_TRUE);
-		} else if (ClassLoaderType.PARENT_FIRST_CACHE == classLoaderType) {
-			flinkConfiguration.setString(CoreOptions.CLASSLOADER_RESOLVE_ORDER, "parent-first");
-			flinkConfiguration.setString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_TRUE);
 		}
 
 		PackagedProgram program = PackagedProgram.newBuilder()
