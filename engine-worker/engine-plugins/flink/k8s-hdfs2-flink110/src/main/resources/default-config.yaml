@@ -43,8 +43,8 @@ perjob:
     pluginLoadMode: classpath
     submitTimeout: 5
     flinkInterval: 5 SECONDS
-    classloader.resolve-order: parent-first
-    taskparams.taskmanager.heap.mb: 20
+    classloader.resolve-order: child-first
+    classloader.dtstack-cache: true
 
     state.backend: RocksDB
     state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints
@@ -103,8 +103,8 @@ session:
     pluginLoadMode: classpath
     submitTimeout: 5
     flinkInterval: 5 SECONDS
-    classloader.resolve-order: parent-first
-    taskparams.taskmanager.heap.mb: 20
+    classloader.resolve-order: child-first
+    classloader.dtstack-cache: true
 
     state.backend: RocksDB
     state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints
