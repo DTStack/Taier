@@ -102,6 +102,7 @@ CREATE TABLE `schedule_engine_job_stop_record` (
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `operator_expired` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '操作过期时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `force_cancel_flag` TINYINT(1) NOT NULL COMMENT '强制标志 0非强制 1强制',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
