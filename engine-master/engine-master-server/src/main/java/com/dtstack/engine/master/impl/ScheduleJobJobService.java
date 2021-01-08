@@ -115,7 +115,7 @@ public class ScheduleJobJobService {
             level = 1;
         }
         Integer jobLevel = context.getJobJobLevel();
-        if(level !=null && level >30){
+        if(level !=null && level > jobLevel){
             level = jobLevel;
         }
         return level;
@@ -244,7 +244,7 @@ public class ScheduleJobJobService {
             //获取jobKeys
             jobKeys = getJobKeys(getChild, jobJobs);
             //校验是否成环
-            if(checkIsLoop(getChild, jobJobs, jobKeyRelations)){
+            if(checkIsLoop(jobJobs, jobKeyRelations)){
                 return result;
             }
             List<ScheduleJobJob> jobJobList = jobJobs.stream().map(ScheduleJobJobTaskDTO::toJobJob).collect(Collectors.toList());
@@ -259,34 +259,22 @@ public class ScheduleJobJobService {
      * @author newman
      * @Description 检测工作实例是否成环
      * @Date 2021/1/6 2:39 下午
-     * @param getChild:
      * @param jobJobs:
      * @param jobKeyRelations:
      * @return: void
      **/
-    private Boolean checkIsLoop(boolean getChild, List<ScheduleJobJobTaskDTO> jobJobs, List<String> jobKeyRelations) {
+    private Boolean checkIsLoop(List<ScheduleJobJobTaskDTO> jobJobs, List<String> jobKeyRelations) {
 
-        if (getChild){
-            for (ScheduleJobJobTaskDTO jobJob : jobJobs) {
-                String jobKeyRelation = jobJob.getParentJobKey()+"-"+jobJob.getJobKey();
-                if(jobKeyRelations.contains(jobKeyRelation)){
-                    logger.error("该工作实例成环了,jobKeyRelation:{}",jobKeyRelation);
-                    return true;
-                }
-                jobKeyRelations.add(jobKeyRelation);
+        for (ScheduleJobJobTaskDTO jobJob : jobJobs) {
+            String jobKeyRelation = jobJob.getParentJobKey()+"-"+jobJob.getJobKey();
+            if(jobKeyRelations.contains(jobKeyRelation)){
+                logger.error("该工作实例成环了,jobKeyRelation:{}",jobKeyRelation);
+                return true;
             }
-            return false;
-        }else{
-            for (ScheduleJobJobTaskDTO jobJob : jobJobs) {
-                String jobKeyRelation = jobJob.getJobKey()+"-"+jobJob.getParentJobKey();
-                if(jobKeyRelations.contains(jobKeyRelation)){
-                    logger.error("该工作实例成环了,jobKeyRelation:{}",jobKeyRelation);
-                    return true;
-                }
-                jobKeyRelations.add(jobKeyRelation);
-            }
-            return false;
+            jobKeyRelations.add(jobKeyRelation);
         }
+        return false;
+
     }
 
 
