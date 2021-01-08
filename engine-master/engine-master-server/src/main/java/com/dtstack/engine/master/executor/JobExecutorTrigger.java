@@ -5,6 +5,7 @@ import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.queue.QueueInfo;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
+import com.dtstack.engine.master.zookeeper.ZkService;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -48,6 +49,9 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
     @Autowired
     private JobRichOperator jobRichOperator;
 
+    @Autowired
+    private ZkService zkService;
+
     private List<AbstractJobExecutor> executors = new ArrayList<>(EScheduleType.values().length);
 
     private ExecutorService executorService;
@@ -73,7 +77,8 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
      * key2: scheduleType
      */
     public Map<String, Map<Integer, QueueInfo>> getAllNodesJobQueueInfo() {
-        List<String> allNodeAddress = scheduleJobDao.getAllNodeAddress();
+
+        List<String> allNodeAddress = zkService.getAliveBrokersChildren();
         Pair<String, String> cycTime = jobRichOperator.getCycTimeLimit();
         Map<String, Map<Integer, QueueInfo>> allNodeJobInfo = Maps.newHashMap();
         for (String nodeAddress : allNodeAddress) {

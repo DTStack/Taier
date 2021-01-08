@@ -694,20 +694,42 @@ public class JobRichOperator {
         return new ImmutablePair<>(startTime, endTime);
     }
 
-    public Pair<String, String> getCycTimeLimitEndNow() {
+    public Pair<String, String> getCycTimeLimitEndNow(Boolean isTrigger) {
         // 当前时间
         Calendar calendar = Calendar.getInstance();
         String endTime = sdf.format(calendar.getTime());
-
         // 获得配置的前几天
         Integer dayGap = environmentContext.getCycTimeDayGap();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        calendar.add(Calendar.DATE, -dayGap);
+        if(isTrigger){
+            calendar.set(Calendar.HOUR_OF_DAY, -2);
+            calendar.add(Calendar.DATE, -dayGap);
+        }else{
+            //补数据或重跑
+            Integer hourGap = environmentContext.getFillDataCycTimeHourGap();
+            calendar.add(Calendar.HOUR,-hourGap);
+        }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String startTime = sdf.format(calendar.getTime());
         return new ImmutablePair<>(startTime, endTime);
+    }
+
+
+
+    public static void main(String[] args) {
+
+
+        // 当前时间
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        String endTime = sdf.format(calendar.getTime());
+        calendar.add(Calendar.HOUR,-2);
+        // 获得配置的前几天
+        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHHmmss");
+        String startTime = sdf2.format(calendar.getTime());
+        ImmutablePair<String, String> immutablePair = new ImmutablePair<>(startTime, endTime);
+        System.out.println(immutablePair.getLeft()+"----"+immutablePair.getRight());
     }
 }

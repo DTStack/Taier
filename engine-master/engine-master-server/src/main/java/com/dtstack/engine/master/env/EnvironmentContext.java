@@ -33,6 +33,11 @@ public class EnvironmentContext {
         return Math.abs(Integer.parseInt(environment.getProperty("cycTimeDayGap", "0")));
     }
 
+    /**补数据或重跑cycTime的间隔，正常环境7*24小时，压测环境2个小时**/
+    public Integer getFillDataCycTimeHourGap(){
+        return Math.abs(Integer.parseInt(environment.getProperty("fillDataCycTimeHourGap", "168")));
+    }
+
     public long getJobStatusDealerInterval() {
         return Integer.parseInt(environment.getProperty("jobStatusDealerInterval", "3000"));
     }
