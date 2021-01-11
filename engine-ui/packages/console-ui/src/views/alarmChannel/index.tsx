@@ -67,8 +67,8 @@ const AlarmChannel: React.FC = (props: any) => {
             dataIndex: 'alertGateName',
             render: (alertGateName: string, record: any) => {
                 const showText = `${ALARM_TYPE_TEXT[record.alertGateType].slice(0, 2)}默认通道`;
-                return <span className="alarm-name">
-                    {alertGateName}
+                return <span className="alarm-name-wrap">
+                    <span className="alarm-name">{alertGateName}</span>
                     {record.isDefault ? <Button className="alarm-btn" disabled>{showText}</Button> : null}
                 </span>
             }
@@ -132,8 +132,12 @@ const AlarmChannel: React.FC = (props: any) => {
     }
     const handleTableChange = (paginations: any, filters: any, sorter: any) => {
         setParams(state => ({ ...state, alertGateType: filters.alertGateType || [] }));
-        setPagination(state => ({ ...state, currentPage: paginations.current || 1 }));
     }
+
+    const onPageChange = (current: number) => {
+        setPagination(state => ({ ...state, currentPage: current || 1 }));
+    }
+
     const [{ loading, alarmList }] = useAlarmList(params, pagination)
     return (
         <div className='alarm__wrapper'>
@@ -165,8 +169,9 @@ const AlarmChannel: React.FC = (props: any) => {
                             pageSize: pagination.pageSize,
                             size: 'small',
                             total: pagination.total,
+                            onChange: onPageChange,
                             showTotal: (total) => <span>
-                                共<span style={{ color: '#3F87FF' }}>{total}</span>条数据，每页显示15条
+                                共<span style={{ color: '#3F87FF' }}>{total}</span>条数据，每页显示{pagination.pageSize}条
                             </span>
                         }}
                     />
