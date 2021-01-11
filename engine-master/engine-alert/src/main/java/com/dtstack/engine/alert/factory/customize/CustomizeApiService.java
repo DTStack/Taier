@@ -64,7 +64,7 @@ public class CustomizeApiService implements AlertService {
             return r;
         } catch (Exception e) {
             log.info("[CustomizeAlert] error, cost={}, data={}",(System.currentTimeMillis() - startTime), data, e);
-            return R.fail(e.getMessage());
+            return R.fail("jarPath:"+jarPath +"加载失败，请检查配置！");
         }
 
     }
