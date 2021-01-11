@@ -22,26 +22,11 @@ module.exports = {
                 secure: false
             },
             '/node': { // 控制台
-                // target: 'http://172.16.100.225:7001/proxy/44', // doraemon
-                target: 'http://rdos.dtstack.insight.net/',
+                target: 'http://172.16.100.225:7001/proxy/44', // doraemon
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,
                 secure: false,
                 onProxyReq: ProxyReq
-            },
-            '/api/console': { // 控制台
-                target: 'http://172.16.100.225:7001/proxy/52', // doraemon
-                // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
-                changeOrigin: true,
-                secure: false,
-                onProxyReq: ProxyReq
-            },
-            '/public/helpSite': { // 分析引擎
-                // target: 'http://172.16.8.104', // 开发环境
-                target: 'http://172.16.10.34', // 测试环境
-                // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
-                changeOrigin: true,
-                secure: false
             }
         }
     }

@@ -799,7 +799,7 @@ class EditCluster extends React.Component<any, any> {
                 <div className="c-editCluster__header">
                     <Breadcrumb>
                         <Breadcrumb.Item>
-                            <a onClick={this.turnClusteManage}>集群管理</a>
+                            <a onClick={this.turnClusteManage}>多集群管理</a>
                         </Breadcrumb.Item>
                         <Breadcrumb.Item>{clusterName}</Breadcrumb.Item>
                     </Breadcrumb>
