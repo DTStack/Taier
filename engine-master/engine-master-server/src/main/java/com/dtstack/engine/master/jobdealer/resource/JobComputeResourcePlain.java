@@ -4,11 +4,10 @@ import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.enums.ScheduleEngineType;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.dao.EngineTenantDao;
-import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ClusterService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

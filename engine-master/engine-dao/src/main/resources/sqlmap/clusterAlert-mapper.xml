@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.ClusterAlertDao">
+
+    <insert id="insert" parameterType="com.dtstack.engine.api.domain.po.ClusterAlertPO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO dt_cluster_alert
+        (cluster_id,alert_id,is_default)
+        VALUES
+        (#{clusterId},#{alertId},#{isDefault})
+    </insert>
+
+    <update id="update" parameterType="com.dtstack.engine.api.domain.po.ClusterAlertPO">
+        update dt_cluster_alert
+
+        <set>
+            <if test="clusterId != null">cluster_id=#{clusterId},</if>
+            <if test="alertId != null">alert_id=#{alertId},</if>
+            <if test="isDefault != null">is_default=#{isDefault},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <sql id="base_select">
+        select
+        a.id, a.cluster_id,a.alert_id,a.is_default,
+        b.alert_gate_name,b.alert_gate_type,b.alert_gate_source
+        FROM dt_cluster_alert a join dt_alert_gate b on a.alert_id = b.id
+    </sql>
+
+    <sql id="if_test">
+        <if test="clusterId != null">AND cluster_id=#{clusterId}</if>
+        <if test="alertId != null">AND alert_id=#{alertId}</if>
+        <if test="isDefault != null">AND is_default=#{isDefault}</if>
+        <if test="isDeleted != null">AND is_deleted=#{isDeleted}</if>
+        <if test="alertGateType != null">AND alert_gate_type=#{alertGateType}</if>
+        <if test="alertGateSource != null">AND alert_gate_source=#{alertGateSource}</if>
+        <if test="alertGateTypes !=null and alertGateTypes.size()>0"> and alert_gate_type in
+            <foreach collection="alertGateTypes" index="index" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+
+    </sql>
+
+    <select id="list" resultType="com.dtstack.engine.api.domain.po.ClusterAlertPO">
+        <include refid="base_select"/>
+        WHERE is_deleted = 0
+        <include refid="if_test"/>
+        order by id desc
+    </select>
+
+    <select id="get" resultType="com.dtstack.engine.api.domain.po.ClusterAlertPO">
+        <include refid="base_select"/>
+        WHERE is_deleted=0
+        <include refid="if_test"/>
+    </select>
+
+    <delete id="delete">
+        delete from dt_cluster_alert
+        where alert_id = #{alertId}
+    </delete>
+
+
+</mapper>

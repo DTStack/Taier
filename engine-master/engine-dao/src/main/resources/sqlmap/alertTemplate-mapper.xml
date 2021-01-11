@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.AlertTemplateDao">
+
+    <sql id="baseField">
+        id,alert_template_name,alert_template_type,alert_template_status,alert_template,alert_gate_source,is_deleted,gmt_created,gmt_modified
+    </sql>
+
+    <update id="update" parameterType="com.dtstack.engine.api.domain.po.AlertTemplatePO">
+        update dt_alert_template
+        <set>
+            <if test="alertTemplateName != null">alert_template_name=#{alertTemplateName},</if>
+            <if test="alertTemplateType != null">alert_template_type=#{alertTemplateType},</if>
+            <if test="alertTemplateStatus != null">alert_template_status=#{alertTemplateStatus},</if>
+            <if test="alertTemplate != null">alert_template=#{alertTemplate},</if>
+            <if test="alertGateSource != null">alert_gate_source=#{alertGateSource},</if>
+            <if test="isDeleted != null">is_deleted=#{isDeleted},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="insert" parameterType="com.dtstack.engine.api.domain.po.AlertTemplatePO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO dt_alert_template
+        (alert_template_name,alert_template_type,alert_template_status,alert_template,alert_gate_source,is_deleted,gmt_created,gmt_modified)
+        VALUES
+        (#{alertTemplateName},#{alertTemplateType},#{alertTemplateStatus},#{alertTemplate},#{alertGateSource},#{isDeleted},now(),now() )
+    </insert>
+
+
+    <select id="getByTemplateTypeAndSource" resultType="com.dtstack.engine.api.domain.po.AlertTemplatePO">
+        select
+        <include refid="baseField"/>
+        FROM dt_alert_template
+        WHERE alert_template_type = #{templateType} AND alert_gate_source = #{sourceName}
+        AND is_deleted = 0
+        limit 1
+    </select>
+
+    <update id="deleteByTemplateTypeAndSource">
+        update dt_alert_template
+        set is_deleted = 1
+        WHERE alert_template_type = #{templateType} AND alert_gate_source = #{sourceName}
+    </update>
+
+</mapper>
