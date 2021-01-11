@@ -28,7 +28,11 @@ public class TencentCloudCustomizeSender extends AbstractSender {
     private String buildCustomize(Object data, String source ) {
         JSONObject body = new JSONObject();
         Map<String, String> dynamicParams = new HashMap<>();
-        dynamicParams.put("message", data.toString());
+        JSONObject jsonObject = JSONObject.parseObject(data.toString());
+        if (jsonObject != null) {
+            String content = jsonObject.getString("content");
+            dynamicParams.put("message", content);
+        }
         body.put("data",data);
         body.put("source",source);
         body.put("dynamicParams", dynamicParams);

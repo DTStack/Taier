@@ -57,6 +57,15 @@ public class CustomizeApiService implements AlertService {
         String className = config.getString("className");
         long startTime = System.currentTimeMillis();
         Object data = customizeAlertParam.getData();
+
+        if (StringUtils.isNotBlank(customizeAlertParam.getMessage())) {
+            JSONObject jsonObject = JSONObject.parseObject(data.toString());
+            if (jsonObject != null) {
+                jsonObject.put("content", customizeAlertParam.getMessage());
+                data = jsonObject.toJSONString();
+            }
+        }
+
         try {
             ICustomizeChannel sender = (ICustomizeChannel) channelCache.getChannelInstance(jarPath, className);
             R r = sender.sendCustomizeAlert(data,extMap);
