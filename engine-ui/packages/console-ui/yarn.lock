@@ -2499,10 +2499,10 @@ ant-design-dtinsight-theme@1.0.7:
     bisheng-plugin-toc "^0.4.4"
     moment "^2.24.0"
 
-ant-design-dtinsight-theme@1.0.9:
-  version "1.0.9"
-  resolved "http://registry.npm.dtstack.com/ant-design-dtinsight-theme/-/ant-design-dtinsight-theme-1.0.9.tgz#aabde06085d5c7932d8edd7750cf4500d0515cf0"
-  integrity sha512-/2P9TanSEXZhwKNzFbIG0CDj9csHM7WqwNGz3YvRP1ep1VoN2BIqbLLo3NLVyFGPTo2cPSXeq2ZyLuyi83eRNQ==
+ant-design-dtinsight-theme@1.1.2:
+  version "1.1.2"
+  resolved "http://registry.npm.dtstack.com/ant-design-dtinsight-theme/-/ant-design-dtinsight-theme-1.1.2.tgz#d87db6daf20bb27793b7003ff503375cd6877549"
+  integrity sha512-mMGNsoICvowCTIzinvU/fZAdnQpfyOYnNUNuPUO0KC+JTRF28fJAgbT6JU7YIYwo7T2mvsWQTNP/KCOAiZ6oEg==
   dependencies:
     antd "3.26.13"
 
@@ -5431,7 +5431,7 @@ dt-common@4.2.1-temp:
     "@types/react-router-redux" "4.0.51"
     "@types/redux-logger" "3.0.7"
     "@types/showdown" "1.9.3"
-    ant-design-dtinsight-theme "1.0.9"
+    ant-design-dtinsight-theme "1.1.2"
     antd "3.26.13"
     babel-eslint "^10.0.1"
     babel-loader "^8.0.4"
