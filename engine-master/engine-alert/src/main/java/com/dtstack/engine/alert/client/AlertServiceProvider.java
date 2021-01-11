@@ -113,7 +113,7 @@ public class AlertServiceProvider {
         }
         String alertGateCode = sendParam.getAlertGatePO().getAlertGateCode();
 
-        if (AlertGateCode.AG_GATE_MAIL_DT.code().equals(alertGateCode)) {
+        if (AlertGateCode.AG_GATE_MAIL_DT.code().equals(alertGateCode) || AlertGateCode.AG_GATE_CUSTOM_JAR.code().equals(alertGateCode)) {
             if (StringUtils.isBlank(sendParam.getAlertTemplate())) {
                 AlertTemplatePO alertTemplatePO = alertTemplateDao.getByTemplateTypeAndSource(sendParam.getAGgateType().type(), sendParam.getSource());
                 if (alertTemplatePO == null) {

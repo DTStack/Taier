@@ -51,7 +51,7 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
                 "/node/securityAudit/pageQuery","/node/securityAudit/getOperationList",
                 // 告警
                 "/node/alert/edit","/node/alert/setDefaultAlert","/node/alert/page","/node/alert/getByAlertId","/node/alert/delete"
-                ,"/node/alert/list/show","/node/alert/testAlert"
+                ,"/node/alert/list/show","/node/alert/testAlert","/node/status"
                 );
     }
 

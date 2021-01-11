@@ -57,6 +57,15 @@ public class CustomizeApiService implements AlertService {
         String className = config.getString("className");
         long startTime = System.currentTimeMillis();
         Object data = customizeAlertParam.getData();
+
+        if (StringUtils.isNotBlank(customizeAlertParam.getMessage())) {
+            JSONObject jsonObject = JSONObject.parseObject(data.toString());
+            if (jsonObject != null) {
+                jsonObject.put("content", customizeAlertParam.getMessage());
+                data = jsonObject.toJSONString();
+            }
+        }
+
         try {
             ICustomizeChannel sender = (ICustomizeChannel) channelCache.getChannelInstance(jarPath, className);
             R r = sender.sendCustomizeAlert(data,extMap);
@@ -64,7 +73,7 @@ public class CustomizeApiService implements AlertService {
             return r;
         } catch (Exception e) {
             log.info("[CustomizeAlert] error, cost={}, data={}",(System.currentTimeMillis() - startTime), data, e);
-            return R.fail(e.getMessage());
+            return R.fail("jarPath:"+jarPath +"加载失败，请检查配置！");
         }
 
     }
