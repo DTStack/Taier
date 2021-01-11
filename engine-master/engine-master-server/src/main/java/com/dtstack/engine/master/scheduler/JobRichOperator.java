@@ -704,7 +704,7 @@ public class JobRichOperator {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         if(isTrigger){
-            calendar.set(Calendar.HOUR_OF_DAY, -2);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
             calendar.add(Calendar.DATE, -dayGap);
         }else{
             //补数据或重跑
