@@ -30,7 +30,7 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.DownloadType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.utils.FileUtil;
 import com.dtstack.engine.master.utils.XmlFileUtil;
@@ -1128,7 +1128,6 @@ public class ComponentService {
         }
     }
 
-
     /**
      * 加载各个组件的默认值
      * 解析yml文件转换为前端渲染格式
@@ -1509,28 +1508,6 @@ public class ComponentService {
         } catch (Exception e) {
         }
         return sftpMap;
-    }
-
-    public JSONObject getPluginInfoWithComponentType(Long dtuicTenantId,EComponentType componentType){
-        ClusterVO cluster = clusterService.getClusterByTenant(dtuicTenantId);
-
-        Component component = this.getComponentByClusterId(cluster.getId(), componentType.getTypeCode());
-        JSONObject hdfsConfigJSON = JSONObject.parseObject(component.getComponentConfig());
-        String typeName = hdfsConfigJSON.getString(ComponentService.TYPE_NAME);
-        if (StringUtils.isBlank(typeName)) {
-            //获取对应的插件名称
-            component = this.getComponentByClusterId(cluster.getId(), componentType.getTypeCode());
-            typeName = this.convertComponentTypeToClient(cluster.getClusterName(),
-                    componentType.getTypeCode(), component.getHadoopVersion());
-        }
-        //是否开启kerberos
-        KerberosConfig kerberos = kerberosDao.getByComponentType(cluster.getId(), componentType.getTypeCode());
-        Component sftpConfig = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode());
-        Map sftpMap = JSONObject.parseObject(sftpConfig.getComponentConfig(), Map.class);
-        String pluginInfo = this.wrapperConfig(componentType.getTypeCode(), component.getComponentConfig(), sftpMap, kerberos, cluster.getClusterName());
-        JSONObject pluginInfoObj = JSONObject.parseObject(pluginInfo);
-        pluginInfoObj.put(TYPE_NAME,typeName);
-        return pluginInfoObj;
     }
 
 }

@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.scheduler;
 
 import com.dtstack.engine.api.vo.Pair;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.DateTime;

@@ -5,7 +5,7 @@ import com.dtstack.engine.master.DtCenterSpringJUnit4ClassRunner;
 import com.dtstack.engine.master.config.CacheConfig;
 import com.dtstack.engine.master.config.MasterServerBeanConfig;
 import com.dtstack.engine.master.config.MybatisConfig;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;

@@ -261,6 +261,8 @@ public class ConsoleService {
                 Set<Long> dtuicTenantIds = rdosJobByJobIds.stream().map(ScheduleJob::getDtuicTenantId).collect(Collectors.toSet());
                 Map<Long, Tenant> tenantMap = tenantDao.listAllTenantByDtUicTenantIds(new ArrayList<>(dtuicTenantIds)).stream()
                         .collect(Collectors.toMap(Tenant::getDtUicTenantId, t -> t));
+
+                Map<String,String> pluginInfoCache = new HashMap<>();
                 for (EngineJobCache engineJobCache : engineJobCaches) {
                     Map<String, Object> theJobMap = PublicUtil.objectToMap(engineJobCache);
                     ScheduleJob scheduleJob = scheduleJobMap.getOrDefault(engineJobCache.getJobId(), new ScheduleJob());
@@ -274,7 +276,7 @@ public class ConsoleService {
                             logger.error(" get tenant error {}", scheduleJob.getDtuicTenantId(),e);
                         }
                     }
-                    this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant);
+                    this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant,pluginInfoCache);
                     data.add(theJobMap);
                 }
 
@@ -287,7 +289,7 @@ public class ConsoleService {
         return result;
     }
 
-    private void fillJobInfo(Map<String, Object> theJobMap, ScheduleJob scheduleJob, EngineJobCache engineJobCache, Tenant tenant) {
+    private void fillJobInfo(Map<String, Object> theJobMap, ScheduleJob scheduleJob, EngineJobCache engineJobCache, Tenant tenant,Map<String,String> pluginInfoCache) {
         theJobMap.put("status", scheduleJob.getStatus());
         theJobMap.put("execStartTime", scheduleJob.getExecStartTime());
         theJobMap.put("generateTime", engineJobCache.getGmtCreate());
@@ -304,9 +306,10 @@ public class ConsoleService {
         if (!jobInfoJSON.containsKey(PluginWrapper.PLUGIN_INFO)) {
             //获取插件信息
             String pluginInfo = pluginWrapper.getPluginInfo(jobInfoJSON.getString("taskParams"), engineJobCache.getComputeType(), engineJobCache.getEngineType(),
-                    null == tenant ? -1L : tenant.getDtUicTenantId(), jobInfoJSON.getLong("userId"));
-            jobInfoJSON.put(PluginWrapper.PLUGIN_INFO, JSONObject.parseObject(pluginInfo));
-            theJobMap.put("jobInfo", jobInfoJSON);
+                    String pluginInfo = pluginWrapper.getPluginInfo(jobInfoJSON.getString("taskParams"), engineJobCache.getComputeType(), engineJobCache.getEngineType(),
+                            Objects.isNull(tenant) ? -1L : tenant.getDtUicTenantId(), jobInfoJSON.getLong("userId"),pluginInfoCache);
+            jobInfoJSON.put(PluginWrapper.PLUGIN_INFO, pluginInfo);
+            theJobMap.put("jobInfo", jobInfoJSON.toJSONString());
         }
     }
 

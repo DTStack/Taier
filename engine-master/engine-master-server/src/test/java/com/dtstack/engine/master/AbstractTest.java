@@ -3,7 +3,7 @@ package com.dtstack.engine.master;
 import com.dtstack.engine.master.config.CacheConfig;
 import com.dtstack.engine.master.config.MasterServerBeanConfig;
 import com.dtstack.engine.master.config.MybatisConfig;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.listener.RunnerListener;
 import com.dtstack.engine.master.utils.ValueUtils;
 import org.junit.runner.RunWith;

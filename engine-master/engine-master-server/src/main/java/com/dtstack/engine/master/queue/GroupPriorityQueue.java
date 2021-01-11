@@ -2,7 +2,6 @@ package com.dtstack.engine.master.queue;
 
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.queue.comparator.JobClientComparator;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
@@ -10,7 +9,7 @@ import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.JobSubmitDealer;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
