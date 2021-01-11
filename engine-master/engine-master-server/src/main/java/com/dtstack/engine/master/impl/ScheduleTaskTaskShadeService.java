@@ -98,7 +98,7 @@ public class ScheduleTaskTaskShadeService {
         if (level == null || level < 1) {
             level = 1;
         }
-        if( level>30){
+        if( level > context.getJobJobLevel()){
             level = context.getJobJobLevel();
         }
         if(directType == null){
