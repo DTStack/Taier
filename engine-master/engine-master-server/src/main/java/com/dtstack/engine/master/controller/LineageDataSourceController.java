@@ -33,9 +33,9 @@ public class LineageDataSourceController {
 
     @RequestMapping(value = "/addOrUpdateDataSource",method = RequestMethod.POST)
     @ApiOperation(value = "新增或修改逻辑数据源")
-    public void addOrUpdateDataSource(@RequestBody DataSourceDTO dataSourceDTO){
+    public Long addOrUpdateDataSource(@RequestBody DataSourceDTO dataSourceDTO){
 
-        dataSourceService.addOrUpdateDataSource(dataSourceDTO);
+        return dataSourceService.addOrUpdateDataSource(dataSourceDTO);
     }
 
     /**

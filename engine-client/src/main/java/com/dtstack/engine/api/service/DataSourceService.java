@@ -26,7 +26,7 @@ public interface DataSourceService extends DtInsightServer {
      * @param dataSourceDTO 数据源信息
      */
     @RequestLine("POST /node/dataSource/addOrUpdateDataSource")
-    ApiResponse addOrUpdateDataSource(DataSourceDTO dataSourceDTO);
+    ApiResponse<Long> addOrUpdateDataSource(DataSourceDTO dataSourceDTO);
 
     /**
      * @author zyd
