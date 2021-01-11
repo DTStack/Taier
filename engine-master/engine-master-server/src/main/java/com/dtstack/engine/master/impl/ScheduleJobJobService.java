@@ -11,6 +11,7 @@ import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleJobJobDTO;
 import com.dtstack.engine.api.dto.ScheduleJobJobTaskDTO;
+import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
@@ -47,6 +48,9 @@ public class ScheduleJobJobService {
 
     @Autowired
     private ScheduleTaskShadeService batchTaskShadeService;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
 
     /**
      * @author toutian
@@ -213,7 +217,7 @@ public class ScheduleJobJobService {
     private com.dtstack.engine.master.vo.ScheduleJobVO displayOffSpringForFlowWork(ScheduleJob flowJob) throws Exception {
         com.dtstack.engine.master.vo.ScheduleJobVO vo = null;
         // 递归获取level层的子节点
-        Map<Integer, List<ScheduleJobJob>> result = getSpecifiedLevelJobJobs(flowJob.getJobKey(), 10, true, null);
+        Map<Integer, List<ScheduleJobJob>> result = getSpecifiedLevelJobJobs(flowJob.getJobKey(), environmentContext.getMaxDeepShow(), true, null);
         List<ScheduleJobJob> firstLevel = result.get(1);
         if (CollectionUtils.isNotEmpty(firstLevel)) {
             Set<String> allJobKeys = new HashSet<>();
