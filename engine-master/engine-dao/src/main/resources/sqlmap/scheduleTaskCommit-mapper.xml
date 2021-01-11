@@ -67,7 +67,7 @@
         <include refid="filed"/>
         FROM schedule_task_commit
         WHERE commit_id = #{commitId} AND is_commit = 0 AND is_deleted = 0 AND id >= ${minId}
-        ORDER BY id DESC
+        ORDER BY id
         LIMIT ${limit}
     </select>
 

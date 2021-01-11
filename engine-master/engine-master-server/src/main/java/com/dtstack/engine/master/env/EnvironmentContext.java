@@ -459,4 +459,8 @@ public class EnvironmentContext {
     public Integer setMaxIdleTime() {
         return Integer.valueOf(environment.getProperty("max.idle.time", "60"));
     }
+
+    public int getMaxDeepShow() {
+        return Integer.parseInt(environment.getProperty("max.deep.show", "20"));
+    }
 }
