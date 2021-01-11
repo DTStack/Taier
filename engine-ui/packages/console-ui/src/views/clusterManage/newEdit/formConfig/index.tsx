@@ -3,6 +3,7 @@ import { isArray } from 'lodash'
 import { Input, Form, Radio, Select, Checkbox,
     Tooltip, Row, Col } from 'antd'
 import { COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from '../const'
+import { getValueByJson } from '../help'
 import { formItemLayout } from '../../../../consts'
 import CustomParams from './components/customParams'
 interface IProps {
@@ -67,7 +68,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
     rendeConfigForm = () => {
         const { comp, form, view } = this.props;
         const typeCode = comp?.componentTypeCode ?? ''
-        const template = comp?.componentTemplate ? JSON.parse(comp?.componentTemplate) : []
+        const template = getValueByJson(comp?.componentTemplate) ?? []
         let isHaveGroup = false
 
         return <>
@@ -119,7 +120,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
     renderKubernetsConfig = () => {
         const { comp, form } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        const config = comp?.componentConfig ? JSON.parse(comp?.componentConfig) : ''
+        const config = getValueByJson(comp?.componentConfig) ?? ''
         return <>
             {config && <div className="c-formConfig__kubernetsContent">
                 配置文件参数已被加密，此处不予显示
@@ -133,8 +134,8 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
     renderYarnOrHdfsConfig = () => {
         const { comp, view, form } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        const template = comp?.componentTemplate ? JSON.parse(comp?.componentTemplate) : []
-        const compConfig = comp?.componentConfig ? JSON.parse(comp?.componentConfig) : {}
+        const template = getValueByJson(comp?.componentTemplate) ?? []
+        const compConfig = getValueByJson(comp?.componentConfig) ?? {}
         const config = form.getFieldValue(`${typeCode}.specialConfig`) ?? compConfig
         const keyAndValue = Object.entries(config);
         return <>

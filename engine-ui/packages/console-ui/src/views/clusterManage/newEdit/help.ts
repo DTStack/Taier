@@ -68,6 +68,10 @@ export function getCompsId (currentComps: any[], typeCodes: any[]): any[] {
     return ids
 }
 
+export function getValueByJson (value: any): any {
+    return value ? JSON.parse(value) : null
+}
+
 /**
  * @param param
  * 处理单条自定义参数的key\value值
