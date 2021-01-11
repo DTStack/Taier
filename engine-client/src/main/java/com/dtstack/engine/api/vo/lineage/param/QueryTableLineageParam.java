@@ -18,6 +18,9 @@ public class QueryTableLineageParam {
     @ApiModelProperty("数据源类型")
     private Integer sourceType;
 
+    @ApiModelProperty("数据源名称，资产可能存在仅有数据源名称的数据源")
+    private String sourceName;
+
     @ApiModelProperty(value = "engine数据源id",notes = "数据资产必须传，离线不传")
     private Long engineSourceId;
 
@@ -47,6 +50,14 @@ public class QueryTableLineageParam {
 
     public void setSourceType(Integer sourceType) {
         this.sourceType = sourceType;
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
     }
 
     public Long getEngineSourceId() {
