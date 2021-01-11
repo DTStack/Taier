@@ -8,6 +8,8 @@ import com.dtstack.engine.api.vo.lineage.LineageTableTableParam;
 import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
 import com.dtstack.engine.api.vo.lineage.SqlParseInfo;
 import com.dtstack.engine.api.vo.lineage.TableLineageParseInfo;
+import com.dtstack.engine.api.vo.lineage.param.QueryColumnLineageParam;
+import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageParam;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Param;
@@ -109,98 +111,83 @@ public interface LineageService extends DtInsightServer {
 
     /**
      * 根据表id查询表上游血缘关系
-     * @param appType
-     * @param tableId
+     * @param param
      * @return 返回当前表的上游血缘列表。使用双亲表示法表示树。
      */
     @RequestLine("POST /node/lineage/queryTableInputLineage")
-    ApiResponse<List<LineageTableTableVO>> queryTableInputLineage(@Param("appType") Long appType,@Param("tableId") Long tableId);
+    ApiResponse<List<LineageTableTableVO>> queryTableInputLineage(QueryTableLineageParam param);
 
     /**
      * 根据表id查询表上游血缘表数量
-     * @param appType
-     * @param tableId
+     * @param param
      * @return 返回当前表的上游血缘表数量。
      */
     @RequestLine("POST /node/lineage/queryTableInputLineageCount")
-    ApiResponse<Integer> queryTableInputLineageCount(@Param("appType") Long appType,@Param("tableId") Long tableId);
+    ApiResponse<Integer> queryTableInputLineageCount(QueryTableLineageParam param);
 
     /**
      * 根据表id查询表下游血缘关系
-     * @param appType
-     * @param tableId
+     * @param param
      * @return 返回当前表的下游血缘列表。使用双亲表示法表示树。
      */
     @RequestLine("POST /node/lineage/queryTableResultLineage")
-    ApiResponse<List<LineageTableTableVO>> queryTableResultLineage(@Param("appType")Long appType, @Param("tableId")Long tableId);
+    ApiResponse<List<LineageTableTableVO>> queryTableResultLineage(QueryTableLineageParam param);
 
     /**
      * 根据表id查询表下游血缘表数量
-     * @param appType
-     * @param tableId
+     * @param param
      * @return 返回当前表的下游血缘表数量。
      */
     @RequestLine("POST /node/lineage/queryTableResultLineageCount")
-    ApiResponse<Integer> queryTableResultLineageCount(@Param("appType")Long appType, @Param("tableId")Long tableId);
+    ApiResponse<Integer> queryTableResultLineageCount(QueryTableLineageParam param);
 
     /**
      * 根据表id查询表上下游血缘关系
-     * @param appType
-     * @param tableId
+     * @param param
      * @return 返回当前表的上下游血缘列表。使用双亲表示法表示树。
      */
     @RequestLine("POST /node/lineage/queryTableLineages")
-    ApiResponse<List<LineageTableTableVO>> queryTableLineages(@Param("appType")Long appType, @Param("tableId")Long tableId);
+    ApiResponse<List<LineageTableTableVO>> queryTableLineages(QueryTableLineageParam param);
 
     /**
      * 查询字段上游字段血缘
-     * @param appType
-     * @param tableId
-     * @param columnName
+     * @param param
      * @return 返回当前字段的上游血缘列表。使用双亲表示法表示树。
      */
     @RequestLine("POST /node/lineage/queryColumnInputLineage")
-    ApiResponse<List<LineageColumnColumnVO>> queryColumnInputLineage(@Param("appType")Long appType,@Param("tableId")Long tableId,@Param("columnName")String columnName);
+    ApiResponse<List<LineageColumnColumnVO>> queryColumnInputLineage(QueryColumnLineageParam param);
 
     /**
      * 查询字段上游血缘字段数量
-     * @param appType
-     * @param tableId
-     * @param columnName
+     * @param param
      * @return 返回当前字段的上游血缘字段数量。
      */
     @RequestLine("POST /node/lineage/queryColumnInputLineageCount")
-    ApiResponse<Integer> queryColumnInputLineageCount(@Param("appType")Long appType,@Param("tableId")Long tableId,@Param("columnName")String columnName);
+    ApiResponse<Integer> queryColumnInputLineageCount(QueryColumnLineageParam param);
 
     /**
      * 查询字段下游字段血缘
-     * @param appType
-     * @param tableId
-     * @param columnName
+     * @param param
      * @return 返回当前表的下游血缘列表。使用双亲表示法表示树。
      */
     @RequestLine("POST /node/lineage/queryColumnResultLineage")
-    ApiResponse<List<LineageColumnColumnVO>> queryColumnResultLineage(@Param("appType")Long appType,@Param("tableId")Long tableId,@Param("columnName")String columnName);
+    ApiResponse<List<LineageColumnColumnVO>> queryColumnResultLineage(QueryColumnLineageParam param);
 
     /**
      * 查询字段下游血缘字段数量
-     * @param appType
-     * @param tableId
-     * @param columnName
+     * @param param
      * @return 返回当前表的下游血缘字段数量。
      */
     @RequestLine("POST /node/lineage/queryColumnResultLineageCount")
-    ApiResponse<Integer> queryColumnResultLineageCount(@Param("appType")Long appType,@Param("tableId")Long tableId,@Param("columnName")String columnName);
+    ApiResponse<Integer> queryColumnResultLineageCount(QueryColumnLineageParam param);
 
     /**
      * 查询字段所有血缘关系
-     * @param appType
-     * @param tableId
-     * @param columnName
+     * @param param
      * @return 返回当前表的上下游血缘列表。使用双亲表示法表示树。
      */
     @RequestLine("POST /node/lineage/queryColumnLineages")
-    ApiResponse<List<LineageColumnColumnVO>> queryColumnLineages(@Param("appType")Long appType,@Param("tableId")Long tableId,@Param("columnName")String columnName);
+    ApiResponse<List<LineageColumnColumnVO>> queryColumnLineages(QueryColumnLineageParam param);
 
     /**
      * 推送历史血缘数据，字段级血缘会自动添加相应的表级血缘
