@@ -7,6 +7,11 @@ export function isNeedTemp (typeCode: number): boolean {
         COMPONENT_TYPE_VALUE.KUBERNETES].indexOf(typeCode) > -1
 }
 
+export function isHaveGroup (typeCode: number): boolean {
+    return [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK,
+        COMPONENT_TYPE_VALUE.LEARNING, COMPONENT_TYPE_VALUE.DTYARNSHELL].indexOf(typeCode) > -1
+}
+
 export function getActionType (mode: string): string {
     switch (mode) {
         case 'view': return '查看集群'
@@ -66,7 +71,8 @@ export function getCompsId (currentComps: any[], typeCodes: any[]): any[] {
 /**
  * @param param
  * 处理单条自定义参数的key\value值
- * 数据结构为%1532398855125918-key, %1532398855125918-value
+ * 处理数据结构为%1532398855125918-key, %1532398855125918-value
+ * 返回数据结构[{key: key, value: value, id: id}]
  */
 function handleSingleParam (params: any) {
     let customParamArr = []
@@ -90,9 +96,17 @@ function handleSingleParam (params: any) {
 
 /**
  * @param param 自定义参数对象
+ * @param turnp 转化为{key:value}型数据，仅支持不含group类型组组件
  * 先组内处理自定义参数再处理普通类型的自定义参数
+ * 返回数据结构
+ * [{
+ *  group: {
+ *    key: key,
+ *    value: value
+ *  }
+ * }]
  */
-export function handleCustomParam (params: any): any {
+export function handleCustomParam (params: any, turnp?: boolean): any {
     let customParam: any = []
     if (!params) return {}
     for (let [key, value] of Object.entries(params)) {
@@ -103,28 +117,41 @@ export function handleCustomParam (params: any): any {
             ]
         }
     }
+    if (turnp) {
+        let config = {}
+        for (let item of customParam.concat(handleSingleParam(params))) {
+            config[item.key] = item.value
+        }
+        return config
+    }
     return customParam.concat(handleSingleParam(params))
 }
 
 /**
  * @param temp 初始模版值
  * 处理初始模版值返回只包含自定义参数的键值
- * 结构如下
- * { %1532398855125918-key: key, %1532398855125918-value: value}
+ * 返回结构如下
+ * {
+ *   %1532398855125918-key: key,
+ *   %1532398855125918-value: value,
+ *     group: {
+ *        %1532398855125918-key: key,
+ *        %1532398855125918-value: value,
+ *     }
+ * }
  */
 export function getParamsByTemp (temp: any[]): any {
     let batchParams: any = {}
     temp.forEach((item: any) => {
-        if (item.groupParams) {
+        if (item.type == CONFIG_ITEM_TYPE.GROUP) {
             let params = {}
-            item.groupParams.forEach((groupItem: any) => {
+            item.values.forEach((groupItem: any) => {
                 if (groupItem.id) {
                     params['%' + groupItem.id + '-key'] = groupItem?.key ?? ''
                     params['%' + groupItem.id + '-value'] = groupItem?.value ?? ''
                 }
             })
             batchParams[item.key] = params
-            return batchParams
         }
         if (item.id) {
             batchParams['%' + item.id + '-key'] = item?.key ?? ''
@@ -132,6 +159,18 @@ export function getParamsByTemp (temp: any[]): any {
         }
     })
     return batchParams
+}
+
+// 后端需要value值加单引号处理
+function handleSingQuoteKeys (val: string, key: string) {
+    const singQuoteKeys = ['c.NotebookApp.ip', 'c.NotebookApp.token', 'c.NotebookApp.default_url'];
+    let newVal = val;
+    singQuoteKeys.forEach(singlekey => {
+        if (singlekey === key && val.indexOf("'") === -1) {
+            newVal = `'${val}'`
+        }
+    })
+    return newVal;
 }
 
 /**
@@ -205,7 +244,7 @@ export function handleComponentConfig (comp: any, turnp?: boolean): any {
                 if (turnp) {
                     groupConfig[groupKey.split('.').join('%')] = value
                 } else {
-                    groupConfig[groupKey.split('%').join('.')] = value
+                    groupConfig[groupKey.split('%').join('.')] = handleSingQuoteKeys(value, groupKey.split('%').join('.'))
                 }
             }
             componentConfig[key] = groupConfig
@@ -216,27 +255,29 @@ export function handleComponentConfig (comp: any, turnp?: boolean): any {
 
 /**
  * @param comp
+ * @param typeCode
  * 返回包含自定义参数的componentConfig
+ * typeCode识别是否有组类别
  */
-export function handleComponentConfigAndCustom (comp: any): any {
+export function handleComponentConfigAndCustom (comp: any, typeCode: number): any {
     // 处理componentConfig
     let componentConfig = handleComponentConfig(comp)
 
     // 自定义参数和componentConfig和并
     let customParamConfig = handleCustomParam(comp.customParam)
-    let isGroup = false
-    for (let key in customParamConfig) {
-        if (_.isArray(customParamConfig[key])) {
-            isGroup = true
-            for (let item of customParamConfig[key]) {
-                componentConfig[key] = {
-                    ...componentConfig[key],
-                    [item.key]: item.value
+    if (isHaveGroup(typeCode) && customParamConfig.length) {
+        for (let config of customParamConfig) {
+            for (let key in config) {
+                for (let groupConfig of config[key]) {
+                    componentConfig[key] = {
+                        ...componentConfig[key],
+                        [groupConfig.key]: groupConfig.value
+                    }
                 }
             }
         }
     }
-    if (!isGroup && Object.values(customParamConfig).length) {
+    if (!isHaveGroup(typeCode) && Object.values(customParamConfig).length) {
         for (let item of customParamConfig) {
             componentConfig = {
                 ...componentConfig,
@@ -282,7 +323,7 @@ export function getModifyComp (comps: any, initialCompData: any[]): any {
             if (isFileParam(param)) {
                 compValue = comp[param]?.name ?? comp[param]
             }
-            if (compValue && !_.isEqual(compValue, initialComp[param])) {
+            if (compValue && !_.isEqual(compValue, initialComp[param]?.name ?? initialComp[param])) {
                 modifyComps.add(typeCode)
             }
         }
@@ -291,13 +332,13 @@ export function getModifyComp (comps: any, initialCompData: any[]): any {
          * 对比之前先处理一遍表单的数据和自定义参数, 获取含有自定义参数的componentConfig
          */
         if (!isNeedTemp(Number(typeCode))) {
-            const compConfig = handleComponentConfigAndCustom(comp)
-            if (!_.isEqual(compConfig, JSON.parse(initialComp.componentConfig))) {
+            const compConfig = handleComponentConfigAndCustom(comp, Number(typeCode))
+            if (!_.isEqual(compConfig, initialComp?.componentConfig ? JSON.parse(initialComp.componentConfig) : {})) {
                 modifyComps.add(typeCode)
             }
         } else {
             /** 比对 hdfs、yarn 自定义参数 */
-            if (comp['customParam'] && !_.isEqual(comp['customParam'], getParamsByTemp(JSON.parse(initialComp.componentTemplate)))) {
+            if (comp['customParam'] && !_.isEqual(comp['customParam'], getParamsByTemp(JSON.parse(initialComp?.componentTemplate)))) {
                 modifyComps.add(typeCode)
             }
         }

@@ -208,6 +208,7 @@
     bottom: 20px;
     left: 20px;
     right: 20px;
+    box-shadow: 0px 2px 8px 0px rgba(6, 14, 26, 0.08);
     .c-editCluster__container__commonTabs {
         height: 100%;
         >.ant-tabs-tabpane {
@@ -248,8 +249,14 @@
             width: 200px;
             height: 40px;
             background: rgba(250,250,250,1);
-            border-radius: 0px 0px 0px 2px;
+            border-radius: 0;
             padding: 0;
+            border-left-width: 0;
+            border-bottom-width: 0;
+            &:hover, &:active, &:focus, &:visited {
+                color: #3F87FF;
+                border-color: #DDDDDD;
+            }
         }
     }
     .c-editCluster__container__card {
@@ -303,7 +310,7 @@
             >.ant-tabs-extra-content {
                 height: 40px;
                 position: absolute;
-                bottom: 1px;
+                bottom: 0;
             }      
         }
         .c-editCluster__container__componentWrap {

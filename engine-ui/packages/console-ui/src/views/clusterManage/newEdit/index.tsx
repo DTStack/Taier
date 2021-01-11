@@ -5,8 +5,8 @@ import { hashHistory } from 'react-router'
 import * as _ from 'lodash'
 
 import Api from '../../../api/console'
-import { initialScheduling, giveMeAKey, isViewMode,
-    isNeedTemp, getModifyComp, isSameVersion, getCompsId } from './help'
+import { initialScheduling, isViewMode, isNeedTemp,
+    getModifyComp, isSameVersion, getCompsId } from './help'
 import { TABS_TITLE, COMPONENT_CONFIG_NAME, DEFAULT_COMP_VERSION,
     COMPONENT_TYPE_VALUE } from './const'
 
@@ -19,25 +19,25 @@ import TestRestIcon from '../../../components/testResultIcon'
 const TabPane = Tabs.TabPane
 const confirm = Modal.confirm
 interface IState {
-    initialCompData: any[];
-    versionData: any;
+    testLoading: boolean;
+    activeKey: number;
     clusterName: string;
     commVersion: string;
-    activeKey: number;
-    saveCompsData: any[];
-    testLoading: boolean;
+    versionData: any;
     testStatus: any;
+    saveCompsData: any[];
+    initialCompData: any[];
 }
 class EditCluster extends React.Component<any, IState> {
     state: IState = {
-        initialCompData: initialScheduling(), // 初始各组件的存储值
-        versionData: {},
+        testLoading: false,
+        activeKey: 0,
         clusterName: '',
         commVersion: '',
-        activeKey: 0,
+        versionData: {},
+        testStatus: {},
         saveCompsData: [],
-        testLoading: false,
-        testStatus: {}
+        initialCompData: initialScheduling() // 初始各组件的存储值
     }
 
     componentDidMount () {
@@ -299,7 +299,7 @@ class EditCluster extends React.Component<any, IState> {
                             <Button className="cluster-btn" type="primary" onClick={this.handleComplete}>完成</Button>
                         </span>}
                 </div>
-                <div className="c-editCluster__container shadow">
+                <div className="c-editCluster__container">
                     <Tabs
                         tabPosition="top"
                         onChange={this.onTabChange}
@@ -323,7 +323,6 @@ class EditCluster extends React.Component<any, IState> {
                                 <Tabs
                                     tabPosition="left"
                                     tabBarExtraContent={!isViewMode(mode) && <ComponentButton
-                                        key={giveMeAKey()}
                                         activeKey={activeKey}
                                         comps={comps}
                                         handleConfirm={this.handleConfirm}

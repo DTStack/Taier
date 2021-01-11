@@ -1,8 +1,10 @@
 import * as React from 'react'
-import { Input, Form, Radio, Select, Checkbox, Tooltip, Row, Col } from 'antd'
+import { isArray } from 'lodash'
+import { Input, Form, Radio, Select, Checkbox,
+    Tooltip, Row, Col } from 'antd'
 import { COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from '../const'
 import { formItemLayout } from '../../../../consts'
-import CustomParams from '../components/customParams'
+import CustomParams from './components/customParams'
 interface IProps {
     comp: any;
     form: any;
@@ -14,42 +16,38 @@ const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const CheckboxGroup = Checkbox.Group;
 export default class FormConfig extends React.PureComponent<IProps, any> {
-    // 渲染单个配置项
-    renderConfigItem = (temp: any, groupKey?: string) => {
-        const { view, form, comp } = this.props
-        const typeCode = comp?.componentTypeCode ?? ''
-        let fieldName = typeCode + '.componentConfig'
-        if (groupKey) {
-            fieldName = typeCode + '.componentConfig.' + groupKey
-        }
-        // const fieldName = groupKey ? `${typeCode}.componentConfig.${groupKey}` : `${typeCode}.componentConfig`;
-        let content: any
+    renderOptoinsType = (temp: any) => {
+        const { view } = this.props
         switch (temp.type) {
             case CONFIG_ITEM_TYPE.RADIO:
-                content = <RadioGroup disabled={view}>
+                return <RadioGroup disabled={view}>
                     {temp.values.map((comp: any) => {
                         return <Radio key={comp.key} value={comp.value}>{comp.key}</Radio>
                     })}
                 </RadioGroup>
-                break;
             case CONFIG_ITEM_TYPE.SELECT:
-                content = <Select disabled={view} style={{ width: 200 }}>
+                return <Select disabled={view} style={{ width: 200 }}>
                     {temp.values.map((comp: any) => {
                         return <Option key={comp.key} value={comp.value}>{comp.key}</Option>
                     })}
                 </Select>
-                break;
             case CONFIG_ITEM_TYPE.CHECKBOX:
-                content = <CheckboxGroup disabled={view} className="c-componentConfig__checkboxGroup">
+                return <CheckboxGroup disabled={view} className="c-componentConfig__checkboxGroup">
                     {temp.values.map((comp: any) => {
-                        return <Checkbox key={comp.key} value={comp.value}>{comp.key}</Checkbox>
+                        return <Checkbox key={comp.key} value={`${comp.value}`}>{comp.key}</Checkbox>
                     })}
                 </CheckboxGroup>
-                break;
             default:
-                content = <Input disabled={view} style={{ maxWidth: 680 }} />
-                break;
+                return <Input disabled={view} style={{ maxWidth: 680 }} />
         }
+    }
+
+    // 渲染单个配置项
+    renderConfigItem = (temp: any, groupKey?: string) => {
+        const { form, comp } = this.props
+        const typeCode = comp?.componentTypeCode ?? ''
+        const initialValue = temp.key === 'deploymode' && !isArray(temp.value) ? temp.value.split() : temp.value
+        const fieldName = groupKey ? `${typeCode}.componentConfig.${groupKey}` : `${typeCode}.componentConfig`;
 
         return !temp.id && <FormItem
             label={<Tooltip title={temp.key}>{temp.key}</Tooltip>}
@@ -61,8 +59,8 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                     required: temp.required,
                     message: `请输入${temp.key}`
                 }],
-                initialValue: temp.value
-            })(content)}
+                initialValue: initialValue
+            })(this.renderOptoinsType(temp))}
         </FormItem>
     }
 

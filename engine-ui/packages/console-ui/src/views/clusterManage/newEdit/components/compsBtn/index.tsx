@@ -17,21 +17,45 @@ interface IProps {
 }
 
 interface IState {
+    visible: boolean;
+    popVisible: boolean;
     addComps: any[];
     deleteComps: any[];
-    visible: boolean;
+    initialValues: any[];
 }
 
 export default class ComponentButton extends React.Component<IProps, IState> {
     state: IState = {
+        visible: false,
+        popVisible: false,
         addComps: [],
         deleteComps: [],
-        visible: false
+        initialValues: []
+    }
+
+    componentDidMount () {
+        this.setState({
+            initialValues: this.getInitialValues()
+        })
+    }
+
+    componentDidUpdate (preProps: any) {
+        if (preProps.comps != this.props.comps) {
+            this.setState({
+                initialValues: this.getInitialValues()
+            })
+        }
     }
 
     getInitialValues = () => {
         const { comps = [] } = this.props
         return comps.map((comp: any) => comp?.componentTypeCode)
+    }
+
+    handlePopVisible = (visible: boolean) => {
+        this.setState({
+            popVisible: visible
+        })
     }
 
     handleSelectValue = () => {
@@ -42,10 +66,12 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 
     handleCheckValues = (value: any[]) => {
         const { activeKey } = this.props
-        const initialValues = this.getInitialValues()
+        const { initialValues } = this.state
+
         if (isSourceTab(activeKey)) {
             return
         }
+
         // 和初始值取两次交集可得删除的组件
         const intersectionArr = _.xor(value, initialValues)
         const deleteComps = _.intersection(intersectionArr, initialValues)
@@ -58,7 +84,8 @@ export default class ComponentButton extends React.Component<IProps, IState> {
     }
 
     handleRadioValues = (e: any) => {
-        const initialValues = this.getInitialValues()
+        const { initialValues } = this.state
+
         // 和初始值取不一致时，新增为选中组件，删除已有组件
         if (!_.isEqual(initialValues[0], e.target.value)) {
             const deleteComps = initialValues
@@ -78,7 +105,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 
     renderContent = () => {
         const { activeKey } = this.props
-        const initialValues = this.getInitialValues()
+        const { initialValues } = this.state
 
         if (isSourceTab(activeKey)) {
             return (<>
@@ -108,8 +135,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
                 <Row>
                     {CONFIG_BUTTON_TYPE[activeKey].map((item: any) => {
                         return <Col key={`${item.code}`}>
-                            <Checkbox value={item.code}>{item.componentName}
-                            </Checkbox>
+                            <Checkbox value={item.code}>{item.componentName}</Checkbox>
                         </Col>
                     })}
                 </Row>
@@ -119,6 +145,9 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 
     handleConfirm = () => {
         const { addComps, deleteComps } = this.state
+        this.setState({
+            popVisible: false
+        })
         if (deleteComps.length > 0) {
             this.setState({
                 visible: true
@@ -132,22 +161,27 @@ export default class ComponentButton extends React.Component<IProps, IState> {
         this.setState({
             addComps: [],
             deleteComps: [],
-            visible: false
+            visible: false,
+            popVisible: false
         })
     }
 
     render () {
-        const { visible, deleteComps, addComps } = this.state
+        const { visible, deleteComps, addComps, popVisible } = this.state
+
         return (
             <>
                 <Popconfirm
+                    trigger='click'
+                    key={`${popVisible}`}
+                    visible={popVisible}
                     icon={null}
                     placement="topRight"
                     title={this.renderContent()}
                     onConfirm={this.handleConfirm}
                     onCancel={this.handleCancel}
                 >
-                    <Button className="c-editCluster__componentButton">
+                    <Button className="c-editCluster__componentButton" onClick={() => this.handlePopVisible(true)}>
                         <i className="iconfont iconzujianpeizhi" style={{ marginRight: 2 }} />
                         组件配置
                     </Button>
@@ -157,7 +191,12 @@ export default class ComponentButton extends React.Component<IProps, IState> {
                     addComps={addComps}
                     deleteComps={deleteComps}
                     onCancel={this.handleCancel}
-                    onOk={() => this.props.handleConfirm(addComps, deleteComps)}
+                    onOk={() => {
+                        this.setState({
+                            visible: false
+                        })
+                        this.props.handleConfirm(addComps, deleteComps)
+                    }}
                 />
             </>
         )

@@ -4,8 +4,8 @@ import { cloneDeep } from 'lodash'
 
 import req from '../../../../consts/reqUrls'
 import Api from '../../../../api/console'
-import UploadFile from '../components/uploadFileBtn'
-import KerberosModal from '../components/kerberosModal'
+import UploadFile from './components/uploadFileBtn'
+import KerberosModal from './components/kerberosModal'
 import { COMPONENT_TYPE_VALUE, VERSION_TYPE, FILE_TYPE,
     CONFIG_FILE_DESC, DEFAULT_COMP_VERSION } from '../const'
 import { isOtherVersion, isSameVersion, handleComponentConfig } from '../help'
