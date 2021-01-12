@@ -46,7 +46,7 @@ public interface AccountService extends DtInsightServer {
      */
     @RequestLine("POST /node/account/pageQuery")
     ApiResponse<PageResult<List<AccountVo>>> pageQuery(@Param("dtuicTenantId") Long dtuicTenantId, @Param("username") String username, @Param("currentPage") Integer currentPage,
-                                                       @Param("pageSize") Integer pageSize, @Param("engineType") Integer engineType);
+                                                       @Param("pageSize") Integer pageSize, @Param("engineType") Integer engineType,@Param("dtuicUserId") Long dtuicUserId);
 
     /**
      * 获取租户未绑定用户列表

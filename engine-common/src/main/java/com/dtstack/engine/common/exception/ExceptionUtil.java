@@ -64,14 +64,11 @@ public class ExceptionUtil {
                 }
             }
         }
-        return null;
+        return "";
     }
 
     public static String stackTrack() {
         StackTraceElement[] st = Thread.currentThread().getStackTrace();
-        if (st == null) {
-            return null;
-        }
         StringBuffer sbf = new StringBuffer();
         sbf.append(System.getProperty("line.separator"));
 

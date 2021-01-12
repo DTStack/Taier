@@ -4,6 +4,7 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 public interface TestScheduleJobDao {
     @Insert({ "INSERT INTO schedule_job\n" +
@@ -25,7 +26,10 @@ public interface TestScheduleJobDao {
             "   VALUES\n" +
             "   (#{scheduleJob.gmtCreate}, #{scheduleJob.gmtModified}, #{scheduleJob.tenantId}, #{scheduleJob.projectId}, #{scheduleJob.dtuicTenantId}, #{scheduleJob.appType}, #{scheduleJob.jobId}, #{scheduleJob.jobKey}, #{scheduleJob.jobName}, #{scheduleJob.taskId},\n" +
             "   #{scheduleJob.createUserId}, #{scheduleJob.isDeleted}, #{scheduleJob.type}, #{scheduleJob.isRestart}, #{scheduleJob.businessDate}, #{scheduleJob.cycTime}, #{scheduleJob.dependencyType}, #{scheduleJob.flowJobId},\n" +
-            "   #{scheduleJob.status}, #{scheduleJob.taskType}, #{scheduleJob.maxRetryNum}, #{scheduleJob.nodeAddress}, #{scheduleJob.versionId},  #{scheduleJob.computeType}, #{scheduleJob.applicationId}, #{scheduleJob.execStartTime}, #{scheduleJob.execEndTime}, #{scheduleJob.execTime}, #{scheduleJob.logInfo}, #{scheduleJob.engineLog})" })
+            "   #{scheduleJob.status}, #{scheduleJob.taskType}, #{scheduleJob.maxRetryNum}, #{scheduleJob.nodeAddress}, #{scheduleJob.versionId}, #{scheduleJob.computeType}, #{scheduleJob.applicationId}, #{scheduleJob.execStartTime}, #{scheduleJob.execEndTime}, #{scheduleJob.execTime}, #{scheduleJob.logInfo}, #{scheduleJob.engineLog})" })
     @Options(useGeneratedKeys=true, keyProperty = "scheduleJob.id", keyColumn = "id")
     void insertWithCustomGmt(@Param("scheduleJob") ScheduleJob scheduleJob);
+
+    @Select({"select * from schedule_job limit 1"})
+    ScheduleJob getOne();
 }

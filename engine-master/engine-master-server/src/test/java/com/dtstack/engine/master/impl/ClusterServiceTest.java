@@ -17,21 +17,24 @@ import com.dtstack.engine.master.enums.EComponentScheduleType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
+import com.dtstack.engine.master.utils.Template;
+import com.dtstack.schedule.common.enums.AppType;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,7 +48,6 @@ import static org.mockito.Mockito.when;
  * @author yuebai
  * @date 2020-06-04
  */
-@PrepareForTest({AkkaConfig.class, ClientOperator.class})
 public class ClusterServiceTest extends AbstractTest {
 
     @Autowired
@@ -63,7 +65,7 @@ public class ClusterServiceTest extends AbstractTest {
     @Autowired
     private ComponentDao componentDao;
 
-    @Mock
+    @MockBean
     private ClientOperator clientOperator;
 
     @Autowired
@@ -81,7 +83,7 @@ public class ClusterServiceTest extends AbstractTest {
     @Autowired
     private EngineTenantDao engineTenantDao;
 
-    @Mock
+    @MockBean
     private ConsoleCache consoleCache;
 
     @Autowired
@@ -91,14 +93,9 @@ public class ClusterServiceTest extends AbstractTest {
 
     @Before
     public void setup() throws Exception{
-        MockitoAnnotations.initMocks(this);
-        PowerMockito.mockStatic(AkkaConfig.class);
-        when(AkkaConfig.isLocalMode()).thenReturn(true);
-        PowerMockito.mockStatic(ClientOperator.class);
 
         ComponentTestResult componentTestResult = new ComponentTestResult();
         componentTestResult.setResult(true);
-        when(ClientOperator.getInstance()).thenReturn(clientOperator);
 
         when(clientOperator.testConnect(any(),any())).thenReturn(componentTestResult);
 
@@ -113,14 +110,24 @@ public class ClusterServiceTest extends AbstractTest {
 
     }
 
-    public void testCreateCluster() {
-        componentService.addOrCheckClusterWithName(testClusterName);
+    public void testCreateCluster(String clusterName) {
+        componentService.addOrCheckClusterWithName(clusterName);
     }
 
     public ClusterVO testGetClusterByName() {
         ClusterVO dbCluster = clusterService.getClusterByName(testClusterName);
         Assert.assertNotNull(dbCluster);
         return dbCluster;
+    }
+
+
+    @Test
+    public void testCreateEmpty(){
+        try {
+            testCreateCluster("");
+            testCreateCluster("123456789101234567891012345");
+        } catch (Exception e) {
+        }
     }
 
     /**
@@ -144,11 +151,11 @@ public class ClusterServiceTest extends AbstractTest {
      * @see EngineService#listClusterEngines(java.lang.Long, boolean)
      */
     @Test
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Transactional
     @Rollback
     public void testGetCluster() throws Exception{
         //创建集群
-        testCreateCluster();
+        testCreateCluster(testClusterName);
         ClusterVO clusterVO = testGetClusterByName();
         Assert.assertNotNull(clusterVO.getClusterId());
         //添加组件 添加引擎
@@ -170,31 +177,33 @@ public class ClusterServiceTest extends AbstractTest {
         Component sftpConfig = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.SFTP.getTypeCode());
         Map sftpMap = JSONObject.parseObject(sftpConfig.getComponentConfig(), Map.class);
         //测试组件联通性
-        ComponentTestResult componentTestResult = componentService.testConnect(yarn.getComponentTypeCode(), yarn.getComponentConfig(), testClusterName, yarn.getHadoopVersion(), engineId, null, sftpMap);
+        ComponentTestResult componentTestResult = componentService.testConnect(yarn.getComponentTypeCode(), yarn.getComponentConfig(), testClusterName, yarn.getHadoopVersion(), engineId, null, sftpMap,yarnComponent.getStoreType());
         Assert.assertNotNull(componentTestResult);
         Assert.assertTrue(componentTestResult.getResult());
 
         //添加测试组件对应yarn的队列
         Queue queue = this.testInsertQueue(engineId);
         //添加测试租户
-        Tenant tenant = DataCollection.getData().getTenant();
+        Tenant tenant = Template.getTenantTemplate();
+        tenant.setDtUicTenantId(-107L);
+        tenantDao.insert(tenant);
         tenant = tenantDao.getByDtUicTenantId(tenant.getDtUicTenantId());
         Assert.assertNotNull(tenant);
         Assert.assertNotNull(tenant.getId());
         //绑定租户
-        tenantService.bindingTenant(tenant.getDtUicTenantId(),clusterVO.getClusterId(),queue.getId(),"");
+        tenantService.bindingTenant(tenant.getDtUicTenantId(),clusterVO.getClusterId(),queue.getId(),"","");
         //切换队列
         this.testUpdateQueue(engineId, tenant);
+
+        this.checkQueryWithUicTenantId(tenant.getDtUicTenantId());
 
         //查询集群信息
         PageResult<List<EngineTenantVO>> engineTenants = tenantService.pageQuery(clusterVO.getClusterId(), MultiEngineType.HADOOP.getType(), tenant.getTenantName(), 10, 1);
         Assert.assertNotNull(engineTenants);
         Assert.assertNotNull(engineTenants.getData());
         //查询集群组件信息
-        JSONObject componentsJson = JSONObject.parseObject(JSON.toJSONString(componentService.listConfigOfComponents(tenant.getDtUicTenantId(), MultiEngineType.HADOOP.getType())));
+        JSONArray componentsJson = JSONObject.parseArray(JSON.toJSONString(componentService.listConfigOfComponents(tenant.getDtUicTenantId(), MultiEngineType.HADOOP.getType())));
         Assert.assertNotNull(componentsJson);
-
-        Assert.assertNotNull(componentsJson.getJSONObject(String.valueOf(EComponentType.YARN.getTypeCode())));
 
         //查询kerberos配置信息
         KerberosConfig kerberosConfig = componentService.getKerberosConfig(clusterVO.getId(), EComponentType.YARN.getTypeCode());
@@ -202,7 +211,7 @@ public class ClusterServiceTest extends AbstractTest {
 
         //loadTemplate
 
-        String typeName = componentService.convertComponentTypeToClient(testClusterName, EComponentType.SPARK.getTypeCode(),"210");
+        String typeName = componentService.convertComponentTypeToClient(testClusterName, EComponentType.SPARK.getTypeCode(),"210",null);
         Assert.assertEquals(typeName,"yarn2-hdfs2-spark210");
 
         //查询队列信息
@@ -242,6 +251,18 @@ public class ClusterServiceTest extends AbstractTest {
                 throw e;
             }
         }
+    }
+
+    private void checkQueryWithUicTenantId(Long dtUicTenantId) {
+        String clusterInfo = clusterService.clusterInfo(dtUicTenantId);
+        Assert.assertNotEquals(clusterInfo, StringUtils.EMPTY);
+        ClusterVO clusterVO = clusterService.clusterExtInfo(dtUicTenantId);
+        Assert.assertNotNull(clusterVO);
+        JSONObject infoJSON = clusterService.pluginInfoJSON(dtUicTenantId, "hadoop", null, null);
+        Assert.assertNotNull(infoJSON);
+        String sftpDir = clusterService.clusterSftpDir(dtUicTenantId, EComponentType.HDFS.getTypeCode());
+        Assert.assertEquals(sftpDir,"/data/sftp/" + AppType.CONSOLE + "_" + clusterVO.getClusterName() + File.separator + EComponentType.getByCode(EComponentType.HDFS.getTypeCode()).name());
+
     }
 
     private void testUpdateQueue(Long engineId, Tenant tenant) {
@@ -312,7 +333,7 @@ public class ClusterServiceTest extends AbstractTest {
 
     private ComponentVO testAddYarn(ClusterVO clusterVO) {
         componentService.addOrUpdateComponent(clusterVO.getClusterId(), "{\"path\":\"/data/sftp\",\"password\":\"abc123\",\"auth\":\"1\",\"port\":\"22\",\"host\":\"172.16.100.168\",\"username\":\"root\"}",
-                null, "hadoop2", "", "[]", EComponentType.SFTP.getTypeCode());
+                null, "hadoop2", "", "[]", EComponentType.SFTP.getTypeCode(),null,"","");
         return componentService.addOrUpdateComponent(clusterVO.getClusterId(), "{\"yarn.resourcemanager.zk-address\":\"172.16.100.216:2181,172.16.101.136:2181,172.16.101.227:2181\",\"yarn.resourcemanager.admin.address.rm1\":\"172.16.100.216:8033\",\"yarn.resourcemanager.webapp.address.rm2\":\"172.16.101.136:8088\",\"yarn.log.server.url\"" +
                         ":\"http://172.16.101.136:19888/jobhistory/logs/\",\"yarn.resourcemanager.admin.address.rm2\":\"172.16.101.136:8033\"," +
                         "\"yarn.resourcemanager.webapp.address.rm1\":\"172.16.100.216:8088\",\"yarn.resourcemanager.ha.rm-ids\":\"rm1,rm2\"," +
@@ -332,7 +353,7 @@ public class ClusterServiceTest extends AbstractTest {
                         "\"yarn.resourcemanager.store.class\":\"org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore\",\"yarn.nodemanager.vmem-pmem-ratio\":\"4\"," +
                         "\"yarn.resourcemanager.zk-state-store.address\":\"172.16.100.216:2181,172.16.101.136:2181,172.16.101.227:2181\",\"ha.zookeeper.quorum\":\"172.16.100.216:2181," +
                         "172.16.101.136:2181,172.16.101.227:2181\"}"
-                , null, "hadoop2", "", "[]", EComponentType.YARN.getTypeCode());
+                , null, "hadoop2", "", "[]", EComponentType.YARN.getTypeCode(),null,"","");
     }
 
 
@@ -341,7 +362,7 @@ public class ClusterServiceTest extends AbstractTest {
                         "\"hive.metastore.warehouse.dir\":\"/dtInsight/hive/warehouse\",\"hive.server2.async.exec.threads\":\"200\",\"dfs.datanode.data.dir\":\"file:/data/hadoop/hdfs/data\"," +
                         "\"dfs.namenode.shared.edits.dir\":\"qjournal://172.16.100.216:8485;172.16.101.136:8485;172.16.101.227:8485/namenode-ha-data\",\"hive.metastore.schema.verification\":\"false\",\"hive.server2.support.dynamic.service.discovery\":\"true\",\"hive.server2.session.check.interval\":\"30000\",\"hive.metastore.uris\":\"thrift://172.16.101.227:9083\",\"hive.server2.thrift.port\":\"10000\",\"hive.exec.dynamic.partition.mode\":\"nonstrict\",\"ha.zookeeper.session-timeout.ms\":\"5000\",\"hadoop.tmp.dir\":\"/data/hadoop_${user.name}\",\"dfs.journalnode.edits.dir\":\"/data/hadoop/hdfs/journal\",\"hive.server2.zookeeper.namespace\":\"hiveserver2\",\"hive.server2.enable.doAs\":\"false\",\"dfs.namenode.http-address.ns1.nn2\":\"172.16.101.136:50070\",\"dfs.namenode.http-address.ns1.nn1\":\"172.16.100.216:50070\"," +
                         "\"dfs.namenode.datanode.registration.ip-hostname-check\":\"false\",\"hadoop.proxyuser.${user.name}.hosts\":\"*\",\"hadoop.proxyuser.${user.name}.groups\":\"*\",\"hive.exec.scratchdir\":\"/dtInsight/hive/warehouse\",\"hive.zookeeper.quorum\":\"172.16.100.216:2181,172.16.101.136:2181,172.16.101.227:2181\",\"datanucleus.schema.autoCreateAll\":\"true\",\"hive.exec.dynamic.partition\":\"true\",\"hive.cluster.delegation.token.store.class\":\"org.apache.hadoop.hive.thrift.MemoryTokenStore\",\"ha.zookeeper.quorum\":\"172.16.100.216:2181,172.16.101.136:2181,172.16.101.227:2181\",\"hive.server2.thrift.min.worker.threads\":\"300\",\"dfs.ha.automatic-failover.enabled\":\"true\"}"
-                , null, "hadoop2", "", "[]", EComponentType.HDFS.getTypeCode());
+                , null, "hadoop2", "", "[]", EComponentType.HDFS.getTypeCode(),null,"","");
     }
 
 
@@ -350,7 +371,7 @@ public class ClusterServiceTest extends AbstractTest {
                 "\"spark.eventLog.enabled\":\"true\",\"spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON\":\"/data/miniconda2/bin/python2\",\"spark.yarn.appMasterEnv.PYSPARK_PYTHON\":\"/data/anaconda3/bin/python3\"," +
                 "\"sparkPythonExtLibPath\":\"/dtInsight/pythons/pyspark.zip,hdfs://ns1/dtInsight/pythons/py4j-0.10.7-src.zip\",\"sparkSqlProxyPath\":\"hdfs://ns1/dtInsight/spark/client/spark-sql-proxy.jar\",\"sparkYarnArchive\":" +
                 "\"hdfs://ns1/dtInsight/sparkjars/jars\"}}";
-        return componentService.addOrUpdateComponent(clusterVO.getClusterId(), componentConfig, null, "hadoop2", "", "[]", EComponentType.SPARK.getTypeCode());
+        return componentService.addOrUpdateComponent(clusterVO.getClusterId(), componentConfig, null, "hadoop2", "", "[]", EComponentType.SPARK.getTypeCode(),null,"","");
     }
 
 
