@@ -84,7 +84,9 @@ public class LineageDataSourceService {
                 if(!one.getSourceKey().equals(sourceKey)){
                     throw new RdosDefineException("jdbc.url中ip和端口不能修改");
                 }
-                updateDataSource(dataSourceDTO,sourceKey,one.getRealSourceId());
+                //更新手动添加的数据源信息时，需要修改数据源类型
+                boolean changeSourceType = DataSourceType.UNKNOWN.getType() == one.getSourceType() && Objects.nonNull(dataSourceDTO.getSourceType());
+                updateDataSource(dataSourceDTO,sourceKey,one.getRealSourceId(),changeSourceType);
                 return one.getId();
             }
         } catch (Exception e) {
@@ -93,17 +95,25 @@ public class LineageDataSourceService {
         }
     }
 
-    private void updateDataSource(DataSourceDTO dataSourceDTO,String sourceKey,Long realSourceId) {
-
+    private void updateDataSource(DataSourceDTO dataSourceDTO,String sourceKey,Long realSourceId,boolean changeSourceType) {
         LineageDataSource dataSource = convertLineageDataSource(dataSourceDTO, sourceKey, realSourceId);
+        if (changeSourceType){
+            dataSource.setSourceType(dataSourceDTO.getSourceType());
+        }
         lineageDataSourceDao.updateDataSource(dataSource);
 
     }
 
     private Long addDataSource(DataSourceDTO dataSourceDTO) {
         try {
-            //是否是自定义数据源
-            boolean isCustom = dataSourceDTO.getSourceType().equals(DataSourceType.CUSTOM.getType());
+            //首先根据数据源名称查询数据源，如果数据源已经存在，说明是修改手动添加的数据源的信息。
+            LineageDataSource lineageDataSource = getDataSourceByParams(dataSourceDTO.getSourceType(), dataSourceDTO.getSourceName(), dataSourceDTO.getDtUicTenantId(), dataSourceDTO.getAppType());
+            if (Objects.nonNull(lineageDataSource)){
+                dataSourceDTO.setDataSourceId(lineageDataSource.getId());
+                return addOrUpdateDataSource(dataSourceDTO);
+            }
+            //是否是手动添加的数据源。手动添加的数据源暂时不知道数据源类型。当然也可能一直不知道数据源类型
+            boolean isCustom = dataSourceDTO.getSourceType().equals(DataSourceType.UNKNOWN.getType());
             //生成sourceKey
             String sourceKey;
             if(!isCustom) {
@@ -328,6 +338,18 @@ public class LineageDataSourceService {
         if(CollectionUtils.isNotEmpty(dataSourceByParams)){
             return dataSourceByParams.get(0);
         }else{
+            //未知数据源（手动添加血缘时添加的数据源）需要插入
+            if (DataSourceType.UNKNOWN.getType() == sourceType){
+                DataSourceDTO dataSourceDTO = new DataSourceDTO();
+                dataSourceDTO.setAppType(appType);
+                dataSourceDTO.setDataJson(null);
+                dataSourceDTO.setSourceName(sourceName);
+                dataSourceDTO.setKerberosConf(null);
+                dataSourceDTO.setDtUicTenantId(dtUicTenantId);
+                dataSourceDTO.setSourceType(DataSourceType.UNKNOWN.getType());
+                Long id = addOrUpdateDataSource(dataSourceDTO);
+                return getDataSourceById(id);
+            }
             return null;
         }
     }

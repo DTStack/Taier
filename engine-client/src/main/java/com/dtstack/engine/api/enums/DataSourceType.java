@@ -20,8 +20,14 @@ public enum DataSourceType {
     MYSQL(8,"Mysql"),
     GREENPLUM(9,"Greenplum SQL"),
     SQLSERVER(10,"SqlServer SQL"),
-    //手动添加的数据源
-    CUSTOM(11,"custom")
+    /**
+     * 因为数据资产新增自定义数据集，将该类型与之做对应
+     */
+    CUSTOM(11,"custom"),
+    /**
+     * 未知数据源
+     */
+    UNKNOWN(100,"unknown")
     ;
     private int type;
 
