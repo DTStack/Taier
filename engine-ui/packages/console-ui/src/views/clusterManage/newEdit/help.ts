@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { TABS_TITLE_KEY, COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from './const'
+import { TABS_TITLE_KEY, COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE, FILE_TYPE } from './const'
 
 // 是否为yarn、hdfs、Kubernetes组件
 export function isNeedTemp (typeCode: number): boolean {
@@ -70,6 +70,10 @@ export function getCompsId (currentComps: any[], typeCodes: any[]): any[] {
 
 export function getValueByJson (value: any): any {
     return value ? JSON.parse(value) : null
+}
+
+export function needZipFile (type: number): boolean {
+    return [FILE_TYPE.KERNEROS, FILE_TYPE.CONFIGS].indexOf(type) > -1
 }
 
 /**

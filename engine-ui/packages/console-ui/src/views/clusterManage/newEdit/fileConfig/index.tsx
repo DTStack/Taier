@@ -8,7 +8,7 @@ import UploadFile from './components/uploadFileBtn'
 import KerberosModal from './components/kerberosModal'
 import { COMPONENT_TYPE_VALUE, VERSION_TYPE, FILE_TYPE,
     CONFIG_FILE_DESC, DEFAULT_COMP_VERSION } from '../const'
-import { isOtherVersion, isSameVersion, handleComponentConfig } from '../help'
+import { isOtherVersion, isSameVersion, handleComponentConfig, needZipFile } from '../help'
 
 interface IProps {
     comp: any;
@@ -107,6 +107,14 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         a.click();
     }
 
+    validateFileType = (val: string) => {
+        const result = /\.(zip)$/.test(val.toLocaleLowerCase())
+        if (val && !result) {
+            message.warning('配置文件只能是zip文件!');
+        }
+        return result
+    }
+
     uploadFile = async (file: any, loadingType: number, callBack: Function) => {
         const { comp, form, clusterInfo } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
@@ -117,6 +125,15 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             }
         }))
         let res: any
+        if (needZipFile(loadingType) && !this.validateFileType(file?.name)) {
+            this.setState((preState) => ({
+                loading: {
+                    ...preState.loading,
+                    [loadingType]: false
+                }
+            }))
+            return;
+        }
         if (loadingType == FILE_TYPE.KERNEROS) {
             const params = {
                 kerberosFile: file,
@@ -320,7 +337,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         const { principals } = this.state
         let principalsList = cloneDeep(principals)
         const typeCode = comp?.componentTypeCode ?? ''
-        const kerberosFile = form.getFieldValue(`${typeCode}.kerberosFileName`)
+        const kerberosFile = form.getFieldValue(typeCode + '.kerberosFileName')
 
         if (!principals.length && !Array.isArray(comp?.principals) && comp?.principals) {
             principalsList = comp?.principals.split(',')
