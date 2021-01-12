@@ -22,10 +22,6 @@ perjob:
     state.checkpoints.dir: hdfs://ns1/dtInsight/flink110/checkpoints
     state.checkpoints.num-retained: 11
 
-    web.timeout: 100000
-    blob.service.cleanup.interval: 900
-    jobstore.expiration-time: 900
-
     akka.ask.timeout: 60 s
     metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
     metrics.reporter.promgateway.host:
@@ -44,6 +40,7 @@ perjob:
     queue: default
     pluginLoadMode: shipfile
     submitTimeout: 5
+    yarnAccepterTaskNumber: 3
     flinkInterval: 5 SECONDS
     classloader.resolve-order: parent-first
     taskparams.taskmanager.heap.mb: 20
@@ -102,12 +99,18 @@ session:
       controls: select
       values: [true,false]
     clusterMode: session
+    sessionStartAuto: false
+    checkSubmitJobGraphInterval: 60
 
   optional:
     jarTmpDir: ./tmp180
+    web.timeout: 100000
+    blob.service.cleanup.interval: 900
+    jobstore.expiration-time: 900
     queue: default
     pluginLoadMode: shipfile
     submitTimeout: 5
+    yarnAccepterTaskNumber: 3
     flinkInterval: 5 SECONDS
     classloader.resolve-order: parent-first
     taskparams.taskmanager.heap.mb: 20
@@ -122,7 +125,6 @@ session:
     yarn.taskmanager.heap.mb: 1024
     yarn.jobmanager.heap.mb: 1024
     yarn.taskmanager.numberOfTaskManager: 2
-    sessionStartAuto: false
     yarn.taskmanager.numberOfTaskSlots: 2
 
     flink.env.java.opts: -XX:MaxMetaspaceSize=500m
@@ -133,7 +135,6 @@ session:
     high-availability: ZOOKEEPER
 
     monitorAcceptedApp: false
-    checkSubmitJobGraphInterval: 30
 
 standalone:
   dependencyKey: deploymode
@@ -174,6 +175,7 @@ standalone:
     state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints
     state.backend.incremental: true
 
+    yarnAccepterTaskNumber: 3
     prometheusHost:
     prometheusPort: 9090
 
