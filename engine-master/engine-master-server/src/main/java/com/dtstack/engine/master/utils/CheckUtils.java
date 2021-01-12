@@ -80,6 +80,15 @@ public class CheckUtils {
             }
         }
 
+        if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(alertGateVO.getAlertGateType()) && StringUtils.isBlank(alertGateVO.getAlertGateCode())) {
+            alertGateVO.setAlertGateCode(AlertGateCode.AG_GATE_CUSTOM_JAR.code());
+        }
+
+        if (alertGateVO.getClusterId() == null) {
+            //暂时默认为0
+            alertGateVO.setClusterId(0);
+        }
+
     }
 
     public static void checkFormat(AlertGateTestVO alertGateTestVO) {

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.AlertChannelDao">
+
+<!--    <sql id="filed">-->
+<!--        id,cluster_id,alert_gate_name,alert_gate_type,alert_gate_code,alert_gate_json,alert_gate_source,alert_template,file_path,is_default,is_deleted,gmt_created,gmt_modified-->
+<!--    </sql>-->
+
+
+<!--    <select id="selectById" resultType="com.dtstack.engine.domain.AlertChannel">-->
+<!--        SELECT-->
+<!--            <include refid="filed"/>-->
+<!--        FROM alert_channel-->
+<!--        WHERE id = #{id}-->
+<!--    </select>-->
+
+<!--    <insert id="insert">-->
+
+<!--    </insert>-->
+
+<!--    <update id="update">-->
+
+<!--    </update>-->
+
+<!--    <select id="selectByQuery" resultType="com.dtstack.engine.domain.AlertChannel">-->
+
+<!--    </select>-->
+
+
+</mapper>

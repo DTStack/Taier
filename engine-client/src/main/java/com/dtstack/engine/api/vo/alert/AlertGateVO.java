@@ -19,7 +19,7 @@ public class AlertGateVO {
      *     告警通道类型,见{@link}
      * </p>
      */
-    private int alertGateType;
+    private Integer alertGateType;
 
     private String alertGateJson;
 
@@ -71,7 +71,7 @@ public class AlertGateVO {
         this.isDefault = isDefault;
     }
 
-    public int getAlertGateType() {
+    public Integer getAlertGateType() {
         return alertGateType;
     }
 

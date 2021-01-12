@@ -101,8 +101,8 @@ public class AlertGateFacade {
 
     @Transactional
     public boolean setDefaultAlert(ClusterAlertParam clusterAlertParam) {
-        clusterAlertService.setDefaultAlert(clusterAlertParam.getClusterId(),
-                clusterAlertParam.getAlertGateType(), clusterAlertParam.getAlertId());
+//        clusterAlertService.setDefaultAlert(clusterAlertParam.getClusterId(),
+//                clusterAlertParam.getAlertGateType(), clusterAlertParam.getAlertId());
         return true;
     }
 

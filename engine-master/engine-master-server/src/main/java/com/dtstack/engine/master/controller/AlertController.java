@@ -23,6 +23,7 @@ import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.master.config.MvcConfig;
 import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.impl.AlertChannelService;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.utils.CheckUtils;
 import com.dtstack.lang.data.R;
@@ -56,8 +57,14 @@ public class AlertController {
 
     @Autowired
     private AlertGateFacade alertGateFacade;
+
     @Autowired
     private AlertServiceProvider alertServiceProvider;
+
+    @Autowired
+    private AlertGateService alertGateService;
+
+
 
     @Autowired
     private MvcConfig mvcConfig;
@@ -69,24 +76,16 @@ public class AlertController {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private AlertGateService alertGateService;
+    private AlertChannelService alertChannelService;
+
 
     @ApiOperation("新增编辑告警通道 用于替换console接口: /api/console/service/alert/edit")
     @PostMapping("/edit")
     public Boolean edit(@RequestParam(value = "file", required = false) MultipartFile file,
                                     AlertGateVO alertGateVO) throws Exception {
         CheckUtils.checkAlertGateVOFormat(alertGateVO);
+        Assert.isTrue(!alertChannelService.checkAlertGateSourceExist(alertGateVO.getAlertGateSource()),"通道标识以重复，请修改通道标识");
 
-        if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(alertGateVO.getAlertGateType()) && StringUtils.isBlank(alertGateVO.getAlertGateCode())) {
-            alertGateVO.setAlertGateCode(AlertGateCode.AG_GATE_CUSTOM_JAR.code());
-        }
-
-        if (alertGateVO.getId() == null) {
-            alertGateFacade.checkAlertGateSourceExist(alertGateVO.getAlertGateSource());
-        }
-
-        //暂时默认为0
-        alertGateVO.setClusterId(0);
         if (file != null) {
             String filePath = mvcConfig.getPluginPath(false,alertGateVO.getAlertGateSource());
             String destPath = filePath + "/" + file.getOriginalFilename();
@@ -103,21 +102,7 @@ public class AlertController {
             // 上传sftp
             if (environmentContext.getOpenConsoleSftp()) {
                 // 查询默认集群的sftp
-                Component sftpComponent = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode());
-                if (sftpComponent != null) {
-                    SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
-                    if (sftpConfig != null) {
-                        try {
-                            String remoteDir = sftpConfig.getPath() + File.separator + filePath;
-                            SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
-                            sftpManager.uploadFile(remoteDir ,destPath);
-
-                            dbPath = dbPath + GlobalConst.PATH_CUT + remoteDir + File.separator + file.getOriginalFilename();
-                        } catch (Exception e) {
-                            log.error("上传sftp失败:",e);
-                        }
-                    }
-                }
+                dbPath = UploadFileToSftp(file, filePath, destPath, dbPath);
             }
 
             alertGateVO.setFilePath(dbPath);
@@ -125,14 +110,33 @@ public class AlertController {
             alertGateVO.setFilePath(null);
         }
 
-        return alertGateFacade.editGate(alertGateVO);
+        return alertChannelService.addChannelOrEditChannel(alertGateVO);
+    }
+
+    private String UploadFileToSftp(@RequestParam(value = "file", required = false) MultipartFile file, String filePath, String destPath, String dbPath) {
+        Component sftpComponent = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode());
+        if (sftpComponent != null) {
+            SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
+            if (sftpConfig != null) {
+                try {
+                    String remoteDir = sftpConfig.getPath() + File.separator + filePath;
+                    SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
+                    sftpManager.uploadFile(remoteDir ,destPath);
+
+                    dbPath = dbPath + GlobalConst.PATH_CUT + remoteDir + File.separator + file.getOriginalFilename();
+                } catch (Exception e) {
+                    log.error("上传sftp失败:",e);
+                }
+            }
+        }
+        return dbPath;
     }
 
     @ApiOperation("设为默认告警通道 用于取代console接口: /api/console/service/alert/setDefaultAlert")
     @PostMapping("/setDefaultAlert")
     public Boolean setDefaultAlert(@RequestBody ClusterAlertParam param) {
-        param.setClusterId(0);
-        return alertGateFacade.setDefaultAlert(param);
+        param.setClusterId(0L);
+        return alertChannelService.setDefaultAlert(param);
     }
 
     @ApiOperation("获取告警通道分页 用于取代console接口: /api/console/service/alert/page")
