@@ -42,8 +42,8 @@ perjob:
     submitTimeout: 5
     yarnAccepterTaskNumber: 3
     flinkInterval: 5 SECONDS
-    classloader.resolve-order: parent-first
-    taskparams.taskmanager.heap.mb: 20
+    classloader.resolve-order: child-first
+    classloader.dtstack-cache: true
 
     state.backend: RocksDB
     state.savepoints.dir: hdfs://ns1/dtInsight/flink180/savepoints
@@ -110,8 +110,8 @@ session:
     submitTimeout: 5
     yarnAccepterTaskNumber: 3
     flinkInterval: 5 SECONDS
-    classloader.resolve-order: parent-first
-    taskparams.taskmanager.heap.mb: 20
+    classloader.resolve-order: child-first
+    classloader.dtstack-cache: true
 
     web.timeout: 100000
     blob.service.cleanup.interval: 900
