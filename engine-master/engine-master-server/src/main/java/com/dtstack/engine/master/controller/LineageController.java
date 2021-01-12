@@ -128,9 +128,11 @@ public class LineageController {
 
     @RequestMapping(value = "/manualAddTableTable", method = {RequestMethod.POST})
     @ApiOperation(value = "手动添加表级血缘")
-    public void manualAddTableTable(@RequestBody LineageTableTableVO lineageTableTableVO) {
-        checkLineageTableTableVO(lineageTableTableVO);
-        lineageService.manualAddTableLineage(lineageTableTableVO);
+    public void manualAddTableTable(@RequestBody LineageTableTableParam lineageTableTableParam) {
+        for (LineageTableTableVO tableTable:lineageTableTableParam.getLineageTableTableVOs()){
+            checkLineageTableTableVO(tableTable);
+        }
+        lineageService.manualAddTableLineage(lineageTableTableParam.getLineageTableTableVOs());
     }
 
     @RequestMapping(value = "/manualDeleteTableTable", method = {RequestMethod.POST})
@@ -150,9 +152,11 @@ public class LineageController {
     }
     @RequestMapping(value = "/manualAddColumnColumn", method = {RequestMethod.POST})
     @ApiOperation(value = "手动添加字段级血缘")
-    public void manualAddColumnColumn(@RequestBody LineageColumnColumnVO lineageTableTableVO) {
-        checkLineageColumnColumnVO(lineageTableTableVO);
-        lineageService.manualAddColumnLineage(lineageTableTableVO);
+    public void manualAddColumnColumn(@RequestBody LineageColumnColumnParam lineageTableTableParam) {
+        for (LineageColumnColumnVO columnColumnVO:lineageTableTableParam.getLineageTableTableVOs()){
+            checkLineageColumnColumnVO(columnColumnVO);
+        }
+        lineageService.manualAddColumnLineage(lineageTableTableParam.getLineageTableTableVOs());
     }
 
     @RequestMapping(value = "/manualDeleteColumnColumn", method = {RequestMethod.POST})
