@@ -112,7 +112,6 @@ public class LineageController {
     )
     public void parseAndSaveColumnLineage(@RequestBody ParseColumnLineageParam parseColumnLineageParam) {
         ValidateUtil.validateNotNull(parseColumnLineageParam.getAppType(),"应用类型不能为空");
-        ValidateUtil.validateNotNull(parseColumnLineageParam.getDataSourceType(),"数据源类型不能为空");
         ValidateUtil.validateNotNull(parseColumnLineageParam.getDefaultDb(),"默认数据库不能为空");
         ValidateUtil.validateNotNull(parseColumnLineageParam.getDtUicTenantId(),"uic租户id不能为空");
         ValidateUtil.validateNotNull(parseColumnLineageParam.getSql(),"sql不能为空");

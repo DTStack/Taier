@@ -63,10 +63,11 @@ public class LineageTableTableService {
             lineageTableTableUniqueKeyRefDao.deleteByUniqueKey(tableTables.get(0).getAppType(),uniqueKey);
         }
         //插入新的ref
+        String finalUniqueKey = StringUtils.isEmpty(uniqueKey)?generateDefaultUniqueKey(tableTables.get(0).getAppType()):uniqueKey;
         List<LineageTableTableUniqueKeyRef> refList = tableTables.stream().map(tt -> {
             LineageTableTableUniqueKeyRef ref = new LineageTableTableUniqueKeyRef();
             ref.setAppType(tt.getAppType());
-            ref.setUniqueKey(uniqueKey);
+            ref.setUniqueKey(finalUniqueKey);
             ref.setLineageTableTableId(tt.getId());
             return ref;
         }).collect(Collectors.toList());
@@ -219,7 +220,7 @@ public class LineageTableTableService {
         if (AppType.MAP.getType() == appType){
             return AppType.MAP.name();
         }
-        return UUID.randomUUID().toString();
+        return "APP_TYPE_"+appType;
     }
 
     private List<LineageTableTable> getTableTablesByTableLineageKeys(Integer appType,List<String> tableLineageKeys){
