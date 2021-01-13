@@ -36,18 +36,18 @@
         from lineage_data_set_info
         <where>
             <if test="sourceId != null">
-                source_id = #{sourceId}
+                AND source_id = #{sourceId}
             </if>
-            <if test="table_name != null">
-                table_name = #{tableName}
+            <if test="tableName != null">
+                AND table_name = #{tableName}
             </if>
-            <if test="db_name != null">
-                db_name = #{dbName}
+            <if test="dbName != null">
+                AND db_name = #{dbName}
             </if>
-            <if test="schema_name != null">
-                schema_name = #{schemaName}
+            <if test="schemaName != null">
+                AND schema_name = #{schemaName}
             </if>
-            and is_deleted = 0
+            AND is_deleted = 0
         </where>
     </select>
 
