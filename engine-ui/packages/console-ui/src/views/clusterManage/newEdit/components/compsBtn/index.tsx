@@ -81,13 +81,17 @@ export default class ComponentButton extends React.Component<IProps, IState> {
     handleRadioValues = (e: any) => {
         const initialValues = this.getInitialValues()
 
-        // 和初始值取不一致时，新增为选中组件，删除已有组件
+        // 和初始值取不一致时，新增为选中组件，删除已有组件，相同时同步value值
         if (!_.isEqual(initialValues[0], e.target.value)) {
             const deleteComps = initialValues
             let addComps = []
             addComps.push(e.target.value)
             this.setState({
                 deleteComps, addComps, initialValues: [e.target.value]
+            })
+        } else {
+            this.setState({
+                initialValues: [e.target.value]
             })
         }
     }

@@ -29,6 +29,7 @@ interface IState {
     saveCompsData: any[];
     initialCompData: any[];
 }
+
 class EditCluster extends React.Component<any, IState> {
     state: IState = {
         testLoading: false,
@@ -100,7 +101,8 @@ class EditCluster extends React.Component<any, IState> {
         const typeCode = key ?? initialCompData[activeKey][0]?.componentTypeCode
         const comp = initialCompData[activeKey].find(comp => comp.componentTypeCode == typeCode)
 
-        if ((!isNeedTemp(Number(typeCode)) && !comp?.componentTemplate) || params?.compVersion || params?.storeType) {
+        if ((!isNeedTemp(Number(typeCode)) && !comp?.componentTemplate && initialCompData[activeKey]?.length) ||
+            params?.compVersion || params?.storeType) {
             const res = await Api.getLoadTemplate({
                 clusterName,
                 componentType: typeCode,
