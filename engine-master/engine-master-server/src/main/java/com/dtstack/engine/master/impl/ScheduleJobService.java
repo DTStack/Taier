@@ -2155,10 +2155,6 @@ public class ScheduleJobService {
         return timeStr.substring(0, 8);
     }
 
-    public List<Long> getJobByTaskIdAndStatus(Long taskId, List<Integer> statusList, Integer appType) {
-        return scheduleJobDao.listIdByTaskIdAndStatus(taskId, statusList, appType);
-    }
-
     private boolean checkJobCanStop(Integer status) {
         if (status == null) {
             return true;
