@@ -34,7 +34,7 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.DownloadType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.utils.FileUtil;
 import com.dtstack.engine.master.utils.Krb5FileUtil;
@@ -1350,7 +1350,6 @@ public class ComponentService {
             return new File(localDownLoadPath);
         }
     }
-
 
     /**
      * 加载各个组件的默认值

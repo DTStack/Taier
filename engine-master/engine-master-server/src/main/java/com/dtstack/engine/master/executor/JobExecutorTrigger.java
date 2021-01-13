@@ -11,8 +11,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * create: 2019/10/22
  */
 @Component
-public class JobExecutorTrigger implements InitializingBean, DisposableBean {
+public class JobExecutorTrigger implements DisposableBean, ApplicationListener<ApplicationStartedEvent> {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobExecutorTrigger.class);
 
@@ -52,20 +53,6 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
 
     private ExecutorService executorService;
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        LOG.info("Initializing " + this.getClass().getName());
-
-        executors.add(fillJobExecutor);
-        executors.add(cronJobExecutor);
-        executors.add(restartJobExecutor);
-
-        executorService = new ThreadPoolExecutor(3, 3, 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(), new CustomThreadFactory("ExecutorDealer"));
-        for (AbstractJobExecutor executor : executors) {
-            executorService.submit(executor);
-        }
-    }
 
     /**
      * 同步所有节点的 type类型下的 job实例信息
@@ -109,4 +96,19 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
         }
     }
 
+
+    @Override
+    public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
+        LOG.info("Initializing " + this.getClass().getName());
+
+        executors.add(fillJobExecutor);
+        executors.add(cronJobExecutor);
+        executors.add(restartJobExecutor);
+
+        executorService = new ThreadPoolExecutor(3, 3, 0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(), new CustomThreadFactory("ExecutorDealer"));
+        for (AbstractJobExecutor executor : executors) {
+            executorService.submit(executor);
+        }
+    }
 }

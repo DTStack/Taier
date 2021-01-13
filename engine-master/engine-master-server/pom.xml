@@ -235,12 +235,18 @@
 <!--            <scope>test</scope>-->
 <!--        </dependency>-->
 
-<!--        <dependency>-->
-<!--            <groupId>org.mockito</groupId>-->
-<!--            <artifactId>mockito-all</artifactId>-->
-<!--            <version>1.9.0</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-alert</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
 

@@ -1,4 +1,5 @@
 
+
 package com.dtstack.engine.master.config;
 
 import com.dtstack.engine.master.router.DtArgumentCookieResolver;
@@ -6,13 +7,16 @@ import com.dtstack.engine.master.router.DtArgumentResolver;
 import com.dtstack.engine.master.router.login.LoginInterceptor;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -23,6 +27,8 @@ import java.util.List;
  */
 @Configuration
 public class MvcConfig extends DelegatingWebMvcConfiguration {
+
+
 
     private static final List<String> INTERCEPT_LIST;
 
@@ -40,7 +46,13 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
                 "/console/service/alert/setDefaultAlert","/service/alert/getByAlertId","/console/service/alert/delete",
                 //多集群管理
                 "/node/cluster/pageQuery","/node/component/cluster/getCluster","/node/component/getComponentVersion",
-                "/node/component/addOrCheckClusterWithName","/node/component/testConnects","/node/cluster/deleteCluster");
+                "/node/component/addOrCheckClusterWithName","/node/component/testConnects","/node/cluster/deleteCluster",
+                // 安全审计
+                "/node/securityAudit/pageQuery","/node/securityAudit/getOperationList",
+                // 告警
+                "/node/alert/edit","/node/alert/setDefaultAlert","/node/alert/page","/node/alert/getByAlertId","/node/alert/delete"
+                ,"/node/alert/list/show","/node/alert/testAlert","/node/status"
+                );
     }
 
     @Autowired
@@ -57,6 +69,9 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
                 .allowedMethods("*");
     }
 
+    @Value("${engine.console.upload.path:${user.dir}/upload}")
+    private String uploadPath;
+
     @Bean
     public LoginInterceptor loginInterceptor() {
         return new LoginInterceptor();
@@ -64,7 +79,12 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        converters.add(0, new MappingJackson2HttpMessageConverter());
+        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
+        List<MediaType> mediaTypes = new ArrayList<>();
+        mediaTypes.add(MediaType.TEXT_PLAIN);
+        mediaTypes.add(MediaType.APPLICATION_JSON);
+        mappingJackson2HttpMessageConverter.setSupportedMediaTypes(mediaTypes);
+            converters.add(0, mappingJackson2HttpMessageConverter);
         super.configureMessageConverters(converters);
     }
 
@@ -90,6 +110,11 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
         registry.addResourceHandler("/webjars/**").addResourceLocations(
                 "classpath:/META-INF/resources/webjars/");
         super.addResourceHandlers(registry);
+    }
+
+    public String getPluginPath(boolean isTmp,String gateSource) {
+        String tmp = isTmp ? "/tmp" : "/normal";
+        return uploadPath + tmp + "/" + gateSource;
     }
 }
 

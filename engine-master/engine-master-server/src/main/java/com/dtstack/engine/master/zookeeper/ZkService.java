@@ -1,11 +1,10 @@
 package com.dtstack.engine.master.zookeeper;
 
 import com.dtstack.engine.common.akka.message.WorkerInfo;
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
 import com.dtstack.engine.master.zookeeper.data.BrokersNode;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.listener.HeartBeatCheckListener;
 import com.dtstack.engine.master.listener.HeartBeatListener;
 import com.dtstack.engine.master.listener.Listener;

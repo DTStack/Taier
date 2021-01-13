@@ -2,8 +2,8 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
@@ -13,17 +13,16 @@ import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.EComponentScheduleType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Deleted;
@@ -35,7 +34,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -51,8 +49,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.dtstack.engine.common.constrant.ConfigConstant.MERGE_KRB5_CONTENT_KEY;
 import static com.dtstack.engine.common.constrant.ConfigConstant.LDAP_USER_NAME;
+import static com.dtstack.engine.common.constrant.ConfigConstant.MERGE_KRB5_CONTENT_KEY;
 import static com.dtstack.engine.master.impl.ComponentService.TYPE_NAME;
 import static java.lang.String.format;
 
@@ -235,7 +233,7 @@ public class ClusterService implements InitializingBean {
         }
 
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-        Queue queue = getQueue(tenantId, cluster.getClusterId());
+        com.dtstack.engine.api.domain.Queue queue = getQueue(tenantId, cluster.getClusterId());
 
         pluginJson.put(QUEUE, queue == null ? "" : queue.getQueueName());
         pluginJson.put(NAMESPACE, queue == null ? "" : queue.getQueueName());
@@ -305,9 +303,9 @@ public class ClusterService implements InitializingBean {
         return null;
     }
 
-    public Queue getQueue(Long tenantId, Long clusterId) {
+    public com.dtstack.engine.api.domain.Queue getQueue(Long tenantId, Long clusterId) {
         Long queueId = engineTenantDao.getQueueIdByTenantId(tenantId);
-        Queue queue = queueDao.getOne(queueId);
+        com.dtstack.engine.api.domain.Queue queue = queueDao.getOne(queueId);
         if (queue != null) {
             return queue;
         }
@@ -317,7 +315,7 @@ public class ClusterService implements InitializingBean {
             return null;
         }
 
-        List<Queue> queues = queueDao.listByEngineIdWithLeaf(hadoopEngine.getId());
+        List<com.dtstack.engine.api.domain.Queue> queues = queueDao.listByEngineIdWithLeaf(hadoopEngine.getId());
         if (CollectionUtils.isEmpty(queues)) {
             return null;
         }
@@ -454,6 +452,25 @@ public class ClusterService implements InitializingBean {
             return getCluster(DEFAULT_CLUSTER_ID, true,false);
         }
         return getCluster(engine.getClusterId(), true,false);
+    }
+
+    public Cluster getCluster(Long dtUicTenantId) {
+        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
+        if (tenantId == null) {
+            return null;
+        }
+
+        List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
+        if (CollectionUtils.isEmpty(engineIds)) {
+            return null;
+        }
+
+        Engine engine = engineDao.getOne(engineIds.get(0));
+        if(Objects.isNull(engine)){
+            return null;
+        }
+
+        return clusterDao.getOne(engine.getClusterId());
     }
 
     public String getConfigByKey(Long dtUicTenantId,  String key, Boolean fullKerberos,Boolean isWrapper) {
@@ -913,6 +930,35 @@ public class ClusterService implements InitializingBean {
     public String dbInfo(Long dtUicTenantId, Long dtUicUserId, Integer type) {
         DataSourceType sourceType = DataSourceType.getSourceType(type);
         return accountInfo(dtUicTenantId,dtUicUserId,sourceType);
+    }
+
+    public Boolean isSameCluster(Long dtUicTenantId, List<Long> dtUicTenantIds) {
+        if (dtUicTenantId ==null) {
+            throw new RdosDefineException("租户id不能为null");
+        }
+
+        if (CollectionUtils.isEmpty(dtUicTenantIds)) {
+            return Boolean.FALSE;
+        }
+
+        Cluster cluster = getCluster(dtUicTenantId);
+
+        if (cluster == null) {
+            throw new RdosDefineException("租户id:"+dtUicTenantId+"不存在!");
+        }
+
+        for (Long uicTenantId : dtUicTenantIds) {
+            Cluster cluster1 = getCluster(uicTenantId);
+
+            if (cluster1 != null) {
+                if (cluster.getId().equals(cluster1.getId())) {
+                    // dtUicTenantIds集合中存在和 dtUicTenantId相同的集群
+                    return Boolean.TRUE;
+                }
+            }
+        }
+
+        return Boolean.FALSE;
     }
 }
 

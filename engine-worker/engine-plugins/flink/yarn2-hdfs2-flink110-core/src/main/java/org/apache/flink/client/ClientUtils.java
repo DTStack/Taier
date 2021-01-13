@@ -103,8 +103,8 @@ public enum ClientUtils {
 					throw new RdosDefineException("Exceptions appears when read file:" + e);
 				}
 			}
-			String md5KeyParent = StringUtils.join(jarMd5s, "_");
-			return cacheClassLoader.computeIfAbsent(md5KeyParent, k -> classLoader);
+			String keyCache = classLoaderResolveOrder + StringUtils.join(jarMd5s, "_");
+			return cacheClassLoader.computeIfAbsent(keyCache, k -> classLoader);
 		} else {
 			return classLoader;
 		}

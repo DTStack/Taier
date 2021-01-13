@@ -4,22 +4,20 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.tenant.TenantAdminVO;
 import com.dtstack.engine.api.vo.tenant.TenantResourceVO;
 import com.dtstack.engine.api.vo.tenant.UserTenantVO;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.router.login.domain.TenantAdmin;
@@ -38,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.Queue;
 
 
 /**
@@ -134,9 +133,9 @@ public class TenantService {
             }
         }
 
-        Map<Long, Queue> queueMap = new HashMap<>();
-        List<Queue> queueList = queueDao.listByIds(queueIds);
-        for (Queue queue : queueList) {
+        Map<Long, com.dtstack.engine.api.domain.Queue> queueMap = new HashMap<>();
+        List<com.dtstack.engine.api.domain.Queue> queueList = queueDao.listByIds(queueIds);
+        for (com.dtstack.engine.api.domain.Queue queue : queueList) {
             queueMap.put(queue.getId(), queue);
         }
 
@@ -145,14 +144,14 @@ public class TenantService {
                 continue;
             }
 
-            Queue queue = queueMap.get(engineTenantVO.getQueueId());
+            com.dtstack.engine.api.domain.Queue queue = queueMap.get(engineTenantVO.getQueueId());
             if(queue == null){
                 continue;
             }
 
             engineTenantVO.setQueue(queue.getQueuePath());
-            engineTenantVO.setMaxCapacity(NumberUtils.toInt(queue.getMaxCapacity(),0) * 100 + "%");
-            engineTenantVO.setMinCapacity(NumberUtils.toInt(queue.getCapacity(),0) * 100 + "%");
+            engineTenantVO.setMaxCapacity(NumberUtils.toDouble(queue.getMaxCapacity(),0) * 100 + "%");
+            engineTenantVO.setMinCapacity(NumberUtils.toDouble(queue.getCapacity(),0) * 100 + "%");
         }
     }
 
@@ -333,7 +332,7 @@ public class TenantService {
     @Transactional(rollbackFor = Exception.class)
     public void bindingQueue( Long queueId,
                               Long dtUicTenantId,String taskTypeResourceJson) {
-        Queue queue = queueDao.getOne(queueId);
+        com.dtstack.engine.api.domain.Queue queue = queueDao.getOne(queueId);
         if (queue == null) {
             throw new RdosDefineException("队列不存在", ErrorCode.DATA_NOT_FIND);
         }

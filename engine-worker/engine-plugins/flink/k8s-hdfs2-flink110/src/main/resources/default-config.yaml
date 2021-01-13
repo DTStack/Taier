@@ -41,8 +41,10 @@ perjob:
     jarTmpDir: ./tmp110
     pluginLoadMode: classpath
     submitTimeout: 5
-    classloader.resolve-order: parent-first
-    taskparams.taskmanager.heap.mb: 20
+    yarnAccepterTaskNumber: 3
+    flinkInterval: 5 SECONDS
+    classloader.resolve-order: child-first
+    classloader.dtstack-cache: true
 
     prometheusHost:
     prometheusPort: 9090
@@ -96,9 +98,10 @@ session:
     jarTmpDir: ./tmp110
     pluginLoadMode: classpath
     submitTimeout: 5
+    yarnAccepterTaskNumber: 3
     flinkInterval: 5 SECONDS
-    classloader.resolve-order: parent-first
-    taskparams.taskmanager.heap.mb: 20
+    classloader.resolve-order: child-first
+    classloader.dtstack-cache: true
 
     prometheusHost:
     prometheusPort: 9090

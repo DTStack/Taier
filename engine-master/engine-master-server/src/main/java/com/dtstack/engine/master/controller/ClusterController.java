@@ -11,6 +11,8 @@ import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.router.DtRequestParam;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -214,5 +216,16 @@ public class ClusterController{
     @RequestMapping(value="/prestoInfo", method = {RequestMethod.POST})
     public String prestoInfo(@DtRequestParam("tenantId") Long dtUicTenantId, @DtRequestParam("fullKerberos") Boolean fullKerberos) {
         return getConfigByKey(dtUicTenantId, EComponentType.PRESTO_SQL.getConfName(), fullKerberos);
+    }
+
+
+    @ApiOperation(value = "判断的租户和另一个租户是否在一个集群")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="tenantId",value="租户id",required=true, dataType = "Long", allowMultiple = true),
+            @ApiImplicitParam(name="aimTenantIds",value="租户id集合",required=true, dataType = "Long", allowMultiple = true)
+    })
+    @RequestMapping(value="/isSameCluster", method = {RequestMethod.POST})
+    public Boolean isSameCluster(@DtRequestParam("tenantId") Long dtUicTenantId,@DtRequestParam("aimTenantIds") List<Long> dtUicTenantIds){
+        return clusterService.isSameCluster(dtUicTenantId,dtUicTenantIds);
     }
 }

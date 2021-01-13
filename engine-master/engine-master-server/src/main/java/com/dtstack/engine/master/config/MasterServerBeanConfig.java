@@ -5,7 +5,7 @@ import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.master.akka.AkkaMasterServerImpl;
 import com.dtstack.engine.master.akka.MasterServer;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

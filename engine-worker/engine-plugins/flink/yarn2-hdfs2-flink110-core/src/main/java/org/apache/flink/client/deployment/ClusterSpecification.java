@@ -19,6 +19,7 @@
 package org.apache.flink.client.deployment;
 
 import com.dtstack.engine.base.enums.ClassLoaderType;
+import com.dtstack.engine.common.enums.EJobType;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.jobgraph.JobGraph;
@@ -37,10 +38,8 @@ public final class ClusterSpecification {
     private final int taskManagerMemoryMB;
     private final int slotsPerTaskManager;
 
-
     private int priority;
     private int parallelism;
-    private Configuration configuration;
     private YarnConfiguration yarnConfiguration;
     private JobGraph jobGraph;
     private SavepointRestoreSettings spSetting;
@@ -50,7 +49,6 @@ public final class ClusterSpecification {
     private File jarFile;
     private boolean createProgramDelay = false;
     private PackagedProgram program;
-    private ClassLoaderType classLoaderType = ClassLoaderType.PARENT_FIRST;
 
     private ClusterSpecification(int masterMemoryMB, int taskManagerMemoryMB, int slotsPerTaskManager) {
         this.masterMemoryMB = masterMemoryMB;
@@ -92,14 +90,6 @@ public final class ClusterSpecification {
 
     public void setParallelism(int parallelism) {
         this.parallelism = parallelism;
-    }
-
-    public Configuration getConfiguration() {
-        return configuration;
-    }
-
-    public void setConfiguration(Configuration configuration) {
-        this.configuration = configuration;
     }
 
     public YarnConfiguration getYarnConfiguration() {
@@ -172,14 +162,6 @@ public final class ClusterSpecification {
 
     public void setProgram(PackagedProgram program) {
         this.program = program;
-    }
-
-    public ClassLoaderType getClassLoaderType() {
-        return classLoaderType;
-    }
-
-    public void setClassLoaderType(ClassLoaderType classLoaderType) {
-        this.classLoaderType = classLoaderType;
     }
 
     @Override

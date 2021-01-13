@@ -22,6 +22,7 @@ import com.dtstack.engine.base.enums.ClassLoaderType;
 import org.apache.flink.api.common.Plan;
 import org.apache.flink.api.common.Program;
 import org.apache.flink.api.common.ProgramDescription;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.optimizer.Optimizer;
 import org.apache.flink.optimizer.dag.DataSinkNode;
 import org.apache.flink.optimizer.plandump.PlanJSONDumpGenerator;
@@ -124,8 +125,8 @@ public class PackagedProgram {
 	 *         This invocation is thrown if the Program can't be properly loaded. Causes
 	 *         may be a missing / wrong class or manifest files.
 	 */
-	public PackagedProgram(File jarFile, List<URL> classpaths, ClassLoaderType classLoaderType, String... args) throws ProgramInvocationException {
-		this(jarFile, classpaths, classLoaderType, null, args);
+	public PackagedProgram(File jarFile, List<URL> classpaths, Configuration flinkConfiguration, String... args) throws ProgramInvocationException {
+		this(jarFile, classpaths, flinkConfiguration, null, args);
 	}
 
 	/**
@@ -145,8 +146,8 @@ public class PackagedProgram {
 	 *         This invocation is thrown if the Program can't be properly loaded. Causes
 	 *         may be a missing / wrong class or manifest files.
 	 */
-	public PackagedProgram(File jarFile, @Nullable String entryPointClassName, ClassLoaderType classLoaderType, String... args) throws ProgramInvocationException {
-		this(jarFile, Collections.<URL>emptyList(), classLoaderType, entryPointClassName, args);
+	public PackagedProgram(File jarFile, @Nullable String entryPointClassName, Configuration flinkConfiguration, String... args) throws ProgramInvocationException {
+		this(jarFile, Collections.<URL>emptyList(), flinkConfiguration, entryPointClassName, args);
 	}
 
 	/**
@@ -168,7 +169,7 @@ public class PackagedProgram {
 	 *         This invocation is thrown if the Program can't be properly loaded. Causes
 	 *         may be a missing / wrong class or manifest files.
 	 */
-	public PackagedProgram(File jarFile, List<URL> classpaths, ClassLoaderType classLoaderType, @Nullable String entryPointClassName, String... args) throws ProgramInvocationException {
+	public PackagedProgram(File jarFile, List<URL> classpaths, Configuration flinkConfiguration, @Nullable String entryPointClassName, String... args) throws ProgramInvocationException {
 		if (jarFile == null) {
 			throw new IllegalArgumentException("The jar file must not be null.");
 		}
@@ -193,7 +194,13 @@ public class PackagedProgram {
 		// now that we have an entry point, we can extract the nested jar files (if any)
 		this.extractedTempLibraries = extractContainedLibraries(jarFileUrl);
 		this.classpaths = classpaths;
-		this.userCodeClassLoader = JobWithJars.buildUserCodeClassLoader(getAllLibraries(), classpaths, getClass().getClassLoader(), classLoaderType);
+
+		boolean cache = false;
+		String classLoaderCache = flinkConfiguration.getString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_FALSE);
+		if (classLoaderCache.equalsIgnoreCase(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_TRUE)){
+			cache = true;
+		}
+		this.userCodeClassLoader = JobWithJars.buildUserCodeClassLoader(getAllLibraries(), classpaths, getClass().getClassLoader(), flinkConfiguration, cache);
 
 		// load the entry point class
 		this.mainClass = loadMainClass(entryPointClassName, userCodeClassLoader);

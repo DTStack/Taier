@@ -15,7 +15,7 @@ import com.dtstack.engine.common.akka.message.WorkerInfo;
 import com.dtstack.engine.common.exception.WorkerAccessException;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.common.util.RandomUtils;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
