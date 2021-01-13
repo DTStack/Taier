@@ -34,13 +34,21 @@
         select
         <include refid="select_content_fragment" />
         from lineage_data_set_info
-        where
-        source_id = #{sourceId}
-        and db_name = #{dbName}
-        and table_name = #{tableName}
-        and schema_name = #{schemaName}
-        and is_deleted = 0
-
+        <where>
+            <if test="sourceId != null">
+                source_id = #{sourceId}
+            </if>
+            <if test="table_name != null">
+                table_name = #{tableName}
+            </if>
+            <if test="db_name != null">
+                db_name = #{dbName}
+            </if>
+            <if test="schema_name != null">
+                schema_name = #{schemaName}
+            </if>
+            and is_deleted = 0
+        </where>
     </select>
 
     <select id="getOneById" resultType="com.dtstack.engine.api.domain.LineageDataSetInfo">

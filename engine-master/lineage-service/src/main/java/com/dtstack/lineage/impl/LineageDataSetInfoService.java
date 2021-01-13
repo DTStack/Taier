@@ -82,7 +82,11 @@ public class LineageDataSetInfoService {
         dataSetInfo.setSourceId(sourceId);
         dataSetInfo.setDbName(dbName);
         dataSetInfo.setIsManual(0);
-        dataSetInfo.setSchemaName(schemaName);
+        if(StringUtils.isNotEmpty(schemaName)){
+            dataSetInfo.setSchemaName(schemaName);
+        }else {
+            dataSetInfo.setSchemaName(dbName);
+        }
         dataSetInfo.setSetType(0);
         dataSetInfo.setTableName(tableName);
         //生成tableKey
