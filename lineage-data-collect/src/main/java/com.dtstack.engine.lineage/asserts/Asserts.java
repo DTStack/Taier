@@ -1,6 +1,5 @@
 package com.dtstack.engine.lineage.asserts;
 
-import com.cloudera.impala.jdbc41.internal.com.cloudera.altus.shaded.org.apache.commons.lang3.StringUtils;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.enums.DataSourceType;
 import com.dtstack.engine.api.service.DataSourceService;
@@ -18,6 +17,7 @@ import com.dtstack.engine.lineage.DataCollection;
 import com.dtstack.sdk.core.common.DtInsightApi;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
