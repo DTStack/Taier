@@ -107,13 +107,13 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                     return this.renderConfigItem(temps)
                 }
             })}
-            {!isHaveGroup && <CustomParams
+            {!isHaveGroup && template.length ? <CustomParams
                 typeCode={typeCode}
                 form={form}
                 view={view}
                 template={template}
                 maxWidth={680}
-            />}
+            /> : null}
         </>
     }
 
