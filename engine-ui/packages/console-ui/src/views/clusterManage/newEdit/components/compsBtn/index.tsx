@@ -13,12 +13,13 @@ const RadioGroup = Radio.Group;
 interface IProps {
     activeKey: number;
     comps: any[];
+    popVisible: boolean;
     handleConfirm: Function;
+    handlePopVisible: Function;
 }
 
 interface IState {
     visible: boolean;
-    popVisible: boolean;
     addComps: any[];
     deleteComps: any[];
     initialValues: any[];
@@ -27,7 +28,6 @@ interface IState {
 export default class ComponentButton extends React.Component<IProps, IState> {
     state: IState = {
         visible: false,
-        popVisible: false,
         addComps: [],
         deleteComps: [],
         initialValues: []
@@ -40,7 +40,8 @@ export default class ComponentButton extends React.Component<IProps, IState> {
     }
 
     componentDidUpdate (preProps: any) {
-        if (preProps.comps != this.props.comps) {
+        const { comps, popVisible } = this.props
+        if ((preProps.comps != comps) || (preProps.popVisible != popVisible && popVisible)) {
             this.setState({
                 initialValues: this.getInitialValues()
             })
@@ -52,12 +53,6 @@ export default class ComponentButton extends React.Component<IProps, IState> {
         return comps.map((comp: any) => comp?.componentTypeCode)
     }
 
-    handlePopVisible = (visible: boolean) => {
-        this.setState({
-            popVisible: visible
-        })
-    }
-
     handleSelectValue = () => {
         const { comps } = this.props
         const selectValues = comps.map((comp) => comp.componentTypeCode)
@@ -66,7 +61,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 
     handleCheckValues = (value: any[]) => {
         const { activeKey } = this.props
-        const { initialValues } = this.state
+        const initialValues = this.getInitialValues()
 
         if (isSourceTab(activeKey)) {
             return
@@ -79,12 +74,12 @@ export default class ComponentButton extends React.Component<IProps, IState> {
         const unionArr = _.union(value, initialValues)
         const addComps = _.xor(unionArr, initialValues)
         this.setState({
-            deleteComps, addComps
+            deleteComps, addComps, initialValues: value
         })
     }
 
     handleRadioValues = (e: any) => {
-        const { initialValues } = this.state
+        const initialValues = this.getInitialValues()
 
         // 和初始值取不一致时，新增为选中组件，删除已有组件
         if (!_.isEqual(initialValues[0], e.target.value)) {
@@ -92,7 +87,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
             let addComps = []
             addComps.push(e.target.value)
             this.setState({
-                deleteComps, addComps
+                deleteComps, addComps, initialValues: [e.target.value]
             })
         }
     }
@@ -113,6 +108,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
                 <RadioGroup
                     className="c-componentButton__content"
                     defaultValue={initialValues[0]}
+                    value={initialValues[0]}
                     onChange={this.handleRadioValues}
                 >
                     <Row>
@@ -129,6 +125,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
             {this.renderTitle()}
             <CheckboxGroup
                 className="c-componentButton__content"
+                value={initialValues}
                 defaultValue={initialValues}
                 onChange={this.handleCheckValues}
             >
@@ -145,9 +142,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 
     handleConfirm = () => {
         const { addComps, deleteComps } = this.state
-        this.setState({
-            popVisible: false
-        })
+        this.props.handlePopVisible(false)
         if (deleteComps.length > 0) {
             this.setState({
                 visible: true
@@ -161,27 +156,24 @@ export default class ComponentButton extends React.Component<IProps, IState> {
         this.setState({
             addComps: [],
             deleteComps: [],
-            visible: false,
-            popVisible: false
+            visible: false
         })
+        this.props.handlePopVisible(false)
     }
 
     render () {
-        const { visible, deleteComps, addComps, popVisible } = this.state
+        const { deleteComps, addComps, visible } = this.state
 
         return (
             <>
                 <Popconfirm
-                    trigger='click'
-                    key={`${popVisible}`}
-                    visible={popVisible}
                     icon={null}
                     placement="topRight"
                     title={this.renderContent()}
                     onConfirm={this.handleConfirm}
                     onCancel={this.handleCancel}
                 >
-                    <Button className="c-editCluster__componentButton" onClick={() => this.handlePopVisible(true)}>
+                    <Button className="c-editCluster__componentButton" onClick={() => this.props.handlePopVisible()}>
                         <i className="iconfont iconzujianpeizhi" style={{ marginRight: 2 }} />
                         组件配置
                     </Button>

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Form, Upload, Button, Icon } from 'antd'
+import { Form, Upload, Button, Icon, Tooltip } from 'antd'
 
 interface IProp {
     label: any;
@@ -20,6 +20,7 @@ export default class UploadFile extends React.PureComponent<IProp, any> {
     render () {
         const { label, form, icons, deleteIcon, fileInfo, uploadFile,
             view, rules, notDesc, deleteFile } = this.props
+        const fileName = form.getFieldValue(`${fileInfo.typeCode}.${fileInfo.name}`)?.name ?? fileInfo?.value
         const uploadFileProps = {
             name: fileInfo.uploadProps.name,
             accept: fileInfo.uploadProps.accept,
@@ -50,7 +51,9 @@ export default class UploadFile extends React.PureComponent<IProp, any> {
                 </div>}
                 {form.getFieldValue(`${fileInfo.typeCode}.${fileInfo.name}`) && !notDesc && <span className="config-file">
                     <Icon type="paper-clip" />
-                    {form.getFieldValue(`${fileInfo.typeCode}.${fileInfo.name}`)?.name ?? fileInfo?.value}
+                    <Tooltip title={fileName} placement="topLeft">
+                        {fileName}
+                    </Tooltip>
                     {icons ?? icons}
                     {!deleteIcon ? !view && <Icon type="delete" onClick={() => {
                         form.setFieldsValue({

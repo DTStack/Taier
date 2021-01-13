@@ -6,6 +6,13 @@ export const TABS_TITLE_KEY = {
     COMPUTE: 3
 }
 
+export const TABS_POP_VISIBLE = {
+    [TABS_TITLE_KEY.COMMON]: false,
+    [TABS_TITLE_KEY.SOURCE]: false,
+    [TABS_TITLE_KEY.STORE]: false,
+    [TABS_TITLE_KEY.COMPUTE]: false
+}
+
 export const COMPONENT_TYPE_VALUE = {
     FLINK: 0,
     SPARK: 1,
@@ -112,7 +119,7 @@ export const DEFAULT_COMP_VERSION = {
 }
 
 export const CONFIG_FILE_DESC = {
-    [COMPONENT_TYPE_VALUE.YARN]: 'zip格式，至少包括yarn-site.xml',
+    [COMPONENT_TYPE_VALUE.YARN]: 'zip格式，至少包括yarn-site.xml和core-site.xml',
     [COMPONENT_TYPE_VALUE.HDFS]: 'zip格式，至少包括core-site.xml、hdfs-site.xml、hive-site.xml',
     [COMPONENT_TYPE_VALUE.KUBERNETES]: 'zip格式，至少包括kubernetes.config'
 }

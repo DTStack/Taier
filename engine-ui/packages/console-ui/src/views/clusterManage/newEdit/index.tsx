@@ -8,7 +8,7 @@ import Api from '../../../api/console'
 import { initialScheduling, isViewMode, isNeedTemp,
     getModifyComp, isSameVersion, getCompsId } from './help'
 import { TABS_TITLE, COMPONENT_CONFIG_NAME, DEFAULT_COMP_VERSION,
-    COMPONENT_TYPE_VALUE } from './const'
+    COMPONENT_TYPE_VALUE, TABS_POP_VISIBLE } from './const'
 
 import FileConfig from './fileConfig'
 import FormConfig from './formConfig'
@@ -25,6 +25,7 @@ interface IState {
     commVersion: string;
     versionData: any;
     testStatus: any;
+    popVisible: any;
     saveCompsData: any[];
     initialCompData: any[];
 }
@@ -36,6 +37,7 @@ class EditCluster extends React.Component<any, IState> {
         commVersion: '',
         versionData: {},
         testStatus: {},
+        popVisible: TABS_POP_VISIBLE,
         saveCompsData: [],
         initialCompData: initialScheduling() // 初始各组件的存储值
     }
@@ -95,10 +97,10 @@ class EditCluster extends React.Component<any, IState> {
     getLoadTemplate = async (key?: string, params?: any) => {
         const { getFieldValue } = this.props.form
         const { clusterName, initialCompData, activeKey } = this.state
-        const typeCode = key ?? initialCompData[activeKey][0].componentTypeCode
+        const typeCode = key ?? initialCompData[activeKey][0]?.componentTypeCode
         const comp = initialCompData[activeKey].find(comp => comp.componentTypeCode == typeCode)
 
-        if ((!isNeedTemp(Number(typeCode)) && !comp.componentTemplate) || params?.compVersion || params?.storeType) {
+        if ((!isNeedTemp(Number(typeCode)) && !comp?.componentTemplate) || params?.compVersion || params?.storeType) {
             const res = await Api.getLoadTemplate({
                 clusterName,
                 componentType: typeCode,
@@ -133,9 +135,23 @@ class EditCluster extends React.Component<any, IState> {
     }
 
     onTabChange = (key: string) => {
-        this.setState({
-            activeKey: Number(key)
-        })
+        this.setState((preState) => ({
+            activeKey: Number(key),
+            popVisible: {
+                ...preState.popVisible,
+                [preState.activeKey]: false,
+                [Number(key)]: false
+            }
+        }))
+    }
+
+    handlePopVisible = (visible?: boolean) => {
+        this.setState((preState) => ({
+            popVisible: {
+                ...preState.popVisible,
+                [preState.activeKey]: visible ?? true
+            }
+        }))
     }
 
     turnCompMode = (type: string) => {
@@ -280,7 +296,7 @@ class EditCluster extends React.Component<any, IState> {
     render () {
         const { mode, cluster } = this.props.location.state || {} as any
         const { clusterName, activeKey, initialCompData, versionData,
-            saveCompsData, testLoading, testStatus, commVersion } = this.state
+            saveCompsData, testLoading, testStatus, commVersion, popVisible } = this.state
 
         return (
             <div className="c-editCluster__containerWrap">
@@ -323,9 +339,11 @@ class EditCluster extends React.Component<any, IState> {
                                 <Tabs
                                     tabPosition="left"
                                     tabBarExtraContent={!isViewMode(mode) && <ComponentButton
-                                        activeKey={activeKey}
                                         comps={comps}
+                                        popVisible={popVisible[activeKey]}
+                                        activeKey={activeKey}
                                         handleConfirm={this.handleConfirm}
+                                        handlePopVisible={this.handlePopVisible}
                                     />}
                                     className="c-editCluster__container__componentTabs"
                                     onChange={(key: any) => this.getLoadTemplate(key)}

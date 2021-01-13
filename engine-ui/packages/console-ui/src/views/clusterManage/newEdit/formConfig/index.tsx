@@ -120,11 +120,13 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
     renderKubernetsConfig = () => {
         const { comp, form } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        const config = getValueByJson(comp?.componentConfig) ?? ''
+        const compConfig = getValueByJson(comp?.componentConfig) ?? {}
+        const config = form.getFieldValue(`${typeCode}.specialConfig`) ?? compConfig
+
         return <>
-            {config && <div className="c-formConfig__kubernetsContent">
+            {Object.values(config).length ? <div className="c-formConfig__kubernetsContent">
                 配置文件参数已被加密，此处不予显示
-            </div>}
+            </div> : null}
             {form.getFieldDecorator(`${typeCode}.specialConfig`, {
                 initialValue: config || {}
             })(<></>)}
@@ -138,11 +140,12 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
         const compConfig = getValueByJson(comp?.componentConfig) ?? {}
         const config = form.getFieldValue(`${typeCode}.specialConfig`) ?? compConfig
         const keyAndValue = Object.entries(config);
+
         return <>
             {keyAndValue.map(([key, value]: any[]) => {
                 return (
                     <Row key={key} className="zipConfig-item">
-                        <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 2}>
+                        <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 3}>
                             {key.length > 38
                                 ? <Tooltip title={key}>{key.substr(0, 38) + '...'}</Tooltip>
                                 : key}：
@@ -156,14 +159,16 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
             {form.getFieldDecorator(`${typeCode}.specialConfig`, {
                 initialValue: config || {}
             })(<></>)}
-            <CustomParams
-                typeCode={typeCode}
-                form={form}
-                view={view}
-                template={template}
-                labelCol={formItemLayout.labelCol.sm.span + 2}
-                wrapperCol={formItemLayout.wrapperCol.sm.span - 2}
-            />
+            {
+                keyAndValue.length > 0 ? <CustomParams
+                    typeCode={typeCode}
+                    form={form}
+                    view={view}
+                    template={template}
+                    labelCol={formItemLayout.labelCol.sm.span + 3}
+                    wrapperCol={formItemLayout.wrapperCol.sm.span - 2}
+                /> : null
+            }
         </>
     }
 
