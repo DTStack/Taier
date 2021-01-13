@@ -19,7 +19,9 @@
 package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
+import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.dtstack.engine.base.util.HadoopConfTool;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
@@ -559,9 +561,9 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
     private JobGraph getJobGraph(String appId,ClusterSpecification clusterSpecification) throws Exception{
         String url = getUrlFormat(clusterSpecification.getYarnConfiguration()) + "/" + appId;
-        PackagedProgram program = buildProgram(url,clusterSpecification);
+        PackagedProgram program = buildProgram(url, clusterSpecification);
         clusterSpecification.setProgram(program);
-        JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, clusterSpecification.getConfiguration(), clusterSpecification.getParallelism());
+        JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, this.flinkConfiguration, clusterSpecification.getParallelism());
         jobGraph.setAllowQueuedScheduling(true);
         dealPluginByLoadMode(jobGraph);
         clusterSpecification.setJobGraph(jobGraph);
@@ -613,7 +615,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         return jobGraph;
     }
 
-    private PackagedProgram buildProgram(String monitorUrl,ClusterSpecification clusterSpecification) throws Exception{
+    private PackagedProgram buildProgram(String monitorUrl, ClusterSpecification clusterSpecification) throws Exception{
         String[] args = clusterSpecification.getProgramArgs();
         for (int i = 0; i < args.length; i++) {
             if("-monitor".equals(args[i])){
@@ -622,8 +624,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
             }
         }
 
-        PackagedProgram program = new PackagedProgram(clusterSpecification.getJarFile(), clusterSpecification.getClasspaths(), clusterSpecification.getClassLoaderType(), clusterSpecification.getEntryPointClass(), args);
-
+        PackagedProgram program = new PackagedProgram(clusterSpecification.getJarFile(), clusterSpecification.getClasspaths(), flinkConfiguration, clusterSpecification.getEntryPointClass(), args);
         program.setSavepointRestoreSettings(clusterSpecification.getSpSetting());
         return program;
     }

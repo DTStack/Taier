@@ -205,7 +205,6 @@ public class FlinkClient extends AbstractClient {
                 // perjob模式延后创建PackagedProgram
                 jarFile = FlinkUtil.downloadJar(jarPath, tmpFileDirPath, filesystemManager, true);
                 ClusterSpecification clusterSpecification = FlinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getApplicationPriority(), jobClient.getConfProperties());
-                clusterSpecification.setConfiguration(flinkClientBuilder.getFlinkConfiguration());
                 clusterSpecification.setClasspaths(classPaths);
                 clusterSpecification.setEntryPointClass(entryPointClass);
                 clusterSpecification.setJarFile(jarFile);
@@ -213,7 +212,6 @@ public class FlinkClient extends AbstractClient {
                 clusterSpecification.setProgramArgs(programArgs);
                 clusterSpecification.setCreateProgramDelay(true);
                 clusterSpecification.setYarnConfiguration(hadoopConf.getYarnConfiguration());
-                clusterSpecification.setClassLoaderType(ClassLoaderType.getClassLoaderType(jobClient.getJobType()));
 
                 runResult = runJobByPerJob(clusterSpecification, jobClient);
                 jobGraph = clusterSpecification.getJobGraph();

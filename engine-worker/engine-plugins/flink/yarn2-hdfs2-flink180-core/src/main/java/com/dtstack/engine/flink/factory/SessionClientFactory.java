@@ -364,7 +364,6 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         if (StringUtils.isNotBlank(pluginLoadMode) && ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(pluginLoadMode)) {
             newConf.setString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, flinkConfig.getPluginLoadMode());
-            newConf.setString("classloader.resolve-order", "parent-first");
 
             String flinkPluginRoot = flinkConfig.getFlinkPluginRoot();
             if (StringUtils.isNotBlank(flinkPluginRoot)) {
@@ -672,7 +671,7 @@ public class SessionClientFactory extends AbstractClientFactory {
             String[] programArgs = {checkpoint};
 
             PackagedProgram packagedProgram = FlinkUtil.buildProgram(jarPath, "./tmp", classPaths,
-                    null, mainClass, programArgs, SavepointRestoreSettings.none(), filesystemManager);
+                    null, mainClass, programArgs, SavepointRestoreSettings.none(), filesystemManager, sessionClientFactory.flinkConfiguration);
 
             JobSubmissionResult result = sessionClientFactory.clusterClient.run(packagedProgram, 1);
 

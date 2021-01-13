@@ -92,7 +92,6 @@ public class PerJobClientFactory extends AbstractClientFactory {
         // plugin dependent on shipfile
         if (StringUtils.isNotBlank(flinkConfig.getPluginLoadMode()) && ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(flinkConfig.getPluginLoadMode())) {
             newConf.setString(ConfigConstrant.FLINK_PLUGIN_LOAD_MODE, flinkConfig.getPluginLoadMode());
-            newConf.setString("classloader.resolve-order", "parent-first");
         }
 
         return clusterDescriptor;
