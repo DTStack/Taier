@@ -211,14 +211,9 @@ public class LineageTableTableService {
      * @return
      */
     public String generateDefaultUniqueKey(Integer appType){
-        if (AppType.RDOS.getType() == appType){
-            return AppType.RDOS.name();
-        }
-        if (AppType.DQ.getType() == appType){
-            return AppType.DQ.name();
-        }
-        if (AppType.MAP.getType() == appType){
-            return AppType.MAP.name();
+        AppType value = AppType.getValue(appType);
+        if (Objects.nonNull(value)){
+            return value.name();
         }
         return "APP_TYPE_"+appType;
     }

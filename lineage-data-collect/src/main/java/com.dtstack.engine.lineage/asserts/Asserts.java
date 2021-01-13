@@ -112,7 +112,7 @@ public class Asserts extends DataCollection {
             List<LineageTableTableVO> tableTableVOS = new ArrayList<>();
             for (AssetTableLineageDTO tableLineageDTO:tableLineagesByTenant){
                 LineageTableTableVO tableTableVO = new LineageTableTableVO();
-                tableTableVO.setAppType(AppType.MAP.getType());
+                tableTableVO.setAppType(AppType.DATAASSETS.getType());
                 AssetLineageTableDTO lineageTableDTO = assertLineageTableMap.get(tableLineageDTO.getLineageTableId());
                 if (Objects.isNull(lineageTableDTO)){
                     continue;
@@ -144,7 +144,7 @@ public class Asserts extends DataCollection {
             for (AssetColumnLineageDTO columnLineageDTO:columnLineageByTenant){
                 LineageColumnColumnVO vo = new LineageColumnColumnVO();
                 vo.setDtUicTenantId(tenantDTO.getDtuicTenantId());
-                vo.setAppType(AppType.MAP.getType());
+                vo.setAppType(AppType.DATAASSETS.getType());
                 AssetLineageColumnDTO inputColumnDTO = lineageColumnMap.get(columnLineageDTO.getInputColumnId());
                 if (Objects.isNull(inputColumnDTO)){
                     continue;
@@ -201,7 +201,7 @@ public class Asserts extends DataCollection {
         tableVO.setTableName(assetLineageTableDTO.getTableName());
         LineageDataSourceVO dataSourceVO = new LineageDataSourceVO();
         dataSourceVO.setSourceName(assetLineageTableDTO.getDataSourceName());
-        dataSourceVO.setAppType(AppType.MAP.getType());
+        dataSourceVO.setAppType(AppType.DATAASSETS.getType());
         tableVO.setDataSourceVO(dataSourceVO);
         return tableVO;
     }
@@ -213,7 +213,7 @@ public class Asserts extends DataCollection {
         tableVO.setTableName(assetLineageColumnDTO.getTableName());
         LineageDataSourceVO dataSourceVO = new LineageDataSourceVO();
         dataSourceVO.setSourceName(assetLineageColumnDTO.getDataSourceName());
-        dataSourceVO.setAppType(AppType.MAP.getType());
+        dataSourceVO.setAppType(AppType.DATAASSETS.getType());
         tableVO.setDataSourceVO(dataSourceVO);
         return tableVO;
     }
@@ -460,7 +460,7 @@ public class Asserts extends DataCollection {
             dataSourceDTO.setDataJson(assertDataSource.getDataJson());
             dataSourceDTO.setDtUicTenantId(tenant.getDtuicTenantId());
             //资产平台
-            dataSourceDTO.setAppType(AppType.MAP.getType());
+            dataSourceDTO.setAppType(AppType.DATAASSETS.getType());
             dataSourceDtos.add(dataSourceDTO);
         }
         dataSourceParam.setDataSourceDTOList(dataSourceDtos);
