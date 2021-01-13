@@ -7,6 +7,10 @@ export function isNeedTemp (typeCode: number): boolean {
         COMPONENT_TYPE_VALUE.KUBERNETES].indexOf(typeCode) > -1
 }
 
+export function isKubernetes (typeCode: number): boolean {
+    return COMPONENT_TYPE_VALUE.KUBERNETES == typeCode
+}
+
 export function isHaveGroup (typeCode: number): boolean {
     return [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK,
         COMPONENT_TYPE_VALUE.LEARNING, COMPONENT_TYPE_VALUE.DTYARNSHELL].indexOf(typeCode) > -1

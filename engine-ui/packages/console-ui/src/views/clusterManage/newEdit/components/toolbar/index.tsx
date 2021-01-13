@@ -4,7 +4,8 @@ import Api from '../../../../../api/console'
 import { COMPONENT_CONFIG_NAME } from '../../const'
 
 import { handleComponentTemplate, handleComponentConfigAndCustom,
-    handleComponentConfig, isNeedTemp, handleCustomParam, getParamsByTemp } from '../../help'
+    handleComponentConfig, isNeedTemp, handleCustomParam,
+    getParamsByTemp, isKubernetes } from '../../help'
 interface IProps {
     form: any;
     comp: any;
@@ -30,6 +31,15 @@ export default class ToolBar extends React.PureComponent<IProps, any> {
              * componentConfig yarn等组件传值specialConfig，合并自定义参数，其他组件需处理自定义参数合并到对应config中
              */
             const currentComp = values[typeCode]
+            let componentConfig: any
+            if (!isNeedTemp(typeCode)) componentConfig = JSON.stringify(handleComponentConfigAndCustom(values[typeCode], typeCode))
+            if (isNeedTemp(typeCode)) {
+                componentConfig = JSON.stringify({
+                    ...currentComp?.specialConfig,
+                    ...handleCustomParam(currentComp.customParam, true)
+                })
+            }
+            if (isKubernetes(typeCode)) componentConfig = JSON.stringify(currentComp?.specialConfig)
             const params = {
                 storeType: currentComp?.storeType ?? '',
                 principal: currentComp?.principal ?? '',
@@ -38,10 +48,7 @@ export default class ToolBar extends React.PureComponent<IProps, any> {
                 componentTemplate: isNeedTemp(typeCode)
                     ? (!currentComp.customParam ? '[]' : JSON.stringify(handleCustomParam(currentComp.customParam)))
                     : JSON.stringify(handleComponentTemplate(values[typeCode], comp)),
-                componentConfig: isNeedTemp(typeCode) ? JSON.stringify({
-                    ...currentComp?.specialConfig,
-                    ...handleCustomParam(currentComp.customParam, true)
-                }) : JSON.stringify(handleComponentConfigAndCustom(values[typeCode], typeCode))
+                componentConfig
             }
             // TODO resources2, kerberosFileName 这个两个参数后期可以去掉
             Api.saveComponent({

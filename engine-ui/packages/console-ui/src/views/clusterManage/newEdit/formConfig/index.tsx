@@ -120,11 +120,10 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
     renderKubernetsConfig = () => {
         const { comp, form } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        const compConfig = getValueByJson(comp?.componentConfig) ?? {}
-        const config = form.getFieldValue(`${typeCode}.specialConfig`) ?? compConfig
+        const config = form.getFieldValue(`${typeCode}.specialConfig`) ?? comp?.componentConfig ?? ''
 
         return <>
-            {Object.values(config).length ? <div className="c-formConfig__kubernetsContent">
+            {config ? <div className="c-formConfig__kubernetsContent">
                 配置文件参数已被加密，此处不予显示
             </div> : null}
             {form.getFieldDecorator(`${typeCode}.specialConfig`, {
