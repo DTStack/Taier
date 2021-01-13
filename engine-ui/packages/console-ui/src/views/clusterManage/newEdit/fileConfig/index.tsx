@@ -213,13 +213,13 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 view={view}
                 form={this.props.form}
                 uploadFile={this.uploadFile}
-                icons={comp?.id && <>
+                icons={<>
                     {!view && <Icon type="edit" onClick={() => this.setState({ visible: true })} />}
-                    <Icon
+                    {comp?.id && <Icon
                         type="download"
                         style={{ right: view ? 0 : 20 }}
                         onClick={() => this.downloadFile(FILE_TYPE.KERNEROS)}
-                    />
+                    />}
                 </>}
                 deleteFile={this.deleteKerFile}
             />
@@ -337,7 +337,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         const { principals } = this.state
         let principalsList = cloneDeep(principals)
         const typeCode = comp?.componentTypeCode ?? ''
-        const kerberosFile = form.getFieldValue(typeCode + '.kerberosFileName')
+        const kerberosFile = form.getFieldValue(typeCode + '.kerberosFileName') ?? comp?.kerberosFileName
 
         if (!principals.length && !Array.isArray(comp?.principals) && comp?.principals) {
             principalsList = comp?.principals.split(',')

@@ -51,7 +51,7 @@ export default class ToolBar extends React.PureComponent<IProps, any> {
                 clusterName: clusterInfo.clusterName,
                 resources1: currentComp?.uploadFileName ?? '',
                 resources2: '',
-                kerberosFileName: ''
+                kerberosFileName: currentComp?.kerberosFileName?.name ?? ''
             }).then((res: any) => {
                 if (res.code == 1) {
                     saveComp({
