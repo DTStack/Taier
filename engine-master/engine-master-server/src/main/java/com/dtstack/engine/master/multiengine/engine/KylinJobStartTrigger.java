@@ -12,6 +12,8 @@ import com.dtstack.schedule.common.util.TimeParamOperator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,7 +46,7 @@ public class KylinJobStartTrigger extends JobStartTriggerBase {
             //默认false
             pluginInfoObj.put("forceMergeEmptySegment", Boolean.FALSE);
             pluginInfoObj.putAll(exeArgs);
-            actionParam.put("pluginInfo", pluginInfo);
+            actionParam.put("pluginInfo", pluginInfoObj);
         }
 
     }
@@ -56,8 +58,8 @@ public class KylinJobStartTrigger extends JobStartTriggerBase {
      * @param exeArgs
      */
     private void parseStartEndTime(ScheduleJob scheduleJob, List<ScheduleTaskParamShade> taskParamsToReplace, JSONObject exeArgs) {
-        String startTime = "";
-        String endTime = "";
+        long startTime;
+        long endTime;
         if (exeArgs.getBooleanValue("isUseSystemVar")) {
             //使用系统参数 cycTime
             if (CollectionUtils.isEmpty(taskParamsToReplace)) {
@@ -67,12 +69,13 @@ public class KylinJobStartTrigger extends JobStartTriggerBase {
             String paramCommand = taskParamsToReplace.get(0).getParamCommand();
             String transform = TimeParamOperator.transform(paramCommand, scheduleJob.getCycTime());
             //其中kylinUI上默认的时间是8点整。startTime 和endTime都需要是每天的8点整的毫秒数
-            startTime = DateTime.parse(transform).plusHours(8).toString("yyyyMMddHHmmss");
-            endTime = DateTime.parse(transform).plusHours(8).plusSeconds(1).toString("yyyyMMddHHmmss");
+            DateTimeFormatter yyyyMMdd = DateTimeFormat.forPattern("yyyyMMdd");
+            startTime = DateTime.parse(transform, yyyyMMdd).plusHours(8).getMillis();
+            endTime = DateTime.parse(transform,yyyyMMdd).plusHours(8).plusSeconds(1).getMillis();
         } else {
             //使用传入的值
-            startTime = DateTime.parse(exeArgs.getString("startTime")).toString("yyyyMMddHHmmss");
-            endTime = DateTime.parse(exeArgs.getString("endTime")).toString("yyyyMMddHHmmss");
+            startTime = DateTime.parse(exeArgs.getString("startTime")).getMillis();
+            endTime = DateTime.parse(exeArgs.getString("endTime")).getMillis();
         }
         exeArgs.put("startTime", startTime);
         exeArgs.put("endTime", endTime);
