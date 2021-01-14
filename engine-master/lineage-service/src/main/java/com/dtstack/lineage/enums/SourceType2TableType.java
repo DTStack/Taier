@@ -1,6 +1,6 @@
 package com.dtstack.lineage.enums;
 
-import com.dtstack.engine.api.enums.DataSourceType;
+import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.sql.enums.ETableType;
 import com.google.common.collect.Sets;
 
@@ -15,11 +15,11 @@ import java.util.Set;
  * @Created chener@dtstack.com
  */
 public enum SourceType2TableType {
-    HIVE(ETableType.HIVE, Sets.newHashSet(DataSourceType.HIVE1,DataSourceType.HIVE2,DataSourceType.SPARK_THRIFT)),
+    HIVE(ETableType.HIVE, Sets.newHashSet(DataSourceType.HIVE1X,DataSourceType.HIVE,DataSourceType.Spark)),
     LIBRA(ETableType.LIBRA,Sets.newHashSet(DataSourceType.LIBRA)),
-    TIDB(ETableType.TIDB,Sets.newHashSet(DataSourceType.TIDB)),
-    ORACLE(ETableType.ORACLE,Sets.newHashSet(DataSourceType.ORACLE)),
-    GREENPLUM(ETableType.GREENPLUM,Sets.newHashSet(DataSourceType.GREENPLUM)),
+    TIDB(ETableType.TIDB,Sets.newHashSet(DataSourceType.TiDB)),
+    ORACLE(ETableType.ORACLE,Sets.newHashSet(DataSourceType.Oracle)),
+    GREENPLUM(ETableType.GREENPLUM,Sets.newHashSet(DataSourceType.GREENPLUM6)),
     IMPALA(ETableType.IMPALA,Sets.newHashSet(DataSourceType.IMPALA)),
     ;
 
@@ -68,7 +68,7 @@ public enum SourceType2TableType {
             return null;
         }
         for (SourceType2TableType mulType:values()){
-            DataSourceType byType = DataSourceType.getByType(sourceType);
+            DataSourceType byType = DataSourceType.getSourceType(sourceType);
             if (mulType.getDataSourceTypeSet().contains(byType)){
                 return mulType;
             }

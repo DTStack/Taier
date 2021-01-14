@@ -50,7 +50,21 @@ public enum DataSourceType {
     EMQ(34),
     DMDB(35),
     GREENPLUM6(36),
-    Presto(37)
+    Presto(37),
+
+    /**
+     * spark thrift
+     */
+    Spark(1002),
+
+    /**
+     * 因为数据资产新增自定义数据集，将该类型与之做对应
+     */
+    CUSTOM(1000),
+    /**
+     * 未知数据源，即类型暂时不确定，后续可能会修改为正确类型的数据源
+     */
+    UNKNOWN(3000)
     ;
 
     private int val;

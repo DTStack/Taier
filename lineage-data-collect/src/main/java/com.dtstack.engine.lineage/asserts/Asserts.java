@@ -1,7 +1,6 @@
 package com.dtstack.engine.lineage.asserts;
 
 import com.dtstack.engine.api.dto.DataSourceDTO;
-import com.dtstack.engine.api.enums.DataSourceType;
 import com.dtstack.engine.api.service.DataSourceService;
 import com.dtstack.engine.api.service.LineageService;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnParam;
@@ -448,14 +447,7 @@ public class Asserts extends DataCollection {
                 assertDataSource.setSourceType(1000);
             }
             //数据源类型进行转换
-            String nameByTypeCode = AssertDataSourceTypeEnum.getNameByTypeCode(assertDataSource.getSourceType());
-            DataSourceType byName = DataSourceType.getByName(nameByTypeCode);
-            if (byName == null) {
-                logger.error("数据源类型不支持,tenantId:{},sourceTypeName:{},sourceType:{}", tenant.getDtuicTenantId(),
-                        nameByTypeCode, assertDataSource.getSourceType());
-                continue;
-            }
-            dataSourceDTO.setSourceType(byName.getType());
+            dataSourceDTO.setSourceType(assertDataSource.getSourceType());
             dataSourceDTO.setSourceName(assertDataSource.getSourceName());
             dataSourceDTO.setDataJson(assertDataSource.getDataJson());
             dataSourceDTO.setDtUicTenantId(tenant.getDtuicTenantId());

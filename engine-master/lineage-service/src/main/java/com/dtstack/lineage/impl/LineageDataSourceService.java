@@ -6,11 +6,9 @@ import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.domain.LineageRealDataSource;
 import com.dtstack.engine.api.dto.DataSourceDTO;
-import com.dtstack.engine.api.enums.DataSourceType;
 import com.dtstack.engine.api.enums.DataSourceTypeEnum;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.lineage.param.DataSourceParam;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ComponentDao;
@@ -19,13 +17,13 @@ import com.dtstack.lineage.bo.RdbmsDataSourceConfig;
 import com.dtstack.lineage.dao.LineageDataSourceDao;
 import com.dtstack.lineage.dao.LineageRealDataSourceDao;
 import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Sort;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +31,6 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * @author chener
@@ -85,7 +82,7 @@ public class LineageDataSourceService {
                     throw new RdosDefineException("jdbc.url中ip和端口不能修改");
                 }
                 //更新手动添加的数据源信息时，需要修改数据源类型
-                boolean changeSourceType = DataSourceType.UNKNOWN.getType() == one.getSourceType() && Objects.nonNull(dataSourceDTO.getSourceType());
+                boolean changeSourceType = DataSourceType.UNKNOWN.getVal() == one.getSourceType() && Objects.nonNull(dataSourceDTO.getSourceType());
                 updateDataSource(dataSourceDTO,sourceKey,one.getRealSourceId(),changeSourceType);
                 return one.getId();
             }
@@ -113,7 +110,7 @@ public class LineageDataSourceService {
                 return addOrUpdateDataSource(dataSourceDTO);
             }
             //是否是手动添加的数据源。手动添加的数据源暂时不知道数据源类型。当然也可能一直不知道数据源类型
-            boolean isCustom = dataSourceDTO.getSourceType().equals(DataSourceType.UNKNOWN.getType());
+            boolean isCustom = dataSourceDTO.getSourceType().equals(DataSourceType.UNKNOWN.getVal());
             //生成sourceKey
             String sourceKey;
             if(!isCustom) {
@@ -339,14 +336,14 @@ public class LineageDataSourceService {
             return dataSourceByParams.get(0);
         }else{
             //未知数据源（手动添加血缘时添加的数据源）需要插入
-            if (DataSourceType.UNKNOWN.getType() == sourceType){
+            if (DataSourceType.UNKNOWN.getVal() == sourceType){
                 DataSourceDTO dataSourceDTO = new DataSourceDTO();
                 dataSourceDTO.setAppType(appType);
                 dataSourceDTO.setDataJson(null);
                 dataSourceDTO.setSourceName(sourceName);
                 dataSourceDTO.setKerberosConf(null);
                 dataSourceDTO.setDtUicTenantId(dtUicTenantId);
-                dataSourceDTO.setSourceType(DataSourceType.UNKNOWN.getType());
+                dataSourceDTO.setSourceType(DataSourceType.UNKNOWN.getVal());
                 Long id = addOrUpdateDataSource(dataSourceDTO);
                 return getDataSourceById(id);
             }
@@ -388,12 +385,12 @@ public class LineageDataSourceService {
                         dataSourceDTO.setSourceName("ideDataSource_"+component.getComponentName());
                         dataSourceDTO.setAppType(AppType.RDOS.getType());
                         //数据源类型code统一转换
-                        String typeName = DataSourceTypeEnum.getByCode(component.getComponentTypeCode()).getName();
-                        DataSourceType byName = DataSourceType.getByName(typeName);
+                        int code = DataSourceTypeEnum.getByCode(component.getComponentTypeCode()).getTypeCode();
+                        DataSourceType byName = DataSourceType.getSourceType(code);
                         if(byName==null){
                             throw new RdosDefineException("数据源类型不匹配");
                         }
-                        dataSourceDTO.setSourceType(byName.getType());
+                        dataSourceDTO.setSourceType(byName.getVal());
                         addDataSource(dataSourceDTO);
                     }
                 }

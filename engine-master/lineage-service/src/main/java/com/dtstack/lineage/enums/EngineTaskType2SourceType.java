@@ -1,6 +1,6 @@
 package com.dtstack.lineage.enums;
 
-import com.dtstack.engine.api.enums.DataSourceType;
+import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 
 import java.util.Objects;
@@ -13,16 +13,16 @@ import java.util.Objects;
  * @Created chener@dtstack.com
  */
 public enum EngineTaskType2SourceType {
-    HIVE1(DataSourceType.HIVE1,null),
-    HIVE2(DataSourceType.HIVE2, EScheduleJobType.HIVE_SQL),
-    SPARK_THRIFT(DataSourceType.SPARK_THRIFT,EScheduleJobType.SPARK_SQL),
+    HIVE1(DataSourceType.HIVE1X,null),
+    HIVE2(DataSourceType.HIVE, EScheduleJobType.HIVE_SQL),
+    SPARK_THRIFT(DataSourceType.Spark,EScheduleJobType.SPARK_SQL),
     IMPALA(DataSourceType.IMPALA,EScheduleJobType.IMPALA_SQL),
-    TIDB(DataSourceType.TIDB,EScheduleJobType.TIDB_SQL),
-    ORACLE(DataSourceType.ORACLE,EScheduleJobType.ORACLE_SQL),
+    TIDB(DataSourceType.TiDB,EScheduleJobType.TIDB_SQL),
+    ORACLE(DataSourceType.Oracle,EScheduleJobType.ORACLE_SQL),
     LIBRA(DataSourceType.LIBRA,EScheduleJobType.LIBRA_SQL),
-    MYSQL(DataSourceType.MYSQL,null),
-    GREENPLUM(DataSourceType.GREENPLUM,EScheduleJobType.GREENPLUM_SQL),
-    SQLSERVER(DataSourceType.SQLSERVER,null),;
+    MYSQL(DataSourceType.MySQL,null),
+    GREENPLUM(DataSourceType.GREENPLUM6,EScheduleJobType.GREENPLUM_SQL),
+    SQLSERVER(DataSourceType.SQLServer,null),;
 
     private DataSourceType dataSourceType;
 

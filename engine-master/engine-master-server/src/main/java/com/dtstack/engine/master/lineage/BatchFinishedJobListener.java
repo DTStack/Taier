@@ -3,12 +3,12 @@ package com.dtstack.engine.master.lineage;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.enums.DataSourceType;
 import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
 import com.dtstack.engine.master.event.ScheduleJobEventPublisher;
 import com.dtstack.lineage.enums.EngineTaskType2SourceType;
 import com.dtstack.lineage.impl.LineageService;
 import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.sql.utils.SqlFormatUtil;
 import com.google.common.collect.Sets;
@@ -70,7 +70,7 @@ public class BatchFinishedJobListener extends SqlJobFinishedListener {
         if (Objects.isNull(dataSourceTypeByTaskTypeInt)){
             return;
         }
-        columnLineageParam.setDataSourceType(dataSourceTypeByTaskTypeInt.getType());
+        columnLineageParam.setDataSourceType(dataSourceTypeByTaskTypeInt.getVal());
         columnLineageParam.setDefaultDb(defaultDb);
         columnLineageParam.setDtUicTenantId(taskShade.getDtuicTenantId());
         columnLineageParam.setUniqueKey(String.valueOf(taskShade.getTaskId()));

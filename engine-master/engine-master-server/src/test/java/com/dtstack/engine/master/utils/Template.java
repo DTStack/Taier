@@ -6,8 +6,7 @@ import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.schedule.common.enums.AppType;
-import com.dtstack.engine.master.datasource.DataSourceType;
-import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.schedule.common.enums.DataSourceType;
 
 import java.sql.Timestamp;
 
@@ -436,7 +435,7 @@ public class Template {
         LineageRealDataSource lineageRealDataSource = new LineageRealDataSource();
         lineageRealDataSource.setSourceName("testHive1");
         lineageRealDataSource.setSourceKey("172.16.8.107#10000");
-        lineageRealDataSource.setSourceType(DataSourceType.HIVE2.getType());
+        lineageRealDataSource.setSourceType(DataSourceType.HIVE.getVal());
         lineageRealDataSource.setDataJason("{\"jdbcUrl\": \"jdbc:hive2://172.16.8.107:10000/default\", \"password\": \"\", \"typeName\": \"hive\", \"username\": \"admin\", \"maxJobPoolSize\": \"\", \"minJobPoolSize\": \"\"}");
         lineageRealDataSource.setKerberosConf("-1");
         lineageRealDataSource.setOpenKerberos(0);
