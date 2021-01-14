@@ -2,9 +2,9 @@ package com.dtstack.engine.master.utils;
 
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.util.DateUtil;
-import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 

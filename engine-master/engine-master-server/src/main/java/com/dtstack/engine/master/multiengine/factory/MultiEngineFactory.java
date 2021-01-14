@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.multiengine.factory;
 
-import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import org.springframework.stereotype.Component;
 

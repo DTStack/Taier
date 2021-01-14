@@ -5,14 +5,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageDataSource;
-import com.dtstack.engine.api.domain.Tenant;
-import com.dtstack.engine.api.enums.EComponentApiType;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.pojo.lineage.Table;
-import com.dtstack.engine.api.service.ComponentService;
 import com.dtstack.engine.common.client.ClientCache;
 import com.dtstack.engine.common.client.IClient;
 import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EComponentTypeDataSourceType;
 import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -156,7 +154,7 @@ public class LineageDataSetInfoService {
         if(null == clientCache || null == dataSource){
             return null;
         }
-        return clientCache.getClient(EComponentType.getByCode(dataSource.getSourceType()).getName(), pluginInfo);
+        return clientCache.getClient(EComponentTypeDataSourceType.getByCode(dataSource.getSourceType()).getComponentType().getName(), pluginInfo);
     }
 
     /**

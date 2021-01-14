@@ -7,7 +7,7 @@ import com.dtstack.engine.api.enums.EComponentApiType;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ClusterEngineVO;
 import com.dtstack.engine.api.vo.ClusterVO;
-import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.router.DtRequestParam;
 import io.swagger.annotations.Api;

@@ -1,26 +1,22 @@
 package com.dtstack.engine.master.dataCollection;
 
-import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.util.AddressUtil;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.anno.DataSource;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
-import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.utils.DataCollectionProxy;
 import com.dtstack.engine.master.utils.Template;
-import com.dtstack.schedule.common.enums.AppType;
 import org.joda.time.DateTime;
 
 import java.lang.reflect.Proxy;
 import java.sql.Timestamp;
-import java.util.UUID;
 
 /**
  * 使用方法：
