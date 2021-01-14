@@ -6,7 +6,7 @@ import com.dtstack.engine.alert.enums.AGgateType;
 import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
-import com.dtstack.engine.common.enums.AlertGateTypeEnum;
+import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;

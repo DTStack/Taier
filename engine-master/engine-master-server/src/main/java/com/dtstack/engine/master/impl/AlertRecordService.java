@@ -4,12 +4,15 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.dtstack.engine.alert.enums.AlertRecordStatusEnum;
 import com.dtstack.engine.api.dto.AlarmSendDTO;
 import com.dtstack.engine.api.dto.AlertRecordJoinDTO;
 import com.dtstack.engine.api.dto.NotifyRecordReadDTO;
+import com.dtstack.engine.api.dto.UserMessageDTO;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.param.NotifyRecordParam;
+import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;
@@ -17,8 +20,8 @@ import com.dtstack.engine.dao.AlertRecordDao;
 import com.dtstack.engine.domain.AlertChannel;
 import com.dtstack.engine.domain.AlertContent;
 import com.dtstack.engine.domain.AlertRecord;
-import com.dtstack.engine.master.controller.NotifyRecordController;
 import com.dtstack.engine.master.enums.AlertMessageStatusEnum;
+import com.dtstack.engine.master.enums.AlertSendStatusEnum;
 import com.dtstack.engine.master.enums.ReadStatus;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -28,9 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import java.util.List;
-import java.util.function.IntConsumer;
 
 /**
  * @Auther: dazhi
@@ -51,6 +52,9 @@ public class AlertRecordService {
 
     @Autowired
     private AlertContentService alertContentService;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
 
     public NotifyRecordReadDTO getOne(AlertRecordJoinDTO dto) {
         AlertRecord alertRecord = alertRecordMapper.selectOne(new QueryWrapper<AlertRecord>()
@@ -137,10 +141,15 @@ public class AlertRecordService {
             if (StringUtils.isBlank(content)) {
                 Long contentId = alarmSendDTO.getContentId();
                 AlertContent alertContent = alertContentService.findContentById(contentId);
+                if (alertContent == null) {
+                    throw new RdosDefineException("发送告警必须设置告警内容");
+                }
                 content = alertContent.getContent();
             }
 
             // 生成告警记录
+            List<AlertRecord> records = buildRecord(alarmSendDTO,alertChannels,content);
+            // 按照告警记录发送告警
 
 
         } catch (Exception e) {
@@ -154,12 +163,53 @@ public class AlertRecordService {
                 alertContentService.updateContent(alarmSendDTO.getContentId(),alarmSendDTO, AlertMessageStatusEnum.ALTER.getType());
             }
         }
-
-
-
-
-
-
-
     }
+
+    private List<AlertRecord> buildRecord(AlarmSendDTO alarmSendDTO, List<AlertChannel> alertChannels, String content) {
+        List<AlertRecord> alertRecords = Lists.newArrayList();
+        for (AlertChannel alertChannel : alertChannels) {
+            if (AlertGateTypeEnum.DINGDING.getType().equals(alertChannel.getAlertGateType())) {
+                // 钉钉通道 生成一天数据
+                alertRecords.add(buildRecord(alarmSendDTO, alertChannel,-1L));
+                continue;
+            }
+
+            List<UserMessageDTO> receivers = alarmSendDTO.getReceivers();
+
+            if (CollectionUtils.isEmpty(receivers) && AlertGateTypeEnum.CUSTOMIZE.getType().equals(alertChannel.getAlertGateType())) {
+                // 自定义通道支持不选择接收人
+                alertRecords.add(buildRecord(alarmSendDTO, alertChannel, -1L));
+                continue;
+            }
+
+            for (UserMessageDTO receiver : receivers) {
+                alertRecords.add(buildRecord(alarmSendDTO, alertChannel,receiver.getUserId()));
+            }
+        }
+
+        return alertRecords;
+    }
+
+    private AlertRecord buildRecord(AlarmSendDTO alarmSendDTO, AlertChannel alertChannel,Long userId) {
+        AlertRecord alertRecord = new AlertRecord();
+        alertRecord.setAlertChannelId(alertChannel.getId());
+        alertRecord.setAlertGateType(alertChannel.getAlertGateType());
+        alertRecord.setAlertContentId(alarmSendDTO.getContentId());
+        alertRecord.setTenantId(alarmSendDTO.getTenantId());
+        alertRecord.setAppType(alarmSendDTO.getAppType());
+        alertRecord.setUserId(userId);
+        alertRecord.setReadStatus(ReadStatus.UNREAD.getStatus());
+        alertRecord.setTitle(alarmSendDTO.getTitle());
+        alertRecord.setStatus(alarmSendDTO.getStatus());
+        alertRecord.setSendContent("");
+        alertRecord.setJobId(alarmSendDTO.getJobId());
+        alertRecord.setAlertRecordStatus(AlertRecordStatusEnum.NO_WARNING.getType());
+        alertRecord.setAlertRecordSendStatus(AlertSendStatusEnum.NO_SEND.getType());
+        alertRecord.setFailureReason("");
+        alertRecord.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        alertRecord.setNodeAddress(environmentContext.getLocalAddress());
+        alertRecordMapper.insert(alertRecord);
+        return alertRecord;
+    }
+
 }

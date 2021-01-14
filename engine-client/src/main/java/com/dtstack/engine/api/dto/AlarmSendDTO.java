@@ -33,6 +33,8 @@ public class AlarmSendDTO {
      */
     private List<UserMessageDTO> receivers;
 
+    private String jobId;
+
     private Long tenantId;
     private Long projectId;
     private Long userId;
@@ -125,5 +127,13 @@ public class AlarmSendDTO {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public String getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
     }
 }

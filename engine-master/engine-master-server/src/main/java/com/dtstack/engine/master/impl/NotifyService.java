@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.domian.Notice;
 import com.dtstack.engine.alert.send.NoticeSender;
 import com.dtstack.engine.api.domain.NotifyRecordContent;
@@ -11,8 +10,6 @@ import com.dtstack.engine.api.dto.UserMessageDTO;
 import com.dtstack.engine.api.enums.MailType;
 import com.dtstack.engine.api.enums.SenderType;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.common.enums.AlertGateTypeEnum;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.NotifyRecordContentDao;
 import com.dtstack.engine.dao.NotifyRecordReadDao;
 import com.dtstack.engine.master.enums.ReadStatus;
@@ -21,7 +18,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

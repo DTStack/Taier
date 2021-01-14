@@ -11,5 +11,12 @@
 
     <artifactId>engine-alter-sender</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-alert-sdk</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
 
 </project>

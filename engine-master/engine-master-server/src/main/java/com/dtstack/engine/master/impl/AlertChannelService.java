@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dtstack.engine.alert.domian.PageResult;
 import com.dtstack.engine.api.domain.po.ClusterAlertPO;
 import com.dtstack.engine.api.param.ClusterAlertPageParam;
-import com.dtstack.engine.common.enums.AlertGateTypeEnum;
+import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
 import com.dtstack.engine.common.enums.IsDefaultEnum;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.AlertChannel;

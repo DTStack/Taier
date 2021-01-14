@@ -2,13 +2,9 @@ package com.dtstack.engine.alert;
 
 /**
  * @Auther: dazhi
- * @Date: 2021/1/11 4:02 下午
+ * @Date: 2021/1/14 3:41 下午
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public class AbstractAlterSender implements AlterSender {
-
-
-
-
+public interface EventMonitor {
 }

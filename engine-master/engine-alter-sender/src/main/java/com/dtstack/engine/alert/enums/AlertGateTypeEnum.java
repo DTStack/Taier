@@ -1,4 +1,4 @@
-package com.dtstack.engine.common.enums;
+package com.dtstack.engine.alert.enums;
 
 /**
  * @Auther: dazhi
