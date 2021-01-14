@@ -75,7 +75,7 @@ public interface LineageService extends DtInsightServer {
      * @return 异步解析，无返回结果
      */
     @RequestLine("POST /node/lineage/parseAndSaveColumnLineage")
-    ApiResponse parseAndSaveColumnLineage(@Param("appType")Integer appType,@Param("sql")String sql, @Param("defaultDb")String defaultDb,@Param("engineSourceId") Long engineSourceId,@Param("dtUicTenantId")Long dtUicTenantId);
+    ApiResponse parseAndSaveColumnLineage(@Param("appType")Integer appType,@Param("sql")String sql, @Param("defaultDb")String defaultDb,@Param("engineDataSourceId") Long engineSourceId,@Param("dtUicTenantId")Long dtUicTenantId);
 
     /**
      * 手动添加表级血缘
