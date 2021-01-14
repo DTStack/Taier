@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.domain.LineageRealDataSource;
+import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.enums.DataSourceTypeEnum;
 import com.dtstack.engine.api.pager.PageQuery;
@@ -66,6 +67,8 @@ public class LineageDataSourceService {
         //如果不存在数据源则添加
         //添加后添加物理数据源，如果物理数据源已经存在，检查配置是否更新。注意：如果两个应用使用了相同的物理数据源但是使用了不同的账号，依旧算同一个物理数据源
         try {
+            //校验dtuicTenantId是否存在
+            checkTenant(dataSourceDTO.getDtUicTenantId());
             if (Objects.isNull(dataSourceDTO.getDataSourceId())){
                 return addDataSource(dataSourceDTO);
             }else {
@@ -89,6 +92,21 @@ public class LineageDataSourceService {
         } catch (Exception e) {
             logger.error("新增或修改数据源异常,e:{}", ExceptionUtil.getErrorMessage(e));
             throw new RdosDefineException("新增或修改数据源异常");
+        }
+    }
+
+    /**
+     * @author newman
+     * @Description 校验dtUic租户id是否存在
+     * @Date 2021/1/14 4:29 下午
+     * @param dtUicTenantId:
+     * @return: void
+     **/
+    private void checkTenant(Long dtUicTenantId) {
+
+        Tenant uicTenant = tenantDao.getByDtUicTenantId(dtUicTenantId);
+        if(null == uicTenant){
+            throw new RdosDefineException("dtUicTenantId不存在");
         }
     }
 
