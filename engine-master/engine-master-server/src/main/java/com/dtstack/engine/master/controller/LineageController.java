@@ -8,6 +8,7 @@ import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
 import com.dtstack.engine.api.vo.lineage.SqlParseInfo;
 import com.dtstack.engine.api.vo.lineage.TableLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
+import com.dtstack.engine.api.vo.lineage.param.ParseTableLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryColumnLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageParam;
 import com.dtstack.engine.common.util.ValidateUtil;
@@ -80,21 +81,19 @@ public class LineageController {
             @ApiImplicitParam(name = "engineSourceId", value = "引擎数据源id，需要提前将数据源推送到engine")
     }
     )
-    public void parseAndSaveTableLineage(@DtRequestParam Integer appType, @DtRequestParam Long uicTenantId, @DtRequestParam String sql, @DtRequestParam String defaultDb, @DtRequestParam Long engineSourceId,@DtRequestParam Integer sourceType, @DtRequestParam String uniqueKey) {
-        ValidateUtil.validateNotNull(appType,"应用类型不能为空");
-        ValidateUtil.validateNotNull(uicTenantId,"uic租户id不能为空");
-        ValidateUtil.validateNotNull(sql,"sql不能为空");
-        ValidateUtil.validateNotNull(defaultDb,"默认数据哭不能为空");
-        lineageService.parseAndSaveTableLineage(uicTenantId, appType, sql, defaultDb, engineSourceId, sourceType,uniqueKey);
+    public void parseAndSaveTableLineage(@RequestBody ParseTableLineageParam param) {
+        ValidateUtil.validateNotNull(param.getAppType(),"应用类型不能为空");
+        ValidateUtil.validateNotNull(param.getDtUicTenantId(),"uic租户id不能为空");
+        ValidateUtil.validateNotNull(param.getSql(),"sql不能为空");
+        ValidateUtil.validateNotNull(param.getDefaultDb(),"默认数据哭不能为空");
+        lineageService.parseAndSaveTableLineage(param.getDtUicTenantId(), param.getAppType(), param.getSql(), param.getDefaultDb(), param.getEngineDataSourceId(), param.getDataSourceType(),param.getUniqueKey());
     }
 
     @RequestMapping(value = "/parseColumnLineage", method = {RequestMethod.POST})
     @ApiOperation(value = "解析字段级血缘关系")
     public ColumnLineageParseInfo parseColumnLineage(@RequestBody ParseColumnLineageParam parseColumnLineageParam) {
-        ValidateUtil.validateNotNull(parseColumnLineageParam.getAppType(),"应用类型不能为空");
         ValidateUtil.validateNotNull(parseColumnLineageParam.getDataSourceType(),"数据源类型不能为空");
         ValidateUtil.validateNotNull(parseColumnLineageParam.getDefaultDb(),"默认数据库不能为空");
-        ValidateUtil.validateNotNull(parseColumnLineageParam.getDtUicTenantId(),"uic租户id不能为空");
         ValidateUtil.validateNotNull(parseColumnLineageParam.getSql(),"sql不能为空");
         ValidateUtil.validateNotNull(parseColumnLineageParam.getTableColumnsMap(),"表字段map不能为空");
         return lineageService.parseColumnLineage(parseColumnLineageParam.getSql(), parseColumnLineageParam.getDataSourceType(), parseColumnLineageParam.getDefaultDb(), parseColumnLineageParam.getTableColumnsMap());

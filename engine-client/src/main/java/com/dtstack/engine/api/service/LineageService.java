@@ -1,6 +1,5 @@
 package com.dtstack.engine.api.service;
 
-import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnParam;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
@@ -8,14 +7,16 @@ import com.dtstack.engine.api.vo.lineage.LineageTableTableParam;
 import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
 import com.dtstack.engine.api.vo.lineage.SqlParseInfo;
 import com.dtstack.engine.api.vo.lineage.TableLineageParseInfo;
+import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
+import com.dtstack.engine.api.vo.lineage.param.ParseTableLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryColumnLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageParam;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Param;
 import com.dtstack.sdk.core.feign.RequestLine;
+
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author chener
@@ -48,34 +49,24 @@ public interface LineageService extends DtInsightServer {
 
     /**
      * 解析表级血缘并存储血缘关系。
-     * @param sql 原始sql
-     * @param defaultDb 默认数据库
-     * @param engineSourceId engine数据源id
      * @return 异步执行，无返回值
      */
     @RequestLine("POST /node/lineage/parseAndSaveTableLineage")
-    ApiResponse parseAndSaveTableLineage(@Param("appType")Integer appType,@Param("sql")String sql, @Param("defaultDb")String defaultDb, @Param("engineSourceId")Long engineSourceId, @Param("uicTenantId")Long uicTenantId);
+    ApiResponse parseAndSaveTableLineage(ParseTableLineageParam param);
 
     /**
      * 解析字段级血缘关系
-     * @param sql
-     * @param defaultDb
-     * @param tableColumnsMap
      * @return 返回字段血缘解析结果
      */
     @RequestLine("POST /node/lineage/parseColumnLineage")
-    ApiResponse<ColumnLineageParseInfo> parseColumnLineage(@Param("sql")String sql, @Param("defaultDb")String defaultDb, @Param("tableColumnsMap")Map<String, List<Column>> tableColumnsMap);
+    ApiResponse<ColumnLineageParseInfo> parseColumnLineage(ParseColumnLineageParam param);
 
     /**
      * 解析字段级血缘关系并存储
-     * @param appType
-     * @param sql
-     * @param defaultDb
-     * @param engineSourceId
      * @return 异步解析，无返回结果
      */
     @RequestLine("POST /node/lineage/parseAndSaveColumnLineage")
-    ApiResponse parseAndSaveColumnLineage(@Param("appType")Integer appType,@Param("sql")String sql, @Param("defaultDb")String defaultDb,@Param("engineDataSourceId") Long engineSourceId,@Param("dtUicTenantId")Long dtUicTenantId);
+    ApiResponse parseAndSaveColumnLineage(ParseColumnLineageParam param);
 
     /**
      * 手动添加表级血缘
