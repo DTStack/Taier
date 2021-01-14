@@ -44,7 +44,7 @@ public abstract class AbstractSender {
 
     protected ClusterAlertPO getDefaultClusterAlertPO(Notice notice, AGgateType aGgateType) {
         ClusterAlertPO query = new ClusterAlertPO();
-        query.setClusterId(0);
+//        query.setClusterId(0);
         Long alertId = notice.getAlertId();
         if (alertId ==null){
             if (AGgateType.AG_GATE_TYPE_CUSTOMIZE.equals(aGgateType)) {
@@ -53,7 +53,7 @@ public abstract class AbstractSender {
                 query.setIsDefault(1);
             }
         } else {
-            query.setAlertId(alertId.intValue());
+            query.setAlertId(alertId);
         }
         query.setAlertGateType(aGgateType.type());
 

@@ -1,6 +1,4 @@
-package com.dtstack.engine.domain;
-
-import com.baomidou.mybatisplus.annotation.TableName;
+package com.dtstack.engine.api.dto;
 
 import java.sql.Timestamp;
 
@@ -10,8 +8,7 @@ import java.sql.Timestamp;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-@TableName("alert_content")
-public class AlertContent {
+public class AlertContentDTO {
 
     private Long id;
     private Long tenantId;

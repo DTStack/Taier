@@ -90,8 +90,8 @@ public class AlertGateFacade {
         }
 
         ClusterAlertPO clusterAlertPO = new ClusterAlertPO();
-        clusterAlertPO.setClusterId(alertGateVO.getClusterId());
-        clusterAlertPO.setAlertId(alertGatePO.getId().intValue());
+//        clusterAlertPO.setClusterId(alertGateVO.getClusterId());
+//        clusterAlertPO.setAlertId(alertGatePO.getId().intValue());
         clusterAlertPO.setIsDefault(alertGateVO.getIsDefault());
         clusterAlertPO.setAlertGateType(alertGateVO.getAlertGateType());
         clusterAlertService.edit(clusterAlertPO);
@@ -114,7 +114,7 @@ public class AlertGateFacade {
         }
         AlertTemplatePO alertTemplatePO = alertTemplateService.getAlertTemplateByTypeAndSource(alertGatePO.getAlertGateType(), alertGatePO.getAlertGateSource());
         ClusterAlertPO query = new ClusterAlertPO();
-        query.setAlertId(gateId.intValue());
+        query.setAlertId(gateId);
         ClusterAlertPO clusterAlertPO = clusterAlertDao.get(query);
 
         return AlertGateConverter.toVO(alertGatePO, alertTemplatePO, clusterAlertPO);
@@ -122,7 +122,7 @@ public class AlertGateFacade {
 
     public PageResult<ClusterAlertPO> page(ClusterAlertPageParam pageParam) {
         ClusterAlertPO po = new ClusterAlertPO();
-        po.setClusterId(pageParam.getClusterId());
+//        po.setClusterId(pageParam.getClusterId());
         po.setAlertGateTypes(pageParam.getAlertGateType());
 
         clusterAlertDao.list(po);

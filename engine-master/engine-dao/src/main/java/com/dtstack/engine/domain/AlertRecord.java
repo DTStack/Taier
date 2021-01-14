@@ -1,5 +1,8 @@
 package com.dtstack.engine.domain;
 
+import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -8,6 +11,7 @@ import java.util.Date;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
+@TableName("alert_record")
 public class AlertRecord {
     private Long id;
     private Long alertChannelId;
@@ -18,6 +22,7 @@ public class AlertRecord {
     private Long userId;
     private Integer readStatus;
     private String title;
+    private Integer status;
     private String sendContent;
     private String jobId;
     private Integer alertRecordStatus;
@@ -27,8 +32,8 @@ public class AlertRecord {
     private String nodeAddress;
     private String sendTime;
     private String sendEndTime;
-    private Date gmtCreated;
-    private Date gmtModified;
+    private Timestamp gmtCreated;
+    private Timestamp gmtModified;
 
     public Long getId() {
         return id;
@@ -174,19 +179,27 @@ public class AlertRecord {
         this.sendEndTime = sendEndTime;
     }
 
-    public Date getGmtCreated() {
+    public Timestamp getGmtCreated() {
         return gmtCreated;
     }
 
-    public void setGmtCreated(Date gmtCreated) {
+    public void setGmtCreated(Timestamp gmtCreated) {
         this.gmtCreated = gmtCreated;
     }
 
-    public Date getGmtModified() {
+    public Timestamp getGmtModified() {
         return gmtModified;
     }
 
-    public void setGmtModified(Date gmtModified) {
+    public void setGmtModified(Timestamp gmtModified) {
         this.gmtModified = gmtModified;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }

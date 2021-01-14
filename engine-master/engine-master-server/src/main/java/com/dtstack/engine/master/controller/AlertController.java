@@ -1,13 +1,11 @@
 package com.dtstack.engine.master.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.alert.client.AlertGateFacade;
 import com.dtstack.engine.alert.client.AlertServiceProvider;
 import com.dtstack.engine.alert.domian.PageResult;
 import com.dtstack.engine.alert.enums.AGgateType;
 import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.param.*;
-import com.dtstack.engine.alert.serivce.AlertGateService;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.po.AlertGatePO;
 import com.dtstack.engine.api.domain.po.ClusterAlertPO;
@@ -16,7 +14,6 @@ import com.dtstack.engine.api.param.ClusterAlertParam;
 import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
 import com.dtstack.engine.common.constrant.GlobalConst;
-import com.dtstack.engine.common.enums.AlertGateTypeEnum;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.sftp.SftpConfig;
@@ -29,7 +26,6 @@ import com.dtstack.engine.master.utils.CheckUtils;
 import com.dtstack.lang.data.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,13 +52,7 @@ public class AlertController {
     private final Logger log = LoggerFactory.getLogger(AlertController.class);
 
     @Autowired
-    private AlertGateFacade alertGateFacade;
-
-    @Autowired
     private AlertServiceProvider alertServiceProvider;
-
-    @Autowired
-    private AlertGateService alertGateService;
 
 
 
@@ -135,23 +125,20 @@ public class AlertController {
     @ApiOperation("设为默认告警通道 用于取代console接口: /api/console/service/alert/setDefaultAlert")
     @PostMapping("/setDefaultAlert")
     public Boolean setDefaultAlert(@RequestBody ClusterAlertParam param) {
-        param.setClusterId(0L);
         return alertChannelService.setDefaultAlert(param);
     }
 
     @ApiOperation("获取告警通道分页 用于取代console接口: /api/console/service/alert/page")
     @PostMapping("/page")
     public PageResult<ClusterAlertPO> page(@RequestBody ClusterAlertPageParam pageParam) {
-        //暂时默认为0
-        pageParam.setClusterId(0);
-        return alertGateFacade.page(pageParam);
+        return alertChannelService.page(pageParam);
     }
 
 
     @ApiOperation("告警通道详情 用于取代console接口: /api/console/service/alert/getByAlertId")
     @PostMapping("/getByAlertId")
     public AlertGateVO getByAlertId(@RequestBody AlertGateVO alertGateVO) {
-        return alertGateFacade.getGateById(alertGateVO.getId());
+        return alertChannelService.getGateById(alertGateVO.getId());
     }
 
 
@@ -159,13 +146,13 @@ public class AlertController {
     @PostMapping("/delete")
     public Boolean delete(@RequestBody AlertGateVO alertGateVO) {
         Assert.notNull(alertGateVO.getId(), "id不能为空");
-        return alertGateFacade.deleteGate(alertGateVO.getId());
+        return alertChannelService.deleteGate(alertGateVO.getId());
     }
 
     @ApiOperation("获取告警通道分页")
     @PostMapping("/list/show")
     public List<ClusterAlertPO> listShow() {
-        return alertGateFacade.listShow();
+        return alertChannelService.listShow();
     }
 
     @ApiOperation("jar上传接口")
@@ -204,14 +191,13 @@ public class AlertController {
             alertGateTestVO.setFilePath(destFile.getAbsolutePath());
         } else {
             if (alertGateTestVO.getId() != null) {
-                AlertGatePO alertGatePO = alertGateService.getSuitGateById(alertGateTestVO.getId());
-                if (alertGatePO != null) {
-                    alertGateTestVO.setFilePath(alertGatePO.getFilePath());
+                AlertGateVO alertGateVO = alertChannelService.getGateById(alertGateTestVO.getId());
+                if (alertGateVO != null) {
+                    alertGateTestVO.setFilePath(alertGateVO.getFilePath());
                 }
             }
         }
         log.info("testAlert jar path :{}", alertGateTestVO.getFilePath());
-
 
         //build test alertParam
         AlertParam alertParam = buildTestAlertParam(alertGateTestVO);

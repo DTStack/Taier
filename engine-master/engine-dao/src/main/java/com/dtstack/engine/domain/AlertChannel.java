@@ -2,6 +2,7 @@ package com.dtstack.engine.domain;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -23,8 +24,8 @@ public class AlertChannel {
     private String filePath;
     private Integer isDefault;
     private Integer isDeleted;
-    private Date gmtCreated;
-    private Date gmtModified;
+    private Timestamp gmtCreated;
+    private Timestamp gmtModified;
 
     public Long getId() {
         return id;
@@ -114,19 +115,19 @@ public class AlertChannel {
         this.isDeleted = isDeleted;
     }
 
-    public Date getGmtCreated() {
+    public Timestamp getGmtCreated() {
         return gmtCreated;
     }
 
-    public void setGmtCreated(Date gmtCreated) {
+    public void setGmtCreated(Timestamp gmtCreated) {
         this.gmtCreated = gmtCreated;
     }
 
-    public Date getGmtModified() {
+    public Timestamp getGmtModified() {
         return gmtModified;
     }
 
-    public void setGmtModified(Date gmtModified) {
+    public void setGmtModified(Timestamp gmtModified) {
         this.gmtModified = gmtModified;
     }
 }

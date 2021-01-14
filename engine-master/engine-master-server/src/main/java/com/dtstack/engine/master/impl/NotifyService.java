@@ -206,7 +206,7 @@ public class NotifyService {
 
         for (ClusterAlertPO alertPO : clusterAlertPOS) {
             try {
-                send(tenantId, projectId, notifyRecordId, appType,title,content,contentId,receivers,alertPO,webhook);
+//                send(tenantId, projectId, notifyRecordId, appType,title,content,contentId,receivers,alertPO,webhook);
             } catch (Exception e) {
                 logger.error("通道:{},发送异常:{}",alertPO.getAlertGateSource(),e.getStackTrace());
             }
@@ -214,67 +214,67 @@ public class NotifyService {
 
     }
 
-    private void send(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, List<UserMessageDTO> receivers, ClusterAlertPO alertPO, String webhook) {
-        if (AlertGateTypeEnum.MAIL.getType().equals(alertPO.getAlertGateType())) {
-            // 发送邮件
-            sendMail(tenantId,projectId,notifyRecordId,appType,title,content,contentId,receivers,alertPO);
-        } else if (AlertGateTypeEnum.SMS.getType().equals(alertPO.getAlertGateType())) {
-            sendSms(tenantId,projectId,notifyRecordId,appType,title,content,contentId,receivers,alertPO);
-        } else if (AlertGateTypeEnum.DINGDING.getType().equals(alertPO.getAlertGateType())) {
-            sendDingding(tenantId,projectId,notifyRecordId,appType,title,content,contentId,alertPO,webhook);
-        } else if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(alertPO.getAlertGateType())) {
-            sendCustom(tenantId,projectId,notifyRecordId,appType,title,content,contentId,alertPO,receivers);
-        }
-    }
+//    private void send(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, List<UserMessageDTO> receivers, ClusterAlertPO alertPO, String webhook) {
+//        if (AlertGateTypeEnum.MAIL.getType().equals(alertPO.getAlertGateType())) {
+//            // 发送邮件
+//            sendMail(tenantId,projectId,notifyRecordId,appType,title,content,contentId,receivers,alertPO);
+//        } else if (AlertGateTypeEnum.SMS.getType().equals(alertPO.getAlertGateType())) {
+//            sendSms(tenantId,projectId,notifyRecordId,appType,title,content,contentId,receivers,alertPO);
+//        } else if (AlertGateTypeEnum.DINGDING.getType().equals(alertPO.getAlertGateType())) {
+//            sendDingding(tenantId,projectId,notifyRecordId,appType,title,content,contentId,alertPO,webhook);
+//        } else if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(alertPO.getAlertGateType())) {
+//            sendCustom(tenantId,projectId,notifyRecordId,appType,title,content,contentId,alertPO,receivers);
+//        }
+//    }
 
-    private void sendCustom(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, ClusterAlertPO alertPO,List<UserMessageDTO> receivers) {
-        List<Integer> senderTypes = Lists.newArrayList();
-        senderTypes.add(SenderType.CUSTOMIZE.getType());
-
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("title",title);
-        jsonObject.put("content",content);
-
-        if (CollectionUtils.isEmpty(receivers)) {
-            UserMessageDTO userDTO = new UserMessageDTO();
-            userDTO.setUserId(-1L);
-            sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,userDTO, senderTypes,null,content,null,jsonObject.toJSONString(),alertPO.getId().longValue());
-            addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, userDTO);
-        } else {
-            for (UserMessageDTO receiver : receivers) {
-                sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,receiver, senderTypes,null,content,null,jsonObject.toJSONString(),alertPO.getId().longValue());
-                addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, receiver);
-            }
-        }
-    }
-
-    private void sendDingding(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, ClusterAlertPO alertPO,String webhook) {
-        if (StringUtils.isBlank(webhook)) {
-            throw new RdosDefineException("webhook不合法！");
-        }
-        List<Integer> senderTypes = Lists.newArrayList();
-        senderTypes.add(SenderType.DINGDING.getType());
-        UserMessageDTO userDTO = new UserMessageDTO();
-        userDTO.setUserId(-1L);
-        sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,userDTO, senderTypes,null,content,webhook,null,alertPO.getId().longValue());
-        addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, userDTO);
-    }
-
-    private void sendSms(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, List<UserMessageDTO> receivers, ClusterAlertPO alertPO) {
-        for (UserMessageDTO receiver : receivers) {
-            List<Integer> senderTypes = Lists.newArrayList();
-            senderTypes.add(SenderType.SMS.getType());
-            sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,receiver, senderTypes,null,content,null,null,alertPO.getId().longValue());
-            addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, receiver);
-        }
-    }
-
-    private void sendMail(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, List<UserMessageDTO> receivers, ClusterAlertPO alertPO) {
-        for (UserMessageDTO receiver : receivers) {
-            List<Integer> senderTypes = Lists.newArrayList();
-            senderTypes.add(SenderType.MAIL.getType());
-            sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,receiver, senderTypes,MailType.SIMPLE,content,null,null,alertPO.getId().longValue());
-            addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, receiver);
-        }
-    }
+//    private void sendCustom(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, ClusterAlertPO alertPO,List<UserMessageDTO> receivers) {
+//        List<Integer> senderTypes = Lists.newArrayList();
+//        senderTypes.add(SenderType.CUSTOMIZE.getType());
+//
+//        JSONObject jsonObject = new JSONObject();
+//        jsonObject.put("title",title);
+//        jsonObject.put("content",content);
+//
+//        if (CollectionUtils.isEmpty(receivers)) {
+//            UserMessageDTO userDTO = new UserMessageDTO();
+//            userDTO.setUserId(-1L);
+//            sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,userDTO, senderTypes,null,content,null,jsonObject.toJSONString(),alertPO.getId().longValue());
+//            addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, userDTO);
+//        } else {
+//            for (UserMessageDTO receiver : receivers) {
+//                sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,receiver, senderTypes,null,content,null,jsonObject.toJSONString(),alertPO.getId().longValue());
+//                addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, receiver);
+//            }
+//        }
+//    }
+//
+//    private void sendDingding(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, ClusterAlertPO alertPO,String webhook) {
+//        if (StringUtils.isBlank(webhook)) {
+//            throw new RdosDefineException("webhook不合法！");
+//        }
+//        List<Integer> senderTypes = Lists.newArrayList();
+//        senderTypes.add(SenderType.DINGDING.getType());
+//        UserMessageDTO userDTO = new UserMessageDTO();
+//        userDTO.setUserId(-1L);
+//        sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,userDTO, senderTypes,null,content,webhook,null,alertPO.getId().longValue());
+//        addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, userDTO);
+//    }
+//
+//    private void sendSms(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, List<UserMessageDTO> receivers, ClusterAlertPO alertPO) {
+//        for (UserMessageDTO receiver : receivers) {
+//            List<Integer> senderTypes = Lists.newArrayList();
+//            senderTypes.add(SenderType.SMS.getType());
+//            sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,receiver, senderTypes,null,content,null,null,alertPO.getId().longValue());
+//            addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, receiver);
+//        }
+//    }
+//
+//    private void sendMail(Long tenantId, Long projectId, Long notifyRecordId, AppType appType, String title, String content, Long contentId, List<UserMessageDTO> receivers, ClusterAlertPO alertPO) {
+//        for (UserMessageDTO receiver : receivers) {
+//            List<Integer> senderTypes = Lists.newArrayList();
+//            senderTypes.add(SenderType.MAIL.getType());
+//            sendNoticeAsync(tenantId,projectId,notifyRecordId,appType,title,contentId,receiver, senderTypes,MailType.SIMPLE,content,null,null,alertPO.getId().longValue());
+//            addNotifyRecordRead(tenantId, projectId, appType, notifyRecordId, contentId, receiver);
+//        }
+//    }
 }

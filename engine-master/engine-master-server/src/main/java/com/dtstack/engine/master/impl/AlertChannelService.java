@@ -2,6 +2,11 @@ package com.dtstack.engine.master.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.dtstack.engine.alert.domian.PageResult;
+import com.dtstack.engine.api.domain.po.ClusterAlertPO;
+import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.common.enums.AlertGateTypeEnum;
 import com.dtstack.engine.common.enums.IsDefaultEnum;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -10,9 +15,14 @@ import com.dtstack.engine.api.param.ClusterAlertParam;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.dao.AlertChannelDao;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * @Auther: dazhi
@@ -26,6 +36,7 @@ public class AlertChannelService {
     @Autowired
     private AlertChannelDao alertChannelDao;
 
+    @Transactional
     public Boolean addChannelOrEditChannel(AlertGateVO alertGateVO) {
         AlertChannel alertChannel = null;
 
@@ -51,8 +62,8 @@ public class AlertChannelService {
 
     public Boolean checkAlertGateSourceExist(String alertGateSource) {
         AlertChannel alertChannel = alertChannelDao.selectOne(new QueryWrapper<AlertChannel>()
-                .eq("alertGateSource",alertGateSource)
-                .eq("isDeleted",IsDeletedEnum.NOT_DELETE.getType())
+                .eq("alert_gate_source",alertGateSource)
+                .eq("is_deleted",IsDeletedEnum.NOT_DELETE.getType())
         );
         return alertChannel == null ? Boolean.FALSE : Boolean.TRUE;
     }
@@ -97,6 +108,7 @@ public class AlertChannelService {
     }
 
 
+    @Transactional
     public Boolean setDefaultAlert(ClusterAlertParam param) {
         checkDefaultParam(param);
         AlertChannel channel = alertChannelDao.selectById(param.getAlertId());
@@ -109,19 +121,16 @@ public class AlertChannelService {
         AlertChannel alertChannel = new AlertChannel();
         alertChannel.setIsDefault(IsDefaultEnum.NOT_DEFAULT.getType());
         alertChannelDao.update(alertChannel, new UpdateWrapper<AlertChannel>()
-                .eq("isDeleted", IsDeletedEnum.NOT_DELETE.getType())
-                .eq("alertGateType", param.getAlertGateType())
+                .eq("is_deleted", IsDeletedEnum.NOT_DELETE.getType())
+                .eq("alert_gate_type", param.getAlertGateType())
         );
 
-//        AlertChannel alertChannel = new AlertChannel();
-//        alertChannel.setClusterId(param.getClusterId());
-//        alertChannel.setIsDefault(IsDefaultEnum.DEFAULT.getType());
-//        alertChannel.setId(param.getAlertId());
-//        alertChannel.setAlertGateType(param.getAlertGateType());
-
-
-
-        return null;
+        // 更新默认通道
+        AlertChannel defaultAlertChannel = new AlertChannel();
+        defaultAlertChannel.setIsDefault(IsDefaultEnum.DEFAULT.getType());
+        defaultAlertChannel.setId(param.getAlertId());
+        int index = alertChannelDao.updateById(defaultAlertChannel);
+        return index > 0 ? Boolean.TRUE : Boolean.FALSE;
     }
 
     private void checkDefaultParam(ClusterAlertParam param) {
@@ -140,5 +149,135 @@ public class AlertChannelService {
         if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(param.getAlertGateType())) {
             throw new RdosDefineException("自定义通道类型（AlertGateType）不能设置默认值");
         }
+    }
+
+    public PageResult<ClusterAlertPO> page(ClusterAlertPageParam pageParam) {
+        Page<AlertChannel> iPage = new Page<>(pageParam.getCurrentPage(),pageParam.getPageSize());
+        IPage<AlertChannel> page = alertChannelDao.selectPage(iPage,new QueryWrapper<AlertChannel>()
+            .eq("cluster_id",pageParam.getClusterId())
+            .eq("is_deleted",IsDeletedEnum.NOT_DELETE.getType())
+            .in("alert_gate_type",pageParam.getAlertGateType())
+        );
+
+        PageResult<ClusterAlertPO> result = new PageResult<>();
+        result.setTotalPage((int) page.getPages());
+        result.setCurrentPage((int) page.getCurrent());
+        result.setPageSize((int) page.getSize());
+        result.setTotalCount((int) page.getTotal());
+        List<ClusterAlertPO> records = build(page.getRecords());
+        result.setData(records);
+        return result;
+    }
+
+    private List<ClusterAlertPO> build(List<AlertChannel> records) {
+        List<ClusterAlertPO> clusterAlertPOS = Lists.newArrayList();
+        if (CollectionUtils.isNotEmpty(records)) {
+            for (AlertChannel record : records) {
+                ClusterAlertPO po = build(record);
+                clusterAlertPOS.add(po);
+            }
+        }
+        return clusterAlertPOS;
+    }
+
+    private ClusterAlertPO build(AlertChannel record) {
+        ClusterAlertPO po = new ClusterAlertPO();
+        po.setAlertId(record.getId());
+        po.setClusterId(record.getClusterId());
+        po.setAlertGateName(record.getAlertGateName());
+        po.setAlertGateType(record.getAlertGateType());
+        po.setAlertGateSource(record.getAlertGateSource());
+        po.setIsDefault(record.getIsDefault());
+        po.setIsDeleted(record.getIsDeleted());
+        po.setGmtCreated(record.getGmtCreated());
+        po.setGmtModified(record.getGmtModified());
+        return po;
+    }
+
+
+    public AlertGateVO getGateById(Long id) {
+        AlertGateVO gateVO = null;
+        if (id != null) {
+            AlertChannel alertChannel = alertChannelDao.selectById(id);
+            gateVO = new AlertGateVO();
+
+            build(gateVO, alertChannel);
+        }
+        return gateVO;
+    }
+
+    private void build(AlertGateVO gateVO, AlertChannel alertChannel) {
+        gateVO.setId(alertChannel.getId());
+        gateVO.setAlertGateSource(alertChannel.getAlertGateSource());
+        gateVO.setAlertGateName(alertChannel.getAlertGateName());
+        gateVO.setClusterId(alertChannel.getClusterId());
+        gateVO.setIsDefault(alertChannel.getIsDefault());
+        gateVO.setAlertGateType(alertChannel.getAlertGateType());
+        gateVO.setAlertGateJson(alertChannel.getAlertGateJson());
+        gateVO.setAlertGateCode(alertChannel.getAlertGateCode());
+        gateVO.setAlertTemplate(alertChannel.getAlertTemplate());
+        gateVO.setFilePath(alertChannel.getFilePath());
+    }
+
+    public Boolean deleteGate(Long id) {
+        AlertChannel alertChannel = new AlertChannel();
+        alertChannel.setIsDeleted(IsDeletedEnum.DELETE.getType());
+        alertChannel.setId(id);
+        int index = alertChannelDao.updateById(alertChannel);
+        return index > 0 ? Boolean.TRUE : Boolean.FALSE;
+    }
+
+    public List<ClusterAlertPO> listShow() {
+        List<AlertChannel> alertChannels = alertChannelDao.selectList(null);
+
+        List<ClusterAlertPO> aimPos = Lists.newArrayList();
+
+        for (AlertChannel channel : alertChannels) {
+            if (channel.getIsDefault().equals(1) && !AlertGateTypeEnum.CUSTOMIZE.getType().equals(channel.getAlertGateType())) {
+                AlertGateTypeEnum enumByCode = AlertGateTypeEnum.getEnumByCode(channel.getAlertGateType());
+
+                if (enumByCode != null) {
+                    channel.setAlertGateSource(AlertGateTypeEnum.getDefaultFiled(enumByCode));
+                    channel.setAlertGateName(enumByCode.getMsg());
+                    aimPos.add(build(channel));
+                }
+            } else if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(channel.getAlertGateType())) {
+                aimPos.add(build(channel));
+            }
+        }
+
+        return aimPos;
+    }
+
+    public List<AlertChannel> selectAlertByIds(List<String> alertGateSources) {
+        if (org.springframework.util.CollectionUtils.isEmpty(alertGateSources)) {
+            return Lists.newArrayList();
+        }
+        List<AlertChannel> pos = Lists.newArrayList();
+        List<Integer> defaultAlert = Lists.newArrayList();
+        List<String> customizeAlert = Lists.newArrayList();
+
+        for (String alertGateSource : alertGateSources) {
+            Integer defaultFile = AlertGateTypeEnum.isDefaultFile(alertGateSource);
+            if (defaultFile != null) {
+                defaultAlert.add(defaultFile);
+            } else {
+                customizeAlert.add(alertGateSource);
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(defaultAlert)) {
+            pos.addAll(alertChannelDao.selectList(new QueryWrapper<AlertChannel>()
+                    .eq("is_deleted",IsDeletedEnum.NOT_DELETE.getType())
+                    .eq("is_default",IsDefaultEnum.DEFAULT.getType())));
+        }
+
+        if (CollectionUtils.isNotEmpty(customizeAlert)) {
+            pos.addAll(alertChannelDao.selectList(new QueryWrapper<AlertChannel>()
+                    .eq("is_deleted",IsDeletedEnum.NOT_DELETE.getType())
+                    .in("alert_gate_source",alertGateSources)));
+        }
+
+        return pos;
     }
 }

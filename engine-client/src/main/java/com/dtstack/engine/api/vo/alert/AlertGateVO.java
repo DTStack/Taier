@@ -10,7 +10,7 @@ public class AlertGateVO {
 
     private String alertGateName;
 
-    private Integer clusterId;
+    private Long clusterId;
 
     private Integer isDefault;
 
@@ -24,8 +24,6 @@ public class AlertGateVO {
     private String alertGateJson;
 
     private String alertGateCode;
-    
-    private Long alertTemplateId;
 
     private String alertTemplate;
     
@@ -55,11 +53,11 @@ public class AlertGateVO {
         this.alertGateName = alertGateName;
     }
 
-    public Integer getClusterId() {
+    public Long getClusterId() {
         return clusterId;
     }
 
-    public void setClusterId(Integer clusterId) {
+    public void setClusterId(Long clusterId) {
         this.clusterId = clusterId;
     }
 
@@ -93,14 +91,6 @@ public class AlertGateVO {
 
     public void setAlertGateCode(String alertGateCode) {
         this.alertGateCode = alertGateCode;
-    }
-
-    public Long getAlertTemplateId() {
-        return alertTemplateId;
-    }
-
-    public void setAlertTemplateId(Long alertTemplateId) {
-        this.alertTemplateId = alertTemplateId;
     }
 
     public String getAlertTemplate() {
