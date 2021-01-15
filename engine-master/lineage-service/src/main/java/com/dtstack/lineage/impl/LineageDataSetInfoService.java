@@ -10,13 +10,14 @@ import com.dtstack.engine.api.pojo.lineage.Table;
 import com.dtstack.engine.common.client.ClientCache;
 import com.dtstack.engine.common.client.IClient;
 import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.EComponentTypeDataSourceType;
 import com.dtstack.engine.common.exception.ClientAccessException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.lineage.dao.LineageDataSetDao;
+import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.schedule.common.enums.DataSourceType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -134,6 +135,11 @@ public class LineageDataSetInfoService {
                 jsonObject.put("sftpConf", componentJsonObj);
                 jsonObject.put("config", kerberosJsonObj);
             }
+            if(dataSource.getAppType() == AppType.DATAASSETS.getType()){
+                //资产类型需要在pluginInfo中补充typeName
+                String typeName = DataSourceType.getSourceType(dataSource.getSourceType()).name().toLowerCase();
+                jsonObject.put("typeName",typeName);
+            }
             String pluginInfo = PublicUtil.objToString(jsonObject);
             iClient = getClient(dataSource, clientCache, pluginInfo);
             return getAllColumns(dataSetInfo, iClient);
@@ -154,7 +160,7 @@ public class LineageDataSetInfoService {
         if(null == clientCache || null == dataSource){
             return null;
         }
-        return clientCache.getClient(EComponentTypeDataSourceType.getByCode(dataSource.getSourceType()).getComponentType().getName(), pluginInfo);
+        return clientCache.getClient(DataSourceType.getSourceType(dataSource.getSourceType()).name().toLowerCase(), pluginInfo);
     }
 
     /**
@@ -201,9 +207,9 @@ public class LineageDataSetInfoService {
         }
         for (Table table : tables) {
             LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
-            dataSetInfo.setDbName(table.getName());
-            dataSetInfo.setSchemaName(table.getSchemaName());
             dataSetInfo.setDbName(table.getDb());
+            dataSetInfo.setSchemaName(table.getSchemaName());
+            dataSetInfo.setTableName(table.getName());
             dataSetInfo.setSourceId(sourceId);
             List<Column> tableColumns = getTableColumns(dataSetInfo);
             listHashMap.put(table.getName(),tableColumns);

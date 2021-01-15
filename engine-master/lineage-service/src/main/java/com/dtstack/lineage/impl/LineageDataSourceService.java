@@ -10,6 +10,7 @@ import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.enums.DataSourceTypeEnum;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ComponentDao;
@@ -69,6 +70,7 @@ public class LineageDataSourceService {
         try {
             //校验dtuicTenantId是否存在
             checkTenant(dataSourceDTO.getDtUicTenantId());
+            checkDataJson(dataSourceDTO.getDataJson());
             if (Objects.isNull(dataSourceDTO.getDataSourceId())){
                 return addDataSource(dataSourceDTO);
             }else {
@@ -93,6 +95,33 @@ public class LineageDataSourceService {
             logger.error("新增或修改数据源异常,e:{}", ExceptionUtil.getErrorMessage(e));
             throw new RdosDefineException("新增或修改数据源异常");
         }
+    }
+
+    /**
+     * @author newman
+     * @Description 校验数据源配置
+     * @Date 2021/1/15 1:47 下午
+     * @param dataJson:
+     * @return: void
+     **/
+    private void checkDataJson(String dataJson) {
+
+        if(null == dataJson){
+            throw new RdosDefineException("数据源配置不能为空");
+        }
+        try {
+            JSONObject jsonObject = JSONObject.parseObject(dataJson);
+            String jdbcUrl = jsonObject.getString(ConfigConstant.JDBCURL);
+            String userName = jsonObject.getString(ConfigConstant.USERNAME);
+            String passWord = jsonObject.getString(ConfigConstant.PASSWORD);
+            if(null == jdbcUrl || null == userName || null == passWord){
+                throw new RdosDefineException("数据源配置格式不对或缺少关键参数");
+            }
+        } catch (Exception e) {
+            throw new RdosDefineException("校验数据源配置异常");
+        }
+
+
     }
 
     /**
@@ -123,7 +152,7 @@ public class LineageDataSourceService {
         try {
             //首先根据数据源名称查询数据源，如果数据源已经存在，说明是修改手动添加的数据源的信息。
             LineageDataSource lineageDataSource = getDataSourceByParams(dataSourceDTO.getSourceType(), dataSourceDTO.getSourceName(), dataSourceDTO.getDtUicTenantId(), dataSourceDTO.getAppType());
-            if (Objects.nonNull(lineageDataSource)){
+            if ( null != lineageDataSource ){
                 dataSourceDTO.setDataSourceId(lineageDataSource.getId());
                 return addOrUpdateDataSource(dataSourceDTO);
             }
