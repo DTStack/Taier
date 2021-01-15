@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class AddJarOperator {
 	
-	private static Pattern pattern = Pattern.compile("(?i)\\s*add\\s+jar\\s+with\\s+(\\S+)(\\s+AS\\s+(\\S+))?");
+	private static Pattern pattern = Pattern.compile("^(?!--)(?i)\\s*add\\s+jar\\s+with\\s+(\\S+)(\\s+AS\\s+(\\S+))?");
 
 	public static JarFileInfo parseSql(String sql) {
 
