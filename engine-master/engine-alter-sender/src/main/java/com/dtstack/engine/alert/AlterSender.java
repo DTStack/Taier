@@ -17,7 +17,7 @@ public interface AlterSender {
      * @param eventMonitor 事件监听器
      * @return
      */
-    R sendSyncAlter(AlterContext alterContext,EventMonitor eventMonitor);
+    R sendSyncAlter(AlterContext alterContext,EventMonitor eventMonitor) throws Exception;
 
     /**
      * 异步发送
@@ -25,5 +25,5 @@ public interface AlterSender {
      * @param alterContext
      * @param eventMonitor
      */
-    void sendAsyncAAlter(AlterContext alterContext,EventMonitor eventMonitor);
+    void sendAsyncAAlter(AlterContext alterContext,EventMonitor eventMonitor) throws Exception;
 }
