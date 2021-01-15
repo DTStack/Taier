@@ -86,7 +86,7 @@ public class CheckUtils {
 
         if (alertGateVO.getClusterId() == null) {
             //暂时默认为0
-            alertGateVO.setClusterId(0);
+//            alertGateVO.setClusterId(0);
         }
 
     }

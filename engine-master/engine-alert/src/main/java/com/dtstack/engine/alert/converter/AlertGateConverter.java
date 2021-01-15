@@ -35,7 +35,7 @@ public class AlertGateConverter {
 
 
 		if (alertTemplatePO != null) {
-			alertGateVO.setAlertTemplateId(alertTemplatePO.getId());
+//			alertGateVO.setAlertTemplateId(alertTemplatePO.getId());
 			alertGateVO.setAlertTemplate(alertTemplatePO.getAlertTemplate());
 		}
 

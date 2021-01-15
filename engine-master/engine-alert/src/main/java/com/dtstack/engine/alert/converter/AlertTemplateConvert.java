@@ -8,7 +8,7 @@ public class AlertTemplateConvert {
 	
 	public static AlertTemplateDTO toDTO(AlertGateVO alertGateVO){
 		AlertTemplateDTO alertTemplateDTO = new AlertTemplateDTO();
-		alertTemplateDTO.setId(alertGateVO.getAlertTemplateId());
+//		alertTemplateDTO.setId(alertGateVO.getAlertTemplateId());
 		alertTemplateDTO.setAlertTemplateName(alertGateVO.getAlertGateName());
 		alertTemplateDTO.setAlertTemplateType(alertGateVO.getAlertGateType());
 		alertTemplateDTO.setAlertTemplateStatus(1);

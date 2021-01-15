@@ -12,7 +12,7 @@ import com.dtstack.engine.api.domain.po.ClusterAlertPO;
 import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
-import com.dtstack.engine.common.enums.AlertGateTypeEnum;
+//import com.dtstack.engine.common.enums.AlertGateTypeEnum;
 import com.dtstack.engine.dao.AlertGateDao;
 import com.dtstack.engine.dao.ClusterAlertDao;
 import com.github.pagehelper.Page;
@@ -154,12 +154,12 @@ public class AlertGateFacade {
         List<String> customizeAlert = Lists.newArrayList();
 
         for (String alertGateSource : alertGateSources) {
-            Integer defaultFile = AlertGateTypeEnum.isDefaultFile(alertGateSource);
-            if (defaultFile != null) {
-                defaultAlert.add(defaultFile);
-            } else {
-                customizeAlert.add(alertGateSource);
-            }
+//            Integer defaultFile = AlertGateTypeEnum.isDefaultFile(alertGateSource);
+//            if (defaultFile != null) {
+//                defaultAlert.add(defaultFile);
+//            } else {
+//                customizeAlert.add(alertGateSource);
+//            }
         }
 
         if (!CollectionUtils.isEmpty(defaultAlert)) {
@@ -180,17 +180,17 @@ public class AlertGateFacade {
         List<ClusterAlertPO> aimPos = Lists.newArrayList();
 
         for (ClusterAlertPO po : pos) {
-            if (po.getIsDefault().equals(1) && !AlertGateTypeEnum.CUSTOMIZE.getType().equals(po.getAlertGateType())) {
-                AlertGateTypeEnum enumByCode = AlertGateTypeEnum.getEnumByCode(po.getAlertGateType());
-
-                if (enumByCode != null) {
-                    po.setAlertGateSource(AlertGateTypeEnum.getDefaultFiled(enumByCode));
-                    po.setAlertGateName(enumByCode.getMsg());
-                    aimPos.add(po);
-                }
-            } else if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(po.getAlertGateType())) {
-                aimPos.add(po);
-            }
+//            if (po.getIsDefault().equals(1) && !AlertGateTypeEnum.CUSTOMIZE.getType().equals(po.getAlertGateType())) {
+//                AlertGateTypeEnum enumByCode = AlertGateTypeEnum.getEnumByCode(po.getAlertGateType());
+//
+//                if (enumByCode != null) {
+//                    po.setAlertGateSource(AlertGateTypeEnum.getDefaultFiled(enumByCode));
+//                    po.setAlertGateName(enumByCode.getMsg());
+//                    aimPos.add(po);
+//                }
+//            } else if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(po.getAlertGateType())) {
+//                aimPos.add(po);
+//            }
         }
 
         return aimPos;

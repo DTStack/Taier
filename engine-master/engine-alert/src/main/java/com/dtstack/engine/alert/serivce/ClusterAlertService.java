@@ -21,7 +21,7 @@ public class ClusterAlertService {
     public ClusterAlertPO edit(ClusterAlertPO param) {
         //判断是否设置默认告警通道
         if (param.getIsDefault() == 1) {
-            resetDefaultAlert(param.getClusterId(),param.getAlertGateType());
+//            resetDefaultAlert(param.getClusterId(),param.getAlertGateType());
         }
 
         //插入、更新 数据
@@ -41,8 +41,8 @@ public class ClusterAlertService {
 
     public void setDefaultAlert(Integer clusterId,Integer alertGateType,Integer alertId ) {
         ClusterAlertPO query = new ClusterAlertPO();
-        query.setAlertId(alertId);
-        query.setClusterId(clusterId);
+//        query.setAlertId(alertId);
+//        query.setClusterId(clusterId);
         ClusterAlertPO clusterAlertPO = clusterAlertDao.get(query);
         Assert.notNull(clusterAlertPO,"告警通道不存在");
         resetDefaultAlert(clusterId, alertGateType);
@@ -58,7 +58,7 @@ public class ClusterAlertService {
     private void resetDefaultAlert(Integer clusterId,Integer alertGateType) {
         //判断是否存在此类型默认告警通道
         ClusterAlertPO query = new ClusterAlertPO();
-        query.setClusterId(clusterId);
+//        query.setClusterId(clusterId);
         query.setAlertGateType(alertGateType);
         query.setIsDefault(1);
         ClusterAlertPO clusterAlertPO = clusterAlertDao.get(query);
