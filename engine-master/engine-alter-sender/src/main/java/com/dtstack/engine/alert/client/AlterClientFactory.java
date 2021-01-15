@@ -1,5 +1,6 @@
 package com.dtstack.engine.alert.client;
 
+import com.dtstack.engine.alert.AlterConfig;
 import com.dtstack.engine.alert.enums.AlertGateCode;
 
 import java.util.Map;
@@ -22,8 +23,18 @@ public class AlterClientFactory {
     }
 
 
-    public AlterClient getClient(AlertGateCode alertGateCode) {
+    public AlterClient getClient(AlertGateCode alertGateCode, AlterConfig alterConfig) {
+        try {
+            if (alertGateCode == null) {
+                throw new RuntimeException("参数错误!");
+            }
+            Class<? extends AlterClient> aClass = clients.get(alertGateCode.name());
+            AlterClient alterClient = aClass.newInstance();
+            alterClient.setConfig(alterConfig);
 
-        return null;
+            return alterClient;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
