@@ -9,4 +9,6 @@ package com.dtstack.engine.alert.client;
 public abstract class AbstractAlterClient implements AlterClient {
 
 
+
+
 }
