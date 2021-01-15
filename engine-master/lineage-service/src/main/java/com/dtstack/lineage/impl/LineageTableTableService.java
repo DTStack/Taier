@@ -81,10 +81,7 @@ public class LineageTableTableService {
         List<LineageTableTable> res = Lists.newArrayList();
         List<LineageTableTable> lineageTableTables = lineageTableTableDao.queryTableResultList(appType, tableId);
         lineageTableTables = lineageTableTables.stream().filter(tt->{
-            if (tableIdSet.contains(tt.getInputTableId())){
-                return false;
-            }
-            if (tableIdSet.contains(tt.getResultTableId())){
+            if (tableIdSet.contains(tt.getInputTableId()) && tableIdSet.contains(tt.getResultTableId())){
                 return false;
             }
             return true;
@@ -114,10 +111,7 @@ public class LineageTableTableService {
         List<LineageTableTable> res = Lists.newArrayList();
         List<LineageTableTable> lineageTableTables = lineageTableTableDao.queryTableInputList(appType, tableId);
         lineageTableTables = lineageTableTables.stream().filter(tt->{
-            if (tableIdSet.contains(tt.getInputTableId())){
-                return false;
-            }
-            if (tableIdSet.contains(tt.getResultTableId())){
+            if (tableIdSet.contains(tt.getInputTableId()) && tableIdSet.contains(tt.getResultTableId())){
                 return false;
             }
             return true;
