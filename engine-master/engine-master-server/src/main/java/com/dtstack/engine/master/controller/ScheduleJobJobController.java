@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.vo.ScheduleJobVO;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobJobService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
