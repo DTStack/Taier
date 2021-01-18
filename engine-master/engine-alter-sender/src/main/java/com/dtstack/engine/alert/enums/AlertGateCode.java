@@ -13,14 +13,15 @@ public enum AlertGateCode {
     AG_GATE_SMS_API("sms_API"),
 
     AG_GATE_MAIL_DT("mail_dt"),
+
     AG_GATE_MAIL_API("mail_api"),
 
     AG_GATE_DING_DT("ding_dt"),
     AG_GATE_DING_API("ding_api"),
 
     AG_GATE_SMS_JAR("sms_jar"),
-    AG_GATE_MAIL_JAR("mail_jar"),
     AG_GATE_DING_JAR("ding_jar"),
+    AG_GATE_MAIL_JAR("mail_jar"),
 
     AG_GATE_PHONE_TC("phone_tc"),
 

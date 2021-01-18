@@ -64,4 +64,8 @@ public class AlterContext {
     public void setEventMonitor(EventMonitor eventMonitor) {
         this.eventMonitor = eventMonitor;
     }
+
+    public String getMark(){
+        return "";
+    }
 }
