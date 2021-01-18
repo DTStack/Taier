@@ -328,6 +328,17 @@ public class ScheduleJobController {
         return scheduleJobService.listByCyctimeAndJobName(preCycTime, preJobName, scheduleType);
     }
 
+    /**
+     * @author newman
+     * @Description 该接口目前只有内部使用
+     * @Date 2021/1/12 4:27 下午
+     * @param startId:
+     * @param preCycTime:
+     * @param preJobName:
+     * @param scheduleType:
+     * @param batchJobSize:
+     * @return: java.util.List<com.dtstack.engine.api.domain.ScheduleJob>
+     **/
     @RequestMapping(value="/listByCyctimeAndJobNameWithStartId", method = {RequestMethod.POST})
     @ApiOperation(value = "按批次根据cycTime和jobName获取，如获取当天的周期实例任务")
     public List<ScheduleJob> listByCyctimeAndJobName(@DtRequestParam("startId") Long startId, @DtRequestParam("preCycTime") String preCycTime, @DtRequestParam("preJobName") String preJobName, @DtRequestParam("scheduleType") Integer scheduleType, @DtRequestParam("batchJobSize") Integer batchJobSize) {

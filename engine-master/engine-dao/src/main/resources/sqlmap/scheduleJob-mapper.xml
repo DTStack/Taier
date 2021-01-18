@@ -83,8 +83,8 @@
                 </foreach>
             </if>
             <if test="model.cycStartDay != null and model.cycEndDay != null">
-                AND bj.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} and cyc_time !='' ORDER BY id ASC limit 1)
-                AND bj.id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<]]> #{model.cycEndDay} and cyc_time !='' ORDER BY id desc limit 1)
+                AND bj.cyc_time <![CDATA[>=]]> #{model.cycStartDay}
+                and bj.cyc_time <![CDATA[<]]> #{model.cycEndDay}
             </if>
             <if test="model.jobNameRightLike != null">
                 AND bj.job_name LIKE '${model.jobNameRightLike}%'
@@ -303,8 +303,8 @@
             </if>
 
             <if test="model.cycStartDay != null and model.cycEndDay != null">
-                AND id >= (SELECT id FROM schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} AND cyc_time !='' LIMIT 1)
-                AND id <![CDATA[<=]]> (SELECT id FROM schedule_job WHERE cyc_time <![CDATA[<]]> #{model.cycEndDay} AND cyc_time !='' ORDER BY id DESC LIMIT 1)
+                AND cyc_time <![CDATA[>=]]> #{model.cycStartDay}
+                AND cyc_time <![CDATA[<]]> #{model.cycEndDay}
             </if>
 
             <if test="model.flowJobId != null">
@@ -503,10 +503,10 @@
         AND ts.app_type = #{appType}
         AND ts.task_type != 10
         <if test="startTime != null and startTime != ''">
-            AND ts.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{startTime} AND cyc_time !='' LIMIT 1)
+            AND ts.cyc_time <![CDATA[>=]]> #{startTime}
         </if>
         <if test="endTime != null and endTime != ''">
-            AND ts.id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<]]> #{endTime} AND cyc_time !='' ORDER BY id DESC LIMIT 1)
+            AND ts.cyc_time <![CDATA[<]]> #{endTime}
         </if>
         <if test="statuses != null ">
             AND ts.status in
@@ -588,7 +588,7 @@
             #{status}
         </foreach>
         AND bj.type = #{type}
-        AND bj.cyc_time is not null and bj.cyc_time >= #{time}
+        AND bj.cyc_time is not null and bj.cyc_time >= #{cycTime}
         group by bj.task_id
         ORDER BY count(1) desc limit #{pageQuery.start}, #{pageQuery.pageSize}
     </select>
@@ -1490,7 +1490,6 @@
         <if test="scheduleType != null">
             AND type = #{scheduleType}
         </if>
-        order by id asc
         limit #{batchJobSize}
     </select>
 

@@ -380,11 +380,9 @@ CREATE TABLE `schedule_job`
   KEY `index_task_id` (`task_id`),
   UNIQUE KEY `index_job_id` (`job_id`(128),`is_deleted`),
   KEY `index_fill_id` (`fill_id`),
-  KEY `index_project_id` (`project_id`),
   UNIQUE KEY `idx_jobKey` (`job_key`(128)),
   KEY `idx_name_type` (`job_name`(128), `type`),
   KEY `index_engine_job_id` (`engine_job_id`(128)),
-  KEY `index_status` (`status`),
   KEY `index_gmt_modified` (`gmt_modified`),
   KEY `idx_cyctime` (`cyc_time`)
 ) ENGINE = InnoDB

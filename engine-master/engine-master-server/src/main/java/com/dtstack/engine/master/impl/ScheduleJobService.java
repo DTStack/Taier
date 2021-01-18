@@ -301,8 +301,8 @@ public class ScheduleJobService {
 
         Timestamp time = new Timestamp(DateUtil.getLastDay(30));
         PageQuery<Object> pageQuery = new PageQuery<>(1, 10);
-
-        return scheduleJobDao.listTopErrorByType(dtuicTenantId,tenantId, projectId, EScheduleType.NORMAL_SCHEDULE.getType(), time, FAILED_STATUS, pageQuery, appType);
+        String startCycTime = dayFormatterAll.print(getTime(time.getTime(), 0).getTime());
+        return scheduleJobDao.listTopErrorByType(dtuicTenantId,tenantId, projectId, EScheduleType.NORMAL_SCHEDULE.getType(), startCycTime, FAILED_STATUS, pageQuery, appType);
     }
 
 
