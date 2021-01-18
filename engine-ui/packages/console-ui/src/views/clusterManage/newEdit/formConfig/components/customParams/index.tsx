@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { Form, Row, Col, Input } from 'antd'
 import { formItemLayout } from '../../../../../../consts'
-import { getCustomerParams, giveMeAKey, isNeedTemp } from '../../../help'
+import { getCustomerParams, giveMeAKey, isNeedTemp,
+    getValueByJson } from '../../../help'
 import { CONFIG_ITEM_TYPE } from '../../../const'
 
 interface IProp {
@@ -9,6 +10,7 @@ interface IProp {
     form: any;
     view: boolean;
     template: any;
+    comp?: any;
     maxWidth?: number;
     labelCol?: number;
     wrapperCol?: number;
@@ -49,20 +51,28 @@ export default class CustomParams extends React.PureComponent<IProp, IState> {
 
     handleCustomParam = (e: any, id: string) => {
         const value = e.target.value
-        const { template, form, typeCode } = this.props
+        const { template, form, typeCode, comp } = this.props
         const { customParams } = this.state
         const isGroup = template.type == CONFIG_ITEM_TYPE.GROUP
         const feildName = isGroup ? `${typeCode}.customParam.${template.key}` : `${typeCode}.customParam`
 
+        const compConfig = getValueByJson(comp?.componentConfig) ?? {}
+        const config = form.getFieldValue(`${typeCode}.specialConfig`) ?? compConfig
+        const keyAndValue = Object.entries(config)
+
         /**
          * 与已渲染表单值、模版固定参数比较自定义参数是否相同
-         *  yarn等组件只比较已渲染表单值
+         *  yarn、hdfs组件需要比较componentConfig中的key值是否相同
          */
         let sameAtTemp = -1
         let sameAtParams = false
+
         if (!isNeedTemp(typeCode)) {
             sameAtTemp = (isGroup ? template.values : template)?.findIndex(param => (param.key == value && !param.id))
+        } else {
+            sameAtTemp = keyAndValue.findIndex(([key, name]: any[]) => key == value)
         }
+
         for (let [key, name] of Object.entries(form.getFieldValue(feildName))) {
             if (key.startsWith('%') && key.endsWith('-key') && value == name) {
                 sameAtParams = true

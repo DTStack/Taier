@@ -5,7 +5,7 @@ import { COMPONENT_CONFIG_NAME } from '../../const'
 
 import { handleComponentTemplate, handleComponentConfigAndCustom,
     handleComponentConfig, isNeedTemp, handleCustomParam,
-    getParamsByTemp, isKubernetes } from '../../help'
+    isKubernetes } from '../../help'
 interface IProps {
     form: any;
     comp: any;
@@ -83,8 +83,8 @@ export default class ToolBar extends React.PureComponent<IProps, any> {
             [typeCode]: {
                 componentConfig: handleComponentConfig({
                     componentConfig: JSON.parse(initialComp.componentConfig)
-                }, true),
-                customParam: getParamsByTemp(JSON.parse(initialComp.componentTemplate))
+                }, true)
+                // customParam: x(JSON.parse(initialComp.componentTemplate))
             }
         })
     }

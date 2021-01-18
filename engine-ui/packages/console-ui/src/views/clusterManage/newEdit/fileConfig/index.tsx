@@ -214,7 +214,11 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 form={this.props.form}
                 uploadFile={this.uploadFile}
                 icons={<>
-                    {!view && <Icon type="edit" onClick={() => this.setState({ visible: true })} />}
+                    {!view && <Icon
+                        type="edit"
+                        style={{ right: !comp?.id ? 20 : 40 }}
+                        onClick={() => this.setState({ visible: true })}
+                    />}
                     {comp?.id && <Icon
                         type="download"
                         style={{ right: view ? 0 : 20 }}
@@ -378,6 +382,30 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
     renderFileConfig = () => {
         const typeCode = this.props?.comp?.componentTypeCode ?? ''
         switch (typeCode) {
+            case COMPONENT_TYPE_VALUE.YARN:
+            case COMPONENT_TYPE_VALUE.HDFS: {
+                return (
+                    <>
+                        {this.renderCompsVersion()}
+                        {this.renderConfigsFile()}
+                        {this.renderKerberosFile()}
+                        {this.renderPrincipal()}
+                    </>
+                )
+            }
+            case COMPONENT_TYPE_VALUE.KUBERNETES: {
+                return (
+                    <>
+                        {this.renderConfigsFile()}
+                        {this.renderKerberosFile()}
+                        {this.renderPrincipal()}
+                    </>
+                )
+            }
+            case COMPONENT_TYPE_VALUE.SFTP:
+            case COMPONENT_TYPE_VALUE.NFS: {
+                return this.renderParamsFile()
+            }
             case COMPONENT_TYPE_VALUE.ORACLE_SQL:
             case COMPONENT_TYPE_VALUE.LIBRA_SQL:
             case COMPONENT_TYPE_VALUE.TIDB_SQL:
@@ -390,21 +418,11 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     </>
                 )
             }
-            case COMPONENT_TYPE_VALUE.SFTP:
-            case COMPONENT_TYPE_VALUE.NFS: {
-                return this.renderParamsFile()
-            }
-            case COMPONENT_TYPE_VALUE.KUBERNETES: {
-                return (
-                    <>
-                        {this.renderConfigsFile()}
-                        {this.renderKerberosFile()}
-                        {this.renderPrincipal()}
-                    </>
-                )
-            }
             case COMPONENT_TYPE_VALUE.IMPALA_SQL:
             case COMPONENT_TYPE_VALUE.HIVE_SERVER:
+            case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
+            case COMPONENT_TYPE_VALUE.SPARK:
+            case COMPONENT_TYPE_VALUE.FLINK:
                 return (
                     <>
                         {this.renderCompsVersion()}
@@ -418,30 +436,6 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
                 return (
                     <>
-                        {this.renderKerberosFile()}
-                        {this.renderPrincipal()}
-                        {this.renderParamsFile()}
-                        {this.renderStorageComponents()}
-                    </>
-                )
-            }
-            case COMPONENT_TYPE_VALUE.YARN:
-            case COMPONENT_TYPE_VALUE.HDFS: {
-                return (
-                    <>
-                        {this.renderCompsVersion()}
-                        {this.renderConfigsFile()}
-                        {this.renderKerberosFile()}
-                        {this.renderPrincipal()}
-                    </>
-                )
-            }
-            case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
-            case COMPONENT_TYPE_VALUE.SPARK:
-            case COMPONENT_TYPE_VALUE.FLINK: {
-                return (
-                    <>
-                        {this.renderCompsVersion()}
                         {this.renderKerberosFile()}
                         {this.renderPrincipal()}
                         {this.renderParamsFile()}

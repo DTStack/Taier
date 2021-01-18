@@ -138,7 +138,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
         const template = getValueByJson(comp?.componentTemplate) ?? []
         const compConfig = getValueByJson(comp?.componentConfig) ?? {}
         const config = form.getFieldValue(`${typeCode}.specialConfig`) ?? compConfig
-        const keyAndValue = Object.entries(config);
+        const keyAndValue = Object.entries(config)
 
         return <>
             {keyAndValue.map(([key, value]: any[]) => {
@@ -162,6 +162,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                 keyAndValue.length > 0 ? <CustomParams
                     typeCode={typeCode}
                     form={form}
+                    comp={comp}
                     view={view}
                     template={template}
                     labelCol={formItemLayout.labelCol.sm.span + 3}
@@ -187,15 +188,11 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
             case COMPONENT_TYPE_VALUE.ORACLE_SQL:
             case COMPONENT_TYPE_VALUE.IMPALA_SQL:
             case COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL:
-            case COMPONENT_TYPE_VALUE.PRESTO_SQL: {
-                return this.rendeConfigForm()
-            }
+            case COMPONENT_TYPE_VALUE.PRESTO_SQL:
             case COMPONENT_TYPE_VALUE.FLINK:
             case COMPONENT_TYPE_VALUE.SPARK:
             case COMPONENT_TYPE_VALUE.DTYARNSHELL:
-            case COMPONENT_TYPE_VALUE.LEARNING: {
-                return this.rendeConfigForm()
-            }
+            case COMPONENT_TYPE_VALUE.LEARNING:
             case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
             case COMPONENT_TYPE_VALUE.NFS:
             case COMPONENT_TYPE_VALUE.HIVE_SERVER: {
