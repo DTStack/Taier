@@ -6,6 +6,7 @@ import com.dtstack.engine.common.util.MathUtil;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -70,15 +71,16 @@ public class ScheduleFactory {
 
         String beginDateStr = (String) jsonMap.get(BEGIN_DATE_KEY);
         String endDateStr = (String) jsonMap.get(END_DATE_KEY);
-        if(jsonMap.containsKey(SELFRELIANCE_KEY) ){
-            String obj = jsonMap.get(SELFRELIANCE_KEY).toString();
-            Integer type;
-            if("true".equals(obj)){
+        if (jsonMap.containsKey(SELFRELIANCE_KEY)) {
+            Object selfObj = jsonMap.get(SELFRELIANCE_KEY);
+            String obj = null == selfObj ? "" : String.valueOf(selfObj);
+            Integer type = 0;
+            if ("true".equals(obj)) {
                 type = DependencyType.SELF_DEPENDENCY_SUCCESS.getType();
-            }else if("false".equals(obj)){
+            } else if ("false".equals(obj)) {
                 type = DependencyType.NO_SELF_DEPENDENCY.getType();
-            }else {
-                type = MathUtil.getIntegerVal(obj);
+            } else {
+                type = StringUtils.isBlank(obj) ? type : MathUtil.getIntegerVal(obj);
             }
             scheduleCron.setSelfReliance(type);
         }

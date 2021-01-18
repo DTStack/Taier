@@ -23,6 +23,8 @@ import com.dtstack.engine.base.enums.ClassLoaderType;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.Plan;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.CoreOptions;
 import org.apache.flink.runtime.execution.librarycache.FlinkUserCodeClassLoaders;
 
 import java.io.File;
@@ -117,7 +119,7 @@ public class JobWithJars {
 	 */
 	public ClassLoader getUserCodeClassLoader() {
 		if (this.userCodeClassLoader == null) {
-			this.userCodeClassLoader = buildUserCodeClassLoader(jarFiles, classpaths, getClass().getClassLoader(), ClassLoaderType.PARENT_FIRST);
+			this.userCodeClassLoader = buildUserCodeClassLoader(jarFiles, classpaths, getClass().getClassLoader(), new Configuration(), false);
 		}
 		return this.userCodeClassLoader;
 	}
@@ -138,10 +140,8 @@ public class JobWithJars {
 		// TODO: Check if proper JAR file
 	}
 
-	public static ClassLoader buildUserCodeClassLoader(List<URL> jars, List<URL> classpaths, ClassLoader parent, ClassLoaderType classLoaderType) {
-		if (ClassLoaderType.NONE == classLoaderType) {
-			return parent;
-		}
+	public static ClassLoader buildUserCodeClassLoader(List<URL> jars, List<URL> classpaths, ClassLoader parent, Configuration flinkConfiguration, boolean classLoaderCache) {
+
 		URL[] urls = new URL[jars.size() + classpaths.size()];
 		String[] md5s = new String[urls.length];
 		for (int i = 0; i < jars.size(); i++) {
@@ -161,23 +161,16 @@ public class JobWithJars {
 			}
 		}
 
-		switch (classLoaderType) {
-			case CHILD_FIRST_CACHE:
-				String jarsKeyChild = StringUtils.join(urls, "_");
-				String md5KeyChild = StringUtils.join(md5s, "_");
-				String keyChild = jarsKeyChild + "_" + md5KeyChild;
-				return cacheClassLoader.computeIfAbsent(keyChild, k -> FlinkUserCodeClassLoaders.childFirst(urls, parent, new String[]{}));
-			case PARENT_FIRST_CACHE:
-				String jarsKeyParent = StringUtils.join(urls, "_");
-				String md5KeyParent = StringUtils.join(md5s, "_");
-				String keyParent = jarsKeyParent + "_" + md5KeyParent;
-				return cacheClassLoader.computeIfAbsent(keyParent, k -> FlinkUserCodeClassLoaders.parentFirst(urls, parent));
-			case CHILD_FIRST:
-				return FlinkUserCodeClassLoaders.childFirst(urls, parent, new String[]{});
-			case PARENT_FIRST:
-				return FlinkUserCodeClassLoaders.parentFirst(urls, parent);
-			default:
-				return FlinkUserCodeClassLoaders.parentFirst(urls, parent);
+		final String[] alwaysParentFirstLoaderPatterns = CoreOptions.getParentFirstLoaderPatterns(flinkConfiguration);
+		final String classLoaderResolveOrder = flinkConfiguration.getString(CoreOptions.CLASSLOADER_RESOLVE_ORDER);
+		FlinkUserCodeClassLoaders.ResolveOrder resolveOrder = FlinkUserCodeClassLoaders.ResolveOrder.fromString(classLoaderResolveOrder);
+		final URLClassLoader classLoader = FlinkUserCodeClassLoaders.create(resolveOrder, urls, parent, alwaysParentFirstLoaderPatterns);
+
+		if (classLoaderCache) {
+			String keyCache = classLoaderResolveOrder + StringUtils.join(md5s, "_");
+			return cacheClassLoader.computeIfAbsent(keyCache, k -> classLoader);
+		} else {
+			return classLoader;
 		}
 	}
 }

@@ -1,8 +1,10 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.ScheduleTaskCommit;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.domain.TenantResource;
+import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
@@ -10,16 +12,15 @@ import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
-import com.dtstack.engine.common.enums.JobCheckStatus;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UnitConvertUtil;
+import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.dao.TenantResourceDao;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
@@ -35,7 +36,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -65,6 +65,12 @@ public class ScheduleTaskShadeService {
 
     @Autowired
     private FillJobExecutor fillJobExecutor;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
+
+    @Autowired
+    private ScheduleTaskCommitMapper scheduleTaskCommitMapper;
 
     /**
      * web 接口
@@ -670,5 +676,101 @@ public class ScheduleTaskShadeService {
             throw new RdosDefineException("校验任务资源参数异常");
         }
         return exceedMessage;
+    }
+
+    public String addOrUpdateBatchTask(List<ScheduleTaskShadeDTO> batchTaskShadeDTOs) {
+        if (CollectionUtils.isEmpty(batchTaskShadeDTOs)) {
+            return null;
+        }
+
+        if (batchTaskShadeDTOs.size() > environmentContext.getMaxBatchTask()) {
+            throw new RdosDefineException("批量增加或者修改的任务数不能超过:" + environmentContext.getMaxBatchTask());
+        }
+
+        String commitId = UUID.randomUUID().toString();
+
+        try {
+            List<ScheduleTaskCommit> scheduleTaskCommits = Lists.newArrayList();
+            for (ScheduleTaskShadeDTO batchTaskShadeDTO : batchTaskShadeDTOs) {
+                ScheduleTaskCommit scheduleTaskCommit = new ScheduleTaskCommit();
+                scheduleTaskCommit.setAppType(batchTaskShadeDTO.getAppType());
+                scheduleTaskCommit.setCommitId(commitId);
+                scheduleTaskCommit.setExtraInfo(batchTaskShadeDTO.getExtraInfo());
+                scheduleTaskCommit.setIsCommit(0);
+                scheduleTaskCommit.setTaskId(batchTaskShadeDTO.getTaskId());
+                scheduleTaskCommit.setTaskJson(JSONObject.toJSONString(batchTaskShadeDTO));
+                scheduleTaskCommits.add(scheduleTaskCommit);
+
+            }
+
+            if (CollectionUtils.isNotEmpty(scheduleTaskCommits)) {
+                if (batchTaskShadeDTOs.size() > environmentContext.getMaxBatchTaskInsert()) {
+                    List<List<ScheduleTaskCommit>> partition = Lists.partition(scheduleTaskCommits, environmentContext.getMaxBatchTaskInsert());
+                    for (List<ScheduleTaskCommit> scheduleTaskShadeDTOS : partition) {
+                        scheduleTaskCommitMapper.insertBatch(scheduleTaskShadeDTOS);
+                    }
+                } else {
+                    scheduleTaskCommitMapper.insertBatch(scheduleTaskCommits);
+                }
+                LOG.info("提交任务commitId:{}",commitId);
+                return commitId;
+            }
+
+            return null;
+        } catch (Exception e) {
+            LOG.error(ExceptionUtil.getErrorMessage(e));
+            return null;
+        }
+    }
+
+    public void infoCommit(Long taskId, Integer appType, String info,String commitId) {
+        if (StringUtils.isNotBlank(commitId)){
+            JSONObject extInfo = JSONObject.parseObject(scheduleTaskCommitMapper.getExtInfoByTaskId(taskId, appType,commitId));
+            if (extInfo == null) {
+                extInfo = new JSONObject();
+            }
+            extInfo.put(TaskConstant.INFO, info);
+            scheduleTaskCommitMapper.updateTaskExtInfo(taskId, appType, extInfo.toJSONString(),commitId);
+        }
+    }
+
+
+    public Boolean taskCommit(String commitId) {
+        LOG.info("提交任务commitId:{}",commitId);
+        Long minId = scheduleTaskCommitMapper.findMinIdOfTaskCommitByCommitId(commitId);
+
+        List<ScheduleTaskCommit> scheduleTaskCommits = scheduleTaskCommitMapper.findTaskCommitByCommitId(minId,commitId,environmentContext.getMaxBatchTaskSplInsert());
+        while (CollectionUtils.isNotEmpty(scheduleTaskCommits)) {
+            // 保存任务
+            try {
+                for (ScheduleTaskCommit scheduleTaskCommit : scheduleTaskCommits) {
+                    String taskJson = scheduleTaskCommit.getTaskJson();
+                    String extraInfo = scheduleTaskCommit.getExtraInfo();
+                    ScheduleTaskShadeDTO scheduleTaskShadeDTO = JSONObject.parseObject(taskJson, ScheduleTaskShadeDTO.class);
+                    addOrUpdate(scheduleTaskShadeDTO);
+                    String info = getInfo(extraInfo);
+                    info(scheduleTaskShadeDTO.getTaskId(),scheduleTaskShadeDTO.getAppType(),info);
+                    scheduleTaskCommitMapper.updateTaskCommit(scheduleTaskCommit.getId());
+                    minId = scheduleTaskCommit.getId();
+                }
+
+                scheduleTaskCommits = scheduleTaskCommitMapper.findTaskCommitByCommitId(minId,commitId,environmentContext.getMaxBatchTaskSplInsert());
+            } catch (Exception e) {
+                LOG.error(ExceptionUtil.getErrorMessage(e));
+                return Boolean.FALSE;
+            }
+        }
+
+        return Boolean.TRUE;
+    }
+
+    private String getInfo(String extraInfo) {
+        JSONObject extInfo = JSONObject.parseObject(extraInfo);
+
+        if (extInfo == null) {
+            return null;
+        }
+        
+        return extInfo.getString(TaskConstant.INFO);
     }
 }

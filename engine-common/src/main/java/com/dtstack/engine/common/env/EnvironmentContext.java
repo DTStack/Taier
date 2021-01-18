@@ -1,7 +1,7 @@
-package com.dtstack.engine.master.env;
+package com.dtstack.engine.common.env;
 
 import com.dtstack.engine.common.util.AddressUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 @PropertySource(value = "file:${user.dir}/conf/application.properties")
 public class EnvironmentContext {
+
 
     @Autowired
     private Environment environment;
@@ -185,7 +186,7 @@ public class EnvironmentContext {
     }
 
     /**
-     *  ===es====
+     * ===es====
      */
     public String getElasticsearchAddress() {
         return environment.getProperty("es.address");
@@ -377,7 +378,7 @@ public class EnvironmentContext {
     }
 
 
-    public int getBuildJobErrorRetry(){
+    public int getBuildJobErrorRetry() {
         return Integer.parseInt(environment.getProperty("build.job.retry", "3"));
     }
 
@@ -400,7 +401,7 @@ public class EnvironmentContext {
         return environment.getProperty("job.back.cron", "23:00:00");
     }
 
-    public boolean openScheduleJobCron(){
+    public boolean openScheduleJobCron() {
         return Boolean.parseBoolean(environment.getProperty("job.back.cron.open", "false"));
     }
 
@@ -412,20 +413,24 @@ public class EnvironmentContext {
         return Integer.valueOf(environment.getProperty("job.back.scope", "1000*60"));
     }
 
-    public Integer getJobExecutorPoolCorePoolSize(){
+    public Integer getJobExecutorPoolCorePoolSize() {
         return Integer.valueOf(environment.getProperty("job.executor.pool.core.size", "10"));
     }
 
-    public Integer getJobExecutorPoolMaximumPoolSize(){
+    public Integer getJobExecutorPoolMaximumPoolSize() {
         return Integer.valueOf(environment.getProperty("job.executor.pool.maximum.size", "10"));
     }
 
-    public Long getJobExecutorPoolKeepAliveTime(){
+    public Long getJobExecutorPoolKeepAliveTime() {
         return Long.valueOf(environment.getProperty("job.executor.pool.keep.alive.time", "1000"));
     }
 
-    public Integer getJobExecutorPoolQueueSize(){
+    public Integer getJobExecutorPoolQueueSize() {
         return Integer.valueOf(environment.getProperty("job.executor.pool.queue.size", "1000"));
+    }
+
+    public Boolean getOpenConsoleSftp() {
+        return Boolean.parseBoolean(environment.getProperty("console.sftp.open", "false"));
     }
 
     public Integer getRetryFrequency() {
@@ -444,10 +449,21 @@ public class EnvironmentContext {
         return environment.getProperty("component.jdbc.replace", "/default");
     }
 
+    public Integer getMaxBatchTask() {
+        return Integer.parseInt(environment.getProperty("max.batch.task", "100"));
+    }
+
+    public Integer getMaxBatchTaskInsert() {
+        return Integer.parseInt(environment.getProperty("max.batch.task.insert", "50"));
+    }
+
+    public Integer getMaxBatchTaskSplInsert() {
+        return Integer.parseInt(environment.getProperty("max.batch.task.sql.insert", "10"));
+    }
+
     public Integer setIdleConnectionTestPeriod() {
         return Integer.valueOf(environment.getProperty("idle.connection.test.period", "60"));
     }
-
 
     public Integer setMaxIdleTime() {
         return Integer.valueOf(environment.getProperty("max.idle.time", "60"));
@@ -466,5 +482,9 @@ public class EnvironmentContext {
     public Boolean getUseOptimize(){
 
         return Boolean.parseBoolean(environment.getProperty("engine.useOptimize","true"));
+    }
+
+    public int getMaxDeepShow() {
+        return Integer.parseInt(environment.getProperty("max.deep.show", "20"));
     }
 }

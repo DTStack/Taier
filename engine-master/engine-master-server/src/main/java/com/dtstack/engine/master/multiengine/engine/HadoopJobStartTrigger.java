@@ -20,7 +20,7 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
@@ -36,7 +36,6 @@ import com.dtstack.schedule.common.util.Base64Util;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -49,7 +48,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -406,7 +404,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 RetryUtil.executeWithRetry(() -> {
                     LOG.info("create partition dtuicTenantId {} {}", dtuicTenantId, sql);
                     JSONObject pluginInfo = buildDataSourcePluginInfo(parameter.getJSONObject("hadoopConfig"), sourceType, username, password, jdbcUrl);
-                    workerOperator.executeQuery(DataSourceType.getBaseType(sourceType).getTypeName(),pluginInfo.toJSONString(),sql,"");
+                    String realDataBase =  pluginInfo.getString("realDataBase");
+                    workerOperator.executeQuery(DataSourceType.getBaseType(sourceType).getTypeName(),pluginInfo.toJSONString(),sql, null != realDataBase ? realDataBase : "");
                     cleanFileName(parameter);
                     return null;
                 }, environmentContext.getRetryFrequency(), environmentContext.getRetryInterval(), false, null);
@@ -417,6 +416,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         }
         return jobJSON.toJSONString();
     }
+
 
     /**
      * 拼接数据源的连接信息
@@ -429,7 +429,21 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
      */
     private JSONObject buildDataSourcePluginInfo(JSONObject hadoopConfig, Integer sourceType, String username, String password, String jdbcUrl) {
         JSONObject pluginInfo = new JSONObject();
-        pluginInfo.put(ConfigConstant.JDBCURL, jdbcUrl);
+        //解析jdbcUrl中的database,将数据库名称替换成default，防止数据库不存在报 NoSuchDatabaseException
+        try {
+            String jdbcUrlStr = jdbcUrl;
+            if(jdbcUrl.contains(";")) {
+                //是开启了kerbers的url
+                jdbcUrlStr = jdbcUrl.substring(0,jdbcUrl.indexOf(";"));
+            }
+            String realDataBase = jdbcUrlStr.substring(jdbcUrlStr.lastIndexOf("/")+1);
+            String newJdbcUrl = jdbcUrl.replaceFirst(realDataBase, "default");
+            pluginInfo.put("realDataBase",realDataBase);
+            pluginInfo.put(ConfigConstant.JDBCURL, newJdbcUrl);
+        } catch (Exception e) {
+            //替换database异常，则走原来逻辑
+            pluginInfo.put(ConfigConstant.JDBCURL,jdbcUrl);
+        }
         pluginInfo.put(ConfigConstant.USERNAME, username);
         pluginInfo.put(ConfigConstant.PASSWORD, password);
         pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataSourceType.getBaseType(sourceType).getTypeName());
@@ -627,7 +641,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     content = content.replaceAll("\r\n", System.getProperty("line.separator"));
                 }
 
-                JSONObject pluginInfoWithComponentType = componentService.getPluginInfoWithComponentType(dtuicTenantId, EComponentType.HDFS);
+                JSONObject pluginInfoWithComponentType = clusterService.pluginInfoJSON(dtuicTenantId,ScheduleEngineType.Hadoop.getEngineName(),null,null);
                 String typeName = pluginInfoWithComponentType.getString(ComponentService.TYPE_NAME);
                 String hdfsUploadPath = workerOperator.uploadStringToHdfs(typeName, pluginInfoWithComponentType.toJSONString(), content, hdfsPath);
                 if(StringUtils.isBlank(hdfsUploadPath)){

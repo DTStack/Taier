@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
@@ -12,6 +12,7 @@ import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -22,7 +23,6 @@ import com.dtstack.engine.master.enums.EComponentScheduleType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.master.env.EnvironmentContext;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Deleted;
@@ -475,6 +475,25 @@ public class ClusterService implements InitializingBean {
             return getCluster(DEFAULT_CLUSTER_ID, true,false);
         }
         return getCluster(engine.getClusterId(), true,false);
+    }
+
+    public Cluster getCluster(Long dtUicTenantId) {
+        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
+        if (tenantId == null) {
+            return null;
+        }
+
+        List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
+        if (CollectionUtils.isEmpty(engineIds)) {
+            return null;
+        }
+
+        Engine engine = engineDao.getOne(engineIds.get(0));
+        if(Objects.isNull(engine)){
+            return null;
+        }
+
+        return clusterDao.getOne(engine.getClusterId());
     }
 
     public String getConfigByKey(Long dtUicTenantId,  String key, Boolean fullKerberos,Boolean isWrapper) {
@@ -947,6 +966,35 @@ public class ClusterService implements InitializingBean {
     public String dbInfo(Long dtUicTenantId, Long dtUicUserId, Integer type) {
         DataSourceType sourceType = DataSourceType.getSourceType(type);
         return accountInfo(dtUicTenantId,dtUicUserId,sourceType);
+    }
+
+    public Boolean isSameCluster(Long dtUicTenantId, List<Long> dtUicTenantIds) {
+        if (dtUicTenantId ==null) {
+            throw new RdosDefineException("租户id不能为null");
+        }
+
+        if (CollectionUtils.isEmpty(dtUicTenantIds)) {
+            return Boolean.FALSE;
+        }
+
+        Cluster cluster = getCluster(dtUicTenantId);
+
+        if (cluster == null) {
+            throw new RdosDefineException("租户id:"+dtUicTenantId+"不存在!");
+        }
+
+        for (Long uicTenantId : dtUicTenantIds) {
+            Cluster cluster1 = getCluster(uicTenantId);
+
+            if (cluster1 != null) {
+                if (cluster.getId().equals(cluster1.getId())) {
+                    // dtUicTenantIds集合中存在和 dtUicTenantId相同的集群
+                    return Boolean.TRUE;
+                }
+            }
+        }
+
+        return Boolean.FALSE;
     }
 }
 

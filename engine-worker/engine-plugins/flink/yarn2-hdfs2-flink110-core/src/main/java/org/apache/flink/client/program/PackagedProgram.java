@@ -138,11 +138,9 @@ public class PackagedProgram {
 		// now that we have an entry point, we can extract the nested jar files (if any)
 		this.extractedTempLibraries = this.jarFile == null ? Collections.emptyList() : extractContainedLibraries(this.jarFile);
 
-		boolean cache;
+		boolean cache = false;
 		String dtstackCache = configuration.getString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_FALSE);
-		if (dtstackCache.equalsIgnoreCase(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_FALSE)){
-			cache = false;
-		} else {
+		if (dtstackCache.equalsIgnoreCase(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_TRUE)){
 			cache = true;
 		}
 

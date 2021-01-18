@@ -27,7 +27,7 @@ import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import com.dtstack.engine.master.multiengine.factory.MultiEngineFactory;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
@@ -1000,8 +1000,8 @@ public class ScheduleJobService {
     }
 
     public Integer updateStatusAndLogInfoById(Long id, Integer status, String msg) {
-        if (StringUtils.isNotBlank(msg) && msg.length() > 500) {
-            msg = msg.substring(0, 500) + "...";
+        if (StringUtils.isNotBlank(msg) && msg.length() > 5000) {
+            msg = msg.substring(0, 5000) + "...";
         }
         return scheduleJobDao.updateStatusAndLogInfoById(id, status, msg);
     }

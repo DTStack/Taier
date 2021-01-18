@@ -39,9 +39,10 @@ perjob:
     queue: default
     pluginLoadMode: shipfile
     submitTimeout: 5
+    yarnAccepterTaskNumber: 3
     flinkInterval: 5 SECONDS
-    classloader.resolve-order: parent-first
-    taskparams.taskmanager.heap.mb: 20
+    classloader.resolve-order: child-first
+    classloader.dtstack-cache: true
 
     state.backend: RocksDB
     state.savepoints.dir: hdfs://ns1/dtInsight/flink180/savepoints
@@ -86,6 +87,7 @@ session:
     state.checkpoints.dir: hdfs://ns1/dtInsight/flink180/checkpoints
     state.checkpoints.num-retained: 11
 
+    akka.ask.timeout: 60 s
     metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
     metrics.reporter.promgateway.host:
     metrics.reporter.promgateway.port: 9091
@@ -97,15 +99,22 @@ session:
       controls: select
       values: [true,false]
     clusterMode: session
+    sessionStartAuto: false
+    checkSubmitJobGraphInterval: 60
 
   optional:
     jarTmpDir: ./tmp180
     queue: default
     pluginLoadMode: shipfile
     submitTimeout: 5
+    yarnAccepterTaskNumber: 3
     flinkInterval: 5 SECONDS
-    classloader.resolve-order: parent-first
-    taskparams.taskmanager.heap.mb: 20
+    classloader.resolve-order: child-first
+    classloader.dtstack-cache: true
+
+    web.timeout: 100000
+    blob.service.cleanup.interval: 900
+    jobstore.expiration-time: 900
 
     state.backend: RocksDB
     state.savepoints.dir: hdfs://ns1/dtInsight/flink180/savepoints
@@ -117,7 +126,6 @@ session:
     yarn.taskmanager.heap.mb: 1024
     yarn.jobmanager.heap.mb: 1024
     yarn.taskmanager.numberOfTaskManager: 2
-    sessionStartAuto: false
     yarn.taskmanager.numberOfTaskSlots: 2
 
     flink.env.java.opts: -XX:MaxMetaspaceSize=500m
@@ -128,7 +136,6 @@ session:
     high-availability: ZOOKEEPER
 
     monitorAcceptedApp: false
-    checkSubmitJobGraphInterval: 30
 
 standalone:
   dependencyKey: deploymode
@@ -166,6 +173,7 @@ standalone:
 
   optional:
     state.backend: RocksDB
+    yarnAccepterTaskNumber: 3
     state.savepoints.dir: hdfs://ns1/dtInsight/flink180/savepoints
     state.backend.incremental: true
 

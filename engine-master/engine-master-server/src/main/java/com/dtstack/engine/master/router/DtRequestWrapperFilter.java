@@ -1,8 +1,7 @@
 package com.dtstack.engine.master.router;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.master.router.util.MultiReadHttpServletRequest;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +10,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
@@ -31,7 +29,7 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
 
     public final static String DT_REQUEST_BODY = "DT_REQUEST_BODY";
 
-    private static String[] excludeTargets = {"/node/download/component/downloadFile", "/node/upload/component/config", "/node/upload/component/addOrUpdateComponent"};
+    private static String[] excludeTargets = {"/node/download/component/downloadFile", "/node/upload/component/config", "/node/upload/component/addOrUpdateComponent","/node/alert/edit","/node/alert/testAlert"};
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -55,7 +53,11 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
             reader.close();
             String reqBody = builder.toString();
             if (StringUtils.isNotBlank(reqBody)) {
-                request.setAttribute(DT_REQUEST_BODY, JSONObject.parseObject(reqBody));
+                try {
+                    request.setAttribute(DT_REQUEST_BODY, JSONObject.parseObject(reqBody));
+                } catch (Exception e) {
+                    logger.warn(ExceptionUtil.getErrorMessage(e));
+                }
             }
             logger.info("Uri: " + uri + ", Params: " + reqBody);
         }

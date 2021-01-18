@@ -18,6 +18,8 @@ public enum AppType {
     DATASCIENCE(8,"数据科学"),
     DATAASSERTS(9,"数据资产"),
     DAGSCHEDULEX(99,"调度");
+    RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8), DATAASSETS(9),
+    DAGSCHEDULEX(99);
 
     private int type;
 
