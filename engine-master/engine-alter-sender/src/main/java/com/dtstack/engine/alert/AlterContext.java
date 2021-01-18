@@ -27,6 +27,10 @@ public class AlterContext {
      */
     private AlertGateCode alertGateCode;
 
+    /**
+     * 事件响应
+     */
+    private EventMonitor eventMonitor;
 
 
     public String getTitle() {
@@ -51,5 +55,13 @@ public class AlterContext {
 
     public void setAlertGateCode(AlertGateCode alertGateCode) {
         this.alertGateCode = alertGateCode;
+    }
+
+    public EventMonitor getEventMonitor() {
+        return eventMonitor;
+    }
+
+    public void setEventMonitor(EventMonitor eventMonitor) {
+        this.eventMonitor = eventMonitor;
     }
 }
