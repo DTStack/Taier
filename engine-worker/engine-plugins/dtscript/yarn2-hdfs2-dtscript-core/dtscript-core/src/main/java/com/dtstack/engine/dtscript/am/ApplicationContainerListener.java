@@ -198,6 +198,9 @@ public class ApplicationContainerListener
             if (currentContainerStatus.equals(DtContainerStatus.SUCCEEDED) || currentContainerStatus.equals(DtContainerStatus.FAILED)) {
                 LOG.info("container " + containerId.toString() + " is " + currentContainerStatus);
             }
+            if (currentContainerStatus.equals(DtContainerStatus.FAILED)) {
+                LOG.error(containerId.toString() + " Container fail log: " + heartbeatRequest.getErrMsg());
+            }
         }
 
         return new HeartbeatResponse(isFinished, System.currentTimeMillis());
