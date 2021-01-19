@@ -4,17 +4,17 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.dtstack.engine.alert.domian.PageResult;
-import com.dtstack.engine.api.domain.po.ClusterAlertPO;
-import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
-import com.dtstack.engine.common.enums.IsDefaultEnum;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.domain.AlertChannel;
+import com.dtstack.engine.api.domain.po.ClusterAlertPO;
+import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
+import com.dtstack.engine.common.enums.IsDefaultEnum;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.AlertChannelDao;
+import com.dtstack.engine.domain.AlertChannel;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -151,7 +151,7 @@ public class AlertChannelService {
         }
     }
 
-    public PageResult<ClusterAlertPO> page(ClusterAlertPageParam pageParam) {
+    public PageResult<List<ClusterAlertPO>> page(ClusterAlertPageParam pageParam) {
         Page<AlertChannel> iPage = new Page<>(pageParam.getCurrentPage(),pageParam.getPageSize());
         IPage<AlertChannel> page = alertChannelDao.selectPage(iPage,new QueryWrapper<AlertChannel>()
             .eq("cluster_id",pageParam.getClusterId())
@@ -159,14 +159,13 @@ public class AlertChannelService {
             .in("alert_gate_type",pageParam.getAlertGateType())
         );
 
-        PageResult<ClusterAlertPO> result = new PageResult<>();
-        result.setTotalPage((int) page.getPages());
-        result.setCurrentPage((int) page.getCurrent());
-        result.setPageSize((int) page.getSize());
-        result.setTotalCount((int) page.getTotal());
         List<ClusterAlertPO> records = build(page.getRecords());
-        result.setData(records);
-        return result;
+       return new PageResult<>(
+                (int) page.getCurrent(),
+                (int) page.getSize(),
+                (int) page.getTotal(),
+                (int) page.getPages(),
+                records);
     }
 
     private List<ClusterAlertPO> build(List<AlertChannel> records) {

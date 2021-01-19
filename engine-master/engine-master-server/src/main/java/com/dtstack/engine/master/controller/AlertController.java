@@ -1,14 +1,12 @@
 package com.dtstack.engine.master.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.alert.client.AlertServiceProvider;
-import com.dtstack.engine.alert.domian.PageResult;
-import com.dtstack.engine.alert.enums.AGgateType;
+import com.dtstack.engine.alert.AlterContext;
+import com.dtstack.engine.alert.AlterSender;
 import com.dtstack.engine.alert.enums.AlertGateCode;
-import com.dtstack.engine.alert.param.*;
 import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.po.AlertGatePO;
 import com.dtstack.engine.api.domain.po.ClusterAlertPO;
+import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
 import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
@@ -34,9 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Date: 2020/8/7
@@ -52,9 +48,7 @@ public class AlertController {
     private final Logger log = LoggerFactory.getLogger(AlertController.class);
 
     @Autowired
-    private AlertServiceProvider alertServiceProvider;
-
-
+    private AlterSender alterSender;
 
     @Autowired
     private MvcConfig mvcConfig;
@@ -130,7 +124,7 @@ public class AlertController {
 
     @ApiOperation("获取告警通道分页 用于取代console接口: /api/console/service/alert/page")
     @PostMapping("/page")
-    public PageResult<ClusterAlertPO> page(@RequestBody ClusterAlertPageParam pageParam) {
+    public PageResult<List<ClusterAlertPO>> page(@RequestBody ClusterAlertPageParam pageParam) {
         return alertChannelService.page(pageParam);
     }
 
@@ -200,73 +194,41 @@ public class AlertController {
         log.info("testAlert jar path :{}", alertGateTestVO.getFilePath());
 
         //build test alertParam
-        AlertParam alertParam = buildTestAlertParam(alertGateTestVO);
-        R send = alertServiceProvider.send(alertParam);
+        AlterContext alertParam = buildTestAlterContext(alertGateTestVO);
+        R send = alterSender.sendSyncAlter(alertParam,null);
         if (send.isSuccess()) {
             return;
         }
         throw new RdosDefineException(send.getMessage());
     }
 
-    private AlertParam buildTestAlertParam(AlertGateTestVO alertGateTestVO) {
+    private AlterContext buildTestAlterContext(AlertGateTestVO alertGateTestVO) {
         AlertGateCode parse = AlertGateCode.parse(alertGateTestVO.getAlertGateCode());
 
-        AlertParam result = null;
+        AlterContext result = new AlterContext();
         if (parse == AlertGateCode.AG_GATE_SMS_JAR) {
-            SmsAlertParam smsAlertParam = new SmsAlertParam();
-            smsAlertParam.setPhones(alertGateTestVO.getPhones());
-            smsAlertParam.setAGgateType(AGgateType.AG_GATE_TYPE_SMS);
-            Map<String, String> dynamicParams = new HashMap();
-            dynamicParams.put("user", "测试用户");
-            dynamicParams.put("content", "测试内容");
-            smsAlertParam.setDynamicParams(dynamicParams);
-            smsAlertParam.setPhones(alertGateTestVO.getPhones());
-            smsAlertParam.setMessage("测试内容");
-            result = smsAlertParam;
+            List<String> phones = alertGateTestVO.getPhones();
+            result.setPhone(phones.get(0));
+            result.setContent("测试内容");
         }
 
         if (parse == AlertGateCode.AG_GATE_MAIL_DT
                 || parse == AlertGateCode.AG_GATE_MAIL_JAR) {
-            MailAlertParam mailAlertParam = new MailAlertParam();
-            mailAlertParam.setAGgateType(AGgateType.AG_GATE_TYPE_MAIL);
-            mailAlertParam.setEmails(alertGateTestVO.getEmails());
-            mailAlertParam.setSubject("测试Subject");
-            Map<String, String> dynamicParams = new HashMap<>();
-            dynamicParams.put("message", "测试内容");
-            mailAlertParam.setDynamicParams(dynamicParams);
-            result = mailAlertParam;
+
         }
 
         if (parse == AlertGateCode.AG_GATE_DING_JAR
                 || parse == AlertGateCode.AG_GATE_DING_DT) {
-            DingAlertParam dingAlertParam = new DingAlertParam();
-            dingAlertParam.setAGgateType(AGgateType.AG_GATE_TYPE_DING);
-            dingAlertParam.setDings(alertGateTestVO.getDings());
-            dingAlertParam.setSubject("测试Subject");
-            dingAlertParam.setMessage("测试内容");
-            Map<String, Object> conf = new HashMap<>();
-            conf.put("atMobiles", "");
-            conf.put("isAtAll", Boolean.FALSE);
-            result = dingAlertParam;
+
         }
 
         if (parse == AlertGateCode.AG_GATE_CUSTOM_JAR) {
-            CustomizeAlertParam customizeAlertParam = new CustomizeAlertParam();
-            customizeAlertParam.setAGgateType(AGgateType.AG_GATE_TYPE_CUSTOMIZE);
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("content",alertGateTestVO.getAlertTemplate());
-            customizeAlertParam.setData(jsonObject.toJSONString());
-            result = customizeAlertParam;
+
         }
 
-        result.setSource(alertGateTestVO.getAlertGateSource());
-        result.setAlertTemplate(alertGateTestVO.getAlertTemplate());
-        AlertGatePO alertGatePO = new AlertGatePO();
-        alertGatePO.setAlertGateCode(parse.code());
-        alertGatePO.setFilePath(alertGateTestVO.getFilePath());
-        alertGatePO.setAlertGateJson(alertGateTestVO.getAlertGateJson());
-        result.setAlertGatePO(alertGatePO);
-
+        result.setAlertGateCode(parse);
+        result.setAlertGateJson(alertGateTestVO.getAlertGateJson());
+        result.setJarPath(alertGateTestVO.getFilePath());
         return result;
     }
 }

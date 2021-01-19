@@ -35,6 +35,8 @@ public class AlterSendMailBean {
 
     private String jarPath;
 
+    private String alertGateJson;
+
     public String getHost() {
         return host;
     }
@@ -129,5 +131,13 @@ public class AlterSendMailBean {
 
     public void setJarPath(String jarPath) {
         this.jarPath = jarPath;
+    }
+
+    public String getAlertGateJson() {
+        return alertGateJson;
+    }
+
+    public void setAlertGateJson(String alertGateJson) {
+        this.alertGateJson = alertGateJson;
     }
 }

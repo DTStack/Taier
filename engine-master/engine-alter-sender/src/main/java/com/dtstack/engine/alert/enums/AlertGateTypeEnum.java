@@ -8,17 +8,26 @@ package com.dtstack.engine.alert.enums;
  */
 public enum AlertGateTypeEnum {
 
-    SMS(1,"短信"),MAIL(2,"邮箱") , DINGDING(3,"钉钉"),CUSTOMIZE(4,"自定义");
+    SMS(1,"短信","sms"),
+    MAIL(2,"邮箱","mail") ,
+    DINGDING(3,"钉钉","ding"),
+    CUSTOMIZE(4,"自定义","customize"),
+    PHONE(5,"手机","phone"),
+    ;
+
 
     private Integer type;
 
     private String msg;
 
+    private String value;
+
     private static final String defaultFiled="default_";
 
-    AlertGateTypeEnum(Integer type,String name) {
+    AlertGateTypeEnum(Integer type, String msg, String value) {
         this.type = type;
-        this.msg = name;
+        this.msg = msg;
+        this.value = value;
     }
 
     public static AlertGateTypeEnum getEnumByCode(Integer alertGateType) {
@@ -61,5 +70,9 @@ public enum AlertGateTypeEnum {
 
     public void setMsg(String msg) {
         this.msg = msg;
+    }
+
+    public String getValue() {
+        return value;
     }
 }

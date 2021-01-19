@@ -4,6 +4,7 @@ import com.dtstack.engine.alert.client.AlterClient;
 import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
 import com.dtstack.engine.alert.exception.AlterException;
+import com.dtstack.engine.alert.factory.AlterClientFactory;
 import com.dtstack.lang.data.R;
 
 import java.util.Map;
@@ -18,13 +19,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultAlterSender implements AlterSender {
 
     private final Map<String, AlterClient> alterSender;
-    private AlterConfig alterConfig;
+    private final AlterConfig alterConfig;
 
     public DefaultAlterSender(AlterConfig alterConfig){
         if (alterConfig == null) {
             // 使用默认的配置
             alterConfig = new AlterConfig();
         }
+        this.alterConfig = alterConfig;
         alterSender = new ConcurrentHashMap<>(AlertGateTypeEnum.values().length);
     }
 
@@ -47,7 +49,13 @@ public class DefaultAlterSender implements AlterSender {
             throw new AlterException("上下文对象必须有告警类型");
         }
 
-        AlterClient alterClient = alterSender.computeIfAbsent(alertGateCode.name(), a -> getClient(alertGateCode, alterConfig));
+        AlterClient alterClient = alterSender.computeIfAbsent(alertGateCode.name(), a -> {
+            try {
+                return getClient(alertGateCode, alterConfig);
+            } catch (Exception e) {
+                return null;
+            }
+        });
 
         if (alterClient == null) {
             throw new AlterException(alertGateCode.name() + "类型通道不存在，请联系技术人员");
@@ -55,8 +63,7 @@ public class DefaultAlterSender implements AlterSender {
         return alterClient;
     }
 
-    private AlterClient getClient(AlertGateCode alertGateCode, AlterConfig alterConfig) {
-
-        return null;
+    private AlterClient getClient(AlertGateCode alertGateCode, AlterConfig alterConfig) throws Exception {
+        return AlterClientFactory.getInstance(alertGateCode,alterConfig);
     }
 }

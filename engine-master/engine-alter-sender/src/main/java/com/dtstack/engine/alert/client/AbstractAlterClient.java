@@ -115,7 +115,7 @@ public abstract class AbstractAlterClient implements AlterClient,Runnable {
         }
     }
 
-    private R sendAlter(AlterContext alterContext,EventMonitor eventMonitor) {
+    private R sendAlter(AlterContext alterContext,EventMonitor eventMonitor) throws Exception {
         try {
             R r = send(alterContext);
             eventMonitor.alterSuccess(alterContext,r);
@@ -134,7 +134,7 @@ public abstract class AbstractAlterClient implements AlterClient,Runnable {
      * @param alterContext
      * @return
      */
-    protected abstract R send(AlterContext alterContext);
+    protected abstract R send(AlterContext alterContext) throws Exception;
 
     /**
      * 获得告警类型

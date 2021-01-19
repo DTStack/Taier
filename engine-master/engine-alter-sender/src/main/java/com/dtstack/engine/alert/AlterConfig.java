@@ -27,10 +27,6 @@ public class AlterConfig {
      * 线程存活时间: 默认 1000ms
      */
     private Integer jobExecutorPoolKeepAliveTime = 1000;
-    /**
-     *
-     */
-    private Integer acquireQueueJobInterval;
 
 
     public Integer getQueueSize() {
@@ -39,14 +35,6 @@ public class AlterConfig {
 
     public void setQueueSize(Integer queueSize) {
         this.queueSize = queueSize;
-    }
-
-    public Integer getAcquireQueueJobInterval() {
-        return acquireQueueJobInterval;
-    }
-
-    public void setAcquireQueueJobInterval(Integer acquireQueueJobInterval) {
-        this.acquireQueueJobInterval = acquireQueueJobInterval;
     }
 
     public Integer getJobExecutorPoolCorePoolSize() {

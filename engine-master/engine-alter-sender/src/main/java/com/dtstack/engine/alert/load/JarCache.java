@@ -1,5 +1,6 @@
 package com.dtstack.engine.alert.load;
 
+import com.dtstack.engine.alert.exception.AlterException;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
@@ -13,11 +14,15 @@ import java.util.concurrent.TimeUnit;
  */
 public class JarCache {
 
-    private JarCache instance = new JarCache();
+    private static JarCache instance = new JarCache();
     private static final Cache<String, Object> cache = CacheBuilder.newBuilder()
             .maximumSize(1000L).initialCapacity(1000).expireAfterAccess(10, TimeUnit.MINUTES).build();
 
     private JarCache(){
+    }
+
+    public static JarCache getInstance() {
+        return instance;
     }
 
     public Object getChannelInstance(String jarPath, String className) throws Exception {

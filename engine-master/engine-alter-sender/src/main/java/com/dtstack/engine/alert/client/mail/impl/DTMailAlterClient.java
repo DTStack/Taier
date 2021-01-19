@@ -1,9 +1,13 @@
 package com.dtstack.engine.alert.client.mail.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.client.mail.AbstractMailAlterClient;
 import com.dtstack.engine.alert.client.mail.AlterSendMailBean;
 import com.dtstack.engine.alert.enums.AlertGateCode;
+import com.dtstack.engine.alert.exception.AlterException;
 import com.dtstack.lang.data.R;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.slf4j.Logger;
@@ -59,6 +63,47 @@ public class DTMailAlterClient extends AbstractMailAlterClient {
             return R.fail(e.getLocalizedMessage());
         }
 
+    }
+
+    @Override
+    public void buildBean(AlterSendMailBean alterSendMailBean, JSONObject jsonObject, AlterContext alterContext) throws AlterException {
+        // DT 必传项
+        String host = jsonObject.getString(ConstMailAlter.MAIL_HOST);
+        if (StringUtils.isBlank(host)) {
+            throw new AlterException("发送邮件必须有邮箱服务器地址，请在配置中配置字段:"+ ConstMailAlter.MAIL_HOST);
+        }
+
+        Integer port = jsonObject.getInteger(ConstMailAlter.MAIL_PORT);
+        if (port == null) {
+            throw new AlterException("发送邮件必须有邮箱服务器端口，请在配置中配置字段:"+ ConstMailAlter.MAIL_PORT);
+        }
+
+        String username = jsonObject.getString(ConstMailAlter.MAIL_USERNAME);
+        if (StringUtils.isBlank(username)) {
+            throw new AlterException("发送邮件必须有邮箱发送者账号，请在配置中配置字段:"+ ConstMailAlter.MAIL_USERNAME);
+        }
+
+        String password = jsonObject.getString(ConstMailAlter.MAIL_PASSWORD);
+        if (StringUtils.isBlank(password)) {
+            throw new AlterException("发送邮件必须有邮箱发送者，请在配置中配置字段:"+ ConstMailAlter.MAIL_USERNAME);
+        }
+
+        String from = jsonObject.getString(ConstMailAlter.MAIL_FROM);
+        if (StringUtils.isBlank(from)) {
+            from = username;
+        }
+
+        Boolean ssl = jsonObject.getBoolean(ConstMailAlter.MAIL_SSL);
+        if (ssl == null) {
+            ssl= Boolean.FALSE;
+        }
+
+        alterSendMailBean.setHost(host);
+        alterSendMailBean.setPort(port);
+        alterSendMailBean.setUsername(username);
+        alterSendMailBean.setPassword(password);
+        alterSendMailBean.setFrom(from);
+        alterSendMailBean.setSsl(ssl);
     }
 
     @Override
