@@ -39,10 +39,9 @@ public class ScheduleTaskTaskShadeController {
     @RequestMapping(value="/displayOffSpring", method = {RequestMethod.POST})
     public ScheduleTaskVO displayOffSpring(@DtRequestParam("taskId") Long taskId,
                                            @DtRequestParam("projectId") Long projectId,
-                                           @DtRequestParam("userId") Long userId,
                                            @DtRequestParam("level") Integer level,
                                            @DtRequestParam("type") Integer directType, @DtRequestParam("appType")Integer appType) {
-        return scheduleTaskTaskShadeService.displayOffSpring(taskId, projectId, userId, level, directType, appType);
+        return scheduleTaskTaskShadeService.displayOffSpring(taskId, projectId, level, directType, appType);
     }
 
     @RequestMapping(value="/getAllFlowSubTasks", method = {RequestMethod.POST})

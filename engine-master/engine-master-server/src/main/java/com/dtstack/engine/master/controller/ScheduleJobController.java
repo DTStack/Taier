@@ -8,6 +8,7 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import io.swagger.annotations.Api;
@@ -27,6 +28,9 @@ public class ScheduleJobController {
 
     @Autowired
     private ScheduleJobService scheduleJobService;
+
+    @Autowired
+    private EnvironmentContext context;
 
     @RequestMapping(value="/getJobById", method = {RequestMethod.POST})
     @ApiOperation(value = "根据任务id展示任务详情")
@@ -49,7 +53,7 @@ public class ScheduleJobController {
 
     @RequestMapping(value="/runTimeTopOrder", method = {RequestMethod.POST})
     @ApiOperation(value = "运行时长top排序")
-    public List<JobTopOrderVO> runTimeTopOrder(@DtRequestParam(value = "projectId", required = false) Long projectId,
+    public List<JobTopOrderVO> runTimeTopOrder(@DtRequestParam(value = "projectId") Long projectId,
                                                @DtRequestParam(value = "startTime") Long startTime,
                                                @DtRequestParam("endTime") Long endTime, @DtRequestParam(value = "appType", required = false) Integer appType, @DtRequestParam(value = "dtuicTenantId", required = false) Long dtuicTenantId) {
         return scheduleJobService.runTimeTopOrder(projectId, startTime, endTime, appType, dtuicTenantId);
@@ -120,9 +124,8 @@ public class ScheduleJobController {
     }
 
     @RequestMapping(value="/stopJob", method = {RequestMethod.POST})
-    public String stopJob(@DtRequestParam("jobId") long jobId, @DtRequestParam("userId") Long userId, @DtRequestParam("projectId") Long projectId, @DtRequestParam("tenantId") Long tenantId, @DtRequestParam("dtuicTenantId") Long dtuicTenantId,
-                          @DtRequestParam("isRoot") Boolean isRoot, @DtRequestParam("appType") Integer appType) throws Exception {
-        return scheduleJobService.stopJob(jobId, userId, projectId, tenantId, dtuicTenantId, isRoot, appType);
+    public String stopJob(@DtRequestParam("jobId") long jobId, @DtRequestParam("appType") Integer appType) throws Exception {
+        return scheduleJobService.stopJob(jobId, appType);
     }
 
 
@@ -133,11 +136,8 @@ public class ScheduleJobController {
 
 
     @RequestMapping(value="/batchStopJobs", method = {RequestMethod.POST})
-    public int batchStopJobs(@DtRequestParam("jobIdList") List<Long> jobIdList,
-                             @DtRequestParam("projectId") Long projectId,
-                             @DtRequestParam("dtuicTenantId") Long dtuicTenantId,
-                             @DtRequestParam("appType") Integer appType) {
-        return scheduleJobService.batchStopJobs(jobIdList, projectId, dtuicTenantId, appType);
+    public int batchStopJobs(@DtRequestParam("jobIdList") List<Long> jobIdList) {
+        return scheduleJobService.batchStopJobs(jobIdList);
     }
 
 
@@ -156,9 +156,9 @@ public class ScheduleJobController {
     @RequestMapping(value="/getFillDataJobInfoPreview", method = {RequestMethod.POST})
     public PageResult<List<ScheduleFillDataJobPreViewVO>> getFillDataJobInfoPreview(@DtRequestParam("jobName") String jobName, @DtRequestParam("runDay") Long runDay,
                                                                               @DtRequestParam("bizStartDay") Long bizStartDay, @DtRequestParam("bizEndDay") Long bizEndDay, @DtRequestParam("dutyUserId") Long dutyUserId,
-                                                                              @DtRequestParam("projectId") Long projectId, @DtRequestParam("appType") Integer appType, @DtRequestParam("user") Integer userId,
+                                                                              @DtRequestParam("projectId") Long projectId, @DtRequestParam("appType") Integer appType,
                                                                               @DtRequestParam("currentPage") Integer currentPage, @DtRequestParam("pageSize") Integer pageSize, @DtRequestParam("tenantId") Long tenantId) {
-        return scheduleJobService.getFillDataJobInfoPreview(jobName, runDay, bizStartDay, bizEndDay, dutyUserId, projectId, appType, userId, currentPage, pageSize, tenantId);
+        return scheduleJobService.getFillDataJobInfoPreview(jobName, runDay, bizStartDay, bizEndDay, dutyUserId, projectId, appType, currentPage, pageSize, tenantId);
     }
 
 
@@ -238,8 +238,8 @@ public class ScheduleJobController {
     }
 
     @RequestMapping(value="/getByIds", method = {RequestMethod.POST})
-    public List<ScheduleJob> getByIds(@DtRequestParam("ids") List<Long> ids, @DtRequestParam("project") Long projectId) {
-        return scheduleJobService.getByIds(ids, projectId);
+    public List<ScheduleJob> getByIds(@DtRequestParam("ids") List<Long> ids) {
+        return scheduleJobService.getByIds(ids);
     }
 
 
@@ -254,7 +254,8 @@ public class ScheduleJobController {
     @ApiOperation(value = "查询出指定job的所有关联的子job")
     public List<ScheduleJob> getAllChildJobWithSameDay(@RequestBody ScheduleJob scheduleJob,
                                                        @RequestParam("isOnlyNextChild") boolean isOnlyNextChild, @RequestParam("appType") Integer appType) {
-        return scheduleJobService.getAllChildJobWithSameDay(scheduleJob, isOnlyNextChild, appType);
+        Integer jobLevel = context.getJobJobLevel();
+        return scheduleJobService.getAllChildJobWithSameDay(scheduleJob, isOnlyNextChild, appType,jobLevel);
     }
 
 
@@ -332,6 +333,17 @@ public class ScheduleJobController {
         return scheduleJobService.listByCyctimeAndJobName(preCycTime, preJobName, scheduleType);
     }
 
+    /**
+     * @author newman
+     * @Description 该接口目前只有内部使用
+     * @Date 2021/1/12 4:27 下午
+     * @param startId:
+     * @param preCycTime:
+     * @param preJobName:
+     * @param scheduleType:
+     * @param batchJobSize:
+     * @return: java.util.List<com.dtstack.engine.api.domain.ScheduleJob>
+     **/
     @RequestMapping(value="/listByCyctimeAndJobNameWithStartId", method = {RequestMethod.POST})
     @ApiOperation(value = "按批次根据cycTime和jobName获取，如获取当天的周期实例任务")
     public List<ScheduleJob> listByCyctimeAndJobName(@DtRequestParam("startId") Long startId, @DtRequestParam("preCycTime") String preCycTime, @DtRequestParam("preJobName") String preJobName, @DtRequestParam("scheduleType") Integer scheduleType, @DtRequestParam("batchJobSize") Integer batchJobSize) {
@@ -363,9 +375,8 @@ public class ScheduleJobController {
 
     @RequestMapping(value="/stopJobByJobId", method = {RequestMethod.POST})
     @ApiOperation(value = "根据任务ID 停止任务")
-    public String stopJobByJobId(@DtRequestParam("jobId") String jobId, @DtRequestParam("userId") Long userId, @DtRequestParam("projectId") Long projectId, @DtRequestParam("tenantId") Long tenantId, @DtRequestParam("dtuicTenantId") Long dtuicTenantId,
-                          @DtRequestParam("isRoot") Boolean isRoot, @DtRequestParam("appType") Integer appType) throws Exception {
-        return scheduleJobService.stopJobByJobId(jobId, userId, projectId, tenantId, dtuicTenantId, isRoot, appType);
+    public String stopJobByJobId(@DtRequestParam("jobId") String jobId, @DtRequestParam("appType") Integer appType) throws Exception {
+        return scheduleJobService.stopJobByJobId(jobId, appType);
     }
 
     @RequestMapping(value="/buildTaskJobGraphTest", method = {RequestMethod.POST})

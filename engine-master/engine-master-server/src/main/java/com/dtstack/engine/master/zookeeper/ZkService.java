@@ -85,8 +85,8 @@ public class ZkService implements InitializingBean, DisposableBean {
     private void initClient() {
         this.zkClient = CuratorFrameworkFactory.builder()
                 .connectString(this.zkAddress).retryPolicy(new ExponentialBackoffRetry(1000, 3))
-                .connectionTimeoutMs(1000)
-                .sessionTimeoutMs(1000).build();
+                .connectionTimeoutMs(3000)
+                .sessionTimeoutMs(30000).build();
         this.zkClient.start();
         logger.warn("connector zk success...");
     }
@@ -158,9 +158,8 @@ public class ZkService implements InitializingBean, DisposableBean {
     public BrokerHeartNode getBrokerHeartNode(String node) {
         try {
             String nodePath = String.format("%s/%s/%s", this.brokersNode, node, HEART_NODE);
-            BrokerHeartNode nodeSign = objectMapper.readValue(zkClient.getData()
+            return objectMapper.readValue(zkClient.getData()
                     .forPath(nodePath), BrokerHeartNode.class);
-            return nodeSign;
         } catch (Exception e) {
             logger.error("{}:getBrokerHeartNode error:", node, e);
         }

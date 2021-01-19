@@ -77,6 +77,7 @@ public class ScheduleTaskShadeService {
      * 例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息
      */
     public void addOrUpdate(ScheduleTaskShadeDTO batchTaskShadeDTO) {
+
         //保存batch_task_shade
         if (scheduleTaskShadeDao.getOne(batchTaskShadeDTO.getTaskId(),batchTaskShadeDTO.getAppType()) != null) {
             //更新提交时间
@@ -89,7 +90,7 @@ public class ScheduleTaskShadeService {
             if (null == batchTaskShadeDTO.getNodePid()) {
                 batchTaskShadeDTO.setNodePid(0L);
             }
-            if (Objects.isNull(batchTaskShadeDTO.getDtuicTenantId()) || batchTaskShadeDTO.getDtuicTenantId() <= 0) {
+            if (null == batchTaskShadeDTO.getDtuicTenantId() || batchTaskShadeDTO.getDtuicTenantId() <= 0) {
                 throw new RdosDefineException("租户dtuicTenantId 不能为空");
             }
             if (null == batchTaskShadeDTO.getFlowId()) {
@@ -104,6 +105,7 @@ public class ScheduleTaskShadeService {
      * task删除时触发同步清理
      */
     public void deleteTask( Long taskId,  long modifyUserId, Integer appType) {
+
         scheduleTaskShadeDao.delete(taskId, modifyUserId,appType);
         scheduleTaskTaskShadeService.clearDataByTaskId(taskId,appType);
     }
@@ -135,15 +137,11 @@ public class ScheduleTaskShadeService {
     public ScheduleTaskShadeCountTaskVO countTaskByType( Long tenantId, Long dtuicTenantId,
                                                 Long projectId,  Integer appType,
                                                 List<Integer> taskTypes){
-        List<Map<String, Object>> maps = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, Lists.newArrayList(projectId), appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
-        if (CollectionUtils.isEmpty(maps)) {
-            return new ScheduleTaskShadeCountTaskVO();
+        List<ScheduleTaskShadeCountTaskVO> ScheduleTaskShadeCountTaskVOs = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, Lists.newArrayList(projectId), appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
+        if (CollectionUtils.isEmpty(ScheduleTaskShadeCountTaskVOs)) {
+            return null;
         }
-
-        ScheduleTaskShadeCountTaskVO scheduleTaskShadeCountTaskVO = new ScheduleTaskShadeCountTaskVO();
-        Map<String, Object> stringObjectMap = maps.get(0);
-        buildVO(scheduleTaskShadeCountTaskVO, stringObjectMap);
-        return scheduleTaskShadeCountTaskVO;
+        return ScheduleTaskShadeCountTaskVOs.get(0);
     }
 
     private void buildVO(ScheduleTaskShadeCountTaskVO scheduleTaskShadeCountTaskVO, Map<String, Object> stringObjectMap) {
@@ -154,14 +152,8 @@ public class ScheduleTaskShadeService {
     public List<ScheduleTaskShadeCountTaskVO> countTaskByTypes( Long tenantId, Long dtuicTenantId,
                                                 List<Long> projectIds,  Integer appType,
                                                 List<Integer> taskTypes){
-        List<Map<String, Object>> maps = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, projectIds, appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
-        List<ScheduleTaskShadeCountTaskVO> scheduleTaskShadeCountTaskVOS = Lists.newArrayList();
-        for (Map<String, Object> map : maps) {
-            ScheduleTaskShadeCountTaskVO scheduleTaskShadeCountTaskVO = new ScheduleTaskShadeCountTaskVO();
-            buildVO(scheduleTaskShadeCountTaskVO, map);
-            scheduleTaskShadeCountTaskVOS.add(scheduleTaskShadeCountTaskVO);
-        }
-        return scheduleTaskShadeCountTaskVOS;
+
+        return scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, projectIds, appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
     }
 
 
@@ -201,19 +193,21 @@ public class ScheduleTaskShadeService {
      */
     public List<ScheduleTaskShade> getTasksByName( long projectId,
                                                    String name,  Integer appType) {
+
         return scheduleTaskShadeDao.listByNameLike(projectId, name,appType,null,null);
     }
 
     public ScheduleTaskShade getByName( long projectId,
                                         String name,  Integer appType, Long flowId) {
         //如果appType没传那就默认为ide
-        if (Objects.isNull(appType)){
+        if (null == appType ){
             appType = 1;
         }
         return scheduleTaskShadeDao.getByName(projectId, name,appType,flowId);
     }
 
     public void updateTaskName( long id,  String taskName,Integer appType) {
+
         scheduleTaskShadeDao.updateTaskName(id, taskName,appType);
     }
 
@@ -282,6 +276,10 @@ public class ScheduleTaskShadeService {
 
 
     public ScheduleTaskShade getBatchTaskById( Long taskId, Integer appType) {
+
+        if(null == taskId || null == appType){
+            throw new RdosDefineException("taskId或appType不能为空");
+        }
         ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId, appType);
         if (taskShade == null || Deleted.DELETED.getStatus().equals(taskShade.getIsDeleted())) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
@@ -304,12 +302,6 @@ public class ScheduleTaskShadeService {
 
 
         ScheduleTaskShadeDTO batchTaskDTO = new ScheduleTaskShadeDTO();
-        batchTaskDTO.setTenantId(tenantId);
-        batchTaskDTO.setProjectId(projectId);
-        batchTaskDTO.setSubmitStatus(ESubmitStatus.SUBMIT.getStatus());
-        batchTaskDTO.setTaskTypeList(convertStringToList(taskTypeList));
-        batchTaskDTO.setPeriodTypeList(convertStringToList(periodTypeList));
-
         boolean queryAll = false;
         if (StringUtils.isNotBlank(name) ||
                 CollectionUtils.isNotEmpty(batchTaskDTO.getTaskTypeList()) ||
@@ -320,41 +312,18 @@ public class ScheduleTaskShadeService {
             //过滤掉任务流中的子任务
             batchTaskDTO.setFlowId(0L);
         }
-
-        if (StringUtils.isNotBlank(name)) {
-            batchTaskDTO.setFuzzName(name);
-        }
-
-        if (null != ownerId && ownerId != 0) {
-            batchTaskDTO.setCreateUserId(ownerId);
-        }
-
-        if (null != startTime && null != endTime) {
-            batchTaskDTO.setStartGmtModified(new Timestamp(startTime * 1000));
-            batchTaskDTO.setEndGmtModified(new Timestamp(endTime * 1000));
-        }
-
-        if (scheduleStatus != null) {
-            batchTaskDTO.setScheduleStatus(scheduleStatus);
-        }
-
+        setBatchTaskDTO(tenantId, projectId, name, ownerId, startTime, endTime, scheduleStatus, taskTypeList, periodTypeList, searchType, batchTaskDTO);
         PageQuery<ScheduleTaskShadeDTO> pageQuery = new PageQuery<>(currentPage, pageSize, "gmt_modified", Sort.DESC.name());
-        if (StringUtils.isEmpty(searchType) || "fuzzy".equalsIgnoreCase(searchType)) {
-            batchTaskDTO.setSearchType(1);
-        } else if ("precise".equalsIgnoreCase(searchType)) {
-            batchTaskDTO.setSearchType(2);
-        } else if ("front".equalsIgnoreCase(searchType)) {
-            batchTaskDTO.setSearchType(3);
-        } else if ("tail".equalsIgnoreCase(searchType)) {
-            batchTaskDTO.setSearchType(4);
-        } else {
-            batchTaskDTO.setSearchType(1);
-        }
         pageQuery.setModel(batchTaskDTO);
-        List<ScheduleTaskShade> batchTasks = scheduleTaskShadeDao.generalQuery(pageQuery);
-
+        ScheduleTaskShadePageVO scheduleTaskShadeTaskVO = new ScheduleTaskShadePageVO();
+        int publishedTasks = scheduleTaskShadeDao.countPublishToProduce(projectId,appType);
+        scheduleTaskShadeTaskVO.setPublishedTasks(publishedTasks);
         int count = scheduleTaskShadeDao.generalCount(batchTaskDTO);
-
+        if(count<=0){
+            scheduleTaskShadeTaskVO.setPageResult(new PageResult<>(new ArrayList<>(),count,pageQuery));
+            return scheduleTaskShadeTaskVO;
+        }
+        List<ScheduleTaskShade> batchTasks = scheduleTaskShadeDao.generalQuery(pageQuery);
         List<ScheduleTaskVO> vos = new ArrayList<>(batchTasks.size());
 
         for (ScheduleTaskShade batchTask : batchTasks) {
@@ -366,16 +335,59 @@ public class ScheduleTaskShadeService {
             //默认不查询全部工作流子节点
             //vos = dealFlowWorkTasks(vos);
         }
-
-
-
-        int publishedTasks = scheduleTaskShadeDao.countPublishToProduce(projectId,appType);
         PageResult<List<ScheduleTaskVO>> pageResult = new PageResult<>(vos, count, pageQuery);
-        ScheduleTaskShadePageVO scheduleTaskShadeTaskVO = new ScheduleTaskShadePageVO();
         scheduleTaskShadeTaskVO.setPageResult(pageResult);
-        scheduleTaskShadeTaskVO.setPublishedTasks(publishedTasks);
-
         return scheduleTaskShadeTaskVO;
+    }
+
+
+    /**
+     * @author newman
+     * @Description 设置分页任务查询参数
+     * @Date 2020-12-21 18:12
+     * @param tenantId:
+     * @param projectId:
+     * @param name:
+     * @param ownerId:
+     * @param startTime:
+     * @param endTime:
+     * @param scheduleStatus:
+     * @param taskTypeList:
+     * @param periodTypeList:
+     * @param searchType:
+     * @param batchTaskDTO:
+     * @return: void
+     **/
+    private void setBatchTaskDTO(Long tenantId, Long projectId, String name, Long ownerId, Long startTime, Long endTime, Integer scheduleStatus, String taskTypeList, String periodTypeList, String searchType, ScheduleTaskShadeDTO batchTaskDTO) {
+        batchTaskDTO.setTenantId(tenantId);
+        batchTaskDTO.setProjectId(projectId);
+        batchTaskDTO.setSubmitStatus(ESubmitStatus.SUBMIT.getStatus());
+        batchTaskDTO.setTaskTypeList(convertStringToList(taskTypeList));
+        batchTaskDTO.setPeriodTypeList(convertStringToList(periodTypeList));
+        if (StringUtils.isNotBlank(name)) {
+            batchTaskDTO.setFuzzName(name);
+        }
+        if (null != ownerId && ownerId != 0) {
+            batchTaskDTO.setCreateUserId(ownerId);
+        }
+        if (null != startTime && null != endTime) {
+            batchTaskDTO.setStartGmtModified(new Timestamp(startTime * 1000));
+            batchTaskDTO.setEndGmtModified(new Timestamp(endTime * 1000));
+        }
+        if (scheduleStatus != null) {
+            batchTaskDTO.setScheduleStatus(scheduleStatus);
+        }
+        if (StringUtils.isEmpty(searchType) || "fuzzy".equalsIgnoreCase(searchType)) {
+            batchTaskDTO.setSearchType(1);
+        } else if ("precise".equalsIgnoreCase(searchType)) {
+            batchTaskDTO.setSearchType(2);
+        } else if ("front".equalsIgnoreCase(searchType)) {
+            batchTaskDTO.setSearchType(3);
+        } else if ("tail".equalsIgnoreCase(searchType)) {
+            batchTaskDTO.setSearchType(4);
+        } else {
+            batchTaskDTO.setSearchType(1);
+        }
     }
 
     private List<ScheduleTaskVO> dealFlowWorkSubTasks(List<ScheduleTaskVO> vos, Integer appType) {
@@ -427,12 +439,9 @@ public class ScheduleTaskShadeService {
      * 冻结任务
      * @param taskIdList
      * @param scheduleStatus
-     * @param projectId
-     * @param userId
      * @param appType
      */
     public void frozenTask(List<Long> taskIdList, int scheduleStatus,
-                           Long projectId, Long userId,
                            Integer appType) {
         scheduleTaskShadeDao.batchUpdateTaskScheduleStatus(taskIdList, scheduleStatus, appType);
     }
@@ -444,12 +453,13 @@ public class ScheduleTaskShadeService {
      * @return
      */
     public ScheduleTaskVO dealFlowWorkTask( Long taskId, Integer appType,List<Integer> taskTypes,Long ownerId) {
+
         ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId,appType);
         if (taskShade == null) {
             return null;
         }
         ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
-        if (EScheduleJobType.WORK_FLOW.getVal().intValue() == vo.getTaskType()) {
+        if (EScheduleJobType.WORK_FLOW.getVal().equals(vo.getTaskType())) {
             List<ScheduleTaskShade> subtasks = this.getFlowWorkSubTasks(vo.getTaskId(),appType,taskTypes,ownerId);
             if (CollectionUtils.isNotEmpty(subtasks)) {
                 List<ScheduleTaskVO> list = Lists.newArrayList();
@@ -479,7 +489,7 @@ public class ScheduleTaskShadeService {
 
 
     public ScheduleTaskShade findTaskId( Long taskId, Integer isDeleted,  Integer appType) {
-        if(Objects.isNull(taskId)){
+        if(null == taskId ){
             return null;
         }
         List<ScheduleTaskShade> batchTaskShades = scheduleTaskShadeDao.listByTaskIds(Lists.newArrayList(taskId), isDeleted,appType);
@@ -518,8 +528,9 @@ public class ScheduleTaskShadeService {
      * @return
      */
     public void info( Long taskId, Integer appType,String info) {
+
         JSONObject extInfo = JSONObject.parseObject(scheduleTaskShadeDao.getExtInfoByTaskId(taskId, appType));
-        if (Objects.isNull(extInfo)) {
+        if (null == extInfo ) {
             extInfo = new JSONObject();
         }
         extInfo.put(TaskConstant.INFO, info);
@@ -527,12 +538,14 @@ public class ScheduleTaskShadeService {
     }
 
 
-    public List<Map<String, Object>> listDependencyTask( List<Long> taskId,  Integer appType,  String name,  Long projectId) {
+    public List<Map<String, Object>> listDependencyTask( List<Long> taskId, String name,  Long projectId) {
+
         return scheduleTaskShadeDao.listDependencyTask(projectId, name, taskId);
     }
 
 
     public List<Map<String, Object>> listByTaskIdsNotIn( List<Long> taskId,  Integer appType,  Long projectId) {
+        //todo 缺少对参数的校验
         return scheduleTaskShadeDao.listByTaskIdsNotIn(projectId, taskId);
     }
 
@@ -553,7 +566,7 @@ public class ScheduleTaskShadeService {
 
         TenantResource tenantResource = tenantResourceDao.selectByUicTenantIdAndTaskType(dtuicTenantId,taskType);
         List<String> exceedMessage = new ArrayList<>();
-        if(Objects.isNull(tenantResource)){
+        if(null == tenantResource ){
             return exceedMessage;
         }
         try {

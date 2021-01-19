@@ -114,7 +114,7 @@ public class JobGraphBuilder {
             if (hasBuild) {
                 return;
             }
-
+            //清理周期实例脏数据
             cleanDirtyJobGraph(triggerDay);
 
             int totalTask = batchTaskShadeService.countTaskByStatus(ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus());
@@ -257,10 +257,8 @@ public class JobGraphBuilder {
             logger.info("Start clean batchJobList, batch-number:{} startId:{}", batchIdx, startId);
             startId = scheduleJobList.get(scheduleJobList.size() - 1).getId();
             List<String> jobKeyList = new ArrayList<>();
-            List<Long> jobIdList = new ArrayList<>();
             for ( ScheduleJob scheduleJob : scheduleJobList) {
                 jobKeyList.add(scheduleJob.getJobKey());
-                jobIdList.add(scheduleJob.getId());
             }
             batchJobService.deleteJobsByJobKey(jobKeyList);
             logger.info("batch-number:{} done! Cleaning dirty jobs size:{}", batchIdx, scheduleJobList.size());
@@ -545,7 +543,7 @@ public class JobGraphBuilder {
      * @param scheduleCron
      * @param isFirst
      * @param scheduleBatchJob
-     * @param keyPreStr
+     * @param keyPreStr 生成jobKey的前缀
      * @param scheduleType
      * @param jobKey
      * @param timestampNow
@@ -720,6 +718,7 @@ public class JobGraphBuilder {
      * @param projectId
      * @param tenantId
      * @param isRoot
+     * @param fillId 补数据id
      * @return
      */
     public Map<String, ScheduleBatchJob> buildFillDataJobGraph(JsonNode jsonObject, String fillJobName, boolean needFather,

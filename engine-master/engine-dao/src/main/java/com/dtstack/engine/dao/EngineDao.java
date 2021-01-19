@@ -25,4 +25,6 @@ public interface EngineDao {
 
     List<Engine> getByDtUicTenantId(@Param("dtuicTenantId") Long dtuicTenantId);
 
+
+    Engine getEngineByIdsAndType(@Param("engineIds") List<Long> engineIds,@Param("engineType") Integer engineType);
 }

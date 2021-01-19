@@ -30,7 +30,7 @@
         <include refid="select_content_fragment"/>
         from console_engine
         where is_deleted = 0
-        <if test="engineIds.size() > 0">
+        <if test="engineIds !=null and engineIds.size() > 0">
             and id in
             <foreach collection="engineIds" item="engineId" open="(" separator="," close=")">
                 #{engineId}
@@ -90,5 +90,19 @@
                 LEFT JOIN console_dtuic_tenant dt ON dt.id = et.tenant_id
         WHERE
             dt.dt_uic_tenant_id = #{dtuicTenantId} AND et.is_deleted = 0 AND e.is_deleted = 0
+    </select>
+
+    <select id="getEngineByIdsAndType" resultType="Engine">
+        select
+        <include refid="select_content_fragment"/>
+        from console_engine
+        where is_deleted = 0 and engine_type = #{engineType}
+        <if test="engineIds !=null and engineIds.size() > 0">
+            and id in
+            <foreach collection="engineIds" item="engineId" open="(" separator="," close=")">
+                #{engineId}
+            </foreach>
+        </if>
+        limit 1;
     </select>
 </mapper>
