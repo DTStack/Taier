@@ -36,6 +36,7 @@ import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.master.utils.JobGraphUtils;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
@@ -59,7 +60,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -96,8 +96,6 @@ public class ScheduleJobService {
     private static final ObjectMapper objMapper = new ObjectMapper();
 
     private static final String DAY_PATTERN = "yyyy-MM-dd";
-
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
     private DateTimeFormatter dayFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
 
@@ -1939,43 +1937,6 @@ public class ScheduleJobService {
         }
     }
 
-    private void dealFlowWorkSubFillDataRecord(List<ScheduleFillDataJobDetailVO.FillDataRecord> records) throws
-            Exception {
-        Map<String, ScheduleFillDataJobDetailVO.FillDataRecord> temp = Maps.newHashMap();
-        Map<String, Integer> indexMap = Maps.newHashMap();
-        records.forEach(r -> indexMap.put(r.getJobId(), records.indexOf(r)));
-        Iterator<ScheduleFillDataJobDetailVO.FillDataRecord> iterator = records.iterator();
-        List<ScheduleFillDataJobDetailVO.FillDataRecord> recordsCopy = new ArrayList<>(records);
-        while (iterator.hasNext()) {
-            ScheduleFillDataJobDetailVO.FillDataRecord record = iterator.next();
-            String flowJobId = record.getFlowJobId();
-            if (!"0".equals(flowJobId)) {
-                if (temp.containsKey(flowJobId)) {
-                    ScheduleFillDataJobDetailVO.FillDataRecord flowRecord = temp.get(flowJobId);
-                    flowRecord.getRelatedRecords().add(record);
-                    iterator.remove();
-                } else {
-                    ScheduleFillDataJobDetailVO.FillDataRecord flowRecord;
-                    if (indexMap.containsKey(flowJobId)) {
-                        flowRecord = recordsCopy.get(indexMap.get(flowJobId));
-                        flowRecord.setRelatedRecords(Lists.newArrayList(record));
-                        iterator.remove();
-                    } else {
-                        ScheduleJob flowJob = scheduleJobDao.getByJobId(flowJobId, Deleted.NORMAL.getStatus());
-                        if (flowJob == null) {
-                            continue;
-                        }
-                        Map<Long, ScheduleTaskForFillDataDTO> taskShadeMap = this.prepareForFillDataDetailInfo(Lists.newArrayList(flowJob));
-                        flowRecord = transferBatchJob2FillDataRecord(flowJob, null, taskShadeMap);
-                        flowRecord.setRelatedRecords(Lists.newArrayList(record));
-                        records.set(recordsCopy.indexOf(record), flowRecord);
-                    }
-                    temp.put(flowJobId, flowRecord);
-                }
-            }
-        }
-    }
-
     /**
      * 转化batchjob任务为补数据界面所需格式
      *
@@ -2167,34 +2128,6 @@ public class ScheduleJobService {
         return RdosTaskStatus.getCanStopStatus().contains(status);
     }
 
-    private Integer parseSyncChannel(JSONObject syncJob) {
-        //解析出并发度---sync 消耗资源是: 并发度*1
-        try {
-            JSONObject jobJson = syncJob.getJSONObject("job").getJSONObject("job");
-            JSONObject settingJson = jobJson.getJSONObject("setting");
-            JSONObject speedJson = settingJson.getJSONObject("speed");
-            return speedJson.getInteger("channel");
-        } catch (Exception e) {
-            //默认1
-            return 1;
-        }
-
-    }
-
-    public String replaceSyncParll(String taskParams, int parallelism) throws IOException {
-        Properties properties = new Properties();
-        properties.load(new ByteArrayInputStream(taskParams.getBytes("UTF-8")));
-        properties.put("mr.job.parallelism", parallelism);
-        StringBuilder sb = new StringBuilder("");
-        for (Map.Entry<Object, Object> tmp : properties.entrySet()) {
-            sb.append(tmp.getKey())
-                    .append(" = ")
-                    .append(tmp.getValue())
-                    .append(LINE_SEPARATOR);
-        }
-        return sb.toString();
-    }
-
     public String formatLearnTaskParams(String taskParams) {
         List<String> params = new ArrayList<>();
 
@@ -2227,15 +2160,6 @@ public class ScheduleJobService {
      */
     public ScheduleJob getWorkFlowTopNode(String jobId) {
         return scheduleJobDao.getWorkFlowTopNode(jobId);
-    }
-
-    public Integer getPySparkOperateModel(String exeArgs) {
-        Integer operateModel = TaskOperateType.RESOURCE.getType();
-        if (exeArgs != null) {
-            Integer model = JSONObject.parseObject(exeArgs).getInteger("operateModel");
-            operateModel = model != null ? model : TaskOperateType.RESOURCE.getType();
-        }
-        return operateModel;
     }
 
     public List<String> listJobIdByTaskNameAndStatusList( String taskName,  List<Integer> statusList,  Long projectId, Integer appType) {
@@ -2649,7 +2573,7 @@ public class ScheduleJobService {
 
                     if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
                         for (ScheduleBatchJob jobRunBean : cronTrigger) {
-                            flowJobId.put(jobGraphBuilder.buildFlowReplaceId(task.getTaskId(),jobRunBean.getCycTime(),task.getAppType()),jobRunBean.getJobId());
+                            flowJobId.put(JobGraphUtils.buildFlowReplaceId(task.getTaskId(),jobRunBean.getCycTime(),task.getAppType()),jobRunBean.getJobId());
                         }
                     }
                 } catch (Exception e) {
