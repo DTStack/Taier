@@ -8,6 +8,7 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import io.swagger.annotations.Api;
@@ -27,6 +28,9 @@ public class ScheduleJobController {
 
     @Autowired
     private ScheduleJobService scheduleJobService;
+
+    @Autowired
+    private EnvironmentContext context;
 
     @RequestMapping(value="/getJobById", method = {RequestMethod.POST})
     @ApiOperation(value = "根据任务id展示任务详情")
@@ -250,7 +254,8 @@ public class ScheduleJobController {
     @ApiOperation(value = "查询出指定job的所有关联的子job")
     public List<ScheduleJob> getAllChildJobWithSameDay(@RequestBody ScheduleJob scheduleJob,
                                                        @RequestParam("isOnlyNextChild") boolean isOnlyNextChild, @RequestParam("appType") Integer appType) {
-        return scheduleJobService.getAllChildJobWithSameDay(scheduleJob, isOnlyNextChild, appType,10);
+        Integer jobLevel = context.getJobJobLevel();
+        return scheduleJobService.getAllChildJobWithSameDay(scheduleJob, isOnlyNextChild, appType,jobLevel);
     }
 
 

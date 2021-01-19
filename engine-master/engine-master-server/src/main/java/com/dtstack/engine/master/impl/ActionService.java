@@ -478,12 +478,6 @@ public class ActionService {
         return uniqueSign;
     }
 
-    public static void main(String[] args) {
-
-        ActionService actionService = new ActionService();
-        String s = actionService.generateUniqueSign();
-        System.out.println(s);
-    }
 
     /**
      * 重置任务状态为未提交

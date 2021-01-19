@@ -1532,7 +1532,6 @@ public class ScheduleJobService {
      * @param dutyUserId
      * @param projectId
      * @param appType
-     * @param userId
      * @param currentPage
      * @param pageSize
      * @param tenantId
@@ -2405,7 +2404,8 @@ public class ScheduleJobService {
         if (null == job ) {
             return new ArrayList<>();
         }
-        return this.getAllChildJobWithSameDay(job, isOnlyNextChild, appType,10);
+        Integer jobLevel = environmentContext.getJobJobLevel();
+        return this.getAllChildJobWithSameDay(job, isOnlyNextChild, appType,jobLevel);
     }
 
     /**
