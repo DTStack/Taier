@@ -294,8 +294,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Rollback
     public void testStopJob() throws Exception {
         ScheduleJob runningJob = DataCollection.getData().getScheduleJobDefiniteTaskId();
-        String result = sheduleJobService.stopJob(runningJob.getId(), runningJob.getCreateUserId(), runningJob.getProjectId(), runningJob.getTenantId(),
-                runningJob.getDtuicTenantId(), true, runningJob.getAppType());
+        String result = sheduleJobService.stopJob(runningJob.getId(),runningJob.getAppType());
 
         Assert.assertEquals(result, "");
     }
@@ -305,8 +304,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Rollback
     public void testStopJobByJobId() throws Exception {
         ScheduleJob runningJob = DataCollection.getData().getScheduleJobDefiniteTaskId();
-        String result = sheduleJobService.stopJobByJobId(runningJob.getJobId(), runningJob.getCreateUserId(), runningJob.getProjectId(), runningJob.getTenantId(),
-                runningJob.getDtuicTenantId(), true, runningJob.getAppType());
+        String result = sheduleJobService.stopJobByJobId(runningJob.getJobId(),runningJob.getAppType());
 
         Assert.assertEquals(result, "");
     }
@@ -328,7 +326,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     public void testBatchStopJobs() throws Exception {
         ScheduleJob runningJob = DataCollection.getData().getScheduleJobDefiniteTaskId();
 
-        int count = sheduleJobService.batchStopJobs(Arrays.asList(runningJob.getId()), runningJob.getProjectId(), runningJob.getDtuicTenantId(), runningJob.getAppType());
+        int count = sheduleJobService.batchStopJobs(Arrays.asList(runningJob.getId()));
         Assert.assertEquals(count, 1);
     }
 
@@ -426,7 +424,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         Long projectId = job.getProjectId();
         List<Long> ids = Arrays.asList(id);
 
-        List<ScheduleJob> scheduleJobs = sheduleJobService.getByIds(ids, projectId);
+        List<ScheduleJob> scheduleJobs = sheduleJobService.getByIds(ids);
         Assert.assertEquals(scheduleJobs.size(), 1);
 
         ScheduleJob scheduleJob = scheduleJobs.get(0);
@@ -455,7 +453,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
         ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteJobkey();
         Integer appType = scheduleJob.getAppType();
 
-        List<ScheduleJob> allChildJobWithSameDay = sheduleJobService.getAllChildJobWithSameDay(scheduleJob, true, appType);
+        List<ScheduleJob> allChildJobWithSameDay = sheduleJobService.getAllChildJobWithSameDay(scheduleJob, true, appType,10);
         Assert.assertEquals(allChildJobWithSameDay.size(),1);
 
         ScheduleJob scheduleJobQuery = allChildJobWithSameDay.get(0);

@@ -52,7 +52,7 @@ public class DownloadController {
         File downLoadFile = null;
         try {
             downLoadFile = componentService.downloadFile(componentId, downloadType, componentType, hadoopVersion, clusterName);
-            if (Objects.nonNull(downLoadFile) && downLoadFile.isFile()) {
+            if (null != downLoadFile && downLoadFile.isFile()) {
                 response.setHeader("Content-Disposition", "attachment;filename=" + encodeURIComponent(downLoadFile.getName()));
                 ServletOutputStream outputStream = response.getOutputStream();
                 byte[] bytes = FileUtils.readFileToByteArray(downLoadFile);
@@ -68,7 +68,7 @@ public class DownloadController {
                 logger.error("", eMsg);
             }
         } finally {
-            if(Objects.nonNull(downLoadFile)){
+            if( null != downLoadFile ){
                 downLoadFile.delete();
             }
         }

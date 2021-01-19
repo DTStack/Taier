@@ -71,6 +71,8 @@ public class ScheduleJobVO extends com.dtstack.engine.api.vo.ScheduleJobVO {
 
     public void setScheduleEngineJob(ScheduleEngineJob scheduleEngineJob) {
         if (scheduleEngineJob != null && null != scheduleEngineJob.getStatus()) {
+
+            //将数据库细分状态归并展示
             this.setStatus(RdosTaskStatus.getShowStatusWithoutStop(scheduleEngineJob.getStatus()));
 
             int combineStatus = RdosTaskStatus.getShowStatus(scheduleEngineJob.getStatus());
