@@ -925,6 +925,14 @@ public class ComponentService {
     public String wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig,String clusterName) {
         JSONObject dataInfo = new JSONObject();
         dataInfo.put("componentName", EComponentType.getByCode(componentType).getName().toLowerCase());
+        if (null != kerberosConfig) {
+            dataInfo.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
+            //开启了kerberos
+            dataInfo.put("openKerberos", kerberosConfig.getOpenKerberos());
+            dataInfo.put("remoteDir", kerberosConfig.getRemotePath());
+            dataInfo.put("principalFile", kerberosConfig.getName());
+            dataInfo.put("krbName", kerberosConfig.getKrbName());
+        }
         dataInfo.put(EComponentType.SFTP.getConfName(), sftpConfig);
         if (EComponentType.SFTP.getTypeCode() == componentType) {
             dataInfo = JSONObject.parseObject(componentConfig);
