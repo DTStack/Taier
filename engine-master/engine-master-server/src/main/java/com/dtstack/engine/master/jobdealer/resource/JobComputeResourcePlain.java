@@ -55,7 +55,7 @@ public class JobComputeResourcePlain {
 
     private void buildJobClientGroupName(JobClient jobClient) {
         Long clusterId = engineTenantDao.getClusterIdByTenantId(jobClient.getTenantId());
-        if(null == clusterId){
+        if (null == clusterId) {
             return;
         }
         Cluster cluster = clusterDao.getOne(clusterId);
@@ -66,14 +66,13 @@ public class JobComputeResourcePlain {
         //%s_default
         String groupName = clusterName + SPLIT + RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT;
 
-        String namespace = clusterService.getNamespace(jobClient.getParamAction(),
-                jobClient.getTenantId(), jobClient.getEngineType(), jobClient.getComputeType());
-        if (StringUtils.isNotBlank(namespace)) {
-            groupName = clusterName + SPLIT + namespace;
+        Queue queue = clusterService.getQueue(jobClient.getTenantId(), clusterId);
+        if (null != queue) {
+            groupName = clusterName + SPLIT + queue.getQueueName();
         } else {
-            Queue queue = clusterService.getQueue(jobClient.getTenantId(), clusterId);
-            if (null != queue) {
-                groupName = clusterName + SPLIT + queue.getQueueName();
+            String namespace = clusterService.getNamespace(jobClient.getParamAction(), jobClient.getTenantId(), jobClient.getEngineType(), jobClient.getComputeType());
+            if (StringUtils.isNotBlank(namespace)) {
+                groupName = clusterName + SPLIT + namespace;
             }
         }
         jobClient.setGroupName(groupName);

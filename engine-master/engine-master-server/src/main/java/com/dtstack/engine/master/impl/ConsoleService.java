@@ -4,25 +4,24 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.api.vo.console.*;
+import com.dtstack.engine.api.vo.console.ConsoleJobInfoVO;
+import com.dtstack.engine.api.vo.console.ConsoleJobVO;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.config.TaskResourceBeanConfig;
-import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.jobdealer.cache.ShardCache;
+import com.dtstack.engine.master.config.TaskResourceBeanConfig;
 import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
+import com.dtstack.engine.master.jobdealer.JobDealer;
+import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;
@@ -63,9 +62,6 @@ public class ConsoleService {
 
     @Autowired
     private ClusterDao clusterDao;
-
-    @Autowired
-    private EngineDao engineDao;
 
     @Autowired
     private ComponentService componentService;
@@ -463,7 +459,7 @@ public class ConsoleService {
             throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
         }
 
-        Component yarnComponent = getYarnComponent(cluster.getId());
+        Component yarnComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode());
         if (yarnComponent == null) {
             return null;
         }
@@ -496,38 +492,6 @@ public class ConsoleService {
             logger.error(" ", e);
             throw new RdosDefineException("flink资源获取异常");
         }
-    }
-
-    private Component getYarnComponent(Long clusterId) {
-        List<Engine> engines = engineDao.listByClusterId(clusterId);
-        if (CollectionUtils.isEmpty(engines)) {
-            return null;
-        }
-
-        Engine hadoopEngine = null;
-        for (Engine e : engines) {
-            if (e.getEngineType() == MultiEngineType.HADOOP.getType()) {
-                hadoopEngine = e;
-                break;
-            }
-        }
-
-        if (hadoopEngine == null) {
-            return null;
-        }
-
-        List<Component> componentList = componentService.listComponent(hadoopEngine.getId());
-        if (CollectionUtils.isEmpty(componentList)) {
-            return null;
-        }
-
-        for (Component component : componentList) {
-            if (EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
-                return component;
-            }
-        }
-
-        return null;
     }
 
     /**

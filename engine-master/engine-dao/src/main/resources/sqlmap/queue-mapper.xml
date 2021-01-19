@@ -46,8 +46,16 @@
         WHERE NOT EXISTS(
         select  t1.id,t1.parent_queue_id from console_queue t1, console_queue t2  where
         t1.id=t2.parent_queue_id
-        AND t.id = t1.id AND t1.engine_id = #{engineId}
-        ) AND is_deleted = 0 AND t.engine_id = #{engineId}
+        AND t.id = t1.id
+        AND t1.engine_id IN
+        <foreach item="id" index="index" collection="engineIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ) AND is_deleted = 0
+          AND t.engine_id  IN
+        <foreach item="id" index="index" collection="engineIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </select>
 
     <insert id="insert" parameterType="Queue" useGeneratedKeys="true" keyProperty="id">

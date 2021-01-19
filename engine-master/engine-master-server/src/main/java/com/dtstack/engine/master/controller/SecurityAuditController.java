@@ -7,7 +7,6 @@ import com.dtstack.engine.api.vo.security.ApiOperateTypeVO;
 import com.dtstack.engine.api.vo.security.SecurityLogVO;
 import com.dtstack.engine.master.impl.SecurityAuditService;
 import com.dtstack.engine.master.router.login.SessionUtil;
-import com.dtstack.engine.master.utils.CacheUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -7,7 +7,6 @@ import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.tenant.TenantAdminVO;
 import com.dtstack.engine.api.vo.tenant.TenantResourceVO;
@@ -72,9 +71,6 @@ public class TenantService {
 
     @Autowired
     private ClusterDao clusterDao;
-
-    @Autowired
-    private ClusterService clusterService;
 
     @Autowired
     private ComponentService componentService;
@@ -206,7 +202,7 @@ public class TenantService {
 
         Tenant tenant = getTenant(dtUicTenantId, dtToken);
         checkTenantBindStatus(tenant.getId());
-        checkClusterCanUse(clusterId);
+        checkClusterCanUse(cluster.getClusterName());
 
 
         List<Engine> engineList = engineDao.listByClusterId(clusterId);
@@ -226,9 +222,8 @@ public class TenantService {
     }
 
 
-    public void checkClusterCanUse(Long clusterId) throws Exception {
-        ClusterVO clusterVO = clusterService.getCluster(clusterId, true, true);
-        List<ComponentTestResult> testConnectionVO = componentService.testConnects(clusterVO.getClusterName());
+    public void checkClusterCanUse(String clusterName) throws Exception {
+        List<ComponentTestResult> testConnectionVO = componentService.testConnects(clusterName);
         boolean canUse = true;
         StringBuilder msg = new StringBuilder();
         msg.append("此集群不可用,测试连通性为通过：\n");

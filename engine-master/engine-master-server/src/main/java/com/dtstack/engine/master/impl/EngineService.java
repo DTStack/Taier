@@ -1,22 +1,15 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.Engine;
 import com.dtstack.engine.api.domain.EngineTenant;
 import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.vo.EngineVO;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.QueueVO;
 import com.dtstack.engine.api.vo.engine.EngineSupportVO;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.dao.QueueDao;
-import com.dtstack.engine.dao.TenantDao;
-import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.master.utils.EngineUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -45,10 +38,7 @@ public class EngineService {
     @Autowired
     private EngineTenantDao engineTenantDao;
 
-    @Autowired
-    private TenantDao tenantDao;
-
-    public List<QueueVO> getQueue( Long engineId){
+    public List<QueueVO> getQueue(Long engineId){
         List<Queue> queueList = queueDao.listByEngineId(engineId);
         return QueueVO.toVOs(queueList);
     }
@@ -61,24 +51,23 @@ public class EngineService {
      *     }
      * ]
      */
-    public List<EngineSupportVO> listSupportEngine( Long dtUicTenantId){
-        JSONArray array = new JSONArray();
+    public List<EngineSupportVO> listSupportEngine(Long dtUicTenantId){
         List<EngineSupportVO> vos = Lists.newArrayList();
-        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-        if (tenantId == null){
+        List<Engine> engineTenants = engineDao.getByDtUicTenantId(dtUicTenantId);
+        if(CollectionUtils.isEmpty(engineTenants)){
             return vos;
         }
+        List<Long> engineIds = engineTenants.stream()
+                .map(Engine::getId)
+                .collect(Collectors.toList());
+        List<Component> components = componentService.listComponent(engineIds);
+        Map<Long, List<Component>> engineComponentMapping = components.stream()
+                .collect(Collectors.groupingBy(Component::getEngineId));
 
-        List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
-        List<Engine> engineList = engineDao.listByEngineIds(engineIds);
-        if(CollectionUtils.isEmpty(engineList)){
-            return vos;
-        }
-
-        for (Engine engine : engineList) {
+        for (Engine engine : engineTenants) {
             EngineSupportVO engineSupportVO = new EngineSupportVO();
             engineSupportVO.setEngineType(engine.getEngineType());
-            List<Component> componentList = componentService.listComponent(engine.getId());
+            List<Component> componentList = engineComponentMapping.get(engine.getId());
             if (CollectionUtils.isEmpty(componentList)){
                 continue;
             }
@@ -120,19 +109,6 @@ public class EngineService {
         }
     }
 
-    private void checkEngineRepeat(Long clusterId, MultiEngineType engineType){
-        List<Engine> engines = engineDao.listByClusterId(clusterId);
-        if(CollectionUtils.isEmpty(engines)){
-            return;
-        }
-
-        for (Engine engine : engines) {
-            if(engine.getEngineType() == engineType.getType()){
-                throw new RdosDefineException("引擎类型:" + engine.getEngineName() + " 已存在，不能重复添加");
-            }
-        }
-    }
-
 
     public void updateResource(Long engineId, ComponentTestResult.ClusterResourceDescription description){
         Engine engine = engineDao.getOne(engineId);
@@ -143,45 +119,8 @@ public class EngineService {
         engineDao.update(engine);
     }
 
-    public void addEnginesByComponentConfig(JSONObject componentConfig, Long clusterId){
-        Map<Integer, List<String>> engineComponentMap = EngineUtil.classifyComponent(componentConfig.keySet());
-        for (Integer integer : engineComponentMap.keySet()) {
-            MultiEngineType engineType = EngineUtil.getByType(integer);
-
-            Engine engine = engineDao.getByClusterIdAndEngineType(clusterId, engineType.getType());
-            if(engine == null){
-                engine = new Engine();
-                engine.setClusterId(clusterId);
-                engine.setEngineName(engineType.getName());
-                engine.setEngineType(engineType.getType());
-                engine.setTotalCore(0);
-                engine.setTotalMemory(0);
-                engine.setTotalNode(0);
-                engineDao.insert(engine);
-            }
-
-            for (String confName : engineComponentMap.get(integer)) {
-                componentService.addComponentWithConfig(engine.getId(), confName, componentConfig.getJSONObject(confName));
-            }
-        }
-    }
-
     public Engine getOne(Long engineId) {
         return engineDao.getOne(engineId);
-    }
-
-    public List<EngineVO> listClusterEngines(Long clusterId, boolean queryQueue) {
-        List<Engine> engines = engineDao.listByClusterId(clusterId);
-        List<EngineVO> result = EngineVO.toVOs(engines);
-
-        if (queryQueue) {
-            for (EngineVO engineVO : result) {
-                List<Queue> queues = queueDao.listByEngineIdWithLeaf(engineVO.getId());
-                engineVO.setQueues(QueueVO.toVOs(queues));
-            }
-        }
-
-        return result;
     }
 }
 

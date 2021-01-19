@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.QueueDao;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,23 +17,8 @@ import java.util.stream.Collectors;
 public class QueueService {
 
     private final static long ROOT_QUEUE_ID = -1L;
-    private final static String DEFAULT_QUEUE_NAME = "default";
-
     @Autowired
     private QueueDao queueDao;
-
-    public void addDefaultQueue(Long engineId){
-        Queue queue = new Queue();
-        queue.setEngineId(engineId);
-        queue.setQueueName(DEFAULT_QUEUE_NAME);
-        queue.setCapacity("1.0");
-        queue.setMaxCapacity("1.0");
-        queue.setQueueState("RUNNING");
-        queue.setParentQueueId(-1L);
-        queue.setQueuePath(DEFAULT_QUEUE_NAME);
-
-        queueDao.insert(queue);
-    }
 
     public void updateQueue(Long engineId, ComponentTestResult.ClusterResourceDescription description){
         List<Queue> queues = queueDao.listByEngineId(engineId);

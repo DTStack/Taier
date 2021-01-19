@@ -139,42 +139,18 @@ public class ComponentService {
      * }
      */
     public List<ComponentsConfigOfComponentsVO> listConfigOfComponents(Long dtUicTenantId, Integer engineType) {
-        List<ComponentsConfigOfComponentsVO> componentsVOS = Lists.newArrayList();
-
-        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-        if (tenantId == null) {
-            return componentsVOS;
-        }
-
-        List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
-        if (CollectionUtils.isEmpty(engineIds)) {
-            return componentsVOS;
-        }
-
-        List<Engine> engines = engineDao.listByEngineIds(engineIds);
-        if (CollectionUtils.isEmpty(engines)) {
-            return componentsVOS;
-        }
-
-        Engine targetEngine = null;
-        for (Engine engine : engines) {
-            if (engine.getEngineType() == engineType) {
-                targetEngine = engine;
-                break;
-            }
-        }
+        EngineTenant targetEngine = engineTenantDao.getByTenantIdAndEngineType(dtUicTenantId, engineType);
 
         if (targetEngine == null) {
-            return componentsVOS;
+            return new ArrayList<>();
         }
-
-        List<Component> componentList = componentDao.listByEngineId(targetEngine.getId());
-        for (Component component : componentList) {
+        List<Component> componentList = componentDao.listByEngineIds(Lists.newArrayList(targetEngine.getEngineId()));
+        List<ComponentsConfigOfComponentsVO> componentsVOS = componentList.stream().map(c -> {
             ComponentsConfigOfComponentsVO componentsConfigOfComponentsVO = new ComponentsConfigOfComponentsVO();
-            componentsConfigOfComponentsVO.setComponentTypeCode(component.getComponentTypeCode());
-            componentsConfigOfComponentsVO.setComponentConfig(component.getComponentConfig());
-            componentsVOS.add(componentsConfigOfComponentsVO);
-        }
+            componentsConfigOfComponentsVO.setComponentTypeCode(c.getComponentTypeCode());
+            componentsConfigOfComponentsVO.setComponentConfig(c.getComponentConfig());
+            return componentsConfigOfComponentsVO;
+        }).collect(Collectors.toList());
         return componentsVOS;
     }
 
@@ -194,15 +170,6 @@ public class ComponentService {
         return AppType.CONSOLE.name() + "_" + one.getClusterName();
     }
 
-    public Map<String, Object> fillKerberosConfig(String allConfString, Long clusterId) {
-        JSONObject allConf = JSONObject.parseObject(allConfString);
-        allConf.putAll(KerberosConfigVerify.replaceFilePath(allConf, getClusterLocalKerberosDir(clusterId)));
-        JSONObject kerberosConfig = allConf.getJSONObject(KERBEROS_CONFIG);
-        if (kerberosConfig != null) {
-            allConf.put(KERBEROS_CONFIG, KerberosConfigVerify.replaceFilePath(kerberosConfig, getClusterLocalKerberosDir(clusterId)));
-        }
-        return allConf;
-    }
 
     /**
      * 更新缓存
@@ -210,11 +177,11 @@ public class ComponentService {
     public void updateCache(Long engineId, Integer componentCode) {
         Set<Long> dtUicTenantIds = new HashSet<>();
         if (Objects.nonNull(componentCode) && (
-                EComponentType.TIDB_SQL.getTypeCode() == componentCode ||
-                        EComponentType.LIBRA_SQL.getTypeCode() == componentCode ||
-                        EComponentType.GREENPLUM_SQL.getTypeCode() == componentCode ||
-                        EComponentType.ORACLE_SQL.getTypeCode() == componentCode) ||
-                EComponentType.PRESTO_SQL.getTypeCode() == componentCode) {
+                EComponentType.TIDB_SQL.getTypeCode().equals(componentCode) ||
+                        EComponentType.LIBRA_SQL.getTypeCode().equals(componentCode) ||
+                        EComponentType.GREENPLUM_SQL.getTypeCode().equals(componentCode) ||
+                        EComponentType.ORACLE_SQL.getTypeCode().equals(componentCode)) ||
+                EComponentType.PRESTO_SQL.getTypeCode().equals(componentCode)) {
 
             //tidb 和libra 没有queue
             List<EngineTenantVO> tenantVOS = engineTenantDao.listEngineTenant(engineId);
@@ -246,8 +213,8 @@ public class ComponentService {
         }
     }
 
-    public List<Component> listComponent(Long engineId) {
-        return componentDao.listByEngineId(engineId);
+    public List<Component> listComponent(List<Long> engineIds) {
+        return componentDao.listByEngineIds(engineIds);
     }
 
     private Map<String, Object> parseUploadFileToMap(List<Resource> resources) {
@@ -319,28 +286,6 @@ public class ComponentService {
         return env.getLocalKerberosDir() + File.separator + getSftpClusterKey(clusterId);
     }
 
-    public void addComponentWithConfig(Long engineId, String confName, JSONObject config) {
-        EComponentType type = EComponentType.getByConfName(confName);
-
-        if (Objects.isNull(config)) {
-            config = new JSONObject();
-        }
-        Component component = componentDao.getByEngineIdAndComponentType(engineId, type.getTypeCode());
-        if (component == null) {
-            component = new Component();
-            component.setEngineId(engineId);
-            component.setComponentName(type.getName());
-            component.setComponentTypeCode(type.getTypeCode());
-            component.setComponentConfig(config.toJSONString());
-
-            componentDao.insert(component);
-        } else {
-            component.setComponentConfig(config.toJSONString());
-            componentDao.update(component);
-        }
-    }
-
-
     private File getFileWithSuffix(String dir, String suffix) {
         if (StringUtils.isBlank(suffix)) {
             throw new RdosDefineException("文件后缀不能为空");
@@ -354,24 +299,6 @@ public class ComponentService {
             }
         }
         return file;
-    }
-
-
-    private File getDeepFileWithSuffix(String dir, String suffix) {
-        //不是单个文件夹
-        File dirFile = new File(dir);
-        if (dirFile.exists() && dirFile.isDirectory()) {
-            File[] files = dirFile.listFiles();
-            if (files.length > 0) {
-                for (File file : files) {
-                    File subFile = this.getFileWithSuffix(file.getPath(), suffix);
-                    if (Objects.nonNull(subFile)) {
-                        return subFile;
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     private String getPrincipal(File file) {
@@ -822,10 +749,6 @@ public class ComponentService {
         throw new RdosDefineException("集群名称已存在");
     }
 
-    private void checkJSON(String json){
-        JSON.parse(json);
-    }
-
 
     /**
      * parse zip中xml或者json
@@ -870,7 +793,6 @@ public class ComponentService {
                 for (Resource resource : resources) {
                     try {
                         String fileInfo = FileUtils.readFileToString(new File(resource.getUploadedFileName()));
-                        checkJSON(fileInfo);
                         datas.add(PublicUtil.strToMap(fileInfo));
                     } catch (Exception e) {
                         LOGGER.error("parse json config resource error {} ", resource.getUploadedFileName());
@@ -1215,7 +1137,7 @@ public class ComponentService {
             }
         }
         //hive也需要version
-        if (EComponentType.HIVE_SERVER.getTypeCode() == componentType || EComponentType.SPARK_THRIFT.getTypeCode() == componentType) {
+        if (EComponentType.HIVE_SERVER.getTypeCode().equals(componentType) || EComponentType.SPARK_THRIFT.getTypeCode().equals(componentType)) {
             pluginName = "hive";
             if (version.contains("cdh")) {
                 //cdh为完整路径
@@ -1227,7 +1149,7 @@ public class ComponentService {
         }
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("集群名称不能为空");
-        } else if (EComponentType.YARN.getTypeCode() == componentType) {
+        } else if (EComponentType.YARN.getTypeCode().equals(componentType)) {
             if (StringUtils.isBlank(version)) {
                 throw new RdosDefineException("请选择集群版本");
             }
@@ -1251,7 +1173,7 @@ public class ComponentService {
             //yarn2-hdfs2-hadoop2
             return String.format("yarn%s-hdfs%s-hadoop%s", this.formatHadoopVersion(version),
                     this.formatHadoopVersion(hdfs.getHadoopVersion()), this.formatHadoopVersion(version));
-        } else if (EComponentType.KUBERNETES.getTypeCode() == componentType) {
+        } else if (EComponentType.KUBERNETES.getTypeCode().equals(componentType)) {
             return "k8s-hdfs2-hadoop2";
         }
 
@@ -1266,7 +1188,7 @@ public class ComponentService {
             throw new RdosDefineException("请先配置资源组件");
         }
         String resourceSign = Objects.isNull(yarn) ? "k8s" : "yarn" + this.formatHadoopVersion(yarn.getHadoopVersion());
-        if (EComponentType.HDFS.getTypeCode() == componentType) {
+        if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
             //hdfs  和 yarn 的版本要保持一致
             if(Objects.nonNull(yarn)){
                 if(!version.equalsIgnoreCase(yarn.getHadoopVersion())){
@@ -1281,22 +1203,22 @@ public class ComponentService {
         }
         String storageSign = "hdfs" + this.formatHadoopVersion(hdfs.getHadoopVersion());
         //dtscript yarn2-hdfs2-dtscript
-        if(EComponentType.DT_SCRIPT.getTypeCode() == componentType){
+        if(EComponentType.DT_SCRIPT.getTypeCode().equals(componentType)){
             return String.format("%s-%s-dtscript",resourceSign,storageSign);
         }
         //learing yarn2-hdfs2-leanring
-        if (EComponentType.LEARNING.getTypeCode() == componentType) {
+        if (EComponentType.LEARNING.getTypeCode().equals(componentType)) {
             return String.format("%s-%s-learning",resourceSign,storageSign);
         }
         //flink  需要根据yarn hdfs version 拼接 如yarn2-hdfs2-flink180;
-        if (EComponentType.FLINK.getTypeCode() == componentType) {
+        if (EComponentType.FLINK.getTypeCode().equals(componentType)) {
             //kubernetes 仅有110
             if(Objects.nonNull(kubernetes)){
                 version = "110";
             }
             return String.format("%s-%s-flink%s", resourceSign, storageSign, version);
         }
-        if (EComponentType.SPARK.getTypeCode() == componentType) {
+        if (EComponentType.SPARK.getTypeCode().equals(componentType)) {
             return String.format("%s-%s-spark%s", resourceSign, storageSign, version);
         }
         throw new RdosDefineException("暂无对应组件默认配置");
@@ -1381,7 +1303,7 @@ public class ComponentService {
         Map<String, String> sftpMap = getSftpMap(components);
         CountDownLatch countDownLatch = new CountDownLatch(components.size());
         for (Component component : components) {
-            if (EComponentType.YARN.getTypeCode() != component.getComponentTypeCode()) {
+            if (!EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
                 continue;
             }
             KerberosConfig kerberosConfig = kerberosDao.getByComponentType(
@@ -1395,7 +1317,7 @@ public class ComponentService {
                                 component.getComponentConfig(), clusterName, component.getHadoopVersion(),
                                 component.getEngineId(), kerberosConfig, finalSftpMap);
 
-                        if (refreshResult.getResult() && EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
+                        if (refreshResult.getResult() && EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
                             engineService.updateResource(component.getEngineId(), refreshResult.getClusterResourceDescription());
                             queueService.updateQueue(component.getEngineId(), refreshResult.getClusterResourceDescription());
                         }
@@ -1444,7 +1366,7 @@ public class ComponentService {
                     try {
                         testResult = this.testConnect(component.getComponentTypeCode(), component.getComponentConfig(), clusterName, component.getHadoopVersion(), component.getEngineId(), kerberosConfig, finalSftpMap);
                         //测试联通性
-                        if (EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
+                        if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
                             if (testResult.getResult()) {
                                 engineService.updateResource(component.getEngineId(), testResult.getClusterResourceDescription());
                                 queueService.updateQueue(component.getEngineId(), testResult.getClusterResourceDescription());
@@ -1498,7 +1420,7 @@ public class ComponentService {
 
     private Map<String, String> getSftpMap(List<Component> components) {
         Optional<Component> componentOptional = components.stream()
-                .filter(c -> EComponentType.SFTP.getTypeCode() == c.getComponentTypeCode())
+                .filter(c -> EComponentType.SFTP.getTypeCode().equals(c.getComponentTypeCode()))
                 .findFirst();
         Map<String, String> sftpMap = null;
         try {

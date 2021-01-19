@@ -191,10 +191,8 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNotNull(engineTenants);
         Assert.assertNotNull(engineTenants.getData());
         //查询集群组件信息
-        JSONObject componentsJson = JSONObject.parseObject(JSON.toJSONString(componentService.listConfigOfComponents(tenant.getDtUicTenantId(), MultiEngineType.HADOOP.getType())));
+        JSONArray componentsJson = JSONObject.parseArray(JSON.toJSONString(componentService.listConfigOfComponents(tenant.getDtUicTenantId(), MultiEngineType.HADOOP.getType())));
         Assert.assertNotNull(componentsJson);
-
-        Assert.assertNotNull(componentsJson.getJSONObject(String.valueOf(EComponentType.YARN.getTypeCode())));
 
         //查询kerberos配置信息
         KerberosConfig kerberosConfig = componentService.getKerberosConfig(clusterVO.getId(), EComponentType.YARN.getTypeCode());
@@ -213,8 +211,6 @@ public class ClusterServiceTest extends AbstractTest {
         JSONArray engineJson = JSONObject.parseArray(JSON.toJSONString(engineService.listSupportEngine(tenant.getDtUicTenantId())));
         Assert.assertTrue(engineJson.size() > 0);
         
-        List<EngineVO> engineVOS = engineService.listClusterEngines(clusterVO.getId(), true);
-        Assert.assertNotNull(engineVOS);
         //删除组件
         try {
             componentService.delete(Lists.newArrayList(hdfsComponent.getId().intValue()));
@@ -282,18 +278,18 @@ public class ClusterServiceTest extends AbstractTest {
     private void testGetCluster(ClusterVO clusterVO) {
         //测试yarn 和hdfs是否存在
         //单个
-        ClusterVO cluster = clusterService.getCluster(clusterVO.getClusterId(), null, true);
+        ClusterVO cluster = clusterService.getCluster(clusterVO.getClusterId(), true);
         Assert.assertNotNull(cluster);
         Assert.assertNotNull(cluster.getScheduling());
         Optional<SchedulingVo> commonSchedule = cluster.getScheduling().stream().filter(s -> s.getSchedulingCode() == EComponentScheduleType.COMMON.getType()).findFirst();
         Assert.assertTrue(commonSchedule.isPresent());
         List<ComponentVO> components = commonSchedule.get().getComponents();
         Assert.assertNotNull(components);
-        Optional<ComponentVO> sftpComponent = components.stream().filter(c -> c.getComponentTypeCode() == EComponentType.SFTP.getTypeCode()).findAny();
+        Optional<ComponentVO> sftpComponent = components.stream().filter(c -> c.getComponentTypeCode().equals(EComponentType.SFTP.getTypeCode())).findAny();
         Assert.assertTrue(sftpComponent.isPresent());
         Optional<SchedulingVo> resourceSchedule = cluster.getScheduling().stream().filter(s -> s.getSchedulingCode() == EComponentScheduleType.RESOURCE.getType()).findFirst();
         Assert.assertTrue(resourceSchedule.isPresent());
-        Optional<ComponentVO> yarnComponent = resourceSchedule.get().getComponents().stream().filter(c -> c.getComponentTypeCode() == EComponentType.YARN.getTypeCode()).findAny();
+        Optional<ComponentVO> yarnComponent = resourceSchedule.get().getComponents().stream().filter(c -> c.getComponentTypeCode().equals(EComponentType.YARN.getTypeCode())).findAny();
         Assert.assertTrue(yarnComponent.isPresent());
 
     }
