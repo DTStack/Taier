@@ -136,9 +136,6 @@ public class TenantService {
 
         List<Long> queueIds = engineTenantVOS.stream().filter(v -> v.getQueueId() != null).map(EngineTenantVO::getQueueId).collect(Collectors.toList());
 
-        Map<Long, Queue> queueMap = new HashMap<>(16);
-        List<Queue> queueList = queueDao.listByIds(queueIds);
-        for (Queue queue : queueList) {
         Map<Long, com.dtstack.engine.api.domain.Queue> queueMap = new HashMap<>();
         List<com.dtstack.engine.api.domain.Queue> queueList = queueDao.listByIds(queueIds);
         for (com.dtstack.engine.api.domain.Queue queue : queueList) {
@@ -148,7 +145,6 @@ public class TenantService {
             if(engineTenantVO.getQueueId() == null){
                 continue;
             }
-
             com.dtstack.engine.api.domain.Queue queue = queueMap.get(engineTenantVO.getQueueId());
             if(queue == null){
                 continue;

@@ -17,6 +17,7 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.EComponentScheduleType;
@@ -519,7 +520,7 @@ public class ClusterService implements InitializingBean {
 
     /**
      * 添加kerberos的配置文件地址为本地路径
-     * @param sftp
+     * @param sftpConfig
      * @param dataMap
      */
     private void accordToKerberosFile(SftpConfig sftpConfig, JSONObject dataMap, Component component) {

@@ -1086,6 +1086,30 @@ public class ScheduleJobService {
 
     /**
      * @author newman
+     * @Description 工作流或算法实验，保持提交状态
+     * @Date 2020-12-18 16:27
+     * @param scheduleJob:
+     * @param batchTask:
+     * @return: boolean
+     **/
+    private boolean checkWorkFlow(ScheduleJob scheduleJob, ScheduleTaskShade batchTask) {
+        //工作流节点保持提交中状态,状态更新见BatchFlowWorkJobService
+        if (batchTask.getTaskType().equals(EScheduleJobType.WORK_FLOW.getVal()) ||
+                batchTask.getTaskType().equals(EScheduleJobType.ALGORITHM_LAB.getVal())) {
+            ScheduleJob updateJob = new ScheduleJob();
+            updateJob.setJobId(scheduleJob.getJobId());
+            updateJob.setAppType(scheduleJob.getAppType());
+            updateJob.setStatus(RdosTaskStatus.SUBMITTING.getStatus());
+            updateJob.setExecStartTime(new Timestamp(System.currentTimeMillis()));
+            updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
+            scheduleJobDao.updateStatusWithExecTime(updateJob);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @author newman
      * @Description 如果是虚结点，直接完成
      * @Date 2020-12-18 16:25
      * @param scheduleJob:

@@ -444,7 +444,7 @@ public class ScheduleTaskTaskShadeService {
      * @param appType:
      * @return: java.util.List<com.dtstack.engine.api.vo.ScheduleTaskVO>
      **/
-    private List<ScheduleTaskVO> getFlowWorkSubTasksRefTask(Set<Long> taskIds, int level, Integer directType, Integer appType,int max) {
+    public List<ScheduleTaskVO> getFlowWorkSubTasksRefTask(Set<Long> taskIds, int level, Integer directType, Integer appType,int max) {
 
         //获得所有父节点task
         List<ScheduleTaskShade> tasks = taskShadeService.getTaskByIds(new ArrayList<>(taskIds),appType);

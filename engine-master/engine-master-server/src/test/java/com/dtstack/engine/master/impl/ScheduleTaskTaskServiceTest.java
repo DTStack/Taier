@@ -87,20 +87,20 @@ public class ScheduleTaskTaskServiceTest extends AbstractTest {
         scheduleTaskTaskShadeService.saveTaskTaskList(workFlowStr);
 
         //查询不存在的
-        ScheduleTaskVO scheduleTaskVO = scheduleTaskTaskShadeService.displayOffSpring(19121L, 3L, 0L, 0, null, 1);
+        ScheduleTaskVO scheduleTaskVO = scheduleTaskTaskShadeService.displayOffSpring(19121L, 3L, 1, 0, 1);
         Assert.assertNull(scheduleTaskVO);
 
 
         //查询父节点
-        scheduleTaskVO = scheduleTaskTaskShadeService.displayOffSpring(600L, 3L, 0L, 2, null, 1);
+        scheduleTaskVO = scheduleTaskTaskShadeService.displayOffSpring(600L, 3L, 1, 2, 1);
         Assert.assertNotNull(scheduleTaskVO);
 
         //查询子节点
-        scheduleTaskVO = scheduleTaskTaskShadeService.displayOffSpring(499L, 3L, 0L, 2, DisplayDirect.CHILD.getType(), 1);
+        scheduleTaskVO = scheduleTaskTaskShadeService.displayOffSpring(499L, 3L, 1, 2, DisplayDirect.CHILD.getType());
         Assert.assertNotNull(scheduleTaskVO);
 
         //查询工作流
-        scheduleTaskVO = scheduleTaskTaskShadeService.displayOffSpring(471L, 3L, 0L, 2, DisplayDirect.CHILD.getType(), 1);
+        scheduleTaskVO = scheduleTaskTaskShadeService.displayOffSpring(471L, 3L, 1, 2, DisplayDirect.CHILD.getType());
         Assert.assertNotNull(scheduleTaskVO);
 
         //查询不存在的
@@ -119,6 +119,6 @@ public class ScheduleTaskTaskServiceTest extends AbstractTest {
     @Test
     public void testEmpty(){
         scheduleTaskTaskShadeService.saveTaskTaskList("");
-        Assert.assertNull(scheduleTaskTaskShadeService.getFlowWorkSubTasksRefTask(Sets.newHashSet(1001L),0,0,8));
+        Assert.assertNull(scheduleTaskTaskShadeService.getFlowWorkSubTasksRefTask(Sets.newHashSet(1001L),0,0,8,10));
     }
 }
