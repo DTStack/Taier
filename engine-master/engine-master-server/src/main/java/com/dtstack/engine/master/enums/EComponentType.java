@@ -232,5 +232,8 @@ public enum EComponentType {
     //基础配置信息
     public static List<String> BASE_CONFIG = Lists.newArrayList(EComponentType.HDFS.getConfName(),EComponentType.NFS.getConfName(),
             EComponentType.YARN.getConfName(), EComponentType.SPARK_THRIFT.getConfName(), EComponentType.SFTP.getConfName(),EComponentType.KUBERNETES.getConfName());
+    /**没有queue的组件**/
+    public static List<EComponentType> noQueueComponents = Lists.newArrayList(EComponentType.ORACLE_SQL,EComponentType.TIDB_SQL,EComponentType.LIBRA_SQL,
+            EComponentType.GREENPLUM_SQL, EComponentType.PRESTO_SQL);
 
 }

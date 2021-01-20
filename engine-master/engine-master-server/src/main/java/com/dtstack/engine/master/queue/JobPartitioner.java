@@ -26,7 +26,7 @@ public class JobPartitioner {
     private ZkService zkService;
 
     public Map<String, Integer> getDefaultStrategy(List<String> aliveNodes, int jobSize) {
-        Map<String, Integer> jobSizeInfo = new HashMap<String, Integer>(aliveNodes.size());
+        Map<String, Integer> jobSizeInfo = new HashMap<>(aliveNodes.size());
         int size = (jobSize / aliveNodes.size()) + 1;
         for (String aliveNode : aliveNodes) {
             jobSizeInfo.put(aliveNode, size);

@@ -384,11 +384,9 @@ CREATE TABLE `schedule_job`
   KEY `index_task_id` (`task_id`),
   UNIQUE KEY `index_job_id` (`job_id`(128),`is_deleted`),
   KEY `index_fill_id` (`fill_id`),
-  KEY `index_project_id` (`project_id`),
   UNIQUE KEY `idx_jobKey` (`job_key`(128)),
   KEY `idx_name_type` (`job_name`(128), `type`),
   KEY `index_engine_job_id` (`engine_job_id`(128)),
-  KEY `index_status` (`status`),
   KEY `index_gmt_modified` (`gmt_modified`),
   KEY `idx_cyctime` (`cyc_time`),
   KEY `idx_exec_start_time` (`exec_start_time`)
@@ -469,14 +467,14 @@ CREATE TABLE `schedule_task_commit` (
   `task_id` int(11) NOT NULL COMMENT '任务id',
   `app_type` int(11) NOT NULL DEFAULT '0' COMMENT 'RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8)',
   `commit_id` varchar(128) NOT NULL COMMENT '提交id',
-  `task_json` text COMMENT '额外参数',
+  `task_json` longtext COMMENT '额外参数',
   `extra_info` mediumtext COMMENT '存储task运行时所需的额外信息',
   `is_commit` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否提交：0未提交 1已提交',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '过期策略：0永不过期 1过期取消',
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_job_id` (`commit_id`(128),`is_deleted`)
+  UNIQUE KEY `index_job_id` (`commit_id`,`is_deleted`,`task_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `dt_alert_gate` (
