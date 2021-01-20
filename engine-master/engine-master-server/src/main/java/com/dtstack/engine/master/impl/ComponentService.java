@@ -510,8 +510,8 @@ public class ComponentService {
         if(null == cluster){
             throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
         }
-        //校验引擎是否添加
         String clusterName = cluster.getClusterName();
+        //校验引擎是否添加
         EComponentType componentType = EComponentType.getByCode(componentDTO.getComponentTypeCode());
         MultiEngineType engineType = EComponentType.getEngineTypeByComponent(componentType);
         Engine engine = this.addEngineWithCheck(clusterId, engineType);

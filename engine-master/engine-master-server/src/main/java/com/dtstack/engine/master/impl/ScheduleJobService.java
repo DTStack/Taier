@@ -1067,9 +1067,9 @@ public class ScheduleJobService {
         String extInfoByTaskId = scheduleTaskShadeDao.getExtInfoByTaskId(scheduleJob.getTaskId(), scheduleJob.getAppType());
         if (StringUtils.isNotBlank(extInfoByTaskId)) {
             JSONObject extObject = JSONObject.parseObject(extInfoByTaskId);
-            if (Objects.nonNull(extObject)) {
+            if (null != extObject ) {
                 JSONObject info = extObject.getJSONObject(TaskConstant.INFO);
-                if (Objects.nonNull(info)) {
+                if (null != info ) {
                     ParamActionExt paramActionExt = actionService.paramActionExt(batchTask, scheduleJob, info);
                     if (paramActionExt != null) {
                         this.updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus(),batchTask.getVersionId());

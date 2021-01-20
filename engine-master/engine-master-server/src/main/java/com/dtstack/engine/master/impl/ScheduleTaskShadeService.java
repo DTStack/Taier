@@ -211,7 +211,6 @@ public class ScheduleTaskShadeService {
      *
      * @param jobKey
      * @return
-     * @see JobGraphBuilder#getSelfDependencyJobKeys(com.dtstack.task.domain.BatchJob, com.dtstack.task.server.parser.ScheduleCron, java.lang.String)
      */
     public String getTaskNameByJobKey(String jobKey,Integer appType) {
         String[] jobKeySplit = jobKey.split("_");
@@ -536,7 +535,6 @@ public class ScheduleTaskShadeService {
 
 
     public List<Map<String, Object>> listByTaskIdsNotIn( List<Long> taskId,  Integer appType,  Long projectId) {
-        //todo 缺少对参数的校验
         return scheduleTaskShadeDao.listByTaskIdsNotIn(projectId, taskId);
     }
 
