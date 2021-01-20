@@ -43,7 +43,7 @@ perjob:
     pluginLoadMode: classpath
     submitTimeout: 5
     flinkInterval: 5 SECONDS
-    classloader.resolve-order: child-first
+    classloader.resolve-order: parent-first
     classloader.dtstack-cache: true
 
     state.backend: RocksDB
@@ -103,7 +103,7 @@ session:
     pluginLoadMode: classpath
     submitTimeout: 5
     flinkInterval: 5 SECONDS
-    classloader.resolve-order: child-first
+    classloader.resolve-order: parent-first
     classloader.dtstack-cache: true
 
     state.backend: RocksDB
