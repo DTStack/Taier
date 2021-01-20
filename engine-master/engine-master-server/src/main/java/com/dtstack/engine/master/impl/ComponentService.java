@@ -1560,20 +1560,16 @@ public class ComponentService {
         if (CollectionUtils.isEmpty(componentIds)) {
             return;
         }
-        try {
-            for (Integer componentId : componentIds) {
-                Component component = componentDao.getOne(componentId.longValue());
-                EngineAssert.assertTrue(component != null, ErrorCode.DATA_NOT_FIND.getDescription());
+        for (Integer componentId : componentIds) {
+            Component component = componentDao.getOne(componentId.longValue());
+            EngineAssert.assertTrue(component != null, ErrorCode.DATA_NOT_FIND.getDescription());
 
-                if (EComponentType.requireComponent.contains(EComponentType.getByCode(component.getComponentTypeCode()))){
-                    throw new RdosDefineException(component.getComponentName() + " 是必选组件，不可删除");
-                }
-                component.setIsDeleted(Deleted.DELETED.getStatus());
-                componentDao.deleteById(componentId.longValue());
-                kerberosDao.deleteByComponentId(componentId.longValue());
+            if (EComponentType.requireComponent.contains(EComponentType.getByCode(component.getComponentTypeCode()))){
+                throw new RdosDefineException(component.getComponentName() + " 是必选组件，不可删除");
             }
-        } catch (Exception e) {
-            throw new RdosDefineException("删除组件异常");
+            component.setIsDeleted(Deleted.DELETED.getStatus());
+            componentDao.deleteById(componentId.longValue());
+            kerberosDao.deleteByComponentId(componentId.longValue());
         }
     }
 
