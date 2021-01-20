@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.controller;
 
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.api.dto.ScheduleJobDTO;
 import com.dtstack.engine.api.pager.PageQuery;
