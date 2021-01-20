@@ -110,7 +110,7 @@ session:
     submitTimeout: 5
     yarnAccepterTaskNumber: 3
     flinkInterval: 5 SECONDS
-    classloader.resolve-order: child-first
+    classloader.resolve-order: parent-first
     classloader.dtstack-cache: true
 
     web.timeout: 100000
