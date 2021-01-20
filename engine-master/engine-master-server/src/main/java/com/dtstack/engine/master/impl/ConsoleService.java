@@ -306,8 +306,8 @@ public class ConsoleService {
             //获取插件信息
             String pluginInfo = pluginWrapper.getPluginInfo(jobInfoJSON.getString("taskParams"), engineJobCache.getComputeType(), engineJobCache.getEngineType(),
                     null == tenant ? -1L : tenant.getDtUicTenantId(), jobInfoJSON.getLong("userId"),pluginInfoCache);
-            jobInfoJSON.put(PluginWrapper.PLUGIN_INFO, pluginInfo);
-            theJobMap.put("jobInfo", jobInfoJSON.toJSONString());
+            jobInfoJSON.put(PluginWrapper.PLUGIN_INFO, JSONObject.parseObject(pluginInfo));
+            theJobMap.put("jobInfo", jobInfoJSON);
         }
     }
 
