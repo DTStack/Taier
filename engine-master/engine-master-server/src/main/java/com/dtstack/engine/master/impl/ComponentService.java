@@ -855,7 +855,7 @@ public class ComponentService {
     public String wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig,String clusterName) {
         JSONObject dataInfo = new JSONObject();
         dataInfo.put("componentName", EComponentType.getByCode(componentType).getName().toLowerCase());
-        if (Objects.nonNull(kerberosConfig)) {
+        if (null != kerberosConfig) {
             dataInfo.put("kerberosFileTimestamp",kerberosConfig.getGmtModified());
             //开启了kerberos
             dataInfo.put("openKerberos", kerberosConfig.getOpenKerberos());
