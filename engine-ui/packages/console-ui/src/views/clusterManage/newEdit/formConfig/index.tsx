@@ -51,7 +51,9 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
         const fieldName = groupKey ? `${typeCode}.componentConfig.${groupKey}` : `${typeCode}.componentConfig`;
 
         return !temp.id && <FormItem
-            label={<Tooltip title={temp.key}>{temp.key}</Tooltip>}
+            label={<Tooltip title={temp.key}>
+                <span className="c-formConfig__label">{temp.key}</span>
+            </Tooltip>}
             key={temp.key}
             {...formItemLayout}
         >
@@ -144,10 +146,11 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
             {keyAndValue.map(([key, value]: any[]) => {
                 return (
                     <Row key={key} className="zipConfig-item">
-                        <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 3}>
-                            {key.length > 38
-                                ? <Tooltip title={key}>{key.substr(0, 38) + '...'}</Tooltip>
-                                : key}：
+                        <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 2}>
+                            <Tooltip title={key}>
+                                <span className="form-text-name">{key}</span>
+                            </Tooltip>
+                            <span>：</span>
                         </Col>
                         <Col className="formitem-textvalue" span={formItemLayout.wrapperCol.sm.span + 1}>
                             {`${value}`}
@@ -165,8 +168,8 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                     comp={comp}
                     view={view}
                     template={template}
-                    labelCol={formItemLayout.labelCol.sm.span + 3}
-                    wrapperCol={formItemLayout.wrapperCol.sm.span - 2}
+                    labelCol={formItemLayout.labelCol.sm.span + 2}
+                    wrapperCol={formItemLayout.wrapperCol.sm.span - 3}
                 /> : null
             }
         </>

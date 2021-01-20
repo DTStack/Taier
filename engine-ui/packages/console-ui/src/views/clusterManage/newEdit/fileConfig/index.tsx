@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { Form, Select, message, Icon } from 'antd'
-import { cloneDeep } from 'lodash'
 
 import req from '../../../../consts/reqUrls'
 import Api from '../../../../api/console'
@@ -339,7 +338,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
     renderPrincipal = () => {
         const { comp, form, view } = this.props
         const { principals } = this.state
-        let principalsList = cloneDeep(principals)
+        let principalsList = principals
         const typeCode = comp?.componentTypeCode ?? ''
         const kerberosFile = form.getFieldValue(typeCode + '.kerberosFileName') ?? comp?.kerberosFileName
 
@@ -367,7 +366,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                     </Select>
                 )}
                 {form.getFieldDecorator(`${typeCode}.principals`, {
-                    initialValue: principalsList ?? []
+                    initialValue: comp?.principals ?? ''
                 })(
                     <></>
                 )}

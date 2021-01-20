@@ -96,8 +96,9 @@ export default class CustomParams extends React.PureComponent<IProp, IState> {
     }
 
     renderAddCustomParam = () => {
+        const { labelCol } = this.props
         return <Row>
-            <Col span={formItemLayout.labelCol.sm.span}></Col>
+            <Col span={labelCol ?? formItemLayout.labelCol.sm.span}></Col>
             <Col className="m-card" style={{ marginBottom: '20px' }} span={formItemLayout.wrapperCol.sm.span}>
                 <a onClick={() => this.addCustomerParams()}>添加自定义参数</a>
             </Col>

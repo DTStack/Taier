@@ -350,7 +350,8 @@ export function getModifyComp (comps: any, initialCompData: any[]): any {
             }
         } else {
             /** 比对 hdfs、yarn 自定义参数 */
-            if (comp['customParam'] && !_.isEqual(comp['customParam'], getParamsByTemp(JSON.parse(initialComp?.componentTemplate)))) {
+            const temp = getParamsByTemp(JSON.parse(initialComp?.componentTemplate))
+            if ((comp['customParam'] || Object.values(temp).length) && !_.isEqual(comp['customParam'], temp)) {
                 modifyComps.add(typeCode)
             }
         }

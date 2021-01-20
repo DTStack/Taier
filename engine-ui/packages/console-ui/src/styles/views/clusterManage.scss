@@ -57,9 +57,16 @@
 }
 .formitem-textname{
     text-align: right;
-    word-break: break-all;
     font-weight: bold;
     color:rgba(1,1,1,0.54);
+    .form-text-name {
+        width: 95%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+        vertical-align: bottom;
+    }
 }
 .formitem-textvalue{
     color: rgba(1,1,1,0.84);
@@ -563,6 +570,14 @@
             margin-top: 12px;
             margin-bottom: 12px;
         }
+    }
+    .c-formConfig__label {
+        max-width: 96%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+        vertical-align: bottom;
     }
 }
 
