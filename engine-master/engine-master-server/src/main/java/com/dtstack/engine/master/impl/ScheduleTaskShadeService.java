@@ -110,10 +110,6 @@ public class ScheduleTaskShadeService {
         scheduleTaskTaskShadeService.clearDataByTaskId(taskId,appType);
     }
 
-    public List<ScheduleTaskShade> listTaskByType(Long projectId, Integer taskType, String taskName) {
-        return scheduleTaskShadeDao.listByType(projectId, taskType, taskName);
-    }
-
     /**
      * 获取所有需要需要生成调度的task 没有sqlText字段
      */
