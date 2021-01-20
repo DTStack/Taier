@@ -164,15 +164,6 @@ public class FlinkClient extends AbstractClient {
     }
 
     private JobResult submitJobWithJar(JobClient jobClient, List<URL> classPaths, List<String> programArgList) {
-        if (flinkConfig.isOpenKerberos()) {
-            FileUtil.downloadKafkaKeyTab(jobClient, filesystemManager);
-        }
-
-        if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
-            if (existsJobOnFlink(jobClient.getEngineTaskId())) {
-                return JobResult.createSuccessResult(jobClient.getEngineTaskId());
-            }
-        }
 
         JobParam jobParam = new JobParam(jobClient);
         String jarPath = jobParam.getJarPath();
