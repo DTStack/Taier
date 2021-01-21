@@ -70,11 +70,11 @@ public interface LineageService extends DtInsightServer {
 
     /**
      * 手动添加表级血缘
-     * @param lineageTableTableVO
+     * @param lineageTableTableParam
      * @return 无返回结果
      */
     @RequestLine("POST /node/lineage/manualAddTableTable")
-    ApiResponse manualAddTableTable( LineageTableTableVO lineageTableTableVO);
+    ApiResponse manualAddTableTable( LineageTableTableParam lineageTableTableParam);
 
     /**
      * 手动删除表级血缘
@@ -86,11 +86,11 @@ public interface LineageService extends DtInsightServer {
 
     /**
      * 手动添加字段级血缘
-     * @param lineageColumnColumnVO
+     * @param lineageColumnColumnParam
      * @return 无返回结果
      */
     @RequestLine("POST /node/lineage/manualAddColumnColumn")
-    ApiResponse manualAddColumnColumn( LineageColumnColumnVO lineageColumnColumnVO);
+    ApiResponse manualAddColumnColumn( LineageColumnColumnParam lineageColumnColumnParam);
 
     /**
      * 手动删除字段级血缘

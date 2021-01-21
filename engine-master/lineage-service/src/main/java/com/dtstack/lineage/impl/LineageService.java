@@ -324,6 +324,11 @@ public class LineageService {
             Map<String, List<Column>> tableColumnMap = lineageDataSetInfoService.getColumnsBySourceIdAndListTable(lineageDataSource.getId(), Lists.newArrayList(tables));
             Map<String, List<com.dtstack.sql.Column>> sqlTableColumnMap = new HashMap<>();
             for (Map.Entry<String,List<Column>> entry:tableColumnMap.entrySet()){
+                String tableName = entry.getKey();
+                List<Column> columns = entry.getValue();
+                if (Objects.isNull(columns)){
+                    throw new RdosDefineException("表字段获取失败");
+                }
                 sqlTableColumnMap.put(parseColumnLineageParam.getDefaultDb()+"."+entry.getKey(),entry.getValue().stream().map(ColumnAdapter::apiColumn2SqlColumn).collect(Collectors.toList()));
             }
             ParseResult parseResult = null;

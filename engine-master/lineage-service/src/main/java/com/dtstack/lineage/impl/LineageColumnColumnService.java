@@ -57,12 +57,16 @@ public class LineageColumnColumnService {
         Set<String> columnLineageKeys = columnColumns.stream().map(LineageColumnColumn::getColumnLineageKey).collect(Collectors.toSet());
         columnColumns = queryByColumnLineageKeys(columnColumns.get(0).getAppType(), columnLineageKeys);
         //2.删除uniqueKey对应批次的ref，插入新的ref
+        if (StringUtils.isEmpty(uniqueKey)){
+            uniqueKey = generateDefaultUniqueKey(columnColumns.get(0).getAppType());
+        }
         lineageColumnColumnUniqueKeyRefDao.deleteByUniqueKey(uniqueKey);
+        String finalUniqueKey = uniqueKey;
         List<LineageColumnColumnUniqueKeyRef> refList = columnColumns.stream().map(cc -> {
             LineageColumnColumnUniqueKeyRef ref = new LineageColumnColumnUniqueKeyRef();
             ref.setAppType(cc.getAppType());
             ref.setLineageColumnColumnId(cc.getId());
-            ref.setUniqueKey(uniqueKey);
+            ref.setUniqueKey(finalUniqueKey);
             return ref;
         }).collect(Collectors.toList());
         lineageColumnColumnUniqueKeyRefDao.batchInsert(refList);
@@ -170,13 +174,16 @@ public class LineageColumnColumnService {
         return MD5Util.getMd5String(rawKey);
     }
 
-    public String generateDefaultUniqueKey(Integer appType) {
-        if (AppType.RDOS.getType() == appType) {
-            return AppType.RDOS.name();
+    /**
+     * 生成默认uniqueKey
+     * @param appType
+     * @return
+     */
+    public String generateDefaultUniqueKey(Integer appType){
+        AppType value = AppType.getValue(appType);
+        if (Objects.nonNull(value)){
+            return value.name();
         }
-        if (AppType.DQ.getType() == appType) {
-            return AppType.DQ.name();
-        }
-        return UUID.randomUUID().toString();
+        return "APP_TYPE_"+appType;
     }
 }
