@@ -51,6 +51,7 @@ public enum DataSourceType {
     DMDB(35),
     GREENPLUM6(36),
     Presto(37),
+    KINGBASE8(40),
 
     /**
      * spark thrift
