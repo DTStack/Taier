@@ -8,6 +8,7 @@ import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
@@ -36,7 +37,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -189,8 +189,8 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
             }
             return rs;
         } catch (Exception e) {
-            LOG.error("", e);
-            dealSubmitFailJob(jobClient.getTaskId(), e.toString());
+            LOG.error("{} addGroupPriorityQueue error ",jobClient.getTaskId(), e);
+            dealSubmitFailJob(jobClient.getTaskId(), ExceptionUtil.getErrorMessage(e));
             return false;
         }
     }
@@ -300,9 +300,9 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                             }
                             startId = jobCache.getId();
                         } catch (Exception e) {
-                            LOG.error("", e);
+                            LOG.error("RecoverDealer run jobId {} error", jobCache.getJobId(), e);
                             //数据转换异常--打日志
-                            dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
+                            dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + ExceptionUtil.getErrorMessage(e));
                         }
                     }
                     if (CollectionUtils.isNotEmpty(unSubmitClients)) {
