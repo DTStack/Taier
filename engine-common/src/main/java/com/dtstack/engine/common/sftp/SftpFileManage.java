@@ -163,7 +163,11 @@ public class SftpFileManage implements IFileManage {
         long fileTimeout;
         if ((fileTimeout = sftpConfig.getFileTimeout()) != 0L && (lastModifyTime = fileLastModifyMap.get(localFile)) != null) {
             if (System.currentTimeMillis() - lastModifyTime <= fileTimeout) {
-                return localFile;
+                File file = new File(localFile);
+                if(file.exists()){
+                    return localFile;
+                }
+
             }
         }
         try {
