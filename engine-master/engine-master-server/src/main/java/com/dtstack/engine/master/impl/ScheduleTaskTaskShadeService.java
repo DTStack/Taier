@@ -331,7 +331,8 @@ public class ScheduleTaskTaskShadeService {
         ScheduleTaskShade beginTaskShade = taskShadeService.getWorkFlowTopNode(flowId);
         if(beginTaskShade!=null) {
             //展开工作流全部节点，不包括工作流父节点
-            vo = getFlowWorkOffSpring(beginTaskShade, 1,appType,10);
+            Integer workFlowLevel = context.getWorkFlowLevel();
+            vo = getFlowWorkOffSpring(beginTaskShade, 1,appType,workFlowLevel);
         }
         return vo;
     }
@@ -356,7 +357,8 @@ public class ScheduleTaskTaskShadeService {
         ScheduleTaskShade beginTaskShade = taskShadeService.getWorkFlowTopNode(taskId);
         if(beginTaskShade!=null) {
             //获取工作流下游结点
-            vo = getFlowWorkOffSpring(beginTaskShade, 1,appType,10);
+            Integer workFlowLevel = context.getWorkFlowLevel();
+            vo = getFlowWorkOffSpring(beginTaskShade, 1,appType,workFlowLevel);
         }
         parentNode.setSubTaskVOS(Arrays.asList(vo));
         return parentNode;
