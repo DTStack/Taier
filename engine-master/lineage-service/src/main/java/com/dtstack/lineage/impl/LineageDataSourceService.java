@@ -70,7 +70,10 @@ public class LineageDataSourceService {
         try {
             //校验dtuicTenantId是否存在
             checkTenant(dataSourceDTO.getDtUicTenantId());
-            checkDataJson(dataSourceDTO.getDataJson());
+            //未知数据源不需要校验dataJson
+            if(dataSourceDTO.getSourceType() != DataSourceType.UNKNOWN.getVal()) {
+                checkDataJson(dataSourceDTO.getDataJson());
+            }
             if (Objects.isNull(dataSourceDTO.getDataSourceId())){
                 return addDataSource(dataSourceDTO);
             }else {
@@ -151,9 +154,9 @@ public class LineageDataSourceService {
     private Long addDataSource(DataSourceDTO dataSourceDTO) {
         try {
             //首先根据数据源名称查询数据源，如果数据源已经存在，说明是修改手动添加的数据源的信息。
-            LineageDataSource lineageDataSource = getDataSourceByParams(dataSourceDTO.getSourceType(), dataSourceDTO.getSourceName(), dataSourceDTO.getDtUicTenantId(), dataSourceDTO.getAppType());
-            if ( null != lineageDataSource ){
-                dataSourceDTO.setDataSourceId(lineageDataSource.getId());
+            List<LineageDataSource> lineageDataSources = queryLineageDataSources(dataSourceDTO.getSourceType(), dataSourceDTO.getSourceName(), dataSourceDTO.getDtUicTenantId(), dataSourceDTO.getAppType());
+            if ( CollectionUtils.isNotEmpty(lineageDataSources) ){
+                dataSourceDTO.setDataSourceId(lineageDataSources.get(0).getId());
                 return addOrUpdateDataSource(dataSourceDTO);
             }
             //是否是手动添加的数据源。手动添加的数据源暂时不知道数据源类型。当然也可能一直不知道数据源类型
@@ -372,13 +375,7 @@ public class LineageDataSourceService {
     public LineageDataSource getDataSourceByParams(Integer sourceType,String sourceName,Long dtUicTenantId,
                                                    Integer appType){
 
-        LineageDataSource lineageDataSource = new LineageDataSource();
-        lineageDataSource.setSourceName(sourceName);
-        lineageDataSource.setSourceType(sourceType);
-        lineageDataSource.setDtUicTenantId(dtUicTenantId);
-        lineageDataSource.setAppType(appType);
-        lineageDataSource.setIsDeleted(0);
-        List<LineageDataSource> dataSourceByParams = lineageDataSourceDao.getDataSourceByParams(lineageDataSource);
+        List<LineageDataSource> dataSourceByParams = queryLineageDataSources(sourceType, sourceName, dtUicTenantId, appType);
         if(CollectionUtils.isNotEmpty(dataSourceByParams)){
             return dataSourceByParams.get(0);
         }else{
@@ -396,6 +393,16 @@ public class LineageDataSourceService {
             }
             return null;
         }
+    }
+
+    private List<LineageDataSource> queryLineageDataSources(Integer sourceType, String sourceName, Long dtUicTenantId, Integer appType) {
+        LineageDataSource lineageDataSource = new LineageDataSource();
+        lineageDataSource.setSourceName(sourceName);
+        lineageDataSource.setSourceType(sourceType);
+        lineageDataSource.setDtUicTenantId(dtUicTenantId);
+        lineageDataSource.setAppType(appType);
+        lineageDataSource.setIsDeleted(0);
+        return lineageDataSourceDao.getDataSourceByParams(lineageDataSource);
     }
 
     public void acquireOldDataSourceList(List<DataSourceDTO> dataSourceDTOs) {

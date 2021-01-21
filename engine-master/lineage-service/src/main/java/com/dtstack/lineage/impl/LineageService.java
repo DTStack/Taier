@@ -521,7 +521,7 @@ public class LineageService {
             if (Objects.isNull(dataSource)){
                 throw new RdosDefineException("数据源不存在");
             }
-            LineageDataSetInfo inputTableInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(inputTableInfoVo.getDataSourceVO().getSourceId(), inputTableInfoVo.getDbName(), inputTableInfoVo.getTableName(), inputTableInfoVo.getSchemaName());
+            LineageDataSetInfo inputTableInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(dataSource.getId(), inputTableInfoVo.getDbName(), inputTableInfoVo.getTableName(), inputTableInfoVo.getSchemaName());
             LineageTableVO resultTableInfoVO = tableTableVO.getResultTableInfo();
             LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
             LineageDataSource resultDataSource = null;
