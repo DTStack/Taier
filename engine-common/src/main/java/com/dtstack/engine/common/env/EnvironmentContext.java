@@ -39,6 +39,11 @@ public class EnvironmentContext {
         return Math.abs(Integer.parseInt(environment.getProperty("fillDataCycTimeHourGap", "168")));
     }
 
+    /**是否给补数据和重跑cycTime做限制，默认不做限制**/
+    public Boolean getOpenFillDataCycTimeLimit(){
+        return Boolean.parseBoolean(environment.getProperty("openFillDataCycTimeLimit","false"));
+    }
+
     public long getJobStatusDealerInterval() {
         return Integer.parseInt(environment.getProperty("jobStatusDealerInterval", "3000"));
     }
