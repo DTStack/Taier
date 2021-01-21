@@ -137,7 +137,7 @@ public class LineageDataSetInfoService {
             }
             if(dataSource.getAppType() == AppType.DATAASSETS.getType()){
                 //资产类型需要在pluginInfo中补充typeName
-                String typeName = DataSourceType.getSourceType(dataSource.getSourceType()).name().toLowerCase();
+                String typeName = DataSourceType.getEngineType(DataSourceType.getSourceType(dataSource.getSourceType()));
                 jsonObject.put("typeName",typeName);
             }
             String pluginInfo = PublicUtil.objToString(jsonObject);
@@ -160,7 +160,7 @@ public class LineageDataSetInfoService {
         if(null == clientCache || null == dataSource){
             return null;
         }
-        return clientCache.getClient(DataSourceType.getSourceType(dataSource.getSourceType()).name().toLowerCase(), pluginInfo);
+        return clientCache.getClient(DataSourceType.getEngineType(DataSourceType.getSourceType(dataSource.getSourceType())), pluginInfo);
     }
 
     /**

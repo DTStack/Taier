@@ -173,4 +173,35 @@ public enum DataSourceType {
                 GREENPLUM6.getVal(),
                 Presto.getVal());
     }
+
+    public static String getEngineType(DataSourceType sourceType){
+
+        switch (sourceType) {
+            case MySQL:
+                return "mysql";
+            case HIVE:
+                return "hive2";
+            case HIVE1X:
+                return "hive";
+            case GREENPLUM6:
+                return "greenplum";
+            case IMPALA:
+                return "impala";
+            case Oracle:
+                return "oracle";
+            case PostgreSQL:
+                return "postgresql";
+            case Presto:
+                return "presto";
+            case SQLServer:
+                return "sqlserver";
+            case TiDB:
+                return "tidb";
+            case KINGBASE8:
+                return "kingbase";
+            default:
+                throw new RdosDefineException("不支持的数据源类型");
+        }
+
+    }
 }
