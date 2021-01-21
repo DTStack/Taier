@@ -438,6 +438,7 @@ public class ComponentService {
                         clusterDownloadRecords.add(clusterId);
                         if (!new File(mergeKrb5Path).exists()) {
                             FileUtils.copyFile(new File(localKrb5Path), new File(mergeKrb5Path));
+                            mergeKrb5Content = Krb5FileUtil.convertMapToString(Krb5FileUtil.readKrb5ByPath(mergeKrb5Path));
                             continue;
                         }
                         mergeKrb5Content = Krb5FileUtil.mergeKrb5ContentByPath(mergeKrb5Path, localKrb5Path);

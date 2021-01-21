@@ -62,7 +62,7 @@ public class Krb5FileUtil {
         return content;
     }
 
-    private static String convertMapToString(Map<String, HashMap<String, String>> krb5) {
+    public static String convertMapToString(Map<String, HashMap<String, String>> krb5) {
         StringBuffer content = new StringBuffer();
         for (String key : krb5.keySet()) {
             if (StringUtils.isNotEmpty(key)) {
