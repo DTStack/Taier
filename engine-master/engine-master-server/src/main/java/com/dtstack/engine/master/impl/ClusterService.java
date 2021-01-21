@@ -518,39 +518,6 @@ public class ClusterService implements InitializingBean {
 
 
 
-    /**
-     * 添加kerberos的配置文件地址为本地路径
-     * @param sftpConfig
-     * @param dataMap
-     */
-    private void accordToKerberosFile(SftpConfig sftpConfig, JSONObject dataMap, Component component) {
-        try {
-            JSONObject configJsonObject = dataMap.getJSONObject("kerberosConfig");
-            if ( null == configJsonObject ) {
-                return;
-            }
-            KerberosConfig kerberosConfig = PublicUtil.strToObject(configJsonObject.toString(), KerberosConfig.class);
-            if ( null == kerberosConfig ) {
-                return;
-            }
-            if (kerberosConfig.getOpenKerberos() <= 0) {
-                return;
-            }
-            Preconditions.checkState( null != kerberosConfig.getClusterId());
-            Preconditions.checkState( null != kerberosConfig.getOpenKerberos() );
-            Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getPrincipal()));
-            Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getRemotePath()));
-            Preconditions.checkState( null != kerberosConfig.getComponentType());
-            //获取本地的kerberos本地路径
-            configJsonObject.put("principalFile", kerberosConfig.getName());
-            configJsonObject.putAll(Optional.ofNullable(configJsonObject.getJSONObject("hdfsConfig")).orElse(new JSONObject()));
-            configJsonObject.remove("hdfsConfig");
-            dataMap.put("kerberosConfig", configJsonObject);
-        } catch (Exception e) {
-            LOGGER.error("accordToKerberosFile error {}", dataMap, e);
-            throw new RdosDefineException("下载kerberos文件失败");
-        }
-    }
 
     /**
      * 如果开启集群开启了kerberos认证，kerberosConfig中还需要包含hdfs配置
