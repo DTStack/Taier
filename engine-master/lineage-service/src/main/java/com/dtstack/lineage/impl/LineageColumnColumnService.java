@@ -59,8 +59,10 @@ public class LineageColumnColumnService {
         //2.删除uniqueKey对应批次的ref，插入新的ref
         if (StringUtils.isEmpty(uniqueKey)){
             uniqueKey = generateDefaultUniqueKey(columnColumns.get(0).getAppType());
+        }else {
+            //资产没有uniqueKey，不能删除。
+            lineageColumnColumnUniqueKeyRefDao.deleteByUniqueKey(uniqueKey);
         }
-        lineageColumnColumnUniqueKeyRefDao.deleteByUniqueKey(uniqueKey);
         String finalUniqueKey = uniqueKey;
         List<LineageColumnColumnUniqueKeyRef> refList = columnColumns.stream().map(cc -> {
             LineageColumnColumnUniqueKeyRef ref = new LineageColumnColumnUniqueKeyRef();
