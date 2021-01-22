@@ -2286,11 +2286,6 @@ public class ScheduleJobService {
     }
 
     public ScheduleJob getByJobId( String jobId,  Integer isDeleted) {
-
-        Deleted deleted = Deleted.getByStatus(isDeleted);
-        if(null == deleted){
-            throw new RdosDefineException("isDeleted只能是0或1");
-        }
         return scheduleJobDao.getByJobId(jobId, isDeleted);
     }
 
