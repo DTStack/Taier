@@ -794,9 +794,9 @@
         AND is_deleted = 0
     </select>
 
-    <select id="listIdByTaskIdAndStatus" resultType="java.lang.Long">
+    <select id="listIdByTaskIdAndStatus" resultType="ScheduleJob">
         SELECT
-        bj.id
+        <include refid="select_content_fragment"/>
         FROM schedule_job bj
         where bj.task_id = #{taskId}
         AND bj.status IN
@@ -805,6 +805,12 @@
         </foreach>
         AND bj.is_deleted = 0
         AND bj.app_type = #{appType}
+        <if test="cycTime!=null">
+            AND bj.cyc_time >= #{cycTime}
+        </if>
+        <if test="type!=null">
+            AND bj.type = #{type}
+        </if>
     </select>
 
     <select id="listJobIdByTaskIdAndStatus" resultType="java.lang.String">
