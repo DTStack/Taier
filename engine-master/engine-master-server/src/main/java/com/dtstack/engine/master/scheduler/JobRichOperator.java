@@ -192,11 +192,11 @@ public class JobRichOperator {
      * @param scheduleBatchJob
      * @return
      */
-    private JobCheckRunInfo validSelfWithExpire(ScheduleBatchJob scheduleBatchJob) {
+    private Boolean validSelfWithExpire(ScheduleBatchJob scheduleBatchJob) {
         ScheduleJob scheduleJob = scheduleBatchJob.getScheduleJob();
         if (!DependencyType.SELF_DEPENDENCY_END.getType().equals(scheduleJob.getDependencyType()) &&
                 !DependencyType.SELF_DEPENDENCY_SUCCESS.getType().equals(scheduleJob.getDependencyType())) {
-            return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TIME_OVER_EXPIRE);
+            return Boolean.TRUE;
         }
         //查询当前自依赖任务 今天调度时间前是否有运行中或提交中的任务 如果有 需要等头部运行任务运行完成 才校验自动取消的逻辑
         String todayCycTime = DateTime.now().withTime(0, 0, 0, 0).toString("yyyyMMddHHmmss");
@@ -207,9 +207,9 @@ public class JobRichOperator {
         if (CollectionUtils.isNotEmpty(scheduleJobs)) {
             ScheduleJob waitFinishJob = scheduleJobs.get(0);
             logger.info("jobId {} selfJob {}  has running status [{}],wait running job finish", scheduleJob.getJobId(), waitFinishJob.getJobId(), waitFinishJob.getStatus());
-            return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TIME_NOT_REACH);
+            return Boolean.FALSE;
         }
-        return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TIME_OVER_EXPIRE);
+        return Boolean.TRUE;
     }
 
     /**
