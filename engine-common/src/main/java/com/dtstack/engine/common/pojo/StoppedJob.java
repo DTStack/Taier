@@ -27,6 +27,10 @@ public class StoppedJob<T> implements Delayed {
         count += 1;
     }
 
+    public int getIncrCount() {
+        return count;
+    }
+
     public boolean isRetry() {
         return retry == 0 || count <= retry;
     }
