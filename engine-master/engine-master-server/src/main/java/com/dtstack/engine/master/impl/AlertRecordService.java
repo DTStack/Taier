@@ -1,9 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.AlterSender;
 import com.dtstack.engine.alert.EventMonitor;
@@ -28,6 +24,8 @@ import com.dtstack.engine.master.enums.AlertMessageStatusEnum;
 import com.dtstack.engine.master.enums.AlertSendStatusEnum;
 import com.dtstack.engine.master.enums.ReadStatus;
 import com.dtstack.engine.master.event.StatusUpdateEvent;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -70,14 +68,14 @@ public class AlertRecordService {
     private List<EventMonitor> eventMonitors;
 
     public NotifyRecordReadDTO getOne(AlertRecordJoinDTO dto) {
-        AlertRecord alertRecord = alertRecordMapper.selectOne(new QueryWrapper<AlertRecord>()
-                .eq("id",dto.getRecordId())
-                .eq("app_type",dto.getAppType())
-                .eq("is_deleted", IsDeletedEnum.NOT_DELETE)
-        );
+        AlertRecord queryAlertRecord = new AlertRecord();
+        queryAlertRecord.setId(dto.getRecordId());
+        queryAlertRecord.setAppType(dto.getAppType());
+        queryAlertRecord.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        List<AlertRecord> alertRecords = alertRecordMapper.selectQuery(queryAlertRecord);
 
-        if (alertRecord != null) {
-            return build(alertRecord);
+        if (CollectionUtils.isNotEmpty(alertRecords)) {
+            return build(alertRecords.get(0));
         }
 
         return null;
@@ -100,31 +98,34 @@ public class AlertRecordService {
     }
 
     public PageResult<List<NotifyRecordReadDTO>> pageQuery(AlertRecordJoinDTO alertRecordJoinDTO) {
-        Page<AlertRecord> page = new Page<>(alertRecordJoinDTO.getCurrentPage(),alertRecordJoinDTO.getPageSize());
-        IPage<AlertRecord> alertRecordIPage = alertRecordMapper.selectPage(page,new QueryWrapper<AlertRecord>()
-                .eq("is_deleted", IsDeletedEnum.NOT_DELETE)
-                .eq("tenant_id", alertRecordJoinDTO.getTenantId())
-                .eq("user_id",alertRecordJoinDTO.getUserId())
-                .eq("app_type",alertRecordJoinDTO.getAppType())
-                .eq(alertRecordJoinDTO.getReadStatus()!=null, "read_status",alertRecordJoinDTO.getReadStatus())
-                .orderByDesc("id")
-        );
+        AlertRecord alertRecord = new AlertRecord();
+        alertRecord.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        alertRecord.setTenantId(alertRecordJoinDTO.getTenantId());
+        alertRecord.setUserId( alertRecordJoinDTO.getUserId());
+        alertRecord.setAppType(alertRecordJoinDTO.getAppType());
+        alertRecord.setReadStatus(alertRecordJoinDTO.getReadStatus());
+        Page<AlertRecord> pageData = PageHelper.startPage(alertRecordJoinDTO.getCurrentPage(), alertRecordJoinDTO.getPageSize())
+                .doSelectPage(() -> alertRecordMapper.selectQuery(alertRecord));
 
+        List<AlertRecord> result = pageData.getResult();
         List<NotifyRecordReadDTO> notifyRecordReadDTOS = Lists.newArrayList();
-        alertRecordIPage.getRecords().forEach(alertRecord -> notifyRecordReadDTOS.add(build(alertRecord)));
-        return new PageResult<>((int)alertRecordIPage.getCurrent(),(int)alertRecordIPage.getPages(),
-                (int)alertRecordIPage.getTotal(),(int)alertRecordIPage.getPages(),notifyRecordReadDTOS);
+        if (CollectionUtils.isNotEmpty(result)) {
+            result.forEach(record -> notifyRecordReadDTOS.add(build(record)));
+        }
+
+        return new PageResult<>( pageData.getPageNum(), pageData.getPageSize(),
+                (int) pageData.getTotal(),  pageData.getPages(), notifyRecordReadDTOS);
     }
 
     public void tabRead(AlertRecordJoinDTO alertRecordJoinDTO) {
         AlertRecord alertRecord = new AlertRecord();
         alertRecord.setReadStatus(ReadStatus.READ.getStatus());
-        alertRecordMapper.update(alertRecord,new UpdateWrapper<AlertRecord>()
-                .eq("is_deleted", IsDeletedEnum.NOT_DELETE)
-                .eq("tenant_id", alertRecordJoinDTO.getTenantId())
-                .eq("user_id", alertRecordJoinDTO.getUserId())
-                .eq("app_type", alertRecordJoinDTO.getAppType())
-                .in(CollectionUtils.isNotEmpty(alertRecordJoinDTO.getRecordIds()), "id", alertRecordJoinDTO.getRecordIds()));
+        Map<String,Object> params = Maps.newHashMap();
+        params.put("is_deleted", IsDeletedEnum.NOT_DELETE);
+        params.put("tenant_id", alertRecordJoinDTO.getTenantId());
+        params.put("user_id", alertRecordJoinDTO.getUserId());
+        params.put("app_type", alertRecordJoinDTO.getAppType());
+        alertRecordMapper.updateByMapAndIds(alertRecord,params, alertRecordJoinDTO.getRecordIds());
     }
 
     public void allRead(AlertRecordJoinDTO alertRecordJoinDTO) {
@@ -135,11 +136,11 @@ public class AlertRecordService {
     public void delete(AlertRecordJoinDTO alertRecordJoinDTO) {
         AlertRecord alertRecord = new AlertRecord();
         alertRecord.setIsDeleted(IsDeletedEnum.DELETE.getType());
-        alertRecordMapper.update(alertRecord,new UpdateWrapper<AlertRecord>()
-                .eq("tenant_id", alertRecordJoinDTO.getTenantId())
-                .eq("user_id", alertRecordJoinDTO.getUserId())
-                .eq("app_type", alertRecordJoinDTO.getAppType())
-                .in( "id", alertRecordJoinDTO.getRecordIds()));
+        Map<String,Object> params = Maps.newHashMap();
+        params.put("tenant_id", alertRecordJoinDTO.getTenantId());
+        params.put("user_id", alertRecordJoinDTO.getUserId());
+        params.put("app_type", alertRecordJoinDTO.getAppType());
+        alertRecordMapper.updateByMapAndIds(alertRecord,params, alertRecordJoinDTO.getRecordIds());
     }
 
     public void sendAlarm(AlarmSendDTO alarmSendDTO) {
@@ -230,6 +231,9 @@ public class AlertRecordService {
             }
         }
 
+        if (CollectionUtils.isNotEmpty(alertRecords)) {
+            alertRecordMapper.insert(alertRecords);
+        }
         return alertRecords;
     }
 
@@ -251,7 +255,6 @@ public class AlertRecordService {
         alertRecord.setFailureReason("");
         alertRecord.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
         alertRecord.setNodeAddress(environmentContext.getLocalAddress());
-        alertRecordMapper.insert(alertRecord);
         return alertRecord;
     }
 

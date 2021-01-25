@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.event;
 
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.dtstack.engine.alert.AdapterEventMonitor;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.enums.AlertRecordStatusEnum;
@@ -10,10 +9,10 @@ import com.dtstack.engine.dao.AlertRecordDao;
 import com.dtstack.engine.domain.AlertRecord;
 import com.dtstack.engine.master.enums.AlertSendStatusEnum;
 import com.dtstack.lang.data.R;
+import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -38,11 +37,11 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
             // 拒绝进入队列，更新状态成扫描中
             AlertRecord update = new AlertRecord();
             update.setAlertRecordStatus(AlertRecordStatusEnum.TO_BE_SCANNED.getType());
-            alertRecordDao.update(update,new UpdateWrapper<AlertRecord>()
-                    .eq("id",record.getId())
-                    .eq("is_deleted",IsDeletedEnum.NOT_DELETE.getType())
-                    .eq("alert_record_status",AlertRecordStatusEnum.NO_WARNING.getType())
-            );
+            Map<String,Object> param = Maps.newHashMap();
+            param.put("id",record.getId());
+            param.put("is_deleted",IsDeletedEnum.NOT_DELETE.getType());
+            param.put("alert_record_status",AlertRecordStatusEnum.NO_WARNING.getType());
+            alertRecordDao.updateByMap(update,param);
         });
     }
 
@@ -51,11 +50,11 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
         updateStatus(alterContext, (record, context) -> {
             AlertRecord update = new AlertRecord();
             update.setAlertRecordStatus(AlertRecordStatusEnum.ALARM_QUEUE.getType());
-            alertRecordDao.update(update, new UpdateWrapper<AlertRecord>()
-                    .eq("id", record.getId())
-                    .eq("is_deleted", IsDeletedEnum.NOT_DELETE.getType())
-                    .eq("alert_record_status", AlertRecordStatusEnum.NO_WARNING.getType())
-            );
+            Map<String,Object> param = Maps.newHashMap();
+            param.put("id", record.getId());
+            param.put("is_deleted", IsDeletedEnum.NOT_DELETE.getType());
+            param.put("alert_record_status", AlertRecordStatusEnum.NO_WARNING.getType());
+            alertRecordDao.updateByMap(update, param);
         });
     }
 
@@ -66,11 +65,11 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
             update.setAlertRecordStatus(AlertRecordStatusEnum.SENDING_ALARM.getType());
             update.setSendContent(context.getContent());
             update.setSendTime(DateTime.now().toString("yyyyMMddHHmmss"));
-            alertRecordDao.update(update, new UpdateWrapper<AlertRecord>()
-                    .eq("id", record.getId())
-                    .eq("is_deleted", IsDeletedEnum.NOT_DELETE.getType())
-                    .eq("alert_record_status", AlertRecordStatusEnum.ALARM_QUEUE.getType())
-            );
+            Map<String,Object> param = Maps.newHashMap();
+            param.put("id", record.getId());
+            param.put("is_deleted", IsDeletedEnum.NOT_DELETE.getType());
+            param.put("alert_record_status", AlertRecordStatusEnum.ALARM_QUEUE.getType());
+            alertRecordDao.updateByMap(update, param);
         });
     }
 
@@ -86,11 +85,11 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
                 update.setFailureReason(r.getMessage());
             }
             update.setSendEndTime(DateTime.now().toString("yyyyMMddHHmmss"));
-            alertRecordDao.update(update, new UpdateWrapper<AlertRecord>()
-                    .eq("id", record.getId())
-                    .eq("is_deleted", IsDeletedEnum.NOT_DELETE.getType())
-                    .eq("alert_record_status", AlertRecordStatusEnum.SENDING_ALARM.getType())
-            );
+            Map<String,Object> param = Maps.newHashMap();
+            param.put("id", record.getId());
+            param.put("is_deleted", IsDeletedEnum.NOT_DELETE.getType());
+            param.put("alert_record_status", AlertRecordStatusEnum.SENDING_ALARM.getType());
+            alertRecordDao.updateByMap(update, param);
         });
     }
 
@@ -102,11 +101,12 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
             update.setAlertRecordSendStatus(AlertSendStatusEnum.SEND_FAILURE.getType());
             update.setFailureReason("原因："+r.getMessage()+"--异常:"+ ExceptionUtil.getErrorMessage(e));
             update.setSendEndTime(DateTime.now().toString("yyyyMMddHHmmss"));
-            alertRecordDao.update(update, new UpdateWrapper<AlertRecord>()
-                    .eq("id", record.getId())
-                    .eq("is_deleted", IsDeletedEnum.NOT_DELETE.getType())
-                    .eq("alert_record_status", AlertRecordStatusEnum.SENDING_ALARM.getType())
-            );
+            Map<String,Object> param = Maps.newHashMap();
+            param.put("id", record.getId());
+            param.put("is_deleted", IsDeletedEnum.NOT_DELETE.getType());
+            param.put("alert_record_status", AlertRecordStatusEnum.SENDING_ALARM.getType());
+
+            alertRecordDao.updateByMap(update, param);
         });
     }
 

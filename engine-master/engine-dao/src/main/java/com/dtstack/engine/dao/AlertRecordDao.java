@@ -1,7 +1,10 @@
 package com.dtstack.engine.dao;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.engine.domain.AlertRecord;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Auther: dazhi
@@ -9,6 +12,13 @@ import com.dtstack.engine.domain.AlertRecord;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public interface AlertRecordDao extends BaseMapper<AlertRecord> {
+public interface AlertRecordDao {
 
+    Integer insert(@Param("records") List<AlertRecord> alertRecords);
+
+    Integer updateByMapAndIds(@Param("record") AlertRecord alertRecord, @Param("params") Map<String, Object> params, @Param("recordIds") List<Long> recordIds);
+
+    Integer updateByMap(@Param("record") AlertRecord record, @Param("param") Map<String, Object> param);
+
+    List<AlertRecord> selectQuery(@Param("record") AlertRecord queryAlertRecord);
 }

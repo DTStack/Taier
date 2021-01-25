@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.config;
 
-import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.apache.commons.lang3.ArrayUtils;

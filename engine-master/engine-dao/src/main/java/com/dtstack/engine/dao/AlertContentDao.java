@@ -1,7 +1,7 @@
 package com.dtstack.engine.dao;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.engine.domain.AlertContent;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @Auther: dazhi
@@ -9,5 +9,11 @@ import com.dtstack.engine.domain.AlertContent;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public interface AlertContentDao extends BaseMapper<AlertContent> {
+public interface AlertContentDao {
+
+    Integer insert(@Param("alertContent") AlertContent alertContent);
+
+    void updateById(@Param("alertContent") AlertContent alertContent);
+
+    AlertContent selectById(@Param("contentId") Long contentId);
 }

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.AlertContentDao">
+
+    <sql id="filed">
+        `id`, `tenant_id`, `project_id`,
+        `app_type`, `status`, `send_info`,
+        `alert_message_status`, `gmt_create`, `gmt_modified`,
+        `is_deleted`, `content`
+    </sql>
+
+    <insert id="insert" parameterType="com.dtstack.engine.domain.AlertContent">
+        insert into alert_content (`id`, `tenant_id`, `project_id`,
+        `app_type`, `status`, `send_info`,
+        `alert_message_status`, `gmt_create`, `gmt_modified`,
+        `is_deleted`, `content`)
+        values (#{id,jdbcType=INTEGER}, #{tenantId,jdbcType=INTEGER}, #{projectId,jdbcType=INTEGER},
+        #{appType,jdbcType=INTEGER}, #{status,jdbcType=BIT}, #{sendInfo,jdbcType=VARCHAR},
+        #{alertMessageStatus,jdbcType=TINYINT}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP},
+        #{isDeleted,jdbcType=BIT}, #{content,jdbcType=LONGVARCHAR})
+    </insert>
+
+    <update id="updateById">
+        update alert_content
+        <set>
+            <if test="alertContent.tenantId != null">
+                `tenant_id` = #{alertContent.tenantId},
+            </if>
+            <if test="alertContent.projectId != null">
+                `project_id` = #{alertContent.projectId},
+            </if>
+            <if test="alertContent.appType != null">
+                `app_type` = #{alertContent.appType},
+            </if>
+            <if test="alertContent.status != null">
+                `status` = #{alertContent.status},
+            </if>
+            <if test="alertContent.sendInfo != null">
+                `send_info` = #{alertContent.sendInfo},
+            </if>
+            <if test="alertContent.alertMessageStatus != null">
+                `alert_message_status` = #{alertContent.alertMessageStatus},
+            </if>
+            <if test="alertContent.gmtCreate != null">
+                `gmt_create` = #{alertContent.gmtCreate},
+            </if>
+            <if test="alertContent.gmtModified != null">
+                `gmt_modified` = #{alertContent.gmtModified},
+            </if>
+            <if test="alertContent.isDeleted != null">
+                `is_deleted` = #{alertContent.isDeleted},
+            </if>
+            <if test="alertContent.content != null">
+                `content` = #{alertContent.content},
+            </if>
+        </set>
+        where `id` = #{id} AND `is_deleted` = 0
+    </update>
+
+    <select id="selectById" resultType="com.dtstack.engine.domain.AlertContent">
+        SELECT
+        <include refid="filed"/>
+        FROM `alert_content`
+        WHERE `id` = ${contentId} AND `is_deleted` = 0
+    </select>
+
+</mapper>

@@ -1,9 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
 import com.dtstack.engine.api.domain.po.ClusterAlertPO;
 import com.dtstack.engine.api.pager.PageResult;
@@ -15,6 +11,8 @@ import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.AlertChannelDao;
 import com.dtstack.engine.domain.AlertChannel;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -61,11 +59,11 @@ public class AlertChannelService {
     }
 
     public Boolean checkAlertGateSourceExist(String alertGateSource) {
-        AlertChannel alertChannel = alertChannelDao.selectOne(new QueryWrapper<AlertChannel>()
-                .eq("alert_gate_source",alertGateSource)
-                .eq("is_deleted",IsDeletedEnum.NOT_DELETE.getType())
-        );
-        return alertChannel == null ? Boolean.FALSE : Boolean.TRUE;
+        AlertChannel queryAlertChannel = new AlertChannel();
+        queryAlertChannel.setAlertGateSource(alertGateSource);
+        queryAlertChannel.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        List<AlertChannel> alertChannels = alertChannelDao.selectByQuery(queryAlertChannel);
+        return CollectionUtils.isEmpty(alertChannels)? Boolean.FALSE : Boolean.TRUE;
     }
 
     private void buildBean(AlertGateVO alertGateVO, AlertChannel alertChannel) {
@@ -118,12 +116,7 @@ public class AlertChannelService {
         }
 
         // 重设默认通道
-        AlertChannel alertChannel = new AlertChannel();
-        alertChannel.setIsDefault(IsDefaultEnum.NOT_DEFAULT.getType());
-        alertChannelDao.update(alertChannel, new UpdateWrapper<AlertChannel>()
-                .eq("is_deleted", IsDeletedEnum.NOT_DELETE.getType())
-                .eq("alert_gate_type", param.getAlertGateType())
-        );
+        alertChannelDao.updateDefaultAlertByType( param.getAlertGateType(),IsDefaultEnum.NOT_DEFAULT.getType(),IsDeletedEnum.NOT_DELETE.getType());
 
         // 更新默认通道
         AlertChannel defaultAlertChannel = new AlertChannel();
@@ -152,20 +145,17 @@ public class AlertChannelService {
     }
 
     public PageResult<List<ClusterAlertPO>> page(ClusterAlertPageParam pageParam) {
-        Page<AlertChannel> iPage = new Page<>(pageParam.getCurrentPage(),pageParam.getPageSize());
-        IPage<AlertChannel> page = alertChannelDao.selectPage(iPage,new QueryWrapper<AlertChannel>()
-            .eq("cluster_id",pageParam.getClusterId())
-            .eq("is_deleted",IsDeletedEnum.NOT_DELETE.getType())
-            .in("alert_gate_type",pageParam.getAlertGateType())
-        );
-
-        List<ClusterAlertPO> records = build(page.getRecords());
-       return new PageResult<>(
-                (int) page.getCurrent(),
-                (int) page.getSize(),
-                (int) page.getTotal(),
-                (int) page.getPages(),
-                records);
+        List<Integer> alertGateType = pageParam.getAlertGateType();
+        Integer clusterId = pageParam.getClusterId();
+        Page<AlertChannel> pageData = PageHelper.startPage(pageParam.getCurrentPage(), pageParam.getPageSize())
+                .doSelectPage(() -> alertChannelDao.selectList(IsDeletedEnum.NOT_DELETE.getType(),alertGateType,clusterId));
+        List<ClusterAlertPO> records = build(pageData.getResult());
+        return new PageResult<>(
+                 pageData.getPageNum(),
+                 pageData.getPageSize(),
+                (int) pageData.getTotal(),
+                 pageData.getPages(),
+                 records);
     }
 
     private List<ClusterAlertPO> build(List<AlertChannel> records) {
@@ -227,7 +217,7 @@ public class AlertChannelService {
     }
 
     public List<ClusterAlertPO> listShow() {
-        List<AlertChannel> alertChannels = alertChannelDao.selectList(null);
+        List<AlertChannel> alertChannels = alertChannelDao.selectAll();
 
         List<ClusterAlertPO> aimPos = Lists.newArrayList();
 
@@ -266,15 +256,14 @@ public class AlertChannelService {
         }
 
         if (CollectionUtils.isNotEmpty(defaultAlert)) {
-            pos.addAll(alertChannelDao.selectList(new QueryWrapper<AlertChannel>()
-                    .eq("is_deleted",IsDeletedEnum.NOT_DELETE.getType())
-                    .eq("is_default",IsDefaultEnum.DEFAULT.getType())));
+            AlertChannel queryAlertChannel = new AlertChannel();
+            queryAlertChannel.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+            queryAlertChannel.setIsDefault(IsDefaultEnum.DEFAULT.getType());
+            pos.addAll(alertChannelDao.selectByQuery(queryAlertChannel));
         }
 
         if (CollectionUtils.isNotEmpty(customizeAlert)) {
-            pos.addAll(alertChannelDao.selectList(new QueryWrapper<AlertChannel>()
-                    .eq("is_deleted",IsDeletedEnum.NOT_DELETE.getType())
-                    .in("alert_gate_source",alertGateSources)));
+            pos.addAll(alertChannelDao.selectListByGateSources(IsDeletedEnum.NOT_DELETE.getType(),alertGateSources));
         }
 
         return pos;

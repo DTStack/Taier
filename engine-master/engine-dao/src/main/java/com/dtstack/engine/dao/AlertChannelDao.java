@@ -1,7 +1,10 @@
 package com.dtstack.engine.dao;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.engine.domain.AlertChannel;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @Auther: dazhi
@@ -10,13 +13,22 @@ import com.dtstack.engine.domain.AlertChannel;
  * @Description:
  */
 
-public interface AlertChannelDao extends BaseMapper<AlertChannel> {
+public interface AlertChannelDao {
 
-//    AlertChannel selectById(@Param("id") Long id);
-//
-//    Boolean insert(@Param("alertChannel") AlertChannel alertChannel);
-//
-//    Boolean update(@Param("alertChannel") AlertChannel alertChannel);
-//
-//    AlertChannel selectByQuery(@Param("alertChannel") AlertChannel alertChannel);
+    AlertChannel selectById(@Param("id") Long id);
+
+    List<AlertChannel> selectByQuery(@Param("alertChannel") AlertChannel alertChannel);
+
+    List<AlertChannel> selectListByGateSources(@Param("isDefault") Integer isDefault, @Param("alertGateSources") List<String> alertGateSources);
+
+    List<AlertChannel> selectList(@Param("isDefault") Integer isDefault, @Param("alertGateTypes") List<Integer> alertGateTypes, @Param("clusterId") Integer clusterId);
+
+    Integer insert(@Param("alertChannel") AlertChannel alertChannel);
+
+    Integer updateById(@Param("alertChannel") AlertChannel alertChannel);
+
+    List<AlertChannel> selectAll();
+
+    void updateDefaultAlertByType(@Param("alertGateType") Integer alertGateType, @Param("isDefault") Integer isDefault, @Param("isDelete") Integer isDelete);
+
 }

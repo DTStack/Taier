@@ -1,7 +1,5 @@
 package com.dtstack.engine.domain;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-
 import java.sql.Timestamp;
 
 /**
@@ -10,7 +8,6 @@ import java.sql.Timestamp;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-@TableName("alert_content")
 public class AlertContent {
 
     private Long id;

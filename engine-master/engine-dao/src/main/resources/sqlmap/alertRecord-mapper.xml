@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.AlertRecordDao">
+
+    <sql id="filed">
+        id`, `alert_channel_id`, `alert_gate_type`,
+        `alert_content_id`, `tenant_id`, `app_type`,
+        `user_id`, `read_status`, `title`,
+        `status`, `job_id`, `alert_record_status`,
+        `alert_record_send_status`, `failure_reason`, `is_deleted`,
+        `node_address`, `send_time`, `send_end_time`,
+        `gmt_created`, `gmt_modified`, `send_content`
+    </sql>
+
+    <insert id="insert" parameterType="com.dtstack.engine.domain.AlertRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into alert_record ( `alert_channel_id`, `alert_gate_type`,
+        `alert_content_id`, `tenant_id`, `app_type`,
+        `user_id`, `read_status`, `title`,
+        `status`, `job_id`, `alert_record_status`,
+        `alert_record_send_status`, `failure_reason`, `is_deleted`,
+        `node_address`, `send_time`, `send_end_time`,
+        `gmt_created`, `gmt_modified`, `send_content`
+        )
+        values
+        <foreach collection="records" item="record" open="(" close="record" separator=",">
+            (#{record.alertChannelId,jdbcType=BIGINT}, #{record.alertGateType,jdbcType=SMALLINT},
+            #{record.alertContentId,jdbcType=INTEGER}, #{record.tenantId,jdbcType=INTEGER}, #{record.appType,jdbcType=INTEGER},
+            #{record.userId,jdbcType=INTEGER}, #{record.readStatus,jdbcType=BIT}, #{record.title,jdbcType=VARCHAR},
+            #{record.status,jdbcType=BIT}, #{record.jobId,jdbcType=VARCHAR}, #{record.alertRecordStatus,jdbcType=TINYINT},
+            #{record.alertRecordSendStatus,jdbcType=TINYINT}, #{record.failureReason,jdbcType=VARCHAR}, #{record.isDeleted,jdbcType=BIT},
+            #{record.nodeAddress,jdbcType=VARCHAR}, #{record.sendTime,jdbcType=VARCHAR}, #{record.sendEndTime,jdbcType=VARCHAR},
+            #{record.gmtCreated,jdbcType=TIMESTAMP}, #{record.gmtModified,jdbcType=TIMESTAMP}, #{record.sendContent,jdbcType=LONGVARCHAR}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateByMapAndIds">
+        update alert_record
+        <set>
+            <if test="record.id != null">
+                `id` = #{record.id,jdbcType=BIGINT},
+            </if>
+            <if test="record.alertChannelId != null">
+                `alert_channel_id` = #{record.alertChannelId,jdbcType=BIGINT},
+            </if>
+            <if test="record.alertGateType != null">
+                `alert_gate_type` = #{record.alertGateType,jdbcType=SMALLINT},
+            </if>
+            <if test="record.alertContentId != null">
+                `alert_content_id` = #{record.alertContentId,jdbcType=INTEGER},
+            </if>
+            <if test="record.tenantId != null">
+                `tenant_id` = #{record.tenantId,jdbcType=INTEGER},
+            </if>
+            <if test="record.appType != null">
+                `app_type` = #{record.appType,jdbcType=INTEGER},
+            </if>
+            <if test="record.userId != null">
+                `user_id` = #{record.userId,jdbcType=INTEGER},
+            </if>
+            <if test="record.readStatus != null">
+                `read_status` = #{record.readStatus,jdbcType=BIT},
+            </if>
+            <if test="record.title != null">
+                `title` = #{record.title,jdbcType=VARCHAR},
+            </if>
+            <if test="record.status != null">
+                `status` = #{record.status,jdbcType=BIT},
+            </if>
+            <if test="record.jobId != null">
+                `job_id` = #{record.jobId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.alertRecordStatus != null">
+                `alert_record_status` = #{record.alertRecordStatus,jdbcType=TINYINT},
+            </if>
+            <if test="record.alertRecordSendStatus != null">
+                `alert_record_send_status` = #{record.alertRecordSendStatus,jdbcType=TINYINT},
+            </if>
+            <if test="record.failureReason != null">
+                `failure_reason` = #{record.failureReason,jdbcType=VARCHAR},
+            </if>
+            <if test="record.isDeleted != null">
+                `is_deleted` = #{record.isDeleted,jdbcType=BIT},
+            </if>
+            <if test="record.nodeAddress != null">
+                `node_address` = #{record.nodeAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="record.sendTime != null">
+                `send_time` = #{record.sendTime,jdbcType=VARCHAR},
+            </if>
+            <if test="record.sendEndTime != null">
+                `send_end_time` = #{record.sendEndTime,jdbcType=VARCHAR},
+            </if>
+            <if test="record.gmtCreated != null">
+                `gmt_created` = #{record.gmtCreated,jdbcType=TIMESTAMP},
+            </if>
+            <if test="record.gmtModified != null">
+                `gmt_modified` = #{record.gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="record.sendContent != null">
+                `send_content` = #{record.sendContent,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        WHERE
+            `id` IN
+            <foreach collection="recordIds" item="recordId" separator="," close=")" open="(" >
+                ${recordId}
+            </foreach>
+            <if test="params!=null and params.size()>0">
+                AND
+                <foreach collection="params.entrySet()" index="key" item="value" open="(" close=")" separator="AND" >
+                    #{key} = #{value}
+                </foreach>
+            </if>
+    </update>
+
+    <update id="updateByMap" parameterType="com.dtstack.engine.domain.AlertRecord">
+        update alert_record
+        <set>
+            <if test="record.id != null">
+                `id` = #{record.id,jdbcType=BIGINT},
+            </if>
+            <if test="record.alertChannelId != null">
+                `alert_channel_id` = #{record.alertChannelId,jdbcType=BIGINT},
+            </if>
+            <if test="record.alertGateType != null">
+                `alert_gate_type` = #{record.alertGateType,jdbcType=SMALLINT},
+            </if>
+            <if test="record.alertContentId != null">
+                `alert_content_id` = #{record.alertContentId,jdbcType=INTEGER},
+            </if>
+            <if test="record.tenantId != null">
+                `tenant_id` = #{record.tenantId,jdbcType=INTEGER},
+            </if>
+            <if test="record.appType != null">
+                `app_type` = #{record.appType,jdbcType=INTEGER},
+            </if>
+            <if test="record.userId != null">
+                `user_id` = #{record.userId,jdbcType=INTEGER},
+            </if>
+            <if test="record.readStatus != null">
+                `read_status` = #{record.readStatus,jdbcType=BIT},
+            </if>
+            <if test="record.title != null">
+                `title` = #{record.title,jdbcType=VARCHAR},
+            </if>
+            <if test="record.status != null">
+                `status` = #{record.status,jdbcType=BIT},
+            </if>
+            <if test="record.jobId != null">
+                `job_id` = #{record.jobId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.alertRecordStatus != null">
+                `alert_record_status` = #{record.alertRecordStatus,jdbcType=TINYINT},
+            </if>
+            <if test="record.alertRecordSendStatus != null">
+                `alert_record_send_status` = #{record.alertRecordSendStatus,jdbcType=TINYINT},
+            </if>
+            <if test="record.failureReason != null">
+                `failure_reason` = #{record.failureReason,jdbcType=VARCHAR},
+            </if>
+            <if test="record.isDeleted != null">
+                `is_deleted` = #{record.isDeleted,jdbcType=BIT},
+            </if>
+            <if test="record.nodeAddress != null">
+                `node_address` = #{record.nodeAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="record.sendTime != null">
+                `send_time` = #{record.sendTime,jdbcType=VARCHAR},
+            </if>
+            <if test="record.sendEndTime != null">
+                `send_end_time` = #{record.sendEndTime,jdbcType=VARCHAR},
+            </if>
+            <if test="record.gmtCreated != null">
+                `gmt_created` = #{record.gmtCreated,jdbcType=TIMESTAMP},
+            </if>
+            <if test="record.gmtModified != null">
+                `gmt_modified` = #{record.gmtModified,jdbcType=TIMESTAMP},
+            </if>
+            <if test="record.sendContent != null">
+                `send_content` = #{record.sendContent,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        WHERE
+        <if test="params!=null and params.size()>0">
+            AND
+            <foreach collection="params.entrySet()" index="key" item="value" open="(" close=")" separator="AND" >
+                #{key} = #{value}
+            </foreach>
+        </if>
+    </update>
+
+    <select id="selectQuery" resultType="com.dtstack.engine.domain.AlertRecord">
+        SELECT
+        <include refid="filed"/>
+        FROM alert_record
+        WHERE
+        <trim prefixOverrides="AND">
+            <if test="record.id != null">
+                `id` = #{record.id,jdbcType=BIGINT} AND
+            </if>
+            <if test="record.alertChannelId != null">
+                `alert_channel_id` = #{record.alertChannelId,jdbcType=BIGINT} AND
+            </if>
+            <if test="record.alertGateType != null">
+                `alert_gate_type` = #{record.alertGateType,jdbcType=SMALLINT} AND
+            </if>
+            <if test="record.alertContentId != null">
+                `alert_content_id` = #{record.alertContentId,jdbcType=INTEGER} AND
+            </if>
+            <if test="record.tenantId != null">
+                `tenant_id` = #{record.tenantId,jdbcType=INTEGER} AND
+            </if>
+            <if test="record.appType != null">
+                `app_type` = #{record.appType,jdbcType=INTEGER} AND
+            </if>
+            <if test="record.userId != null">
+                `user_id` = #{record.userId,jdbcType=INTEGER} AND
+            </if>
+            <if test="record.readStatus != null">
+                `read_status` = #{record.readStatus,jdbcType=BIT} AND
+            </if>
+            <if test="record.title != null">
+                `title` = #{record.title,jdbcType=VARCHAR} AND
+            </if>
+            <if test="record.status != null">
+                `status` = #{record.status,jdbcType=BIT} AND
+            </if>
+            <if test="record.jobId != null">
+                `job_id` = #{record.jobId,jdbcType=VARCHAR} AND
+            </if>
+            <if test="record.alertRecordStatus != null">
+                `alert_record_status` = #{record.alertRecordStatus,jdbcType=TINYINT} AND
+            </if>
+            <if test="record.alertRecordSendStatus != null">
+                `alert_record_send_status` = #{record.alertRecordSendStatus,jdbcType=TINYINT} AND
+            </if>
+            <if test="record.failureReason != null">
+                `failure_reason` = #{record.failureReason,jdbcType=VARCHAR} AND
+            </if>
+            <if test="record.isDeleted != null">
+                `is_deleted` = #{record.isDeleted,jdbcType=BIT} AND
+            </if>
+            <if test="record.nodeAddress != null">
+                `node_address` = #{record.nodeAddress,jdbcType=VARCHAR} AND
+            </if>
+            <if test="record.sendTime != null">
+                `send_time` = #{record.sendTime,jdbcType=VARCHAR} AND
+            </if>
+            <if test="record.sendEndTime != null">
+                `send_end_time` = #{record.sendEndTime,jdbcType=VARCHAR} AND
+            </if>
+            <if test="record.gmtCreated != null">
+                `gmt_created` = #{record.gmtCreated,jdbcType=TIMESTAMP} AND
+            </if>
+            <if test="record.gmtModified != null">
+                `gmt_modified` = #{record.gmtModified,jdbcType=TIMESTAMP} AND
+            </if>
+            <if test="record.sendContent != null">
+                `send_content` = #{record.sendContent,jdbcType=LONGVARCHAR} AND
+            </if>
+        </trim>
+        ORDER BY id DESC
+    </select>
+</mapper>

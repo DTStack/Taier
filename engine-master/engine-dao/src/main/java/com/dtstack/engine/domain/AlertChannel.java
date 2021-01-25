@@ -1,9 +1,6 @@
 package com.dtstack.engine.domain;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-
 import java.sql.Timestamp;
-import java.util.Date;
 
 /**
  * @Auther: dazhi
@@ -11,7 +8,6 @@ import java.util.Date;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-@TableName("alert_channel")
 public class AlertChannel {
     private Long id;
     private Long clusterId;
