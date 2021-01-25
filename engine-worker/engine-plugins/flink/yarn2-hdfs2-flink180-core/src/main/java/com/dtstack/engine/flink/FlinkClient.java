@@ -68,6 +68,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -164,15 +165,6 @@ public class FlinkClient extends AbstractClient {
     }
 
     private JobResult submitJobWithJar(JobClient jobClient, List<URL> classPaths, List<String> programArgList) {
-        if (flinkConfig.isOpenKerberos()) {
-            FileUtil.downloadKafkaKeyTab(jobClient, filesystemManager);
-        }
-
-        if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
-            if (existsJobOnFlink(jobClient.getEngineTaskId())) {
-                return JobResult.createSuccessResult(jobClient.getEngineTaskId());
-            }
-        }
 
         JobParam jobParam = new JobParam(jobClient);
         String jarPath = jobParam.getJarPath();
@@ -351,16 +343,25 @@ public class FlinkClient extends AbstractClient {
             List<String> args = sqlPluginInfo.buildExeArgs(jobClient);
             List<String> attachJarLists = cacheFile.get(jobClient.getTaskId());
 
+            List<URL> attachJarUrls = Lists.newArrayList();
             if (!CollectionUtils.isEmpty(attachJarLists)) {
                 args.add("-addjar");
                 String attachJarStr = PublicUtil.objToString(attachJarLists);
                 args.add(URLEncoder.encode(attachJarStr, Charsets.UTF_8.name()));
+
+                attachJarUrls = attachJarLists.stream().map(k -> {
+                    try {
+                        return new File(k).toURL();
+                    } catch (MalformedURLException e) {
+                        throw new RdosDefineException(e);
+                    }
+                }).collect(Collectors.toList());
             }
 
             JarFileInfo coreJarInfo = sqlPluginInfo.createCoreJarInfo();
             jobClient.setCoreJarInfo(coreJarInfo);
 
-            return submitJobWithJar(jobClient, Lists.newArrayList(), args);
+            return submitJobWithJar(jobClient, attachJarUrls, args);
         } catch (Exception e) {
             return JobResult.createErrorResult(e);
         }

@@ -1,19 +1,23 @@
 package com.dtstack.engine.master.multiengine.engine;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleTaskParamShade;
-import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import com.dtstack.engine.api.enums.ScheduleEngineType;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import com.dtstack.schedule.common.util.TimeParamOperator;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author yuebai
@@ -25,45 +29,55 @@ public class KylinJobStartTrigger extends JobStartTriggerBase {
     @Override
     public void readyForTaskStartTrigger(Map<String, Object> actionParam, ScheduleTaskShade taskShade, ScheduleJob scheduleJob) throws Exception {
         if (taskShade.getEngineType().equals(ScheduleEngineType.Kylin.getVal())) {
-            List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String)actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
-            Map<String,Object> pluginInfo = (Map<String,Object>) actionParam.get("pluginInfo");
-            if (null != pluginInfo) {
-               String taskExeArgs = taskShade.getExeArgs();
-                JSONObject jsonObject = (JSONObject) JSONObject.parse(taskExeArgs);
-                if (!jsonObject.getBooleanValue("noPartition")) {
-                    long startTime = 0;
-                    long endTime = 0;
-                    if (!jsonObject.getBooleanValue("isUseSystemVar")) {
-                        // 时间转时间戳
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        // 加28800000 是为了加八小时
-                        startTime = simpleDateFormat.parse(jsonObject.get("startTime").toString()).getTime() + 28800000;
-                        endTime = simpleDateFormat.parse(jsonObject.get("endTime").toString()).getTime() + 28800000;
-                    } else if (jsonObject.getBooleanValue("isUseSystemVar")) {
-                        for (ScheduleTaskParamShade param : taskParamsToReplace) {
-                            String paramCommand = param.getParamCommand();
-                            String targetVal = TimeParamOperator.transform(paramCommand, scheduleJob.getCycTime());
-                            long length = targetVal.length();
-                            if (length < 14) {
-                                for (int i = 0; i < 14 - length; i++) {
-                                    targetVal += "0";
-                                }
-                            }
-                            SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("yyyyMMddHHmmss");
-                            // 加28800000 是为了加八小时
-                            startTime = simpleDateFormat1.parse(targetVal).getTime() + 28800000;
-                            endTime = simpleDateFormat1.parse(String.valueOf(Long.valueOf(targetVal) + 1)).getTime() + 28800000;
-                        }
-                    } else {
-                        throw new RdosDefineException("任务参数错误");
-                    }
-                    pluginInfo.put("startTime", startTime);
-                    pluginInfo.put("endTime", endTime);
+            List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String) actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
+            Map<String, Object> pluginInfo = (Map<String, Object>) actionParam.get("pluginInfo");
+            if (MapUtils.isEmpty(pluginInfo)) {
+                throw new RdosDefineException("pluginInfo 不能为空");
+            }
+            JSONObject exeArgs = JSONObject.parseObject(taskShade.getExeArgs());
+            if (null != exeArgs) {
+                if (!exeArgs.getBooleanValue("noPartition")) {
+                    parseStartEndTime(scheduleJob, taskParamsToReplace, exeArgs);
                 }
             }
-
-            actionParam.put("pluginInfo", pluginInfo);
+            JSONObject pluginInfoObj = PublicUtil.mapToObject(pluginInfo, JSONObject.class);
+            //目前只支持 BUILD 类型
+            pluginInfoObj.put("buildType", "BUILD");
+            //默认false
+            pluginInfoObj.put("forceMergeEmptySegment", Boolean.FALSE);
+            pluginInfoObj.putAll(exeArgs);
+            actionParam.put("pluginInfo", pluginInfoObj);
         }
 
+    }
+
+    /**
+     * 根据exeArgs 解析出 startTime  和 endTime
+     * @param scheduleJob
+     * @param taskParamsToReplace
+     * @param exeArgs
+     */
+    private void parseStartEndTime(ScheduleJob scheduleJob, List<ScheduleTaskParamShade> taskParamsToReplace, JSONObject exeArgs) {
+        long startTime;
+        long endTime;
+        if (exeArgs.getBooleanValue("isUseSystemVar")) {
+            //使用系统参数 cycTime
+            if (CollectionUtils.isEmpty(taskParamsToReplace)) {
+                throw new RdosDefineException("系统参数不能为空");
+            }
+            //cycTime转化为对应的时间格式
+            String paramCommand = taskParamsToReplace.get(0).getParamCommand();
+            String transform = TimeParamOperator.transform(paramCommand, scheduleJob.getCycTime());
+            //其中kylinUI上默认的时间是8点整。startTime 和endTime都需要是每天的8点整的毫秒数
+            DateTimeFormatter yyyyMMdd = DateTimeFormat.forPattern("yyyyMMdd");
+            startTime = DateTime.parse(transform, yyyyMMdd).plusHours(8).getMillis();
+            endTime = DateTime.parse(transform,yyyyMMdd).plusHours(8).plusSeconds(1).getMillis();
+        } else {
+            //使用传入的值
+            startTime = DateTime.parse(exeArgs.getString("startTime")).getMillis();
+            endTime = DateTime.parse(exeArgs.getString("endTime")).getMillis();
+        }
+        exeArgs.put("startTime", startTime);
+        exeArgs.put("endTime", endTime);
     }
 }

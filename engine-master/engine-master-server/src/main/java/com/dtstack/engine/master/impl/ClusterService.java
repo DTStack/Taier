@@ -18,6 +18,7 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.common.enums.EComponentType;
@@ -182,6 +183,7 @@ public class ClusterService implements InitializingBean {
      * 对外接口
      */
     public String clusterInfo( Long tenantId) {
+
         ClusterVO cluster = getClusterByTenant(tenantId);
         if (cluster != null) {
             JSONObject config = buildClusterConfig(cluster);
@@ -191,6 +193,7 @@ public class ClusterService implements InitializingBean {
     }
 
     public ClusterVO clusterExtInfo( Long uicTenantId) {
+
         Long tenantId = tenantDao.getIdByDtUicTenantId(uicTenantId);
         if (tenantId == null) {
             return null;
@@ -207,6 +210,7 @@ public class ClusterService implements InitializingBean {
      * 内部使用
      */
     public JSONObject pluginInfoJSON( Long dtUicTenantId,  String engineTypeStr, Long dtUicUserId,Integer deployMode) {
+
         if (EngineType.Dummy.name().equalsIgnoreCase(engineTypeStr)) {
             JSONObject dummy = new JSONObject();
             dummy.put(TYPE_NAME, EngineType.Dummy.name().toLowerCase());
@@ -436,6 +440,7 @@ public class ClusterService implements InitializingBean {
     }
 
     public ClusterVO getClusterByTenant(Long dtUicTenantId) {
+
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
         if (tenantId == null) {
             return getCluster(DEFAULT_CLUSTER_ID, true,false);
@@ -447,7 +452,7 @@ public class ClusterService implements InitializingBean {
         }
 
         Engine engine = engineDao.getOne(engineIds.get(0));
-        if(Objects.isNull(engine)){
+        if( null == engine ){
             return getCluster(DEFAULT_CLUSTER_ID, true,false);
         }
         return getCluster(engine.getClusterId(), true,false);
@@ -490,6 +495,10 @@ public class ClusterService implements InitializingBean {
 
             if(BooleanUtils.isTrue(isWrapper)){
                 Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode());
+                if(null == sftpComponent){
+                    LOGGER.error("can't find sftpComponent,clusterId:{}",cluster.getId());
+                    throw new RdosDefineException("can't find sftpComponent");
+                }
                 Map sftpMap = null;
                 try {
                     sftpMap = PublicUtil.strToObject(sftpComponent.getComponentConfig(), Map.class);
@@ -505,6 +514,8 @@ public class ClusterService implements InitializingBean {
         }
         return configObj.toJSONString();
     }
+
+
 
 
     /**
@@ -732,8 +743,12 @@ public class ClusterService implements InitializingBean {
      * 集群下拉列表
      */
     public List<ClusterVO> clusters() {
+
         PageQuery<ClusterDTO> pageQuery = new PageQuery<>(1, 1000, "gmt_modified", Sort.DESC.name());
-        pageQuery.setModel(new ClusterDTO());
+        //查询未被删除的
+        ClusterDTO clusterDTO = new ClusterDTO();
+        clusterDTO.setIsDeleted(Deleted.NORMAL.getStatus());
+        pageQuery.setModel(clusterDTO);
         List<Cluster> clusterVOS = clusterDao.generalQuery(pageQuery);
         if (CollectionUtils.isNotEmpty(clusterVOS)) {
             return ClusterVO.toVOs(clusterVOS);
@@ -826,7 +841,7 @@ public class ClusterService implements InitializingBean {
             engineIds = engines.stream().map(Engine::getId).collect(Collectors.toList());
         }
         List<EngineTenant> engineTenants = null;
-        if(null != engineIds){
+        if(CollectionUtils.isNotEmpty(engineIds)){
             engineTenants = engineTenantDao.listByEngineIds(engineIds);
         }
         if(CollectionUtils.isNotEmpty(engineTenants)){
@@ -922,6 +937,7 @@ public class ClusterService implements InitializingBean {
     }
 
     public String pluginInfoForType(Long dtUicTenantId, Boolean fullKerberos, Integer pluginType) {
+
         EComponentType type = EComponentType.getByCode(pluginType);
         return getConfigByKey(dtUicTenantId, type.getConfName(),fullKerberos,Boolean.FALSE);
     }

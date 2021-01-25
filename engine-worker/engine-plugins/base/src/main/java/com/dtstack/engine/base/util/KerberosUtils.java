@@ -4,11 +4,9 @@ import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.sftp.SftpFileManage;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.HadoopKerberosName;
@@ -29,7 +27,6 @@ import java.nio.file.Paths;
 import java.security.PrivilegedExceptionAction;
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 public class KerberosUtils {
@@ -99,18 +96,17 @@ public class KerberosUtils {
                 String keytabPath = "";
                 String krb5ConfPath = "";
                 String krb5ConfName = config.getKrbName();
-                Boolean isMergeKrb5 = config.getMergeKrbContent() != null;
+                Boolean isMergeKrb5 = StringUtils.isNotEmpty(config.getMergeKrbContent());
 
                 //本地文件是否和服务器时间一致 一致使用本地缓存
                 boolean isOverrideDownLoad = checkLocalCache(config.getKerberosFileTimestamp(), localDirPath);
                 if (isOverrideDownLoad) {
                     SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(config.getSftpConf());
                     keytabPath = sftpFileManage.cacheOverloadFile(fileName, remoteDir, localDir);
+                    krb5ConfPath = sftpFileManage.cacheOverloadFile(krb5ConfName, config.getRemoteDir(), localDir);
                     if (isMergeKrb5) {
                         krb5ConfPath = localDir + ConfigConstant.SP + ConfigConstant.MERGE_KRB5_NAME;
                         Files.write(Paths.get(krb5ConfPath), Collections.singleton(config.getMergeKrbContent()));
-                    } else {
-                        krb5ConfPath = sftpFileManage.cacheOverloadFile(krb5ConfName, config.getRemoteDir(), localDir);
                     }
                     writeTimeLockFile(config.getKerberosFileTimestamp(),localDir);
                 } else {
@@ -137,15 +133,15 @@ public class KerberosUtils {
                  * 如果是SPARK 在这里先每次创建UGI进行避开
                  */
                 if (isCreateNewUGI) {
-                    ugi = createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath);
+                    ugi = retryCreateUGIIfMerge(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath, config.getKrbName(), isMergeKrb5);
                 } else {
-                    ugi = ugiMap.computeIfAbsent(threadName, k -> createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath));
+                    ugi = ugiMap.computeIfAbsent(threadName, k -> retryCreateUGIIfMerge(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath, config.getKrbName(), isMergeKrb5));
                 }
 
                 KerberosTicket ticket = getTGT(ugi);
                 if (!checkTGT(ticket) || isOverrideDownLoad) {
                     logger.info("Relogin after the ticket expired, principal: {}, current thread: {}", principal, Thread.currentThread().getName());
-                    ugi = createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath);
+                    ugi = retryCreateUGIIfMerge(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath, config.getKrbName(), isMergeKrb5);
                     if (!isCreateNewUGI) {
                         ugiMap.put(threadName, ugi);
                     }
@@ -217,6 +213,21 @@ public class KerberosUtils {
             }
         }
         return isOverrideDownLoad;
+    }
+
+    private synchronized static UserGroupInformation retryCreateUGIIfMerge(String krb5ConfPath, Configuration config, String principal, String keytabPath, String defaultKrb5Name, Boolean isMergeKrb5) {
+        Boolean isRetry = isMergeKrb5;
+        if (isRetry) {
+            try {
+                return createUGI(krb5ConfPath, config, principal, keytabPath);
+            } catch (Exception e) {
+                logger.warn("Create ugi error with merge krb5, retry by defaule krb5: {}", e.getMessage());
+                File krbFile = new File(krb5ConfPath);
+                krb5ConfPath = String.format("%s/%s", krbFile.getParent(), defaultKrb5Name);
+                return createUGI(krb5ConfPath, config, principal, keytabPath);
+            }
+        }
+        return createUGI(krb5ConfPath, config, principal, keytabPath);
     }
 
     private synchronized static UserGroupInformation createUGI(String krb5ConfPath, Configuration config, String principal, String keytabPath) {
@@ -312,7 +323,7 @@ public class KerberosUtils {
         String keytabFileName = config.getPrincipalFile();
         String krb5FileName = config.getKrbName();
         String remoteDir = config.getRemoteDir();
-        Boolean isMergeKrb5 = config.getMergeKrbContent() != null;
+        Boolean isMergeKrb5 = StringUtils.isNotEmpty(config.getMergeKrbContent());
         if (StringUtils.isEmpty(localDir)) {
             localDir = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
         }

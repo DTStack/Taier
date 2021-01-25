@@ -182,10 +182,24 @@ public class PerJobClientFactory extends AbstractClientFactory {
     private Configuration appendConfigAndInitFs(JobClient jobClient, Configuration configuration) {
         Properties properties = jobClient.getConfProperties();
         if (properties != null) {
-            properties.stringPropertyNames()
-                    .stream()
-                    .filter(key -> key.toString().contains(".") || key.toString().equalsIgnoreCase(ConfigConstrant.LOG_LEVEL_KEY))
-                    .forEach(key -> configuration.setString(key.toString(), properties.getProperty(key)));
+            for (Object key : properties.keySet()) {
+                String keyStr = key.toString();
+                if (!StringUtils.contains(keyStr, ".") && !StringUtils.equalsIgnoreCase(keyStr, ConfigConstrant.LOG_LEVEL_KEY)) {
+                    continue;
+                }
+                String value = properties.getProperty(keyStr);
+                if (StringUtils.equalsIgnoreCase(keyStr, SecurityOptions.KERBEROS_LOGIN_CONTEXTS.key()) && StringUtils.isNotEmpty(value)) {
+                    value = StringUtils.replacePattern(value, "\\s*", "");
+
+                    String contexts = configuration.getString(SecurityOptions.KERBEROS_LOGIN_CONTEXTS);
+                    contexts = StringUtils.replacePattern(contexts, "\\s*", "");
+                    contexts = StringUtils.isNotEmpty(contexts)? String.format("%s,%s", value, contexts) : value;
+                    List<String> contextsTmp = Arrays.asList(StringUtils.split(contexts, ","));
+                    Set contextsSet = new HashSet(contextsTmp);
+                    value = StringUtils.join(contextsSet, ",");
+                }
+                configuration.setString(keyStr, value);
+            }
         }
 
         if (!flinkConfig.getFlinkHighAvailability() && ComputeType.BATCH == jobClient.getComputeType()) {

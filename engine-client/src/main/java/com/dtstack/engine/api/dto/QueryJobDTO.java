@@ -11,14 +11,27 @@ import java.util.List;
  */
 @ApiModel
 public class QueryJobDTO {
+
+    /**项目id**/
     private Long projectId;
+
+    /**租户id**/
     private Long tenantId;
+
+    /**业务开始日期，0点秒级时间戳**/
     private Long bizStartDay;
+
+    /**业务结束日期，0点秒级时间戳**/
     private Long bizEndDay;
     private String jobStatuses;
     private String taskName;
+
+    /**任务类型,多个以逗号区分 -1:虚节点, 0:sparksql, 1:spark, 2:数据同步, 3:pyspark, 4:R, 5:深度学习, 6:python, 7:shell, 8:机器学习, 9:hadoopMR, 10:工作流, 12:carbonSQL, 13:notebook, 14:算法实验, 15:libra sql, 16:kylin, 17:hiveSQL**/
     private String taskType;
+
     private Long ownerId;
+
+    /**0正常调度 1补数据 2临时运行**/
     private Integer type;
     private Integer currentPage;
     private Integer pageSize;
@@ -31,13 +44,22 @@ public class QueryJobDTO {
     private String retryNumSort;
     private String taskPeriodId;
     private String fillTaskName;
+
+    /**计划开始时间**/
     private Long cycStartDay;
+
+    /**计划结束时间**/
     private Long cycEndDay;
     private Long execStartDay;
     private Long execEndDay;
-    // 增加失败状态细分标志
+
+    /** 增加失败状态细分标志**/
     private Boolean splitFiledFlag;
+
+    /**1、全模糊匹配，2、精确查询，3、右模糊匹配，4、左模糊匹配**/
     private String searchType;
+
+    /**子平台类型，见AppType枚举**/
     private Integer appType;
     private List<Long> projectIds;
     private Long taskId;

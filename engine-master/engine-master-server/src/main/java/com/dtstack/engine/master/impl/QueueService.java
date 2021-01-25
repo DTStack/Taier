@@ -58,7 +58,7 @@ public class QueueService {
                 queue.setQueuePath(queueDescription.getQueuePath());
                 Integer insert = queueDao.insert(queue);
                 if (insert != 1) {
-                    throw new RdosDefineException("操作失败");
+                    throw new RdosDefineException("添加队列操作失败");
                 }
                 newAddQueue(engineId, queue.getId(), queueDescription.getChildQueues());
             }
@@ -96,7 +96,7 @@ public class QueueService {
                         throw new RdosDefineException("操作失败");
                     }
                 }
-
+                // todo 递归调用，当没有子队列后就停止递归
                 updateAddQueue(existQueueMap, engineId, queue.getId(), queueDescription.getChildQueues());
             }
         }
