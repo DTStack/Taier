@@ -1,8 +1,8 @@
 package com.dtstack.engine.alert.pool;
 
 import com.dtstack.engine.alert.exception.AlterRejectedExecution;
-import com.sun.org.slf4j.internal.Logger;
-import com.sun.org.slf4j.internal.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
