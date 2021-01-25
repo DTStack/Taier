@@ -268,7 +268,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                     case RETRY:
                         if (stoppedJob.isRetry()) {
                             if (StoppedStatus.STOPPING == stoppedStatus) {
-                                stoppedJob.resetDelay(jobStoppedDelay * 20);
+                                stoppedJob.resetDelay(jobStoppedDelay * stoppedJob.getIncrCount() * 5);
                             } else if (StoppedStatus.RETRY == stoppedStatus) {
                                 stoppedJob.resetDelay(jobStoppedDelay);
                             }
@@ -302,16 +302,22 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 logger.info("jobId:{} jobCache is null, set job is MISSED.", jobElement.jobId);
                 return StoppedStatus.MISSED;
             }
-        } else if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
-            this.removeMemStatusAndJobCache(jobCache.getJobId());
-            logger.info("jobId:{} is unsubmitted, set job is STOPPED.", jobElement.jobId);
-            return StoppedStatus.STOPPED;
+        } else if (null != scheduleJob && EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
+            if (!RdosTaskStatus.getWaitStatus().contains(scheduleJob.getStatus()) || EJobCacheStage.PRIORITY.getStage() != jobCache.getStage()) {
+                this.removeMemStatusAndJobCache(jobCache.getJobId());
+                logger.info("jobId:{} is unsubmitted, set job is STOPPED.", jobElement.jobId);
+                return StoppedStatus.STOPPED;
+            } else {
+                //任务如果处于提交的状态过程中 但是stage由PRIORITY变更为SUBMITTED  直接删除会导致还是会提交到yarn上 占用资源
+                logger.info("jobId:{} is stopping.", jobCache.getJobId());
+                return StoppedStatus.STOPPING;
+            }
         } else {
             if (scheduleJob == null) {
                 this.removeMemStatusAndJobCache(jobElement.jobId);
                 logger.info("jobId:{} scheduleJob is null, set job is MISSED.", jobElement.jobId);
                 return StoppedStatus.MISSED;
-            }  else if (RdosTaskStatus.getStoppedAndNotFound().contains(scheduleJob.getStatus())) {
+            } else if (RdosTaskStatus.getStoppedAndNotFound().contains(scheduleJob.getStatus())) {
                 this.removeMemStatusAndJobCache(jobElement.jobId);
                 logger.info("jobId:{} and status:{} is StoppedAndNotFound, set job is STOPPED.", jobElement.jobId, scheduleJob.getStatus());
                 return StoppedStatus.STOPPED;
