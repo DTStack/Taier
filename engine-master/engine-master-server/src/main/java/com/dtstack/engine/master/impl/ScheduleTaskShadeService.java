@@ -275,14 +275,14 @@ public class ScheduleTaskShadeService {
     }
 
 
-    public ScheduleTaskShade getBatchTaskById( Long taskId, Integer appType) {
+    public ScheduleTaskShade getBatchTaskById(Long taskId, Integer appType) {
 
-        if(null == taskId || null == appType){
+        if (null == taskId || null == appType) {
             throw new RdosDefineException("taskId或appType不能为空");
         }
         ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId, appType);
         if (taskShade == null || Deleted.DELETED.getStatus().equals(taskShade.getIsDeleted())) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+            return null;
         }
         return taskShade;
     }
