@@ -29,7 +29,7 @@ public interface EventMonitor {
      *
      * @param alterContext 上下文对象
      */
-    void leaveQueueEvent(AlterContext alterContext);
+    void leaveQueueAndSenderBeforeEvent(AlterContext alterContext);
 
     /**
      * 告警失败事件

@@ -9,7 +9,7 @@ package com.dtstack.engine.master.enums;
 public enum AlertMessageStatusEnum {
     ALTER(0,"以告警"),NO_ALTER(1,"未告警");
 
-    private int type;
+    private Integer type;
 
     private String name;
 
@@ -18,7 +18,7 @@ public enum AlertMessageStatusEnum {
         this.name = name;
     }
 
-    public int getType() {
+    public Integer getType() {
         return type;
     }
 

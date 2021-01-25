@@ -1,16 +1,17 @@
 package com.dtstack.engine.alert.client;
 
-import com.dtstack.engine.alert.AdapterEventMonitor;
 import com.dtstack.engine.alert.AlterConfig;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.EventMonitor;
 import com.dtstack.engine.alert.pool.AlterDiscardPolicy;
 import com.dtstack.engine.alert.pool.CustomThreadFactory;
 import com.dtstack.lang.data.R;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -58,39 +59,41 @@ public abstract class AbstractAlterClient implements AlterClient,Runnable {
 
 
     @Override
-    public R sendSyncAlter(AlterContext alterContext, EventMonitor eventMonitor) throws Exception {
-        eventMonitor = setDefaultEvent(alterContext, eventMonitor);
-        return sendAlter(alterContext, eventMonitor);
+    public R sendSyncAlter(AlterContext alterContext, List<EventMonitor> eventMonitors) throws Exception {
+
+        eventMonitors = setDefaultEvent(alterContext, eventMonitors);
+        return sendAlter(alterContext, eventMonitors);
     }
 
     @Override
-    public void sendAsyncAAlter(AlterContext alterContext, EventMonitor eventMonitor) throws Exception {
-        eventMonitor = setDefaultEvent(alterContext, eventMonitor);
+    public void sendAsyncAAlter(AlterContext alterContext, List<EventMonitor> eventMonitors) throws Exception {
+        logger.info("开始进入队列: id {}",alterContext.getMark());
+        eventMonitors = setDefaultEvent(alterContext, eventMonitors);
 
         if (!alterQueue.contains(alterContext)) {
-            logger.warn("元素:"+alterContext.getMark()+"已在队列中存在");
+            logger.info("元素:" + alterContext.getMark() + "已在队列中存在");
             return;
         }
 
         if (alterQueue.size() > alterConfig.getQueueSize()) {
             // 响应告警拒绝事件
-            logger.warn("元素:"+alterContext.getMark()+"被拒绝");
-            eventMonitor.refuseEvent(alterContext);
+            logger.info("元素:" + alterContext.getMark() + "被拒绝");
+            eventMonitors.forEach(eventMonitor -> eventMonitor.refuseEvent(alterContext));
         } else {
-            eventMonitor.joiningQueueEvent(alterContext);
+            eventMonitors.forEach(eventMonitor -> eventMonitor.joiningQueueEvent(alterContext));
             alterQueue.put(alterContext);
         }
     }
 
-    private EventMonitor setDefaultEvent(AlterContext alterContext, EventMonitor eventMonitor) {
-        if (alterContext.getEventMonitor() == null) {
-            if (eventMonitor == null) {
-                eventMonitor = new AdapterEventMonitor();
+    private List<EventMonitor> setDefaultEvent(AlterContext alterContext, List<EventMonitor> eventMonitors) {
+        if (CollectionUtils.isEmpty(alterContext.getEventMonitors())) {
+            if (CollectionUtils.isEmpty(eventMonitors)) {
+                eventMonitors = Lists.newArrayList();
             }
 
-            alterContext.setEventMonitor(eventMonitor);
+            alterContext.setEventMonitors(eventMonitors);
         }
-        return eventMonitor;
+        return eventMonitors;
     }
 
     public void close(){
@@ -105,9 +108,10 @@ public abstract class AbstractAlterClient implements AlterClient,Runnable {
                 AlterContext alterContext = alterQueue.poll(30, TimeUnit.SECONDS);
                 if (alterContext != null) {
                     // 响应出队事件
-                    EventMonitor eventMonitor = alterContext.getEventMonitor();
-                    eventMonitor.leaveQueueEvent(alterContext);
-                    sendAlter(alterContext,eventMonitor);
+                    logger.info("元素: id {} 离开队列",alterContext.getMark());
+                    List<EventMonitor> eventMonitors = alterContext.getEventMonitors();
+                    eventMonitors.forEach(eventMonitor ->eventMonitor.leaveQueueAndSenderBeforeEvent(alterContext));
+                    sendAlter(alterContext,eventMonitors);
                 }
             } catch (Exception e) {
                 logger.error("", e);
@@ -115,15 +119,16 @@ public abstract class AbstractAlterClient implements AlterClient,Runnable {
         }
     }
 
-    private R sendAlter(AlterContext alterContext,EventMonitor eventMonitor) throws Exception {
+    private R sendAlter(AlterContext alterContext,List<EventMonitor> eventMonitors) throws Exception {
         try {
+            logger.info("元素: id {} 开始发送告警",alterContext.getMark());
             R r = send(alterContext);
-            eventMonitor.alterSuccess(alterContext,r);
+            eventMonitors.forEach(eventMonitor->eventMonitor.alterSuccess(alterContext,r));
             return r;
         } catch (Exception e) {
             logger.error("", e);
             // 触发告警失败事件
-            eventMonitor.alterFailure(alterContext,null,e);
+            eventMonitors.forEach(eventMonitor->eventMonitor.alterFailure(alterContext,null,e));
             throw e;
         }
     }

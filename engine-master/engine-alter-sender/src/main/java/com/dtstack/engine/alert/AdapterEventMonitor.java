@@ -11,27 +11,17 @@ import com.dtstack.lang.data.R;
 public class AdapterEventMonitor implements EventMonitor {
 
     @Override
-    public void refuseEvent(AlterContext alterContext) {
-
-    }
+    public void refuseEvent(AlterContext alterContext) {}
 
     @Override
-    public void joiningQueueEvent(AlterContext alterContext) {
-
-    }
+    public void joiningQueueEvent(AlterContext alterContext) {}
 
     @Override
-    public void leaveQueueEvent(AlterContext alterContext) {
-
-    }
+    public void leaveQueueAndSenderBeforeEvent(AlterContext alterContext) {}
 
     @Override
-    public void alterFailure(AlterContext alterContext, R r, Exception e) {
-
-    }
+    public void alterFailure(AlterContext alterContext, R r, Exception e) {}
 
     @Override
-    public void alterSuccess(AlterContext alterContext, R r) {
-
-    }
+    public void alterSuccess(AlterContext alterContext, R r) {}
 }

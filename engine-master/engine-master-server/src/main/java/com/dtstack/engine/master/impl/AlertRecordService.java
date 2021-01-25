@@ -4,6 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.dtstack.engine.alert.AlterContext;
+import com.dtstack.engine.alert.AlterSender;
+import com.dtstack.engine.alert.EventMonitor;
+import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.enums.AlertRecordStatusEnum;
 import com.dtstack.engine.api.dto.AlarmSendDTO;
 import com.dtstack.engine.api.dto.AlertRecordJoinDTO;
@@ -23,7 +27,9 @@ import com.dtstack.engine.domain.AlertRecord;
 import com.dtstack.engine.master.enums.AlertMessageStatusEnum;
 import com.dtstack.engine.master.enums.AlertSendStatusEnum;
 import com.dtstack.engine.master.enums.ReadStatus;
+import com.dtstack.engine.master.event.StatusUpdateEvent;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -32,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Auther: dazhi
@@ -55,6 +62,12 @@ public class AlertRecordService {
 
     @Autowired
     private EnvironmentContext environmentContext;
+
+    @Autowired
+    private AlterSender alterSender;
+
+    @Autowired
+    private List<EventMonitor> eventMonitors;
 
     public NotifyRecordReadDTO getOne(AlertRecordJoinDTO dto) {
         AlertRecord alertRecord = alertRecordMapper.selectOne(new QueryWrapper<AlertRecord>()
@@ -147,11 +160,16 @@ public class AlertRecordService {
                 content = alertContent.getContent();
             }
 
+            Map<Long,AlertChannel> alertChannelMap = Maps.newHashMap();
+            Map<Long,UserMessageDTO> receiversMap = Maps.newHashMap();
+
             // 生成告警记录
-            List<AlertRecord> records = buildRecord(alarmSendDTO,alertChannels,content);
+            List<AlertRecord> records = buildRecord(alarmSendDTO, alertChannels,alertChannelMap,receiversMap);
+
             // 按照告警记录发送告警
-
-
+            for (AlertRecord record : records) {
+                sendAlter(alarmSendDTO, content, alertChannelMap, receiversMap, record);
+            }
         } catch (Exception e) {
             log.error(ExceptionUtil.getErrorMessage(e));
 
@@ -165,12 +183,36 @@ public class AlertRecordService {
         }
     }
 
-    private List<AlertRecord> buildRecord(AlarmSendDTO alarmSendDTO, List<AlertChannel> alertChannels, String content) {
+    private void sendAlter(AlarmSendDTO alarmSendDTO, String content, Map<Long, AlertChannel> alertChannelMap, Map<Long, UserMessageDTO> receiversMap, AlertRecord record) throws Exception {
+        AlterContext alterContext = new AlterContext();
+        AlertChannel alertChannel = alertChannelMap.get(record.getAlertChannelId());
+        UserMessageDTO userMessageDTO = receiversMap.get(record.getUserId());
+        AlertGateCode alertGateCode = AlertGateCode.parse(alertChannel.getAlertGateCode());
+
+        alterContext.setId(record.getId());
+        alterContext.setUserName(userMessageDTO.getUsername());
+        alterContext.setTitle(record.getTitle());
+        alterContext.setContent(content);
+        alterContext.setAlertGateJson(StringUtils.isNotBlank(alertChannel.getAlertGateJson()) ? alertChannel.getAlertGateJson() : "");
+        alterContext.setJarPath(alertChannel.getFilePath());
+        alterContext.setAlertGateCode(alertGateCode);
+        alterContext.setEmails(Lists.newArrayList(userMessageDTO.getEmail()));
+        alterContext.setDing(alarmSendDTO.getWebhook());
+        alterContext.setPhone(userMessageDTO.getTelephone());
+
+        Map<String,Object> extendedPara = Maps.newHashMap();
+        extendedPara.put(StatusUpdateEvent.RECORD_PATH,record);
+        alterContext.setExtendedPara(extendedPara);
+        alterSender.sendAsyncAAlter(alterContext,eventMonitors);
+    }
+
+    private List<AlertRecord> buildRecord(AlarmSendDTO alarmSendDTO, List<AlertChannel> alertChannels, Map<Long, AlertChannel> alertChannelMap,Map<Long,UserMessageDTO> receiversMap) {
         List<AlertRecord> alertRecords = Lists.newArrayList();
         for (AlertChannel alertChannel : alertChannels) {
+            alertChannelMap.put(alertChannel.getId(), alertChannel);
             if (AlertGateTypeEnum.DINGDING.getType().equals(alertChannel.getAlertGateType())) {
                 // 钉钉通道 生成一天数据
-                alertRecords.add(buildRecord(alarmSendDTO, alertChannel,-1L));
+                alertRecords.add(buildRecord(alarmSendDTO, alertChannel, -1L));
                 continue;
             }
 
@@ -183,7 +225,8 @@ public class AlertRecordService {
             }
 
             for (UserMessageDTO receiver : receivers) {
-                alertRecords.add(buildRecord(alarmSendDTO, alertChannel,receiver.getUserId()));
+                receiversMap.put(receiver.getUserId(),receiver);
+                alertRecords.add(buildRecord(alarmSendDTO, alertChannel, receiver.getUserId()));
             }
         }
 

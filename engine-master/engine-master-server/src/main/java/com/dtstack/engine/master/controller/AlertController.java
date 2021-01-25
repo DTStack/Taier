@@ -3,6 +3,7 @@ package com.dtstack.engine.master.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.AlterSender;
+import com.dtstack.engine.alert.EventMonitor;
 import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.po.ClusterAlertPO;
@@ -22,6 +23,7 @@ import com.dtstack.engine.master.impl.AlertChannelService;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.utils.CheckUtils;
 import com.dtstack.lang.data.R;
+import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -62,6 +64,11 @@ public class AlertController {
     @Autowired
     private AlertChannelService alertChannelService;
 
+    @Autowired
+    private EventMonitor statusUpdateEvent;
+
+    @Autowired
+    private EventMonitor contentReplaceEvent;
 
     @ApiOperation("新增编辑告警通道 用于替换console接口: /api/console/service/alert/edit")
     @PostMapping("/edit")
@@ -193,9 +200,11 @@ public class AlertController {
         }
         log.info("testAlert jar path :{}", alertGateTestVO.getFilePath());
 
-        //build test alertParam
+        // build test alertParam
         AlterContext alertParam = buildTestAlterContext(alertGateTestVO);
-        R send = alterSender.sendSyncAlter(alertParam,null);
+        List<EventMonitor> eventMonitors = Lists.newArrayList();
+        eventMonitors.add(contentReplaceEvent);
+        R send = alterSender.sendSyncAlter(alertParam,eventMonitors);
         if (send.isSuccess()) {
             return;
         }
@@ -209,21 +218,28 @@ public class AlertController {
         if (parse == AlertGateCode.AG_GATE_SMS_JAR) {
             List<String> phones = alertGateTestVO.getPhones();
             result.setPhone(phones.get(0));
-            result.setContent("测试内容");
+            result.setContent("测试一下短信拉，别紧张~~(●ﾟωﾟ●) (●ﾟωﾟ●)");
         }
 
         if (parse == AlertGateCode.AG_GATE_MAIL_DT
                 || parse == AlertGateCode.AG_GATE_MAIL_JAR) {
-
+            List<String> emails = alertGateTestVO.getEmails();
+            result.setEmails(emails);
+            result.setTitle("测试邮件通道");
+            result.setContent("测试一下邮件拉，别紧张~~(●ﾟωﾟ●) (●ﾟωﾟ●)");
         }
 
         if (parse == AlertGateCode.AG_GATE_DING_JAR
                 || parse == AlertGateCode.AG_GATE_DING_DT) {
-
+            List<String> dings = alertGateTestVO.getDings();
+            result.setDing(dings.get(0));
+            result.setTitle("测试钉钉通道");
+            result.setContent("测试一下钉钉拉，别紧张~~(●ﾟωﾟ●) (●ﾟωﾟ●)");
         }
 
         if (parse == AlertGateCode.AG_GATE_CUSTOM_JAR) {
-
+            result.setTitle("测试自定义通道");
+            result.setContent("测试一下自定义通道拉，别紧张~~(●ﾟωﾟ●) (●ﾟωﾟ●)");
         }
 
         result.setAlertGateCode(parse);

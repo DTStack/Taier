@@ -425,7 +425,7 @@ public class EnvironmentContext {
     }
 
     public Boolean getOpenConsoleSftp() {
-        return Boolean.parseBoolean(environment.getProperty("console.sftp.open", "false"));
+        return Boolean.parseBoolean(environment.getProperty("console.sftp.open", "true"));
     }
 
     public Integer getRetryFrequency() {
