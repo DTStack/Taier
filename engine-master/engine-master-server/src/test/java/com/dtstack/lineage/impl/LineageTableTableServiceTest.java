@@ -1,7 +1,9 @@
 package com.dtstack.lineage.impl;
 
+import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageTableTable;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.utils.Template;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,15 +39,18 @@ public class LineageTableTableServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testSaveTableLineage() {
-        lineageTableTableService.saveTableLineage(null, "");
-        //TODO
+        LineageTableTable defaultTableTable = Template.getDefaultTableTable();
+        List<LineageTableTable> tt = new ArrayList<>();
+        tt.add(defaultTableTable);
+        lineageTableTableService.saveTableLineage(tt, "22");
     }
 
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testQueryTableInputLineageByAppType() {
-        List<LineageTableTable> queryTableInputLineageByAppType = lineageTableTableService.queryTableInputLineageByAppType(0L, 0, null);
+        LineageDataSetInfo defaultDataSetInfoTemplate = Template.getDefaultDataSetInfoTemplate();
+        List<LineageTableTable> queryTableInputLineageByAppType = lineageTableTableService.queryTableInputLineageByAppType(defaultDataSetInfoTemplate.getId(), defaultDataSetInfoTemplate.getAppType(), null);
         //TODO
     }
 

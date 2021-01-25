@@ -15,10 +15,8 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface TestLineageTableTableDao {
 
-    @Insert({" INSERT INTO lineage_table_table (dt_uic_tenant_id,app_type,input_table_id,input_table_key,result_table_id,result_table_key,table_lineage_key,lineage_source)" +
-            " values " +
-            "        (#{tableTable.dtUicTenantId},#{tableTable.appType},#{tableTable.inputTableId},#{tableTable.inputTableKey},#{tableTable.resultTableId},#{tableTable.resultTableKey},#{tableTable.tableLineageKey},#{tableTable.lineageSource})" +
-            "        on duplicate key update gmt_modified=values(gmt_modified)"})
-    @Options(useGeneratedKeys=true, keyProperty = "tableTable.id", keyColumn = "id")
-    void insert(@Param("tableTable") LineageTableTable tableTable);
+    @Insert({"INSERT INTO lineage_table_table(dt_uic_tenant_id,app_type,input_table_id,input_table_key,result_table_id,result_table_key,table_lineage_key,lineage_source)VALUES(#{lineageTableTable.dtUicTenantId},#{lineageTableTable.appType},#{lineageTableTable.inputTableId},#{lineageTableTable.inputTableKey},#{lineageTableTable.resultTableId},#{lineageTableTable.resultTableKey},#{lineageTableTable.tableLineageKey},#{lineageTableTable.lineageSource})"})
+    @Options(useGeneratedKeys=true, keyProperty = "lineageTableTable.id", keyColumn = "id")
+    Integer insert(@Param("lineageTableTable")LineageTableTable lineageTableTable);
+
 }
