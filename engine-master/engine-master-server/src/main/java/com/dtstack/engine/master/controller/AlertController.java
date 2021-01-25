@@ -19,6 +19,7 @@ import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.master.config.MvcConfig;
 import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.event.SftpDownloadEvent;
 import com.dtstack.engine.master.impl.AlertChannelService;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.utils.CheckUtils;
@@ -65,10 +66,10 @@ public class AlertController {
     private AlertChannelService alertChannelService;
 
     @Autowired
-    private EventMonitor statusUpdateEvent;
-
-    @Autowired
     private EventMonitor contentReplaceEvent;
+
+    @Autowired(required = false)
+    private SftpDownloadEvent sftpDownloadEvent;
 
     @ApiOperation("新增编辑告警通道 用于替换console接口: /api/console/service/alert/edit")
     @PostMapping("/edit")
@@ -91,9 +92,9 @@ public class AlertController {
 
             String dbPath = destPath;
             // 上传sftp
-            if (environmentContext.getOpenConsoleSftp()) {
+            if (environmentContext.getOpenConsoleSftp() && sftpDownloadEvent != null) {
                 // 查询默认集群的sftp
-                dbPath = UploadFileToSftp(file, filePath, destPath, dbPath);
+                dbPath = sftpDownloadEvent.uploadFileToSftp(file, filePath, destPath, dbPath);
             }
 
             alertGateVO.setFilePath(dbPath);
@@ -102,25 +103,6 @@ public class AlertController {
         }
 
         return alertChannelService.addChannelOrEditChannel(alertGateVO);
-    }
-
-    private String UploadFileToSftp(@RequestParam(value = "file", required = false) MultipartFile file, String filePath, String destPath, String dbPath) {
-        Component sftpComponent = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode());
-        if (sftpComponent != null) {
-            SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
-            if (sftpConfig != null) {
-                try {
-                    String remoteDir = sftpConfig.getPath() + File.separator + filePath;
-                    SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
-                    sftpManager.uploadFile(remoteDir ,destPath);
-
-                    dbPath = dbPath + GlobalConst.PATH_CUT + remoteDir + File.separator + file.getOriginalFilename();
-                } catch (Exception e) {
-                    log.error("上传sftp失败:",e);
-                }
-            }
-        }
-        return dbPath;
     }
 
     @ApiOperation("设为默认告警通道 用于取代console接口: /api/console/service/alert/setDefaultAlert")

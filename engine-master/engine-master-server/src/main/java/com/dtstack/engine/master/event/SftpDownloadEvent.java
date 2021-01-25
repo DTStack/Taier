@@ -7,6 +7,7 @@ import com.dtstack.engine.common.constrant.GlobalConst;
 import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.dao.ComponentDao;
+import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -16,7 +17,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -72,9 +75,30 @@ public class SftpDownloadEvent extends AdapterEventMonitor {
         }
     }
 
-    public void setCache(String path) {
+    public String uploadFileToSftp(MultipartFile file, String filePath, String destPath, String dbPath) {
+        com.dtstack.engine.api.domain.Component sftpComponent = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode());
+        if (sftpComponent != null) {
+            SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
+            if (sftpConfig != null) {
+                try {
+                    String remoteDir = sftpConfig.getPath() + File.separator + filePath;
+                    SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
+                    sftpManager.uploadFile(remoteDir ,destPath);
+
+                    dbPath = dbPath + GlobalConst.PATH_CUT + remoteDir + File.separator + file.getOriginalFilename();
+                    setCache(dbPath);
+                } catch (Exception e) {
+                    logger.error("上传sftp失败:",e);
+                }
+            }
+        }
+        return dbPath;
+    }
+
+    private void setCache(String path) {
         if (StringUtils.isNotBlank(path)) {
             cacheSftpJar.put("path",System.currentTimeMillis() + "");
         }
     }
+
 }
