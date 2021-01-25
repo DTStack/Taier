@@ -26,4 +26,9 @@ public interface LineageColumnColumnDao {
     LineageColumnColumn queryByLineageKey(@Param("appType")Integer appType,@Param("lineageKey")String lineageKey);
 
     List<LineageColumnColumn> queryByLineageKeys(@Param("appType")Integer appType, @Param("keys") Set<String> columnLineageKeys);
+
+    List<String> queryTableLineageInputColumns(@Param("tableId")Long tableId);
+
+    List<String> queryTableLineageResultColumns(@Param("tableId")Long tableId);
+
 }

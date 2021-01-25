@@ -15,6 +15,7 @@ import com.dtstack.engine.api.vo.lineage.SqlParseInfo;
 import com.dtstack.engine.api.vo.lineage.TableLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryColumnLineageParam;
+import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageColumnParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageParam;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.sql.ColumnLineage;
@@ -946,5 +947,42 @@ public class LineageService {
         lineageColumnColumn.setAppType(lineageColumnColumnVO.getAppType());
         lineageColumnColumn.setDtUicTenantId(lineageColumnColumnVO.getDtUicTenantId());
         lineageColumnColumnService.manualDeleteColumnLineage(lineageColumnColumnVO.getAppType(), lineageColumnColumn,lineageColumnColumnVO.getUniqueKey());
+    }
+
+    /**
+     * 查询表血缘上游字段列表
+     * @param queryTableLineageColumnParam
+     * @return
+     */
+    public List<String> queryTableInputLineageColumns(QueryTableLineageColumnParam queryTableLineageColumnParam){
+        Long tableId = checkAndGetTableId(queryTableLineageColumnParam);
+        return lineageColumnColumnService.queryTableInputLineageColumns(tableId);
+    }
+
+    /**
+     * 查询表血缘下游字段列表
+     * @param queryTableLineageColumnParam
+     * @return
+     */
+    public List<String> queryTableResultLineageColumns(QueryTableLineageColumnParam queryTableLineageColumnParam){
+        Long tableId = checkAndGetTableId(queryTableLineageColumnParam);
+        return lineageColumnColumnService.queryTableResultLineageColumns(tableId);
+    }
+
+    private Long checkAndGetTableId(QueryTableLineageColumnParam queryTableLineageColumnParam){
+        Long dtUicTenantId = queryTableLineageColumnParam.getDtUicTenantId();
+        Integer appType = queryTableLineageColumnParam.getAppType();
+        Integer sourceType = queryTableLineageColumnParam.getSourceType();
+        String dbName = queryTableLineageColumnParam.getDbName();
+        String tableName = queryTableLineageColumnParam.getTableName();
+        LineageDataSource lineageDataSource = lineageDataSourceService.getDataSourceByParams(sourceType, queryTableLineageColumnParam.getSourceName(), dtUicTenantId, appType);
+        if (Objects.isNull(lineageDataSource)){
+            throw new RdosDefineException("数据源不存在");
+        }
+        LineageDataSetInfo dataSetInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), dbName, tableName, dbName);
+        if (Objects.isNull(dataSetInfo)){
+            throw new RdosDefineException("数据集不存在");
+        }
+        return dataSetInfo.getId();
     }
 }

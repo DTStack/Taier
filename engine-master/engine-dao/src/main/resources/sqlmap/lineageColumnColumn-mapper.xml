@@ -40,4 +40,14 @@
         </where>
     </select>
 
+    <select id="queryTableLineageInputColumns" resultType="java.lang.String">
+        select input_column_name from lineage_column_column
+        where input_table_id = #{tableId}
+    </select>
+
+    <select id="queryTableLineageResultColumns" resultType="java.lang.String">
+        select result_column_name from lineage_column_column
+        where result_table_id = #{tableId}
+    </select>
+
 </mapper>

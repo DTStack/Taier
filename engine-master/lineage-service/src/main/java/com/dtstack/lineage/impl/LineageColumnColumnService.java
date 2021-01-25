@@ -188,4 +188,20 @@ public class LineageColumnColumnService {
         }
         return "APP_TYPE_"+appType;
     }
+
+    /**
+     * 查询表的上游血缘字段
+     * @return
+     */
+    public List<String> queryTableInputLineageColumns(Long tableId){
+        return lineageColumnColumnDao.queryTableLineageInputColumns(tableId);
+    }
+
+    /**
+     * 查询表的下游血缘字段
+     * @return
+     */
+    public List<String> queryTableResultLineageColumns(Long tableId){
+        return lineageColumnColumnDao.queryTableLineageResultColumns(tableId);
+    }
 }

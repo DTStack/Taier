@@ -10,6 +10,7 @@ import com.dtstack.engine.api.vo.lineage.TableLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.ParseTableLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryColumnLineageParam;
+import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageColumnParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageParam;
 import com.dtstack.engine.common.util.ValidateUtil;
 import com.dtstack.engine.master.router.DtRequestParam;
@@ -261,5 +262,17 @@ public class LineageController {
     @ApiOperation(value = "批量同步字段级血缘")
     public void acquireOldColumnColumn(@RequestBody LineageColumnColumnParam lineageTableTableParam) {
         lineageService.acquireOldColumnColumn(lineageTableTableParam.getLineageTableTableVOs());
+    }
+
+    @RequestMapping(value = "/queryTableLineageInputColumns", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询表的血缘上游字段列表")
+    public List<String> queryTableLineageInputColumns(@RequestBody QueryTableLineageColumnParam queryTableLineageColumnParam) {
+        return lineageService.queryTableInputLineageColumns(queryTableLineageColumnParam);
+    }
+
+    @RequestMapping(value = "/queryTableLineageResultColumns", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询表的血缘下游字段列表")
+    public List<String> queryTableLineageResultColumns(@RequestBody QueryTableLineageColumnParam queryTableLineageColumnParam) {
+        return lineageService.queryTableResultLineageColumns(queryTableLineageColumnParam);
     }
 }

@@ -18,6 +18,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -158,6 +159,8 @@ public class LineageServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testManualAddColumnLineage() {
+        List<LineageColumnColumnVO> lineageColumnColumnVOs = new ArrayList<>();
+
         lineageService.manualAddColumnLineage(null);
         //TODO
     }
