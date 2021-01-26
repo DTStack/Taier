@@ -5,6 +5,7 @@ import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.schedule.common.enums.Restarted;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -59,6 +60,11 @@ public class RestartJobExecutor extends AbstractJobExecutor {
     }
 
     private Pair<String, String> getCycTime() {
-        return jobRichOperator.getCycTimeLimitEndNow(false);
+        //补数据和重跑
+        if(environmentContext.getOpenFillDataCycTimeLimit()) {
+            return jobRichOperator.getCycTimeLimitEndNow(false);
+        }else {
+            return  new ImmutablePair<>(null, null);
+        }
     }
 }

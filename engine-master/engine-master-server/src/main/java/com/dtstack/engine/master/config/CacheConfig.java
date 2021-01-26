@@ -131,7 +131,7 @@ public class CacheConfig {
         SessionCache sessionCache = new SessionCache();
         sessionCache.setExpire(environmentContext.getRdosSessionExpired());
         sessionCache.setRedisTemplate(redisTemplate);
-        sessionCache.setAppType(AppType.RDOS);
+        sessionCache.setAppType(AppType.DAGSCHEDULEX);
         return sessionCache;
     }
 

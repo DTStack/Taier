@@ -318,7 +318,11 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             cycTime = jobRichOperator.getCycTimeLimitEndNow(true);
         } else {
             //补数据和重跑
-            cycTime = jobRichOperator.getCycTimeLimitEndNow(false);
+            if(env.getOpenFillDataCycTimeLimit()) {
+                cycTime = jobRichOperator.getCycTimeLimitEndNow(false);
+            }else {
+                cycTime = new ImmutablePair<>(null, null);
+            }
         }
         return cycTime;
     }
