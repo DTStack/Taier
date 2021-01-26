@@ -18,42 +18,42 @@
         <include refid="filed"/>
         FROM alert_channel
         WHERE
-        <trim prefixOverrides="AND">
-            <if test="clusterId != null">
-                `cluster_id` = #{alertChannel.clusterId,jdbcType=INTEGER} AND
+        <trim suffixOverrides="AND" >
+            <if test="alertChannel.clusterId != null">
+                `cluster_id` = #{alertChannel.clusterId} AND
             </if>
-            <if test="alertGateName != null">
-                `alert_gate_name` = #{alertChannel.alertGateName,jdbcType=VARCHAR} AND
+            <if test="alertChannel.alertGateName != null">
+                `alert_gate_name` = #{alertChannel.alertGateName} AND
             </if>
-            <if test="alertGateType != null">
-                `alert_gate_type` = #{alertChannel.alertGateType,jdbcType=SMALLINT} AND
+            <if test="alertChannel.alertGateType != null">
+                `alert_gate_type` = #{alertChannel.alertGateType} AND
             </if>
-            <if test="alertGateCode != null">
-                `alert_gate_code` = #{alertChannel.alertGateCode,jdbcType=VARCHAR} AND
+            <if test="alertChannel.alertGateCode != null">
+                `alert_gate_code` = #{alertChannel.alertGateCode} AND
             </if>
-            <if test="alertGateJson != null">
-                `alert_gate_json` = #{alertChannel.alertGateJson,jdbcType=VARCHAR} AND
+            <if test="alertChannel.alertGateJson != null">
+                `alert_gate_json` = #{alertChannel.alertGateJson} AND
             </if>
-            <if test="alertGateSource != null">
-                `alert_gate_source` = #{alertChannel.alertGateSource,jdbcType=VARCHAR} AND
+            <if test="alertChannel.alertGateSource != null">
+                `alert_gate_source` = #{alertChannel.alertGateSource} AND
             </if>
-            <if test="filePath != null">
-                `file_path` = #{alertChannel.filePath,jdbcType=VARCHAR} AND
+            <if test="alertChannel.filePath != null">
+                `file_path` = #{alertChannel.filePath} AND
             </if>
-            <if test="isDefault != null">
-                `is_default` = #{alertChannel.isDefault,jdbcType=TINYINT} AND
+            <if test="alertChannel.isDefault != null">
+                `is_default` = #{alertChannel.isDefault} AND
             </if>
-            <if test="isDeleted != null">
-                `is_deleted` = #{alertChannel.isDeleted,jdbcType=BIT} AND
+            <if test="alertChannel.isDeleted != null">
+                `is_deleted` = #{alertChannel.isDeleted} AND
             </if>
-            <if test="gmtCreated != null">
-                `gmt_created` = #{alertChannel.gmtCreated,jdbcType=TIMESTAMP} AND
+            <if test="alertChannel.gmtCreated != null">
+                `gmt_created` = #{alertChannel.gmtCreated} AND
             </if>
-            <if test="gmtModified != null">
-                `gmt_modified` = #{alertChannel.gmtModified,jdbcType=TIMESTAMP} AND
+            <if test="alertChannel.gmtModified != null">
+                `gmt_modified` = #{alertChannel.gmtModified} AND
             </if>
-            <if test="alertTemplate != null">
-                `alert_template` = #{alertChannel.alertTemplate,jdbcType=LONGVARCHAR} AND
+            <if test="alertChannel.alertTemplate != null">
+                `alert_template` = #{alertChannel.alertTemplate} AND
             </if>
         </trim>
     </select>
@@ -78,94 +78,101 @@
         SELECT
         <include refid="filed"/>
         FROM alert_channel
-        WHERE `is_deleted` = ${isDefault} AND `cluster_id` = ${clusterId} AND `alert_gate_type` IN
-        <foreach collection="alertGateTypes" item="alertGateType" open="(" close=")" separator="," >
-            ${alertGateType}
-        </foreach>
+        WHERE `is_deleted` = ${isDefault}
+        <if test="clusterId!=null">
+            AND `cluster_id` = ${clusterId}
+        </if>
+        <if test="alertGateTypes!=null and alertGateTypes.size()>0">
+            AND `alert_gate_type` IN
+            <foreach collection="alertGateTypes" item="alertGateType" open="(" close=")" separator="," >
+                ${alertGateType}
+            </foreach>
+        </if>
+
     </select>
 
     <insert id="insert">
         insert into alert_channel
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
+            <if test="alertChannel.id != null">
                 `id`,
             </if>
-            <if test="clusterId != null">
+            <if test="alertChannel.clusterId != null">
                 `cluster_id`,
             </if>
-            <if test="alertGateName != null">
+            <if test="alertChannel.alertGateName != null">
                 `alert_gate_name`,
             </if>
-            <if test="alertGateType != null">
+            <if test="alertChannel.alertGateType != null">
                 `alert_gate_type`,
             </if>
-            <if test="alertGateCode != null">
+            <if test="alertChannel.alertGateCode != null">
                 `alert_gate_code`,
             </if>
-            <if test="alertGateJson != null">
+            <if test="alertChannel.alertGateJson != null">
                 `alert_gate_json`,
             </if>
-            <if test="alertGateSource != null">
+            <if test="alertChannel.alertGateSource != null">
                 `alert_gate_source`,
             </if>
-            <if test="filePath != null">
+            <if test="alertChannel.filePath != null">
                 `file_path`,
             </if>
-            <if test="isDefault != null">
+            <if test="alertChannel.isDefault != null">
                 `is_default`,
             </if>
-            <if test="isDeleted != null">
+            <if test="alertChannel.isDeleted != null">
                 `is_deleted`,
             </if>
-            <if test="gmtCreated != null">
+            <if test="alertChannel.gmtCreated != null">
                 `gmt_created`,
             </if>
-            <if test="gmtModified != null">
+            <if test="alertChannel.gmtModified != null">
                 `gmt_modified`,
             </if>
-            <if test="alertTemplate != null">
+            <if test="alertChannel.alertTemplate != null">
                 `alert_template`,
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{alertChannel.id,jdbcType=BIGINT},
+            <if test="alertChannel.id != null">
+                #{alertChannel.id},
             </if>
-            <if test="clusterId != null">
-                #{alertChannel.clusterId,jdbcType=INTEGER},
+            <if test="alertChannel.clusterId != null">
+                #{alertChannel.clusterId},
             </if>
-            <if test="alertGateName != null">
-                #{alertChannel.alertGateName,jdbcType=VARCHAR},
+            <if test="alertChannel.alertGateName != null">
+                #{alertChannel.alertGateName},
             </if>
-            <if test="alertGateType != null">
-                #{alertChannel.alertGateType,jdbcType=SMALLINT},
+            <if test="alertChannel.alertGateType != null">
+                #{alertChannel.alertGateType},
             </if>
-            <if test="alertGateCode != null">
-                #{alertChannel.alertGateCode,jdbcType=VARCHAR},
+            <if test="alertChannel.alertGateCode != null">
+                #{alertChannel.alertGateCode},
             </if>
-            <if test="alertGateJson != null">
-                #{alertChannel.alertGateJson,jdbcType=VARCHAR},
+            <if test="alertChannel.alertGateJson != null">
+                #{alertChannel.alertGateJson},
             </if>
-            <if test="alertGateSource != null">
-                #{alertChannel.alertGateSource,jdbcType=VARCHAR},
+            <if test="alertChannel.alertGateSource != null">
+                #{alertChannel.alertGateSource},
             </if>
-            <if test="filePath != null">
-                #{alertChannel.filePath,jdbcType=VARCHAR},
+            <if test="alertChannel.filePath != null">
+                #{alertChannel.filePath},
             </if>
-            <if test="isDefault != null">
-                #{alertChannel.isDefault,jdbcType=TINYINT},
+            <if test="alertChannel.isDefault != null">
+                #{alertChannel.isDefault},
             </if>
-            <if test="isDeleted != null">
-                #{alertChannel.isDeleted,jdbcType=BIT},
+            <if test="alertChannel.isDeleted != null">
+                #{alertChannel.isDeleted},
             </if>
-            <if test="gmtCreated != null">
-                #{alertChannel.gmtCreated,jdbcType=TIMESTAMP},
+            <if test="alertChannel.gmtCreated != null">
+                #{alertChannel.gmtCreated},
             </if>
-            <if test="gmtModified != null">
-                #{alertChannel.gmtModified,jdbcType=TIMESTAMP},
+            <if test="alertChannel.gmtModified != null">
+                #{alertChannel.gmtModified},
             </if>
-            <if test="alertTemplate != null">
-                #{alertChannel.alertTemplate,jdbcType=LONGVARCHAR},
+            <if test="alertChannel.alertTemplate != null">
+                #{alertChannel.alertTemplate},
             </if>
         </trim>
     </insert>
@@ -173,49 +180,49 @@
     <update id="updateById">
         update alert_channel
         <set>
-            <if test="clusterId != null">
-                `cluster_id` = #{alertChannel.clusterId,jdbcType=INTEGER},
+            <if test="alertChannel.clusterId != null">
+                `cluster_id` = #{alertChannel.clusterId},
             </if>
-            <if test="alertGateName != null">
-                `alert_gate_name` = #{alertChannel.alertGateName,jdbcType=VARCHAR},
+            <if test="alertChannel.alertGateName != null">
+                `alert_gate_name` = #{alertChannel.alertGateName},
             </if>
-            <if test="alertGateType != null">
-                `alert_gate_type` = #{alertChannel.alertGateType,jdbcType=SMALLINT},
+            <if test="alertChannel.alertGateType != null">
+                `alert_gate_type` = #{alertChannel.alertGateType},
             </if>
-            <if test="alertGateCode != null">
-                `alert_gate_code` = #{alertChannel.alertGateCode,jdbcType=VARCHAR},
+            <if test="alertChannel.alertGateCode != null">
+                `alert_gate_code` = #{alertChannel.alertGateCode},
             </if>
-            <if test="alertGateJson != null">
-                `alert_gate_json` = #{alertChannel.alertGateJson,jdbcType=VARCHAR},
+            <if test="alertChannel.alertGateJson != null">
+                `alert_gate_json` = #{alertChannel.alertGateJson},
             </if>
-            <if test="alertGateSource != null">
-                `alert_gate_source` = #{alertChannel.alertGateSource,jdbcType=VARCHAR},
+            <if test="alertChannel.alertGateSource != null">
+                `alert_gate_source` = #{alertChannel.alertGateSource},
             </if>
-            <if test="filePath != null">
-                `file_path` = #{alertChannel.filePath,jdbcType=VARCHAR},
+            <if test="alertChannel.filePath != null">
+                `file_path` = #{alertChannel.filePath},
             </if>
-            <if test="isDefault != null">
-                `is_default` = #{alertChannel.isDefault,jdbcType=TINYINT},
+            <if test="alertChannel.isDefault != null">
+                `is_default` = #{alertChannel.isDefault},
             </if>
-            <if test="isDeleted != null">
-                `is_deleted` = #{alertChannel.isDeleted,jdbcType=BIT},
+            <if test="alertChannel.isDeleted != null">
+                `is_deleted` = #{alertChannel.isDeleted},
             </if>
-            <if test="gmtCreated != null">
-                `gmt_created` = #{alertChannel.gmtCreated,jdbcType=TIMESTAMP},
+            <if test="alertChannel.gmtCreated != null">
+                `gmt_created` = #{alertChannel.gmtCreated},
             </if>
-            <if test="gmtModified != null">
-                `gmt_modified` = #{alertChannel.gmtModified,jdbcType=TIMESTAMP},
+            <if test="alertChannel.gmtModified != null">
+                `gmt_modified` = #{alertChannel.gmtModified},
             </if>
-            <if test="alertTemplate != null">
-                `alert_template` = #{alertChannel.alertTemplate,jdbcType=LONGVARCHAR},
+            <if test="alertChannel.alertTemplate != null">
+                `alert_template` = #{alertChannel.alertTemplate},
             </if>
         </set>
-        where `id` = #{id,jdbcType=BIGINT} AND `is_deleted` = 0
+        where `id` = #{alertChannel.id} AND `is_deleted` = 0
     </update>
 
     <update id="updateDefaultAlertByType">
         update alert_channel
-        SET `is_default` = #{isDefault},
+        SET `is_default` = #{isDefault}
         where `alert_gate_type` = #{alertGateType} AND `is_deleted` = ${isDefault}
     </update>
 

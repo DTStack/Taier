@@ -87,10 +87,6 @@ public class AlertChannelService {
             alertChannel.setAlertGateJson(alertGateVO.getAlertGateJson());
         }
 
-        if(StringUtils.isNotBlank(alertGateVO.getAlertGateSource())) {
-            alertChannel.setAlertGateSource(alertGateVO.getAlertGateSource());
-        }
-
         if(StringUtils.isNotBlank(alertGateVO.getAlertTemplate())) {
             alertChannel.setAlertTemplate(alertGateVO.getAlertTemplate());
         }

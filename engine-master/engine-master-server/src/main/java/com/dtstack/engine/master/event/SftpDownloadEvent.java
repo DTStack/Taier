@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  * @Description: 下载sftp的jar
  */
 @Component
-@ConditionalOnProperty(name = "console.sftp.open",havingValue = "true")
+@ConditionalOnProperty(name = "console.sftp.open",havingValue = "true",matchIfMissing = true)
 public class SftpDownloadEvent extends AdapterEventMonitor {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());

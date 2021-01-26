@@ -1,24 +1,18 @@
 package com.dtstack.engine.master.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.AlterSender;
 import com.dtstack.engine.alert.EventMonitor;
 import com.dtstack.engine.alert.enums.AlertGateCode;
-import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.po.ClusterAlertPO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
 import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
-import com.dtstack.engine.common.constrant.GlobalConst;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.sftp.SftpConfig;
-import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.master.config.MvcConfig;
-import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.event.SftpDownloadEvent;
 import com.dtstack.engine.master.impl.AlertChannelService;
 import com.dtstack.engine.master.impl.ComponentService;
@@ -76,7 +70,9 @@ public class AlertController {
     public Boolean edit(@RequestParam(value = "file", required = false) MultipartFile file,
                                     AlertGateVO alertGateVO) throws Exception {
         CheckUtils.checkAlertGateVOFormat(alertGateVO);
-        Assert.isTrue(!alertChannelService.checkAlertGateSourceExist(alertGateVO.getAlertGateSource()),"通道标识以重复，请修改通道标识");
+        if (alertGateVO.getId() == null) {
+            Assert.isTrue(!alertChannelService.checkAlertGateSourceExist(alertGateVO.getAlertGateSource()), "通道标识以重复，请修改通道标识");
+        }
 
         if (file != null) {
             String filePath = mvcConfig.getPluginPath(false,alertGateVO.getAlertGateSource());

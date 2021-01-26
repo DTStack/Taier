@@ -9,15 +9,15 @@
         `is_deleted`, `content`
     </sql>
 
-    <insert id="insert" parameterType="com.dtstack.engine.domain.AlertContent">
-        insert into alert_content (`id`, `tenant_id`, `project_id`,
+    <insert id="insert" parameterType="com.dtstack.engine.domain.AlertContent" useGeneratedKeys="true" keyProperty="id">
+        insert into alert_content ( `tenant_id`, `project_id`,
         `app_type`, `status`, `send_info`,
         `alert_message_status`, `gmt_create`, `gmt_modified`,
         `is_deleted`, `content`)
-        values (#{id,jdbcType=INTEGER}, #{tenantId,jdbcType=INTEGER}, #{projectId,jdbcType=INTEGER},
-        #{appType,jdbcType=INTEGER}, #{status,jdbcType=BIT}, #{sendInfo,jdbcType=VARCHAR},
-        #{alertMessageStatus,jdbcType=TINYINT}, #{gmtCreate,jdbcType=TIMESTAMP}, #{gmtModified,jdbcType=TIMESTAMP},
-        #{isDeleted,jdbcType=BIT}, #{content,jdbcType=LONGVARCHAR})
+        values ( #{alertContent.tenantId}, #{alertContent.projectId},
+        #{alertContent.appType}, #{alertContent.status}, #{alertContent.sendInfo},
+        #{alertContent.alertMessageStatus}, #{alertContent.gmtCreate}, #{alertContent.gmtModified},
+        #{alertContent.isDeleted}, #{alertContent.content})
     </insert>
 
     <update id="updateById">
