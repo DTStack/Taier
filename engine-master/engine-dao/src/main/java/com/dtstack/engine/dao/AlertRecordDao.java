@@ -18,7 +18,7 @@ public interface AlertRecordDao {
 
     Integer updateByMapAndIds(@Param("record") AlertRecord alertRecord, @Param("params") Map<String, Object> params, @Param("recordIds") List<Long> recordIds);
 
-    Integer updateByMap(@Param("record") AlertRecord record, @Param("param") Map<String, Object> param);
+    Integer updateByMap(@Param("record") AlertRecord record, @Param("params") Map<String, Object> params);
 
     List<AlertRecord> selectQuery(@Param("record") AlertRecord queryAlertRecord);
 }

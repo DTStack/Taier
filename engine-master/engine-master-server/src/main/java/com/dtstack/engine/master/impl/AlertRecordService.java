@@ -152,13 +152,18 @@ public class AlertRecordService {
             }
 
             String content = alarmSendDTO.getContent();
+            Long contentId = alarmSendDTO.getContentId();
+            AlertContent alertContent = alertContentService.findContentById(contentId);
+
             if (StringUtils.isBlank(content)) {
-                Long contentId = alarmSendDTO.getContentId();
-                AlertContent alertContent = alertContentService.findContentById(contentId);
                 if (alertContent == null) {
                     throw new RdosDefineException("发送告警必须设置告警内容");
                 }
                 content = alertContent.getContent();
+            }
+
+            if (alarmSendDTO.getStatus() == null) {
+                alarmSendDTO.setStatus(alertContent.getStatus());
             }
 
             Map<Long,AlertChannel> alertChannelMap = Maps.newHashMap();
@@ -185,26 +190,45 @@ public class AlertRecordService {
     }
 
     private void sendAlter(AlarmSendDTO alarmSendDTO, String content, Map<Long, AlertChannel> alertChannelMap, Map<Long, UserMessageDTO> receiversMap, AlertRecord record) throws Exception {
-        AlterContext alterContext = new AlterContext();
-        AlertChannel alertChannel = alertChannelMap.get(record.getAlertChannelId());
-        UserMessageDTO userMessageDTO = receiversMap.get(record.getUserId());
-        AlertGateCode alertGateCode = AlertGateCode.parse(alertChannel.getAlertGateCode());
+        try {
+            AlterContext alterContext = new AlterContext();
+            AlertChannel alertChannel = alertChannelMap.get(record.getAlertChannelId());
+            UserMessageDTO userMessageDTO = receiversMap.get(record.getUserId());
 
-        alterContext.setId(record.getId());
-        alterContext.setUserName(userMessageDTO.getUsername());
-        alterContext.setTitle(record.getTitle());
-        alterContext.setContent(content);
-        alterContext.setAlertGateJson(StringUtils.isNotBlank(alertChannel.getAlertGateJson()) ? alertChannel.getAlertGateJson() : "");
-        alterContext.setJarPath(alertChannel.getFilePath());
-        alterContext.setAlertGateCode(alertGateCode);
-        alterContext.setEmails(Lists.newArrayList(userMessageDTO.getEmail()));
-        alterContext.setDing(alarmSendDTO.getWebhook());
-        alterContext.setPhone(userMessageDTO.getTelephone());
+            if (alertChannel == null) {
+                throw new RdosDefineException("未查询到通道信息");
+            }
 
-        Map<String,Object> extendedPara = Maps.newHashMap();
-        extendedPara.put(StatusUpdateEvent.RECORD_PATH,record);
-        alterContext.setExtendedPara(extendedPara);
-        alterSender.sendAsyncAAlter(alterContext,eventMonitors);
+            AlertGateCode alertGateCode = AlertGateCode.parse(alertChannel.getAlertGateCode());
+            alterContext.setJarPath(alertChannel.getFilePath());
+            alterContext.setAlertGateJson(StringUtils.isNotBlank(alertChannel.getAlertGateJson()) ? alertChannel.getAlertGateJson() : "");
+            alterContext.setId(record.getId());
+            alterContext.setTitle(record.getTitle());
+            alterContext.setContent(content);
+            alterContext.setAlertGateCode(alertGateCode);
+            alterContext.setDing(alarmSendDTO.getWebhook());
+
+            if (userMessageDTO != null) {
+                alterContext.setUserName(userMessageDTO.getUsername());
+                alterContext.setEmails(Lists.newArrayList(userMessageDTO.getEmail()));
+                alterContext.setPhone(userMessageDTO.getTelephone());
+            }
+
+            Map<String,Object> extendedPara = Maps.newHashMap();
+            extendedPara.put(StatusUpdateEvent.RECORD_PATH,record);
+            alterContext.setExtendedPara(extendedPara);
+            alterSender.sendAsyncAAlter(alterContext,eventMonitors);
+        } catch (Exception e) {
+            log.error(ExceptionUtil.getErrorMessage(e));
+            AlertRecord alertRecord = new AlertRecord();
+            alertRecord.setAlertRecordSendStatus(AlertSendStatusEnum.SEND_FAILURE.getType());
+            alertRecord.setFailureReason(ExceptionUtil.getErrorMessage(e));
+
+            Map<String,Object> param = Maps.newHashMap();
+            param.put("id",record.getId());
+            param.put("is_deleted",IsDeletedEnum.NOT_DELETE.getType());
+            alertRecordMapper.updateByMap(alertRecord,param);
+        }
     }
 
     private List<AlertRecord> buildRecord(AlarmSendDTO alarmSendDTO, List<AlertChannel> alertChannels, Map<Long, AlertChannel> alertChannelMap,Map<Long,UserMessageDTO> receiversMap) {
@@ -246,15 +270,17 @@ public class AlertRecordService {
         alertRecord.setAppType(alarmSendDTO.getAppType());
         alertRecord.setUserId(userId);
         alertRecord.setReadStatus(ReadStatus.UNREAD.getStatus());
-        alertRecord.setTitle(alarmSendDTO.getTitle());
-        alertRecord.setStatus(alarmSendDTO.getStatus());
+        alertRecord.setTitle(StringUtils.isNotBlank(alarmSendDTO.getTitle())?alarmSendDTO.getTitle():"");
+        alertRecord.setStatus(alarmSendDTO.getStatus() == null ? 0 : alarmSendDTO.getStatus());
         alertRecord.setSendContent("");
-        alertRecord.setJobId(alarmSendDTO.getJobId());
+        alertRecord.setJobId(StringUtils.isNotBlank(alarmSendDTO.getJobId())?alarmSendDTO.getJobId():"");
         alertRecord.setAlertRecordStatus(AlertRecordStatusEnum.NO_WARNING.getType());
         alertRecord.setAlertRecordSendStatus(AlertSendStatusEnum.NO_SEND.getType());
         alertRecord.setFailureReason("");
         alertRecord.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
         alertRecord.setNodeAddress(environmentContext.getLocalAddress());
+        alertRecord.setSendEndTime("");
+        alertRecord.setSendTime("");
         return alertRecord;
     }
 

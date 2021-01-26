@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.AdapterEventMonitor;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.common.constrant.GlobalConst;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.dao.ComponentDao;
@@ -42,36 +43,40 @@ public class SftpDownloadEvent extends AdapterEventMonitor {
 
     @Override
     public void leaveQueueAndSenderBeforeEvent(AlterContext alterContext) {
-        String jarPath = alterContext.getJarPath();
-        String destPath = jarPath;
-        String sftpPath = null;
+        try {
+            String jarPath = alterContext.getJarPath();
+            String destPath = jarPath;
+            String sftpPath = null;
 
-        if (jarPath.contains(GlobalConst.PATH_CUT)) {
-            try {
-                destPath = jarPath.substring(0, jarPath.indexOf(GlobalConst.PATH_CUT));
-                sftpPath = jarPath.substring(jarPath.indexOf(GlobalConst.PATH_CUT)+GlobalConst.PATH_CUT.length());
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-            }
-        }
-
-        String ifPresent = cacheSftpJar.getIfPresent(jarPath);
-        if (StringUtils.isBlank(ifPresent)) {
-            com.dtstack.engine.api.domain.Component sftpComponent = componentService.getComponentByClusterId(-1L, 10);
-            if (sftpComponent != null) {
-                SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
-                if (sftpConfig != null) {
-                    try {
-                        SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
-                        sftpManager.downloadFile(sftpPath, destPath);
-                        cacheSftpJar.put(jarPath, System.currentTimeMillis() + "");
-                    } catch (Exception e) {
-                        logger.error("下载sftp失败:", e);
-                    }
+            if (jarPath.contains(GlobalConst.PATH_CUT)) {
+                try {
+                    destPath = jarPath.substring(0, jarPath.indexOf(GlobalConst.PATH_CUT));
+                    sftpPath = jarPath.substring(jarPath.indexOf(GlobalConst.PATH_CUT)+GlobalConst.PATH_CUT.length());
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
                 }
-            } else {
-                logger.error("未配置sftp:");
             }
+
+            String ifPresent = cacheSftpJar.getIfPresent(jarPath);
+            if (StringUtils.isBlank(ifPresent)) {
+                com.dtstack.engine.api.domain.Component sftpComponent = componentService.getComponentByClusterId(-1L, 10);
+                if (sftpComponent != null) {
+                    SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
+                    if (sftpConfig != null) {
+                        try {
+                            SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
+                            sftpManager.downloadFile(sftpPath, destPath);
+                            cacheSftpJar.put(jarPath, System.currentTimeMillis() + "");
+                        } catch (Exception e) {
+                            logger.error("下载sftp失败:", e);
+                        }
+                    }
+                } else {
+                    logger.error("未配置sftp:");
+                }
+            }
+        } catch (Exception e) {
+            logger.error(ExceptionUtil.getErrorMessage(e));
         }
     }
 

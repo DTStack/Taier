@@ -3,6 +3,7 @@ package com.dtstack.engine.master.event;
 import com.dtstack.engine.alert.AdapterEventMonitor;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.enums.AlertRecordStatusEnum;
+import com.dtstack.engine.alert.exception.AlterEventInterruptException;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.dao.AlertRecordDao;
@@ -41,7 +42,7 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
             param.put("id",record.getId());
             param.put("is_deleted",IsDeletedEnum.NOT_DELETE.getType());
             param.put("alert_record_status",AlertRecordStatusEnum.NO_WARNING.getType());
-            alertRecordDao.updateByMap(update,param);
+            return alertRecordDao.updateByMap(update,param);
         });
     }
 
@@ -54,7 +55,7 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
             param.put("id", record.getId());
             param.put("is_deleted", IsDeletedEnum.NOT_DELETE.getType());
             param.put("alert_record_status", AlertRecordStatusEnum.NO_WARNING.getType());
-            alertRecordDao.updateByMap(update, param);
+            return alertRecordDao.updateByMap(update, param);
         });
     }
 
@@ -69,7 +70,7 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
             param.put("id", record.getId());
             param.put("is_deleted", IsDeletedEnum.NOT_DELETE.getType());
             param.put("alert_record_status", AlertRecordStatusEnum.ALARM_QUEUE.getType());
-            alertRecordDao.updateByMap(update, param);
+            return alertRecordDao.updateByMap(update, param);
         });
     }
 
@@ -89,7 +90,7 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
             param.put("id", record.getId());
             param.put("is_deleted", IsDeletedEnum.NOT_DELETE.getType());
             param.put("alert_record_status", AlertRecordStatusEnum.SENDING_ALARM.getType());
-            alertRecordDao.updateByMap(update, param);
+            return alertRecordDao.updateByMap(update, param);
         });
     }
 
@@ -99,14 +100,14 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
             AlertRecord update = new AlertRecord();
             update.setAlertRecordStatus(AlertRecordStatusEnum.ALERT_SUCCESS.getType());
             update.setAlertRecordSendStatus(AlertSendStatusEnum.SEND_FAILURE.getType());
-            update.setFailureReason("原因："+r.getMessage()+"--异常:"+ ExceptionUtil.getErrorMessage(e));
+            update.setFailureReason("原因："+(r!=null?r.getMessage():"")+"--异常:"+ ExceptionUtil.getErrorMessage(e));
             update.setSendEndTime(DateTime.now().toString("yyyyMMddHHmmss"));
             Map<String,Object> param = Maps.newHashMap();
             param.put("id", record.getId());
             param.put("is_deleted", IsDeletedEnum.NOT_DELETE.getType());
             param.put("alert_record_status", AlertRecordStatusEnum.SENDING_ALARM.getType());
 
-            alertRecordDao.updateByMap(update, param);
+            return alertRecordDao.updateByMap(update, param);
         });
     }
 
@@ -119,17 +120,23 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
             AlertRecord alertRecord = (AlertRecord)param;
             Long id = alertRecord.getId();
             if (id != null) {
-                callback.callback(alertRecord,alterContext);
+                Integer update = callback.callback(alertRecord, alterContext);
+
+                if (update <= 0) {
+                    // 抛出中断异常
+                    throw new AlterEventInterruptException("告警记录:"+alterContext.getMark()+"更新状态失败");
+                }
+
             }
         }
     }
 
     @Override
     public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE;
+        return Ordered.LOWEST_PRECEDENCE;
     }
 
     private interface Callback {
-        void callback(AlertRecord alertRecord,AlterContext alterContext);
+        Integer callback(AlertRecord alertRecord,AlterContext alterContext);
     }
 }
