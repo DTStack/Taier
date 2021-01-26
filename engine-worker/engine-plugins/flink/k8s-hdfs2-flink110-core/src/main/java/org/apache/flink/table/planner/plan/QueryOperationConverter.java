@@ -18,54 +18,36 @@
 
 package org.apache.flink.table.planner.plan;
 
+import org.apache.calcite.rel.RelNode;
+import org.apache.calcite.rel.core.CorrelationId;
+import org.apache.calcite.rel.core.JoinRelType;
+import org.apache.calcite.rel.logical.LogicalTableFunctionScan;
+import org.apache.calcite.rel.logical.LogicalTableScan;
+import org.apache.calcite.rel.type.RelDataType;
+import org.apache.calcite.rex.RexNode;
+import org.apache.calcite.sql.SqlAggFunction;
+import org.apache.calcite.tools.RelBuilder;
+import org.apache.calcite.tools.RelBuilder.AggCall;
+import org.apache.calcite.tools.RelBuilder.GroupKey;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.table.api.TableException;
 import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.catalog.CatalogManager;
-import org.apache.flink.table.catalog.ConnectorCatalogTable;
-import org.apache.flink.table.catalog.FunctionLookup;
-import org.apache.flink.table.catalog.ObjectIdentifier;
-import org.apache.flink.table.catalog.UnresolvedIdentifier;
-import org.apache.flink.table.expressions.CallExpression;
-import org.apache.flink.table.expressions.Expression;
-import org.apache.flink.table.expressions.ExpressionDefaultVisitor;
-import org.apache.flink.table.expressions.FieldReferenceExpression;
-import org.apache.flink.table.expressions.ResolvedExpression;
-import org.apache.flink.table.expressions.ValueLiteralExpression;
+import org.apache.flink.table.catalog.*;
+import org.apache.flink.table.expressions.*;
 import org.apache.flink.table.expressions.resolver.LookupCallResolver;
 import org.apache.flink.table.functions.BuiltInFunctionDefinitions;
 import org.apache.flink.table.functions.FunctionDefinition;
 import org.apache.flink.table.functions.FunctionIdentifier;
 import org.apache.flink.table.functions.TableFunction;
-import org.apache.flink.table.operations.AggregateQueryOperation;
-import org.apache.flink.table.operations.CalculatedQueryOperation;
-import org.apache.flink.table.operations.CatalogQueryOperation;
-import org.apache.flink.table.operations.DistinctQueryOperation;
-import org.apache.flink.table.operations.FilterQueryOperation;
-import org.apache.flink.table.operations.JavaDataStreamQueryOperation;
-import org.apache.flink.table.operations.JoinQueryOperation;
+import org.apache.flink.table.operations.*;
 import org.apache.flink.table.operations.JoinQueryOperation.JoinType;
-import org.apache.flink.table.operations.ProjectQueryOperation;
-import org.apache.flink.table.operations.QueryOperation;
-import org.apache.flink.table.operations.QueryOperationVisitor;
-import org.apache.flink.table.operations.ScalaDataStreamQueryOperation;
-import org.apache.flink.table.operations.SetQueryOperation;
-import org.apache.flink.table.operations.SortQueryOperation;
-import org.apache.flink.table.operations.TableSourceQueryOperation;
-import org.apache.flink.table.operations.WindowAggregateQueryOperation;
 import org.apache.flink.table.operations.WindowAggregateQueryOperation.ResolvedGroupWindow;
 import org.apache.flink.table.operations.utils.QueryOperationDefaultVisitor;
 import org.apache.flink.table.planner.calcite.FlinkContext;
 import org.apache.flink.table.planner.calcite.FlinkRelBuilder;
 import org.apache.flink.table.planner.calcite.FlinkTypeFactory;
-import org.apache.flink.table.planner.expressions.PlannerProctimeAttribute;
-import org.apache.flink.table.planner.expressions.PlannerRowtimeAttribute;
-import org.apache.flink.table.planner.expressions.PlannerWindowEnd;
-import org.apache.flink.table.planner.expressions.PlannerWindowReference;
-import org.apache.flink.table.planner.expressions.PlannerWindowStart;
-import org.apache.flink.table.planner.expressions.RexNodeExpression;
-import org.apache.flink.table.planner.expressions.SqlAggFunctionVisitor;
+import org.apache.flink.table.planner.expressions.*;
 import org.apache.flink.table.planner.expressions.converter.ExpressionConverter;
 import org.apache.flink.table.planner.functions.utils.TableSqlFunction;
 import org.apache.flink.table.planner.operations.DataStreamQueryOperation;
@@ -86,27 +68,10 @@ import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.table.sources.TableSource;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.util.Preconditions;
-
-import org.apache.calcite.rel.RelNode;
-import org.apache.calcite.rel.core.CorrelationId;
-import org.apache.calcite.rel.core.JoinRelType;
-import org.apache.calcite.rel.logical.LogicalTableFunctionScan;
-import org.apache.calcite.rel.logical.LogicalTableScan;
-import org.apache.calcite.rel.type.RelDataType;
-import org.apache.calcite.rex.RexNode;
-import org.apache.calcite.sql.SqlAggFunction;
-import org.apache.calcite.tools.RelBuilder;
-import org.apache.calcite.tools.RelBuilder.AggCall;
-import org.apache.calcite.tools.RelBuilder.GroupKey;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import scala.Some;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -568,7 +533,7 @@ public class QueryOperationConverter extends QueryOperationDefaultVisitor<RelNod
             throw new TableException("Unexpected expression: " + expression);
         }
 
-        private class AggCallVisitor extends ExpressionDefaultVisitor<RelBuilder.AggCall> {
+        private class AggCallVisitor extends ExpressionDefaultVisitor<AggCall> {
 
             private final RelBuilder relBuilder;
             private final SqlAggFunctionVisitor sqlAggFunctionVisitor;
@@ -586,7 +551,7 @@ public class QueryOperationConverter extends QueryOperationDefaultVisitor<RelNod
             }
 
             @Override
-            public RelBuilder.AggCall visit(CallExpression call) {
+            public AggCall visit(CallExpression call) {
                 FunctionDefinition def = call.getFunctionDefinition();
                 if (BuiltInFunctionDefinitions.DISTINCT == def) {
                     Expression innerAgg = call.getChildren().get(0);
@@ -605,13 +570,13 @@ public class QueryOperationConverter extends QueryOperationDefaultVisitor<RelNod
             }
 
             @Override
-            protected RelBuilder.AggCall defaultMethod(Expression expression) {
+            protected AggCall defaultMethod(Expression expression) {
                 throw new TableException("Unexpected expression: " + expression);
             }
         }
     }
 
-    private class TableAggregateVisitor extends ExpressionDefaultVisitor<RelBuilder.AggCall> {
+    private class TableAggregateVisitor extends ExpressionDefaultVisitor<AggCall> {
         @Override
         public AggCall visit(CallExpression call) {
             if (isFunctionOfKind(call, TABLE_AGGREGATE)) {
@@ -625,7 +590,7 @@ public class QueryOperationConverter extends QueryOperationDefaultVisitor<RelNod
             throw new TableException("Expected table aggregate. Got: " + expression);
         }
 
-        private class TableAggCallVisitor extends ExpressionDefaultVisitor<RelBuilder.AggCall> {
+        private class TableAggCallVisitor extends ExpressionDefaultVisitor<AggCall> {
 
             private final RelBuilder relBuilder;
             private final SqlAggFunctionVisitor sqlAggFunctionVisitor;
@@ -638,7 +603,7 @@ public class QueryOperationConverter extends QueryOperationDefaultVisitor<RelNod
             }
 
             @Override
-            public RelBuilder.AggCall visit(CallExpression call) {
+            public AggCall visit(CallExpression call) {
                 SqlAggFunction sqlAggFunction = call.accept(sqlAggFunctionVisitor);
                 return relBuilder.aggregateCall(
                         sqlAggFunction,
@@ -650,7 +615,7 @@ public class QueryOperationConverter extends QueryOperationDefaultVisitor<RelNod
             }
 
             @Override
-            protected RelBuilder.AggCall defaultMethod(Expression expression) {
+            protected AggCall defaultMethod(Expression expression) {
                 throw new TableException("Expected table aggregate. Got: " + expression);
             }
         }
