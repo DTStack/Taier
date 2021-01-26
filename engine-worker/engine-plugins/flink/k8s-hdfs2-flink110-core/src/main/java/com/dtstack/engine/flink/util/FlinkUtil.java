@@ -49,19 +49,16 @@ public class FlinkUtil {
 
         File jarFile = downloadJar(fromPath, localDir, filesystemManager, true);
 
-        ClassLoaderType classLoaderType = ClassLoaderType.getClassLoaderType(jobType);
-        if (ClassLoaderType.CHILD_FIRST == classLoaderType) {
-            flinkConfiguration.setString(CoreOptions.CLASSLOADER_RESOLVE_ORDER, "child-first");
-            flinkConfiguration.setString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_FALSE);
-        } else if (ClassLoaderType.PARENT_FIRST == classLoaderType) {
-            flinkConfiguration.setString(CoreOptions.CLASSLOADER_RESOLVE_ORDER, "parent-first");
-            flinkConfiguration.setString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_FALSE);
-        } else if (ClassLoaderType.CHILD_FIRST_CACHE == classLoaderType) {
-            flinkConfiguration.setString(CoreOptions.CLASSLOADER_RESOLVE_ORDER, "child-first");
-            flinkConfiguration.setString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_TRUE);
-        } else if (ClassLoaderType.PARENT_FIRST_CACHE == classLoaderType) {
-            flinkConfiguration.setString(CoreOptions.CLASSLOADER_RESOLVE_ORDER, "parent-first");
-            flinkConfiguration.setString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_TRUE);
+        String classloaderCache = flinkConfiguration.getString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_TRUE);
+        flinkConfiguration.setString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, classloaderCache);
+
+        String append = flinkConfiguration.getString(CoreOptions.ALWAYS_PARENT_FIRST_LOADER_PATTERNS_ADDITIONAL);
+        if (jobType == EJobType.SQL || jobType == EJobType.SYNC) {
+            String dtstackAppend = "com.fasterxml.jackson.";
+            if (StringUtils.isNotEmpty(append)) {
+                dtstackAppend = dtstackAppend + ";" + append;
+            }
+            flinkConfiguration.setString(CoreOptions.ALWAYS_PARENT_FIRST_LOADER_PATTERNS_ADDITIONAL, dtstackAppend);
         }
 
         PackagedProgram program = PackagedProgram.newBuilder()

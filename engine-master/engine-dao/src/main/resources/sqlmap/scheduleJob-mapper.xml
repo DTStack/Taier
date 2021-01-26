@@ -83,10 +83,8 @@
                 </foreach>
             </if>
             <if test="model.cycStartDay != null and model.cycEndDay != null">
-                AND bj.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} and cyc_time !='' ORDER BY id ASC limit 1)
                 AND bj.cyc_time <![CDATA[>=]]> #{model.cycStartDay}
-                AND bj.id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<]]> #{model.cycEndDay} and cyc_time !='' ORDER BY id desc limit 1)
-                AND bj.cyc_time <![CDATA[<]]> #{model.cycEndDay}
+                and bj.cyc_time <![CDATA[<]]> #{model.cycEndDay}
             </if>
             <if test="model.jobNameRightLike != null">
                 AND bj.job_name LIKE '${model.jobNameRightLike}%'
@@ -305,8 +303,6 @@
             </if>
 
             <if test="model.cycStartDay != null and model.cycEndDay != null">
-                AND id >= (SELECT id FROM schedule_job WHERE cyc_time <![CDATA[>=]]> #{model.cycStartDay} AND cyc_time !='' LIMIT 1)
-                AND id <![CDATA[<=]]> (SELECT id FROM schedule_job WHERE cyc_time <![CDATA[<]]> #{model.cycEndDay} AND cyc_time !='' ORDER BY id DESC LIMIT 1)
                 AND cyc_time <![CDATA[>=]]> #{model.cycStartDay}
                 AND cyc_time <![CDATA[<]]> #{model.cycEndDay}
             </if>
@@ -507,14 +503,12 @@
         AND ts.app_type = #{appType}
         AND ts.task_type != 10
         <if test="startTime != null and startTime != ''">
-            AND ts.id >= (SELECT id from schedule_job WHERE cyc_time <![CDATA[>=]]> #{startTime} AND cyc_time !='' LIMIT 1)
             AND ts.cyc_time <![CDATA[>=]]> #{startTime}
         </if>
         <if test="endTime != null and endTime != ''">
-            AND ts.id <![CDATA[<=]]> (SELECT id from schedule_job WHERE cyc_time <![CDATA[<]]> #{endTime} AND cyc_time !='' ORDER BY id DESC LIMIT 1)
             AND ts.cyc_time <![CDATA[<]]> #{endTime}
         </if>
-        <if test="statuses != null">
+        <if test="statuses != null ">
             AND ts.status in
             <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
                 #{status}
@@ -548,7 +542,7 @@
         <if test="endTime != null and endTime != ''">
             AND bj.cyc_time <![CDATA[<]]> #{endTime}
         </if>
-        <if test="statuses != null">
+        <if test="statuses != null ">
             AND bj.status in
             <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
                 #{status}
@@ -563,7 +557,8 @@
         taskType,
         bj.exec_time AS execTime,bj.is_deleted as isDeleted,bj.create_user_id AS createUserId
         FROM schedule_job bj
-        WHERE bj.is_deleted = 0 AND bj.app_type = #{appType}
+        WHERE bj.is_deleted = 0
+        AND bj.app_type = #{appType}
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
             AND bj.dtuic_tenant_id = #{dtuicTenantId}
         </if>
@@ -574,7 +569,7 @@
         ORDER BY bj.exec_time desc limit #{pageQuery.start}, #{pageQuery.pageSize}
     </select>
 
-    <select id="listTopErrorByType" resultType="java.util.HashMap">
+    <select id="listTopErrorByType" resultType="com.dtstack.engine.api.vo.JobTopErrorVO">
         SELECT bj.task_id AS taskId, count(1) as errorCount
         FROM schedule_job bj
         WHERE bj.is_deleted = 0
@@ -587,13 +582,13 @@
         <if test="tenantId!=null">
             AND bj.tenant_id = #{tenantId}
         </if>
+        AND bj.app_type = #{appType}
         AND bj.status in
         <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
             #{status}
         </foreach>
         AND bj.type = #{type}
-        AND bj.app_type = #{appType}
-        AND bj.cyc_time is not null and bj.cyc_time >= #{time}
+        AND bj.cyc_time is not null and bj.cyc_time >= #{cycTime}
         group by bj.task_id
         ORDER BY count(1) desc limit #{pageQuery.start}, #{pageQuery.pageSize}
     </select>
@@ -682,8 +677,10 @@
         FROM schedule_job bj
         WHERE bj.exec_start_time is not null and bj.exec_start_time >= #{today}
         AND bj.type = #{type}
-        AND bj.app_type = #{appType}
         AND bj.is_deleted = 0
+        <if test="appType != null and appType != -1">
+            AND bj.app_type = #{appType}
+        </if>
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
             AND bj.dtuic_tenant_id = #{dtuicTenantId}
         </if>
@@ -734,7 +731,9 @@
         WHERE bj.exec_start_time is not null and bj.exec_start_time >= #{yesterday}
         and bj.exec_start_time &lt; #{today}
         and bj.type = #{type}
-        and bj.app_type = #{appType}
+        <if test="appType != null and appType != -1">
+            AND bj.app_type = #{appType}
+        </if>
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
             AND bj.dtuic_tenant_id = #{dtuicTenantId}
         </if>
@@ -759,7 +758,9 @@
         FROM schedule_job bj
         WHERE bj.exec_start_time is not null and bj.exec_start_time >= #{lastMonth}
         and bj.type = #{type}
-        and bj.app_type = #{appType}
+        <if test="appType != null and appType != -1">
+            AND bj.app_type = #{appType}
+        </if>
         <if test="dtuicTenantId != null and dtuicTenantId != -1">
             AND bj.dtuic_tenant_id = #{dtuicTenantId}
         </if>
@@ -790,9 +791,9 @@
         AND is_deleted = 0
     </select>
 
-    <select id="listIdByTaskIdAndStatus" resultType="java.lang.Long">
+    <select id="listIdByTaskIdAndStatus" resultType="ScheduleJob">
         SELECT
-        bj.id
+        <include refid="select_content_fragment"/>
         FROM schedule_job bj
         where bj.task_id = #{taskId}
         AND bj.status IN
@@ -801,6 +802,12 @@
         </foreach>
         AND bj.is_deleted = 0
         AND bj.app_type = #{appType}
+        <if test="cycTime!=null">
+            AND bj.cyc_time >= #{cycTime}
+        </if>
+        <if test="type!=null">
+            AND bj.type = #{type}
+        </if>
     </select>
 
     <select id="listJobIdByTaskIdAndStatus" resultType="java.lang.String">
@@ -980,7 +987,7 @@
         </if>
     </select>
 
-    <select id="getJobsStatusStatistics" resultType="java.util.HashMap">
+    <select id="getJobsStatusStatistics" resultType="StatusCount">
         SELECT status, COUNT(1) as count
         FROM schedule_job bj
         <include refid="select_where_batch_job"/>
@@ -1327,7 +1334,10 @@
 
     <update id="stopUnsubmitJob">
         UPDATE  schedule_job
-        set status = #{status} where status = 0 and  job_name like #{likeName} and project_id = #{projectId} and app_type = #{appType};
+        set status = #{status} where status = 0 and
+        job_name like #{likeName} and
+        project_id = #{projectId} and
+        app_type = #{appType};
     </update>
 
     <select id="getByTaskIdAndStatusOrderByIdLimit" resultType="ScheduleJob">
@@ -1486,7 +1496,6 @@
         <if test="scheduleType != null">
             AND type = #{scheduleType}
         </if>
-        order by id asc
         limit #{batchJobSize}
     </select>
 
@@ -1580,7 +1589,8 @@
    </select>
 
     <select id="getRdosJobByJobIds" resultType="ScheduleJob">
-        select job_id, engine_job_id,application_id,plugin_info_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,retry_num,retry_task_params,gmt_create,gmt_modified,is_deleted,compute_type,dtuic_tenant_id from schedule_job
+        select job_id, engine_job_id,application_id,plugin_info_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,retry_num,retry_task_params,gmt_create,gmt_modified,is_deleted,compute_type,dtuic_tenant_id
+        from schedule_job
         where job_id IN
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
             #{jobId}

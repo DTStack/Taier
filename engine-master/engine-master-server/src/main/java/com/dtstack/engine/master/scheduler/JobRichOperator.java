@@ -6,12 +6,11 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.common.enums.*;
-import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
@@ -193,9 +192,35 @@ public class JobRichOperator {
         }
         //配置了允许过期才能
         if (Expired.EXPIRE.getVal() == isExpire && this.checkExpire(scheduleBatchJob, scheduleType, batchTaskShade)) {
-            return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TIME_OVER_EXPIRE);
+            return validSelfWithExpire(scheduleBatchJob);
         }
         return null;
+    }
+
+
+    /**
+     * 自依赖任务开启自动取消 还需要保证并发数为1 所以需要判断当前是否有运行中的任务
+     * @param scheduleBatchJob
+     * @return
+     */
+    private JobCheckRunInfo validSelfWithExpire(ScheduleBatchJob scheduleBatchJob) {
+        ScheduleJob scheduleJob = scheduleBatchJob.getScheduleJob();
+        if (!DependencyType.SELF_DEPENDENCY_END.getType().equals(scheduleJob.getDependencyType()) &&
+                !DependencyType.SELF_DEPENDENCY_SUCCESS.getType().equals(scheduleJob.getDependencyType())) {
+            return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TIME_OVER_EXPIRE);
+        }
+        //查询当前自依赖任务 今天调度时间前是否有运行中或提交中的任务 如果有 需要等头部运行任务运行完成 才校验自动取消的逻辑
+        String todayCycTime = DateTime.now().withTime(0, 0, 0, 0).toString("yyyyMMddHHmmss");
+        List<Integer> checkStatus = new ArrayList<>(RdosTaskStatus.RUNNING_STATUS);
+        checkStatus.addAll(RdosTaskStatus.WAIT_STATUS);
+        checkStatus.addAll(RdosTaskStatus.SUBMITTING_STATUS);
+        List<ScheduleJob> scheduleJobs = scheduleJobDao.listIdByTaskIdAndStatus(scheduleJob.getTaskId(), checkStatus, scheduleJob.getAppType(), todayCycTime, EScheduleType.NORMAL_SCHEDULE.getType());
+        if (CollectionUtils.isNotEmpty(scheduleJobs)) {
+            ScheduleJob waitFinishJob = scheduleJobs.get(0);
+            logger.info("jobId {} selfJob {}  has running status [{}],wait running job finish", scheduleJob.getJobId(), waitFinishJob.getJobId(), waitFinishJob.getStatus());
+            return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TIME_NOT_REACH);
+        }
+        return JobCheckRunInfo.createCheckInfo(JobCheckStatus.TIME_OVER_EXPIRE);
     }
 
     /**
@@ -694,20 +719,26 @@ public class JobRichOperator {
         return new ImmutablePair<>(startTime, endTime);
     }
 
-    public Pair<String, String> getCycTimeLimitEndNow() {
+    public Pair<String, String> getCycTimeLimitEndNow(Boolean isTrigger) {
         // 当前时间
         Calendar calendar = Calendar.getInstance();
         String endTime = sdf.format(calendar.getTime());
-
         // 获得配置的前几天
         Integer dayGap = environmentContext.getCycTimeDayGap();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        calendar.add(Calendar.DATE, -dayGap);
+        if(isTrigger){
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.add(Calendar.DATE, -dayGap);
+        }else{
+            //补数据或重跑
+            Integer hourGap = environmentContext.getFillDataCycTimeHourGap();
+            calendar.add(Calendar.HOUR,-hourGap);
+        }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String startTime = sdf.format(calendar.getTime());
         return new ImmutablePair<>(startTime, endTime);
     }
+
 }

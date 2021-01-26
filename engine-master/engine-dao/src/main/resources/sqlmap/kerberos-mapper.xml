@@ -40,7 +40,8 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM console_kerberos
-        WHERE cluster_id = #{clusterId} and is_deleted = 0 and component_type = #{componentType}
+        WHERE cluster_id = #{clusterId} and is_deleted = 0
+        and component_type = #{componentType}
         limit 1
     </select>
 

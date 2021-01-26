@@ -16,9 +16,9 @@ public interface ScheduleTaskCommitMapper {
 
     Boolean insertBatch(@Param("scheduleTaskCommits") List<ScheduleTaskCommit> scheduleTaskCommits);
 
-    String getExtInfoByTaskId(@Param("taskId") Long taskId, @Param("appType") Integer appType);
+    String getExtInfoByTaskId(@Param("taskId") Long taskId, @Param("appType") Integer appType,@Param("commitId") String commitId);
 
-    Boolean updateTaskExtInfo(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("info") String info);
+    Boolean updateTaskExtInfo(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("info") String info, @Param("commitId") String commitId);
 
     Long findMinIdOfTaskCommitByCommitId(@Param("commitId") String commitId);
 

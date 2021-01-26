@@ -146,4 +146,12 @@ public class PublicUtil {
 		}
 		return obj;
 	}
+
+	public static String objectToStr(Object object) throws  IOException{
+		if(object ==null){
+			return null;
+		}
+
+		return objectMapper.writeValueAsString(object);
+	}
 }

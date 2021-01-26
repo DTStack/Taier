@@ -5,6 +5,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -38,10 +39,17 @@ public class ScheduleFactory {
     private static final String MAX_RETRY_NUM = "maxRetryNum";
 
     public static ScheduleCron parseFromJson(String jsonStr) throws IOException, ParseException {
-        Map<String, Object> jsonMap = objMapper.readValue(jsonStr, Map.class);
+
+
+        Map<String, Object> jsonMap = null;
+        try {
+            jsonMap = objMapper.readValue(jsonStr, Map.class);
+        } catch (IOException e) {
+            throw new RdosDefineException("jsonStr为空，或格式不对");
+        }
         Preconditions.checkState(jsonMap.containsKey(PERIOD_TYPE_KEY), "schedule param must contain " + PERIOD_TYPE_KEY);
-        Preconditions.checkNotNull(jsonMap.containsKey(BEGIN_DATE_KEY), "schedule param must contain " +  BEGIN_DATE_KEY);
-        Preconditions.checkNotNull(jsonMap.containsKey(END_DATE_KEY), "schedule param must contain " +  END_DATE_KEY);
+        Preconditions.checkState(jsonMap.containsKey(BEGIN_DATE_KEY), "schedule param must contain " +  BEGIN_DATE_KEY);
+        Preconditions.checkState(jsonMap.containsKey(END_DATE_KEY), "schedule param must contain " +  END_DATE_KEY);
 
         int periodType = MathUtil.getIntegerVal(jsonMap.get(PERIOD_TYPE_KEY));
         ScheduleCron scheduleCron = null;
@@ -62,15 +70,16 @@ public class ScheduleFactory {
 
         String beginDateStr = (String) jsonMap.get(BEGIN_DATE_KEY);
         String endDateStr = (String) jsonMap.get(END_DATE_KEY);
-        if(jsonMap.containsKey(SELFRELIANCE_KEY) ){
-            String obj = jsonMap.get(SELFRELIANCE_KEY).toString();
+        if (jsonMap.containsKey(SELFRELIANCE_KEY)) {
+            Object selfObj = jsonMap.get(SELFRELIANCE_KEY);
+            String obj = null == selfObj ? "" : String.valueOf(selfObj);
             Integer type = 0;
-            if("true".equals(obj)){
+            if ("true".equals(obj)) {
                 type = DependencyType.SELF_DEPENDENCY_SUCCESS.getType();
-            }else if("false".equals(obj)){
+            } else if ("false".equals(obj)) {
                 type = DependencyType.NO_SELF_DEPENDENCY.getType();
-            }else {
-                type = MathUtil.getIntegerVal(obj);
+            } else {
+                type = StringUtils.isBlank(obj) ? type : MathUtil.getIntegerVal(obj);
             }
             scheduleCron.setSelfReliance(type);
         }

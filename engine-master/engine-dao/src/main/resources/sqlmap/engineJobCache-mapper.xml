@@ -12,7 +12,8 @@
     </delete>
 
     <select id="getOne" resultType="EngineJobCache">
-        select * from schedule_engine_job_cache where job_id=#{jobId} and is_deleted=0 order by gmt_create desc limit 1;
+        select * from schedule_engine_job_cache
+        where job_id=#{jobId} and is_deleted=0 order by gmt_create desc limit 1;
     </select>
 
     <update id="updateStage">

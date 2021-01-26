@@ -6,6 +6,7 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.BlockCallerPolicy;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -18,7 +19,7 @@ import com.dtstack.engine.master.bo.JobCompletedInfo;
 import com.dtstack.engine.master.bo.JobStatusFrequency;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.jobdealer.cache.ShardManager;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -174,7 +176,7 @@ public class JobStatusDealer implements Runnable {
                 }
 
                 shardCache.updateLocalMemTaskStatus(jobId, status);
-                scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+                updateJobStatusWithPredicate(scheduleJob, jobId, status);
 
                 //数据的更新顺序，先更新job_cache，再更新engine_batch_job
                 if (RdosTaskStatus.getStoppedStatus().contains(status)) {
@@ -194,6 +196,15 @@ public class JobStatusDealer implements Runnable {
 
                 logger.info("------ jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
             }
+        }
+    }
+
+    private void updateJobStatusWithPredicate(ScheduleJob scheduleJob, String jobId, Integer status) {
+        //流计算只有在状态变更的时候才去更新schedule_job表
+        Predicate<ScheduleJob> isStreamUpdateConditions = job ->
+                ComputeType.STREAM.getType().equals(job.getComputeType()) && !job.getStatus().equals(status);
+        if (ComputeType.BATCH.getType().equals(scheduleJob.getComputeType()) || isStreamUpdateConditions.test(scheduleJob)) {
+            scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
         }
     }
 
