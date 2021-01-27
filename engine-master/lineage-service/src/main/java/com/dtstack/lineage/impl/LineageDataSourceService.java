@@ -85,7 +85,7 @@ public class LineageDataSourceService {
                 if (!one.getAppType().equals(dataSourceDTO.getAppType())){
                     throw new RdosDefineException("数据源不存在");
                 }
-                String sourceKey = generateSourceKey(dataSourceDTO.getDataJson());
+                String sourceKey = generateSourceKey(dataSourceDTO.getDataJson(),dataSourceDTO.getSourceType());
                 if(!one.getSourceKey().equals(sourceKey)){
                     throw new RdosDefineException("jdbc.url中ip和端口不能修改");
                 }
@@ -164,7 +164,7 @@ public class LineageDataSourceService {
             //生成sourceKey
             String sourceKey;
             if(!isCustom) {
-                sourceKey = generateSourceKey(dataSourceDTO.getDataJson());
+                sourceKey = generateSourceKey(dataSourceDTO.getDataJson(),dataSourceDTO.getSourceType());
             }else{
                 sourceKey = "custom_"+dataSourceDTO.getSourceName();
                 dataSourceDTO.setDataJson("-1");
@@ -218,7 +218,7 @@ public class LineageDataSourceService {
         return dataSource;
     }
 
-    private String generateSourceKey(String dataJson) {
+    private String generateSourceKey(String dataJson,Integer sourceType) {
         if(null == dataJson){
             throw new RdosDefineException("dataJson不能为空");
         }
@@ -227,6 +227,16 @@ public class LineageDataSourceService {
         String jdbcUrl = jsonObject.getString("jdbcUrl");
         if(jdbcUrl.contains("impala") && jdbcUrl.contains(";")){
              jdbcUrl = jdbcUrl.substring(0, jdbcUrl.indexOf(";"));
+        }
+        if(jdbcUrl.contains("principal")){
+            jdbcUrl = jdbcUrl.substring(0,jdbcUrl.indexOf("principal")-1);
+            if(jdbcUrl.endsWith("/")){
+                jdbcUrl = jdbcUrl.substring(0,jdbcUrl.length()-1);
+            }
+        }
+        if(DataSourceType.getSourceType(sourceType).equals(DataSourceType.Phoenix)
+                || DataSourceType.getSourceType(sourceType).equals(DataSourceType.HBASE)){
+
         }
         sourceConfig.setJdbc(jdbcUrl);
         String sourceKey = sourceConfig.generateRealSourceKey();
@@ -457,4 +467,5 @@ public class LineageDataSourceService {
 
 
     }
+
 }
