@@ -134,7 +134,7 @@ public class ScheduleTaskShadeService {
                                                 List<Integer> taskTypes){
         List<ScheduleTaskShadeCountTaskVO> ScheduleTaskShadeCountTaskVOs = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, Lists.newArrayList(projectId), appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
         if (CollectionUtils.isEmpty(ScheduleTaskShadeCountTaskVOs)) {
-            return null;
+            return new ScheduleTaskShadeCountTaskVO();
         }
         return ScheduleTaskShadeCountTaskVOs.get(0);
     }
