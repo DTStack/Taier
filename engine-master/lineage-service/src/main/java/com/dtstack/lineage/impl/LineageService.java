@@ -554,46 +554,50 @@ public class LineageService {
         }
         //FIXME 暂未考虑性能
         for (LineageTableTableVO tableTableVO:lineageTableTableVOs){
-            LineageTableTable lineageTableTable = null;
-            LineageTableVO inputTableInfoVo = tableTableVO.getInputTableInfo();
-            LineageDataSourceVO inputDataSourceVO = inputTableInfoVo.getDataSourceVO();
-            Integer appType = tableTableVO.getAppType();
-            LineageDataSource dataSource = null;
-            if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                dataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
-            }else {
-                dataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
+            try {
+                LineageTableTable lineageTableTable = null;
+                LineageTableVO inputTableInfoVo = tableTableVO.getInputTableInfo();
+                LineageDataSourceVO inputDataSourceVO = inputTableInfoVo.getDataSourceVO();
+                Integer appType = tableTableVO.getAppType();
+                LineageDataSource dataSource = null;
+                if (Objects.isNull(inputDataSourceVO.getSourceId())) {
+                    dataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
+                }else {
+                    dataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
+                }
+                if (Objects.isNull(dataSource)){
+                    continue;
+    //                throw new RdosDefineException("数据源不存在");
+                }
+                LineageDataSetInfo inputTableInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(inputTableInfoVo.getDataSourceVO().getSourceId(), inputTableInfoVo.getDbName(), inputTableInfoVo.getTableName(), inputTableInfoVo.getSchemaName());
+                LineageTableVO resultTableInfoVO = tableTableVO.getResultTableInfo();
+                LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
+                LineageDataSource resultDataSource = null;
+                if (Objects.isNull(inputDataSourceVO.getSourceId())) {
+                    resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
+                }else {
+                    resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(resultDataSourceVO.getSourceId(),appType);
+                }
+                if (Objects.isNull(resultDataSource)){
+                    throw new RdosDefineException("数据源不存在");
+                }
+                LineageDataSetInfo resultTableInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(resultDataSource.getId(), resultTableInfoVO.getDbName(), resultTableInfoVO.getTableName(), resultTableInfoVO.getSchemaName());
+                lineageTableTable = new LineageTableTable();
+                lineageTableTable.setResultTableId(resultTableInfo.getId());
+                lineageTableTable.setResultTableKey(resultTableInfo.getTableKey());
+                lineageTableTable.setInputTableId(inputTableInfo.getId());
+                lineageTableTable.setInputTableKey(inputTableInfo.getTableKey());
+                lineageTableTable.setLineageSource(LineageOriginType.SQL_PARSE.getType());
+                lineageTableTable.setAppType(tableTableVO.getAppType());
+                lineageTableTable.setDtUicTenantId(tableTableVO.getDtUicTenantId());
+                Integer isManual = null;
+                if (Objects.nonNull(tableTableVO.getManual()) && tableTableVO.getManual()){
+                    isManual = LineageOriginType.MANUAL_ADD.getType();
+                }
+                lineageTableTableService.manualAddTableLineage(tableTableVO.getAppType(), lineageTableTable,tableTableVO.getUniqueKey(),isManual);
+            } catch (Exception e) {
+                logger.error("",e);
             }
-            if (Objects.isNull(dataSource)){
-                continue;
-//                throw new RdosDefineException("数据源不存在");
-            }
-            LineageDataSetInfo inputTableInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(inputTableInfoVo.getDataSourceVO().getSourceId(), inputTableInfoVo.getDbName(), inputTableInfoVo.getTableName(), inputTableInfoVo.getSchemaName());
-            LineageTableVO resultTableInfoVO = tableTableVO.getResultTableInfo();
-            LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
-            LineageDataSource resultDataSource = null;
-            if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), tableTableVO.getDtUicTenantId(), tableTableVO.getAppType());
-            }else {
-                resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(resultDataSourceVO.getSourceId(),appType);
-            }
-            if (Objects.isNull(resultDataSource)){
-                throw new RdosDefineException("数据源不存在");
-            }
-            LineageDataSetInfo resultTableInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(resultDataSource.getId(), resultTableInfoVO.getDbName(), resultTableInfoVO.getTableName(), resultTableInfoVO.getSchemaName());
-            lineageTableTable = new LineageTableTable();
-            lineageTableTable.setResultTableId(resultTableInfo.getId());
-            lineageTableTable.setResultTableKey(resultTableInfo.getTableKey());
-            lineageTableTable.setInputTableId(inputTableInfo.getId());
-            lineageTableTable.setInputTableKey(inputTableInfo.getTableKey());
-            lineageTableTable.setLineageSource(LineageOriginType.SQL_PARSE.getType());
-            lineageTableTable.setAppType(tableTableVO.getAppType());
-            lineageTableTable.setDtUicTenantId(tableTableVO.getDtUicTenantId());
-            Integer isManual = null;
-            if (Objects.nonNull(tableTableVO.getManual()) && tableTableVO.getManual()){
-                isManual = LineageOriginType.MANUAL_ADD.getType();
-            }
-            lineageTableTableService.manualAddTableLineage(tableTableVO.getAppType(), lineageTableTable,tableTableVO.getUniqueKey(),isManual);
         }
     }
 
@@ -845,62 +849,66 @@ public class LineageService {
         }
         //FIXME 优化性能
         for (LineageColumnColumnVO lineageColumnColumnVO:lineageTableTableVOs){
-            Integer appType = lineageColumnColumnVO.getAppType();
-            Long dtUicTenantId = lineageColumnColumnVO.getDtUicTenantId();
-            LineageTableVO inputTableInfoVo = lineageColumnColumnVO.getInputTableInfo();
-            LineageDataSourceVO inputDataSourceVO = inputTableInfoVo.getDataSourceVO();
-            LineageDataSource inputDataSource = null;
-            if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                inputDataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), dtUicTenantId, appType);
-            }else {
-                inputDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
+            try {
+                Integer appType = lineageColumnColumnVO.getAppType();
+                Long dtUicTenantId = lineageColumnColumnVO.getDtUicTenantId();
+                LineageTableVO inputTableInfoVo = lineageColumnColumnVO.getInputTableInfo();
+                LineageDataSourceVO inputDataSourceVO = inputTableInfoVo.getDataSourceVO();
+                LineageDataSource inputDataSource = null;
+                if (Objects.isNull(inputDataSourceVO.getSourceId())) {
+                    inputDataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), dtUicTenantId, appType);
+                }else {
+                    inputDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
+                }
+                if (Objects.isNull(inputDataSource)){
+                    continue;
+    //                throw new RdosDefineException("数据源不存在");
+                }
+                LineageDataSetInfo inputTableInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(inputDataSource.getId(), inputTableInfoVo.getDbName(), inputTableInfoVo.getTableName(), inputTableInfoVo.getSchemaName());
+                LineageTableVO resultTableInfoVO = lineageColumnColumnVO.getResultTableInfo();
+                LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
+                LineageDataSource resultDataSource = null;
+                if (Objects.isNull(inputDataSourceVO.getSourceId())) {
+                    resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), dtUicTenantId, appType);
+                }else {
+                    resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
+                }
+                if (Objects.isNull(resultDataSource)){
+                    throw new RdosDefineException("数据源不存在");
+                }
+                LineageDataSetInfo resultTableInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(resultDataSource.getId(), resultTableInfoVO.getDbName(), resultTableInfoVO.getTableName(), resultTableInfoVO.getSchemaName());
+                LineageTableTable lineageTableTable = new LineageTableTable();
+                lineageTableTable.setResultTableId(resultTableInfo.getId());
+                lineageTableTable.setResultTableKey(resultTableInfo.getTableKey());
+                lineageTableTable.setInputTableId(inputTableInfo.getId());
+                lineageTableTable.setInputTableKey(inputTableInfo.getTableKey());
+                lineageTableTable.setLineageSource(LineageOriginType.SQL_PARSE.getType());
+                lineageTableTable.setAppType(lineageColumnColumnVO.getAppType());
+                lineageTableTable.setDtUicTenantId(lineageColumnColumnVO.getDtUicTenantId());
+                Integer lineageSource = null;
+                if (Objects.nonNull(lineageColumnColumnVO.getManual()) && !lineageColumnColumnVO.getManual()){
+                    lineageTableTable.setLineageSource(LineageOriginType.MANUAL_ADD.getType());
+                    lineageSource = LineageOriginType.SQL_PARSE.getType();
+                }
+                lineageTableTableService.manualAddTableLineage(lineageColumnColumnVO.getAppType(),lineageTableTable,lineageColumnColumnVO.getUniqueKey(),lineageSource);
+                LineageColumnColumn lineageColumnColumn = new LineageColumnColumn();
+                lineageColumnColumn.setResultTableId(resultTableInfo.getId());
+                lineageColumnColumn.setResultTableKey(resultTableInfo.getTableKey());
+                lineageColumnColumn.setResultColumnName(lineageColumnColumnVO.getResultColumnName());
+                lineageColumnColumn.setInputTableId(inputTableInfo.getId());
+                lineageColumnColumn.setInputTableKey(inputTableInfo.getTableKey());
+                lineageColumnColumn.setInputColumnName(lineageColumnColumnVO.getInputColumnName());
+                lineageColumnColumn.setLineageSource(LineageOriginType.SQL_PARSE.getType());
+                lineageColumnColumn.setAppType(lineageColumnColumnVO.getAppType());
+                lineageColumnColumn.setDtUicTenantId(lineageColumnColumnVO.getDtUicTenantId());
+                if (Objects.nonNull(lineageColumnColumnVO.getManual()) && !lineageColumnColumnVO.getManual()){
+                    lineageColumnColumn.setLineageSource(LineageOriginType.MANUAL_ADD.getType());
+                    lineageSource = LineageOriginType.SQL_PARSE.getType();
+                }
+                lineageColumnColumnService.manualAddColumnLineage(lineageColumnColumnVO.getAppType(), lineageColumnColumn,lineageColumnColumnVO.getUniqueKey(),lineageSource);
+            } catch (Exception e) {
+                logger.error("",e);
             }
-            if (Objects.isNull(inputDataSource)){
-                continue;
-//                throw new RdosDefineException("数据源不存在");
-            }
-            LineageDataSetInfo inputTableInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(inputDataSource.getId(), inputTableInfoVo.getDbName(), inputTableInfoVo.getTableName(), inputTableInfoVo.getSchemaName());
-            LineageTableVO resultTableInfoVO = lineageColumnColumnVO.getResultTableInfo();
-            LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
-            LineageDataSource resultDataSource = null;
-            if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-                resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), dtUicTenantId, appType);
-            }else {
-                resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
-            }
-            if (Objects.isNull(resultDataSource)){
-                throw new RdosDefineException("数据源不存在");
-            }
-            LineageDataSetInfo resultTableInfo = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(resultDataSource.getId(), resultTableInfoVO.getDbName(), resultTableInfoVO.getTableName(), resultTableInfoVO.getSchemaName());
-            LineageTableTable lineageTableTable = new LineageTableTable();
-            lineageTableTable.setResultTableId(resultTableInfo.getId());
-            lineageTableTable.setResultTableKey(resultTableInfo.getTableKey());
-            lineageTableTable.setInputTableId(inputTableInfo.getId());
-            lineageTableTable.setInputTableKey(inputTableInfo.getTableKey());
-            lineageTableTable.setLineageSource(LineageOriginType.SQL_PARSE.getType());
-            lineageTableTable.setAppType(lineageColumnColumnVO.getAppType());
-            lineageTableTable.setDtUicTenantId(lineageColumnColumnVO.getDtUicTenantId());
-            Integer lineageSource = null;
-            if (Objects.nonNull(lineageColumnColumnVO.getManual()) && !lineageColumnColumnVO.getManual()){
-                lineageTableTable.setLineageSource(LineageOriginType.MANUAL_ADD.getType());
-                lineageSource = LineageOriginType.SQL_PARSE.getType();
-            }
-            lineageTableTableService.manualAddTableLineage(lineageColumnColumnVO.getAppType(),lineageTableTable,lineageColumnColumnVO.getUniqueKey(),lineageSource);
-            LineageColumnColumn lineageColumnColumn = new LineageColumnColumn();
-            lineageColumnColumn.setResultTableId(resultTableInfo.getId());
-            lineageColumnColumn.setResultTableKey(resultTableInfo.getTableKey());
-            lineageColumnColumn.setResultColumnName(lineageColumnColumnVO.getResultColumnName());
-            lineageColumnColumn.setInputTableId(inputTableInfo.getId());
-            lineageColumnColumn.setInputTableKey(inputTableInfo.getTableKey());
-            lineageColumnColumn.setInputColumnName(lineageColumnColumnVO.getInputColumnName());
-            lineageColumnColumn.setLineageSource(LineageOriginType.SQL_PARSE.getType());
-            lineageColumnColumn.setAppType(lineageColumnColumnVO.getAppType());
-            lineageColumnColumn.setDtUicTenantId(lineageColumnColumnVO.getDtUicTenantId());
-            if (Objects.nonNull(lineageColumnColumnVO.getManual()) && !lineageColumnColumnVO.getManual()){
-                lineageColumnColumn.setLineageSource(LineageOriginType.MANUAL_ADD.getType());
-                lineageSource = LineageOriginType.SQL_PARSE.getType();
-            }
-            lineageColumnColumnService.manualAddColumnLineage(lineageColumnColumnVO.getAppType(), lineageColumnColumn,lineageColumnColumnVO.getUniqueKey(),lineageSource);
         }
     }
 
