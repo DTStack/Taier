@@ -579,6 +579,8 @@ public class FlinkClient extends AbstractClient {
         }
 
         List<String> sqlList = Lists.newArrayList(sqlArr);
+        // handle add jar statements and comment statements on the same line
+        AddJarOperator.handleFirstSql(sqlList);
         Iterator<String> sqlItera = sqlList.iterator();
         List<String> fileList = Lists.newArrayList();
         List<String> sftpFiles = Lists.newArrayList();
