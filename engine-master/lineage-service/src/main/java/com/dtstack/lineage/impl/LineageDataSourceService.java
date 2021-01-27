@@ -71,7 +71,8 @@ public class LineageDataSourceService {
             //校验dtuicTenantId是否存在
             checkTenant(dataSourceDTO.getDtUicTenantId());
             //未知数据源不需要校验dataJson
-            if(dataSourceDTO.getSourceType() != DataSourceType.UNKNOWN.getVal()) {
+            if(dataSourceDTO.getSourceType() != DataSourceType.UNKNOWN.getVal() &&
+                    dataSourceDTO.getSourceType() != DataSourceType.CUSTOM.getVal()) {
                 checkDataJson(dataSourceDTO.getDataJson());
             }
             if (Objects.isNull(dataSourceDTO.getDataSourceId())){
