@@ -160,7 +160,8 @@ public class LineageDataSourceService {
                 return addOrUpdateDataSource(dataSourceDTO);
             }
             //是否是手动添加的数据源。手动添加的数据源暂时不知道数据源类型。当然也可能一直不知道数据源类型
-            boolean isCustom = dataSourceDTO.getSourceType().equals(DataSourceType.UNKNOWN.getVal());
+            boolean isCustom = dataSourceDTO.getSourceType().equals(DataSourceType.UNKNOWN.getVal())
+                    || dataSourceDTO.getSourceType().equals(DataSourceType.CUSTOM.getVal());
             //生成sourceKey
             String sourceKey;
             if(!isCustom) {
