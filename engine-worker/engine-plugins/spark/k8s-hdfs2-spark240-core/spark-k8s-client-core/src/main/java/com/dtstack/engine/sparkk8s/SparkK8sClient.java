@@ -169,12 +169,14 @@ public class SparkK8sClient extends AbstractClient {
         }
 
         List<String> sqlList = Lists.newArrayList(sqlArr);
-        // handle add jar statements and comment statements on the same line
-        AddJarOperator.handleFirstSql(sqlList);
+
+
         Iterator<String> sqlItera = sqlList.iterator();
 
         while (sqlItera.hasNext()){
             String tmpSql = sqlItera.next();
+            // handle add jar statements and comment statements on the same line
+            tmpSql = AddJarOperator.handleSql(tmpSql);
             if(AddJarOperator.verific(tmpSql)){
                 sqlItera.remove();
                 JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
