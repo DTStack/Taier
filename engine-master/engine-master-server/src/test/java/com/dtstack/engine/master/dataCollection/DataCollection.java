@@ -55,6 +55,21 @@ public interface DataCollection {
         return sj;
     }
 
+    /**
+     * @author newman
+     * @Description 获取虚节点任务实例
+     * @Date 2020/12/30 7:09 下午
+     * @return: com.dtstack.engine.api.domain.ScheduleJob
+     **/
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobVirtual() {
+        ScheduleTaskShade shade = getScheduleTaskShadeVirtual();
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setTaskId(shade.getTaskId());
+        sj.setExecStartTime(new Timestamp(1592559742000L));
+        return sj;
+    }
+
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
     default ScheduleJob getScheduleJobSecond() {
         ScheduleJob sj = Template.getScheduleJobTemplate();
@@ -461,6 +476,27 @@ public interface DataCollection {
         scheduleTaskShade.setDtuicTenantId(-1008L);
         scheduleTaskShade.setAppType(0);
         scheduleTaskShade.setScheduleStatus(5);
+        return scheduleTaskShade;
+    }
+
+    /**
+     * @author newman
+     * @Description 虚节点任务
+     * @Date 2020/12/30 7:07 下午
+     * @return: com.dtstack.engine.api.domain.ScheduleTaskShade
+     **/
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    @IgnoreUniqueRandomSet
+    default ScheduleTaskShade getScheduleTaskShadeVirtual(){
+        ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
+        scheduleTaskShade.setScheduleStatus(5);
+        scheduleTaskShade.setTaskId(-2023L);
+        scheduleTaskShade.setTenantId(15L);
+        scheduleTaskShade.setProjectId(-12L);
+        scheduleTaskShade.setDtuicTenantId(-1008L);
+        scheduleTaskShade.setAppType(0);
+        scheduleTaskShade.setScheduleStatus(5);
+        scheduleTaskShade.setTaskType(-1);
         return scheduleTaskShade;
     }
 

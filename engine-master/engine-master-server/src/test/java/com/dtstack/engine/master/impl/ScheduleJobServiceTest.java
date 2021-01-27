@@ -25,8 +25,10 @@ import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.api.dto.ScheduleJobDTO;
+import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
+import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.enums.EDeployMode;
@@ -581,9 +583,16 @@ public class ScheduleJobServiceTest extends AbstractTest {
             e.printStackTrace();
         }
 
+    }
 
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testGetLabTaskRelationMap(){
 
-
+        ScheduleJob job = DataCollection.getData().getScheduleJobFirst();
+        Map<String, ScheduleJob> relationMap = scheduleJobService.getLabTaskRelationMap(Lists.newArrayList(job.getJobId()), job.getProjectId());
+        Assert.assertNotNull(relationMap);
     }
 
     private void buildTaskTaskData() {
@@ -728,6 +737,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     }
 
 
+
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
@@ -771,4 +781,93 @@ public class ScheduleJobServiceTest extends AbstractTest {
         Assert.assertTrue(all > 1);
 
     }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testUpdateStatusWithExecTime(){
+
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobFirst();
+        Integer integer = scheduleJobService.updateStatusWithExecTime(scheduleJob);
+        Assert.assertNotNull(integer);
+
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testSendTaskStartTrigger() throws Exception {
+
+        ScheduleJob job = DataCollection.getData().getScheduleJobVirtual();
+        scheduleJobService.sendTaskStartTrigger(job);
+    }
+
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testGetFillDataDetailInfoOld() throws Exception {
+
+        QueryJobDTO queryJobDTO = new QueryJobDTO();
+        queryJobDTO.setBusinessDateSort("desc");
+        queryJobDTO.setCurrentPage(1);
+        queryJobDTO.setPageSize(20);
+        queryJobDTO.setProjectId(13L);
+        queryJobDTO.setSearchType("fuzzy");
+        queryJobDTO.setSplitFiledFlag(true);
+        queryJobDTO.setTenantId(3L);
+        scheduleJobService.getFillDataDetailInfoOld(queryJobDTO,
+                "P_dev2_HADOOP2hive_sdsadasd_2020_12_30_31_35",1L);
+    }
+
+    @Test
+    public void testGeneralCount(){
+
+        ScheduleJobDTO jobDTO = new ScheduleJobDTO();
+        Integer integer = scheduleJobService.generalCount(jobDTO);
+        Assert.assertNotNull(integer);
+    }
+
+    @Test
+    public void testGeneralCountWithMinAndHour(){
+
+        ScheduleJobDTO jobDTO = new ScheduleJobDTO();
+        Integer integer = scheduleJobService.generalCountWithMinAndHour(jobDTO);
+        Assert.assertNotNull(integer);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testSetAlogrithmLabLog() throws Exception {
+
+        ScheduleJob job = DataCollection.getData().getScheduleJobVirtual();
+        scheduleJobService.setAlogrithmLabLog(8,14,job.getJobId(),"错误","",8);
+    }
+
+    @Test
+    public void testGetLogInfoFromEngine(){
+
+        ActionLogVO info = scheduleJobService.getLogInfoFromEngine("afaflajfla");
+        Assert.assertNotNull(info);
+    }
+
+    @Test
+    public void testListByBusinessDateAndPeriodTypeAndStatusList(){
+
+        ScheduleJobDTO jobDTO = new ScheduleJobDTO();
+        jobDTO.setTenantId(1L);
+        jobDTO.setProjectId(-1L);
+        List<ScheduleJob> scheduleJobs = scheduleJobService.listByBusinessDateAndPeriodTypeAndStatusList(jobDTO);
+        Assert.assertNotNull(scheduleJobs);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testDeleteJobsByJobKey(){
+
+        scheduleJobService.deleteJobsByJobKey(Lists.newArrayList("falfjaljfla"));
+    }
+
 }
