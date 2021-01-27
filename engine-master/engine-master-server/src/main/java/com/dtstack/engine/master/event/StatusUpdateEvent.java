@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.event;
 
+import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.alert.AdapterEventMonitor;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.enums.AlertRecordStatusEnum;
@@ -33,6 +34,21 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
     private AlertRecordDao alertRecordDao;
 
     @Override
+    public Boolean startEvent(AlterContext alterContext) {
+        updateStatus(alterContext,(record,context)->{
+            // 拒绝进入队列，更新状态成扫描中
+            AlertRecord update = new AlertRecord();
+            update.setContext(JSON.toJSONString(alterContext));
+            Map<String,Object> param = Maps.newHashMap();
+            param.put("id",record.getId());
+            param.put("is_deleted",IsDeletedEnum.NOT_DELETE.getType());
+            param.put("alert_record_status",AlertRecordStatusEnum.NO_WARNING.getType());
+            return alertRecordDao.updateByMap(update,param);
+        });
+        return super.startEvent(alterContext);
+    }
+
+    @Override
     public void refuseEvent(AlterContext alterContext) {
         updateStatus(alterContext,(record,context)->{
             // 拒绝进入队列，更新状态成扫描中
@@ -64,8 +80,8 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
         updateStatus(alterContext, (record, context) -> {
             AlertRecord update = new AlertRecord();
             update.setAlertRecordStatus(AlertRecordStatusEnum.SENDING_ALARM.getType());
-            update.setSendContent(context.getContent());
             update.setSendTime(DateTime.now().toString("yyyyMMddHHmmss"));
+            update.setContext(JSON.toJSONString(alterContext));
             Map<String,Object> param = Maps.newHashMap();
             param.put("id", record.getId());
             param.put("is_deleted", IsDeletedEnum.NOT_DELETE.getType());
@@ -112,7 +128,7 @@ public class StatusUpdateEvent extends AdapterEventMonitor implements Ordered {
     }
 
     private void updateStatus(AlterContext alterContext, Callback callback) {
-        Map<String, Object> extendedPara = alterContext.getExtendedPara();
+        Map<String, Object> extendedPara = alterContext.getExtendedParam();
 
         Object param = extendedPara.get(RECORD_PATH);
 

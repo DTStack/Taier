@@ -65,9 +65,9 @@ public class NotifyRecordController {
         alertRecordJoinDTO.setAppType(param.getAppType());
         alertRecordJoinDTO.setProjectId(param.getProjectId());
         alertRecordJoinDTO.setUserId(param.getUserId());
-        if (NotifyMode.UNREAD.getMode() == param.getMode()) {
+        if (NotifyMode.UNREAD.getMode().equals(param.getMode())) {
             alertRecordJoinDTO.setReadStatus(ReadStatus.UNREAD.getStatus());
-        } else if (NotifyMode.READ.getMode() == param.getMode()) {
+        } else if (NotifyMode.READ.getMode().equals(param.getMode())) {
             alertRecordJoinDTO.setReadStatus(ReadStatus.READ.getStatus());
         }
         alertRecordJoinDTO.setCurrentPage(param.getCurrentPage());
@@ -131,7 +131,7 @@ public class NotifyRecordController {
             }
         }
 
-//        notifyRecordService.sendAlarm(param.getTenantId(), param.getProjectId(), param.getNotifyRecordId(), param.getAppType(), param.getTitle(),
+//      notifyRecordService.sendAlarm(param.getTenantId(), param.getProjectId(), param.getNotifyRecordId(), param.getAppType(), param.getTitle(),
 //                param.getContentId(), userDTOS, param.getSenderTypes(), param.getWebhook(), param.getMailType());
     }
 

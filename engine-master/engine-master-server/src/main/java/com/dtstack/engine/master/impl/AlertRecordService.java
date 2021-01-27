@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.AlterSender;
 import com.dtstack.engine.alert.EventMonitor;
@@ -83,7 +84,9 @@ public class AlertRecordService {
 
     private NotifyRecordReadDTO build(AlertRecord alertRecord) {
         NotifyRecordReadDTO notifyRecordReadDTO = new NotifyRecordReadDTO();
-        notifyRecordReadDTO.setContent(alertRecord.getSendContent());
+        String context = alertRecord.getContext();
+        AlterContext alterContext = JSON.parseObject(context, AlterContext.class);
+        notifyRecordReadDTO.setContent(alterContext!=null?alterContext.getContent():"");
         notifyRecordReadDTO.setStatus(alertRecord.getStatus());
         notifyRecordReadDTO.setGmtCreateFormat(DateUtil.getDate(alertRecord.getGmtCreated(),DateUtil.STANDARD_DATETIME_FORMAT));
         notifyRecordReadDTO.setAppType(alertRecord.getAppType());
@@ -216,7 +219,7 @@ public class AlertRecordService {
 
             Map<String,Object> extendedPara = Maps.newHashMap();
             extendedPara.put(StatusUpdateEvent.RECORD_PATH,record);
-            alterContext.setExtendedPara(extendedPara);
+            alterContext.setExtendedParam(extendedPara);
             alterSender.sendAsyncAAlter(alterContext,eventMonitors);
         } catch (Exception e) {
             log.error(ExceptionUtil.getErrorMessage(e));
@@ -272,7 +275,6 @@ public class AlertRecordService {
         alertRecord.setReadStatus(ReadStatus.UNREAD.getStatus());
         alertRecord.setTitle(StringUtils.isNotBlank(alarmSendDTO.getTitle())?alarmSendDTO.getTitle():"");
         alertRecord.setStatus(alarmSendDTO.getStatus() == null ? 0 : alarmSendDTO.getStatus());
-        alertRecord.setSendContent("");
         alertRecord.setJobId(StringUtils.isNotBlank(alarmSendDTO.getJobId())?alarmSendDTO.getJobId():"");
         alertRecord.setAlertRecordStatus(AlertRecordStatusEnum.NO_WARNING.getType());
         alertRecord.setAlertRecordSendStatus(AlertSendStatusEnum.NO_SEND.getType());
@@ -281,7 +283,24 @@ public class AlertRecordService {
         alertRecord.setNodeAddress(environmentContext.getLocalAddress());
         alertRecord.setSendEndTime("");
         alertRecord.setSendTime("");
+        alertRecord.setContext("");
         return alertRecord;
     }
 
+    public Long findMinIdByStatus(AlertRecordStatusEnum recordStatusEnum, String nodeAddress, Long startDate, Long endDate) {
+        return alertRecordMapper.findMinIdByStatus(recordStatusEnum.getType(),nodeAddress,startDate,endDate);
+    }
+
+    public List<AlertRecord> findListByStatus(List<Integer> recordStatus, String nodeAddress, Long startDate, Long endDate, Long minId,Integer alertRecordSendStatus) {
+        return alertRecordMapper.findListByStatus(recordStatus,nodeAddress,startDate,endDate,minId,alertRecordSendStatus);
+    }
+
+    public void updateByMap(AlertRecord update, Map<String, Object> param) {
+        alertRecordMapper.updateByMap(update,param);
+    }
+
+
+    public void updateByMapAndIds(AlertRecord alertRecord, Map<String, Object> params, List<Long> ids) {
+        alertRecordMapper.updateByMapAndIds(alertRecord,params,ids);
+    }
 }

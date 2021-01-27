@@ -1,6 +1,7 @@
 package com.dtstack.engine.alert;
 
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.dtstack.engine.alert.enums.AlertGateCode;
 
 import java.io.File;
@@ -56,11 +57,13 @@ public class AlterContext {
     /**
      * jar路径
      */
+    @JSONField(serialize = false)
     private String jarPath;
 
     /**
      * 事件响应
      */
+    @JSONField(serialize = false)
     private List<EventMonitor> eventMonitors;
 
     /**
@@ -72,6 +75,7 @@ public class AlterContext {
     /**
      * 只有邮件会用到，非必传
      */
+    @JSONField(serialize = false)
     private List<File> attachFiles;
 
     /**
@@ -96,7 +100,8 @@ public class AlterContext {
      * 扩展参数: 传入事件响应,内部不会使用
      *
      */
-    private Map<String,Object> extendedPara;
+    @JSONField(serialize = false)
+    private Map<String,Object> extendedParam;
 
     public String getTitle() {
         return title;
@@ -178,12 +183,12 @@ public class AlterContext {
         this.phone = phone;
     }
 
-    public Map<String, Object> getExtendedPara() {
-        return extendedPara;
+    public Map<String, Object> getExtendedParam() {
+        return extendedParam;
     }
 
-    public void setExtendedPara(Map<String, Object> extendedPara) {
-        this.extendedPara = extendedPara;
+    public void setExtendedParam(Map<String, Object> extendedParam) {
+        this.extendedParam = extendedParam;
     }
 
     public String getAlertTemplate() {

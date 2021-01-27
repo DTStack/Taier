@@ -11,6 +11,12 @@ import com.dtstack.lang.data.R;
 public interface EventMonitor {
 
     /**
+     * 开始告警事件
+     * @param alterContext
+     */
+    Boolean startEvent(AlterContext alterContext);
+
+    /**
      * 拒绝事件
      *
      * @param alterContext 上下文对象

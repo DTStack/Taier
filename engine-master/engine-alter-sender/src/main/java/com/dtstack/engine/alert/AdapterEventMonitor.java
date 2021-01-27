@@ -11,6 +11,11 @@ import com.dtstack.lang.data.R;
 public class AdapterEventMonitor implements EventMonitor {
 
     @Override
+    public Boolean startEvent(AlterContext alterContext) {
+        return Boolean.TRUE;
+    }
+
+    @Override
     public void refuseEvent(AlterContext alterContext) {}
 
     @Override

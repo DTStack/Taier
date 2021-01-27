@@ -9,7 +9,7 @@
         `status`, `job_id`, `alert_record_status`,
         `alert_record_send_status`, `failure_reason`, `is_deleted`,
         `node_address`, `send_time`, `send_end_time`,
-        `gmt_created`, `gmt_modified`, `send_content`
+        `gmt_created`, `gmt_modified`,`context`
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
@@ -33,7 +33,7 @@
         `send_end_time`,
         `gmt_created`,
         `gmt_modified`,
-        `send_content`
+        `context`
         )
         values
         <foreach collection="records" item="record" separator=",">
@@ -57,7 +57,7 @@
             #{record.sendEndTime},
             #{record.gmtCreated},
             #{record.gmtModified},
-            #{record.sendContent}
+            #{record.context}
             )
         </foreach>
     </insert>
@@ -125,8 +125,8 @@
             <if test="record.gmtModified != null">
                 `gmt_modified` = #{record.gmtModified,jdbcType=TIMESTAMP},
             </if>
-            <if test="record.sendContent != null">
-                `send_content` = #{record.sendContent,jdbcType=LONGVARCHAR},
+            <if test="record.context != null">
+                `send_content` = #{record.context},
             </if>
         </set>
         WHERE
@@ -137,7 +137,7 @@
             <if test="params!=null and params.size()>0">
                 AND
                 <foreach collection="params.entrySet()" index="key" item="value" separator="AND" >
-                    #{key} = #{value}
+                    ${key} = #{value}
                 </foreach>
             </if>
     </update>
@@ -205,88 +205,128 @@
             <if test="record.gmtModified != null">
                 `gmt_modified` = #{record.gmtModified,jdbcType=TIMESTAMP},
             </if>
-            <if test="record.sendContent != null">
-                `send_content` = #{record.sendContent,jdbcType=LONGVARCHAR},
+            <if test="record.context != null">
+                `context` = #{record.context},
             </if>
         </set>
         WHERE
-        <if test="params!=null and params.size()>0">
-            <foreach collection="params.entrySet()"  index="key" item="value" separator="AND" >
-                ${key} = #{value}
-            </foreach>
-        </if>
+        <foreach collection="params.entrySet()"  index="key" item="value" separator="AND" >
+            ${key} = #{value}
+        </foreach>
+
     </update>
 
     <select id="selectQuery" resultType="com.dtstack.engine.domain.AlertRecord">
         SELECT
-        <include refid="filed"/>
+        `id`, `tenant_id`,`app_type`, `user_id`, `read_status`,`title`,`status`,`gmt_created`, `gmt_modified`,`context`
         FROM alert_record
         WHERE
-        <trim prefixOverrides="AND">
+        <trim suffixOverrides="AND">
             <if test="record.id != null">
-                `id` = #{record.id,jdbcType=BIGINT} AND
+                `id` = #{record.id} AND
             </if>
             <if test="record.alertChannelId != null">
-                `alert_channel_id` = #{record.alertChannelId,jdbcType=BIGINT} AND
+                `alert_channel_id` = #{record.alertChannelId} AND
             </if>
             <if test="record.alertGateType != null">
-                `alert_gate_type` = #{record.alertGateType,jdbcType=SMALLINT} AND
+                `alert_gate_type` = #{record.alertGateType} AND
             </if>
             <if test="record.alertContentId != null">
-                `alert_content_id` = #{record.alertContentId,jdbcType=INTEGER} AND
+                `alert_content_id` = #{record.alertContentId} AND
             </if>
             <if test="record.tenantId != null">
-                `tenant_id` = #{record.tenantId,jdbcType=INTEGER} AND
+                `tenant_id` = #{record.tenantId} AND
             </if>
             <if test="record.appType != null">
-                `app_type` = #{record.appType,jdbcType=INTEGER} AND
+                `app_type` = #{record.appType} AND
             </if>
             <if test="record.userId != null">
-                `user_id` = #{record.userId,jdbcType=INTEGER} AND
+                `user_id` = #{record.userId} AND
             </if>
             <if test="record.readStatus != null">
-                `read_status` = #{record.readStatus,jdbcType=BIT} AND
+                `read_status` = #{record.readStatus} AND
             </if>
             <if test="record.title != null">
-                `title` = #{record.title,jdbcType=VARCHAR} AND
+                `title` = #{record.title} AND
             </if>
             <if test="record.status != null">
-                `status` = #{record.status,jdbcType=BIT} AND
+                `status` = #{record.status} AND
             </if>
             <if test="record.jobId != null">
-                `job_id` = #{record.jobId,jdbcType=VARCHAR} AND
+                `job_id` = #{record.jobId} AND
             </if>
             <if test="record.alertRecordStatus != null">
-                `alert_record_status` = #{record.alertRecordStatus,jdbcType=TINYINT} AND
+                `alert_record_status` = #{record.alertRecordStatus} AND
             </if>
             <if test="record.alertRecordSendStatus != null">
-                `alert_record_send_status` = #{record.alertRecordSendStatus,jdbcType=TINYINT} AND
+                `alert_record_send_status` = #{record.alertRecordSendStatus} AND
             </if>
             <if test="record.failureReason != null">
-                `failure_reason` = #{record.failureReason,jdbcType=VARCHAR} AND
+                `failure_reason` = #{record.failureReason} AND
             </if>
             <if test="record.isDeleted != null">
-                `is_deleted` = #{record.isDeleted,jdbcType=BIT} AND
+                `is_deleted` = #{record.isDeleted} AND
             </if>
             <if test="record.nodeAddress != null">
-                `node_address` = #{record.nodeAddress,jdbcType=VARCHAR} AND
+                `node_address` = #{record.nodeAddress} AND
             </if>
             <if test="record.sendTime != null">
-                `send_time` = #{record.sendTime,jdbcType=VARCHAR} AND
+                `send_time` = #{record.sendTime} AND
             </if>
             <if test="record.sendEndTime != null">
-                `send_end_time` = #{record.sendEndTime,jdbcType=VARCHAR} AND
+                `send_end_time` = #{record.sendEndTime} AND
             </if>
             <if test="record.gmtCreated != null">
-                `gmt_created` = #{record.gmtCreated,jdbcType=TIMESTAMP} AND
+                `gmt_created` = #{record.gmtCreated} AND
             </if>
             <if test="record.gmtModified != null">
-                `gmt_modified` = #{record.gmtModified,jdbcType=TIMESTAMP} AND
+                `gmt_modified` = #{record.gmtModified} AND
             </if>
-            <if test="record.sendContent != null">
-                `send_content` = #{record.sendContent,jdbcType=LONGVARCHAR} AND
+            <if test="record.context != null">
+                `context` = #{record.context} AND
             </if>
         </trim>
         ORDER BY id DESC
     </select>
+
+    <select id="findMinIdByStatus" resultType="java.lang.Long">
+        SELECT count(*)
+        FROM alert_record
+        WHERE
+        `gmt_created` &gt;= ${startDate}
+        AND `gmt_created` &lt;= ${endDate}
+        AND `node_address` = #{nodeAddress}
+        AND `alert_record_status`=${sendStatus}
+        AND `is_deleted`=0
+    </select>
+
+    <select id="findListByStatus" resultType="com.dtstack.engine.domain.AlertRecord">
+        SELECT
+            `id`,`context`
+        FROM alert_record
+        WHERE
+        `node_address` = #{nodeAddress}
+        AND `is_deleted`=0
+        <if test="alert_record_status!=null">
+            AND `alert_record_status`IN
+            <foreach collection="sendStatusList" separator="," open="(" close=")" item="sendStatus">
+                ${sendStatus}
+            </foreach>
+        </if>
+        <if test="minId!=null">
+            AND `id` > ${minId}
+        </if>
+        <if test="startDate!=null" >
+            AND `gmt_created` &gt;= ${startDate}
+        </if>
+        <if test="endDate!=null">
+            AND `gmt_created` &lt;= ${endDate}
+        </if>
+        <if test="alertRecordSendStatus != null">
+            AND `alert_record_send_status` = #{alertRecordSendStatus}
+        </if>
+        order by id asc
+        LIMIT 500
+    </select>
+
 </mapper>

@@ -1,17 +1,23 @@
 package com.dtstack.engine.master.failover;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.alert.enums.AlertRecordStatusEnum;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.po.SimpleScheduleJobPO;
+import com.dtstack.engine.domain.AlertRecord;
+import com.dtstack.engine.master.enums.AlertSendStatusEnum;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.master.impl.AlertRecordService;
 import com.dtstack.engine.master.impl.NodeRecoverService;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
@@ -29,16 +35,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * company: www.dtstack.com
@@ -78,6 +82,9 @@ public class FailoverStrategy {
 
     @Autowired
     private ScheduleJobDao rdosEngineBatchJobDao;
+
+    @Autowired
+    private AlertRecordService alertRecordService;
 
     private FaultTolerantDealer faultTolerantDealer = new FaultTolerantDealer();
 
@@ -219,6 +226,8 @@ public class FailoverStrategy {
                 updatePhaseStatus(phaseStatus);
             }
 
+            updateAlterStatus(nodeAddress);
+
             //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收需要再次恢复（由HearBeatCheckListener监控）。
             List<SimpleScheduleJobPO> jobs = scheduleJobDao.listSimpleJobByStatusAddress(0L, RdosTaskStatus.getUnfinishedStatuses(), nodeAddress);
             if (CollectionUtils.isNotEmpty(jobs)) {
@@ -228,6 +237,34 @@ public class FailoverStrategy {
             LOG.warn("----- nodeAddress:{} BatchJob 任务结束恢复-----", nodeAddress);
         } catch (Exception e) {
             LOG.error("----nodeAddress:{} faultTolerantRecoverBatchJob error:", nodeAddress, e);
+        }
+    }
+
+    private void updateAlterStatus(String nodeAddress) {
+        Long startId = 0L;
+        List<AlertRecord> alertRecordList = alertRecordService.findListByStatus(null, nodeAddress, DateUtil.calTodayMills(), DateUtil.TOMORROW_ZERO(), startId, AlertSendStatusEnum.NO_SEND.getType());
+
+        while (CollectionUtils.isNotEmpty(alertRecordList)) {
+            AlertRecord alertRecord = new AlertRecord();
+            String localAddress = environmentContext.getLocalAddress();
+            List<Long> ids = alertRecordList.stream().map(AlertRecord::getId).collect(Collectors.toList());
+
+            if (CollectionUtils.isEmpty(ids)) {
+                break;
+            } else {
+                startId = ids.get(ids.size()-1);
+            }
+
+            if (StringUtils.isNotBlank(localAddress)) {
+                alertRecord.setNodeAddress(localAddress);
+                Map<String,Object> params = Maps.newHashMap();
+                params.put("alert_record_send_status",AlertSendStatusEnum.NO_SEND.getType());
+                params.put("is_deleted", IsDeletedEnum.NOT_DELETE.getType());
+
+                alertRecordService.updateByMapAndIds(alertRecord,params,ids);
+            }
+
+            alertRecordList = alertRecordService.findListByStatus(null, nodeAddress, DateUtil.calTodayMills(), DateUtil.TOMORROW_ZERO(), startId, AlertSendStatusEnum.NO_SEND.getType());
         }
     }
 

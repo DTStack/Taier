@@ -19,7 +19,7 @@ public class AlertRecord {
     private Integer readStatus;
     private String title;
     private Integer status;
-    private String sendContent;
+    private String context;
     private String jobId;
     private Integer alertRecordStatus;
     private Integer alertRecordSendStatus;
@@ -101,14 +101,6 @@ public class AlertRecord {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getSendContent() {
-        return sendContent;
-    }
-
-    public void setSendContent(String sendContent) {
-        this.sendContent = sendContent;
     }
 
     public String getJobId() {
@@ -197,5 +189,13 @@ public class AlertRecord {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public String getContext() {
+        return context;
+    }
+
+    public void setContext(String context) {
+        this.context = context;
     }
 }

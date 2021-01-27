@@ -21,4 +21,8 @@ public interface AlertRecordDao {
     Integer updateByMap(@Param("record") AlertRecord record, @Param("params") Map<String, Object> params);
 
     List<AlertRecord> selectQuery(@Param("record") AlertRecord queryAlertRecord);
+
+    Long findMinIdByStatus(@Param("sendStatus") Integer sendStatus, @Param("nodeAddress") String nodeAddress, @Param("startDate") Long startDate, @Param("endDate") Long endDate);
+
+    List<AlertRecord> findListByStatus(@Param("sendStatusList") List<Integer> sendStatusList, @Param("nodeAddress") String nodeAddress, @Param("startDate") Long startDate, @Param("endDate") Long endDate, @Param("minId") Long minId, @Param("alertRecordSendStatus") Integer alertRecordSendStatus);
 }

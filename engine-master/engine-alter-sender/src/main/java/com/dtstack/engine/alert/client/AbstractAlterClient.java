@@ -62,14 +62,18 @@ public abstract class AbstractAlterClient implements AlterClient,Runnable {
 
     @Override
     public R sendSyncAlter(AlterContext alterContext, List<EventMonitor> eventMonitors) throws Exception {
-
         eventMonitors = setDefaultEvent(alterContext, eventMonitors);
+        for (EventMonitor eventMonitor : eventMonitors) {
+            if (!eventMonitor.startEvent(alterContext)) {
+                return R.ok();
+            }
+        }
         return sendAlter(alterContext, eventMonitors);
     }
 
     @Override
     public void sendAsyncAAlter(AlterContext alterContext, List<EventMonitor> eventMonitors) throws Exception {
-        logger.info("开始进入队列: id {}",alterContext.getMark());
+        logger.info("开始进入队列: id {}", alterContext.getMark());
         eventMonitors = setDefaultEvent(alterContext, eventMonitors);
 
         if (alterQueue.contains(alterContext)) {
@@ -98,6 +102,7 @@ public abstract class AbstractAlterClient implements AlterClient,Runnable {
 
             alterContext.setEventMonitors(eventMonitors);
         }
+
         return eventMonitors;
     }
 
