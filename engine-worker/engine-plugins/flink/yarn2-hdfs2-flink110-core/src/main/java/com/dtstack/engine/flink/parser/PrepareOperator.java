@@ -3,8 +3,6 @@ package com.dtstack.engine.flink.parser;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.exception.RdosDefineException;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,13 +49,18 @@ public class PrepareOperator {
 	 * handle add jar statements and comment statements on the same line
 	 * " --desc \n\n ADD JAR WITH xxxx"
 	 */
-	public static void handleFirstSql(List<String> sqlLists) {
-		String[] sqls = sqlLists.get(0).split("\\n");
-		if (sqls.length == 0) {
-			return;
+	public static String handleSql(String sql) {
+		String[] sqls = sql.split("\\n");
+		for (String s: sqls) {
+			if (verific(s)) {
+				return s;
+			}
+
+			if (verificKeytab(s)) {
+				return s;
+			}
 		}
-		sqlLists.remove(0);
-		sqlLists.addAll(Arrays.asList(sqls));
+		return sql;
 	}
 
 

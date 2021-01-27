@@ -875,14 +875,13 @@ public class FlinkClient extends AbstractClient {
         }
 
         List<String> sqlList = Lists.newArrayList(sqlArr);
-        // handle add jar statements and comment statements on the same line
-        PrepareOperator.handleFirstSql(sqlList);
         Iterator<String> sqlItera = sqlList.iterator();
         List<String> fileList = Lists.newArrayList();
 
         while (sqlItera.hasNext()) {
             String tmpSql = sqlItera.next();
-
+            // handle add jar statements and comment statements on the same line
+            tmpSql = PrepareOperator.handleSql(tmpSql);
             if (PrepareOperator.verificKeytab(tmpSql)) {
                 sqlItera.remove();
                 String localDir = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
