@@ -109,7 +109,6 @@ public class LineageDataSetInfoService {
         ClientCache clientCache = ClientCache.getInstance();
         IClient iClient ;
         try {
-            //TODO kebers配置文件路径放入到pluginInfo中
             String kerberosConf = dataSource.getKerberosConf();
             String dataJson = dataSource.getDataJson();
             JSONObject jsonObject = JSON.parseObject(dataJson);
@@ -133,7 +132,12 @@ public class LineageDataSetInfoService {
             if(dataSource.getOpenKerberos()==1) {
                 //开启kerberos
                 jsonObject.put("sftpConf", componentJsonObj);
-                jsonObject.put("config", kerberosJsonObj);
+                jsonObject.put("remoteDir",kerberosJsonObj.get("remoteDir"));
+                jsonObject.put("principalFile",kerberosJsonObj.get("principalFile"));
+                jsonObject.put("krbName",kerberosJsonObj.get("krbName"));
+                jsonObject.put("principal",kerberosJsonObj.get("principal"));
+                jsonObject.put("kerberosFileTimestam",kerberosJsonObj.get("kerberosFileTimestam"));
+                jsonObject.put("openKerberos",true);
             }
             if(dataSource.getAppType() == AppType.DATAASSETS.getType()){
                 //资产类型需要在pluginInfo中补充typeName

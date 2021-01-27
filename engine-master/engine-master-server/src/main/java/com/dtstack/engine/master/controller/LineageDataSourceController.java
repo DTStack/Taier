@@ -1,14 +1,14 @@
 package com.dtstack.engine.master.controller;
 
+import com.dtstack.engine.api.domain.LineageDataSetInfo;
 import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.vo.lineage.param.DataSourceParam;
 import com.dtstack.engine.master.router.DtRequestParam;
+import com.dtstack.lineage.impl.LineageDataSetInfoService;
 import com.dtstack.lineage.impl.LineageDataSourceService;
-import com.dtstack.sdk.core.common.ApiResponse;
-import com.dtstack.sdk.core.feign.Param;
-import com.dtstack.sdk.core.feign.RequestLine;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +30,9 @@ public class LineageDataSourceController {
 
     @Autowired
     private LineageDataSourceService dataSourceService;
+
+    @Autowired
+    private LineageDataSetInfoService infoService;
 
     @RequestMapping(value = "/addOrUpdateDataSource",method = RequestMethod.POST)
     @ApiOperation(value = "新增或修改逻辑数据源")
@@ -107,6 +110,15 @@ public class LineageDataSourceController {
                                       @DtRequestParam("sourceName") String sourceName,@DtRequestParam("dtUicTenantId") Long dtUicTenantId){
 
        return dataSourceService.getDataSourceByParams(sourceType,sourceName,dtUicTenantId,appType);
+    }
+
+
+
+
+    @RequestMapping(value="/getTableColumns",method = RequestMethod.POST)
+    public List<Column> getTableColumns(@RequestBody LineageDataSetInfo dataSetInfo){
+
+        return infoService.getTableColumns(dataSetInfo);
     }
 
 }
