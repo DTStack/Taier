@@ -30,7 +30,7 @@
                 AND app_type = #{appType}
             </if>
             <if test="sourceKey !=null">
-                AND source_key = #{sourceKey}
+                AND source_key like concat( '%',#{sourceKey},'%')
             </if>
         </trim>
     </sql>

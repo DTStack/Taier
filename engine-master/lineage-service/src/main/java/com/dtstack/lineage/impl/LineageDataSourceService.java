@@ -225,22 +225,46 @@ public class LineageDataSourceService {
         JSONObject jsonObject = JSON.parseObject(dataJson);
         RdbmsDataSourceConfig sourceConfig = new RdbmsDataSourceConfig();
         String jdbcUrl = jsonObject.getString("jdbcUrl");
-        if(jdbcUrl.contains("impala") && jdbcUrl.contains(";")){
-             jdbcUrl = jdbcUrl.substring(0, jdbcUrl.indexOf(";"));
+        if(jdbcUrl.contains("impala") && jdbcUrl.contains(ConfigConstant.SEMICOLON)){
+             jdbcUrl = jdbcUrl.substring(0, jdbcUrl.indexOf(ConfigConstant.SEMICOLON));
         }
         if(jdbcUrl.contains("principal")){
             jdbcUrl = jdbcUrl.substring(0,jdbcUrl.indexOf("principal")-1);
-            if(jdbcUrl.endsWith("/")){
+            if(jdbcUrl.endsWith(ConfigConstant.BACKSLASH)){
                 jdbcUrl = jdbcUrl.substring(0,jdbcUrl.length()-1);
             }
         }
+        String sourceKey = "" ;
         if(DataSourceType.getSourceType(sourceType).equals(DataSourceType.Phoenix)
                 || DataSourceType.getSourceType(sourceType).equals(DataSourceType.HBASE)){
-
+            // Hbase和phoenix的有可能是集群模式，需要特殊处理
+            if(DataSourceType.getSourceType(sourceType).equals(DataSourceType.Phoenix)){
+                jdbcUrl = jdbcUrl.substring(jdbcUrl.indexOf("phoenix") + 8,
+                        jdbcUrl.contains("/") ? jdbcUrl.indexOf("/") : jdbcUrl.length()-1);
+            }else{
+                //是Hbase数据源，可能有两种形式ip,ip,ip:port   ip:port,ip:port,ip:port
+                String[] split = jdbcUrl.split(ConfigConstant.COLON);
+                if(split.length>2){
+                    String[] ipPorts = jdbcUrl.split(ConfigConstant.COMMA);
+                    for (String ipPort : ipPorts) {
+                        sourceKey = sourceKey + ipPort.replace(ConfigConstant.COLON,"#")+ConfigConstant.SPLIT;
+                    }
+                    return sourceKey.substring(0, sourceKey.length() - 1);
+                }
+            }
+            String[] split = jdbcUrl.split(ConfigConstant.COLON);
+            String ipStr = split[0];
+            String port = split[1];
+            String[] ipList = ipStr.split(ConfigConstant.COMMA);
+            for (String ip : ipList) {
+                sourceKey = sourceKey + ip + "#" + port+ConfigConstant.SPLIT;
+            }
+            sourceKey = sourceKey.substring(0, sourceKey.length() - 1);
+        }else {
+            sourceConfig.setJdbc(jdbcUrl);
+             sourceKey = sourceConfig.generateRealSourceKey();
         }
-        sourceConfig.setJdbc(jdbcUrl);
-        String sourceKey = sourceConfig.generateRealSourceKey();
-        if(null == sourceKey){
+        if(StringUtils.isBlank(sourceKey)){
             throw new RdosDefineException("dataJson格式有误");
         }
         return sourceKey;
@@ -451,9 +475,6 @@ public class LineageDataSourceService {
                         //数据源类型code统一转换
                         int code = DataSourceTypeEnum.getByCode(component.getComponentTypeCode()).getTypeCode();
                         DataSourceType byName = DataSourceType.getSourceType(code);
-                        if(byName==null){
-                            throw new RdosDefineException("数据源类型不匹配");
-                        }
                         dataSourceDTO.setSourceType(byName.getVal());
                         addDataSource(dataSourceDTO);
                     }
@@ -464,8 +485,5 @@ public class LineageDataSourceService {
             logger.error(this.getClass().getName()+"-synIdeDataSourceList-异常,e:{}",ExceptionUtil.stackTrack());
             throw new RdosDefineException("同步离线数据源数据异常");
         }
-
-
     }
-
 }
