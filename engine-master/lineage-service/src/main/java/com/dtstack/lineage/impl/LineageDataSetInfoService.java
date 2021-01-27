@@ -136,7 +136,7 @@ public class LineageDataSetInfoService {
                 jsonObject.put("principalFile",kerberosJsonObj.get("principalFile"));
                 jsonObject.put("krbName",kerberosJsonObj.get("krbName"));
                 jsonObject.put("principal",kerberosJsonObj.get("principal"));
-                jsonObject.put("kerberosFileTimestam",kerberosJsonObj.get("kerberosFileTimestam"));
+                jsonObject.put("kerberosFileTimestamp",kerberosJsonObj.get("kerberosFileTimestamp"));
                 jsonObject.put("openKerberos",true);
             }
             if(dataSource.getAppType() == AppType.DATAASSETS.getType()){
