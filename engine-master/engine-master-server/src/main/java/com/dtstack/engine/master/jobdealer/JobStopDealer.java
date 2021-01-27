@@ -376,10 +376,6 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         public long stopJobId;
         public boolean isForceCancel;
 
-        public JobElement(String jobId, long stopJobId) {
-            this.jobId = jobId;
-            this.stopJobId = stopJobId;
-        }
 
         public JobElement(String jobId, long stopJobId, boolean isForceCancel) {
             this.jobId = jobId;

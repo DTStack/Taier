@@ -108,6 +108,27 @@ public class Template {
         return engineJobCache;
     }
 
+    /**
+     * stage为5
+     * @return
+     */
+    public static EngineJobCache getEngineJobCacheTemplate3() {
+        EngineJobCache engineJobCache = new EngineJobCache();
+        engineJobCache.setJobId("jobId2");
+        engineJobCache.setJobName("test");
+        engineJobCache.setEngineType("spark");
+        engineJobCache.setJobPriority(10L);
+        engineJobCache.setComputeType(1);
+        engineJobCache.setJobInfo("{\"engineType\":\"spark\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, \"maxRetryNum\":3,\"taskParams\":\"openCheckpoint:true\"," +
+                "\"taskId\":\"jobId2\"}");
+        engineJobCache.setStage(5);
+        engineJobCache.setIsFailover(0);
+        engineJobCache.setNodeAddress(null);
+        engineJobCache.setJobResource("test");
+
+        return engineJobCache;
+    }
+
     public static ScheduleTaskShade getScheduleTaskShadeTemplate(){
         ScheduleTaskShade scheduleTaskShade = new ScheduleTaskShade();
         scheduleTaskShade.setTaskId(0L);

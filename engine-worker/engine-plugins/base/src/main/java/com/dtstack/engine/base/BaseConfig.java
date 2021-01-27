@@ -24,6 +24,8 @@ public class BaseConfig {
 
     private Timestamp kerberosFileTimestamp;
 
+    private String dtProxyUserName;
+
     private String mergeKrbContent;
 
     public String getMergeKrbContent() {
@@ -32,6 +34,14 @@ public class BaseConfig {
 
     public void setMergeKrbContent(String mergeKrbContent) {
         this.mergeKrbContent = mergeKrbContent;
+    }
+
+    public String getDtProxyUserName() {
+        return dtProxyUserName;
+    }
+
+    public void setDtProxyUserName(String dtProxyUserName) {
+        this.dtProxyUserName = dtProxyUserName;
     }
 
     public SftpConfig getSftpConf() {

@@ -59,7 +59,7 @@ public class FileUtil {
         FileSystem fs = FileSystem.get(uri, hadoopConf);
         Path hdfsFilePath = new Path(hdfsFilePathStr);
         if(!fs.exists(hdfsFilePath)){
-            throw new RuntimeException("Files not exit in hdfs");
+            throw new RuntimeException(String.format("File[%s] not exit in hdfs", filePath));
         }
 
         return fs.open(hdfsFilePath);

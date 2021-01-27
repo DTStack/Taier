@@ -1262,7 +1262,7 @@
     <select id="listByJobIdList" resultType="ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM schedule_job
+        FROM schedule_job bj
         where job_id in
         <foreach collection="jobIds" item="item" open="(" close=")" separator=",">
             #{item}
@@ -1691,4 +1691,5 @@
     <select id="getJobGraph" resultType="java.lang.String">
         select job_graph from schedule_job where job_id = #{jobId}
     </select>
+
 </mapper>

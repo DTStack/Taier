@@ -5,14 +5,20 @@ import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JudgeResult;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.utils.CommonUtils;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * @Author tengzhen
@@ -34,6 +43,16 @@ public class TestJobDealer extends AbstractTest {
 
     @Autowired
     private ClusterDao clusterDao;
+
+    @MockBean
+    private WorkerOperator workerOperator;
+
+
+    @Before
+    public void setUp() throws Exception {
+
+        when(workerOperator.judgeSlots(any())).thenReturn(JudgeResult.ok());
+    }
 
 
     @Test
@@ -61,14 +80,15 @@ public class TestJobDealer extends AbstractTest {
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
-    public void testGetAndUpdateEngineLog(){
+    public void testGetAndUpdateEngineLog()  {
 
         ScheduleTaskShade taskShade = DataCollection.getData().getScheduleTaskShade();
-        EngineJobCache jobCache = DataCollection.getData().getEngineJobCache();
+        EngineJobCache jobCache = DataCollection.getData().getEngineJobCache4();
         EngineJobCheckpoint checkpoint = DataCollection.getData().getEngineJobCheckpoint();
+        when(workerOperator.getEngineLog(any())).thenReturn("null error");
         String andUpdateEngineLog = jobDealer.getAndUpdateEngineLog(jobCache.getJobId(),checkpoint.getTaskEngineId(),
-                "11",taskShade.getDtuicTenantId());
-        Assert.assertNotNull(andUpdateEngineLog);
+                    "11",taskShade.getDtuicTenantId());
+        Assert.assertEquals("null error",andUpdateEngineLog);
     }
 
 
@@ -83,6 +103,8 @@ public class TestJobDealer extends AbstractTest {
 
 
     @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void  testAfterSubmitJobVast() throws Exception {
 
         List<JobClient> jobClientList = new ArrayList<>();
@@ -93,6 +115,26 @@ public class TestJobDealer extends AbstractTest {
 
 
 
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testDealSubmitFailJob(){
+
+        EngineJobCache jobCache = DataCollection.getData().getEngineJobCache();
+        jobDealer.dealSubmitFailJob(jobCache.getJobId(),"测试分发任务失败");
+
+    }
+
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testUpdateCache() throws Exception {
+
+        JobClient jobClient = CommonUtils.getJobClient();
+        jobDealer.updateCache(jobClient,2);
+
+    }
 
 
 

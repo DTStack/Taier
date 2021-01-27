@@ -1,17 +1,25 @@
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.AbstractTest;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpHost;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchResponseSections;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.io.IOException;
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * @author basion
@@ -23,8 +31,8 @@ import java.util.List;
 public class ElasticsearchServiceTest extends AbstractTest {
 
     @Autowired
-    @InjectMocks
     private ElasticsearchService elasticsearchService;
+
 
     /**
      * do some mock before test
@@ -35,14 +43,17 @@ public class ElasticsearchServiceTest extends AbstractTest {
     }
 
     private void initMock() throws IOException {
-        MockitoAnnotations.initMocks(this);
-//        initMockRestHighLevelClient();
+
     }
 
-
-    @Test
+    @Test(expected = RdosDefineException.class)
     public void testSearchWithJobId() {
-        String searchWithJobId = elasticsearchService.searchWithJobId("asdf", "asdfasd");
+        try {
+            String searchWithJobId = elasticsearchService.searchWithJobId("asdf", "asdfasd");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            Assert.assertNotNull(e);
+        }
     }
 
     @Test

@@ -77,6 +77,7 @@ public class AcceptedApplicationMonitor implements Runnable {
                 if (currentTime - startTime > THRESHOLD) {
                     ApplicationId appId = report.getApplicationId();
                     yarnClient.killApplication(appId);
+                    logger.warn("appId {} Accepted timeout and killed: ", appId.toString());
                 }
             }
         } catch (Exception e) {
