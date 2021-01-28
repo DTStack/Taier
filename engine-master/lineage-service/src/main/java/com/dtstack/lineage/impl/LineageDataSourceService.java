@@ -73,7 +73,7 @@ public class LineageDataSourceService {
             //未知数据源不需要校验dataJson
             if(dataSourceDTO.getSourceType() != DataSourceType.UNKNOWN.getVal() &&
                     dataSourceDTO.getSourceType() != DataSourceType.CUSTOM.getVal()) {
-                checkDataJson(dataSourceDTO.getDataJson());
+                checkDataJson(dataSourceDTO.getDataJson(),dataSourceDTO.getSourceType());
             }
             if (Objects.isNull(dataSourceDTO.getDataSourceId())){
                 return addDataSource(dataSourceDTO);
@@ -108,7 +108,7 @@ public class LineageDataSourceService {
      * @param dataJson:
      * @return: void
      **/
-    private void checkDataJson(String dataJson) {
+    private void checkDataJson(String dataJson,Integer sourceType) {
 
         if(null == dataJson){
             throw new RdosDefineException("数据源配置不能为空");
@@ -118,7 +118,11 @@ public class LineageDataSourceService {
             String jdbcUrl = jsonObject.getString(ConfigConstant.JDBCURL);
             String userName = jsonObject.getString(ConfigConstant.USERNAME);
             String passWord = jsonObject.getString(ConfigConstant.PASSWORD);
-            if(null == jdbcUrl || null == userName || null == passWord){
+            if(null == jdbcUrl ){
+                throw new RdosDefineException("数据源配置格式不对或缺少关键参数");
+            }
+            if(!DataSourceType.noNeedUserNamePasswordDataSources.contains(DataSourceType.getSourceType(sourceType))
+                    && (null == userName || null == passWord) ){
                 throw new RdosDefineException("数据源配置格式不对或缺少关键参数");
             }
         } catch (Exception e) {

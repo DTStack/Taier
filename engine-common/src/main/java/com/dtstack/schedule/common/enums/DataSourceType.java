@@ -204,6 +204,7 @@ public enum DataSourceType {
             default:
                 throw new RdosDefineException("不支持的数据源类型");
         }
-
     }
+
+    public static List<DataSourceType> noNeedUserNamePasswordDataSources = Lists.newArrayList(DataSourceType.HBASE,DataSourceType.Phoenix,DataSourceType.HIVE);
 }
