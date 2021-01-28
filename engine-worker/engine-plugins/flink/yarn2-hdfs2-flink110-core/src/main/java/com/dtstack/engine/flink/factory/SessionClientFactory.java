@@ -429,7 +429,7 @@ public class SessionClientFactory extends AbstractClientFactory {
          */
         private static final Integer CHECK_INTERVAL = 10 * 1000;
 
-        private volatile Integer retry_wait = 10 * 1000;
+        private volatile Integer retry_wait = 30 * 1000;
 
         private AtomicInteger retry_num = new AtomicInteger(0);
 
@@ -607,8 +607,11 @@ public class SessionClientFactory extends AbstractClientFactory {
         private synchronized void retry() {
 
             int temp_num = retry_num.incrementAndGet();
-            if (temp_num > sessionClientFactory.flinkConfig.getSessionRetryNum()) {
-                LOG.error("session retry times is exhausted. Please check if the requested resources are available in the YARN cluster and release it.");
+
+            //if temp_num exceeded max retry num. leader monitor thread will retry every 5 times.
+            if (temp_num > sessionClientFactory.flinkConfig.getSessionRetryNum()
+                    && sessionClientFactory.isLeader.get()
+                    && (temp_num % 5 != 0)) {
                 return;
             }
 
@@ -624,9 +627,6 @@ public class SessionClientFactory extends AbstractClientFactory {
                 this.sessionClientFactory.startAndGetSessionClusterClient();
 
                 Thread.sleep(retry_wait);
-                // 每次重试失败间隔时间增加2倍
-                retry_wait = retry_wait * 2;
-                LOG.warn("next retry will after {} ms.", retry_wait);
             } catch (Exception e) {
                 LOG.error("", e);
             }

@@ -28,7 +28,7 @@ public class FlinkConfig extends BaseConfig {
 
     private String typeName;
 
-    private int sessionRetryNum = 5;
+    private int sessionRetryNum = 9;
 
     private String flinkJobMgrUrl;
 
