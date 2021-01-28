@@ -530,11 +530,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                                 }
                             } else {
-                                /* retry时有一段等待时间，确保session正常运行。 判断retry次数，防止不断retry耗尽hadoop资源 */
-                                if (retry_num.get() <= sessionClientFactory.flinkConfig.getSessionRetryNum()) {
-                                    retry();
-                                }
-
+                                retry();
                             }
                         } catch (Throwable e) {
                             LOG.error("YarnAppStatusMonitor check error:", e);
