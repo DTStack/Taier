@@ -27,6 +27,9 @@ public interface TestCommonDao {
             "delete from schedule_job_job;" +
             "delete from schedule_fill_data_job;" +
             "delete from schedule_job_graph_trigger;"+
+            "delete from alert_record;"+
+            "delete from alert_content;"+
+            "delete from alert_channel;"+
             "delete from console_tenant_resource;")
     void truncate();
 }

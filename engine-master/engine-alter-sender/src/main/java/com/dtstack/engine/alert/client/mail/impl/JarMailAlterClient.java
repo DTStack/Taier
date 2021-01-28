@@ -57,6 +57,8 @@ public class JarMailAlterClient extends AbstractMailAlterClient {
         if (StringUtils.isBlank(jarPath)) {
             throw new AlterException("自定义jar必须传入jar路径");
         }
+        alterSendMailBean.setJarPath(jarPath);
+        alterSendMailBean.setClassName(className);
     }
 
     @Override

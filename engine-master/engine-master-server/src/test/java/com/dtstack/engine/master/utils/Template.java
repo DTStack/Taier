@@ -1,13 +1,20 @@
 package com.dtstack.engine.master.utils;
 
+import com.dtstack.engine.alert.enums.AlertGateCode;
+import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.IsDefaultEnum;
+import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.util.DateUtil;
+import com.dtstack.engine.domain.AlertChannel;
+import com.dtstack.engine.domain.AlertContent;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.schedule.common.enums.AppType;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 public class Template {
     public static ScheduleJob getScheduleJobTemplate() {
@@ -415,5 +422,110 @@ public class Template {
         scheduleJobJob.setGmtCreate(new Timestamp(1592559742000L));
         scheduleJobJob.setGmtModified(new Timestamp(1592559742000L));
         return scheduleJobJob;
+    }
+
+    public static AlertChannel getDefaultAlterChannelTemplateSmsJar() {
+        AlertChannel alertContent = new AlertChannel();
+        alertContent.setId(1L);
+        alertContent.setAlertGateSource("sms_test");
+        alertContent.setIsDefault(IsDefaultEnum.DEFAULT.getType());
+        alertContent.setAlertGateType(AlertGateTypeEnum.SMS.getType());
+        alertContent.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        alertContent.setAlertGateName("短信测试");
+        alertContent.setAlertGateJson("{\"className\":\"com.dtstack.sdk.example.ISmsChannelExample\"}");
+        alertContent.setAlertTemplate("");
+        alertContent.setClusterId(1L);
+        alertContent.setAlertGateCode(AlertGateCode.AG_GATE_SMS_JAR.code());
+        String classPath = Template.class.getResource("/").getPath();
+        alertContent.setFilePath(classPath+"/alter/console-alert-plugin-sdk-example-4.0.0.jar");
+        return alertContent;
+    }
+
+    public static AlertChannel getDefaultAlterChannelTemplateDingJar() {
+        AlertChannel alertContent = new AlertChannel();
+        alertContent.setId(2L);
+        alertContent.setAlertGateSource("ding_test");
+        alertContent.setIsDefault(IsDefaultEnum.DEFAULT.getType());
+        alertContent.setAlertGateType(AlertGateTypeEnum.DINGDING.getType());
+        alertContent.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        alertContent.setAlertGateName("钉钉jar测试");
+        alertContent.setAlertGateJson("{\"className\":\"com.dtstack.sdk.example.IDingChannelExample\"}");
+        alertContent.setAlertTemplate("");
+        alertContent.setClusterId(1L);
+        alertContent.setAlertGateCode(AlertGateCode.AG_GATE_DING_JAR.code());
+        String classPath = Template.class.getResource("/").getPath();
+        alertContent.setFilePath(classPath+"/alter/console-alert-plugin-sdk-example-4.0.0.jar");
+        return alertContent;
+    }
+
+    public static AlertChannel getDefaultAlterChannelTemplateMailJar() {
+        AlertChannel alertContent = new AlertChannel();
+        alertContent.setId(3L);
+        alertContent.setAlertGateSource("mail_test");
+        alertContent.setIsDefault(IsDefaultEnum.DEFAULT.getType());
+        alertContent.setAlertGateType(AlertGateTypeEnum.MAIL.getType());
+        alertContent.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        alertContent.setAlertGateName("邮箱jar测试");
+        alertContent.setAlertGateJson("{\"className\":\"com.dtstack.sdk.example.IMailChannelExample\"}");
+        alertContent.setAlertTemplate("");
+        alertContent.setClusterId(1L);
+        alertContent.setAlertGateCode(AlertGateCode.AG_GATE_MAIL_JAR.code());
+        String classPath = Template.class.getResource("/").getPath();
+        alertContent.setFilePath(classPath+"/alter/console-alert-plugin-sdk-example-4.0.0.jar");
+        return alertContent;
+    }
+
+    public static AlertChannel getDefaultAlterChannelTemplateICustomizeJar() {
+        AlertChannel alertContent = new AlertChannel();
+        alertContent.setId(4L);
+        alertContent.setAlertGateSource("customize_test");
+        alertContent.setIsDefault(IsDefaultEnum.NOT_DEFAULT.getType());
+        alertContent.setAlertGateType(AlertGateTypeEnum.CUSTOMIZE.getType());
+        alertContent.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        alertContent.setAlertGateName("自定义jar测试");
+        alertContent.setAlertGateJson("{\"className\":\"com.dtstack.sdk.example.ICustomizeChannelExample\"}");
+        alertContent.setAlertTemplate("");
+        alertContent.setClusterId(1L);
+        alertContent.setAlertGateCode(AlertGateCode.AG_GATE_CUSTOM_JAR.code());
+        String classPath = Template.class.getResource("/").getPath();
+        alertContent.setFilePath(classPath+"/alter/console-alert-plugin-sdk-example-4.0.0.jar");
+        return alertContent;
+    }
+
+    public static AlertChannel getDefaultAlterChannelTemplateDingDt() {
+        AlertChannel alertContent = new AlertChannel();
+        alertContent.setId(5L);
+        alertContent.setAlertGateSource("ding_dt_test");
+        alertContent.setIsDefault(IsDefaultEnum.NOT_DEFAULT.getType());
+        alertContent.setAlertGateType(AlertGateTypeEnum.DINGDING.getType());
+        alertContent.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        alertContent.setAlertGateName("钉钉DT测试");
+        alertContent.setAlertGateJson("{}");
+        alertContent.setAlertTemplate("");
+        alertContent.setClusterId(1L);
+        alertContent.setAlertGateCode(AlertGateCode.AG_GATE_DING_DT.code());
+        return alertContent;
+    }
+
+    public static AlertChannel getDefaultAlterChannelTemplateMailDt() {
+        AlertChannel alertContent = new AlertChannel();
+        alertContent.setId(6L);
+        alertContent.setAlertGateSource("mail_dt_test");
+        alertContent.setIsDefault(IsDefaultEnum.NOT_DEFAULT.getType());
+        alertContent.setAlertGateType(AlertGateTypeEnum.MAIL.getType());
+        alertContent.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        alertContent.setAlertGateName("邮箱DT测试");
+        alertContent.setAlertGateJson("{\n" +
+                "    \"mail.smtp.host\":\"smtp.yeah.net\",\n" +
+                "    \"mail.smtp.port\":\"25\",\n" +
+                "    \"mail.smtp.ssl.enable\":true,\n" +
+                "    \"mail.smtp.username\":\"dashuww@yeah.net\",\n" +
+                "    \"mail.smtp.password\":\"dt1234\",\n" +
+                "    \"mail.smtp.from\":\"dashuww@yeah.net\"\n" +
+                "}");
+        alertContent.setAlertTemplate("");
+        alertContent.setClusterId(1L);
+        alertContent.setAlertGateCode(AlertGateCode.AG_GATE_MAIL_DT.code());
+        return alertContent;
     }
 }

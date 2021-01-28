@@ -36,6 +36,9 @@ public class JarDingAlterClient extends AbstractDingAlterClient {
         if (StringUtils.isBlank(jarPath)) {
             throw new AlterException("自定义jar必须传入jar路径");
         }
+
+        alterSendDingBean.setJarPath(jarPath);
+        alterSendDingBean.setClassName(className);
     }
 
     @Override
