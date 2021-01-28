@@ -1274,11 +1274,11 @@
         where task_type = #{taskType} and is_deleted = 0
     </select>
 
-    <select id="getStatusById" resultType="java.lang.Integer">
+    <select id="getStatusByJobId" resultType="java.lang.Integer">
         SELECT
             status
         FROM schedule_job
-        WHERE id = #{id} AND is_deleted = 0
+        WHERE job_id = #{jobId} AND is_deleted = 0
     </select>
 
     <select id="countTasksByCycTimeTypeAndAddress" resultType="java.lang.Integer">
