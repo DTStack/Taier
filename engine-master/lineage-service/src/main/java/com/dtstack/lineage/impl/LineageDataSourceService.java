@@ -212,6 +212,7 @@ public class LineageDataSourceService {
     }
 
     private LineageDataSource convertLineageDataSource(DataSourceDTO dataSourceDTO, String sourceKey, Long realSourceId) {
+
         Long tenantId = tenantDao.getIdByDtUicTenantId(dataSourceDTO.getDtUicTenantId());
         Integer componentId =  componentDao.getIdByTenantIdComponentType(tenantId, dataSourceDTO.getSourceType());
         LineageDataSource dataSource = new LineageDataSource();
@@ -224,6 +225,9 @@ public class LineageDataSourceService {
         }else{
             dataSource.setKerberosConf(dataSourceDTO.getKerberosConf());
             dataSource.setOpenKerberos( 1 );
+        }
+        if(null != dataSourceDTO.getDataSourceId()){
+            dataSource.setId(dataSourceDTO.getDataSourceId());
         }
         dataSource.setInnerSource(null == componentId ? 1 : 0);
         dataSource.setSourceKey(sourceKey);
