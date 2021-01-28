@@ -692,6 +692,8 @@ public class SparkYarnClient extends AbstractClient {
 
         while (sqlItera.hasNext()){
             String tmpSql = sqlItera.next();
+            // handle add jar statements and comment statements on the same line
+            tmpSql = AddJarOperator.handleSql(tmpSql);
             if(AddJarOperator.verific(tmpSql)){
                 sqlItera.remove();
                 JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
@@ -761,6 +763,19 @@ public class SparkYarnClient extends AbstractClient {
             logger.error("buildYarnClient initSecurity happens error", e);
             throw new RdosDefineException(e);
         }
+    }
+
+    /*
+     * handle add jar statements and comment statements on the same line
+     * " --desc \n\n ADD JAR WITH xxxx"
+     */
+    public static void handleFirstSql(List<String> sqlLists) {
+        String[] sqls = sqlLists.get(0).split("\\n");
+        if (sqls.length == 0) {
+            return;
+        }
+        sqlLists.remove(0);
+        sqlLists.addAll(Arrays.asList(sqls));
     }
 
 }

@@ -359,6 +359,8 @@ public class HadoopClient extends AbstractClient {
 
         while (sqlItera.hasNext()){
             String tmpSql = sqlItera.next();
+            // handle add jar statements and comment statements on the same line
+            tmpSql = AddJarOperator.handleSql(tmpSql);
             if(AddJarOperator.verific(tmpSql)){
                 sqlItera.remove();
                 JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
