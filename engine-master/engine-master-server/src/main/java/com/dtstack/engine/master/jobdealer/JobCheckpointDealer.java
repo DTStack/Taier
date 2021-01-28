@@ -1,7 +1,5 @@
 package com.dtstack.engine.master.jobdealer;
 
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -19,6 +17,7 @@ import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,16 +116,19 @@ public class JobCheckpointDealer implements InitializingBean {
     public void afterPropertiesSet() {
         checkpointPool.submit(() -> {
             while (true) {
+                String taskId = "";
+                String engineJobId = "";
                 try {
                     JobCheckpointInfo taskInfo = delayBlockingQueue.take();
-                    String engineJobId = taskInfo.getJobIdentifier().getEngineJobId();
-                    ScheduleJob jobInfo = scheduleJobDao.getByJobId(taskInfo.getTaskId(), 0);
-                    int status = jobInfo.getStatus();
-
+                    if (null != taskInfo.getJobIdentifier()) {
+                        engineJobId = taskInfo.getJobIdentifier().getEngineJobId();
+                    }
+                    taskId = taskInfo.getTaskId();
+                    Integer status = scheduleJobDao.getStatusByJobId(taskId);
                     updateCheckpointImmediately(taskInfo, engineJobId, status);
 
                 } catch (Exception e) {
-                    logger.error("", e);
+                    logger.error("update delay checkpoint jobId {}  engineJobId {} error ", taskId, engineJobId, e);
                 }
             }
         });
@@ -137,7 +139,7 @@ public class JobCheckpointDealer implements InitializingBean {
      * @param taskInfo
      * @param engineJobId
      */
-    public void updateCheckpointImmediately(JobCheckpointInfo taskInfo, String engineJobId, int status) {
+    public void updateCheckpointImmediately(JobCheckpointInfo taskInfo, String engineJobId, Integer status) {
         String taskId = "";
         try {
             taskId = taskInfo.getJobIdentifier().getTaskId();
@@ -151,7 +153,9 @@ public class JobCheckpointDealer implements InitializingBean {
                 }
 
                 if (RdosTaskStatus.getStoppedStatus().contains(status)) {
-                    if (isCheckpointStopClean(taskId)) {
+                    boolean checkpointStopClean = isCheckpointStopClean(taskId);
+                    logger.info(" taskId {}  status is stop {}  cleanCheckpoint {}", taskId, status, checkpointStopClean);
+                    if (checkpointStopClean) {
                         engineJobCheckpointDao.cleanAllCheckpointByTaskEngineId(engineJobId);
                     }
                     taskEngineIdAndRetainedNum.remove(engineJobId);
@@ -176,6 +180,7 @@ public class JobCheckpointDealer implements InitializingBean {
         try {
             Map<String, Object> checkpointInfo = PublicUtil.jsonStrToObject(checkpointJsonStr, Map.class);
             if (!checkpointInfo.containsKey(FLINK_CP_HISTORY_KEY) || null == checkpointInfo.get(FLINK_CP_HISTORY_KEY)) {
+                logger.info("taskId {} engineTaskId {} can't get checkpoint history key....", taskId, engineTaskId);
                 return;
             }
 
@@ -196,6 +201,9 @@ public class JobCheckpointDealer implements InitializingBean {
                     Timestamp checkpointTriggerTimestamp = new Timestamp(checkpointTrigger);
                     engineJobCheckpointDao.insert(taskId, engineTaskId, checkpointId, checkpointTriggerTimestamp, checkpointSavePath, checkpointCountsInfo);
                     checkpointInsertedCache.put(checkpointCacheKey, "1");
+                } else {
+                    logger.info("no add checkpoint to db checkpointId [{}]  checkpointSavePath {} status {} checkpointCacheKey {}",
+                            checkpointId, checkpointSavePath, status, checkpointCacheKey);
                 }
             }
         } catch (IOException e) {
@@ -218,11 +226,11 @@ public class JobCheckpointDealer implements InitializingBean {
                     JobCheckpointInfo taskInfo = new JobCheckpointInfo(computeType, taskId, jobIdentifier, engineTypeName, checkpointInterval);
 
                     delayBlockingQueue.put(taskInfo);
-                    logger.info("add task to checkpoint delay queue,{}", taskInfo);
+                    logger.info("add taskId {} to checkpoint delay queue,{}", taskId, taskInfo);
 
                     return taskInfo;
                 } catch (Exception e) {
-                    logger.error("", e);
+                    logger.error("taskId {} addCheckpointTaskForQueue error ", taskId, e);
                 }
                 return null;
             });
@@ -243,8 +251,7 @@ public class JobCheckpointDealer implements InitializingBean {
                 engineJobCheckpointDao.batchDeleteByEngineTaskIdAndCheckpointId(thresholdCheckpoint.getTaskEngineId(), thresholdCheckpoint.getCheckpointId());
             }
         } catch (Exception e) {
-            logger.error("taskEngineID Id :{}", engineJobId);
-            logger.error("", e);
+            logger.error("engineJobId Id :{}  error ", engineJobId, e);
         }
     }
 
@@ -254,8 +261,8 @@ public class JobCheckpointDealer implements InitializingBean {
      * @return
      * @throws ExecutionException
      */
-    private Map getJobParamsByJobId(String jobId) throws ExecutionException{
-        Map<String, Object> taskParams = checkpointConfigCache.get(jobId, () -> {
+    private Map<String, Object> getJobParamsByJobId(String jobId) throws ExecutionException{
+        return checkpointConfigCache.get(jobId, () -> {
             Map<String, Object> paramInfo = Maps.newConcurrentMap();
             String jobInfo = engineJobCacheDao.getOne(jobId).getJobInfo();
             Map<String, Object> pluginInfoMap = PublicUtil.jsonStrToObject(jobInfo, Map.class);
@@ -269,8 +276,6 @@ public class JobCheckpointDealer implements InitializingBean {
             }
             return paramInfo;
         });
-
-        return taskParams;
     }
 
 
@@ -279,9 +284,12 @@ public class JobCheckpointDealer implements InitializingBean {
         try {
             pluginInfoMap = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
         } catch (IOException e) {
-            logger.error("plugin info parse error ..", e);
+            logger.error("plugin info {}  parse error ..", pluginInfo, e);
         }
-        return Integer.valueOf(pluginInfoMap.getOrDefault(CHECKPOINT_RETAINED_KEY, 1).toString());
+        if (MapUtils.isEmpty(pluginInfoMap)) {
+            return 1;
+        }
+        return Integer.parseInt(pluginInfoMap.getOrDefault(CHECKPOINT_RETAINED_KEY, 1).toString());
     }
 
 
