@@ -80,18 +80,27 @@ public class LineageDataSourceService {
             }else {
                 //更新数据源
                 LineageDataSource one = lineageDataSourceDao.getOne(dataSourceDTO.getDataSourceId());
-                if (Objects.isNull(one)){
+                if (null == one ){
                     throw new RdosDefineException("数据源不存在");
                 }
                 if (!one.getAppType().equals(dataSourceDTO.getAppType())){
                     throw new RdosDefineException("数据源不存在");
                 }
-                String sourceKey = generateSourceKey(dataSourceDTO.getDataJson(),dataSourceDTO.getSourceType());
+                boolean isCustom = dataSourceDTO.getSourceType().equals(DataSourceType.UNKNOWN.getVal())
+                        || dataSourceDTO.getSourceType().equals(DataSourceType.CUSTOM.getVal());
+                //生成sourceKey
+                String sourceKey;
+                if(!isCustom) {
+                    sourceKey = generateSourceKey(dataSourceDTO.getDataJson(),dataSourceDTO.getSourceType());
+                }else{
+                    sourceKey = "custom_"+dataSourceDTO.getSourceName();
+                    dataSourceDTO.setDataJson("-1");
+                }
                 if(!one.getSourceKey().equals(sourceKey)){
                     throw new RdosDefineException("jdbc.url中ip和端口不能修改");
                 }
                 //更新手动添加的数据源信息时，需要修改数据源类型
-                boolean changeSourceType = DataSourceType.UNKNOWN.getVal() == one.getSourceType() && Objects.nonNull(dataSourceDTO.getSourceType());
+                boolean changeSourceType = DataSourceType.UNKNOWN.getVal() == one.getSourceType() && null != dataSourceDTO.getSourceType();
                 updateDataSource(dataSourceDTO,sourceKey,one.getRealSourceId(),changeSourceType);
                 return one.getId();
             }
