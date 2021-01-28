@@ -638,7 +638,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 				currentProxy = currentProxyField.get(h);
 			}catch (Exception e){
 				//兼容Hadoop 2.7.3.2.6.4.91-3
-				LOG.error("get currentProxy error:", e);
+				LOG.warn("get currentProxy error: ", e);
 				Field proxyDescriptorField = h.getClass().getDeclaredField("proxyDescriptor");
 				proxyDescriptorField.setAccessible(true);
 				Object proxyDescriptor = proxyDescriptorField.get(h);

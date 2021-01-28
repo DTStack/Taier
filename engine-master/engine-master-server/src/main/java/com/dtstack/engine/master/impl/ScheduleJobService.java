@@ -175,13 +175,6 @@ public class ScheduleJobService {
         return scheduleJobDao.getByJobKeyAndType(jobKey, type);
     }
 
-    /**
-     * id；并非为 jobId
-     */
-    public Integer getStatusById(Long id) {
-        return scheduleJobDao.getStatusById(id);
-    }
-
 
     /**
      * 获取指定状态的工作任务列表
@@ -2370,11 +2363,11 @@ public class ScheduleJobService {
     }
 
     public Integer getJobStatus(String jobId){
-        ScheduleJob job = scheduleJobDao.getRdosJobByJobId(jobId);
-        if (Objects.isNull(job)) {
+        Integer status = scheduleJobDao.getStatusByJobId(jobId);
+        if (Objects.isNull(status)) {
             throw new RdosDefineException("job not exist");
         }
-        return job.getStatus();
+        return status;
     }
     public List<ScheduleJob> getByIds( List<Long> ids) {
 
@@ -2496,9 +2489,11 @@ public class ScheduleJobService {
      * @param time
      * @return
      */
-    public ScheduleJob getLastSuccessJob( Long taskId,  Timestamp time, Integer appType) {
-        //todo 校验参数是否为空
-        return scheduleJobDao.getByTaskIdAndStatusOrderByIdLimit(taskId, RdosTaskStatus.FINISHED.getStatus(),time, appType);
+    public ScheduleJob getLastSuccessJob(Long taskId, Timestamp time, Integer appType) {
+        if (null == taskId || null == time || null == appType) {
+            return null;
+        }
+        return scheduleJobDao.getByTaskIdAndStatusOrderByIdLimit(taskId, RdosTaskStatus.FINISHED.getStatus(), time, appType);
     }
 
 

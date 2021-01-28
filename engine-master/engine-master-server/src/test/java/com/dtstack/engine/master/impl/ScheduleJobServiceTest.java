@@ -69,10 +69,9 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Rollback
     public void testGetStatusById() {
         ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobFirst();
-        Long id = scheduleJob.getId();
-        Integer statusById = sheduleJobService.getStatusById(id);
+        Integer statusById = sheduleJobService.getJobStatus(scheduleJob.getJobId());
         if (!Objects.isNull(statusById)) {
-            Assert.assertTrue(statusById.intValue() == 5);
+            Assert.assertTrue(statusById == 5);
         }
     }
 
