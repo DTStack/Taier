@@ -89,7 +89,7 @@ public class LineageDataSetInfoService {
         dataSetInfo.setSetType(0);
         dataSetInfo.setTableName(tableName);
         //生成tableKey
-        String tableKey = generateTableKey(dataSource.getRealSourceId(), dbName, tableName);
+        String tableKey = generateTableKey(dataSource.getId(), dbName, tableName);
         dataSetInfo.setTableKey(tableKey);
         return dataSetInfo;
     }
@@ -116,22 +116,13 @@ public class LineageDataSetInfoService {
             if(!"-1".equals(kerberosConf)) {
                 kerberosJsonObj = JSON.parseObject(kerberosConf);
             }
-            //获取sftp配置
-            Long dtUicTenantId = dataSource.getDtUicTenantId();
-            Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-            Integer componentId = componentDao.getIdByTenantIdComponentType(tenantId, EComponentType.SFTP.getTypeCode());
-            if(null == componentId){
-                throw new RdosDefineException("该租户没有绑定集群");
-            }
-            Component component = componentDao.getOne((long) componentId);
-            String componentConfig = component.getComponentConfig();
-            if(null == componentConfig){
-                throw new RdosDefineException("sftp配置信息为空");
-            }
-            JSONObject componentJsonObj = JSONObject.parseObject(componentConfig);
+            JSONObject sftpConf = getJsonObject(dataSource,EComponentType.SFTP.getTypeCode());
             if(dataSource.getOpenKerberos()==1) {
                 //开启kerberos
-                jsonObject.put("sftpConf", componentJsonObj);
+                //获取yarnConf
+                JSONObject yarnConf = getJsonObject(dataSource,EComponentType.YARN.getTypeCode());
+                jsonObject.put("yarnConf",yarnConf);
+                jsonObject.put("sftpConf", sftpConf);
                 jsonObject.put("remoteDir",kerberosJsonObj.get("remoteDir"));
                 jsonObject.put("principalFile",kerberosJsonObj.get("principalFile"));
                 jsonObject.put("krbName",kerberosJsonObj.get("krbName"));
@@ -150,6 +141,30 @@ public class LineageDataSetInfoService {
         } catch (Exception e) {
             throw new RdosDefineException("获取client异常",e);
         }
+    }
+
+    /**
+     * @author ZYD
+     * @Description 获取组件配置
+     * @Date 2021/1/29 11:11
+     * @param dataSource:
+     * @param typeCode:
+     * @return: com.alibaba.fastjson.JSONObject
+     **/
+    private JSONObject getJsonObject(LineageDataSource dataSource,Integer typeCode) {
+        //获取sftp配置
+        Long dtUicTenantId = dataSource.getDtUicTenantId();
+        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
+        Integer componentId = componentDao.getIdByTenantIdComponentType(tenantId, typeCode);
+        if(null == componentId){
+            throw new RdosDefineException("该租户没有绑定集群");
+        }
+        Component component = componentDao.getOne((long) componentId);
+        String componentConfig = component.getComponentConfig();
+        if(null == componentConfig){
+            throw new RdosDefineException("sftp配置信息为空");
+        }
+        return JSONObject.parseObject(componentConfig);
     }
 
     public List<Column> getAllColumns(LineageDataSetInfo dataSetInfo, IClient iClient) {
