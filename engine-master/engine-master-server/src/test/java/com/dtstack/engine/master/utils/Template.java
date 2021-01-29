@@ -9,6 +9,7 @@ import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.domain.AlertChannel;
 import com.dtstack.engine.domain.AlertContent;
+import com.dtstack.engine.domain.AlertRecord;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.schedule.common.enums.AppType;
@@ -527,5 +528,28 @@ public class Template {
         alertContent.setClusterId(1L);
         alertContent.setAlertGateCode(AlertGateCode.AG_GATE_MAIL_DT.code());
         return alertContent;
+    }
+
+    public static AlertRecord getDefaultRecord() {
+        AlertRecord alertRecord = new AlertRecord();
+        alertRecord.setId(0L);
+        alertRecord.setContext("");
+        alertRecord.setNodeAddress("");
+        alertRecord.setFailureReason("");
+        alertRecord.setSendTime("");
+        alertRecord.setSendEndTime("");
+        alertRecord.setUserId(1L);
+        alertRecord.setAppType(1);
+        alertRecord.setTenantId(1L);
+        alertRecord.setReadStatus(0);
+        alertRecord.setIsDeleted(0);
+        alertRecord.setAlertRecordSendStatus(0);
+        alertRecord.setAlertRecordStatus(0);
+        alertRecord.setJobId("");
+        alertRecord.setStatus(0);
+        alertRecord.setTitle("");
+        alertRecord.setAlertContentId(1L);
+        alertRecord.setAlertChannelId(1L);
+        return alertRecord;
     }
 }

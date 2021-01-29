@@ -46,9 +46,8 @@ public class JarDingAlterClient extends AbstractDingAlterClient {
         long startTime = System.currentTimeMillis();
         R r;
         try {
-            String alertGateJson = alterSendDingBean.getAlertGateJson();
-            JSONObject jsonObject = JSONObject.parseObject(alertGateJson);
-            String dingMsgType = jsonObject.getString(ConstDingAlter.DING_MSG_TYPE_KEY);
+            JSONObject jsonObject = alterSendDingBean.getAlertGateJsonObject();
+            String dingMsgType = alterSendDingBean.getDingMsgType();
             IDingChannel iDingChannel = (IDingChannel) JarCache.getInstance()
                     .getChannelInstance(alterSendDingBean.getJarPath(), alterSendDingBean.getClassName());
 

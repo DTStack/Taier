@@ -10,6 +10,7 @@ import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.domain.AlertChannel;
 import com.dtstack.engine.domain.AlertContent;
+import com.dtstack.engine.domain.AlertRecord;
 import com.dtstack.engine.master.anno.DataSource;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
@@ -35,6 +36,9 @@ public interface DataCollection {
         return (DataCollection) Proxy.newProxyInstance(DataCollectionProxy.class.getClassLoader(),
                 new Class<?>[]{DataCollection.class}, DataCollectionProxy.instance);
     }
+
+
+
 
 
     class SingletonHolder {
@@ -786,5 +790,10 @@ public interface DataCollection {
     @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
     default AlertChannel getDefaultAlterChannelComJar() {
         return Template.getDefaultAlterChannelTemplateICustomizeJar();
+    }
+
+    @DatabaseInsertOperation(dao = TestAlertRecordDao.class)
+    default AlertRecord getDefaultRecord(){
+        return Template.getDefaultRecord();
     }
 }

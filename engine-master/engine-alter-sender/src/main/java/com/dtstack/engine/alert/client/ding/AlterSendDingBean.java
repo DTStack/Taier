@@ -1,5 +1,7 @@
 package com.dtstack.engine.alert.client.ding;
 
+import com.alibaba.fastjson.JSONObject;
+
 import java.util.List;
 
 /**
@@ -25,6 +27,10 @@ public class AlterSendDingBean {
     private List<String> atMobiles;
 
     private Boolean isAtAll;
+
+    private String dingMsgType;
+
+    private JSONObject alertGateJsonObject;
 
     public String getTitle() {
         return title;
@@ -88,5 +94,21 @@ public class AlterSendDingBean {
 
     public void setAtAll(Boolean atAll) {
         isAtAll = atAll;
+    }
+
+    public String getDingMsgType() {
+        return dingMsgType;
+    }
+
+    public void setDingMsgType(String dingMsgType) {
+        this.dingMsgType = dingMsgType;
+    }
+
+    public JSONObject getAlertGateJsonObject() {
+        return alertGateJsonObject;
+    }
+
+    public void setAlertGateJsonObject(JSONObject alertGateJsonObject) {
+        this.alertGateJsonObject = alertGateJsonObject;
     }
 }

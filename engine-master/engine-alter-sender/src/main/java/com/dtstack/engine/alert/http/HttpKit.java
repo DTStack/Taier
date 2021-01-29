@@ -40,7 +40,7 @@ public class HttpKit {
 
     }
     
-	public static String send(String url, Map<String, String> header, Object body, boolean isGet, boolean isCookieStore)
+	public static String send(String url, Map<String, String> header, Map<String, Object> body, boolean isGet, boolean isCookieStore)
 			throws IOException {
 		HttpClient httpClient = HttpClientBuilder.create().build();
 		HttpRequestBase request = isGet ? new HttpGet(url) : new HttpPost(url);

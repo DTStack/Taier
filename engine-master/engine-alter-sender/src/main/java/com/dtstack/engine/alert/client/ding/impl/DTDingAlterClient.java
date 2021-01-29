@@ -1,5 +1,6 @@
 package com.dtstack.engine.alert.client.ding.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.client.ding.AbstractDingAlterClient;
@@ -43,19 +44,12 @@ public class DTDingAlterClient extends AbstractDingAlterClient {
     @Override
     protected R sendDing(AlterSendDingBean alterSendDingBean) {
         long startTime = System.currentTimeMillis();
-        String alertGateJson = alterSendDingBean.getAlertGateJson();
-        JSONObject jsonObject = JSONObject.parseObject(alertGateJson);
-
-        DingAt dingAt = new DingAt();
-        dingAt.setAtAll(alterSendDingBean.getAtAll());
-        dingAt.setAtMobiles(alterSendDingBean.getAtMobiles());
-
-        DingBean dingBean;
-        String dingMsgType = jsonObject.getString(ConstDingAlter.DING_MSG_TYPE_KEY);
+        Map<String, Object> dingBean;
+        String dingMsgType = alterSendDingBean.getDingMsgType();
         if (DingTypeEnums.TEXT.getMsg().equalsIgnoreCase(dingMsgType)) {
-            dingBean = sendTest(alterSendDingBean, dingAt);
+            dingBean = sendTest(alterSendDingBean);
         } else if (DingTypeEnums.MARKDOWN.getMsg().equalsIgnoreCase(dingMsgType)) {
-            dingBean = sendDingWithMarkDown(alterSendDingBean, dingAt);
+            dingBean = sendDingWithMarkDown(alterSendDingBean);
         } else {
             throw new BizException(String.format("不支持的钉钉消息类型，msgtype=%s", dingMsgType));
         }
@@ -67,7 +61,7 @@ public class DTDingAlterClient extends AbstractDingAlterClient {
             String result = HttpKit.send(alterSendDingBean.getDing(), header, dingBean, false, false);
             logger.info("[sendDing] hookUrl={},result={}", alterSendDingBean.getDing(), result);
             DingResultBean dingResultBean = JSONObject.parseObject(result, DingResultBean.class);
-            if (dingResultBean != null && StringUtils.isNotBlank(dingResultBean.getErrmsg())) {
+            if (dingResultBean != null && !"0".equals(dingResultBean.getErrcode())) {
                 logger.info("[sendDing] usage of time = {}, the message = {} result:{}", (System.currentTimeMillis() - startTime), alterSendDingBean.getContent(),dingResultBean.getErrmsg());
                 return R.fail(dingResultBean.getErrmsg());
             } else {
@@ -81,29 +75,32 @@ public class DTDingAlterClient extends AbstractDingAlterClient {
 
     }
 
-    private DingBean sendDingWithMarkDown(AlterSendDingBean alterSendDingBean,DingAt dingAt) {
-        DingMarkdown dingMarkdown = new DingMarkdown();
-        dingMarkdown.setTitle(alterSendDingBean.getTitle());
-        dingMarkdown.setContent(alterSendDingBean.getContent());
+    private Map<String, Object> sendDingWithMarkDown(AlterSendDingBean alterSendDingBean) {
+        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> at = new HashMap<>();
+        data.put("msgtype", "markdown");
+        Map<String, String> content = new HashMap<>();
+        content.put("title", alterSendDingBean.getTitle());
+        content.put("text", alterSendDingBean.getContent());
+        at.put("atMobiles", alterSendDingBean.getAtMobiles());
+        at.put("isAtAll", alterSendDingBean.getAtAll());
+        data.put("markdown", content);
+        data.put("at", at);
 
-        DingBean dingBean = new DingBean();
-        dingBean.setMsgtype(DingTypeEnums.MARKDOWN.getMsg());
-        dingBean.setDingMarkdown(dingMarkdown);
-        dingBean.setAt(dingAt);
-
-        return dingBean;
+        return data;
     }
 
-    private DingBean sendTest(AlterSendDingBean alterSendDingBean,DingAt dingAt) {
-        DingText dingText = new DingText();
-        dingText.setContent(alterSendDingBean.getContent());
-
-        DingBean dingBean = new DingBean();
-        dingBean.setMsgtype(DingTypeEnums.MARKDOWN.getMsg());
-        dingBean.setText(dingText);
-        dingBean.setAt(dingAt);
-
-        return dingBean;
+    private Map<String, Object> sendTest(AlterSendDingBean alterSendDingBean) {
+        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> at = new HashMap<>();
+        data.put("msgtype", "text");
+        Map<String, String> content = new HashMap<>();
+        content.put("content", alterSendDingBean.getContent());
+        at.put("atMobiles", alterSendDingBean.getAtMobiles());
+        at.put("isAtAll", alterSendDingBean.getAtAll());
+        data.put("text", content);
+        data.put("at", at);
+        return data;
     }
 
     @Override

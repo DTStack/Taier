@@ -2,9 +2,11 @@ package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
+import com.dtstack.engine.api.param.NotifyRecordParam;
 import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
 import com.dtstack.engine.domain.AlertChannel;
+import com.dtstack.engine.domain.AlertRecord;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.utils.FileUtil;
@@ -31,12 +33,17 @@ public class AlertControllerTest extends AbstractTest {
     @Autowired
     private AlertController alertController;
 
+    @Autowired
+    private NotifyRecordController notifyRecordController;
+
     private AlertChannel defaultAlterChannelComJar;
     private AlertChannel defaultAlterChannelDingDt;
     private AlertChannel defaultAlterChannelDingJar;
     private AlertChannel defaultAlterChannelMailDt;
     private AlertChannel defaultAlterChannelMailJar;
     private AlertChannel defaultAlterChannelSmsJar;
+
+    private AlertRecord alertRecord;
 
     @Before
     public void before(){
@@ -46,6 +53,8 @@ public class AlertControllerTest extends AbstractTest {
         this.defaultAlterChannelMailDt = DataCollection.getData().getDefaultAlterChannelMailDt();
         this.defaultAlterChannelMailJar = DataCollection.getData().getDefaultAlterChannelMailJar();
         this.defaultAlterChannelSmsJar = DataCollection.getData().getDefaultAlterChannelSmsJar();
+
+        this.alertRecord = DataCollection.getData().getDefaultRecord();
     }
     @Test
     public void editText() {
@@ -118,12 +127,25 @@ public class AlertControllerTest extends AbstractTest {
 
         // 测试dingjar 发送
         AlertGateTestVO alertGateTestDingJarVO = new AlertGateTestVO();
-        alertGateTestMailJarVO.setDings(Lists.newArrayList(""));
+        alertGateTestDingJarVO.setDings(Lists.newArrayList("https://oapi.dingtalk.com/robot/send?access_token=16cc0086eeef4f4f905ce4eda70be58bbe8ec9ecb45fb58c55706fac07e50530"));
         testSmsJar(alertGateTestDingJarVO,multipartFile,defaultAlterChannelDingJar);
 
-        // 测试邮箱jar 发送
+        // 测试自定义 发送
         AlertGateTestVO alertGateTestComJarVO = new AlertGateTestVO();
         testSmsJar(alertGateTestComJarVO,multipartFile,defaultAlterChannelComJar);
+
+        // 测试邮箱Dt
+        try {
+            AlertGateTestVO alertGateTestMailDtVO = new AlertGateTestVO();
+            alertGateTestMailDtVO.setEmails(Lists.newArrayList("1306123139@qq.com"));
+            testSmsJar(alertGateTestMailJarVO,multipartFile,defaultAlterChannelMailDt);
+        } catch (Exception e) {
+        }
+
+        // 测试dingjar 发送
+        AlertGateTestVO alertGateTestDingDtVO = new AlertGateTestVO();
+        alertGateTestDingDtVO.setDings(Lists.newArrayList("https://oapi.dingtalk.com/robot/send?access_token=16cc0086eeef4f4f905ce4eda70be58bbe8ec9ecb45fb58c55706fac07e50530"));
+        testSmsJar(alertGateTestDingJarVO,multipartFile,defaultAlterChannelDingDt);
     }
 
     private void testSmsJar(AlertGateTestVO alertGateTestVO,MultipartFile multipartFile,AlertChannel alertChannel) throws Exception {
@@ -137,6 +159,15 @@ public class AlertControllerTest extends AbstractTest {
 
         alertController.testAlert(multipartFile,alertGateTestVO);
     }
+
+    @Test
+    public void getRecordOne() throws Exception {
+        NotifyRecordParam notifyRecordParam = new NotifyRecordParam();
+        notifyRecordParam.setReadId(alertRecord.getId());
+        notifyRecordParam.setAppType(1);
+        notifyRecordController.getOne(notifyRecordParam);
+    }
+
 
 
 }
