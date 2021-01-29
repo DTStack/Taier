@@ -1,5 +1,9 @@
 package com.dtstack.engine.alert.enums;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
+
 /**
  * @Auther: dazhi
  * @Date: 2020/12/8 4:30 下午
@@ -58,6 +62,33 @@ public enum AlertGateTypeEnum {
         }
 
         return null;
+    }
+
+    public static List<String> transformSenderTypes(List<Integer> senderTypes) {
+        List<String> alertGateSources = Lists.newArrayList();
+
+        for (Integer senderType : senderTypes) {
+            if (senderType.equals(2)) {
+                alertGateSources.add(getDefaultFiled(SMS));
+            }
+
+            if (senderType.equals(1)) {
+                alertGateSources.add(getDefaultFiled(MAIL));
+            }
+
+            if (senderType.equals(4)) {
+                alertGateSources.add(getDefaultFiled(DINGDING));
+            }
+
+            if (senderType.equals(5)) {
+                alertGateSources.add(getDefaultFiled(PHONE));
+            }
+
+            if (senderType.equals(6)) {
+                alertGateSources.add(getDefaultFiled(CUSTOMIZE));
+            }
+        }
+        return alertGateSources;
     }
 
     public Integer getType() {

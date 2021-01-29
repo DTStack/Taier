@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.enums;
 
+import com.dtstack.engine.api.enums.EComponentScheduleType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Lists;
 

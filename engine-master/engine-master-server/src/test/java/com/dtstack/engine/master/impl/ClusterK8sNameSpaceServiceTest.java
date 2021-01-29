@@ -14,7 +14,7 @@ import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.QueueDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.enums.EComponentScheduleType;
+import com.dtstack.engine.api.enums.EComponentScheduleType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.utils.Template;

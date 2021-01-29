@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.controller;
 
+import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
 import com.dtstack.engine.api.dto.*;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.param.AlarmSendParam;
@@ -131,8 +132,24 @@ public class NotifyRecordController {
             }
         }
 
-//      notifyRecordService.sendAlarm(param.getTenantId(), param.getProjectId(), param.getNotifyRecordId(), param.getAppType(), param.getTitle(),
-//                param.getContentId(), userDTOS, param.getSenderTypes(), param.getWebhook(), param.getMailType());
+        AlarmSendDTO alarmSendDTO = new AlarmSendDTO();
+        alarmSendDTO.setTitle(param.getTitle());
+        alarmSendDTO.setContentId(param.getContentId());
+        alarmSendDTO.setContent(param.getContent());
+        alarmSendDTO.setReceivers(userDTOS);
+        alarmSendDTO.setWebhook(param.getWebhook());
+
+        alarmSendDTO.setStatus(param.getStatus());
+        alarmSendDTO.setAppType(param.getAppType());
+        alarmSendDTO.setTenantId(param.getTenantId());
+        alarmSendDTO.setUserId(param.getUserId());
+        alarmSendDTO.setProjectId(param.getProjectId());
+
+        List<Integer> senderTypes = param.getSenderTypes();
+
+        List<String> alertGateSources = AlertGateTypeEnum.transformSenderTypes(senderTypes);
+        alarmSendDTO.setAlertGateSources(alertGateSources);
+        alertRecordService.sendAlarm(alarmSendDTO);
     }
 
     @ApiOperation("发送消息: 新接口")
