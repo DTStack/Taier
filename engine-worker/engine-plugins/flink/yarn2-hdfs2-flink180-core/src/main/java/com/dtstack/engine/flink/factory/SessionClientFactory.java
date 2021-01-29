@@ -43,12 +43,15 @@ import org.apache.flink.api.common.JobSubmissionResult;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
+import org.apache.flink.client.program.PackagedProgramUtils;
+import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.client.program.ProgramMissingJobException;
 import org.apache.flink.configuration.CheckpointingOptions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
-import org.apache.flink.runtime.jobgraph.*;
 import org.apache.flink.configuration.SecurityOptions;
+import org.apache.flink.runtime.jobgraph.JobGraph;
+import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.leader.LeaderLatch;
@@ -68,11 +71,21 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -423,7 +436,7 @@ public class SessionClientFactory extends AbstractClientFactory {
          */
         private static final Integer CHECK_INTERVAL = 10 * 1000;
 
-        private volatile Integer retry_wait = 10 * 1000;
+        private volatile Integer retry_wait = 20 * 1000;
 
         private AtomicInteger retry_num = new AtomicInteger(0);
 
@@ -441,6 +454,8 @@ public class SessionClientFactory extends AbstractClientFactory {
 
         private FilesystemManager filesystemManager;
 
+        private ThreadPoolExecutor threadPoolExecutor;
+
         public AppStatusMonitor(FlinkClientBuilder clientBuilder, SessionClientFactory yarnSessionClientFactory) {
             this.clientBuilder = clientBuilder;
             this.sessionClientFactory = yarnSessionClientFactory;
@@ -448,6 +463,9 @@ public class SessionClientFactory extends AbstractClientFactory {
             this.sessionCheckInterval = new SessionCheckInterval(clientBuilder.getFlinkConfig().getCheckSubmitJobGraphInterval(), yarnSessionClientFactory.sessionHealthCheckedInfo);
             //查找本地路径
             this.filesystemManager = new FilesystemManager(null, null);
+            this.threadPoolExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<Runnable>(), new CustomThreadFactory("flink-session-check"));
+
         }
 
         @Override
@@ -472,7 +490,6 @@ public class SessionClientFactory extends AbstractClientFactory {
                                             if (lastAppState != appState) {
                                                 // 当 session 重启成功后 重置 retry次数
                                                 retry_num.set(0);
-                                                retry_wait = 10 * 1000;
                                                 LOG.info("YARN application has been deployed successfully. reset retry_num to {} and retry_wait to {}.", retry_num.get(), retry_wait);
                                             }
                                             if (sessionClientFactory.isLeader.get() && sessionCheckInterval.doCheck()) {
@@ -512,11 +529,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                                 }
                             } else {
-                                /* retry时有一段等待时间，确保session正常运行。 判断retry次数，防止不断retry耗尽hadoop资源 */
-                                if (retry_num.get() <= sessionClientFactory.flinkConfig.getSessionRetryNum()) {
-                                    retry();
-                                }
-
+                                retry();
                             }
                         } catch (Throwable e) {
                             LOG.error("YarnAppStatusMonitor check error:", e);
@@ -602,10 +615,14 @@ public class SessionClientFactory extends AbstractClientFactory {
         private synchronized void retry() {
 
             int temp_num = retry_num.incrementAndGet();
-            if (temp_num > sessionClientFactory.flinkConfig.getSessionRetryNum()) {
-                LOG.error("session retry times is exhausted. Please check if the requested resources are available in the YARN cluster and release it.");
+
+            //if temp_num exceeded max retry num. leader monitor thread will retry every 5 times.
+            if (temp_num > sessionClientFactory.flinkConfig.getSessionRetryNum()
+                    && sessionClientFactory.isLeader.get()
+                    && (temp_num % 5 != 0)) {
                 return;
             }
+
             //重试
             try {
                 LOG.warn("ThreadName : {} retry times is {}", Thread.currentThread().getName(), temp_num);
@@ -618,9 +635,6 @@ public class SessionClientFactory extends AbstractClientFactory {
                 this.sessionClientFactory.startAndGetSessionClusterClient();
 
                 Thread.sleep(retry_wait);
-                // 每次重试失败间隔时间增加2倍
-                retry_wait = retry_wait * 2;
-                LOG.warn("next retry will after {} ms.", retry_wait);
             } catch (Exception e) {
                 LOG.error("", e);
             }
@@ -673,7 +687,22 @@ public class SessionClientFactory extends AbstractClientFactory {
             PackagedProgram packagedProgram = FlinkUtil.buildProgram(jarPath, "./tmp", classPaths,
                     null, mainClass, programArgs, SavepointRestoreSettings.none(), filesystemManager, sessionClientFactory.flinkConfiguration);
 
-            JobSubmissionResult result = sessionClientFactory.clusterClient.run(packagedProgram, 1);
+            JobGraph jobGraph = PackagedProgramUtils.createJobGraph(packagedProgram, sessionClientFactory.flinkConfiguration, 1);
+
+            JobSubmissionResult result = null;
+
+            try {
+                result = CompletableFuture.supplyAsync(() -> {
+                    try {
+                        return sessionClientFactory.clusterClient.run(packagedProgram, 1);
+                    } catch (Exception e) {
+                        throw new RdosDefineException("Run session check job failed.", e);
+                    }
+                }, threadPoolExecutor).get(30, TimeUnit.SECONDS);
+            } catch (InterruptedException | ExecutionException | TimeoutException e){
+                throw new ProgramInvocationException("Could not run session check job in detached mode.", e);
+            }
+
 
             if (null == result) {
                 throw new ProgramMissingJobException("No JobSubmissionResult returned, please make sure you called " +
