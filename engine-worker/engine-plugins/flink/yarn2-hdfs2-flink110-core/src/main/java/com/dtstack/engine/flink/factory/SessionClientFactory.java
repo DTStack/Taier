@@ -429,7 +429,7 @@ public class SessionClientFactory extends AbstractClientFactory {
          */
         private static final Integer CHECK_INTERVAL = 10 * 1000;
 
-        private volatile Integer retry_wait = 10 * 1000;
+        private volatile Integer retry_wait = 20 * 1000;
 
         private AtomicInteger retry_num = new AtomicInteger(0);
 
@@ -478,7 +478,6 @@ public class SessionClientFactory extends AbstractClientFactory {
                                             if (lastAppState != appState) {
                                                 // 当 session 重启成功后 重置 retry次数
                                                 retry_num.set(0);
-                                                retry_wait = 10 * 1000;
                                                 LOG.info("YARN application has been deployed successfully. reset retry_num to {} and retry_wait to {}.", retry_num.get(), retry_wait);
                                             }
                                             if (sessionClientFactory.isLeader.get() && sessionCheckInterval.doCheck()) {
@@ -518,10 +517,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                     sessionCheckInterval.sessionHealthCheckedInfo.unHealth();
                                 }
                             } else {
-                                /* retry时有一段等待时间，确保session正常运行。 判断retry次数，防止不断retry耗尽hadoop资源 */
-                                if (retry_num.get() <= sessionClientFactory.flinkConfig.getSessionRetryNum()) {
-                                    retry();
-                                }
+                                retry();
                             }
                         } catch (Throwable e) {
                             LOG.error("YarnAppStatusMonitor check error:", e);
@@ -607,8 +603,11 @@ public class SessionClientFactory extends AbstractClientFactory {
         private synchronized void retry() {
 
             int temp_num = retry_num.incrementAndGet();
-            if (temp_num > sessionClientFactory.flinkConfig.getSessionRetryNum()) {
-                LOG.error("session retry times is exhausted. Please check if the requested resources are available in the YARN cluster and release it.");
+
+            //if temp_num exceeded max retry num. leader monitor thread will retry every 5 times.
+            if (temp_num > sessionClientFactory.flinkConfig.getSessionRetryNum()
+                    && sessionClientFactory.isLeader.get()
+                    && (temp_num % 5 != 0)) {
                 return;
             }
 
@@ -624,9 +623,6 @@ public class SessionClientFactory extends AbstractClientFactory {
                 this.sessionClientFactory.startAndGetSessionClusterClient();
 
                 Thread.sleep(retry_wait);
-                // 每次重试失败间隔时间增加2倍
-                retry_wait = retry_wait * 2;
-                LOG.warn("next retry will after {} ms.", retry_wait);
             } catch (Exception e) {
                 LOG.error("", e);
             }
