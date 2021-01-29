@@ -23,13 +23,14 @@ public class AlertContentService {
     @Autowired
     private AlertContentDao alertContentDao;
 
-    public Integer insertContent(AlertContentDTO alertContentDTO) {
+    public Long insertContent(AlertContentDTO alertContentDTO) {
         alertContentDTO.setAlertMessageStatus(AlertMessageStatusEnum.NO_ALTER.getType());
         alertContentDTO.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
         alertContentDTO.setSendInfo("");
         AlertContent alertContent = new AlertContent();
         BeanUtils.copyProperties(alertContentDTO, alertContent);
-        return alertContentDao.insert(alertContent);
+        Integer insert = alertContentDao.insert(alertContent);
+        return alertContent.getId();
     }
 
 

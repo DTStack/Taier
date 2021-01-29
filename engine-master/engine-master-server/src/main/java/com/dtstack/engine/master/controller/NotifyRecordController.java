@@ -117,7 +117,7 @@ public class NotifyRecordController {
         alertContentDTO.setProjectId(param.getProjectId());
         alertContentDTO.setTenantId(param.getTenantId());
         alertContentDTO.setStatus(param.getStatus());
-        return new Long(alertContentService.insertContent(alertContentDTO));
+        return alertContentService.insertContent(alertContentDTO);
     }
 
     @ApiOperation("发送消息 用于替换console: /api/console/service/notifyRecord/sendAlarm")

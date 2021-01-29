@@ -1,11 +1,15 @@
 package com.dtstack.engine.master.controller;
 
+import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
+import com.dtstack.engine.api.dto.UserMessageDTO;
+import com.dtstack.engine.api.param.AlarmSendParam;
 import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
 import com.dtstack.engine.api.param.NotifyRecordParam;
 import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
 import com.dtstack.engine.domain.AlertChannel;
+import com.dtstack.engine.domain.AlertContent;
 import com.dtstack.engine.domain.AlertRecord;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
@@ -44,6 +48,8 @@ public class AlertControllerTest extends AbstractTest {
     private AlertChannel defaultAlterChannelSmsJar;
 
     private AlertRecord alertRecord;
+
+    private AlertContent alertContent;
 
     @Before
     public void before(){
@@ -166,6 +172,29 @@ public class AlertControllerTest extends AbstractTest {
         notifyRecordParam.setReadId(alertRecord.getId());
         notifyRecordParam.setAppType(1);
         notifyRecordController.getOne(notifyRecordParam);
+    }
+
+    @Test
+    public void sendAlarmNewTest(){
+        // 生成内容
+        NotifyRecordParam notifyRecordParam = new NotifyRecordParam();
+        notifyRecordParam.setAppType(7);
+        notifyRecordParam.setContent("测试一下");
+        notifyRecordParam.setProjectId(1L);
+        notifyRecordParam.setTenantId(1L);
+        notifyRecordParam.setStatus(1);
+        Long contentId = notifyRecordController.generateContent(notifyRecordParam);
+
+        AlarmSendParam param = new AlarmSendParam();
+        param.setContentId(contentId);
+        param.setTitle("测试");
+        param.setWebhook("https://oapi.dingtalk.com/robot/send?access_token=16cc0086eeef4f4f905ce4eda70be58bbe8ec9ecb45fb58c55706fac07e50530");
+        param.setAlertGateSources(Lists.newArrayList(AlertGateTypeEnum.getDefaultFiled(AlertGateTypeEnum.DINGDING)));
+        param.setTenantId(1L);
+        param.setStatus(1);
+        param.setProjectId(1L);
+        param.setAppType(7);
+        notifyRecordController.sendAlarmNew(param);
     }
 
 

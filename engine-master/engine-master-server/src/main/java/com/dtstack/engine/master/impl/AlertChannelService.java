@@ -255,7 +255,8 @@ public class AlertChannelService {
             AlertChannel queryAlertChannel = new AlertChannel();
             queryAlertChannel.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
             queryAlertChannel.setIsDefault(IsDefaultEnum.DEFAULT.getType());
-            pos.addAll(alertChannelDao.selectByQuery(queryAlertChannel));
+
+            pos.addAll(alertChannelDao.selectInType(queryAlertChannel,defaultAlert));
         }
 
         if (CollectionUtils.isNotEmpty(customizeAlert)) {

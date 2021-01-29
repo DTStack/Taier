@@ -246,10 +246,14 @@ public class AlertRecordService {
 
             List<UserMessageDTO> receivers = alarmSendDTO.getReceivers();
 
-            if (CollectionUtils.isEmpty(receivers) && AlertGateTypeEnum.CUSTOMIZE.getType().equals(alertChannel.getAlertGateType())) {
-                // 自定义通道支持不选择接收人
-                alertRecords.add(buildRecord(alarmSendDTO, alertChannel, -1L));
-                continue;
+            if (CollectionUtils.isEmpty(receivers)) {
+                receivers = Lists.newArrayList();
+
+                if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(alertChannel.getAlertGateType())) {
+                    // 自定义通道支持不选择接收人
+                    alertRecords.add(buildRecord(alarmSendDTO, alertChannel, -1L));
+                    continue;
+                }
             }
 
             for (UserMessageDTO receiver : receivers) {

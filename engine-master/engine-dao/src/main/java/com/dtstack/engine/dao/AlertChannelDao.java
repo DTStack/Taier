@@ -31,4 +31,5 @@ public interface AlertChannelDao {
 
     void updateDefaultAlertByType(@Param("alertGateType") Integer alertGateType, @Param("isDefault") Integer isDefault, @Param("isDelete") Integer isDelete);
 
+    List<AlertChannel> selectInType(@Param("queryAlertChannel") AlertChannel queryAlertChannel, @Param("defaultAlert") List<Integer> defaultAlert);
 }

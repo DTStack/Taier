@@ -91,6 +91,23 @@
 
     </select>
 
+    <select id="selectInType" resultType="com.dtstack.engine.domain.AlertChannel">
+        SELECT
+        <include refid="filed"/>
+        FROM alert_channel
+        WHERE
+        `alert_gate_type` IN
+        <foreach collection="defaultAlert" item="type" close=")" open="(" separator=",">
+            #{type}
+        </foreach>
+        <if test="queryAlertChannel.isDefault!=null">
+            AND `is_default` = #{queryAlertChannel.isDefault}
+        </if>
+        <if test="queryAlertChannel.isDeleted != null">
+            AND `is_deleted` = #{queryAlertChannel.isDeleted}
+        </if>
+    </select>
+
     <insert id="insert">
         insert into alert_channel
         <trim prefix="(" suffix=")" suffixOverrides=",">

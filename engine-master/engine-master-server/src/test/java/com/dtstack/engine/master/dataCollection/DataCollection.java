@@ -37,15 +37,9 @@ public interface DataCollection {
                 new Class<?>[]{DataCollection.class}, DataCollectionProxy.instance);
     }
 
-
-
-
-
     class SingletonHolder {
         private static final DataCollection INSTANCE = getDataCollectionProxy();
     }
-
-
 
 
     @DataSource
@@ -796,4 +790,5 @@ public interface DataCollection {
     default AlertRecord getDefaultRecord(){
         return Template.getDefaultRecord();
     }
+
 }
