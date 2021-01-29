@@ -62,7 +62,7 @@ public class FlinkConfig extends BaseConfig {
 
     private String flinkSessionName = "Flink session";
 
-    private int sessionRetryNum = 9;
+    private int sessionRetryNum = 5;
 
     private boolean sessionStartAuto = false;
 

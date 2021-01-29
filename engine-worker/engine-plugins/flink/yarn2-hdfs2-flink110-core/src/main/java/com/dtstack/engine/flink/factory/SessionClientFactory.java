@@ -429,7 +429,7 @@ public class SessionClientFactory extends AbstractClientFactory {
          */
         private static final Integer CHECK_INTERVAL = 10 * 1000;
 
-        private volatile Integer retry_wait = 30 * 1000;
+        private volatile Integer retry_wait = 20 * 1000;
 
         private AtomicInteger retry_num = new AtomicInteger(0);
 
@@ -478,7 +478,6 @@ public class SessionClientFactory extends AbstractClientFactory {
                                             if (lastAppState != appState) {
                                                 // 当 session 重启成功后 重置 retry次数
                                                 retry_num.set(0);
-                                                retry_wait = 10 * 1000;
                                                 LOG.info("YARN application has been deployed successfully. reset retry_num to {} and retry_wait to {}.", retry_num.get(), retry_wait);
                                             }
                                             if (sessionClientFactory.isLeader.get() && sessionCheckInterval.doCheck()) {
