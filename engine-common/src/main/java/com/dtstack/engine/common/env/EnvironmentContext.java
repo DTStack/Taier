@@ -67,7 +67,7 @@ public class EnvironmentContext {
     }
 
     public int getMaxPoolSize() {
-        return Integer.parseInt(environment.getProperty("max.pool.size", "1000"));
+        return Integer.parseInt(environment.getProperty("max.pool.size", "500"));
     }
 
     public int getMinPoolSize() {
@@ -456,11 +456,45 @@ public class EnvironmentContext {
         return Integer.parseInt(environment.getProperty("max.batch.task.sql.insert", "10"));
     }
 
-    public Integer setIdleConnectionTestPeriod() {
-        return Integer.valueOf(environment.getProperty("idle.connection.test.period", "60"));
+    public Integer getMinEvictableIdleTimeMillis() {
+        return Integer.valueOf(environment.getProperty("dataSource.min.evictable.idle.time.millis", "300000"));
     }
 
-    public Integer setMaxIdleTime() {
-        return Integer.valueOf(environment.getProperty("max.idle.time", "60"));
+    public Integer getTimeBetweenEvictionRunsMillis() {
+        return Integer.valueOf(environment.getProperty("dataSource.time.between.eviction.runs.millis", "60000"));
     }
+
+    public boolean getKeepAlive() {
+        return Boolean.parseBoolean(environment.getProperty("dataSource.keep.alive", "true"));
+    }
+
+    public boolean getRemoveAbandoned() {
+        return Boolean.parseBoolean(environment.getProperty("dataSource.remove.abandoned", "true"));
+    }
+
+    public Integer getRemoveAbandonedTimeout() {
+        return Integer.valueOf(environment.getProperty("dataSource.remove.abandoned.timeout", "120"));
+    }
+
+
+    public boolean getTestWhileIdle() {
+        return Boolean.parseBoolean(environment.getProperty("dataSource.test.while.idle", "true"));
+    }
+
+    public boolean getTestOnBorrow() {
+        return Boolean.parseBoolean(environment.getProperty("dataSource.test.on.borrow", "false"));
+    }
+
+    public boolean getTestOnReturn() {
+        return Boolean.parseBoolean(environment.getProperty("dataSource.test.on.return", "false"));
+    }
+
+    public boolean getPoolPreparedStatements() {
+        return Boolean.parseBoolean(environment.getProperty("dataSource.pool.prepared.statements", "true"));
+    }
+
+    public Integer getMaxPoolPreparedStatementPerConnectionSize() {
+        return Integer.valueOf(environment.getProperty("dataSource.max.prepared.statement.per.connection.size", "20"));
+    }
+
 }

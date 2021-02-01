@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.config;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -37,19 +37,25 @@ public class MybatisConfig {
     @Primary
     @Bean(name = "dataSource")
     public DataSource dataSource() throws PropertyVetoException {
-        ComboPooledDataSource dataSource = new ComboPooledDataSource();
-        dataSource.setDriverClass(environmentContext.getJdbcDriverClassName());
-        dataSource.setJdbcUrl(environmentContext.getJdbcUrl());
-        dataSource.setUser(environmentContext.getJdbcUser());
+        DruidDataSource dataSource = new DruidDataSource();
+        dataSource.setUrl(environmentContext.getJdbcUrl());
+        dataSource.setDriverClassName(environmentContext.getJdbcDriverClassName());
+        dataSource.setUsername(environmentContext.getJdbcUser());
         dataSource.setPassword(environmentContext.getJdbcPassword());
-        dataSource.setMaxPoolSize(environmentContext.getMaxPoolSize());
-        dataSource.setMinPoolSize(environmentContext.getMinPoolSize());
-        dataSource.setInitialPoolSize(environmentContext.getInitialPoolSize());
-        dataSource.setCheckoutTimeout(environmentContext.getCheckTimeout());
-        dataSource.setIdleConnectionTestPeriod(environmentContext.setIdleConnectionTestPeriod());
-        dataSource.setMaxIdleTime(environmentContext.setMaxIdleTime());
-        dataSource.setTestConnectionOnCheckin(true);
-        dataSource.setTestConnectionOnCheckout(true);
+        dataSource.setMaxActive(environmentContext.getMaxPoolSize());
+        dataSource.setMinIdle(environmentContext.getMinPoolSize());
+        dataSource.setInitialSize(environmentContext.getInitialPoolSize());
+        dataSource.setKeepAlive(environmentContext.getKeepAlive());
+        dataSource.setMinEvictableIdleTimeMillis(environmentContext.getMinEvictableIdleTimeMillis());
+        dataSource.setTimeBetweenConnectErrorMillis(environmentContext.getTimeBetweenEvictionRunsMillis());
+        dataSource.setRemoveAbandoned(environmentContext.getRemoveAbandoned());
+        dataSource.setLogAbandoned(environmentContext.getRemoveAbandoned());
+        dataSource.setRemoveAbandonedTimeout(environmentContext.getRemoveAbandonedTimeout());
+        dataSource.setTestWhileIdle(environmentContext.getTestWhileIdle());
+        dataSource.setTestOnBorrow(environmentContext.getTestOnBorrow());
+        dataSource.setTestOnReturn(environmentContext.getTestOnReturn());
+        dataSource.setPoolPreparedStatements(environmentContext.getPoolPreparedStatements());
+        dataSource.setMaxPoolPreparedStatementPerConnectionSize(environmentContext.getMaxPoolPreparedStatementPerConnectionSize());
         return dataSource;
     }
 
