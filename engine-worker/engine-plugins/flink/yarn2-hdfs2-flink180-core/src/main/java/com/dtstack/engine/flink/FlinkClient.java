@@ -741,7 +741,13 @@ public class FlinkClient extends AbstractClient {
                     return JudgeResult.notOk("wait flink session client recover");
                 }
                 FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
-                String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
+                String slotInfo = null;
+                try {
+                    slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
+                } catch (Exception e) {
+                    logger.error("Connection to jobmanager failed, ", e);
+                    return JudgeResult.notOk("Connection to jobmanager failed");
+                }
                 yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
                 return yarnSeesionResourceInfo.judgeSlots(jobClient);
             }
