@@ -19,6 +19,10 @@ public interface DtYarnConstants {
 
   String GPU = "yarn.io/gpu";
 
+  String KRB5_PATH = "_KRB5_PATH";
+
+  String KEYTAB_PATH = "_KEYTAB_PATH";
+
   enum Environment {
     HADOOP_USER_NAME("HADOOP_USER_NAME"),
 

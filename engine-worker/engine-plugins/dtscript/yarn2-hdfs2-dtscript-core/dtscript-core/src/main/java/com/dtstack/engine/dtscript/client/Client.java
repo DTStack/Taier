@@ -87,7 +87,7 @@ public class Client {
 
     public YarnConfiguration init(ClientArguments clientArguments) throws IOException, YarnException, ParseException, ClassNotFoundException {
 
-        YarnConfiguration conf = new YarnConfiguration((YarnConfiguration) this.conf);
+        YarnConfiguration conf = new YarnConfiguration(this.conf);
         String appSubmitterUserName = System.getenv(ApplicationConstants.Environment.USER.name());
         LOG.info("Got appSubmitterUserName: " + appSubmitterUserName);
         if (conf.get("hadoop.job.ugi") == null) {
@@ -277,8 +277,9 @@ public class Client {
             applicationContext.setResource(capability);
 
             ByteBuffer tokenBuffer = null;
-            if(null != baseConfig && baseConfig.isOpenKerberos()){
+            if (null != baseConfig && baseConfig.isOpenKerberos()) {
                 tokenBuffer = SecurityUtil.getDelegationTokens(conf, getYarnClient());
+                setKrbResource(conf, applicationId, appMasterEnv);
             }
 
             ContainerLaunchContext amContainer = ContainerLaunchContext.newInstance(
@@ -304,6 +305,24 @@ public class Client {
         }
     }
 
+    private void setKrbResource(YarnConfiguration yarnConf, ApplicationId applicationId, Map<String, String> appMasterEnv) throws IOException {
+        String[] pathStrs = KerberosUtils.getKerberosFile(baseConfig, null);
+        Path localKeytabPath = new Path(pathStrs[0]);
+        Path localKrb5Path = new Path(pathStrs[1]);
+        String krb5confFileName = localKrb5Path.getName();
+        Path remoteKeytabPath = Utilities.getRemotePath(yarnConf, applicationId, baseConfig.getPrincipalFile());
+        Path remoteKrb5fPath = Utilities.getRemotePath(yarnConf, applicationId, krb5confFileName);
+
+        uploadLocalFileToRemote(localKeytabPath, remoteKeytabPath);
+        uploadLocalFileToRemote(localKrb5Path, remoteKrb5fPath);
+        appMasterEnv.put(DtYarnConstants.KEYTAB_PATH, remoteKeytabPath.toString());
+        appMasterEnv.put(DtYarnConstants.KRB5_PATH, remoteKrb5fPath.toString());
+    }
+
+    private void uploadLocalFileToRemote(Path srcPath, Path dstPath) throws IOException {
+        LOG.info("Copying {} to remote path {}", srcPath, dstPath);
+        getFileSystem().copyFromLocalFile(false, true, srcPath, dstPath);
+    }
 
     private void checkArguments(DtYarnConfiguration conf, GetNewApplicationResponse newApplication) {
         int maxMem = newApplication.getMaximumResourceCapability().getMemory();

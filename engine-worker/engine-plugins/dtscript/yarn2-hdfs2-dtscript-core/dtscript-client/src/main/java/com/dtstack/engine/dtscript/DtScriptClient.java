@@ -1,5 +1,7 @@
 package com.dtstack.engine.dtscript;
 
+import com.dtstack.engine.api.pojo.ClusterResource;
+import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.HadoopConfTool;
@@ -13,6 +15,7 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
+import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dtscript.client.Client;
 import com.google.common.collect.Lists;
@@ -28,7 +31,11 @@ import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -244,7 +251,7 @@ public class DtScriptClient extends AbstractClient {
             return KerberosUtils.login(configMap, () -> {
                 try {
                     String[] args = DtScriptUtil.buildPythonArgs(jobClient);
-                    System.out.println(Arrays.asList(args));
+                    LOG.info(String.valueOf(Arrays.asList(args)));
                     String jobId = client.submit(args);
                     return JobResult.createSuccessResult(jobId);
                 } catch (Exception e) {
@@ -313,6 +320,35 @@ public class DtScriptClient extends AbstractClient {
             LOG.error("", e);
             return null;
         }
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        System.setProperty("HADOOP_USER_NAME", "admin");
+
+        // input params json file path
+        String filePath = args[0];
+        File paramsFile = new File(filePath);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(paramsFile)));
+        String request = reader.readLine();
+        Map params =  PublicUtil.jsonStrToObject(request, Map.class);
+        ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
+        JobClient jobClient = new JobClient(paramAction);
+
+        String pluginInfo = jobClient.getPluginInfo();
+        Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
+        String md5plugin = MD5Util.getMd5String(pluginInfo);
+        properties.setProperty("md5sum", md5plugin);
+
+        DtScriptClient client = new DtScriptClient();
+        client.init(properties);
+
+        ClusterResource clusterResource = client.getClusterResource();
+        client.submitJob(jobClient);
+
+        LOG.info("submit success!");
+        LOG.info(clusterResource.toString());
+        System.exit(0);
     }
 
 }

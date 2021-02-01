@@ -1,5 +1,6 @@
 package com.dtstack.engine.dtscript.am;
 
+import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.api.ApplicationContext;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
@@ -12,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -19,6 +21,7 @@ import org.apache.hadoop.service.CompositeService;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
@@ -412,10 +415,33 @@ public class ApplicationMaster extends CompositeService {
                                     LocalResourceType.FILE));
                 }
             }
+
+            String keytab = envs.get(DtYarnConstants.KEYTAB_PATH);
+            if (keytab != null) {
+                setKrbLocalResource(containerLocalResource);
+            }
         } catch (IOException e) {
             throw new RuntimeException("Error while build container local resource", e);
         }
         return containerLocalResource;
+    }
+
+    private void setKrbLocalResource(Map<String, LocalResource> containerLocalResource) throws IOException {
+        FileSystem fs = appArguments.appJarRemoteLocation.getFileSystem(conf);
+        String krb5 = envs.get(DtYarnConstants.KRB5_PATH);
+        Path krb5Path = new Path(krb5);
+        containerLocalResource.put(
+            krb5Path.getName(),
+            Utilities.createApplicationResource(fs, krb5Path, LocalResourceType.FILE)
+        );
+
+        String keytab = envs.get(DtYarnConstants.KEYTAB_PATH);
+        Path keytabPath = new Path(keytab);
+
+        containerLocalResource.put(
+            keytabPath.getName(),
+            Utilities.createApplicationResource(fs, keytabPath, LocalResourceType.FILE)
+        );
     }
 
     /**
