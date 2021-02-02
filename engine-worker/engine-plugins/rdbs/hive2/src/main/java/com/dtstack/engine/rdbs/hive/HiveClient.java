@@ -7,9 +7,12 @@ import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,6 +26,8 @@ public class HiveClient extends AbstractRdbsClient {
         this.dbType = "hive";
     }
 
+    private static final Logger LOG = LoggerFactory.getLogger(HiveClient.class);
+
     @Override
     protected AbstractConnFactory getConnFactory() {
         return new HiveConnFactory();
@@ -33,16 +38,15 @@ public class HiveClient extends AbstractRdbsClient {
     public List<Column> getAllColumns(String tableName, String schemaName, String dbName) {
 
         List<List<Object>> result = new ArrayList<>();
+        ResultSet res = null;
         try(Connection conn = connFactory.getConn();
             Statement statement = conn.createStatement()){
             String descSql = "desc " + tableName;
             if (StringUtils.isNotEmpty(dbName)) {
                 statement.execute("use " + dbName);
             }
-            ResultSet res = null;
             if (statement.execute(descSql)) {
                 res = statement.getResultSet();
-
                 int columns = res.getMetaData().getColumnCount();
                 List<Object> cloumnName = Lists.newArrayList();
                 int timeStamp  = 0;
@@ -60,12 +64,11 @@ public class HiveClient extends AbstractRdbsClient {
                     cloumnName.add(name);
                 }
                 result.add(cloumnName);
-
                 while (res.next()) {
                     List<Object> objects = Lists.newArrayList();
                     for (int i = 1; i <= columns; i++) {
                         if (i == timeStamp) {
-                            if (Objects.nonNull(dateFormat)) {
+                            if (null != dateFormat ) {
                                 objects.add(dateFormat.format(res.getObject(i)));
                                 continue;
                             }
@@ -76,7 +79,15 @@ public class HiveClient extends AbstractRdbsClient {
                 }
             }
         }catch (Exception e){
-            throw new RdosDefineException("获取字段列表异常");
+            throw new RdosDefineException("getColumnsList exception");
+        }finally {
+            if(null != res){
+                try {
+                    res.close();
+                } catch (SQLException e) {
+                    LOG.error("close result exception");
+                }
+            }
         }
         return parseColumnInfo(result, tableName);
     }

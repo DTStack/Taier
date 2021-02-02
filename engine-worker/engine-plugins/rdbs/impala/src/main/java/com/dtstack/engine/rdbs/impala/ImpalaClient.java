@@ -8,6 +8,8 @@ import com.dtstack.schedule.common.jdbc.JdbcUrlPropertiesValue;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -18,6 +20,8 @@ public class ImpalaClient extends AbstractRdbsClient {
     public ImpalaClient() {
         this.dbType = "impala";
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImpalaClient.class);
 
     @Override
     protected AbstractConnFactory getConnFactory() {
@@ -49,13 +53,11 @@ public class ImpalaClient extends AbstractRdbsClient {
             res = statement.executeQuery("DESCRIBE formatted " + tableName);
             while (res.next()) {
                 String colName = res.getString("name").trim();
-
                 if (StringUtils.isEmpty(colName)) {
                     continue;
                 }
                 if (colName.startsWith("#") && colName.contains("col_name")) {
                     continue;
-
                 }
                 if (colName.startsWith("#") || colName.contains("Partition Information")) {
                     break;
@@ -65,7 +67,15 @@ public class ImpalaClient extends AbstractRdbsClient {
                 }
             }
         }catch (Exception e){
-            throw new RdosDefineException("获取字段列表异常",e);
+            throw new RdosDefineException("getColumnsList exception",e);
+        }finally {
+            if( null != res){
+                try {
+                    res.close();
+                } catch (SQLException e) {
+                   LOGGER.error("close result exception,e:{}",e.getMessage());
+                }
+            }
         }
         return columns;
     }

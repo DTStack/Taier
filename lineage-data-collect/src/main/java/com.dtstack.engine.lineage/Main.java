@@ -49,7 +49,7 @@ public class Main {
             }
             PropertyConfigurator.configure(p);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("",e);
         }
 
         try {
@@ -63,7 +63,7 @@ public class Main {
             }
             in.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("",e);
         }
     }
 
