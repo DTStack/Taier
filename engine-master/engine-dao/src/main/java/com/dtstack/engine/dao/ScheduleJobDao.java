@@ -156,7 +156,7 @@ public interface ScheduleJobDao {
 
     List<String> listJobIdByTaskType(@Param("taskType") Integer taskType);
 
-    Integer getStatusById(@Param("id") Long id);
+    Integer getStatusByJobId(@Param("jobId") String jobId);
 
     Integer countTasksByCycTimeTypeAndAddress(@Param("nodeAddress") String nodeAddress, @Param("scheduleType") Integer scheduleType, @Param("cycStartTime") String cycStartTime, @Param("cycEndTime") String cycEndTime);
 
@@ -235,4 +235,6 @@ public interface ScheduleJobDao {
     Integer updateJobStatusAndPhaseStatus(@Param("jobId") String jobId, @Param("status") Integer status, @Param("phaseStatus") Integer phaseStatus);
 
     String getJobGraph(@Param("jobId") String jobId);
+
+    ScheduleJob getLastScheduleJob(@Param("taskId") Long taskId,@Param("id") Long id);
 }

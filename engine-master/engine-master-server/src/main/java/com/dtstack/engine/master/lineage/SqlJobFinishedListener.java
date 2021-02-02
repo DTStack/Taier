@@ -42,6 +42,12 @@ public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
         for (String jobId:jobIds){
             ScheduleJob scheduleJob = getScheduleJobByJobId(jobId);
             ScheduleTaskShade taskShade = getScheduleTaskShadeByJobId(jobId);
+            ScheduleJob lastJob = getLastScheduleJob(taskShade.getTaskId(),scheduleJob.getId());
+            Integer lastVersionId = null != lastJob ? lastJob.getVersionId() : null;
+            if(null != lastVersionId && lastVersionId.equals(scheduleJob.getVersionId())){
+                //相邻两个相同task的job versionId相同，不解析sql
+                continue;
+            }
             if (focusedAppType().getType() != (scheduleJob.getAppType())){
                 continue;
             }
@@ -56,6 +62,19 @@ public abstract class SqlJobFinishedListener implements ScheduleJobEventLister {
             onFocusedJobFinished(taskShade,scheduleJob,RdosTaskStatus.FINISHED.getStatus());
         }
 
+    }
+
+    /**
+     * @author ZYD
+     * @Description 获取上一个周期任务
+     * @Date 2021/2/2 11:54
+     * @param taskId:
+     * @param id:
+     * @return: com.dtstack.engine.api.domain.ScheduleJob
+     **/
+    public ScheduleJob getLastScheduleJob(Long taskId, Long id) {
+
+        return scheduleJobDao.getLastScheduleJob(taskId,id);
     }
 
     /**

@@ -331,7 +331,6 @@ public enum RdosTaskStatus implements Serializable {
 
     public static List<Integer> getStoppedAndNotFound() {
         List<Integer> status = new ArrayList<>(STOPPED_STATUS);
-        status.add(SUBMITTED.getStatus());
         status.add(NOTFOUND.getStatus());
         return status;
     }

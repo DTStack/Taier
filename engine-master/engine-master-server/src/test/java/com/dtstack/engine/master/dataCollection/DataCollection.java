@@ -64,6 +64,20 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobForth() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setEngineLog("");
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobFive() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setEngineLog("");
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
     default ScheduleJob getScheduleJobToUnsumbittedStatus() {
         ScheduleJob sj = Template.getScheduleJobTemplate();
         sj.setEngineLog("");
