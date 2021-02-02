@@ -171,7 +171,6 @@ public class LineageService {
             try {
                 lineageDataSource = lineageDataSourceService.getDataSourceByParams(sourceType, null, dtUicTenantId, AppType.RDOS.getType());
             } catch (Exception e) {
-                e.printStackTrace();
                 logger.error("",e);
             }
         } else {

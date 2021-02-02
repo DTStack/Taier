@@ -5,17 +5,18 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.rdbs.common.AbstractRdbsClient;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class PostgreSQLClient extends AbstractRdbsClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLClient.class);
 
     private static final String CHG_SCHEMA_TMPL = "SET search_path TO %s,public";
 
@@ -38,6 +39,7 @@ public class PostgreSQLClient extends AbstractRdbsClient {
     public List<Column> getAllColumns(String tableName,String schemaName, String dbName) {
 
         List<Column> columnList = new ArrayList<>();
+        ResultSet resultSet = null;
         try(
             Connection conn = connFactory.getConn();
             Statement statement = conn.createStatement()
@@ -56,7 +58,7 @@ public class PostgreSQLClient extends AbstractRdbsClient {
                 }
             }
             String sql = String.format(QUERY_COLUMN, tableName);
-            ResultSet resultSet = statement.executeQuery(sql);
+            resultSet = statement.executeQuery(sql);
                 ResultSetMetaData metaData = resultSet.getMetaData();
                 for (int i = 0; i < metaData.getColumnCount(); i++) {
                     Column column = new Column();
@@ -81,7 +83,15 @@ public class PostgreSQLClient extends AbstractRdbsClient {
                     columnList.add(column);
                 }
         }catch (Exception e){
-            throw new RdosDefineException("获取字段信息列表异常");
+            throw new RdosDefineException("getColumnsList exception");
+        }finally {
+            if(null != resultSet) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    LOGGER.error("close sqlResult exception,e:{}", e.getMessage());
+                }
+            }
         }
         return columnList;
     }
