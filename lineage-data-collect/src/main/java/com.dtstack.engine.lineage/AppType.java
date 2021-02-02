@@ -7,7 +7,45 @@ package com.dtstack.engine.lineage;
  */
 public enum AppType {
 
-    RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8),DATAASSETS(9),
+    /**
+     * 离线
+     */
+    RDOS(1),
+    /**
+     * 数据质量
+     */
+    DQ(2),
+    /**
+     * 数据api
+     */
+    API(3),
+    /**
+     * tag
+     */
+    TAG(4),
+    /**
+     * 老资产
+     */
+    MAP(5),
+    /**
+     * 控制台
+     */
+    CONSOLE(6),
+    /**
+     * 流计算
+     */
+    STREAM(7),
+    /**
+     * 算法平台
+     */
+    DATASCIENCE(8),
+    /**
+     * 数据资产
+     */
+    DATAASSETS(9),
+    /**
+     * dagschedulex
+     */
     DAGSCHEDULEX(99);
 
     private int type;

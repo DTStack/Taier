@@ -7,7 +7,7 @@ import com.dtstack.engine.api.vo.lineage.LineageDataSourceVO;
 import com.dtstack.engine.api.vo.lineage.LineageTableVO;
 import com.dtstack.engine.lineage.AppType;
 import com.dtstack.engine.lineage.CollectAppType;
-import com.dtstack.engine.lineage.DataCollection;
+import com.dtstack.engine.lineage.AbsDataCollection;
 import com.dtstack.sdk.core.common.DtInsightApi;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ import java.util.Set;
  * @Date 2020/11/23 11:11
  * @Created chener@dtstack.com
  */
-public class Batch extends DataCollection {
+public class Batch extends AbsDataCollection {
 
     private static Logger logger = LoggerFactory.getLogger(Batch.class);
 
@@ -68,9 +68,9 @@ public class Batch extends DataCollection {
     }
 
     public void doBatchJob(){
-        try (Connection connection = getDataSource().getConnection()) {
-            Statement statement = connection.prepareStatement(QUERY_TENANT);
-            ResultSet resultSet = statement.executeQuery(QUERY_TENANT);
+        try (Connection connection = getDataSource().getConnection();
+             Statement statement = connection.prepareStatement(QUERY_TENANT);
+             ResultSet resultSet = statement.executeQuery(QUERY_TENANT);) {
             List<BatchTenant> tenants = new ArrayList<>();
             while (resultSet.next()){
                 BatchTenant tenant = new BatchTenant();
@@ -84,48 +84,55 @@ public class Batch extends DataCollection {
             for (BatchTenant tenant:tenants){
 
                 //查询血缘关系，并批量导入
-                PreparedStatement preparedStatement = connection.prepareStatement(QUERY_LINEAGE_COUNT_BY_TENANT);
-                preparedStatement.setLong(1,tenant.getId());
-                preparedStatement.execute();
-                ResultSet resultSet2 = preparedStatement.getResultSet();
-                int totalCount = 0;
-                if (resultSet2.next()){
-                    totalCount = resultSet2.getInt(1);
-                }
-                if (totalCount>0){
-                    double val = totalCount * 1.0d / PAGE_SIZE;
-                    int pageCount = (int) Math.ceil(val);
-                    for (int i = 0; i < pageCount; i++) {
-                        PreparedStatement prepareStatement = connection.prepareStatement(PAGE_QUERY_LINEAGE_BY_TENANT);
-                        prepareStatement.setLong(1,tenant.getId());
-                        prepareStatement.setInt(2,PAGE_SIZE*i);
-                        prepareStatement.setInt(3,PAGE_SIZE*(i+1));
-                        prepareStatement.execute();
-                        ResultSet resultSet3 = prepareStatement.getResultSet();
-                        List<BatchLineage> batchLineages = new ArrayList<>();
-                        while (resultSet3.next()){
-                            BatchLineage lineage = new BatchLineage();
-                            lineage.setTenantId(resultSet3.getLong(1));
-                            lineage.setTaskId(resultSet3.getLong(2));
-                            lineage.setDataSourceId(resultSet3.getLong(3));
-                            lineage.setTableNam(resultSet3.getString(4));
-                            lineage.setCol(resultSet3.getString(5));
-                            lineage.setInputDataSourceId(resultSet3.getLong(6));
-                            lineage.setInputTableName(resultSet3.getString(7));
-                            lineage.setInputCol(resultSet3.getString(8));
-                            batchLineages.add(lineage);
+                try (PreparedStatement preparedStatement = connection.prepareStatement(QUERY_LINEAGE_COUNT_BY_TENANT)) {
+                    preparedStatement.setLong(1, tenant.getId());
+                    preparedStatement.execute();
+                    try (ResultSet resultSet2 = preparedStatement.getResultSet()) {
+                        int totalCount = 0;
+                        if (resultSet2.next()) {
+                            totalCount = resultSet2.getInt(1);
                         }
-                        if (batchLineages.size()>0){
-                            sendToEngine(batchLineages,tenant);
+                        if (totalCount > 0) {
+                            sendTenantLineageToEngine(connection, tenant, totalCount);
                         }
                     }
                 }
-                resultSet2.close();
-                preparedStatement.close();
             }
 
         }catch (Exception e){
             logger.error("",e);
+        }
+    }
+
+    private void sendTenantLineageToEngine(Connection connection, BatchTenant tenant, int totalCount) throws SQLException, PropertyVetoException {
+        double val = totalCount * 1.0d / PAGE_SIZE;
+        int pageCount = (int) Math.ceil(val);
+        for (int i = 0; i < pageCount; i++) {
+            List<BatchLineage> batchLineages;
+            try (PreparedStatement prepareStatement = connection.prepareStatement(PAGE_QUERY_LINEAGE_BY_TENANT)) {
+                prepareStatement.setLong(1, tenant.getId());
+                prepareStatement.setInt(2, PAGE_SIZE * i);
+                prepareStatement.setInt(3, PAGE_SIZE * (i + 1));
+                prepareStatement.execute();
+                try (ResultSet resultSet3 = prepareStatement.getResultSet()) {
+                    batchLineages = new ArrayList<>();
+                    while (resultSet3.next()) {
+                        BatchLineage lineage = new BatchLineage();
+                        lineage.setTenantId(resultSet3.getLong(1));
+                        lineage.setTaskId(resultSet3.getLong(2));
+                        lineage.setDataSourceId(resultSet3.getLong(3));
+                        lineage.setTableNam(resultSet3.getString(4));
+                        lineage.setCol(resultSet3.getString(5));
+                        lineage.setInputDataSourceId(resultSet3.getLong(6));
+                        lineage.setInputTableName(resultSet3.getString(7));
+                        lineage.setInputCol(resultSet3.getString(8));
+                        batchLineages.add(lineage);
+                    }
+                }
+            }
+            if (batchLineages.size()>0){
+                sendToEngine(batchLineages,tenant);
+            }
         }
     }
 
@@ -135,27 +142,28 @@ public class Batch extends DataCollection {
             dataSourceIdSet.add(batchLineage.getDataSourceId());
             dataSourceIdSet.add(batchLineage.getInputDataSourceId());
         }
-        Map<Long, BatchDataSource> dataSourceMap = new HashMap<>();
-        try (Connection connection = getDataSource().getConnection()) {
-            PreparedStatement prepareStatement = connection.prepareStatement(QUERY_DATA_SOURCE_INFO);
+        Map<Long, BatchDataSource> dataSourceMap = new HashMap<>(8);
+        try (Connection connection = getDataSource().getConnection();
+             PreparedStatement prepareStatement = connection.prepareStatement(QUERY_DATA_SOURCE_INFO);) {
             for (Long dataSourceId:dataSourceIdSet){
                 prepareStatement.setLong(1,dataSourceId);
                 prepareStatement.execute();
-                ResultSet resultSet = prepareStatement.getResultSet();
-                while (resultSet.next()){
-                    BatchDataSource batchDataSource = new BatchDataSource();
-                    batchDataSource.setSourceId(resultSet.getLong(1));
-                    batchDataSource.setSourceName(resultSet.getString(2));
-                    batchDataSource.setSourceType(resultSet.getInt(3));
-                    batchDataSource.setTenantId(resultSet.getLong(4));
-                    batchDataSource.setDbName(resultSet.getString(5));
-                    dataSourceMap.put(batchDataSource.getSourceId(),batchDataSource);
+                try (ResultSet resultSet = prepareStatement.getResultSet()) {
+                    while (resultSet.next()) {
+                        BatchDataSource batchDataSource = new BatchDataSource();
+                        batchDataSource.setSourceId(resultSet.getLong(1));
+                        batchDataSource.setSourceName(resultSet.getString(2));
+                        batchDataSource.setSourceType(resultSet.getInt(3));
+                        batchDataSource.setTenantId(resultSet.getLong(4));
+                        batchDataSource.setDbName(resultSet.getString(5));
+                        dataSourceMap.put(batchDataSource.getSourceId(), batchDataSource);
+                    }
                 }
             }
         } catch (SQLException e) {
             logger.error("",e);
         }
-        List<LineageColumnColumnVO> columnColumnVOS = new ArrayList<>();
+        List<LineageColumnColumnVO> columnColumnVOs = new ArrayList<>();
         for (BatchLineage lineage:batchLineages){
             LineageColumnColumnVO vo = new LineageColumnColumnVO();
             vo.setDtUicTenantId(tenant.getTenantId());
@@ -166,16 +174,16 @@ public class Batch extends DataCollection {
             vo.setResultTableInfo(resultTableVo);
             LineageTableVO inputTableVo = getLineageTableVO(lineage.getInputTableName(),dataSourceMap.get(lineage.getInputDataSourceId()));
             vo.setInputTableInfo(inputTableVo);
-            columnColumnVOS.add(vo);
+            columnColumnVOs.add(vo);
         }
-        sendColumnLineageToEngine(columnColumnVOS);
+        sendColumnLineageToEngine(columnColumnVOs);
     }
 
-    private void sendColumnLineageToEngine(List<LineageColumnColumnVO> columnColumnVOS){
-        if(CollectionUtils.isEmpty(columnColumnVOS)){
+    private void sendColumnLineageToEngine(List<LineageColumnColumnVO> columnColumnVOs){
+        if(CollectionUtils.isEmpty(columnColumnVOs)){
             return;
         }
-        List<List<LineageColumnColumnVO>> partition = Lists.partition(columnColumnVOS, 200);
+        List<List<LineageColumnColumnVO>> partition = Lists.partition(columnColumnVOs, 200);
         LineageService lineageService = getDtInsightApi().getSlbApiClient(LineageService.class);
         for (List<LineageColumnColumnVO> part : partition){
             LineageColumnColumnParam param = new LineageColumnColumnParam();

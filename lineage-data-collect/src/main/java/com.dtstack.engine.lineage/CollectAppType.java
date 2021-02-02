@@ -8,7 +8,13 @@ package com.dtstack.engine.lineage;
  * @Created chener@dtstack.com
  */
 public enum CollectAppType {
+    /**
+     * 离线
+     */
     BATCH(),
+    /**
+     * 资产
+     */
     ASSERTS(),
     ;
 }

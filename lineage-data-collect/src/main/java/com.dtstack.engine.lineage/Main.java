@@ -1,6 +1,5 @@
 package com.dtstack.engine.lineage;
 
-import com.dtstack.engine.lineage.asserts.Asserts;
 import com.dtstack.engine.lineage.batch.Batch;
 import com.dtstack.sdk.core.common.DtInsightApi;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -36,7 +35,6 @@ public class Main {
         initLog4jProperties();
         initApi();
         collectBatch();
-        collectAssert();
     }
 
     private static void initLog4jProperties() {
@@ -88,23 +86,6 @@ public class Main {
             DataSource dataSource = getDataSource(CollectAppType.BATCH);
             Batch batch = new Batch(dataSource,dtInsightApi);
             batch.doBatchJob();
-        } catch (PropertyVetoException e) {
-            logger.error("",e);
-        }
-    }
-
-    private static void collectAssert(){
-        CollectAppType appType = CollectAppType.ASSERTS;
-        try {
-            String url = Conf.getConf(getDataSourceKey(appType,Conf.URL_SUFFIX));
-            String user = Conf.getConf(getDataSourceKey(appType,Conf.USER_SUFFIX));
-            if (StringUtils.isEmpty(url) || StringUtils.isEmpty(user)){
-                logger.info("未配置资产数据库，不同步资产");
-                return;
-            }
-            DataSource dataSource = getDataSource(CollectAppType.ASSERTS);
-            Asserts asserts = new Asserts(dataSource,dtInsightApi);
-            asserts.collect();
         } catch (PropertyVetoException e) {
             logger.error("",e);
         }

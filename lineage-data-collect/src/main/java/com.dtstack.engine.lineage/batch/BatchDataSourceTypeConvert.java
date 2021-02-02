@@ -8,14 +8,41 @@ package com.dtstack.engine.lineage.batch;
  * @Created chener@dtstack.com
  */
 public enum BatchDataSourceTypeConvert {
+    /**
+     * hive1
+     */
     HIVE1(1,27),
+    /**
+     * hive2
+     */
     HIVE2(2,7),
+    /**
+     * spark thrift
+     */
     SPARK_THRIFT(3,7),
+    /**
+     * impala
+     */
     IMPALA(4,29),
+    /**
+     * tidb
+     */
     TIDB(5,31),
+    /**
+     * oracle
+     */
     ORACLE(6,2),
+    /**
+     * libra
+     */
     LIBRA(7,21),
+    /**
+     * mysql
+     */
     MYSQL(8,1),
+    /**
+     * greenplum
+     */
     GREENPLUM(9,36),;
 
     private int engineSourceType;
