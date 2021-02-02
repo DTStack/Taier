@@ -91,6 +91,23 @@ public class Template {
         return engineJobCache;
     }
 
+
+    public static EngineJobCache getEngineJobCacheTemplateCopyFromJob(ScheduleJob scheduleJob) {
+        EngineJobCache engineJobCache = new EngineJobCache();
+        engineJobCache.setJobId(scheduleJob.getJobId());
+        engineJobCache.setJobName(scheduleJob.getJobName());
+        engineJobCache.setEngineType("flink");
+        engineJobCache.setJobPriority(10L);
+        engineJobCache.setComputeType(scheduleJob.getComputeType());
+        engineJobCache.setJobInfo("{\"engineType\":\"spark\",\"taskType\":2,\"computeType\":0, \"tenantId\":9}");
+        engineJobCache.setStage(2);
+        engineJobCache.setIsFailover(0);
+        engineJobCache.setNodeAddress("node01");
+        engineJobCache.setJobResource("dtScript_dev_default_batch_Yarn");
+
+        return engineJobCache;
+    }
+
     public static EngineJobCache getEngineJobCacheTemplate2() {
         EngineJobCache engineJobCache = new EngineJobCache();
         engineJobCache.setJobId("jobId2");

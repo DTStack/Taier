@@ -5,6 +5,7 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.CustomThreadRunsPolicy;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
@@ -100,7 +101,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
     private static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EScheduleJobType.WORK_FLOW.getVal(), EScheduleJobType.ALGORITHM_LAB.getVal());
 
-    public int addStopJobs(List<ScheduleJob> jobs,Integer isForce){
+    public int addStopJobs(List<ScheduleJob> jobs, Integer isForce) {
 
         if (CollectionUtils.isEmpty(jobs)) {
             return 0;
@@ -123,6 +124,10 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
             for (ScheduleJob job : needSendStopJobs) {
                 EngineJobStopRecord jobStopRecord = new EngineJobStopRecord();
                 jobStopRecord.setTaskId(job.getJobId());
+                if (ComputeType.STREAM.getType().equals(job.getComputeType()) && RdosTaskStatus.RUNNING.getStatus().equals(job.getStatus())) {
+                    logger.info("stream jobId:{} and status:{} is RUNNING, change status CANCELLING ", job.getJobId(), job.getStatus());
+                    scheduleJobDao.updateJobStatus(job.getJobId(), RdosTaskStatus.CANCELLING.getStatus());
+                }
                 if (alreadyExistJobIds.contains(jobStopRecord.getTaskId())) {
                     logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobStopRecord.getTaskId());
                     continue;
@@ -141,7 +146,6 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
     public int addStopJobs(List<ScheduleJob> jobs) {
         return addStopJobs(jobs, ForceCancelFlag.NO.getFlag());
     }
-
 
 
     @Override
@@ -213,9 +217,9 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                                 continue;
                             }
 
-                            boolean forceCancelFlag = jobStopRecord.getForceCancelFlag() == ForceCancelFlag.YES.getFlag() ? true : false;
+                            boolean forceCancelFlag = ForceCancelFlag.YES.getFlag().equals(jobStopRecord.getForceCancelFlag());
                             JobElement jobElement = new JobElement(jobCache.getJobId(), jobStopRecord.getId(), forceCancelFlag );
-                            asyncDealStopJobService.submit(() -> asyncDealStopJob(new StoppedJob<JobElement>(jobElement, jobStoppedRetry, jobStoppedDelay)));
+                            asyncDealStopJobService.submit(() -> asyncDealStopJob(new StoppedJob<>(jobElement, jobStoppedRetry, jobStoppedDelay)));
                         } else {
                             //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
                             scheduleJobDao.updateTaskStatusNotStopped(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());

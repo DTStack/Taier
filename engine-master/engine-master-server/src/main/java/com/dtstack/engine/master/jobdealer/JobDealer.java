@@ -77,9 +77,6 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     @Autowired
     private WorkerOperator workerOperator;
 
-    @Autowired
-    private ScheduleJobService scheduleJobService;
-
     /**
      * key: jobResource, 计算引擎类型
      * value: queue

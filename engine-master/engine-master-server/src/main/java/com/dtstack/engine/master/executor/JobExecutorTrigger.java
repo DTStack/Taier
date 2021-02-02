@@ -2,6 +2,7 @@ package com.dtstack.engine.master.executor;
 
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.queue.QueueInfo;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
@@ -52,6 +53,9 @@ public class JobExecutorTrigger implements DisposableBean, ApplicationListener<A
 
     @Autowired
     private ZkService zkService;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
 
     private List<AbstractJobExecutor> executors = new ArrayList<>(EScheduleType.values().length);
 
@@ -105,7 +109,10 @@ public class JobExecutorTrigger implements DisposableBean, ApplicationListener<A
     @Override
     public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
         LOG.info("Initializing " + this.getClass().getName());
-
+        if (!environmentContext.openJobSchedule()) {
+            LOG.info("job schedule is not open!!!");
+            return;
+        }
         executors.add(fillJobExecutor);
         executors.add(cronJobExecutor);
         executors.add(restartJobExecutor);
