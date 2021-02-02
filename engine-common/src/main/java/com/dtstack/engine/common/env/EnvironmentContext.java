@@ -293,7 +293,7 @@ public class EnvironmentContext {
     }
 
     public int getJobStoppedRetry() {
-        return Integer.parseInt(environment.getProperty("jobStoppedRetry", "1"));
+        return Integer.parseInt(environment.getProperty("jobStoppedRetry", "6"));
     }
 
     public long getJobStoppedDelay() {

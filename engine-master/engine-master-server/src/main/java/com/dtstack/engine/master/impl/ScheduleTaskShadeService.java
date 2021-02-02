@@ -134,7 +134,7 @@ public class ScheduleTaskShadeService {
                                                 List<Integer> taskTypes){
         List<ScheduleTaskShadeCountTaskVO> ScheduleTaskShadeCountTaskVOs = scheduleTaskShadeDao.countTaskByType(tenantId, dtuicTenantId, Lists.newArrayList(projectId), appType, taskTypes, AppType.DATASCIENCE.getType() == appType ? 0L : null);
         if (CollectionUtils.isEmpty(ScheduleTaskShadeCountTaskVOs)) {
-            return null;
+            return new ScheduleTaskShadeCountTaskVO();
         }
         return ScheduleTaskShadeCountTaskVOs.get(0);
     }
@@ -268,12 +268,15 @@ public class ScheduleTaskShadeService {
     }
 
 
-    public ScheduleTaskShade getBatchTaskById( Long taskId, Integer appType) {
+    public ScheduleTaskShade getBatchTaskById(Long taskId, Integer appType) {
 
-        if(null == taskId || null == appType){
+        if (null == taskId || null == appType) {
             throw new RdosDefineException("taskId或appType不能为空");
         }
         ScheduleTaskShade taskShade = scheduleTaskShadeDao.getOne(taskId, appType);
+        if (taskShade == null || Deleted.DELETED.getStatus().equals(taskShade.getIsDeleted())) {
+            return null;
+        }
         return taskShade;
     }
 
