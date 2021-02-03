@@ -1,9 +1,7 @@
 package com.dtstack.engine.master.utils;
 
 import com.dtstack.engine.common.enums.EDeployMode;
-import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.master.AbstractTest;
-import javafx.concurrent.Task;
 import org.junit.Assert;
 import org.junit.Test;
 
