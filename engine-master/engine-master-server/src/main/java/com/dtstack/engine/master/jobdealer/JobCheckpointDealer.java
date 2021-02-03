@@ -281,7 +281,12 @@ public class JobCheckpointDealer implements InitializingBean {
         } catch (IOException e) {
             logger.error("plugin info parse error ..", e);
         }
-        return Integer.valueOf(pluginInfoMap.getOrDefault(CHECKPOINT_RETAINED_KEY, 1).toString());
+
+        if (pluginInfoMap == null) {
+            return 0;
+        }
+
+        return Integer.parseInt(pluginInfoMap.getOrDefault(CHECKPOINT_RETAINED_KEY, 1).toString());
     }
 
 
