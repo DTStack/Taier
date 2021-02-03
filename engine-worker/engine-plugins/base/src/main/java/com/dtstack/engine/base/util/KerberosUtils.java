@@ -76,12 +76,6 @@ public class KerberosUtils {
      */
     public static <T> T login(BaseConfig config, Supplier<T> supplier, Configuration configuration, boolean isCreateNewUGI) throws Exception {
         if (Objects.isNull(config) || !config.isOpenKerberos()) {
-            String proxyUserName = config.getDtProxyUserName();
-            if (StringUtils.isNotEmpty(proxyUserName)) {
-                logger.info("dtProxyUserName is {}", proxyUserName);
-                UserGroupInformation proxyUGI = UserGroupInformation.createProxyUser(proxyUserName, UserGroupInformation.getLoginUser());
-                return proxyUGI.doAs((PrivilegedExceptionAction<T>) supplier::get);
-            }
             return supplier.get();
         }
 

@@ -187,6 +187,9 @@ public class ApplicationMaster extends CompositeService {
             amrmAsync.stop();
         } catch (Exception e) {
             LOG.error("Error while unregister Application", e);
+        } finally {
+            Utilities.cleanStagingRemotePath((YarnConfiguration) this.conf, this.applicationAttemptId.getApplicationId());
+            LOG.info("cleanStagingRemotePath ApplicationId:" + this.applicationAttemptId.getApplicationId());
         }
     }
 
@@ -448,25 +451,19 @@ public class ApplicationMaster extends CompositeService {
 
     public static void main(String[] args) {
         ApplicationMaster appMaster = null;
-        boolean result = false;
         try {
             appMaster = new ApplicationMaster();
             appMaster.init();
-            result = appMaster.run();
-
-        } catch (Exception e) {
-            LOG.error("Error running ApplicationMaster", e);
-        } finally {
-            if (appMaster != null) {
-                Utilities.cleanStagingRemotePath((YarnConfiguration) appMaster.conf, appMaster.applicationAttemptId.getApplicationId());
-                LOG.info("cleanStagingRemotePath ApplicationId:" + appMaster.applicationAttemptId.getApplicationId());
+            boolean tag = appMaster.run();
+            if (tag) {
+                LOG.info("Application completed successfully.");
+                System.exit(0);
+            } else {
+                LOG.info("Application failed.");
+                System.exit(1);
             }
-        }
-        if (result) {
-            LOG.info("Application completed successfully.");
-            System.exit(0);
-        } else {
-            LOG.error("Application failed.");
+        } catch (Exception e) {
+            LOG.fatal("Error running ApplicationMaster", e);
             System.exit(1);
         }
     }
