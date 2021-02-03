@@ -2,7 +2,6 @@ package com.dtstack.engine.flink;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.engine.base.util.KerberosUtils;
@@ -36,10 +35,20 @@ import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
 import com.dtstack.engine.flink.plugininfo.SyncPluginInfo;
 import com.dtstack.engine.flink.resource.FlinkPerJobResourceInfo;
 import com.dtstack.engine.flink.resource.FlinkYarnSeesionResourceInfo;
-import com.dtstack.engine.flink.util.*;
+import com.dtstack.engine.flink.util.ApplicationWSParser;
+import com.dtstack.engine.flink.util.FileUtil;
+import com.dtstack.engine.flink.util.FlinkConfUtil;
+import com.dtstack.engine.flink.util.FlinkRestParseUtil;
+import com.dtstack.engine.flink.util.FlinkUtil;
+import com.dtstack.engine.flink.util.HadoopConf;
+import com.dtstack.engine.flink.util.JobGraphBuildUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
@@ -68,13 +77,23 @@ import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -716,7 +735,13 @@ public class FlinkClient extends AbstractClient {
                     return JudgeResult.notOk("wait flink session client recover");
                 }
                 FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
-                String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
+                String slotInfo = null;
+                try {
+                    slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
+                } catch (Exception e) {
+                    logger.error("Connection to jobmanager failed, ", e);
+                    return JudgeResult.notOk("Connection to jobmanager failed");
+                }
                 yarnSeesionResourceInfo.getFlinkSessionSlots(slotInfo, flinkConfig.getFlinkSessionSlotCount());
                 return yarnSeesionResourceInfo.judgeSlots(jobClient);
             }
@@ -858,6 +883,8 @@ public class FlinkClient extends AbstractClient {
 
         while (sqlItera.hasNext()) {
             String tmpSql = sqlItera.next();
+            // handle add jar statements and comment statements on the same line
+            tmpSql = PrepareOperator.handleSql(tmpSql);
             if (PrepareOperator.verificKeytab(tmpSql)) {
                 sqlItera.remove();
                 String localDir = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();

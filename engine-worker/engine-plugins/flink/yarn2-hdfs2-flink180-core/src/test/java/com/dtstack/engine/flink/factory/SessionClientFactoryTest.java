@@ -200,9 +200,9 @@ public class SessionClientFactoryTest {
 
         PackagedProgram packagedProgram = PowerMockito.mock(PackagedProgram.class);
         PowerMockito.mockStatic(FlinkUtil.class);
-        when(FlinkUtil.buildProgram(any(String.class), any(String.class), any(List.class), any(),
-                any(), any(String[].class), any(SavepointRestoreSettings.class), any(FilesystemManager.class)))
-                .thenReturn(packagedProgram);
+//        when(FlinkUtil.buildProgram(any(String.class), any(String.class), any(List.class), any(),
+//                any(), any(String[].class), any(SavepointRestoreSettings.class), any(FilesystemManager.class)))
+//                .thenReturn(packagedProgram);
 
         PowerMockito.mockStatic(PoolHttpClient.class);
         when(PoolHttpClient.get(any())).thenReturn("{\"state\":\"FINISHED\"}");

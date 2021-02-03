@@ -303,7 +303,7 @@ public class JobSubmitDealer implements Runnable {
                 addToTaskListener(jobClient, jobResult);
             } else if (JudgeResult.JudgeType.EXCEPTION == judgeResult.getResult()) {
                 logger.info("jobId:{} engineType:{} judgeSlots result is exception {}", jobClient.getTaskId(), jobClient.getEngineType(), judgeResult.getReason());
-                handlerFailedWithRetry(jobClient, false, new Exception(judgeResult.getReason()));
+                handlerFailedWithRetry(jobClient, true, new Exception(judgeResult.getReason()));
             } else {
                 logger.info("jobId:{} engineType:{} judgeSlots result is false.", jobClient.getTaskId(), jobClient.getEngineType());
                 handlerNoResource(jobClient, judgeResult);
