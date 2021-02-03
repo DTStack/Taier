@@ -1,7 +1,7 @@
 package com.dtstack.engine.sparkyarn.sparkyarn.parser;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.JarFileInfo;
+import com.dtstack.engine.common.exception.RdosDefineException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,4 +32,17 @@ public class AddJarOperator {
 		return pattern.matcher(sql).find();
 	}
 
+	/*
+	 * handle add jar statements and comment statements on the same line
+	 * " --desc \n\n ADD JAR WITH xxxx"
+	 */
+	public static String handleSql(String sql) {
+		String[] sqls = sql.split("\\n");
+		for (String s: sqls) {
+			if (verific(s)) {
+				return s;
+			}
+		}
+		return sql;
+	}
 }
