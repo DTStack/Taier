@@ -15,16 +15,19 @@ public class LineageDataSourceServiceTest {
 
         LineageDataSourceService sourceService = new LineageDataSourceService();
 //        String sourceKey = sourceService.generateSourceKey("{\n" +
-//                " \"jdbcUrl\":\"jdbc:phoenix:172.16.8.107,172.16.8.108,172.16.8.109:2181/hbase1\"\n" +
+//                " \"jdbcUrl\":\"jdbc:phoenix:172.16.8.107,172.16.8.108,172.16.8.109:2181\"\n" +
 //                "}", DataSourceType.Phoenix.getVal());
-
+//        String sourceKey = sourceService.generateSourceKey("{\n" +
+//                " \"jdbcUrl\":\"jdbc:phoenix:172.16.8.109:2181\"\n" +
+//                "}", DataSourceType.Phoenix.getVal());
+//
 //        String sourceKey = sourceService.generateSourceKey("{\n" +
 //                " \"jdbcUrl\":\"172.16.10.104,172.16.10.224,172.16.10.252:2181\"\n" +
 //                "}", DataSourceType.HBASE.getVal());
+//        String sourceKey = sourceService.generateSourceKey("{\n" +
+//                " \"jdbcUrl\":\"172.16.10.252:2181\"\n" +
+//                "}", DataSourceType.HBASE.getVal());
 //        System.out.println(sourceKey);
-        String jdbcUrl = "172.16.10.235:2181,172.16.8.168:2181,172.16.8.75:2181";
-        String[] split = jdbcUrl.split(":");
-        System.out.println(split);
     }
 
 }

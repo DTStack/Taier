@@ -255,11 +255,13 @@ public class LineageDataSourceService {
         }
         String sourceKey = "" ;
         if(DataSourceType.getSourceType(sourceType).equals(DataSourceType.Phoenix)
-                || DataSourceType.getSourceType(sourceType).equals(DataSourceType.HBASE)){
+                || DataSourceType.getSourceType(sourceType).equals(DataSourceType.PHOENIX5) ||
+                DataSourceType.getSourceType(sourceType).equals(DataSourceType.HBASE)){
             // Hbase和phoenix的有可能是集群模式，需要特殊处理
-            if(DataSourceType.getSourceType(sourceType).equals(DataSourceType.Phoenix)){
+            if(DataSourceType.getSourceType(sourceType).equals(DataSourceType.Phoenix)
+                    || DataSourceType.getSourceType(sourceType).equals(DataSourceType.PHOENIX5) ){
                 jdbcUrl = jdbcUrl.substring(jdbcUrl.indexOf("phoenix") + 8,
-                        jdbcUrl.contains("/") ? jdbcUrl.indexOf("/") : jdbcUrl.length()-1);
+                        jdbcUrl.contains("/") ? jdbcUrl.indexOf("/") : jdbcUrl.length());
             }else{
                 //是Hbase数据源，可能有两种形式ip,ip,ip:port   ip:port,ip:port,ip:port
                 String[] split = jdbcUrl.split(ConfigConstant.COLON);
@@ -268,7 +270,7 @@ public class LineageDataSourceService {
                     for (String ipPort : ipPorts) {
                         sourceKey = sourceKey + ipPort.replace(ConfigConstant.COLON,"#")+ConfigConstant.SPLIT;
                     }
-                    return sourceKey.substring(0, sourceKey.length() - 1);
+                    sourceKey = sourceKey.substring(0, sourceKey.length() - 1);
                 }
             }
             String[] split = jdbcUrl.split(ConfigConstant.COLON);
