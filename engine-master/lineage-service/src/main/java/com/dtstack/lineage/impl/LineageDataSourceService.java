@@ -15,9 +15,10 @@ import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.TenantDao;
-import com.dtstack.lineage.bo.RdbmsDataSourceConfig;
 import com.dtstack.lineage.dao.LineageDataSourceDao;
 import com.dtstack.lineage.dao.LineageRealDataSourceDao;
+import com.dtstack.lineage.sourcekey.AbstractSourceKeyGenerator;
+import com.dtstack.lineage.sourcekey.SourceKeyGeneratorHelper;
 import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Sort;
@@ -184,11 +185,12 @@ public class LineageDataSourceService {
                 sourceKey = "custom_"+dataSourceDTO.getSourceName();
                 dataSourceDTO.setDataJson("-1");
             }
-            //根据sourceKey和appType查找数据源
+            //根据sourceKey和appType和sourceName查找数据源
             LineageDataSource dataSourceParam = new LineageDataSource();
             dataSourceParam.setSourceKey(sourceKey);
             dataSourceParam.setAppType(dataSourceDTO.getAppType());
             dataSourceParam.setDtUicTenantId(dataSourceDTO.getDtUicTenantId());
+            dataSourceParam.setSourceName(dataSourceDTO.getSourceName());
             dataSourceParam.setIsDeleted(0);
             List<LineageDataSource> dataSourceByParams = lineageDataSourceDao.getDataSourceByParams(dataSourceParam);
             if(CollectionUtils.isNotEmpty(dataSourceByParams)){
@@ -237,56 +239,16 @@ public class LineageDataSourceService {
         return dataSource;
     }
 
-    private String generateSourceKey(String dataJson,Integer sourceType) {
+    public String generateSourceKey(String dataJson,Integer sourceType) {
         if(null == dataJson){
             throw new RdosDefineException("dataJson不能为空");
         }
         JSONObject jsonObject = JSON.parseObject(dataJson);
-        RdbmsDataSourceConfig sourceConfig = new RdbmsDataSourceConfig();
         String jdbcUrl = jsonObject.getString("jdbcUrl");
-        if(jdbcUrl.contains("impala") && jdbcUrl.contains(ConfigConstant.SEMICOLON)){
-             jdbcUrl = jdbcUrl.substring(0, jdbcUrl.indexOf(ConfigConstant.SEMICOLON));
-        }
-        if(jdbcUrl.contains("principal")){
-            jdbcUrl = jdbcUrl.substring(0,jdbcUrl.indexOf("principal")-1);
-            if(jdbcUrl.endsWith(ConfigConstant.BACKSLASH)){
-                jdbcUrl = jdbcUrl.substring(0,jdbcUrl.length()-1);
-            }
-        }
-        String sourceKey = "" ;
-        if(DataSourceType.getSourceType(sourceType).equals(DataSourceType.Phoenix)
-                || DataSourceType.getSourceType(sourceType).equals(DataSourceType.PHOENIX5) ||
-                DataSourceType.getSourceType(sourceType).equals(DataSourceType.HBASE)){
-            // Hbase和phoenix的有可能是集群模式，需要特殊处理
-            if(DataSourceType.getSourceType(sourceType).equals(DataSourceType.Phoenix)
-                    || DataSourceType.getSourceType(sourceType).equals(DataSourceType.PHOENIX5) ){
-                jdbcUrl = jdbcUrl.substring(jdbcUrl.indexOf("phoenix") + 8,
-                        jdbcUrl.contains("/") ? jdbcUrl.indexOf("/") : jdbcUrl.length());
-            }else{
-                //是Hbase数据源，可能有两种形式ip,ip,ip:port   ip:port,ip:port,ip:port
-                String[] split = jdbcUrl.split(ConfigConstant.COLON);
-                if(split.length>2){
-                    String[] ipPorts = jdbcUrl.split(ConfigConstant.COMMA);
-                    for (String ipPort : ipPorts) {
-                        sourceKey = sourceKey + ipPort.replace(ConfigConstant.COLON,"#")+ConfigConstant.SPLIT;
-                    }
-                    sourceKey = sourceKey.substring(0, sourceKey.length() - 1);
-                }
-            }
-            String[] split = jdbcUrl.split(ConfigConstant.COLON);
-            String ipStr = split[0];
-            String port = split[1];
-            String[] ipList = ipStr.split(ConfigConstant.COMMA);
-            for (String ip : ipList) {
-                sourceKey = sourceKey + ip + "#" + port+ConfigConstant.SPLIT;
-            }
-            sourceKey = sourceKey.substring(0, sourceKey.length() - 1);
-        }else {
-            sourceConfig.setJdbc(jdbcUrl);
-             sourceKey = sourceConfig.generateRealSourceKey();
-        }
-        if(StringUtils.isBlank(sourceKey)){
-            throw new RdosDefineException("dataJson格式有误");
+        AbstractSourceKeyGenerator sourceKeyGenerator = SourceKeyGeneratorHelper.getSourceKeyGenerator(sourceType);
+        String sourceKey = sourceKeyGenerator.generateSourceKey(jdbcUrl, sourceType);
+        if(StringUtils.isBlank(sourceKey)) {
+            throw new RdosDefineException("jdbcUrl format is fault,jdbcUrl: " + jdbcUrl);
         }
         return sourceKey;
     }

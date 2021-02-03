@@ -25,9 +25,19 @@ public class LineageDataSourceServiceTest {
 //                " \"jdbcUrl\":\"172.16.10.104,172.16.10.224,172.16.10.252:2181\"\n" +
 //                "}", DataSourceType.HBASE.getVal());
 //        String sourceKey = sourceService.generateSourceKey("{\n" +
-//                " \"jdbcUrl\":\"172.16.10.252:2181\"\n" +
+//                " \"jdbcUrl\":\"172.16.100.175:2181,172.16.101.196:2181,172.16.101.227:2181\"\n" +
 //                "}", DataSourceType.HBASE.getVal());
-//        System.out.println(sourceKey);
+//        String sourceKey = sourceService.generateSourceKey("{\n" +
+//                " \"jdbcUrl\":\"172.16.100.175,172.16.101.196,172.16.101.227:2181\"\n" +
+//                "}", DataSourceType.HBASE.getVal());
+//        String sourceKey = sourceService.generateSourceKey("{\n" +
+//        " \"jdbcUrl\":\"jdbc:impala://172.16.8.83:21050/dtstack;AuthMech=3\"\n" +
+//        "}", DataSourceType.IMPALA.getVal());
+
+        String sourceKey = sourceService.generateSourceKey("{\n" +
+                " \"jdbcUrl\":\"jdbc:hive2://krbt3:10000/default;principal=hdfs/krbt3@DTSTACK.COM\"\n" +
+                "}", DataSourceType.HIVE.getVal());
+        System.out.println(sourceKey);
     }
 
 }
