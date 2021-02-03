@@ -214,9 +214,9 @@ public class FlinkClientTest {
 
 		PackagedProgram packagedProgram = PowerMockito.mock(PackagedProgram.class);
 		PowerMockito.mockStatic(FlinkUtil.class);
-		when(FlinkUtil.buildProgram(any(String.class), any(String.class), any(List.class), any(EJobType.class),
-				any(), any(String[].class), any(SavepointRestoreSettings.class), any(FilesystemManager.class)))
-				.thenReturn(packagedProgram);
+//		when(FlinkUtil.buildProgram(any(String.class), any(String.class), any(List.class), any(EJobType.class),
+//				any(), any(String[].class), any(SavepointRestoreSettings.class), any(FilesystemManager.class)))
+//				.thenReturn(packagedProgram);
 
 		MemberModifier.field(FlinkClient.class, "tmpFileDirPath").set(flinkClient, "./tmp180");
 		when(flinkClusterClientManager.getClusterClient(any())).thenReturn(clusterClient);
@@ -270,8 +270,8 @@ public class FlinkClientTest {
 		String jsonString = "{\"archive\":[{\"path\":\"/jobs/exceptions\",\"json\":\"{}\"}]}";
 		JsonParser jsonParser = new JsonParser();
 		JsonObject jsonObject = (JsonObject) jsonParser.parse(jsonString);
-		when(FileUtil.readJsonFromHdfs(any(String.class), any(org.apache.hadoop.conf.Configuration.class)))
-				.thenReturn(jsonObject);
+//		when(FileUtil.readJsonFromHdfs(any(String.class), any(org.apache.hadoop.conf.Configuration.class)))
+//				.thenReturn(jsonObject);
 
 		when(PoolHttpClient.get(any())).thenReturn(null);
 
