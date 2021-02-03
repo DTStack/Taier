@@ -75,6 +75,9 @@ public class AccountService {
     @Autowired
     private WorkerOperator workerOperator;
 
+    @Autowired
+    private DtUicUserConnect dtUicUserConnect;
+
     /**
      * 绑定数据库账号 到对应数栈账号下的集群
      */
@@ -414,7 +417,7 @@ public class AccountService {
             throw new RdosDefineException("请选择对应租户");
         }
         //获取uic下该租户所有用户
-        List<Map<String, Object>> uicUsers = DtUicUserConnect.getAllUicUsers(environmentContext.getDtUicUrl(), "RDOS", dtuicTenantId, dtToken);
+        List<Map<String, Object>> uicUsers = dtUicUserConnect.getAllUicUsers(environmentContext.getDtUicUrl(), "RDOS", dtuicTenantId, dtToken);
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtuicTenantId);
         if ( null == tenantId ) {
             throw new RdosDefineException("请先绑定租户到集群");

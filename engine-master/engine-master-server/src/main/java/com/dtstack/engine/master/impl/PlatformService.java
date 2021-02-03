@@ -28,8 +28,11 @@ public class PlatformService {
     @Autowired
     private TenantDao tenantDao;
 
+    @Autowired
+    private DtUicUserConnect dtUicUserConnect;
+
     private void registerEvent(PlatformEventType eventType, boolean active) {
-        DtUicUserConnect.registerEvent(environmentContext.getDtUicUrl(), eventType, "/node/platform/callBack", active);
+        dtUicUserConnect.registerEvent(environmentContext.getDtUicUrl(), eventType, "/node/platform/callBack", active);
     }
 
     private static final Logger logger = LoggerFactory.getLogger(PlatformService.class);
