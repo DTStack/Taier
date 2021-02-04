@@ -514,7 +514,7 @@ public class ComponentServiceTest extends AbstractTest {
         resource.setFileName("kerberos.zip");
         List<Resource> resourceList = Collections.singletonList(resource);
         String kerberos = componentService.uploadKerberos(resourceList, defaultCluster.getId(), 10);
-
+        Assert.assertNotNull(kerberos);
     }
 
 
