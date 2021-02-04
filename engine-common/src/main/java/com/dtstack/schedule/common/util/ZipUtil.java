@@ -163,14 +163,15 @@ public class ZipUtil {
                     }
                 }
             } else {
-                InputStream _in = new FileInputStream(srcFile);
-                zipOut.putNextEntry(new org.apache.tools.zip.ZipEntry(path + srcFile.getName()));
-                int len = 0;
-                while ((len = _in.read(_byte)) > 0) {
-                    zipOut.write(_byte, 0, len);
+                try (InputStream _in = new FileInputStream(srcFile)) {
+                    zipOut.putNextEntry(new org.apache.tools.zip.ZipEntry(path + srcFile.getName()));
+                    int len = 0;
+                    while ((len = _in.read(_byte)) > 0) {
+                        zipOut.write(_byte, 0, len);
+                    }
+                } finally {
+                    zipOut.closeEntry();
                 }
-                _in.close();
-                zipOut.closeEntry();
             }
         }
     }

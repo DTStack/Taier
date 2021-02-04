@@ -289,6 +289,7 @@ public class JobCheckpointDealer implements InitializingBean {
         if (MapUtils.isEmpty(pluginInfoMap)) {
             return 1;
         }
+
         return Integer.parseInt(pluginInfoMap.getOrDefault(CHECKPOINT_RETAINED_KEY, 1).toString());
     }
 

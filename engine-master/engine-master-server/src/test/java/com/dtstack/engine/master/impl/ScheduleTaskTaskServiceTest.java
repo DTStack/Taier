@@ -96,15 +96,19 @@ public class ScheduleTaskTaskServiceTest extends AbstractTest {
         Assert.assertNotNull(scheduleTaskVO);
 
         //查询子节点
-        scheduleTaskVO = scheduleTaskTaskShadeService.displayOffSpring(499L, 3L, 1, 2, DisplayDirect.CHILD.getType());
+        scheduleTaskVO = scheduleTaskTaskShadeService.displayOffSpring(499L, 3L, 1, DisplayDirect.CHILD.getType(),1);
         Assert.assertNotNull(scheduleTaskVO);
 
         //查询工作流
-        scheduleTaskVO = scheduleTaskTaskShadeService.displayOffSpring(471L, 3L, 1, 2, DisplayDirect.CHILD.getType());
+        scheduleTaskVO = scheduleTaskTaskShadeService.displayOffSpring(471L, 3L, 1, DisplayDirect.CHILD.getType(),1);
         Assert.assertNotNull(scheduleTaskVO);
 
         //查询不存在的
-        Assert.assertNull(scheduleTaskTaskShadeService.getAllFlowSubTasks(-12L,1));
+        try {
+            scheduleTaskTaskShadeService.getAllFlowSubTasks(-12L,1);
+        } catch (Exception e) {
+            Assert.assertNotNull(e);
+        }
 
         ScheduleTaskVO allFlowSubTasks = scheduleTaskTaskShadeService.getAllFlowSubTasks(471L, 1);
         Assert.assertNotNull(allFlowSubTasks);

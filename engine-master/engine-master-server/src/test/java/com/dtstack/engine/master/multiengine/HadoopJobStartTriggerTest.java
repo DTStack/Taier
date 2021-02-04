@@ -3,7 +3,6 @@ package com.dtstack.engine.master.multiengine;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.enums.ScheduleEngineType;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -12,6 +11,7 @@ import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.multiengine.factory.MultiEngineFactory;
 import com.dtstack.engine.master.utils.Template;
@@ -52,15 +52,19 @@ public class HadoopJobStartTriggerTest extends AbstractTest {
     @MockBean
     private WorkerOperator workerOperator;
 
+    @MockBean
+    private ClusterService clusterService;
+
     @Autowired
     private MultiEngineFactory multiEngineFactory;
 
     @Before
     public void init() {
+        when(clusterService.pluginInfoJSON(any(),any(),any(),any())).thenReturn(new JSONObject());
         when(componentService.getPluginInfoWithComponentType(anyLong(), any())).thenReturn(new JSONObject());
         when(componentService.formatHadoopVersion(any(), any())).thenReturn("yarn2-hdfs2-hadoop");
         try {
-            when(workerOperator.uploadStringToHdfs(anyString(), anyString(), anyString(), anyString())).thenReturn("hdfs://ns1/dtInsight/test.sh");
+            when(workerOperator.uploadStringToHdfs(any(), any(), any(), any())).thenReturn("hdfs://ns1/dtInsight/test.sh");
             when(workerOperator.executeQuery(anyString(), anyString(), anyString(), anyString())).thenReturn(new ArrayList<>());
             String data ="[{\n" +
                     "            \"componentTypeCode\": 0,\n" +
@@ -228,51 +232,6 @@ public class HadoopJobStartTriggerTest extends AbstractTest {
         scheduleJobDao.insert(lastSuccessJob);
         scheduleJobDao.updateJobSubmitSuccess(lastSuccessJob.getJobId(),lastSuccessJob.getEngineJobId(),lastSuccessJob.getApplicationId(),"","");
         scheduleJobDao.updateStatusWithExecTime(lastSuccessJob);
-        return sqlTaskShade;
-    }
-
-
-    @Test
-    @Rollback
-    public void testKylinHadoopJobTrigger() {
-        try {
-            ScheduleTaskShade sqlTaskShade = Template.getScheduleTaskShadeTemplate();
-            ScheduleJob job = Template.getScheduleJobTemplate();
-            initKylinData(sqlTaskShade, job);
-            JSONObject jsonObject = JSONObject.parseObject(sqlTaskShade.getExtraInfo());
-            JSONObject info = jsonObject.getJSONObject("info");
-            JSONObject exeArgs = new JSONObject();
-            exeArgs.put("noPartition",false);
-            exeArgs.put("isUseSystemVar",false);
-            exeArgs.put("startTime","2020-12-21 00:00:00");
-            exeArgs.put("endTime","2020-12-21 00:00:00");
-            sqlTaskShade.setExeArgs(exeArgs.toJSONString());
-            Map<String, Object> actionParam = PublicUtil.strToMap(info.toJSONString());
-            JobStartTriggerBase kylinJobStartTrigger = multiEngineFactory.getJobTriggerService(MultiEngineType.KYLIN.getType());
-            kylinJobStartTrigger.readyForTaskStartTrigger(actionParam, sqlTaskShade, job);
-        } catch (Exception e) {
-            Assert.isNull(e);
-        }
-    }
-
-    private ScheduleTaskShade initKylinData(ScheduleTaskShade sqlTaskShade, ScheduleJob job) {
-        sqlTaskShade.setAppType(AppType.RDOS.getType());
-        sqlTaskShade.setEngineType(ScheduleEngineType.Kylin.getVal());
-        sqlTaskShade.setTaskType(EScheduleJobType.KYLIN_CUBE.getType());
-        sqlTaskShade.setComputeType(1);
-        sqlTaskShade.setTaskId(1561L);
-        sqlTaskShade.setName("testKy");
-        sqlTaskShade.setExtraInfo("{\"info\":\"{\\\"isFailRetry\\\":true,\\\"taskParamsToReplace\\\":\\\"[]\\\",\\\"sqlText\\\":\\\"\\\",\\\"computeType\\\":1,\\\"pluginInfo\\\":{\\\"password\\\":\\\"KYLIN\\\",\\\"typeName\\\":\\\"kylin\\\",\\\"hostPort\\\":\\\"http://172.16.100.242:7070\\\",\\\"connectParams\\\":null,\\\"cubeName\\\":\\\"T_C0421_1_1\\\",\\\"username\\\":\\\"ADMIN\\\"},\\\"engineType\\\":\\\"kylin\\\",\\\"taskParams\\\":\\\"\\\",\\\"maxRetryNum\\\":3,\\\"taskType\\\":4,\\\"ldapPassword\\\":\\\"admin123\\\",\\\"multiEngineType\\\":3,\\\"name\\\":\\\"regress_wf_kylin_copy_1\\\",\\\"tenantId\\\":1001,\\\"ldapUserName\\\":\\\"hxb\\\",\\\"taskId\\\":319}\"}");
-        scheduleTaskShadeDao.insert(sqlTaskShade);
-        scheduleTaskShadeDao.updateTaskExtInfo(sqlTaskShade.getTaskId(), sqlTaskShade.getAppType(), sqlTaskShade.getExtraInfo());
-
-        job.setJobId("3073479a");
-        job.setJobKey("cronTrigger_195_20200521160000");
-        job.setJobName("cronJob_regress_wf_kylin_copy_1_20200523160000");
-        job.setTaskId(sqlTaskShade.getTaskId());
-        job.setTaskType(sqlTaskShade.getTaskType());
-        job.setComputeType(1);
-        scheduleJobDao.insert(job);
         return sqlTaskShade;
     }
 }

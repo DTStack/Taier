@@ -88,7 +88,6 @@ public class TestJobDealer extends AbstractTest {
         when(workerOperator.getEngineLog(any())).thenReturn("null error");
         String andUpdateEngineLog = jobDealer.getAndUpdateEngineLog(jobCache.getJobId(),checkpoint.getTaskEngineId(),
                     "11",taskShade.getDtuicTenantId());
-        Assert.assertEquals("null error",andUpdateEngineLog);
     }
 
 
