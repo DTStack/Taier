@@ -128,7 +128,7 @@ public class LineageDataSourceService {
             String jdbcUrl = jsonObject.getString(ConfigConstant.JDBCURL);
             String userName = jsonObject.getString(ConfigConstant.USERNAME);
             String passWord = jsonObject.getString(ConfigConstant.PASSWORD);
-            if(null == jdbcUrl ){
+            if(StringUtils.isBlank(jdbcUrl) ){
                 throw new RdosDefineException("数据源配置格式不对或缺少关键参数");
             }
             if(!DataSourceType.noNeedUserNamePasswordDataSources.contains(DataSourceType.getSourceType(sourceType))

@@ -12,16 +12,19 @@ import com.dtstack.schedule.common.enums.DataSourceType;
  */
 public class ClusterSourceKeyGenerator extends AbstractSourceKeyGenerator{
 
+    public static final String PHOENIX = "phoenix";
+
     @Override
     public String generateSourceKey(String jdbcUrl,Integer sourceType) {
 
         StringBuilder sourceKey = null;
+        jdbcUrl = jdbcUrl.trim();
         try {
             sourceKey = new StringBuilder();
             // Hbase和phoenix的有可能是集群模式，需要特殊处理
             if(DataSourceType.getSourceType(sourceType).equals(DataSourceType.Phoenix)
                     || DataSourceType.getSourceType(sourceType).equals(DataSourceType.PHOENIX5) ){
-                jdbcUrl = jdbcUrl.substring(jdbcUrl.indexOf("phoenix") + 8,
+                jdbcUrl = jdbcUrl.substring(jdbcUrl.indexOf(PHOENIX) + PHOENIX.length()+1,
                         jdbcUrl.contains("/") ? jdbcUrl.indexOf("/") : jdbcUrl.length());
             }else{
                 //是Hbase数据源，可能有两种形式ip,ip,ip:port   ip:port,ip:port,ip:port
