@@ -1,5 +1,8 @@
 package com.dtstack.engine.common.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -14,7 +17,7 @@ import java.security.SecureRandom;
  */
 public class AESUtil {
     private final static int BYTE_PARSE_HEX_BASE = 0xFF;
-
+    private final static Logger LOGGER = LoggerFactory.getLogger(AESUtil.class);
     private final static char[] ENCRYPT_AES_KEYS = {0xfe, 0xee, 0xe3, 0x34, 0x2f, 0x9f, 0xe2, 0xbe, 0xc1, 0xd4, 0xdf,
             0xc3, 0xa0, 0x78, 0x89, 0x12};
 
@@ -113,7 +116,7 @@ public class AESUtil {
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            LOGGER.error("error: ",e);
             throw e;
         }
     }
