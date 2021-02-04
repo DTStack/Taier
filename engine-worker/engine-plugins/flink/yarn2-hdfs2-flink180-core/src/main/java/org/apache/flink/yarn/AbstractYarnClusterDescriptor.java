@@ -22,6 +22,7 @@ import avro.shaded.com.google.common.collect.Sets;
 import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
@@ -560,7 +561,8 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
     }
 
     private JobGraph getJobGraph(String appId,ClusterSpecification clusterSpecification) throws Exception{
-        String url = getUrlFormat(clusterSpecification.getYarnConfiguration()) + "/" + appId;
+        String url = getMonitorUrl(clusterSpecification.getYarnConfiguration(),appId);
+        LOG.info("AppId is {}, MonitorUrl is {}", appId, url);
         PackagedProgram program = buildProgram(url, clusterSpecification);
         clusterSpecification.setProgram(program);
         JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, this.flinkConfiguration, clusterSpecification.getParallelism());
@@ -629,50 +631,41 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         return program;
     }
 
-    private String getUrlFormat(YarnConfiguration yarnConf){
-        String url = "";
-        try{
-            Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
-            rmClientField.setAccessible(true);
-            Object rmClient = rmClientField.get(yarnClient);
+    private String getMonitorUrl(YarnConfiguration yarnConf, String appId) {
+        String url = null;
+        // ha key
+        String rmHAIdsKey = "yarn.resourcemanager.ha.rm-ids";
+        // not ha key
+        String rmIdKey = "yarn.resourcemanager.webapp.address";
 
-            Field hField = rmClient.getClass().getSuperclass().getDeclaredField("h");
-            hField.setAccessible(true);
-            //获取指定对象中此字段的值
-            Object h = hField.get(rmClient);
-            Object currentProxy = null;
+        String rmValue;
+        String rms = yarnConf.get(rmHAIdsKey);
 
-            try {
-                Field currentProxyField = h.getClass().getDeclaredField("currentProxy");
-                currentProxyField.setAccessible(true);
-                currentProxy = currentProxyField.get(h);
-            }catch (Exception e){
-                //兼容Hadoop 2.7.3.2.6.4.91-3
-                LOG.error("get currentProxy error:", e);
-                Field proxyDescriptorField = h.getClass().getDeclaredField("proxyDescriptor");
-                proxyDescriptorField.setAccessible(true);
-                Object proxyDescriptor = proxyDescriptorField.get(h);
-                Field currentProxyField = proxyDescriptor.getClass().getDeclaredField("proxyInfo");
-                currentProxyField.setAccessible(true);
-                currentProxy = currentProxyField.get(proxyDescriptor);
+        // ha mode
+        if (rms != null) {
+            for (String rm : Arrays.asList(rms.split(","))) {
+                rmValue = yarnConf.get(String.format("%s.%s",rmIdKey, rm));
+
+                if (rmValue == null) {
+                    continue;
+                }
+                String requestUrl = String.format("http://%s/proxy/%s", rmValue , appId);
+                try {
+                    PoolHttpClient.get(requestUrl, null, 1);
+                } catch (Exception e) {
+                    LOG.warn(String.format("RequestUrl [%s] can not be accessed.", requestUrl), e);
+                    continue;
+                }
+                url = requestUrl;
+                break;
             }
-
-            Field proxyInfoField = currentProxy.getClass().getDeclaredField("proxyInfo");
-            proxyInfoField.setAccessible(true);
-            String proxyInfoKey = (String) proxyInfoField.get(currentProxy);
-
-            String key = "yarn.resourcemanager.webapp.address." + proxyInfoKey;
-            String addr = yarnConf.get(key);
-
-            if(addr == null) {
-                addr = yarnConf.get("yarn.resourcemanager.webapp.address");
-            }
-
-            return String.format("http://%s/proxy",addr);
-        }catch (Exception e){
-            LOG.error("get monitor error:", e);
         }
 
+        // standalone
+        if(url == null) {
+            rmValue = yarnConf.get(rmIdKey);
+            url = String.format("http://%s/proxy/%s", rmValue, appId);
+        }
         return url;
     }
 
