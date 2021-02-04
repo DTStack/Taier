@@ -229,6 +229,7 @@ public class Client {
 
             appMasterEnv.put("CLASSPATH", classPathEnv.toString());
             appMasterEnv.put("HADOOP_HOME", conf.get(DtYarnConfiguration.DT_HADOOP_HOME_DIR));
+            appMasterEnv.put(DtYarnConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.username"));
             appMasterEnv.put(DtYarnConstants.Environment.OUTPUTS.toString(), clientArguments.outputs.toString());
             appMasterEnv.put(DtYarnConstants.Environment.INPUTS.toString(), clientArguments.inputs.toString());
             appMasterEnv.put(DtYarnConstants.Environment.APP_TYPE.toString(), clientArguments.appType.name());
