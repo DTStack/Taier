@@ -96,8 +96,8 @@ public class DAGScheduleXSDKTest {
     }
 
     private void comparisonMethod(Method controllerMethod, List<Method> serviceMethod,String name) {
-//        Class<?> controllerReturnType = controllerMethod.getReturnType();
-//        Class<?> serviceReturnType = serviceMethod.getReturnType();
+//      Class<?> controllerReturnType = controllerMethod.getReturnType();
+//      Class<?> serviceReturnType = serviceMethod.getReturnType();
         String controllerMethodName = controllerMethod.getName();
 //        if (!controllerReturnType.equals(serviceReturnType)) {
 //            System.out.println(name+":  方法"+controllerMethodName+"返回值不一致");
