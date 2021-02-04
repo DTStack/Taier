@@ -484,22 +484,18 @@ public class ComponentServiceTest extends AbstractTest {
     @Rollback
     public void testParseKerberos() {
         List<Resource> resources = getResources();
-
-        try {
-            List<String> list = componentService.parseKerberos(resources);
-        } catch (Exception e) {
-            Assert.assertEquals("Hadoop-Kerberos文件解压错误",e.getMessage());
-        }
+        List<String> list = componentService.parseKerberos(resources);
+        Assert.assertNotNull(list);
     }
 
     private List<Resource> getResources() {
-        File file1 = new File(USER_DIR_UNZIP + File.separator+".keytab");
-        File file2 = new File("USER_DIR_UNZIP + File.separator"+"b.txt");
+        File file1 = new File(USER_DIR_UNZIP + File.separator+"hive-cdh03.keytab");
+        File file2 = new File(USER_DIR_UNZIP + File.separator+"krb5.conf");
         List<File> files = Lists.newArrayList(file1, file2);
         ZipUtil.zipFile(USER_DIR_UNZIP + File.separator+"kerberos.zip",files);
         List<Resource> resources = Lists.newArrayList();
         Resource resource = new Resource();
-        resource.setFileName("kerberos.zip");
+        resource.setFileName("kerberos");
         resource.setKey("abcdefg");
         resource.setSize(20);
         resource.setUploadedFileName(USER_DIR_UNZIP + File.separator+"kerberos.zip");

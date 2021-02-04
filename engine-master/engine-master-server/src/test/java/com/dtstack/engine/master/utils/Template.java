@@ -152,7 +152,7 @@ public class Template {
     public static ScheduleTaskShade getScheduleTaskShadeTemplate(){
         ScheduleTaskShade scheduleTaskShade = new ScheduleTaskShade();
         scheduleTaskShade.setTaskId(0L);
-        scheduleTaskShade.setExtraInfo("test");
+        scheduleTaskShade.setExtraInfo("{}");
         scheduleTaskShade.setTenantId(ValueUtils.getChangedLong());
         scheduleTaskShade.setProjectId(ValueUtils.getChangedLong());
         scheduleTaskShade.setNodePid(ValueUtils.getChangedLong());

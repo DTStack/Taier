@@ -43,10 +43,11 @@ public class TestJobCheckpointDealer extends AbstractTest {
     private JobCheckpointDealer jobCheckpointDealer;
 
     @Autowired
-    private EngineJobCheckpointDao engineJobCheckpointDao;
+    private EngineJobCacheDao engineJobCacheDao;
 
     @Autowired
-    private EngineJobCacheDao engineJobCacheDao;
+    private EngineJobCheckpointDao engineJobCheckpointDao;
+
 
     @Autowired
     private ScheduleJobDao scheduleJobDao;
@@ -90,6 +91,12 @@ public class TestJobCheckpointDealer extends AbstractTest {
 //        jobCheckpointDealer.addCheckpointTaskForQueue(computeType,engineJobCache.getJobId(),jobIdentifier,engineTypeName);
         //2
         EngineJobCache engineJobCache2 = DataCollection.getData().getEngineJobCache2();
+        EngineJobCache one = engineJobCacheDao.getOne(engineJobCache2.getJobId());
+        if(null == one){
+            engineJobCacheDao.insert(engineJobCache2.getJobId(),engineJobCache2.getEngineType(),engineJobCache2.getComputeType(),
+                    engineJobCache2.getStage(),engineJobCache2.getJobInfo(),engineJobCache2.getNodeAddress(),
+                    engineJobCache2.getJobName(),engineJobCache2.getJobPriority(),engineJobCache2.getJobResource());
+        }
         jobCheckpointDealer.addCheckpointTaskForQueue(computeType,engineJobCache2.getJobId(),jobIdentifier,engineTypeName);
     }
 

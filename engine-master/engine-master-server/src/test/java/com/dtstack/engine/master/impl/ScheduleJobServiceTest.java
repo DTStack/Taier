@@ -263,7 +263,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
             afterJob.setCycTime(DateTime.now().toString("yyyy-mm-dd HH:mm:ss"));
             scheduleJobDao.insert(afterJob);
             List<SchedulePeriodInfoVO> schedulePeriodInfoVOS = scheduleJobService.displayPeriods(true, jobId, job.getProjectId(), 10);
-            Assert.assertTrue(schedulePeriodInfoVOS.size() == 1 && schedulePeriodInfoVOS.get(0).getTaskId().equals(job.getTaskId()));
+            Assert.assertTrue(schedulePeriodInfoVOS.size() > 1 && schedulePeriodInfoVOS.get(0).getTaskId().equals(job.getTaskId()));
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -40,7 +40,7 @@ public class TestSessionCache extends AbstractTest {
 
     @Test
     public void testGet(){
-
+        sessionCache.set("abc","efg",1L);
         Object o = sessionCache.get("abc", "efg", Long.class);
         Assert.assertNotNull(o);
 
