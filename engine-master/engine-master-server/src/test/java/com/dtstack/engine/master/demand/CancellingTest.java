@@ -196,9 +196,9 @@ public class CancellingTest extends AbstractTest implements ApplicationContextAw
                     Constructor<?>[] constructors = jobElement.getConstructors();
                     Object jobElementObj = null;
                     for (Constructor<?> declaredConstructor : constructors) {
-                        if (declaredConstructor.getParameterCount() == 3) {
+                        if (declaredConstructor.getParameterCount() == 4) {
                             ReflectionUtils.makeAccessible(declaredConstructor);
-                            jobElementObj = declaredConstructor.newInstance(jobStopDealer,scheduleJobTemplate.getJobId(), -1L);
+                            jobElementObj = declaredConstructor.newInstance(jobStopDealer,scheduleJobTemplate.getJobId(), -1L,false);
                             break;
                         }
                     }

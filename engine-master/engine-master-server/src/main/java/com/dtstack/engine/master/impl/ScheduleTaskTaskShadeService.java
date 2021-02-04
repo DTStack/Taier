@@ -5,7 +5,6 @@ import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.common.enums.DisplayDirect;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleTaskTaskShadeDao;
@@ -86,14 +85,9 @@ public class ScheduleTaskTaskShadeService {
                                                                          Long projectId,
                                                                          Integer level,
                                                                          Integer directType, Integer appType) {
-        ScheduleTaskShade task = null;
-        try {
-            task = taskShadeService.getBatchTaskById(taskId,appType);
-        } catch (RdosDefineException rdosDefineException) {
-            if (rdosDefineException.getErrorCode().equals(ErrorCode.CAN_NOT_FIND_TASK)) {
-                return null;
-            }
-            throw rdosDefineException;
+        ScheduleTaskShade task = taskShadeService.getBatchTaskById(taskId,appType);
+        if(null == task){
+            return null;
         }
         if (level == null || level < 1) {
             level = 1;
