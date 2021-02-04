@@ -13,6 +13,7 @@ import com.dtstack.engine.api.param.ClusterAlertPageParam;
 import com.dtstack.engine.api.param.ClusterAlertParam;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
 import com.dtstack.engine.common.enums.AlertGateTypeEnum;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.AlertGateDao;
 import com.dtstack.engine.dao.ClusterAlertDao;
 import com.github.pagehelper.Page;
@@ -191,6 +192,10 @@ public class AlertGateFacade {
             } else if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(po.getAlertGateType())) {
                 aimPos.add(po);
             }
+        }
+
+        if (CollectionUtils.isEmpty(aimPos)) {
+            throw new RdosDefineException("请先配置console控制台告警通道！");
         }
 
         return aimPos;

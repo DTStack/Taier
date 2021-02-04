@@ -26,6 +26,7 @@
         <module>tidb</module>
         <module>greenplum</module>
         <module>presto</module>
+        <module>kingbase</module>
     </modules>
 
     <dependencies>

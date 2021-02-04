@@ -66,6 +66,21 @@ public class SftpFileManage implements IFileManage {
         return sftpMap.computeIfAbsent(sftpConfig, k-> new SftpFileManage(sftpConfig));
     }
 
+    public SftpFileManage retrieveSftpManager(SftpConfig sftpConfig){
+        return sftpMap.computeIfAbsent(sftpConfig, k-> new SftpFileManage(sftpConfig));
+    }
+
+    private static class SingletonHolder {
+        private static SftpFileManage singleton = new SftpFileManage();
+    }
+
+    private SftpFileManage() {
+    }
+
+    public static SftpFileManage getInstance() {
+        return SingletonHolder.singleton;
+    }
+
     private SftpFileManage(SftpConfig sftpConfig) {
         this.sftpConfig = sftpConfig;
         checkConfig(sftpConfig);

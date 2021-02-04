@@ -46,36 +46,6 @@ public class FileUtil {
         }
     }
 
-    public static void downloadKafkaKeyTab(JobClient jobClient, FilesystemManager filesystemManager) {
-        Properties confProperties = jobClient.getConfProperties();
-        String sftpKeytab = confProperties.getProperty(ConfigConstrant.KAFKA_SFTP_KEYTAB);
-
-        if (StringUtils.isBlank(sftpKeytab)) {
-            logger.info("flink task submission has enabled keberos authentication, but kafka has not !!!");
-            return;
-        }
-
-        String taskKeytabDirPath = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + ConfigConstrant.SP + jobClient.getTaskId();
-        File taskKeytabDir = new File(taskKeytabDirPath);
-        if (!taskKeytabDir.exists()) {
-            taskKeytabDir.mkdirs();
-        }
-
-        File kafkaKeytabFile = new File(sftpKeytab);
-        String localKafkaKeytab = String.format("%s/%s", taskKeytabDirPath, kafkaKeytabFile.getName());
-        File downloadKafkaKeytabFile = filesystemManager.downloadFile(sftpKeytab, localKafkaKeytab);
-        logger.info("Download Kafka keytab file to :" + downloadKafkaKeytabFile.toPath());
-
-    }
-
-    public static JsonObject readJsonFromHdfs(String filePath, Configuration hadoopConf) throws URISyntaxException, IOException {
-        InputStream is = readStreamFromFile(filePath, hadoopConf);
-        JsonParser jsonParser = new JsonParser();
-        try (InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
-            return (JsonObject) jsonParser.parse(reader);
-        }
-    }
-
     public static InputStream readStreamFromFile(String filePath, Configuration hadoopConf) throws URISyntaxException, IOException {
         Pair<String, String> pair = parseHdfsUri(filePath);
         if(pair == null){

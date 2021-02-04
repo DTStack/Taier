@@ -19,8 +19,6 @@
         <module>yarn2-hdfs2-hadoop2-core</module>
         <module>yarn2-hdfs2-hadoop2</module>
         <module>yarn3-hdfs3-hadoop3</module>
-        <module>k8s-hdfs2-hadoop2-core</module>
-        <module>k8s-hdfs2-hadoop2</module>
     </modules>
 
     <build>

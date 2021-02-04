@@ -13,7 +13,6 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskV
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
@@ -110,10 +109,6 @@ public class ScheduleTaskShadeService {
         scheduleTaskTaskShadeService.clearDataByTaskId(taskId,appType);
     }
 
-    public List<ScheduleTaskShade> listTaskByType(Long projectId, Integer taskType, String taskName) {
-        return scheduleTaskShadeDao.listByType(projectId, taskType, taskName);
-    }
-
     /**
      * 获取所有需要需要生成调度的task 没有sqlText字段
      */
@@ -200,15 +195,14 @@ public class ScheduleTaskShadeService {
     public ScheduleTaskShade getByName( long projectId,
                                         String name,  Integer appType, Long flowId) {
         //如果appType没传那就默认为ide
-        if (null == appType ){
+        if (null == appType){
             appType = 1;
         }
         return scheduleTaskShadeDao.getByName(projectId, name,appType,flowId);
     }
 
-    public void updateTaskName( long id,  String taskName,Integer appType) {
-
-        scheduleTaskShadeDao.updateTaskName(id, taskName,appType);
+    public void updateTaskName(long taskId,  String taskName,Integer appType) {
+        scheduleTaskShadeDao.updateTaskName(taskId, taskName,appType);
     }
 
 
@@ -217,7 +211,6 @@ public class ScheduleTaskShadeService {
      *
      * @param jobKey
      * @return
-     * @see JobGraphBuilder#getSelfDependencyJobKeys(com.dtstack.task.domain.BatchJob, com.dtstack.task.server.parser.ScheduleCron, java.lang.String)
      */
     public String getTaskNameByJobKey(String jobKey,Integer appType) {
         String[] jobKeySplit = jobKey.split("_");
@@ -489,7 +482,7 @@ public class ScheduleTaskShadeService {
 
 
     public ScheduleTaskShade findTaskId( Long taskId, Integer isDeleted,  Integer appType) {
-        if(null == taskId ){
+        if(null == taskId){
             return null;
         }
         List<ScheduleTaskShade> batchTaskShades = scheduleTaskShadeDao.listByTaskIds(Lists.newArrayList(taskId), isDeleted,appType);
@@ -530,7 +523,7 @@ public class ScheduleTaskShadeService {
     public void info( Long taskId, Integer appType,String info) {
 
         JSONObject extInfo = JSONObject.parseObject(scheduleTaskShadeDao.getExtInfoByTaskId(taskId, appType));
-        if (null == extInfo ) {
+        if (null == extInfo) {
             extInfo = new JSONObject();
         }
         extInfo.put(TaskConstant.INFO, info);
@@ -545,7 +538,6 @@ public class ScheduleTaskShadeService {
 
 
     public List<Map<String, Object>> listByTaskIdsNotIn( List<Long> taskId,  Integer appType,  Long projectId) {
-        //todo 缺少对参数的校验
         return scheduleTaskShadeDao.listByTaskIdsNotIn(projectId, taskId);
     }
 
@@ -566,7 +558,7 @@ public class ScheduleTaskShadeService {
 
         TenantResource tenantResource = tenantResourceDao.selectByUicTenantIdAndTaskType(dtuicTenantId,taskType);
         List<String> exceedMessage = new ArrayList<>();
-        if(null == tenantResource ){
+        if(null == tenantResource){
             return exceedMessage;
         }
         try {
