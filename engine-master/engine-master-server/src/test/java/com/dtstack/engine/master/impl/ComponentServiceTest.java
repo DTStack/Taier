@@ -43,9 +43,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.dtstack.engine.common.constrant.ConfigConstant.USER_DIR_UNZIP;
 import static org.mockito.ArgumentMatchers.any;
@@ -512,11 +510,11 @@ public class ComponentServiceTest extends AbstractTest {
 
         Cluster defaultCluster = DataCollection.getData().getDefaultCluster();
         List<Resource> resources = getResources();
-        try {
-            String kerberos = componentService.uploadKerberos(resources, defaultCluster.getId(), 10);
-        } catch (Exception e) {
-            Assert.assertEquals("Hadoop-Kerberos文件解压错误",e.getMessage());
-        }
+        Resource resource = resources.get(0);
+        resource.setFileName("kerberos.zip");
+        List<Resource> resourceList = Collections.singletonList(resource);
+        String kerberos = componentService.uploadKerberos(resourceList, defaultCluster.getId(), 10);
+
     }
 
 

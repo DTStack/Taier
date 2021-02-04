@@ -46,15 +46,15 @@ public class ElasticsearchServiceTest extends AbstractTest {
 
     }
 
-    @Test(expected = RdosDefineException.class)
-    public void testSearchWithJobId() {
-        try {
-            String searchWithJobId = elasticsearchService.searchWithJobId("asdf", "asdfasd");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            Assert.assertNotNull(e);
-        }
-    }
+//    @Test(expected = RdosDefineException.class)
+//    public void testSearchWithJobId() {
+//        try {
+//            String searchWithJobId = elasticsearchService.searchWithJobId("asdf", "asdfasd");
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//            Assert.assertNotNull(e);
+//        }
+//    }
 
     @Test
     public void testParseContent() {

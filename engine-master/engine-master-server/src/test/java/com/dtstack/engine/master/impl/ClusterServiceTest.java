@@ -309,7 +309,7 @@ public class ClusterServiceTest extends AbstractTest {
         JSONObject infoJSON = clusterService.pluginInfoJSON(dtUicTenantId, "hadoop", null, null);
         Assert.assertNotNull(infoJSON);
         String sftpDir = clusterService.clusterSftpDir(dtUicTenantId, EComponentType.HDFS.getTypeCode());
-        Assert.assertEquals(sftpDir,"/data/sftp/" + AppType.CONSOLE + "_" + clusterVO.getClusterName() + File.separator + EComponentType.getByCode(EComponentType.HDFS.getTypeCode()).name());
+        Assert.assertEquals(sftpDir,"/data/sftp"+File.separator + AppType.CONSOLE + "_" + clusterVO.getClusterName() + File.separator + EComponentType.getByCode(EComponentType.HDFS.getTypeCode()).name());
 
     }
 
@@ -444,7 +444,7 @@ public class ClusterServiceTest extends AbstractTest {
 
     private DataSourceDTO getDataSourceDTO(Long tenantId) {
 
-        String dataJson = "{\"maxJobPoolSize\":\"\",\"password\":\"\",\"minJobPoolSize\":\"\"," +
+        String dataJson = "{\"maxJobPoolSize\":\"\",\"password\":\"123\",\"minJobPoolSize\":\"\"," +
                 "\"jdbcUrl\":\"jdbc:hive2://172.16.8.107:10000/default\"," +
                 "\"username\":\"admin\",\"typeName\":\"hive2.1.1-cdh6.1.1\"}";
 //        String kerberosConf = "{\n" +
@@ -460,7 +460,7 @@ public class ClusterServiceTest extends AbstractTest {
         dataSourceDTO.setSourceName("测试逻辑数据源1");
         dataSourceDTO.setDtUicTenantId(tenantId);
         dataSourceDTO.setKerberosConf(kerberosConf);
-        dataSourceDTO.setSourceType(0);
+        dataSourceDTO.setSourceType(27);
         return dataSourceDTO;
     }
 
