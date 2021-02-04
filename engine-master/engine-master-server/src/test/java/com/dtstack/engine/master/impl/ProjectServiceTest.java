@@ -3,8 +3,8 @@ package com.dtstack.engine.master.impl;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.utils.Template;
+import com.dtstack.engine.master.utils.ValueUtils;
 import com.dtstack.schedule.common.enums.EProjectScheduleStatus;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,6 +33,7 @@ public class ProjectServiceTest extends AbstractTest {
     @Rollback
     public void testUpdateProjectSchedule(){
         ScheduleTaskShade scheduleTaskShade =  Template.getScheduleTaskShadeTemplate();
+        scheduleTaskShade.setTaskId(ValueUtils.getChangedLong());
         scheduleTaskShadeDao.insert(scheduleTaskShade);
         Long projectId = scheduleTaskShade.getProjectId();
         projectService.updateSchedule(projectId,scheduleTaskShade.getAppType(), EProjectScheduleStatus.PAUSE.getStatus());
