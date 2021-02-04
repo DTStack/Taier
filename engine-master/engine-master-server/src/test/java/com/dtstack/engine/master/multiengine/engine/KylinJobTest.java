@@ -5,6 +5,7 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.enums.ScheduleEngineType;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.multiengine.engine.KylinJobStartTrigger;
 import com.dtstack.engine.master.utils.Template;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
