@@ -492,4 +492,13 @@ public class EnvironmentContext {
     public int getMaxDeepShow() {
         return Integer.parseInt(environment.getProperty("max.deep.show", "20"));
     }
+
+    /**
+     * 是否开启任务调度
+     *
+     * @return
+     */
+    public boolean openJobSchedule() {
+        return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
+    }
 }
