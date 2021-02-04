@@ -487,8 +487,9 @@ public class ComponentServiceTest extends AbstractTest {
     }
 
     private List<Resource> getResources() {
-        File file1 = new File(USER_DIR_UNZIP + File.separator+"hive-cdh03.keytab");
-        File file2 = new File(USER_DIR_UNZIP + File.separator+"krb5.conf");
+
+        File file1 = new File(this.getClass().getResource("/kerberos/krb5.conf").getFile());
+        File file2 = new File(this.getClass().getResource("/kerberos/hive-cdh03.keytab").getFile());
         List<File> files = Lists.newArrayList(file1, file2);
         ZipUtil.zipFile(USER_DIR_UNZIP + File.separator+"kerberos.zip",files);
         List<Resource> resources = Lists.newArrayList();
