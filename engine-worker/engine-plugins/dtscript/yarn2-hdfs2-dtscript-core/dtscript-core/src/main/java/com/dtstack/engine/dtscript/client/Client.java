@@ -129,7 +129,6 @@ public class Client {
                 conf.set(confArg, clientArguments.confs.getProperty(confArg));
             }
         }
-
         return conf;
     }
 
@@ -169,13 +168,11 @@ public class Client {
             localResources.put(DtYarnConstants.LEARNING_JOB_CONFIGURATION,
                     Utilities.createApplicationResource(getFileSystem(), jobConfPath, LocalResourceType.FILE));
 
-
             Path appMasterJar = Utilities.getRemotePath(conf, applicationId, DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH);
             LOG.info("Copying " + appJarSrc + " to remote path " + appMasterJar.toString());
             getFileSystem().copyFromLocalFile(false, true, appJarSrc, appMasterJar);
             localResources.put(DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH,
                     Utilities.createApplicationResource(getFileSystem(), appMasterJar, LocalResourceType.FILE));
-
 
             StringBuilder classPathEnv = new StringBuilder("${CLASSPATH}:./*");
 
@@ -238,7 +235,6 @@ public class Client {
             appMasterEnv.put(DtYarnConstants.Environment.APP_JAR_LOCATION.toString(), appMasterJar.toUri().toString());
             appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString(), jobConfPath.toString());
             appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_CONTAINER_MAX_MEMORY.toString(), String.valueOf(newAppResponse.getMaximumResourceCapability().getMemory()));
-
 
             LOG.info("Building application master launch command");
             List<String> appMasterArgs = new ArrayList<>(20);

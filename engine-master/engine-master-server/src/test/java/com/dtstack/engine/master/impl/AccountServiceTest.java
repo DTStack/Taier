@@ -13,7 +13,10 @@ import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.master.enums.AccountType;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
+import com.dtstack.engine.master.utils.Template;
+import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
@@ -79,6 +82,25 @@ public class AccountServiceTest extends AbstractTest {
 
 
     @Test
+    public void addLdap() throws Exception{
+        Tenant tenant = DataCollection.getData().getTenant();
+        User user = DataCollection.getData().getUser();
+
+        AccountVo firstVo = new AccountVo();
+        firstVo.setAccountType(AccountType.LDAP.getVal());
+        firstVo.setName("testLdap");
+        firstVo.setUsername("test1@dtstack.com");
+        firstVo.setBindUserId(user.getDtuicUserId());
+        firstVo.setBindTenantId(tenant.getDtUicTenantId());
+        firstVo.setUserId(user.getDtuicUserId());
+        firstVo.setPassword("");
+        firstVo.setEngineType(MultiEngineType.HADOOP.getType());
+        firstVo.setModifyUserName("admin@dtstack.com");
+        firstVo.setUserId(1L);
+        accountService.bindAccountList(Lists.newArrayList(firstVo));
+    }
+
+    @Test
     @Transactional
     @Rollback
     public void testAccountCluster() throws Exception {
@@ -89,7 +111,9 @@ public class AccountServiceTest extends AbstractTest {
         componentService.addOrUpdateComponent(dbCluster.getClusterId(), "{\"jdbcUrl\":\"jdbc:mysql://172.16.100.73:4000/\",\"maxJobPoolSize\":\"\",\"minJobPoolSize\":\"\",\"password\":\"\",\"username\":\"\"}",
                 null, "", "", "[]", EComponentType.TIDB_SQL.getTypeCode(),null,"","");
         //添加测试租户
-        Tenant tenant = DataCollection.getData().getTenant();
+        Tenant tenant = Template.getTenantTemplate();
+        tenant.setDtUicTenantId(-1112L);
+        tenantDao.insert(tenant);
         tenant = tenantDao.getByDtUicTenantId(tenant.getDtUicTenantId());
         Assert.assertNotNull(tenant);
         Assert.assertNotNull(tenant.getId());

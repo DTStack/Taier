@@ -4,9 +4,13 @@ import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.am.ApplicationContainerListener;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
 import com.dtstack.engine.dtscript.common.LocalRemotePath;
+import com.dtstack.engine.dtscript.common.SecurityUtil;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.ipc.RPC;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -30,7 +34,7 @@ import java.util.Map;
  * @create: 2020/11/26 11:24
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({DtContainer.class, DtYarnConfiguration.class, RPC.class, FileSystem.class})
+@PrepareForTest({DtContainer.class, DtYarnConfiguration.class,RPC.class, FileSystem.class})
 @PowerMockIgnore({"javax.net.ssl.*","org.apache.hadoop.security.UserGroupInformation.*"})
 public class DtContainerTest {
 
@@ -87,14 +91,22 @@ public class DtContainerTest {
         paths[0] = path;
         Mockito.when(protocol.getOutputLocation()).thenReturn(paths);
 
-//        FileSystem dtf = FileSystem.get(mockYarnConfiguration);
-//        FSDataOutputStream stream = Mockito.mock(FSDataOutputStream.class);
-//        PowerMockito.mockStatic(FileSystem.class);
-//        PowerMockito.when(FileSystem.create(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(stream);
-//        PowerMockito.when(FileSystem.get(Mockito.any())).thenReturn(dtf);
+
+        FSDataOutputStream stream = Mockito.mock(FSDataOutputStream.class);
+        LocalFileSystem fileSystem = PowerMockito.mock(LocalFileSystem.class);
+        PowerMockito.mockStatic(FileSystem.class);
+        PowerMockito.when(FileSystem.getLocal(Mockito.any(Configuration.class))).thenReturn(fileSystem);
+        PowerMockito.when(FileSystem.create(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(stream);
+
+
+//        PowerMockito.mockStatic(SecurityUtil.class);
+
 
         DtContainer.main(null);
     }
 
+    public void testUploadOutputFiles() throws Exception {
+
+    }
 
 }

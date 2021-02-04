@@ -237,4 +237,5 @@ public interface ScheduleJobDao {
     String getJobGraph(@Param("jobId") String jobId);
 
     ScheduleJob getLastScheduleJob(@Param("taskId") Long taskId,@Param("id") Long id);
+
 }

@@ -12,6 +12,7 @@ import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -762,7 +763,7 @@ public class ScheduleTaskShadeService {
         if (extInfo == null) {
             return null;
         }
-        
+
         return extInfo.getString(TaskConstant.INFO);
     }
 }
