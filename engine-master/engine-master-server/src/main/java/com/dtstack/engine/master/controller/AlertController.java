@@ -269,14 +269,16 @@ public class AlertController {
             result = customizeAlertParam;
         }
 
-        result.setSource(alertGateTestVO.getAlertGateSource());
-        result.setAlertTemplate(alertGateTestVO.getAlertTemplate());
-        AlertGatePO alertGatePO = new AlertGatePO();
-        alertGatePO.setAlertGateCode(parse.code());
-        alertGatePO.setFilePath(alertGateTestVO.getFilePath());
-        alertGatePO.setAlertGateJson(alertGateTestVO.getAlertGateJson());
-        result.setAlertGatePO(alertGatePO);
-
+        if (result != null) {
+            result.setSource(alertGateTestVO.getAlertGateSource());
+            result.setAlertTemplate(alertGateTestVO.getAlertTemplate());
+            AlertGatePO alertGatePO = new AlertGatePO();
+            alertGatePO.setAlertGateCode(parse.code());
+            alertGatePO.setFilePath(alertGateTestVO.getFilePath());
+            alertGatePO.setAlertGateJson(alertGateTestVO.getAlertGateJson());
+            result.setAlertGatePO(alertGatePO);
+        }
+        
         return result;
     }
 }
