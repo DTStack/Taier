@@ -29,10 +29,10 @@ import java.util.List;
 public class MvcConfig extends DelegatingWebMvcConfiguration {
 
 
-    @Value("${spring.servlet.multipart.max-file-size:10MB}")
+    @Value("${spring.servlet.multipart.max-file-size:30MB}")
     private String maxFileSize;
 
-    @Value("${spring.servlet.multipart.max-request-size:10MB}")
+    @Value("${spring.servlet.multipart.max-request-size:30MB}")
     private String maxRequestSize;
 
     private static final List<String> INTERCEPT_LIST;
