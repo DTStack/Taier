@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 @Service
 public class ConsoleService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConsoleService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleService.class);
 
     @Autowired
     private ScheduleJobDao scheduleJobDao;
@@ -99,13 +99,13 @@ public class ConsoleService {
 
     public Boolean finishJob(String jobId, Integer status) {
         if (!RdosTaskStatus.isStopped(status)) {
-            logger.warn("Job status：" + status + " is not stopped status");
+            LOGGER.warn("Job status：" + status + " is not stopped status");
             return false;
         }
         shardCache.updateLocalMemTaskStatus(jobId, status);
         engineJobCacheDao.delete(jobId);
         scheduleJobDao.updateJobStatus(jobId, status);
-        logger.info("jobId:{} update job status:{}, job is finished.", jobId, status);
+        LOGGER.info("jobId:{} update job status:{}, job is finished.", jobId, status);
         return true;
     }
 
@@ -141,7 +141,7 @@ public class ConsoleService {
             vo.setTheJobIdx(1);
             return vo;
         } catch (Exception e) {
-            logger.error("{}", e);
+            LOGGER.error("", e);
         }
         return null;
     }
@@ -151,7 +151,7 @@ public class ConsoleService {
             Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
             return engineJobCacheDao.listNames(jobName);
         } catch (Exception e) {
-            logger.error("{}", e);
+            LOGGER.error("", e);
         }
         return null;
     }
@@ -274,7 +274,7 @@ public class ConsoleService {
                         try {
                             tenant = tenantService.addTenant(scheduleJob.getDtuicTenantId(), dtToken);
                         } catch (Exception e) {
-                            logger.error(" get tenant error {}", scheduleJob.getDtuicTenantId(),e);
+                            LOGGER.error(" get tenant error {}", scheduleJob.getDtuicTenantId(),e);
                         }
                     }
                     this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant,pluginInfoCache);
@@ -283,7 +283,7 @@ public class ConsoleService {
 
             }
         } catch (Exception e) {
-            logger.error("{}", e);
+            LOGGER.error("", e);
         }
         PageQuery pageQuery = new PageQuery<>(currentPage, pageSize);
         PageResult result = new PageResult(data,count.intValue(),pageQuery);
@@ -351,7 +351,7 @@ public class ConsoleService {
                 return jobDealer.addGroupPriorityQueue(engineJobCache.getJobResource(), jobClient, false, false);
             }
         } catch (Exception e) {
-            logger.error("{}", e);
+            LOGGER.error("", e);
         }
         return false;
     }
@@ -360,7 +360,7 @@ public class ConsoleService {
         Preconditions.checkArgument(StringUtils.isNotBlank(jobId), "parameters of jobId is required");
         List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(Lists.newArrayList(jobId));
         if (alreadyExistJobIds.contains(jobId)) {
-            logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
+            LOGGER.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
             return;
         }
 
@@ -400,12 +400,12 @@ public class ConsoleService {
             if (EJobCacheStage.unSubmitted().contains(stage)) {
                 Integer deleted = engineJobCacheDao.deleteByJobIds(jobIdList);
                 Integer updated = scheduleJobDao.updateJobStatusByJobIds(jobIdList, RdosTaskStatus.CANCELED.getStatus());
-                logger.info("delete job size:{}, update job size:{}, deal jobIds:{}", deleted, updated, jobIdList);
+                LOGGER.info("delete job size:{}, update job size:{}, deal jobIds:{}", deleted, updated, jobIdList);
             } else {
                 List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIdList);
                 for (String jobId : jobIdList) {
                     if (alreadyExistJobIds.contains(jobId)) {
-                        logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
+                        LOGGER.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
                         continue;
                     }
 
@@ -442,14 +442,14 @@ public class ConsoleService {
                 if (EJobCacheStage.unSubmitted().contains(stage)) {
                     Integer deleted = engineJobCacheDao.deleteByJobIds(jobIds);
                     Integer updated = scheduleJobDao.updateJobStatusByJobIds(jobIds, RdosTaskStatus.CANCELED.getStatus());
-                    logger.info("delete job size:{}, update job size:{}, query job size:{}, jobIds:{}", deleted, updated, jobCaches.size(), jobIds);
+                    LOGGER.info("delete job size:{}, update job size:{}, query job size:{}, jobIds:{}", deleted, updated, jobCaches.size(), jobIds);
                 } else {
                     //已提交的任务需要发送请求杀死，走正常杀任务的逻辑
                     List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIds);
                     for (EngineJobCache jobCache : jobCaches) {
                         startId = jobCache.getId();
                         if (alreadyExistJobIds.contains(jobCache.getJobId())) {
-                            logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobCache.getJobId());
+                            LOGGER.info("jobId:{} ignore insert stop record, because is already exist in table.", jobCache.getJobId());
                             continue;
                         }
 
@@ -510,8 +510,8 @@ public class ConsoleService {
             ClusterResource clusterResource = workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
             return clusterResource;
         } catch (Exception e) {
-            logger.error(" ", e);
-            throw new RdosDefineException("flink资源获取异常");
+            LOGGER.error(" ", e);
+            throw new RdosDefineException("flink resource acquisition exception");
         }
     }
 
@@ -539,7 +539,7 @@ public class ConsoleService {
         }
 
         for (Component component : componentList) {
-            if (EComponentType.YARN.getTypeCode() == component.getComponentTypeCode()) {
+            if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
                 return component;
             }
         }

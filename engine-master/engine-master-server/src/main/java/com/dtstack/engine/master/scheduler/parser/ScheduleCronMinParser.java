@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class ScheduleCronMinParser extends ScheduleCron {
 
-    private static final Logger logger = LoggerFactory.getLogger(ScheduleCronMinParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleCronMinParser.class);
 
     private static final String cronFormat = "0 0/${gapMin} ${beginHour}-${endHour} * * ?";
 
@@ -104,7 +104,7 @@ public class ScheduleCronMinParser extends ScheduleCron {
     public int getLastTriggerMinutes(){
 
         if(gapNum < 1){
-            logger.error("err schedule parser of hour, gapNum:{} less then 1, cronStr:{}", gapNum, getCronStr());
+            LOGGER.error("err schedule parser of hour, gapNum:{} less then 1, cronStr:{}", gapNum, getCronStr());
             return beginHour * 60 + beginMin;
         }
 

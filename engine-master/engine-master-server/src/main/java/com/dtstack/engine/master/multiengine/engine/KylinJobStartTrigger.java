@@ -55,7 +55,7 @@ public class KylinJobStartTrigger extends JobStartTriggerBase {
                             endTime = simpleDateFormat1.parse(String.valueOf(Long.valueOf(targetVal) + 1)).getTime() + 28800000;
                         }
                     } else {
-                        throw new RdosDefineException("任务参数错误");
+                        throw new RdosDefineException("Task parameter error");
                     }
                     pluginInfo.put("startTime", startTime);
                     pluginInfo.put("endTime", endTime);

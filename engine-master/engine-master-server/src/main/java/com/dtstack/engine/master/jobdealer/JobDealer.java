@@ -37,7 +37,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -52,7 +51,7 @@ import java.util.stream.Collectors;
 @Component
 public class JobDealer implements InitializingBean, ApplicationContextAware {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JobDealer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobDealer.class);
 
     private ApplicationContext applicationContext;
 
@@ -92,7 +91,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        LOG.info("Initializing " + this.getClass().getName());
+        LOGGER.info("Initializing " + this.getClass().getName());
         SystemPropertyUtil.setHadoopUserName(environmentContext.getHadoopUserName());
 
         executors.execute(jobSubmittedDealer);
@@ -159,7 +158,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         List<String> taskIds = jobClients.stream().map(JobClient::getTaskId).collect(Collectors.toList());
         updateCacheBatch(taskIds, EJobCacheStage.DB.getStage());
         scheduleJobDao.updateJobStatusByJobIds(taskIds, RdosTaskStatus.WAITENGINE.getStatus());
-        LOG.info(" addSubmitJobBatch jobId:{} update", JSONObject.toJSONString(taskIds));
+        LOGGER.info(" addSubmitJobBatch jobId:{} update", JSONObject.toJSONString(taskIds));
         for (JobClient jobClient : jobClients) {
             jobClient.setCallBack((jobStatus) -> {
                 updateJobStatus(jobClient.getTaskId(), jobStatus);
@@ -175,7 +174,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     public void afterSubmitJobVast(List<JobClient> jobClients) {
         List<String> taskIds = jobClients.stream().map(JobClient::getTaskId).collect(Collectors.toList());
         updateCacheBatch(taskIds, EJobCacheStage.SUBMITTED.getStage());
-        LOG.info(" afterSubmitJobBatch jobId:{} update", JSONObject.toJSONString(taskIds));
+        LOGGER.info(" afterSubmitJobBatch jobId:{} update", JSONObject.toJSONString(taskIds));
         for (String taskId : taskIds) {
             shardCache.updateLocalMemTaskStatus(taskId, RdosTaskStatus.SUBMITTED.getStatus());
         }
@@ -190,7 +189,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
             }
             return rs;
         } catch (Exception e) {
-            LOG.error("", e);
+            LOGGER.error("", e);
             dealSubmitFailJob(jobClient.getTaskId(), e.toString());
             return false;
         }
@@ -213,7 +212,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
 
     public void updateJobStatus(String jobId, Integer status) {
         scheduleJobDao.updateJobStatus(jobId, status);
-        LOG.info("jobId:{} update job status:{}.", jobId, status);
+        LOGGER.info("jobId:{} update job status:{}.", jobId, status);
     }
 
     public void saveCache(JobClient jobClient, String jobResource, int stage, boolean insert) {
@@ -257,7 +256,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                 scheduleJobDao.updateEngineLog(jobId, engineLog);
             }
         } catch (Throwable e) {
-            LOG.error("getAndUpdateEngineLog error jobId:{} error:.", jobId, e);
+            LOGGER.error("getAndUpdateEngineLog error jobId:{} error:.", jobId, e);
         }
         return engineLog;
     }
@@ -270,13 +269,13 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     public void dealSubmitFailJob(String taskId, String errorMsg) {
         engineJobCacheDao.delete(taskId);
         scheduleJobDao.jobFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
-        LOG.info("jobId:{} update job status:{}, job is finished.", taskId, RdosTaskStatus.SUBMITFAILD.getStatus());
+        LOGGER.info("jobId:{} update job status:{}, job is finished.", taskId, RdosTaskStatus.SUBMITFAILD.getStatus());
     }
 
     class RecoverDealer implements Runnable {
         @Override
         public void run() {
-            LOG.info("-----重启后任务开始恢复----");
+            LOGGER.info("-----The task resumes after restart----");
             String localAddress = environmentContext.getLocalAddress();
             try {
                 long startId = 0L;
@@ -301,7 +300,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                             }
                             startId = jobCache.getId();
                         } catch (Exception e) {
-                            LOG.error("", e);
+                            LOGGER.error("", e);
                             //数据转换异常--打日志
                             dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
                         }
@@ -314,10 +313,10 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                     }
                 }
             } catch (Exception e) {
-                LOG.error("----broker:{} RecoverDealer error:", localAddress, e);
+                LOGGER.error("----broker:{} RecoverDealer error:", localAddress, e);
             }
 
-            LOG.info("-----重启后任务结束恢复-----");
+            LOGGER.info("-----After the restart, the task ends and resumes-----");
         }
     }
 

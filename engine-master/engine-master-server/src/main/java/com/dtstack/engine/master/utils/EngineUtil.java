@@ -29,7 +29,7 @@ import java.util.*;
 
 public class EngineUtil {
 
-    public static Logger logger = LoggerFactory.getLogger(EngineUtil.class);
+    public static Logger LOGGER = LoggerFactory.getLogger(EngineUtil.class);
 
     public static final Map<Integer, List<Integer>> ENGINE_SUPPORTED_COMPONENTS = new HashMap<>();
 
@@ -80,7 +80,7 @@ public class EngineUtil {
                     }
                 }
             } catch (Exception e){
-                logger.warn(" ", e);
+                LOGGER.warn(" ", e);
             }
         }
 

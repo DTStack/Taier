@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 @Service
 public class AccountService {
 
-    private static final Logger log = LoggerFactory.getLogger(AccountService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccountService.class);
 
     @Autowired
     private AccountDao accountDao;
@@ -83,11 +83,11 @@ public class AccountService {
      */
     public void bindAccount(AccountVo accountVo) throws Exception {
         if (null == accountVo) {
-            throw new RdosDefineException("绑定参数不能为空");
+            throw new RdosDefineException("The binding parameter cannot be empty");
         }
         if (null == accountVo.getUserId() || null == accountVo.getUsername() || null == accountVo.getPassword()
                 || null == accountVo.getBindTenantId() || null == accountVo.getBindUserId() || null == accountVo.getName()) {
-            throw new RdosDefineException("请填写必要参数");
+            throw new RdosDefineException("Please fill in the necessary parameters");
         }
         //校验db账号测试连通性
         checkDataSourceConnect(accountVo);
@@ -121,13 +121,13 @@ public class AccountService {
 
         if (null == jdbc) {
             if (MultiEngineType.TIDB.getType() == accountVo.getEngineType()) {
-                throw new RdosDefineException("请先绑定TiDB组件");
+                throw new RdosDefineException("Please bind TiDB components first");
             } else if (MultiEngineType.ORACLE.getType() == accountVo.getEngineType()) {
-                throw new RdosDefineException("请先绑定Oracle组件");
+                throw new RdosDefineException("Please bind Oracle components first");
             } else if (MultiEngineType.GREENPLUM.getType() == accountVo.getEngineType()) {
-                throw new RdosDefineException("请先绑定GREENPLUMe组件");
+                throw new RdosDefineException("Please bind the GREENPLUMe component first");
             }else{
-                throw new RdosDefineException("请先绑定相应组件");
+                throw new RdosDefineException("Please bind the corresponding components first");
             }
         }
 
@@ -139,7 +139,7 @@ public class AccountService {
         try {
             workerOperator.executeQuery(dataBaseType.getTypeName().toLowerCase(), pluginInfo.toJSONString(), "show databases", "");
         } catch (Exception e) {
-            throw new RdosDefineException("测试联通性失败 :" + ExceptionUtil.getErrorMessage(e));
+            throw new RdosDefineException("Failed to test connectivity :" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
@@ -154,18 +154,18 @@ public class AccountService {
         dbAccountByName.setCreateUserId(accountVo.getUserId());
         dbAccountByName.setModifyUserId(accountVo.getUserId());
         accountDao.insert(dbAccountByName);
-        log.info("add db account {} [{}] ", dbAccountByName.getName(), dbAccountByName.getId());
+        LOGGER.info("add db account {} [{}] ", dbAccountByName.getName(), dbAccountByName.getId());
         //bindUserId 是从uic获取 需要转换下
         User dtUicUserId = userDao.getByDtUicUserId(accountVo.getBindUserId());
         //bindTenantId 需要转换为租户id
         Long tenantId = tenantDao.getIdByDtUicTenantId(accountVo.getBindTenantId());
         if (null == tenantId) {
-            throw new RdosDefineException("租户不存在");
+            throw new RdosDefineException("Tenant does not exist");
         }
         if (null != dtUicUserId) {
             AccountTenant dbAccountTenant = accountTenantDao.getByAccount(dtUicUserId.getId(), tenantId, dbAccountByName.getId(), Deleted.NORMAL.getStatus());
             if (null != dbAccountTenant) {
-                throw new RdosDefineException("该账号已绑定对应产品账号");
+                throw new RdosDefineException("The account has been bound to the corresponding product account");
             }
         } else {
             this.addUser(accountVo.getUsername(), accountVo.getBindUserId(), accountVo.getPhone(), accountVo.getEmail());
@@ -184,7 +184,7 @@ public class AccountService {
         accountTenant.setModifyUserId(accountVo.getUserId());
         accountTenant.setIsDeleted(Deleted.NORMAL.getStatus());
         accountTenantDao.insert(accountTenant);
-        log.info("bind db account id [{}]username [{}] to user [{}] tenant {}  success ", accountTenant.getAccountId(), dbAccountByName.getName(),
+        LOGGER.info("bind db account id [{}]username [{}] to user [{}] tenant {}  success ", accountTenant.getAccountId(), dbAccountByName.getName(),
                 accountTenant.getUserId(), tenantId);
     }
 
@@ -232,28 +232,28 @@ public class AccountService {
     @Transactional
     public void unbindAccount(AccountTenantVo accountTenantVo) throws Exception {
         if (null == accountTenantVo || null == accountTenantVo.getId()) {
-            throw new RdosDefineException("参数不能为空");
+            throw new RdosDefineException("Parameter cannot be empty");
         }
         if (StringUtils.isBlank(accountTenantVo.getName())) {
-            throw new RdosDefineException("解绑账号信息不能为空");
+            throw new RdosDefineException("Unbind account information cannot be empty");
         }
         if (StringUtils.isBlank(accountTenantVo.getPassword())){
             accountTenantVo.setPassword("");
         }
         AccountTenant dbAccountTenant = accountTenantDao.getById(accountTenantVo.getId());
         if (null == dbAccountTenant) {
-            throw new RdosDefineException("该账号未绑定对应集群");
+            throw new RdosDefineException("The account is not bound to the corresponding cluster");
         }
         Account account = accountDao.getById(dbAccountTenant.getAccountId());
         if (null == account) {
-            throw new RdosDefineException("解绑账号不存在");
+            throw new RdosDefineException("Unbind account does not exist");
         }
         if (!account.getName().equals(accountTenantVo.getName())) {
-            throw new RdosDefineException("解绑失败，请使用绑定时输入的数据库账号进行解绑");
+            throw new RdosDefineException("Unbinding failed, please use the database account entered during binding to unbind");
         }
         String oldPassWord = StringUtils.isBlank(account.getPassword()) ? "" : Base64Util.baseDecode(account.getPassword());
         if (!oldPassWord.equals(accountTenantVo.getPassword())) {
-            throw new RdosDefineException("解绑失败,解绑账号密码错误");
+            throw new RdosDefineException("Unbind failed, unbind account password is wrong");
         }
         //标记为删除
         dbAccountTenant.setGmtModified(new Timestamp(System.currentTimeMillis()));
@@ -266,7 +266,7 @@ public class AccountService {
         account.setModifyUserId(accountTenantVo.getModifyDtUicUserId());
         this.addUser(accountTenantVo.getModifyUserName(),accountTenantVo.getModifyDtUicUserId(),"",accountTenantVo.getModifyUserName());
         accountDao.update(account);
-        log.info("unbind db account id [{}] to user [{}] tenant {}  success ", dbAccountTenant.getAccountId(), dbAccountTenant.getUserId(), dbAccountTenant.getTenantId());
+        LOGGER.info("unbind db account id [{}] to user [{}] tenant {}  success ", dbAccountTenant.getAccountId(), dbAccountTenant.getUserId(), dbAccountTenant.getTenantId());
         List<Long> dtUicTenantIdByIds = tenantDao.listDtUicTenantIdByIds(Lists.newArrayList(dbAccountTenant.getTenantId()));
         //刷新缓存
         if (CollectionUtils.isNotEmpty(dtUicTenantIdByIds)) {
@@ -284,22 +284,22 @@ public class AccountService {
     @Transactional
     public void updateBindAccount(AccountTenantVo accountTenantVo) throws Exception {
         if (null == accountTenantVo || null == accountTenantVo.getId()) {
-            throw new RdosDefineException("参数不能为空");
+            throw new RdosDefineException("Parameter cannot be empty");
         }
         if (StringUtils.isBlank(accountTenantVo.getName())) {
-            throw new RdosDefineException("更新账号信息不能为空");
+            throw new RdosDefineException("Update account information cannot be empty");
         }
         if (StringUtils.isBlank(accountTenantVo.getPassword())){
             accountTenantVo.setPassword("");
         }
         AccountTenant dbAccountTenant = accountTenantDao.getById(accountTenantVo.getId());
         if (null == dbAccountTenant) {
-            throw new RdosDefineException("该账号未绑定对应集群");
+            throw new RdosDefineException("The account is not bound to the corresponding cluster");
         }
         AccountVo accountVO = new AccountVo();
         List<Long> dtUicTenantIdByIds = tenantDao.listDtUicTenantIdByIds(Lists.newArrayList(dbAccountTenant.getTenantId()));
         if (CollectionUtils.isEmpty(dtUicTenantIdByIds)) {
-            throw new RdosDefineException("该账号未绑定对应集群");
+            throw new RdosDefineException("The account is not bound to the corresponding cluster");
         }
         accountVO.setBindTenantId(dtUicTenantIdByIds.get(0));
         accountVO.setName(accountTenantVo.getName());
@@ -329,7 +329,7 @@ public class AccountService {
         dbAccountTenant.setModifyUserId(accountTenantVo.getModifyDtUicUserId());
         this.addUser(accountTenantVo.getModifyUserName(),accountTenantVo.getModifyDtUicUserId(),"",accountTenantVo.getModifyUserName());
         accountTenantDao.update(dbAccountTenant);
-        log.info("modify db account id [{}] old account [{}] new account [{}]  success ", dbAccountTenant.getId(), oldAccount.getId(), newAccount.getId());
+        LOGGER.info("modify db account id [{}] old account [{}] new account [{}]  success ", dbAccountTenant.getId(), oldAccount.getId(), newAccount.getId());
         User dbUser = userDao.getByUserId(dbAccountTenant.getUserId());
         if (null != dbUser) {
             consoleCache.publishRemoveMessage(String.format("%s.%s", dtUicTenantIdByIds.get(0), dbUser.getDtuicUserId()));
@@ -349,7 +349,7 @@ public class AccountService {
     public PageResult<List<AccountVo>> pageQuery( Long dtuicTenantId,  String username,  Integer currentPage,
                                                   Integer pageSize,  Integer engineType,Long dtuicUserId) {
         if (null == dtuicTenantId) {
-            throw new RdosDefineException("绑定参数不能为空");
+            throw new RdosDefineException("The binding parameter cannot be empty");
         }
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtuicTenantId);
         AccountDTO accountDTO = new AccountDTO();
@@ -380,13 +380,13 @@ public class AccountService {
     public List<Map<String, Object>> getTenantUnBandList( Long dtuicTenantId,  String dtToken,  Long userId,
                                                          Integer engineType) {
         if (null == dtuicTenantId) {
-            throw new RdosDefineException("请选择对应租户");
+            throw new RdosDefineException("Please select the corresponding tenant");
         }
         //获取uic下该租户所有用户
         List<Map<String, Object>> uicUsers = dtUicUserConnect.getAllUicUsers(environmentContext.getDtUicUrl(), "RDOS", dtuicTenantId, dtToken);
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtuicTenantId);
         if (null == tenantId) {
-            throw new RdosDefineException("请先绑定租户到集群");
+            throw new RdosDefineException("Please bind the tenant to the cluster first");
         }
         //添加超级管理员
         User rootUser = userDao.getByUserId(userId);
@@ -461,13 +461,13 @@ public class AccountService {
         //检查同租户下用户是否已被绑定
         Account one = accountDao.getOne(tenant.getId(), user.getId(), accountType, null);
         if (Objects.nonNull(one)) {
-            throw new RdosDefineException("用户"+ user.getUserName() + "已绑定");
+            throw new RdosDefineException("User "+ user.getUserName() + "is bound");
         }
 
         //检查同租户下用户名是否被绑定
         Account exit = accountDao.getOne(tenant.getId(), null, accountType, accountVo.getName());
         if (Objects.nonNull(exit)) {
-            throw new RdosDefineException("用户名"+ accountVo.getName() + "已绑定");
+            throw new RdosDefineException("User "+ accountVo.getName() + "is bound");
         }
 
     }

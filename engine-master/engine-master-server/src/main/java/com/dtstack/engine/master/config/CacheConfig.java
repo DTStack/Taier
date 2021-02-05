@@ -32,7 +32,7 @@ import java.util.*;
 @Configuration
 public class CacheConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(CacheConfig.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CacheConfig.class);
     @Autowired
     private EnvironmentContext environmentContext;
 
@@ -44,7 +44,7 @@ public class CacheConfig {
             for (String node : split) {
                 String[] nodeInfo = node.split(":");
                 if (nodeInfo.length != 2) {
-                    throw new RdosDefineException("redis哨兵项配置错误");
+                    throw new RdosDefineException("redis sentinel item configuration error");
                 } else {
                     nodes.add(new RedisNode(nodeInfo[0].trim(), Integer.valueOf(nodeInfo[1].trim())));
                 }

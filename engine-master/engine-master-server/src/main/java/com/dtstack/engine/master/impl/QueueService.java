@@ -39,7 +39,7 @@ public class QueueService {
             if (!existQueueMap.isEmpty()) {
                 Integer delete = queueDao.deleteByIds(existQueueMap.values().stream().map(BaseEntity::getId).collect(Collectors.toList()), engineId);
                 if (delete != existQueueMap.size()) {
-                    throw new RdosDefineException("操作失败");
+                    throw new RdosDefineException("operation failed");
                 }
             }
         }
@@ -58,7 +58,7 @@ public class QueueService {
                 queue.setQueuePath(queueDescription.getQueuePath());
                 Integer insert = queueDao.insert(queue);
                 if (insert != 1) {
-                    throw new RdosDefineException("操作失败");
+                    throw new RdosDefineException("operation failed");
                 }
                 newAddQueue(engineId, queue.getId(), queueDescription.getChildQueues());
             }
@@ -93,7 +93,7 @@ public class QueueService {
                     queue.setParentQueueId(parentQueueId);
                     Integer insert = queueDao.insert(queue);
                     if (insert != 1) {
-                        throw new RdosDefineException("操作失败");
+                        throw new RdosDefineException("operation failed");
                     }
                 }
 
@@ -109,7 +109,7 @@ public class QueueService {
      */
     public Long addNamespaces(Long engineId, String namespace) {
         if(StringUtils.isBlank(namespace)){
-            throw new RdosDefineException("namespace不能为空");
+            throw new RdosDefineException("namespace cannot be empty");
         }
 
         //校验namespace的是否存在
@@ -118,7 +118,7 @@ public class QueueService {
             List<Long> namespaceIds = namespaces.stream().map(BaseEntity::getId).collect(Collectors.toList());
             Integer delete = queueDao.deleteByIds(namespaceIds, engineId);
             if (delete != namespaces.size()) {
-                throw new RdosDefineException("操作失败");
+                throw new RdosDefineException("operation failed");
             }
         }
         Queue queue = new Queue();
@@ -131,7 +131,7 @@ public class QueueService {
         queue.setQueuePath(namespace);
         Integer insert = queueDao.insert(queue);
         if (insert != 1) {
-            throw new RdosDefineException("操作失败");
+            throw new RdosDefineException("operation failed");
         }
         return queue.getId();
     }

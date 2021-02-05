@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 @Service
 public class LoginService {
 
-    private static Logger logger = LoggerFactory.getLogger(LoginService.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(LoginService.class);
 
     private static final String IS_ROOT_USER = "%s/api/user/isRootUser?userId=%s";
 
@@ -66,7 +66,7 @@ public class LoginService {
         }catch (IOException ioe){
             throw new RdosDefineException(ioe.getMessage());
         }catch (Throwable e) {
-            logger.error("login fail:", e);
+            LOGGER.error("login fail:", e);
             throw e;
         }
     }

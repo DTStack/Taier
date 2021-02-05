@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 @Component
 public class JobStopDealer implements InitializingBean, DisposableBean {
 
-    private static final Logger logger = LoggerFactory.getLogger(JobStopDealer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobStopDealer.class);
 
     @Autowired
     private ShardCache shardCache;
@@ -128,7 +128,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 EngineJobStopRecord jobStopRecord = new EngineJobStopRecord();
                 jobStopRecord.setTaskId(job.getJobId());
                 if (alreadyExistJobIds.contains(jobStopRecord.getTaskId())) {
-                    logger.info("jobId:{} ignore insert stop record, because is already exist in table.", jobStopRecord.getTaskId());
+                    LOGGER.info("jobId:{} ignore insert stop record, because is already exist in table.", jobStopRecord.getTaskId());
                     continue;
                 }
                 jobStopRecord.setForceCancelFlag(isForce);
@@ -158,7 +158,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
     @Override
     public void afterPropertiesSet() {
-        logger.info("Initializing " + this.getClass().getName());
+        LOGGER.info("Initializing " + this.getClass().getName());
 
         jobStoppedRetry = environmentContext.getJobStoppedRetry();
         jobStoppedDelay = environmentContext.getJobStoppedDelay();
@@ -177,7 +177,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         delayStopProcessorService.shutdownNow();
         scheduledService.shutdownNow();
         asyncDealStopJobService.shutdownNow();
-        logger.info("job stop process thread is shutdown...");
+        LOGGER.info("job stop process thread is shutdown...");
     }
 
     private class AcquireStopJob implements Runnable {
@@ -231,7 +231,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                         } else {
                             //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
                             scheduleJobDao.updateTaskStatusNotStopped(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());
-                            logger.info("[Unnormal Job] jobId:{} update job status:{}, job is finished.", jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
+                            LOGGER.info("[Unnormal Job] jobId:{} update job status:{}, job is finished.", jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
                             shardCache.updateLocalMemTaskStatus(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
                             engineJobStopRecordDao.delete(jobStopRecord.getId());
                         }
@@ -239,7 +239,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
                     Thread.sleep(500);
                 } catch (Throwable e) {
-                    logger.error("when acquire stop jobs happens error:", e);
+                    LOGGER.error("when acquire stop jobs happens error:", e);
                 }
             }
         }
@@ -250,13 +250,13 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
         @Override
         public void run() {
-            logger.info("DelayStopProcessor thread is start...");
+            LOGGER.info("DelayStopProcessor thread is start...");
             while (open) {
                 try {
                     StoppedJob<JobElement> stoppedJob = stopJobQueue.take();
                     asyncDealStopJobService.submit(() -> asyncDealStopJob(stoppedJob));
                 } catch (Exception e) {
-                    logger.error("", e);
+                    LOGGER.error("", e);
                 }
             }
         }
@@ -288,17 +288,17 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                             stopJobQueue.put(stoppedJob);
                         } else {
                             removeMemStatusAndJobCache(stoppedJob.getJob().jobId);
-                            logger.warn("jobId:{} retry limited!", stoppedJob.getJob().jobId);
+                            LOGGER.warn("jobId:{} retry limited!", stoppedJob.getJob().jobId);
                         }
                     default:
                 }
             } else {
                 engineJobStopRecordDao.delete(stoppedJob.getJob().stopJobId);
-                logger.warn("delete stop record jobId {} stopJobId {} ", stoppedJob.getJob().jobId, stoppedJob.getJob().stopJobId);
+                LOGGER.warn("delete stop record jobId {} stopJobId {} ", stoppedJob.getJob().jobId, stoppedJob.getJob().stopJobId);
             }
 
         } catch (Exception e) {
-            logger.error("", e);
+            LOGGER.error("", e);
         }
     }
 
@@ -307,30 +307,30 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         ScheduleJob scheduleJob = scheduleJobDao.getRdosJobByJobId(jobElement.jobId);
         if (jobCache == null) {
             if (scheduleJob != null && RdosTaskStatus.isStopped(scheduleJob.getStatus())) {
-                logger.info("jobId:{} stopped success, set job is STOPPED.", jobElement.jobId);
+                LOGGER.info("jobId:{} stopped success, set job is STOPPED.", jobElement.jobId);
                 return StoppedStatus.STOPPED;
             } else {
                 this.removeMemStatusAndJobCache(jobElement.jobId);
-                logger.info("jobId:{} jobCache is null, set job is MISSED.", jobElement.jobId);
+                LOGGER.info("jobId:{} jobCache is null, set job is MISSED.", jobElement.jobId);
                 return StoppedStatus.MISSED;
             }
         } else if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
             this.removeMemStatusAndJobCache(jobCache.getJobId());
-            logger.info("jobId:{} is unsubmitted, set job is STOPPED.", jobElement.jobId);
+            LOGGER.info("jobId:{} is unsubmitted, set job is STOPPED.", jobElement.jobId);
             return StoppedStatus.STOPPED;
         } else {
             if (scheduleJob == null) {
                 this.removeMemStatusAndJobCache(jobElement.jobId);
-                logger.info("jobId:{} scheduleJob is null, set job is MISSED.", jobElement.jobId);
+                LOGGER.info("jobId:{} scheduleJob is null, set job is MISSED.", jobElement.jobId);
                 return StoppedStatus.MISSED;
             }  else if (RdosTaskStatus.getStoppedAndNotFound().contains(scheduleJob.getStatus())) {
                 this.removeMemStatusAndJobCache(jobElement.jobId);
-                logger.info("jobId:{} and status:{} is StoppedAndNotFound, set job is STOPPED.", jobElement.jobId, scheduleJob.getStatus());
+                LOGGER.info("jobId:{} and status:{} is StoppedAndNotFound, set job is STOPPED.", jobElement.jobId, scheduleJob.getStatus());
                 return StoppedStatus.STOPPED;
             } else if (!RdosTaskStatus.RUNNING.getStatus().equals(scheduleJob.getStatus()) &&
                     System.currentTimeMillis() - jobCache.getGmtCreate().getTime() >= environmentContext.getConsoleStopExpireTime()) {
                 this.removeMemStatusAndJobCache(jobElement.jobId);
-                logger.info("jobId:{} and status:{} is expire console stop time, set job is STOPPED.", jobElement.jobId, scheduleJob.getStatus());
+                LOGGER.info("jobId:{} and status:{} is expire console stop time, set job is STOPPED.", jobElement.jobId, scheduleJob.getStatus());
                 return StoppedStatus.STOPPED;
             }
 
@@ -343,15 +343,15 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
             if (StringUtils.isNotBlank(scheduleJob.getEngineJobId()) && !jobClient.getEngineTaskId().equals(scheduleJob.getEngineJobId())) {
                 this.removeMemStatusAndJobCache(jobElement.jobId);
-                logger.info("jobId:{} stopped success, because of [difference engineJobId].", paramAction.getTaskId());
+                LOGGER.info("jobId:{} stopped success, because of [difference engineJobId].", paramAction.getTaskId());
                 return StoppedStatus.STOPPED;
             }
             JobResult jobResult = workerOperator.stopJob(jobClient);
             if (jobResult.getCheckRetry()) {
-                logger.info("jobId:{} is retry.", paramAction.getTaskId());
+                LOGGER.info("jobId:{} is retry.", paramAction.getTaskId());
                 return StoppedStatus.RETRY;
             } else {
-                logger.info("jobId:{} is stopping.", paramAction.getTaskId());
+                LOGGER.info("jobId:{} is stopping.", paramAction.getTaskId());
                 return StoppedStatus.STOPPING;
             }
         }
@@ -363,7 +363,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         engineJobCacheDao.delete(jobId);
         //修改任务状态
         scheduleJobDao.updateJobStatusAndExecTime(jobId, RdosTaskStatus.CANCELED.getStatus());
-        logger.info("jobId:{} delete jobCache and update job status:{}, job set finished.", jobId, RdosTaskStatus.CANCELED.getStatus());
+        LOGGER.info("jobId:{} delete jobCache and update job status:{}, job set finished.", jobId, RdosTaskStatus.CANCELED.getStatus());
     }
 
     private boolean checkExpired(JobElement jobElement) {

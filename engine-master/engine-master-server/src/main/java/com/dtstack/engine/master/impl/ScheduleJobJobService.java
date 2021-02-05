@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Service
 public class ScheduleJobJobService {
 
-    private final static Logger logger = LoggerFactory.getLogger(ScheduleJobJobService.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ScheduleJobJobService.class);
 
     private static final String WORKFLOW_PARENT = "0";
 
@@ -74,7 +74,7 @@ public class ScheduleJobJobService {
                 }
                 return subJobVO;
             } catch (Exception e) {
-                logger.error("get flow work subJob error", e);
+                LOGGER.error("get flow work subJob error", e);
             }
         }
 
@@ -193,7 +193,7 @@ public class ScheduleJobJobService {
             }
 
             List<ScheduleJobJob> jobJobList = jobJobs.stream().map(ScheduleJobJobTaskDTO::toJobJob).collect(Collectors.toList());
-            logger.info("count info --- rootKey:{} jobJobList size:{} jobLoop:{}", rootKey, jobJobList.size(), jobLoop);
+            LOGGER.info("count info --- rootKey:{} jobJobList size:{} jobLoop:{}", rootKey, jobJobList.size(), jobLoop);
             result.put(jobLoop, jobJobList);
             jobLoop++;
         }
@@ -234,7 +234,7 @@ public class ScheduleJobJobService {
             }
 
             if (beginJobJob == null) {
-                logger.error("displayOffSpringForFlowWork end with no subTasks with flowJobKey [{}]", flowJob.getJobKey());
+                LOGGER.error("displayOffSpringForFlowWork end with no subTasks with flowJobKey [{}]", flowJob.getJobKey());
                 return null;
             }
 
@@ -316,7 +316,7 @@ public class ScheduleJobJobService {
                 com.dtstack.engine.master.vo.ScheduleJobVO subJobVO = this.displayOffSpringForFlowWork(job);
                 vo.setSubNodes(subJobVO);
             } catch (Exception e) {
-                logger.error("get flow work subJob error", e);
+                LOGGER.error("get flow work subJob error", e);
             }
         }
         return vo;

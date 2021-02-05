@@ -34,7 +34,7 @@ import java.util.List;
 @Service
 public class StreamTaskService {
 
-    private static final Logger logger = LoggerFactory.getLogger(StreamTaskService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StreamTaskService.class);
 
     @Autowired
     private EngineJobCheckpointDao engineJobCheckpointDao;

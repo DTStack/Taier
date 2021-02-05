@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 @Component
 public class JobRichOperator {
 
-    private static final Logger logger = LoggerFactory.getLogger(JobRichOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobRichOperator.class);
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
@@ -228,7 +228,7 @@ public class JobRichOperator {
                 return checkRunInfo;
             }
 
-            logger.error("job:{} dependency job:{} not exists.", jobjob.getJobKey(), jobjob.getParentJobKey());
+            LOGGER.error("job:{} dependency job:{} not exists.", jobjob.getJobKey(), jobjob.getParentJobKey());
             String parentJobKey = jobjob.getParentJobKey();
             String parentTaskName = batchTaskShadeService.getTaskNameByJobKey(parentJobKey, scheduleBatchJob.getAppType());
             checkRunInfo.setStatus(JobCheckStatus.FATHER_NO_CREATED);
@@ -264,11 +264,11 @@ public class JobRichOperator {
             if (isSelfDependency) {
                 checkRunInfo.setStatus(JobCheckStatus.SELF_PRE_PERIOD_EXCEPTION);
                 checkRunInfo.setExtInfo("(父任务名称为:" + jobjob.getParentJobKey() + ")");
-                logger.error("job:{} 自依赖异常 job:{} self_pre_period_exception", jobjob.getJobKey(), jobjob.getParentJobKey());
+                LOGGER.error("job:{} self-dependent exception job:{} self_pre_period_exception", jobjob.getJobKey(), jobjob.getParentJobKey());
             } else {//记录失败的父任务的名称
                 JobErrorInfo errorInfo = createErrJobCacheInfo(dependencyJob, taskShade);
                 checkRunInfo.setExtInfo("(父任务名称为:" + errorInfo.getTaskName() + ")");
-                logger.error("job:{} 父任务异常 taskName:{} error cache father_job_exception", dependencyJob.getJobKey(), errorInfo.getTaskName());
+                LOGGER.error("job:{} self-dependent exception taskName:{} error cache father_job_exception", dependencyJob.getJobKey(), errorInfo.getTaskName());
             }
             return checkRunInfo;
         } else if (RdosTaskStatus.FROZEN.getStatus().equals(dependencyJobStatus)) {
@@ -283,7 +283,7 @@ public class JobRichOperator {
                 || RdosTaskStatus.AUTOCANCELED.getStatus().equals(dependencyJobStatus)) {
             checkRunInfo.setStatus(JobCheckStatus.DEPENDENCY_JOB_CANCELED);
             checkRunInfo.setExtInfo("(父任务名称为:" + getTaskNameFromJobName(dependencyJob.getJobName(), dependencyJob.getType()) + ")");
-            logger.error("job:{} dependency_job_canceled job:{} ", jobjob.getParentJobKey(), jobjob.getJobKey());
+            LOGGER.error("job:{} dependency_job_canceled job:{} ", jobjob.getParentJobKey(), jobjob.getJobKey());
             return checkRunInfo;
         } else if (RdosTaskStatus.EXPIRE.getStatus().equals(dependencyJobStatus)) {
             checkRunInfo.setExtInfo("(父任务名称为:" + getTaskNameFromJobName(dependencyJob.getJobName(), dependencyJob.getType()) + ")");
@@ -328,7 +328,7 @@ public class JobRichOperator {
             try {
                 scheduleCron = ScheduleFactory.parseFromJson(batchTaskShade.getScheduleConf());
             } catch (IOException e) {
-                logger.error("get {} parent pre pre error", scheduleBatchJob.getTaskId(), e);
+                LOGGER.error("get {} parent pre pre error", scheduleBatchJob.getTaskId(), e);
             }
 
             List<ScheduleJob> parentPrePreJob = this.getParentPrePreJob(jobKey, scheduleCron, cycTime);
@@ -354,7 +354,7 @@ public class JobRichOperator {
                         jobCheckRunInfo.setStatus(JobCheckStatus.CHILD_PRE_NOT_SUCCESS);
                         ScheduleTaskShade childPreTask = batchTaskShadeService.getBatchTaskById(childJobPreJob.getTaskId(),childJobPreJob.getAppType());
                         jobCheckRunInfo.setExtInfo(String.format("(依赖下游任务的上一周期(%s)",null != childPreTask ? childPreTask.getName() : ""));
-                        logger.info("get JobKey {} child job {} prePeriod status is {}  but not success", jobKey, childJobPreJob.getJobId(), childJobStatus);
+                        LOGGER.info("get JobKey {} child job {} prePeriod status is {}  but not success", jobKey, childJobPreJob.getJobId(), childJobStatus);
                         return jobCheckRunInfo;
                     }
                 }
@@ -563,7 +563,7 @@ public class JobRichOperator {
             Long taskId = entry.getKey();
             ScheduleTaskShade batchTaskShade = batchTaskShadeService.getBatchTaskById(taskId, scheduleJobJob.getAppType());
             if (batchTaskShade == null) {
-                logger.error("can't find task by id:{}.", taskId);
+                LOGGER.error("can't find task by id:{}.", taskId);
                 continue;
             }
 
@@ -581,7 +581,7 @@ public class JobRichOperator {
                 }
 
             } catch (Exception e) {
-                logger.error("", e);
+                LOGGER.error("", e);
                 continue;
             }
         }

@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @Service
 public class SecurityAuditService {
 
-    private static Logger logger = LoggerFactory.getLogger(SecurityAuditService.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(SecurityAuditService.class);
 
     private static final int corePoolSize = 10;
 
@@ -138,7 +138,7 @@ public class SecurityAuditService {
                 }
                 securityLogVO = PublicUtil.strToObject(decrypt, SecurityLogVO.class);
             } catch (Exception e) {
-                logger.error("参数错误:{}",e);
+                LOGGER.error("参数错误:",e);
             }
         }
         if (securityLogVO == null){

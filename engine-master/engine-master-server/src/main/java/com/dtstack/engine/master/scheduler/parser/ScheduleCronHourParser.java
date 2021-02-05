@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class ScheduleCronHourParser extends ScheduleCron {
 
-    private static final Logger logger = LoggerFactory.getLogger(ScheduleCronHourParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleCronHourParser.class);
 
     private static final String CRON_FORMAT = "0 ${beginMin} ${beginHour}-${endHour}/${gapNum} * * ?";
 
@@ -51,7 +51,7 @@ public class ScheduleCronHourParser extends ScheduleCron {
         beginMinute = MathUtil.getIntegerVal(param.get(BEGIN_MIN_KEY));
 
         if(beginHour < 0 || endHour > 23){
-            logger.error("illegal schedule cron for period hour :{}", param);
+            LOGGER.error("illegal schedule cron for period hour :{}", param);
             return null;
         }
 
@@ -89,7 +89,7 @@ public class ScheduleCronHourParser extends ScheduleCron {
     public int getLastHour(){
 
         if(gapNum < 1){
-            logger.error("err schedule parser of hour, gapNum:{} less then 1, cronStr:{}", gapNum, getCronStr());
+            LOGGER.error("err schedule parser of hour, gapNum:{} less then 1, cronStr:{}", gapNum, getCronStr());
             return beginHour;
         }
 

@@ -42,7 +42,7 @@ import java.util.List;
 @RequestMapping("/node/alert")
 public class AlertController {
 
-    private final Logger log = LoggerFactory.getLogger(AlertController.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(AlertController.class);
 
     @Autowired
     private AlterSender alterSender;
@@ -176,7 +176,7 @@ public class AlertController {
                 }
             }
         }
-        log.info("testAlert jar path :{}", alertGateTestVO.getFilePath());
+        LOGGER.info("testAlert jar path :{}", alertGateTestVO.getFilePath());
 
         // build test alertParam
         AlterContext alertParam = buildTestAlterContext(alertGateTestVO);

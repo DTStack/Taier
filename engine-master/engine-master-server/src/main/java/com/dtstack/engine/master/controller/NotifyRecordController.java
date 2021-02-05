@@ -10,9 +10,7 @@ import com.dtstack.engine.api.param.SetAlarmNotifyRecordParam;
 import com.dtstack.engine.common.enums.NotifyMode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.domain.AlertChannel;
 import com.dtstack.engine.master.enums.ReadStatus;
-import com.dtstack.engine.master.impl.AlertChannelService;
 import com.dtstack.engine.master.impl.AlertContentService;
 import com.dtstack.engine.master.impl.AlertRecordService;
 import io.swagger.annotations.Api;
@@ -41,7 +39,7 @@ import java.util.List;
 @RequestMapping("/node/notifyRecord")
 public class NotifyRecordController {
 
-    private final Logger log = LoggerFactory.getLogger(NotifyRecordController.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(NotifyRecordController.class);
 
     @Autowired
     private AlertRecordService alertRecordService;
@@ -128,7 +126,7 @@ public class NotifyRecordController {
             try {
                 userDTOS.add(PublicUtil.strToObject(PublicUtil.objectToStr(receiver), UserMessageDTO.class));
             } catch (Exception e){
-                log.warn("SetAlarmUserDTO 转换成 UserDTO异常 ", e);
+                LOGGER.warn("SetAlarmUserDTO convert to UserDTO error ", e);
             }
         }
 
@@ -157,7 +155,7 @@ public class NotifyRecordController {
     public void sendAlarmNew(@RequestBody AlarmSendParam param) {
         List<String> alertGateSources = param.getAlertGateSources();
         if (CollectionUtils.isEmpty(alertGateSources)) {
-            throw  new RdosDefineException("发送告警必须设置通道");
+            throw  new RdosDefineException("The channel must be set to send an alarm");
         }
 
         AlarmSendDTO alarmSendDTO = new AlarmSendDTO();

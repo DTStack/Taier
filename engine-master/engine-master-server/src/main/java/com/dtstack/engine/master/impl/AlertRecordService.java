@@ -48,7 +48,7 @@ import java.util.Map;
 @Service
 public class AlertRecordService {
 
-    private final Logger log = LoggerFactory.getLogger(AlertRecordService.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(AlertRecordService.class);
 
     @Autowired
     private AlertRecordDao alertRecordMapper;
@@ -151,7 +151,7 @@ public class AlertRecordService {
             List<AlertChannel> alertChannels = alertChannelService.selectAlertByIds(alarmSendDTO.getAlertGateSources());
 
             if (CollectionUtils.isEmpty(alertChannels)) {
-                throw new RdosDefineException("发送告警必须设置通道");
+                throw new RdosDefineException("The channel must be set to send an alarm");
             }
 
             String content = alarmSendDTO.getContent();
@@ -160,7 +160,7 @@ public class AlertRecordService {
 
             if (StringUtils.isBlank(content)) {
                 if (alertContent == null) {
-                    throw new RdosDefineException("发送告警必须设置告警内容");
+                    throw new RdosDefineException("The alarm content must be set to send an alarm");
                 }
                 content = alertContent.getContent();
             }
@@ -180,7 +180,7 @@ public class AlertRecordService {
                 sendAlter(alarmSendDTO, content, alertChannelMap, receiversMap, record);
             }
         } catch (Exception e) {
-            log.error(ExceptionUtil.getErrorMessage(e));
+            LOGGER.error(ExceptionUtil.getErrorMessage(e));
 
             if (e instanceof RdosDefineException) {
                 throw (RdosDefineException)e;
@@ -199,7 +199,7 @@ public class AlertRecordService {
             UserMessageDTO userMessageDTO = receiversMap.get(record.getUserId());
 
             if (alertChannel == null) {
-                throw new RdosDefineException("未查询到通道信息");
+                throw new RdosDefineException("Channel information not found");
             }
 
             AlertGateCode alertGateCode = AlertGateCode.parse(alertChannel.getAlertGateCode());
@@ -222,7 +222,7 @@ public class AlertRecordService {
             alterContext.setExtendedParam(extendedPara);
             alterSender.sendAsyncAAlter(alterContext,eventMonitors);
         } catch (Exception e) {
-            log.error(ExceptionUtil.getErrorMessage(e));
+            LOGGER.error(ExceptionUtil.getErrorMessage(e));
             AlertRecord alertRecord = new AlertRecord();
             alertRecord.setAlertRecordSendStatus(AlertSendStatusEnum.SEND_FAILURE.getType());
             alertRecord.setFailureReason(ExceptionUtil.getErrorMessage(e));

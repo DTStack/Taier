@@ -15,7 +15,6 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.common.util.DateUtil;
@@ -26,17 +25,13 @@ import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
-import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
-import com.dtstack.engine.master.multiengine.factory.MultiEngineFactory;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
@@ -63,7 +58,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -73,7 +67,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +86,7 @@ import java.util.stream.Collectors;
 @Service
 public class ScheduleJobService {
 
-    private final static Logger logger = LoggerFactory.getLogger(ScheduleJobService.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ScheduleJobService.class);
 
     private static final ObjectMapper objMapper = new ObjectMapper();
 
@@ -403,7 +396,7 @@ public class ScheduleJobService {
     public PageResult<List<com.dtstack.engine.api.vo.ScheduleJobVO>> queryJobs(QueryJobDTO vo) throws Exception {
 
         if (vo.getType() == null) {
-            throw new RdosDefineException("类型参数必填", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("Type parameter is required", ErrorCode.INVALID_PARAMETERS);
         }
         vo.setSplitFiledFlag(true);
         ScheduleJobDTO batchJobDTO = this.createQuery(vo);
@@ -612,10 +605,10 @@ public class ScheduleJobService {
                 batchJobVO.setRelatedJobs(relatedJobVOs);
                 return batchJobVO;
             } else {
-                throw new RdosDefineException("只有工作流任务有下属节点");
+                throw new RdosDefineException("Only workflow tasks have subordinate nodes");
             }
         } else {
-            throw new RdosDefineException("该实例对象不存在");
+            throw new RdosDefineException("The instance object does not exist");
         }
 
     }
@@ -717,7 +710,7 @@ public class ScheduleJobService {
     public Map<String, Long> queryJobsStatusStatistics(QueryJobDTO vo) {
 
         if (vo.getType() == null) {
-            throw new RdosDefineException("类型必填", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("Type is required", ErrorCode.INVALID_PARAMETERS);
         }
         vo.setSplitFiledFlag(true);
         ScheduleJobDTO batchJobDTO = createQuery(vo);
@@ -1002,7 +995,7 @@ public class ScheduleJobService {
             try {
                 this.sendTaskStartTrigger(rdosJobByJobId);
             } catch (Exception e) {
-                logger.error(" job  {} run fail with info is null",rdosJobByJobId.getJobId(),e);
+                LOGGER.error(" job  {} run fail with info is null",rdosJobByJobId.getJobId(),e);
             }
         }
         return;
@@ -1062,7 +1055,7 @@ public class ScheduleJobService {
         }
         //额外信息为空 标记任务为失败
         this.updateStatusAndLogInfoById(scheduleJob.getId(), RdosTaskStatus.FAILED.getStatus(), "任务运行信息为空");
-        logger.error(" job  {} run fail with info is null",scheduleJob.getJobId());
+        LOGGER.error(" job  {} run fail with info is null",scheduleJob.getJobId());
     }
 
     public String stopJob( long jobId,  Long userId,  Long projectId,  Long tenantId,  Long dtuicTenantId,
@@ -1106,7 +1099,7 @@ public class ScheduleJobService {
         if(StringUtils.isBlank(jobId)){
             return "";
         }
-        logger.info("stop job by jobId {}",jobId);
+        LOGGER.info("stop job by jobId {}",jobId);
         ScheduleJob batchJob = scheduleJobDao.getByJobId(jobId,Deleted.NORMAL.getStatus());
         return stopJobByScheduleJob(dtuicTenantId, appType, batchJob);
     }
@@ -1260,7 +1253,7 @@ public class ScheduleJobService {
                 return null;
             }, environmentContext.getBuildJobErrorRetry(), 200, false);
         } catch (Exception e) {
-            logger.error("!!!!! persisteJobs job error !!!! job {} jobjob {}", jobWaitForSave, jobJobWaitForSave, e);
+            LOGGER.error("!!!!! persisteJobs job error !!!! job {} jobjob {}", jobWaitForSave, jobJobWaitForSave, e);
             throw new RdosDefineException(e);
         } finally {
             if (jobWaitForSave.size() > 0) {
@@ -1298,22 +1291,22 @@ public class ScheduleJobService {
         currDateTime = currDateTime.withTime(0, 0, 0, 0);
 
         if (fillName == null) {
-            throw new RdosDefineException("(fillName 参数不能为空)", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("(fillName Parameter cannot be empty)", ErrorCode.INVALID_PARAMETERS);
         }
 
         //补数据的名称中-作为分割名称和后缀信息的分隔符,故不允许使用
         if (fillName.contains("-")) {
-            throw new RdosDefineException("(fillName 参数不能包含字符 '-')", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("(fillName Parameters cannot contain characters '-')", ErrorCode.INVALID_PARAMETERS);
         }
 
         if (!toDateTime.isBefore(currDateTime)) {
-            throw new RdosDefineException("(补数据业务日期开始时间不能晚于结束时间)", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("(The start time of the data supplement service date cannot be later than the end time)", ErrorCode.INVALID_PARAMETERS);
         }
 
         //判断补数据的名字每个project必须是唯一的
         boolean existsName = scheduleFillDataJobService.checkExistsName(fillName, projectId);
         if (existsName) {
-            throw new RdosDefineException("补数据任务名称已存在", ErrorCode.NAME_ALREADY_EXIST);
+            throw new RdosDefineException("Data supplement task name already exists", ErrorCode.NAME_ALREADY_EXIST);
         }
 
         Map<String, ScheduleBatchJob> addBatchMap = Maps.newLinkedHashMap();
@@ -1341,7 +1334,7 @@ public class ScheduleJobService {
             } catch (RdosDefineException rde) {
                 throw rde;
             } catch (Exception e) {
-                logger.error("", e);
+                LOGGER.error("", e);
                 throw new RdosDefineException("build fill job error:" + e.getMessage(), ErrorCode.SERVER_EXCEPTION);
             } finally {
                 fromDateTime = fromDateTime.plusDays(1);
@@ -1349,7 +1342,7 @@ public class ScheduleJobService {
         }
 
         if (addBatchMap.size() == 0) {
-            throw new RdosDefineException("请检查所选择的具体日期范围", ErrorCode.NO_FILLDATA_TASK_IS_GENERATE);
+            throw new RdosDefineException("Please check the specific date range selected", ErrorCode.NO_FILLDATA_TASK_IS_GENERATE);
         }
 
         return fillName;
@@ -1502,7 +1495,7 @@ public class ScheduleJobService {
                                                                              String fillJobName,
                                                                              Long dutyUserId) throws Exception {
         if (Strings.isNullOrEmpty(fillJobName)) {
-            throw new RdosDefineException("(补数据名称不能为空)", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("(The supplementary data name cannot be empty)", ErrorCode.INVALID_PARAMETERS);
         }
         vo.setSplitFiledFlag(true);
         ScheduleJobDTO batchJobDTO = this.createQuery(vo);
@@ -1589,7 +1582,7 @@ public class ScheduleJobService {
                                                                           Long dutyUserId,  String searchType,
                                                                           Integer appType) throws Exception {
         if (Strings.isNullOrEmpty(fillJobName)) {
-            throw new RdosDefineException("(补数据名称不能为空)", ErrorCode.INVALID_PARAMETERS);
+            throw new RdosDefineException("(The supplementary data name cannot be empty)", ErrorCode.INVALID_PARAMETERS);
         }
 
         QueryJobDTO vo = JSONObject.parseObject(queryJobDTO, QueryJobDTO.class);
@@ -1714,7 +1707,7 @@ public class ScheduleJobService {
             }
             return fillDataRecord;
         } else {
-            throw new RdosDefineException("该实例对象不存在");
+            throw new RdosDefineException("The instance object does not exist");
         }
     }
 
@@ -2054,7 +2047,7 @@ public class ScheduleJobService {
     public Long getTaskShadeIdFromJobKey(String jobKey) {
         String[] strings = jobKey.split("_");
         if (strings.length < 2) {
-            logger.error("it's not a legal job key, str is {}.", jobKey);
+            LOGGER.error("it's not a legal job key, str is {}.", jobKey);
             return -1L;
         }
 
@@ -2062,7 +2055,7 @@ public class ScheduleJobService {
         try {
             return MathUtil.getLongVal(id);
         } catch (Exception e) {
-            logger.error("it's not a legal job key, str is {}.", jobKey);
+            LOGGER.error("it's not a legal job key, str is {}.", jobKey);
             return -1L;
         }
     }
@@ -2070,13 +2063,13 @@ public class ScheduleJobService {
     public String getJobTriggerTimeFromJobKey(String jobKey) {
         String[] strings = jobKey.split("_");
         if (strings.length < 1) {
-            logger.error("it's not a legal job key, str is {}.", jobKey);
+            LOGGER.error("it's not a legal job key, str is {}.", jobKey);
             return "";
         }
 
         String timeStr = strings[strings.length - 1];
         if (timeStr.length() < 8) {
-            logger.error("it's not a legal job key, str is {}.", jobKey);
+            LOGGER.error("it's not a legal job key, str is {}.", jobKey);
             return "";
         }
 
@@ -2345,7 +2338,7 @@ public class ScheduleJobService {
                 continue;
             }
             scheduleJobList.addAll(getAllChildJobWithSameDay(childScheduleJob, isOnlyNextChild, appType));
-            logger.info("count info --- scheduleJob jobKey:{} flowJobId:{} jobJobList size:{}", scheduleJob.getJobKey(), scheduleJob.getFlowJobId(),scheduleJobList.size());
+            LOGGER.info("count info --- scheduleJob jobKey:{} flowJobId:{} jobJobList size:{}", scheduleJob.getJobKey(), scheduleJob.getFlowJobId(),scheduleJobList.size());
         }
 
         return scheduleJobList;
@@ -2454,7 +2447,7 @@ public class ScheduleJobService {
             ActionLogVO log = actionService.log(jobId, ComputeType.BATCH.getType());
             return log;
         } catch (Exception e) {
-            logger.error("Exception when getLogInfoFromEngine by jobId: {} and computeType: {}", jobId, ComputeType.BATCH.getType(), e);
+            LOGGER.error("Exception when getLogInfoFromEngine by jobId: {} and computeType: {}", jobId, ComputeType.BATCH.getType(), e);
         }
         return null;
     }
@@ -2529,7 +2522,7 @@ public class ScheduleJobService {
             JobCheckRunInfo jobCheckRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, scheduleJob.getStatus(), scheduleJob.getType(),batchTaskById);
             return JSONObject.toJSONString(jobCheckRunInfo);
         } catch (Exception e) {
-            logger.error("ScheduleJobService.testCheckCanRun error:", e);
+            LOGGER.error("ScheduleJobService.testCheckCanRun error:", e);
         }
         return "";
     }
@@ -2582,7 +2575,7 @@ public class ScheduleJobService {
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("", e);
+                    LOGGER.error("", e);
                 }
             }
 
@@ -2606,7 +2599,7 @@ public class ScheduleJobService {
             this.insertJobList(allJobs, EScheduleType.NORMAL_SCHEDULE.getType());
 
         } catch (Exception e) {
-            logger.error("createTodayTaskShadeForTest", e);
+            LOGGER.error("createTodayTaskShadeForTest", e);
             throw new RdosDefineException("任务创建失败");
         }
     }

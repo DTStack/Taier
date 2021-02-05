@@ -26,7 +26,7 @@ import java.util.List;
 @Service
 public class NodeRecoverService {
 
-    private static final Logger logger = LoggerFactory.getLogger(NodeRecoverService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NodeRecoverService.class);
 
     @Autowired
     private JobExecutorTrigger jobExecutorTrigger;
@@ -44,13 +44,13 @@ public class NodeRecoverService {
      * 接收 master 节点容灾后的消息
      */
     public void masterTriggerNode() {
-        logger.info("--- accept masterTriggerNode");
+        LOGGER.info("--- accept masterTriggerNode");
         try {
             jobExecutorTrigger.recoverOtherNode();
-            logger.info("--- deal recoverOtherNode done ------");
+            LOGGER.info("--- deal recoverOtherNode done ------");
             recoverJobCaches();
         } catch (Exception e) {
-            logger.error("", e);
+            LOGGER.error("", e);
         }
     }
 
@@ -71,7 +71,7 @@ public class NodeRecoverService {
                         afterJobClients.add(jobClient);
                         startId = jobCache.getId();
                     } catch (Exception e) {
-                        logger.error("", e);
+                        LOGGER.error("", e);
                         //数据转换异常--打日志
                         jobDealer.dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
                     }
@@ -81,7 +81,7 @@ public class NodeRecoverService {
                 }
             }
         } catch (Exception e) {
-            logger.error("----broker:{} RecoverDealer error:", localAddress, e);
+            LOGGER.error("----broker:{} RecoverDealer error:", localAddress, e);
         }
     }
 

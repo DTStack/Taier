@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class JobExecutorTrigger implements InitializingBean, DisposableBean {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JobExecutorTrigger.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobExecutorTrigger.class);
 
     @Autowired
     private ScheduleJobDao scheduleJobDao;
@@ -54,7 +54,7 @@ public class JobExecutorTrigger implements InitializingBean, DisposableBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        LOG.info("Initializing " + this.getClass().getName());
+        LOGGER.info("Initializing " + this.getClass().getName());
 
         executors.add(fillJobExecutor);
         executors.add(cronJobExecutor);

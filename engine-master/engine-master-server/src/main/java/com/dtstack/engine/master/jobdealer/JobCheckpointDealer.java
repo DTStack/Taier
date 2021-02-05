@@ -1,7 +1,6 @@
 package com.dtstack.engine.master.jobdealer;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -45,7 +44,7 @@ import java.util.stream.Collectors;
 @Component
 public class JobCheckpointDealer implements InitializingBean {
 
-    private static Logger logger = LoggerFactory.getLogger(JobCheckpointDealer.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(JobCheckpointDealer.class);
 
     private final static String CHECKPOINT_RETAINED_KEY = "state.checkpoints.num-retained";
 
@@ -126,7 +125,7 @@ public class JobCheckpointDealer implements InitializingBean {
                     updateCheckpointImmediately(taskInfo, engineJobId, status);
 
                 } catch (Exception e) {
-                    logger.error("", e);
+                    LOGGER.error("", e);
                 }
             }
         });
@@ -160,7 +159,7 @@ public class JobCheckpointDealer implements InitializingBean {
                 }
             }
         } catch (Exception e) {
-            logger.error(" taskId {}  engineJobId {}  updateCheckpointImmediately error", taskId, engineJobId, e);
+            LOGGER.error(" taskId {}  engineJobId {}  updateCheckpointImmediately error", taskId, engineJobId, e);
         }
     }
 
@@ -170,7 +169,7 @@ public class JobCheckpointDealer implements InitializingBean {
         String taskId = jobIdentifier.getTaskId();
 
         if (Strings.isNullOrEmpty(checkpointJsonStr)) {
-            logger.info("taskId {} engineTaskId {} can't get checkpoint info.", taskId, engineTaskId);
+            LOGGER.info("taskId {} engineTaskId {} can't get checkpoint info.", taskId, engineTaskId);
             return;
         }
         try {
@@ -199,7 +198,7 @@ public class JobCheckpointDealer implements InitializingBean {
                 }
             }
         } catch (IOException e) {
-            logger.error("taskID:{} ,engineTaskId:{}, error:", taskId, engineTaskId, e);
+            LOGGER.error("taskID:{} ,engineTaskId:{}, error:", taskId, engineTaskId, e);
         }
     }
 
@@ -218,11 +217,11 @@ public class JobCheckpointDealer implements InitializingBean {
                     JobCheckpointInfo taskInfo = new JobCheckpointInfo(computeType, taskId, jobIdentifier, engineTypeName, checkpointInterval);
 
                     delayBlockingQueue.put(taskInfo);
-                    logger.info("add task to checkpoint delay queue,{}", taskInfo);
+                    LOGGER.info("add task to checkpoint delay queue,{}", taskInfo);
 
                     return taskInfo;
                 } catch (Exception e) {
-                    logger.error("", e);
+                    LOGGER.error("", e);
                 }
                 return null;
             });
@@ -243,8 +242,8 @@ public class JobCheckpointDealer implements InitializingBean {
                 engineJobCheckpointDao.batchDeleteByEngineTaskIdAndCheckpointId(thresholdCheckpoint.getTaskEngineId(), thresholdCheckpoint.getCheckpointId());
             }
         } catch (Exception e) {
-            logger.error("taskEngineID Id :{}", engineJobId);
-            logger.error("", e);
+            LOGGER.error("taskEngineID Id :{}", engineJobId);
+            LOGGER.error("", e);
         }
     }
 
@@ -279,7 +278,7 @@ public class JobCheckpointDealer implements InitializingBean {
         try {
             pluginInfoMap = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
         } catch (IOException e) {
-            logger.error("plugin info parse error ..", e);
+            LOGGER.error("plugin info parse error ..", e);
         }
         return Integer.valueOf(pluginInfoMap.getOrDefault(CHECKPOINT_RETAINED_KEY, 1).toString());
     }
