@@ -732,8 +732,9 @@ public class FlinkClient extends AbstractClient {
             if (!judgeResult.available() || isPerJob){
                 return judgeResult;
             } else {
-                ClusterClient clusterClient = flinkClusterClientManager.getClusterClient(null);
-                if (clusterClient == null) {
+                try {
+                    flinkClusterClientManager.getClusterClient(null);
+                } catch (Exception e) {
                     return JudgeResult.notOk("wait flink session client recover");
                 }
                 FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();

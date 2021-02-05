@@ -59,6 +59,8 @@ import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.lead
 import org.apache.flink.shaded.curator.org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.flink.util.FlinkException;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -104,6 +106,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     private ClusterSpecification yarnSessionSpecification;
     private volatile ClusterClient<ApplicationId> clusterClient;
+    private volatile ApplicationId clusterId;
     private AtomicBoolean isLeader = new AtomicBoolean(false);
     private FlinkConfig flinkConfig;
     private CuratorFramework zkClient;
@@ -225,6 +228,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
             if (retrieveClusterClient != null) {
                 clusterClient = retrieveClusterClient;
+                clusterId = clusterClient.getClusterId();
                 LOG.info("retrieve flink client with yarn session success");
                 return true;
             }
@@ -237,6 +241,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                     ) {
                         yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + ConfigConstrant.SPLIT + sessionAppNameSuffix);
                         clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
+                        clusterId = clusterClient.getClusterId();
                         clusterClient.setDetached(true);
                     }
                     return true;
@@ -665,6 +670,13 @@ public class SessionClientFactory extends AbstractClientFactory {
                     LOG.info("------- Flink yarn-session application kill over. ----");
                 } else {
                     LOG.info("------- Flink yarn-session compatible application not exist. ----");
+                }
+                YarnConfiguration yarnConf = sessionClientFactory.flinkClientBuilder.getYarnConf();
+                FileSystem fs = FileSystem.get(yarnConf);
+                Path homeDir = fs.getHomeDirectory();
+                Path appRemotePath = new Path(String.format("%s/.flink/%s", homeDir, sessionClientFactory.clusterId.toString()));
+                if (fs.exists(appRemotePath)) {
+                    fs.delete(appRemotePath, true);
                 }
             } catch (Exception ex) {
                 LOG.error("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
