@@ -18,7 +18,7 @@ import org.slf4j.Logger;
  */
 public class ExceptionUtil {
 
-    private static Logger logger = LoggerFactory.getLogger(ExceptionUtil.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(ExceptionUtil.class);
 
     /**
      * 获取日志信息异常统一返回信息
@@ -50,7 +50,7 @@ public class ExceptionUtil {
             String result = buffer.toString();
             return result;
         } catch (Throwable ee) {
-            logger.error("", ee);
+            LOGGER.error("", ee);
 
         } finally {
             if (writer != null) {
@@ -60,7 +60,7 @@ public class ExceptionUtil {
                 try {
                     stringWriter.close();
                 } catch (Throwable ee) {
-                    logger.error("", ee);
+                    LOGGER.error("", ee);
                 }
             }
         }

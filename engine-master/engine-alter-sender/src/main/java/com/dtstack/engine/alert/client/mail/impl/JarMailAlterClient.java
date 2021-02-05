@@ -42,7 +42,7 @@ public class JarMailAlterClient extends AbstractMailAlterClient {
         } catch (Exception e) {
             logger.info("[sendMail] end, cost={}, mails={}, subject={}, message={}", (System.currentTimeMillis() - startTime), alterSendMailBean.getEmails(), alterSendMailBean.getSubject(),
                     alterSendMailBean.getContent(), e);
-            return R.fail("jarPath:" + alterSendMailBean.getJarPath() + "加载失败，请检查配置！原因:" + e.getLocalizedMessage());
+            return R.fail("jarPath:" + alterSendMailBean.getJarPath() + " loading failed, please check the configuration! reason:" + e.getLocalizedMessage());
         }
     }
 
@@ -50,12 +50,12 @@ public class JarMailAlterClient extends AbstractMailAlterClient {
     public void buildBean(AlterSendMailBean alterSendMailBean, JSONObject jsonObject, AlterContext alterContext) throws AlterException {
         String className = jsonObject.getString(ConstMailAlter.MAIL_CLASS);
         if (StringUtils.isBlank(className)) {
-            throw new AlterException("发送邮件自定义jar必须配置jar包的完整类名，请在配置中配置字段:"+ ConstMailAlter.MAIL_CLASS);
+            throw new AlterException("The complete class name of the jar package must be configured for sending mail custom jar. Please configure the field in the configuration:"+ ConstMailAlter.MAIL_CLASS);
         }
 
         String jarPath = alterContext.getJarPath();
         if (StringUtils.isBlank(jarPath)) {
-            throw new AlterException("自定义jar必须传入jar路径");
+            throw new AlterException("The custom jar must be passed into the jar path");
         }
         alterSendMailBean.setJarPath(jarPath);
         alterSendMailBean.setClassName(className);

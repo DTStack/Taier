@@ -26,12 +26,12 @@ public abstract class AbstractSmsAlterClient extends AbstractAlterClient {
     private AlterSendSmsBean buildSmsBean(AlterContext alterContext) throws AlterException {
         String content = alterContext.getContent();
         if (StringUtils.isBlank(content)) {
-            throw new AlterException("发送短信必须有发送内容");
+            throw new AlterException("Sending text message must have sending content");
         }
 
         String phone = alterContext.getPhone();
         if (StringUtils.isBlank(phone)) {
-            throw new AlterException("发送短信必须有手机号");
+            throw new AlterException("You must have a mobile phone number to send SMS");
         }
 
         AlterSendSmsBean alterSendSmsBean = new AlterSendSmsBean();

@@ -29,12 +29,12 @@ public class JarDingAlterClient extends AbstractDingAlterClient {
         JSONObject jsonObject = JSONObject.parseObject(alterContext.getAlertGateJson());
         String className = jsonObject.getString(ConstDingAlter.DING_CLASS);
         if (StringUtils.isBlank(className)) {
-            throw new AlterException("发送邮件自定义jar必须配置jar包的完整类名，请在配置中配置字段:" + ConstDingAlter.DING_CLASS);
+            throw new AlterException("Send mail custom jar must configure the full class name of the jar package, please configure the field in the configuration:" + ConstDingAlter.DING_CLASS);
         }
 
         String jarPath = alterContext.getJarPath();
         if (StringUtils.isBlank(jarPath)) {
-            throw new AlterException("自定义jar必须传入jar路径");
+            throw new AlterException("Custom jar must be passed in the jar path");
         }
 
         alterSendDingBean.setJarPath(jarPath);
@@ -58,7 +58,7 @@ public class JarDingAlterClient extends AbstractDingAlterClient {
             } else if (DingTypeEnums.MARKDOWN.getMsg().equalsIgnoreCase(dingMsgType)) {
                 r = iDingChannel.sendDingWithMarkDown(Lists.newArrayList(ding),alterSendDingBean.getTitle(),alterSendDingBean.getContent(),null,jsonObject);
             } else {
-                throw new BizException(String.format("不支持的钉钉消息类型，msgtype=%s", dingMsgType));
+                throw new BizException(String.format("Unsupported DingTalk message types，msgtype=%s", dingMsgType));
             }
             logger.info("[sendMail] end, cost={}, mails={}, title={}, message={}, result={}", (System.currentTimeMillis() - startTime),
                     alterSendDingBean.getDing(), alterSendDingBean.getTitle(), alterSendDingBean.getContent(), r);
@@ -67,7 +67,7 @@ public class JarDingAlterClient extends AbstractDingAlterClient {
         } catch (Exception e) {
             logger.info("[sendMail] end, cost={}, mails={}, title={}, message={}", (System.currentTimeMillis() - startTime), alterSendDingBean.getDing(), alterSendDingBean.getTitle(),
                     alterSendDingBean.getContent(), e);
-            return R.fail("jarPath:" + alterSendDingBean.getJarPath() + "加载失败，请检查配置！原因:" + e.getLocalizedMessage());
+            return R.fail("jarPath:" + alterSendDingBean.getJarPath() + " loading failed, please check the configuration! the reason:" + e.getLocalizedMessage());
         }
     }
 

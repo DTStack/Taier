@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractDingAlterClient extends AbstractAlterClient {
 
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Override
     protected R send(AlterContext alterContext) throws AlterException {
@@ -32,7 +32,7 @@ public abstract class AbstractDingAlterClient extends AbstractAlterClient {
         String content = alterContext.getContent();
         AlterSendDingBean alterSendDingBean = new AlterSendDingBean();
         if (StringUtils.isBlank(content)) {
-            throw new AlterException("发送钉钉必须有发送内容");
+            throw new AlterException("Sending Dingding must have content");
         }
 
         String title = alterContext.getTitle();
@@ -50,7 +50,7 @@ public abstract class AbstractDingAlterClient extends AbstractAlterClient {
             try {
                 jsonObject = JSON.parseObject(alertGateJson);
             } catch (Exception e) {
-                throw new AlterException("配置格式不合法!请检查一下 alertGateJson字段");
+                throw new AlterException("The configuration format is illegal! Please check the alertGateJson field");
             }
         }
 

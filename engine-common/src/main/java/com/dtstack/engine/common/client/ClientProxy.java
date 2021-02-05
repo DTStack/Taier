@@ -34,7 +34,7 @@ import java.util.concurrent.*;
 
 public class ClientProxy implements IClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClientProxy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientProxy.class);
 
     private IClient targetClient;
 

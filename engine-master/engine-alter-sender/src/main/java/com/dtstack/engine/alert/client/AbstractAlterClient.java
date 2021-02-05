@@ -3,13 +3,11 @@ package com.dtstack.engine.alert.client;
 import com.dtstack.engine.alert.AlterConfig;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.EventMonitor;
-import com.dtstack.engine.alert.exception.AlterEventInterruptException;
 import com.dtstack.engine.alert.pool.AlterDiscardPolicy;
 import com.dtstack.engine.alert.pool.CustomThreadFactory;
 import com.dtstack.lang.data.R;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @Description:
  */
 public abstract class AbstractAlterClient implements AlterClient,Runnable {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private AlterConfig alterConfig;
     private LinkedBlockingQueue<AlterContext> alterQueue;
     private ExecutorService executorService;
@@ -73,21 +71,21 @@ public abstract class AbstractAlterClient implements AlterClient,Runnable {
 
     @Override
     public void sendAsyncAAlter(AlterContext alterContext, List<EventMonitor> eventMonitors) throws Exception {
-        logger.info("开始进入队列: id {}", alterContext.getMark());
+        LOGGER.info("Start entering the queue: id {}", alterContext.getMark());
         eventMonitors = setDefaultEvent(alterContext, eventMonitors);
 
         if (alterQueue.contains(alterContext)) {
-            logger.info("元素:" + alterContext.getMark() + "已在队列中存在");
+            LOGGER.info("Element:{} already exists in the queue",alterContext.getMark());
             return;
         }
 
         if (alterQueue.size() > alterConfig.getQueueSize()) {
             // 响应告警拒绝事件
-            logger.info("元素:" + alterContext.getMark() + "被拒绝");
+            LOGGER.info("Element:{} be rejected",alterContext.getMark());
 
             eventMonitors.forEach(eventMonitor -> eventMonitor.refuseEvent(alterContext));
         } else {
-            logger.info("元素:" + alterContext.getMark() + "进入队列");
+            LOGGER.info("Element:{} enter the queue",alterContext.getMark());
 
             eventMonitors.forEach(eventMonitor -> eventMonitor.joiningQueueEvent(alterContext));
             alterQueue.put(alterContext);
@@ -118,14 +116,14 @@ public abstract class AbstractAlterClient implements AlterClient,Runnable {
                 AlterContext alterContext = alterQueue.poll(30, TimeUnit.SECONDS);
                 if (alterContext != null) {
                     // 响应出队事件
-                    logger.info("元素: id {} 离开队列",alterContext.getMark());
+                    LOGGER.info("Element: id {} leave the queue",alterContext.getMark());
                     List<EventMonitor> eventMonitors = alterContext.getEventMonitors();
 
                     eventMonitors.forEach(eventMonitor ->eventMonitor.leaveQueueAndSenderBeforeEvent(alterContext));
                     sendAlter(alterContext,eventMonitors);
                 }
             } catch (Exception e) {
-                logger.error("", e);
+                LOGGER.error("", e);
             }
         }
     }
@@ -133,14 +131,14 @@ public abstract class AbstractAlterClient implements AlterClient,Runnable {
     private R sendAlter(AlterContext alterContext, List<EventMonitor> eventMonitors) throws Exception {
         R r = null;
         try {
-            logger.info("元素: id {} 开始发送告警", alterContext.getMark());
+            LOGGER.info("Element: id {} start sending alert", alterContext.getMark());
             r = send(alterContext);
             R finalR1 = r;
 
             eventMonitors.forEach(eventMonitor -> eventMonitor.alterSuccess(alterContext, finalR1));
             return r;
         } catch (Exception e) {
-            logger.error("", e);
+            LOGGER.error("", e);
             // 触发告警失败事件
             R finalR = r;
             eventMonitors.forEach(eventMonitor -> eventMonitor.alterFailure(alterContext, finalR, e));

@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class DTMailAlterClient extends AbstractMailAlterClient {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Override
     protected R sendMail(AlterSendMailBean alterSendMailBean) {
@@ -48,17 +48,17 @@ public class DTMailAlterClient extends AbstractMailAlterClient {
                     try {
                         htmlEmail.attach(x);
                     } catch (EmailException e) {
-                        logger.error("加载文件失败！");
+                        LOGGER.error("Failed to load file！");
                     }
                 });
             }
 
             String result = htmlEmail.send();
-            logger.info("[sendMail] end, cost={}, mails={}, subject={}, message={}, result={}", (System.currentTimeMillis() - startTime), alterSendMailBean.getEmails(), alterSendMailBean.getSubject(),
+            LOGGER.info("[sendMail] end, cost={}, mails={}, subject={}, message={}, result={}", (System.currentTimeMillis() - startTime), alterSendMailBean.getEmails(), alterSendMailBean.getSubject(),
                     alterSendMailBean.getContent(), result);
             return R.ok();
         } catch (EmailException e) {
-            logger.info("[sendMail] end, cost={}, mails={}, subject={}, message={}", (System.currentTimeMillis() - startTime), alterSendMailBean.getEmails(), alterSendMailBean.getSubject(),
+            LOGGER.info("[sendMail] end, cost={}, mails={}, subject={}, message={}", (System.currentTimeMillis() - startTime), alterSendMailBean.getEmails(), alterSendMailBean.getSubject(),
                     alterSendMailBean.getContent(), e);
             return R.fail(e.getLocalizedMessage());
         }
@@ -70,22 +70,22 @@ public class DTMailAlterClient extends AbstractMailAlterClient {
         // DT 必传项
         String host = jsonObject.getString(ConstMailAlter.MAIL_HOST);
         if (StringUtils.isBlank(host)) {
-            throw new AlterException("发送邮件必须有邮箱服务器地址，请在配置中配置字段:"+ ConstMailAlter.MAIL_HOST);
+            throw new AlterException("To send mail, you must have a mailbox server address. Please configure the field in configuration:"+ ConstMailAlter.MAIL_HOST);
         }
 
         Integer port = jsonObject.getInteger(ConstMailAlter.MAIL_PORT);
         if (port == null) {
-            throw new AlterException("发送邮件必须有邮箱服务器端口，请在配置中配置字段:"+ ConstMailAlter.MAIL_PORT);
+            throw new AlterException("Sending mail must have mailbox server port, please configure field in configuration:"+ ConstMailAlter.MAIL_PORT);
         }
 
         String username = jsonObject.getString(ConstMailAlter.MAIL_USERNAME);
         if (StringUtils.isBlank(username)) {
-            throw new AlterException("发送邮件必须有邮箱发送者账号，请在配置中配置字段:"+ ConstMailAlter.MAIL_USERNAME);
+            throw new AlterException("To send mail, you must have a mailbox sender account. Please configure the fields in the configuration :"+ ConstMailAlter.MAIL_USERNAME);
         }
 
         String password = jsonObject.getString(ConstMailAlter.MAIL_PASSWORD);
         if (StringUtils.isBlank(password)) {
-            throw new AlterException("发送邮件必须有邮箱发送者，请在配置中配置字段:"+ ConstMailAlter.MAIL_USERNAME);
+            throw new AlterException("There must be a mailbox sender to send mail. Please configure the field in configuration:"+ ConstMailAlter.MAIL_USERNAME);
         }
 
         String from = jsonObject.getString(ConstMailAlter.MAIL_FROM);

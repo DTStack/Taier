@@ -21,7 +21,7 @@ import java.util.LinkedHashSet;
 
 public class DtClassLoader extends URLClassLoader {
 
-    private static Logger log = LoggerFactory.getLogger(DtClassLoader.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(DtClassLoader.class);
 
     private static final String CLASS_FILE_SUFFIX = ".class";
 
@@ -53,16 +53,16 @@ public class DtClassLoader extends URLClassLoader {
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         synchronized (getClassLoadingLock(name)) {
-            if (log.isDebugEnabled()){
-                log.debug("loadClass(" + name + ", " + resolve + ")");
+            if (LOGGER.isDebugEnabled()){
+                LOGGER.debug("loadClass(" + name + ", " + resolve + ")");
             }
             Class<?> clazz = null;
 
             // (0.1) Check our previously loaded class cache
             clazz = findLoadedClass(name);
             if (clazz != null) {
-                if (log.isDebugEnabled()){
-                    log.debug("  Returning class from cache");
+                if (LOGGER.isDebugEnabled()){
+                    LOGGER.debug("  Returning class from cache");
                 }
                 if (resolve){
                     resolveClass(clazz);
@@ -71,14 +71,14 @@ public class DtClassLoader extends URLClassLoader {
             }
 
             // (2) Search local repositories
-            if (log.isDebugEnabled()){
-                log.debug("  Searching local repositories");
+            if (LOGGER.isDebugEnabled()){
+                LOGGER.debug("  Searching local repositories");
             }
             try {
                 clazz = findClass(name);
                 if (clazz != null) {
-                    if (log.isDebugEnabled()){
-                        log.debug("  Loading class from local repository");
+                    if (LOGGER.isDebugEnabled()){
+                        LOGGER.debug("  Loading class from local repository");
                     }
                     if (resolve){
                         resolveClass(clazz);
@@ -89,15 +89,15 @@ public class DtClassLoader extends URLClassLoader {
                 // Ignore
             }
 
-            if (log.isDebugEnabled()){
-                log.debug("  Delegating to parent classloader at end: " + parent);
+            if (LOGGER.isDebugEnabled()){
+                LOGGER.debug("  Delegating to parent classloader at end: " + parent);
             }
 
             try {
                 clazz = Class.forName(name, false, parent);
                 if (clazz != null) {
-                    if (log.isDebugEnabled()){
-                        log.debug("  Loading class from parent");
+                    if (LOGGER.isDebugEnabled()){
+                        LOGGER.debug("  Loading class from parent");
                     }
                     if (resolve){
                         resolveClass(clazz);
@@ -116,8 +116,8 @@ public class DtClassLoader extends URLClassLoader {
     @Override
     public URL getResource(String name) {
 
-        if (log.isDebugEnabled()){
-            log.debug("getResource(" + name + ")");
+        if (LOGGER.isDebugEnabled()){
+            LOGGER.debug("getResource(" + name + ")");
         }
 
         URL url = null;
@@ -125,8 +125,8 @@ public class DtClassLoader extends URLClassLoader {
         // (2) Search local repositories
         url = findResource(name);
         if (url != null) {
-            if (log.isDebugEnabled()){
-                log.debug("  --> Returning '" + url.toString() + "'");
+            if (LOGGER.isDebugEnabled()){
+                LOGGER.debug("  --> Returning '" + url.toString() + "'");
             }
             return (url);
         }
@@ -134,15 +134,15 @@ public class DtClassLoader extends URLClassLoader {
         // (3) Delegate to parent unconditionally if not already attempted
         url = parent.getResource(name);
         if (url != null) {
-            if (log.isDebugEnabled()){
-                log.debug("  --> Returning '" + url.toString() + "'");
+            if (LOGGER.isDebugEnabled()){
+                LOGGER.debug("  --> Returning '" + url.toString() + "'");
             }
             return (url);
         }
 
         // (4) Resource was not found
-        if (log.isDebugEnabled()){
-            log.debug("  --> Resource not found, returning null");
+        if (LOGGER.isDebugEnabled()){
+            LOGGER.debug("  --> Resource not found, returning null");
         }
         return (null);
     }
@@ -175,8 +175,8 @@ public class DtClassLoader extends URLClassLoader {
     @Override
     public Enumeration<URL> findResources(String name) throws IOException {
 
-        if (log.isDebugEnabled()){
-            log.debug("findResources(" + name + ")");
+        if (LOGGER.isDebugEnabled()){
+            LOGGER.debug("findResources(" + name + ")");
         }
 
         LinkedHashSet<URL> result = new LinkedHashSet<>();

@@ -29,17 +29,17 @@ public abstract class AbstractMailAlterClient extends AbstractAlterClient {
     public AlterSendMailBean buildAlterSendMailBean(AlterContext alterContext) throws AlterException {
         List<String> emails = alterContext.getEmails();
         if (CollectionUtils.isEmpty(emails)) {
-            throw new AlterException("发送人数必须大于或者等于1");
+            throw new AlterException("The number of senders must be greater than or equal to 1");
         }
 
         String title = alterContext.getTitle();
         if (StringUtils.isBlank(title)) {
-            throw new AlterException("发送邮件必须有发送标题");
+            throw new AlterException("Send email must have send title");
         }
 
         String content = alterContext.getContent();
         if (StringUtils.isBlank(content)) {
-            throw new AlterException("发送邮件必须有发送内容");
+            throw new AlterException("Sending mail must have content");
         }
 
         AlterSendMailBean alterSendMailBean = new AlterSendMailBean();
@@ -53,7 +53,7 @@ public abstract class AbstractMailAlterClient extends AbstractAlterClient {
         JSONObject jsonObject = JSONObject.parseObject(alertGateJson);
 
         if (jsonObject == null) {
-            throw new AlterException("发送邮件时，必须要传入相关配置，例如className等");
+            throw new AlterException("When sending mail, you must pass in relevant configuration, such as className, etc");
         }
         alterSendMailBean.setAlertGateJson(alertGateJson);
         buildBean(alterSendMailBean, jsonObject,alterContext);

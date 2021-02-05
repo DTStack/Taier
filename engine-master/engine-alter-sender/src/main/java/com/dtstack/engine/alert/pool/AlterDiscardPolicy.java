@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class AlterDiscardPolicy implements RejectedExecutionHandler{
 	
-	private Logger logger = LoggerFactory.getLogger(getClass());
+	private Logger LOGGER = LoggerFactory.getLogger(getClass());
 
 	private String threadName;
 
@@ -24,12 +24,12 @@ public class AlterDiscardPolicy implements RejectedExecutionHandler{
 	}
 
 	public AlterDiscardPolicy(Logger logger) {
-		this.logger = logger;
+		this.LOGGER = logger;
 	}
 
 	@Override
 	public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-		logger.warn("线程："+threadName + "is discard,type: "+type);
+		LOGGER.warn("Thread：{} is discard,type: {}",threadName,type);
 		throw new AlterRejectedExecution();
 	}
 

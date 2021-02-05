@@ -28,7 +28,7 @@ import java.util.Properties;
  */
 public class ClientOperator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClientOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientOperator.class);
 
     private ClientCache clientCache = ClientCache.getInstance();
 
@@ -61,7 +61,7 @@ public class ClientOperator {
 
             return (RdosTaskStatus) result;
         } catch (Exception e) {
-            LOG.error("getStatus happens error：{}",jobId, e);
+            LOGGER.error("getStatus happens error：{}",jobId, e);
             return RdosTaskStatus.NOTFOUND;
         }
     }
@@ -120,7 +120,7 @@ public class ClientOperator {
         JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobClient.getEngineTaskId(),
                 jobClient.getApplicationId(), jobClient.getTaskId(), jobClient.getForceCancel());
         checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
-        LOG.info("stop job jobClient {} pluginInfo {} ",jobClient, jobClient.getPluginInfo());
+        LOGGER.info("stop job jobClient {} pluginInfo {} ",jobClient, jobClient.getPluginInfo());
 
         jobIdentifier.setTimeout(getCheckoutTimeout(jobClient));
         IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
@@ -160,7 +160,7 @@ public class ClientOperator {
     }
 
     public JobResult submitJob(JobClient jobClient) throws ClientAccessException {
-        LOG.info("submit job jobClient {}  pluginInfo {}", jobClient, jobClient.getPluginInfo());
+        LOGGER.info("submit job jobClient {}  pluginInfo {}", jobClient, jobClient.getPluginInfo());
         IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return clusterClient.submitJob(jobClient);
     }
@@ -171,19 +171,19 @@ public class ClientOperator {
     }
 
     public ComponentTestResult testConnect(String engineType, String pluginInfo){
-        LOG.info("test connect {} ",pluginInfo);
+        LOGGER.info("test connect {} ",pluginInfo);
         IClient clusterClient = clientCache.getDefaultPlugin(engineType);
         return clusterClient.testConnect(pluginInfo);
     }
 
     public List<List<Object>> executeQuery(String engineType, String pluginInfo, String sql, String database) throws Exception {
-        LOG.info("execute query engineType {}  pluginInfo {} sql {} database {}", engineType, pluginInfo, sql, database);
+        LOGGER.info("execute query engineType {}  pluginInfo {} sql {} database {}", engineType, pluginInfo, sql, database);
         IClient client = clientCache.getClient(engineType, pluginInfo);
         return client.executeQuery(sql, database);
     }
 
     public String uploadStringToHdfs(String engineType, String pluginInfo, String bytes, String hdfsPath) throws Exception {
-        LOG.info("upload to hdfs engineType {}  pluginInfo {} hdfs Path {}", engineType, pluginInfo, hdfsPath);
+        LOGGER.info("upload to hdfs engineType {}  pluginInfo {} hdfs Path {}", engineType, pluginInfo, hdfsPath);
         IClient client = clientCache.getClient(engineType, pluginInfo);
         return client.uploadStringToHdfs(bytes, hdfsPath);
     }

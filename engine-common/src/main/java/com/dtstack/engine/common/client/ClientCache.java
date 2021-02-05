@@ -23,7 +23,7 @@ import java.util.Properties;
 
 public class ClientCache {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClientCache.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientCache.class);
 
     private static final String MD5_SUM_KEY = "md5sum";
     private static final String MD5_ZIP_KEY = "md5zip";
@@ -81,7 +81,7 @@ public class ClientCache {
 
             return client;
         } catch (Throwable e) {
-            LOG.error("------- engineType {}  plugin info {} get client error ", engineType, pluginInfo, e);
+            LOGGER.error("------- engineType {}  plugin info {} get client error ", engineType, pluginInfo, e);
             throw new ClientAccessException(e);
         }
     }
@@ -102,7 +102,7 @@ public class ClientCache {
 
             }
         } catch (Exception e) {
-            LOG.error("-------job.pluginInfo is empty, either can't find plugin('In console is the typeName') which engineType:{}", engineType);
+            LOGGER.error("-------job.pluginInfo is empty, either can't find plugin('In console is the typeName') which engineType:{}", engineType);
             throw new IllegalArgumentException("job.pluginInfo is empty, either can't find plugin('In console is the typeName') which engineType:" + engineType);
         }
         return defaultClient;

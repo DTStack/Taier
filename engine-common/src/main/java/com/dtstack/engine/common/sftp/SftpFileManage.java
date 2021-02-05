@@ -47,7 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SftpFileManage implements IFileManage {
 
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(SftpFileManage.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(SftpFileManage.class);
 
     public static final String PREFIX = "sftp://";
 
@@ -87,10 +87,10 @@ public class SftpFileManage implements IFileManage {
         boolean isUsePool = sftpConfig.getIsUsePool();
 
         if (isUsePool) {
-            LOG.info("get channelSftp from SftpPool!");
+            LOGGER.info("get channelSftp from SftpPool!");
             this.sftpPool = getSftpPool(sftpConfig);
         } else {
-            LOG.info("get channelSftp from native!");
+            LOGGER.info("get channelSftp from native!");
             this.sftpFactory = new SftpFactory(sftpConfig);
         }
     }
@@ -120,7 +120,7 @@ public class SftpFileManage implements IFileManage {
                     channelSftpTest.disconnect();
                     channelSftpTest.getSession().disconnect();
                 } catch (JSchException e) {
-                    LOG.error("channelSftpTest获取Session异常", e);
+                    LOGGER.error("channelSftpTest获取Session异常", e);
                 }
                 SftpPoolConfig sftpPoolConfig = new SftpPoolConfig(sftpConfig.getMaxTotal(), sftpConfig.getMaxIdle(), sftpConfig.getMinIdle());
                 sftpPoolConfig.setMaxWaitMillis(sftpConfig.getMaxWaitMillis()); //从idle队列里面取对象时，阻塞时最大等待时长
@@ -129,7 +129,7 @@ public class SftpFileManage implements IFileManage {
                 sftpPoolConfig.setTimeBetweenEvictionRunsMillis(sftpConfig.getTimeBetweenEvictionRunsMillis()); //evict线程每次间隔时间
                 sftpPool1 = new SftpPool(sftpFactory, sftpPoolConfig);
             } else {
-                LOG.info("SFTPHandler连接sftp失败, host:{} username:{} .", sftpConfig.getHost(), sftpConfig.getUsername());
+                LOGGER.info("SFTPHandler连接sftp失败, host:{} username:{} .", sftpConfig.getHost(), sftpConfig.getUsername());
             }
             return sftpPool1;
         });
@@ -165,7 +165,7 @@ public class SftpFileManage implements IFileManage {
             sessionSftp = channelSftp.getSession();
             sessionSftp.setTimeout(sftpConfig.getTimeout());
         } catch (JSchException e) {
-            LOG.error("获取sessionSftp异常", e);
+            LOGGER.error("获取sessionSftp异常", e);
             throw new RuntimeException("获取sessionSftp异常, 请检查sessionSftp是否正常", e);
         }
     }
@@ -186,7 +186,7 @@ public class SftpFileManage implements IFileManage {
             fileLastModifyMap.put(localFile, new File(localFile).lastModified());
             return localFile;
         } catch (Exception e) {
-            LOG.error("load file error: ", e);
+            LOGGER.error("load file error: ", e);
             return null;
         }
     }
@@ -208,11 +208,11 @@ public class SftpFileManage implements IFileManage {
             File localPathFile = new File(localPath);
             if (!localPathFile.getParentFile().exists()) {
                 boolean mkdirs = localPathFile.getParentFile().mkdirs();
-                LOG.info("local file localParentFile {}  mkdir {} :", localPathFile.getParent(), mkdirs);
+                LOGGER.info("local file localParentFile {}  mkdir {} :", localPathFile.getParent(), mkdirs);
             }
 
             if (!isFileExist(channelSftp, remotePath)) {
-                LOG.info("File not exist on sftp:" + remotePath);
+                LOGGER.info("File not exist on sftp:" + remotePath);
                 return false;
             }
             return downloadFile(remotePath, localPath, channelSftp);
@@ -228,7 +228,7 @@ public class SftpFileManage implements IFileManage {
             channelSftp.get(remotePath, os);
             return true;
         } catch (Exception e) {
-            LOG.error("download file from sftp error:", e);
+            LOGGER.error("download file from sftp error:", e);
             return false;
         } finally {
             if (os != null) {
@@ -236,7 +236,7 @@ public class SftpFileManage implements IFileManage {
                     os.flush();
                     os.close();
                 } catch (IOException e) {
-                    LOG.error("", e);
+                    LOGGER.error("", e);
                 }
             }
         }
@@ -253,7 +253,7 @@ public class SftpFileManage implements IFileManage {
         try {
             return downloadDir(remoteDir,localDir);
         } catch (Throwable e) {
-            LOG.error("sftp downloadDir error {}", e);
+            LOGGER.error("sftp downloadDir error {}", e);
         }
         return Boolean.FALSE;
     }
@@ -272,7 +272,7 @@ public class SftpFileManage implements IFileManage {
             File localDirPath = new File(localDir);
             if (!localDirPath.exists()) {
                 boolean mkdirs = localDirPath.mkdirs();
-                LOG.info("local file localDir {}  mkdir {} :", localDir, mkdirs);
+                LOGGER.info("local file localDir {}  mkdir {} :", localDir, mkdirs);
             }
 
             channelSftp = getChannelSftp();
@@ -299,7 +299,7 @@ public class SftpFileManage implements IFileManage {
                 if (isdir) {
                     File dir2 = new File(localFilePath);
                     if (!dir2.exists()) {
-                        LOG.info("local file path mkdir :", localFilePath);
+                        LOGGER.info("local file path mkdir :", localFilePath);
                         dir2.mkdir();
                     }
                     downloadDir(ftpFilePath, localFilePath);
@@ -310,7 +310,7 @@ public class SftpFileManage implements IFileManage {
 
             return true;
         } catch (Exception e) {
-            LOG.error("sftp downloadDir error {}", e);
+            LOGGER.error("sftp downloadDir error {}", e);
             throw new RdosDefineException(e);
         } finally {
             close(channelSftp);
@@ -328,23 +328,23 @@ public class SftpFileManage implements IFileManage {
 
 
     public boolean uploadFile(String remotePath, String localPath, String fileName) {
-        LOG.info("路径：localPath=" + localPath);
+        LOGGER.info("路径：localPath=" + localPath);
         ChannelSftp channelSftp = null;
         try {
             //检查路径
             if (!this.mkdir(remotePath)) {
-                LOG.error("创建sftp服务器路径失败:" + remotePath);
+                LOGGER.error("创建sftp服务器路径失败:" + remotePath);
                 return false;
             }
             channelSftp = getChannelSftp();
             String dst = remotePath + "/" + fileName;
             String src = localPath + "/" + fileName;
-            LOG.info("开始上传，本地服务器路径：[" + src + "]目标服务器路径：[" + dst + "]");
+            LOGGER.info("开始上传，本地服务器路径：[" + src + "]目标服务器路径：[" + dst + "]");
             channelSftp.put(src, dst);
-            LOG.info("上传成功");
+            LOGGER.info("上传成功");
             return true;
         } catch (Exception e) {
-            LOG.error("上传失败", e);
+            LOGGER.error("上传失败", e);
             return false;
         } finally {
             close(channelSftp);
@@ -356,7 +356,7 @@ public class SftpFileManage implements IFileManage {
         if (file.isDirectory()) {
             remotePath += "/" + file.getName();
             if (!mkdir(remotePath)) {
-                LOG.error("创建sftp服务器路径失败:" + remotePath);
+                LOGGER.error("创建sftp服务器路径失败:" + remotePath);
                 return false;
             }
             File[] files = file.listFiles();
@@ -378,7 +378,7 @@ public class SftpFileManage implements IFileManage {
             }
             return true;
         } catch (Exception e) {
-            LOG.error("删除失败:{}", remotePath, e);
+            LOGGER.error("删除失败:{}", remotePath, e);
             return false;
         } finally {
             close(channelSftp);
@@ -391,7 +391,7 @@ public class SftpFileManage implements IFileManage {
             channelSftp = getChannelSftp();
             channelSftp.cd(remotePath);
         } catch (SftpException e) {
-            LOG.info("", e);
+            LOGGER.info("", e);
             //释放连接
             close(channelSftp);
             return false;
@@ -417,7 +417,7 @@ public class SftpFileManage implements IFileManage {
             }
             return true;
         } catch (SftpException e) {
-            LOG.error("", e);
+            LOGGER.error("", e);
             throw new RuntimeException("删除sftp路径失败，sftpPath=" + remotePath);
         } finally {
             close(channelSftp);
@@ -452,14 +452,14 @@ public class SftpFileManage implements IFileManage {
                         try {
                             channelSftp.mkdir(currPath.toString());
                         } catch (SftpException e) {
-                            LOG.error("sftp isExist error {}", e);
+                            LOGGER.error("sftp isExist error {}", e);
                             return false;
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            LOG.error("", e);
+            LOGGER.error("", e);
         } finally {
             close(channelSftp);
         }
@@ -473,7 +473,7 @@ public class SftpFileManage implements IFileManage {
             channelSftp = getChannelSftp();
             channelSftp.rename(oldPth, newPath);
         } catch (SftpException e) {
-            LOG.error("renamePath {} to {} error", oldPth, newPath, e);
+            LOGGER.error("renamePath {} to {} error", oldPth, newPath, e);
             return false;
         } finally {
             close(channelSftp);
@@ -488,7 +488,7 @@ public class SftpFileManage implements IFileManage {
             Vector vector = channelSftp.ls(remotePath);
             return vector;
         } catch (SftpException e) {
-            LOG.error("listFile  error", e);
+            LOGGER.error("listFile  error", e);
             throw new RdosDefineException(e);
         } finally {
             close(channelSftp);
@@ -509,7 +509,7 @@ public class SftpFileManage implements IFileManage {
                 channelSftp.disconnect();
                 channelSftp.getSession().disconnect();
             } catch (Exception e) {
-                LOG.error("close channelSftp error:", e);
+                LOGGER.error("close channelSftp error:", e);
             }
         }
     }
