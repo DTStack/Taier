@@ -33,7 +33,7 @@ create table lineage_data_source(
     gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
     is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
     PRIMARY KEY (id),
-    UNIQUE KEY uni_tenant_source_key (dt_uic_tenant_id,source_key,app_type)
+    UNIQUE KEY uni_tenant_source_key (dt_uic_tenant_id,source_key,app_type,source_name)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 表信息表。表可能并不能关联上data source。
