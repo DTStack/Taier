@@ -3,37 +3,19 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.Component;
-import com.dtstack.engine.api.domain.Engine;
-import com.dtstack.engine.api.domain.KerberosConfig;
-import com.dtstack.engine.api.domain.LineageDataSetInfo;
-import com.dtstack.engine.api.domain.LineageDataSource;
-import com.dtstack.engine.api.domain.Queue;
-import com.dtstack.engine.api.domain.Tenant;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.pojo.lineage.Column;
-import com.dtstack.engine.api.vo.ClusterEngineVO;
-import com.dtstack.engine.api.vo.ClusterVO;
-import com.dtstack.engine.api.vo.ComponentVO;
-import com.dtstack.engine.api.vo.EngineTenantVO;
-import com.dtstack.engine.api.vo.EngineVO;
-import com.dtstack.engine.api.vo.QueueVO;
-import com.dtstack.engine.api.vo.SchedulingVo;
+import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.enums.EComponentScheduleType;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.dao.ClusterDao;
-import com.dtstack.engine.dao.ComponentDao;
-import com.dtstack.engine.dao.EngineDao;
-import com.dtstack.engine.dao.EngineTenantDao;
-import com.dtstack.engine.dao.QueueDao;
-import com.dtstack.engine.dao.TenantDao;
-import com.dtstack.engine.dao.TenantResourceDao;
+import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.lineage.dao.LineageDataSetDao;
@@ -50,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
@@ -194,7 +177,7 @@ public class ClusterServiceTest extends AbstractTest {
      * @see EngineService#listClusterEngines(java.lang.Long, boolean)
      */
     @Test
-    @Transactional
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testGetCluster() throws Exception{
         //创建集群
@@ -206,6 +189,7 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNotNull(yarnComponent.getId());
         Component yarn = componentService.getOne(yarnComponent.getId());
         ComponentVO hdfsComponent = testAddHdfs(clusterVO);
+        testAddHiveWithKerberos(clusterVO);
         testAddSpark(clusterVO);
         Assert.assertNotNull(yarn);
 
@@ -217,7 +201,7 @@ public class ClusterServiceTest extends AbstractTest {
         //页面展示接口
         testPageQuery();
         //点击详情接口
-        testGetCluster(clusterVO);
+        clusterVO = testGetCluster(clusterVO);
         List<Engine> engines = engineDao.listByClusterId(clusterVO.getId());
         Assert.assertNotNull(engines);
         Long engineId = engines.stream().map(Engine::getId).collect(Collectors.toList()).get(0);
@@ -257,7 +241,6 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNull(kerberosConfig);
 
         //loadTemplate
-
         String typeName = componentService.convertComponentTypeToClient(testClusterName, EComponentType.SPARK.getTypeCode(),"210",null);
         Assert.assertEquals(typeName,"yarn2-hdfs2-spark210");
 
@@ -326,7 +309,7 @@ public class ClusterServiceTest extends AbstractTest {
         JSONObject infoJSON = clusterService.pluginInfoJSON(dtUicTenantId, "hadoop", null, null);
         Assert.assertNotNull(infoJSON);
         String sftpDir = clusterService.clusterSftpDir(dtUicTenantId, EComponentType.HDFS.getTypeCode());
-        Assert.assertEquals(sftpDir,"/data/sftp/" + AppType.CONSOLE + "_" + clusterVO.getClusterName() + File.separator + EComponentType.getByCode(EComponentType.HDFS.getTypeCode()).name());
+        Assert.assertEquals(sftpDir,"/data/sftp"+File.separator + AppType.CONSOLE + "_" + clusterVO.getClusterName() + File.separator + EComponentType.getByCode(EComponentType.HDFS.getTypeCode()).name());
 
     }
 
@@ -365,7 +348,7 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertTrue(pageQueryVo.isPresent());
     }
 
-    private void testGetCluster(ClusterVO clusterVO) {
+    private ClusterVO testGetCluster(ClusterVO clusterVO) {
         //测试yarn 和hdfs是否存在
         //单个
         ClusterVO cluster = clusterService.getCluster(clusterVO.getClusterId(), null, true);
@@ -381,7 +364,7 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertTrue(resourceSchedule.isPresent());
         Optional<ComponentVO> yarnComponent = resourceSchedule.get().getComponents().stream().filter(c -> c.getComponentTypeCode() == EComponentType.YARN.getTypeCode()).findAny();
         Assert.assertTrue(yarnComponent.isPresent());
-
+        return cluster;
     }
 
     private void testGetAllCluster(ClusterVO clusterVO, ComponentVO yarnComponent) {
@@ -432,6 +415,12 @@ public class ClusterServiceTest extends AbstractTest {
     }
 
 
+    private void testAddHiveWithKerberos(ClusterVO clusterVO) {
+        componentService.addOrUpdateComponent(clusterVO.getClusterId(),"{\"jdbcUrl\":\"jdbc:hive2://eng-cdh3:10001/default;principal=hive/eng-cdh3@DTSTACK.COM\",\"maxJobPoolSize\":\"\",\"minJobPoolSize\":\"\",\"password\":\"\",\"queue\":\"\",\"username\":\"\"}",
+                null,"1.x","hive_pure.keytab.zip","[{\"key\":\"jdbcUrl\",\"values\":null,\"type\":\"INPUT\",\"value\":\"jdbc:hive2://eng-cdh3:10001/default;principal=hive/eng-cdh3@DTSTACK.COM\",\"required\":true,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"maxJobPoolSize\",\"values\":null,\"type\":\"INPUT\",\"value\":\"\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"minJobPoolSize\",\"values\":null,\"type\":\"INPUT\",\"value\":\"\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"password\",\"values\":null,\"type\":\"INPUT\",\"value\":\"\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"queue\",\"values\":null,\"type\":\"INPUT\",\"value\":\"\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null},{\"key\":\"username\",\"values\":null,\"type\":\"INPUT\",\"value\":\"\",\"required\":false,\"dependencyKey\":null,\"dependencyValue\":null}]",
+                9,EComponentType.HDFS.getTypeCode(),"hive/eng-cdh3@DTSTACK.COM","hive/eng-cdh3@DTSTACK.COM");
+    }
+
     private ComponentVO testAddSpark(ClusterVO clusterVO) {
         String componentConfig = "{\"deploymode\":[\"perjob\"],\"perjob\":{\"addColumnSupport\":\"true\",\"spark.eventLog.compress\":\"true\",\"spark.eventLog.dir\":\"hdfs://ns1/tmp/spark-yarn-logs\"," +
                 "\"spark.eventLog.enabled\":\"true\",\"spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON\":\"/data/miniconda2/bin/python2\",\"spark.yarn.appMasterEnv.PYSPARK_PYTHON\":\"/data/anaconda3/bin/python3\"," +
@@ -455,7 +444,7 @@ public class ClusterServiceTest extends AbstractTest {
 
     private DataSourceDTO getDataSourceDTO(Long tenantId) {
 
-        String dataJson = "{\"maxJobPoolSize\":\"\",\"password\":\"\",\"minJobPoolSize\":\"\"," +
+        String dataJson = "{\"maxJobPoolSize\":\"\",\"password\":\"123\",\"minJobPoolSize\":\"\"," +
                 "\"jdbcUrl\":\"jdbc:hive2://172.16.8.107:10000/default\"," +
                 "\"username\":\"admin\",\"typeName\":\"hive2.1.1-cdh6.1.1\"}";
 //        String kerberosConf = "{\n" +
@@ -471,7 +460,7 @@ public class ClusterServiceTest extends AbstractTest {
         dataSourceDTO.setSourceName("测试逻辑数据源1");
         dataSourceDTO.setDtUicTenantId(tenantId);
         dataSourceDTO.setKerberosConf(kerberosConf);
-        dataSourceDTO.setSourceType(0);
+        dataSourceDTO.setSourceType(27);
         return dataSourceDTO;
     }
 
@@ -497,6 +486,14 @@ public class ClusterServiceTest extends AbstractTest {
         String schemaName = "t1";
 
         return dataSetInfoService.getOneBySourceIdAndDbNameAndTableName(sourceId, dbName, tableName, schemaName);
+    }
+
+
+    @Test
+    public void testIsSameCluster(){
+
+        Boolean sameCluster = clusterService.isSameCluster(1L, Lists.newArrayList(1L));
+        Assert.assertTrue(sameCluster);
     }
 
 

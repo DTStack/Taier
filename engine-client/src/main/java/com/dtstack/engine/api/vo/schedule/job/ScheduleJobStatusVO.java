@@ -12,6 +12,8 @@ public class ScheduleJobStatusVO {
 
     private Integer all;
 
+    private Long projectId;
+
     private List<ScheduleJobStatusCountVO> scheduleJobStatusCountVO;
 
     public Integer getAll() {
@@ -28,5 +30,13 @@ public class ScheduleJobStatusVO {
 
     public void setScheduleJobStatusCountVO(List<ScheduleJobStatusCountVO> scheduleJobStatusCountVO) {
         this.scheduleJobStatusCountVO = scheduleJobStatusCountVO;
+    }
+
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
     }
 }
