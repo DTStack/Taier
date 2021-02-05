@@ -60,7 +60,7 @@ perjob:
     flink.env.java.opts: -XX:MaxMetaspaceSize=500m
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
-    yarn.application-attempts: 0
+    yarn.application-attempts: 3
     yarn.application-attempt-failures-validity-interval: 3600000
     high-availability: ZOOKEEPER
 
@@ -130,7 +130,7 @@ session:
     flink.env.java.opts: -XX:MaxMetaspaceSize=500m
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
-    yarn.application-attempts: 0
+    yarn.application-attempts: 3
     yarn.application-attempt-failures-validity-interval: 3600000
     high-availability: ZOOKEEPER
 
