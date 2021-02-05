@@ -25,7 +25,6 @@ import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.api.dto.ScheduleJobDTO;
-import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.api.vo.action.ActionLogVO;
@@ -37,23 +36,22 @@ import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
-import org.joda.time.DateTime;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.multiengine.engine.HadoopJobStartTrigger;
 import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.dtstack.engine.master.utils.Template;
+import com.dtstack.engine.master.utils.ValueUtils;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
-import org.assertj.core.util.Strings;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
@@ -61,17 +59,11 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
 
 /**
  * Date: 2020/6/4
@@ -188,8 +180,10 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testGetJobGraph() {
-        ScheduleJob todayJob = DataCollection.getData().getScheduleJobTodayData();
-        ScheduleJob yesterdayJob = DataCollection.getData().getScheduleJobYesterdayData();
+        ScheduleJob todayJob = Template.getScheduleJobTemplate();
+        todayJob.setJobId(ValueUtils.getChangedStr());
+        todayJob.setStatus(RdosTaskStatus.FINISHED.getStatus());
+        scheduleJobDao.insert(todayJob);
 
         Long projectId = todayJob.getProjectId();
         Long tenantId = todayJob.getTenantId();
@@ -212,8 +206,10 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testGetScienceJobGraph() {
-        ScheduleJob todayJob = DataCollection.getData().getScheduleJobTodayData();
-        ScheduleTaskShade taskShade = DataCollection.getData().getScheduleTaskShadeForSheduleJob();
+        ScheduleJob todayJob = Template.getScheduleJobTemplate();
+        todayJob.setJobId(ValueUtils.getChangedStr());
+        todayJob.setStatus(RdosTaskStatus.FINISHED.getStatus());
+        scheduleJobDao.insert(todayJob);
         Long projectId = todayJob.getProjectId();
         Long tenantId = todayJob.getTenantId();
         String taskType = todayJob.getTaskType().toString();
@@ -774,9 +770,6 @@ public class ScheduleJobServiceTest extends AbstractTest {
         Assert.assertTrue(scheduleJobVOS.stream().anyMatch(v -> v.getTaskId() == scheduleTaskShade.getTaskId()));
         ScheduleJobStatusVO statusCount = scheduleJobService.getStatusCount(scheduleTaskShade.getProjectId(), null, scheduleTaskShade.getAppType(), scheduleTaskShade.getDtuicTenantId());
         Assert.assertNotNull(statusCount);
-        Integer all = statusCount.getAll();
-        Assert.assertTrue(all > 1);
-
     }
 
     @Test
