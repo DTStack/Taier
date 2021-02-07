@@ -1304,7 +1304,8 @@ public class ComponentService {
                     // 一种是  全部手动填写的 如flink
                     try {
                         localDownLoadPath = localDownLoadPath + ".json";
-                        FileUtils.write(new File(localDownLoadPath), component.getComponentConfig());
+                        JSONObject configJson = filterConfigMessage(component);
+                        FileUtils.write(new File(localDownLoadPath),configJson.toJSONString());
                     } catch (IOException e) {
                         LOGGER.error("write upload file {} error", component.getComponentConfig(), e);
                     }
@@ -1327,6 +1328,27 @@ public class ComponentService {
         } else {
             return new File(localDownLoadPath);
         }
+    }
+
+    /**
+     * 移除配置信息中的密码信息
+     *
+     * @param component
+     * @return
+     */
+    private JSONObject filterConfigMessage(Component component) {
+        if (null == component) {
+            return new JSONObject();
+        }
+        String componentConfig = component.getComponentConfig();
+        if (StringUtils.isBlank(componentConfig)) {
+            return new JSONObject();
+        }
+        Map<String, String> filterConfig = new HashMap<>(4);
+        filterConfig.put("password", "");
+        JSONObject configJsonObject = JSONObject.parseObject(componentConfig);
+        configJsonObject.putAll(filterConfig);
+        return configJsonObject;
     }
 
 
