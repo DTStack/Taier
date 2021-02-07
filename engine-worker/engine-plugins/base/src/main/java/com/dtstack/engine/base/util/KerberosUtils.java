@@ -82,13 +82,13 @@ public class KerberosUtils {
      * @param threadName
      * @return
      */
-    private static <T> T retryLoginKerberosWithCallBack(UserGroupInformation ugi
-            , Supplier<T> supplier
-            , String finalKrb5ConfPath
-            , Configuration configuration
-            , String finalPrincipal
-            , String finalKeytabPath
-            , String threadName) {
+    private static <T> T retryLoginKerberosWithCallBack(UserGroupInformation ugi,
+                                                        Supplier<T> supplier,
+                                                        String finalKrb5ConfPath,
+                                                        Configuration configuration,
+                                                        String finalPrincipal,
+                                                        String finalKeytabPath,
+                                                        String threadName) {
         try {
             return ugi.doAs((PrivilegedExceptionAction<T>) supplier::get);
         } catch (Exception e) {
@@ -98,12 +98,12 @@ public class KerberosUtils {
                 try {
                     return retryUgi.doAs((PrivilegedExceptionAction<T>) supplier::get);
                 } catch (Exception retrye) {
-                    logger.error("{}", retrye.getMessage());
-                    throw new RdosDefineException("retry doAs error: " + retrye.getMessage());
+                    logger.error("retryLoginKerberosWithCallBack: ", retrye);
+                    throw new RdosDefineException("retry doAs error: " + retrye);
                 }
             } else {
-                logger.error("{}", e.getMessage());
-                throw new RdosDefineException("doAs error: " + e.getMessage());
+                logger.error("retryLoginKerberosWithCallBack: ", e);
+                throw new RdosDefineException("doAs error: " + e);
             }
         }
     }
@@ -193,13 +193,7 @@ public class KerberosUtils {
                 logger.info("userGroupInformation current user = {} ugi user  = {} ", UserGroupInformation.getCurrentUser(), ugi.getUserName());
             }
             Preconditions.checkNotNull(ugi, "UserGroupInformation is null");
-            return KerberosUtils.retryLoginKerberosWithCallBack(ugi
-                    , supplier
-                    , finalKrb5ConfPath
-                    , configuration
-                    , finalPrincipal
-                    , finalKeytabPath
-                    , threadName);
+            return KerberosUtils.retryLoginKerberosWithCallBack(ugi, supplier, finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath, threadName);
         } catch (Exception e) {
             throw new RdosDefineException(e.getMessage());
         }
