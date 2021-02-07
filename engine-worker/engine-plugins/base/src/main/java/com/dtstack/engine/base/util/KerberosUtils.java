@@ -130,8 +130,7 @@ public class KerberosUtils {
         String threadName;
         Boolean isMergeKrb5;
 
-
-                File localDirPath = new File(localDir);
+        File localDirPath = new File(localDir);
         if (!localDirPath.exists()) {
             localDirPath.mkdirs();
         }
