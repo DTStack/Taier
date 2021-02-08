@@ -95,16 +95,10 @@ public class KerberosUtils {
             if (Arrays.stream(VALID_CREDENTIALS_MSG).anyMatch(e.toString()::contains)) {
                 UserGroupInformation retryUgi = createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath);
                 ugiMap.put(threadName, retryUgi);
-                try {
-                    return retryUgi.doAs((PrivilegedExceptionAction<T>) supplier::get);
-                } catch (Exception retrye) {
-                    logger.error("retryLoginKerberosWithCallBack: ", retrye);
-                    throw new RdosDefineException("retry doAs error: " + retrye);
-                }
-            } else {
-                logger.error("retryLoginKerberosWithCallBack: ", e);
-                throw new RdosDefineException("doAs error: " + e);
+                return loginKerberosWithCallBack(ugi, supplier);
             }
+            logger.error("retryLoginKerberosWithCallBack: ", e);
+            throw new RdosDefineException("doAs error: " + e);
         }
     }
 
