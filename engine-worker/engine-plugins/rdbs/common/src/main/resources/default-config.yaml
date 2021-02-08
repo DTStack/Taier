@@ -4,5 +4,7 @@ required:
 optional:
   username:
   password:
+    controls: password
+    value:
   maxJobPoolSize:
   minJobPoolSize:

@@ -54,7 +54,7 @@ public class SecurityAuditController {
         param.setRoot(user.getRootUser() == 1);
 
         return securityAuditService.pageQuery(param.getAppTag(), param.getTenantId(), param.getStartTime(),
-                param.getEndTime(), param.getOperator(), param.getCurrentPage(), param.getPageSize(), param.getOprtation(), param.getOperationObject(),
+                param.getEndTime(), param.getOperator(), param.getCurrentPage(), param.getPageSize(), param.getOperation(), param.getOperationObject(),
                 param.getRoot());
     }
 

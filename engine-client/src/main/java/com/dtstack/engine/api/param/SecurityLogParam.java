@@ -19,7 +19,7 @@ public class SecurityLogParam extends BaseEntity {
     private String operator;
     private Integer currentPage;
     private Integer pageSize;
-    private String oprtation;
+    private String operation;
     private String operationObject;
     private Boolean isRoot;
 
@@ -87,12 +87,12 @@ public class SecurityLogParam extends BaseEntity {
         this.pageSize = pageSize;
     }
 
-    public String getOprtation() {
-        return oprtation;
+    public String getOperation() {
+        return operation;
     }
 
-    public void setOprtation(String oprtation) {
-        this.oprtation = oprtation;
+    public void setOperation(String operation) {
+        this.operation = operation;
     }
 
     public String getOperationObject() {

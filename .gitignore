@@ -17,6 +17,9 @@ entrance/dependency-reduced-pom.xml
 .DS_Store
 kerberosConfig/
 tmpK8sConf/
+<<<<<<< HEAD
+*.exec
+*.zip
 /conf
 keytab/
 tmp/
