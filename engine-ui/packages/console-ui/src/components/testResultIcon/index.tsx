@@ -14,7 +14,8 @@ export default class TestRestIcon extends React.Component<any, any> {
     showDetailErrMessage (engine: any) {
         Modal.error({
             title: `错误信息`,
-            content: `${engine.errorMsg}`
+            content: `${engine.errorMsg}`,
+            zIndex: 1061
         })
     }
     matchCompTest (testResult: any) {
