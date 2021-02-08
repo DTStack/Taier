@@ -34,7 +34,7 @@ public class KerberosUtils {
     private static final Logger logger = LoggerFactory.getLogger(KerberosUtils.class);
 
     private static final String USER_DIR = System.getProperty("user.dir");
-    private static final String VALID_CREDENTIALS_MSG = "Integrity check on decrypted field failed (31)";
+    private static final String[] VALID_CREDENTIALS_MSG = new String[]{"Integrity check on decrypted field failed (31)"};
     private static final String KRB5_CONF = "java.security.krb5.conf";
     private static final String KERBEROS_AUTH = "hadoop.security.authentication";
     private static final String SECURITY_TO_LOCAL = "hadoop.security.auth_to_local";
@@ -60,7 +60,7 @@ public class KerberosUtils {
             return ugi.doAs((PrivilegedExceptionAction<T>) supplier::get);
         } catch (Exception e) {
             logger.error("{}", e.getMessage());
-            throw new RdosDefineException("doAs error: " + e.getMessage());
+            throw new RdosDefineException(e);
         }
     }
 
@@ -88,9 +88,9 @@ public class KerberosUtils {
                                                         String defaultKrb5Name,
                                                         Boolean isMergeKrb5) {
         try {
-            return ugi.doAs((PrivilegedExceptionAction<T>) supplier::get);
+            return loginKerberosWithCallBack(ugi, supplier);
         } catch (Exception e) {
-            if (e.toString().contains(VALID_CREDENTIALS_MSG)) {
+            if (Arrays.stream(VALID_CREDENTIALS_MSG).anyMatch(e.toString()::contains)) {
                 UserGroupInformation retryUgi = retryCreateUGIIfMerge(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath, defaultKrb5Name, isMergeKrb5);
                 ugiMap.put(threadName, retryUgi);
                 try {
