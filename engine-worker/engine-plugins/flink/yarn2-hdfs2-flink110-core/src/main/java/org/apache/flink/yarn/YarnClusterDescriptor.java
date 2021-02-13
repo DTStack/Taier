@@ -20,9 +20,8 @@ package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
 import com.dtstack.engine.base.util.HadoopConfTool;
-import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
-import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.VisibleForTesting;
@@ -50,7 +49,6 @@ import org.apache.flink.core.plugin.PluginConfig;
 import org.apache.flink.core.plugin.PluginUtils;
 import org.apache.flink.runtime.clusterframework.BootstrapTools;
 import org.apache.flink.runtime.entrypoint.ClusterEntrypoint;
-import org.apache.flink.runtime.execution.librarycache.FlinkUserCodeClassLoaders;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
 import org.apache.flink.util.FlinkException;
@@ -60,7 +58,6 @@ import org.apache.flink.yarn.configuration.YarnConfigOptions;
 import org.apache.flink.yarn.configuration.YarnConfigOptionsInternal;
 import org.apache.flink.yarn.entrypoint.YarnJobClusterEntrypoint;
 import org.apache.flink.yarn.entrypoint.YarnSessionClusterEntrypoint;
-
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsAction;
@@ -91,7 +88,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -99,7 +95,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -111,7 +106,17 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.apache.flink.configuration.ConfigConstants.DEFAULT_FLINK_USR_LIB_DIR;
@@ -545,7 +550,8 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 	}
 
 	private JobGraph getJobGraph(String appId,ClusterSpecification clusterSpecification) throws Exception{
-		String url = getUrlFormat(clusterSpecification.getYarnConfiguration()) + "/" + appId;
+		String url = getMonitorUrl(clusterSpecification.getYarnConfiguration(),appId);
+		LOG.info("AppId is {}, MonitorUrl is {}", appId, url);
 		PackagedProgram program = buildProgram(url,clusterSpecification);
 		clusterSpecification.setProgram(program);
 		JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, this.flinkConfiguration, clusterSpecification.getParallelism(), false);
@@ -619,50 +625,42 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		return program;
 	}
 
-	private String getUrlFormat(YarnConfiguration yarnConf){
-		String url = "";
-		try{
-			Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
-			rmClientField.setAccessible(true);
-			Object rmClient = rmClientField.get(yarnClient);
+	private String getMonitorUrl(YarnConfiguration yarnConf, String appId) {
+		String url = null;
+		// ha key
+		String rmHAIdsKey = "yarn.resourcemanager.ha.rm-ids";
+		// not ha key
+		String rmIdKey = "yarn.resourcemanager.webapp.address";
 
-			Field hField = rmClient.getClass().getSuperclass().getDeclaredField("h");
-			hField.setAccessible(true);
-			//获取指定对象中此字段的值
-			Object h = hField.get(rmClient);
-			Object currentProxy = null;
+		String rmValue;
+		String rms = yarnConf.get(rmHAIdsKey);
 
-			try {
-				Field currentProxyField = h.getClass().getDeclaredField("currentProxy");
-				currentProxyField.setAccessible(true);
-				currentProxy = currentProxyField.get(h);
-			}catch (Exception e){
-				//兼容Hadoop 2.7.3.2.6.4.91-3
-				LOG.warn("get currentProxy error: ", e);
-				Field proxyDescriptorField = h.getClass().getDeclaredField("proxyDescriptor");
-				proxyDescriptorField.setAccessible(true);
-				Object proxyDescriptor = proxyDescriptorField.get(h);
-				Field currentProxyField = proxyDescriptor.getClass().getDeclaredField("proxyInfo");
-				currentProxyField.setAccessible(true);
-				currentProxy = currentProxyField.get(proxyDescriptor);
+		// ha mode
+		if (rms != null) {
+			for (String rm : Arrays.asList(rms.split(","))) {
+				rmValue = yarnConf.get(String.format("%s.%s",rmIdKey, rm));
+
+				if (rmValue == null) {
+					continue;
+				}
+				String requestUrl = String.format("http://%s", rmValue);
+				try {
+					PoolHttpClient.get(requestUrl, null, 1);
+
+				} catch (Exception e) {
+					LOG.warn(String.format("RequestUrl [%s] can not be accessed.", requestUrl), e);
+					continue;
+				}
+				url = String.format("%s/%s",requestUrl, appId);
+				break;
 			}
-
-			Field proxyInfoField = currentProxy.getClass().getDeclaredField("proxyInfo");
-			proxyInfoField.setAccessible(true);
-			String proxyInfoKey = (String) proxyInfoField.get(currentProxy);
-
-			String key = "yarn.resourcemanager.webapp.address." + proxyInfoKey;
-			String addr = yarnConf.get(key);
-
-			if(addr == null) {
-				addr = yarnConf.get("yarn.resourcemanager.webapp.address");
-			}
-
-			return String.format("http://%s/proxy",addr);
-		}catch (Exception e){
-			LOG.error("get monitor error:", e);
 		}
 
+		// standalone
+		if(url == null) {
+			rmValue = yarnConf.get(rmIdKey);
+			url = String.format("http://%s/proxy/%s", rmValue, appId);
+		}
 		return url;
 	}
 
