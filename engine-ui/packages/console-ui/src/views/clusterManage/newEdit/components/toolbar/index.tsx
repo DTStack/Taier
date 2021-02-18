@@ -50,7 +50,11 @@ export default class ToolBar extends React.PureComponent<IProps, any> {
                     : JSON.stringify(handleComponentTemplate(values[typeCode], comp)),
                 componentConfig
             }
-            // TODO resources2, kerberosFileName 这个两个参数后期可以去掉
+            /**
+             * TODO LIST
+             * resources2, kerberosFileName 这个两个参数后期可以去掉
+             * 保存组件后不加上组件id，防止出现上传文件后立即点击不能下载的现象，后续交互优化
+             */
             Api.saveComponent({
                 ...params,
                 clusterId: clusterInfo.clusterId,
@@ -63,7 +67,7 @@ export default class ToolBar extends React.PureComponent<IProps, any> {
                 if (res.code == 1) {
                     saveComp({
                         ...params,
-                        id: res.data.id,
+                        // id: res.data.id,
                         componentTypeCode: typeCode,
                         uploadFileName: currentComp?.uploadFileName ?? '',
                         kerberosFileName: currentComp?.kerberosFileName ?? ''
@@ -84,14 +88,14 @@ export default class ToolBar extends React.PureComponent<IProps, any> {
                 componentConfig: handleComponentConfig({
                     componentConfig: JSON.parse(initialComp.componentConfig)
                 }, true)
-                // customParam: x(JSON.parse(initialComp.componentTemplate))
+                // customParam: JSON.parse(initialComp.componentTemplate)
             }
         })
     }
 
     render () {
         const typeCode = this.props.comp?.componentTypeCode ?? ''
-        // const { onConfirm } = this.props
+
         return (
             <div className="c-toolbar__container">
                 <Popconfirm
