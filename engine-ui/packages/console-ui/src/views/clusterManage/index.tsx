@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { hashHistory } from 'react-router';
-import { Table, Button, message, Popconfirm } from 'antd';
+import { Table, Button, message, Popconfirm,
+    Pagination } from 'antd';
 import moment from 'moment';
 import AddEngineModal from '../../components/addEngineModal';
 import Api from '../../api/console'
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 15;
 
 class ClusterManage extends React.Component<any, any> {
     state: any = {
@@ -139,15 +140,34 @@ class ClusterManage extends React.Component<any, any> {
         })
     }
     handleTableChange = (pagination: any, filters: any, sorter: any) => {
-        const queryParams = Object.assign(this.state.table, { pageIndex: pagination.current, loading: true })
+        const queryParams = Object.assign(this.state.table, { loading: true })
         this.setState({
             table: queryParams
         }, this.getResourceList)
     }
+
+    onPageChange = (current: any) => {
+        this.setState({
+            table: Object.assign(this.state.table, { pageIndex: current, loading: true })
+        }, this.getResourceList)
+    }
+
     render () {
         const { dataSource, table, newClusterModal, editModalKey } = this.state;
         const { loading } = table;
         const columns = this.initTableColumns();
+
+        const pagination: any = {
+            total: table.total,
+            current: table.pageIndex,
+            pageSize: PAGE_SIZE,
+            size: 'small',
+            showTotal: (total) => <span>
+                共<span style={{ color: '#3F87FF' }}>{total}</span>条数据，每页显示{PAGE_SIZE}条
+            </span>,
+            onChange: this.onPageChange
+        };
+
         return (
             <React.Fragment>
                 <div className="c-clusterManage__title">
@@ -159,12 +179,17 @@ class ClusterManage extends React.Component<any, any> {
                         rowKey={(record: any, index: any) => {
                             return `clusterManage-${record.id}`
                         }}
-                        className="dt-table-border dt-table-last-row-noborder"
-                        pagination={this.getPagination()}
+                        className='dt-table-fixed-contain-footer'
+                        scroll={{ y: true }}
+                        style={{ height: 'calc(100vh - 150px)' }}
+                        pagination={false}
                         loading={loading}
                         dataSource={dataSource}
                         columns={columns}
                         onChange={this.handleTableChange}
+                        footer={() => {
+                            return <Pagination {...pagination}/>
+                        }}
                     />
                 </div>
                 <AddEngineModal

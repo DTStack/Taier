@@ -108,6 +108,7 @@ export const CONFIG_ITEM_TYPE = {
     INPUT: 'INPUT',
     SELECT: 'SELECT',
     CHECKBOX: 'CHECKBOX',
+    PASSWORD: 'PASSWORD',
     GROUP: 'GROUP'
 }
 

@@ -38,6 +38,8 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                         return <Checkbox key={comp.key} value={`${comp.value}`}>{comp.key}</Checkbox>
                     })}
                 </CheckboxGroup>
+            case CONFIG_ITEM_TYPE.PASSWORD:
+                return <Input.Password disabled={view} style={{ maxWidth: 680 }} visibilityToggle={false} />
             default:
                 return <Input disabled={view} style={{ maxWidth: 680 }} />
         }
@@ -147,7 +149,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
                 return (
                     <Row key={key} className="zipConfig-item">
                         <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 2}>
-                            <Tooltip title={key}>
+                            <Tooltip title={key} placement="topRight">
                                 <span className="form-text-name">{key}</span>
                             </Tooltip>
                             <span>：</span>
