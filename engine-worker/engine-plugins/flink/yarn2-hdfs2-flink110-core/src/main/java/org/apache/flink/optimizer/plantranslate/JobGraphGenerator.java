@@ -95,9 +95,11 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.security.action.GetPropertyAction;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -106,7 +108,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static java.security.AccessController.doPrivileged;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
@@ -280,9 +284,9 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 
 	public static void addUserArtifactEntries(Collection<Tuple2<String, DistributedCache.DistributedCacheEntry>> userArtifacts, JobGraph jobGraph) {
 		if (userArtifacts != null && !userArtifacts.isEmpty()) {
-			java.nio.file.Path tmpDir = null;
+			String prefixDir = "flink-distributed-cache-" + jobGraph.getJobID();
 			try {
-				tmpDir = Files.createTempDirectory("flink-distributed-cache-" + jobGraph.getJobID());
+				java.nio.file.Path tmpDir = Files.createTempDirectory(prefixDir);
 				for (Tuple2<String, DistributedCache.DistributedCacheEntry> originalEntry : userArtifacts) {
 					Path filePath = new Path(originalEntry.f1.filePath);
 					boolean isLocalDir = false;
@@ -306,9 +310,18 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 				throw new FlinkRuntimeException("Could not compress distributed-cache artifacts.", ioe);
 			} finally {
 				try {
-					Files.deleteIfExists(tmpDir);
-				} catch (IOException e) {
-					e.printStackTrace();
+					java.nio.file.Path ioTmpdir = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
+					Stream<java.nio.file.Path> pathStream = Files.list(ioTmpdir);
+					pathStream.map(path -> {
+						try {
+							if (org.apache.commons.lang3.StringUtils.startsWith(path.getFileName().toString(), prefixDir)) {
+								Files.deleteIfExists(path);
+							}
+						} catch (IOException e) {
+						}
+						return path;
+					}).count();
+				} catch (Exception e) {
 				}
 			}
 		}
