@@ -32,7 +32,9 @@
     </select>
 
     <select id="getFillJobList" resultType="ScheduleFillDataJob">
-        SELECT * FROM schedule_fill_data_job WHERE
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_fill_data_job WHERE
             tenant_id = #{tenantId} AND
             project_id = #{projectId} AND is_deleted = 0 AND
         id IN
