@@ -10,7 +10,7 @@ public class DebugUtil {
         try {
             Thread.sleep(Integer.MAX_VALUE);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

@@ -535,6 +535,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                 }
                             } else {
                                 retry();
+                                Thread.sleep(retry_wait);
                             }
                         } catch (Throwable e) {
                             LOG.error("YarnAppStatusMonitor check error:", e);
@@ -639,7 +640,6 @@ public class SessionClientFactory extends AbstractClientFactory {
                 this.lastAppState = YarnApplicationState.NEW;
                 this.sessionClientFactory.startAndGetSessionClusterClient();
 
-                Thread.sleep(retry_wait);
             } catch (Exception e) {
                 LOG.error("", e);
             }

@@ -139,7 +139,7 @@ public class JLogstashType extends AbstractAppType {
                 cmd = StringUtils.join(args, " ");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return super.cmdContainerExtra(cmd, conf, containerInfo);
     }
