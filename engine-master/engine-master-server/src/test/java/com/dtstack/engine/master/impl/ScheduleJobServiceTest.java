@@ -182,6 +182,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     public void testGetJobGraph() {
         ScheduleJob todayJob = Template.getScheduleJobTemplate();
         todayJob.setJobId(ValueUtils.getChangedStr());
+        todayJob.setJobKey(ValueUtils.getChangedStr());
         todayJob.setStatus(RdosTaskStatus.FINISHED.getStatus());
         scheduleJobDao.insert(todayJob);
 
@@ -208,6 +209,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     public void testGetScienceJobGraph() {
         ScheduleJob todayJob = Template.getScheduleJobTemplate();
         todayJob.setJobId(ValueUtils.getChangedStr());
+        todayJob.setJobKey(ValueUtils.getChangedStr());
         todayJob.setStatus(RdosTaskStatus.FINISHED.getStatus());
         scheduleJobDao.insert(todayJob);
         Long projectId = todayJob.getProjectId();
