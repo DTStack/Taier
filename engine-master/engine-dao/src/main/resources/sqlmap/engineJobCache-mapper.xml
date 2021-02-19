@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dtstack.engine.dao.EngineJobCacheDao">
 
-    <sql id="filed">
+    <sql id="engine_cache_filed">
         `id`,`job_id`,`job_name`,`engine_type`,`compute_type`,`stage`,`job_info`,`node_address`,`gmt_create`,`gmt_modified`,`is_deleted`,`job_priority`,`job_resource`,`is_failover`,`wait_reason`
     </sql>
     <insert id="insert" parameterType="EngineJobCache">
@@ -16,7 +16,7 @@
 
     <select id="getOne" resultType="EngineJobCache">
         select
-        <include refid="filed" />
+        <include refid="engine_cache_filed" />
         from schedule_engine_job_cache
         where job_id=#{jobId} and is_deleted=0 order by gmt_create desc limit 1;
     </select>
@@ -45,7 +45,7 @@
 
     <select id="listByFailover" resultType="EngineJobCache">
         select
-        <include refid="filed"/>
+        <include refid="engine_cache_filed"/>
         from schedule_engine_job_cache
         where id > #{startId} and is_failover = 1
         and (node_address = #{nodeAddress} or node_address is null)
@@ -57,7 +57,7 @@
 
     <select id="listByStage" resultType="EngineJobCache">
         select
-        <include refid="filed"/>
+        <include refid="engine_cache_filed"/>
         from schedule_engine_job_cache
         where id > #{startId}
         <if test="nodeAddress != null">
@@ -76,7 +76,7 @@
 
     <select id="getByJobIds" resultType="EngineJobCache">
         select
-        <include refid="filed"/>
+        <include refid="engine_cache_filed"/>
         from schedule_engine_job_cache
         WHERE job_id in
         <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
@@ -163,7 +163,7 @@
 
     <select id="listByJobResource" resultType="EngineJobCache">
         SELECT
-        <include refid="filed"/>
+        <include refid="engine_cache_filed"/>
         FROM schedule_engine_job_cache
         WHERE job_resource = #{jobResource} and stage = #{stage} and is_deleted = 0
         <if test="nodeAddress != null">
