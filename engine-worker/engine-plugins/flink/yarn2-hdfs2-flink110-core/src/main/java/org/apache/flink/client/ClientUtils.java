@@ -19,6 +19,7 @@
 package org.apache.flink.client;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
@@ -36,6 +37,8 @@ import org.apache.flink.runtime.client.JobExecutionException;
 import org.apache.flink.runtime.execution.librarycache.FlinkUserCodeClassLoaders;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobmaster.JobResult;
+import org.apache.flink.shaded.guava18.com.google.common.base.Splitter;
+import org.apache.flink.shaded.guava18.com.google.common.collect.Iterables;
 import org.apache.flink.util.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,11 +91,16 @@ public enum ClientUtils {
 			urls[i + jars.size()] = classpaths.get(i);
 		}
 		final String[] alwaysParentFirstLoaderPatterns = CoreOptions.getParentFirstLoaderPatterns(configuration);
+
+		final String[] childFirstLoaderPatternsArray = parseChildFirstLoaderPatterns(configuration);
+		final List<String> childFirstLoaderPatterns = Arrays.asList(childFirstLoaderPatternsArray);
+
 		final String classLoaderResolveOrder =
 				configuration.getString(CoreOptions.CLASSLOADER_RESOLVE_ORDER);
 		FlinkUserCodeClassLoaders.ResolveOrder resolveOrder =
 				FlinkUserCodeClassLoaders.ResolveOrder.fromString(classLoaderResolveOrder);
-		final URLClassLoader classLoader = FlinkUserCodeClassLoaders.create(resolveOrder, urls, parent, alwaysParentFirstLoaderPatterns);
+		final URLClassLoader classLoader = FlinkUserCodeClassLoaders.create(
+				resolveOrder, urls, parent, alwaysParentFirstLoaderPatterns, childFirstLoaderPatterns);
 		if (cache) {
 			Arrays.sort(urls, Comparator.comparing(URL::toString));
 			String[] jarMd5s = new String[urls.length];
@@ -108,6 +116,13 @@ public enum ClientUtils {
 		} else {
 			return classLoader;
 		}
+	}
+
+	private static String[] parseChildFirstLoaderPatterns(Configuration configuration) {
+		Splitter splitter = Splitter.on(';').omitEmptyStrings();
+		final String childFirstPatternsStr = configuration.getString(ConfigConstrant.CHILD_FIRST_LOADER_PATTERNS,
+				ConfigConstrant.CHILD_FIRST_LOADER_PATTERNS_DEFAULT);
+		return Iterables.toArray(splitter.split(childFirstPatternsStr), String.class);
 	}
 
 	public static JobExecutionResult submitJob(

@@ -145,8 +145,6 @@
                                     <exclude>org.slf4j:slf4j-log4j12</exclude>
                                     <exclude>log4j:log4j</exclude>
                                     <exclude>org.slf4j:slf4j-api</exclude>
-<!--                                    <exclude>com.dtstack.engine:plugins.dtscript.yarn3-hdfs3-dtscript.dtscript-core</exclude>-->
-<!--                                    <exclude>com.dtstack.engine:plugins.dtscript.yarn2-hdfs2-dtscript-core.dtscript-core</exclude>-->
                                 </excludes>
                             </artifactSet>
                             <filters>
@@ -163,21 +161,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!--<plugin>-->
-                <!--<artifactId>maven-clean-plugin</artifactId>-->
-                <!--<version>2.5</version>-->
-                <!--<configuration>-->
-                    <!--<filesets>-->
-                        <!--<fileset>-->
-                            <!--<directory>${basedir}/../target</directory>-->
-                            <!--<includes>-->
-                                <!--<include>${project.name}-${project.version}.jar</include>-->
-                            <!--</includes>-->
-                        <!--</fileset>-->
-                    <!--</filesets>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
 
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -198,7 +181,7 @@
                                       file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
                                 <delete>
                                     <fileset dir="${basedir}/target/../../../../../../pluginLibs/${pluginDir.name}/"
-                                             includes="${jar.name}-*.jar"
+                                             includes="*.jar"
                                              excludes="${jar.name}-${git.branch}.jar"/>
                                 </delete>
                             </tasks>
