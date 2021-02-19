@@ -35,8 +35,6 @@ public abstract class AbstractClient implements IClient {
 
     public final static String PLUGIN_DEFAULT_CONFIG_NAME = "default-config.yaml";
 
-    public final static String COMPONENT_TYPE = "componentType";
-
     public List<ClientTemplate> defaultPlugins;
 
     public AbstractClient() {

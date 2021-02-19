@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.ComponentTemplateDao">
+
+    <sql id="select_content_fragment">
+        id,type_name,template_text,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+
+    <select id="getByTypeName" resultType="java.lang.String">
+        select template_text
+        from console_component_template
+        where type_name = #{typeName}
+        and is_deleted = 0 order by id desc limit 1
+    </select>
+</mapper>

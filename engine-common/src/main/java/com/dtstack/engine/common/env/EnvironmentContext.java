@@ -492,4 +492,8 @@ public class EnvironmentContext {
     public int getMaxDeepShow() {
         return Integer.parseInt(environment.getProperty("max.deep.show", "20"));
     }
+
+    public boolean getComponentTemplateSource() {
+        return Boolean.parseBoolean(environment.getProperty("component.template.db", "true"));
+    }
 }

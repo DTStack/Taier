@@ -16,7 +16,9 @@ import com.dtstack.engine.api.vo.Pair;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.engine.common.CustomThreadFactory;
+import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.EFrontType;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -30,7 +32,6 @@ import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.enums.DownloadType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.utils.FileUtil;
 import com.dtstack.engine.master.utils.XmlFileUtil;
@@ -52,9 +53,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -104,6 +103,9 @@ public class ComponentService {
 
     @Autowired
     private WorkerOperator workerOperator;
+
+    @Autowired
+    private ComponentTemplateService componentTemplateService;
 
     public static final String TYPE_NAME = "typeName";
 
@@ -1127,16 +1129,22 @@ public class ComponentService {
      * @param componentType
      * @return
      */
-    public List<ClientTemplate> loadTemplate( Integer componentType,  String clusterName,  String version) {
-
+    public List<ClientTemplate> loadTemplate(Integer componentType, String clusterName, String version) {
         EComponentType component = EComponentType.getByCode(componentType);
         List<ClientTemplate> defaultPluginConfig = null;
+        String typeName = this.convertComponentTypeToClient(clusterName, componentType, version);
         try {
-            defaultPluginConfig = workerOperator.getDefaultPluginConfig(this.convertComponentTypeToClient(clusterName, componentType, version),
-                    component.getName().toLowerCase());
+            if (env.getComponentTemplateSource()) {
+                String configTemplate = componentTemplateService.loadComponentTemplateFromDB(typeName);
+                InputStream is = new ByteArrayInputStream(configTemplate.getBytes());
+                defaultPluginConfig = new YamlConfigParser().parse(is);
+            } else {
+                defaultPluginConfig = workerOperator.getDefaultPluginConfig(typeName, component.getName().toLowerCase());
+            }
         } catch (Exception e) {
             throw new RdosDefineException("不支持的插件类型");
         }
+
         if (CollectionUtils.isEmpty(defaultPluginConfig)) {
             return new ArrayList<>();
         }

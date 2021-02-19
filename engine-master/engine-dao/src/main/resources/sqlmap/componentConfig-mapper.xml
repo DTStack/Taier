@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.ComponentConfigDao">
+
+    <sql id="select_content_fragment">
+        id,cluster_id,engine_id,component_id,component_type_code,type,required,`key`,`value`,`values`,dependencyKey,dependencyValue,`desc`,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <insert id="insertBatch">
+        insert into
+        console_component_config(cluster_id,engine_id,component_id,component_type_code,`type`,`required`,`key`,`value`,`values`,dependencyKey,dependencyValue,`desc`)
+        values
+        <foreach collection="componentConfigs" item="config" separator=",">
+            (#{config.clusterId},#{config.engineId},#{config.componentId},#{config.componentTypeCode},#{config.type},#{config.required},
+            #{config.key},#{config.value},#{config.values},#{config.dependencyKey},#{config.dependencyValue},#{config.desc})
+        </foreach>
+    </insert>
+
+
+    <select id="listByComponentId" resultType="ComponentConfig">
+        select
+        <include refid="select_content_fragment"/>
+        from console_component_config
+        where component_id = #{componentId} and is_deleted = 0
+    </select>
+
+    <delete id="deleteByComponentId">
+        delete
+        from console_component_config
+        where component_id = #{componentId}
+    </delete>
+</mapper>
