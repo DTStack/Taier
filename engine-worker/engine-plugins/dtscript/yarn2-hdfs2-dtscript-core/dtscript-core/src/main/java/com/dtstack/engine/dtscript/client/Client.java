@@ -451,15 +451,20 @@ public class Client {
             if (!file.getPath().getName().startsWith("container")) {
                 continue;
             }
-            FSDataInputStream inputStream = getFileSystem().open(file.getPath());
-            InputStreamReader isr = new InputStreamReader(inputStream, "UTF-8");
-            BufferedReader br = new BufferedReader(isr);
-            StringBuilder lineString = new StringBuilder();
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                lineString.append(line);
+            try (
+                    FSDataInputStream inputStream = getFileSystem().open(file.getPath());
+                    InputStreamReader isr = new InputStreamReader(inputStream, "UTF-8");
+                    BufferedReader br = new BufferedReader(isr);
+                ) {
+                StringBuilder lineString = new StringBuilder();
+                String line = null;
+                while ((line = br.readLine()) != null) {
+                    lineString.append(line);
+                }
+                infos.add(lineString.toString());
+            } catch (Exception e) {
+                throw e;
             }
-            infos.add(lineString.toString());
         }
         return infos;
     }
