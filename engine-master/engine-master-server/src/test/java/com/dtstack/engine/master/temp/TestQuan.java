@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.quan;
+package com.dtstack.engine.master.temp;
 
 import com.dtstack.engine.master.AbstractCommonTest;
 import com.dtstack.engine.master.impl.ScheduleJobService;
