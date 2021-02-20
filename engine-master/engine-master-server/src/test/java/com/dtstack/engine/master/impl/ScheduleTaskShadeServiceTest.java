@@ -2,8 +2,6 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
-import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
 import com.dtstack.engine.api.domain.TenantResource;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.pager.PageResult;
@@ -12,15 +10,7 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskV
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.dao.TenantResourceDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.utils.Template;
-import com.dtstack.schedule.common.enums.EProjectScheduleStatus;
-import com.dtstack.schedule.common.enums.ESubmitStatus;
-import org.apache.commons.collections.CollectionUtils;
-import org.assertj.core.util.Lists;
-import org.junit.Assert;
-import org.junit.Before;
 import com.dtstack.engine.master.dataCollection.DataCollection;
-import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.schedule.common.enums.EProjectScheduleStatus;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
@@ -32,9 +22,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author yuebai
@@ -63,34 +57,6 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
         scheduleTaskShadeService.addOrUpdate(scheduleTaskShadeDTO);
     }
 
-    @Test
-    public void testTaskShade() {
-
-        Assert.assertNotNull(scheduleTaskShadeService.findTaskId(scheduleTaskShadeTemplate.getTaskId(), scheduleTaskShadeTemplate.getIsDeleted(),
-                scheduleTaskShadeTemplate.getAppType()));
-        scheduleTaskShadeDTO.setTaskDesc("update");
-        //更新
-        scheduleTaskShadeService.addOrUpdate(scheduleTaskShadeDTO);
-        //查询
-        List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeService.listTaskByStatus(0L, ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus(), 100);
-        Assert.assertNotNull(scheduleTaskShades);
-        long count = scheduleTaskShades.stream().filter(s -> s.getTaskId().equals(scheduleTaskShadeTemplate.getTaskId())
-                && s.getAppType().equals(scheduleTaskShadeTemplate.getAppType())).count();
-        Assert.assertTrue(count > 0);
-        Integer countTaskByStatus = scheduleTaskShadeService.countTaskByStatus(ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus());
-        Assert.assertTrue(countTaskByStatus > 0);
-
-        List<ScheduleTaskShadeCountTaskVO> scheduleTaskShadeCountTaskVOS = scheduleTaskShadeService.countTaskByTypes(scheduleTaskShadeTemplate.getTenantId(),
-                scheduleTaskShadeTemplate.getDtuicTenantId(),
-                Lists.newArrayList(scheduleTaskShadeDTO.getProjectId()),
-                scheduleTaskShadeDTO.getAppType(),
-                Lists.newArrayList(scheduleTaskShadeDTO.getTaskType()));
-        Assert.assertNotNull(scheduleTaskShadeCountTaskVOS);
-
-        List<ScheduleTaskShade> taskByIds = scheduleTaskShadeService.getTaskByIds(Lists.newArrayList(scheduleTaskShadeDTO.getTaskId()), scheduleTaskShadeDTO.getAppType());
-        long findTaskCount = taskByIds.stream().filter(s -> s.getTaskId().equals(scheduleTaskShadeTemplate.getTaskId())
-                && s.getAppType().equals(scheduleTaskShadeTemplate.getAppType())).count();
-        Assert.assertTrue(findTaskCount > 0);
     @Test
     public void testTaskShade() {
         ArrayList<Long> taskIds = Lists.newArrayList(scheduleTaskShadeDTO.getTaskId());
@@ -159,27 +125,6 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
         scheduleTaskShadeService.deleteTask(scheduleTaskShadeDTO.getTaskId(), 0L, scheduleTaskShadeDTO.getAppType());
     }
 
-    @Test
-    public void testEmpty() {
-        long emptyTaskId = -111L;
-        try {
-            ScheduleTaskShadeDTO testDto = scheduleTaskShadeDTO;
-            testDto.setTaskId(emptyTaskId);
-            testDto.setDtuicTenantId(-1L);
-            scheduleTaskShadeService.addOrUpdate(testDto);
-        } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("租户dtuicTenantId"));
-        }
-        scheduleTaskShadeService.countTaskByType(-1L, -1L, -1L, 2,
-                Lists.newArrayList(scheduleTaskShadeDTO.getTaskType()));
-        scheduleTaskShadeService.getTaskByIds(Lists.newArrayList(), 2);
-        scheduleTaskShadeService.getSimpleTaskRangeAllByIds(Lists.newArrayList(), 2);
-        scheduleTaskShadeService.getTaskNameByJobKey("cronTrigger_19", 1);
-        scheduleTaskShadeService.getWorkFlowTopNode(null);
-        scheduleTaskShadeService.dealFlowWorkTask(emptyTaskId, 1, new ArrayList<>(), 1L);
-        scheduleTaskShadeService.findTaskId(emptyTaskId, 1, 1);
-        scheduleTaskShadeService.findTaskId(scheduleTaskShadeDTO.getTaskId(), 1, 10);
-    }
 
     @Test
     public void testEmpty() {

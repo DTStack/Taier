@@ -22,6 +22,9 @@ public class MasterServerBeanConfig {
 
     @Bean
     public MasterServer serverStart() {
+        if (AkkaConfig.isLocalMode()) {
+            return null;
+        }
         MasterServer masterServer = new AkkaMasterServerImpl(environmentContext);
         return masterServer;
     }

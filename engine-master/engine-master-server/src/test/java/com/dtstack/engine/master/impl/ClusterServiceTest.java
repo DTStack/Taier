@@ -19,13 +19,6 @@ import com.dtstack.engine.master.enums.EComponentScheduleType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.master.router.cache.ConsoleCache;
-import com.dtstack.engine.master.utils.Template;
-import com.dtstack.schedule.common.enums.AppType;
-import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.master.impl.ComponentService;
-import com.dtstack.engine.master.impl.EngineService;
-import com.dtstack.engine.master.impl.TenantService;
 import com.dtstack.engine.master.jobdealer.resource.ComputeResourceType;
 import com.dtstack.engine.master.jobdealer.resource.FlinkResource;
 import com.dtstack.engine.master.utils.Template;
@@ -35,22 +28,13 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -100,7 +84,7 @@ public class ClusterServiceTest extends AbstractTest {
     private EngineService engineService;
 
     @Autowired
-    private ClusterDao clusterDao;
+    private TenantResourceDao tenantResourceDao;
 
     private String testClusterName = "testcase";
 
@@ -119,14 +103,13 @@ public class ClusterServiceTest extends AbstractTest {
         ReflectionTestUtils.setField(tenantService,"tenantDao", tenantDao);
         ReflectionTestUtils.setField(tenantService,"engineTenantDao", engineTenantDao);
         ReflectionTestUtils.setField(tenantService,"engineDao", engineDao);
-        ReflectionTestUtils.setField(tenantService,"consoleCache", consoleCache);
         ReflectionTestUtils.setField(tenantService,"tenantResourceDao", tenantResourceDao);
         doNothing().when(tenantService).checkClusterCanUse(any());
 
     }
 
-    public void testCreateCluster() {
-        componentService.addOrCheckClusterWithName(testClusterName);
+    public void testCreateCluster(String clusterName) {
+        componentService.addOrCheckClusterWithName(clusterName);
     }
 
     public ClusterVO testGetClusterByName() {
@@ -207,7 +190,7 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNotNull(tenant.getId());
         //绑定租户
         tenantService.bindingTenant(tenant.getDtUicTenantId(),clusterVO.getClusterId(),queue.getId(),"","");
-        Tenant tenant = this.testBindTenant(clusterVO, queue);
+        this.testBindTenant(clusterVO, queue);
         this.testIsSame(clusterVO,queue,tenant);
         //切换队列
         this.testUpdateQueue(engineId, tenant);
@@ -230,7 +213,7 @@ public class ClusterServiceTest extends AbstractTest {
 
         //loadTemplate
 
-        String typeName = componentService.convertComponentTypeToClient(testClusterName, EComponentType.SPARK.getTypeCode(),"210");
+        String typeName = componentService.convertComponentTypeToClient(testClusterName, EComponentType.SPARK.getTypeCode(),"210",null);
         Assert.assertEquals(typeName,"yarn2-hdfs2-spark210");
 
         //查询队列信息
@@ -298,7 +281,7 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNotNull(tenant);
         Assert.assertNotNull(tenant.getId());
         //绑定租户
-        tenantService.bindingTenant(tenant.getDtUicTenantId(), clusterVO.getClusterId(), queue.getId(),"");
+        tenantService.bindingTenant(tenant.getDtUicTenantId(), clusterVO.getClusterId(), queue.getId(),"","");
         return tenant;
     }
 
@@ -310,7 +293,7 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNotNull(tenant);
         Assert.assertNotNull(tenant.getId());
         //绑定租户
-        tenantService.bindingTenant(sameTenant.getDtUicTenantId(), clusterVO.getClusterId(), queue.getId(),"");
+        tenantService.bindingTenant(sameTenant.getDtUicTenantId(), clusterVO.getClusterId(), queue.getId(),"","");
         clusterService.isSameCluster(-108L,Lists.newArrayList(tenant.getDtUicTenantId()));
         return tenant;
     }

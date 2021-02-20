@@ -228,7 +228,7 @@
             <artifactId>mockito-all</artifactId>
             <version>1.9.0</version>
             <scope>test</scope>
-        </dependency>-->
+        </dependency>
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
