@@ -60,10 +60,11 @@ public class LineageDataSourceService {
 
     /**
      * 新增或修改逻辑数据源
+     *
      * @param dataSourceDTO 数据源信息
      */
     @Transactional(rollbackFor = Exception.class)
-    public Long addOrUpdateDataSource(DataSourceDTO dataSourceDTO){
+    public Long addOrUpdateDataSource(DataSourceDTO dataSourceDTO) {
         //如果存在数据源则更新
         //更新后更新物理数据源
         //如果不存在数据源则添加
@@ -72,37 +73,37 @@ public class LineageDataSourceService {
             //校验dtuicTenantId是否存在
             checkTenant(dataSourceDTO.getDtUicTenantId());
             //未知数据源不需要校验dataJson
-            if(dataSourceDTO.getSourceType() != DataSourceType.UNKNOWN.getVal() &&
+            if (dataSourceDTO.getSourceType() != DataSourceType.UNKNOWN.getVal() &&
                     dataSourceDTO.getSourceType() != DataSourceType.CUSTOM.getVal()) {
-                checkDataJson(dataSourceDTO.getDataJson(),dataSourceDTO.getSourceType());
+                checkDataJson(dataSourceDTO.getDataJson(), dataSourceDTO.getSourceType());
             }
-            if (Objects.isNull(dataSourceDTO.getDataSourceId())){
+            if (Objects.isNull(dataSourceDTO.getDataSourceId())) {
                 return addDataSource(dataSourceDTO);
-            }else {
+            } else {
                 //更新数据源
                 LineageDataSource one = lineageDataSourceDao.getOne(dataSourceDTO.getDataSourceId());
-                if (null == one ){
+                if (null == one) {
                     throw new RdosDefineException("数据源不存在");
                 }
-                if (!one.getAppType().equals(dataSourceDTO.getAppType())){
+                if (!one.getAppType().equals(dataSourceDTO.getAppType())) {
                     throw new RdosDefineException("数据源不存在");
                 }
                 boolean isCustom = dataSourceDTO.getSourceType().equals(DataSourceType.UNKNOWN.getVal())
                         || dataSourceDTO.getSourceType().equals(DataSourceType.CUSTOM.getVal());
                 //生成sourceKey
                 String sourceKey;
-                if(!isCustom) {
-                    sourceKey = generateSourceKey(dataSourceDTO.getDataJson(),dataSourceDTO.getSourceType());
-                }else{
-                    sourceKey = "custom_"+dataSourceDTO.getSourceName();
+                if (!isCustom) {
+                    sourceKey = generateSourceKey(dataSourceDTO.getDataJson(), dataSourceDTO.getSourceType());
+                } else {
+                    sourceKey = "custom_" + dataSourceDTO.getSourceName();
                     dataSourceDTO.setDataJson("-1");
                 }
-                if(!one.getSourceKey().equals(sourceKey)){
+                if (!one.getSourceKey().equals(sourceKey)) {
                     throw new RdosDefineException("jdbc.url中ip和端口不能修改");
                 }
                 //更新手动添加的数据源信息时，需要修改数据源类型
                 boolean changeSourceType = DataSourceType.UNKNOWN.getVal() == one.getSourceType() && null != dataSourceDTO.getSourceType();
-                updateDataSource(dataSourceDTO,sourceKey,one.getRealSourceId(),changeSourceType);
+                updateDataSource(dataSourceDTO, sourceKey, one.getRealSourceId(), changeSourceType);
                 return one.getId();
             }
         } catch (Exception e) {
@@ -112,15 +113,15 @@ public class LineageDataSourceService {
     }
 
     /**
+     * @param dataJson:
      * @author newman
      * @Description 校验数据源配置
      * @Date 2021/1/15 1:47 下午
-     * @param dataJson:
      * @return: void
      **/
-    private void checkDataJson(String dataJson,Integer sourceType) {
+    private void checkDataJson(String dataJson, Integer sourceType) {
 
-        if(null == dataJson){
+        if (null == dataJson) {
             throw new RdosDefineException("数据源配置不能为空");
         }
         try {
@@ -128,11 +129,11 @@ public class LineageDataSourceService {
             String jdbcUrl = jsonObject.getString(ConfigConstant.JDBCURL);
             String userName = jsonObject.getString(ConfigConstant.USERNAME);
             String passWord = jsonObject.getString(ConfigConstant.PASSWORD);
-            if(StringUtils.isBlank(jdbcUrl) ){
+            if (StringUtils.isBlank(jdbcUrl)) {
                 throw new RdosDefineException("数据源配置格式不对或缺少关键参数");
             }
-            if(!DataSourceType.noNeedUserNamePasswordDataSources.contains(DataSourceType.getSourceType(sourceType))
-                    && (null == userName || null == passWord) ){
+            if (!DataSourceType.noNeedUserNamePasswordDataSources.contains(DataSourceType.getSourceType(sourceType))
+                    && (null == userName || null == passWord)) {
                 throw new RdosDefineException("数据源配置格式不对或缺少关键参数");
             }
         } catch (Exception e) {
@@ -143,23 +144,23 @@ public class LineageDataSourceService {
     }
 
     /**
+     * @param dtUicTenantId:
      * @author newman
      * @Description 校验dtUic租户id是否存在
      * @Date 2021/1/14 4:29 下午
-     * @param dtUicTenantId:
      * @return: void
      **/
     private void checkTenant(Long dtUicTenantId) {
 
         Tenant uicTenant = tenantDao.getByDtUicTenantId(dtUicTenantId);
-        if(null == uicTenant){
+        if (null == uicTenant) {
             throw new RdosDefineException("dtUicTenantId不存在");
         }
     }
 
-    private void updateDataSource(DataSourceDTO dataSourceDTO,String sourceKey,Long realSourceId,boolean changeSourceType) {
+    private void updateDataSource(DataSourceDTO dataSourceDTO, String sourceKey, Long realSourceId, boolean changeSourceType) {
         LineageDataSource dataSource = convertLineageDataSource(dataSourceDTO, sourceKey, realSourceId);
-        if (changeSourceType){
+        if (changeSourceType) {
             dataSource.setSourceType(dataSourceDTO.getSourceType());
         }
         lineageDataSourceDao.updateDataSource(dataSource);
@@ -170,7 +171,7 @@ public class LineageDataSourceService {
         try {
             //首先根据数据源名称查询数据源，如果数据源已经存在，说明是修改手动添加的数据源的信息。
             List<LineageDataSource> lineageDataSources = queryLineageDataSources(dataSourceDTO.getSourceType(), dataSourceDTO.getSourceName(), dataSourceDTO.getDtUicTenantId(), dataSourceDTO.getAppType());
-            if ( CollectionUtils.isNotEmpty(lineageDataSources) ){
+            if (CollectionUtils.isNotEmpty(lineageDataSources)) {
                 dataSourceDTO.setDataSourceId(lineageDataSources.get(0).getId());
                 return addOrUpdateDataSource(dataSourceDTO);
             }
@@ -179,10 +180,10 @@ public class LineageDataSourceService {
                     || dataSourceDTO.getSourceType().equals(DataSourceType.CUSTOM.getVal());
             //生成sourceKey
             String sourceKey;
-            if(!isCustom) {
-                sourceKey = generateSourceKey(dataSourceDTO.getDataJson(),dataSourceDTO.getSourceType());
-            }else{
-                sourceKey = "custom_"+dataSourceDTO.getSourceName();
+            if (!isCustom) {
+                sourceKey = generateSourceKey(dataSourceDTO.getDataJson(), dataSourceDTO.getSourceType());
+            } else {
+                sourceKey = "custom_" + dataSourceDTO.getSourceName();
                 dataSourceDTO.setDataJson("-1");
             }
             //根据sourceKey和appType和sourceName查找数据源
@@ -193,14 +194,14 @@ public class LineageDataSourceService {
             dataSourceParam.setSourceName(dataSourceDTO.getSourceName());
             dataSourceParam.setIsDeleted(0);
             List<LineageDataSource> dataSourceByParams = lineageDataSourceDao.getDataSourceByParams(dataSourceParam);
-            if(CollectionUtils.isNotEmpty(dataSourceByParams)){
+            if (CollectionUtils.isNotEmpty(dataSourceByParams)) {
                 //已经有了该数据源
                 return dataSourceByParams.get(0).getId();
             }
             Long realSourceId = 0L;
-            if(!isCustom) {
+            if (!isCustom) {
                 //只有非自定义数据源才插入物理数据愿
-                 realSourceId = addRealDataSource(dataSourceDTO, sourceKey);
+                realSourceId = addRealDataSource(dataSourceDTO, sourceKey);
             }
             //插入逻辑数据源
             //查询组件
@@ -208,7 +209,7 @@ public class LineageDataSourceService {
             lineageDataSourceDao.insertDataSource(dataSource);
             return dataSource.getId();
         } catch (Exception e) {
-            logger.error("新增数据源异常,dataSource:{},e:{}",JSON.toJSONString(dataSourceDTO),ExceptionUtil.getTaskLogError(e));
+            logger.error("新增数据源异常,dataSource:{},e:{}", JSON.toJSONString(dataSourceDTO), ExceptionUtil.getTaskLogError(e));
             throw new RdosDefineException("新增数据源异常");
         }
     }
@@ -216,19 +217,19 @@ public class LineageDataSourceService {
     private LineageDataSource convertLineageDataSource(DataSourceDTO dataSourceDTO, String sourceKey, Long realSourceId) {
 
         Long tenantId = tenantDao.getIdByDtUicTenantId(dataSourceDTO.getDtUicTenantId());
-        Integer componentId =  componentDao.getIdByTenantIdComponentType(tenantId, dataSourceDTO.getSourceType());
+        Integer componentId = componentDao.getIdByTenantIdComponentType(tenantId, dataSourceDTO.getSourceType());
         LineageDataSource dataSource = new LineageDataSource();
-        BeanUtils.copyProperties(dataSourceDTO,dataSource);
+        BeanUtils.copyProperties(dataSourceDTO, dataSource);
         dataSource.setComponentId(null == componentId ? -1 : componentId);
         //有组件则为内部数据源1，否则为外部数据源0
-        if(StringUtils.isBlank(dataSourceDTO.getKerberosConf())){
+        if (StringUtils.isBlank(dataSourceDTO.getKerberosConf())) {
             dataSource.setKerberosConf("-1");
-            dataSource.setOpenKerberos( 0 );
-        }else{
+            dataSource.setOpenKerberos(0);
+        } else {
             dataSource.setKerberosConf(dataSourceDTO.getKerberosConf());
-            dataSource.setOpenKerberos( 1 );
+            dataSource.setOpenKerberos(1);
         }
-        if(null != dataSourceDTO.getDataSourceId()){
+        if (null != dataSourceDTO.getDataSourceId()) {
             dataSource.setId(dataSourceDTO.getDataSourceId());
         }
         dataSource.setInnerSource(null == componentId ? 1 : 0);
@@ -239,46 +240,46 @@ public class LineageDataSourceService {
         return dataSource;
     }
 
-    public String generateSourceKey(String dataJson,Integer sourceType) {
-        if(null == dataJson){
+    public String generateSourceKey(String dataJson, Integer sourceType) {
+        if (null == dataJson) {
             throw new RdosDefineException("dataJson不能为空");
         }
         JSONObject jsonObject = JSON.parseObject(dataJson);
         String jdbcUrl = jsonObject.getString("jdbcUrl");
         AbstractSourceKeyGenerator sourceKeyGenerator = SourceKeyGeneratorHelper.getSourceKeyGenerator(sourceType);
         String sourceKey = sourceKeyGenerator.generateSourceKey(jdbcUrl, sourceType);
-        if(StringUtils.isBlank(sourceKey)) {
+        if (StringUtils.isBlank(sourceKey)) {
             throw new RdosDefineException("jdbcUrl format is fault,jdbcUrl: " + jdbcUrl);
         }
         return sourceKey;
     }
 
     /**
+     * @param dataSourceDTO:
+     * @param sourceKey:
      * @author zyd
      * @Description 新增真实数据源
      * @Date 2020/10/30 11:52 上午
-     * @param dataSourceDTO:
-     * @param sourceKey:
      * @return: java.lang.Long
      **/
-    private Long addRealDataSource(DataSourceDTO dataSourceDTO,String sourceKey) {
+    private Long addRealDataSource(DataSourceDTO dataSourceDTO, String sourceKey) {
         //先根据sourceKey查询物理数据源是否存在
         LineageRealDataSource oneBySourceKey = getRealDataSource(sourceKey);
         Long realSourceId;
-        if(null == oneBySourceKey){
+        if (null == oneBySourceKey) {
             //不存在则新增
             LineageRealDataSource realDataSource = new LineageRealDataSource();
             realDataSource.setDataJason(dataSourceDTO.getDataJson());
             realDataSource.setKerberosConf(StringUtils.isBlank(dataSourceDTO.getKerberosConf())
                     ? "-1" : dataSourceDTO.getKerberosConf());
-            realDataSource.setOpenKerberos( StringUtils.isBlank(dataSourceDTO.getKerberosConf()) ? 0 : 1);
+            realDataSource.setOpenKerberos(StringUtils.isBlank(dataSourceDTO.getKerberosConf()) ? 0 : 1);
             realDataSource.setSourceKey(sourceKey);
             realDataSource.setSourceName(dataSourceDTO.getSourceName());
             realDataSource.setSourceType(dataSourceDTO.getSourceType());
             lineageRealDataSourceDao.addRealDataSource(realDataSource);
             realSourceId = realDataSource.getId();
 
-        }else{
+        } else {
             realSourceId = oneBySourceKey.getId();
         }
         return realSourceId;
@@ -286,17 +287,18 @@ public class LineageDataSourceService {
 
     /**
      * 删除逻辑数据源
+     *
      * @param sourceId 数据源id
-     * @param appType 应用类型
+     * @param appType  应用类型
      */
-    public void deleteDataSource(Long sourceId,Integer appType){
+    public void deleteDataSource(Long sourceId, Integer appType) {
 
         //删除数据源时，不删除物理数据源
         LineageDataSource one = lineageDataSourceDao.getOne(sourceId);
-        if(null == one) {
+        if (null == one) {
             throw new RdosDefineException("该数据源不存在或已经被删除了");
         }
-        if(!appType.equals(one.getAppType())){
+        if (!appType.equals(one.getAppType())) {
             throw new RdosDefineException("不可以删除其它应用的数据源");
         }
         lineageDataSourceDao.deleteDataSource(sourceId);
@@ -304,100 +306,99 @@ public class LineageDataSourceService {
 
 
     /**
+     * @param sourceId: 数据源id
+     * @param appType:  应用类型
      * @author zyd
      * @Description 根据sourceId和appType查询数据源信息
      * @Date 2020/10/30 4:03 下午
-     * @param sourceId: 数据源id
-     * @param appType: 应用类型
      * @return: com.dtstack.engine.api.domain.LineageDataSource
      **/
-    public LineageDataSource getDataSourceByIdAndAppType(Long sourceId,Integer appType){
+    public LineageDataSource getDataSourceByIdAndAppType(Long sourceId, Integer appType) {
 
-        return lineageDataSourceDao.getOneByAppTypeAndId(sourceId,appType);
+        return lineageDataSourceDao.getOneByAppTypeAndId(sourceId, appType);
     }
 
     /**
      * 查找真实数据源源
+     *
      * @param sourceKey sourceKey
      * @return
      */
-    private LineageRealDataSource getRealDataSource(String sourceKey){
+    private LineageRealDataSource getRealDataSource(String sourceKey) {
         //根据data source描述信息从lineage_real_data_source表中查询出真实数据源
         return lineageRealDataSourceDao.getOneBySourceKey(sourceKey);
     }
 
 
-
     /**
+     * @param appType:
      * @author zyd
      * @Description 根据appType分页查询逻辑数据源列表
      * @Date 2020/10/30 11:55 上午
-     * @param appType:
      * @return: java.util.List<com.dtstack.engine.api.domain.LineageDataSource>
      **/
-    public PageResult<List<LineageDataSource>> pageQueryDataSourceByAppType(Integer appType,Integer currentPage,Integer pageSize){
+    public PageResult<List<LineageDataSource>> pageQueryDataSourceByAppType(Integer appType, Integer currentPage, Integer pageSize) {
 
-        PageQuery<LineageDataSource> pageQuery = new PageQuery<>(currentPage,pageSize,"gmt_modified", Sort.DESC.name());
+        PageQuery<LineageDataSource> pageQuery = new PageQuery<>(currentPage, pageSize, "gmt_modified", Sort.DESC.name());
         LineageDataSource dataSource = new LineageDataSource();
         dataSource.setAppType(appType);
         dataSource.setIsDeleted(0);
         Integer count = lineageDataSourceDao.generalCount(dataSource);
         List<LineageDataSource> dataSourceList = new ArrayList<>();
-        if(count>0){
+        if (count > 0) {
             pageQuery.setModel(dataSource);
             dataSourceList = lineageDataSourceDao.generalQuery(pageQuery);
         }
-        return new PageResult<>(dataSourceList,count,pageQuery);
+        return new PageResult<>(dataSourceList, count, pageQuery);
     }
 
 
     /**
+     * @param id:
      * @author zyd
      * @Description 根据id查询逻辑数据源信息
      * @Date 2020/10/30 2:25 下午
-     * @param id:
      * @return: com.dtstack.engine.api.domain.LineageDataSource
      **/
-    public LineageDataSource getDataSourceById(Long id){
+    public LineageDataSource getDataSourceById(Long id) {
 
         return lineageDataSourceDao.getOne(id);
     }
 
 
     /**
+     * @param ids:
      * @author zyd
      * @Description 根据id列表批量查询逻辑数据源信息
      * @Date 2020/10/30 2:25 下午
-     * @param ids:
      * @return: com.dtstack.engine.api.domain.LineageDataSource
      **/
-    public List<LineageDataSource> getDataSourcesByIdList(List<Long> ids){
+    public List<LineageDataSource> getDataSourcesByIdList(List<Long> ids) {
 
-        if(CollectionUtils.isEmpty(ids)){
+        if (CollectionUtils.isEmpty(ids)) {
             throw new RdosDefineException("数据源id列表不能为空");
         }
         return lineageDataSourceDao.getDataSourcesByIdList(ids);
     }
 
 
-
     /**
+     * @param dtUicTenantId:
+     * @param sourceType:
      * @author zyd
      * @Description 根据dt租户id和数据源类型查找数据源
      * @Date 2020/11/11 4:32 下午
-     * @param dtUicTenantId:
-     * @param sourceType:
      * @return: com.dtstack.engine.api.domain.LineageDataSource
      **/
-    public LineageDataSource getDataSourceByParams(Integer sourceType,String sourceName,Long dtUicTenantId,
-                                                   Integer appType){
+    public LineageDataSource getDataSourceByParams(Integer sourceType, String sourceName, Long dtUicTenantId,
+                                                   Integer appType) {
 
         List<LineageDataSource> dataSourceByParams = queryLineageDataSources(sourceType, sourceName, dtUicTenantId, appType);
-        if(CollectionUtils.isNotEmpty(dataSourceByParams)){
+        if (CollectionUtils.isNotEmpty(dataSourceByParams)) {
             return dataSourceByParams.get(0);
-        }else{
+        } else {
             //未知数据源（手动添加血缘时添加的数据源）需要插入
-            if (DataSourceType.UNKNOWN.getVal() == sourceType){
+            if (DataSourceType.UNKNOWN.getVal() == sourceType) {
                 DataSourceDTO dataSourceDTO = new DataSourceDTO();
                 dataSourceDTO.setAppType(appType);
                 dataSourceDTO.setDataJson(null);
@@ -424,14 +425,14 @@ public class LineageDataSourceService {
 
     public void acquireOldDataSourceList(List<DataSourceDTO> dataSourceDTOs) {
 
-        if(CollectionUtils.isEmpty(dataSourceDTOs)){
+        if (CollectionUtils.isEmpty(dataSourceDTOs)) {
             throw new RdosDefineException("数据源列表不能为空");
         }
-        if (dataSourceDTOs.size()>200){
+        if (dataSourceDTOs.size() > 200) {
             throw new RdosDefineException("请分批执行");
         }
-        logger.info("appType:{}类型,租户:{}一共,{}个数据源",dataSourceDTOs.get(0).getAppType(),
-                dataSourceDTOs.get(0).getDtUicTenantId(),dataSourceDTOs.size());
+        logger.info("appType:{}类型,租户:{}一共,{}个数据源", dataSourceDTOs.get(0).getAppType(),
+                dataSourceDTOs.get(0).getDtUicTenantId(), dataSourceDTOs.size());
         for (DataSourceDTO dataSourceDTO : dataSourceDTOs) {
             addDataSource(dataSourceDTO);
         }
@@ -448,12 +449,12 @@ public class LineageDataSourceService {
                 List<Component> componentList = componentDao.listByTenantId(tenantId);
                 for (Component component : componentList) {
                     //是数据源的组件才插入
-                    if(DataSourceTypeEnum.getAllTypeCodes().contains(component.getComponentTypeCode())){
+                    if (DataSourceTypeEnum.getAllTypeCodes().contains(component.getComponentTypeCode())) {
                         total++;
                         DataSourceDTO dataSourceDTO = new DataSourceDTO();
                         dataSourceDTO.setDtUicTenantId(dtUicTenantId);
                         dataSourceDTO.setDataJson(component.getComponentConfig());
-                        dataSourceDTO.setSourceName("ideDataSource_"+component.getComponentName());
+                        dataSourceDTO.setSourceName("ideDataSource_" + component.getComponentName());
                         dataSourceDTO.setAppType(AppType.RDOS.getType());
                         //数据源类型code统一转换
                         int code = DataSourceTypeEnum.getByCode(component.getComponentTypeCode()).getTypeCode();
@@ -463,9 +464,9 @@ public class LineageDataSourceService {
                     }
                 }
             }
-            logger.info("符合条件的离线数据源个数:{}",total);
+            logger.info("符合条件的离线数据源个数:{}", total);
         } catch (Exception e) {
-            logger.error(this.getClass().getName()+"-synIdeDataSourceList-异常,e:{}",ExceptionUtil.stackTrack());
+            logger.error(this.getClass().getName() + "-synIdeDataSourceList-异常,e:{}", ExceptionUtil.stackTrack());
             throw new RdosDefineException("同步离线数据源数据异常");
         }
     }
