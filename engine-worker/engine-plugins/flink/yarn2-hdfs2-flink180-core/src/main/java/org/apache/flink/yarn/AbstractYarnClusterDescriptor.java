@@ -649,7 +649,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 if (rmValue == null) {
                     continue;
                 }
-                String requestUrl = String.format("http://%s", rmValue);
+                String requestUrl = String.format("http://%s/proxy", rmValue);
                 try {
                     PoolHttpClient.get(requestUrl, null, 1);
 
