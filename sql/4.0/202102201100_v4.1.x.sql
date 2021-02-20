@@ -54,13 +54,8 @@ logLevel=info
 ## 任务优先级, 值越小，优先级越高，范围:1-1000
 job.priority=10
 
-## kafka kerberos相关参数
-## security.kerberos.login.use-ticket-cache=true
+## kafka kerberos 数据源开启Kerberos
 ## security.kerberos.login.contexts=Client,KafkaClient
-## security.kerberos.login.keytab=/opt/keytab/kafka.keytab
-## security.kerberos.login.principal=kafka@HADOOP.COM
-## zookeeper.sasl.service-name=zookeeper
-## zookeeper.sasl.login-context-name=Client
 
 
 ## 异步访问维表是否开启连接池共享,开启则 1.一个tm上多个task共享该池, 2.一个tm上多个url相同的维表单/多个task共享该池 (默认false)
