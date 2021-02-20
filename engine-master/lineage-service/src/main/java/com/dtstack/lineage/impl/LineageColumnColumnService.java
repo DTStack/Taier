@@ -124,7 +124,7 @@ public class LineageColumnColumnService {
         res.addAll(lineageColumnColumns);
         if (CollectionUtils.isNotEmpty(lineageColumnColumns)) {
             for (LineageColumnColumn columnColumn : lineageColumnColumns) {
-                List<LineageColumnColumn> parentColumnineages = queryColumnResultLineageByAppType(appType, columnColumn.getResultTableId(), columnColumn.getInputColumnName(), columnSet);
+                List<LineageColumnColumn> parentColumnineages = queryColumnResultLineageByAppType(appType, columnColumn.getResultTableId(), columnColumn.getResultColumnName(), columnSet);
                 res.addAll(parentColumnineages);
             }
         }
