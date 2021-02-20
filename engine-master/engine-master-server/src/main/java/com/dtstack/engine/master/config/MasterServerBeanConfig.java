@@ -9,7 +9,6 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 /**
  * company: www.dtstack.com
  * author: toutian
@@ -23,9 +22,6 @@ public class MasterServerBeanConfig {
 
     @Bean
     public MasterServer serverStart() {
-        if (AkkaConfig.isLocalMode()) {
-            return null;
-        }
         MasterServer masterServer = new AkkaMasterServerImpl(environmentContext);
         return masterServer;
     }

@@ -94,6 +94,8 @@ public class ConsoleServiceTest extends AbstractTest {
     @Rollback
     public void testOverview() {
         EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
+        engineJobCache.setJobId("testOverview");
+        engineJobCacheDao.insert(engineJobCache);
         Collection<Map<String, Object>> dev = consoleService.overview(engineJobCache.getNodeAddress(), "dev");
         Assert.assertNotNull(dev);
         Collection<Map<String, Object>> defaultCluster = consoleService.overview(engineJobCache.getNodeAddress(), "default");
@@ -225,6 +227,94 @@ public class ConsoleServiceTest extends AbstractTest {
         Cluster defaultCluster = DataCollection.getData().getDefaultCluster();
         Component getYarnComponent = consoleService.getYarnComponent(defaultCluster.getId());
         Assert.assertNotNull(getYarnComponent);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testGetTaskResourceTemplate() {
+        List<TaskTypeResourceTemplateVO> getTaskResourceTemplate = consoleService.getTaskResourceTemplate();
+        Assert.assertTrue(org.apache.commons.collections.CollectionUtils.isNotEmpty(getTaskResourceTemplate));
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testFinishJob() {
+        Boolean finishJob = consoleService.finishJob("asdf", RdosTaskStatus.RUNNING.getStatus());
+        Assert.assertEquals(finishJob,false);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testNodeAddress() {
+        List<String> nodeAddress = consoleService.nodeAddress();
+        Assert.assertEquals(nodeAddress.size(),1);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testSearchJob() {
+        EngineJobCache engineJobCache = initScheduleJobForTest();
+        ConsoleJobVO searchJob = consoleService.searchJob(engineJobCache.getJobName());
+        Assert.assertNotNull(searchJob);
+    }
+
+    private EngineJobCache initScheduleJobForTest() {
+        ScheduleJob scheduleJobTemplate = Template.getScheduleJobTemplate();
+        scheduleJobTemplate.setJobName("initScheduleJobForTest");
+        scheduleJobTemplate.setJobKey("initScheduleJobForTest");
+        scheduleJobTemplate.setJobId("initScheduleJobForTest");
+        scheduleJobDao.insert(scheduleJobTemplate);
+        EngineJobCache engineJobCacheTemplate2 = Template.getEngineJobCacheTemplate2();
+        engineJobCacheTemplate2.setJobName("initScheduleJobForTest");
+        engineJobCacheTemplate2.setJobId("initScheduleJobForTest");
+        engineJobCacheDao.insert(engineJobCacheTemplate2);
+        return engineJobCacheTemplate2;
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testListNames() {
+        EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
+        List<String> listNames = consoleService.listNames(engineJobCache.getJobName());
+        Assert.assertTrue(org.apache.commons.collections.CollectionUtils.isNotEmpty(listNames));
+    }
+
+    @Test
+    public void testJobResources() {
+        List<String> jobResources = consoleService.jobResources();
+        Assert.assertTrue(org.apache.commons.collections.CollectionUtils.isNotEmpty(jobResources));
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testJobStick() {
+        EngineJobCache engineJobCache2 = DataCollection.getData().getEngineJobCache2();
+        engineJobCache2.setJobId("abcdefg");
+        engineJobCacheDao.insert(engineJobCache2);
+        Boolean jobStick = consoleService.jobStick(engineJobCache2.getJobId());
+        Assert.assertTrue(jobStick);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testStopJob() throws Exception {
+        EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
+        consoleService.stopJob(engineJobCache.getJobId());
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testStopAll() throws Exception {
+        EngineJobCache engineJobCache = DataCollection.getData().getEngineJobCache();
+        consoleService.stopAll(engineJobCache.getJobResource(), engineJobCache.getNodeAddress());
     }
 
     @Test

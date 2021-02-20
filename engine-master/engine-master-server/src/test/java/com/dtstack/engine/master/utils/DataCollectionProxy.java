@@ -2,15 +2,11 @@ package com.dtstack.engine.master.utils;
 
 import com.dtstack.engine.api.annotation.Unique;
 import com.dtstack.engine.api.domain.DataObject;
-import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;

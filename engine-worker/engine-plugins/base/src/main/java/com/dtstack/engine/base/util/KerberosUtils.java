@@ -138,7 +138,6 @@ public class KerberosUtils {
                 String keytabPath = "";
                 String krb5ConfPath = "";
                 String krb5ConfName = config.getKrbName();
-                isMergeKrb5 = StringUtils.isNotEmpty(config.getMergeKrbContent());
 
                 //本地文件是否和服务器时间一致 一致使用本地缓存
                 boolean isOverrideDownLoad = checkLocalCache(config.getKerberosFileTimestamp(), localDirPath);

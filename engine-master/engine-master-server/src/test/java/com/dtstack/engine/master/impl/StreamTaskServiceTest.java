@@ -178,6 +178,27 @@ public class StreamTaskServiceTest extends AbstractTest {
             Assert.assertTrue(e.getMessage().contains("not running in perjob"));
         }
 
+            Integer taskStatus = streamTaskService.getTaskStatus(streamJob.getJobId());
+            Assert.assertEquals(RdosTaskStatus.RUNNING.getStatus(), taskStatus);
+            List<String> taskLogUrl = streamTaskService.getRunningTaskLogUrl(streamJob.getJobId());
+            Assert.assertNotNull(taskLogUrl);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+	}
+
+
+	@Test
+    public void testException(){
+        String taskId = UUID.randomUUID().toString();
+        Integer taskStatus = streamTaskService.getTaskStatus(taskId);
+        Assert.assertNull(taskStatus);
+
+        try {
+            streamTaskService.getRunningTaskLogUrl("");
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("taskId can't be empty"));
+        }
 
         try {
             scheduleJobDao.updateJobSubmitSuccess(scheduleJobStream.getJobId(),
