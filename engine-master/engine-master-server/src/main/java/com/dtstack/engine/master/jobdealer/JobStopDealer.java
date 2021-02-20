@@ -325,11 +325,6 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 this.removeMemStatusAndJobCache(jobElement.jobId);
                 logger.info("jobId:{} and status:{} is StoppedAndNotFound, set job is STOPPED.", jobElement.jobId, scheduleJob.getStatus());
                 return StoppedStatus.STOPPED;
-            } else if (!RdosTaskStatus.RUNNING.getStatus().equals(scheduleJob.getStatus()) &&
-                    System.currentTimeMillis() - jobCache.getGmtCreate().getTime() >= environmentContext.getConsoleStopExpireTime()) {
-                this.removeMemStatusAndJobCache(jobElement.jobId);
-                logger.info("jobId:{} and status:{} is expire console stop time, set job is STOPPED.", jobElement.jobId, scheduleJob.getStatus());
-                return StoppedStatus.STOPPED;
             }
 
 
