@@ -373,6 +373,7 @@ public class ClientProxy implements IClient {
                 }
             }, executorService).get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            logger.error("getAllColumnsException,e:{}",ExceptionUtil.getErrorMessage(e));
             throw new RdosDefineException(e);
         }
     }
