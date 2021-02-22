@@ -95,6 +95,11 @@ public class ScheduleTaskTaskShadeService {
             }
             throw rdosDefineException;
         }
+
+        if (task == null) {
+            return null;
+        }
+
         if (level == null || level < 1) {
             level = 1;
         }
