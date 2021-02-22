@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiModel;
 @ApiModel
 public class Engine extends BaseEntity{
 
-    @Unique
     private Long clusterId;
 
     private String engineName;

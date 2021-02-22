@@ -21,7 +21,6 @@ public class ProjectService {
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
 
     public void updateSchedule(Long projectId, Integer appType, Integer scheduleStatus) {
-
         if (null == projectId || null == appType || null == scheduleStatus) {
             return;
         }

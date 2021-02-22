@@ -2,6 +2,8 @@ package com.dtstack.engine.api.vo;
 
 import com.dtstack.engine.api.domain.Cluster;
 import io.swagger.annotations.ApiModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
@@ -9,6 +11,8 @@ import java.util.List;
 
 @ApiModel
 public class ClusterEngineVO extends Cluster {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClusterEngineVO.class);
 
     private Long clusterId;
 
@@ -40,7 +44,7 @@ public class ClusterEngineVO extends Cluster {
             BeanUtils.copyProperties(cluster, vo);
             vo.setClusterId(cluster.getId());
         } catch (Throwable e) {
-            e.printStackTrace();
+            LOGGER.error("ClusterEngineVO.toVO error:",e);
         }
         return vo;
     }

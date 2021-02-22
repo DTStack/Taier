@@ -183,15 +183,6 @@ public class FlinkClient extends AbstractClient {
     }
 
     private JobResult submitJobWithJar(JobClient jobClient, List<URL> classPaths, List<String> programArgList) {
-        if (flinkConfig.isOpenKerberos()) {
-            FileUtil.downloadKafkaKeyTab(jobClient, filesystemManager);
-        }
-
-        if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
-            if (existsJobOnFlink(jobClient.getEngineTaskId())) {
-                return JobResult.createSuccessResult(jobClient.getEngineTaskId());
-            }
-        }
 
         JobParam jobParam = new JobParam(jobClient);
         String jarPath = jobParam.getJarPath();
@@ -413,11 +404,14 @@ public class FlinkClient extends AbstractClient {
 
                         if (StringUtils.isEmpty(appId)) {
                             // yarn session job cancel
-                            targetClusterClient.cancel(jobId);
+                            targetClusterClient.cancelWithSavepoint(jobId, null);
                         } else {
                             // per job cancel
+                            if(jobIdentifier.isForceCancel()){
+                                return killApplication(jobIdentifier);
+                            }
                             String savepoint = targetClusterClient.cancelWithSavepoint(jobId, null);
-                            logger.info("flink job savepoint path {}", savepoint);
+                            logger.info("jobId: {},flink job savepoint path {}", jobId, savepoint);
                         }
                     }
                     return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
@@ -428,25 +422,29 @@ public class FlinkClient extends AbstractClient {
                     }
 
                     logger.error("jobId:{} engineJobId:{} applicationId:{} cancelJob error, try to cancel with yarnClient.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), e);
-
-                    if (StringUtils.isEmpty(appId)) {
-                        return JobResult.createErrorResult(e);
-                    }
-
-                    try {
-                        ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
-                        flinkClientBuilder.getYarnClient().killApplication(applicationId);
-                        logger.info("jobId:{} engineJobId:{} applicationId:{} yarnClient kill application success.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId());
-                        return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
-                    } catch (Exception killException) {
-                        logger.error("jobId:{} engineJobId:{} applicationId:{} yarnClient kill application error:", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), killException);
-                        return JobResult.createErrorResult(e);
-                    }
+                    return JobResult.createErrorResult(e);
                 }
             }, hadoopConf.getYarnConfiguration());
         } catch (Exception exception) {
             logger.error("jobId:{} engineJobId:{} applicationId:{} cancelJob error:", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), exception);
             return JobResult.createErrorResult(exception);
+        }
+    }
+
+    /**
+     * 强制关闭yarn application
+     * @param jobIdentifier
+     * @return
+     */
+    private JobResult killApplication(JobIdentifier jobIdentifier){
+        try {
+            ApplicationId applicationId = ConverterUtils.toApplicationId(jobIdentifier.getApplicationId());
+            flinkClientBuilder.getYarnClient().killApplication(applicationId);
+            logger.info("jobId:{} engineJobId:{} applicationId:{} yarnClient kill application success.", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId());
+            return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
+        } catch (Exception killException) {
+            logger.error("jobId:{} engineJobId:{} applicationId:{} yarnClient kill application error:", jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), jobIdentifier.getApplicationId(), killException);
+            return JobResult.createErrorResult(killException);
         }
     }
 
@@ -1032,4 +1030,5 @@ public class FlinkClient extends AbstractClient {
             packagedProgram.getClasspaths().clear();
         }
     }
+
 }

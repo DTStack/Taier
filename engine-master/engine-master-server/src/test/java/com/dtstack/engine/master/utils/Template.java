@@ -91,23 +91,6 @@ public class Template {
         return engineJobCache;
     }
 
-
-    public static EngineJobCache getEngineJobCacheTemplateCopyFromJob(ScheduleJob scheduleJob) {
-        EngineJobCache engineJobCache = new EngineJobCache();
-        engineJobCache.setJobId(scheduleJob.getJobId());
-        engineJobCache.setJobName(scheduleJob.getJobName());
-        engineJobCache.setEngineType("flink");
-        engineJobCache.setJobPriority(10L);
-        engineJobCache.setComputeType(scheduleJob.getComputeType());
-        engineJobCache.setJobInfo("{\"engineType\":\"spark\",\"taskType\":2,\"computeType\":0, \"tenantId\":9}");
-        engineJobCache.setStage(2);
-        engineJobCache.setIsFailover(0);
-        engineJobCache.setNodeAddress("node01");
-        engineJobCache.setJobResource("dtScript_dev_default_batch_Yarn");
-
-        return engineJobCache;
-    }
-
     public static EngineJobCache getEngineJobCacheTemplate2() {
         EngineJobCache engineJobCache = new EngineJobCache();
         engineJobCache.setJobId("jobId2");
@@ -118,27 +101,6 @@ public class Template {
         engineJobCache.setJobInfo("{\"engineType\":\"spark\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, \"maxRetryNum\":3,\"taskParams\":\"openCheckpoint:true\"," +
                 "\"taskId\":\"jobId2\"}");
         engineJobCache.setStage(2);
-        engineJobCache.setIsFailover(0);
-        engineJobCache.setNodeAddress(null);
-        engineJobCache.setJobResource("test");
-
-        return engineJobCache;
-    }
-
-    /**
-     * stage为5
-     * @return
-     */
-    public static EngineJobCache getEngineJobCacheTemplate3() {
-        EngineJobCache engineJobCache = new EngineJobCache();
-        engineJobCache.setJobId("jobId2");
-        engineJobCache.setJobName("test");
-        engineJobCache.setEngineType("spark");
-        engineJobCache.setJobPriority(10L);
-        engineJobCache.setComputeType(1);
-        engineJobCache.setJobInfo("{\"engineType\":\"spark\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, \"maxRetryNum\":3,\"taskParams\":\"openCheckpoint:true\"," +
-                "\"taskId\":\"jobId2\"}");
-        engineJobCache.setStage(5);
         engineJobCache.setIsFailover(0);
         engineJobCache.setNodeAddress(null);
         engineJobCache.setJobResource("test");
@@ -196,6 +158,7 @@ public class Template {
         return scheduleTaskShade;
     }
 
+
     public static Tenant getTenantTemplate(){
         Tenant tenant = new Tenant();
         tenant.setDtUicTenantId(ValueUtils.getChangedLong());
@@ -243,6 +206,7 @@ public class Template {
         component.setComponentTemplate("[]");
         component.setUploadFileName("conf.zip");
         component.setKerberosFileName("kb.zip");
+        component.setStoreType(EComponentType.HDFS.getTypeCode());
         return component;
     }
 
@@ -257,6 +221,7 @@ public class Template {
         component.setComponentTemplate("[]");
         component.setUploadFileName("conf.zip");
         component.setKerberosFileName("kb.zip");
+        component.setStoreType(EComponentType.HDFS.getTypeCode());
         return component;
     }
 
@@ -271,6 +236,7 @@ public class Template {
         component.setComponentTemplate("[]");
         component.setUploadFileName("");
         component.setKerberosFileName("");
+        component.setStoreType(EComponentType.SFTP.getTypeCode());
         return component;
     }
 
@@ -285,6 +251,7 @@ public class Template {
         component.setComponentTemplate("[]");
         component.setUploadFileName("");
         component.setKerberosFileName("");
+        component.setStoreType(0);
         return component;
     }
 

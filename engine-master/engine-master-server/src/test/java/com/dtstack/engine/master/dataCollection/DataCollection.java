@@ -9,6 +9,8 @@ import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.anno.DataSource;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
+import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.utils.DataCollectionProxy;
 import com.dtstack.engine.master.utils.Template;
 import org.joda.time.DateTime;
@@ -232,62 +234,6 @@ public interface DataCollection {
         sj.setEngineLog("");
         sj.setSourceType(-1);
         sj.setApplicationId("application_9527");
-        sj.setEngineJobId("engineJobId2");
-        sj.setComputeType(ComputeType.STREAM.getType());
-        return sj;
-    }
-
-    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
-    default ScheduleJob getScheduleJobStream3() {
-        ScheduleJob sj = Template.getScheduleJobTemplate();
-        sj.setJobId("testJobId3");
-        sj.setStatus(4);
-        sj.setExecStartTime(new Timestamp(1591805197000L));
-        sj.setExecEndTime(new Timestamp(1591805197100L));
-        sj.setJobName("test2");
-        sj.setCycTime("20200609234500");
-        sj.setTaskType(EJobType.SQL.getType());
-        sj.setType(2);
-        sj.setEngineLog("");
-        sj.setSourceType(-1);
-        sj.setApplicationId("application_9527");
-        sj.setComputeType(ComputeType.STREAM.getType());
-        return sj;
-    }
-
-
-    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
-    default ScheduleJob getScheduleJobStream4() {
-        ScheduleJob sj = Template.getScheduleJobTemplate();
-        sj.setJobId("testJobId3");
-        sj.setStatus(4);
-        sj.setExecStartTime(new Timestamp(1591805197000L));
-        sj.setExecEndTime(new Timestamp(1591805197100L));
-        sj.setJobName("test2");
-        sj.setCycTime("20200609234500");
-        sj.setTaskType(EJobType.SQL.getType());
-        sj.setType(2);
-        sj.setEngineLog("");
-        sj.setSourceType(-1);
-        sj.setApplicationId("application_9527");
-        sj.setComputeType(ComputeType.STREAM.getType());
-        return sj;
-    }
-
-    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
-    default ScheduleJob getScheduleJobStream5() {
-        ScheduleJob sj = Template.getScheduleJobTemplate();
-        sj.setJobId("testJobId4");
-        sj.setStatus(4);
-        sj.setExecStartTime(new Timestamp(1591805197000L));
-        sj.setExecEndTime(new Timestamp(1591805197100L));
-        sj.setJobName("test2");
-        sj.setCycTime("20200609234500");
-        sj.setTaskType(EJobType.SQL.getType());
-        sj.setType(2);
-        sj.setEngineLog("");
-        sj.setSourceType(-1);
-        sj.setApplicationId("application_9527");
         sj.setComputeType(ComputeType.STREAM.getType());
         return sj;
     }
@@ -348,61 +294,7 @@ public interface DataCollection {
         EngineJobCache engineJobCache = Template.getEngineJobCacheTemplate2();
         String jobId = getData().getScheduleJobStream2().getJobId();
         engineJobCache.setJobId(jobId);
-        engineJobCache.setJobInfo(String.format("{\"pluginInfo\":{\"aa\":\"bb\"},\"engineType\":\"spark\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, " +
-                "\"maxRetryNum\":3,\"taskParams\":\"openCheckpoint=true \\n sql.checkpoint.interval=2\"," +
-                "\"taskId\":\"%s\"}",jobId));
-        engineJobCache.setIsFailover(1);
-        return engineJobCache;
-    }
-
-    /**
-     * @author zyd
-     * @Description 构造不同jobId的jobCache，防止被其他线程删掉
-     * @Date 2020/11/27 2:46 下午
-     * @return: com.dtstack.engine.api.domain.EngineJobCache
-     **/
-    @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
-    @IgnoreUniqueRandomSet
-    default EngineJobCache getEngineJobCache4() {
-        EngineJobCache engineJobCache = Template.getEngineJobCacheTemplate2();
-        String jobId = getData().getScheduleJobStream3().getJobId();
-        engineJobCache.setJobId(jobId);
         engineJobCache.setJobInfo(String.format("{\"engineType\":\"spark\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, " +
-                "\"maxRetryNum\":3,\"taskParams\":\"openCheckpoint=true \\n sql.checkpoint.interval=2\"," +
-                "\"taskId\":\"%s\"}",jobId));
-        engineJobCache.setIsFailover(1);
-        return engineJobCache;
-    }
-
-
-    /**
-     * engineType为kylin
-     * @return
-     */
-    @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
-    @IgnoreUniqueRandomSet
-    default EngineJobCache getEngineJobCache5() {
-        EngineJobCache engineJobCache = Template.getEngineJobCacheTemplate2();
-        String jobId = getData().getScheduleJobStream4().getJobId();
-        engineJobCache.setJobId(jobId);
-        engineJobCache.setJobInfo(String.format("{\"pluginInfo\":{\"aa\":\"bb\"},\"openCheckpoint\":true,\"engineType\":\"Kylin\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, " +
-                "\"maxRetryNum\":3,\"taskParams\":\"openCheckpoint=true \\n sql.checkpoint.interval=2\"," +
-                "\"taskId\":\"%s\"}",jobId));
-        engineJobCache.setIsFailover(1);
-        return engineJobCache;
-    }
-
-    /**
-     * jobCache的stage为5
-     * @return
-     */
-    @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
-    @IgnoreUniqueRandomSet
-    default EngineJobCache getEngineJobCache6() {
-        EngineJobCache engineJobCache = Template.getEngineJobCacheTemplate3();
-        String jobId = getData().getScheduleJobStream5().getJobId();
-        engineJobCache.setJobId(jobId);
-        engineJobCache.setJobInfo(String.format("{\"pluginInfo\":{\"aa\":\"bb\"},\"engineType\":\"Kylin\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, " +
                 "\"maxRetryNum\":3,\"taskParams\":\"openCheckpoint=true \\n sql.checkpoint.interval=2\"," +
                 "\"taskId\":\"%s\"}",jobId));
         engineJobCache.setIsFailover(1);
@@ -585,6 +477,21 @@ public interface DataCollection {
         return scheduleTaskShade;
     }
 
+    @DatabaseInsertOperation(dao = TestEngineJobStopDao.class)
+    default EngineJobStopRecord getScheduleJobStop(){
+
+        EngineJobCache engineJobCache = getEngineJobCache();
+        EngineJobStopRecord jsr = new EngineJobStopRecord();
+        jsr.setTaskId(engineJobCache.getJobId());
+        jsr.setComputeType(jsr.getComputeType());
+        jsr.setEngineType(jsr.getEngineType());
+        jsr.setForceCancelFlag(1);
+        jsr.setJobResource(engineJobCache.getJobResource());
+        jsr.setOperatorExpired(new java.util.Date());
+        jsr.setTaskType(10);
+        jsr.setVersion(1);
+        return jsr;
+    }
 
     @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
     default ScheduleTaskShade getCronMonthTask() {
@@ -680,6 +587,157 @@ public interface DataCollection {
         scheduleTaskShade.setScheduleConf("{\"beginHour\":\"0\",\"endHour\":\"23\",\"beginMin\":\"0\",\"gapHour\":\"1\",\"periodType\":\"1\",\"isFailRetry\":true,\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"selfReliance\":4,\"maxRetryNum\":\"3\",\"isLastInstance\":true,\"endMin\":\"59\"}");
         scheduleTaskShade.setTaskId(6L);
         return scheduleTaskShade;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleTaskTaskShadeDao.class)
+    default ScheduleTaskTaskShade getTaskTask() {
+        ScheduleTaskTaskShade taskTask = Template.getTaskTask();
+        return taskTask;
+    }
+
+
+    @DatabaseInsertOperation(dao = TestEngineTenantDao.class)
+    default EngineTenant getEngineTenant(){
+        EngineTenant engineTenant = new EngineTenant();
+        engineTenant.setEngineId(1L);
+        engineTenant.setQueueId(1L);
+        engineTenant.setTenantId(1L);
+        return engineTenant;
+    }
+
+    @DatabaseInsertOperation(dao = TestClusterDao.class)
+    default Cluster getDefaultCluster() {
+        Cluster cluster = new Cluster();
+        cluster.setId(1L);
+        cluster.setClusterName("test");
+        cluster.setHadoopVersion("hadoop2");
+        return cluster;
+    }
+
+    @DatabaseInsertOperation(dao = TestClusterDao.class)
+    default Cluster getDefaultK8sCluster() {
+        Cluster cluster = new Cluster();
+        cluster.setId(2L);
+        cluster.setClusterName("testK8s");
+        cluster.setHadoopVersion("hadoop3");
+        return cluster;
+    }
+
+    @DatabaseInsertOperation(dao = TestEngineDao.class)
+    default Engine getDefaultK8sEngine(){
+        Engine defaultEngineTemplate = Template.getDefaultEngineTemplate();
+        defaultEngineTemplate.setId(2L);
+        defaultEngineTemplate.setClusterId(2L);
+        return defaultEngineTemplate;
+    }
+
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultK8sClusterHdfsComponent() {
+        Component hdfsComponentTemplate = Template.getDefaultHdfsComponentTemplate();
+        hdfsComponentTemplate.setEngineId(2L);
+        hdfsComponentTemplate.setClusterId(2L);
+        return hdfsComponentTemplate;
+    }
+
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultK8sClusterSftpComponent() {
+        Component hdfsComponentTemplate = Template.getDefaultSftpComponentTemplate();
+        hdfsComponentTemplate.setEngineId(2L);
+        hdfsComponentTemplate.setClusterId(2L);
+        return hdfsComponentTemplate;
+    }
+
+    @DatabaseInsertOperation(dao = TestEngineDao.class)
+    default Engine getDefaultHadoopEngine(){
+        return Template.getDefaultEngineTemplate();
+    }
+
+    @DatabaseInsertOperation(dao = TestTenantDao.class)
+    default Tenant getDefaultTenant(){
+        Tenant tenant = new Tenant();
+        tenant.setId(1L);
+        tenant.setDtUicTenantId(1L);
+        tenant.setTenantName("测试租户");
+        tenant.setTenantDesc("测试租户");
+        return tenant;
+    }
+
+    @DatabaseInsertOperation(dao = TestQueueDao.class)
+    default Queue getDefaultQueue(){
+        Queue queue = new Queue();
+        queue.setEngineId(1L);
+        queue.setQueueName("默认queue");
+        queue.setCapacity("1.0");
+        queue.setMaxCapacity("1.0");
+        queue.setQueueState("RUNNING");
+        queue.setParentQueueId(-1L);
+        queue.setQueuePath("default");
+        return queue;
+    }
+
+    @DatabaseInsertOperation(dao = TestTenantResourceDao.class)
+    default TenantResource getDefaultTenantResource(){
+        TenantResource tenantResource = new TenantResource();
+        tenantResource.setTenantId(1);
+        tenantResource.setDtUicTenantId(1);
+        tenantResource.setTaskType(EComponentType.SPARK.getTypeCode());
+        tenantResource.setEngineType(MultiEngineType.HADOOP.name());
+        tenantResource.setResourceLimit("{\"cores\":1,\"memory\":250}");
+        return tenantResource;
+    }
+
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultComponent(){
+        Component component = new Component();
+        component.setEngineId(1L);
+        component.setComponentName(EComponentType.SPARK.name());
+        component.setComponentTypeCode(EComponentType.SPARK.getTypeCode());
+        component.setComponentConfig("{\"deploymode\":[\"perjob\"],\"perjob\":{\"spark.executor.memory\":\"512m\",\"sparkSqlProxyPath\":\"hdfs://ns1/dtInsight/spark/spark-0.0.1-SNAPSHOT.jar\",\"spark.yarn.appMasterEnv.PYSPARK_PYTHON\":\"/data/anaconda3/bin/python3\",\"spark.executor.heartbeatInterval\":\"600s\",\"spark.rpc.askTimeout\":\"600s\",\"spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON\":\"/data/anaconda3/bin/python3\",\"spark.yarn.maxAppAttempts\":\"1\",\"spark.network.timeout\":\"600s\",\"spark.executor.cores\":\"1\",\"spark.submit.deployMode\":\"cluster\",\"spark.speculation\":\"true\",\"sparkPythonExtLibPath\":\"/dtInsight/pythons/pyspark.zip,hdfs://ns1/dtInsight/pythons/py4j-0.10.7-src.zip\",\"addColumnSupport\":\"true\",\"spark.eventLog.compress\":\"true\",\"spark.eventLog.dir\":\"hdfs://ns1/tmp/logs\",\"spark.eventLog.enabled\":\"true\",\"sparkYarnArchive\":\"hdfs://ns1/dtInsight/sparkjars/jars\",\"spark.executor.instances\":\"1\",\"spark.cores.max\":\"1\"},\"typeName\":\"yarn2-hdfs2-spark210\"}");
+        component.setClusterId(1L);
+        component.setHadoopVersion("hadoop3");
+        component.setComponentTemplate("[]");
+        component.setUploadFileName("conf.zip");
+        component.setKerberosFileName("kb.zip");
+        component.setStoreType(0);
+        return component;
+    }
+
+    @DatabaseInsertOperation(dao = TestKerberosConfigDao.class)
+    default KerberosConfig getDefaultKerberosConfig(){
+        KerberosConfig kerberosConfig = new KerberosConfig();
+        kerberosConfig.setClusterId(1L);
+        kerberosConfig.setName("testKerberos");
+        kerberosConfig.setOpenKerberos(1);
+        kerberosConfig.setPrincipal("node1@127.0.0.1");
+        kerberosConfig.setComponentType(EComponentType.YARN.getTypeCode());
+        kerberosConfig.setRemotePath("ttt");
+        kerberosConfig.setKrbName("krb5.conf");
+        return kerberosConfig;
+    }
+
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultHdfsComponent(){
+        return Template.getDefaultHdfsComponentTemplate();
+    }
+
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultYarnComponent(){
+        return Template.getDefaultYarnComponentTemplate();
+    }
+
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultSftpComponent(){
+        return Template.getDefaultSftpComponentTemplate();
+    }
+
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultK8sComponent(){
+        return Template.getDefaultK8sComponentTemplate();
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleFillDataJobDao.class)
+    default ScheduleFillDataJob getDefaultScheduleFillDataJob(){
+        return Template.getDefaultScheduleFillDataJobTemplate();
     }
 
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)

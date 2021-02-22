@@ -102,6 +102,7 @@ CREATE TABLE `schedule_engine_job_stop_record` (
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `operator_expired` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '操作过期时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `force_cancel_flag` TINYINT(1) NOT NULL COMMENT '强制标志 0非强制 1强制',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -162,6 +163,7 @@ CREATE TABLE `console_component` (
  `upload_file_name` varchar(50) DEFAULT '' COMMENT '上传文件zip名称',
  `component_template` text COMMENT '前端展示模版json',
  `kerberos_file_name` varchar(50) DEFAULT '' COMMENT '上传kerberos文件zip名称',
+ `store_type` tinyint(1) DEFAULT '4' COMMENT '组件存储类型: HDFS、NFS 默认HDFS',
   PRIMARY KEY (`id`),
   UNIQUE INDEX `index_component`(`engine_id`, `component_type_code`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
@@ -215,6 +217,8 @@ CREATE TABLE `console_kerberos` (
     `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
     `krb_name` varchar(26) DEFAULT NULL COMMENT 'krb5_conf名称',
     `component_type` int(11) DEFAULT NULL COMMENT '组件类型',
+    `principals` TEXT COMMENT 'keytab用户文件列表',
+    `merge_krb_content` TEXT COMMENT '合并后的krb5',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 

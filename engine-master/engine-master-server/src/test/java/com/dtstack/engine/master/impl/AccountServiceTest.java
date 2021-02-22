@@ -24,6 +24,10 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -109,7 +113,7 @@ public class AccountServiceTest extends AbstractTest {
         ClusterVO dbCluster = clusterService.getClusterByName(accountClusterName);
         Assert.assertNotNull(dbCluster);
         componentService.addOrUpdateComponent(dbCluster.getClusterId(), "{\"jdbcUrl\":\"jdbc:mysql://172.16.100.73:4000/\",\"maxJobPoolSize\":\"\",\"minJobPoolSize\":\"\",\"password\":\"\",\"username\":\"\"}",
-                null, "", "", "[]", EComponentType.TIDB_SQL.getTypeCode());
+                null, "", "", "[]", EComponentType.TIDB_SQL.getTypeCode(),null,"","");
         //添加测试租户
         Tenant tenant = Template.getTenantTemplate();
         tenant.setDtUicTenantId(-1112L);
@@ -118,7 +122,7 @@ public class AccountServiceTest extends AbstractTest {
         Assert.assertNotNull(tenant);
         Assert.assertNotNull(tenant.getId());
         //绑定租户
-        tenantService.bindingTenant(tenant.getDtUicTenantId(), dbCluster.getClusterId(), null, "");
+        tenantService.bindingTenant(tenant.getDtUicTenantId(), dbCluster.getClusterId(), null, "","");
 
         User user = DataCollection.getData().getUser();
         AccountVo accountVo = new AccountVo();

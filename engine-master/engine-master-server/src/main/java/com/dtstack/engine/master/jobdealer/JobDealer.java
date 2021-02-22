@@ -20,6 +20,7 @@ import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
+import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -240,7 +241,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         String engineLog = null;
         try {
             EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
-            if ( null == engineJobCache ) {
+            if (null == engineJobCache) {
                 return "";
             }
             String engineType = engineJobCache.getEngineType();
@@ -249,7 +250,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
             Long userId = info.getLong("userId");
             String pluginInfo = info.getString("pluginInfo");
             JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId,dtuicTenantId,engineType,
-                    scheduleJobService.parseDeployTypeByTaskParams(taskParams,engineJobCache.getComputeType(),engineJobCache.getEngineType()).getType(),userId,pluginInfo);
+                    TaskParamsUtil.parseDeployTypeByTaskParams(taskParams,engineJobCache.getComputeType(),engineJobCache.getEngineType()).getType(),userId,pluginInfo);
             //从engine获取log
             engineLog = workerOperator.getEngineLog(jobIdentifier);
             if (engineLog != null) {

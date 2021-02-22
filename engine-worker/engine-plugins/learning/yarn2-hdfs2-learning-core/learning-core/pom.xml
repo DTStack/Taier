@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.dtstack</groupId>
             <artifactId>learning</artifactId>
-            <version>${learning.version}</version>
+            <version>${learning2.version}</version>
         </dependency>
 
         <dependency>
