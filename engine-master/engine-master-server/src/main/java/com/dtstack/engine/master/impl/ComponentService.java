@@ -42,6 +42,7 @@ import com.dtstack.schedule.common.util.Xml2JsonUtil;
 import com.dtstack.schedule.common.util.ZipUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kerby.kerberos.kerb.keytab.Keytab;
@@ -106,6 +107,9 @@ public class ComponentService {
 
     @Autowired
     private ComponentTemplateService componentTemplateService;
+
+    @Autowired
+    private ComponentConfigService componentConfigService;
 
     public static final String TYPE_NAME = "typeName";
 
@@ -296,28 +300,6 @@ public class ComponentService {
         return env.getLocalKerberosDir() + File.separator + getSftpClusterKey(clusterId);
     }
 
-    public void addComponentWithConfig(Long engineId, String confName, JSONObject config) {
-        EComponentType type = EComponentType.getByConfName(confName);
-
-        if (Objects.isNull(config)) {
-            config = new JSONObject();
-        }
-        Component component = componentDao.getByEngineIdAndComponentType(engineId, type.getTypeCode());
-        if (component == null) {
-            component = new Component();
-            component.setEngineId(engineId);
-            component.setComponentName(type.getName());
-            component.setComponentTypeCode(type.getTypeCode());
-            component.setComponentConfig(config.toJSONString());
-
-            componentDao.insert(component);
-        } else {
-            component.setComponentConfig(config.toJSONString());
-            componentDao.update(component);
-        }
-    }
-
-
     private File getFileWithSuffix(String dir, String suffix) {
         if (StringUtils.isBlank(suffix)) {
             throw new RdosDefineException("文件后缀不能为空");
@@ -386,45 +368,13 @@ public class ComponentService {
         return kerberosDao.getByComponentType(clusterId, componentType);
     }
 
-    public Map<String, String> getSFTPConfig(Long clusterId) {
-        Engine hadoopEngine = getEngineByClusterId(clusterId);
-        Component sftpComponent = componentDao.getByEngineIdAndComponentType(hadoopEngine.getId(), EComponentType.SFTP.getTypeCode());
-        if (sftpComponent == null) {
-            throw new RdosDefineException("需要提前配置SFTP组件");
-        }
-        return convertToMap(sftpComponent.getComponentConfig());
-    }
-
-    private Map<String, String> convertToMap(String str) {
-        JSONObject sftpObj = JSONObject.parseObject(str);
-        Map<String, String> confMap = new HashMap<>();
-        for (String key : sftpObj.keySet()) {
-            confMap.put(key, sftpObj.getString(key));
-        }
-        return confMap;
-    }
-
-
-    private Engine getEngineByClusterId(Long clusterId) {
-        Cluster cluster = clusterDao.getOne(clusterId);
-        if (cluster == null) {
-            throw new RdosDefineException(ErrorCode.DATA_NOT_FIND.getDescription());
-        }
-
-        Engine hadoopEngine = engineDao.getByClusterIdAndEngineType(clusterId, MultiEngineType.HADOOP.getType());
-        if (hadoopEngine == null) {
-            throw new RdosDefineException("该集群没有配置[HADOOP]引擎");
-        }
-        return hadoopEngine;
-    }
-
 
     @Transactional(rollbackFor = Exception.class)
     public ComponentVO addOrUpdateComponent( Long clusterId,  String componentConfig,
                                              List<Resource> resources,  String hadoopVersion,
-                                             String kerberosFileName,  String componentTemplate,
+                                             String kerberosFileName, String componentTemplate,
                                              Integer componentCode) {
-        if (StringUtils.isBlank(componentConfig) && !EComponentType.KUBERNETES.getTypeCode().equals(componentCode)) {
+        if (StringUtils.isBlank(componentTemplate) && !EComponentType.KUBERNETES.getTypeCode().equals(componentCode)) {
             throw new RdosDefineException("组件信息不能为空");
         }
         if ( null == componentCode ) {
@@ -434,7 +384,6 @@ public class ComponentService {
             throw new RdosDefineException("集群Id不能为空");
         }
         ComponentDTO componentDTO = new ComponentDTO();
-        componentDTO.setComponentConfig(componentConfig);
         componentDTO.setComponentTypeCode(componentCode);
         Cluster cluster = clusterDao.getOne(clusterId);
         if(null == cluster){
@@ -497,7 +446,6 @@ public class ComponentService {
         addComponent.setComponentName(componentType.getName());
         addComponent.setComponentTypeCode(componentType.getTypeCode());
         addComponent.setEngineId(engine.getId());
-        addComponent.setComponentTemplate(componentTemplate);
         if (StringUtils.isNotBlank(kerberosFileName)) {
             addComponent.setKerberosFileName(kerberosFileName);
         }
@@ -511,8 +459,6 @@ public class ComponentService {
             SftpConfig sftpConfig = getSFTPConfig(sftpComponent,componentCode,componentConfig);
             md5Key = uploadResourceToSftp(clusterId, resources, kerberosFileName, sftpConfig, addComponent, dbComponent);
         }
-
-        addComponent.setComponentConfig(this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion,md5Key));
         addComponent.setClusterId(clusterId);
         if (isUpdate) {
             componentDao.update(addComponent);
@@ -520,6 +466,8 @@ public class ComponentService {
         } else {
             componentDao.insert(addComponent);
         }
+        List<ClientTemplate> clientTemplates = this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion, md5Key, componentTemplate);
+        componentConfigService.addOrUpdateComponentConfig(clientTemplates, addComponent.getId(), addComponent.getClusterId(), addComponent.getEngineId(), componentCode);
         ComponentVO componentVO = ComponentVO.toVO(addComponent, true);
         componentVO.setClusterName(clusterName);
         this.updateCache(engine.getId(),componentType.getTypeCode());
@@ -646,11 +594,12 @@ public class ComponentService {
      * @param componentString
      * @return
      */
-    private String wrapperConfig(EComponentType componentType, String componentString, boolean isOpenKerberos, String clusterName, String hadoopVersion,String md5Key) {
+    private List<ClientTemplate> wrapperConfig(EComponentType componentType, String componentString, boolean isOpenKerberos, String clusterName, String hadoopVersion, String md5Key, String clientTemplates) {
+        List<ClientTemplate> templates = new ArrayList<>();
         if (EComponentType.KUBERNETES.equals(componentType)) {
-            JSONObject dataJSON = new JSONObject();
-            dataJSON.put("kubernetes.context",componentString);
-            return dataJSON.toJSONString();
+            ClientTemplate kubernetesClientTemplate = buildOthers("kubernetes.context", componentString);
+            templates.add(kubernetesClientTemplate);
+            return templates;
         }
         JSONObject componentConfigJSON = JSONObject.parseObject(componentString);
         if (isOpenKerberos) {
@@ -664,12 +613,30 @@ public class ComponentService {
         }
         if (EComponentType.typeComponentVersion.contains(componentType)) {
             //添加typeName
-            componentConfigJSON.put(TYPE_NAME, this.convertComponentTypeToClient(clusterName, componentType.getTypeCode(), hadoopVersion));
+            ClientTemplate typeNameClientTemplate = buildOthers(TYPE_NAME, this.convertComponentTypeToClient(clusterName, componentType.getTypeCode(), hadoopVersion));
+            templates.add(typeNameClientTemplate);
         }
-        if(!StringUtils.isBlank(md5Key)){
-            componentConfigJSON.put(MD5_SUM_KEY, md5Key);
+        if (!StringUtils.isBlank(md5Key)) {
+            ClientTemplate md5ClientTemplate = buildOthers(MD5_SUM_KEY, md5Key);
+            templates.add(md5ClientTemplate);
         }
-        return componentConfigJSON.toJSONString();
+        if (EComponentType.noControlComponents.contains(componentType)) {
+            //xml配置文件也转换为组件
+            List<ClientTemplate> xmlTemplates = componentConfigService.convertXMLConfigToComponentConfig(componentConfigJSON.toJSONString());
+            templates.addAll(xmlTemplates);
+        } else {
+            List<ClientTemplate> controlTemplate = JSONObject.parseArray(clientTemplates, ClientTemplate.class);
+            templates.addAll(controlTemplate);
+        }
+        return templates;
+    }
+
+    private ClientTemplate buildOthers(String key,String value){
+        ClientTemplate componentConfig = new ClientTemplate();
+        componentConfig.setType(EFrontType.OTHER.name());
+        componentConfig.setKey(key);
+        componentConfig.setValue(value);
+        return componentConfig;
     }
 
     /**
@@ -1057,18 +1024,18 @@ public class ComponentService {
                 throw new RdosDefineException("组件不存在");
             }
             Long clusterId = componentDao.getClusterIdByComponentId(componentId);
-            Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
-            if ( null == sftpComponent ) {
+            SftpConfig sftpConfig = getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(),false,SftpConfig.class);
+            if ( null == sftpConfig ) {
                 throw new RdosDefineException("sftp组件不存在");
             }
 
             localDownLoadPath = USER_DIR_DOWNLOAD + File.separator + component.getComponentName();
-            SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
             String remoteDir = sftpConfig.getPath() + File.separator + this.buildSftpPath(clusterId, component.getComponentTypeCode());
-            SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
+            SftpFileManage sftpFileManage = null;
             if (DownloadType.Kerberos.getCode() == downloadType) {
                 remoteDir = remoteDir + File.separator + KERBEROS_PATH;
                 localDownLoadPath = localDownLoadPath + File.separator + KERBEROS_PATH;
+                sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
                 sftpFileManage.downloadDir(remoteDir, localDownLoadPath);
             } else {
                 if ( null == component.getUploadFileName()) {
@@ -1080,6 +1047,7 @@ public class ComponentService {
                         LOGGER.error("write upload file {} error", component.getComponentConfig(), e);
                     }
                 } else {
+                    sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
                     // 一种是 上传配置文件的需要到sftp下载
                     sftpFileManage.downloadDir(remoteDir + File.separator + component.getUploadFileName(), localDownLoadPath);
                 }
@@ -1360,6 +1328,34 @@ public class ComponentService {
 
     public Component getComponentByClusterId(Long clusterId, Integer componentType) {
         return componentDao.getByClusterIdAndComponentType(clusterId, componentType);
+    }
+
+    /**
+     * 获取对应组件的配置信息
+     *
+     * @param clusterId
+     * @param componentType
+     * @param isFilter      是否移除typeName 等配置信息
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getComponentByClusterId(Long clusterId, Integer componentType, boolean isFilter, Class<T> clazz) {
+        Component component = componentDao.getByClusterIdAndComponentType(clusterId, componentType);
+        if (null == component) {
+            throw new RdosDefineException("组件不存在");
+        }
+        Map<String, Object> configMap = componentConfigService.convertComponentConfigToMap(component.getId(), isFilter);
+        if(MapUtils.isEmpty(configMap)){
+            return null;
+        }
+        if (clazz.isInstance(Map.class)) {
+            return (T) configMap;
+        }
+        String configStr = JSONObject.toJSONString(configMap);
+        if (clazz.isInstance(String.class)) {
+            return (T) configStr;
+        }
+        return JSONObject.parseObject(configStr, clazz);
     }
 
     /**

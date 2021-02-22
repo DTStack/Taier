@@ -9,7 +9,9 @@ public enum EFrontType {
     RADIO(1, "radio"),
     GROUP(2, "group"),
     SELECT(3, "select"),
-    CHECKBOX(4,"checkbox");
+    CHECKBOX(4,"checkbox"),
+    XML(5,"xml"),
+    OTHER(6,"other");
 
     private int code;
     private String name;

@@ -16,7 +16,6 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.EComponentScheduleType;
@@ -313,7 +312,7 @@ public class ClusterService implements InitializingBean {
             if(null == componentType){
                 componentType = EComponentType.SPARK_THRIFT.getTypeCode();
             }
-            Map<String, String> sftpConfig = componentService.getSFTPConfig(clusterId);
+            Map<String, String> sftpConfig = componentService.getComponentByClusterId(clusterId,EComponentType.SFTP.getTypeCode(),false,Map.class);
             if (sftpConfig != null) {
                 KerberosConfig kerberosDaoByComponentType = kerberosDao.getByComponentType(clusterId, componentType);
                 if( null != kerberosDaoByComponentType ){
@@ -449,7 +448,8 @@ public class ClusterService implements InitializingBean {
                 if (CollectionUtils.isNotEmpty(components)) {
                     for (Component component : components) {
                         EComponentType type = EComponentType.getByCode(component.getComponentTypeCode());
-                        config.put(type.getConfName(), JSONObject.parseObject(component.getComponentConfig()));
+                        JSONObject componentConfig = componentService.getComponentByClusterId(cluster.getClusterId(), component.getComponentTypeCode(), false, JSONObject.class);
+                        config.put(type.getConfName(), componentConfig);
                     }
                 }
             }
@@ -514,22 +514,16 @@ public class ClusterService implements InitializingBean {
             addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
             if ( null != fullKerberos && fullKerberos) {
                 //将sftp中keytab配置转换为本地路径
-                this.fullKerberosFilePath(dtUicTenantId, configObj,component);
+                this.fullKerberosFilePath(configObj);
             }
             if(BooleanUtils.isTrue(isWrapper)){
-                Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode());
-                if(null == sftpComponent){
+                Map sftpMap = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(),false,Map.class);
+                if(null == sftpMap){
                     LOGGER.error("can't find sftpComponent,clusterId:{}",cluster.getId());
                     throw new RdosDefineException("can't find sftpComponent");
                 }
-                Map sftpMap = null;
-                try {
-                    sftpMap = PublicUtil.strToObject(sftpComponent.getComponentConfig(), Map.class);
-                } catch (Exception e) {
-                    throw new RdosDefineException("sftp 配置不能为空");
-                }
                 //填充信息
-                JSONObject componentInfo = JSONObject.parseObject(componentService.wrapperConfig(componentType.getTypeCode(), component.getComponentConfig(),
+                JSONObject componentInfo = JSONObject.parseObject(componentService.wrapperConfig(componentType.getTypeCode(), configObj.toJSONString(),
                         sftpMap, kerberosConfig, cluster.getClusterName()));
                 configObj.putAll(componentInfo);
             }
@@ -538,13 +532,10 @@ public class ClusterService implements InitializingBean {
         return "{}";
     }
 
-    private <T> T fullKerberosFilePath(Long dtUicTenantId, T data,Component component) {
-        SftpConfig sftpConfig = JSONObject.parseObject(this.sftpInfo(dtUicTenantId), SftpConfig.class);
-        if (StringUtils.isNotBlank(sftpConfig.getHost())) {
-            JSONObject dataMap = this.getJsonObject(data);
-            this.accordToKerberosFile(sftpConfig, dataMap,component);
-            data = this.convertJsonOverBack(data, dataMap);
-        }
+    private <T> T fullKerberosFilePath(T data) {
+        JSONObject dataMap = this.getJsonObject(data);
+        this.accordToKerberosFile(dataMap);
+        data = this.convertJsonOverBack(data, dataMap);
         return data;
     }
 
@@ -576,10 +567,9 @@ public class ClusterService implements InitializingBean {
 
     /**
      * 添加kerberos的配置文件地址为本地路径
-     * @param sftp
      * @param dataMap
      */
-    private void accordToKerberosFile(SftpConfig sftpConfig, JSONObject dataMap, Component component) {
+    private void accordToKerberosFile(JSONObject dataMap) {
         try {
             JSONObject configJsonObject = dataMap.getJSONObject("kerberosConfig");
             if ( null == configJsonObject ) {
@@ -620,11 +610,11 @@ public class ClusterService implements InitializingBean {
         if ( null != kerberosConfig ) {
             KerberosConfigVO kerberosConfigVO = KerberosConfigVO.toVO(kerberosConfig);
             if (!Objects.equals(EComponentType.HDFS.getConfName(), key)) {
-                Component hdfsComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
-                if (null == hdfsComponent ) {
+                Map hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode(),false,Map.class);
+                if (MapUtils.isEmpty(hdfsComponent)) {
                     throw new RdosDefineException("开启kerberos后需要预先保存hdfs组件");
                 }
-                kerberosConfigVO.setHdfsConfig(JSONObject.parseObject(hdfsComponent.getComponentConfig()));
+                kerberosConfigVO.setHdfsConfig(hdfsComponent);
             }
             kerberosConfigVO.setKerberosFileTimestamp(kerberosConfig.getGmtModified());
             configObj.put("kerberosConfig", kerberosConfigVO);

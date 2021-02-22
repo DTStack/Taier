@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -31,6 +32,8 @@ public class ComponentConfigService {
 
     private final static Logger logger = LoggerFactory.getLogger(ComponentConfigService.class);
     private final static String dependencySeparator = "$";
+    private final static String DEPLOY_MODE = "deploymode";
+    private Predicate<String> isOtherControl =  s -> "typeName".equalsIgnoreCase(s) || "md5Key".equalsIgnoreCase(s);
 
     @Autowired
     private ComponentConfigDao componentConfigDao;
@@ -50,7 +53,7 @@ public class ComponentConfigService {
             throw new RdosDefineException("参数不能为空");
         }
         componentConfigDao.deleteByComponentId(componentId);
-        List<ComponentConfig> componentConfigs = saveTreeToDb(clientTemplates, clusterId, engineId, componentId, null, null, componentTypeCode);
+        List<ComponentConfig> componentConfigs = saveTreeToList(clientTemplates, clusterId, engineId, componentId, null, null, componentTypeCode);
         batchSaveComponentConfig(componentConfigs);
 
     }
@@ -73,15 +76,44 @@ public class ComponentConfigService {
 
 
     /**
-     * 将数据库的信息转换为key-value形式 供插件使用
-     * @param componentId
+     * 将yarn hdfs 等xml配置信息转换为clientTemplate
+     *
+     * @param componentConfigString
      * @return
      */
-    public Map<String,Object> convertComponentConfigToMap(Long componentId){
-        List<ComponentConfig> configs = componentConfigDao.listByComponentId(componentId);
-        if(CollectionUtils.isEmpty(configs)){
+    public List<ClientTemplate> convertXMLConfigToComponentConfig(String componentConfigString) {
+        if (StringUtils.isBlank(componentConfigString)) {
+            return new ArrayList<>(0);
+        }
+        JSONObject componentConfigObj = JSONObject.parseObject(componentConfigString);
+        List<ClientTemplate> configs = new ArrayList<>(componentConfigObj.size());
+        for (String key : componentConfigObj.keySet()) {
+            ClientTemplate componentConfig = new ClientTemplate();
+            componentConfig.setType(EFrontType.XML.name());
+            componentConfig.setKey(key);
+            componentConfig.setValue(componentConfigObj.get(key));
+            configs.add(componentConfig);
+        }
+        return configs;
+    }
+
+    public Map<String, Object> convertComponentConfigToMap(Long componentId,boolean isFilter) {
+        List<ClientTemplate> templates = buildDBDataToClientTemplate(componentId, isFilter);
+        return convertComponentConfigToMap(templates);
+    }
+
+    /**
+     * 将前端展示模板templates转换为key-value形式 供插件使用
+     *
+     * @param templates
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> convertComponentConfigToMap(List<ClientTemplate> templates) {
+        if (CollectionUtils.isEmpty(templates)) {
             return new HashMap<>(0);
         }
+        List<ComponentConfig> configs = saveTreeToList(templates, null, null, null, null, null, null);
         Map<String, List<ComponentConfig>> dependencyMapping = configs
                 .stream()
                 .filter(c -> StringUtils.isNotBlank(c.getDependencyKey()))
@@ -90,13 +122,34 @@ public class ComponentConfigService {
                 .stream()
                 .filter(c -> StringUtils.isBlank(c.getDependencyKey()))
                 .collect(Collectors.toList());
-        Map<String,Object> configMaps = new HashMap<>(configs.size());
+        Map<String, Object> configMaps = new HashMap<>(configs.size());
         for (ComponentConfig componentConfig : emptyDependencyValue) {
             Map<String, Object> deepToBuildConfigMap = deepToBuildConfigMap(dependencyMapping, dependencyMapping.size(), componentConfig.getKey());
-            if (CollectionUtils.isEmpty(deepToBuildConfigMap)) {
-                configMaps.put(componentConfig.getKey(),deepToBuildConfigMap);
+            if (DEPLOY_MODE.equalsIgnoreCase(componentConfig.getKey())) {
+                //特殊处理 离线有用到配置信息 需要保持原来结构
+                /*{
+                    "deploymode":["perjob"],
+                    "perjob":{},
+                    "session":{},
+                    "typeName":"yarn2-hdfs2-spark210"
+                }*/
+                Object deployMode = deepToBuildConfigMap.get(DEPLOY_MODE);
+                if (deployMode instanceof Map) {
+                    configMaps.putAll((Map<? extends String, ?>) deployMode);
+                } else {
+                    configMaps.putAll(deepToBuildConfigMap);
+                }
+                configMaps.put(componentConfig.getKey(), JSONArray.parseArray(componentConfig.getValue()));
             } else {
-                configMaps.put(componentConfig.getKey(),componentConfig.getValue());
+                if (!CollectionUtils.isEmpty(deepToBuildConfigMap)) {
+                    configMaps.putAll(deepToBuildConfigMap);
+                    if (EFrontType.RADIO.name().equalsIgnoreCase(componentConfig.getType())) {
+                        //radio 需要将子配置添加进去 自身也需要
+                        configMaps.put(componentConfig.getKey(), componentConfig.getValue());
+                    }
+                } else {
+                    configMaps.put(componentConfig.getKey(), componentConfig.getValue());
+                }
             }
         }
         return configMaps;
@@ -109,30 +162,38 @@ public class ComponentConfigService {
         List<ComponentConfig> dependValueConfig = dependencyMapping.get(key);
         if (!CollectionUtils.isEmpty(dependValueConfig)) {
             maxDeep = --maxDeep;
-            Map<String, Object> dependencyKeyConfigMaps = new HashMap<>();
+            Map<String, Object> keyValuesConfigMaps = new HashMap<>();
+            Map<String, Object> oneToMoreConfigMaps = new HashMap<>();
             for (ComponentConfig componentConfig : dependValueConfig) {
-                Map<String, Object> sonConfigMap = deepToBuildConfigMap(dependencyMapping, maxDeep, key + dependencySeparator + componentConfig.getKey());
-                if (CollectionUtils.isEmpty(sonConfigMap)) {
+                //INPUT为单选
+                if (EFrontType.INPUT.name().equalsIgnoreCase(componentConfig.getType()) || EFrontType.SELECT.name().equalsIgnoreCase(componentConfig.getType())) {
                     //key-value 一对一
-                    dependencyKeyConfigMaps.put(key, componentConfig.getValue());
+                    keyValuesConfigMaps.put(componentConfig.getKey(), componentConfig.getValue());
                 } else {
-                    //key-value 一对多
-                    dependencyKeyConfigMaps.put(key, sonConfigMap);
+                    Map<String, Object> sonConfigMap = deepToBuildConfigMap(dependencyMapping, maxDeep, key + dependencySeparator + componentConfig.getKey());
+                    if (!CollectionUtils.isEmpty(sonConfigMap)) {
+                        //key-value 一对多
+                        oneToMoreConfigMaps.put(componentConfig.getKey(), sonConfigMap);
+                    }
                 }
             }
-            return dependencyKeyConfigMaps;
+            if (!CollectionUtils.isEmpty(oneToMoreConfigMaps)) {
+                keyValuesConfigMaps.put(key, oneToMoreConfigMaps);
+            }
+            return keyValuesConfigMaps;
         }
         return new HashMap<>(0);
     }
 
     /**
-     * 根据组件id返回前端展示结构
+     * 根据组件id返回前端渲染结构
      *
      * @param componentId
+     * @param isFilter    是否过滤typeName和其他的配置
      * @return
      */
-    public List<ClientTemplate> buildDBDataToComponentConfig(Long componentId) {
-        List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(componentId);
+    public List<ClientTemplate> buildDBDataToClientTemplate(Long componentId, boolean isFilter) {
+        List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(componentId,isFilter);
         if (CollectionUtils.isEmpty(componentConfigs)) {
             return new ArrayList<>(0);
         }
@@ -161,7 +222,8 @@ public class ComponentConfigService {
      * @param clientTemplate
      * @param dependencyKey
      */
-    private void deepToBuildClientTemplate(Map<String, List<ComponentConfig>> dependencyMapping, Integer maxDeep, ClientTemplate clientTemplate, String dependencyKey) {
+    private void deepToBuildClientTemplate(Map<String, List<ComponentConfig>> dependencyMapping, Integer
+            maxDeep, ClientTemplate clientTemplate, String dependencyKey) {
         if (maxDeep <= 0) {
             return;
         }
@@ -191,7 +253,7 @@ public class ComponentConfigService {
             throw new RdosDefineException("参数不能为空");
         }
         clientTemplates = convertOldClientTemplateToTree(clientTemplates);
-        List<ComponentConfig> componentConfigs = saveTreeToDb(clientTemplates, clusterId, engineId, componentId, null, null, componentTypeCode);
+        List<ComponentConfig> componentConfigs = saveTreeToList(clientTemplates, clusterId, engineId, componentId, null, null, componentTypeCode);
         batchSaveComponentConfig(componentConfigs);
     }
 
@@ -244,14 +306,19 @@ public class ComponentConfigService {
      * @param dependKey
      * @param dependValue
      */
-    private List<ComponentConfig> saveTreeToDb(List<ClientTemplate> reduceTemplate, Long clusterId, Long engineId, Long componentId, String dependKey, String dependValue, Integer componentTypeCode) {
+    public List<ComponentConfig> saveTreeToList(List<ClientTemplate> reduceTemplate, Long clusterId, Long
+            engineId, Long componentId, String dependKey, String dependValue, Integer componentTypeCode) {
         List<ComponentConfig> saveComponentConfigs = new ArrayList<>();
         for (ClientTemplate clientTemplate : reduceTemplate) {
             ComponentConfig componentConfig = this.convertClientTemplateToConfig(clientTemplate);
             componentConfig.setEngineId(engineId);
             componentConfig.setClusterId(clusterId);
             componentConfig.setComponentId(componentId);
-            componentConfig.setType(Optional.ofNullable(clientTemplate.getType()).orElse(""));
+            if (isOtherControl.test(componentConfig.getKey())) {
+                componentConfig.setType(EFrontType.OTHER.name());
+            } else {
+                componentConfig.setType(Optional.ofNullable(clientTemplate.getType()).orElse(""));
+            }
             if (StringUtils.isNotBlank(dependKey)) {
                 componentConfig.setDependencyKey(dependKey);
             }
@@ -273,7 +340,7 @@ public class ComponentConfigService {
                 } else {
                     dependKeys = clientTemplate.getKey();
                 }
-                List<ComponentConfig> componentConfigs = saveTreeToDb(clientTemplate.getValues(), clusterId, engineId, componentId,
+                List<ComponentConfig> componentConfigs = saveTreeToList(clientTemplate.getValues(), clusterId, engineId, componentId,
                         dependKeys, clientTemplate.getDependencyValue(), componentTypeCode);
                 if (!CollectionUtils.isEmpty(componentConfigs)) {
                     saveComponentConfigs.addAll(componentConfigs);

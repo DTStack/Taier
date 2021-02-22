@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface ComponentConfigDao {
 
-    List<ComponentConfig> listByComponentId(@Param("componentId")Long componentId);
+    List<ComponentConfig> listByComponentId(@Param("componentId")Long componentId,@Param("isFilter") boolean isFilter);
 
     Integer insertBatch(@Param("componentConfigs") List<ComponentConfig> componentConfigs);
 

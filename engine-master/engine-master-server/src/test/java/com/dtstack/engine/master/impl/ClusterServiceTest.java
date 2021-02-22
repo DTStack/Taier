@@ -162,10 +162,10 @@ public class ClusterServiceTest extends AbstractTest {
         List<Engine> engines = engineDao.listByClusterId(clusterVO.getId());
         Assert.assertNotNull(engines);
         Long engineId = engines.stream().map(Engine::getId).collect(Collectors.toList()).get(0);
-        Component sftpConfig = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.SFTP.getTypeCode());
-        Map sftpMap = JSONObject.parseObject(sftpConfig.getComponentConfig(), Map.class);
+        Map sftpMap = componentService.getComponentByClusterId(clusterVO.getId(), EComponentType.SFTP.getTypeCode(),false,Map.class);
+        String yarnString = componentService.getComponentByClusterId(clusterVO.getId(), EComponentType.YARN.getTypeCode(),false,String.class);
         //测试组件联通性
-        ComponentTestResult componentTestResult = componentService.testConnect(yarn.getComponentTypeCode(), yarn.getComponentConfig(), testClusterName, yarn.getHadoopVersion(), engineId, null, sftpMap);
+        ComponentTestResult componentTestResult = componentService.testConnect(yarn.getComponentTypeCode(), yarnString, testClusterName, yarn.getHadoopVersion(), engineId, null, sftpMap);
         Assert.assertNotNull(componentTestResult);
         Assert.assertTrue(componentTestResult.getResult());
 

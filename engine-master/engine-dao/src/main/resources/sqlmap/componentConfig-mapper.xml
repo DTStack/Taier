@@ -22,6 +22,9 @@
         <include refid="select_content_fragment"/>
         from console_component_config
         where component_id = #{componentId} and is_deleted = 0
+        <if test="true == isFilter">
+            and `key` != 'OTHER'
+        </if>
     </select>
 
     <delete id="deleteByComponentId">

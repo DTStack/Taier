@@ -1,22 +1,19 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.Engine;
 import com.dtstack.engine.api.domain.EngineTenant;
 import com.dtstack.engine.api.domain.Queue;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.EngineVO;
 import com.dtstack.engine.api.vo.QueueVO;
 import com.dtstack.engine.api.vo.engine.EngineSupportVO;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.dao.QueueDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.master.utils.EngineUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -25,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -145,28 +141,6 @@ public class EngineService {
         engineDao.update(engine);
     }
 
-    public void addEnginesByComponentConfig(JSONObject componentConfig, Long clusterId){
-        Map<Integer, List<String>> engineComponentMap = EngineUtil.classifyComponent(componentConfig.keySet());
-        for (Integer integer : engineComponentMap.keySet()) {
-            MultiEngineType engineType = EngineUtil.getByType(integer);
-
-            Engine engine = engineDao.getByClusterIdAndEngineType(clusterId, engineType.getType());
-            if(engine == null){
-                engine = new Engine();
-                engine.setClusterId(clusterId);
-                engine.setEngineName(engineType.getName());
-                engine.setEngineType(engineType.getType());
-                engine.setTotalCore(0);
-                engine.setTotalMemory(0);
-                engine.setTotalNode(0);
-                engineDao.insert(engine);
-            }
-
-            for (String confName : engineComponentMap.get(integer)) {
-                componentService.addComponentWithConfig(engine.getId(), confName, componentConfig.getJSONObject(confName));
-            }
-        }
-    }
 
     public Engine getOne(Long engineId) {
         return engineDao.getOne(engineId);

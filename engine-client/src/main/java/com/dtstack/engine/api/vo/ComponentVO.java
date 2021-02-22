@@ -36,13 +36,13 @@ public class ComponentVO extends Component {
     public static ComponentVO toVO(Component component,boolean removeTypeName){
         ComponentVO vo = new ComponentVO();
         BeanUtils.copyProperties(component, vo);
-        //前端默认不展示kerberosConfig
-        JSONObject jsonObject = JSONObject.parseObject(component.getComponentConfig());
-        if(removeTypeName){
-            jsonObject.remove("typeName");
-            jsonObject.remove("md5zip");
-        }
-        vo.setComponentConfig(jsonObject.toJSONString());
+//        //前端默认不展示kerberosConfig
+//        JSONObject jsonObject = JSONObject.parseObject(component.getComponentConfig());
+//        if(removeTypeName){
+//            jsonObject.remove("typeName");
+//            jsonObject.remove("md5zip");
+//        }
+//        vo.setComponentConfig(jsonObject.toJSONString());
         return vo;
     }
 }
