@@ -18,11 +18,7 @@ import com.dtstack.engine.api.vo.lineage.param.QueryColumnLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageColumnParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageParam;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.sql.ColumnLineage;
-import com.dtstack.sql.ParseResult;
-import com.dtstack.sql.SqlParserImpl;
-import com.dtstack.sql.Table;
-import com.dtstack.sql.TableLineage;
+import com.dtstack.sql.*;
 import com.dtstack.sql.parse.SqlParserFactory;
 import com.dtstack.lineage.adapter.ColumnAdapter;
 import com.dtstack.lineage.adapter.ColumnLineageAdapter;
@@ -319,7 +315,10 @@ public class LineageService {
                 logger.error("解析sql异常:{}",e);
                 throw new RdosDefineException("sql解析异常，请检查语法");
             }
-            Set<com.dtstack.engine.api.pojo.lineage.Table> tables = resTables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toSet());
+            //去除主表，主表需要创建，还未存在，查不到字段信息，需要过滤掉
+            List<Table> subTables = resTables.stream().filter(table->
+                    table.getOperate() != TableOperateEnum.CREATE && table.getOperate() != TableOperateEnum.INSERT).collect(Collectors.toList());
+            Set<com.dtstack.engine.api.pojo.lineage.Table> tables = subTables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toSet());
             //TODO 获取表字段信息
             Map<String, List<Column>> tableColumnMap = lineageDataSetInfoService.getColumnsBySourceIdAndListTable(lineageDataSource.getId(), Lists.newArrayList(tables));
             Map<String, List<com.dtstack.sql.Column>> sqlTableColumnMap = new HashMap<>();

@@ -184,7 +184,7 @@ public class ComponentServiceTest extends AbstractTest {
     @Rollback
     public void testGetClusterLocalKerberosDir() {
         String getClusterLocalKerberosDir = componentService.getClusterLocalKerberosDir(1L);
-        Assert.assertTrue(StringUtils.isNoneEmpty(getClusterLocalKerberosDir));
+        Assert.assertTrue(StringUtils.isNotEmpty(getClusterLocalKerberosDir));
     }
 
     @Test
@@ -313,7 +313,7 @@ public class ComponentServiceTest extends AbstractTest {
         kerberosConfig.setOpenKerberos(1);
         kerberosConfig.setPrincipal("hive@host.com");
         String wrapperConfig = componentService.wrapperConfig(EComponentType.YARN.getTypeCode(), one.getComponentConfig(), getSFTPConfig, kerberosConfig, cluster.getClusterName());
-        Assert.assertTrue(StringUtils.isNoneEmpty(wrapperConfig));
+        Assert.assertTrue(StringUtils.isNotEmpty(wrapperConfig));
     }
 
     @Test
@@ -331,7 +331,7 @@ public class ComponentServiceTest extends AbstractTest {
         kerberosConfig.setOpenKerberos(1);
         kerberosConfig.setPrincipal("hive@host.com");
         String wrapperConfig = componentService.wrapperConfig(EComponentType.SPARK_THRIFT.getTypeCode(), one.getComponentConfig(), getSFTPConfig, kerberosConfig, cluster.getClusterName());
-        Assert.assertTrue(StringUtils.isNoneEmpty(wrapperConfig));
+        Assert.assertTrue(StringUtils.isNotEmpty(wrapperConfig));
     }
 
     @Test
