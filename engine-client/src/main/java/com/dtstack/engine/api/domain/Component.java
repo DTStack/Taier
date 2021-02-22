@@ -14,8 +14,6 @@ public class Component extends BaseEntity {
 
     private Integer componentTypeCode;
 
-    private String componentConfig;
-
     private Long clusterId;
 
     private String hadoopVersion;
@@ -88,11 +86,4 @@ public class Component extends BaseEntity {
         this.componentTypeCode = componentTypeCode;
     }
 
-    public String getComponentConfig() {
-        return componentConfig;
-    }
-
-//    public void setComponentConfig(String componentConfig) {
-//        this.componentConfig = componentConfig;
-//    }
 }

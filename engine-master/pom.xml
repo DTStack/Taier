@@ -19,7 +19,7 @@
         <module>engine-dao</module>
         <module>engine-master-server</module>
         <module>engine-alert-sdk</module>
-<!--        <module>engine-alert</module>-->
+        <module>engine-alert</module>
     </modules>
 
     <build>

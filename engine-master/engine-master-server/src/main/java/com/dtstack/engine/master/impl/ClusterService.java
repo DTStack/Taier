@@ -926,7 +926,7 @@ public class ClusterService implements InitializingBean {
             SchedulingVo schedulingVo = new SchedulingVo();
             schedulingVo.setSchedulingCode(value.getType());
             schedulingVo.setSchedulingName(value.getName());
-            schedulingVo.setComponents(ComponentVO.toVOS(scheduleType.get(value), Objects.isNull(removeTypeName) || removeTypeName));
+            schedulingVo.setComponents(ComponentVO.toVOS(scheduleType.get(value)));
             schedulingVos.add(schedulingVo);
         }
         clusterVO.setScheduling(schedulingVos);

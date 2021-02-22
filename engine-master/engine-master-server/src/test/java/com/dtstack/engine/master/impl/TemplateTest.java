@@ -6,6 +6,7 @@ import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.ComponentConfig;
 import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.common.util.ComponentConfigUtils;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.TestConsoleComponentTemplateDao;
@@ -72,10 +73,10 @@ public class TemplateTest extends AbstractTest {
 
         List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(testComponentId, true);
         Assert.assertNotNull(componentConfigs);
-        List<ClientTemplate> dbClientTemplates = componentConfigService.buildDBDataToClientTemplate(testComponentId, true);
+        List<ClientTemplate> dbClientTemplates = ComponentConfigUtils.buildDBDataToClientTemplate(componentConfigs);
         logger.info(JSONArray.toJSONString(clientTemplates));
         Assert.assertEquals(1, dbClientTemplates.size());
-        Map<String, Object> configToMap = componentConfigService.convertComponentConfigToMap(clientTemplates);
+        Map<String, Object> configToMap = componentConfigService.convertComponentConfigToMap(testComponentId,true);
         Assert.assertTrue(MapUtils.isNotEmpty(configToMap));
         componentConfigService.deleteComponentConfig(testComponentId);
     }
@@ -290,8 +291,7 @@ public class TemplateTest extends AbstractTest {
         cluster.setHadoopVersion("hadoop2");
         clusterDao.insert(cluster);
         //添加组件 添加引擎
-        componentService.addOrUpdateComponent(cluster.getId(), "",
-                null, "hadoop2", "", templateString, EComponentType.SFTP.getTypeCode());
+        componentService.addOrUpdateComponent(cluster.getId(), "", null, "hadoop2", "", templateString, EComponentType.SFTP.getTypeCode());
         Component sftpComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode());
         Assert.assertNotNull(sftpComponent);
         Map<String, Object> sftpConfig = componentConfigService.convertComponentConfigToMap(sftpComponent.getId(), true);
