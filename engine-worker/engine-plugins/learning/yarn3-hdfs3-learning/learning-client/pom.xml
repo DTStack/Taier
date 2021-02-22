@@ -27,7 +27,7 @@
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>plugins.learning.yarn2-hdfs2-learning.learning-core</artifactId>
+            <artifactId>plugins.learning.yarn3-hdfs3-learning.learning-core</artifactId>
             <version>1.0.0</version>
         </dependency>
 
@@ -142,9 +142,9 @@
 
                             <artifactSet>
                                 <excludes>
-                                    <exclude>org.slf4j:slf4j-log4j12</exclude>
-                                    <exclude>log4j:log4j</exclude>
-                                    <exclude>org.slf4j:slf4j-api</exclude>
+<!--                                    <exclude>org.slf4j:slf4j-log4j12</exclude>-->
+<!--                                    <exclude>log4j:log4j</exclude>-->
+<!--                                    <exclude>org.slf4j:slf4j-api</exclude>-->
                                     <exclude>com.dtstack:learning</exclude>
                                 </excludes>
                             </artifactSet>

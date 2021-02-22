@@ -47,11 +47,13 @@ public class Client {
     private volatile YarnClient yarnClient;
     private volatile Path appJarSrc;
     private ThreadPoolExecutor threadPoolExecutor;
+    private volatile BaseConfig baseConfig;
 
     private static FsPermission JOB_FILE_PERMISSION = FsPermission.createImmutable((short) 0644);
 
     public Client(DtYarnConfiguration conf, BaseConfig allConfig) throws Exception {
         this.conf = conf;
+        this.baseConfig = allConfig;
         this.threadPoolExecutor = new ThreadPoolExecutor(
                 conf.getInt(DtYarnConfiguration.DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM, DtYarnConfiguration.DEFAULT_DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM),
                 conf.getInt(DtYarnConfiguration.DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM, DtYarnConfiguration.DEFAULT_DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM),
@@ -274,7 +276,12 @@ public class Client {
             capability.setMemory(conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY));
             capability.setVirtualCores(conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_CORES, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_CORES));
             applicationContext.setResource(capability);
-            ByteBuffer tokenBuffer = SecurityUtil.getDelegationTokens(conf, getYarnClient());
+
+            ByteBuffer tokenBuffer = null;
+            if(null != baseConfig && baseConfig.isOpenKerberos()){
+                tokenBuffer = SecurityUtil.getDelegationTokens(conf, getYarnClient());
+            }
+
             ContainerLaunchContext amContainer = ContainerLaunchContext.newInstance(
                     localResources, appMasterEnv, appMasterLaunchcommands, null, tokenBuffer, null);
 

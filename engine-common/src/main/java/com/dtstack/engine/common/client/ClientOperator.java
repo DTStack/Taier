@@ -26,20 +26,21 @@ import java.util.Properties;
  *
  * @author xuchao
  */
-
 public class ClientOperator {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientOperator.class);
 
     private ClientCache clientCache = ClientCache.getInstance();
 
-    private static ClientOperator singleton = new ClientOperator();
+    private static class SingletonHolder {
+        private static ClientOperator singleton = new ClientOperator();
+    }
 
     private ClientOperator() {
     }
 
     public static ClientOperator getInstance() {
-        return singleton;
+        return SingletonHolder.singleton;
     }
 
     public RdosTaskStatus getJobStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
@@ -116,7 +117,8 @@ public class ClientOperator {
         if(jobClient.getEngineTaskId() == null){
             return JobResult.createSuccessResult(jobClient.getTaskId());
         }
-        JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getTaskId());
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobClient.getEngineTaskId(),
+                jobClient.getApplicationId(), jobClient.getTaskId(), jobClient.getForceCancel());
         checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
 
         jobIdentifier.setTimeout(getCheckoutTimeout(jobClient));
@@ -182,7 +184,7 @@ public class ClientOperator {
     }
 
     public ClusterResource getClusterResource(String engineType, String pluginInfo) throws ClientAccessException{
-        IClient client = clientCache.getClient(engineType,pluginInfo);
+        IClient client = clientCache.getClient(engineType, pluginInfo);
         return client.getClusterResource();
     }
 

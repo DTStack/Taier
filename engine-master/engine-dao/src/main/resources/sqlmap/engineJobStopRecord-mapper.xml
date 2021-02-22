@@ -3,8 +3,8 @@
 <mapper namespace="com.dtstack.engine.dao.EngineJobStopRecordDao">
 
     <insert id="insert" parameterType="EngineJobStopRecord" useGeneratedKeys="true" keyProperty="id">
-        insert into schedule_engine_job_stop_record(task_id, task_type, engine_type, compute_type, job_resource)
-        values(#{taskId}, #{taskType}, #{engineType}, #{computeType}, #{jobResource})
+        insert into schedule_engine_job_stop_record(task_id, task_type, engine_type, compute_type, job_resource, force_cancel_flag)
+        values(#{taskId}, #{taskType}, #{engineType}, #{computeType}, #{jobResource}, #{forceCancelFlag})
     </insert>
 
     <update id="delete" parameterType="java.util.HashMap">
@@ -16,7 +16,7 @@
     </update>
 
     <select id="listStopJob" parameterType="java.util.HashMap" resultType="EngineJobStopRecord">
-        select id,task_id,task_type,engine_type,compute_type,job_resource,version,gmt_create,gmt_modified,is_deleted
+        select id,task_id,task_type,engine_type,compute_type,job_resource,version,gmt_create,gmt_modified,is_deleted,force_cancel_flag
         from schedule_engine_job_stop_record where id > #{startId} and operator_expired &lt; now() and is_deleted =0
         order by id asc limit 100;
     </select>

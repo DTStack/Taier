@@ -22,7 +22,10 @@ public class MultiEngineFactory {
     @Resource
     private JobStartTriggerBase jobStartTriggerBase;
 
-    public JobStartTriggerBase getJobTriggerService(int type) {
+    public JobStartTriggerBase getJobTriggerService(Integer type) {
+        if(null == type){
+            return jobStartTriggerBase;
+        }
         MultiEngineType multiEngineType = MultiEngineType.getByType(type);
         if (MultiEngineType.HADOOP == multiEngineType) {
             return hadoopJobStartTrigger;

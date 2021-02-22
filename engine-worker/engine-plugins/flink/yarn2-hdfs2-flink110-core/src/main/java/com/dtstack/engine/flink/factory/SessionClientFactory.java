@@ -23,8 +23,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.JobIdentifier;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.http.PoolHttpClient;
@@ -47,8 +47,8 @@ import org.apache.flink.configuration.CheckpointingOptions;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.configuration.SecurityOptions;
-import org.apache.flink.runtime.jobgraph.*;
 import org.apache.flink.runtime.jobgraph.JobGraph;
+import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.leader.LeaderLatch;
@@ -294,7 +294,7 @@ public class SessionClientFactory extends AbstractClientFactory {
             enumSet.add(YarnApplicationState.ACCEPTED);
 
             YarnClient yarnClient = flinkClientBuilder.getYarnClient();
-            if (Objects.isNull(yarnClient)) {
+            if (null == yarnClient) {
                 throw new RdosDefineException("getYarnClient error, Yarn Client is null!");
             }
 
@@ -490,7 +490,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                                                         break;
                                                     } else {
                                                         try {
-                                                            Thread.sleep(6 * CHECK_INTERVAL);
+                                                            Thread.sleep(6L * CHECK_INTERVAL);
                                                         } catch (Exception e) {
                                                             LOG.error("", e);
                                                         }

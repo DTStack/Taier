@@ -29,7 +29,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
 @Component
@@ -55,7 +54,7 @@ public class WorkerOperator {
         try {
             //jobClient中如果有pluginInfo(数据质量)以jobClient自带优先
             JSONObject info = JSONObject.parseObject(jobClient.getPluginInfo());
-            if (Objects.nonNull(info) && !info.isEmpty()) {
+            if (null != info && !info.isEmpty()) {
                 return;
             }
             jobClient.setPluginWrapperInfo(pluginWrapper.wrapperPluginInfo(jobClient.getParamAction()));
@@ -66,19 +65,19 @@ public class WorkerOperator {
     }
 
     private String getPluginInfo(JobIdentifier jobIdentifier){
-        if (Objects.nonNull(jobIdentifier)) {
+        if (null != jobIdentifier) {
             JSONObject info = JSONObject.parseObject(jobIdentifier.getPluginInfo());
-            if (Objects.nonNull(info) && !info.isEmpty()) {
+            if (null != info && !info.isEmpty()) {
                 return jobIdentifier.getPluginInfo();
             }
         }
 
-        if (Objects.isNull(jobIdentifier) || Objects.isNull(jobIdentifier.getEngineType()) || Objects.isNull(jobIdentifier.getTenantId())) {
+        if (null == jobIdentifier || null == jobIdentifier.getEngineType() || null == jobIdentifier.getTenantId()) {
             logger.error("pluginInfo params lost {}", jobIdentifier);
             throw new RdosDefineException("pluginInfo params lost");
         }
         JSONObject info = clusterService.pluginInfoJSON(jobIdentifier.getTenantId(), jobIdentifier.getEngineType(), jobIdentifier.getUserId(), jobIdentifier.getDeployMode());
-        if(Objects.isNull(info)){
+        if(null == info){
             return null;
         }
         return info.toJSONString();
@@ -100,7 +99,6 @@ public class WorkerOperator {
 
     public JobResult submitJob(JobClient jobClient) throws Exception {
         this.buildPluginInfo(jobClient);
-//        pluginWrapper.savePluginInfoToDB(jobClient.getTaskId(),jobClient.getPluginInfo());
         if (AkkaConfig.isLocalMode()){
             return clientOperator.submitJob(jobClient);
         }
@@ -267,7 +265,7 @@ public class WorkerOperator {
     public ComponentTestResult testConnect(String engineType, String pluginInfo) {
         if (AkkaConfig.isLocalMode()) {
             ComponentTestResult testResult = clientOperator.testConnect(engineType, pluginInfo);
-            if (Objects.isNull(testResult)) {
+            if (null == testResult) {
                 testResult = new ComponentTestResult();
             }
             return testResult;

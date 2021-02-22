@@ -18,7 +18,7 @@ import ch.qos.logback.core.util.StatusPrinter;
  */
 public class LogbackComponent {
 
-	private static String logback = System.getProperty("user.dir")+"/conf/logback.xml";
+	private static String logback = System.getProperty("user.dir.conf")+"/logback.xml";
 
 	public static void setupLogger() throws IOException, JoranException {
 		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();

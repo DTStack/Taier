@@ -18,6 +18,7 @@
 
 package org.apache.flink.optimizer.plantranslate;
 
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.aggregators.AggregatorRegistry;
 import org.apache.flink.api.common.aggregators.AggregatorWithName;
@@ -95,11 +96,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.security.action.GetPropertyAction;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -108,9 +107,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static java.security.AccessController.doPrivileged;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**

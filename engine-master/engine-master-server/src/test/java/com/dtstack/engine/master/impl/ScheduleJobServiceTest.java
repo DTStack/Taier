@@ -32,7 +32,6 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
@@ -41,6 +40,7 @@ import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.multiengine.engine.HadoopJobStartTrigger;
+import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
@@ -99,8 +99,8 @@ public class ScheduleJobServiceTest extends AbstractTest {
     public void testGetStatusById() {
         ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobFirst();
         Integer statusById = scheduleJobService.getJobStatus(scheduleJob.getJobId());
-        if (null != statusById) {
-            Assert.assertFalse(statusById != 5);
+        if (null!=statusById) {
+            Assert.assertTrue(statusById == 5);
         }
     }
 
@@ -115,9 +115,28 @@ public class ScheduleJobServiceTest extends AbstractTest {
         Integer appType = scheduleJob.getAppType();
         Long dtuicTenantId = scheduleJob.getDtuicTenantId();
         Integer status = scheduleJob.getStatus();
-        scheduleJobService.getStatusJobList(projectId, tenantId, appType, dtuicTenantId, status, 10, 1);
+        PageResult result = scheduleJobService.getStatusJobList(projectId, tenantId, appType, dtuicTenantId, status, 10, 1);
+        if (null != result) {
+            Assert.assertTrue(result.getTotalCount() == 1);
+        }
     }
 
+    @Test
+    @Transactional
+    @Rollback
+    public void testGetStatusCount() {
+        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobDefiniteProjectId();
+        Long projectId = scheduleJob.getProjectId();
+        Long tenantId = scheduleJob.getTenantId();
+        Integer appType = scheduleJob.getAppType();
+        Long dtuicTenantId = scheduleJob.getDtuicTenantId();
+
+        ScheduleJobStatusVO statusCount = scheduleJobService.getStatusCount(projectId, tenantId, appType, dtuicTenantId);
+        if (null != statusCount) {
+            Integer all = statusCount.getAll();
+            Assert.assertTrue(all == 1);
+        }
+    }
 
     @Test
     @Transactional
@@ -273,7 +292,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testParseDeployTypeByTaskParams() {
-        EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams("flinkTaskRunMode=session",0, EngineType.Flink.name());
+        EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams("flinkTaskRunMode=session",0);
         Assert.assertEquals(eDeployMode, EDeployMode.SESSION);
     }
 

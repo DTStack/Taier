@@ -11,7 +11,6 @@ import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.dao.TenantResourceDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
-import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.utils.Template;
 import com.dtstack.schedule.common.enums.EProjectScheduleStatus;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
@@ -125,6 +124,7 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
         scheduleTaskShadeService.frozenTask(Lists.newArrayList(scheduleTaskShadeDTO.getTaskId()), EProjectScheduleStatus.PAUSE.getStatus(), scheduleTaskShade.getAppType());
         scheduleTaskShadeService.deleteTask(scheduleTaskShadeDTO.getTaskId(), 0L, scheduleTaskShadeDTO.getAppType());
     }
+
 
     @Test
     public void testEmpty() {
