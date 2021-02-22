@@ -662,7 +662,8 @@ public class FlinkClient extends AbstractClient {
         String exceptMessage = "";
         try {
             if (engineJobId == null) {
-                logger.error("{} getJobLog is null, because engineJobId is empty", jobIdentifier.getTaskId());
+                logger.error("{} getJobLog is null, because engineJobId is empty. Please check whether job is already submitted to yarn.", jobIdentifier.getTaskId());
+                return handleJobLog("", "Get jogLog error, because engineJobId is null", "Job has not submitted to yarn, Please waiting moment.");
             }
             String exceptionUrlPath = String.format(ConfigConstrant.JOB_EXCEPTIONS_URL_FORMAT, engineJobId);
 
@@ -680,12 +681,16 @@ public class FlinkClient extends AbstractClient {
             return FlinkRestParseUtil.parseEngineLog(exceptMessage);
         } catch (Exception e) {
             logger.error("Get job log error, {}", e.getMessage());
-            Map<String, String> map = new LinkedHashMap<>(8);
-            map.put("jobId", engineJobId);
-            map.put("exception", ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION);
-            map.put("engineLogErr", ExceptionUtil.getErrorMessage(e));
-            return new Gson().toJson(map);
+            return handleJobLog(engineJobId, ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION, ExceptionUtil.getErrorMessage(e));
         }
+    }
+
+    private String handleJobLog(String engineJobId, String exception, String exceptionErr) {
+        Map<String, String> map = new LinkedHashMap<>(8);
+        map.put("jobId", engineJobId);
+        map.put("exception", exception);
+        map.put("engineLogErr", exceptionErr);
+        return new Gson().toJson(map);
     }
 
     public String getMessageFromJobArchive(String jobId, String urlPath) throws Exception {
