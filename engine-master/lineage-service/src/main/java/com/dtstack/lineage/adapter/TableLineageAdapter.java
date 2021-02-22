@@ -56,6 +56,11 @@ public class TableLineageAdapter {
         LineageTableVO resultTableVO = TableAdapter.dataSetInfo2LineageTableVO(resultSource,resultTable);
         lineageTableTableVO.setInputTableInfo(inputTableVO);
         lineageTableTableVO.setResultTableInfo(resultTableVO);
+        if(tableTable.getLineageSource() == 1){
+            lineageTableTableVO.setManual(true);
+        }else{
+            lineageTableTableVO.setManual(false);
+        }
         return lineageTableTableVO;
     }
 }
