@@ -651,7 +651,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 					LOG.warn(String.format("RequestUrl [%s] can not be accessed.", requestUrl), e);
 					continue;
 				}
-				url = String.format("%s/%s",requestUrl, appId);
+				url = String.format("%s/proxy/%s",requestUrl, appId);
 				break;
 			}
 		}
