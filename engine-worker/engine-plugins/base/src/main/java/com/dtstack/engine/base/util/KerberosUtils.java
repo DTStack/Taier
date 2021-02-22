@@ -37,6 +37,7 @@ public class KerberosUtils {
     private static final Logger logger = LoggerFactory.getLogger(KerberosUtils.class);
 
     private static final String USER_DIR = System.getProperty("user.dir");
+    private static final String[] VALID_CREDENTIALS_MSG = new String[]{"Integrity check on decrypted field failed (31)"};
     private static final String KRB5_FILE_NAME = "krb5.conf";
     private static final String KRB5_CONF = "java.security.krb5.conf";
     private static final String KERBEROS_AUTH = "hadoop.security.authentication";
@@ -65,7 +66,39 @@ public class KerberosUtils {
             return ugi.doAs((PrivilegedExceptionAction<T>) supplier::get);
         } catch (Exception e) {
             logger.error("{}", e.getMessage());
-            throw new RdosDefineException("doAs error: " + e.getMessage());
+            throw new RdosDefineException(e);
+        }
+    }
+
+    /**
+     * HadoopKerberosName#setConfiguration(org.apache.hadoop.conf.Configuration)
+     * @param ugi
+     * @param supplier
+     * @param finalKrb5ConfPath
+     * @param configuration
+     * @param finalPrincipal
+     * @param finalKeytabPath
+     * @param <T>
+     * @param threadName
+     * @return
+     */
+    private static <T> T retryLoginKerberosWithCallBack(UserGroupInformation ugi,
+                                                        Supplier<T> supplier,
+                                                        String finalKrb5ConfPath,
+                                                        Configuration configuration,
+                                                        String finalPrincipal,
+                                                        String finalKeytabPath,
+                                                        String threadName) {
+        try {
+            return loginKerberosWithCallBack(ugi, supplier);
+        } catch (Exception e) {
+            if (Arrays.stream(VALID_CREDENTIALS_MSG).anyMatch(e.toString()::contains)) {
+                UserGroupInformation retryUgi = createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath);
+                ugiMap.put(threadName, retryUgi);
+                return loginKerberosWithCallBack(ugi, supplier);
+            }
+            logger.error("retryLoginKerberosWithCallBack: ", e);
+            throw new RdosDefineException("doAs error: " + e);
         }
     }
 
@@ -87,6 +120,10 @@ public class KerberosUtils {
         String fileName = config.getPrincipalFile();
         String remoteDir = config.getRemoteDir();
         String localDir = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
+        String finalKrb5ConfPath;
+        String finalPrincipal;
+        String finalKeytabPath;
+        String threadName;
 
         File localDirPath = new File(localDir);
         if (!localDirPath.exists()) {
@@ -119,14 +156,14 @@ public class KerberosUtils {
                     }
                 }
 
-                String finalKrb5ConfPath = krb5ConfPath;
-                String finalKeytabPath = keytabPath;
-                String threadName = Thread.currentThread().getName();
+                finalKrb5ConfPath = krb5ConfPath;
+                finalKeytabPath = keytabPath;
+                threadName = Thread.currentThread().getName();
                 String principal = config.getPrincipal();
                 if (StringUtils.isEmpty(principal)) {
                     principal = segment.computeIfAbsent(threadName, k -> {return KerberosUtils.getPrincipal(finalKeytabPath);});
                 }
-                String finalPrincipal = principal;
+                finalPrincipal = principal;
                 logger.info("kerberos login, principal:{}, keytabPath:{}, krb5ConfPath:{}", principal, keytabPath, krb5ConfPath);
 
                 /*
@@ -150,7 +187,7 @@ public class KerberosUtils {
                 logger.info("userGroupInformation current user = {} ugi user  = {} ", UserGroupInformation.getCurrentUser(), ugi.getUserName());
             }
             Preconditions.checkNotNull(ugi, "UserGroupInformation is null");
-            return KerberosUtils.loginKerberosWithCallBack(ugi, supplier);
+            return KerberosUtils.retryLoginKerberosWithCallBack(ugi, supplier, finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath, threadName);
         } catch (Exception e) {
             throw new RdosDefineException(e.getMessage());
         }

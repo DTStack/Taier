@@ -471,7 +471,6 @@ public class JobClient extends OrderObject {
                 ", coreJarInfo=" + coreJarInfo +
                 ", confProperties=" + confProperties +
                 ", sql='" + sql + '\'' +
-                ", taskParams='" + taskParams + '\'' +
                 ", jobName='" + jobName + '\'' +
                 ", taskId='" + taskId + '\'' +
                 ", engineTaskId='" + engineTaskId + '\'' +
@@ -485,7 +484,6 @@ public class JobClient extends OrderObject {
                 ", again=" + again +
                 ", groupName='" + groupName + '\'' +
                 ", priorityLevel=" + priorityLevel +
-                ", pluginInfo='" + pluginInfo + '\'' +
                 ", generateTime=" + generateTime +
                 ", maxRetryNum=" + maxRetryNum +
                 ", lackingCount=" + lackingCount +

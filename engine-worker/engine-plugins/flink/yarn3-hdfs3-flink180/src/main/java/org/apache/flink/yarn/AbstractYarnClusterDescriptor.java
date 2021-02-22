@@ -19,9 +19,8 @@
 package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
-import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.dtstack.engine.base.util.HadoopConfTool;
-import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
@@ -90,7 +89,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -112,7 +110,9 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.apache.flink.configuration.ConfigConstants.ENV_FLINK_LIB_DIR;
-import static org.apache.flink.yarn.cli.FlinkYarnSessionCli.*;
+import static org.apache.flink.yarn.cli.FlinkYarnSessionCli.CONFIG_FILE_LOG4J_NAME;
+import static org.apache.flink.yarn.cli.FlinkYarnSessionCli.CONFIG_FILE_LOGBACK_NAME;
+import static org.apache.flink.yarn.cli.FlinkYarnSessionCli.getDynamicProperties;
 
 /**
  * The descriptor with deployment information for deploying a Flink cluster on Yarn.
@@ -556,7 +556,8 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
     }
 
     private JobGraph getJobGraph(String appId,ClusterSpecification clusterSpecification) throws Exception{
-        String url = getUrlFormat(clusterSpecification.getYarnConfiguration()) + "/" + appId;
+        String url = getMonitorUrl(clusterSpecification.getYarnConfiguration(),appId);
+        LOG.info("AppId is {}, MonitorUrl is {}", appId, url);
         PackagedProgram program = buildProgram(url,clusterSpecification);
         clusterSpecification.setProgram(program);
         JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, this.flinkConfiguration, clusterSpecification.getParallelism());
@@ -625,55 +626,42 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         return program;
     }
 
-    private String getUrlFormat(YarnConfiguration yarnConf){
-        String url = "";
-        try{
-            Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
-            rmClientField.setAccessible(true);
-            Object rmClient = rmClientField.get(yarnClient);
+    private String getMonitorUrl(YarnConfiguration yarnConf, String appId) {
+        String url = null;
+        // ha key
+        String rmHAIdsKey = "yarn.resourcemanager.ha.rm-ids";
+        // not ha key
+        String rmIdKey = "yarn.resourcemanager.webapp.address";
 
-            Field hField = rmClient.getClass().getSuperclass().getDeclaredField("h");
-            hField.setAccessible(true);
-            Object h = hField.get(rmClient);
+        String rmValue;
+        String rms = yarnConf.get(rmHAIdsKey);
 
-            Field proxyDescriptorField = h.getClass().getDeclaredField("proxyDescriptor");
-            proxyDescriptorField.setAccessible(true);
-            Object proxyDescriptor = proxyDescriptorField.get(h);
+        // ha mode
+        if (rms != null) {
+            for (String rm : Arrays.asList(rms.split(","))) {
+                rmValue = yarnConf.get(String.format("%s.%s",rmIdKey, rm));
 
-            Field fppField = proxyDescriptor.getClass().getDeclaredField("fpp");
-            fppField.setAccessible(true);
-            Object fpp = fppField.get(proxyDescriptor);
+                if (rmValue == null) {
+                    continue;
+                }
+                String requestUrl = String.format("http://%s", rmValue);
+                try {
+                    PoolHttpClient.get(requestUrl, null, 1);
 
-            String rmId = null;
-            try {
-                Field proxiesField = fpp.getClass().getDeclaredField("proxies");
-                proxiesField.setAccessible(true);
-                HashMap successfulProxy = (HashMap)proxiesField.get(fpp);
-
-                Map.Entry<String,String> entry = (Map.Entry<String, String>) successfulProxy.entrySet().iterator().next();
-                rmId = entry.getKey();
-            } catch (Exception e){
-                Field proxyInfoField = proxyDescriptor.getClass().getDeclaredField("proxyInfo");
-                proxyInfoField.setAccessible(true);
-                Object proxyInfo = proxyInfoField.get(proxyDescriptor);
-
-                Field infoField = proxyInfo.getClass().getDeclaredField("proxyInfo");
-                infoField.setAccessible(true);
-                rmId = (String) infoField.get(proxyInfo);
+                } catch (Exception e) {
+                    LOG.warn(String.format("RequestUrl [%s] can not be accessed.", requestUrl), e);
+                    continue;
+                }
+                url = String.format("%s/proxy/%s",requestUrl, appId);
+                break;
             }
-
-            String key = "yarn.resourcemanager.webapp.address." + rmId;
-            String addr = yarnConf.get(key);
-
-            if(addr == null) {
-                addr = yarnConf.get("yarn.resourcemanager.webapp.address");
-            }
-
-            return String.format("http://%s/proxy",addr);
-        }catch (Exception e){
-            LOG.error("get monitor error:", e);
         }
 
+        // standalone
+        if(url == null) {
+            rmValue = yarnConf.get(rmIdKey);
+            url = String.format("http://%s/proxy/%s", rmValue, appId);
+        }
         return url;
     }
 
