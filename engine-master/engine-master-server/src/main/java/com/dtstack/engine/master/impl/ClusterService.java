@@ -112,10 +112,10 @@ public class ClusterService implements InitializingBean {
     private AccountDao accountDao;
 
     @Autowired
-    private AccountService accountService;
+    private EnvironmentContext environmentContext;
 
     @Autowired
-    private EnvironmentContext environmentContext;
+    private DtUicUserConnect dtUicUserConnect;
 
 
     @Override
@@ -775,7 +775,7 @@ public class ClusterService implements InitializingBean {
                 return ldapUserName;
             }
         }
-        ldapUserName = DtUicUserConnect.getLdapUserName(dtUicUserId, environmentContext.getUicToken(), environmentContext.getDtUicUrl());
+        ldapUserName = dtUicUserConnect.getLdapUserName(dtUicUserId, environmentContext.getUicToken(), environmentContext.getDtUicUrl());
         ldapCache.put(dtUicUserId, ldapUserName);
         return ldapUserName;
     }
