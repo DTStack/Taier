@@ -185,7 +185,7 @@ public class LineageTableTableService {
             uniqueKey = generateDefaultUniqueKey(appType);
         }
         //只需要删除关联关系即可
-        lineageTableTableUniqueKeyRefDao.deleteByLineageTableIdAndUniqueKey(appType,uniqueKey,lineageTableTable.getId());
+        lineageTableTableUniqueKeyRefDao.deleteByLineageTableIdAndUniqueKey(appType,uniqueKey,tableTable.getId());
     }
 
     /**
