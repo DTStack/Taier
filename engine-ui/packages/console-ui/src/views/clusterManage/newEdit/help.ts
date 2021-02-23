@@ -23,6 +23,19 @@ export function notCustomParam (typeCode: number): boolean {
         COMPONENT_TYPE_VALUE.PRESTO_SQL].indexOf(typeCode) > -1
 }
 
+export function isOtherVersion (code: number): boolean {
+    return [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK,
+        COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER, COMPONENT_TYPE_VALUE.HIVE_SERVER].indexOf(code) > -1
+}
+
+export function isSameVersion (code: number): boolean {
+    return [COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN].indexOf(code) > -1
+}
+
+export function needZipFile (type: number): boolean {
+    return [FILE_TYPE.KERNEROS, FILE_TYPE.CONFIGS].indexOf(type) > -1
+}
+
 export function getActionType (mode: string): string {
     switch (mode) {
         case 'view': return '查看集群'
@@ -55,13 +68,8 @@ export function isFileParam (key: string): boolean {
     return ['kerberosFileName', 'uploadFileName'].indexOf(key) > -1
 }
 
-export function isOtherVersion (code: number): boolean {
-    return [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK,
-        COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER, COMPONENT_TYPE_VALUE.HIVE_SERVER].indexOf(code) > -1
-}
-
-export function isSameVersion (code: number): boolean {
-    return [COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN].indexOf(code) > -1
+export function isDeployMode (key: string): boolean {
+    return key === 'deploymode'
 }
 
 // 模版中存在id则为自定义参数
@@ -81,10 +89,6 @@ export function getCompsId (currentComps: any[], typeCodes: any[]): any[] {
 
 export function getValueByJson (value: any): any {
     return value ? JSON.parse(value) : null
-}
-
-export function needZipFile (type: number): boolean {
-    return [FILE_TYPE.KERNEROS, FILE_TYPE.CONFIGS].indexOf(type) > -1
 }
 
 /**
@@ -160,8 +164,9 @@ export function handleCustomParam (params: any, turnp?: boolean): any {
  * }
  */
 export function getParamsByTemp (temp: any[]): any {
-    let batchParams: any = {}
-    temp.forEach((item: any) => {
+    let batchParams: any = {};
+    (isDeployMode(temp[0].key)
+        ? temp[0].values : temp).forEach((item: any) => {
         if (item.type == CONFIG_ITEM_TYPE.GROUP) {
             let params = {}
             item.values.forEach((groupItem: any) => {
@@ -193,12 +198,13 @@ function handleSingQuoteKeys (val: string, key: string) {
 }
 
 /**
- * @param comp 表单组件值
- * componentTemplate用于表单回显值
- * 需要包含表单对应的value
- * 和并自定义参数
+ * @param
+ * comp 表单组件值
+ * initialCompData 初始表单组件值
+ * componentTemplate用于表单回显值需要包含表单对应的value和并自定义参数
  */
 export function handleComponentTemplate (comp: any, initialCompData: any): any {
+    /** 外层数据先删除一层自定义参数 */
     let newComponentTemplate = JSON.parse(initialCompData.componentTemplate).filter(v => !v.id)
     const componentConfig = handleComponentConfig(comp)
     const customParamConfig = handleCustomParam(comp.customParam)
@@ -208,7 +214,8 @@ export function handleComponentTemplate (comp: any, initialCompData: any): any {
     for (let [key, values] of Object.entries(componentConfig)) {
         if (!_.isString(values) && !_.isArray(values)) {
             for (let [groupKey, value] of Object.entries(values)) {
-                newComponentTemplate.map(temps => {
+                (isDeployMode(newComponentTemplate[0].key)
+                    ? newComponentTemplate[0].values : newComponentTemplate).map(temps => {
                     if (temps.key == key) {
                         temps.values = temps.values.filter(temp => !temp.id)
                         temps.values.map(temp => {
@@ -235,7 +242,8 @@ export function handleComponentTemplate (comp: any, initialCompData: any): any {
         if (!customParamConfig[config]?.id) {
             isGroup = true
             for (let [key, value] of Object.entries(customParamConfig[config])) {
-                newComponentTemplate.map(temp => {
+                (isDeployMode(newComponentTemplate[0].key)
+                    ? newComponentTemplate[0].values : newComponentTemplate).map(temp => {
                     if (temp.key == key && temp.type == CONFIG_ITEM_TYPE.GROUP) {
                         temp.values = temp.values.concat(value)
                     }
@@ -353,12 +361,6 @@ export function getModifyComp (comps: any, initialCompData: any[]): any {
         if (!isNeedTemp(Number(typeCode))) {
             const compConfig = handleComponentConfigAndCustom(comp, Number(typeCode))
             if (!_.isEqual(compConfig, initialComp?.componentConfig ? JSON.parse(initialComp.componentConfig) : {})) {
-                modifyComps.add(typeCode)
-            }
-        } else {
-            /** 比对 hdfs、yarn 自定义参数 */
-            const temp = getParamsByTemp(JSON.parse(initialComp?.componentTemplate))
-            if ((comp['customParam'] || Object.values(temp).length) && !_.isEqual(comp['customParam'], temp)) {
                 modifyComps.add(typeCode)
             }
         }
