@@ -31,6 +31,7 @@ import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
+import com.dtstack.engine.flink.constrant.ErrorMessageConsts;
 import com.dtstack.engine.flink.entity.SessionCheckInterval;
 import com.dtstack.engine.flink.entity.SessionHealthCheckedInfo;
 import com.dtstack.engine.flink.util.FileUtil;
@@ -252,8 +253,9 @@ public class SessionClientFactory extends AbstractClientFactory {
     @Override
     public ClusterClient<ApplicationId> getClusterClient(JobIdentifier jobIdentifier) {
         if (!sessionHealthCheckedInfo.isRunning()) {
-            LOG.warn("wait flink session client recover...");
-            throw new RdosDefineException("wait flink session client recover...");
+            LOG.warn(ErrorMessageConsts.WAIT_SESSION_RECOVER);
+            // TODO 抛出一个FlinkSessionUnhealthyException类型？
+            throw new RdosDefineException(ErrorMessageConsts.WAIT_SESSION_RECOVER);
         }
         return clusterClient;
     }
