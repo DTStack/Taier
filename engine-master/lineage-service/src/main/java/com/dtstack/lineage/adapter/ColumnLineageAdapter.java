@@ -67,6 +67,7 @@ public class ColumnLineageAdapter {
         columnColumnVO.setInputTableInfo(inputTableVO);
         columnColumnVO.setResultTableInfo(resultTableVO);
         columnColumnVO.setResultColumnName(columnColumn.getResultColumnName());
+        columnColumnVO.setManual(columnColumn.getLineageSource() == 1);
         return columnColumnVO;
     }
 }
