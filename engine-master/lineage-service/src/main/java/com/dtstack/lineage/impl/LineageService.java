@@ -934,9 +934,9 @@ public class LineageService {
         LineageDataSourceVO resultDataSourceVO = resultTableInfoVO.getDataSourceVO();
         LineageDataSource resultDataSource = null;
         if (Objects.isNull(inputDataSourceVO.getSourceId())) {
-            resultDataSource = lineageDataSourceService.getDataSourceByParams(inputDataSourceVO.getSourceType(), inputDataSourceVO.getSourceName(), lineageColumnColumnVO.getDtUicTenantId(), appType);
+            resultDataSource = lineageDataSourceService.getDataSourceByParams(resultDataSourceVO.getSourceType(), resultDataSourceVO.getSourceName(), lineageColumnColumnVO.getDtUicTenantId(), appType);
         }else {
-            resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(inputDataSourceVO.getSourceId(),appType);
+            resultDataSource = lineageDataSourceService.getDataSourceByIdAndAppType(resultDataSourceVO.getSourceId(),appType);
         }
         if (Objects.isNull(resultDataSource)){
             throw new RdosDefineException("数据源不存在");
