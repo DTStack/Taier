@@ -27,6 +27,7 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UrlUtil;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
+import com.dtstack.engine.flink.constrant.ErrorMessageConsts;
 import com.dtstack.engine.flink.entity.TaskmanagerInfo;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
 import com.dtstack.engine.flink.factory.PerJobClientFactory;
@@ -737,13 +738,15 @@ public class FlinkClient extends AbstractClient {
             if (!judgeResult.available() || isPerJob){
                 return judgeResult;
             } else {
+                // 纯健康检查，若不健康返回notOk给调度方
                 try {
                     flinkClusterClientManager.getClusterClient(null);
-                } catch (Exception e) {
-                    return JudgeResult.notOk("wait flink session client recover");
+                } catch (RdosDefineException e) {
+                    return JudgeResult.notOk(ErrorMessageConsts.WAIT_SESSION_RECOVER);
                 }
+
                 FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
-                String slotInfo = null;
+                String slotInfo;
                 try {
                     slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
                 } catch (Exception e) {
