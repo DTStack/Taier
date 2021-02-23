@@ -210,7 +210,17 @@ class EditCluster extends React.Component<any, IState> {
         })
     }
 
-    testConnects = () => {
+    setTestStatus = (status: any) => {
+        let testStatus: any = {}
+        status.forEach((temp: any) => {
+            testStatus[temp.componentTypeCode] = { ...temp }
+        })
+        this.setState({
+            testStatus: testStatus
+        })
+    }
+
+    testConnects = (isSingle?: boolean, callBack?: Function) => {
         const { form } = this.props
         const { initialCompData, clusterName } = this.state
         form.validateFields(null, {}, (err: any, values: any) => {
@@ -227,21 +237,27 @@ class EditCluster extends React.Component<any, IState> {
                     message.error(`组件 ${modifyCompsName.join('、')} 参数变更未保存，请先保存再测试组件连通性`)
                     return
                 }
-                this.setState({ testLoading: true });
-                Api.testConnects({
-                    clusterName
-                }).then((res: any) => {
-                    if (res.code === 1) {
-                        let testStatus: any = {}
-                        res.data.forEach((temp: any) => {
-                            testStatus[temp.componentTypeCode] = { ...temp }
-                        })
-                        this.setState({
-                            testStatus: testStatus
-                        })
-                    }
-                    this.setState({ testLoading: false })
-                })
+                if (isSingle) {
+                    // 待添加借口
+                    // Api.testConnects({
+                    //     clusterName
+                    // }).then((res: any) => {
+                    //     if (res.code === 1) {
+                    //         this.setTestStatus(res.data)
+                    //     }
+                    //     callBack && callBack()
+                    // })
+                } else {
+                    this.setState({ testLoading: true });
+                    Api.testConnects({
+                        clusterName
+                    }).then((res: any) => {
+                        if (res.code === 1) {
+                            this.setTestStatus(res.data)
+                        }
+                        this.setState({ testLoading: false })
+                    })
+                }
             }
         })
     }
@@ -264,7 +280,7 @@ class EditCluster extends React.Component<any, IState> {
                         <Button className="cluster-btn" type="primary" onClick={this.turnCompMode.bind(this, 'edit')}>编辑</Button>
                     </span>
                         : <span>
-                            <Button className="cluster-btn" ghost loading={testLoading} onClick={this.testConnects} >测试所有组件连通性</Button>
+                            <Button className="cluster-btn" ghost loading={testLoading} onClick={() => this.testConnects()} >测试所有组件连通性</Button>
                         </span>}
                 </div>
                 <div className="c-editCluster__container">
@@ -329,6 +345,7 @@ class EditCluster extends React.Component<any, IState> {
                                                 initialCompData={initialCompData[activeKey]}
                                                 form={this.props.form}
                                                 saveComp={this.saveComp}
+                                                testConnects={this.testConnects}
                                             />}
                                         </TabPane>)
                                     })}

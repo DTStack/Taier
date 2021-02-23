@@ -12,9 +12,17 @@ interface IProps {
     clusterInfo: any;
     initialCompData: any[];
     saveComp: Function;
+    testConnects: Function;
 }
 
-export default class ToolBar extends React.PureComponent<IProps, any> {
+interface IState {
+    loading: boolean;
+}
+export default class ToolBar extends React.PureComponent<IProps, IState> {
+    state: IState = {
+        loading: false
+    }
+
     onOk = () => {
         const { form, comp, clusterInfo, saveComp } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
@@ -78,6 +86,13 @@ export default class ToolBar extends React.PureComponent<IProps, any> {
         })
     }
 
+    testConnects = () => {
+        this.setState({ loading: true })
+        this.props.testConnects(true, () => {
+            this.setState({ loading: false })
+        })
+    }
+
     onConfirm = () => {
         const { form, comp, initialCompData } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
@@ -94,6 +109,7 @@ export default class ToolBar extends React.PureComponent<IProps, any> {
     }
 
     render () {
+        const { loading } = this.state
         const typeCode = this.props.comp?.componentTypeCode ?? ''
 
         return (
@@ -106,7 +122,12 @@ export default class ToolBar extends React.PureComponent<IProps, any> {
                 >
                     <Button>取消</Button>
                 </Popconfirm>
-                <Button style={{ marginLeft: 8 }} type="primary" onClick={this.onOk}>保存{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件</Button>
+                <Button style={{ marginLeft: 8 }} loading={loading} ghost onClick={this.testConnects}>
+                    测试{`${COMPONENT_CONFIG_NAME[typeCode]}`}连通性
+                </Button>
+                <Button style={{ marginLeft: 8 }} type="primary" onClick={this.onOk}>
+                    保存{`${COMPONENT_CONFIG_NAME[typeCode]}`}组件
+                </Button>
             </div>
         )
     }
