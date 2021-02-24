@@ -231,7 +231,7 @@ public class LineageDataSetInfoService {
             dataSetInfo.setTableName(table.getName());
             dataSetInfo.setSourceId(sourceId);
             List<Column> tableColumns = getTableColumns(dataSetInfo);
-            listHashMap.put(table.getName(),tableColumns);
+            listHashMap.put(table.getDb()+"."+table.getName(),tableColumns);
         }
         return listHashMap;
     }
