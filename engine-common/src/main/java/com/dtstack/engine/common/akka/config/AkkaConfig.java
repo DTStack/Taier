@@ -191,6 +191,11 @@ public class AkkaConfig {
         return getValueWithDefault(keyName, StringUtils.EMPTY);
     }
 
+    public static String getWorkerInitialSize() {
+        String keyName = ConfigConstant.INITIAL_SIZE;
+        return getValueWithDefault(keyName, StringUtils.EMPTY);
+    }
+
     public static String getWorkerMinActive() {
         String keyName = ConfigConstant.MINIDLE;
         return getValueWithDefault(keyName, StringUtils.EMPTY);

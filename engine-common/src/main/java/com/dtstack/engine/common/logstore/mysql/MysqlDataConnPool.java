@@ -40,17 +40,17 @@ public class MysqlDataConnPool {
     /**
      * 初始连接池大小
      */
-    private int initialSize = 2;
+    private int initialSize = 20;
 
     /**
      * 最小连接池大小
      */
-    private int minIdle = 2;
+    private int minIdle = 20;
 
     /**
      * 最大连接池大小
      */
-    private int maxActive = 2;
+    private int maxActive = 20;
 
     /**
      * 获取连接等待超时的时间
@@ -105,6 +105,7 @@ public class MysqlDataConnPool {
         jdbcUrl = dbConfig.get(ConfigConstant.JDBCURL);
         username = dbConfig.get(ConfigConstant.USERNAME);
         password = dbConfig.get(ConfigConstant.PASSWORD);
+        initialSize = NumberUtils.toInt(dbConfig.get(ConfigConstant.INITIAL_SIZE),initialSize);
         minIdle = NumberUtils.toInt(dbConfig.get(ConfigConstant.MINIDLE),minIdle);
         maxActive = NumberUtils.toInt(dbConfig.get(ConfigConstant.MAXACTIVE),maxActive);
 
