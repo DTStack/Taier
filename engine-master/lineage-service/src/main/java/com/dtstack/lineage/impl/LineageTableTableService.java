@@ -77,20 +77,13 @@ public class LineageTableTableService {
     /**
      * 根据表和应用类型查询表级血缘上游
      */
-    public List<LineageTableTable> queryTableInputLineageByAppType(Long tableId, Integer appType,final Set<Long> tableIdSet) {
+    public List<LineageTableTable> queryTableInputLineageByAppType(Long tableId, Integer appType,final Set<String> tableIdSet) {
         List<LineageTableTable> res = Lists.newArrayList();
         List<LineageTableTable> lineageTableTables = lineageTableTableDao.queryTableResultList(appType, tableId);
-        lineageTableTables = lineageTableTables.stream().filter(tt->{
-            if (tableIdSet.contains(tt.getInputTableId()) && tableIdSet.contains(tt.getResultTableId())){
-                return false;
-            }
-            return true;
-        }).collect(Collectors.toList());
+        lineageTableTables = lineageTableTables.stream().filter(tt-> !tableIdSet.contains(tt.getInputTableId() + "-" + tt.getResultTableId())).collect(Collectors.toList());
         for (LineageTableTable tt :lineageTableTables) {
-            tableIdSet.add(tt.getInputTableId());
-            tableIdSet.add(tt.getResultTableId());
+            tableIdSet.add(tt.getInputTableId()+"-"+tt.getResultTableId());
         }
-
         res.addAll(lineageTableTables);
         if (CollectionUtils.isNotEmpty(lineageTableTables)){
             for (LineageTableTable tt:lineageTableTables){
@@ -107,18 +100,12 @@ public class LineageTableTableService {
      * @param tableId
      * @param appType
      */
-    public List<LineageTableTable> queryTableResultLineageByAppType(Long tableId, Integer appType,final Set<Long> tableIdSet) {
+    public List<LineageTableTable> queryTableResultLineageByAppType(Long tableId, Integer appType,final Set<String> tableIdSet) {
         List<LineageTableTable> res = Lists.newArrayList();
         List<LineageTableTable> lineageTableTables = lineageTableTableDao.queryTableInputList(appType, tableId);
-        lineageTableTables = lineageTableTables.stream().filter(tt->{
-            if (tableIdSet.contains(tt.getInputTableId()) && tableIdSet.contains(tt.getResultTableId())){
-                return false;
-            }
-            return true;
-        }).collect(Collectors.toList());
+        lineageTableTables = lineageTableTables.stream().filter(tt-> !tableIdSet.contains(tt.getInputTableId() + "-" + tt.getResultTableId())).collect(Collectors.toList());
         for (LineageTableTable tt :lineageTableTables) {
-            tableIdSet.add(tt.getInputTableId());
-            tableIdSet.add(tt.getResultTableId());
+            tableIdSet.add(tt.getInputTableId()+"-"+tt.getResultTableId());
         }
         res.addAll(lineageTableTables);
         if (CollectionUtils.isNotEmpty(lineageTableTables)){
