@@ -5,7 +5,7 @@ import com.dtstack.engine.api.domain.Tenant;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.master.enums.PlatformEventType;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.vo.PlatformEventVO;
 import org.slf4j.Logger;
@@ -28,8 +28,11 @@ public class PlatformService {
     @Autowired
     private TenantDao tenantDao;
 
+    @Autowired
+    private DtUicUserConnect dtUicUserConnect;
+
     private void registerEvent(PlatformEventType eventType, boolean active) {
-        DtUicUserConnect.registerEvent(environmentContext.getDtUicUrl(), eventType, "/node/platform/callBack", active);
+        dtUicUserConnect.registerEvent(environmentContext.getDtUicUrl(), eventType, "/node/platform/callBack", active);
     }
 
     private static final Logger logger = LoggerFactory.getLogger(PlatformService.class);

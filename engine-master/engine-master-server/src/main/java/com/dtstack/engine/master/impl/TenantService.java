@@ -16,16 +16,14 @@ import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.router.login.domain.TenantAdmin;
 import com.dtstack.engine.master.router.login.domain.UserTenant;
-import com.dtstack.fasterxml.jackson.databind.util.BeanUtil;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.Sort;
 import com.google.common.collect.Lists;
@@ -38,8 +36,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -82,6 +80,9 @@ public class TenantService {
     @Autowired
     private ComponentService componentService;
 
+    @Autowired
+    private DtUicUserConnect dtUicUserConnect;
+
     public PageResult<List<EngineTenantVO>> pageQuery( Long clusterId,
                                                        Integer engineType,
                                                        String tenantName,
@@ -120,35 +121,34 @@ public class TenantService {
     public List<EngineTenantVO> listEngineTenant( Long dtuicTenantId,
                                                   Integer engineType) {
         EngineTenant engineTenant = engineTenantDao.getByTenantIdAndEngineType(dtuicTenantId, engineType);
+        if(null == engineTenant){
+            return Collections.EMPTY_LIST;
+        }
         List<EngineTenantVO> engineTenantVOS = engineTenantDao.listEngineTenant(engineTenant.getEngineId());
+        if(CollectionUtils.isEmpty(engineTenantVOS)){
+            return engineTenantVOS;
+        }
         fillQueue(engineTenantVOS);
         return engineTenantVOS;
     }
 
     private void fillQueue(List<EngineTenantVO> engineTenantVOS){
-        List<Long> queueIds = new ArrayList<>();
-        for (EngineTenantVO engineTenantVO : engineTenantVOS) {
-            if(engineTenantVO.getQueueId() != null){
-                queueIds.add(engineTenantVO.getQueueId());
-            }
-        }
 
-        Map<Long, Queue> queueMap = new HashMap<>();
+        List<Long> queueIds = engineTenantVOS.stream().filter(v -> v.getQueueId() != null).map(EngineTenantVO::getQueueId).collect(Collectors.toList());
+
+        Map<Long, Queue> queueMap = new HashMap<>(16);
         List<Queue> queueList = queueDao.listByIds(queueIds);
         for (Queue queue : queueList) {
             queueMap.put(queue.getId(), queue);
         }
-
         for (EngineTenantVO engineTenantVO : engineTenantVOS) {
             if(engineTenantVO.getQueueId() == null){
                 continue;
             }
-
             Queue queue = queueMap.get(engineTenantVO.getQueueId());
             if(queue == null){
                 continue;
             }
-
             engineTenantVO.setQueue(queue.getQueuePath());
             engineTenantVO.setMaxCapacity(queue.getMaxCapacity());
             engineTenantVO.setMinCapacity(queue.getCapacity());
@@ -191,13 +191,13 @@ public class TenantService {
     private List<UserTenant> postTenantList(String dtToken) {
         String dtUicUrl = env.getDtUicUrl();
         //uic对数据量做了限制，可能未查询到租户信息
-        return DtUicUserConnect.getUserTenants(dtUicUrl, dtToken, "");
+        return dtUicUserConnect.getUserTenants(dtUicUrl, dtToken, "");
     }
 
 
     private UserTenant getTenantByDtUicTenantId(Long dtUicTenantId,String token){
         String dtUicUrl = env.getDtUicUrl();
-        return DtUicUserConnect.getTenantByTenantId(dtUicUrl, dtUicTenantId, token);
+        return dtUicUserConnect.getTenantByTenantId(dtUicUrl, dtUicTenantId, token);
     }
 
 

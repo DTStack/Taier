@@ -1078,6 +1078,7 @@ private[spark] class DtClient(
       sparkConf.set(PRINCIPAL.key, principal)
     }
     // Defensive copy of the credentials
+
     credentials = new Credentials(UserGroupInformation.getCurrentUser.getCredentials)
   }
 

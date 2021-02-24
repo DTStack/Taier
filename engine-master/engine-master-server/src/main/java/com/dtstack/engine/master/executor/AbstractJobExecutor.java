@@ -13,7 +13,7 @@ import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.BatchFlowWorkJobService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
@@ -191,7 +191,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                             }
 
                             Integer type = batchTask.getTaskType();
-                            Integer status = batchJobService.getStatusById(scheduleBatchJob.getId());
+                            Integer status = batchJobService.getJobStatus(scheduleBatchJob.getJobId());
 
                             checkJobVersion(scheduleBatchJob.getScheduleJob(),batchTask);
                             JobCheckRunInfo checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), new HashSet<>(), new HashMap<>(), taskCache);
@@ -314,10 +314,14 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     private Pair<String, String> getCycTime() {
         Pair<String, String> cycTime = null;
         if (getScheduleType().getType() == EScheduleType.NORMAL_SCHEDULE.getType()) {
-            cycTime = jobRichOperator.getCycTimeLimitEndNow();
+            cycTime = jobRichOperator.getCycTimeLimitEndNow(true);
         } else {
-            //补数据和重跑没有时间限制
-            cycTime = new ImmutablePair<>(null, null);
+            //补数据和重跑
+            if(env.getOpenFillDataCycTimeLimit()) {
+                cycTime = jobRichOperator.getCycTimeLimitEndNow(false);
+            }else {
+                cycTime = new ImmutablePair<>(null, null);
+            }
         }
         return cycTime;
     }

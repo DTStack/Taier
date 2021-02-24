@@ -20,7 +20,7 @@ import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.EngineJobStopRecord;
 import com.dtstack.engine.common.enums.StoppedStatus;
 import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.collect.Lists;
@@ -103,11 +103,9 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         if (CollectionUtils.isEmpty(jobs)) {
             return 0;
         }
-
         if (jobs.size() > JOB_STOP_LIMIT) {
             throw new RdosDefineException("please don't stop too many tasks at once, limit:" + JOB_STOP_LIMIT);
         }
-
         List<ScheduleJob> needSendStopJobs = new ArrayList<>(jobs.size());
         List<Long> unSubmitJob = new ArrayList<>(jobs.size());
         for (ScheduleJob job : jobs) {
@@ -117,9 +115,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 needSendStopJobs.add(job);
             }
         }
-
         List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobs.stream().map(ScheduleJob::getJobId).collect(Collectors.toList()));
-
         // 停止已提交的
         if (CollectionUtils.isNotEmpty(needSendStopJobs)) {
             for (ScheduleJob job : needSendStopJobs) {
@@ -136,18 +132,10 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         if (CollectionUtils.isNotEmpty(unSubmitJob)) {
             scheduleJobDao.updateJobStatusByIds(RdosTaskStatus.CANCELED.getStatus(), unSubmitJob);
         }
-
         return jobs.size();
 
     }
 
-    private boolean checkJobCanStop(Integer status) {
-        if (status == null) {
-            return true;
-        }
-
-        return RdosTaskStatus.getCanStopStatus().contains(status);
-    }
 
 
     @Override
@@ -265,7 +253,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                     case RETRY:
                         if (stoppedJob.isRetry()) {
                             if (StoppedStatus.STOPPING == stoppedStatus) {
-                                stoppedJob.resetDelay(jobStoppedDelay * 20);
+                                stoppedJob.resetDelay(jobStoppedDelay * stoppedJob.getIncrCount() * 5);
                             } else if (StoppedStatus.RETRY == stoppedStatus) {
                                 stoppedJob.resetDelay(jobStoppedDelay);
                             }
@@ -299,16 +287,22 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 logger.info("jobId:{} jobCache is null, set job is MISSED.", jobElement.jobId);
                 return StoppedStatus.MISSED;
             }
-        } else if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
-            this.removeMemStatusAndJobCache(jobCache.getJobId());
-            logger.info("jobId:{} is unsubmitted, set job is STOPPED.", jobElement.jobId);
-            return StoppedStatus.STOPPED;
+        } else if (null != scheduleJob && EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
+            if (!RdosTaskStatus.getWaitStatus().contains(scheduleJob.getStatus()) || EJobCacheStage.PRIORITY.getStage() != jobCache.getStage()) {
+                this.removeMemStatusAndJobCache(jobCache.getJobId());
+                logger.info("jobId:{} is unsubmitted, set job is STOPPED.", jobElement.jobId);
+                return StoppedStatus.STOPPED;
+            } else {
+                //任务如果处于提交的状态过程中 但是stage由PRIORITY变更为SUBMITTED  直接删除会导致还是会提交到yarn上 占用资源
+                logger.info("jobId:{} is stopping.", jobCache.getJobId());
+                return StoppedStatus.STOPPING;
+            }
         } else {
             if (scheduleJob == null) {
                 this.removeMemStatusAndJobCache(jobElement.jobId);
                 logger.info("jobId:{} scheduleJob is null, set job is MISSED.", jobElement.jobId);
                 return StoppedStatus.MISSED;
-            }  else if (RdosTaskStatus.getStoppedAndNotFound().contains(scheduleJob.getStatus())) {
+            } else if (RdosTaskStatus.getStoppedAndNotFound().contains(scheduleJob.getStatus())) {
                 this.removeMemStatusAndJobCache(jobElement.jobId);
                 logger.info("jobId:{} and status:{} is StoppedAndNotFound, set job is STOPPED.", jobElement.jobId, scheduleJob.getStatus());
                 return StoppedStatus.STOPPED;

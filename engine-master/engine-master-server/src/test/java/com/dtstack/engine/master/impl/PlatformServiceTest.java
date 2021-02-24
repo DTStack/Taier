@@ -5,6 +5,8 @@ import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.enums.PlatformEventType;
+import com.dtstack.engine.master.impl.PlatformService;
+import com.dtstack.engine.master.utils.Template;
 import com.dtstack.engine.master.vo.PlatformEventVO;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,7 +27,8 @@ public class PlatformServiceTest extends AbstractTest {
     @Test
     public void testUic(){
         //添加测试租户
-        Tenant tenant = DataCollection.getData().getTenant();
+        Tenant tenant = Template.getTenantTemplate();
+        tenantDao.insert(tenant);
         PlatformEventVO platformEventVO = new PlatformEventVO();
         platformEventVO.setTenantName("uic更新");
         platformEventVO.setTenantDesc("tes");

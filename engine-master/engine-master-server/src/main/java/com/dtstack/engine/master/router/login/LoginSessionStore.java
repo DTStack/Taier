@@ -1,10 +1,9 @@
 package com.dtstack.engine.master.router.login;
 
 
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.router.login.domain.DtUicUser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.function.Consumer;
@@ -23,6 +22,9 @@ public class LoginSessionStore {
     @Autowired
     private SessionUtil sessionUtil;
 
+    @Autowired
+    private DtUicUserConnect dtUicUserConnect;
+
     public  <T> void createSession(String token, Class<T> clazz, Consumer<DtUicUser> dtUicUserHandler) {
         T session = sessionUtil.getUser(token, clazz);
         if (session == null) {
@@ -30,21 +32,21 @@ public class LoginSessionStore {
             synchronized (token) {
                 session = sessionUtil.getUser(token, clazz);
                 if (session == null) {
-                    DtUicUserConnect.getInfo(token, environmentContext.getDtUicUrl(), dtUicUserHandler);
+                    dtUicUserConnect.getInfo(token, environmentContext.getDtUicUrl(), dtUicUserHandler);
                 }
             }
         }
     }
 
     public void removeSession(String token) {
-        if (DtUicUserConnect.removeUicInfo(token, environmentContext.getDtUicUrl())) {
+        if (dtUicUserConnect.removeUicInfo(token, environmentContext.getDtUicUrl())) {
             sessionUtil.pulish(token);
         }
     }
 
     public void removeSession(String token, boolean uicLogout) {
         if (uicLogout) {
-            if (DtUicUserConnect.removeUicInfo(token, environmentContext.getDtUicUrl())) {
+            if (dtUicUserConnect.removeUicInfo(token, environmentContext.getDtUicUrl())) {
                 sessionUtil.pulish(token);
             }
         } else {

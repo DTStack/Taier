@@ -1,7 +1,7 @@
 package com.dtstack.engine.hadoop.parser;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.JarFileInfo;
+import com.dtstack.engine.common.exception.RdosDefineException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class AddJarOperator {
 	
-	private static Pattern pattern = Pattern.compile("(?i)\\s*add\\s+jar\\s+with\\s+(\\S+)(\\s+AS\\s+(\\S+))?");
+	private static Pattern pattern = Pattern.compile("^(?!--)(?i)\\s*add\\s+jar\\s+with\\s+(\\S+)(\\s+AS\\s+(\\S+))?");
 
 	public static JarFileInfo parseSql(String sql) {
 
@@ -30,6 +30,20 @@ public class AddJarOperator {
 
 	public static boolean verific(String sql){
 		return pattern.matcher(sql).find();
+	}
+
+	/*
+	 * handle add jar statements and comment statements on the same line
+	 * " --desc \n\n ADD JAR WITH xxxx"
+	 */
+	public static String handleSql(String sql) {
+		String[] sqls = sql.split("\\n");
+		for (String s: sqls) {
+			if (verific(s)) {
+				return s;
+			}
+		}
+		return sql;
 	}
 
 }

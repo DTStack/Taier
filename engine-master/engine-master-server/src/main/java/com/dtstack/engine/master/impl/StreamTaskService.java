@@ -17,12 +17,14 @@ import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.google.common.base.Preconditions;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -65,14 +67,17 @@ public class StreamTaskService {
      * 查询stream job
      */
     public List<ScheduleJob> getEngineStreamJob( List<String> taskIds){
+
+        if(CollectionUtils.isEmpty(taskIds)){
+            return Collections.EMPTY_LIST;
+        }
         List<ScheduleJob> jobs = scheduleJobDao.getRdosJobByJobIds(taskIds);
 
-        if (jobs != null && jobs.size() > 0){
+        if (CollectionUtils.isNotEmpty(jobs)){
             for (ScheduleJob scheduleJob : jobs) {
                 scheduleJob.setStatus(RdosTaskStatus.getShowStatus(scheduleJob.getStatus()));
             }
         }
-
         return jobs;
     }
 
@@ -113,7 +118,7 @@ public class StreamTaskService {
 
         //只获取运行中的任务的log—url
         Integer status = scheduleJob.getStatus();
-        if (!RdosTaskStatus.RUNNING.getStatus().equals(status.intValue())) {
+        if (!RdosTaskStatus.RUNNING.getStatus().equals(status)) {
             throw new RdosDefineException(String.format("job:%s not running status ", taskId), ErrorCode.INVALID_TASK_STATUS);
         }
 
@@ -139,12 +144,11 @@ public class StreamTaskService {
                     EDeployMode.PERJOB.getType(),paramAction.getUserId(),null);
             jobClient = new JobClient(paramAction);
 
-            List<String> rollingLogBaseInfo = workerOperator.getRollingLogBaseInfo(jobIdentifier);
-            return rollingLogBaseInfo;
+            return workerOperator.getRollingLogBaseInfo(jobIdentifier);
 
         }catch (Exception e){
             if (jobClient != null) {
-                RdosTaskStatus jobStatus = workerOperator.getJobStatus(jobIdentifier);;
+                RdosTaskStatus jobStatus = workerOperator.getJobStatus(jobIdentifier);
                 Integer statusCode = jobStatus.getStatus();
                 if (RdosTaskStatus.getStoppedStatus().contains(statusCode)) {
                     throw new RdosDefineException(String.format("job:%s had stop ", taskId), ErrorCode.INVALID_TASK_STATUS, e);

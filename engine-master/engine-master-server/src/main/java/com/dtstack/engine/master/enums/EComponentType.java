@@ -192,5 +192,8 @@ public enum EComponentType {
     public static List<EComponentType> requireComponent = Lists.newArrayList(EComponentType.ORACLE_SQL,EComponentType.HDFS,EComponentType.TIDB_SQL,EComponentType.ORACLE_SQL,
             EComponentType.LIBRA_SQL,EComponentType.GREENPLUM_SQL, EComponentType.PRESTO_SQL);
 
+    /**没有queue的组件**/
+    public static List<EComponentType> noQueueComponents = Lists.newArrayList(EComponentType.ORACLE_SQL,EComponentType.TIDB_SQL,EComponentType.LIBRA_SQL,
+            EComponentType.GREENPLUM_SQL, EComponentType.PRESTO_SQL);
 
 }

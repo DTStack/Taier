@@ -156,7 +156,7 @@ public class SparkYarnClient extends AbstractClient {
                     jobResult = submitPythonJob(jobClient);
                 }
                 return jobResult;
-            }, yarnConf);
+            }, yarnConf, true);
         } catch (Exception e) {
             logger.info("", e);
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(e));
@@ -493,7 +493,7 @@ public class SparkYarnClient extends AbstractClient {
                     logger.error("", e);
                     return JobResult.createErrorResult(e.getMessage());
                 }
-            }, yarnConf);
+            }, yarnConf, true);
         } catch (Exception e) {
             logger.error("cancelJob error:", e);
             return JobResult.createErrorResult(e);
@@ -549,7 +549,7 @@ public class SparkYarnClient extends AbstractClient {
                     logger.error("", e);
                     return RdosTaskStatus.NOTFOUND;
                 }
-            }, yarnConf);
+            }, yarnConf, false);
         } catch (Exception e) {
             logger.error("", e);
             return RdosTaskStatus.RUNNING;
@@ -645,7 +645,7 @@ public class SparkYarnClient extends AbstractClient {
                 }
 
                 return sparkJobLog.toString();
-            }, yarnConf);
+            }, yarnConf, true);
         } catch (Exception e) {
             logger.error("", e);
             sparkJobLog.addAppLog(jobIdentifier.getEngineJobId(), "get log from yarn err:" + e.getMessage());
@@ -664,7 +664,7 @@ public class SparkYarnClient extends AbstractClient {
                             .withYarnAccepterTaskNumber(sparkYarnConfig.getYarnAccepterTaskNumber())
                             .build();
                     return resourceInfo.judgeSlots(jobClient);
-            }, yarnConf);
+            }, yarnConf, false);
         } catch (Exception e) {
             logger.error("jobId:{} judgeSlots error:", jobClient.getTaskId(), e);
             return JudgeResult.exception("judgeSlots error:" + ExceptionUtil.getErrorMessage(e));
@@ -692,6 +692,8 @@ public class SparkYarnClient extends AbstractClient {
 
         while (sqlItera.hasNext()){
             String tmpSql = sqlItera.next();
+            // handle add jar statements and comment statements on the same line
+            tmpSql = AddJarOperator.handleSql(tmpSql);
             if(AddJarOperator.verific(tmpSql)){
                 sqlItera.remove();
                 JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
@@ -756,11 +758,24 @@ public class SparkYarnClient extends AbstractClient {
                 yarnClient1.init(yarnConf);
                 yarnClient1.start();
                 return yarnClient1;
-            }, yarnConf);
+            }, yarnConf,true);
         } catch (Exception e) {
             logger.error("buildYarnClient initSecurity happens error", e);
             throw new RdosDefineException(e);
         }
+    }
+
+    /*
+     * handle add jar statements and comment statements on the same line
+     * " --desc \n\n ADD JAR WITH xxxx"
+     */
+    public static void handleFirstSql(List<String> sqlLists) {
+        String[] sqls = sqlLists.get(0).split("\\n");
+        if (sqls.length == 0) {
+            return;
+        }
+        sqlLists.remove(0);
+        sqlLists.addAll(Arrays.asList(sqls));
     }
 
 }

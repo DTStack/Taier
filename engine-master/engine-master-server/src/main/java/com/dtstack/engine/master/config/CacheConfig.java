@@ -2,7 +2,7 @@ package com.dtstack.engine.master.config;
 
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.schedule.common.enums.AppType;
-import com.dtstack.engine.master.env.EnvironmentContext;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.router.cache.RdosSubscribe;
 import com.dtstack.engine.master.router.cache.RdosTopic;
@@ -131,7 +131,7 @@ public class CacheConfig {
         SessionCache sessionCache = new SessionCache();
         sessionCache.setExpire(environmentContext.getRdosSessionExpired());
         sessionCache.setRedisTemplate(redisTemplate);
-        sessionCache.setAppType(AppType.RDOS);
+        sessionCache.setAppType(AppType.DAGSCHEDULEX);
         return sessionCache;
     }
 

@@ -1,6 +1,5 @@
 package com.dtstack.engine.flink.plugininfo;
 
-import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.JarFileInfo;
@@ -32,9 +31,9 @@ public class SqlPluginInfo {
 
     private static final Logger logger = LoggerFactory.getLogger(SqlPluginInfo.class);
 
-    private String localSqlRootJar;
+    private String localSqlPluginDir;
 
-    private String remoteSqlRootDir;
+    private String remoteSqlPluginDir;
 
     private String pluginLoadMode;
 
@@ -49,49 +48,11 @@ public class SqlPluginInfo {
     }
 
     private void init(FlinkConfig flinkConfig){
-        String remoteSqlPluginDir = getSqlPluginDir(flinkConfig.getRemotePluginRootDir());
-        String localSqlPluginDir = getSqlPluginDir(flinkConfig.getFlinkPluginRoot());
-
-        File sqlPluginDirFile = new File(localSqlPluginDir);
-        if(!sqlPluginDirFile.exists() || !sqlPluginDirFile.isDirectory()){
-            throw new RdosDefineException("not exists flink sql plugin dir:" + localSqlPluginDir + ", please check it!!!");
-        }
-
+        this.remoteSqlPluginDir = getSqlPluginDir(flinkConfig.getRemotePluginRootDir());
+        this.localSqlPluginDir = getSqlPluginDir(flinkConfig.getFlinkPluginRoot());
         this.pluginLoadMode = flinkConfig.getPluginLoadMode();
-
-        setLocalJarRootDir(localSqlPluginDir);
-        setRemoteSourceJarRootDir(remoteSqlPluginDir);
-    }
-
-    public String getJarFileDirPath(String type){
-        String jarPath = localSqlRootJar + ConfigConstrant.SP + type;
-        File jarFile = new File(jarPath);
-
-        if(!jarFile.exists()){
-            throw new RdosDefineException("don't exists path: " + jarPath);
-        }
-
-        return jarPath;
-    }
-
-    public void setLocalJarRootDir(String rootDir){
-
-        if(localSqlRootJar != null){
-            return;
-        }
-
-        localSqlRootJar = rootDir;
-        logger.info("---------local sql plugin root dir is:" + rootDir);
-    }
-
-    public void setRemoteSourceJarRootDir(String remoteRootDir){
-
-        if(remoteSqlRootDir != null){
-            return;
-        }
-
-        remoteSqlRootDir = remoteRootDir;
-        logger.info("---------remote sql plugin root dir is:" + remoteSqlRootDir);
+        logger.info("---------local sqlplugin dir is:" + localSqlPluginDir);
+        logger.info("---------remote sqlplugin dir is:" + remoteSqlPluginDir);
     }
 
     public String getSqlPluginDir(String pluginRoot){
@@ -109,14 +70,15 @@ public class SqlPluginInfo {
         args.add("-mode");
         args.add("yarnPer");
 
-        args.add("-localSqlPluginPath");
-        args.add(localSqlRootJar);
-
-        args.add("-remoteSqlPluginPath");
-        args.add(remoteSqlRootDir);
-
         args.add("-pluginLoadMode");
         args.add(pluginLoadMode);
+
+
+        args.add("-localSqlPluginPath");
+        args.add(localSqlPluginDir);
+
+        args.add("-remoteSqlPluginPath");
+        args.add(remoteSqlPluginDir);
 
         args.add("-confProp");
         String confPropStr = PublicUtil.objToString(jobClient.getConfProperties());
@@ -128,14 +90,14 @@ public class SqlPluginInfo {
     public JarFileInfo createCoreJarInfo(){
         JarFileInfo jarFileInfo = new JarFileInfo();
         String coreJarFileName = getCoreJarFileName();
-        String jarFilePath  = localSqlRootJar + File.separator + coreJarFileName;
+        String jarFilePath  = localSqlPluginDir + File.separator + coreJarFileName;
         jarFileInfo.setJarPath(jarFilePath);
         return jarFileInfo;
     }
 
     private String getCoreJarFileName (){
         String coreJarFileName = null;
-        File pluginDir = new File(localSqlRootJar);
+        File pluginDir = new File(localSqlPluginDir);
         if (pluginDir.exists() && pluginDir.isDirectory()){
             File[] jarFiles = pluginDir.listFiles(new FilenameFilter() {
                 @Override
@@ -150,7 +112,7 @@ public class SqlPluginInfo {
         }
 
         if (StringUtils.isEmpty(coreJarFileName)){
-            throw new RdosDefineException("Can not find core jar file in path:" + localSqlRootJar);
+            throw new RdosDefineException("Can not find core jar file in sqlPlugin path: " + localSqlPluginDir);
         }
 
         return coreJarFileName;
