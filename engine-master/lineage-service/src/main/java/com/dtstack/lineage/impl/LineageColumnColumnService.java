@@ -78,19 +78,12 @@ public class LineageColumnColumnService {
         return lineageColumnColumnDao.queryByLineageKeys(appType, columnLineageKeys);
     }
 
-    public List<LineageColumnColumn> queryColumnInputLineageByAppType(Integer appType, Long tableId, String columnName, Set<String> columnSet) {
+    public List<LineageColumnColumn> queryColumnInputLineageByAppType(Integer appType, Long tableId, String columnName, Set<Long> columnSet) {
         List<LineageColumnColumn> res = Lists.newArrayList();
         List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnDao.queryColumnResultList(appType, tableId, columnName);
-        lineageColumnColumns = lineageColumnColumns.stream().filter(tt -> {
-            if (columnSet.contains(generateColumnStr(tt.getInputTableId(), tt.getInputColumnName()))
-                    && columnSet.contains(generateColumnStr(tt.getResultTableId(), tt.getResultColumnName()))) {
-                return false;
-            }
-            return true;
-        }).collect(Collectors.toList());
+        lineageColumnColumns = lineageColumnColumns.stream().filter(tt -> !columnSet.contains(tt.getId())).collect(Collectors.toList());
         for (LineageColumnColumn tt : lineageColumnColumns) {
-            columnSet.add(generateColumnStr(tt.getResultTableId(), tt.getResultColumnName()));
-            columnSet.add(generateColumnStr(tt.getInputTableId(), tt.getInputColumnName()));
+            columnSet.add(tt.getId());
         }
         res.addAll(lineageColumnColumns);
         if (CollectionUtils.isNotEmpty(lineageColumnColumns)) {
@@ -106,20 +99,13 @@ public class LineageColumnColumnService {
         return String.format("%s.%s", tableId, columnName);
     }
 
-    public List<LineageColumnColumn> queryColumnResultLineageByAppType(Integer appType, Long tableId, String columnName, Set<String> columnSet) {
+    public List<LineageColumnColumn> queryColumnResultLineageByAppType(Integer appType, Long tableId, String columnName, Set<Long> columnSet) {
         List<LineageColumnColumn> res = Lists.newArrayList();
         //查询时，如果血缘没有关联ref，则不能被查出
         List<LineageColumnColumn> lineageColumnColumns = lineageColumnColumnDao.queryColumnInputList(appType, tableId, columnName);
-        lineageColumnColumns = lineageColumnColumns.stream().filter(tt -> {
-            if (columnSet.contains(generateColumnStr(tt.getInputTableId(), tt.getInputColumnName()))
-                    && columnSet.contains(generateColumnStr(tt.getResultTableId(), tt.getResultColumnName()))) {
-                return false;
-            }
-            return true;
-        }).collect(Collectors.toList());
+        lineageColumnColumns = lineageColumnColumns.stream().filter(tt -> !columnSet.contains(tt.getId())).collect(Collectors.toList());
         for (LineageColumnColumn tt : lineageColumnColumns) {
-            columnSet.add(generateColumnStr(tt.getResultTableId(), tt.getResultColumnName()));
-            columnSet.add(generateColumnStr(tt.getInputTableId(), tt.getInputColumnName()));
+            columnSet.add(tt.getId());
         }
         res.addAll(lineageColumnColumns);
         if (CollectionUtils.isNotEmpty(lineageColumnColumns)) {
