@@ -41,13 +41,16 @@
     </select>
 
     <select id="queryTableLineageInputColumns" resultType="java.lang.String">
-        select input_column_name from lineage_column_column
-        where input_table_id = #{tableId}
+
+        select input_column_name from lineage_column_column cc
+        left join lineage_column_column_unique_key_ref ccf on ccf.lineage_column_column_id = cc.id
+        where input_table_id = #{tableId} and ccf.is_deleted = 0
     </select>
 
     <select id="queryTableLineageResultColumns" resultType="java.lang.String">
-        select result_column_name from lineage_column_column
-        where result_table_id = #{tableId}
+        select result_column_name from lineage_column_column cc
+        left join lineage_column_column_unique_key_ref ccf on ccf.lineage_column_column_id = cc.id
+        where result_table_id = #{tableId} and ccf.is_deleted = 0
     </select>
 
 </mapper>
