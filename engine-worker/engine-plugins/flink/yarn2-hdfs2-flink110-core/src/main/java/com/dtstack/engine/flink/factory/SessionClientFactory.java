@@ -31,6 +31,7 @@ import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
+import com.dtstack.engine.flink.constrant.ErrorMessageConsts;
 import com.dtstack.engine.flink.entity.SessionCheckInterval;
 import com.dtstack.engine.flink.entity.SessionHealthCheckedInfo;
 import com.dtstack.engine.flink.util.FileUtil;
@@ -57,6 +58,8 @@ import org.apache.flink.shaded.curator.org.apache.curator.retry.ExponentialBacko
 import org.apache.flink.util.FlinkException;
 import org.apache.flink.yarn.YarnClusterDescriptor;
 import org.apache.flink.yarn.configuration.YarnConfigOptions;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -92,6 +95,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
     private ClusterSpecification yarnSessionSpecification;
     private volatile ClusterClient<ApplicationId> clusterClient;
+    private volatile ApplicationId clusterId;
     private AtomicBoolean isLeader = new AtomicBoolean(false);
     private FlinkConfig flinkConfig;
     private CuratorFramework zkClient;
@@ -219,6 +223,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
             if (retrieveClusterClient != null) {
                 clusterClient = retrieveClusterClient;
+                clusterId = clusterClient.getClusterId();
                 LOG.info("retrieve flink client with yarn session success");
                 return true;
             }
@@ -230,6 +235,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                             YarnClusterDescriptor yarnSessionDescriptor = createYarnSessionClusterDescriptor();
                     ) {
                         clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification).getClusterClient();
+                        clusterId = clusterClient.getClusterId();
                     }
                     return true;
                 } catch (FlinkException e) {
@@ -247,8 +253,9 @@ public class SessionClientFactory extends AbstractClientFactory {
     @Override
     public ClusterClient<ApplicationId> getClusterClient(JobIdentifier jobIdentifier) {
         if (!sessionHealthCheckedInfo.isRunning()) {
-            LOG.warn("wait flink session client recover...");
-            throw new RdosDefineException("wait flink session client recover...");
+            LOG.warn(ErrorMessageConsts.WAIT_SESSION_RECOVER);
+            // TODO 抛出一个FlinkSessionUnhealthyException类型？
+            throw new RdosDefineException(ErrorMessageConsts.WAIT_SESSION_RECOVER);
         }
         return clusterClient;
     }
@@ -653,6 +660,14 @@ public class SessionClientFactory extends AbstractClientFactory {
                 } else {
                     LOG.info("------- Flink yarn-session compatible application not exist. ----");
                 }
+                YarnConfiguration yarnConf = sessionClientFactory.flinkClientBuilder.getYarnConf();
+                FileSystem fs = FileSystem.get(yarnConf);
+                Path homeDir = fs.getHomeDirectory();
+                Path appRemotePath = new Path(String.format("%s/.flink/%s", homeDir, sessionClientFactory.clusterId.toString()));
+                if (fs.exists(appRemotePath)) {
+                    fs.delete(appRemotePath, true);
+                }
+
             } catch (Exception ex) {
                 LOG.error("[SessionClientFactory] Could not properly shutdown cluster client.", ex);
             }

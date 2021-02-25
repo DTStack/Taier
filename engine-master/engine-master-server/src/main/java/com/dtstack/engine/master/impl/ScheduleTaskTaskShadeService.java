@@ -89,6 +89,11 @@ public class ScheduleTaskTaskShadeService {
         if(null == task){
             return null;
         }
+
+        if (task == null) {
+            return null;
+        }
+
         if (level == null || level < 1) {
             level = 1;
         }

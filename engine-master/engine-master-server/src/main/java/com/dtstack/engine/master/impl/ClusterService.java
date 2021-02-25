@@ -108,6 +108,10 @@ public class ClusterService implements InitializingBean {
     @Autowired
     private EnvironmentContext environmentContext;
 
+    @Autowired
+    private DtUicUserConnect dtUicUserConnect;
+
+
     @Override
     public void afterPropertiesSet() throws Exception {
         if (isDefaultClusterExist()) {
@@ -727,7 +731,7 @@ public class ClusterService implements InitializingBean {
                 return ldapUserName;
             }
         }
-        ldapUserName = DtUicUserConnect.getLdapUserName(dtUicUserId, environmentContext.getUicToken(), environmentContext.getDtUicUrl());
+        ldapUserName = dtUicUserConnect.getLdapUserName(dtUicUserId, environmentContext.getUicToken(), environmentContext.getDtUicUrl());
         ldapCache.put(dtUicUserId, ldapUserName);
         return ldapUserName;
     }

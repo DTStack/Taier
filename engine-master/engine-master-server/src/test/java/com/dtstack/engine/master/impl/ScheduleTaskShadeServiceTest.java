@@ -125,6 +125,7 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
         scheduleTaskShadeService.deleteTask(scheduleTaskShadeDTO.getTaskId(), 0L, scheduleTaskShadeDTO.getAppType());
     }
 
+
     @Test
     public void testEmpty() {
         long emptyTaskId = -111L;

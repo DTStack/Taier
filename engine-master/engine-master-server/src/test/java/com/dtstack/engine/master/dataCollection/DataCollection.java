@@ -7,6 +7,7 @@ import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.anno.DataSource;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
@@ -491,6 +492,27 @@ public interface DataCollection {
         scheduleTaskShade.setDtuicTenantId(-1008L);
         scheduleTaskShade.setAppType(0);
         scheduleTaskShade.setScheduleStatus(5);
+        return scheduleTaskShade;
+    }
+
+    /**
+     * @author newman
+     * @Description 虚节点任务
+     * @Date 2020/12/30 7:07 下午
+     * @return: com.dtstack.engine.api.domain.ScheduleTaskShade
+     **/
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    @IgnoreUniqueRandomSet
+    default ScheduleTaskShade getScheduleTaskShadeVirtual(){
+        ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
+        scheduleTaskShade.setScheduleStatus(5);
+        scheduleTaskShade.setTaskId(-2023L);
+        scheduleTaskShade.setTenantId(15L);
+        scheduleTaskShade.setProjectId(-12L);
+        scheduleTaskShade.setDtuicTenantId(-1008L);
+        scheduleTaskShade.setAppType(0);
+        scheduleTaskShade.setScheduleStatus(5);
+        scheduleTaskShade.setTaskType(-1);
         return scheduleTaskShade;
     }
 

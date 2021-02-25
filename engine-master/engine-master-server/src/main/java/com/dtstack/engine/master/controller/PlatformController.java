@@ -22,10 +22,11 @@ public class PlatformController {
     private PlatformService platformService;
 
     @RequestMapping(value = "/callBack", method = {RequestMethod.POST})
-    public void callBack(@DtRequestParam("eventCode") String eventCode, @DtRequestParam("tenantId") Long tenantId) {
+    public void callBack(@DtRequestParam("eventCode") String eventCode, @DtRequestParam("dtUicTenantId") Long tenantId,@DtRequestParam("tenantName") String  tenantName) {
         PlatformEventVO vo = new PlatformEventVO();
         vo.setEventCode(eventCode);
         vo.setTenantId(tenantId);
+        vo.setTenantName(tenantName);
         platformService.callback(vo);
     }
 

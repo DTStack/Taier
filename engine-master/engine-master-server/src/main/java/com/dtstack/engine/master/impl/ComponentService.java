@@ -1696,8 +1696,13 @@ public class ComponentService {
                         //测试联通性
                         if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
                             if (testResult.getResult()) {
-                                engineService.updateResource(component.getEngineId(), testResult.getClusterResourceDescription());
-                                queueService.updateQueue(component.getEngineId(), testResult.getClusterResourceDescription());
+                                if (null != testResult.getClusterResourceDescription()) {
+                                    engineService.updateResource(component.getEngineId(), testResult.getClusterResourceDescription());
+                                    queueService.updateQueue(component.getEngineId(), testResult.getClusterResourceDescription());
+                                } else {
+                                    testResult.setResult(false);
+                                    testResult.setErrorMsg(clusterName + "获取yarn信息为空");
+                                }
                             }
                         }
                     } catch (Exception e) {
