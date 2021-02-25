@@ -10,6 +10,11 @@ public class ScheduleJobStatusCountVO {
 
     private String taskName;
 
+    /**
+     * 任务状态名称（替换taskName）
+     */
+    private String taskStatusName;
+
     private Integer count;
 
     public String getTaskName() {
@@ -26,5 +31,13 @@ public class ScheduleJobStatusCountVO {
 
     public void setCount(Integer count) {
         this.count = count;
+    }
+
+    public String getTaskStatusName() {
+        return taskStatusName;
+    }
+
+    public void setTaskStatusName(String taskStatusName) {
+        this.taskStatusName = taskStatusName;
     }
 }
