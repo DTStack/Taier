@@ -29,7 +29,8 @@ public class GZipUtil {
             gzip = new GZIPOutputStream(bos);
             gzip.write(data);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e.getStackTrace());
+            throw new RuntimeException(e);
         } finally {
             if (null != bos) {
                 try {
@@ -60,6 +61,7 @@ public class GZipUtil {
             backData = IOUtils.toByteArray(gis);
         } catch (IOException e) {
             LOG.error(e.getMessage(), e.getStackTrace());
+            throw new RuntimeException(e);
         } finally {
             if (null != bis) {
                 try {
