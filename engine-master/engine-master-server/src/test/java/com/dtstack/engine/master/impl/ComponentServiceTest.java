@@ -504,19 +504,19 @@ public class ComponentServiceTest extends AbstractTest {
     }
 
 
-    @Test
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    @Rollback
-    public void testUploadKerberos(){
-
-        Cluster defaultCluster = DataCollection.getData().getDefaultCluster();
-        List<Resource> resources = getResources();
-        Resource resource = resources.get(0);
-        resource.setFileName("kerberos.zip");
-        List<Resource> resourceList = Collections.singletonList(resource);
-        String kerberos = componentService.uploadKerberos(resourceList, defaultCluster.getId(), 10);
-        Assert.assertNotNull(kerberos);
-    }
+//    @Test
+//    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+//    @Rollback
+//    public void testUploadKerberos(){
+//
+//        Cluster defaultCluster = DataCollection.getData().getDefaultCluster();
+//        List<Resource> resources = getResources();
+//        Resource resource = resources.get(0);
+//        resource.setFileName("kerberos.zip");
+//        List<Resource> resourceList = Collections.singletonList(resource);
+//        String kerberos = componentService.uploadKerberos(resourceList, defaultCluster.getId(), 10);
+//        Assert.assertNotNull(kerberos);
+//    }
 
 
     @Test

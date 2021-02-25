@@ -12,12 +12,15 @@ import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.client.ClientOperator;
+import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EComponentScheduleType;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.jobdealer.resource.ComputeResourceType;
 import com.dtstack.engine.master.jobdealer.resource.FlinkResource;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
@@ -103,9 +106,6 @@ public class ClusterServiceTest extends AbstractTest {
 
     @Autowired
     private EngineService engineService;
-
-    @Autowired
-    private TenantResourceDao tenantResourceDao;
 
     private String testClusterName = "testcase";
 
@@ -229,7 +229,6 @@ public class ClusterServiceTest extends AbstractTest {
         Assert.assertNotNull(tenant);
         Assert.assertNotNull(tenant.getId());
         //绑定租户
-        tenantService.bindingTenant(tenant.getDtUicTenantId(),clusterVO.getClusterId(),queue.getId(),"","");
         this.testBindTenant(clusterVO, queue);
         this.testIsSame(clusterVO,queue,tenant);
         //切换队列
