@@ -62,11 +62,14 @@ public class GZipUtil {
         } catch (IOException e) {
             LOG.error("GZipUtil.deCompress error:", e);
         } finally {
+            if (null != bis) {
                 try {
                     bis.close();
                 } catch (IOException e) {
                     LOG.error("GZipUtil.deCompress error:", e);
                 }
+            }
+
             if (null != gis) {
                 try {
                     gis.close();

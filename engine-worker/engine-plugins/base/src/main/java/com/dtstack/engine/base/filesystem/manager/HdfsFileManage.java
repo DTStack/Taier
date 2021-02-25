@@ -76,10 +76,8 @@ public class HdfsFileManage implements IFileManage {
                 return false;
             }
 
-            //读取文件
-            InputStream is = fs.open(hdfsFilePath);
             //保存到本地
-            IOUtils.copyBytes(is, new FileOutputStream(file), BUFFER_SIZE, true);
+            IOUtils.copyBytes(fs.open(hdfsFilePath), new FileOutputStream(file), BUFFER_SIZE, true);
             return true;
         } catch (Exception e) {
             LOG.error("downloadFile from hdfs error:", e);

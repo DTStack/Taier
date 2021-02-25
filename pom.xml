@@ -98,12 +98,6 @@
                     <forkCount>1</forkCount>
                     <reuseForks>true</reuseForks>
                     <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
-                    <excludes>
-                        <exclude>com/dtstack/engine/master/temp/*.java</exclude>
-                        <exclude>**/Abstract*.java</exclude>
-                        <exclude>**/Base*.java</exclude>
-                        <exclude>com/dtstack/engine/rdbs/presto/TestPrestoDB.java</exclude>
-                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
