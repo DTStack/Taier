@@ -3,7 +3,8 @@ import { isArray } from 'lodash'
 import { Input, Form, Radio, Select, Checkbox,
     Tooltip, Row, Col } from 'antd'
 import { COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from '../const'
-import { getValueByJson, notCustomParam, isDeployMode } from '../help'
+import { getValueByJson, notCustomParam, isDeployMode,
+    isRadioLinkage } from '../help'
 import { formItemLayout } from '../../../../consts'
 import CustomParams from './components/customParams'
 interface IProps {
@@ -74,7 +75,9 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
     renderGroupConfigItem = (temps: any, notParams?: boolean) => {
         const { form, comp, view } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        const dependencyValue = temps?.dependencyKey ? form.getFieldValue(`${typeCode}.componentConfig.${temps.dependencyKey}`) : []
+        const dependencyValue = temps?.dependencyKey
+            ? form.getFieldValue(typeCode + '.componentConfig.' + temps?.dependencyKey)
+            : []
 
         if (dependencyValue.includes(temps?.dependencyValue) || !temps?.dependencyValue) {
             if (notParams) {
@@ -109,27 +112,22 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
         const typeCode = comp?.componentTypeCode ?? ''
         const template = getValueByJson(comp?.componentTemplate) ?? []
 
-        return template.map((temps: any) => {
+        return template.map((temps: any, index: number) => {
             /**
              * 根据根结点deploymode判断是否需要读取二级数据
              * Radio联动类型数据不添加自定义参数
              */
-            if (isDeployMode(temps.key)) {
-                return <>
-                    {temps.values.map((temp: any) => this.renderConfigItem(temp))}
-                    {temps.values.map((temp: any) => this.renderGroupConfigItem(temp))}
-                </>
-            } else if (temps.type == CONFIG_ITEM_TYPE.RADIO_LINKAGE) {
+            if (isDeployMode(temps.key) || isRadioLinkage(temps.type)) {
                 return <>
                     {this.renderConfigItem(temps)}
-                    {temps.values.map((temp: any) => this.renderGroupConfigItem(temp, true))}
+                    {temps.values.map((temp: any) => this.renderGroupConfigItem(temp, isRadioLinkage(temps.type)))}
                 </>
             } else if (temps.type == CONFIG_ITEM_TYPE.GROUP) {
                 return this.renderGroupConfigItem(temps)
             } else {
                 return <>
                     {this.renderConfigItem(temps)}
-                    {template.length && !notCustomParam(typeCode) ? <CustomParams
+                    {!notCustomParam(typeCode) && (index === template.length - 1) ? <CustomParams
                         typeCode={typeCode}
                         form={form}
                         view={view}
@@ -144,7 +142,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
     renderKubernetsConfig = () => {
         const { comp, form } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        const config = form.getFieldValue(`${typeCode}.specialConfig`) ?? comp?.componentConfig ?? ''
+        const config = form.getFieldValue(typeCode + '.specialConfig') ?? comp?.componentConfig ?? ''
 
         return <>
             {config ? <div className="c-formConfig__kubernetsContent">
