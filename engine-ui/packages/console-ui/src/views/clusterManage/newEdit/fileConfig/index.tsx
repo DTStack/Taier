@@ -179,11 +179,6 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 form={this.props.form}
                 uploadFile={this.uploadFile}
                 icons={<>
-                    {!view && <Icon
-                        type="edit"
-                        style={{ right: !comp?.id ? 20 : 40 }}
-                        onClick={() => this.setState({ visible: true })}
-                    />}
                     {comp?.id && <Icon
                         type="download"
                         style={{ right: view ? 0 : 20 }}

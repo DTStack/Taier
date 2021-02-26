@@ -69,7 +69,7 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
                 componentCode: typeCode,
                 clusterName: clusterInfo.clusterName,
                 resources1: currentComp?.uploadFileName ?? '',
-                resources2: '',
+                resources2: currentComp?.kerberosFileName ?? '',
                 kerberosFileName: currentComp?.kerberosFileName?.name ?? ''
             }).then((res: any) => {
                 if (res.code == 1) {

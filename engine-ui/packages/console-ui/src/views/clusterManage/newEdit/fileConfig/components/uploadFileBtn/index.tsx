@@ -4,7 +4,6 @@ import { Form, Upload, Button, Icon, Tooltip } from 'antd'
 interface IProp {
     label: any;
     form: any;
-    uploadFile: Function;
     icons?: any;
     fileInfo: any;
     deleteIcon?: boolean;
@@ -12,6 +11,7 @@ interface IProp {
     rules?: any;
     notDesc?: boolean;
     deleteFile?: Function;
+    uploadFile: Function;
 }
 
 const FormItem = Form.Item
