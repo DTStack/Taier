@@ -8,7 +8,7 @@ begin
     INDEX_NAME='idx_job_id') then
         Alter Table schedule_engine_job_retry ADD INDEX `idx_job_id`(`job_id`) COMMENT 'jobId';
     end if;
-end $$
-delimiter;
+end$$
+delimiter ;
 CALL create_retry_jobId();
 drop procedure if exists create_retry_jobId;
