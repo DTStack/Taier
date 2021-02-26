@@ -1,6 +1,5 @@
 package com.dtstack.engine.dtscript.am;
 
-import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.dtscript.DtYarnConfiguration;
 import com.dtstack.engine.dtscript.api.ApplicationContext;
 import com.dtstack.engine.dtscript.api.DtYarnConstants;
@@ -8,6 +7,7 @@ import com.dtstack.engine.dtscript.common.SecurityUtil;
 import com.dtstack.engine.dtscript.container.DtContainer;
 import com.dtstack.engine.dtscript.container.DtContainerId;
 import com.dtstack.engine.dtscript.util.DebugUtil;
+import com.dtstack.engine.dtscript.util.KrbUtils;
 import com.dtstack.engine.dtscript.util.Utilities;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -21,7 +21,6 @@ import org.apache.hadoop.service.CompositeService;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
-import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
@@ -259,6 +258,11 @@ public class ApplicationMaster extends CompositeService {
         Map<String, LocalResource> containerLocalResource = buildContainerLocalResource();
         Map<String, String> workerContainerEnv = new ContainerEnvBuilder(DtYarnConstants.WORKER, this).build();
 
+        // Kerberos
+        if (KrbUtils.hasKrb(envs)) {
+            workerContainerEnv.put(DtYarnConstants.ENV_PRINCIPAL, envs.get(DtYarnConstants.ENV_PRINCIPAL));
+            setKrbLocalResource(containerLocalResource);
+        }
 
         List<Container> acquiredWorkerContainers = handleRmCallbackOfContainerRequest(appArguments.workerNum, workerContainerRequest, interval);
 
@@ -416,32 +420,36 @@ public class ApplicationMaster extends CompositeService {
                 }
             }
 
-            String keytab = envs.get(DtYarnConstants.KEYTAB_PATH);
-            if (keytab != null) {
-                setKrbLocalResource(containerLocalResource);
-            }
         } catch (IOException e) {
             throw new RuntimeException("Error while build container local resource", e);
         }
         return containerLocalResource;
     }
 
+    /**
+     * 设置Worker节点所需本地化的kerberos相关文件资源
+     * @param containerLocalResource
+     * @throws IOException
+     */
     private void setKrbLocalResource(Map<String, LocalResource> containerLocalResource) throws IOException {
+        setSingleLocalResource(DtYarnConstants.LOCALIZED_KEYTAB_PATH, containerLocalResource);
+        setSingleLocalResource(DtYarnConstants.LOCALIZED_KR5B_PATH, containerLocalResource);
+
+        String appType = envs.get(DtYarnConstants.Environment.APP_TYPE.toString());
+        if (KrbUtils.isPythonType(appType)) {
+            setSingleLocalResource(DtYarnConstants.LOCALIZED_GATEWAY_PATH, containerLocalResource);
+        }
+    }
+
+    private void setSingleLocalResource(String fileName, Map<String, LocalResource> containerLocalResource) throws IOException {
         FileSystem fs = appArguments.appJarRemoteLocation.getFileSystem(conf);
-        String krb5 = envs.get(DtYarnConstants.KRB5_PATH);
-        Path krb5Path = new Path(krb5);
+        Path remotePath = Utilities.getRemotePath(
+                (YarnConfiguration) this.conf,
+                this.applicationAttemptId.getApplicationId(),
+                fileName);
         containerLocalResource.put(
-            krb5Path.getName(),
-            Utilities.createApplicationResource(fs, krb5Path, LocalResourceType.FILE)
-        );
-
-        String keytab = envs.get(DtYarnConstants.KEYTAB_PATH);
-        Path keytabPath = new Path(keytab);
-
-        containerLocalResource.put(
-            keytabPath.getName(),
-            Utilities.createApplicationResource(fs, keytabPath, LocalResourceType.FILE)
-        );
+                fileName,
+                Utilities.createApplicationResource(fs, remotePath, LocalResourceType.FILE));
     }
 
     /**
