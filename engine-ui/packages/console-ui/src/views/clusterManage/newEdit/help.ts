@@ -72,6 +72,10 @@ export function isDeployMode (key: string): boolean {
     return key === 'deploymode'
 }
 
+export function isRadioLinkage (type: string): boolean {
+    return type === CONFIG_ITEM_TYPE.RADIO_LINKAGE
+}
+
 // 模版中存在id则为自定义参数
 export function getCustomerParams (temps: any): any[] {
     return temps.filter(temp => temp.id)
@@ -228,7 +232,13 @@ export function handleComponentTemplate (comp: any, initialCompData: any): any {
             }
         } else {
             newComponentTemplate.map(temps => {
-                if (temps.key == key) temps.value = values
+                if (temps.key == key) {
+                    temps.value = values
+                } else if (isRadioLinkage(temps.type)) {
+                    temps.values.map(temp => {
+                        if (temp.values[0].key == key) temp.values[0].value = values
+                    })
+                }
             })
         }
     }

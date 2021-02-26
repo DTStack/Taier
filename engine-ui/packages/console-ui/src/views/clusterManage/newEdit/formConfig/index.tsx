@@ -21,6 +21,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
         const { view } = this.props
         switch (temp.type) {
             case CONFIG_ITEM_TYPE.RADIO:
+            case CONFIG_ITEM_TYPE.RADIO_LINKAGE:
                 return <RadioGroup disabled={view}>
                     {temp.values.map((comp: any) => {
                         return <Radio key={comp.key} value={comp.value}>{comp.key}</Radio>
@@ -70,12 +71,17 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
     }
 
     // 渲染group级别配置项
-    renderGroupConfigItem = (temps: any) => {
+    renderGroupConfigItem = (temps: any, notParams?: boolean) => {
         const { form, comp, view } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         const dependencyValue = temps?.dependencyKey ? form.getFieldValue(`${typeCode}.componentConfig.${temps.dependencyKey}`) : []
 
         if (dependencyValue.includes(temps?.dependencyValue) || !temps?.dependencyValue) {
+            if (notParams) {
+                return temps.values.map((temp: any) => {
+                    return this.renderConfigItem(temp)
+                })
+            }
             return (
                 <div className="c-formConfig__group" key={temps.key}>
                     <div className="group__title">
@@ -104,11 +110,19 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
         const template = getValueByJson(comp?.componentTemplate) ?? []
 
         return template.map((temps: any) => {
-            /** 根据根结点deploymode判断是否需要读取二级数据 */
+            /**
+             * 根据根结点deploymode判断是否需要读取二级数据
+             * Radio联动类型数据不添加自定义参数
+             */
             if (isDeployMode(temps.key)) {
                 return <>
                     {temps.values.map((temp: any) => this.renderConfigItem(temp))}
                     {temps.values.map((temp: any) => this.renderGroupConfigItem(temp))}
+                </>
+            } else if (temps.type == CONFIG_ITEM_TYPE.RADIO_LINKAGE) {
+                return <>
+                    {this.renderConfigItem(temps)}
+                    {temps.values.map((temp: any) => this.renderGroupConfigItem(temp, true))}
                 </>
             } else if (temps.type == CONFIG_ITEM_TYPE.GROUP) {
                 return this.renderGroupConfigItem(temps)
