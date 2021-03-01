@@ -231,13 +231,32 @@ public class ScheduleJobService {
             }
             all += count;
             RdosTaskStatus taskStatus = RdosTaskStatus.getTaskStatus(code);
-            scheduleJobStatusCountVO.setTaskName(taskStatus.name());
+            if (taskStatus != null) {
+                scheduleJobStatusCountVO.setTaskName(taskStatus.name());
+                scheduleJobStatusCountVO.setTaskStatusName(taskStatus.name());
+            }
             scheduleJobStatusCountVO.setCount(count);
             scheduleJobStatusCountVOS.add(scheduleJobStatusCountVO);
         }
         scheduleJobStatusVO.setAll(all);
         scheduleJobStatusVO.setScheduleJobStatusCountVO(scheduleJobStatusCountVOS);
         return scheduleJobStatusVO;
+    }
+
+    public List<ScheduleJobStatusVO> getStatusCountByProjectIds(List<Long> projectIds, Long tenantId, Integer appType, Long dtuicTenantId) {
+        List<ScheduleJobStatusVO> scheduleJobStatusVOS = Lists.newArrayList();
+
+        if (CollectionUtils.isEmpty(projectIds)) {
+            return scheduleJobStatusVOS;
+        }
+
+        for (Long projectId : projectIds) {
+            ScheduleJobStatusVO statusCount = getStatusCount(projectId, tenantId, appType, dtuicTenantId);
+            statusCount.setProjectId(projectId);
+            scheduleJobStatusVOS.add(statusCount);
+        }
+
+        return scheduleJobStatusVOS;
     }
 
     /**
@@ -2874,5 +2893,4 @@ public class ScheduleJobService {
     public String getJobGraphJSON(String jobId) {
         return scheduleJobDao.getJobGraph(jobId);
     }
-
 }
