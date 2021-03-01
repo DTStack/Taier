@@ -1,7 +1,6 @@
 //package com.dtstack.engine.flink;
 //
 //import com.dtstack.engine.base.util.KerberosUtils;
-//import com.dtstack.engine.common.util.SFTPHandler;
 //import org.apache.hadoop.conf.Configuration;
 //import org.apache.hadoop.security.UserGroupInformation;
 //import org.apache.kerby.kerberos.kerb.keytab.Keytab;

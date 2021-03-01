@@ -68,7 +68,7 @@ public class DownloadController {
                 logger.error("", eMsg);
             }
         } finally {
-            if( null != downLoadFile ){
+            if(null != downLoadFile){
                 downLoadFile.delete();
             }
         }

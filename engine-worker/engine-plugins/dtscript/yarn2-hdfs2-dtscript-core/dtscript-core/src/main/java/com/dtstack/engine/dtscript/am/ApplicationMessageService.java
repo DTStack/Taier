@@ -48,7 +48,7 @@ public class ApplicationMessageService extends AbstractService implements
     try {
       server = builder.build();
     } catch (Exception e) {
-      LOG.error("Error starting message server!", e);
+      LOG.error("Error starting message server! error:{}", e);
       return;
     }
     server.start();

@@ -9,16 +9,15 @@ import com.dtstack.engine.dtscript.util.NetUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class JLogstashType extends AbstractAppType {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JLogstashType.class);
 
     @Override
     public String buildCmd(ClientArguments clientArguments, YarnConfiguration conf) {
@@ -139,6 +138,7 @@ public class JLogstashType extends AbstractAppType {
                 cmd = StringUtils.join(args, " ");
             }
         } catch (Exception e) {
+            LOG.error("JLogstashType.cmdContainerExtra error:", e);
             throw new RuntimeException(e);
         }
         return super.cmdContainerExtra(cmd, conf, containerInfo);

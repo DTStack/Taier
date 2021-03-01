@@ -4,6 +4,7 @@ import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.logstore.AbstractLogStore;
 import com.dtstack.engine.common.logstore.LogStoreFactory;
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +58,7 @@ public class StatusUpdateDealer {
         public void run() {
             try {
                 AbstractLogStore logStore = LogStoreFactory.getLogStore();
-                if (null != logStore) {
+                if (null != logStore && MapUtils.isNotEmpty(jobCache)) {
                     logStore.updateModifyTime(jobCache.keySet());
                 }
             } catch (Throwable e) {

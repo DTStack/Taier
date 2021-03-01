@@ -7,7 +7,6 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.AbstractTest;
@@ -134,6 +133,13 @@ public class StreamTaskServiceTest extends AbstractTest {
         }
 	}
 
+	@Test
+    public void testSavePoint(){
+        EngineJobCheckpoint engineJobCheckpoint = DataCollection.getData().getEngineJobSavepoint();
+        EngineJobCheckpoint savePoint = streamTaskService.getSavePoint(engineJobCheckpoint.getTaskId());
+        Assert.assertNotNull(savePoint);
+    }
+
 
 	@Test
     public void testException(){
@@ -179,7 +185,7 @@ public class StreamTaskServiceTest extends AbstractTest {
             engineJobCacheDao.delete(scheduleJobStream.getJobId());
             streamTaskService.getRunningTaskLogUrl(scheduleJobStream.getJobId());
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof RdosDefineException);
+            Assert.assertTrue(e.getMessage().contains("not exist in job cache table"));
         }
 
 

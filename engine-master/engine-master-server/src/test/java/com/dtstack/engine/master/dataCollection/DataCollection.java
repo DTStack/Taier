@@ -1,16 +1,22 @@
 package com.dtstack.engine.master.dataCollection;
 
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.enums.LineageOriginType;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.anno.DataSource;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.utils.DataCollectionProxy;
 import com.dtstack.engine.master.utils.Template;
+import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.schedule.common.enums.DataSourceType;
 import org.joda.time.DateTime;
 
 import java.lang.reflect.Proxy;
@@ -68,6 +74,20 @@ public interface DataCollection {
 
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
     default ScheduleJob getScheduleJobSecond() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setEngineLog("");
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobForth() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setEngineLog("");
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobFive() {
         ScheduleJob sj = Template.getScheduleJobTemplate();
         sj.setEngineLog("");
         return sj;
@@ -496,6 +516,7 @@ public interface DataCollection {
         return scheduleTaskShade;
     }
 
+
     @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
     @IgnoreUniqueRandomSet
     default ScheduleTaskShade getScheduleTaskShadeForSheduleJob(){
@@ -583,6 +604,39 @@ public interface DataCollection {
 
         ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
         return scheduleTaskShade;
+    }
+
+    @DatabaseInsertOperation(dao = TestEngineJobStopDao.class)
+    default EngineJobStopRecord getScheduleJobStop3(){
+
+        EngineJobCache engineJobCache = getEngineJobCache6();
+        EngineJobStopRecord jsr = new EngineJobStopRecord();
+        jsr.setTaskId(engineJobCache.getJobId());
+        jsr.setComputeType(jsr.getComputeType());
+        jsr.setEngineType(jsr.getEngineType());
+        jsr.setForceCancelFlag(1);
+        jsr.setJobResource(engineJobCache.getJobResource());
+        jsr.setOperatorExpired(new java.util.Date());
+        jsr.setTaskType(10);
+        jsr.setVersion(1);
+        return jsr;
+    }
+
+
+    @DatabaseInsertOperation(dao = TestEngineJobStopDao.class)
+    default EngineJobStopRecord getScheduleJobStop(){
+
+        EngineJobCache engineJobCache = getEngineJobCache();
+        EngineJobStopRecord jsr = new EngineJobStopRecord();
+        jsr.setTaskId(engineJobCache.getJobId());
+        jsr.setComputeType(jsr.getComputeType());
+        jsr.setEngineType(jsr.getEngineType());
+        jsr.setForceCancelFlag(1);
+        jsr.setJobResource(engineJobCache.getJobResource());
+        jsr.setOperatorExpired(new java.util.Date());
+        jsr.setTaskType(10);
+        jsr.setVersion(1);
+        return jsr;
     }
 
 
@@ -682,6 +736,166 @@ public interface DataCollection {
         return scheduleTaskShade;
     }
 
+    @DatabaseInsertOperation(dao = TestScheduleTaskTaskShadeDao.class)
+    default ScheduleTaskTaskShade getTaskTask() {
+        ScheduleTaskTaskShade taskTask = Template.getTaskTask();
+        return taskTask;
+    }
+
+
+    @DatabaseInsertOperation(dao = TestEngineTenantDao.class)
+    default EngineTenant getEngineTenant(){
+        EngineTenant engineTenant = new EngineTenant();
+        engineTenant.setEngineId(1L);
+        engineTenant.setQueueId(1L);
+        engineTenant.setTenantId(1L);
+        return engineTenant;
+    }
+
+    @DatabaseInsertOperation(dao = TestClusterDao.class)
+    default Cluster getDefaultCluster() {
+        Cluster cluster = new Cluster();
+        cluster.setId(1L);
+        cluster.setClusterName("test");
+        cluster.setHadoopVersion("hadoop2");
+        return cluster;
+    }
+
+    @DatabaseInsertOperation(dao = TestClusterDao.class)
+    default Cluster getDefaultK8sCluster() {
+        Cluster cluster = new Cluster();
+        cluster.setId(2L);
+        cluster.setClusterName("testK8s");
+        cluster.setHadoopVersion("hadoop3");
+        return cluster;
+    }
+
+    @DatabaseInsertOperation(dao = TestEngineDao.class)
+    default Engine getDefaultK8sEngine(){
+        Engine defaultEngineTemplate = Template.getDefaultEngineTemplate();
+        defaultEngineTemplate.setId(2L);
+        defaultEngineTemplate.setClusterId(2L);
+        return defaultEngineTemplate;
+    }
+
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultK8sClusterHdfsComponent() {
+        Component hdfsComponentTemplate = Template.getDefaultHdfsComponentTemplate();
+        hdfsComponentTemplate.setEngineId(2L);
+        hdfsComponentTemplate.setClusterId(2L);
+        return hdfsComponentTemplate;
+    }
+
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultK8sClusterSftpComponent() {
+        Component hdfsComponentTemplate = Template.getDefaultSftpComponentTemplate();
+        hdfsComponentTemplate.setEngineId(2L);
+        hdfsComponentTemplate.setClusterId(2L);
+        return hdfsComponentTemplate;
+    }
+
+    @DatabaseInsertOperation(dao = TestEngineDao.class)
+    default Engine getDefaultHadoopEngine(){
+        return Template.getDefaultEngineTemplate();
+    }
+
+    @DatabaseInsertOperation(dao = TestTenantDao.class)
+    default Tenant getDefaultTenant(){
+        Tenant tenant = new Tenant();
+        tenant.setId(1L);
+        tenant.setDtUicTenantId(1L);
+        tenant.setTenantName("测试租户");
+        tenant.setTenantDesc("测试租户");
+        return tenant;
+    }
+
+    @DatabaseInsertOperation(dao = TestQueueDao.class)
+    default Queue getDefaultQueue(){
+        Queue queue = new Queue();
+        queue.setEngineId(1L);
+        queue.setQueueName("默认queue");
+        queue.setCapacity("1.0");
+        queue.setMaxCapacity("1.0");
+        queue.setQueueState("RUNNING");
+        queue.setParentQueueId(-1L);
+        queue.setQueuePath("default");
+        return queue;
+    }
+
+    @DatabaseInsertOperation(dao = TestTenantResourceDao.class)
+    default TenantResource getDefaultTenantResource(){
+        TenantResource tenantResource = new TenantResource();
+        tenantResource.setTenantId(1);
+        tenantResource.setDtUicTenantId(1);
+        tenantResource.setTaskType(EComponentType.SPARK.getTypeCode());
+        tenantResource.setEngineType(MultiEngineType.HADOOP.name());
+        tenantResource.setResourceLimit("{\"cores\":1,\"memory\":250}");
+        return tenantResource;
+    }
+
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultComponent(){
+        Component component = new Component();
+        component.setEngineId(1L);
+        component.setComponentName(EComponentType.SPARK.name());
+        component.setComponentTypeCode(EComponentType.SPARK.getTypeCode());
+        component.setComponentConfig("{\"deploymode\":[\"perjob\"],\"perjob\":{\"spark.executor.memory\":\"512m\",\"sparkSqlProxyPath\":\"hdfs://ns1/dtInsight/spark/spark-0.0.1-SNAPSHOT.jar\",\"spark.yarn.appMasterEnv.PYSPARK_PYTHON\":\"/data/anaconda3/bin/python3\",\"spark.executor.heartbeatInterval\":\"600s\",\"spark.rpc.askTimeout\":\"600s\",\"spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON\":\"/data/anaconda3/bin/python3\",\"spark.yarn.maxAppAttempts\":\"1\",\"spark.network.timeout\":\"600s\",\"spark.executor.cores\":\"1\",\"spark.submit.deployMode\":\"cluster\",\"spark.speculation\":\"true\",\"sparkPythonExtLibPath\":\"/dtInsight/pythons/pyspark.zip,hdfs://ns1/dtInsight/pythons/py4j-0.10.7-src.zip\",\"addColumnSupport\":\"true\",\"spark.eventLog.compress\":\"true\",\"spark.eventLog.dir\":\"hdfs://ns1/tmp/logs\",\"spark.eventLog.enabled\":\"true\",\"sparkYarnArchive\":\"hdfs://ns1/dtInsight/sparkjars/jars\",\"spark.executor.instances\":\"1\",\"spark.cores.max\":\"1\"},\"typeName\":\"yarn2-hdfs2-spark210\"}");
+        component.setClusterId(1L);
+        component.setHadoopVersion("hadoop3");
+        component.setComponentTemplate("[]");
+        component.setUploadFileName("conf.zip");
+        component.setKerberosFileName("kb.zip");
+        component.setStoreType(0);
+        return component;
+    }
+
+    @DatabaseInsertOperation(dao = TestKerberosConfigDao.class)
+    default KerberosConfig getDefaultKerberosConfig(){
+        KerberosConfig kerberosConfig = new KerberosConfig();
+        kerberosConfig.setClusterId(1L);
+        kerberosConfig.setName("testKerberos");
+        kerberosConfig.setOpenKerberos(1);
+        kerberosConfig.setPrincipal("node1@127.0.0.1");
+        kerberosConfig.setComponentType(EComponentType.YARN.getTypeCode());
+        kerberosConfig.setRemotePath("ttt");
+        kerberosConfig.setKrbName("krb5.conf");
+        return kerberosConfig;
+    }
+
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultHdfsComponent(){
+        return Template.getDefaultHdfsComponentTemplate();
+    }
+
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultSparkSqlComponent(){
+        Component component = Template.getDefaultHdfsComponentTemplate();
+        component.setComponentTypeCode(EComponentType.SPARK_THRIFT.getTypeCode());
+        component.setComponentName(EComponentType.SPARK_THRIFT.getName());
+        component.setComponentConfig("{\"maxJobPoolSize\":\"\",\"password\":\"\",\"minJobPoolSize\":\"\",\"jdbcUrl\":\"jdbc:hive2://172.16.8.107:10000/%s\",\"queue\":\"\",\"username\":\"admin\"}");
+        return component;
+    }
+
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultYarnComponent(){
+        return Template.getDefaultYarnComponentTemplate();
+    }
+
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultSftpComponent(){
+        return Template.getDefaultSftpComponentTemplate();
+    }
+
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultK8sComponent(){
+        return Template.getDefaultK8sComponentTemplate();
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleFillDataJobDao.class)
+    default ScheduleFillDataJob getDefaultScheduleFillDataJob(){
+        return Template.getDefaultScheduleFillDataJobTemplate();
+    }
+
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
     @IgnoreUniqueRandomSet
     default ScheduleJob getDefaultJobForSpring1(){
@@ -735,4 +949,80 @@ public interface DataCollection {
     default ScheduleJobJob getDefaultJobJobForFlow(){
         return Template.getDefaultScheduleJobJobFlowTemplate();
     }
+
+
+
+    @DatabaseInsertOperation(dao = TestClusterDao.class)
+    default Cluster getCluster() {
+        Cluster cluster = new Cluster();
+        cluster.setClusterName("test_01");
+        cluster.setHadoopVersion("1.2");
+        return cluster;
+    }
+
+    /*************************血缘存储*****************************/
+
+    @DatabaseInsertOperation(dao = TestLineageRealDataSourceDao.class)
+    default LineageRealDataSource getHiveLineageRealDataSource(){
+        LineageRealDataSource defaultHiveRealDataSourceTemplate = Template.getDefaultHiveRealDataSourceTemplate();
+        defaultHiveRealDataSourceTemplate.setId(1L);
+        return defaultHiveRealDataSourceTemplate;
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageRealDataSourceDao.class)
+    default LineageRealDataSource getDefaultLineageRealDataSource(){
+        LineageRealDataSource defaultHiveRealDataSourceTemplate = Template.getDefaultHiveRealDataSourceTemplate();
+        defaultHiveRealDataSourceTemplate.setSourceType(DataSourceType.Oracle.getVal());
+        defaultHiveRealDataSourceTemplate.setSourceKey("172.16.8.107#5432");
+        defaultHiveRealDataSourceTemplate.setId(2L);
+        return defaultHiveRealDataSourceTemplate;
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageDataSourceDao.class)
+    default LineageDataSource getDefaultLineageDataSource(){
+        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
+        defaultHiveDataSourceTemplate.setRealSourceId(1L);
+        return defaultHiveDataSourceTemplate;
+    }
+
+//    @DatabaseInsertOperation(dao = TestLineageDataSourceDao.class)
+//    default LineageDataSource getHiveLineageDataSource(){
+//        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
+//        defaultHiveDataSourceTemplate.setRealSourceId(1L);
+//        return defaultHiveDataSourceTemplate;
+//    }
+
+    @DatabaseInsertOperation(dao = TestLineageDataSetInfoDao.class)
+    default LineageDataSetInfo getDefaultLineageDataSetInfo(){
+        LineageDataSetInfo defaultDataSetInfoTemplate = Template.getDefaultDataSetInfoTemplate();
+        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
+        defaultDataSetInfoTemplate.setSourceId(defaultHiveDataSourceTemplate.getId());
+        return defaultDataSetInfoTemplate;
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageDataSetInfoDao.class)
+    default LineageDataSetInfo getHiveLineageDataSetInfo(){
+        LineageDataSetInfo lineageDataSetInfo = Template.getHiveDataSetInfoTemplate();
+        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
+        lineageDataSetInfo.setSourceId(defaultHiveDataSourceTemplate.getId());
+        return lineageDataSetInfo;
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageTableTableDao.class)
+    default LineageTableTable getLineageTableTable(){
+        LineageTableTable lineageTableTable = Template.getLineageTableTableTemplate();
+        return lineageTableTable;
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageTableTableDao.class)
+    default LineageTableTable getDefaultLineageTableTable(){
+        return Template.getDefaultTableTable();
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageColumnColumnDao.class)
+    default LineageColumnColumn getDefaultLineageColumnColumn(){
+        LineageColumnColumn defaultColumnColumn = Template.getDefaultColumnColumn();
+        return defaultColumnColumn;
+    }
+
 }

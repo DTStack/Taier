@@ -4,29 +4,30 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.api.vo.console.*;
+import com.dtstack.engine.api.vo.console.ConsoleJobInfoVO;
+import com.dtstack.engine.api.vo.console.ConsoleJobVO;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.config.TaskResourceBeanConfig;
-import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.config.TaskResourceBeanConfig;
+import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
-import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
+import com.dtstack.schedule.common.enums.ForceCancelFlag;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -116,7 +117,7 @@ public class ConsoleService {
         }
     }
 
-    public ConsoleJobVO searchJob( String jobName) {
+    public ConsoleJobVO searchJob(String jobName) {
         Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
         String jobId = null;
         ScheduleJob scheduleJob = scheduleJobDao.getByName(jobName);
@@ -269,7 +270,7 @@ public class ConsoleService {
                     ScheduleJob scheduleJob = scheduleJobMap.getOrDefault(engineJobCache.getJobId(), new ScheduleJob());
                     //补充租户信息
                     Tenant tenant = tenantMap.get(scheduleJob.getDtuicTenantId());
-                    if( null == tenant  && DELAULT_TENANT != scheduleJob.getDtuicTenantId() && scheduleJob.getDtuicTenantId() > 0){
+                    if(null == tenant && DELAULT_TENANT != scheduleJob.getDtuicTenantId() && scheduleJob.getDtuicTenantId() > 0){
                         //可能临时运行 租户在tenant表没有 需要添加
                         try {
                             tenant = tenantService.addTenant(scheduleJob.getDtuicTenantId(), dtToken);
@@ -296,10 +297,10 @@ public class ConsoleService {
         String waitTime = DateUtil.getTimeDifference(currentTime - engineJobCache.getGmtCreate().getTime());
         theJobMap.put("waitTime", waitTime);
         theJobMap.put("waitReason", engineJobCache.getWaitReason());
-        theJobMap.put("tenantName", Objects.isNull(tenant) ? "" : tenant.getTenantName());
+        theJobMap.put("tenantName", null == tenant ? "" : tenant.getTenantName());
         String jobInfo = (String) theJobMap.get("jobInfo");
         JSONObject jobInfoJSON = JSONObject.parseObject(jobInfo);
-        if ( null == jobInfoJSON) {
+        if (null == jobInfoJSON) {
             jobInfoJSON = new JSONObject();
         }
         if (!jobInfoJSON.containsKey(PluginWrapper.PLUGIN_INFO)) {
@@ -358,7 +359,7 @@ public class ConsoleService {
         return false;
     }
 
-    public void stopJob( String jobId) throws Exception {
+    public void stopJob(String jobId, Integer isForce){
         Preconditions.checkArgument(StringUtils.isNotBlank(jobId), "parameters of jobId is required");
         List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(Lists.newArrayList(jobId));
         if (alreadyExistJobIds.contains(jobId)) {
@@ -368,8 +369,14 @@ public class ConsoleService {
 
         EngineJobStopRecord stopRecord = new EngineJobStopRecord();
         stopRecord.setTaskId(jobId);
+        stopRecord.setForceCancelFlag(isForce);
 
         engineJobStopRecordDao.insert(stopRecord);
+
+    }
+
+    public void stopJob( String jobId) throws Exception {
+        stopJob(jobId , ForceCancelFlag.NO.getFlag());
     }
 
     /**
@@ -385,11 +392,11 @@ public class ConsoleService {
         }
     }
 
-    public void stopJobList( String jobResource,
-                             String nodeAddress,
-                             Integer stage,
-                             List<String> jobIdList) throws Exception {
-
+    public void stopJobList(String jobResource,
+                            String nodeAddress,
+                            Integer stage,
+                            List<String> jobIdList,
+                            Integer isForce){
         if (CollectionUtils.isNotEmpty(jobIdList)) {
             //杀死指定jobIdList的任务
 
@@ -407,6 +414,7 @@ public class ConsoleService {
 
                     EngineJobStopRecord stopRecord = new EngineJobStopRecord();
                     stopRecord.setTaskId(jobId);
+                    stopRecord.setForceCancelFlag(isForce);
                     engineJobStopRecordDao.insert(stopRecord);
                 }
             }
@@ -450,11 +458,19 @@ public class ConsoleService {
 
                         EngineJobStopRecord stopRecord = new EngineJobStopRecord();
                         stopRecord.setTaskId(jobCache.getJobId());
+                        stopRecord.setForceCancelFlag(isForce);
                         engineJobStopRecordDao.insert(stopRecord);
                     }
                 }
             }
         }
+    }
+
+    public void stopJobList( String jobResource,
+                             String nodeAddress,
+                             Integer stage,
+                             List<String> jobIdList) throws Exception {
+        stopJobList(jobResource, nodeAddress, stage, jobIdList, ForceCancelFlag.NO.getFlag());
     }
 
     public ClusterResource clusterResources( String clusterName) {
@@ -485,12 +501,12 @@ public class ConsoleService {
                 //获取对应的插件名称
                 Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode());
                 String clusterName = cluster.getClusterName();
-                if ( null ==  hdfsComponent ) {
+                if (null == hdfsComponent) {
                     typeName = componentService.convertComponentTypeToClient(clusterName,
-                            EComponentType.HDFS.getTypeCode(), yarnComponent.getHadoopVersion());
+                            EComponentType.HDFS.getTypeCode(), yarnComponent.getHadoopVersion(),null);
                 } else {
                     typeName = componentService.convertComponentTypeToClient(clusterName,
-                            EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion());
+                            EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion(),hdfsComponent.getStoreType());
                 }
             }
             pluginInfo.put(ComponentService.TYPE_NAME,typeName);
@@ -501,7 +517,7 @@ public class ConsoleService {
         }
     }
 
-    private Component getYarnComponent(Long clusterId) {
+    public Component getYarnComponent(Long clusterId) {
         List<Engine> engines = engineDao.listByClusterId(clusterId);
         if (CollectionUtils.isEmpty(engines)) {
             return null;

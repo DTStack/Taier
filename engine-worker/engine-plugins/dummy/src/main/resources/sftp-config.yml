@@ -14,6 +14,7 @@ required:
     - password: 1
     - rsaPath: 2
   password:
+    controls: password
     dependencyKey: auth
     dependencyValue: 1
   rsaPath:

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.lineage.dao.LineageDataSetDao">
+
+    <sql id="select_content_fragment">
+      id,dt_uic_tenant_id,real_source_id,source_id,source_name,source_key,app_type,source_type,set_type,db_name,schema_name,table_name,table_key,is_manual,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <sql id="select_where_fragment">
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="model.id != null and model.id > 0">
+                AND id = #{model.id}
+            </if>
+        </trim>
+    </sql>
+
+    <insert id="insertTableInfo" parameterType="com.dtstack.engine.api.domain.LineageDataSetInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into lineage_data_set_info(dt_uic_tenant_id,real_source_id,source_id,source_name,source_key,app_type,source_type,set_type,db_name,table_name,schema_name,table_key,is_manual)
+        values
+        (#{dtUicTenantId},#{realSourceId},#{sourceId},#{sourceName},#{sourceKey},#{appType},#{sourceType},#{setType},#{dbName},#{tableName},#{schemaName},#{tableKey},#{isManual})
+    </insert>
+
+    <delete id="deleteTableInfo" >
+        update lineage_data_set_info set is_deleted = 1 where id = #{id}
+    </delete>
+
+    <select id="getTableInfo" resultType="com.dtstack.engine.api.domain.LineageDataSetInfo">
+        select <include refid="select_content_fragment"/>
+        from lineage_data_set_info where source_id = #{sourceId} and db_name = #{db} and table_name = #{tableName}
+    </select>
+
+    <select id="getOneBySourceIdAndDbNameAndTableName" resultType="com.dtstack.engine.api.domain.LineageDataSetInfo">
+
+        select
+        <include refid="select_content_fragment" />
+        from lineage_data_set_info
+        <where>
+            <if test="sourceId != null">
+                AND source_id = #{sourceId}
+            </if>
+            <if test="tableName != null">
+                AND table_name = #{tableName}
+            </if>
+            <if test="dbName != null">
+                AND db_name = #{dbName}
+            </if>
+            <if test="schemaName != null">
+                AND schema_name = #{schemaName}
+            </if>
+            AND is_deleted = 0
+        </where>
+    </select>
+
+    <select id="getOneById" resultType="com.dtstack.engine.api.domain.LineageDataSetInfo">
+
+        select
+        <include refid="select_content_fragment" />
+        from lineage_data_set_info
+        where id = #{id}
+        and is_deleted = 0;
+    </select>
+
+    <select id="getDataSetListByIds" resultType="com.dtstack.engine.api.domain.LineageDataSetInfo">
+
+        select
+        <include refid="select_content_fragment" />
+        from lineage_data_set_info
+        where id in
+        <foreach collection="ids" open="(" close=")" item="item" separator=",">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

@@ -8,12 +8,12 @@ import com.dtstack.engine.api.vo.AccountTenantVo;
 import com.dtstack.engine.api.vo.AccountVo;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.common.client.ClientOperator;
+import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.enums.AccountType;
-import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.utils.Template;
 import com.google.common.collect.Lists;
@@ -109,7 +109,7 @@ public class AccountServiceTest extends AbstractTest {
         ClusterVO dbCluster = clusterService.getClusterByName(accountClusterName);
         Assert.assertNotNull(dbCluster);
         componentService.addOrUpdateComponent(dbCluster.getClusterId(), "{\"jdbcUrl\":\"jdbc:mysql://172.16.100.73:4000/\",\"maxJobPoolSize\":\"\",\"minJobPoolSize\":\"\",\"password\":\"\",\"username\":\"\"}",
-                null, "", "", "[]", EComponentType.TIDB_SQL.getTypeCode());
+                null, "", "", "[]", EComponentType.TIDB_SQL.getTypeCode(),null,"","");
         //添加测试租户
         Tenant tenant = Template.getTenantTemplate();
         tenant.setDtUicTenantId(-1112L);
@@ -118,7 +118,7 @@ public class AccountServiceTest extends AbstractTest {
         Assert.assertNotNull(tenant);
         Assert.assertNotNull(tenant.getId());
         //绑定租户
-        tenantService.bindingTenant(tenant.getDtUicTenantId(), dbCluster.getClusterId(), null, "");
+        tenantService.bindingTenant(tenant.getDtUicTenantId(), dbCluster.getClusterId(), null, "","");
 
         User user = DataCollection.getData().getUser();
         AccountVo accountVo = new AccountVo();

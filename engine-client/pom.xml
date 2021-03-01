@@ -32,11 +32,23 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <reportOutputDirectory>../javadocs</reportOutputDirectory>
+                    <destDir>engine-api-client</destDir>
+                    <additionalJOptions>
+                        <additionalJOption>-Xdoclint:none</additionalJOption>
+                    </additionalJOptions>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <groupId>com.dtstack.engine</groupId>
     <artifactId>sdk-engine-client</artifactId>
-    <version>4.0.6</version>
+    <version>4.1.7-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -88,17 +100,7 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
             <version>2.9.2</version>
-<!--            <scope>provided</scope>-->
-<!--            <optional>true</optional>-->
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>io.springfox</groupId>-->
-<!--            <artifactId>springfox-swagger-ui</artifactId>-->
-<!--            <version>2.9.2</version>-->
-<!--            <scope>provided</scope>-->
-<!--            <optional>true</optional>-->
-<!--        </dependency>-->
-        <!-- https://mvnrepository.com/artifact/javax.validation/validation-api -->
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>

@@ -10,12 +10,11 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <zookeeper.version>3.4.6</zookeeper.version>
-        <hadoop.version>2.7.3</hadoop.version>
         <hadoop2.version>2.7.3</hadoop2.version>
         <hadoop3.version>3.0.0</hadoop3.version>
         <spring.version>5.2.3.RELEASE</spring.version>
         <fastjson>2.9.6</fastjson>
-        <common.version>4.0.1</common.version>
+        <common.version>4.1.1</common.version>
     </properties>
 
     <modules>
@@ -24,6 +23,7 @@
         <module>engine-master</module>
         <module>engine-worker</module>
         <module>engine-entrance</module>
+        <module>lineage-data-collect</module>
     </modules>
 
     <dependencyManagement>
@@ -54,24 +54,10 @@
                 <version>${hadoop.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hadoop</groupId>
-                <artifactId>hadoop-yarn-common</artifactId>
-                <version>${hadoop.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hadoop</groupId>
-                <artifactId>hadoop-yarn-client</artifactId>
-                <version>${hadoop.version}</version>
             </dependency>
 
             <dependency>

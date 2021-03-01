@@ -306,6 +306,7 @@ public class JobGraphGenerator implements Visitor<PlanNode> {
 						Files.deleteIfExists(tmpDir);
 					}
 				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
 		}

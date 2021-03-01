@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * @author sishu.yss
  */
 @Component
-@PropertySource(value = "file:${user.dir}/conf/application.properties")
+@PropertySource(value = "file:${user.dir.conf}/application.properties")
 public class EnvironmentContext {
 
 
@@ -351,7 +351,7 @@ public class EnvironmentContext {
     }
 
     public String getLocalKerberosDir() {
-        return environment.getProperty("local.kerberos.dir", System.getProperty("user.dir") + "/kerberosConfig");
+        return environment.getProperty("local.kerberos.dir", System.getProperty("user.dir") + "/kerberosUploadTempDir");
     }
 
     public String getKerberosTemplatepath() {
@@ -410,12 +410,8 @@ public class EnvironmentContext {
         return Boolean.parseBoolean(environment.getProperty("job.back.cron.open", "false"));
     }
 
-    public long getConsoleStopExpireTime() {
-        return Long.parseLong(environment.getProperty("consoleStopExpireTime", Long.toString(60 * 1000 * 24)));
-    }
-
     public Integer getScheduleJobScope() {
-        return Integer.valueOf(environment.getProperty("job.back.scope", "1000*60"));
+        return Integer.valueOf(environment.getProperty("job.back.scope", "60000"));
     }
 
     public Integer getJobExecutorPoolCorePoolSize() {
@@ -491,5 +487,14 @@ public class EnvironmentContext {
 
     public int getMaxDeepShow() {
         return Integer.parseInt(environment.getProperty("max.deep.show", "20"));
+    }
+
+    /**
+     * 是否开启任务调度
+     *
+     * @return
+     */
+    public boolean openJobSchedule() {
+        return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
     }
 }

@@ -5,6 +5,7 @@ import com.dtstack.engine.dao.JobGraphTriggerDao;
 import com.dtstack.engine.api.domain.JobGraphTrigger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 
@@ -28,6 +29,7 @@ public class JobGraphTriggerService{
         return trigger != null;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void addJobTrigger(Timestamp timestamp){
         JobGraphTrigger jobGraphTrigger = new JobGraphTrigger();
         jobGraphTrigger.setTriggerTime(timestamp);

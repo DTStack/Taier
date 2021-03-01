@@ -35,9 +35,9 @@ public abstract class AbstractConnFactory {
 
     protected String jdbcUrl;
 
-    private String username;
+    protected String username;
 
-    private String password;
+    protected String password;
 
     protected String driverName = null;
 
@@ -73,13 +73,6 @@ public abstract class AbstractConnFactory {
         } catch (Exception e) {
             throw new RdosDefineException("get conn exception:" + e.toString());
         }
-    }
-
-    protected List<String> splitSql(String sql) {
-        if(StringUtils.isBlank(sql)) {
-            return Collections.emptyList();
-        }
-        return Arrays.asList(sql.split(";"));
     }
 
     public void testConn() {

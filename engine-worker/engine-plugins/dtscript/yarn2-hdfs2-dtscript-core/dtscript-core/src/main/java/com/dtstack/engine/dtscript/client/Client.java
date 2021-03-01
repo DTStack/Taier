@@ -47,11 +47,13 @@ public class Client {
     private volatile YarnClient yarnClient;
     private volatile Path appJarSrc;
     private ThreadPoolExecutor threadPoolExecutor;
+    private volatile BaseConfig baseConfig;
 
     private static FsPermission JOB_FILE_PERMISSION = FsPermission.createImmutable((short) 0644);
 
     public Client(DtYarnConfiguration conf, BaseConfig allConfig) throws Exception {
         this.conf = conf;
+        this.baseConfig = allConfig;
         this.threadPoolExecutor = new ThreadPoolExecutor(
                 conf.getInt(DtYarnConfiguration.DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM, DtYarnConfiguration.DEFAULT_DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM),
                 conf.getInt(DtYarnConfiguration.DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM, DtYarnConfiguration.DEFAULT_DTSCRIPT_ASYNC_CHECK_YARN_CLIENT_THREAD_NUM),
@@ -127,7 +129,6 @@ public class Client {
                 conf.set(confArg, clientArguments.confs.getProperty(confArg));
             }
         }
-
         return conf;
     }
 
@@ -167,13 +168,11 @@ public class Client {
             localResources.put(DtYarnConstants.LEARNING_JOB_CONFIGURATION,
                     Utilities.createApplicationResource(getFileSystem(), jobConfPath, LocalResourceType.FILE));
 
-
             Path appMasterJar = Utilities.getRemotePath(conf, applicationId, DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH);
             LOG.info("Copying " + appJarSrc + " to remote path " + appMasterJar.toString());
             getFileSystem().copyFromLocalFile(false, true, appJarSrc, appMasterJar);
             localResources.put(DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH,
                     Utilities.createApplicationResource(getFileSystem(), appMasterJar, LocalResourceType.FILE));
-
 
             StringBuilder classPathEnv = new StringBuilder("${CLASSPATH}:./*");
 
@@ -238,7 +237,6 @@ public class Client {
             appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString(), jobConfPath.toString());
             appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_CONTAINER_MAX_MEMORY.toString(), String.valueOf(newAppResponse.getMaximumResourceCapability().getMemory()));
 
-
             LOG.info("Building application master launch command");
             List<String> appMasterArgs = new ArrayList<>(20);
             appMasterArgs.add(conf.get(DtYarnConfiguration.JAVA_PATH,"${JAVA_HOME}" + "/bin/java"));
@@ -274,7 +272,12 @@ public class Client {
             capability.setMemory(conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_MEMORY, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_MEMORY));
             capability.setVirtualCores(conf.getInt(DtYarnConfiguration.DTSCRIPT_AM_CORES, DtYarnConfiguration.DEFAULT_DTSCRIPT_AM_CORES));
             applicationContext.setResource(capability);
-            ByteBuffer tokenBuffer = SecurityUtil.getDelegationTokens(conf, getYarnClient());
+
+            ByteBuffer tokenBuffer = null;
+            if(null != baseConfig && baseConfig.isOpenKerberos()){
+                tokenBuffer = SecurityUtil.getDelegationTokens(conf, getYarnClient());
+            }
+
             ContainerLaunchContext amContainer = ContainerLaunchContext.newInstance(
                     localResources, appMasterEnv, appMasterLaunchcommands, null, tokenBuffer, null);
 

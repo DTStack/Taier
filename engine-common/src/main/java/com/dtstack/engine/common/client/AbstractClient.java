@@ -2,23 +2,29 @@ package com.dtstack.engine.common.client;
 
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.api.pojo.ClusterResource;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JobStatusFrequency;
 import com.dtstack.engine.common.pojo.JudgeResult;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -37,6 +43,8 @@ public abstract class AbstractClient implements IClient {
 
     public final static String COMPONENT_TYPE = "componentType";
 
+    public Map<String, JobStatusFrequency> jobStatusMap = Maps.newConcurrentMap();
+
     public List<ClientTemplate> defaultPlugins;
 
     public AbstractClient() {
@@ -46,13 +54,14 @@ public abstract class AbstractClient implements IClient {
     private void loadConfig() {
         try {
             String configYaml = findPluginConfig(this.getClass(), PLUGIN_DEFAULT_CONFIG_NAME);
-            InputStream resourceAsStream = !StringUtils.isEmpty(configYaml) ? new FileInputStream(configYaml) :
-                    this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
-            if (Objects.isNull(resourceAsStream)) {
-                logger.info("plugin client default-config.yaml not exist!");
-                return;
+            try (InputStream resourceAsStream = !StringUtils.isEmpty(configYaml) ? new FileInputStream(configYaml) :
+                    this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME)) {
+                if (null == resourceAsStream) {
+                    logger.info("plugin client default-config.yaml not exist!");
+                    return;
+                }
+                defaultPlugins = new YamlConfigParser().parse(resourceAsStream);
             }
-            defaultPlugins = new YamlConfigParser().parse(resourceAsStream);
             logger.info("======= plugin client============{}", defaultPlugins);
         } catch (Exception e) {
             logger.error("plugin client init default config error ", e);
@@ -78,6 +87,26 @@ public abstract class AbstractClient implements IClient {
         }
 
         return jobResult;
+    }
+
+    @Override
+    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException{
+        RdosTaskStatus status = RdosTaskStatus.NOTFOUND;
+        try {
+            status = processJobStatus(jobIdentifier);
+        }catch (Exception e) {
+            logger.error("get job status error: {}", e.getMessage());
+        } finally {
+            handleJobStatus(jobIdentifier, status);
+        }
+        return status;
+    }
+
+    protected RdosTaskStatus processJobStatus(JobIdentifier jobIdentifier) {
+        return RdosTaskStatus.NOTFOUND;
+    }
+
+    protected void handleJobStatus(JobIdentifier jobIdentifier, RdosTaskStatus status) {
     }
 
     @Override
@@ -161,4 +190,8 @@ public abstract class AbstractClient implements IClient {
         return null;
     }
 
+    @Override
+    public List<Column> getAllColumns(String tableName,String schemaName, String dbName) {
+        return null;
+    }
 }

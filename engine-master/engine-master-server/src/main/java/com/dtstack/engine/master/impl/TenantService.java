@@ -4,22 +4,20 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
-import com.dtstack.engine.api.vo.ClusterVO;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.EngineTenantVO;
 import com.dtstack.engine.api.vo.tenant.TenantAdminVO;
 import com.dtstack.engine.api.vo.tenant.TenantResourceVO;
 import com.dtstack.engine.api.vo.tenant.UserTenantVO;
+import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.MultiEngineType;
-import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.engine.master.router.login.domain.TenantAdmin;
@@ -29,6 +27,7 @@ import com.dtstack.schedule.common.enums.Sort;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -37,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.Queue;
 import java.util.stream.Collectors;
 
 
@@ -135,23 +135,22 @@ public class TenantService {
     private void fillQueue(List<EngineTenantVO> engineTenantVOS){
 
         List<Long> queueIds = engineTenantVOS.stream().filter(v -> v.getQueueId() != null).map(EngineTenantVO::getQueueId).collect(Collectors.toList());
-
-        Map<Long, Queue> queueMap = new HashMap<>(16);
-        List<Queue> queueList = queueDao.listByIds(queueIds);
-        for (Queue queue : queueList) {
+        Map<Long, com.dtstack.engine.api.domain.Queue> queueMap = new HashMap<>(16);
+        List<com.dtstack.engine.api.domain.Queue> queueList = queueDao.listByIds(queueIds);
+        for (com.dtstack.engine.api.domain.Queue queue : queueList) {
             queueMap.put(queue.getId(), queue);
         }
         for (EngineTenantVO engineTenantVO : engineTenantVOS) {
             if(engineTenantVO.getQueueId() == null){
                 continue;
             }
-            Queue queue = queueMap.get(engineTenantVO.getQueueId());
+            com.dtstack.engine.api.domain.Queue queue = queueMap.get(engineTenantVO.getQueueId());
             if(queue == null){
                 continue;
             }
             engineTenantVO.setQueue(queue.getQueuePath());
-            engineTenantVO.setMaxCapacity(queue.getMaxCapacity());
-            engineTenantVO.setMinCapacity(queue.getCapacity());
+            engineTenantVO.setMaxCapacity(NumberUtils.toDouble(queue.getMaxCapacity(),0) * 100 + "%");
+            engineTenantVO.setMinCapacity(NumberUtils.toDouble(queue.getCapacity(),0) * 100 + "%");
         }
     }
 
@@ -203,7 +202,7 @@ public class TenantService {
 
     @Transactional(rollbackFor = Exception.class)
     public void bindingTenant( Long dtUicTenantId,  Long clusterId,
-                               Long queueId,  String dtToken) throws Exception {
+                               Long queueId,  String dtToken,String namespace) throws Exception {
         Cluster cluster = clusterDao.getOne(clusterId);
         EngineAssert.assertTrue(cluster != null, "集群不存在", ErrorCode.DATA_NOT_FIND);
 
@@ -214,11 +213,17 @@ public class TenantService {
 
         List<Engine> engineList = engineDao.listByClusterId(clusterId);
         Engine hadoopEngine = addEngineTenant(tenant.getId(), engineList);
-
-        if(queueId != null && hadoopEngine != null){
+        if(null == hadoopEngine){
+            return;
+        }
+        if (StringUtils.isNotBlank(namespace)) {
+            //k8s
+            componentService.addOrUpdateNamespaces(cluster.getId(), namespace, null, dtUicTenantId);
+        } else if (queueId != null) {
+            //hadoop
             updateTenantQueue(tenant.getId(), dtUicTenantId, hadoopEngine.getId(), queueId);
         }
-
+        //oracle tidb queueId可以为空
     }
 
     private void checkTenantBindStatus(Long tenantId) {
@@ -230,8 +235,8 @@ public class TenantService {
 
 
     public void checkClusterCanUse(Long clusterId) throws Exception {
-        ClusterVO clusterVO = clusterService.getCluster(clusterId, true, true);
-        List<ComponentTestResult> testConnectionVO = componentService.testConnects(clusterVO.getClusterName());
+        Cluster cluster = clusterDao.getOne(clusterId);
+        List<ComponentTestResult> testConnectionVO = componentService.testConnects(cluster.getClusterName());
         boolean canUse = true;
         StringBuilder msg = new StringBuilder();
         msg.append("此集群不可用,测试连通性为通过：\n");
@@ -305,7 +310,7 @@ public class TenantService {
         return tenant;
     }
 
-    private void updateTenantQueue(Long tenantId, Long dtUicTenantId, Long engineId, Long queueId){
+    public void updateTenantQueue(Long tenantId, Long dtUicTenantId, Long engineId, Long queueId){
         Integer childCount = queueDao.countByParentQueueId(queueId);
         if (childCount != 0) {
             throw new RdosDefineException("所选队列存在子队列，选择正确的子队列", ErrorCode.DATA_NOT_FIND);
@@ -326,7 +331,7 @@ public class TenantService {
     @Transactional(rollbackFor = Exception.class)
     public void bindingQueue( Long queueId,
                               Long dtUicTenantId,String taskTypeResourceJson) {
-        Queue queue = queueDao.getOne(queueId);
+        com.dtstack.engine.api.domain.Queue queue = queueDao.getOne(queueId);
         if (queue == null) {
             throw new RdosDefineException("队列不存在", ErrorCode.DATA_NOT_FIND);
         }
@@ -341,7 +346,7 @@ public class TenantService {
             LOGGER.info("switch queue, tenantId:{} queueId:{} queueName:{} engineId:{}",tenantId,queueId,queue.getQueueName(),queue.getEngineId());
             updateTenantQueue(tenantId, dtUicTenantId, queue.getEngineId(), queueId);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("", e);
             throw new RdosDefineException("切换队列失败");
         }
     }
@@ -371,7 +376,7 @@ public class TenantService {
             Integer taskType = jsonObj.getInteger("taskType");
             tenantResource.setTaskType(taskType);
             EScheduleJobType eJobType = EScheduleJobType.getEJobType(taskType);
-            if(Objects.isNull(eJobType)){
+            if(null == eJobType){
                 throw new RdosDefineException("传入任务类型错误");
             }else{
                 tenantResource.setEngineType(eJobType.getName());
@@ -395,7 +400,7 @@ public class TenantService {
             List<TenantResource> tenantResources = tenantResourceDao.selectByUicTenantId(dtUicTenantId);
             return convertTenantResourceToVO(tenantResources);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("", e);
             throw new RdosDefineException("查询失败");
         }
     }
@@ -431,10 +436,10 @@ public class TenantService {
         try {
             tenantResource = tenantResourceDao.selectByUicTenantIdAndTaskType(dtUicTenantId, taskType);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("", e);
             throw new RdosDefineException("查找资源限制失败");
         }
-        if(Objects.nonNull(tenantResource)){
+        if(null != tenantResource){
             return tenantResource.getResourceLimit();
         }else{
             return "";

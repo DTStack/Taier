@@ -32,7 +32,6 @@ import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
@@ -41,7 +40,9 @@ import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.multiengine.engine.HadoopJobStartTrigger;
+import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.dtstack.engine.master.utils.Template;
+import com.dtstack.engine.master.utils.ValueUtils;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import org.apache.commons.collections.CollectionUtils;
@@ -178,8 +179,11 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testGetJobGraph() {
-        ScheduleJob todayJob = DataCollection.getData().getScheduleJobTodayData();
-        ScheduleJob yesterdayJob = DataCollection.getData().getScheduleJobYesterdayData();
+        ScheduleJob todayJob = Template.getScheduleJobTemplate();
+        todayJob.setJobId(ValueUtils.getChangedStr());
+        todayJob.setJobKey(ValueUtils.getChangedStr());
+        todayJob.setStatus(RdosTaskStatus.FINISHED.getStatus());
+        scheduleJobDao.insert(todayJob);
 
         Long projectId = todayJob.getProjectId();
         Long tenantId = todayJob.getTenantId();
@@ -202,8 +206,11 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testGetScienceJobGraph() {
-        ScheduleJob todayJob = DataCollection.getData().getScheduleJobTodayData();
-        ScheduleTaskShade taskShade = DataCollection.getData().getScheduleTaskShadeForSheduleJob();
+        ScheduleJob todayJob = Template.getScheduleJobTemplate();
+        todayJob.setJobId(ValueUtils.getChangedStr());
+        todayJob.setJobKey(ValueUtils.getChangedStr());
+        todayJob.setStatus(RdosTaskStatus.FINISHED.getStatus());
+        scheduleJobDao.insert(todayJob);
         Long projectId = todayJob.getProjectId();
         Long tenantId = todayJob.getTenantId();
         String taskType = todayJob.getTaskType().toString();
@@ -273,7 +280,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Transactional
     @Rollback
     public void testParseDeployTypeByTaskParams() {
-        EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams("flinkTaskRunMode=session",0, EngineType.Flink.name());
+        EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams("flinkTaskRunMode=session",0);
         Assert.assertEquals(eDeployMode, EDeployMode.SESSION);
     }
 
@@ -764,9 +771,6 @@ public class ScheduleJobServiceTest extends AbstractTest {
         Assert.assertTrue(scheduleJobVOS.stream().anyMatch(v -> v.getTaskId() == scheduleTaskShade.getTaskId()));
         ScheduleJobStatusVO statusCount = scheduleJobService.getStatusCount(scheduleTaskShade.getProjectId(), null, scheduleTaskShade.getAppType(), scheduleTaskShade.getDtuicTenantId());
         Assert.assertNotNull(statusCount);
-        Integer all = statusCount.getAll();
-        Assert.assertTrue(all > 1);
-
     }
 
     @Test

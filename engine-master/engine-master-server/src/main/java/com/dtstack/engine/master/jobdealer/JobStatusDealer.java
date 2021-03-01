@@ -10,17 +10,18 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.pojo.JobStatusFrequency;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.bo.JobCompletedInfo;
-import com.dtstack.engine.master.bo.JobStatusFrequency;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.jobdealer.cache.ShardManager;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
  * @author toutian
  *         create: 2020/01/17
  */
-public class JobStatusDealer implements Runnable {
+public class  JobStatusDealer implements Runnable {
 
     private final static Logger logger = LoggerFactory.getLogger(JobStatusDealer.class);
 
@@ -85,8 +86,8 @@ public class JobStatusDealer implements Runnable {
     @Override
     public void run() {
         try {
-            if (logger.isInfoEnabled() && LogCountUtil.count(logOutput++, MULTIPLES)) {
-                logger.info("jobResource:{} start again gap:[{} ms]...", jobResource, INTERVAL * MULTIPLES);
+            if (logger.isDebugEnabled() && LogCountUtil.count(logOutput++, MULTIPLES)) {
+                logger.debug("jobResource:{} start again gap:[{} ms]...", jobResource, INTERVAL * MULTIPLES);
             }
 
             List<Map.Entry<String, Integer>> jobs = new ArrayList<>(shardManager.getShard().entrySet());
@@ -157,8 +158,7 @@ public class JobStatusDealer implements Runnable {
             String taskParams = info.getString("taskParams");
             String pluginInfo = info.getString("pluginInfo");
             Long userId = info.getLong("userId");
-            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getDtuicTenantId(),engineType,
-                    scheduleJobService.parseDeployTypeByTaskParams(taskParams,scheduleJob.getComputeType(),engineType).getType(),userId, pluginInfo);
+            JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getDtuicTenantId(),engineType, TaskParamsUtil.parseDeployTypeByTaskParams(taskParams,scheduleJob.getComputeType(),engineType).getType(),userId, pluginInfo);
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
 
@@ -188,6 +188,7 @@ public class JobStatusDealer implements Runnable {
                     jobLogDelayDealer(jobId, jobIdentifier, engineType, engineJobCache.getComputeType(),scheduleJob.getType());
                     jobStatusFrequency.remove(jobId);
                     engineJobCacheDao.delete(jobId);
+                    logger.info("------ jobId:{} is stop status {} delete jobCache", jobId, status);
                 }
 
                 if (RdosTaskStatus.RUNNING.getStatus().equals(status) && EngineType.isFlink(engineType)) {
@@ -200,10 +201,19 @@ public class JobStatusDealer implements Runnable {
     }
 
     private void updateJobStatusWithPredicate(ScheduleJob scheduleJob, String jobId, Integer status) {
-        //流计算只有在状态变更的时候才去更新schedule_job表
+        //流计算只有在状态变更(且任务没有被手动停止 进入CANCELLING)的时候才去更新schedule_job表
         Predicate<ScheduleJob> isStreamUpdateConditions = job ->
-                ComputeType.STREAM.getType().equals(job.getComputeType()) && !job.getStatus().equals(status);
-        if (ComputeType.BATCH.getType().equals(scheduleJob.getComputeType()) || isStreamUpdateConditions.test(scheduleJob)) {
+                ComputeType.STREAM.getType().equals(job.getComputeType())
+                        && !job.getStatus().equals(status)
+                        && !RdosTaskStatus.CANCELLING.getStatus().equals(job.getStatus());
+
+        //流计算 任务被手动停止 进入CANCELLING 除非YARN上状态已结束 才回写
+        Predicate<ScheduleJob> isStreamCancellingConditions = job ->
+                ComputeType.STREAM.getType().equals(job.getComputeType())
+                        && RdosTaskStatus.CANCELLING.getStatus().equals(job.getStatus())
+                        && RdosTaskStatus.STOP_STATUS.contains(status);
+
+        if (ComputeType.BATCH.getType().equals(scheduleJob.getComputeType()) || isStreamUpdateConditions.test(scheduleJob) || isStreamCancellingConditions.test(scheduleJob)) {
             scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
         }
     }

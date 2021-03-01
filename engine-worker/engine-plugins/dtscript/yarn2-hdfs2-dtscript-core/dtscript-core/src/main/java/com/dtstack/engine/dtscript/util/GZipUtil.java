@@ -36,7 +36,7 @@ public class GZipUtil {
                 try {
                     bos.close();
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
+                    LOG.error("GZipUtil.compress error:", e);
                 }
             }
 
@@ -44,7 +44,7 @@ public class GZipUtil {
                 try {
                     gzip.close();
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
+                    LOG.error("GZipUtil.compress error:", e);
                 }
             }
         }
@@ -67,7 +67,7 @@ public class GZipUtil {
                 try {
                     bis.close();
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
+                    LOG.error("GZipUtil.deCompress error:", e);
                 }
             }
 
@@ -75,7 +75,7 @@ public class GZipUtil {
                 try {
                     gis.close();
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
+                    LOG.error("GZipUtil.deCompress error:", e);
                 }
             }
         }

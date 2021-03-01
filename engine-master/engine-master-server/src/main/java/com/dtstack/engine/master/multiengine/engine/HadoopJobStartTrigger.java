@@ -11,21 +11,21 @@ import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EDeployMode;
-import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
-import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.multiengine.JobStartTriggerBase;
 import com.dtstack.engine.master.scheduler.JobParamReplace;
+import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.dtstack.schedule.common.enums.DataBaseType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
@@ -79,9 +79,6 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
     @Autowired
     private WorkerOperator workerOperator;
-    
-    @Autowired
-    private ScheduleJobService scheduleJobService;
 
     private DateTimeFormatter dayFormatterAll = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
@@ -137,8 +134,6 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             if (savepointArgs != null) {
                 taskExeArgs += " " + savepointArgs;
             }
-        } else if (taskShade.getTaskType().equals(EScheduleJobType.TENSORFLOW_1_X.getVal()) || taskShade.getTaskType().equals(EScheduleJobType.KERAS.getVal())) {
-            taskExeArgs = this.buildTensorflowOrKeras(actionParam, taskShade, scheduleJob, taskParamsToReplace);
         } else if (taskShade.getEngineType().equals(ScheduleEngineType.Learning.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.Shell.getVal())
                 || taskShade.getEngineType().equals(ScheduleEngineType.DtScript.getVal())
@@ -467,6 +462,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 throw new RdosDefineException("数据同步hadoopConfig principalFile 字段不能为空");
             }
             pluginInfo.put(ConfigConstant.PRINCIPAL_FILE,principalFile);
+            pluginInfo.putIfAbsent(ConfigConstant.PRINCIPAL,hadoopConfig.getString(ConfigConstant.PRINCIPAL));
 
             JSONObject sftpConf = hadoopConfig.getJSONObject(EComponentType.SFTP.getConfName());
             if (null == sftpConf || sftpConf.size() <= 0) {
@@ -502,7 +498,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             try {
                 JSONObject reader = (JSONObject) JSONPath.eval(jsonJob, "$.job.content[0].reader");
                 Object increCol = JSONPath.eval(reader, "$.parameter.increColumn");
-                if (Objects.nonNull(increCol) && Objects.nonNull(job.getExecStartTime()) && Objects.nonNull(job.getExecEndTime())) {
+                if (null != increCol && null != job.getExecStartTime() && null != job.getExecEndTime()) {
                     String lastEndLocation = this.queryLastLocation(dtuicTenantId, job.getEngineJobId(), job.getExecStartTime().getTime(), job.getExecEndTime().getTime(), taskparams, job.getComputeType(), jobId);
                     LOG.info("job {} last job {} applicationId {} startTime {} endTime {} location {}", job, job.getJobId(), job.getEngineJobId(), job.getExecStartTime(), job.getExecEndTime(), lastEndLocation);
                     reader.getJSONObject("parameter").put("startLocation", lastEndLocation);
@@ -526,7 +522,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         if(flinkComponent.isPresent()){
             ComponentsConfigOfComponentsVO componentsVO = flinkComponent.get();
             JSONObject flinkJsonObject = JSONObject.parseObject(componentsVO.getComponentConfig());
-            EDeployMode eDeployMode = scheduleJobService.parseDeployTypeByTaskParams(taskParam,computeType, EngineType.Flink.name());
+            EDeployMode eDeployMode = TaskParamsUtil.parseDeployTypeByTaskParams(taskParam,computeType,EngineType.Flink.name());
             JSONObject flinkConfig = flinkJsonObject.getJSONObject(eDeployMode.getMode());
             String prometheusHost = flinkConfig.getString("prometheusHost");
             String prometheusPort = flinkConfig.getString("prometheusPort");
@@ -632,6 +628,9 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                         taskName, System.currentTimeMillis());
             } else if (taskType.equals(EScheduleJobType.KERAS.getVal())){
                 fileName = String.format("keras_%s_%s_%s_%s.py", tenantId, projectId,
+                        taskName, System.currentTimeMillis());
+            } else if (taskType.equals(EScheduleJobType.PYTORCH.getVal())) {
+                fileName = String.format("pytorch_%s_%s_%s_%s.py", tenantId, projectId,
                         taskName, System.currentTimeMillis());
             }
 

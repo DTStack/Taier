@@ -9,9 +9,9 @@ time.characteristic=ProcessingTime
 # early.trigger=1
 
 ## ttl状态控制
-## 最小过期时间,大于0的整数,如1d、1h(d\D:天,h\H:小时,m\M:分钟,s\s:秒)
+## 最小过期时间,大于0的整数,如1d、1h(dD:天,hH:小时,mM:分钟,ss:秒)
 # sql.ttl.min=1h
-## 最大过期时间,大于0的整数,如2d、2h(d\D:天,h\H:小时,m\M:分钟,s\s:秒),需同时设置最小时间,且比最小时间大5分钟
+## 最大过期时间,大于0的整数,如2d、2h(dD:天,hH:小时,mM:分钟,ss:秒),需同时设置最小时间,且比最小时间大5分钟
 # sql.ttl.max=2h
 
 ## 生成checkpoint时间间隔（以毫秒为单位），默认:5分钟,注释掉该选项会关闭checkpoint生成
@@ -52,13 +52,14 @@ logLevel=info
 ## 任务优先级, 值越小，优先级越高，范围:1-1000
 job.priority=10
 
-## kafka kerberos相关参数
-## security.kerberos.login.use-ticket-cache=true
+## kafka kerberos 数据源开启Kerberos
 ## security.kerberos.login.contexts=Client,KafkaClient
-## security.kerberos.login.keytab=/opt/keytab/kafka.keytab
-## security.kerberos.login.principal=kafka@HADOOP.COM
-## zookeeper.sasl.service-name=zookeeper
-## zookeeper.sasl.login-context-name=Client');
+
+
+## 异步访问维表是否开启连接池共享,开启则 1.一个tm上多个task共享该池, 2.一个tm上多个url相同的维表单/多个task共享该池 (默认false)
+# async.side.clientShare=false
+## 连接池中连接的个数,上面参数为true才生效(默认5)
+# async.side.poolSize=5');
 INSERT INTO `task_param_template` VALUES ('2', now(), now(), '0', '0', '1', '0',
 '## Driver程序使用的CPU核数,默认为1\r\n# driver.cores=1\r\n
 ## Driver程序使用内存大小,默认512m\r\n# driver.memory=512m\r\n

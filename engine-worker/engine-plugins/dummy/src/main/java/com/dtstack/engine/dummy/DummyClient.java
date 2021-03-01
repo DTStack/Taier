@@ -72,6 +72,7 @@ public class DummyClient extends AbstractClient {
                         resourceAsStream.close();
                     }
                 } catch (IOException e) {
+                    logger.error("close resource error ", e);
                 }
             }
         }

@@ -34,42 +34,42 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-api</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-common</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-app</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-common</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-hs</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-client</artifactId>
-            <version>${hadoop.version}</version>
+            <version>${hadoop2.version}</version>
         </dependency>
 
         <dependency>
@@ -142,9 +142,9 @@
 
                             <artifactSet>
                                 <excludes>
-                                    <exclude>org.slf4j:slf4j-log4j12</exclude>
-                                    <exclude>log4j:log4j</exclude>
-                                    <exclude>org.slf4j:slf4j-api</exclude>
+<!--                                    <exclude>org.slf4j:slf4j-log4j12</exclude>-->
+<!--                                    <exclude>log4j:log4j</exclude>-->
+<!--                                    <exclude>org.slf4j:slf4j-api</exclude>-->
                                     <exclude>com.dtstack:learning</exclude>
                                 </excludes>
                             </artifactSet>
