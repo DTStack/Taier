@@ -66,13 +66,13 @@ public class DummyClient extends AbstractClient {
                 defaultConfigs.put(componentType,defaultPlugins);
             } catch (Exception e) {
                 logger.error("dummy client init default config error ", e);
-            }finally {
-                if(resourceAsStream!=null){
-                    try {
+            } finally {
+                try {
+                    if (resourceAsStream != null) {
                         resourceAsStream.close();
-                    } catch (IOException e) {
-                        logger.error("close resource error ", e);
                     }
+                } catch (IOException e) {
+                    logger.error("close resource error ", e);
                 }
             }
         }

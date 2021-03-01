@@ -295,9 +295,10 @@ public class PackagedProgram {
 		}
 		finally {
 			try {
-				jar.close();
-			} catch (Throwable t) {
-				throw new RdosDefineException("Could not close the JAR file: " + t.getMessage(), t);
+				if (jar != null) {
+					jar.close();
+				}
+			} catch (Exception e) {
 			}
 		}
 	}
