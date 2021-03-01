@@ -17,8 +17,6 @@ import com.dtstack.engine.api.vo.Pair;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.client.config.YamlConfigParser;
-import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -35,6 +33,8 @@ import com.dtstack.engine.master.enums.DownloadType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.router.cache.ConsoleCache;
+import com.dtstack.engine.master.router.cache.RdosSubscribe;
+import com.dtstack.engine.master.router.cache.RdosTopic;
 import com.dtstack.engine.master.utils.FileUtil;
 import com.dtstack.engine.master.utils.XmlFileUtil;
 import com.dtstack.schedule.common.enums.AppType;
@@ -53,9 +53,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -64,6 +68,7 @@ import java.util.stream.Collectors;
 import static com.dtstack.engine.common.constrant.ConfigConstant.*;
 
 @Service
+@DependsOn("rdosSubscribe")
 public class ComponentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComponentService.class);
@@ -108,12 +113,10 @@ public class ComponentService {
     private WorkerOperator workerOperator;
 
     @Autowired
-    private ComponentTemplateService componentTemplateService;
-
-    @Autowired
     private ComponentConfigService componentConfigService;
 
-    public static final String TYPE_NAME = "typeName";
+    @Autowired
+    private RdosSubscribe rdosSubscribe;
 
     /**
      * 组件配置文件映射
@@ -139,6 +142,14 @@ public class ComponentService {
                 new Pair<>("hadoop3", "hadoop3"), new Pair<>("HW", "HW")));
     }
 
+    @PostConstruct
+    public void init() {
+        rdosSubscribe.setCallBack((pair) -> {
+            if (RdosTopic.CONSOLE.equalsIgnoreCase(pair.getKey())) {
+                clearComponentCache();
+            }
+        });
+    }
 
     public List<ComponentsConfigOfComponentsVO> listConfigOfComponents(Long dtUicTenantId, Integer engineType) {
 
@@ -189,8 +200,8 @@ public class ComponentService {
      * 更新缓存
      */
     public void updateCache(Long engineId, Integer componentCode) {
+        clearComponentCache();
         Set<Long> dtUicTenantIds = new HashSet<>();
-
         if ( null != componentCode && EComponentType.noQueueComponents.contains(
                 EComponentType.getByCode(componentCode))) {
             //tidb 和libra 没有queue
@@ -310,23 +321,6 @@ public class ComponentService {
         return file;
     }
 
-
-    private File getDeepFileWithSuffix(String dir, String suffix) {
-        //不是单个文件夹
-        File dirFile = new File(dir);
-        if (dirFile.exists() && dirFile.isDirectory()) {
-            File[] files = dirFile.listFiles();
-            if (files.length > 0) {
-                for (File file : files) {
-                    File subFile = this.getFileWithSuffix(file.getPath(), suffix);
-                    if (Objects.nonNull(subFile)) {
-                        return subFile;
-                    }
-                }
-            }
-        }
-        return null;
-    }
 
     private String getPrincipal(File file) {
         if (Objects.nonNull(file)) {
@@ -462,11 +456,15 @@ public class ComponentService {
             componentDao.insert(addComponent);
         }
         List<ClientTemplate> clientTemplates = this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion, md5Key, componentTemplate);
-        componentConfigService.addOrUpdateComponentConfig(clientTemplates, addComponent.getId(), addComponent.getClusterId(), addComponent.getEngineId(), componentCode);
-        ComponentVO componentVO = ComponentVO.toVO(addComponent);
-        componentVO.setClusterName(clusterName);
-        this.updateCache(engine.getId(),componentType.getTypeCode());
-        return componentVO;
+        componentConfigService.addOrUpdateComponentConfig(clientTemplates, addComponent.getId(), addComponent.getClusterId(), componentCode);
+        List<ComponentVO> componentVos = componentConfigService.getComponentVoByComponent(Lists.newArrayList(addComponent), true, clusterId);
+        this.updateCache(engine.getId(), componentType.getTypeCode());
+        if (CollectionUtils.isNotEmpty(componentVos)) {
+            ComponentVO componentVO = componentVos.get(0);
+            componentVO.setClusterName(clusterName);
+            return componentVO;
+        }
+        return ComponentVO.toVO(addComponent);
     }
 
     public SftpConfig getSFTPConfig(String sftpConfigStr, Integer componentCode, String componentTemplate) {
@@ -597,7 +595,7 @@ public class ComponentService {
     private List<ClientTemplate> wrapperConfig(EComponentType componentType, String componentString, boolean isOpenKerberos, String clusterName, String hadoopVersion, String md5Key, String clientTemplates) {
         List<ClientTemplate> templates = new ArrayList<>();
         if (EComponentType.KUBERNETES.equals(componentType)) {
-            ClientTemplate kubernetesClientTemplate = buildOthers("kubernetes.context", componentString);
+            ClientTemplate kubernetesClientTemplate = ComponentConfigUtils.buildOthers("kubernetes.context", componentString);
             templates.add(kubernetesClientTemplate);
             return templates;
         }
@@ -613,30 +611,22 @@ public class ComponentService {
         }
         if (EComponentType.typeComponentVersion.contains(componentType)) {
             //添加typeName
-            ClientTemplate typeNameClientTemplate = buildOthers(TYPE_NAME, this.convertComponentTypeToClient(clusterName, componentType.getTypeCode(), hadoopVersion));
+            ClientTemplate typeNameClientTemplate = ComponentConfigUtils.buildOthers(TYPE_NAME_KEY, this.convertComponentTypeToClient(clusterName, componentType.getTypeCode(), hadoopVersion));
             templates.add(typeNameClientTemplate);
         }
         if (!StringUtils.isBlank(md5Key)) {
-            ClientTemplate md5ClientTemplate = buildOthers(MD5_SUM_KEY, md5Key);
+            ClientTemplate md5ClientTemplate = ComponentConfigUtils.buildOthers(MD5_SUM_KEY, md5Key);
             templates.add(md5ClientTemplate);
         }
         if (EComponentType.noControlComponents.contains(componentType)) {
             //xml配置文件也转换为组件
-            List<ClientTemplate> xmlTemplates = componentConfigService.convertXMLConfigToComponentConfig(componentConfigJSON.toJSONString());
+            List<ClientTemplate> xmlTemplates = ComponentConfigUtils.convertXMLConfigToComponentConfig(componentConfigJSON.toJSONString());
             templates.addAll(xmlTemplates);
         } else {
             List<ClientTemplate> controlTemplate = JSONObject.parseArray(clientTemplates, ClientTemplate.class);
             templates.addAll(controlTemplate);
         }
         return templates;
-    }
-
-    private ClientTemplate buildOthers(String key,String value){
-        ClientTemplate componentConfig = new ClientTemplate();
-        componentConfig.setType(EFrontType.OTHER.name());
-        componentConfig.setKey(key);
-        componentConfig.setValue(value);
-        return componentConfig;
     }
 
     /**
@@ -1007,12 +997,11 @@ public class ComponentService {
             //解析模版中的信息 作为默认值 返回json
             List<ClientTemplate> clientTemplates = this.loadTemplate(componentType, clusterName, hadoopVersion);
             if (CollectionUtils.isNotEmpty(clientTemplates)) {
-                JSONObject fileJson = new JSONObject();
-                fileJson = (JSONObject) this.convertTemplateToJson(clientTemplates, fileJson);
+                Map<String, Object> fileMap = ComponentConfigUtils.convertClientTemplateToMap(clientTemplates);
                 uploadFileName = EComponentType.getByCode(componentType).name() + ".json";
                 localDownLoadPath = USER_DIR_DOWNLOAD + File.separator + uploadFileName;
                 try {
-                    FileUtils.write(new File(localDownLoadPath), fileJson.toString());
+                    FileUtils.write(new File(localDownLoadPath), JSONObject.toJSONString(fileMap));
                 } catch (Exception e) {
                     throw new RdosDefineException("文件不存在");
                 }
@@ -1037,7 +1026,7 @@ public class ComponentService {
                 sftpFileManage = SftpFileManage.getSftpManager(sftpConfig);
                 sftpFileManage.downloadDir(remoteDir, localDownLoadPath);
             } else {
-                if ( null == component.getUploadFileName()) {
+                if (StringUtils.isBlank(component.getUploadFileName())) {
                     // 一种是  全部手动填写的 如flink
                     String componentConfig = getComponentByClusterId(clusterId,EComponentType.getByCode(componentType).getTypeCode(),true,String.class);
                     try {
@@ -1098,66 +1087,9 @@ public class ComponentService {
      * @return
      */
     public List<ClientTemplate> loadTemplate(Integer componentType, String clusterName, String version) {
-        EComponentType component = EComponentType.getByCode(componentType);
-        List<ClientTemplate> defaultPluginConfig = null;
         String typeName = this.convertComponentTypeToClient(clusterName, componentType, version);
-        try {
-            if (env.getComponentTemplateSource()) {
-                String configTemplate = componentTemplateService.loadComponentTemplateFromDB(typeName);
-                InputStream is = new ByteArrayInputStream(configTemplate.getBytes());
-                defaultPluginConfig = new YamlConfigParser().parse(is);
-            } else {
-                defaultPluginConfig = workerOperator.getDefaultPluginConfig(typeName, component.getName().toLowerCase());
-            }
-        } catch (Exception e) {
-            throw new RdosDefineException("不支持的插件类型");
-        }
-
-        if (CollectionUtils.isEmpty(defaultPluginConfig)) {
-            return new ArrayList<>();
-        }
-
-        return defaultPluginConfig;
-    }
-
-    @SuppressWarnings("unchecked")
-    private Object convertTemplateToJson(List<ClientTemplate> clientTemplates, Object data) {
-        for (ClientTemplate clientTemplate : clientTemplates) {
-            Object temp = data;
-            if (StringUtils.isNotBlank(clientTemplate.getKey())) {
-                if (data instanceof Map) {
-                    if (EFrontType.CHECKBOX.name().equalsIgnoreCase(clientTemplate.getType())) {
-                        List myData = new ArrayList();
-                        ((Map) data).put(clientTemplate.getKey(), myData);
-                        data = myData;
-                    } else if(EFrontType.GROUP.name().equalsIgnoreCase(clientTemplate.getType())) {
-                        Map myData = new HashMap(16);
-                        ((Map) data).put(clientTemplate.getKey(), myData);
-                        data = myData;
-                    } else {
-                        ((Map) data).put(clientTemplate.getKey(), clientTemplate.getValue());
-                    }
-                } else if (data instanceof List) {
-                    if (EFrontType.CHECKBOX.name().equalsIgnoreCase(clientTemplate.getType())) {
-                        List myData = new ArrayList();
-                        ((List) data).add(myData);
-                        data = myData;
-                    } else if(EFrontType.GROUP.name().equalsIgnoreCase(clientTemplate.getType())) {
-                        Map myData = new HashMap();
-                        ((List) data).add(myData);
-                        data = myData;
-                    } else {
-                        ((List)data).add(clientTemplate.getValue());
-                    }
-                }
-            }
-            if (CollectionUtils.isNotEmpty(clientTemplate.getValues())) {
-                //以第一个参数为准 作为默认值
-                this.convertTemplateToJson(Lists.newArrayList(clientTemplate.getValues()), data);
-            }
-            data = temp;
-        }
-        return data;
+        List<ComponentConfig> componentConfigs = componentConfigService.loadDefaultTemplate(typeName);
+        return ComponentConfigUtils.buildDBDataToClientTemplate(componentConfigs);
     }
 
 
@@ -1300,7 +1232,7 @@ public class ComponentService {
      * @param componentIds
      */
     @Transactional(rollbackFor = Exception.class)
-    public void delete( List<Integer> componentIds) {
+    public void delete(List<Integer> componentIds) {
         if (CollectionUtils.isEmpty(componentIds)) {
             return;
         }
@@ -1314,6 +1246,7 @@ public class ComponentService {
             component.setIsDeleted(Deleted.DELETED.getStatus());
             componentDao.deleteById(componentId.longValue());
             kerberosDao.deleteByComponentId(componentId.longValue());
+            componentConfigService.deleteComponentConfig(componentId.longValue());
         }
     }
 
@@ -1340,13 +1273,9 @@ public class ComponentService {
      */
     @SuppressWarnings("unchecked")
     public <T> T getComponentByClusterId(Long clusterId, Integer componentType, boolean isFilter, Class<T> clazz) {
-        Component component = componentDao.getByClusterIdAndComponentType(clusterId, componentType);
-        if (null == component) {
-            throw new RdosDefineException("组件不存在");
-        }
-        Map<String, Object> configMap = componentConfigService.convertComponentConfigToMap(component.getId(), isFilter);
+        Map<String, Object> configMap = getCacheComponentConfigMap(clusterId, componentType, isFilter);
         if(MapUtils.isEmpty(configMap)){
-            return null;
+            throw new RdosDefineException("组件配置为空");
         }
         if (clazz.isInstance(Map.class)) {
             return (T) configMap;
@@ -1356,6 +1285,20 @@ public class ComponentService {
             return (T) configStr;
         }
         return JSONObject.parseObject(configStr, clazz);
+    }
+
+    @Cacheable(cacheNames = "component")
+    public Map<String, Object> getCacheComponentConfigMap(Long clusterId, Integer componentType, boolean isFilter) {
+        Component component = componentDao.getByClusterIdAndComponentType(clusterId, componentType);
+        if (null == component) {
+            return null;
+        }
+        return componentConfigService.convertComponentConfigToMap(component.getId(), isFilter);
+    }
+
+    @CacheEvict(cacheNames = "component", allEntries = true)
+    public void clearComponentCache() {
+        LOGGER.info(" clear all component cache ");
     }
 
     /**

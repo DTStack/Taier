@@ -13,6 +13,26 @@ public class ComponentVO extends Component {
 
     private String clusterName;
 
+    private String componentConfig;
+
+    private String componentTemplate;
+
+    public String getComponentConfig() {
+        return componentConfig;
+    }
+
+    public void setComponentConfig(String componentConfig) {
+        this.componentConfig = componentConfig;
+    }
+
+    public String getComponentTemplate() {
+        return componentTemplate;
+    }
+
+    public void setComponentTemplate(String componentTemplate) {
+        this.componentTemplate = componentTemplate;
+    }
+
     public String getClusterName() {
         return clusterName;
     }

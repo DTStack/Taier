@@ -98,4 +98,11 @@ public class ClientTemplate implements Serializable {
         this.value = value;
     }
 
+    public ClientTemplate(String key, Object value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public ClientTemplate() {
+    }
 }

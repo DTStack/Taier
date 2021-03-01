@@ -1,12 +1,17 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.ComponentConfig;
 import com.dtstack.engine.api.pojo.ClientTemplate;
-import com.dtstack.engine.common.enums.EFrontType;
+import com.dtstack.engine.api.vo.ComponentVO;
+import com.dtstack.engine.api.vo.Pair;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ComponentConfigUtils;
 import com.dtstack.engine.dao.ComponentConfigDao;
+import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.utils.TypeNameDefaultTemplateUtils;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -19,6 +24,9 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static com.dtstack.engine.common.constrant.ConfigConstant.TYPE_NAME_KEY;
 
 /**
  * @author yuebai
@@ -38,16 +46,15 @@ public class ComponentConfigService {
      * @param clientTemplates
      * @param componentId
      * @param clusterId
-     * @param engineId
      * @param componentTypeCode
      */
     @Transactional(rollbackFor = Exception.class)
-    public void addOrUpdateComponentConfig(List<ClientTemplate> clientTemplates, Long componentId, Long clusterId, Long engineId, Integer componentTypeCode) {
+    public void addOrUpdateComponentConfig(List<ClientTemplate> clientTemplates, Long componentId, Long clusterId, Integer componentTypeCode) {
         if (null == clusterId || null == componentId || null == componentTypeCode || CollectionUtils.isEmpty(clientTemplates)) {
             throw new RdosDefineException("参数不能为空");
         }
         componentConfigDao.deleteByComponentId(componentId);
-        List<ComponentConfig> componentConfigs = ComponentConfigUtils.saveTreeToList(clientTemplates, clusterId, engineId, componentId, null, null, componentTypeCode);
+        List<ComponentConfig> componentConfigs = ComponentConfigUtils.saveTreeToList(clientTemplates, clusterId, componentId, null, null, componentTypeCode);
         batchSaveComponentConfig(componentConfigs);
     }
 
@@ -69,47 +76,78 @@ public class ComponentConfigService {
 
 
     /**
-     * 将yarn hdfs 等xml配置信息转换为clientTemplate
-     *
-     * @param componentConfigString
-     * @return
-     */
-    public List<ClientTemplate> convertXMLConfigToComponentConfig(String componentConfigString) {
-        if (StringUtils.isBlank(componentConfigString)) {
-            return new ArrayList<>(0);
-        }
-        JSONObject componentConfigObj = JSONObject.parseObject(componentConfigString);
-        List<ClientTemplate> configs = new ArrayList<>(componentConfigObj.size());
-        for (String key : componentConfigObj.keySet()) {
-            ClientTemplate componentConfig = new ClientTemplate();
-            componentConfig.setType(EFrontType.XML.name());
-            componentConfig.setKey(key);
-            componentConfig.setValue(componentConfigObj.get(key));
-            configs.add(componentConfig);
-        }
-        return configs;
-    }
-
-
-    /**
      * 仅在第一次将console_component中component_template 转换为 console_component_config的数据使用
      * component_template旧数据默认最大深度不超过三层
+     * typeName必须要从componentConfig获取
      *
-     * @param clientTemplates
+     * @param componentConfig
+     * @param componentTemplate
      */
-    public void deepOldClientTemplate(List<ClientTemplate> clientTemplates, Long componentId, Long clusterId, Long engineId, Integer componentTypeCode) {
-        if (null == clusterId || null == componentId || null == componentTypeCode || CollectionUtils.isEmpty(clientTemplates)) {
+    public void deepOldClientTemplate(String componentConfig, String componentTemplate, Long componentId, Long clusterId, Integer componentTypeCode) {
+        if (null == clusterId || null == componentId || null == componentTypeCode || StringUtils.isBlank(componentTemplate)) {
             throw new RdosDefineException("参数不能为空");
         }
+        List<ClientTemplate> clientTemplates = null;
+        if (EComponentType.noControlComponents.contains(EComponentType.getByCode(componentTypeCode))) {
+            clientTemplates = ComponentConfigUtils.convertXMLConfigToComponentConfig(componentConfig);
+        } else {
+            clientTemplates = JSONArray.parseArray(componentTemplate, ClientTemplate.class);
+        }
         clientTemplates = ComponentConfigUtils.convertOldClientTemplateToTree(clientTemplates);
-        List<ComponentConfig> componentConfigs = ComponentConfigUtils.saveTreeToList(clientTemplates, clusterId, engineId, componentId, null, null, componentTypeCode);
+        if (EComponentType.SFTP.getTypeCode().equals(componentTypeCode)) {
+            ComponentConfigUtils.convertOldSftpTemplate(clientTemplates);
+        }
+        //提取typeName
+        if (StringUtils.isNotBlank(componentConfig)) {
+            String typeNameValue = JSONObject.parseObject(componentConfig).getString(TYPE_NAME_KEY);
+            if (StringUtils.isNotBlank(typeNameValue)) {
+                clientTemplates.add(ComponentConfigUtils.buildOthers(TYPE_NAME_KEY, typeNameValue));
+            }
+        }
+        List<ComponentConfig> componentConfigs = ComponentConfigUtils.saveTreeToList(clientTemplates, clusterId, componentId, null, null, componentTypeCode);
         batchSaveComponentConfig(componentConfigs);
     }
 
 
-    public Map<String, Object> convertComponentConfigToMap(Long componentId,boolean isFilter) {
-        List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(componentId,isFilter);
+    public Map<String, Object> convertComponentConfigToMap(Long componentId, boolean isFilter) {
+        List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(componentId, isFilter);
         return ComponentConfigUtils.convertComponentConfigToMap(componentConfigs);
     }
 
+    /**
+     * 加载typeName默认的控件
+     *
+     * @param typeName
+     * @return
+     */
+    public List<ComponentConfig> loadDefaultTemplate(String typeName) {
+        Pair<Long, Integer> defaultComponentIdByTypeName = TypeNameDefaultTemplateUtils.getDefaultComponentIdByTypeName(typeName);
+        if (null == defaultComponentIdByTypeName) {
+            throw new RdosDefineException("不支持的插件类型");
+        }
+        return componentConfigDao.listByComponentId(defaultComponentIdByTypeName.getKey(), true);
+    }
+
+    public List<ComponentVO> getComponentVoByComponent(List<Component> components, boolean isFilter, Long clusterId) {
+        if (null == clusterId) {
+            throw new RdosDefineException("集群id不能为空");
+        }
+        if (CollectionUtils.isEmpty(components)) {
+            return new ArrayList<>(0);
+        }
+        List<ComponentConfig> componentConfigs = componentConfigDao.listByClusterId(clusterId, isFilter);
+        if (CollectionUtils.isEmpty(componentConfigs)) {
+            return new ArrayList<>(0);
+        }
+        Map<Long, List<ComponentConfig>> componentIdConfigs = componentConfigs.stream().collect(Collectors.groupingBy(ComponentConfig::getComponentId));
+        List<ComponentVO> componentVOS = new ArrayList<>(components.size());
+        for (Component component : components) {
+            ComponentVO componentVO = ComponentVO.toVO(component);
+            List<ComponentConfig> configs = componentIdConfigs.get(component.getId());
+            componentVO.setComponentTemplate(JSONObject.toJSONString(ComponentConfigUtils.buildDBDataToClientTemplate(configs)));
+            componentVO.setComponentConfig(JSONObject.toJSONString(ComponentConfigUtils.convertComponentConfigToMap(configs)));
+            componentVOS.add(componentVO);
+        }
+        return componentVOS;
+    }
 }

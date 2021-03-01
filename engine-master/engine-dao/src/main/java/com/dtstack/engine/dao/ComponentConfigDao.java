@@ -13,7 +13,11 @@ public interface ComponentConfigDao {
 
     List<ComponentConfig> listByComponentId(@Param("componentId")Long componentId,@Param("isFilter") boolean isFilter);
 
+    List<ComponentConfig> listByClusterId(@Param("clusterId")Long clusterId,@Param("isFilter") boolean isFilter);
+
     Integer insertBatch(@Param("componentConfigs") List<ComponentConfig> componentConfigs);
 
     Integer deleteByComponentId(@Param("componentId")Long componentId);
+
+    ComponentConfig listFirst();
 }

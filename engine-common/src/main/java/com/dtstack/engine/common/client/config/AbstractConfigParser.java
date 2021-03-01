@@ -2,6 +2,7 @@ package com.dtstack.engine.common.client.config;
 
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.common.enums.EFrontType;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -13,6 +14,7 @@ import java.util.*;
  * @date 2020-06-23
  */
 @SuppressWarnings("unchecked")
+@Deprecated
 public abstract class AbstractConfigParser implements IPluginConfigParser<InputStream, List<ClientTemplate>> {
 
     private static final String CONTROLS = "controls";
@@ -166,15 +168,11 @@ public abstract class AbstractConfigParser implements IPluginConfigParser<InputS
     private List<ClientTemplate> getClientTemplates(Map<String, Object> configMap) {
         List<ClientTemplate> templateVos = new ArrayList<>();
         for (String key : configMap.keySet()) {
-            if (REQUIRE.equalsIgnoreCase(key)) {
-                Map<String, Object> value = (Map<String, Object>) configMap.get(key);
+            Object keyMap = configMap.get(key);
+            if (keyMap instanceof Map) {
+                Map<String, Object> value = (Map<String, Object>) keyMap;
                 for (String s : value.keySet()) {
-                    templateVos.add(parseKeyValueToVo(s, value, false, true));
-                }
-            } else if (OPTIONAL.equalsIgnoreCase(key)) {
-                Map<String, Object> value = (Map<String, Object>) configMap.get(key);
-                for (String s : value.keySet()) {
-                    templateVos.add(parseKeyValueToVo(s, value, false, false));
+                    templateVos.add(parseKeyValueToVo(s, value, false, REQUIRE.equalsIgnoreCase(key)));
                 }
             }
         }
@@ -214,7 +212,10 @@ public abstract class AbstractConfigParser implements IPluginConfigParser<InputS
                     //设置了控件类型
                     Object controlsValues = defaultMap.get(VALUES);
                     templateVo.setType(String.valueOf(defaultMap.get(CONTROLS)).toUpperCase());
-                    if (controlsValues instanceof List) {
+                    if (EFrontType.RADIO_LINKAGE.name().equalsIgnoreCase(templateVo.getType())) {
+                        templateVo.setValues(getRadioLinkage(defaultMap));
+                        templateVo.setValue(defaultMap.get(VALUE));
+                    } else if (controlsValues instanceof List) {
                         templateVo.setValues(getControlsClientTemplates((List<String>) controlsValues));
                         if (CollectionUtils.isNotEmpty(templateVo.getValues())) {
                             //第一位设置为默认值
@@ -237,5 +238,32 @@ public abstract class AbstractConfigParser implements IPluginConfigParser<InputS
             }
         }
         return templateVo;
+    }
+
+    private List<ClientTemplate> getRadioLinkage(Map<String, Object> defaultMap) {
+        Object values = defaultMap.get(VALUES);
+        List<ClientTemplate> radioLinkageValues = new ArrayList<>();
+        if (values instanceof Map) {
+            Map<String, Object> radioLinkageMap = (Map) values;
+            for (String radioKey : radioLinkageMap.keySet()) {
+                Map<String, Object> radioValue = (Map<String, Object>) radioLinkageMap.get(radioKey);
+                ClientTemplate radioValueTemplate = getClientTemplateWithDependency(radioKey, radioValue);
+                //radio联动控件 values 只是单个
+                Object linkageInputValues = radioValue.get(VALUES);
+                if (linkageInputValues instanceof String) {
+                    radioValueTemplate.setValues(getControlsClientTemplates(Lists.newArrayList(String.valueOf(linkageInputValues))));
+                } else if (linkageInputValues instanceof Map) {
+                    Map<String, Object> sonMap = (Map) ((Map<?, ?>) linkageInputValues).get(radioKey);
+                    ClientTemplate sonClientTemplate = getClientTemplateWithDependency(radioKey, sonMap);
+                    sonClientTemplate.setType((String)sonMap.get(CONTROLS));
+                    sonClientTemplate.setValue(Optional.ofNullable(sonMap.get(VALUE)).orElse(""));
+                    radioValueTemplate.setValues(Lists.newArrayList(sonClientTemplate));
+                }
+
+                radioValueTemplate.setValue(radioValue.get(VALUE));
+                radioLinkageValues.add(radioValueTemplate);
+            }
+        }
+        return radioLinkageValues;
     }
 }

@@ -478,7 +478,7 @@ public class ConsoleService {
         try {
             JSONObject pluginInfo = new JSONObject();
             pluginInfo.put(EComponentType.YARN.getConfName(), componentConfig);
-            String typeName = componentConfig.getString(ComponentService.TYPE_NAME);
+            String typeName = componentConfig.getString(ConfigConstant.TYPE_NAME_KEY);
             if (StringUtils.isBlank(typeName)) {
                 //获取对应的插件名称
                 Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode());
@@ -491,7 +491,7 @@ public class ConsoleService {
                             EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion());
                 }
             }
-            pluginInfo.put(ComponentService.TYPE_NAME,typeName);
+            pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,typeName);
             return workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
         } catch (Exception e) {
             logger.error("getResources error: ", e);

@@ -6,7 +6,6 @@ package com.dtstack.engine.api.domain;
  */
 public class ComponentConfig extends DataObject{
 
-    private Long engineId;
     private Long componentId;
     private Long clusterId;
     private Integer componentTypeCode;
@@ -34,14 +33,6 @@ public class ComponentConfig extends DataObject{
 
     public void setDesc(String desc) {
         this.desc = desc;
-    }
-
-    public Long getEngineId() {
-        return engineId;
-    }
-
-    public void setEngineId(Long engineId) {
-        this.engineId = engineId;
     }
 
     public Long getComponentId() {

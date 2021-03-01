@@ -3,15 +3,15 @@
 <mapper namespace="com.dtstack.engine.dao.ComponentConfigDao">
 
     <sql id="select_content_fragment">
-        id,cluster_id,engine_id,component_id,component_type_code,type,required,`key`,`value`,`values`,dependencyKey,dependencyValue,`desc`,gmt_create,gmt_modified,is_deleted
+        id,cluster_id,component_id,component_type_code,type,required,`key`,`value`,`values`,dependencyKey,dependencyValue,`desc`,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <insert id="insertBatch">
         insert into
-        console_component_config(cluster_id,engine_id,component_id,component_type_code,`type`,`required`,`key`,`value`,`values`,dependencyKey,dependencyValue,`desc`)
+        console_component_config(cluster_id,component_id,component_type_code,`type`,`required`,`key`,`value`,`values`,dependencyKey,dependencyValue,`desc`)
         values
         <foreach collection="componentConfigs" item="config" separator=",">
-            (#{config.clusterId},#{config.engineId},#{config.componentId},#{config.componentTypeCode},#{config.type},#{config.required},
+            (#{config.clusterId},#{config.componentId},#{config.componentTypeCode},#{config.type},#{config.required},
             #{config.key},#{config.value},#{config.values},#{config.dependencyKey},#{config.dependencyValue},#{config.desc})
         </foreach>
     </insert>
@@ -23,7 +23,17 @@
         from console_component_config
         where component_id = #{componentId} and is_deleted = 0
         <if test="true == isFilter">
-            and `key` != 'OTHER'
+            and `type` != 'OTHER'
+        </if>
+    </select>
+
+    <select id="listByClusterId" resultType="ComponentConfig">
+        select
+        <include refid="select_content_fragment"/>
+        from console_component_config
+        where cluster_id = #{clusterId} and is_deleted = 0
+        <if test="true == isFilter">
+            and `type` != 'OTHER'
         </if>
     </select>
 
@@ -32,4 +42,12 @@
         from console_component_config
         where component_id = #{componentId}
     </delete>
+
+
+    <select id="listFirst" resultType="ComponentConfig">
+        select
+        <include refid="select_content_fragment"/>
+        from console_component_config where component_id > 0
+        limit 1
+    </select>
 </mapper>

@@ -1,8 +1,8 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.domain.Queue;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
@@ -49,9 +49,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.dtstack.engine.common.constrant.ConfigConstant.KERBEROS_PATH;
-import static com.dtstack.engine.common.constrant.ConfigConstant.LDAP_USER_NAME;
-import static com.dtstack.engine.master.impl.ComponentService.TYPE_NAME;
+import static com.dtstack.engine.common.constrant.ConfigConstant.*;
 import static java.lang.String.format;
 
 @Service
@@ -115,6 +113,9 @@ public class ClusterService implements InitializingBean {
 
     @Autowired
     private DtUicUserConnect dtUicUserConnect;
+
+    @Autowired
+    private ComponentConfigService componentConfigService;
 
 
     @Override
@@ -235,7 +236,7 @@ public class ClusterService implements InitializingBean {
 
         if (EngineType.Dummy.name().equalsIgnoreCase(engineTypeStr)) {
             JSONObject dummy = new JSONObject();
-            dummy.put(TYPE_NAME, EngineType.Dummy.name().toLowerCase());
+            dummy.put(TYPE_NAME_KEY, EngineType.Dummy.name().toLowerCase());
             return dummy;
         }
         EngineTypeComponentType type = EngineTypeComponentType.getByEngineName(engineTypeStr);
@@ -626,7 +627,7 @@ public class ClusterService implements InitializingBean {
         if (EComponentType.HDFS == type.getComponentType()) {
             //hdfs yarn%s-hdfs%s-hadoop%s的版本
             JSONObject hadoopConf = clusterConfigJson.getJSONObject(EComponentType.HDFS.getConfName());
-            String typeName = hadoopConf.getString(TYPE_NAME);
+            String typeName = hadoopConf.getString(TYPE_NAME_KEY);
             pluginInfo.put("typeName", typeName);
             pluginInfo.put(EComponentType.HDFS.getConfName(), hadoopConf);
             pluginInfo.put(EComponentType.YARN.getConfName(), clusterConfigJson.getJSONObject(EComponentType.YARN.getConfName()));
@@ -658,19 +659,20 @@ public class ClusterService implements InitializingBean {
                 if (Objects.nonNull(deployMode) && !EComponentType.SPARK.equals(type.getComponentType())) {
                     deploy = EDeployMode.getByType(deployMode);
                 }
-                JSONObject flinkConf = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
-                if(null == flinkConf || flinkConf.size() == 0){
-                    throw new RdosDefineException("flink配置信息为空");
+                JSONObject deployConf = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
+
+                if (null == deployConf || deployConf.size() == 0 || null == deployConf.getJSONObject(deploy.getMode())) {
+                    String errorMsg = "【%s】组件配置 【%s】模式配置信息不能为空";
+                    throw new RdosDefineException(String.format(errorMsg, type.getComponentType().getName(), deploy.getMode()));
                 }
-                pluginInfo = flinkConf.getJSONObject(deploy.getMode());
-                if (Objects.isNull(pluginInfo)) {
-                    throw new RdosDefineException(String.format("对应模式【%s】未配置信息", deploy.name()));
-                }
-                String typeName = flinkConf.getString(TYPE_NAME);
+
+                pluginInfo = deployConf.getJSONObject(deploy.getMode()) ;
+                String typeName = deployConf.getString(TYPE_NAME_KEY);
                 if (!StringUtils.isBlank(typeName)) {
-                    pluginInfo.put(TYPE_NAME, typeName);
+                    pluginInfo.put(TYPE_NAME_KEY, typeName);
                 }
                 if (EComponentType.SPARK.equals(type.getComponentType())) {
+
                     JSONObject sftpConfig = clusterConfigJson.getJSONObject(EComponentType.SFTP.getConfName());
                     if (Objects.nonNull(sftpConfig)) {
                         String confHdfsPath = sftpConfig.getString("path") + File.separator + componentService.buildConfRemoteDir(clusterVO.getId());
@@ -915,10 +917,11 @@ public class ClusterService implements InitializingBean {
         }
         List<Long> engineIds = engines.stream().map(Engine::getId).collect(Collectors.toList());
         List<Component> components = componentDao.listByEngineIds(engineIds);
-
-        Map<EComponentScheduleType, List<Component>> scheduleType = new HashMap<>();
-        if (CollectionUtils.isNotEmpty(components)) {
-            scheduleType = components.stream().collect(Collectors.groupingBy(c -> EComponentType.getScheduleTypeByComponent(c.getComponentTypeCode())));
+        List<ComponentVO> componentConfigs = componentConfigService.getComponentVoByComponent(components,
+                null == removeTypeName || removeTypeName , clusterId);
+        Map<EComponentScheduleType, List<ComponentVO>> scheduleType = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(componentConfigs)) {
+            scheduleType = componentConfigs.stream().collect(Collectors.groupingBy(c -> EComponentType.getScheduleTypeByComponent(c.getComponentTypeCode())));
         }
         List<SchedulingVo> schedulingVos = new ArrayList<>();
         //为空也返回
@@ -926,7 +929,7 @@ public class ClusterService implements InitializingBean {
             SchedulingVo schedulingVo = new SchedulingVo();
             schedulingVo.setSchedulingCode(value.getType());
             schedulingVo.setSchedulingName(value.getName());
-            schedulingVo.setComponents(ComponentVO.toVOS(scheduleType.get(value)));
+            schedulingVo.setComponents(scheduleType.getOrDefault(value,new ArrayList<>(0)));
             schedulingVos.add(schedulingVo);
         }
         clusterVO.setScheduling(schedulingVos);

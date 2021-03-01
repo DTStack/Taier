@@ -154,13 +154,11 @@ CREATE TABLE `console_component` (
  `engine_id` int(11) NOT NULL COMMENT '引擎id',
  `component_name` varchar(24) NOT NULL COMMENT '组件名称',
  `component_type_code` tinyint(1) NOT NULL COMMENT '组件类型',
- `component_config` text NOT NULL COMMENT '组件配置',
  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
  `hadoop_version` varchar(25) DEFAULT '' COMMENT '组件hadoop版本',
  `upload_file_name` varchar(50) DEFAULT '' COMMENT '上传文件zip名称',
- `component_template` text COMMENT '前端展示模版json',
  `kerberos_file_name` varchar(50) DEFAULT '' COMMENT '上传kerberos文件zip名称',
   PRIMARY KEY (`id`),
   UNIQUE INDEX `index_component`(`engine_id`, `component_type_code`) USING BTREE
@@ -583,6 +581,28 @@ CREATE TABLE `task_param_template` (
   UNIQUE KEY `index_compute_engine_task` (`compute_type`,`engine_type`,`task_type`,`is_deleted`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
+
+
+create table if not exists console_component_config
+(
+    id                  int auto_increment primary key,
+    cluster_id          int                                  not null comment '集群id',
+    component_id        int                                  not null comment '组件id',
+    component_type_code tinyint(1)                           not null comment '组件类型',
+    type                varchar(128)                         not null comment '配置类型',
+    required            tinyint(1)                           not null comment 'true/false',
+    `key`               varchar(256)                         not null comment '配置键',
+    value               text                                 null comment '默认配置项',
+    `values`            varchar(512)                         null comment '可配置项',
+    dependencyKey       varchar(256)                         null comment '依赖键',
+    dependencyValue     varchar(256)                         null comment '依赖值',
+    `desc`              varchar(512)                         null comment '描述',
+    gmt_create          datetime   default CURRENT_TIMESTAMP not null comment '创建时间',
+    gmt_modified        datetime   default CURRENT_TIMESTAMP not null comment '修改时间',
+    is_deleted          tinyint(1) default 0                 not null comment '0正常 1逻辑删除',
+  KEY `index_componentId` (`component_id`),
+  KEY `index_cluster_id` (`cluster_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 
