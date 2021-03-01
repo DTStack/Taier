@@ -19,6 +19,7 @@ import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.utils.EngineUtil;
 import com.dtstack.engine.master.utils.Template;
+import com.dtstack.schedule.common.enums.AppType;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
@@ -66,6 +67,7 @@ public class ActionServiceTest extends AbstractTest {
         try {
             Map<String, Object> params = getParams(getJsonString(getRandomStr()));
             ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(params, ParamActionExt.class);
+            paramActionExt.setAppType(AppType.RDOS.getType());
             Boolean result = actionService.start(paramActionExt);
             Assert.assertTrue(result);
         } catch (Exception e) {
@@ -99,6 +101,7 @@ public class ActionServiceTest extends AbstractTest {
             Map<String, Object> params = getParams(getJsonString(getRandomStr()));
             ParamActionExt paramActionExt = com.dtstack.engine.common.util.PublicUtil.mapToObject(params, ParamActionExt.class);
             paramActionExt.setTaskId(scheduleJobTemplate.getJobId());
+            paramActionExt.setAppType(AppType.RDOS.getType());
             Boolean result = actionService.start(paramActionExt);
             Assert.assertTrue(result);
             ScheduleJob scheduleJob = scheduleJobDao.getByJobId(paramActionExt.getTaskId(),null);
@@ -106,70 +109,6 @@ public class ActionServiceTest extends AbstractTest {
 
         } catch (Exception e) {
             fail("Have exception, message: " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void testStatus() {
-        ScheduleJob scheduleJob= DataCollection.getData().getScheduleJobFirst();
-        String jobId = scheduleJob.getJobId();
-        Integer statusResult = scheduleJob.getStatus();
-        Integer computeType = scheduleJob.getComputeType();
-        try {
-            actionService.status(jobId);
-            fail("Expect have a Exception");
-        } catch (Exception e) {}
-
-        try {
-            Integer status = actionService.status(jobId);
-            Boolean a = EngineUtil.isRequiredComponent(1);
-            Assert.assertTrue(status != null && status.equals(statusResult));
-        } catch (Exception e) {
-            fail("Unexpect have a Exception: " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void testStatusByJobIds() {
-        ScheduleJob scheduleJobFirst = DataCollection.getData().getScheduleJobFirst();
-        ScheduleJob scheduleJobSecond = DataCollection.getData().getScheduleJobSecond();
-        Map<String, Integer> jobIdsAndStatus = new HashMap<>();
-        jobIdsAndStatus.put(scheduleJobFirst.getJobId(), scheduleJobFirst.getStatus());
-        jobIdsAndStatus.put(scheduleJobSecond.getJobId(), scheduleJobSecond.getStatus());
-        List<String> jobIds = new ArrayList<>(jobIdsAndStatus.keySet());
-        Integer computeType = scheduleJobFirst.getComputeType();
-
-        try {
-            actionService.statusByJobIds(jobIds);
-            fail("Expect have a Exception");
-        } catch (Exception e) {}
-
-        try {
-            Map<String, Integer> status = actionService.statusByJobIds(jobIds);
-            long result = jobIds.stream().filter(val -> jobIdsAndStatus.get(val).equals(status.get(val))).count();
-            Assert.assertEquals(result, jobIds.size());
-        } catch (Exception e) {
-            fail("Unexpect have a Exception: " + e.getMessage());
-        }
-
-    }
-
-    @Test
-    public void testStartTime() {
-        ScheduleJob scheduleJob= DataCollection.getData().getScheduleJobFirst();
-        String jobId = scheduleJob.getJobId();
-        Long startTimeResult = scheduleJob.getExecStartTime().getTime();
-        Integer computeType = scheduleJob.getComputeType();
-        try {
-            actionService.startTime(jobId);
-            fail("Expect have a Exception");
-        } catch (Exception e) {}
-
-        try {
-            Long startTime = actionService.startTime(jobId);
-            Assert.assertTrue(startTime != null && startTime.equals(startTimeResult));
-        } catch (Exception e) {
-            fail("Unexpect have a Exception: " + e.getMessage());
         }
     }
 
@@ -209,88 +148,12 @@ public class ActionServiceTest extends AbstractTest {
         }
     }
 
-
-    @Test
-    public void testRetryLog() {
-        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobFirst();
-        String jobId = scheduleJob.getJobId();
-        Integer computeType = scheduleJob.getComputeType();
-        EngineJobRetry engineJobRetry = DataCollection.getData().getEngineJobRetry();
-        try {
-            actionService.retryLog(jobId);
-            fail("Expect have a Exception");
-        } catch (Exception e) {}
-        try {
-            List<ActionRetryLogVO> actionRetryLogVOS = actionService.retryLog(jobId);
-            String retryNum = "\"retryNum\":\"" + engineJobRetry.getRetryNum() + "\"" ;
-            String retryTaskParams = "\"retryTaskParams\":\"" + engineJobRetry.getRetryTaskParams() + "\"";
-            String logInfo = "\"logInfo\":\"" + engineJobRetry.getLogInfo() + "\"";
-            int length = retryNum.length() + retryTaskParams.length() + logInfo.length() + 6;
-//            Assert.assertTrue(result.contains(retryNum) && result.contains(retryTaskParams) && result.contains(logInfo) && result.length() == length);
-        } catch (Exception e) {
-            fail("Unexpect have a Exception: " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void testRetryLogDetail() {
-        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobSecond();
-        String jobId = scheduleJob.getJobId();
-        Integer computeType = scheduleJob.getComputeType();
-
-        EngineJobRetry engineJobRetry = DataCollection.getData().getEngineJobRetryNoEngineLog();
-        try {
-            actionService.retryLogDetail(jobId, engineJobRetry.getRetryNum() + 1);
-            fail("Expect have a Exception");
-        } catch (Exception e) {}
-
-        String mock_engine_log = "{err: test_mock_engine_log}";
-        when(jobDealer.getAndUpdateEngineLog(jobId, engineJobRetry.getEngineJobId(), engineJobRetry.getApplicationId(), scheduleJob.getDtuicTenantId())).thenReturn(mock_engine_log);
-
-        try {
-            ActionRetryLogVO actionRetryLogVO = actionService.retryLogDetail(jobId, engineJobRetry.getRetryNum() + 1);
-            String retryNum = "\"retryNum\":\"" + engineJobRetry.getRetryNum() + "\"" ;
-            String retryTaskParams = "\"retryTaskParams\":\"" + engineJobRetry.getRetryTaskParams() + "\"";
-            String logInfo = "\"logInfo\":\"" + engineJobRetry.getLogInfo() + "\"";
-            String engineLog = "\"engineLog\":\"" + mock_engine_log + "\"";
-            int length = retryNum.length() + retryTaskParams.length() + logInfo.length() + engineLog.length() + 5;
-            //Assert.assertTrue(result.contains(retryNum) && result.contains(retryTaskParams) && result.contains(logInfo) && result.contains(engineLog) && result.length() == length);
-        } catch (Exception e) {
-            fail("Unexpect have a Exception: " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void testEntitys() {
-        ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobThird();
-        String jobId = scheduleJob.getJobId();
-        Integer computeType = scheduleJob.getComputeType();
-        try {
-            actionService.entitys(new ArrayList<>(Arrays.asList(jobId)));
-            fail("Expect have a Exception");
-        } catch (Exception e) {}
-
-        try {
-            List<ActionJobEntityVO> entitys = actionService.entitys(new ArrayList<>(Arrays.asList(jobId)));
-//            Map<String, Object> map = result.get(0);
-//            Assert.assertEquals(map.get("jobId"), scheduleJob.getJobId());
-//            Assert.assertEquals(map.get("status"), scheduleJob.getStatus());
-//            Assert.assertEquals(map.get("execStartTime"), scheduleJob.getExecStartTime());
-//            Assert.assertEquals(map.get("logInfo"), scheduleJob.getLogInfo());
-//            Assert.assertEquals(map.get("engineLog"), scheduleJob.getEngineLog());
-//            Assert.assertEquals(map.get("engineJobId"), scheduleJob.getEngineJobId());
-//            Assert.assertEquals(map.get("applicationId"), scheduleJob.getApplicationId());
-        } catch (Exception e) {
-            fail("Unexpect have a Exception: " + e.getMessage());
-        }
-    }
-
-
     @Test
     public void testContainerInfos() {
         ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobThird();
         try {
             ParamAction paramAction = PublicUtil.mapToObject(getParams(getJsonString(scheduleJob.getJobId())), ParamAction.class);
+            paramAction.setAppType(AppType.RDOS.getType());
             List<String> result = actionService.containerInfos(paramAction);
             Assert.assertEquals(result, mockInfos);
         } catch (Exception e) {

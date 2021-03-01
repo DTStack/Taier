@@ -23,7 +23,6 @@ import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.dao.TenantResourceDao;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
-import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -762,7 +761,7 @@ public class ScheduleTaskShadeService {
         if (extInfo == null) {
             return null;
         }
-        
+
         return extInfo.getString(TaskConstant.INFO);
     }
 }

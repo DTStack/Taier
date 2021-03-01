@@ -14,7 +14,7 @@ perjob:
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink110
     high-availability.zookeeper.quorum:
-    high-availability.storageDir: hdfs://ns1/flink110/ha
+    high-availability.storageDir: hdfs://ns1/dtInsight/flink110/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082
@@ -60,7 +60,7 @@ perjob:
     flink.env.java.opts: -XX:MaxMetaspaceSize=500m
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
-    yarn.application-attempts: 0
+    yarn.application-attempts: 3
     yarn.application-attempt-failures-validity-interval: 3600000
     high-availability: ZOOKEEPER
 
@@ -80,7 +80,7 @@ session:
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink110
     high-availability.zookeeper.quorum:
-    high-availability.storageDir: hdfs://ns1/flink110/ha
+    high-availability.storageDir: hdfs://ns1/dtInsight/flink110/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082
@@ -130,7 +130,7 @@ session:
     flink.env.java.opts: -XX:MaxMetaspaceSize=500m
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
-    yarn.application-attempts: 0
+    yarn.application-attempts: 3
     yarn.application-attempt-failures-validity-interval: 3600000
     high-availability: ZOOKEEPER
 
@@ -150,7 +150,7 @@ standalone:
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink110
     high-availability.zookeeper.quorum:
-    high-availability.storageDir: hdfs://ns1/flink110/ha
+    high-availability.storageDir: hdfs://ns1/dtInsight/flink110/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082

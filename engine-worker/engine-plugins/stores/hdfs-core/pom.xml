@@ -23,8 +23,8 @@
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-worker-server</artifactId>
-            <version>1.0.0</version>
+            <artifactId>engine-common</artifactId>
+            <version>${common.version}</version>
             <scope>provided</scope>
         </dependency>
 

@@ -46,6 +46,10 @@ public class ConfigConstrant {
     public static final String HADOOP_CONF_BYTES_KEY = "hadoop.conf.bytes";
     public static final String YARN_CONF_BYTES_KEY = "yarn.conf.bytes";
 
+    public static final String CHILD_FIRST_LOADER_PATTERNS = "classloader.child-first-patterns";
+    // 指定具体child loader类的全类名，使用;号分隔
+    public static final String CHILD_FIRST_LOADER_PATTERNS_DEFAULT = "org.apache.flink.table.planner.plan.QueryOperationConverter";
+
     // ------------------------------------------------------------------------
     // Resource Configs
     // ------------------------------------------------------------------------

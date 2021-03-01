@@ -178,13 +178,16 @@ public class ZkService implements InitializingBean, DisposableBean {
     public List<String> getAliveBrokersChildren() {
         List<String> alives = Lists.newArrayList();
         try {
-            List<String> brokers = zkClient.getChildren().forPath(this.brokersNode);
-            for (String broker : brokers) {
-                BrokerHeartNode brokerHeartNode = getBrokerHeartNode(broker);
-                if (brokerHeartNode.getAlive()) {
-                    alives.add(broker);
+            if (null != zkClient) {
+                List<String> brokers = zkClient.getChildren().forPath(this.brokersNode);
+                for (String broker : brokers) {
+                    BrokerHeartNode brokerHeartNode = getBrokerHeartNode(broker);
+                    if (brokerHeartNode.getAlive()) {
+                        alives.add(broker);
+                    }
                 }
             }
+
         } catch (Exception e) {
             logger.error("getBrokersChildren error:", e);
         }

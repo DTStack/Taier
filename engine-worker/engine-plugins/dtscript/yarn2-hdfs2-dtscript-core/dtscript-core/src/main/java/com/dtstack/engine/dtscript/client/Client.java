@@ -130,7 +130,6 @@ public class Client {
                 conf.set(confArg, clientArguments.confs.getProperty(confArg));
             }
         }
-
         return conf;
     }
 
@@ -170,13 +169,11 @@ public class Client {
             localResources.put(DtYarnConstants.LEARNING_JOB_CONFIGURATION,
                     Utilities.createApplicationResource(getFileSystem(), jobConfPath, LocalResourceType.FILE));
 
-
             Path appMasterJar = Utilities.getRemotePath(conf, applicationId, DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH);
             LOG.info("Copying " + appJarSrc + " to remote path " + appMasterJar.toString());
             getFileSystem().copyFromLocalFile(false, true, appJarSrc, appMasterJar);
             localResources.put(DtYarnConfiguration.DTSCRIPT_APPMASTERJAR_PATH,
                     Utilities.createApplicationResource(getFileSystem(), appMasterJar, LocalResourceType.FILE));
-
 
             StringBuilder classPathEnv = new StringBuilder("${CLASSPATH}:./*");
 
@@ -232,6 +229,7 @@ public class Client {
 
             appMasterEnv.put("CLASSPATH", classPathEnv.toString());
             appMasterEnv.put("HADOOP_HOME", conf.get(DtYarnConfiguration.DT_HADOOP_HOME_DIR));
+            appMasterEnv.put(DtYarnConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.username"));
             appMasterEnv.put(DtYarnConstants.Environment.OUTPUTS.toString(), clientArguments.outputs.toString());
             appMasterEnv.put(DtYarnConstants.Environment.INPUTS.toString(), clientArguments.inputs.toString());
             appMasterEnv.put(DtYarnConstants.Environment.APP_TYPE.toString(), clientArguments.appType.name());
@@ -239,7 +237,6 @@ public class Client {
             appMasterEnv.put(DtYarnConstants.Environment.APP_JAR_LOCATION.toString(), appMasterJar.toUri().toString());
             appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString(), jobConfPath.toString());
             appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_CONTAINER_MAX_MEMORY.toString(), String.valueOf(newAppResponse.getMaximumResourceCapability().getMemory()));
-
 
             LOG.info("Building application master launch command");
             List<String> appMasterArgs = new ArrayList<>(20);
@@ -506,15 +503,20 @@ public class Client {
             if (!file.getPath().getName().startsWith("container")) {
                 continue;
             }
-            FSDataInputStream inputStream = getFileSystem().open(file.getPath());
-            InputStreamReader isr = new InputStreamReader(inputStream, "UTF-8");
-            BufferedReader br = new BufferedReader(isr);
-            StringBuilder lineString = new StringBuilder();
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                lineString.append(line);
+            try (
+                    FSDataInputStream inputStream = getFileSystem().open(file.getPath());
+                    InputStreamReader isr = new InputStreamReader(inputStream, "UTF-8");
+                    BufferedReader br = new BufferedReader(isr);
+                ) {
+                StringBuilder lineString = new StringBuilder();
+                String line = null;
+                while ((line = br.readLine()) != null) {
+                    lineString.append(line);
+                }
+                infos.add(lineString.toString());
+            } catch (Exception e) {
+                throw e;
             }
-            infos.add(lineString.toString());
         }
         return infos;
     }

@@ -126,30 +126,6 @@ public class DtUicUserConnect {
         return userTenantList;
     }
 
-    /**
-     * 获取uic租户信息
-     * @param url
-     * @param tenantId
-     * @return
-     */
-    public Map<String, Object> getUicTenantInfo(String url, Long tenantId,String token) {
-        Map<String, Object> cookies = Maps.newHashMap();
-        cookies.put("dt_token", token);
-        try {
-            String result = PoolHttpClient.get(String.format(GET_TENANT_INFO, new Object[]{url, tenantId}), cookies);
-            if (StringUtils.isBlank(result)) {
-                LOGGER.warn("uic api returns null.");
-                return Maps.newHashMap();
-            }
-            Map<String, Object> mResult = OBJECT_MAPPER.readValue(result, Map.class);
-            if ((Boolean) mResult.get("success")) {
-                return (Map<String, Object>) mResult.get("data");
-            }
-        } catch (IOException e) {
-            LOGGER.error("{}", e);
-        }
-        return Maps.newHashMap();
-    }
 
     public List<Map<String, Object>> getAllUicUsers(String url, String productCode, Long tenantId, String dtToken) {
         try {
@@ -210,7 +186,7 @@ public class DtUicUserConnect {
 
     }
 
-    public static String getLdapUserName(Long dtUicUserId,String dtToken,String uicUrl){
+    public String getLdapUserName(Long dtUicUserId,String dtToken,String uicUrl){
         try {
             String data = PoolHttpClient.get(String.format("%s/api/user/get-info-by-id?userId=%s&dtToken=%s", uicUrl,dtUicUserId,dtToken),(Map) null);
             JSONObject jsonObject = JSONObject.parseObject(data);

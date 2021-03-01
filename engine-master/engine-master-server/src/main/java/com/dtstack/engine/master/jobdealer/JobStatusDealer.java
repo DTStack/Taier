@@ -188,6 +188,7 @@ public class  JobStatusDealer implements Runnable {
                     jobLogDelayDealer(jobId, jobIdentifier, engineType, engineJobCache.getComputeType(),scheduleJob.getType());
                     jobStatusFrequency.remove(jobId);
                     engineJobCacheDao.delete(jobId);
+                    logger.info("------ jobId:{} is stop status {} delete jobCache", jobId, status);
                 }
 
                 if (RdosTaskStatus.RUNNING.getStatus().equals(status) && EngineType.isFlink(engineType)) {
@@ -200,10 +201,19 @@ public class  JobStatusDealer implements Runnable {
     }
 
     private void updateJobStatusWithPredicate(ScheduleJob scheduleJob, String jobId, Integer status) {
-        //流计算只有在状态变更的时候才去更新schedule_job表
+        //流计算只有在状态变更(且任务没有被手动停止 进入CANCELLING)的时候才去更新schedule_job表
         Predicate<ScheduleJob> isStreamUpdateConditions = job ->
-                ComputeType.STREAM.getType().equals(job.getComputeType()) && !job.getStatus().equals(status);
-        if (ComputeType.BATCH.getType().equals(scheduleJob.getComputeType()) || isStreamUpdateConditions.test(scheduleJob)) {
+                ComputeType.STREAM.getType().equals(job.getComputeType())
+                        && !job.getStatus().equals(status)
+                        && !RdosTaskStatus.CANCELLING.getStatus().equals(job.getStatus());
+
+        //流计算 任务被手动停止 进入CANCELLING 除非YARN上状态已结束 才回写
+        Predicate<ScheduleJob> isStreamCancellingConditions = job ->
+                ComputeType.STREAM.getType().equals(job.getComputeType())
+                        && RdosTaskStatus.CANCELLING.getStatus().equals(job.getStatus())
+                        && RdosTaskStatus.STOP_STATUS.contains(status);
+
+        if (ComputeType.BATCH.getType().equals(scheduleJob.getComputeType()) || isStreamUpdateConditions.test(scheduleJob) || isStreamCancellingConditions.test(scheduleJob)) {
             scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
         }
     }

@@ -22,7 +22,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.sftp.SftpConfig;
 import com.dtstack.engine.common.sftp.SftpFileManage;
 import com.dtstack.engine.master.config.MvcConfig;
-import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.utils.CheckUtils;
 import com.dtstack.lang.data.R;
@@ -269,14 +269,16 @@ public class AlertController {
             result = customizeAlertParam;
         }
 
-        result.setSource(alertGateTestVO.getAlertGateSource());
-        result.setAlertTemplate(alertGateTestVO.getAlertTemplate());
-        AlertGatePO alertGatePO = new AlertGatePO();
-        alertGatePO.setAlertGateCode(parse.code());
-        alertGatePO.setFilePath(alertGateTestVO.getFilePath());
-        alertGatePO.setAlertGateJson(alertGateTestVO.getAlertGateJson());
-        result.setAlertGatePO(alertGatePO);
-
+        if (result != null) {
+            result.setSource(alertGateTestVO.getAlertGateSource());
+            result.setAlertTemplate(alertGateTestVO.getAlertTemplate());
+            AlertGatePO alertGatePO = new AlertGatePO();
+            alertGatePO.setAlertGateCode(parse.code());
+            alertGatePO.setFilePath(alertGateTestVO.getFilePath());
+            alertGatePO.setAlertGateJson(alertGateTestVO.getAlertGateJson());
+            result.setAlertGatePO(alertGatePO);
+        }
+        
         return result;
     }
 }

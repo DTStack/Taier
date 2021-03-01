@@ -2,6 +2,7 @@ package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.vo.action.ActionJobStatusVO;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.controller.ActionController;
 import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.google.common.collect.Lists;
 import org.junit.Test;

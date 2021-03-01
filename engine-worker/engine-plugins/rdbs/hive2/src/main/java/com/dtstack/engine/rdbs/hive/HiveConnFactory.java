@@ -1,6 +1,8 @@
 package com.dtstack.engine.rdbs.hive;
 
 
+import com.dtstack.engine.base.util.KerberosUtils;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
@@ -75,12 +77,24 @@ public class HiveConnFactory extends AbstractConnFactory {
             }
         }
 
-        if (getUsername() == null) {
-            conn = DriverManager.getConnection(jdbcUrl, properties);
-        } else {
-            properties.setProperty(HIVE_USER, getUsername());
-            properties.setProperty(HIVE_PASSWORD, getPassword());
-            conn = DriverManager.getConnection(jdbcUrl, properties);
+        try {
+            conn = KerberosUtils.login(baseConfig, () -> {
+                Connection connection = null;
+                try {
+                    if (getUsername() == null) {
+                        connection = DriverManager.getConnection(jdbcUrl, properties);
+                    } else {
+                        properties.setProperty(HIVE_USER, getUsername());
+                        properties.setProperty(HIVE_PASSWORD, getPassword());
+                        connection = DriverManager.getConnection(jdbcUrl, properties);
+                    }
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
+                }
+                return connection;
+            }, yarnConf);
+        } catch (Exception e) {
+            throw new RdosDefineException("get connection by taskParams error", e);
         }
         return conn;
     }

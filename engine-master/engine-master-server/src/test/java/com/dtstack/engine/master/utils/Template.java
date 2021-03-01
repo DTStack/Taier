@@ -1,11 +1,14 @@
 package com.dtstack.engine.master.utils;
 
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.enums.LineageOriginType;
 import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.util.DateUtil;
-import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.schedule.common.enums.DataSourceType;
 
 import java.sql.Timestamp;
 
@@ -91,6 +94,23 @@ public class Template {
         return engineJobCache;
     }
 
+
+    public static EngineJobCache getEngineJobCacheTemplateCopyFromJob(ScheduleJob scheduleJob) {
+        EngineJobCache engineJobCache = new EngineJobCache();
+        engineJobCache.setJobId(scheduleJob.getJobId());
+        engineJobCache.setJobName(scheduleJob.getJobName());
+        engineJobCache.setEngineType("flink");
+        engineJobCache.setJobPriority(10L);
+        engineJobCache.setComputeType(scheduleJob.getComputeType());
+        engineJobCache.setJobInfo("{\"engineType\":\"spark\",\"taskType\":2,\"computeType\":0, \"tenantId\":9}");
+        engineJobCache.setStage(2);
+        engineJobCache.setIsFailover(0);
+        engineJobCache.setNodeAddress("node01");
+        engineJobCache.setJobResource("dtScript_dev_default_batch_Yarn");
+
+        return engineJobCache;
+    }
+
     public static EngineJobCache getEngineJobCacheTemplate2() {
         EngineJobCache engineJobCache = new EngineJobCache();
         engineJobCache.setJobId("jobId2");
@@ -108,10 +128,31 @@ public class Template {
         return engineJobCache;
     }
 
+    /**
+     * stage为5
+     * @return
+     */
+    public static EngineJobCache getEngineJobCacheTemplate3() {
+        EngineJobCache engineJobCache = new EngineJobCache();
+        engineJobCache.setJobId("jobId2");
+        engineJobCache.setJobName("test");
+        engineJobCache.setEngineType("spark");
+        engineJobCache.setJobPriority(10L);
+        engineJobCache.setComputeType(1);
+        engineJobCache.setJobInfo("{\"engineType\":\"spark\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, \"maxRetryNum\":3,\"taskParams\":\"openCheckpoint:true\"," +
+                "\"taskId\":\"jobId2\"}");
+        engineJobCache.setStage(5);
+        engineJobCache.setIsFailover(0);
+        engineJobCache.setNodeAddress(null);
+        engineJobCache.setJobResource("test");
+
+        return engineJobCache;
+    }
+
     public static ScheduleTaskShade getScheduleTaskShadeTemplate(){
         ScheduleTaskShade scheduleTaskShade = new ScheduleTaskShade();
         scheduleTaskShade.setTaskId(0L);
-        scheduleTaskShade.setExtraInfo("test");
+        scheduleTaskShade.setExtraInfo("{}");
         scheduleTaskShade.setTenantId(ValueUtils.getChangedLong());
         scheduleTaskShade.setProjectId(ValueUtils.getChangedLong());
         scheduleTaskShade.setNodePid(ValueUtils.getChangedLong());
@@ -143,7 +184,7 @@ public class Template {
         return scheduleTaskShade;
     }
 
-    public static ScheduleTaskTaskShade getTaskTask(){
+    public static ScheduleTaskTaskShade getTaskTask() {
         ScheduleTaskTaskShade scheduleTaskShade = new ScheduleTaskTaskShade();
         scheduleTaskShade.setTaskId(5L);
         scheduleTaskShade.setParentTaskId(6L);
@@ -158,7 +199,7 @@ public class Template {
         return scheduleTaskShade;
     }
 
-    public static Tenant getTenantTemplate(){
+    public static Tenant getTenantTemplate() {
         Tenant tenant = new Tenant();
         tenant.setDtUicTenantId(ValueUtils.getChangedLong());
         tenant.setTenantName("testCase");
@@ -181,7 +222,7 @@ public class Template {
         return null;
     }
 
-    public static Engine getDefaultEngineTemplate(){
+    public static Engine getDefaultEngineTemplate() {
         Engine engine = new Engine();
         engine.setId(1L);
         engine.setClusterId(1L);
@@ -239,7 +280,7 @@ public class Template {
         return component;
     }
 
-    public static Component getDefaultK8sComponentTemplate(){
+    public static Component getDefaultK8sComponentTemplate() {
         Component component = new Component();
         component.setEngineId(1L);
         component.setComponentName(EComponentType.KUBERNETES.name());
@@ -254,7 +295,7 @@ public class Template {
         return component;
     }
 
-    public static ScheduleFillDataJob getDefaultScheduleFillDataJobTemplate(){
+    public static ScheduleFillDataJob getDefaultScheduleFillDataJobTemplate() {
         ScheduleFillDataJob scheduleFillDataJob = new ScheduleFillDataJob();
         scheduleFillDataJob.setRunDay("2020-11-26");
         scheduleFillDataJob.setFromDay("2020-11-26");
@@ -268,7 +309,7 @@ public class Template {
         return scheduleFillDataJob;
     }
 
-    public static ScheduleJob getDefaultScheduleJobForSpring1Template(){
+    public static ScheduleJob getDefaultScheduleJobForSpring1Template() {
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setTenantId(1L);
         scheduleJob.setProjectId(11L);
@@ -297,7 +338,7 @@ public class Template {
         return scheduleJob;
     }
 
-    public static ScheduleJob getDefaultScheduleJobForSpring2Template(){
+    public static ScheduleJob getDefaultScheduleJobForSpring2Template() {
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setTenantId(1L);
         scheduleJob.setProjectId(11L);
@@ -326,7 +367,7 @@ public class Template {
         return scheduleJob;
     }
 
-    public static ScheduleJobJob getDefaultScheduleJobJobForSpring1Template(){
+    public static ScheduleJobJob getDefaultScheduleJobJobForSpring1Template() {
         ScheduleJobJob scheduleJobJob = new ScheduleJobJob();
         scheduleJobJob.setTenantId(1L);
         scheduleJobJob.setProjectId(11L);
@@ -339,7 +380,7 @@ public class Template {
         return scheduleJobJob;
     }
 
-    public static ScheduleTaskShade getDefaultScheduleTaskFlowTemplate(){
+    public static ScheduleTaskShade getDefaultScheduleTaskFlowTemplate() {
         ScheduleTaskShade taskShade = new ScheduleTaskShade();
         taskShade.setTenantId(1L);
         taskShade.setProjectId(1L);
@@ -373,7 +414,7 @@ public class Template {
         return taskShade;
     }
 
-    public static ScheduleTaskShade getDefaultScheduleTaskFlowParentTemplate(){
+    public static ScheduleTaskShade getDefaultScheduleTaskFlowParentTemplate() {
         ScheduleTaskShade taskShade = getDefaultScheduleTaskFlowTemplate();
         taskShade.setName("test_workflow");
         taskShade.setTaskType(10);
@@ -384,7 +425,7 @@ public class Template {
         return taskShade;
     }
 
-    public static ScheduleJob getDefaultScheduleJobFlowParentTemplate(){
+    public static ScheduleJob getDefaultScheduleJobFlowParentTemplate() {
         ScheduleJob scheduleJob = getDefaultScheduleJobForSpring1Template();
         scheduleJob.setJobId("a4636a9f");
         scheduleJob.setJobKey("cronTrigger_3381_20201127000000");
@@ -394,7 +435,7 @@ public class Template {
         return scheduleJob;
     }
 
-    public static ScheduleJob getDefaultScheduleJobFlowChildTemplate(){
+    public static ScheduleJob getDefaultScheduleJobFlowChildTemplate() {
         ScheduleJob scheduleJob = getDefaultScheduleJobForSpring1Template();
         scheduleJob.setJobId("55545a40");
         scheduleJob.setJobKey("cronTrigger_3377_20201127000000");
@@ -404,7 +445,7 @@ public class Template {
         return scheduleJob;
     }
 
-    public static ScheduleJobJob getDefaultScheduleJobJobFlowTemplate(){
+    public static ScheduleJobJob getDefaultScheduleJobJobFlowTemplate() {
         ScheduleJobJob scheduleJobJob = new ScheduleJobJob();
         scheduleJobJob.setTenantId(1L);
         scheduleJobJob.setProjectId(1L);
@@ -415,5 +456,129 @@ public class Template {
         scheduleJobJob.setGmtCreate(new Timestamp(1592559742000L));
         scheduleJobJob.setGmtModified(new Timestamp(1592559742000L));
         return scheduleJobJob;
+    }
+
+    public static LineageTableTable getLineageTableTableTemplate() {
+        LineageTableTable lineageTableTable = new LineageTableTable();
+        lineageTableTable.setDtUicTenantId(1L);
+        lineageTableTable.setAppType(AppType.RDOS.getType());
+        lineageTableTable.setLineageSource(0);
+        lineageTableTable.setInputTableId(-2020L);
+        lineageTableTable.setInputTableKey("-2020");
+        lineageTableTable.setResultTableId(-2021L);
+        lineageTableTable.setResultTableKey("-2021");
+        lineageTableTable.setTableLineageKey("");
+        return lineageTableTable;
+    }
+
+    public static LineageRealDataSource getDefaultHiveRealDataSourceTemplate() {
+        LineageRealDataSource lineageRealDataSource = new LineageRealDataSource();
+        lineageRealDataSource.setSourceName("testHive1");
+        lineageRealDataSource.setSourceKey("172.16.8.107#10000");
+        lineageRealDataSource.setSourceType(DataSourceType.HIVE.getVal());
+        lineageRealDataSource.setDataJason("{\"jdbcUrl\": \"jdbc:hive2://172.16.8.107:10000/default\", \"password\": \"\", \"typeName\": \"hive\", \"username\": \"admin\", \"maxJobPoolSize\": \"\", \"minJobPoolSize\": \"\"}");
+        lineageRealDataSource.setKerberosConf("-1");
+        lineageRealDataSource.setOpenKerberos(0);
+        return lineageRealDataSource;
+    }
+
+    public static LineageDataSource getDefaultHiveDataSourceTemplate() {
+        LineageDataSource lineageDataSource = new LineageDataSource();
+        lineageDataSource.setDtUicTenantId(1L);
+        lineageDataSource.setRealSourceId(1L);
+        lineageDataSource.setSourceKey("172.16.8.107#10000");
+        lineageDataSource.setSourceName("hive");
+        lineageDataSource.setAppType(AppType.DATAASSETS.getType());
+        lineageDataSource.setSourceType(DataSourceType.HIVE.getVal());
+        lineageDataSource.setDataJson("{}");
+        lineageDataSource.setKerberosConf("-1");
+        lineageDataSource.setOpenKerberos(0);
+        lineageDataSource.setAppSourceId(-1);
+        lineageDataSource.setInnerSource(-1);
+        lineageDataSource.setComponentId(-1);
+        return lineageDataSource;
+    }
+
+    public static LineageTableTable getDefaultLineageTableTableTemplate() {
+        LineageTableTable lineageTableTable = new LineageTableTable();
+        lineageTableTable.setDtUicTenantId(1L);
+        lineageTableTable.setAppType(AppType.DATAASSETS.getType());
+        lineageTableTable.setLineageSource(0);
+        lineageTableTable.setInputTableId(-2020L);
+        lineageTableTable.setInputTableKey("-2020");
+        lineageTableTable.setResultTableId(-2021L);
+        lineageTableTable.setResultTableKey("-2021");
+        lineageTableTable.setTableLineageKey("");
+        return lineageTableTable;
+    }
+
+    public static LineageDataSetInfo getDefaultDataSetInfoTemplate() {
+        LineageDataSetInfo lineageDataSetInfo = new LineageDataSetInfo();
+        lineageDataSetInfo.setAppType(AppType.DATAASSETS.getType());
+        lineageDataSetInfo.setDtUicTenantId(1L);
+        lineageDataSetInfo.setSourceId(1L);
+        lineageDataSetInfo.setRealSourceId(1L);
+        lineageDataSetInfo.setSourceName("hive");
+        lineageDataSetInfo.setSourceType(DataSourceType.HIVE.getVal());
+        lineageDataSetInfo.setSourceKey("172.16.8.107#10000");
+        lineageDataSetInfo.setSetType(0);
+        lineageDataSetInfo.setDbName("default");
+        lineageDataSetInfo.setSchemaName("default");
+        lineageDataSetInfo.setTableName("test");
+        lineageDataSetInfo.setTableKey("1defaulttest");
+        lineageDataSetInfo.setIsManual(0);
+        return lineageDataSetInfo;
+    }
+
+    public static LineageDataSetInfo getHiveDataSetInfoTemplate() {
+        LineageDataSetInfo lineageDataSetInfo = new LineageDataSetInfo();
+        lineageDataSetInfo.setAppType(AppType.DATAASSETS.getType());
+        lineageDataSetInfo.setSourceId(1L);
+        lineageDataSetInfo.setRealSourceId(1L);
+        lineageDataSetInfo.setSourceName("hive");
+        lineageDataSetInfo.setSourceType(DataSourceType.HIVE.getVal());
+        lineageDataSetInfo.setSourceKey("172.16.8.107#10000");
+        lineageDataSetInfo.setSetType(0);
+        lineageDataSetInfo.setDbName("default");
+        lineageDataSetInfo.setSchemaName("default");
+        lineageDataSetInfo.setTableName("test1");
+        lineageDataSetInfo.setTableKey("1defaulttest1");
+        lineageDataSetInfo.setIsManual(0);
+        lineageDataSetInfo.setDtUicTenantId(1L);
+        return lineageDataSetInfo;
+    }
+
+    public static LineageTableTable getDefaultTableTable() {
+        LineageDataSetInfo lineageDataSetInfo = Template.getDefaultDataSetInfoTemplate();
+        LineageDataSetInfo lineageDataSetInfo2 = Template.getHiveDataSetInfoTemplate();
+        LineageTableTable lineageTableTable = new LineageTableTable();
+        lineageTableTable.setAppType(AppType.DATAASSETS.getType());
+        lineageTableTable.setDtUicTenantId(1L);
+        lineageTableTable.setInputTableId(lineageDataSetInfo.getId());
+        lineageTableTable.setInputTableKey(lineageDataSetInfo.getTableKey());
+        lineageTableTable.setResultTableId(lineageDataSetInfo2.getId());
+        lineageTableTable.setResultTableKey(lineageDataSetInfo2.getTableKey());
+        lineageTableTable.setTableLineageKey(lineageDataSetInfo.getId() + "_" + lineageDataSetInfo2.getId());
+        lineageTableTable.setLineageSource(LineageOriginType.SQL_PARSE.getType());
+        return lineageTableTable;
+    }
+
+    public static LineageColumnColumn getDefaultColumnColumn() {
+        LineageDataSetInfo lineageDataSetInfo = Template.getDefaultDataSetInfoTemplate();
+        LineageDataSetInfo lineageDataSetInfo2 = Template.getHiveDataSetInfoTemplate();
+
+        LineageColumnColumn lineageColumnColumn = new LineageColumnColumn();
+        lineageColumnColumn.setAppType(AppType.DATAASSETS.getType());
+        lineageColumnColumn.setInputTableKey(lineageDataSetInfo.getTableKey());
+        lineageColumnColumn.setInputTableId(lineageDataSetInfo.getId());
+        lineageColumnColumn.setInputColumnName("id");
+        lineageColumnColumn.setResultTableKey(lineageDataSetInfo2.getTableKey());
+        lineageColumnColumn.setResultTableId(lineageDataSetInfo2.getId());
+        lineageColumnColumn.setResultColumnName("tid");
+        lineageColumnColumn.setDtUicTenantId(1L);
+        lineageColumnColumn.setLineageSource(LineageOriginType.SQL_PARSE.getType());
+        String rawKey = String.format("%s.%s_%s.%s", lineageDataSetInfo.getId(), "id", lineageColumnColumn.getResultTableId(), lineageColumnColumn.getResultColumnName());
+        lineageColumnColumn.setColumnLineageKey(MD5Util.getMd5String(rawKey));
+        return lineageColumnColumn;
     }
 }

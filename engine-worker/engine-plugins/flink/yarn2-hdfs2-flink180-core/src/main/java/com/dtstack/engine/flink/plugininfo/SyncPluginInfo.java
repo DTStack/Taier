@@ -31,9 +31,9 @@ public class SyncPluginInfo {
     private static final Logger LOG = LoggerFactory.getLogger(SyncPluginInfo.class);
 
     //同步模块在flink集群加载插件
-    private String flinkRemoteSyncPluginRoot;
+    private String remoteSyncPluginDir;
 
-    private String localSyncFileDir;
+    private String localSyncPluginDir;
 
     //同步模块的monitorAddress, 用于获取错误记录数等信息
     private String monitorAddress;
@@ -50,15 +50,17 @@ public class SyncPluginInfo {
     }
 
     public void init(FlinkConfig flinkConfig){
-        this.flinkRemoteSyncPluginRoot = getSyncPluginDir(flinkConfig.getRemotePluginRootDir());
-        this.localSyncFileDir = getSyncPluginDir(flinkConfig.getFlinkPluginRoot());
+        this.remoteSyncPluginDir = getSyncPluginDir(flinkConfig.getRemotePluginRootDir());
+        this.localSyncPluginDir = getSyncPluginDir(flinkConfig.getFlinkPluginRoot());
         this.monitorAddress = flinkConfig.getMonitorAddress();
         this.pluginLoadMode = flinkConfig.getPluginLoadMode();
+        LOG.info("---------local syncplugin dir is:" + localSyncPluginDir);
+        LOG.info("---------remote syncplugin dir is:" + remoteSyncPluginDir);
     }
 
     public List<URL> getClassPaths(List<String> programArgList){
-        return flinkRemoteSyncPluginRoot != null ?
-                getUserClassPath(programArgList, flinkRemoteSyncPluginRoot) : new ArrayList<>();
+        return remoteSyncPluginDir != null ?
+                getUserClassPath(programArgList, remoteSyncPluginDir) : new ArrayList<>();
     }
 
     public List<String> createSyncPluginArgs(JobClient jobClient, FlinkClient flinkClient){
@@ -76,7 +78,6 @@ public class SyncPluginInfo {
         } else {
             programArgList.add(flinkClient.getReqUrl(taskRunMode));
         }
-
         programArgList.add("-pluginLoadMode");
         programArgList.add(pluginLoadMode);
 
@@ -92,14 +93,14 @@ public class SyncPluginInfo {
     public JarFileInfo createAddJarInfo(){
         JarFileInfo jarFileInfo = new JarFileInfo();
         String coreJarFileName = getCoreJarFileName();
-        String jarFilePath  = localSyncFileDir + ConfigConstrant.SP + coreJarFileName;
+        String jarFilePath  = localSyncPluginDir + ConfigConstrant.SP + coreJarFileName;
         jarFileInfo.setJarPath(jarFilePath);
         return jarFileInfo;
     }
 
     private String getCoreJarFileName (){
         String coreJarFileName = null;
-        File pluginDir = new File(localSyncFileDir);
+        File pluginDir = new File(localSyncPluginDir);
         if (pluginDir.exists() && pluginDir.isDirectory()){
             File[] jarFiles = pluginDir.listFiles(new FilenameFilter() {
                 @Override
@@ -114,7 +115,7 @@ public class SyncPluginInfo {
         }
 
         if (StringUtils.isEmpty(coreJarFileName)){
-            throw new RdosDefineException("Can not find core jar file in path:" + localSyncFileDir);
+            throw new RdosDefineException("Can not find core jar file in syncPlugin path: " + localSyncPluginDir);
         }
 
         return coreJarFileName;
@@ -143,7 +144,7 @@ public class SyncPluginInfo {
         }
 
         programArgList.add("-pluginRoot");
-        programArgList.add(localSyncFileDir);
+        programArgList.add(localSyncPluginDir);
 
         String job = programArgList.get(i + 1);
 
@@ -151,10 +152,9 @@ public class SyncPluginInfo {
             job = java.net.URLDecoder.decode(job, "UTF-8");
             programArgList.set(i + 1, job);
         } catch (Exception e) {
-            LOG.error("", e);
+            LOG.error("Sync job URLDecoder error:", e);
         }
         return urlList;
-
     }
 
 }

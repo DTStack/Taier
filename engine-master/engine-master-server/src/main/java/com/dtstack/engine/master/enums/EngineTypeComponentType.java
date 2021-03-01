@@ -20,6 +20,7 @@ package com.dtstack.engine.master.enums;
 
 
 import com.dtstack.engine.api.enums.ScheduleEngineType;
+import com.dtstack.engine.common.enums.EComponentType;
 
 public enum EngineTypeComponentType {
 
