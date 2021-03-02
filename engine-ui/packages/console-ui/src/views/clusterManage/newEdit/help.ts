@@ -76,9 +76,17 @@ export function isRadioLinkage (type: string): boolean {
     return type === CONFIG_ITEM_TYPE.RADIO_LINKAGE
 }
 
+export function isGroupType (type: string): boolean {
+    return type === CONFIG_ITEM_TYPE.GROUP
+}
+
+export function isCustomType (type: string): boolean {
+    return type === CONFIG_ITEM_TYPE.CUSTOM_CONTROL
+}
+
 // 模版中存在id则为自定义参数
 export function getCustomerParams (temps: any): any[] {
-    return temps.filter(temp => temp.id)
+    return temps.filter(temp => isCustomType(temp.type))
 }
 
 export function getCompsId (currentComps: any[], typeCodes: any[]): any[] {
@@ -115,7 +123,8 @@ function handleSingleParam (params: any) {
         let config: any = {}
         config.key = customParamArr[key].key
         config.value = customParamArr[key].value
-        config.id = key
+        // config.id = key
+        config.type = CONFIG_ITEM_TYPE.CUSTOM_CONTROL
         customParamConfig.push(config)
     }
     return customParamConfig
@@ -209,7 +218,8 @@ function handleSingQuoteKeys (val: string, key: string) {
  */
 export function handleComponentTemplate (comp: any, initialCompData: any): any {
     /** 外层数据先删除一层自定义参数 */
-    let newComponentTemplate = JSON.parse(initialCompData.componentTemplate).filter(v => !v.id)
+    let newComponentTemplate = JSON.parse(initialCompData.componentTemplate).filter(v =>
+        v.type !== CONFIG_ITEM_TYPE.CUSTOM_CONTROL)
     const componentConfig = handleComponentConfig(comp)
     const customParamConfig = handleCustomParam(comp.customParam)
     let isGroup = false
@@ -221,7 +231,8 @@ export function handleComponentTemplate (comp: any, initialCompData: any): any {
                 (isDeployMode(newComponentTemplate[0].key)
                     ? newComponentTemplate[0].values : newComponentTemplate).map(temps => {
                     if (temps.key == key) {
-                        temps.values = temps.values.filter(temp => !temp.id)
+                        temps.values = temps.values.filter(temp =>
+                            temp.type !== CONFIG_ITEM_TYPE.CUSTOM_CONTROL)
                         temps.values.map(temp => {
                             if (temp.key == groupKey) {
                                 temp.value = value
@@ -249,7 +260,7 @@ export function handleComponentTemplate (comp: any, initialCompData: any): any {
 
     // 和并自定义参数
     for (let config in customParamConfig) {
-        if (!customParamConfig[config]?.id) {
+        if (_.isArray(customParamConfig[config])) {
             isGroup = true
             for (let [key, value] of Object.entries(customParamConfig[config])) {
                 (isDeployMode(newComponentTemplate[0].key)

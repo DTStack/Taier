@@ -4,7 +4,7 @@ import { Input, Form, Radio, Select, Checkbox,
     Tooltip, Row, Col } from 'antd'
 import { COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from '../const'
 import { getValueByJson, notCustomParam, isDeployMode,
-    isRadioLinkage } from '../help'
+    isRadioLinkage, isCustomType } from '../help'
 import { formItemLayout } from '../../../../consts'
 import CustomParams from './components/customParams'
 interface IProps {
@@ -54,7 +54,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
         const initialValue = temp.key === 'deploymode' && !isArray(temp.value) ? temp.value.split() : temp.value
         const fieldName = groupKey ? `${typeCode}.componentConfig.${groupKey}` : `${typeCode}.componentConfig`;
 
-        return !temp.id && <FormItem
+        return !isCustomType(temp.type) && <FormItem
             label={<Tooltip title={temp.key}>
                 <span className="c-formConfig__label">{temp.key}</span>
             </Tooltip>}
