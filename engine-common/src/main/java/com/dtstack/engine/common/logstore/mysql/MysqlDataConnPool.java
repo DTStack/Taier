@@ -40,17 +40,17 @@ public class MysqlDataConnPool {
     /**
      * 初始连接池大小
      */
-    private int initialSize = 2;
+    private int initialSize = 20;
 
     /**
      * 最小连接池大小
      */
-    private int minIdle = 2;
+    private int minIdle = 20;
 
     /**
      * 最大连接池大小
      */
-    private int maxActive = 2;
+    private int maxActive = 20;
 
     /**
      * 获取连接等待超时的时间
