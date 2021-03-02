@@ -117,16 +117,22 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
             fileName: file,
             componentType: typeCode
         })
+        function setValue () {
+            form.setFieldsValue({
+                [typeCode]: {
+                    componentConfig: {
+                        ...handleComponentConfig({
+                            componentConfig: res.data[0]
+                        }, true)
+                    }
+                }
+            })
+        }
         if (res.code == 1) {
             switch (loadingType) {
                 case FILE_TYPE.PARAMES:
-                    form.setFieldsValue({
-                        [typeCode]: {
-                            componentConfig: {
-                                ...handleComponentConfig({ componentConfig: res.data[0] }, true)
-                            }
-                        }
-                    })
+                    setValue()
+                    setValue()
                     break
                 case FILE_TYPE.CONFIGS:
                     form.setFieldsValue({
