@@ -18,14 +18,6 @@ import com.dtstack.engine.api.vo.lineage.param.QueryColumnLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageColumnParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageParam;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.sql.*;
-import com.dtstack.sql.parse.SqlParserFactory;
-import com.dtstack.lineage.adapter.ColumnAdapter;
-import com.dtstack.lineage.adapter.ColumnLineageAdapter;
-import com.dtstack.lineage.adapter.SqlTypeAdapter;
-import com.dtstack.lineage.adapter.TableAdapter;
-import com.dtstack.lineage.adapter.TableLineageAdapter;
-import com.dtstack.lineage.enums.SourceType2TableType;
 import com.dtstack.schedule.common.enums.AppType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -36,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -74,36 +65,37 @@ public class LineageService {
      * @return
      */
     public SqlParseInfo parseSql(String sql, String defaultDb, Integer dataSourceType) {
-        SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(dataSourceType);
-        if (Objects.isNull(sourceType2TableType)) {
-            throw new IllegalArgumentException("数据源类型" + dataSourceType + "不支持");
-        }
-        SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
-        SqlParseInfo parseInfo = new SqlParseInfo();
-        parseInfo.setOriginSql(sql);
-        try {
-            ParseResult parseResult = null;
-            try {
-                parseResult = sqlParser.parseSql(sql, defaultDb, new HashMap<>());
-            } catch (Exception e) {
-                logger.error("解析sql异常:{}",e);
-                throw new RdosDefineException("sql解析异常，请检查语法");
-            }
-            parseInfo.setMainDb(parseResult.getCurrentDb());
-            Table mainTable = parseResult.getMainTable();
-            parseInfo.setMainTable(TableAdapter.sqlTable2ApiTable(mainTable));
-            parseInfo.setCurrentDb(parseResult.getCurrentDb());
-            parseInfo.setFailedMsg(parseResult.getFailedMsg());
-            parseInfo.setParseSuccess(parseResult.isParseSuccess());
-            parseInfo.setSqlType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getSqlType()));
-            parseInfo.setExtraType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getExtraSqlType()));
-            parseInfo.setStandardSql(parseResult.getStandardSql());
-        } catch (Exception e) {
-            logger.error("sql解析失败：{}", e);
-            parseInfo.setFailedMsg(e.getMessage());
-            parseInfo.setParseSuccess(false);
-        }
-        return parseInfo;
+//        SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(dataSourceType);
+//        if (Objects.isNull(sourceType2TableType)) {
+//            throw new IllegalArgumentException("数据源类型" + dataSourceType + "不支持");
+//        }
+        throw new RdosDefineException("服务暂不可用");
+//        SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
+//        SqlParseInfo parseInfo = new SqlParseInfo();
+//        parseInfo.setOriginSql(sql);
+//        try {
+//            ParseResult parseResult = null;
+//            try {
+//                parseResult = sqlParser.parseSql(sql, defaultDb, new HashMap<>());
+//            } catch (Exception e) {
+//                logger.error("解析sql异常:{}",e);
+//                throw new RdosDefineException("sql解析异常，请检查语法");
+//            }
+//            parseInfo.setMainDb(parseResult.getCurrentDb());
+//            Table mainTable = parseResult.getMainTable();
+//            parseInfo.setMainTable(TableAdapter.sqlTable2ApiTable(mainTable));
+//            parseInfo.setCurrentDb(parseResult.getCurrentDb());
+//            parseInfo.setFailedMsg(parseResult.getFailedMsg());
+//            parseInfo.setParseSuccess(parseResult.isParseSuccess());
+//            parseInfo.setSqlType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getSqlType()));
+//            parseInfo.setExtraType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getExtraSqlType()));
+//            parseInfo.setStandardSql(parseResult.getStandardSql());
+//        } catch (Exception e) {
+//            logger.error("sql解析失败：{}", e);
+//            parseInfo.setFailedMsg(e.getMessage());
+//            parseInfo.setParseSuccess(false);
+//        }
+//        return parseInfo;
     }
 
     /**
@@ -114,40 +106,41 @@ public class LineageService {
      * @return
      */
     public TableLineageParseInfo parseTableLineage(String sql, String defaultDb, Integer dataSourceType) {
-        SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(dataSourceType);
-        if (Objects.isNull(sourceType2TableType)) {
-            throw new IllegalArgumentException("数据源类型" + dataSourceType + "不支持");
-        }
-        SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
-        TableLineageParseInfo parseInfo = new TableLineageParseInfo();
-        try {
-            ParseResult parseResult = null;
-            try {
-                parseResult = sqlParser.parseTableLineage(sql, defaultDb);
-            } catch (Exception e) {
-                logger.error("解析sql异常:{}",e);
-                throw new RdosDefineException("sql解析异常，请检查语法");
-            }
-            parseInfo.setMainDb(parseResult.getCurrentDb());
-            Table mainTable = parseResult.getMainTable();
-            parseInfo.setMainTable(TableAdapter.sqlTable2ApiTable(mainTable));
-            parseInfo.setCurrentDb(parseResult.getCurrentDb());
-            parseInfo.setFailedMsg(parseResult.getFailedMsg());
-            parseInfo.setParseSuccess(parseResult.isParseSuccess());
-            parseInfo.setSqlType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getSqlType()));
-            parseInfo.setExtraType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getExtraSqlType()));
-            parseInfo.setStandardSql(parseResult.getStandardSql());
-            List<TableLineage> tableLineages = parseResult.getTableLineages();
-            if (CollectionUtils.isNotEmpty(tableLineages)) {
-                parseInfo.setTableLineages(tableLineages.stream().map(TableLineageAdapter::sqlTableLineage2ApiTableLineage).collect(Collectors.toList()));
-            }
-        } catch (Exception e) {
-            logger.error("sql解析失败：{}", e);
-            parseInfo.setFailedMsg(e.getMessage());
-            parseInfo.setParseSuccess(false);
-        }
-
-        return parseInfo;
+//        SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(dataSourceType);
+//        if (Objects.isNull(sourceType2TableType)) {
+//            throw new IllegalArgumentException("数据源类型" + dataSourceType + "不支持");
+//        }
+        throw new RdosDefineException("服务暂不可用");
+//        SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
+//        TableLineageParseInfo parseInfo = new TableLineageParseInfo();
+//        try {
+//            ParseResult parseResult = null;
+//            try {
+//                parseResult = sqlParser.parseTableLineage(sql, defaultDb);
+//            } catch (Exception e) {
+//                logger.error("解析sql异常:{}",e);
+//                throw new RdosDefineException("sql解析异常，请检查语法");
+//            }
+//            parseInfo.setMainDb(parseResult.getCurrentDb());
+//            Table mainTable = parseResult.getMainTable();
+//            parseInfo.setMainTable(TableAdapter.sqlTable2ApiTable(mainTable));
+//            parseInfo.setCurrentDb(parseResult.getCurrentDb());
+//            parseInfo.setFailedMsg(parseResult.getFailedMsg());
+//            parseInfo.setParseSuccess(parseResult.isParseSuccess());
+//            parseInfo.setSqlType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getSqlType()));
+//            parseInfo.setExtraType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getExtraSqlType()));
+//            parseInfo.setStandardSql(parseResult.getStandardSql());
+//            List<TableLineage> tableLineages = parseResult.getTableLineages();
+//            if (CollectionUtils.isNotEmpty(tableLineages)) {
+//                parseInfo.setTableLineages(tableLineages.stream().map(TableLineageAdapter::sqlTableLineage2ApiTableLineage).collect(Collectors.toList()));
+//            }
+//        } catch (Exception e) {
+//            logger.error("sql解析失败：{}", e);
+//            parseInfo.setFailedMsg(e.getMessage());
+//            parseInfo.setParseSuccess(false);
+//        }
+//
+//        return parseInfo;
     }
 
     /**
@@ -178,50 +171,51 @@ public class LineageService {
         }
         //1.根据数据源id和appType查询数据源
         //2.解析出sql中的表
-        SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(lineageDataSource.getSourceType());
-        if (Objects.isNull(sourceType2TableType)) {
-            throw new IllegalArgumentException("数据源类型" + lineageDataSource.getSourceType() + "不支持");
-        }
-        SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
-        try {
-            ParseResult parseResult = null;
-            try {
-                parseResult = sqlParser.parseTableLineage(sql, defaultDb);
-            } catch (Exception e) {
-                logger.error("解析sql异常:{}",e);
-                throw new RdosDefineException("sql解析异常，请检查语法");
-            }
-            //3.根据表名和数dbName，schemaName查询表,sourceId。表不存在则需要插入表
-            List<Table> tables = null;
-            try {
-                tables = sqlParser.parseTables(defaultDb, sql);
-            } catch (Exception e) {
-                logger.error("解析sql异常:{}",e);
-                throw new RdosDefineException("sql解析异常，请检查语法");
-            }
-            Map<String, LineageDataSetInfo> tableRef = new HashMap<>();
-            String tableKey = "%s.%s";
-            for (int i = 0; i < tables.size(); i++) {
-                Table ta = tables.get(i);
-                LineageDataSetInfo dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), ta.getDb(), ta.getName(), ta.getDb());
-                tableRef.put(String.format(tableKey, ta.getDb(), ta.getName()), dataSet);
-            }
-            List<TableLineage> tableLineages = parseResult.getTableLineages();
-            if (CollectionUtils.isNotEmpty(tableLineages)) {
-                List<LineageTableTable> lineageTableTables = tableLineages.stream().map(l -> {
-                    LineageTableTable tableTable = TableLineageAdapter.sqlTableLineage2DbTableLineage(l, tableRef, LineageOriginType.SQL_PARSE);
-                    tableTable.setDtUicTenantId(dtUicTenantId);
-                    tableTable.setAppType(appType);
-                    return tableTable;
-                }).collect(Collectors.toList());
-                //如果uniqueKey不为空，则删除相同uniqueKey的血缘
-                lineageTableTableService.saveTableLineage(lineageTableTables,unionKey);
-            }
-
-        } catch (Exception e) {
-            logger.error("解析保存表血缘失败：{}", e);
-            throw new RdosDefineException("解析保存表血缘失败");
-        }
+//        SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(lineageDataSource.getSourceType());
+//        if (Objects.isNull(sourceType2TableType)) {
+//            throw new IllegalArgumentException("数据源类型" + lineageDataSource.getSourceType() + "不支持");
+//        }
+        throw new RdosDefineException("服务暂不可用");
+//        SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
+//        try {
+//            ParseResult parseResult = null;
+//            try {
+//                parseResult = sqlParser.parseTableLineage(sql, defaultDb);
+//            } catch (Exception e) {
+//                logger.error("解析sql异常:{}",e);
+//                throw new RdosDefineException("sql解析异常，请检查语法");
+//            }
+//            //3.根据表名和数dbName，schemaName查询表,sourceId。表不存在则需要插入表
+//            List<Table> tables = null;
+//            try {
+//                tables = sqlParser.parseTables(defaultDb, sql);
+//            } catch (Exception e) {
+//                logger.error("解析sql异常:{}",e);
+//                throw new RdosDefineException("sql解析异常，请检查语法");
+//            }
+//            Map<String, LineageDataSetInfo> tableRef = new HashMap<>();
+//            String tableKey = "%s.%s";
+//            for (int i = 0; i < tables.size(); i++) {
+//                Table ta = tables.get(i);
+//                LineageDataSetInfo dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), ta.getDb(), ta.getName(), ta.getDb());
+//                tableRef.put(String.format(tableKey, ta.getDb(), ta.getName()), dataSet);
+//            }
+//            List<TableLineage> tableLineages = parseResult.getTableLineages();
+//            if (CollectionUtils.isNotEmpty(tableLineages)) {
+//                List<LineageTableTable> lineageTableTables = tableLineages.stream().map(l -> {
+//                    LineageTableTable tableTable = TableLineageAdapter.sqlTableLineage2DbTableLineage(l, tableRef, LineageOriginType.SQL_PARSE);
+//                    tableTable.setDtUicTenantId(dtUicTenantId);
+//                    tableTable.setAppType(appType);
+//                    return tableTable;
+//                }).collect(Collectors.toList());
+//                //如果uniqueKey不为空，则删除相同uniqueKey的血缘
+//                lineageTableTableService.saveTableLineage(lineageTableTables,unionKey);
+//            }
+//
+//        } catch (Exception e) {
+//            logger.error("解析保存表血缘失败：{}", e);
+//            throw new RdosDefineException("解析保存表血缘失败");
+//        }
     }
 
     /**
@@ -233,50 +227,51 @@ public class LineageService {
      * @return
      */
     public ColumnLineageParseInfo parseColumnLineage(String sql, Integer dataSourceType, String defaultDb, Map<String, List<Column>> tableColumnsMap) {
-        SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(dataSourceType);
-        if (Objects.isNull(sourceType2TableType)) {
-            throw new RdosDefineException("数据源类型" + dataSourceType + "不支持");
-        }
-        SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
-        ColumnLineageParseInfo parseInfo = new ColumnLineageParseInfo();
-        try {
-            Map<String, List<com.dtstack.sql.Column>> sqlColumnMap = new HashMap<>();
-            for (Map.Entry<String, List<Column>> entry : tableColumnsMap.entrySet()) {
-                String key = entry.getKey();
-                List<Column> value = entry.getValue();
-                sqlColumnMap.put(key, value.stream().map(ColumnAdapter::apiColumn2SqlColumn).collect(Collectors.toList()));
-            }
-            ParseResult parseResult = null;
-            try {
-                parseResult = sqlParser.parseSql(sql, defaultDb, sqlColumnMap);
-            } catch (Exception e) {
-                logger.error("解析sql异常:{}",e);
-                throw new RdosDefineException("sql解析异常，请检查语法");
-            }
-            parseInfo.setMainDb(parseResult.getCurrentDb());
-            Table mainTable = parseResult.getMainTable();
-            parseInfo.setMainTable(TableAdapter.sqlTable2ApiTable(mainTable));
-            parseInfo.setCurrentDb(parseResult.getCurrentDb());
-            parseInfo.setFailedMsg(parseResult.getFailedMsg());
-            parseInfo.setParseSuccess(parseResult.isParseSuccess());
-            parseInfo.setSqlType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getSqlType()));
-            parseInfo.setExtraType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getExtraSqlType()));
-            parseInfo.setStandardSql(parseResult.getStandardSql());
-            List<TableLineage> tableLineages = parseResult.getTableLineages();
-            if (CollectionUtils.isNotEmpty(tableLineages)) {
-                parseInfo.setTableLineages(tableLineages.stream().map(TableLineageAdapter::sqlTableLineage2ApiTableLineage).collect(Collectors.toList()));
-            }
-            List<ColumnLineage> columnLineages = parseResult.getColumnLineages();
-            if (CollectionUtils.isNotEmpty(columnLineages)) {
-                parseInfo.setColumnLineages(columnLineages.stream().map(ColumnLineageAdapter::sqlColumnLineage2ApiColumnLineage).collect(Collectors.toList()));
-            }
-        } catch (Exception e) {
-            logger.error("sql解析失败：{}", e);
-            parseInfo.setFailedMsg(e.getMessage());
-            parseInfo.setParseSuccess(false);
-        }
-
-        return parseInfo;
+//        SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(dataSourceType);
+//        if (Objects.isNull(sourceType2TableType)) {
+//            throw new RdosDefineException("数据源类型" + dataSourceType + "不支持");
+//        }
+        throw new RdosDefineException("服务暂不可用");
+//        SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
+//        ColumnLineageParseInfo parseInfo = new ColumnLineageParseInfo();
+//        try {
+//            Map<String, List<com.dtstack.sql.Column>> sqlColumnMap = new HashMap<>();
+//            for (Map.Entry<String, List<Column>> entry : tableColumnsMap.entrySet()) {
+//                String key = entry.getKey();
+//                List<Column> value = entry.getValue();
+//                sqlColumnMap.put(key, value.stream().map(ColumnAdapter::apiColumn2SqlColumn).collect(Collectors.toList()));
+//            }
+//            ParseResult parseResult = null;
+//            try {
+//                parseResult = sqlParser.parseSql(sql, defaultDb, sqlColumnMap);
+//            } catch (Exception e) {
+//                logger.error("解析sql异常:{}",e);
+//                throw new RdosDefineException("sql解析异常，请检查语法");
+//            }
+//            parseInfo.setMainDb(parseResult.getCurrentDb());
+//            Table mainTable = parseResult.getMainTable();
+//            parseInfo.setMainTable(TableAdapter.sqlTable2ApiTable(mainTable));
+//            parseInfo.setCurrentDb(parseResult.getCurrentDb());
+//            parseInfo.setFailedMsg(parseResult.getFailedMsg());
+//            parseInfo.setParseSuccess(parseResult.isParseSuccess());
+//            parseInfo.setSqlType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getSqlType()));
+//            parseInfo.setExtraType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getExtraSqlType()));
+//            parseInfo.setStandardSql(parseResult.getStandardSql());
+//            List<TableLineage> tableLineages = parseResult.getTableLineages();
+//            if (CollectionUtils.isNotEmpty(tableLineages)) {
+//                parseInfo.setTableLineages(tableLineages.stream().map(TableLineageAdapter::sqlTableLineage2ApiTableLineage).collect(Collectors.toList()));
+//            }
+//            List<ColumnLineage> columnLineages = parseResult.getColumnLineages();
+//            if (CollectionUtils.isNotEmpty(columnLineages)) {
+//                parseInfo.setColumnLineages(columnLineages.stream().map(ColumnLineageAdapter::sqlColumnLineage2ApiColumnLineage).collect(Collectors.toList()));
+//            }
+//        } catch (Exception e) {
+//            logger.error("sql解析失败：{}", e);
+//            parseInfo.setFailedMsg(e.getMessage());
+//            parseInfo.setParseSuccess(false);
+//        }
+//
+//        return parseInfo;
     }
 
     /**
@@ -302,70 +297,71 @@ public class LineageService {
         }
         //1.根据数据源id和appType查询数据源
         //2.解析出sql中的表
-        SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(lineageDataSource.getSourceType());
-        if (Objects.isNull(sourceType2TableType)) {
-            throw new IllegalArgumentException("数据源类型" + lineageDataSource.getSourceType() + "不支持");
-        }
-        SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
-        try {
-            List<Table> resTables = null;
-            try {
-                resTables = sqlParser.parseTables(parseColumnLineageParam.getDefaultDb(),parseColumnLineageParam.getSql());
-            } catch (Exception e) {
-                logger.error("解析sql异常:{}",e);
-                throw new RdosDefineException("sql解析异常，请检查语法");
-            }
-            //去除主表，主表需要创建，还未存在，查不到字段信息，需要过滤掉
-            List<Table> subTables = resTables.stream().filter(table->
-                    table.getOperate() != TableOperateEnum.CREATE && table.getOperate() != TableOperateEnum.INSERT).collect(Collectors.toList());
-            Set<com.dtstack.engine.api.pojo.lineage.Table> tables = subTables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toSet());
-            //TODO 获取表字段信息
-            Map<String, List<Column>> tableColumnMap = lineageDataSetInfoService.getColumnsBySourceIdAndListTable(lineageDataSource.getId(), Lists.newArrayList(tables));
-            Map<String, List<com.dtstack.sql.Column>> sqlTableColumnMap = new HashMap<>();
-            for (Map.Entry<String,List<Column>> entry:tableColumnMap.entrySet()){
-                String dbName = entry.getKey();
-                List<Column> columns = entry.getValue();
-                if (Objects.isNull(columns)){
-                    throw new RdosDefineException("表字段获取失败");
-                }
-                sqlTableColumnMap.put(dbName,entry.getValue().stream().map(ColumnAdapter::apiColumn2SqlColumn).collect(Collectors.toList()));
-            }
-            ParseResult parseResult = null;
-            try {
-                parseResult = sqlParser.parseSql(parseColumnLineageParam.getSql(), parseColumnLineageParam.getDefaultDb(), sqlTableColumnMap);
-            } catch (Exception e) {
-                logger.error("解析sql异常:{}",e);
-                throw new RdosDefineException("sql解析异常，请检查语法");
-            }
-            //3.根据表名和数dbName，schemaName查询表,sourceId。表不存在则需要插入表
-            Map<String, LineageDataSetInfo> tableRef = new HashMap<>();
-            String tableKey = "%s.%s";
-            for (int i = 0; i < resTables.size(); i++) {
-                Table ta = resTables.get(i);
-                LineageDataSetInfo dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), ta.getDb(), ta.getName(), ta.getDb());
-                tableRef.put(String.format(tableKey, ta.getDb(), ta.getName()), dataSet);
-            }
-            try {
-                ParseResult parseTableLineage = sqlParser.parseTableLineage(parseColumnLineageParam.getSql(), parseColumnLineageParam.getDefaultDb());
-                List<TableLineage> tableLineages = parseTableLineage.getTableLineages();
-                if (CollectionUtils.isNotEmpty(tableLineages)) {
-                    List<LineageTableTable> lineageTableTables = tableLineages.stream().map(l -> TableLineageAdapter.sqlTableLineage2DbTableLineage(l, tableRef, LineageOriginType.SQL_PARSE)).collect(Collectors.toList());
-                    //如果uniqueKey不为空，则删除相同uniqueKey的血缘
-                    lineageTableTableService.saveTableLineage(lineageTableTables,parseColumnLineageParam.getUniqueKey());
-                }
-            } catch (Exception e) {
-                logger.error("解析sql异常:{}",e);
-                throw new RdosDefineException("sql解析异常，请检查语法");
-            }
-            List<ColumnLineage> columnLineages = parseResult.getColumnLineages();
-            if (CollectionUtils.isNotEmpty(columnLineages)) {
-                lineageColumnColumnService.saveColumnLineage(columnLineages.stream().map(cl -> ColumnLineageAdapter.sqlColumnLineage2ColumnColumn(cl, parseColumnLineageParam.getAppType(), tableRef)).collect(Collectors.toList()),parseColumnLineageParam.getUniqueKey());
-            }
-
-        } catch (Exception e) {
-            logger.error("解析保存表血缘失败：{}", e);
-            throw new RdosDefineException("解析保存字段血缘失败");
-        }
+//        SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(lineageDataSource.getSourceType());
+//        if (Objects.isNull(sourceType2TableType)) {
+//            throw new IllegalArgumentException("数据源类型" + lineageDataSource.getSourceType() + "不支持");
+//        }
+        throw new RdosDefineException("服务暂不可用");
+//        SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
+//        try {
+//            List<Table> resTables = null;
+//            try {
+//                resTables = sqlParser.parseTables(parseColumnLineageParam.getDefaultDb(),parseColumnLineageParam.getSql());
+//            } catch (Exception e) {
+//                logger.error("解析sql异常:{}",e);
+//                throw new RdosDefineException("sql解析异常，请检查语法");
+//            }
+//            //去除主表，主表需要创建，还未存在，查不到字段信息，需要过滤掉
+//            List<Table> subTables = resTables.stream().filter(table->
+//                    table.getOperate() != TableOperateEnum.CREATE && table.getOperate() != TableOperateEnum.INSERT).collect(Collectors.toList());
+//            Set<com.dtstack.engine.api.pojo.lineage.Table> tables = subTables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toSet());
+//            //TODO 获取表字段信息
+//            Map<String, List<Column>> tableColumnMap = lineageDataSetInfoService.getColumnsBySourceIdAndListTable(lineageDataSource.getId(), Lists.newArrayList(tables));
+//            Map<String, List<com.dtstack.sql.Column>> sqlTableColumnMap = new HashMap<>();
+//            for (Map.Entry<String,List<Column>> entry:tableColumnMap.entrySet()){
+//                String dbName = entry.getKey();
+//                List<Column> columns = entry.getValue();
+//                if (Objects.isNull(columns)){
+//                    throw new RdosDefineException("表字段获取失败");
+//                }
+//                sqlTableColumnMap.put(dbName,entry.getValue().stream().map(ColumnAdapter::apiColumn2SqlColumn).collect(Collectors.toList()));
+//            }
+//            ParseResult parseResult = null;
+//            try {
+//                parseResult = sqlParser.parseSql(parseColumnLineageParam.getSql(), parseColumnLineageParam.getDefaultDb(), sqlTableColumnMap);
+//            } catch (Exception e) {
+//                logger.error("解析sql异常:{}",e);
+//                throw new RdosDefineException("sql解析异常，请检查语法");
+//            }
+//            //3.根据表名和数dbName，schemaName查询表,sourceId。表不存在则需要插入表
+//            Map<String, LineageDataSetInfo> tableRef = new HashMap<>();
+//            String tableKey = "%s.%s";
+//            for (int i = 0; i < resTables.size(); i++) {
+//                Table ta = resTables.get(i);
+//                LineageDataSetInfo dataSet = lineageDataSetInfoService.getOneBySourceIdAndDbNameAndTableName(lineageDataSource.getId(), ta.getDb(), ta.getName(), ta.getDb());
+//                tableRef.put(String.format(tableKey, ta.getDb(), ta.getName()), dataSet);
+//            }
+//            try {
+//                ParseResult parseTableLineage = sqlParser.parseTableLineage(parseColumnLineageParam.getSql(), parseColumnLineageParam.getDefaultDb());
+//                List<TableLineage> tableLineages = parseTableLineage.getTableLineages();
+//                if (CollectionUtils.isNotEmpty(tableLineages)) {
+//                    List<LineageTableTable> lineageTableTables = tableLineages.stream().map(l -> TableLineageAdapter.sqlTableLineage2DbTableLineage(l, tableRef, LineageOriginType.SQL_PARSE)).collect(Collectors.toList());
+//                    //如果uniqueKey不为空，则删除相同uniqueKey的血缘
+//                    lineageTableTableService.saveTableLineage(lineageTableTables,parseColumnLineageParam.getUniqueKey());
+//                }
+//            } catch (Exception e) {
+//                logger.error("解析sql异常:{}",e);
+//                throw new RdosDefineException("sql解析异常，请检查语法");
+//            }
+//            List<ColumnLineage> columnLineages = parseResult.getColumnLineages();
+//            if (CollectionUtils.isNotEmpty(columnLineages)) {
+//                lineageColumnColumnService.saveColumnLineage(columnLineages.stream().map(cl -> ColumnLineageAdapter.sqlColumnLineage2ColumnColumn(cl, parseColumnLineageParam.getAppType(), tableRef)).collect(Collectors.toList()),parseColumnLineageParam.getUniqueKey());
+//            }
+//
+//        } catch (Exception e) {
+//            logger.error("解析保存表血缘失败：{}", e);
+//            throw new RdosDefineException("解析保存字段血缘失败");
+//        }
     }
 
     /**
@@ -403,13 +399,14 @@ public class LineageService {
         Set<Long> dataSourceIds = dataSetListByIds.stream().map(LineageDataSetInfo::getSourceId).collect(Collectors.toSet());
         Map<Long, LineageDataSource> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getId(), ds2 -> ds2));
         List<LineageTableTableVO> res = Lists.newArrayList();
-        for (LineageTableTable tt : lineageTableTables) {
-            LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(tt.getInputTableId());
-            LineageDataSetInfo resultTableInfo = dataSetInfoMap.get(tt.getResultTableId());
-            LineageTableTableVO lineageTableTableVO = TableLineageAdapter.tableTable2TableTableVO(tt, inputTableInfo, resultTableInfo, dataSourceMap.get(inputTableInfo.getSourceId()), dataSourceMap.get(resultTableInfo.getSourceId()));
-            res.add(lineageTableTableVO);
-        }
-        return res;
+        throw new RdosDefineException("服务暂不可用");
+//        for (LineageTableTable tt : lineageTableTables) {
+//            LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(tt.getInputTableId());
+//            LineageDataSetInfo resultTableInfo = dataSetInfoMap.get(tt.getResultTableId());
+//            LineageTableTableVO lineageTableTableVO = TableLineageAdapter.tableTable2TableTableVO(tt, inputTableInfo, resultTableInfo, dataSourceMap.get(inputTableInfo.getSourceId()), dataSourceMap.get(resultTableInfo.getSourceId()));
+//            res.add(lineageTableTableVO);
+//        }
+//        return res;
     }
 
     /**
@@ -447,13 +444,14 @@ public class LineageService {
         Set<Long> dataSourceIds = dataSetListByIds.stream().map(LineageDataSetInfo::getSourceId).collect(Collectors.toSet());
         Map<Long, LineageDataSource> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getId(), ds2 -> ds2));
         List<LineageTableTableVO> res = Lists.newArrayList();
-        for (LineageTableTable tt : lineageTableTables) {
-            LineageDataSetInfo inputTableInfo = dataSetMap.get(tt.getInputTableId());
-            LineageDataSetInfo resultTableInfo = dataSetMap.get(tt.getResultTableId());
-            LineageTableTableVO lineageTableTableVO = TableLineageAdapter.tableTable2TableTableVO(tt, inputTableInfo, resultTableInfo, dataSourceMap.get(inputTableInfo.getSourceId()), dataSourceMap.get(resultTableInfo.getSourceId()));
-            res.add(lineageTableTableVO);
-        }
-        return res;
+        throw new RdosDefineException("服务暂不可用");
+//        for (LineageTableTable tt : lineageTableTables) {
+//            LineageDataSetInfo inputTableInfo = dataSetMap.get(tt.getInputTableId());
+//            LineageDataSetInfo resultTableInfo = dataSetMap.get(tt.getResultTableId());
+//            LineageTableTableVO lineageTableTableVO = TableLineageAdapter.tableTable2TableTableVO(tt, inputTableInfo, resultTableInfo, dataSourceMap.get(inputTableInfo.getSourceId()), dataSourceMap.get(resultTableInfo.getSourceId()));
+//            res.add(lineageTableTableVO);
+//        }
+//        return res;
     }
 
     /**
@@ -491,13 +489,14 @@ public class LineageService {
         Set<Long> dataSourceIds = dataSetListByIds.stream().map(LineageDataSetInfo::getSourceId).collect(Collectors.toSet());
         Map<Long, LineageDataSource> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getId(), ds2 -> ds2));
         List<LineageTableTableVO> res = Lists.newArrayList();
-        for (LineageTableTable tt : lineageTableTables) {
-            LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(tt.getInputTableId());
-            LineageDataSetInfo resultTableInfo = dataSetInfoMap.get(tt.getResultTableId());
-            LineageTableTableVO lineageTableTableVO = TableLineageAdapter.tableTable2TableTableVO(tt, inputTableInfo, resultTableInfo, dataSourceMap.get(inputTableInfo.getSourceId()), dataSourceMap.get(resultTableInfo.getSourceId()));
-            res.add(lineageTableTableVO);
-        }
-        return res;
+        throw new RdosDefineException("服务暂不可用");
+//        for (LineageTableTable tt : lineageTableTables) {
+//            LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(tt.getInputTableId());
+//            LineageDataSetInfo resultTableInfo = dataSetInfoMap.get(tt.getResultTableId());
+//            LineageTableTableVO lineageTableTableVO = TableLineageAdapter.tableTable2TableTableVO(tt, inputTableInfo, resultTableInfo, dataSourceMap.get(inputTableInfo.getSourceId()), dataSourceMap.get(resultTableInfo.getSourceId()));
+//            res.add(lineageTableTableVO);
+//        }
+//        return res;
     }
 
     /**
@@ -678,13 +677,15 @@ public class LineageService {
         Set<Long> dataSourceIds = dataSetListByIds.stream().map(LineageDataSetInfo::getSourceId).collect(Collectors.toSet());
         Map<Long, LineageDataSource> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getId(), ds2 -> ds2));
         List<LineageColumnColumnVO> res = Lists.newArrayList();
-        for (LineageColumnColumn cc : lineageColumnColumns) {
-            LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(cc.getInputTableId());
-            LineageDataSetInfo resultTableInfo = dataSetInfoMap.get(cc.getResultTableId());
-            LineageColumnColumnVO columnColumnVO = ColumnLineageAdapter.columnColumn2ColumnColumnVO(cc, inputTableInfo, resultTableInfo, dataSourceMap.get(inputTableInfo.getSourceId()), dataSourceMap.get(resultTableInfo.getSourceId()));
-            res.add(columnColumnVO);
-        }
-        return res;
+        throw new RdosDefineException("服务暂不可用");
+//        for (LineageColumnColumn cc : lineageColumnColumns) {
+//            LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(cc.getInputTableId());
+//            LineageDataSetInfo resultTableInfo = dataSetInfoMap.get(cc.getResultTableId());
+//            LineageColumnColumnVO columnColumnVO = ColumnLineageAdapter.columnColumn2ColumnColumnVO(cc, inputTableInfo, resultTableInfo, dataSourceMap.get(inputTableInfo.getSourceId()), dataSourceMap.get(resultTableInfo.getSourceId()));
+//            res.add(columnColumnVO);
+//        }
+
+//        return res;
     }
 
     /**
@@ -723,13 +724,14 @@ public class LineageService {
         Set<Long> dataSourceIds = dataSetListByIds.stream().map(LineageDataSetInfo::getSourceId).collect(Collectors.toSet());
         Map<Long, LineageDataSource> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getId(), ds2 -> ds2));
         List<LineageColumnColumnVO> res = Lists.newArrayList();
-        for (LineageColumnColumn cc : lineageColumnColumns) {
-            LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(cc.getInputTableId());
-            LineageDataSetInfo resultTableInfo = dataSetInfoMap.get(cc.getResultTableId());
-            LineageColumnColumnVO columnColumnVO = ColumnLineageAdapter.columnColumn2ColumnColumnVO(cc, inputTableInfo, resultTableInfo, dataSourceMap.get(inputTableInfo.getSourceId()), dataSourceMap.get(resultTableInfo.getSourceId()));
-            res.add(columnColumnVO);
-        }
-        return res;
+        throw new RdosDefineException("服务暂不可用");
+//        for (LineageColumnColumn cc : lineageColumnColumns) {
+//            LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(cc.getInputTableId());
+//            LineageDataSetInfo resultTableInfo = dataSetInfoMap.get(cc.getResultTableId());
+//            LineageColumnColumnVO columnColumnVO = ColumnLineageAdapter.columnColumn2ColumnColumnVO(cc, inputTableInfo, resultTableInfo, dataSourceMap.get(inputTableInfo.getSourceId()), dataSourceMap.get(resultTableInfo.getSourceId()));
+//            res.add(columnColumnVO);
+//        }
+//        return res;
     }
 
     /**
@@ -771,13 +773,14 @@ public class LineageService {
         Set<Long> dataSourceIds = dataSetListByIds.stream().map(LineageDataSetInfo::getSourceId).collect(Collectors.toSet());
         Map<Long, LineageDataSource> dataSourceMap = lineageDataSourceService.getDataSourcesByIdList(Lists.newArrayList(dataSourceIds)).stream().collect(Collectors.toMap(ds1 -> ds1.getId(), ds2 -> ds2));
         List<LineageColumnColumnVO> res = Lists.newArrayList();
-        for (LineageColumnColumn cc : lineageColumnColumns) {
-            LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(cc.getInputTableId());
-            LineageDataSetInfo resultTableInfo = dataSetInfoMap.get(cc.getResultTableId());
-            LineageColumnColumnVO columnColumnVO = ColumnLineageAdapter.columnColumn2ColumnColumnVO(cc, inputTableInfo, resultTableInfo, dataSourceMap.get(inputTableInfo.getSourceId()), dataSourceMap.get(resultTableInfo.getSourceId()));
-            res.add(columnColumnVO);
-        }
-        return res;
+        throw new RdosDefineException("服务暂不可用");
+//        for (LineageColumnColumn cc : lineageColumnColumns) {
+//            LineageDataSetInfo inputTableInfo = dataSetInfoMap.get(cc.getInputTableId());
+//            LineageDataSetInfo resultTableInfo = dataSetInfoMap.get(cc.getResultTableId());
+//            LineageColumnColumnVO columnColumnVO = ColumnLineageAdapter.columnColumn2ColumnColumnVO(cc, inputTableInfo, resultTableInfo, dataSourceMap.get(inputTableInfo.getSourceId()), dataSourceMap.get(resultTableInfo.getSourceId()));
+//            res.add(columnColumnVO);
+//        }
+//        return res;
     }
 
     /**
