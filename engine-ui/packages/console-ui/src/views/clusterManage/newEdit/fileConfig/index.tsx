@@ -1,12 +1,13 @@
 import * as React from 'react'
-import { Form, Select, message, Icon } from 'antd'
+import { Form, Select, message, Icon, Cascader } from 'antd'
 
 import req from '../../../../consts/reqUrls'
 import Api from '../../../../api/console'
 import UploadFile from './components/uploadFileBtn'
 import { COMPONENT_TYPE_VALUE, VERSION_TYPE, FILE_TYPE,
     CONFIG_FILE_DESC, DEFAULT_COMP_VERSION } from '../const'
-import { isOtherVersion, isSameVersion, handleComponentConfig, needZipFile } from '../help'
+import { isOtherVersion, isSameVersion, handleComponentConfig,
+    needZipFile, getOptions, getInitialValue } from '../help'
 
 interface IProps {
     comp: any;
@@ -42,7 +43,11 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
     handleVersion = (version: any) => {
         const { comp, handleCompVersion } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        handleCompVersion(typeCode, version)
+        if (isSameVersion(Number(typeCode))) {
+            handleCompVersion(typeCode, version)
+            return
+        }
+        this.props.form.setFieldsValue({ [`${typeCode}.hadoopVersion`]: version })
     }
 
     renderCompsVersion = () => {
@@ -50,26 +55,41 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         const { versionData, comp, view, commVersion } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
         let version = isOtherVersion(typeCode) ? versionData[VERSION_TYPE[typeCode]] : versionData.hadoopVersion
-        let initialValue = isOtherVersion(typeCode) ? DEFAULT_COMP_VERSION[typeCode] : versionData.hadoopVersion[0].value
+        let initialValue = isOtherVersion(typeCode) ? DEFAULT_COMP_VERSION[typeCode] : [version[0].key, version[0].values[0]?.key]
         initialValue = comp?.hadoopVersion || initialValue
-        if (isSameVersion(typeCode)) initialValue = commVersion || initialValue
+        if (isSameVersion(typeCode)) {
+            initialValue = commVersion ? getInitialValue(version, commVersion)
+                : (comp?.hadoopVersion ? getInitialValue(version, comp?.hadoopVersion) : initialValue)
+        }
 
         return (
-            <FormItem
-                label="组件版本"
-                colon={false}
-                key={`${typeCode}.hadoopVersion`}
-            >
+            <>
+                <FormItem
+                    label="组件版本"
+                    colon={false}
+                    key={`${typeCode}.hadoopVersion`}
+                >
+                    {getFieldDecorator(`${typeCode}.hadoopVersionSelect`, {
+                        initialValue: initialValue
+                    })(
+                        isOtherVersion(typeCode) ? (<Select style={{ width: 172 }} disabled={view} onChange={this.handleVersion}>
+                            {version.map((ver: any) => {
+                                return <Option value={ver.value} key={ver.key}>{ver.key}</Option>
+                            })}
+                        </Select>) : <Cascader
+                            options={getOptions(version)}
+                            expandTrigger="click"
+                            displayRender={(label) => {
+                                return label[label.length - 1];
+                            }}
+                            onChange={this.handleVersion}
+                        />
+                    )}
+                </FormItem>
                 {getFieldDecorator(`${typeCode}.hadoopVersion`, {
-                    initialValue: initialValue
-                })(
-                    <Select style={{ width: 172 }} disabled={view} onChange={this.handleVersion}>
-                        {version.map((ver: any) => {
-                            return <Option value={ver.value} key={ver.key}>{ver.key}</Option>
-                        })}
-                    </Select>
-                )}
-            </FormItem>
+                    initialValue: isSameVersion(typeCode) ? (commVersion || comp?.hadoopVersion || version[0].values[0]?.key) : initialValue
+                })(<></>)}
+            </>
         )
     }
 

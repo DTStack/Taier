@@ -103,6 +103,44 @@ export function getValueByJson (value: any): any {
     return value ? JSON.parse(value) : null
 }
 
+export function getOptions (version: any[]): any[] {
+    let opt = []
+    version.forEach((ver: any, index: number) => {
+        opt[index] = { label: ver.key, value: ver.key }
+        if (ver?.values && ver?.values?.length > 0) {
+            opt[index] = {
+                ...opt[index],
+                children: getOptions(ver.values)
+            }
+        }
+    })
+    return opt
+}
+
+export function getInitialValue (version: any[], commVersion: string): any[] {
+    const parentNode = {}
+    function setParentNode (nodes: any[], parent?: any) {
+        if (!nodes) return
+        return nodes.map(data => {
+            const node = { value: data.key, parent }
+            parentNode[data.key] = node
+            setParentNode(data.values, node)
+        })
+    }
+
+    function getParentNode (value: string) {
+        let node = []
+        let currentNode = parentNode[value]
+        node.push(currentNode.value)
+        if (currentNode.parent) {
+            node = [...getParentNode(currentNode.parent.value), ...node]
+        }
+        return node
+    }
+    setParentNode(version)
+    return getParentNode(commVersion)
+}
+
 /**
  * @param param
  * 处理单条自定义参数的key\value值

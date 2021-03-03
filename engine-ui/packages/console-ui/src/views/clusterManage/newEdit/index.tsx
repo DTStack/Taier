@@ -103,14 +103,14 @@ class EditCluster extends React.Component<any, IState> {
     handleCompVersion = (typeCode: string, version: string) => {
         if (isSameVersion(Number(typeCode))) {
             this.setState({
-                commVersion: version
+                commVersion: version[version.length - 1]
             })
             this.props.form.setFieldsValue({
                 [COMPONENT_TYPE_VALUE.YARN]: {
-                    hadoopVersion: version
+                    hadoopVersion: version[version.length - 1]
                 },
                 [COMPONENT_TYPE_VALUE.HDFS]: {
-                    hadoopVersion: version
+                    hadoopVersion: version[version.length - 1]
                 }
             })
         }
