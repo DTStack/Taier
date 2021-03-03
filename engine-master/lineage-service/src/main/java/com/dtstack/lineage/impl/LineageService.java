@@ -18,7 +18,15 @@ import com.dtstack.engine.api.vo.lineage.param.QueryColumnLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageColumnParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageParam;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.lineage.adapter.SqlTypeAdapter;
+import com.dtstack.lineage.adapter.TableAdapter;
+import com.dtstack.lineage.enums.SourceType2TableType;
 import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.sql.ParseResult;
+import com.dtstack.sql.Table;
+import com.dtstack.sql.client.ISqlParser;
+import com.dtstack.sql.client.SqlParserCache;
+import com.dtstack.sql.exception.ClientAccessException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
@@ -28,11 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -65,37 +69,41 @@ public class LineageService {
      * @return
      */
     public SqlParseInfo parseSql(String sql, String defaultDb, Integer dataSourceType) {
-//        SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(dataSourceType);
-//        if (Objects.isNull(sourceType2TableType)) {
-//            throw new IllegalArgumentException("数据源类型" + dataSourceType + "不支持");
-//        }
-        throw new RdosDefineException("服务暂不可用");
-//        SqlParserImpl sqlParser = SqlParserFactory.getInstance().getSqlParser(sourceType2TableType.getTableType());
-//        SqlParseInfo parseInfo = new SqlParseInfo();
-//        parseInfo.setOriginSql(sql);
-//        try {
-//            ParseResult parseResult = null;
-//            try {
-//                parseResult = sqlParser.parseSql(sql, defaultDb, new HashMap<>());
-//            } catch (Exception e) {
-//                logger.error("解析sql异常:{}",e);
-//                throw new RdosDefineException("sql解析异常，请检查语法");
-//            }
-//            parseInfo.setMainDb(parseResult.getCurrentDb());
-//            Table mainTable = parseResult.getMainTable();
-//            parseInfo.setMainTable(TableAdapter.sqlTable2ApiTable(mainTable));
-//            parseInfo.setCurrentDb(parseResult.getCurrentDb());
-//            parseInfo.setFailedMsg(parseResult.getFailedMsg());
-//            parseInfo.setParseSuccess(parseResult.isParseSuccess());
-//            parseInfo.setSqlType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getSqlType()));
-//            parseInfo.setExtraType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getExtraSqlType()));
-//            parseInfo.setStandardSql(parseResult.getStandardSql());
-//        } catch (Exception e) {
-//            logger.error("sql解析失败：{}", e);
-//            parseInfo.setFailedMsg(e.getMessage());
-//            parseInfo.setParseSuccess(false);
-//        }
-//        return parseInfo;
+        SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(dataSourceType);
+        if (Objects.isNull(sourceType2TableType)) {
+            throw new IllegalArgumentException("数据源类型" + dataSourceType + "不支持");
+        }
+        SqlParseInfo parseInfo = new SqlParseInfo();
+        ISqlParser sqlParserClient = null;
+        try {
+            sqlParserClient  = SqlParserCache.getInstance().getClient("sqlparser");
+        } catch (ClientAccessException e) {
+            throw new RdosDefineException("get sqlParserClient error");
+        }
+        parseInfo.setOriginSql(sql);
+        try {
+            ParseResult parseResult = null;
+            try {
+                parseResult = sqlParserClient.parseSql(sql, defaultDb, new HashMap<>(),sourceType2TableType.getTableType());
+            } catch (Exception e) {
+                logger.error("解析sql异常:{}",e);
+                throw new RdosDefineException("sql解析异常，请检查语法");
+            }
+            parseInfo.setMainDb(parseResult.getCurrentDb());
+            Table mainTable = parseResult.getMainTable();
+            parseInfo.setMainTable(TableAdapter.sqlTable2ApiTable(mainTable));
+            parseInfo.setCurrentDb(parseResult.getCurrentDb());
+            parseInfo.setFailedMsg(parseResult.getFailedMsg());
+            parseInfo.setParseSuccess(parseResult.isParseSuccess());
+            parseInfo.setSqlType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getSqlType()));
+            parseInfo.setExtraType(SqlTypeAdapter.sqlType2ApiSqlType(parseResult.getExtraSqlType()));
+            parseInfo.setStandardSql(parseResult.getStandardSql());
+        } catch (Exception e) {
+            logger.error("sql解析失败：{}", e);
+            parseInfo.setFailedMsg(e.getMessage());
+            parseInfo.setParseSuccess(false);
+        }
+        return parseInfo;
     }
 
     /**

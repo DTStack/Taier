@@ -21,6 +21,7 @@
         <module>engine-alert-sdk</module>
         <module>engine-alert</module>
         <module>lineage-service</module>
+        <module>lineage-sql-parser</module>
     </modules>
 
     <build>

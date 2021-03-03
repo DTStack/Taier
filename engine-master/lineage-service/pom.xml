@@ -13,11 +13,17 @@
 
     <dependencies>
 
-<!--        <dependency>-->
-<!--            <groupId>dt.insight.plat</groupId>-->
-<!--            <artifactId>dt-insight-sql-parse</artifactId>-->
-<!--            <version>4.1.4-SNAPSHOT</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>dt.insight.plat</groupId>
+            <artifactId>dt-insight-sql-parse</artifactId>
+            <version>4.1.6-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>dt-insight-hive-shade</artifactId>
+                    <groupId>dt.insight.plat</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
