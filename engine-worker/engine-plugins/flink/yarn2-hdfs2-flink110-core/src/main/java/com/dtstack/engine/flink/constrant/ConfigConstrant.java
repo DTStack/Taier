@@ -30,7 +30,6 @@ public class ConfigConstrant {
     public static final String MR_JOB_PARALLELISM = "mr.job.parallelism";
     public static final String FLINK_TASK_RUN_MODE_KEY = "flinkTaskRunMode";
     public static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
-    public static final String JVM_OPTIONS = "-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing";
 
     public static final String AKKA_ASK_TIMEOUT = "50 s";
     public static final String AKKA_CLIENT_TIMEOUT = "300 s";

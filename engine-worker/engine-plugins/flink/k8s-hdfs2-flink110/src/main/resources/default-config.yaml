@@ -49,7 +49,7 @@ perjob:
     prometheusHost:
     prometheusPort: 9090
 
-    flink.env.java.opts: -XX:MaxMetaspaceSize=500m
+    env.java.opts: -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
     high-availability: ZOOKEEPER
@@ -108,7 +108,7 @@ session:
 
     sessionStartAuto: true
 
-    flink.env.java.opts: -XX:MaxMetaspaceSize=500m
+    env.java.opts: -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
     high-availability: ZOOKEEPER
