@@ -1,7 +1,7 @@
 package com.dtstack.lineage.enums;
 
 import com.dtstack.schedule.common.enums.DataSourceType;
-import com.dtstack.sql.enums.ETableType;
+import com.dtstack.sql.client.enums.ETableType;
 import com.google.common.collect.Sets;
 
 import java.util.Objects;
