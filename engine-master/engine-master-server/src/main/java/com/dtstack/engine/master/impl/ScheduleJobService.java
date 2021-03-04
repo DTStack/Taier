@@ -1675,7 +1675,11 @@ public class ScheduleJobService {
             String[] statuses = vo.getJobStatuses().split(",");
             for (String status : statuses) {
                 List<Integer> statusList = RdosTaskStatus.getStatusFailedDetail().get(MathUtil.getIntegerVal(status));
-                statues.addAll(statusList);
+                if (CollectionUtils.isNotEmpty(statusList)) {
+                    statues.addAll(statusList);
+                }else{
+                    statues.add(MathUtil.getIntegerVal(status));
+                }
             }
 
             batchJobDTO.setJobStatuses(statues);
