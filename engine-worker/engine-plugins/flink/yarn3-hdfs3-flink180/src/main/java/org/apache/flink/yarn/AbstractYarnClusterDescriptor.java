@@ -674,9 +674,9 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         }catch (Exception e){
             LOG.error("get proxyInfo error: {}", e);
             String  addr = yarnConf.get("yarn.resourcemanager.webapp.address");
-            if (addr == null) {
-                throw new YarnDeploymentException("Couldn't get rm web app address.Please check rm web address whether be confituration.");
-            }
+//            if (addr == null) {
+//                throw new YarnDeploymentException("Couldn't get rm web app address.Please check rm web address whether be confituration.");
+//            }
             return String.format("http://%s/proxy",addr);
         }
     }
