@@ -210,7 +210,18 @@ class EditCluster extends React.Component<any, IState> {
         })
     }
 
-    setTestStatus = (status: any) => {
+    setTestStatus = (status: any, isSingle?: boolean) => {
+        if (isSingle) {
+            this.setState((preState) => ({
+                testStatus: {
+                    ...preState.testStatus,
+                    [status.componentTypeCode]: {
+                        ...status
+                    }
+                }
+            }))
+            return
+        }
         let testStatus: any = {}
         status.forEach((temp: any) => {
             testStatus[temp.componentTypeCode] = { ...temp }
@@ -220,7 +231,7 @@ class EditCluster extends React.Component<any, IState> {
         })
     }
 
-    testConnects = (isSingle?: boolean, callBack?: Function) => {
+    testConnects = (typeCode?: number, callBack?: Function) => {
         const { form } = this.props
         const { initialCompData, clusterName } = this.state
         form.validateFields(null, {}, (err: any, values: any) => {
@@ -237,16 +248,16 @@ class EditCluster extends React.Component<any, IState> {
                     message.error(`组件 ${modifyCompsName.join('、')} 参数变更未保存，请先保存再测试组件连通性`)
                     return
                 }
-                if (isSingle) {
-                    // 待添加借口
-                    // Api.testConnects({
-                    //     clusterName
-                    // }).then((res: any) => {
-                    //     if (res.code === 1) {
-                    //         this.setTestStatus(res.data)
-                    //     }
-                    //     callBack && callBack()
-                    // })
+                if (typeCode) {
+                    Api.testConnect({
+                        clusterName,
+                        componentType: typeCode
+                    }).then((res: any) => {
+                        if (res.code === 1) {
+                            this.setTestStatus(res.data, true)
+                        }
+                        callBack && callBack()
+                    })
                 } else {
                     this.setState({ testLoading: true });
                     Api.testConnects({
