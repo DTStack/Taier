@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>lineage-service</artifactId>
+    <artifactId>engine-lineage-service</artifactId>
 
     <dependencies>
 

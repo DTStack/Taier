@@ -20,8 +20,8 @@
         <module>engine-master-server</module>
         <module>engine-alert-sdk</module>
         <module>engine-alert</module>
-        <module>lineage-service</module>
-        <module>lineage-sql-parser</module>
+        <module>engine-lineage-service</module>
+        <module>engine-lineage-sqlparser</module>
     </modules>
 
     <build>
