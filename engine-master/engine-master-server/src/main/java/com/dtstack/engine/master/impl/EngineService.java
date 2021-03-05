@@ -9,11 +9,13 @@ import com.dtstack.engine.api.vo.EngineVO;
 import com.dtstack.engine.api.vo.QueueVO;
 import com.dtstack.engine.api.vo.engine.EngineSupportVO;
 import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.dao.QueueDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -124,6 +126,7 @@ public class EngineService {
 
         engineDao.update(engine);
     }
+
 
     public Engine getOne(Long engineId) {
         return engineDao.getOne(engineId);

@@ -103,19 +103,16 @@ public class AlertController {
             // 上传sftp
             if (environmentContext.getOpenConsoleSftp()) {
                 // 查询默认集群的sftp
-                Component sftpComponent = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode());
-                if (sftpComponent != null) {
-                    SftpConfig sftpConfig = JSONObject.parseObject(sftpComponent.getComponentConfig(), SftpConfig.class);
-                    if (sftpConfig != null) {
-                        try {
-                            String remoteDir = sftpConfig.getPath() + File.separator + filePath;
-                            SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
-                            sftpManager.uploadFile(remoteDir ,destPath);
+                SftpConfig sftpConfig = componentService.getComponentByClusterId(-1L, EComponentType.SFTP.getTypeCode(), false,SftpConfig.class);
+                if (sftpConfig != null) {
+                    try {
+                        String remoteDir = sftpConfig.getPath() + File.separator + filePath;
+                        SftpFileManage sftpManager = SftpFileManage.getSftpManager(sftpConfig);
+                        sftpManager.uploadFile(remoteDir ,destPath);
 
-                            dbPath = dbPath + GlobalConst.PATH_CUT + remoteDir + File.separator + file.getOriginalFilename();
-                        } catch (Exception e) {
-                            log.error("上传sftp失败:",e);
-                        }
+                        dbPath = dbPath + GlobalConst.PATH_CUT + remoteDir + File.separator + file.getOriginalFilename();
+                    } catch (Exception e) {
+                        log.error("上传sftp失败:",e);
                     }
                 }
             }

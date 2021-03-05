@@ -33,6 +33,7 @@ public class ConfigConstant {
     public static final String MERGE_KRB5_CONTENT_KEY = "mergeKrbContent";
 
     public static final String TYPE_NAME_KEY = "typeName";
+    public static final String HADOOP_VERSION = "hadoopVersion";
     public static final String CUSTOMER_PRIORITY_VAL = "job.priority";
 
     public static final String MD5_SUM_KEY = "md5zip";

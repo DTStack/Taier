@@ -23,6 +23,8 @@ import com.dtstack.engine.master.config.TaskResourceBeanConfig;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
+import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;
@@ -487,16 +489,15 @@ public class ConsoleService {
         if (yarnComponent == null) {
             return null;
         }
-
-        return getResources(yarnComponent, cluster);
+        JSONObject yarnConfigStr = componentService.getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode(), false, JSONObject.class);
+        return getResources(yarnComponent, cluster,yarnConfigStr);
     }
 
-    public ClusterResource getResources(Component yarnComponent, Cluster cluster) {
+    public ClusterResource getResources(Component yarnComponent, Cluster cluster,JSONObject componentConfig) {
         try {
             JSONObject pluginInfo = new JSONObject();
-            JSONObject componentConfig = JSONObject.parseObject(yarnComponent.getComponentConfig());
             pluginInfo.put(EComponentType.YARN.getConfName(), componentConfig);
-            String typeName = componentConfig.getString(ComponentService.TYPE_NAME);
+            String typeName = componentConfig.getString(ConfigConstant.TYPE_NAME_KEY);
             if (StringUtils.isBlank(typeName)) {
                 //获取对应的插件名称
                 Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode());
@@ -509,10 +510,10 @@ public class ConsoleService {
                             EComponentType.HDFS.getTypeCode(), hdfsComponent.getHadoopVersion(),hdfsComponent.getStoreType());
                 }
             }
-            pluginInfo.put(ComponentService.TYPE_NAME,typeName);
+            pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,typeName);
             return workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
         } catch (Exception e) {
-            logger.error("getResources error:{} ", e);
+            logger.error("getResources error: ", e);
             throw new RdosDefineException("flink资源获取异常");
         }
     }
