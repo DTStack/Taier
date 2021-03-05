@@ -57,6 +57,5 @@ engine-worker/engine-plugins/rdbs/tidb,\
 engine-worker/engine-plugins/rdbs/greenplum,\
 engine-worker/engine-plugins/rdbs/presto,\
 engine-worker/engine-plugins/rdbs/kingbase,\
-engie-master/engine-lineage-sqlparser,\
 engine-entrance \
 -am
