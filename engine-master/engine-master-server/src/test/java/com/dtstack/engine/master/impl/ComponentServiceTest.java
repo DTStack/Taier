@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.Engine;
@@ -196,7 +195,7 @@ public class ComponentServiceTest extends AbstractTest {
         Assert.assertNotNull(getKerberosConfig);
     }
 
-    @Test
+/*    @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testGetSFTPConfig() {
@@ -205,7 +204,7 @@ public class ComponentServiceTest extends AbstractTest {
         Assert.assertNotNull(getSFTPConfig);
         SftpConfig sftpConfig = componentService.getSFTPConfig(component, EComponentType.SFTP.getTypeCode(), "{\"path\":\"/data/sftp\",\"password\":\"abc123\",\"auth\":\"1\",\"port\":\"22\",\"host\":\"172.16.100.115\",\"username\":\"root\"}");
         Assert.assertNotNull(sftpConfig);
-    }
+    }*/
 
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
@@ -257,7 +256,7 @@ public class ComponentServiceTest extends AbstractTest {
         resource.setUploadedFileName(hadoopConfZip);
         List<Resource> resources = new ArrayList<>();
         resources.add(resource);
-        List<Object> config = componentService.config(resources, EComponentType.YARN.getTypeCode(), false);
+        List<Object> config = componentService.config(resources, EComponentType.YARN.getTypeCode(), false,null);
         Assert.assertNotNull(config);
     }
 
@@ -272,7 +271,7 @@ public class ComponentServiceTest extends AbstractTest {
         List<Resource> resources = new ArrayList<>();
         resources.add(resource);
         try {
-            List<Object> config = componentService.config(resources, EComponentType.FLINK.getTypeCode(), false);
+            List<Object> config = componentService.config(resources, EComponentType.FLINK.getTypeCode(), false,null);
         } catch (Exception e) {
             Assert.assertEquals("JSON文件格式错误",e.getMessage());
         }
@@ -287,7 +286,7 @@ public class ComponentServiceTest extends AbstractTest {
         Assert.assertNotNull(buildSftpPath);
     }
 
-    @Test
+/*    @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testTestConnect() {
@@ -296,9 +295,9 @@ public class ComponentServiceTest extends AbstractTest {
         Map<String, String> getSFTPConfig = componentService.getSFTPConfig(cluster.getId());
         ComponentTestResult testConnect = componentService.testConnect(EComponentType.HDFS.getTypeCode(), one.getComponentConfig(), cluster.getClusterName(), one.getHadoopVersion(), one.getEngineId(), null, getSFTPConfig, 0);
         Assert.assertNotNull(testConnect);
-    }
+    }*/
 
-    @Test
+/*    @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testWrapperConfig() {
@@ -332,7 +331,7 @@ public class ComponentServiceTest extends AbstractTest {
         kerberosConfig.setPrincipal("hive@host.com");
         String wrapperConfig = componentService.wrapperConfig(EComponentType.SPARK_THRIFT.getTypeCode(), one.getComponentConfig(), getSFTPConfig, kerberosConfig, cluster.getClusterName());
         Assert.assertTrue(StringUtils.isNotEmpty(wrapperConfig));
-    }
+    }*/
 
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
@@ -437,15 +436,6 @@ public class ComponentServiceTest extends AbstractTest {
         Cluster defaultCluster = DataCollection.getData().getDefaultCluster();
         List<ComponentTestResult> testConnects = componentService.testConnects(defaultCluster.getClusterName());
         Assert.assertTrue(CollectionUtils.isNotEmpty(testConnects));
-    }
-
-    @Test
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    @Rollback
-    public void testGetPluginInfoWithComponentType() {
-        Tenant defaultTenant = DataCollection.getData().getDefaultTenant();
-        JSONObject getPluginInfoWithComponentType = componentService.getPluginInfoWithComponentType(defaultTenant.getDtUicTenantId(), EComponentType.YARN);
-        Assert.assertNotNull(getPluginInfoWithComponentType);
     }
 
     @Test

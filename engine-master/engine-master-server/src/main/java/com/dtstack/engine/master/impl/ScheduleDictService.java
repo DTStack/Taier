@@ -2,13 +2,13 @@ package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.ScheduleDict;
 import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.util.ComponentConfigUtils;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.ScheduleDictDao;
 import com.dtstack.engine.master.enums.DictType;
-import com.dtstack.engine.master.enums.EComponentType;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

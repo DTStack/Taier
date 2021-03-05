@@ -1,21 +1,13 @@
 package com.dtstack.engine.master.dataCollection;
 
 import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.enums.LineageOriginType;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.anno.DataSource;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
-import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.utils.DataCollectionProxy;
 import com.dtstack.engine.master.utils.Template;
-import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import org.joda.time.DateTime;
 
@@ -833,21 +825,6 @@ public interface DataCollection {
         return tenantResource;
     }
 
-    @DatabaseInsertOperation(dao = TestComponentDao.class)
-    default Component getDefaultComponent(){
-        Component component = new Component();
-        component.setEngineId(1L);
-        component.setComponentName(EComponentType.SPARK.name());
-        component.setComponentTypeCode(EComponentType.SPARK.getTypeCode());
-        component.setComponentConfig("{\"deploymode\":[\"perjob\"],\"perjob\":{\"spark.executor.memory\":\"512m\",\"sparkSqlProxyPath\":\"hdfs://ns1/dtInsight/spark/spark-0.0.1-SNAPSHOT.jar\",\"spark.yarn.appMasterEnv.PYSPARK_PYTHON\":\"/data/anaconda3/bin/python3\",\"spark.executor.heartbeatInterval\":\"600s\",\"spark.rpc.askTimeout\":\"600s\",\"spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON\":\"/data/anaconda3/bin/python3\",\"spark.yarn.maxAppAttempts\":\"1\",\"spark.network.timeout\":\"600s\",\"spark.executor.cores\":\"1\",\"spark.submit.deployMode\":\"cluster\",\"spark.speculation\":\"true\",\"sparkPythonExtLibPath\":\"/dtInsight/pythons/pyspark.zip,hdfs://ns1/dtInsight/pythons/py4j-0.10.7-src.zip\",\"addColumnSupport\":\"true\",\"spark.eventLog.compress\":\"true\",\"spark.eventLog.dir\":\"hdfs://ns1/tmp/logs\",\"spark.eventLog.enabled\":\"true\",\"sparkYarnArchive\":\"hdfs://ns1/dtInsight/sparkjars/jars\",\"spark.executor.instances\":\"1\",\"spark.cores.max\":\"1\"},\"typeName\":\"yarn2-hdfs2-spark210\"}");
-        component.setClusterId(1L);
-        component.setHadoopVersion("hadoop3");
-        component.setComponentTemplate("[]");
-        component.setUploadFileName("conf.zip");
-        component.setKerberosFileName("kb.zip");
-        component.setStoreType(0);
-        return component;
-    }
 
     @DatabaseInsertOperation(dao = TestKerberosConfigDao.class)
     default KerberosConfig getDefaultKerberosConfig(){
@@ -867,14 +844,6 @@ public interface DataCollection {
         return Template.getDefaultHdfsComponentTemplate();
     }
 
-    @DatabaseInsertOperation(dao = TestComponentDao.class)
-    default Component getDefaultSparkSqlComponent(){
-        Component component = Template.getDefaultHdfsComponentTemplate();
-        component.setComponentTypeCode(EComponentType.SPARK_THRIFT.getTypeCode());
-        component.setComponentName(EComponentType.SPARK_THRIFT.getName());
-        component.setComponentConfig("{\"maxJobPoolSize\":\"\",\"password\":\"\",\"minJobPoolSize\":\"\",\"jdbcUrl\":\"jdbc:hive2://172.16.8.107:10000/%s\",\"queue\":\"\",\"username\":\"admin\"}");
-        return component;
-    }
 
     @DatabaseInsertOperation(dao = TestComponentDao.class)
     default Component getDefaultYarnComponent(){

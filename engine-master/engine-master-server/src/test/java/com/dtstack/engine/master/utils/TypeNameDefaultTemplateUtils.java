@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.utils;
 
 import com.dtstack.engine.api.vo.Pair;
-import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.common.enums.EComponentType;
 
 import java.util.HashMap;
 
@@ -48,6 +48,8 @@ public class TypeNameDefaultTemplateUtils {
         typeNameMapping.put("yarn2-hdfs2-flink180", new Pair<>(-110L, EComponentType.FLINK.getTypeCode()));
         typeNameMapping.put("yarn3-hdfs3-flink180", new Pair<>(-110L, EComponentType.FLINK.getTypeCode()));
         typeNameMapping.put("yarHW-hdfsHW-flinkHW", new Pair<>(-110L, EComponentType.FLINK.getTypeCode()));
+
+        typeNameMapping.put("nfs", new Pair<>(-111L, EComponentType.NFS.getTypeCode()));
     }
 
     public static Pair<Long,Integer> getDefaultComponentIdByTypeName(String typeName){

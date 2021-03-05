@@ -502,7 +502,7 @@ public class ClusterService implements InitializingBean {
         if(null == component){
             return "{}";
         }
-        JSONObject configObj = JSONObject.parseObject(component.getComponentConfig());
+        JSONObject configObj = componentService.getComponentByClusterId(cluster.getId(), component.getComponentTypeCode(),false,JSONObject.class);
         //返回版本
         configObj.put(ComponentService.VERSION, component.getHadoopVersion());
         KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(),componentType.getTypeCode());
@@ -548,11 +548,11 @@ public class ClusterService implements InitializingBean {
                 kerberosConfigVO.setHdfsConfig(hdfsComponent);
             }
             kerberosConfigVO.setKerberosFileTimestamp(kerberosConfig.getGmtModified());
+            //kerberosConfig放到最外层
+            String kerberosConfigStr = JSONObject.toJSONString(kerberosConfigVO);
+            configObj.putAll(JSON.parseObject(kerberosConfigStr));
+            configObj.put("kerberosConfig", kerberosConfigVO);
         }
-        //kerberosConfig放到最外层
-        String kerberosConfigStr = JSONObject.toJSONString(kerberosConfigVO);
-        configObj.putAll(JSON.parseObject(kerberosConfigStr));
-        configObj.put("kerberosConfig", kerberosConfigVO);
     }
 
     public JSONObject convertPluginInfo(JSONObject clusterConfigJson, EngineTypeComponentType type, ClusterVO clusterVO,Integer deployMode) {
@@ -666,6 +666,7 @@ public class ClusterService implements InitializingBean {
     }
 
     private JSONObject buildDeployMode(JSONObject clusterConfigJson, EngineTypeComponentType type, ClusterVO clusterVO, Integer deployMode) {
+        JSONObject pluginInfo;
         //默认为session
         EDeployMode deploy = EComponentType.FLINK.equals(type.getComponentType()) ? EDeployMode.SESSION : EDeployMode.PERJOB;
         //spark 暂时全部为perjob
@@ -890,18 +891,14 @@ public class ClusterService implements InitializingBean {
             schedulingVo.setSchedulingCode(value.getType());
             schedulingVo.setSchedulingName(value.getName());
             schedulingVo.setComponents(scheduleType.getOrDefault(value,new ArrayList<>(0)));
-            List<Component> componentsSchedule = scheduleType.get(value);
-            if(CollectionUtils.isEmpty(componentsSchedule)){
-                componentsSchedule = new ArrayList<>();
-            }
-            List<ComponentVO> componentVOS = new ArrayList<>();
-            for (Component component : componentsSchedule) {
+            List<ComponentVO> componentVOS = scheduleType.get(value);
+            /*for (Component component : componentsSchedule) {
                 // hdfs yarn 才将自定义参数移除 过滤返回给前端
                 boolean removeSelfParams = EComponentType.HDFS.getTypeCode().equals(component.getComponentTypeCode())
                         || EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode());
                 ComponentVO componentVO = ComponentVO.toVO(component,null == removeTypeName || removeTypeName,removeSelfParams);
                 componentVOS.add(componentVO);
-            }
+            }*/
             if(CollectionUtils.isNotEmpty(componentVOS) && CollectionUtils.isNotEmpty(kerberosConfigs)){
                 for (ComponentVO componentVO : componentVOS) {
                     for (KerberosConfig config : kerberosConfigs) {

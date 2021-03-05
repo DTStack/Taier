@@ -22,10 +22,6 @@ import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
@@ -216,7 +212,7 @@ public class ConsoleServiceTest extends AbstractTest {
     public void testGetResources() {
         Component hdfsComponent = Template.getDefaultHdfsComponentTemplate();
         Cluster cluster = clusterDao.getOne();
-        ClusterResource getResources = consoleService.getResources(hdfsComponent, cluster);
+        ClusterResource getResources = consoleService.getResources(hdfsComponent, cluster,null);
         Assert.assertNotNull(getResources);
     }
 

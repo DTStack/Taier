@@ -43,12 +43,12 @@ public class DownloadConfigTest extends AbstractTest {
     public void init() {
         Component sftp = new Component();
         sftp.setComponentName("sftp");
-        sftp.setComponentConfig("{\"path\":\"/data/sftp\",\"password\":\"123\",\"auth\":\"1\",\"port\":\"22\",\"host\":\"127.0.0.1\",\"username\":\"root\"}");
+//        sftp.setComponentConfig("{\"path\":\"/data/sftp\",\"password\":\"123\",\"auth\":\"1\",\"port\":\"22\",\"host\":\"127.0.0.1\",\"username\":\"root\"}");
         when(componentDao.getByClusterIdAndComponentType(anyLong(), anyInt())).thenReturn(sftp);
         Component component = new Component();
         component.setComponentName("oracle");
         component.setComponentTypeCode(EComponentType.ORACLE_SQL.getTypeCode());
-        component.setComponentConfig("{\"maxJobPoolSize\":\"\",\"password\":\"test\",\"minJobPoolSize\":\"\",\"jdbcUrl\":\"jdbc:oracle:thin:@//127.0.0.1:1521/xe\",\"username\":\"system\"}");
+//        component.setComponentConfig("{\"maxJobPoolSize\":\"\",\"password\":\"test\",\"minJobPoolSize\":\"\",\"jdbcUrl\":\"jdbc:oracle:thin:@//127.0.0.1:1521/xe\",\"username\":\"system\"}");
         when(componentDao.getOne(100L)).thenReturn(component);
         Cluster cluster = new Cluster();
         cluster.setClusterName("12");

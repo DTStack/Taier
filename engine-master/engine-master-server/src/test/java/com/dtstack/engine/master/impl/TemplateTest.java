@@ -6,12 +6,12 @@ import com.dtstack.engine.api.domain.Cluster;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.ComponentConfig;
 import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.util.ComponentConfigUtils;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.TestConsoleComponentTemplateDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.enums.EComponentType;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -63,7 +63,7 @@ public class TemplateTest extends AbstractTest {
 
     @Before
     public void init() {
-        doReturn(typeName).when(componentService).convertComponentTypeToClient(any(), anyInt(), any());
+        doReturn(typeName).when(componentService).convertComponentTypeToClient(any(), anyInt(), any(),anyInt());
     }
 
     @Test
@@ -298,7 +298,7 @@ public class TemplateTest extends AbstractTest {
                 "        flink.env.java.opts: -XX:MaxMetaspaceSize=500m\n" +
                 "        prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter\n" +
                 "        gatewayJobName: pushgateway\n");
-        List<ClientTemplate> clientTemplates = componentService.loadTemplate(EComponentType.FLINK.getTypeCode(), "", "");
+        List<ClientTemplate> clientTemplates = componentService.loadTemplate(EComponentType.FLINK.getTypeCode(), "", "",null);
         Assert.assertNotNull(clientTemplates);
     }
 
@@ -313,7 +313,7 @@ public class TemplateTest extends AbstractTest {
         cluster.setHadoopVersion("hadoop2");
         clusterDao.insert(cluster);
         //添加组件 添加引擎
-        componentService.addOrUpdateComponent(cluster.getId(), "", null, "hadoop2", "", templateString, EComponentType.SFTP.getTypeCode());
+        componentService.addOrUpdateComponent(cluster.getId(), "", null, "hadoop2", "", templateString, EComponentType.SFTP.getTypeCode(),null,null,null);
         Component sftpComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode());
         Assert.assertNotNull(sftpComponent);
         Map<String, Object> sftpConfig = componentConfigService.convertComponentConfigToMap(sftpComponent.getId(), true);

@@ -37,6 +37,5 @@ public interface TestCommonDao {
             "delete from lineage_column_column;"+
             "delete from console_component_config;" +
             "delete from console_tenant_resource;")
-    )
     void truncate();
 }
