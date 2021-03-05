@@ -88,20 +88,28 @@ public class HiveConnFactory extends AbstractConnFactory {
                 }
 
                 try {
-                    if (getUsername() == null) {
-                        conn = DriverManager.getConnection(jdbcUrl, properties);
-                    } else {
-                        properties.setProperty(HIVE_USER, getUsername());
-                        properties.setProperty(HIVE_PASSWORD, getPassword());
-                        conn = DriverManager.getConnection(jdbcUrl, properties);
-                    }
-                } catch (SQLException e) {
-                    throw new RdosDefineException(e);
+                    conn = KerberosUtils.login(baseConfig, () -> {
+                        Connection connection = null;
+                        try {
+                            if (getUsername() == null) {
+                                connection = DriverManager.getConnection(jdbcUrl, properties);
+                            } else {
+                                properties.setProperty(HIVE_USER, getUsername());
+                                properties.setProperty(HIVE_PASSWORD, getPassword());
+                                connection = DriverManager.getConnection(jdbcUrl, properties);
+                            }
+                        } catch (Exception e) {
+                            throw new RdosDefineException(e);
+                        }
+                        return connection;
+                    }, yarnConf);
+                } catch (Exception e) {
+                    throw new RdosDefineException("get connection by taskParams error", e);
                 }
                 return conn;
             },yarnConf);
         } catch (Exception e) {
-            LOG.error("getConnByTaskParams error {}",jobName,e);
+            LOG.error("getConnByTaskParams error {}", jobName, e);
             throw new RdosDefineException(e);
         }
     }

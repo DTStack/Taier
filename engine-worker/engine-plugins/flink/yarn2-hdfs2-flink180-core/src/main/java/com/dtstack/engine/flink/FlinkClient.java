@@ -27,6 +27,7 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UrlUtil;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.flink.constrant.ExceptionInfoConstrant;
+import com.dtstack.engine.flink.constrant.ErrorMessageConsts;
 import com.dtstack.engine.flink.entity.TaskmanagerInfo;
 import com.dtstack.engine.flink.enums.FlinkYarnMode;
 import com.dtstack.engine.flink.factory.PerJobClientFactory;
@@ -662,7 +663,8 @@ public class FlinkClient extends AbstractClient {
         String exceptMessage = "";
         try {
             if (engineJobId == null) {
-                logger.error("{} getJobLog is null, because engineJobId is empty", jobIdentifier.getTaskId());
+                logger.error("{} getJobLog is null, because engineJobId is empty. Please check whether job is already submitted to yarn.", jobIdentifier.getTaskId());
+                return handleJobLog("", "Get jogLog error, because engineJobId is null", "Job has not submitted to yarn, Please waiting moment.");
             }
             String exceptionUrlPath = String.format(ConfigConstrant.JOB_EXCEPTIONS_URL_FORMAT, engineJobId);
 
@@ -680,12 +682,16 @@ public class FlinkClient extends AbstractClient {
             return FlinkRestParseUtil.parseEngineLog(exceptMessage);
         } catch (Exception e) {
             logger.error("Get job log error, {}", e.getMessage());
-            Map<String, String> map = new LinkedHashMap<>(8);
-            map.put("jobId", engineJobId);
-            map.put("exception", ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION);
-            map.put("engineLogErr", ExceptionUtil.getErrorMessage(e));
-            return new Gson().toJson(map);
+            return handleJobLog(engineJobId, ExceptionInfoConstrant.FLINK_GET_LOG_ERROR_UNDO_RESTART_EXCEPTION, ExceptionUtil.getErrorMessage(e));
         }
+    }
+
+    private String handleJobLog(String engineJobId, String exception, String exceptionErr) {
+        Map<String, String> map = new LinkedHashMap<>(8);
+        map.put("jobId", engineJobId);
+        map.put("exception", exception);
+        map.put("engineLogErr", exceptionErr);
+        return new Gson().toJson(map);
     }
 
     public String getMessageFromJobArchive(String jobId, String urlPath) throws Exception {
@@ -736,12 +742,15 @@ public class FlinkClient extends AbstractClient {
             if (!judgeResult.available() || isPerJob) {
                 return judgeResult;
             } else {
-                ClusterClient clusterClient = flinkClusterClientManager.getClusterClient(null);
-                if (clusterClient == null) {
-                    return JudgeResult.notOk("wait flink session client recover");
+                // 纯健康检查，若不健康返回notOk给调度方
+                try {
+                    flinkClusterClientManager.getClusterClient(null);
+                } catch (RdosDefineException e) {
+                    return JudgeResult.notOk(ErrorMessageConsts.WAIT_SESSION_RECOVER);
                 }
+
                 FlinkYarnSeesionResourceInfo yarnSeesionResourceInfo = new FlinkYarnSeesionResourceInfo();
-                String slotInfo = null;
+                String slotInfo;
                 try {
                     slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
                 } catch (Exception e) {
