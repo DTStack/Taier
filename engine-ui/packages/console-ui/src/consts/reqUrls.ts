@@ -47,7 +47,8 @@ export default {
     DELETE_CLUSTER: `${CONSOLE_BASE_UPLOAD_URL}/cluster/deleteCluster`, // 删除集群
     DELETE_COMPONENT: `${CONSOLE_BASE_URL}/component/delete`,
     GET_COMPONENT_VERSION: `${CONSOLE_BASE_URL}/component/getComponentVersion`,
-    TEST_CONNECTS: `${CONSOLE_BASE_URL}/component/testConnects`,
+    TEST_CONNECT: `${CONSOLE_BASE_URL}/component/testConnect`, // 测试单个组件连通性
+    TEST_CONNECTS: `${CONSOLE_BASE_URL}/component/testConnects`, // 测试所有组件连通性
     SAVE_COMPONENT: `${CONSOLE_BASE_URL}/upload/component/addOrUpdateComponent`,
     CLOSE_KERBEROS: `${CONSOLE_BASE_URL}/component/closeKerberos`,
     GET_VERSION: `${CONSOLE_BASE_URL}/component/getComponentVersion`,

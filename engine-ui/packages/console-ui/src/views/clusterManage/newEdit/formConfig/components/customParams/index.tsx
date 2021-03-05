@@ -1,9 +1,8 @@
 import * as React from 'react'
 import { Form, Row, Col, Input } from 'antd'
 import { formItemLayout } from '../../../../../../consts'
-import { getCustomerParams, giveMeAKey, isNeedTemp,
-    getValueByJson } from '../../../help'
-import { CONFIG_ITEM_TYPE } from '../../../const'
+import { getCustomerParams, isNeedTemp, giveMeAKey,
+    getValueByJson, isGroupType } from '../../../help'
 
 interface IProp {
     typeCode: number;
@@ -29,36 +28,50 @@ export default class CustomParams extends React.PureComponent<IProp, IState> {
 
     componentDidMount () {
         const { template } = this.props
-        const isGroup = template.type == CONFIG_ITEM_TYPE.GROUP
         this.setState({
-            customParams: getCustomerParams(isGroup ? template.values : template)
+            customParams: getCustomerParams(
+                isGroupType(template.type) ? template.values : template
+            )
         })
     }
 
     // 新增自定义参数
     addCustomerParams = () => {
         this.setState((preState) => ({
-            customParams: [...preState.customParams, { id: giveMeAKey() }]
+            customParams: [...preState.customParams, {}]
         }))
     }
 
     // 新增自定义参数
     deleteCustomerParams = (id: number) => {
         const { customParams } = this.state
-        const newCustomParam = customParams.filter((param: any) => param.id !== id)
+        const newCustomParam = customParams.filter((param: any, index: number) => index !== id)
         this.setState({ customParams: newCustomParam })
     }
 
-    handleCustomParam = (e: any, id: string) => {
+    handleCustomParam = (e: any, id: number, type?: string) => {
         const value = e.target.value
         const { template, form, typeCode, comp } = this.props
         const { customParams } = this.state
-        const isGroup = template.type == CONFIG_ITEM_TYPE.GROUP
-        const feildName = isGroup ? `${typeCode}.customParam.${template.key}` : `${typeCode}.customParam`
+        const feildName = isGroupType(template.type) ? (typeCode + '.customParam.' + template.key)
+            : (typeCode + '.customParam')
 
         const compConfig = getValueByJson(comp?.componentConfig) ?? {}
-        const config = form.getFieldValue(`${typeCode}.specialConfig`) ?? compConfig
+        const config = form.getFieldValue(typeCode + '.specialConfig') ?? compConfig
         const keyAndValue = Object.entries(config)
+
+        if (type) {
+            const newCustomParam = customParams.map((param: any, index: number) => {
+                if (index == id) {
+                    return { ...param, value: value }
+                }
+                return param
+            })
+            this.setState({
+                customParams: newCustomParam
+            })
+            return
+        }
 
         /**
          * 与已渲染表单值、模版固定参数比较自定义参数是否相同
@@ -68,7 +81,7 @@ export default class CustomParams extends React.PureComponent<IProp, IState> {
         let sameAtParams = false
 
         if (!isNeedTemp(typeCode)) {
-            sameAtTemp = (isGroup ? template.values : template)?.findIndex(param => (param.key == value && !param.id))
+            sameAtTemp = (isGroupType(template.type) ? template.values : template)?.findIndex(param => (param.key == value))
         } else {
             sameAtTemp = keyAndValue.findIndex(([key, name]: any[]) => key == value)
         }
@@ -80,8 +93,8 @@ export default class CustomParams extends React.PureComponent<IProp, IState> {
             }
         }
 
-        const newCustomParam = customParams.map((param: any) => {
-            if (param.id == id) {
+        const newCustomParam = customParams.map((param: any, index: number) => {
+            if (index == id) {
                 return {
                     ...param,
                     isSameKey: sameAtParams || sameAtTemp > -1,
@@ -115,37 +128,46 @@ export default class CustomParams extends React.PureComponent<IProp, IState> {
         }
 
         return <>
-            {customParams && customParams.map((param: any) => {
+            {customParams && customParams.map((param: any, index: number) => {
                 const fieldName = groupKey ? `${typeCode}.customParam.${groupKey}` : `${typeCode}.customParam`
-                return param.id && (<Row key={param.id}>
+                const publicKey = giveMeAKey()
+                return (<Row key={index}>
                     <Col span={labelCol ?? formItemLayout.labelCol.sm.span}>
-                        <FormItem key={param.id + '-key'}>
-                            {form.getFieldDecorator(`${fieldName}.%${param.id}-key`, {
+                        <FormItem>
+                            {form.getFieldDecorator(`${fieldName}.%${publicKey}-key`, {
                                 rules: [{
                                     required: true,
                                     message: '请输入参数属性名'
                                 }],
                                 initialValue: param.key || ''
                             })(
-                                <Input disabled={view} style={{ width: 'calc(100% - 12px)' }} onChange={(e) => this.handleCustomParam(e, param.id)} />
+                                <Input
+                                    disabled={view}
+                                    style={{ width: 'calc(100% - 12px)' }}
+                                    onChange={(e) => this.handleCustomParam(e, index)}
+                                />
                             )}
                             <span style={{ marginLeft: 2 }}>:</span>
                         </FormItem>
                     </Col>
                     <Col span={wrapperCol ?? formItemLayout.wrapperCol.sm.span}>
-                        <FormItem key={param.id + '-value'}>
-                            {form.getFieldDecorator(`${fieldName}.%${param.id}-value`, {
+                        <FormItem>
+                            {form.getFieldDecorator(`${fieldName}.%${publicKey}-value`, {
                                 rules: [{
                                     required: true,
                                     message: '请输入参数属性值'
                                 }],
                                 initialValue: param.value || ''
                             })(
-                                <Input disabled={view} style={{ maxWidth: maxWidth ? 680 : 'unset' }} />
+                                <Input
+                                    disabled={view}
+                                    style={{ maxWidth: maxWidth ? 680 : 'unset' }}
+                                    onChange={(e) => this.handleCustomParam(e, index, 'value')}
+                                />
                             )}
                         </FormItem>
                     </Col>
-                    {!view && <a className="formItem-right-text" onClick={() => this.deleteCustomerParams(param.id)}>删除</a>}
+                    {!view && <a className="formItem-right-text" onClick={() => this.deleteCustomerParams(index)}>删除</a>}
                     {!view && param.isSameKey && (<span className="formItem-right-text">该参数已存在</span>)}
                 </Row>)
             })}

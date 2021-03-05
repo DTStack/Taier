@@ -16,6 +16,26 @@ export function isHaveGroup (typeCode: number): boolean {
         COMPONENT_TYPE_VALUE.LEARNING, COMPONENT_TYPE_VALUE.DTYARNSHELL].indexOf(typeCode) > -1
 }
 
+export function notCustomParam (typeCode: number): boolean {
+    return [COMPONENT_TYPE_VALUE.SFTP, COMPONENT_TYPE_VALUE.LIBRA_SQL,
+        COMPONENT_TYPE_VALUE.ORACLE_SQL, COMPONENT_TYPE_VALUE.TIDB_SQL,
+        COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL, COMPONENT_TYPE_VALUE.IMPALA_SQL,
+        COMPONENT_TYPE_VALUE.PRESTO_SQL].indexOf(typeCode) > -1
+}
+
+export function isOtherVersion (code: number): boolean {
+    return [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK,
+        COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER, COMPONENT_TYPE_VALUE.HIVE_SERVER].indexOf(code) > -1
+}
+
+export function isSameVersion (code: number): boolean {
+    return [COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN].indexOf(code) > -1
+}
+
+export function needZipFile (type: number): boolean {
+    return [FILE_TYPE.KERNEROS, FILE_TYPE.CONFIGS].indexOf(type) > -1
+}
+
 export function getActionType (mode: string): string {
     switch (mode) {
         case 'view': return '查看集群'
@@ -48,18 +68,25 @@ export function isFileParam (key: string): boolean {
     return ['kerberosFileName', 'uploadFileName'].indexOf(key) > -1
 }
 
-export function isOtherVersion (code: number): boolean {
-    return [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK,
-        COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER, COMPONENT_TYPE_VALUE.HIVE_SERVER].indexOf(code) > -1
+export function isDeployMode (key: string): boolean {
+    return key === 'deploymode'
 }
 
-export function isSameVersion (code: number): boolean {
-    return [COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN].indexOf(code) > -1
+export function isRadioLinkage (type: string): boolean {
+    return type === CONFIG_ITEM_TYPE.RADIO_LINKAGE
+}
+
+export function isGroupType (type: string): boolean {
+    return type === CONFIG_ITEM_TYPE.GROUP
+}
+
+export function isCustomType (type: string): boolean {
+    return type === CONFIG_ITEM_TYPE.CUSTOM_CONTROL
 }
 
 // 模版中存在id则为自定义参数
 export function getCustomerParams (temps: any): any[] {
-    return temps.filter(temp => temp.id)
+    return temps.filter(temp => isCustomType(temp.type))
 }
 
 export function getCompsId (currentComps: any[], typeCodes: any[]): any[] {
@@ -76,8 +103,42 @@ export function getValueByJson (value: any): any {
     return value ? JSON.parse(value) : null
 }
 
-export function needZipFile (type: number): boolean {
-    return [FILE_TYPE.KERNEROS, FILE_TYPE.CONFIGS].indexOf(type) > -1
+export function getOptions (version: any[]): any[] {
+    let opt = []
+    version.forEach((ver: any, index: number) => {
+        opt[index] = { label: ver.key, value: ver.key }
+        if (ver?.values && ver?.values?.length > 0) {
+            opt[index] = {
+                ...opt[index],
+                children: getOptions(ver.values)
+            }
+        }
+    })
+    return opt
+}
+
+export function getInitialValue (version: any[], commVersion: string): any[] {
+    const parentNode = {}
+    function setParentNode (nodes: any[], parent?: any) {
+        if (!nodes) return
+        return nodes.map(data => {
+            const node = { value: data.key, parent }
+            parentNode[data.key] = node
+            setParentNode(data.values, node)
+        })
+    }
+
+    function getParentNode (value: string) {
+        let node = []
+        let currentNode = parentNode[value]
+        node.push(currentNode.value)
+        if (currentNode.parent) {
+            node = [...getParentNode(currentNode.parent.value), ...node]
+        }
+        return node
+    }
+    setParentNode(version)
+    return getParentNode(commVersion)
 }
 
 /**
@@ -100,7 +161,8 @@ function handleSingleParam (params: any) {
         let config: any = {}
         config.key = customParamArr[key].key
         config.value = customParamArr[key].value
-        config.id = key
+        // config.id = key
+        config.type = CONFIG_ITEM_TYPE.CUSTOM_CONTROL
         customParamConfig.push(config)
     }
     return customParamConfig
@@ -153,8 +215,9 @@ export function handleCustomParam (params: any, turnp?: boolean): any {
  * }
  */
 export function getParamsByTemp (temp: any[]): any {
-    let batchParams: any = {}
-    temp.forEach((item: any) => {
+    let batchParams: any = {};
+    (isDeployMode(temp[0].key)
+        ? temp[0].values : temp).forEach((item: any) => {
         if (item.type == CONFIG_ITEM_TYPE.GROUP) {
             let params = {}
             item.values.forEach((groupItem: any) => {
@@ -186,13 +249,15 @@ function handleSingQuoteKeys (val: string, key: string) {
 }
 
 /**
- * @param comp 表单组件值
- * componentTemplate用于表单回显值
- * 需要包含表单对应的value
- * 和并自定义参数
+ * @param
+ * comp 表单组件值
+ * initialCompData 初始表单组件值
+ * componentTemplate用于表单回显值需要包含表单对应的value和并自定义参数
  */
 export function handleComponentTemplate (comp: any, initialCompData: any): any {
-    let newComponentTemplate = JSON.parse(initialCompData.componentTemplate).filter(v => !v.id)
+    /** 外层数据先删除一层自定义参数 */
+    let newComponentTemplate = JSON.parse(initialCompData.componentTemplate).filter(v =>
+        v.type !== CONFIG_ITEM_TYPE.CUSTOM_CONTROL)
     const componentConfig = handleComponentConfig(comp)
     const customParamConfig = handleCustomParam(comp.customParam)
     let isGroup = false
@@ -201,9 +266,11 @@ export function handleComponentTemplate (comp: any, initialCompData: any): any {
     for (let [key, values] of Object.entries(componentConfig)) {
         if (!_.isString(values) && !_.isArray(values)) {
             for (let [groupKey, value] of Object.entries(values)) {
-                newComponentTemplate.map(temps => {
+                (isDeployMode(newComponentTemplate[0].key)
+                    ? newComponentTemplate[0].values : newComponentTemplate).map(temps => {
                     if (temps.key == key) {
-                        temps.values = temps.values.filter(temp => !temp.id)
+                        temps.values = temps.values.filter(temp =>
+                            temp.type !== CONFIG_ITEM_TYPE.CUSTOM_CONTROL)
                         temps.values.map(temp => {
                             if (temp.key == groupKey) {
                                 temp.value = value
@@ -214,7 +281,13 @@ export function handleComponentTemplate (comp: any, initialCompData: any): any {
             }
         } else {
             newComponentTemplate.map(temps => {
-                if (temps.key == key) temps.value = values
+                if (temps.key == key) {
+                    temps.value = values
+                } else if (isRadioLinkage(temps.type)) {
+                    temps.values.map(temp => {
+                        if (temp.values[0].key == key) temp.values[0].value = values
+                    })
+                }
             })
         }
     }
@@ -225,10 +298,11 @@ export function handleComponentTemplate (comp: any, initialCompData: any): any {
 
     // 和并自定义参数
     for (let config in customParamConfig) {
-        if (!customParamConfig[config]?.id) {
+        if (!customParamConfig[config]?.type) {
             isGroup = true
             for (let [key, value] of Object.entries(customParamConfig[config])) {
-                newComponentTemplate.map(temp => {
+                (isDeployMode(newComponentTemplate[0].key)
+                    ? newComponentTemplate[0].values : newComponentTemplate).map(temp => {
                     if (temp.key == key && temp.type == CONFIG_ITEM_TYPE.GROUP) {
                         temp.values = temp.values.concat(value)
                     }

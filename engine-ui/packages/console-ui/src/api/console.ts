@@ -32,6 +32,12 @@ export default {
     }) {
         return http.post(req.DELETE_CLUSTER, params);
     },
+    testConnect (params: {
+        clusterName: string;
+        componentType: number;
+    }) {
+        return http.post(req.TEST_CONNECT, params);
+    },
     testConnects (params: {
         clusterName: string;
     }) {
