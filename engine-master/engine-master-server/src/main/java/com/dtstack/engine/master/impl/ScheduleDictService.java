@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.api.domain.ComponentConfig;
 import com.dtstack.engine.api.domain.ScheduleDict;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.common.enums.EComponentType;
@@ -7,6 +8,7 @@ import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.util.ComponentConfigUtils;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.dao.ComponentConfigDao;
 import com.dtstack.engine.dao.ScheduleDictDao;
 import com.dtstack.engine.master.enums.DictType;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +39,9 @@ public class ScheduleDictService {
     @Autowired
     private EnvironmentContext environmentContext;
 
+    @Autowired
+    private ComponentConfigDao componentConfigDao;
+
     /**
      * 获取hadoop 和 flink spark组件的版本
      *
@@ -61,37 +66,24 @@ public class ScheduleDictService {
      * @param componentCode
      * @return
      */
-    public List<ClientTemplate> loadExtraComponentConfig(String version, Integer componentCode) {
+    public List<ComponentConfig> loadExtraComponentConfig(String version, Integer componentCode) {
         if (StringUtils.isBlank(version) || defaultVersion.test(version) || !environmentContext.isCanAddExtraConfig()) {
             return new ArrayList<>(0);
         }
         EComponentType componentType = EComponentType.getByCode(componentCode);
-        ScheduleDict extraConfig = scheduleDictDao.getByNameValue(DictType.COMPONENT_CONFIG.type, version.trim(), componentType.name().toUpperCase());
+        ScheduleDict extraConfig = scheduleDictDao.getByNameValue(DictType.COMPONENT_CONFIG.type, version.trim(), null, componentType.name().toUpperCase());
         if (null == extraConfig) {
             return new ArrayList<>(0);
         }
-        List<ClientTemplate> extraTemplates = new ArrayList<>();
-        try {
-            if ("PROPERTIES".equalsIgnoreCase(extraConfig.getDataType())) {
-                Properties properties = PublicUtil.stringToProperties(extraConfig.getDictDesc());
-                for (Object key : properties.keySet()) {
-                    ClientTemplate clientTemplate = ComponentConfigUtils.buildCustom((String) key, properties.getProperty((String) key), EFrontType.CUSTOM_CONTROL.name());
-                    extraTemplates.add(clientTemplate);
-                }
-            }
-        } catch (Exception e) {
-            logger.error("get version {} componentType {} extra config error ", version, componentCode, e);
-        }
-
-        return extraTemplates;
+        return componentConfigDao.listByComponentId(Long.parseLong(extraConfig.getDictValue()), false);
     }
 
     public ScheduleDict getTypeDefaultValue(Integer type) {
         return scheduleDictDao.getTypeDefault(type);
     }
 
-    public ScheduleDict getByNameAndValue(Integer dictType,String dictName,String dictValue){
-        return scheduleDictDao.getByNameValue(dictType, dictName, dictValue);
+    public ScheduleDict getByNameAndValue(Integer dictType,String dictName,String dictValue,String dependName){
+        return scheduleDictDao.getByNameValue(dictType, dictName, dictValue,dependName);
     }
 
     private List<ClientTemplate> getNormalVersion(Integer type) {

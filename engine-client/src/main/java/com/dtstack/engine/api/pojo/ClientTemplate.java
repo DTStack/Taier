@@ -1,5 +1,6 @@
 package com.dtstack.engine.api.pojo;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -41,6 +42,17 @@ public class ClientTemplate implements Serializable {
     private String dependencyKey;
 
     private String dependencyValue;
+
+    @JSONField(serialize = false)
+    private Long id;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getDependencyValue() {
         return dependencyValue;

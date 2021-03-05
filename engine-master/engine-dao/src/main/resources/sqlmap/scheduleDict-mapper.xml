@@ -28,6 +28,9 @@
         <if test="dictValue!=null">
             AND dict_value = #{dictValue}
         </if>
+        <if test="dependName!=null">
+            AND depend_name = #{dependName}
+        </if>
         ORDER BY sort LIMIT 1
     </select>
 

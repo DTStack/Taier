@@ -122,7 +122,16 @@ public class ComponentConfigUtils {
 //                        "session":"",
 //                        "typeName":"yarn2-hdfs2-spark210"
 //                    }
-                    configMaps.putAll((Map<? extends String, ?>) specialDeepConfig);
+                    if(DEPLOY_MODE.equalsIgnoreCase(componentConfig.getKey())){
+                        //只设置对应的值
+                        JSONArray deployValues = JSONArray.parseArray(componentConfig.getValue());
+                        for (Object deployValue : deployValues) {
+                            Map deployValueMap = new HashMap<>();
+                            deployValueMap.put(deployValue,((Map<?, ?>) specialDeepConfig).get(deployValue));
+                            configMaps.putAll(deployValueMap);
+                        }
+                    }
+
                 } else if (EFrontType.GROUP.name().equalsIgnoreCase(componentConfig.getType())) {
                     //group正常处理
 //                    {
@@ -208,14 +217,6 @@ public class ComponentConfigUtils {
             ComponentConfig componentConfig = ComponentConfigUtils.convertClientTemplateToConfig(clientTemplate);
             componentConfig.setClusterId(clusterId);
             componentConfig.setComponentId(componentId);
-            if (isOtherControl.test(componentConfig.getKey())) {
-                componentConfig.setType(EFrontType.OTHER.name());
-            } else if (EFrontType.PASSWORD.name().equalsIgnoreCase(componentConfig.getKey())) {
-                //key password的控件转换为加密显示
-                componentConfig.setType(EFrontType.PASSWORD.name());
-            } else {
-                componentConfig.setType(Optional.ofNullable(clientTemplate.getType()).orElse("").toUpperCase());
-            }
             if (StringUtils.isNotBlank(dependKey)) {
                 componentConfig.setDependencyKey(dependKey);
             }
@@ -334,6 +335,17 @@ public class ComponentConfigUtils {
         }
         if (null != componentConfig.getValue()) {
             componentConfig.setValue(componentConfig.getValue().trim());
+        }
+        if (isOtherControl.test(componentConfig.getKey())) {
+            componentConfig.setType(EFrontType.OTHER.name());
+        } else if (EFrontType.PASSWORD.name().equalsIgnoreCase(componentConfig.getKey())) {
+            //key password的控件转换为加密显示
+            componentConfig.setType(EFrontType.PASSWORD.name());
+        } else if (clientTemplate.getId() > 0L) {
+            // 前端的自定义参数标识
+            componentConfig.setType(EFrontType.CUSTOM_CONTROL.name());
+        } else {
+            componentConfig.setType(Optional.ofNullable(clientTemplate.getType()).orElse("").toUpperCase());
         }
         return componentConfig;
     }

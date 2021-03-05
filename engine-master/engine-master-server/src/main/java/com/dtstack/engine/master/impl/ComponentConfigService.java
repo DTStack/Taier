@@ -130,7 +130,7 @@ public class ComponentConfigService {
      * @return
      */
     public List<ComponentConfig> loadDefaultTemplate(String typeName) {
-        ScheduleDict typeNameMapping = scheduleDictDao.getByNameValue(DictType.TYPENAME_MAPPING.type, typeName.trim(), null);
+        ScheduleDict typeNameMapping = scheduleDictDao.getByNameValue(DictType.TYPENAME_MAPPING.type, typeName.trim(), null,null);
         if (null == typeNameMapping) {
             throw new RdosDefineException("不支持的插件类型");
         }
