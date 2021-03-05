@@ -28,7 +28,7 @@ import com.dtstack.sql.client.domain.ColumnLineage;
 import com.dtstack.sql.client.domain.ParseResult;
 import com.dtstack.sql.client.domain.Table;
 import com.dtstack.sql.client.domain.TableLineage;
-import com.dtstack.sql.enums.TableOperateEnum;
+import com.dtstack.sql.client.enums.TableOperateEnum;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;

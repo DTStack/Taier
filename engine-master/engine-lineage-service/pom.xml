@@ -22,10 +22,10 @@
                     <artifactId>dt-insight-hive-shade</artifactId>
                     <groupId>dt.insight.plat</groupId>
                 </exclusion>
-<!--                <exclusion>-->
-<!--                    <artifactId>dt-insight-calcite-shade</artifactId>-->
-<!--                    <groupId>dt.insight.plat</groupId>-->
-<!--                </exclusion>-->
+                <exclusion>
+                    <artifactId>dt-insight-calcite-shade</artifactId>
+                    <groupId>dt.insight.plat</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
 
