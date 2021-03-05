@@ -327,7 +327,7 @@ public class LineageService {
             }
             //去除主表，主表需要创建，还未存在，查不到字段信息，需要过滤掉
             List<Table> subTables = resTables.stream().filter(table->
-                    table.getOperate() != TableOperateEnum.CREATE && table.getOperate() != TableOperateEnum.INSERT).collect(Collectors.toList());
+                    table.getOperate() != TableOperateEnum.CREATE ).collect(Collectors.toList());
             Set<com.dtstack.engine.api.pojo.lineage.Table> tables = subTables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toSet());
             //TODO 获取表字段信息
             Map<String, List<Column>> tableColumnMap = lineageDataSetInfoService.getColumnsBySourceIdAndListTable(lineageDataSource.getId(), Lists.newArrayList(tables));
