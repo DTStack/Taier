@@ -4,14 +4,16 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.ComponentConfig;
+import com.dtstack.engine.api.domain.ScheduleDict;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.vo.ComponentVO;
-import com.dtstack.engine.api.vo.Pair;
+import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ComponentConfigUtils;
 import com.dtstack.engine.dao.ComponentConfigDao;
+import com.dtstack.engine.dao.ScheduleDictDao;
+import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.utils.TypeNameDefaultTemplateUtils;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -39,6 +41,9 @@ public class ComponentConfigService {
 
     @Autowired
     private ComponentConfigDao componentConfigDao;
+
+    @Autowired
+    private ScheduleDictDao scheduleDictDao;
 
     /**
      * 保存页面展示数据
@@ -83,6 +88,7 @@ public class ComponentConfigService {
      * @param componentConfig
      * @param componentTemplate
      */
+    @Deprecated
     public void deepOldClientTemplate(String componentConfig, String componentTemplate, Long componentId, Long clusterId, Integer componentTypeCode) {
         if (null == clusterId || null == componentId || null == componentTypeCode || StringUtils.isBlank(componentTemplate)) {
             throw new RdosDefineException("参数不能为空");
@@ -108,6 +114,9 @@ public class ComponentConfigService {
         batchSaveComponentConfig(componentConfigs);
     }
 
+    public ComponentConfig getComponentConfigByKey(Long componentId,String key) {
+        return componentConfigDao.listByKey(componentId,key);
+    }
 
     public Map<String, Object> convertComponentConfigToMap(Long componentId, boolean isFilter) {
         List<ComponentConfig> componentConfigs = componentConfigDao.listByComponentId(componentId, isFilter);
@@ -121,14 +130,14 @@ public class ComponentConfigService {
      * @return
      */
     public List<ComponentConfig> loadDefaultTemplate(String typeName) {
-        Pair<Long, Integer> defaultComponentIdByTypeName = TypeNameDefaultTemplateUtils.getDefaultComponentIdByTypeName(typeName);
-        if (null == defaultComponentIdByTypeName) {
+        ScheduleDict typeNameMapping = scheduleDictDao.getByNameValue(DictType.TYPENAME_MAPPING.type, typeName.trim(), null);
+        if (null == typeNameMapping) {
             throw new RdosDefineException("不支持的插件类型");
         }
-        return componentConfigDao.listByComponentId(defaultComponentIdByTypeName.getKey(), true);
+        return componentConfigDao.listByComponentId(Long.parseLong(typeNameMapping.getDictValue()), true);
     }
 
-    public List<ComponentVO> getComponentVoByComponent(List<Component> components, boolean isFilter, Long clusterId) {
+    public List<ComponentVO> getComponentVoByComponent(List<Component> components, boolean isFilter, Long clusterId, boolean isConvertHadoopVersion) {
         if (null == clusterId) {
             throw new RdosDefineException("集群id不能为空");
         }
@@ -146,6 +155,20 @@ public class ComponentConfigService {
             List<ComponentConfig> configs = componentIdConfigs.get(component.getId());
             componentVO.setComponentTemplate(JSONObject.toJSONString(ComponentConfigUtils.buildDBDataToClientTemplate(configs)));
             componentVO.setComponentConfig(JSONObject.toJSONString(ComponentConfigUtils.convertComponentConfigToMap(configs)));
+            if (isConvertHadoopVersion && EComponentType.hadoopVersionComponents.contains(EComponentType.getByCode(component.getComponentTypeCode()))) {
+                //设置hadoopVersion 的key 如cdh 5.1.x
+                ComponentConfig componentConfig = componentConfigDao.listByKey(component.getId(), ConfigConstant.HADOOP_VERSION);
+                if (null != componentConfig) {
+                    componentVO.setHadoopVersion(componentConfig.getValue());
+                } else {
+                    //兼容老数据
+                    String dependName = "hadoop2".equalsIgnoreCase(component.getHadoopVersion()) ? "Hadoop2" : "Hadoop3";
+                    List<ScheduleDict> hadoopVersion = scheduleDictDao.getByDependName(DictType.HADOOP_VERSION.type, dependName);
+                    if (!CollectionUtils.isEmpty(hadoopVersion)) {
+                        componentVO.setHadoopVersion(hadoopVersion.get(0).getDictName());
+                    }
+                }
+            }
             componentVOS.add(componentVO);
         }
         return componentVOS;

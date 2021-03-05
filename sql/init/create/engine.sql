@@ -583,8 +583,7 @@ CREATE TABLE `task_param_template` (
 
 
 
-create table if not exists console_component_config
-(
+create table if not exists console_component_config(
     id                  int auto_increment primary key,
     cluster_id          int                                  not null comment '集群id',
     component_id        int                                  not null comment '组件id',
@@ -604,5 +603,23 @@ create table if not exists console_component_config
   KEY `index_cluster_id` (`cluster_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+create table if not exists schedule_dict(
+    id           int auto_increment
+        primary key,
+    dict_code    varchar(64)                           not null comment '字典标识',
+    dict_name    varchar(64)                           null comment '字典名称',
+    dict_value   text                                  null comment '字典值',
+    dict_desc    text                                  null comment '字典描述',
+    type         tinyint(1)  default 0                 not null comment '枚举值',
+    sort         int         default 0                 not null comment '排序',
+    data_type    varchar(64) default 'STRING'          not null comment '数据类型',
+    depend_name  varchar(64) default ''                null comment '依赖字典名称',
+    is_default   tinyint(1)  default 0                 not null comment '是否为默认值选项',
+    gmt_create   datetime    default CURRENT_TIMESTAMP not null comment '新增时间',
+    gmt_modified datetime    default CURRENT_TIMESTAMP not null comment '修改时间',
+    is_deleted   tinyint(1)  default 0                 not null comment '0正常 1逻辑删除',
+    KEY `index_type` (`type`),
+    KEY `index_dict_code` (`dict_code`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment '通用数据字典';
 
 

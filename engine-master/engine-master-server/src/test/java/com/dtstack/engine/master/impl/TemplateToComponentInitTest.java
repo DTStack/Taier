@@ -2,11 +2,14 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.dtstack.engine.api.domain.ComponentConfig;
+import com.dtstack.engine.api.domain.ScheduleDict;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.vo.Pair;
 import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.util.ComponentConfigUtils;
+import com.dtstack.engine.dao.TestScheduleDictDao;
 import com.dtstack.engine.master.AbstractTest;
+import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.utils.TypeNameDefaultTemplateUtils;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
@@ -34,6 +37,8 @@ public class TemplateToComponentInitTest extends AbstractTest {
     @Autowired
     private ComponentConfigService componentConfigService;
 
+    @Autowired
+    public TestScheduleDictDao testScheduleDictDao;
 
     @Test
     public void initData() {
@@ -90,6 +95,21 @@ public class TemplateToComponentInitTest extends AbstractTest {
             Assert.assertNotNull(clientTemplates);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+
+    @Test
+    public void initTypeName() {
+        for (String key : TypeNameDefaultTemplateUtils.typeNameMapping.keySet()) {
+            ScheduleDict scheduleDict = new ScheduleDict();
+            scheduleDict.setDataType("LONG");
+            scheduleDict.setDictCode("typename_mapping");
+            scheduleDict.setType(DictType.TYPENAME_MAPPING.type);
+            scheduleDict.setSort(0);
+            scheduleDict.setDictName(key);
+            scheduleDict.setDictValue(TypeNameDefaultTemplateUtils.typeNameMapping.get(key).getKey() + "");
+            testScheduleDictDao.insert(scheduleDict);
         }
     }
 }

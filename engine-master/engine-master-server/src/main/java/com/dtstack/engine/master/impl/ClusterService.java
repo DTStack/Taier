@@ -918,7 +918,7 @@ public class ClusterService implements InitializingBean {
         List<Long> engineIds = engines.stream().map(Engine::getId).collect(Collectors.toList());
         List<Component> components = componentDao.listByEngineIds(engineIds);
         List<ComponentVO> componentConfigs = componentConfigService.getComponentVoByComponent(components,
-                null == removeTypeName || removeTypeName , clusterId);
+                null == removeTypeName || removeTypeName , clusterId,true);
         Map<EComponentScheduleType, List<ComponentVO>> scheduleType = new HashMap<>();
         if (CollectionUtils.isNotEmpty(componentConfigs)) {
             scheduleType = componentConfigs.stream().collect(Collectors.groupingBy(c -> EComponentType.getScheduleTypeByComponent(c.getComponentTypeCode())));

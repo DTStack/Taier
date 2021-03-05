@@ -199,4 +199,8 @@ public enum EComponentType {
     //没有控件渲染的组件
     public static List<EComponentType> noControlComponents = Lists.newArrayList(EComponentType.YARN, EComponentType.KUBERNETES,EComponentType.HDFS);
 
+    //多hadoop版本选择组件
+    public static List<EComponentType> hadoopVersionComponents = Lists.newArrayList(EComponentType.YARN,EComponentType.HDFS);
+
+
 }

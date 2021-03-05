@@ -25,5 +25,4 @@ public interface ComponentDao {
 
     void deleteById(@Param("componentId") Long componentId);
 
-    List<Component> listBylimit(@Param("engineId") Integer pageSize);
 }

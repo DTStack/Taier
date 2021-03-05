@@ -16,7 +16,6 @@
         </foreach>
     </insert>
 
-
     <select id="listByComponentId" resultType="ComponentConfig">
         select
         <include refid="select_content_fragment"/>
@@ -37,12 +36,20 @@
         </if>
     </select>
 
+    <select id="listByKey" resultType="ComponentConfig">
+        select
+        <include refid="select_content_fragment"/>
+        from console_component_config
+        where is_deleted = 0
+        and component_id = #{componentId} and `key` = #{key}
+        limit 1
+    </select>
+
     <delete id="deleteByComponentId">
         delete
         from console_component_config
         where component_id = #{componentId}
     </delete>
-
 
     <select id="listFirst" resultType="ComponentConfig">
         select

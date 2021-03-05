@@ -13,7 +13,6 @@ import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.ClusterVO;
 import com.dtstack.engine.api.vo.ComponentVO;
 import com.dtstack.engine.api.vo.EngineTenantVO;
-import com.dtstack.engine.api.vo.Pair;
 import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.engine.common.CustomThreadFactory;
@@ -29,6 +28,7 @@ import com.dtstack.engine.common.util.MD5Util;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
+import com.dtstack.engine.master.enums.DictType;
 import com.dtstack.engine.master.enums.DownloadType;
 import com.dtstack.engine.master.enums.EComponentType;
 import com.dtstack.engine.master.enums.MultiEngineType;
@@ -60,7 +60,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -118,12 +120,13 @@ public class ComponentService {
     @Autowired
     private RdosSubscribe rdosSubscribe;
 
+    @Autowired
+    private ScheduleDictService scheduleDictService;
+
     /**
      * 组件配置文件映射
      */
     public static Map<Integer, List<String>> componentTypeConfigMapping = new HashMap<>(2);
-
-    public static Map<String, List<Pair<String,String>>> componentVersionMapping = new HashMap<>(1);
 
     private static ThreadPoolExecutor connectPool =  new ThreadPoolExecutor(5, 5,
             60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10),
@@ -133,13 +136,6 @@ public class ComponentService {
         //hdfs core 需要合并
         componentTypeConfigMapping.put(EComponentType.HDFS.getTypeCode(), Lists.newArrayList("hdfs-site.xml", "core-site.xml","hive-site.xml"));
         componentTypeConfigMapping.put(EComponentType.YARN.getTypeCode(), Lists.newArrayList("yarn-site.xml","core-site.xml"));
-        componentVersionMapping.put(EComponentType.FLINK.getName(), Lists.newArrayList(new Pair<>("1.8", "180"), new Pair<>("1.10", "110")));
-        componentVersionMapping.put(EComponentType.SPARK.getName(), Lists.newArrayList(new Pair<>("2.1.X", "210"), new Pair<>("2.4.X", "240")));
-        componentVersionMapping.put(EComponentType.SPARK_THRIFT.getName(), Lists.newArrayList(new Pair<>("1.X", "1.x"), new Pair<>("2.X", "2.x"),new Pair<>("2.1.1-cdh6.1.1","2.1.1-cdh6.1.1")));
-        componentVersionMapping.put(EComponentType.HIVE_SERVER.getName(), Lists.newArrayList(new Pair<>("1.X", "1.x"), new Pair<>("2.X", "2.x"),new Pair<>("2.1.1-cdh6.1.1","2.1.1-cdh6.1.1")));
-        //-1 为hadoopversion
-        componentVersionMapping.put("hadoopVersion", Lists.newArrayList(new Pair<>("hadoop2", "hadoop2"),
-                new Pair<>("hadoop3", "hadoop3"), new Pair<>("HW", "HW")));
     }
 
     @PostConstruct
@@ -359,7 +355,7 @@ public class ComponentService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public ComponentVO addOrUpdateComponent( Long clusterId,  String componentConfig,
+    public ComponentVO addOrUpdateComponent(Long clusterId,  String componentConfig,
                                              List<Resource> resources,  String hadoopVersion,
                                              String kerberosFileName, String componentTemplate,
                                              Integer componentCode) {
@@ -412,7 +408,7 @@ public class ComponentService {
                 throw new RdosDefineException("kerberos上传文件非zip格式");
             }
         }
-        if (null != dbComponent ) {
+        if (null != dbComponent) {
             //更新
             isUpdate = true;
             if (!isOpenKerberos) {
@@ -425,13 +421,13 @@ public class ComponentService {
         }
         if(EComponentType.KUBERNETES.getTypeCode().equals(componentType.getTypeCode()) && CollectionUtils.isNotEmpty(resources)){
             //kubernetes 信息需要自己解析文件
-            List<Object> config = this.config(resources, EComponentType.KUBERNETES.getTypeCode(),false);
+            List<Object> config = this.config(resources, EComponentType.KUBERNETES.getTypeCode(),false,null);
             if(CollectionUtils.isNotEmpty(config)){
                 componentConfig = (String)config.get(0);
             }
         }
 
-        addComponent.setHadoopVersion(Optional.ofNullable(hadoopVersion).orElse("hadoop2"));
+        addComponent.setHadoopVersion(convertHadoopVersionToValue(Optional.ofNullable(hadoopVersion).orElse("Hadoop 2.x")));
         addComponent.setComponentName(componentType.getName());
         addComponent.setComponentTypeCode(componentType.getTypeCode());
         addComponent.setEngineId(engine.getId());
@@ -455,9 +451,9 @@ public class ComponentService {
         } else {
             componentDao.insert(addComponent);
         }
-        List<ClientTemplate> clientTemplates = this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion, md5Key, componentTemplate);
+        List<ClientTemplate> clientTemplates = this.wrapperConfig(componentType, componentConfig, isOpenKerberos, clusterName, hadoopVersion, md5Key, componentTemplate,addComponent.getHadoopVersion());
         componentConfigService.addOrUpdateComponentConfig(clientTemplates, addComponent.getId(), addComponent.getClusterId(), componentCode);
-        List<ComponentVO> componentVos = componentConfigService.getComponentVoByComponent(Lists.newArrayList(addComponent), true, clusterId);
+        List<ComponentVO> componentVos = componentConfigService.getComponentVoByComponent(Lists.newArrayList(addComponent), true, clusterId,true);
         this.updateCache(engine.getId(), componentType.getTypeCode());
         if (CollectionUtils.isNotEmpty(componentVos)) {
             ComponentVO componentVO = componentVos.get(0);
@@ -465,6 +461,19 @@ public class ComponentService {
             return componentVO;
         }
         return ComponentVO.toVO(addComponent);
+    }
+
+    /**
+     *
+     * @param hadoopVersion
+     * @return
+     */
+    private String convertHadoopVersionToValue(String hadoopVersion) {
+        ScheduleDict dict = scheduleDictService.getByNameAndValue(DictType.HADOOP_VERSION.type, hadoopVersion, null);
+        if (null != dict) {
+            return dict.getDictValue();
+        }
+        return hadoopVersion;
     }
 
     public SftpConfig getSFTPConfig(String sftpConfigStr, Integer componentCode, String componentTemplate) {
@@ -507,10 +516,12 @@ public class ComponentService {
                     if(EComponentType.HDFS.getTypeCode().equals(addComponent.getComponentTypeCode())){
                         String xmlZipLocation = resource.getUploadedFileName();
                         md5sum = MD5Util.getFileMd5String(new File(xmlZipLocation));
-                        this.updateConfigToSftpPath(clusterId, sftpConfig, sftpFileManage, resource);
+                        this.updateConfigToSftpPath(clusterId, sftpConfig, sftpFileManage, resource,null,addComponent.getComponentTypeCode());
                     }
                     if(EComponentType.YARN.getTypeCode().equals(addComponent.getComponentTypeCode())){
-                        this.updateConfigToSftpPath(clusterId, sftpConfig, sftpFileManage, resource);
+                        List<ClientTemplate> clientTemplates = scheduleDictService
+                                .loadExtraComponentConfig(addComponent.getHadoopVersion(), addComponent.getComponentTypeCode());
+                        this.updateConfigToSftpPath(clusterId, sftpConfig, sftpFileManage, resource,clientTemplates,addComponent.getComponentTypeCode());
                     }
                 }
             } catch (Exception e) {
@@ -536,7 +547,8 @@ public class ComponentService {
      * @param clusterId
      * @param resource
      */
-    private void updateConfigToSftpPath( Long clusterId, SftpConfig sftpConfig, SftpFileManage sftpFileManage, Resource resource) {
+    private void updateConfigToSftpPath( Long clusterId, SftpConfig sftpConfig, SftpFileManage sftpFileManage, Resource resource,
+                                         List<ClientTemplate> templates, Integer componentType) {
         //上传xml到对应路径下 拼接confHdfsPath
         String confRemotePath = sftpConfig.getPath() + File.separator;
         String buildPath = File.separator + buildConfRemoteDir(clusterId);
@@ -563,15 +575,46 @@ public class ComponentService {
                 //直接是文件
                 dirFiles = xmlFile.getParentFile();
             }
-            if (Objects.nonNull(dirFiles) && null != dirFiles.listFiles()) {
-                for (File file : dirFiles.listFiles()) {
+            if (null != dirFiles) {
+                File[] files = dirFiles.listFiles();
+                if (null == files) {
+                    return;
+                }
+                for (File file : files) {
                     if (file.getName().contains(".xml")) {
+                        beforeUploadAddExtraConfig(file, templates, componentType);
                         sftpFileManage.uploadFile(confRemotePath + buildPath, file.getPath());
                     }
                 }
             }
         }
 
+    }
+
+    /**
+     * 在上传到sftp的文件中判断是否需要添加自定义的配置参数
+     *
+     * @param file
+     * @param templates
+     * @param componentType
+     */
+    private void beforeUploadAddExtraConfig(File file, List<ClientTemplate> templates, Integer componentType) {
+        if (CollectionUtils.isEmpty(templates) || null == file || null == componentType) {
+            return;
+        }
+        EComponentType eComponentType = EComponentType.getByCode(componentType);
+        List<String> fileNames = componentTypeConfigMapping.get(eComponentType);
+        if (CollectionUtils.isEmpty(fileNames)) {
+            return;
+        }
+        if (file.getName().contains(fileNames.get(0))) {
+            Map<String, Object> configMap = ComponentConfigUtils.convertClientTemplateToMap(templates);
+            try {
+                Xml2JsonUtil.addInfoIntoXml(file, configMap, false);
+            } catch (Exception e) {
+                LOGGER.info("file path {} add extra config {} info error ", file.getPath(), configMap, e);
+            }
+        }
     }
 
     public String buildConfRemoteDir(Long clusterId) {
@@ -592,7 +635,7 @@ public class ComponentService {
      * @param componentString
      * @return
      */
-    private List<ClientTemplate> wrapperConfig(EComponentType componentType, String componentString, boolean isOpenKerberos, String clusterName, String hadoopVersion, String md5Key, String clientTemplates) {
+    private List<ClientTemplate> wrapperConfig(EComponentType componentType, String componentString, boolean isOpenKerberos, String clusterName, String hadoopVersion, String md5Key, String clientTemplates,String convertHadoopVersion) {
         List<ClientTemplate> templates = new ArrayList<>();
         if (EComponentType.KUBERNETES.equals(componentType)) {
             ClientTemplate kubernetesClientTemplate = ComponentConfigUtils.buildOthers("kubernetes.context", componentString);
@@ -611,7 +654,7 @@ public class ComponentService {
         }
         if (EComponentType.typeComponentVersion.contains(componentType)) {
             //添加typeName
-            ClientTemplate typeNameClientTemplate = ComponentConfigUtils.buildOthers(TYPE_NAME_KEY, this.convertComponentTypeToClient(clusterName, componentType.getTypeCode(), hadoopVersion));
+            ClientTemplate typeNameClientTemplate = ComponentConfigUtils.buildOthers(TYPE_NAME_KEY, this.convertComponentTypeToClient(clusterName, componentType.getTypeCode(), convertHadoopVersion));
             templates.add(typeNameClientTemplate);
         }
         if (!StringUtils.isBlank(md5Key)) {
@@ -621,6 +664,8 @@ public class ComponentService {
         if (EComponentType.noControlComponents.contains(componentType)) {
             //xml配置文件也转换为组件
             List<ClientTemplate> xmlTemplates = ComponentConfigUtils.convertXMLConfigToComponentConfig(componentConfigJSON.toJSONString());
+            //yarn 和hdfs 需要存入原来的hadoopVersion 如 CDH 5.1.x
+            templates.add(ComponentConfigUtils.buildOthers(HADOOP_VERSION,hadoopVersion));
             templates.addAll(xmlTemplates);
         } else {
             List<ClientTemplate> controlTemplate = JSONObject.parseArray(clientTemplates, ClientTemplate.class);
@@ -775,14 +820,14 @@ public class ComponentService {
      * @param resources
      * @return
      */
-    public List<Object> config( List<Resource> resources,  Integer componentType, Boolean autoDelete) {
+    public List<Object> config(List<Resource> resources,  Integer componentType, Boolean autoDelete,String version) {
         List<Object> datas = new ArrayList<>();
         try {
             List<String> xmlName = componentTypeConfigMapping.get(componentType);
             if (CollectionUtils.isNotEmpty(xmlName)) {
-                Map<String, Object> xmlConfigMap = this.parseUploadFileToMap(resources);
                 //多个配置文件合并为一个map
-                Map data = new HashMap();
+                Map<String, Object> xmlConfigMap = this.parseUploadFileToMap(resources);
+                Map<String, Object> data = new HashMap<>();
                 for (String xml : xmlName) {
                     Object xmlData = xmlConfigMap.get(xml);
                     if (Objects.isNull(xmlData)) {
@@ -1087,9 +1132,26 @@ public class ComponentService {
      * @return
      */
     public List<ClientTemplate> loadTemplate(Integer componentType, String clusterName, String version) {
-        String typeName = this.convertComponentTypeToClient(clusterName, componentType, version);
+        if(EComponentType.noControlComponents.contains(EComponentType.getByCode(componentType))){
+            return new ArrayList<>(0);
+        }
+        String typeName = convertComponentTypeToClient(clusterName, componentType, version);
         List<ComponentConfig> componentConfigs = componentConfigService.loadDefaultTemplate(typeName);
-        return ComponentConfigUtils.buildDBDataToClientTemplate(componentConfigs);
+        List<ClientTemplate> defaultClientTemplate = ComponentConfigUtils.buildDBDataToClientTemplate(componentConfigs);
+
+        ClusterVO clusterByName = clusterService.getClusterByName(clusterName);
+        Component yarnComponent = componentDao.getByClusterIdAndComponentType(clusterByName.getClusterId(), EComponentType.YARN.getTypeCode());
+        if(null == yarnComponent){
+            return defaultClientTemplate;
+        }
+        ComponentConfig originHadoopVersion = componentConfigService.getComponentConfigByKey(yarnComponent.getId(), HADOOP_VERSION);
+        String yarnVersion = null == originHadoopVersion ? yarnComponent.getHadoopVersion() : originHadoopVersion.getValue();
+        //根据版本添加对于的额外配置 需要根据yarn的版本来
+        List<ClientTemplate> extraConfigClientTemplate = scheduleDictService.loadExtraComponentConfig(yarnVersion, componentType);
+        if (CollectionUtils.isNotEmpty(extraConfigClientTemplate)) {
+            defaultClientTemplate.addAll(extraConfigClientTemplate);
+        }
+        return defaultClientTemplate;
     }
 
 
@@ -1110,10 +1172,14 @@ public class ComponentService {
         }
         //如果没传 给默认插件 version
         if (StringUtils.isEmpty(version)) {
-            List<Pair<String, String>> defaultVersion = componentVersionMapping.get(EComponentType.getByCode(componentType).getName());
-            if (CollectionUtils.isNotEmpty(defaultVersion)) {
-                version = defaultVersion.get(0).getValue();
+            Integer dictType = DictType.getByEComponentType(EComponentType.getByCode(componentType));
+            if (null != dictType) {
+                ScheduleDict defaultVersion = scheduleDictService.getTypeDefaultValue(dictType);
+                if (null != defaultVersion) {
+                    return defaultVersion.getDictValue();
+                }
             }
+
         }
         //hive也需要version
         if (EComponentType.HIVE_SERVER.getTypeCode().equals(componentType) || EComponentType.SPARK_THRIFT.getTypeCode().equals(componentType)) {
@@ -1219,6 +1285,9 @@ public class ComponentService {
         if (hadoopVersion.startsWith("hadoop")) {
             //hadoop2
             return hadoopVersion.toLowerCase().replace("hadoop", "").substring(0, 1);
+        } else if (hadoopVersion.startsWith("2.") || hadoopVersion.startsWith("3.")) {
+            //2.x
+            return hadoopVersion.substring(0, 1);
         } else {
             //hw
             return hadoopVersion.substring(0, 2);
@@ -1256,7 +1325,7 @@ public class ComponentService {
      * @return
      */
     public Map getComponentVersion() {
-        return componentVersionMapping;
+        return scheduleDictService.getVersion();
     }
 
     public Component getComponentByClusterId(Long clusterId, Integer componentType) {
@@ -1361,6 +1430,29 @@ public class ComponentService {
         return refreshResults;
     }
 
+    public ComponentTestResult testConnect(String clusterName, Integer componentType) {
+        if (StringUtils.isBlank(clusterName)) {
+            throw new RdosDefineException("clusterName is null");
+        }
+        Cluster cluster = clusterDao.getByClusterName(clusterName);
+        if (null == cluster) {
+            throw new RdosDefineException("集群不存在");
+        }
+        Component testComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), componentType);
+        if (null == testComponent) {
+            throw new RdosDefineException("该组件不存在");
+        }
+        if (EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))) {
+            ComponentTestResult componentTestResult = new ComponentTestResult();
+            componentTestResult.setResult(true);
+            return componentTestResult;
+        }
+        String componentConfig = getComponentByClusterId(cluster.getId(), componentType, false, String.class);
+        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), componentType);
+        Map sftpMap = getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class);
+        return testConnect(componentType, componentConfig, clusterName, testComponent.getHadoopVersion(), testComponent.getEngineId(), kerberosConfig, sftpMap);
+    }
+
     /**
      * 测试所有组件连通性
      * @param clusterName
@@ -1389,7 +1481,7 @@ public class ComponentService {
             Map<String, String> finalSftpMap = sftpMap;
             try {
                 CompletableFuture.runAsync(() -> {
-                    String componentConfig = getComponentByClusterId(cluster.getId(),component.getComponentTypeCode(),false,String.class);
+                    String componentConfig = getComponentByClusterId(cluster.getId(), component.getComponentTypeCode(), false, String.class);
                     ComponentTestResult testResult = new ComponentTestResult();
                     try {
                         testResult = this.testConnect(component.getComponentTypeCode(), componentConfig, clusterName, component.getHadoopVersion(), component.getEngineId(), kerberosConfig, finalSftpMap);

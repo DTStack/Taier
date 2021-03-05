@@ -492,4 +492,13 @@ public class EnvironmentContext {
     public int getMaxDeepShow() {
         return Integer.parseInt(environment.getProperty("max.deep.show", "20"));
     }
+
+    /**
+     * 是否根据版本加载默认的配置
+     *
+     * @return
+     */
+    public boolean isCanAddExtraConfig() {
+        return Boolean.parseBoolean(environment.getProperty("console.extra.config", "true"));
+    }
 }

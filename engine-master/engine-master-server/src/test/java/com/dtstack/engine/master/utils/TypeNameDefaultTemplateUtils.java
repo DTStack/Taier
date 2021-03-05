@@ -39,13 +39,15 @@ public class TypeNameDefaultTemplateUtils {
         typeNameMapping.put("k8s-hdfs2-spark240", new Pair<>(-107L, EComponentType.SPARK.getTypeCode()));
 
         typeNameMapping.put("yarn2-hdfs2-spark210", new Pair<>(-108L, EComponentType.SPARK.getTypeCode()));
+        typeNameMapping.put("yarn3-hdfs3-spark210", new Pair<>(-108L, EComponentType.SPARK.getTypeCode()));
         typeNameMapping.put("yarn3-hdfs3-spark240", new Pair<>(-108L, EComponentType.SPARK.getTypeCode()));
-        typeNameMapping.put("yarn2-hdfs2-spark240", new Pair<>(-108L, EComponentType.SPARK.getTypeCode()));
 
         typeNameMapping.put("yarn2-hdfs2-flink110", new Pair<>(-109L, EComponentType.FLINK.getTypeCode()));
+        typeNameMapping.put("yarn3-hdfs3-flink110", new Pair<>(-109L, EComponentType.FLINK.getTypeCode()));
 
         typeNameMapping.put("yarn2-hdfs2-flink180", new Pair<>(-110L, EComponentType.FLINK.getTypeCode()));
-        typeNameMapping.put("yarn2-hdfs2-flinkhw", new Pair<>(-110L, EComponentType.FLINK.getTypeCode()));
+        typeNameMapping.put("yarn3-hdfs3-flink180", new Pair<>(-110L, EComponentType.FLINK.getTypeCode()));
+        typeNameMapping.put("yarHW-hdfsHW-flinkHW", new Pair<>(-110L, EComponentType.FLINK.getTypeCode()));
     }
 
     public static Pair<Long,Integer> getDefaultComponentIdByTypeName(String typeName){

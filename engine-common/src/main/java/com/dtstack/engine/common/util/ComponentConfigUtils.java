@@ -91,7 +91,7 @@ public class ComponentConfigUtils {
      */
     @SuppressWarnings("unchecked")
     public static Map<String, Object> convertComponentConfigToMap(List<ComponentConfig> configs) {
-        if(CollectionUtils.isEmpty(configs)){
+        if (CollectionUtils.isEmpty(configs)) {
             return new HashMap<>(0);
         }
         Map<String, List<ComponentConfig>> dependencyMapping = configs
@@ -159,18 +159,18 @@ public class ComponentConfigUtils {
         //radio 联动 需要将设置radio选择的值 并根据radio的指选择values中对于的key value
         configMaps.put(componentConfig.getKey(), componentConfig.getValue());
         //radio联动的值
-        Map<String,Map> radioLinkageValues = (Map) deepToBuildConfigMap.get(componentConfig.getKey());
+        Map<String, Map> radioLinkageValues = (Map) deepToBuildConfigMap.get(componentConfig.getKey());
         //radio联动的控件
         List<ComponentConfig> radioLinkageComponentConfigValue = dependencyMapping.get(componentConfig.getKey());
         if (!CollectionUtils.isEmpty(radioLinkageComponentConfigValue)) {
             Optional<ComponentConfig> first = radioLinkageComponentConfigValue
-                            .stream()
-                            .filter(r -> r.getValue().equalsIgnoreCase(componentConfig.getValue()))
-                            .findFirst();
+                    .stream()
+                    .filter(r -> r.getValue().equalsIgnoreCase(componentConfig.getValue()))
+                    .findFirst();
             if (first.isPresent()) {
                 //根据选择的控件 选择对应的值 没有选择的值不能设置 否则前端测试联通性判断会出现key不一致
                 Map map = radioLinkageValues.get(first.get().getKey());
-                if(MapUtils.isNotEmpty(map)){
+                if (MapUtils.isNotEmpty(map)) {
                     configMaps.putAll(map);
                 }
             }
@@ -290,7 +290,7 @@ public class ComponentConfigUtils {
      */
     @Deprecated
     public static List<ClientTemplate> convertOldClientTemplateToTree(List<ClientTemplate> clientTemplates) {
-        if(CollectionUtils.isEmpty(clientTemplates)){
+        if (CollectionUtils.isEmpty(clientTemplates)) {
             return new ArrayList<>(0);
         }
         //子key
@@ -372,37 +372,31 @@ public class ComponentConfigUtils {
         JSONObject componentConfigObj = JSONObject.parseObject(componentConfigString);
         List<ClientTemplate> configs = new ArrayList<>(componentConfigObj.size());
         for (String key : componentConfigObj.keySet()) {
-            ClientTemplate componentConfig = new ClientTemplate();
-            componentConfig.setType(EFrontType.XML.name());
-            componentConfig.setKey(key);
-            componentConfig.setValue(componentConfigObj.get(key));
-            configs.add(componentConfig);
+            configs.add(buildCustom(key, componentConfigObj.get(key), EFrontType.XML.name()));
         }
         return configs;
     }
 
     /**
      * 原sftp数据clientTemplate结构变更 无法做转换 强制内嵌一层
+     *
      * @param clientTemplates
      * @return
      */
     @Deprecated
     public static void convertOldSftpTemplate(List<ClientTemplate> clientTemplates) {
-        if(CollectionUtils.isEmpty(clientTemplates)){
+        if (CollectionUtils.isEmpty(clientTemplates)) {
             return;
         }
         for (ClientTemplate clientTemplate : clientTemplates) {
-            if(clientTemplate.getKey().equalsIgnoreCase("auth")){
+            if (clientTemplate.getKey().equalsIgnoreCase("auth")) {
                 clientTemplate.setType(EFrontType.RADIO_LINKAGE.name());
                 List<ClientTemplate> values = clientTemplate.getValues();
-                if(!CollectionUtils.isEmpty(values)){
+                if (!CollectionUtils.isEmpty(values)) {
                     for (ClientTemplate value : values) {
                         value.setType("");
                         //将目前的radio 选择指内嵌一层
-                        ClientTemplate sonTemplates = new ClientTemplate();
-                        sonTemplates.setKey(value.getKey());
-                        sonTemplates.setValue(value.getValue());
-                        sonTemplates.setType(EFrontType.INPUT.name());
+                        ClientTemplate sonTemplates = buildCustom(value.getKey(), value.getValue(), EFrontType.INPUT.name());
                         value.setValue(value.getDependencyValue());
                         value.setValues(Lists.newArrayList(sonTemplates));
                     }
@@ -411,9 +405,13 @@ public class ComponentConfigUtils {
         }
     }
 
-    public static ClientTemplate buildOthers(String key,String value){
+    public static ClientTemplate buildOthers(String key, String value) {
+        return buildCustom(key, value, EFrontType.OTHER.name());
+    }
+
+    public static ClientTemplate buildCustom(String key, Object value, String type) {
         ClientTemplate componentConfig = new ClientTemplate();
-        componentConfig.setType(EFrontType.OTHER.name());
+        componentConfig.setType(type);
         componentConfig.setKey(key);
         componentConfig.setValue(value);
         return componentConfig;
