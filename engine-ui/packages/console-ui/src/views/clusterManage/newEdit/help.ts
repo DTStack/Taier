@@ -298,7 +298,7 @@ export function handleComponentTemplate (comp: any, initialCompData: any): any {
 
     // 和并自定义参数
     for (let config in customParamConfig) {
-        if (_.isArray(customParamConfig[config])) {
+        if (!customParamConfig[config]?.type) {
             isGroup = true
             for (let [key, value] of Object.entries(customParamConfig[config])) {
                 (isDeployMode(newComponentTemplate[0].key)
