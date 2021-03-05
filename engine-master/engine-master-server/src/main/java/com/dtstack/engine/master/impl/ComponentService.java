@@ -469,7 +469,7 @@ public class ComponentService {
      * @return
      */
     private String convertHadoopVersionToValue(String hadoopVersion) {
-        ScheduleDict dict = scheduleDictService.getByNameAndValue(DictType.HADOOP_VERSION.type, hadoopVersion, null);
+        ScheduleDict dict = scheduleDictService.getByNameAndValue(DictType.HADOOP_VERSION.type, hadoopVersion, null,null);
         if (null != dict) {
             return dict.getDictValue();
         }
@@ -519,7 +519,7 @@ public class ComponentService {
                         this.updateConfigToSftpPath(clusterId, sftpConfig, sftpFileManage, resource,null,addComponent.getComponentTypeCode());
                     }
                     if(EComponentType.YARN.getTypeCode().equals(addComponent.getComponentTypeCode())){
-                        List<ClientTemplate> clientTemplates = scheduleDictService
+                        List<ComponentConfig> clientTemplates = scheduleDictService
                                 .loadExtraComponentConfig(addComponent.getHadoopVersion(), addComponent.getComponentTypeCode());
                         this.updateConfigToSftpPath(clusterId, sftpConfig, sftpFileManage, resource,clientTemplates,addComponent.getComponentTypeCode());
                     }
@@ -548,7 +548,7 @@ public class ComponentService {
      * @param resource
      */
     private void updateConfigToSftpPath( Long clusterId, SftpConfig sftpConfig, SftpFileManage sftpFileManage, Resource resource,
-                                         List<ClientTemplate> templates, Integer componentType) {
+                                         List<ComponentConfig> templates, Integer componentType) {
         //上传xml到对应路径下 拼接confHdfsPath
         String confRemotePath = sftpConfig.getPath() + File.separator;
         String buildPath = File.separator + buildConfRemoteDir(clusterId);
@@ -595,11 +595,11 @@ public class ComponentService {
      * 在上传到sftp的文件中判断是否需要添加自定义的配置参数
      *
      * @param file
-     * @param templates
+     * @param configs
      * @param componentType
      */
-    private void beforeUploadAddExtraConfig(File file, List<ClientTemplate> templates, Integer componentType) {
-        if (CollectionUtils.isEmpty(templates) || null == file || null == componentType) {
+    private void beforeUploadAddExtraConfig(File file, List<ComponentConfig> configs, Integer componentType) {
+        if (CollectionUtils.isEmpty(configs) || null == file || null == componentType) {
             return;
         }
         EComponentType eComponentType = EComponentType.getByCode(componentType);
@@ -608,7 +608,7 @@ public class ComponentService {
             return;
         }
         if (file.getName().contains(fileNames.get(0))) {
-            Map<String, Object> configMap = ComponentConfigUtils.convertClientTemplateToMap(templates);
+            Map<String, Object> configMap = ComponentConfigUtils.convertComponentConfigToMap(configs);
             try {
                 Xml2JsonUtil.addInfoIntoXml(file, configMap, false);
             } catch (Exception e) {
@@ -895,23 +895,24 @@ public class ComponentService {
      */
     public ComponentTestResult testConnect(Integer componentType, String componentConfig, String clusterName,
                                             String hadoopVersion, Long engineId, KerberosConfig kerberosConfig, Map<String, String> sftpConfig) {
+        ComponentTestResult componentTestResult = new ComponentTestResult();
+        componentTestResult.setComponentTypeCode(componentType);
         if (EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))) {
-            ComponentTestResult componentTestResult = new ComponentTestResult();
             componentTestResult.setResult(true);
             return componentTestResult;
         }
 
         String pluginType = this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion);
 
-        ComponentTestResult componentTestResult = workerOperator.testConnect(pluginType,
+        componentTestResult = workerOperator.testConnect(pluginType,
                 this.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterName));
-        if ( null == componentTestResult ) {
+        if (null == componentTestResult) {
             componentTestResult = new ComponentTestResult();
             componentTestResult.setResult(false);
+            componentTestResult.setComponentTypeCode(componentType);
             componentTestResult.setErrorMsg("测试联通性失败");
             return componentTestResult;
         }
-        componentTestResult.setComponentTypeCode(componentType);
         if (componentTestResult.getResult() && null != engineId) {
             updateCache(engineId, componentType);
         }
@@ -1132,26 +1133,26 @@ public class ComponentService {
      * @return
      */
     public List<ClientTemplate> loadTemplate(Integer componentType, String clusterName, String version) {
-        if(EComponentType.noControlComponents.contains(EComponentType.getByCode(componentType))){
+        EComponentType typeCode = EComponentType.getByCode(componentType);
+        if (EComponentType.noControlComponents.contains(typeCode)) {
             return new ArrayList<>(0);
         }
         String typeName = convertComponentTypeToClient(clusterName, componentType, version);
         List<ComponentConfig> componentConfigs = componentConfigService.loadDefaultTemplate(typeName);
-        List<ClientTemplate> defaultClientTemplate = ComponentConfigUtils.buildDBDataToClientTemplate(componentConfigs);
 
         ClusterVO clusterByName = clusterService.getClusterByName(clusterName);
         Component yarnComponent = componentDao.getByClusterIdAndComponentType(clusterByName.getClusterId(), EComponentType.YARN.getTypeCode());
-        if(null == yarnComponent){
-            return defaultClientTemplate;
+        List<ComponentConfig> extraConfig = null;
+        if (null != yarnComponent) {
+            ComponentConfig originHadoopVersion = componentConfigService.getComponentConfigByKey(yarnComponent.getId(), HADOOP_VERSION);
+            String yarnVersion = null == originHadoopVersion ? yarnComponent.getHadoopVersion() : originHadoopVersion.getValue();
+            //根据版本添加对于的额外配置 需要根据yarn的版本来
+            extraConfig = scheduleDictService.loadExtraComponentConfig(yarnVersion, componentType);
         }
-        ComponentConfig originHadoopVersion = componentConfigService.getComponentConfigByKey(yarnComponent.getId(), HADOOP_VERSION);
-        String yarnVersion = null == originHadoopVersion ? yarnComponent.getHadoopVersion() : originHadoopVersion.getValue();
-        //根据版本添加对于的额外配置 需要根据yarn的版本来
-        List<ClientTemplate> extraConfigClientTemplate = scheduleDictService.loadExtraComponentConfig(yarnVersion, componentType);
-        if (CollectionUtils.isNotEmpty(extraConfigClientTemplate)) {
-            defaultClientTemplate.addAll(extraConfigClientTemplate);
+        if (CollectionUtils.isNotEmpty(extraConfig)) {
+            componentConfigs.addAll(extraConfig);
         }
-        return defaultClientTemplate;
+        return ComponentConfigUtils.buildDBDataToClientTemplate(componentConfigs);
     }
 
 
