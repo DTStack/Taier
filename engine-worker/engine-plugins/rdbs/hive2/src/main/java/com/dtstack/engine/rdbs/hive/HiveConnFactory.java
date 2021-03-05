@@ -5,6 +5,7 @@ import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.MathUtil;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
 import com.dtstack.engine.rdbs.common.executor.AbstractConnFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -65,14 +66,17 @@ public class HiveConnFactory extends AbstractConnFactory {
         properties.setProperty(HIVE_JOBNAME_PROPERTY , jobName);
 
         if (StringUtils.isNotEmpty(taskParams)) {
-            for (String str : taskParams.split("\n")) {
-                if (str.startsWith("#")) {
+            for (String line : taskParams.split("\n")) {
+                line = StringUtils.trim(line);
+                if (StringUtils.isEmpty(line) || line.startsWith("#")) {
                     continue;
                 }
-                String[] keyAndVal = str.split("=");
+
+                String[] keyAndVal = line.split("=");
                 if (keyAndVal.length > 1) {
                     String newKey = keyAndVal[0].startsWith(HIVE_CONF_PREFIX) ? keyAndVal[0] : HIVE_CONF_PREFIX + keyAndVal[0];
-                    properties.setProperty(newKey, keyAndVal[1]);
+                    String newValue = keyAndVal[1];
+                    properties.setProperty(newKey, newValue);
                 }
             }
         }
