@@ -521,6 +521,10 @@ public class ComponentService {
         if (null == clusterId) {
             throw new RdosDefineException("集群Id不能为空");
         }
+        if (CollectionUtils.isNotEmpty(resources) && resources.size() >= 2 && StringUtils.isBlank(kerberosFileName)) {
+            //上传二份文件 需要kerberosFileName文件名字段
+            throw new RdosDefineException("kerberosFileName不能为空");
+        }
         ComponentDTO componentDTO = new ComponentDTO();
         componentDTO.setComponentConfig(componentConfig);
         componentDTO.setComponentTypeCode(componentCode);
@@ -541,7 +545,7 @@ public class ComponentService {
 
         Component dbComponent = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode());
         boolean isUpdate = false;
-        boolean isOpenKerberos = isOpenKerberos(resources, kerberosFileName, dbComponent);
+        boolean isOpenKerberos = isOpenKerberos(kerberosFileName, dbComponent);
         if (null != dbComponent) {
             //更新
             addComponent = dbComponent;
@@ -625,7 +629,7 @@ public class ComponentService {
         return componentConfig;
     }
 
-    private boolean isOpenKerberos(List<Resource> resources, String kerberosFileName, Component dbComponent) {
+    private boolean isOpenKerberos(String kerberosFileName, Component dbComponent) {
         boolean isOpenKerberos = StringUtils.isNotBlank(kerberosFileName);
         if (!isOpenKerberos) {
             if (null != dbComponent) {

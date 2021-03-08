@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.program.JobWithJars;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.CoreOptions;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,20 +36,31 @@ public class FlinkUtil {
 
     public static PackagedProgram buildProgram(String fromPath, String localDir, List<URL> classpaths, EJobType jobType,
                                                String entryPointClass, String[] programArgs,
-                                               SavepointRestoreSettings spSetting, FilesystemManager filesystemManager)
+                                               SavepointRestoreSettings spSetting, FilesystemManager filesystemManager,
+                                               Configuration configuration)
             throws IOException, ProgramInvocationException {
         if (fromPath == null) {
             throw new IllegalArgumentException("The program JAR file was not specified.");
         }
 
-        File jarFile = downloadJar(fromPath, localDir, filesystemManager, true);
+        String classloaderCache = configuration.getString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_TRUE);
+        configuration.setString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, classloaderCache);
 
-        ClassLoaderType classLoaderType = ClassLoaderType.getClassLoaderType(jobType);
+        String append = configuration.getString(CoreOptions.ALWAYS_PARENT_FIRST_LOADER_PATTERNS_ADDITIONAL);
+        if (jobType == EJobType.SQL || jobType == EJobType.SYNC) {
+            String dtstackAppend = "com.fasterxml.jackson.";
+            if (StringUtils.isNotEmpty(append)) {
+                dtstackAppend = dtstackAppend + ";" + append;
+            }
+            configuration.setString(CoreOptions.ALWAYS_PARENT_FIRST_LOADER_PATTERNS_ADDITIONAL, dtstackAppend);
+        }
+
+        File jarFile = downloadJar(fromPath, localDir, filesystemManager, true);
 
         // Get assembler class
         PackagedProgram program = entryPointClass == null ?
-                new PackagedProgram(jarFile, classpaths, classLoaderType, programArgs) :
-                new PackagedProgram(jarFile, classpaths, classLoaderType, entryPointClass, programArgs);
+                new PackagedProgram(jarFile, classpaths, configuration, programArgs) :
+                new PackagedProgram(jarFile, classpaths, configuration, entryPointClass, programArgs);
 
         program.setSavepointRestoreSettings(spSetting);
 
