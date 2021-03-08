@@ -71,7 +71,7 @@ public class Template {
         EngineJobCheckpoint jc = new EngineJobCheckpoint();
         jc.setTaskId("taskId");
         jc.setTaskEngineId("te-9991");
-        jc.setCheckpointId("savepointId");
+        jc.setCheckpointId("2");
         jc.setCheckpointTrigger(Timestamp.valueOf("2020-06-14 12:12:12"));
         jc.setCheckpointSavepath("hdfs://ns1/dtInsight/flink110/savepoints/savepoint-77aea4-a0b9f689989c");
         jc.setCheckpointCounts("2");
