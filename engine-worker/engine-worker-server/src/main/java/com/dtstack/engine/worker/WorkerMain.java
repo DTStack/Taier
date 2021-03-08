@@ -1,5 +1,6 @@
 package com.dtstack.engine.worker;
 
+import com.dtstack.engine.common.akka.config.AkkaLoad;
 import com.dtstack.engine.common.security.NoExitSecurityManager;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
@@ -20,7 +21,8 @@ public class WorkerMain {
             logger.info("engine-worker start begin...");
             SystemPropertyUtil.setSystemUserDir();
             LogbackComponent.setupLogger();
-            Config workerConfig = AkkaConfig.init(ConfigFactory.load());
+            String property = System.getProperty("user.dir");
+            Config workerConfig = AkkaConfig.init(AkkaLoad.load(property+"/conf/"));
             TaskLogStoreDealer.getInstance();
             AkkaWorkerServerImpl.getAkkaWorkerServer().start(workerConfig);
             ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);

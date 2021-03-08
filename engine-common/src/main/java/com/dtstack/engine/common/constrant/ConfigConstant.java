@@ -54,6 +54,7 @@ public class ConfigConstant {
     public static final String JDBCURL = "jdbcUrl";
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
+    public static final String INITIAL_SIZE = "initialSize";
     public static final String MINIDLE = "minIdle";
     public static final String MAXACTIVE = "maxActive";
 
