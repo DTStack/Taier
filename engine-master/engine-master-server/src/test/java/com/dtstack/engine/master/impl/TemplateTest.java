@@ -75,7 +75,7 @@ public class TemplateTest extends AbstractTest {
         Assert.assertNotNull(componentConfigs);
         List<ClientTemplate> dbClientTemplates = ComponentConfigUtils.buildDBDataToClientTemplate(componentConfigs);
         logger.info(JSONArray.toJSONString(dbClientTemplates));
-        Assert.assertTrue(dbClientTemplates.size()>1);
+        Assert.assertTrue(dbClientTemplates.size()>=1);
         Map<String, Object> configToMap = componentConfigService.convertComponentConfigToMap(testComponentId, true);
         Assert.assertTrue(MapUtils.isNotEmpty(configToMap));
         componentConfigService.deleteComponentConfig(testComponentId);
@@ -298,7 +298,12 @@ public class TemplateTest extends AbstractTest {
                 "        flink.env.java.opts: -XX:MaxMetaspaceSize=500m\n" +
                 "        prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter\n" +
                 "        gatewayJobName: pushgateway\n");
-        List<ClientTemplate> clientTemplates = componentService.loadTemplate(EComponentType.FLINK.getTypeCode(), "", "");
+        //创建集群
+        Cluster cluster = new Cluster();
+        cluster.setClusterName("testLoadTemplate");
+        cluster.setHadoopVersion("hadoop2");
+        clusterDao.insert(cluster);
+        List<ClientTemplate> clientTemplates = componentService.loadTemplate(EComponentType.FLINK.getTypeCode(), "testLoadTemplate", "");
         Assert.assertNotNull(clientTemplates);
     }
 
@@ -318,7 +323,7 @@ public class TemplateTest extends AbstractTest {
         Assert.assertNotNull(sftpComponent);
         Map<String, Object> sftpConfig = componentConfigService.convertComponentConfigToMap(sftpComponent.getId(), true);
         Assert.assertNotNull(sftpConfig);
-        Map<String, Object> originMap = JSONObject.parseObject("{\"maxWaitMillis\":\"3600000\",\"path\":\"/data/sftp\",\"minIdle\":\"16\",\"maxIdle\":\"16\",\"auth\":\"1\",\"isUsePool\":\"true\",\"port\":\"22\",\"maxTotal\":\"16\",\"host\":\"127.0.0.1\",\"fileTimeout\":\"300000\",\"timeout\":\"0\",\"username\":\"admin\",\"password\":\"\",\"rsaPath\":\"\"}", Map.class);
+        Map<String, Object> originMap = JSONObject.parseObject("{\"maxWaitMillis\":\"3600000\",\"path\":\"/data/sftp\",\"minIdle\":\"16\",\"maxIdle\":\"16\",\"auth\":\"1\",\"isUsePool\":\"true\",\"port\":\"22\",\"maxTotal\":\"16\",\"host\":\"127.0.0.1\",\"fileTimeout\":\"300000\",\"timeout\":\"0\",\"username\":\"admin\",\"password\":\"\"}", Map.class);
         for (String key : originMap.keySet()) {
             Assert.assertEquals(originMap.get(key), sftpConfig.get(key));
         }
