@@ -497,4 +497,8 @@ public class EnvironmentContext {
     public boolean openJobSchedule() {
         return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
     }
+
+    public Integer getFuzzyProjectByProjectAliasLimit() {
+        return Integer.parseInt(environment.getProperty("fuzzy.project.alias.limit", "20"));
+    }
 }

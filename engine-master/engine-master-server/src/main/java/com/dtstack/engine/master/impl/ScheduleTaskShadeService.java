@@ -11,6 +11,7 @@ import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
+import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -93,6 +94,10 @@ public class ScheduleTaskShadeService {
             }
             if (null == batchTaskShadeDTO.getFlowId()) {
                 batchTaskShadeDTO.setFlowId(0L);
+            }
+
+            if (null == batchTaskShadeDTO.getValidRule()) {
+                batchTaskShadeDTO.setValidRule(0);
             }
             scheduleTaskShadeDao.insert(batchTaskShadeDTO);
         }
@@ -763,5 +768,47 @@ public class ScheduleTaskShadeService {
         }
 
         return extInfo.getString(TaskConstant.INFO);
+    }
+
+    public List<ScheduleTaskShadeTypeVO> findFuzzyTaskNameByCondition(String name, Integer appType, Long uicTenantId, Long projectId) {
+        if (appType == null) {
+            throw new RdosDefineException("appType must be passed");
+        }
+
+        if (uicTenantId == null) {
+            throw new RdosDefineException("uicTenantId must be passed");
+        }
+
+        if (projectId == null) {
+            throw new RdosDefineException("projectId must be passed");
+        }
+
+        List<ScheduleTaskShade> tasks = scheduleTaskShadeDao.findFuzzyTaskNameByCondition(name, appType, uicTenantId, projectId, environmentContext.getFuzzyProjectByProjectAliasLimit());
+
+        return buildTypeVo(tasks);
+    }
+
+    private List<ScheduleTaskShadeTypeVO> buildTypeVo(List<ScheduleTaskShade> tasks) {
+        if (CollectionUtils.isEmpty(tasks)) {
+            return Lists.newArrayList();
+        }
+
+        List<ScheduleTaskShadeTypeVO> vos = Lists.newArrayList();
+        for (ScheduleTaskShade task : tasks) {
+            ScheduleTaskShadeTypeVO vo = new ScheduleTaskShadeTypeVO();
+            vo.setId(task.getId());
+            vo.setProjectId(task.getProjectId());
+            vo.setTaskId(task.getTaskId());
+            vo.setAppType(task.getAppType());
+            vo.setName(task.getName());
+            vo.setDtuicTenantId(task.getDtuicTenantId());
+            vo.setTaskType(task.getTaskType());
+            vo.setEngineType(task.getEngineType());
+            vo.setComputeType(task.getComputeType());
+
+            vos.add(vo);
+
+        }
+        return vos;
     }
 }

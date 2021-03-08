@@ -7,6 +7,7 @@ import com.dtstack.engine.api.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
+import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Body;
@@ -210,5 +211,10 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
                                            @Param("taskType") Integer taskType,
                                            @Param("resourceParams") String resourceParams);
 
+    @RequestLine("POST /node/scheduleTaskShade/findFuzzyTaskNameByCondition")
+    ApiResponse<List<ScheduleTaskShadeTypeVO>> findFuzzyTaskNameByCondition(@Param("name") String name,
+                                                                            @Param("appType") Integer appType,
+                                                                            @Param("uicTenantId") Long uicTenantId,
+                                                                            @Param("projectId") Long projectId);
 
 }

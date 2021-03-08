@@ -190,13 +190,26 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
                             checkJobVersion(scheduleBatchJob.getScheduleJob(),batchTask);
                             JobCheckRunInfo checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), batchTask);
-                            if (type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal()) {
+                            if (EScheduleJobType.WORK_FLOW.getType().equals(type) || EScheduleJobType.ALGORITHM_LAB.getVal().equals(type)) {
                                 logger.info("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB so immediate put queue.", scheduleBatchJob.getJobId(), getScheduleType());
                                 if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status) && isPutQueue(checkRunInfo, scheduleBatchJob)) {
                                     putScheduleJob(scheduleBatchJob);
                                 } else if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
                                     logger.info("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
                                     batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(), scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
+                                }
+                            } else if (EScheduleJobType.NOT_DO_TASK.getType().equals(type)) {
+                                logger.info("jobId:{} scheduleType:{} is NOT_DO_TASK not put queue.", scheduleBatchJob.getJobId(), getScheduleType());
+                                // kong任务且是未提交状态
+                                if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status) && isPutQueue(checkRunInfo, scheduleBatchJob)) {
+                                    // 直接状态成运行中
+
+                                } else if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)){
+                                    // 已经提交状态 判断是否超时
+                                    if (isTimeOut(scheduleBatchJob,batchTask)) {
+                                        // 直接失败更新状态
+
+                                    }
                                 }
                             } else {
                                 if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
@@ -223,6 +236,11 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
             logger.error("scheduleType:{} nodeAddress:{} emitJob2Queue error:", getScheduleType(), nodeAddress, e);
         }
     }
+
+    protected boolean isTimeOut(ScheduleBatchJob scheduleBatchJob, ScheduleTaskShade batchTask) {
+        return Boolean.FALSE;
+    }
+
 
     private void checkJobVersion(ScheduleJob scheduleJob, ScheduleTaskShade batchTask) {
         if (null == scheduleJob || null == batchTask || null == scheduleJob.getVersionId() || null == batchTask.getVersionId()) {

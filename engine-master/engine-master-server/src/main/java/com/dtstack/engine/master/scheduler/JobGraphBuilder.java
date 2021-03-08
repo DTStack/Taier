@@ -469,6 +469,7 @@ public class JobGraphBuilder {
             //业务时间等于执行时间 -1 天
             String businessDate = generateBizDateFromCycTime(triggerTime);
             scheduleJob.setBusinessDate(businessDate);
+            scheduleJob.setValidRule(task.getValidRule());
 
             //任务流中的子任务且没有父任务依赖，起始节点将任务流节点作为父任务加入
             if (task.getFlowId() > 0 && !whetherHasParentTask(task.getTaskId(),task.getAppType())) {

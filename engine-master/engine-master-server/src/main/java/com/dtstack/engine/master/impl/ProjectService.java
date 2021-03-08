@@ -1,11 +1,21 @@
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.api.param.ScheduleEngineProjectParam;
+import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
+import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.dao.ScheduleEngineProjectDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
+import com.dtstack.engine.domain.ScheduleEngineProject;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -20,12 +30,141 @@ public class ProjectService {
     @Autowired
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
 
+    @Autowired
+    private ScheduleEngineProjectDao scheduleEngineProjectDao;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
+
     public void updateSchedule(Long projectId, Integer appType, Integer scheduleStatus) {
         if (null == projectId || null == appType || null == scheduleStatus) {
             return;
         }
         logger.info("update project {} status {} ",projectId,scheduleStatus);
         scheduleTaskShadeDao.updateProjectScheduleStatus(projectId,appType,scheduleStatus);
+    }
+
+    public void addProjectOrUpdate(ScheduleEngineProjectParam scheduleEngineProjectParam) {
+        Long id = scheduleEngineProjectParam.getId();
+        ScheduleEngineProject scheduleEngineProject = null;
+
+        if (id != null) {
+            scheduleEngineProject = scheduleEngineProjectDao.getProjectById(id);
+        }
+
+        ScheduleEngineProject project = buildEngineProject(scheduleEngineProjectParam);
+        if (scheduleEngineProject == null) {
+            // 插入项目
+            scheduleEngineProjectDao.insert(project);
+        } else {
+            // 更新项目
+            scheduleEngineProjectDao.updateById(project);
+        }
+    }
+
+
+    private ScheduleEngineProject buildEngineProject(ScheduleEngineProjectParam scheduleEngineProjectParam) {
+        ScheduleEngineProject scheduleEngineProject = new ScheduleEngineProject();
+        if (scheduleEngineProjectParam.getId() != null) {
+            scheduleEngineProject.setId(scheduleEngineProjectParam.getId());
+        }
+
+        if (scheduleEngineProjectParam.getProjectId() != null) {
+            scheduleEngineProject.setProjectId(scheduleEngineProjectParam.getProjectId());
+        }
+
+        if (scheduleEngineProjectParam.getUicTenantId() != null) {
+            scheduleEngineProject.setUicTenantId(scheduleEngineProjectParam.getUicTenantId());
+        }
+
+        if (scheduleEngineProjectParam.getAppType() != null) {
+            scheduleEngineProject.setAppType(scheduleEngineProjectParam.getAppType());
+        }
+
+        if (scheduleEngineProjectParam.getProjectName() != null) {
+            scheduleEngineProject.setProjectName(scheduleEngineProjectParam.getProjectName());
+        }
+
+        if (scheduleEngineProjectParam.getProjectAlias() != null) {
+            scheduleEngineProject.setProjectAlias(scheduleEngineProjectParam.getProjectAlias());
+        }
+
+        if (scheduleEngineProjectParam.getProjectIdentifier() != null) {
+            scheduleEngineProject.setProjectIdentifier(scheduleEngineProjectParam.getProjectIdentifier());
+        }
+
+        if (scheduleEngineProjectParam.getProjectDesc() != null) {
+            scheduleEngineProject.setProjectDesc(scheduleEngineProjectParam.getProjectDesc());
+        }
+
+        if (scheduleEngineProjectParam.getStatus() != null) {
+            scheduleEngineProject.setStatus(scheduleEngineProjectParam.getStatus());
+        }
+
+        if (scheduleEngineProjectParam.getCreateUserId() != null) {
+            scheduleEngineProject.setCreateUserId(scheduleEngineProjectParam.getCreateUserId());
+        }
+
+        if (scheduleEngineProjectParam.getGmtCreate() != null) {
+            scheduleEngineProject.setGmtCreate(scheduleEngineProjectParam.getGmtCreate());
+        }
+
+        if (scheduleEngineProjectParam.getGmtModified() != null) {
+            scheduleEngineProject.setGmtModified(scheduleEngineProjectParam.getGmtModified());
+        }
+
+        if (scheduleEngineProjectParam.getIsDeleted() != null) {
+            scheduleEngineProject.setIsDeleted(scheduleEngineProjectParam.getIsDeleted());
+        }
+
+        return scheduleEngineProject;
+    }
+
+    public void deleteProject(Long projectId, Integer appType) {
+        scheduleEngineProjectDao.deleteByProjectIdAppType(projectId,appType);
+    }
+
+    public List<ScheduleEngineProjectVO> findFuzzyProjectByProjectAlias(String name, Integer appType, Long uicTenantId) {
+        if (appType == null) {
+            throw new RdosDefineException("appType must be passed");
+        }
+
+        if (uicTenantId == null) {
+            throw new RdosDefineException("uicTenantId must be passed");
+        }
+
+        List<ScheduleEngineProject> deans = scheduleEngineProjectDao.selectFuzzyProjectByProjectAlias(name, appType, uicTenantId, environmentContext.getFuzzyProjectByProjectAliasLimit());
+
+        return buildProjectList(deans);
+    }
+
+    private List<ScheduleEngineProjectVO> buildProjectList(List<ScheduleEngineProject> deans) {
+        if (CollectionUtils.isEmpty(deans)) {
+            return Lists.newArrayList();
+        }
+
+        List<ScheduleEngineProjectVO> vos = Lists.newArrayList();
+
+        for (ScheduleEngineProject dean : deans) {
+            ScheduleEngineProjectVO vo = new ScheduleEngineProjectVO();
+            vo.setId(dean.getId());
+            vo.setProjectId(dean.getProjectId());
+            vo.setUicTenantId(dean.getUicTenantId());
+            vo.setAppType(dean.getAppType());
+            vo.setProjectName(dean.getProjectName());
+            vo.setProjectAlias(dean.getProjectAlias());
+            vo.setProjectIdentifier(dean.getProjectIdentifier());
+            vo.setProjectDesc(dean.getProjectDesc());
+            vo.setStatus(dean.getStatus());
+            vo.setCreateUserId(dean.getCreateUserId());
+            vo.setGmtCreate(dean.getGmtCreate());
+            vo.setGmtModified(dean.getGmtModified());
+            vo.setIsDeleted(dean.getIsDeleted());
+
+            vos.add(vo);
+        }
+
+        return vos;
     }
 }
 

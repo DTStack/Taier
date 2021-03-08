@@ -111,6 +111,8 @@ public class ScheduleJob extends AppTenantEntity {
 
     private Boolean isForce;
 
+    private Integer validRule;
+
     public Boolean getForce() {
         return isForce;
     }
@@ -405,5 +407,13 @@ public class ScheduleJob extends AppTenantEntity {
 
     public void setPhaseStatus(Integer phaseStatus) {
         this.phaseStatus = phaseStatus;
+    }
+
+    public Integer getValidRule() {
+        return validRule;
+    }
+
+    public void setValidRule(Integer validRule) {
+        this.validRule = validRule;
     }
 }
