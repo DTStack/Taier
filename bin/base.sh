@@ -17,18 +17,15 @@ echo 'start component is' $COMPONENT
 
 if [ "$COMPONENT" = "master" ] ; then
   ENTRY_POINT_CLASS='com.dtstack.engine.master.MasterMain'
-  FILE=$LS_CONF_DIR'/master.conf'
   LIB=`ls $LS_LIB_DIR/ |grep engine-master`
 elif [ "$COMPONENT" = "worker" ] ; then
   ENTRY_POINT_CLASS='com.dtstack.engine.worker.WorkerMain'
-  FILE=$LS_CONF_DIR'/worker.conf'
   LIB=`ls $LS_LIB_DIR/ |grep engine-worker`
 else
   ENTRY_POINT_CLASS='com.dtstack.engine.entrance.EngineMain'
-  FILE=$LS_CONF_DIR'/engine.conf'
   LIB=`ls $LS_LIB_DIR/ |grep engine-entrance`
 fi
-echo 'exec java MainClass is' $ENTRY_POINT_CLASS  ' FILE is' $FILE ' LIB is' $LIB.
+echo 'exec java MainClass is' $ENTRY_POINT_CLASS   ' LIB is' $LIB.
 
 
 unset CDPATH
@@ -48,8 +45,6 @@ JAVA_OPTS="$JAVA_OPTS -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,a
 
 #-XX:MaxDirectMemorySize=16M According to owner memory
 JAVA_OPTS="$JAVA_OPTS -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+HeapDumpOnOutOfMemoryError -XX:+DisableExplicitGC -Dfile.encoding=UTF-8 -Djna.nosys=true -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps"
-
-JAVA_OPTS="$JAVA_OPTS -Dconfig.file=${FILE}"
 
 JAVA_OPTS="$JAVA_OPTS -Djava.security.policy=$LS_CONF_DIR/java.policy"
 

@@ -9,6 +9,7 @@ import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.vo.ComponentVO;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ComponentConfigUtils;
 import com.dtstack.engine.dao.ComponentConfigDao;
@@ -98,6 +99,12 @@ public class ComponentConfigService {
             clientTemplates = ComponentConfigUtils.convertXMLConfigToComponentConfig(componentConfig);
         } else {
             clientTemplates = JSONArray.parseArray(componentTemplate, ClientTemplate.class);
+        }
+        for (ClientTemplate clientTemplate : clientTemplates) {
+            if (clientTemplate.getId() > 0L && StringUtils.isBlank(clientTemplate.getType())) {
+                //兼容旧数据 前端的自定义参数标识
+                clientTemplate.setType(EFrontType.CUSTOM_CONTROL.name());
+            }
         }
         clientTemplates = ComponentConfigUtils.convertOldClientTemplateToTree(clientTemplates);
         if (EComponentType.SFTP.getTypeCode().equals(componentTypeCode)) {

@@ -1151,32 +1151,38 @@ public class ComponentService {
      * 测试单个组件联通性
      */
     public ComponentTestResult testConnect(Integer componentType, String componentConfig, String clusterName,
-                                            String hadoopVersion, Long engineId, KerberosConfig kerberosConfig, Map<String, String> sftpConfig,Integer storeType) {
+                                           String hadoopVersion, Long engineId, KerberosConfig kerberosConfig, Map<String, String> sftpConfig) {
         ComponentTestResult componentTestResult = new ComponentTestResult();
-        componentTestResult.setComponentTypeCode(componentType);
-        if (EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))) {
-            componentTestResult.setResult(true);
-            return componentTestResult;
-        }
-        String pluginType = null;
-        if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
-            //HDFS 测试连通性走hdfs2 其他走yarn2-hdfs2-hadoop
-            pluginType = EComponentType.HDFS.name().toLowerCase() + this.formatHadoopVersion(hadoopVersion, EComponentType.HDFS);
-        } else {
-            pluginType = this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion,storeType);
-        }
+        try {
+            if (EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))) {
+                componentTestResult.setResult(true);
+                return componentTestResult;
+            }
 
-        componentTestResult = workerOperator.testConnect(pluginType,
-                this.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterName));
-        if (null == componentTestResult) {
-            componentTestResult = new ComponentTestResult();
-            componentTestResult.setResult(false);
-            componentTestResult.setComponentTypeCode(componentType);
-            componentTestResult.setErrorMsg("测试联通性失败");
-            return componentTestResult;
-        }
-        if (componentTestResult.getResult() && null != engineId) {
-            updateCache(engineId, componentType);
+            String pluginType = null;
+            if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
+                //HDFS 测试连通性走hdfs2 其他走yarn2-hdfs2-hadoop
+                pluginType = EComponentType.HDFS.name().toLowerCase() + this.formatHadoopVersion(hadoopVersion, EComponentType.HDFS);
+            } else {
+                pluginType = this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion,storeType);
+            }
+
+            componentTestResult = workerOperator.testConnect(pluginType,
+                    this.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterName));
+            if (null == componentTestResult) {
+                componentTestResult = new ComponentTestResult();
+                componentTestResult.setResult(false);
+                componentTestResult.setErrorMsg("测试联通性失败");
+                return componentTestResult;
+            }
+
+            if (componentTestResult.getResult() && null != engineId) {
+                updateCache(engineId, componentType);
+            }
+        } finally {
+            if (null != componentTestResult) {
+                componentTestResult.setComponentTypeCode(componentType);
+            }
         }
         return componentTestResult;
     }
@@ -1725,6 +1731,7 @@ public class ComponentService {
         }
         if (EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))) {
             ComponentTestResult componentTestResult = new ComponentTestResult();
+            componentTestResult.setComponentTypeCode(componentType);
             componentTestResult.setResult(true);
             return componentTestResult;
         }

@@ -354,6 +354,10 @@ public class EnvironmentContext {
         return environment.getProperty("local.kerberos.dir", System.getProperty("user.dir") + "/kerberosUploadTempDir");
     }
 
+    public String getConfigPath() {
+        return environment.getProperty("config.dir", System.getProperty("user.dir") + "/conf/");
+    }
+
     public String getKerberosTemplatepath() {
         return environment.getProperty("kerberos.template.path", System.getProperty("user.dir") + "/conf/kerberos");
     }

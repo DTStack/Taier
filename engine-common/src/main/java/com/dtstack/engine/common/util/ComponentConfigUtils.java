@@ -341,9 +341,6 @@ public class ComponentConfigUtils {
         } else if (EFrontType.PASSWORD.name().equalsIgnoreCase(componentConfig.getKey())) {
             //key password的控件转换为加密显示
             componentConfig.setType(EFrontType.PASSWORD.name());
-        } else if (clientTemplate.getId() > 0L) {
-            // 前端的自定义参数标识
-            componentConfig.setType(EFrontType.CUSTOM_CONTROL.name());
         } else {
             componentConfig.setType(Optional.ofNullable(clientTemplate.getType()).orElse("").toUpperCase());
         }
