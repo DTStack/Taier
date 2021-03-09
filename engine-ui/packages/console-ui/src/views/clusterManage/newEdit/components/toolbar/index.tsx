@@ -88,9 +88,8 @@ export default class ToolBar extends React.PureComponent<IProps, IState> {
 
     testConnects = () => {
         const typeCode = this.props.comp?.componentTypeCode ?? ''
-        this.setState({ loading: true })
-        this.props.testConnects(typeCode, () => {
-            this.setState({ loading: false })
+        this.props.testConnects(typeCode, (loading: boolean) => {
+            this.setState({ loading })
         })
     }
 
