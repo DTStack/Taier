@@ -9,7 +9,11 @@ import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EQueueSourceType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.*;
+import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.exception.ClientAccessException;
+import com.dtstack.engine.common.exception.ClientArgumentException;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.WorkerAccessException;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.pojo.SimpleJobDelay;
@@ -19,7 +23,6 @@ import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
-import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.queue.GroupInfo;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.queue.JobPartitioner;
@@ -29,11 +32,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
+import java.util.concurrent.*;
 
 /**
  * company: www.dtstack.com
@@ -161,7 +161,7 @@ public class JobSubmitDealer implements Runnable {
                 if (checkIsFinished(jobClient)) {
                     continue;
                 }
-                if (checkJobSubmitExpired(jobClient.getGenerateTime())) {
+                if (checkJobSubmitExpired(jobClient)){
                     shardCache.updateLocalMemTaskStatus(jobClient.getTaskId(), RdosTaskStatus.AUTOCANCELED.getStatus());
                     jobClient.doStatusCallBack(RdosTaskStatus.AUTOCANCELED.getStatus());
                     engineJobCacheDao.delete(jobClient.getTaskId());
@@ -171,7 +171,7 @@ public class JobSubmitDealer implements Runnable {
                 if (!checkMaxPriority(jobResource)) {
                     logger.info("jobId:{} checkMaxPriority is false, wait other node job which priority higher.", jobClient.getTaskId());
                     queue.put(jobClient);
-                    Thread.sleep(jobLackingInterval);
+                    Thread.sleep(Objects.isNull(jobClient.getRetryIntervalTime()) ? jobLackingInterval : jobClient.getRetryIntervalTime());
                     continue;
                 }
                 //提交任务
@@ -230,12 +230,15 @@ public class JobSubmitDealer implements Runnable {
         return false;
     }
 
-    private boolean checkJobSubmitExpired(long generateTime) {
+    private boolean checkJobSubmitExpired(JobClient jobClient) {
+        long submitExpiredTime = jobClient.getSubmitExpiredTime();
+        if(submitExpiredTime > 0){
+            return System.currentTimeMillis() - jobClient.getGenerateTime() > submitExpiredTime;
+        }
         if (jobSubmitExpired <= 0) {
             return false;
         }
-        long diff = System.currentTimeMillis() - generateTime;
-        return diff > jobSubmitExpired;
+        return System.currentTimeMillis() - jobClient.getGenerateTime() > jobSubmitExpired;
     }
 
     private boolean checkMaxPriority(String jobResource) {
@@ -357,9 +360,8 @@ public class JobSubmitDealer implements Runnable {
         } else {
             engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.PRIORITY.getStage(), localAddress, jobClient.getPriority(), null);
             queue.put(jobClient);
-            SleepUtil.sleep(jobLackingInterval);
+            SleepUtil.sleep(Objects.isNull(jobClient.getRetryIntervalTime()) ? jobLackingInterval : jobClient.getRetryIntervalTime());
             logger.info("jobId:{} unlimited_lackingCount:{} add to priorityQueue.", jobClient.getTaskId(), jobClient.getLackingCount());
-
         }
     }
 

@@ -2,11 +2,13 @@ package com.dtstack.engine.api.service;
 
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.pojo.CheckResult;
+import com.dtstack.engine.api.pojo.ParamTaskAction;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
+import com.dtstack.sdk.core.feign.Headers;
 import com.dtstack.sdk.core.feign.Param;
 import com.dtstack.sdk.core.feign.RequestLine;
-import org.apache.commons.math3.util.Pair;
 
 import java.util.List;
 
@@ -16,6 +18,12 @@ public interface StreamTaskService extends DtInsightServer {
      */
     @RequestLine("POST /node/streamTask/getCheckPoint")
     ApiResponse<List<EngineJobCheckpoint>> getCheckPoint(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd);
+
+    /**
+     * 查询生成失败的 checkPoint
+     */
+    @RequestLine("POST /node/streamTask/getFailedCheckPoint")
+    ApiResponse<List<EngineJobCheckpoint>> getFailedCheckPoint(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd);
 
 
     /**
@@ -56,6 +64,16 @@ public interface StreamTaskService extends DtInsightServer {
      */
     @RequestLine("POST /node/streamTask/getRunningTaskLogUrl")
     ApiResponse<List<String>> getRunningTaskLogUrl(@Param("taskId") String taskId);
+
+    /**
+     * 语法检测
+     *
+     * @param paramActionExt
+     * @return
+     */
+    @RequestLine("POST /node/streamTask/grammarCheck")
+    @Headers(value={"Content-Type: application/json"})
+    ApiResponse<CheckResult> grammarCheck(ParamTaskAction paramActionExt);
 
 
 }

@@ -4,7 +4,6 @@ import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.EngineJobCheckpointDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
@@ -15,9 +14,6 @@ import com.dtstack.engine.master.dataCollection.DataCollection;
 import com.dtstack.engine.master.impl.ClusterService;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -26,9 +22,10 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 /**
@@ -166,7 +163,21 @@ public class TestJobCheckpointDealer extends AbstractTest {
         jobCheckpointDealer.updateJobCheckpoints(jobIdentifier);
     }
 
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testUpdateJobCheckpointsFailed(){
+        EngineJobCache engineJobCache2 = DataCollection.getData().getEngineJobCache2();
+        ScheduleJob jobId = DataCollection.getData().getScheduleJobDefiniteJobId();
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobCache2.getJobId(), jobId.getApplicationId(), engineJobCache2.getJobId());
+        when(workerOperator.getCheckpoints(any())).thenReturn("{\"restored\":0,\"total\":13,\"in_progress\":0,\"completed\":11," +
+                "\"failed\":2,\"history\":[{\"id\":1,;;32422\"trigger_timestamp\":101313,\"external_path\":\"Users\",\"status\":2}]}");
 
+        jobCheckpointDealer.updateJobCheckpoints(jobIdentifier);
+
+        List<EngineJobCheckpoint> engineJobCheckpoints = engineJobCheckpointDao.listFailedByTaskIdAndRangeTime(jobIdentifier.getTaskId(), null, null);
+        System.out.println(engineJobCheckpoints.get(0));
+    }
 
 
 }

@@ -1,5 +1,9 @@
 package com.dtstack.engine.common.client;
 
+import com.dtstack.engine.api.pojo.CheckResult;
+import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.api.pojo.ClusterResource;
+import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
@@ -12,9 +16,6 @@ import com.dtstack.engine.common.exception.ClientArgumentException;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.LimitResourceException;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.api.pojo.ClientTemplate;
-import com.dtstack.engine.api.pojo.ClusterResource;
-import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import org.slf4j.Logger;
@@ -375,6 +376,15 @@ public class ClientProxy implements IClient {
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             logger.error("getAllColumnsException,e:{}",ExceptionUtil.getErrorMessage(e));
             throw new RdosDefineException(e);
+        }
+    }
+
+    @Override
+    public CheckResult grammarCheck(JobClient jobClient) {
+        try {
+            return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.grammarCheck(jobClient), targetClient.getClass().getClassLoader(), true);
+        } catch (Exception e) {
+            throw new RdosDefineException(e.getMessage());
         }
     }
 }

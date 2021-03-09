@@ -31,6 +31,19 @@
         <if test="triggerStart != null and triggerEnd != null">
             and (UNIX_TIMESTAMP(checkpoint_trigger)>=#{triggerStart} or #{triggerEnd}>=UNIX_TIMESTAMP(checkpoint_trigger))
         </if>
+        and checkpoint_savepath is not null
+        order by checkpoint_trigger asc
+    </select>
+
+    <select id="listFailedByTaskIdAndRangeTime" resultType="EngineJobCheckpoint">
+        select
+        <include refid="select_content_fragment"/>
+        from schedule_engine_job_checkpoint
+        where is_deleted=0 and task_id=#{taskId}
+        <if test="triggerStart != null and triggerEnd != null">
+            and (UNIX_TIMESTAMP(gmt_create)>=#{triggerStart} or #{triggerEnd}>=UNIX_TIMESTAMP(gmt_create))
+        </if>
+        and checkpoint_savepath is null
         order by checkpoint_trigger asc
     </select>
 
@@ -40,6 +53,7 @@
         from schedule_engine_job_checkpoint
         where is_deleted=0 and task_id=#{taskId}
         and checkpoint_savepath REGEXP '^hdfs.*[a-zA-Z0-9]{8}-[a-zA-Z0-9]{6}-[a-zA-Z0-9]{12}$'
+        and checkpoint_savepath is not null
         order by checkpoint_trigger desc limit 1
     </select>
 
@@ -48,7 +62,7 @@
         <include refid="select_content_fragment"/>
         from schedule_engine_job_checkpoint
         where is_deleted=0 and task_id=#{taskId}
-        and task_engine_id = #{taskEngineId}
+        and task_engine_id = #{taskEngineId} and checkpoint_savepath is not null
         order by checkpoint_id desc limit 1
     </select>
 
@@ -56,7 +70,7 @@
         select
         <include refid="select_content_fragment"/>
         from schedule_engine_job_checkpoint
-        where is_deleted =0 and task_engine_id = #{taskEngineId} and task_id=#{taskId}
+        where is_deleted =0 and task_engine_id = #{taskEngineId} and checkpoint_savepath is not null
         order by checkpoint_id desc
         limit #{startIndex}, #{count}
     </select>
@@ -67,12 +81,22 @@
         set checkpoint_savepath = #{checkpoint}
         where task_id=#{taskId}
     </update>
+
+    <update id="updateFailedCheckpoint" parameterType="java.util.List">
+        update schedule_engine_job_checkpoint
+        set is_deleted = 1
+        where id in
+        <foreach collection="checkPointList" index="index" item="item" open="(" separator="," close=")">
+            #{item.id}
+        </foreach>
+    </update>
+
     <!-- 断点续传查询最新的checkpointID -->
     <select id="getByTaskId" resultType="EngineJobCheckpoint">
         select
         <include refid="select_content_fragment"/>
         from schedule_engine_job_checkpoint
-        where is_deleted=0 and task_id=#{taskId}
+        where is_deleted=0 and task_id=#{taskId} and checkpoint_savepath is not null
         order by checkpoint_id desc limit 1
     </select>
 
