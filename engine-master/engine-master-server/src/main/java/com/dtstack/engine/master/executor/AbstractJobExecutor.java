@@ -200,7 +200,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                                 }
                             } else if (EScheduleJobType.NOT_DO_TASK.getType().equals(type)) {
                                 logger.info("jobId:{} scheduleType:{} is NOT_DO_TASK not put queue.", scheduleBatchJob.getJobId(), getScheduleType());
-                                // kong任务且是未提交状态
+                                // 空任务且是未提交状态
                                 if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status) && isPutQueue(checkRunInfo, scheduleBatchJob)) {
                                     // 直接状态成运行中
 
