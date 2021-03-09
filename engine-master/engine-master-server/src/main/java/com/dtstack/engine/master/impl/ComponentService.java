@@ -1615,7 +1615,7 @@ public class ComponentService {
     public <T> T getComponentByClusterId(Long clusterId, Integer componentType, boolean isFilter, Class<T> clazz) {
         Map<String, Object> configMap = getCacheComponentConfigMap(clusterId, componentType, isFilter);
         if(MapUtils.isEmpty(configMap)){
-            throw new RdosDefineException("组件配置为空");
+            return null;
         }
         if (clazz.isInstance(Map.class)) {
             return (T) configMap;
@@ -1742,9 +1742,6 @@ public class ComponentService {
             return new ArrayList<>();
         }
         Map sftpMap = getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class);
-        if (MapUtils.isEmpty(sftpMap)) {
-            throw new RdosDefineException("缺少sftp组件");
-        }
         List<ComponentTestResult> testResults = new ArrayList<>(components.size());
         CountDownLatch countDownLatch = new CountDownLatch(components.size());
         for (Component component : components) {

@@ -44,7 +44,7 @@ public class ClientTemplate implements Serializable {
     private String dependencyValue;
 
     @JSONField(serialize = false)
-    private Long id;
+    private Long id = 0L;
 
     public Long getId() {
         return id;
