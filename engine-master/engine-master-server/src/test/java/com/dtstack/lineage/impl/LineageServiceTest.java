@@ -18,6 +18,7 @@ import com.dtstack.engine.api.vo.lineage.param.QueryColumnLineageParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageColumnParam;
 import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageParam;
 import com.dtstack.engine.common.util.MD5Util;
+import com.dtstack.engine.common.util.SystemPropertyUtil;
 import com.dtstack.engine.dao.TestLineageColumnColumnDao;
 import com.dtstack.engine.dao.TestLineageDataSetInfoDao;
 import com.dtstack.engine.dao.TestLineageDataSourceDao;
@@ -78,6 +79,9 @@ public class LineageServiceTest extends AbstractTest {
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
     public void testParseSql() {
+        String userDir = System.getProperty("user.dir");
+        String dir = userDir.substring(0, userDir.lastIndexOf("\\"));
+        System.setProperty("plugin.dir",dir.substring(0,dir.lastIndexOf("\\")));
         SqlParseInfo parseSql = lineageService.parseSql("create table chener (id int)", "dev", DataSourceType.HIVE.getVal());
         Assert.assertNotNull(parseSql);
     }
@@ -529,4 +533,7 @@ public class LineageServiceTest extends AbstractTest {
         List<String> strings = lineageService.queryTableResultLineageColumns(queryTableLineageColumnParam);
         Assert.assertNotNull(strings);
     }
+
+
+
 }
