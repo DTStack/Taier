@@ -5,6 +5,7 @@ import com.dtstack.channel.IMailChannel;
 import com.dtstack.engine.alert.AlterContext;
 import com.dtstack.engine.alert.client.mail.AbstractMailAlterClient;
 import com.dtstack.engine.alert.client.mail.AlterSendMailBean;
+import com.dtstack.engine.alert.client.sms.AbstractSmsAlterClient;
 import com.dtstack.engine.alert.enums.AlertGateCode;
 import com.dtstack.engine.alert.exception.AlterException;
 import com.dtstack.engine.alert.load.JarCache;
@@ -54,6 +55,10 @@ public class JarMailAlterClient extends AbstractMailAlterClient {
         }
 
         String jarPath = alterContext.getJarPath();
+
+        if (jarPath.contains(ConstMailAlter.PATH_CUT)) {
+            jarPath = jarPath.substring(0, jarPath.indexOf(ConstMailAlter.PATH_CUT));
+        }
         if (StringUtils.isBlank(jarPath)) {
             throw new AlterException("自定义jar必须传入jar路径");
         }

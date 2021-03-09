@@ -61,7 +61,7 @@ CREATE TABLE `alert_channel` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='告警通道';
 
 -- 迁移 通道表
-INSERT INTO `alert_channel` ( `id`, `cluster_id`, `alert_gate_name`, `alert_gate_type`, `alert_gate_code`, `alert_gate_json`, `alert_gate_source`, `file_path`, `is_default`, `is_deleted`, `gmt_created`, `gmt_modified`,alert_template )
+INSERT  IGNORE INTO `alert_channel` ( `id`, `cluster_id`, `alert_gate_name`, `alert_gate_type`, `alert_gate_code`, `alert_gate_json`, `alert_gate_source`, `file_path`, `is_default`, `is_deleted`, `gmt_created`, `gmt_modified`,alert_template )
 SELECT
 g.id,
 a.cluster_id,
@@ -75,19 +75,19 @@ a.is_default,
 g.is_deleted,
 g.gmt_created,
 g.gmt_modified,
-(select t.alert_template from dt_alert_template t WHERE g.alert_gate_source = t.alert_gate_source AND g.is_deleted = 0 ) alert_template
+(select t.alert_template from dt_alert_template t WHERE g.alert_gate_source = t.alert_gate_source AND g.is_deleted = 0 AND t.is_deleted = 0 LIMIT 1 ) alert_template
 FROM
 	`dt_alert_gate` g,
 	`dt_cluster_alert` a
 WHERE
-	g.id = a.alert_id AND g.is_deleted = 0
+	g.id = a.alert_id AND g.is_deleted = 0;
 
 -- 迁移内容表
-INSERT INTO `alert_content` (`id`,`tenant_id`,`project_id`,`app_type`,`content`,`status`,`gmt_create`,`gmt_modified`,`is_deleted`)
-SELECT * FROM dt_notify_record_content
+INSERT IGNORE INTO `alert_content` (`id`,`tenant_id`,`project_id`,`app_type`,`content`,`status`,`gmt_create`,`gmt_modified`,`is_deleted`)
+SELECT * FROM dt_notify_record_content;
 
 -- 迁移记录表
-INSERT INTO `alert_record`(`id`,`alert_content_id`,`tenant_id`,`app_type`,`user_id`,`read_status`,`status`,`context`,`alert_record_status`,`alert_record_send_status`,`is_deleted`,`node_address`)
+INSERT IGNORE INTO `alert_record`(`id`,`alert_content_id`,`tenant_id`,`app_type`,`user_id`,`read_status`,`status`,`context`,`alert_record_status`,`alert_record_send_status`,`is_deleted`,`node_address`)
 SELECT
 r.id,
 r.content_id alert_channel_id ,
@@ -96,10 +96,10 @@ r.app_type,
 r.user_id,
 r.read_status,
 0,
-CONCAT("{\"content\":\"",(SELECT c.content FROM dt_notify_record_content c WHERE r.content_id = c.id),"\"}" )  context,
+CONCAT("{\"content\":\"",(SELECT c.content FROM dt_notify_record_content c WHERE r.content_id = c.id LIMIT 1),"\"}" )  context,
 3,
 1,
 r.is_deleted,
 ""
 FROM dt_notify_record_read r
-WHERE r.is_deleted = 0
+WHERE r.is_deleted = 0;

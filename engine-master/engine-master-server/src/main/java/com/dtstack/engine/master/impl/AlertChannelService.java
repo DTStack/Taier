@@ -47,6 +47,7 @@ public class AlertChannelService {
             // 插入通道
             alertChannel = new AlertChannel();
             buildBean(alertGateVO, alertChannel);
+            alertChannel.setAlertGateSource(alertGateVO.getAlertGateSource());
             changed = alertChannelDao.insert(alertChannel);
         } else {
             // 编辑通道
@@ -98,6 +99,7 @@ public class AlertChannelService {
         if(alertGateVO.getIsDefault()!=null) {
             alertChannel.setIsDefault(alertGateVO.getIsDefault());
         }
+
         alertChannel.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
     }
 

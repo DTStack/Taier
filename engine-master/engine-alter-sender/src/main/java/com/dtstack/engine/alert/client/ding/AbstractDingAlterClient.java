@@ -71,6 +71,8 @@ public abstract class AbstractDingAlterClient extends AbstractAlterClient {
         public static String DING_DEFAULT_TITLE = "您收到一条钉钉消息";
 
         public static String DING_CLASS = "className";
+
+        public static String PATH_CUT = "&sftp:";
     }
 
     /**

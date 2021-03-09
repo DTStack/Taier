@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -69,36 +70,40 @@ public class AlertController {
     @PostMapping("/edit")
     public Boolean edit(@RequestParam(value = "file", required = false) MultipartFile file,
                                     AlertGateVO alertGateVO) throws Exception {
-        CheckUtils.checkAlertGateVOFormat(alertGateVO);
-        if (alertGateVO.getId() == null) {
-            Assert.isTrue(!alertChannelService.checkAlertGateSourceExist(alertGateVO.getAlertGateSource()), "通道标识以重复，请修改通道标识");
-        }
+        try {
+            CheckUtils.checkAlertGateVOFormat(alertGateVO);
+            if (alertGateVO.getId() == null) {
+                Assert.isTrue(!alertChannelService.checkAlertGateSourceExist(alertGateVO.getAlertGateSource()), "通道标识以重复，请修改通道标识");
+            }
 
-        if (file != null) {
-            String filePath = mvcConfig.getPluginPath(false,alertGateVO.getAlertGateSource());
-            String destPath = filePath + "/" + file.getOriginalFilename();
-            File destFile = new File(destPath);
-            if (!destFile.exists()) {
-                if (!destFile.getParentFile().exists()) {
-                    destFile.getParentFile().mkdirs();
+            if (file != null) {
+                String filePath = mvcConfig.getPluginPath(false,alertGateVO.getAlertGateSource());
+                String destPath = filePath + "/" + file.getOriginalFilename();
+                File destFile = new File(destPath);
+                if (!destFile.exists()) {
+                    if (!destFile.getParentFile().exists()) {
+                        destFile.getParentFile().mkdirs();
+                    }
+                    destFile.createNewFile();
                 }
-                destFile.createNewFile();
-            }
-            file.transferTo(destFile);
+                file.transferTo(destFile);
 
-            String dbPath = destPath;
-            // 上传sftp
-            if (environmentContext.getOpenConsoleSftp() && sftpDownloadEvent != null) {
-                // 查询默认集群的sftp
-                dbPath = sftpDownloadEvent.uploadFileToSftp(file, filePath, destPath, dbPath);
+                String dbPath = destPath;
+                // 上传sftp
+                if (environmentContext.getOpenConsoleSftp() && sftpDownloadEvent != null) {
+                    // 查询默认集群的sftp
+                    dbPath = sftpDownloadEvent.uploadFileToSftp(file, filePath, destPath, dbPath);
+                }
+
+                alertGateVO.setFilePath(dbPath);
+            } else {
+                alertGateVO.setFilePath(null);
             }
 
-            alertGateVO.setFilePath(dbPath);
-        } else {
-            alertGateVO.setFilePath(null);
+            return alertChannelService.addChannelOrEditChannel(alertGateVO);
+        } catch (Exception e) {
+            throw new RdosDefineException(e.getMessage());
         }
-
-        return alertChannelService.addChannelOrEditChannel(alertGateVO);
     }
 
     @ApiOperation("设为默认告警通道 用于取代console接口: /api/console/service/alert/setDefaultAlert")
@@ -182,11 +187,15 @@ public class AlertController {
         AlterContext alertParam = buildTestAlterContext(alertGateTestVO);
         List<EventMonitor> eventMonitors = Lists.newArrayList();
         eventMonitors.add(contentReplaceEvent);
-        R send = alterSender.sendSyncAlter(alertParam,eventMonitors);
-        if (send.isSuccess()) {
-            return;
+        R send = null;
+        try {
+            send = alterSender.sendSyncAlter(alertParam,eventMonitors);
+            if (send.isSuccess()) {
+                return;
+            }
+        } catch (Exception e) {
+            throw new RdosDefineException(e.getMessage());
         }
-        throw new RdosDefineException(send.getMessage());
     }
 
     private AlterContext buildTestAlterContext(AlertGateTestVO alertGateTestVO) {

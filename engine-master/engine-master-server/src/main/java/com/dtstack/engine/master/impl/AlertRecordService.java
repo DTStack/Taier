@@ -124,7 +124,7 @@ public class AlertRecordService {
         AlertRecord alertRecord = new AlertRecord();
         alertRecord.setReadStatus(ReadStatus.READ.getStatus());
         Map<String,Object> params = Maps.newHashMap();
-        params.put("is_deleted", IsDeletedEnum.NOT_DELETE);
+        params.put("is_deleted", IsDeletedEnum.NOT_DELETE.getType());
         params.put("tenant_id", alertRecordJoinDTO.getTenantId());
         params.put("user_id", alertRecordJoinDTO.getUserId());
         params.put("app_type", alertRecordJoinDTO.getAppType());
@@ -181,10 +181,7 @@ public class AlertRecordService {
             }
         } catch (Exception e) {
             log.error(ExceptionUtil.getErrorMessage(e));
-
-            if (e instanceof RdosDefineException) {
-                throw (RdosDefineException)e;
-            }
+            throw new RdosDefineException(e.getMessage());
         } finally {
             if (alarmSendDTO.getContentId()!=null) {
                 alertContentService.updateContent(alarmSendDTO.getContentId(),alarmSendDTO, AlertMessageStatusEnum.ALTER.getType());
