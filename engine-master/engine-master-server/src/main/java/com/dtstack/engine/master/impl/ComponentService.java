@@ -152,8 +152,8 @@ public class ComponentService {
      */
     public static Map<Integer, List<String>> componentTypeConfigMapping = new HashMap<>(2);
 
-    private static ThreadPoolExecutor connectPool = new ThreadPoolExecutor(5, 5,
-            60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10),
+    private static ThreadPoolExecutor connectPool =  new ThreadPoolExecutor(5, 10,
+            60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(20),
             new CustomThreadFactory("connectPool"));
 
     static {
@@ -1668,52 +1668,8 @@ public class ComponentService {
      */
     public List<ComponentTestResult> refresh(String clusterName) {
         List<ComponentTestResult> refreshResults = new ArrayList<>();
-        if (StringUtils.isBlank(clusterName)) {
-            throw new RdosDefineException("clusterName is null");
-        }
-        Cluster cluster = clusterDao.getByClusterName(clusterName);
-
-        List<Component> components = getComponents(cluster);
-        if (CollectionUtils.isEmpty(components)) {
-            return refreshResults;
-        }
-
-        Map<String, String> sftpMap = getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class);
-        CountDownLatch countDownLatch = new CountDownLatch(components.size());
-        for (Component component : components) {
-            if (!EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
-                continue;
-            }
-            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(
-                    cluster.getId(), component.getComponentTypeCode());
-            try {
-                CompletableFuture.runAsync(() -> {
-                    ComponentTestResult refreshResult = new ComponentTestResult();
-                    String componentConfig = getComponentByClusterId(cluster.getId(),component.getComponentTypeCode(),false,String.class);
-                    try {
-                        refreshResult = this.testConnect(component.getComponentTypeCode(),
-                                componentConfig, clusterName, component.getHadoopVersion(),
-                                component.getEngineId(), kerberosConfig, sftpMap,component.getStoreType());
-
-                        if (refreshResult.getResult() && EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
-                            engineService.updateResource(component.getEngineId(), refreshResult.getClusterResourceDescription());
-                            queueService.updateQueue(component.getEngineId(), refreshResult.getClusterResourceDescription());
-                        }
-
-                    } catch (Exception e) {
-                        refreshResult.setResult(false);
-                        refreshResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
-                        LOGGER.error("refresh {}  error ", componentConfig, e);
-                    } finally {
-                        refreshResult.setComponentTypeCode(component.getComponentTypeCode());
-                        refreshResults.add(refreshResult);
-                        countDownLatch.countDown();
-                    }
-                }, connectPool).get(env.getTestConnectTimeout(), TimeUnit.SECONDS);
-            } catch (Exception e) {
-                LOGGER.error("refresh {}  e ", component.getId(), e);
-            }
-        }
+        ComponentTestResult componentTestResult = testConnect(clusterName, EComponentType.YARN.getTypeCode());
+        refreshResults.add(componentTestResult);
         return refreshResults;
     }
 
@@ -1747,66 +1703,80 @@ public class ComponentService {
      * @return
      */
     public List<ComponentTestResult> testConnects(String clusterName) {
-
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("clusterName is null");
         }
         Cluster cluster = clusterDao.getByClusterName(clusterName);
-
         List<Component> components = getComponents(cluster);
-
-        if(CollectionUtils.isEmpty(components)){
+        if (CollectionUtils.isEmpty(components)) {
             return new ArrayList<>();
         }
+
         Map sftpMap = getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class);
-        List<ComponentTestResult> testResults = new ArrayList<>(components.size());
         CountDownLatch countDownLatch = new CountDownLatch(components.size());
+        Map<Integer, Future<ComponentTestResult>> completableFutures = new HashMap<>();
         for (Component component : components) {
-            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), component.getComponentTypeCode());
-            try {
-                CompletableFuture.runAsync(() -> {
-                    String componentConfig = getComponentByClusterId(cluster.getId(), component.getComponentTypeCode(), false, String.class);
-                    ComponentTestResult testResult = new ComponentTestResult();
-                    try {
-                        testResult = this.testConnect(component.getComponentTypeCode(), componentConfig, clusterName, component.getHadoopVersion(), component.getEngineId(), kerberosConfig, sftpMap,component.getStoreType());
-                        //测试联通性
-                        if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
-                            if (testResult.getResult()) {
-                                if (null != testResult.getClusterResourceDescription()) {
-                                    engineService.updateResource(component.getEngineId(), testResult.getClusterResourceDescription());
-                                    queueService.updateQueue(component.getEngineId(), testResult.getClusterResourceDescription());
-                                } else {
-                                    testResult.setResult(false);
-                                    testResult.setErrorMsg(clusterName + "获取yarn信息为空");
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        testResult.setResult(false);
-                        testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
-                        LOGGER.error("test connect {}  error ", componentConfig, e);
-                    } finally {
-                        testResult.setComponentTypeCode(component.getComponentTypeCode());
-                        testResults.add(testResult);
-                        countDownLatch.countDown();
-                    }
-                }, connectPool).get(env.getTestConnectTimeout(), TimeUnit.SECONDS);
-            } catch (Exception e) {
-                LOGGER.error("test connect {}  e ",component.getId(), e);
-                countDownLatch.countDown();
-                ComponentTestResult testResult = new ComponentTestResult();
-                testResult.setResult(false);
-                testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
-                testResult.setComponentTypeCode(component.getComponentTypeCode());
-                testResults.add(testResult);
-            }
+            Future<ComponentTestResult> testResultFuture = connectPool.submit(() -> {
+                try {
+                    return testComponentWithResult(clusterName, cluster, sftpMap, component);
+                } finally {
+                    countDownLatch.countDown();
+                }
+            });
+            completableFutures.put(component.getComponentTypeCode(),testResultFuture);
         }
         try {
             countDownLatch.await(env.getTestConnectTimeout(), TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            LOGGER.error("test connect  await {}  error ", clusterName, e);
+            LOGGER.error("test connect await {} error ", clusterName, e);
         }
-        return testResults;
+
+        List<ComponentTestResult> results = new ArrayList<>();
+        for (Integer componentCode : completableFutures.keySet()) {
+            Future<ComponentTestResult> completableFuture = completableFutures.get(componentCode);
+            ComponentTestResult testResult = new ComponentTestResult();
+            testResult.setResult(false);
+            try {
+                if (completableFuture.isDone()) {
+                    testResult = completableFuture.get();
+                } else {
+                    testResult.setErrorMsg("test connect time out");
+                    completableFuture.cancel(true);
+                }
+            } catch (Exception e) {
+                testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+            } finally {
+                testResult.setComponentTypeCode(componentCode);
+                results.add(testResult);
+            }
+        }
+        return results;
+    }
+
+    private ComponentTestResult testComponentWithResult(String clusterName, Cluster cluster, Map sftpMap,Component component) {
+        ComponentTestResult testResult = new ComponentTestResult();
+        try {
+            KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(), component.getComponentTypeCode());
+            String componentConfig = getComponentByClusterId(cluster.getId(), component.getComponentTypeCode(), false, String.class);
+            testResult = this.testConnect(component.getComponentTypeCode(), componentConfig, clusterName, component.getHadoopVersion(), component.getEngineId(), kerberosConfig, sftpMap);
+            //测试联通性
+            if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode()) && testResult.getResult()) {
+                if (null != testResult.getClusterResourceDescription()) {
+                    engineService.updateResource(component.getEngineId(), testResult.getClusterResourceDescription());
+                    queueService.updateQueue(component.getEngineId(), testResult.getClusterResourceDescription());
+                } else {
+                    testResult.setResult(false);
+                    testResult.setErrorMsg(clusterName + "获取yarn信息为空");
+                }
+            }
+        } catch (Exception e) {
+            testResult.setResult(false);
+            testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+            LOGGER.error("test connect {}  error ", component.getId(), e);
+        } finally {
+            testResult.setComponentTypeCode(component.getComponentTypeCode());
+        }
+        return testResult;
     }
 
     private List<Component> getComponents(Cluster cluster) {
