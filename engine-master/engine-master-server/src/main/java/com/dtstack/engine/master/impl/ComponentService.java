@@ -475,8 +475,8 @@ public class ComponentService {
                                              String kerberosFileName,  String componentTemplate,
                                              Integer componentCode, Integer storeType,
                                              String principals, String principal) {
-        if (StringUtils.isBlank(componentConfig) && !EComponentType.KUBERNETES.getTypeCode().equals(componentCode)) {
-            throw new RdosDefineException("组件信息不能为空");
+        if (StringUtils.isBlank(componentConfig)) {
+            componentConfig = new JSONObject().toJSONString();
         }
         if (null == componentCode) {
             throw new RdosDefineException("组件类型不能为空");
@@ -1220,7 +1220,7 @@ public class ComponentService {
             //
             dataInfo = new JSONObject();
             JSONObject confObj = new JSONObject();
-            if (componentConfig.contains("kubernetes.context")) {
+            if (null != componentConfig && componentConfig.contains("kubernetes.context")) {
                 JSONObject contextConf = JSONObject.parseObject(componentConfig);
                 componentConfig = contextConf.getString("kubernetes.context");
             }
@@ -1353,7 +1353,7 @@ public class ComponentService {
                     String componentConfig = getComponentByClusterId(clusterId,EComponentType.getByCode(componentType).getTypeCode(),true,String.class);
                     try {
                         localDownLoadPath = localDownLoadPath + ".json";
-                        FileUtils.write(new File(localDownLoadPath), componentConfig);
+                        FileUtils.write(new File(localDownLoadPath), filterConfigMessage(componentConfig));
                     } catch (IOException e) {
                         LOGGER.error("write upload file {} error", componentConfig, e);
                     }
@@ -1377,6 +1377,19 @@ public class ComponentService {
         } else {
             return new File(localDownLoadPath);
         }
+    }
+
+    /**
+     * 移除配置信息中的密码信息
+     *
+     */
+    private String filterConfigMessage(String componentConfig) {
+        if (StringUtils.isBlank(componentConfig)) {
+            return "";
+        }
+        JSONObject configJsonObject = JSONObject.parseObject(componentConfig);
+        configJsonObject.put("password","");
+        return configJsonObject.toJSONString();
     }
 
 
@@ -1660,9 +1673,6 @@ public class ComponentService {
         }
 
         Map<String, String> sftpMap = getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class);
-        if (MapUtils.isEmpty(sftpMap)) {
-            throw new RdosDefineException("缺少sftp组件");
-        }
         CountDownLatch countDownLatch = new CountDownLatch(components.size());
         for (Component component : components) {
             if (!EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
@@ -1927,6 +1937,9 @@ public class ComponentService {
             return false;
         }
         JSONObject yarnConf = getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode(),false,JSONObject.class);
+        if(null == yarnConf){
+            return false;
+        }
         if (!"yarn.io/gpu".equals(yarnConf.getString(GPU_RESOURCE_PLUGINS_SIGNAL))) {
             return false;
         }

@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.domain.Queue;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
@@ -108,6 +107,9 @@ public class ClusterServiceTest extends AbstractTest {
     @Autowired
     private EngineService engineService;
 
+    @Autowired
+    private ComponentConfigDao componentConfigDao;
+
     private String testClusterName = "testcase";
 
     @Before
@@ -135,6 +137,7 @@ public class ClusterServiceTest extends AbstractTest {
         ReflectionTestUtils.setField(dataSetInfoService,"lineageDataSetDao", lineageDataSetDao);
         ReflectionTestUtils.setField(dataSetInfoService,"componentDao", componentDao);
         ReflectionTestUtils.setField(dataSetInfoService,"tenantDao", tenantDao);
+        ReflectionTestUtils.setField(dataSetInfoService,"componentConfigDao", componentConfigDao);
 
         when(dataSetInfoService.getClient(any(),any(),any())).thenReturn(null);
         when(dataSetInfoService.getAllColumns(any(),any())).thenReturn(new ArrayList<>());
@@ -487,7 +490,7 @@ public class ClusterServiceTest extends AbstractTest {
 
     private ComponentVO testAddYarn(ClusterVO clusterVO) {
         String sftpTemplate = "[{\"key\":\"auth\",\"required\":true,\"type\":\"RADIO_LINKAGE\",\"value\":\"1\",\"values\":[{\"dependencyKey\":\"auth\",\"dependencyValue\":\"1\",\"key\":\"password\",\"required\":true,\"type\":\"PASSWORD\",\"value\":\"1\",\"values\":[{\"dependencyKey\":\"auth$password\",\"dependencyValue\":\"\",\"key\":\"password\",\"required\":true,\"type\":\"PASSWORD\",\"value\":\"\"}]},{\"dependencyKey\":\"auth\",\"dependencyValue\":\"2\",\"key\":\"rsaPath\",\"required\":true,\"type\":\"\",\"value\":\"2\",\"values\":[{\"dependencyKey\":\"auth$rsaPath\",\"dependencyValue\":\"\",\"key\":\"rsaPath\",\"required\":true,\"type\":\"INPUT\",\"value\":\"\"}]}]},{\"key\":\"fileTimeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"300000\"},{\"key\":\"host\",\"required\":true,\"type\":\"INPUT\",\"value\":\"127.0.0.1\"},{\"key\":\"isUsePool\",\"required\":true,\"type\":\"INPUT\",\"value\":\"true\"},{\"key\":\"maxIdle\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"},{\"key\":\"maxTotal\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"},{\"key\":\"maxWaitMillis\",\"required\":true,\"type\":\"INPUT\",\"value\":\"3600000\"},{\"key\":\"minIdle\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"},{\"key\":\"path\",\"required\":true,\"type\":\"INPUT\",\"value\":\"/data/sftp\"},{\"key\":\"port\",\"required\":true,\"type\":\"INPUT\",\"value\":\"22\"},{\"key\":\"timeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"0\"},{\"key\":\"username\",\"required\":true,\"type\":\"INPUT\",\"value\":\"admin\"}]";
-        componentService.addOrUpdateComponent(clusterVO.getClusterId(), "{\"path\":\"/data/sftp\",\"password\":\"abc123\",\"auth\":\"1\",\"port\":\"22\",\"host\":\"172.16.100.168\",\"username\":\"root\"}",
+        componentService.addOrUpdateComponent(clusterVO.getClusterId(), "{\"path\":\"/data/sftp\",\"password\":\"123\",\"auth\":\"1\",\"port\":\"22\",\"host\":\"172.16.100.168\",\"username\":\"root\"}",
                 null, "hadoop2", "", sftpTemplate, EComponentType.SFTP.getTypeCode(),null,"","");
         return componentService.addOrUpdateComponent(clusterVO.getClusterId(), "{\"yarn.resourcemanager.zk-address\":\"172.16.100.216:2181,172.16.101.136:2181,172.16.101.227:2181\",\"yarn.resourcemanager.admin.address.rm1\":\"172.16.100.216:8033\",\"yarn.resourcemanager.webapp.address.rm2\":\"172.16.101.136:8088\",\"yarn.log.server.url\"" +
                         ":\"http://172.16.101.136:19888/jobhistory/logs/\",\"yarn.resourcemanager.admin.address.rm2\":\"172.16.101.136:8033\"," +
@@ -530,7 +533,56 @@ public class ClusterServiceTest extends AbstractTest {
 
     private ComponentVO testAddSpark(ClusterVO clusterVO) {
         String componentTemplate = "[{\"dependencyKey\":\"\",\"dependencyValue\":\"\",\"key\":\"deploymode\",\"required\":true,\"type\":\"CHECKBOX\",\"value\":[\"perjob\"],\"values\":[{\"dependencyKey\":\"deploymode\",\"dependencyValue\":\"perjob\",\"key\":\"perjob\",\"required\":true,\"type\":\"GROUP\",\"value\":\"perjob\",\"values\":[{\"key\":\"addColumnSupport\",\"required\":false,\"type\":\"INPUT\",\"value\":\"true\"},{\"key\":\"spark.cores.max\",\"required\":true,\"type\":\"INPUT\",\"value\":\"1\"},{\"key\":\"spark.driver.extraJavaOptions\",\"required\":false,\"type\":\"INPUT\",\"value\":\"-Dfile.encoding=utf-8\"},{\"key\":\"spark.eventLog.compress\",\"required\":false,\"type\":\"INPUT\",\"value\":\"true\"},{\"key\":\"spark.eventLog.dir\",\"required\":false,\"type\":\"INPUT\",\"value\":\"hdfs://ns1/tmp/spark-yarn-logs\"},{\"key\":\"spark.eventLog.enabled\",\"required\":false,\"type\":\"INPUT\",\"value\":\"true\"},{\"key\":\"spark.executor.cores\",\"required\":true,\"type\":\"INPUT\",\"value\":\"1\"},{\"key\":\"spark.executor.extraJavaOptions\",\"required\":false,\"type\":\"INPUT\",\"value\":\"-Dfile.encoding=utf-8\"},{\"key\":\"spark.executor.heartbeatInterval\",\"required\":true,\"type\":\"INPUT\",\"value\":\"600s\"},{\"key\":\"spark.executor.instances\",\"required\":true,\"type\":\"INPUT\",\"value\":\"1\"},{\"key\":\"spark.executor.memory\",\"required\":true,\"type\":\"INPUT\",\"value\":\"512m\"},{\"key\":\"spark.network.timeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"600s\"},{\"key\":\"spark.rpc.askTimeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"600s\"},{\"key\":\"spark.speculation\",\"required\":true,\"type\":\"INPUT\",\"value\":\"true\"},{\"key\":\"spark.submit.deployMode\",\"required\":true,\"type\":\"INPUT\",\"value\":\"cluster\"},{\"key\":\"spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON\",\"required\":false,\"type\":\"INPUT\",\"value\":\"/data/miniconda2/bin/python3\"},{\"key\":\"spark.yarn.appMasterEnv.PYSPARK_PYTHON\",\"required\":false,\"type\":\"INPUT\",\"value\":\"/data/miniconda2/bin/python3\"},{\"key\":\"spark.yarn.maxAppAttempts\",\"required\":true,\"type\":\"INPUT\",\"value\":\"1\"},{\"key\":\"sparkPythonExtLibPath\",\"required\":true,\"type\":\"INPUT\",\"value\":\"hdfs://ns1/dtInsight/pythons/pyspark.zip,hdfs://ns1/dtInsight/pythons/py4j-0.10.7-src.zip\"},{\"key\":\"sparkSqlProxyPath\",\"required\":true,\"type\":\"INPUT\",\"value\":\"hdfs://ns1/dtInsight/user/spark/client/spark-sql-proxy.jar\"},{\"key\":\"sparkYarnArchive\",\"required\":true,\"type\":\"INPUT\",\"value\":\"hdfs://ns1/dtInsight/sparkjars/jars\"},{\"key\":\"yarnAccepterTaskNumber\",\"required\":false,\"type\":\"INPUT\",\"value\":\"3\"},{\"key\":\"hive.exec.copyfile.maxsize\",\"value\":\"100000000000\",\"type\":\"CUSTOM_CONTROL\"},{\"key\":\"spark.driver.extraJavaOptions\",\"value\":\"-Dfile.encoding=utf-8\",\"type\":\"CUSTOM_CONTROL\"},{\"key\":\"spark.executor.extraJavaOptions\",\"value\":\"-Dfile.encoding=utf-8\",\"type\":\"CUSTOM_CONTROL\"},{\"key\":\"spark.sql.catalogImplementation\",\"value\":\"hive\",\"type\":\"CUSTOM_CONTROL\"},{\"key\":\"spark.sql.hive.convertMetastoreOrc\",\"value\":\"true\",\"type\":\"CUSTOM_CONTROL\"},{\"key\":\"spark.sql.hive.metastore.jars\",\"value\":\"/tmp/\",\"type\":\"CUSTOM_CONTROL\"},{\"key\":\"spark.sql.hive.metastore.version\",\"value\":\"3.0\",\"type\":\"CUSTOM_CONTROL\"}]}]}]";
-        return componentService.addOrUpdateComponent(clusterVO.getClusterId(), "", null, "hadoop2", "", componentTemplate, EComponentType.SPARK.getTypeCode());
+        return componentService.addOrUpdateComponent(clusterVO.getClusterId(), "", null, "hadoop2", "", componentTemplate, EComponentType.SPARK.getTypeCode(),null,"","");
+    }
+
+
+
+    public List<Column> getTableColumns(Long sourceId,String tableName,String schemaNme,String dbName){
+
+        LineageDataSetInfo dataSetInfo = new LineageDataSetInfo();
+        dataSetInfo.setSourceId(sourceId);
+        dataSetInfo.setTableName(tableName);
+        dataSetInfo.setDbName(dbName);
+        dataSetInfo.setSchemaName(schemaNme);
+        return   dataSetInfoService.getTableColumns(dataSetInfo);
+    }
+
+
+    private DataSourceDTO getDataSourceDTO(Long tenantId) {
+
+        String dataJson = "{\"maxJobPoolSize\":\"\",\"password\":\"123\",\"minJobPoolSize\":\"\"," +
+                "\"jdbcUrl\":\"jdbc:hive2://172.16.8.107:10000/default\"," +
+                "\"username\":\"admin\",\"typeName\":\"hive2.1.1-cdh6.1.1\"}";
+//        String kerberosConf = "{\n" +
+//                "\"principalFile\":\"hive_pure.keytab\",\n" +
+//                "\"remoteDir\":\"/data/sftp_dev/CONSOLE_kerberos/SPARK_THRIFT/kerberos\",\n" +
+//                "\"krbName\":\"krb5.conf\",\n" +
+//                "\"openKerberos\":true\n" +
+//                "}";
+        String kerberosConf = "";
+        DataSourceDTO dataSourceDTO = new DataSourceDTO();
+        dataSourceDTO.setAppType(1);
+        dataSourceDTO.setDataJson(dataJson);
+        dataSourceDTO.setSourceName("测试逻辑数据源1");
+        dataSourceDTO.setDtUicTenantId(tenantId);
+        dataSourceDTO.setKerberosConf(kerberosConf);
+        dataSourceDTO.setSourceType(27);
+        return dataSourceDTO;
+    }
+
+    private Long addOrUpdateDataSource(Long tenantId) {
+
+        DataSourceDTO dataSourceDTO = getDataSourceDTO(tenantId);
+        return dataSourceService.addOrUpdateDataSource(dataSourceDTO);
+    }
+
+
+
+    private LineageDataSource getDataSourceByIdAndAppType(Long sourceId){
+
+        return dataSourceService.getDataSourceByIdAndAppType(sourceId, 1);
+
     }
 
 

@@ -495,7 +495,7 @@ public class ConsoleService {
         try {
             JSONObject pluginInfo = new JSONObject();
             pluginInfo.put(EComponentType.YARN.getConfName(), componentConfig);
-            String typeName = componentConfig.getString(ConfigConstant.TYPE_NAME_KEY);
+            String typeName = Optional.ofNullable(componentConfig).orElse(new JSONObject()).getString(ConfigConstant.TYPE_NAME_KEY);
             if (StringUtils.isBlank(typeName)) {
                 //获取对应的插件名称
                 Component hdfsComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.HDFS.getTypeCode());
