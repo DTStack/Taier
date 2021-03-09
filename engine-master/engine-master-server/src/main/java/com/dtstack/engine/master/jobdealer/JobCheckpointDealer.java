@@ -145,7 +145,7 @@ public class JobCheckpointDealer implements InitializingBean {
             taskId = taskInfo.getJobIdentifier().getTaskId();
             if (getCheckpointInterval(taskId) > 0) {
                 updateJobCheckpoints(taskInfo.getJobIdentifier());
-                subtractionCheckpointRecord(engineJobId);
+                subtractionCheckpointRecord(engineJobId, taskId);
 
                 if (RdosTaskStatus.RUNNING.getStatus().equals(status)) {
                     taskInfo.refreshExpired();
@@ -242,10 +242,10 @@ public class JobCheckpointDealer implements InitializingBean {
      *  根据retainedNum数量清理超期checkpoint
      * @param engineJobId flink job id
      */
-    public void subtractionCheckpointRecord(String engineJobId) {
+    public void subtractionCheckpointRecord(String engineJobId,String taskId) {
         try {
             int retainedNum = taskEngineIdAndRetainedNum.getOrDefault(engineJobId, 1);
-            List<EngineJobCheckpoint> threshold = engineJobCheckpointDao.getByTaskEngineIdAndCheckpointIndexAndCount(engineJobId, retainedNum - 1, 1);
+            List<EngineJobCheckpoint> threshold = engineJobCheckpointDao.getByTaskEngineIdAndCheckpointIndexAndCount(engineJobId, taskId,retainedNum - 1, 1);
             if (!threshold.isEmpty()) {
                 EngineJobCheckpoint thresholdCheckpoint = threshold.get(0);
                 engineJobCheckpointDao.batchDeleteByEngineTaskIdAndCheckpointId(thresholdCheckpoint.getTaskEngineId(), thresholdCheckpoint.getCheckpointId());
