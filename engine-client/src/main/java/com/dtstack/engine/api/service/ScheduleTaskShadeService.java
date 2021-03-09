@@ -39,9 +39,9 @@ public interface ScheduleTaskShadeService extends DtInsightServer {
      * @param batchTaskShadeDTO
      * @return
      */
-    @RequestLine("POST /node/scheduleTaskShade/addOrUpdateBatchTask")
+    @RequestLine("POST /node/scheduleTaskShade/addOrUpdateBatchTask?commitId={commitId}")
     @Headers(value = {"Content-Type: application/json"})
-    ApiResponse<String> addOrUpdateBatchTask(List<ScheduleTaskShadeDTO> batchTaskShadeDTO);
+    ApiResponse<String> addOrUpdateBatchTask(List<ScheduleTaskShadeDTO> batchTaskShadeDTO,@Param("commitId") String commitId);
 
     /**
      * 保存任务提交engine的额外信息,不会直接提交，只有commit之后才会提交

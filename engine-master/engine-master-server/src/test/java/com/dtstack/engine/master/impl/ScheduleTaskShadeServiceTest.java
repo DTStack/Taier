@@ -217,7 +217,7 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
         ScheduleTaskShade shade = DataCollection.getData().getScheduleTaskShade();
         ScheduleTaskShadeDTO shadeDTO = new ScheduleTaskShadeDTO();
         BeanUtils.copyProperties(shade,shadeDTO);
-        String commitId = scheduleTaskShadeService.addOrUpdateBatchTask(Lists.newArrayList(shadeDTO));
+        String commitId = scheduleTaskShadeService.addOrUpdateBatchTask(Lists.newArrayList(shadeDTO),null);
         Assert.assertNotNull(commitId);
     }
 
@@ -238,7 +238,7 @@ public class ScheduleTaskShadeServiceTest extends AbstractTest {
         ScheduleTaskShade shade = DataCollection.getData().getScheduleTaskShade();
         ScheduleTaskShadeDTO shadeDTO = new ScheduleTaskShadeDTO();
         BeanUtils.copyProperties(shade,shadeDTO);
-        String commitId = scheduleTaskShadeService.addOrUpdateBatchTask(Lists.newArrayList(shadeDTO));
+        String commitId = scheduleTaskShadeService.addOrUpdateBatchTask(Lists.newArrayList(shadeDTO),null);
         Boolean flag = scheduleTaskShadeService.taskCommit(commitId);
         Assert.assertTrue(flag);
     }
