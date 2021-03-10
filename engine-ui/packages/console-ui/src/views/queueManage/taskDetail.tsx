@@ -306,7 +306,7 @@ class TaskDetail extends React.Component<any, any> {
                 dataIndex: 'waitReason',
                 width: 300,
                 render (text: any, record: any) {
-                    return <Tooltip title={record.jobName} placement="top">
+                    return <Tooltip title={record.waitReason} placement="top">
                         {utils.textOverflowExchange(record.waitReason ?? '-', 20)}
                     </Tooltip>
                 }
