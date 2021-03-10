@@ -122,14 +122,14 @@ class EditCluster extends React.Component<any, IState> {
     handleCompVersion = (typeCode: string, version: string) => {
         if (isSameVersion(Number(typeCode))) {
             this.setState({
-                commVersion: version
+                commVersion: version[version.length - 1]
             })
             this.props.form.setFieldsValue({
                 [COMPONENT_TYPE_VALUE.YARN]: {
-                    hadoopVersion: version
+                    hadoopVersion: version[version.length - 1]
                 },
                 [COMPONENT_TYPE_VALUE.HDFS]: {
-                    hadoopVersion: version
+                    hadoopVersion: version[version.length - 1]
                 }
             })
         }
@@ -259,7 +259,28 @@ class EditCluster extends React.Component<any, IState> {
         })
     }
 
-    testConnects = () => {
+    setTestStatus = (status: any, isSingle?: boolean) => {
+        if (isSingle) {
+            this.setState((preState) => ({
+                testStatus: {
+                    ...preState.testStatus,
+                    [status.componentTypeCode]: {
+                        ...status
+                    }
+                }
+            }))
+            return
+        }
+        let testStatus: any = {}
+        status.forEach((temp: any) => {
+            testStatus[temp.componentTypeCode] = { ...temp }
+        })
+        this.setState({
+            testStatus: testStatus
+        })
+    }
+
+    testConnects = (typeCode?: number, callBack?: Function) => {
         const { form } = this.props
         const { initialCompData, clusterName } = this.state
         form.validateFields(null, {}, (err: any, values: any) => {
@@ -270,27 +291,38 @@ class EditCluster extends React.Component<any, IState> {
             }
             if (!err) {
                 const modifyComps = getModifyComp(values, initialCompData)
-                if (modifyComps.size > 0) {
-                    console.log(modifyComps)
-                    const modifyCompsName = Array.from(modifyComps).map((code: number) => COMPONENT_CONFIG_NAME[code])
-                    message.error(`组件 ${modifyCompsName.join('、')} 参数变更未保存，请先保存再测试组件连通性`)
-                    return
-                }
-                this.setState({ testLoading: true });
-                Api.testConnects({
-                    clusterName
-                }).then((res: any) => {
-                    if (res.code === 1) {
-                        let testStatus: any = {}
-                        res.data.forEach((temp: any) => {
-                            testStatus[temp.componentTypeCode] = { ...temp }
-                        })
-                        this.setState({
-                            testStatus: testStatus
-                        })
+                if (typeCode || typeCode == 0) {
+                    if (modifyComps.size > 0 && Array.from(modifyComps).includes(String(typeCode))) {
+                        message.error(`组件 ${COMPONENT_CONFIG_NAME[typeCode]} 参数变更未保存，请先保存再测试组件连通性`)
+                        return
                     }
-                    this.setState({ testLoading: false })
-                })
+                    callBack && callBack(true)
+                    Api.testConnect({
+                        clusterName,
+                        componentType: typeCode
+                    }).then((res: any) => {
+                        if (res.code === 1) {
+                            this.setTestStatus(res.data, true)
+                        }
+                        callBack && callBack(false)
+                    })
+                } else {
+                    if (modifyComps.size > 0) {
+                        console.log(modifyComps)
+                        const modifyCompsName = Array.from(modifyComps).map((code: number) => COMPONENT_CONFIG_NAME[code])
+                        message.error(`组件 ${modifyCompsName.join('、')} 参数变更未保存，请先保存再测试组件连通性`)
+                        return
+                    }
+                    this.setState({ testLoading: true });
+                    Api.testConnects({
+                        clusterName
+                    }).then((res: any) => {
+                        if (res.code === 1) {
+                            this.setTestStatus(res.data)
+                        }
+                        this.setState({ testLoading: false })
+                    })
+                }
             }
         })
     }
@@ -313,7 +345,7 @@ class EditCluster extends React.Component<any, IState> {
                         <Button className="cluster-btn" type="primary" onClick={this.turnCompMode.bind(this, 'edit')}>编辑</Button>
                     </span>
                         : <span>
-                            <Button className="cluster-btn" ghost loading={testLoading} onClick={this.testConnects} >测试所有组件连通性</Button>
+                            <Button className="cluster-btn" ghost loading={testLoading} onClick={() => this.testConnects()} >测试所有组件连通性</Button>
                             <Button className="cluster-btn" type="primary" onClick={this.handleComplete}>完成</Button>
                         </span>}
                 </div>
@@ -379,6 +411,7 @@ class EditCluster extends React.Component<any, IState> {
                                                 initialCompData={initialCompData[activeKey]}
                                                 form={this.props.form}
                                                 saveComp={this.saveComp}
+                                                testConnects={this.testConnects}
                                             />}
                                         </TabPane>)
                                     })}
