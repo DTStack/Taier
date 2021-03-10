@@ -113,6 +113,7 @@ class EditCluster extends React.Component<any, IState> {
                     hadoopVersion: version[version.length - 1]
                 }
             })
+            return
         }
         this.getLoadTemplate(typeCode, { compVersion: version })
     }
@@ -236,44 +237,41 @@ class EditCluster extends React.Component<any, IState> {
         const { initialCompData, clusterName } = this.state
         form.validateFields(null, {}, (err: any, values: any) => {
             console.log(err, values)
-            if (err) {
+            if ((err && !typeCode) || (err && Object.keys(err).includes(String(typeCode)))) {
                 message.error('请检查配置')
                 return
             }
-            if (!err) {
-                const modifyComps = getModifyComp(values, initialCompData)
-                if (typeCode || typeCode == 0) {
-                    if (modifyComps.size > 0 && Array.from(modifyComps).includes(String(typeCode))) {
-                        message.error(`组件 ${COMPONENT_CONFIG_NAME[typeCode]} 参数变更未保存，请先保存再测试组件连通性`)
-                        return
-                    }
-                    callBack && callBack(true)
-                    Api.testConnect({
-                        clusterName,
-                        componentType: typeCode
-                    }).then((res: any) => {
-                        if (res.code === 1) {
-                            this.setTestStatus(res.data, true)
-                        }
-                        callBack && callBack(false)
-                    })
-                } else {
-                    if (modifyComps.size > 0) {
-                        console.log(modifyComps)
-                        const modifyCompsName = Array.from(modifyComps).map((code: number) => COMPONENT_CONFIG_NAME[code])
-                        message.error(`组件 ${modifyCompsName.join('、')} 参数变更未保存，请先保存再测试组件连通性`)
-                        return
-                    }
-                    this.setState({ testLoading: true });
-                    Api.testConnects({
-                        clusterName
-                    }).then((res: any) => {
-                        if (res.code === 1) {
-                            this.setTestStatus(res.data)
-                        }
-                        this.setState({ testLoading: false })
-                    })
+            const modifyComps = getModifyComp(values, initialCompData)
+            if (typeCode || typeCode == 0) {
+                if (modifyComps.size > 0 && Array.from(modifyComps).includes(String(typeCode))) {
+                    message.error(`组件 ${COMPONENT_CONFIG_NAME[typeCode]} 参数变更未保存，请先保存再测试组件连通性`)
+                    return
                 }
+                callBack && callBack(true)
+                Api.testConnect({
+                    clusterName,
+                    componentType: typeCode
+                }).then((res: any) => {
+                    if (res.code === 1) {
+                        this.setTestStatus(res.data, true)
+                    }
+                    callBack && callBack(false)
+                })
+            } else {
+                if (modifyComps.size > 0) {
+                    const modifyCompsName = Array.from(modifyComps).map((code: number) => COMPONENT_CONFIG_NAME[code])
+                    message.error(`组件 ${modifyCompsName.join('、')} 参数变更未保存，请先保存再测试组件连通性`)
+                    return
+                }
+                this.setState({ testLoading: true });
+                Api.testConnects({
+                    clusterName
+                }).then((res: any) => {
+                    if (res.code === 1) {
+                        this.setTestStatus(res.data)
+                    }
+                    this.setState({ testLoading: false })
+                })
             }
         })
     }
