@@ -1,6 +1,5 @@
 package com.dtstack.engine.common.util;
 
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,19 +20,19 @@ import java.util.concurrent.TimeUnit;
  */
 public class DateUtil {
 
-    private static final String TIME_ZONE = "GMT+8";
-    private static final String STANDARD_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    private static final String UN_STANDARD_DATETIME_FORMAT = "yyyyMMddHHmmss";
-    private static final String DATE_FORMAT = "yyyy-MM-dd";
-    private static final String TIME_FORMAT = "HH:mm:ss";
-    private static final String YEAR_FORMAT = "yyyy";
+    public static final String TIME_ZONE = "GMT+8";
+    public static final String STANDARD_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String UN_STANDARD_DATETIME_FORMAT = "yyyyMMddHHmmss";
+    public static final String DATE_FORMAT = "yyyy-MM-dd";
+    public static final String TIME_FORMAT = "HH:mm:ss";
+    public static final String YEAR_FORMAT = "yyyy";
 
-    private static final String STANDARD_DATETIME_FORMAT_KEY = "standardDatetimeFormatter";
-    private static final String UN_STANDARD_DATETIME_FORMAT_KEY = "unStandardDatetimeFormatter";
-    private static final String DATE_FORMAT_KEY = "dateFormatter";
-    private static final String TIME_FORMAT_KEY = "timeFormatter";
-    private static final String YEAR_FORMAT_KEY = "yearFormatter";
-    private static final String START_TIME = "1970-01-01";
+    public static final String STANDARD_DATETIME_FORMAT_KEY = "standardDatetimeFormatter";
+    public static final String UN_STANDARD_DATETIME_FORMAT_KEY = "unStandardDatetimeFormatter";
+    public static final String DATE_FORMAT_KEY = "dateFormatter";
+    public static final String TIME_FORMAT_KEY = "timeFormatter";
+    public static final String YEAR_FORMAT_KEY = "yearFormatter";
+    public static final String START_TIME = "1970-01-01";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DateUtil.class);
 

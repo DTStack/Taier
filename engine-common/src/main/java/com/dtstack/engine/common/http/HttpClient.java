@@ -1,6 +1,5 @@
 package com.dtstack.engine.common.http;
 
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
@@ -15,7 +14,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Map;
 

@@ -1,21 +1,15 @@
 package com.dtstack.engine.master.dataCollection;
 
 import com.dtstack.engine.api.domain.*;
-import com.dtstack.engine.api.enums.LineageOriginType;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.dao.*;
+import com.dtstack.engine.domain.AlertChannel;
+import com.dtstack.engine.domain.AlertRecord;
 import com.dtstack.engine.master.anno.DataSource;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
-import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.utils.DataCollectionProxy;
 import com.dtstack.engine.master.utils.Template;
-import com.dtstack.schedule.common.enums.AppType;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import org.joda.time.DateTime;
 
@@ -36,12 +30,9 @@ public interface DataCollection {
                 new Class<?>[]{DataCollection.class}, DataCollectionProxy.instance);
     }
 
-
     class SingletonHolder {
         private static final DataCollection INSTANCE = getDataCollectionProxy();
     }
-
-
 
 
     @DataSource
@@ -770,13 +761,13 @@ public interface DataCollection {
         return cluster;
     }
 
-    @DatabaseInsertOperation(dao = TestEngineDao.class)
-    default Engine getDefaultK8sEngine(){
-        Engine defaultEngineTemplate = Template.getDefaultEngineTemplate();
-        defaultEngineTemplate.setId(2L);
-        defaultEngineTemplate.setClusterId(2L);
-        return defaultEngineTemplate;
-    }
+//    @DatabaseInsertOperation(dao = TestEngineDao.class)
+//    default Engine getDefaultK8sEngine(){
+//        Engine defaultEngineTemplate = Template.getDefaultEngineTemplate();
+//        defaultEngineTemplate.setId(2L);
+//        defaultEngineTemplate.setClusterId(2L);
+//        return defaultEngineTemplate;
+//    }
 
     @DatabaseInsertOperation(dao = TestComponentDao.class)
     default Component getDefaultK8sClusterHdfsComponent() {
@@ -946,11 +937,9 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestScheduleJobJobDao.class)
-    default ScheduleJobJob getDefaultJobJobForFlow(){
+    default ScheduleJobJob getDefaultJobJobForFlow() {
         return Template.getDefaultScheduleJobJobFlowTemplate();
     }
-
-
 
     @DatabaseInsertOperation(dao = TestClusterDao.class)
     default Cluster getCluster() {
@@ -1020,9 +1009,40 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestLineageColumnColumnDao.class)
-    default LineageColumnColumn getDefaultLineageColumnColumn(){
+    default LineageColumnColumn getDefaultLineageColumnColumn() {
         LineageColumnColumn defaultColumnColumn = Template.getDefaultColumnColumn();
         return defaultColumnColumn;
+    }
+
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelDingDt() {
+        return Template.getDefaultAlterChannelTemplateDingDt();
+    }
+
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelMailDt() {
+        return Template.getDefaultAlterChannelTemplateMailDt();
+    }
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelDingJar() {
+        return Template.getDefaultAlterChannelTemplateDingJar();
+    }
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelMailJar() {
+        return Template.getDefaultAlterChannelTemplateMailJar();
+    }
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelSmsJar() {
+        return Template.getDefaultAlterChannelTemplateSmsJar();
+    }
+    @DatabaseInsertOperation(dao = TestAlterChannelDao.class)
+    default AlertChannel getDefaultAlterChannelComJar() {
+        return Template.getDefaultAlterChannelTemplateICustomizeJar();
+    }
+
+    @DatabaseInsertOperation(dao = TestAlertRecordDao.class)
+    default AlertRecord getDefaultRecord(){
+        return Template.getDefaultRecord();
     }
 
 }

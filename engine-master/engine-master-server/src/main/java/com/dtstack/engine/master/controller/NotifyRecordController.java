@@ -1,23 +1,26 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.alert.client.AlertGateFacade;
-import com.dtstack.engine.api.domain.po.ClusterAlertPO;
-import com.dtstack.engine.api.dto.NotifyRecordReadDTO;
-import com.dtstack.engine.api.dto.SetAlarmUserDTO;
-import com.dtstack.engine.api.dto.UserMessageDTO;
+import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
+import com.dtstack.engine.api.dto.*;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.param.AlarmSendParam;
 import com.dtstack.engine.api.param.NotifyRecordPageQueryParam;
 import com.dtstack.engine.api.param.NotifyRecordParam;
 import com.dtstack.engine.api.param.SetAlarmNotifyRecordParam;
+import com.dtstack.engine.common.enums.NotifyMode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.master.impl.NotifyRecordService;
+import com.dtstack.engine.domain.AlertChannel;
+import com.dtstack.engine.master.enums.ReadStatus;
+import com.dtstack.engine.master.impl.AlertChannelService;
+import com.dtstack.engine.master.impl.AlertContentService;
+import com.dtstack.engine.master.impl.AlertRecordService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,48 +44,80 @@ public class NotifyRecordController {
     private final Logger log = LoggerFactory.getLogger(NotifyRecordController.class);
 
     @Autowired
-    private NotifyRecordService notifyRecordService;
+    private AlertRecordService alertRecordService;
 
     @Autowired
-    private AlertGateFacade alertGateFacade;
+    private AlertContentService alertContentService;
 
     @ApiOperation("获取一条指定通知记录 用于替换console: /api/console/service/notifyRecord/getOne")
     @PostMapping("/getOne")
     public NotifyRecordReadDTO getOne(@RequestBody NotifyRecordParam param) {
-        return notifyRecordService.getOne(param.getTenantId(),param.getProjectId(),param.getUserId(),param.getReadId(),param.getAppType());
+        AlertRecordJoinDTO alertRecordJoinDTO = new AlertRecordJoinDTO();
+        alertRecordJoinDTO.setRecordId(param.getReadId());
+        alertRecordJoinDTO.setAppType(param.getAppType());
+        return alertRecordService.getOne(alertRecordJoinDTO);
     }
 
     @ApiOperation("分页查询消息列表 mode,1：普通查询，2：未读消息，3：已读消息 用于替换console: /api/console/service/notifyRecord/pageQuery")
     @PostMapping("/pageQuery")
     public PageResult<List<NotifyRecordReadDTO>> pageQuery(@RequestBody NotifyRecordPageQueryParam param) {
-        return notifyRecordService.pageQuery(param.getTenantId(), param.getProjectId(),
-                param.getCurrentPage(), param.getPageSize(), param.getUserId(), param.getMode(), param.getAppType());
+        AlertRecordJoinDTO alertRecordJoinDTO = new AlertRecordJoinDTO();
+        alertRecordJoinDTO.setTenantId(param.getTenantId());
+        alertRecordJoinDTO.setAppType(param.getAppType());
+        alertRecordJoinDTO.setProjectId(param.getProjectId());
+        alertRecordJoinDTO.setUserId(param.getUserId());
+        if (NotifyMode.UNREAD.getMode().equals(param.getMode())) {
+            alertRecordJoinDTO.setReadStatus(ReadStatus.UNREAD.getStatus());
+        } else if (NotifyMode.READ.getMode().equals(param.getMode())) {
+            alertRecordJoinDTO.setReadStatus(ReadStatus.READ.getStatus());
+        }
+        alertRecordJoinDTO.setCurrentPage(param.getCurrentPage());
+        alertRecordJoinDTO.setPageSize(param.getPageSize());
+        return alertRecordService.pageQuery(alertRecordJoinDTO);
 
     }
 
     @ApiOperation("标为已读 用于替换console: /api/console/service/notifyRecord/tabRead")
     @PostMapping("/tabRead")
     public void tabRead(@RequestBody NotifyRecordParam param) {
-        notifyRecordService.tabRead(param.getNotifyRecordIds(), param.getUserId(), param.getTenantId(), param.getProjectId(), param.getAppType());
+        alertRecordService.tabRead(buildJoinDTO(param));
     }
+
+
 
     @ApiOperation("全部已读 用于替换console: /api/console/service/notifyRecord/allRead")
     @PostMapping("/allRead")
     public void allRead(@RequestBody NotifyRecordParam param) {
-        notifyRecordService.allRead(param.getUserId(), param.getTenantId(), param.getProjectId(), param.getAppType());
+        alertRecordService.allRead(buildJoinDTO(param));
     }
 
 
     @ApiOperation("删除 用于替换console: /api/console/service/notifyRecord/delete")
     @PostMapping("/delete")
     public void delete(@RequestBody NotifyRecordParam param) {
-        notifyRecordService.delete(param.getNotifyRecordIds(), param.getUserId(), param.getTenantId(), param.getProjectId(), param.getAppType());
+        alertRecordService.delete(buildJoinDTO(param));
+    }
+
+    private AlertRecordJoinDTO buildJoinDTO(@RequestBody NotifyRecordParam param) {
+        AlertRecordJoinDTO alertRecordJoinDTO = new AlertRecordJoinDTO();
+        alertRecordJoinDTO.setTenantId(param.getTenantId());
+        alertRecordJoinDTO.setAppType(param.getAppType());
+        alertRecordJoinDTO.setProjectId(param.getProjectId());
+        alertRecordJoinDTO.setUserId(param.getUserId());
+        alertRecordJoinDTO.setRecordIds(param.getNotifyRecordIds());
+        return alertRecordJoinDTO;
     }
 
     @ApiOperation("生成默认内容 用于替换console: /api/console/service/notifyRecord/generateContent")
     @PostMapping("/generateContent")
     public Long generateContent(@RequestBody NotifyRecordParam param) {
-        return notifyRecordService.generateContent(param.getTenantId(), param.getProjectId(), param.getAppType(), param.getContent(), param.getStatus());
+        AlertContentDTO alertContentDTO = new AlertContentDTO();
+        alertContentDTO.setAppType(param.getAppType());
+        alertContentDTO.setContent(param.getContent());
+        alertContentDTO.setProjectId(param.getProjectId());
+        alertContentDTO.setTenantId(param.getTenantId());
+        alertContentDTO.setStatus(param.getStatus());
+        return alertContentService.insertContent(alertContentDTO);
     }
 
     @ApiOperation("发送消息 用于替换console: /api/console/service/notifyRecord/sendAlarm")
@@ -97,8 +132,24 @@ public class NotifyRecordController {
             }
         }
 
-        notifyRecordService.sendAlarm(param.getTenantId(), param.getProjectId(), param.getNotifyRecordId(), param.getAppType(), param.getTitle(),
-                param.getContentId(), userDTOS, param.getSenderTypes(), param.getWebhook(), param.getMailType());
+        AlarmSendDTO alarmSendDTO = new AlarmSendDTO();
+        alarmSendDTO.setTitle(param.getTitle());
+        alarmSendDTO.setContentId(param.getContentId());
+        alarmSendDTO.setContent(param.getContent());
+        alarmSendDTO.setReceivers(userDTOS);
+        alarmSendDTO.setWebhook(param.getWebhook());
+
+        alarmSendDTO.setStatus(param.getStatus());
+        alarmSendDTO.setAppType(param.getAppType());
+        alarmSendDTO.setTenantId(param.getTenantId());
+        alarmSendDTO.setUserId(param.getUserId());
+        alarmSendDTO.setProjectId(param.getProjectId());
+
+        List<Integer> senderTypes = param.getSenderTypes();
+
+        List<String> alertGateSources = AlertGateTypeEnum.transformSenderTypes(senderTypes);
+        alarmSendDTO.setAlertGateSources(alertGateSources);
+        alertRecordService.sendAlarm(alarmSendDTO);
     }
 
     @ApiOperation("发送消息: 新接口")
@@ -109,13 +160,8 @@ public class NotifyRecordController {
             throw  new RdosDefineException("发送告警必须设置通道");
         }
 
-        List<ClusterAlertPO> clusterAlertPOS = alertGateFacade.selectAlertByIds(alertGateSources);
-        try {
-            notifyRecordService.sendAlarmNew(param.getTenantId(), param.getProjectId(), param.getNotifyRecordId(), param.getAppType(), param.getTitle(),
-                    param.getContentId(),clusterAlertPOS, param.getReceivers(), param.getWebhook());
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new RdosDefineException(e.getMessage());
-        }
+        AlarmSendDTO alarmSendDTO = new AlarmSendDTO();
+        BeanUtils.copyProperties(param,alarmSendDTO);
+        alertRecordService.sendAlarm(alarmSendDTO);
     }
 }

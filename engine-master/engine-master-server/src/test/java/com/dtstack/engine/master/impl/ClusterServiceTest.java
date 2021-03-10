@@ -3,8 +3,8 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.domain.Queue;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.DataSourceDTO;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
@@ -165,7 +165,6 @@ public class ClusterServiceTest extends AbstractTest {
 
     /**
      * @see ComponentService#addOrCheckClusterWithName(String)
-     * @see ComponentService#addOrUpdateComponent(Long, String, List, String, String, String, Integer)
      * @see ComponentService#getOne(Long)
      * @see ClusterService#getAllCluster()
      * @see ClusterService#getCluster(Long, Boolean, Boolean)
@@ -173,12 +172,10 @@ public class ClusterServiceTest extends AbstractTest {
      * @see ComponentService#delete(List)
      * @see ComponentService#testConnects(String)
      * @see ClusterService#deleteCluster(Long)
-     * @see TenantService#bindingTenant(Long, Long, Long, String)
      * @see TenantService#bindingQueue(Long, Long, String)
      * @see TenantService#pageQuery(Long, Integer, String, int, int)
      * @see ComponentService#listConfigOfComponents(Long, Integer)
-     * @see ComponentService#getKerberosConfig(Long, Integer)
-     * @see ComponentService#convertComponentTypeToClient(String, Integer, String)
+     * @see ComponentService#getKerberosConfig(Long, Integer
      * @see EngineService#getQueue(Long)
      * @see EngineService#listSupportEngine(Long)
      * @see EngineService#listClusterEngines(Long, boolean)
