@@ -18,7 +18,7 @@ import Container from './views'
 import QueueManage from './views/queueManage'
 import ResourceManage from './views/resourceManage'
 import ClusterManage from './views/clusterManage'
-import EditCluster from './views/clusterManage/edit'
+import EditCluster from './views/clusterManage/newEdit'
 import QueueManageDetail from './views/queueManage/taskDetail'
 import AlarmChannel from './views/alarmChannel';
 import AlarmRule from './views/alarmChannel/alarmRule'
