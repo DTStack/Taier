@@ -23,6 +23,7 @@ import com.dtstack.engine.master.config.TaskResourceBeanConfig;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
+import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
 import com.dtstack.engine.master.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.vo.TaskTypeResourceTemplateVO;
@@ -94,6 +95,9 @@ public class ConsoleService {
 
     @Autowired
     private PluginWrapper pluginWrapper;
+
+    @Autowired
+    private JobComputeResourcePlain jobComputeResourcePlain;
 
     private static long DELAULT_TENANT  = -1L;
 
@@ -220,19 +224,7 @@ public class ConsoleService {
     }
 
     private boolean isBelongCluster(String clusterName,String jobResource){
-        if(StringUtils.isBlank(clusterName)){
-            return false;
-        }
-        if(StringUtils.isBlank(jobResource)){
-            return false;
-        }
-        String[] split = jobResource.split(ConfigConstant.SPLIT);
-        if(split.length <= 1){
-            return false;
-        }
-        //第二位为集群名
-        String jobResourceClusterName = split[1];
-        return clusterName.equalsIgnoreCase(jobResourceClusterName);
+        return clusterName.equalsIgnoreCase(jobComputeResourcePlain.parseClusterFromJobResource(jobResource));
     }
 
 

@@ -11,6 +11,9 @@ import com.dtstack.engine.master.impl.ClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.dtstack.engine.common.constrant.ConfigConstant.RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT;
 import static com.dtstack.engine.common.constrant.ConfigConstant.SPLIT;
 
@@ -78,4 +81,28 @@ public class JobComputeResourcePlain {
         }
         jobClient.setGroupName(groupName);
     }
+
+
+    public String parseClusterFromJobResource(String jobResource) {
+        if (StringUtils.isBlank(jobResource)) {
+            return "";
+        }
+        String plainType = environmentContext.getComputeResourcePlain();
+        List<String> clusterArray = new ArrayList<>();
+        String[] split = jobResource.split(SPLIT);
+        if (ComputeResourcePlain.EngineTypeClusterQueueComputeType.name().equalsIgnoreCase(plainType)) {
+            //engineType_cluster_queue_computeType_computeResourceType 拼接方式
+            for (int i = 1; i < split.length - 3; i++) {
+                clusterArray.add(split[i]);
+            }
+        } else {
+            // engineType_cluster_queue_computeResourceType 拼接方式
+            for (int i = 1; i < split.length - 2; i++) {
+                clusterArray.add(split[i]);
+            }
+        }
+        return String.join(SPLIT, clusterArray);
+    }
+
+
 }
