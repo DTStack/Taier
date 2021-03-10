@@ -26,5 +26,6 @@ tmp/
 tmp1100/
 tmpSave/
 *jacoco.exec
+/javadocs
 engine-master/engine-master-server/download/
 engine-master/engine-master-server/unzip/

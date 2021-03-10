@@ -11,18 +11,18 @@ import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.EComponentScheduleType;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.master.enums.EComponentScheduleType;
-import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
-import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.schedule.common.enums.DataSourceType;
 import com.dtstack.schedule.common.enums.Deleted;
@@ -107,6 +107,10 @@ public class ClusterService implements InitializingBean {
 
     @Autowired
     private EnvironmentContext environmentContext;
+
+    @Autowired
+    private DtUicUserConnect dtUicUserConnect;
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -727,7 +731,7 @@ public class ClusterService implements InitializingBean {
                 return ldapUserName;
             }
         }
-        ldapUserName = DtUicUserConnect.getLdapUserName(dtUicUserId, environmentContext.getUicToken(), environmentContext.getDtUicUrl());
+        ldapUserName = dtUicUserConnect.getLdapUserName(dtUicUserId, environmentContext.getUicToken(), environmentContext.getDtUicUrl());
         ldapCache.put(dtUicUserId, ldapUserName);
         return ldapUserName;
     }

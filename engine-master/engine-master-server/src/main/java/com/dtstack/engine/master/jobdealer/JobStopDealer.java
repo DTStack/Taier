@@ -110,10 +110,10 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
             throw new RdosDefineException("please don't stop too many tasks at once, limit:" + JOB_STOP_LIMIT);
         }
         List<ScheduleJob> needSendStopJobs = new ArrayList<>(jobs.size());
-        List<Long> unSubmitJob = new ArrayList<>(jobs.size());
+        List<String> unSubmitJob = new ArrayList<>(jobs.size());
         for (ScheduleJob job : jobs) {
             if (RdosTaskStatus.UNSUBMIT.getStatus().equals(job.getStatus()) || SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
-                unSubmitJob.add(job.getId());
+                unSubmitJob.add(job.getJobId());
             } else {
                 needSendStopJobs.add(job);
             }
@@ -324,11 +324,6 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
             } else if (RdosTaskStatus.getStoppedAndNotFound().contains(scheduleJob.getStatus())) {
                 this.removeMemStatusAndJobCache(jobElement.jobId);
                 logger.info("jobId:{} and status:{} is StoppedAndNotFound, set job is STOPPED.", jobElement.jobId, scheduleJob.getStatus());
-                return StoppedStatus.STOPPED;
-            } else if (!RdosTaskStatus.RUNNING.getStatus().equals(scheduleJob.getStatus()) &&
-                    System.currentTimeMillis() - jobCache.getGmtCreate().getTime() >= environmentContext.getConsoleStopExpireTime()) {
-                this.removeMemStatusAndJobCache(jobElement.jobId);
-                logger.info("jobId:{} and status:{} is expire console stop time, set job is STOPPED.", jobElement.jobId, scheduleJob.getStatus());
                 return StoppedStatus.STOPPED;
             }
 

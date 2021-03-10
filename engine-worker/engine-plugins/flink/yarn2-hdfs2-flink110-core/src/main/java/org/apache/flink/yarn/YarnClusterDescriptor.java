@@ -546,6 +546,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
 	private JobGraph getJobGraph(String appId,ClusterSpecification clusterSpecification) throws Exception{
 		String url = getUrlFormat(clusterSpecification.getYarnConfiguration()) + "/" + appId;
+		LOG.info("AppId is {}, MonitorUrl is {}", appId, url);
 		PackagedProgram program = buildProgram(url,clusterSpecification);
 		clusterSpecification.setProgram(program);
 		JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, this.flinkConfiguration, clusterSpecification.getParallelism(), false);
@@ -620,7 +621,6 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 	}
 
 	private String getUrlFormat(YarnConfiguration yarnConf){
-		String url = "";
 		try{
 			Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
 			rmClientField.setAccessible(true);
@@ -660,10 +660,13 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
 			return String.format("http://%s/proxy",addr);
 		}catch (Exception e){
-			LOG.error("get monitor error:", e);
+			LOG.error("get proxyDescriptor error: {}", e);
+			String  addr = yarnConf.get("yarn.resourcemanager.webapp.address");
+//			if (addr == null) {
+//				throw new YarnDeploymentException("Couldn't get rm web app address.Please check rm web address whether be confituration.");
+//			}
+			return String.format("http://%s/proxy",addr);
 		}
-
-		return url;
 	}
 
 	private void fillJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {

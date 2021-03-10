@@ -480,7 +480,6 @@ public class JobClient extends OrderObject {
                 ", coreJarInfo=" + coreJarInfo +
                 ", confProperties=" + confProperties +
                 ", sql='" + sql + '\'' +
-                ", taskParams='" + taskParams + '\'' +
                 ", jobName='" + jobName + '\'' +
                 ", taskId='" + taskId + '\'' +
                 ", engineTaskId='" + engineTaskId + '\'' +

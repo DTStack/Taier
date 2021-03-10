@@ -2,6 +2,7 @@ package com.dtstack.engine.common.client;
 
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
+import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.client.config.YamlConfigParser;
@@ -189,4 +190,8 @@ public abstract class AbstractClient implements IClient {
         return null;
     }
 
+    @Override
+    public List<Column> getAllColumns(String tableName,String schemaName, String dbName) {
+        return null;
+    }
 }

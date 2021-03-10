@@ -57,10 +57,11 @@ perjob:
     yarn.taskmanager.numberOfTaskSlots: 2
     sessionStartAuto: false
 
-    flink.env.java.opts: -XX:MaxMetaspaceSize=500m
+    env.java.opts: -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
-    yarn.application-attempts: 0
+    yarn.application-attempts: 3
+    yarn.application-attempt-failures-validity-interval: 3600000
     high-availability: ZOOKEEPER
 
     monitorAcceptedApp: false
@@ -127,10 +128,11 @@ session:
     yarn.taskmanager.numberOfTaskManager: 2
     yarn.taskmanager.numberOfTaskSlots: 2
 
-    flink.env.java.opts: -XX:MaxMetaspaceSize=500m
+    env.java.opts: -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
-    yarn.application-attempts: 0
+    yarn.application-attempts: 3
+    yarn.application-attempt-failures-validity-interval: 3600000
     high-availability: ZOOKEEPER
 
     monitorAcceptedApp: false
@@ -184,6 +186,6 @@ standalone:
     taskmanager.numberOfTaskManager: 2
     taskmanager.numberOfTaskSlots: 2
 
-    flink.env.java.opts: -XX:MaxMetaspaceSize=500m
+    env.java.opts: -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway

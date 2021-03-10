@@ -1,7 +1,7 @@
 package com.dtstack.engine.master.utils;
 
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.master.enums.MultiEngineType;
 import org.apache.curator.shaded.com.google.common.collect.Sets;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;

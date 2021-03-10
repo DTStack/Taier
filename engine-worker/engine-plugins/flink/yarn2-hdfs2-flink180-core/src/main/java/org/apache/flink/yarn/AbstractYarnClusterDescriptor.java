@@ -561,6 +561,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
     private JobGraph getJobGraph(String appId,ClusterSpecification clusterSpecification) throws Exception{
         String url = getUrlFormat(clusterSpecification.getYarnConfiguration()) + "/" + appId;
+        LOG.info("AppId is {}, MonitorUrl is {}", appId, url);
         PackagedProgram program = buildProgram(url, clusterSpecification);
         clusterSpecification.setProgram(program);
         JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, this.flinkConfiguration, clusterSpecification.getParallelism());
@@ -630,7 +631,6 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
     }
 
     private String getUrlFormat(YarnConfiguration yarnConf){
-        String url = "";
         try{
             Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
             rmClientField.setAccessible(true);
@@ -648,7 +648,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 currentProxy = currentProxyField.get(h);
             }catch (Exception e){
                 //兼容Hadoop 2.7.3.2.6.4.91-3
-                LOG.error("get currentProxy error:", e);
+                LOG.error("get currentProxy error: {}", e);
                 Field proxyDescriptorField = h.getClass().getDeclaredField("proxyDescriptor");
                 proxyDescriptorField.setAccessible(true);
                 Object proxyDescriptor = proxyDescriptorField.get(h);
@@ -670,10 +670,13 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
             return String.format("http://%s/proxy",addr);
         }catch (Exception e){
-            LOG.error("get monitor error:", e);
+            LOG.error("get proxyDescriptor error: {}", e);
+            String  addr = yarnConf.get("yarn.resourcemanager.webapp.address");
+//            if (addr == null) {
+//                throw new YarnDeploymentException("Couldn't get rm web app address.Please check rm web address whether be confituration.");
+//            }
+            return String.format("http://%s/proxy",addr);
         }
-
-        return url;
     }
 
     private void fillJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {

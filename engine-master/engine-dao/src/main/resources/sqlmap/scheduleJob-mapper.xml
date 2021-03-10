@@ -1169,14 +1169,6 @@
 			GROUP BY bj.flow_job_id
     </select>
 
-    <update id="setJobRestart">
-        update schedule_job set is_restart = 1
-        where job_id in
-        <foreach collection="list" item="jobId" open="(" separator="," close=")">
-            #{jobId}
-        </foreach>
-    </update>
-
     <select id="countByFillDataAllStatus" resultType="java.util.HashMap">
         SELECT
         bj.status*1 as status,
@@ -1329,9 +1321,9 @@
         UPDATE schedule_job
         SET status = #{status},gmt_modified = now()
         WHERE is_deleted=0
-        AND id IN
-        <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
-            #{id}
+        AND job_id IN
+        <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
+            #{jobId}
         </foreach>
     </update>
 
@@ -1415,12 +1407,6 @@
         AND is_deleted=0
     </update>
 
-    <update id="updateStatusAndLogInfoById">
-        UPDATE schedule_job
-        SET status = #{status}, gmt_modified = now(), log_info = #{logInfo}
-        WHERE id = #{id}
-          AND is_deleted=0
-    </update>
 
     <update id="updateStatusByJobId">
         UPDATE schedule_job
@@ -1568,10 +1554,6 @@
         </foreach>
     </update>
 
-    <update id="updateTaskStatusCompareOld">
-        update schedule_job set gmt_modified=now(),status=#{status},job_name=#{jobName} where job_id=#{jobId} and status=#{oldStatus};
-    </update>
-
     <update id="updateJobPluginId">
         update schedule_job set gmt_modified=now(), plugin_info_id=#{pluginId} where job_id=#{jobId};
     </update>
@@ -1690,6 +1672,17 @@
 
     <select id="getJobGraph" resultType="java.lang.String">
         select job_graph from schedule_job where job_id = #{jobId}
+    </select>
+
+    <select id="getLastScheduleJob" resultType="ScheduleJob">
+        select
+        <include refid="select_content_fragment"/>
+        from schedule_job bj
+        where bj.task_id = #{taskId}
+        and bj.id &lt; ${id}
+        order by id desc
+        limit 1;
+
     </select>
 
 </mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.lineage.dao.LineageColumnColumnUniqueKeyRefDao">
+
+    <sql id="select_content_fragment">
+      id,app_type,unique_key,lineage_column_column_id,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <insert id="batchInsert" parameterType="com.dtstack.engine.api.domain.LineageColumnColumnUniqueKeyRef" useGeneratedKeys="true" keyProperty="id">
+        insert into lineage_column_column_unique_key_ref(app_type,unique_key,lineage_column_column_id)
+        values
+        <foreach collection="list" item="item" open="" close="" separator=",">
+            (#{item.appType},#{item.uniqueKey},#{item.lineageColumnColumnId})
+        </foreach>
+        on duplicate key update gmt_modified=values(gmt_modified),is_deleted = values(is_deleted)
+    </insert>
+
+    <update id="deleteByUniqueKey">
+        update lineage_column_column_unique_key_ref set is_deleted = 1 where unique_key = #{uniqueKey}
+    </update>
+
+    <update id="deleteByLineageIdAndUniqueKey">
+        update lineage_column_column_unique_key_ref set is_deleted = 1 where lineage_column_column_id = #{columnLineageId} and unique_key = #{uniqueKey} and app_type = #{appType}
+    </update>
+
+</mapper>

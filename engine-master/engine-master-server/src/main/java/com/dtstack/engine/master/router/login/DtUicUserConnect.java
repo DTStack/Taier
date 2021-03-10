@@ -186,7 +186,7 @@ public class DtUicUserConnect {
 
     }
 
-    public static String getLdapUserName(Long dtUicUserId,String dtToken,String uicUrl){
+    public String getLdapUserName(Long dtUicUserId,String dtToken,String uicUrl){
         try {
             String data = PoolHttpClient.get(String.format("%s/api/user/get-info-by-id?userId=%s&dtToken=%s", uicUrl,dtUicUserId,dtToken),(Map) null);
             JSONObject jsonObject = JSONObject.parseObject(data);

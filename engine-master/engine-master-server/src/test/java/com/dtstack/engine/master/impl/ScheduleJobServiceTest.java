@@ -99,7 +99,6 @@ public class ScheduleJobServiceTest extends AbstractTest {
     @Rollback
     public void testGetStatusById() {
         ScheduleJob scheduleJob = DataCollection.getData().getScheduleJobFirst();
-        Long id = scheduleJob.getId();
         Integer statusById = scheduleJobService.getJobStatus(scheduleJob.getJobId());
         if (null != statusById) {
             Assert.assertFalse(statusById != 5);
@@ -182,6 +181,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     public void testGetJobGraph() {
         ScheduleJob todayJob = Template.getScheduleJobTemplate();
         todayJob.setJobId(ValueUtils.getChangedStr());
+        todayJob.setJobKey(ValueUtils.getChangedStr());
         todayJob.setStatus(RdosTaskStatus.FINISHED.getStatus());
         scheduleJobDao.insert(todayJob);
 
@@ -208,6 +208,7 @@ public class ScheduleJobServiceTest extends AbstractTest {
     public void testGetScienceJobGraph() {
         ScheduleJob todayJob = Template.getScheduleJobTemplate();
         todayJob.setJobId(ValueUtils.getChangedStr());
+        todayJob.setJobKey(ValueUtils.getChangedStr());
         todayJob.setStatus(RdosTaskStatus.FINISHED.getStatus());
         scheduleJobDao.insert(todayJob);
         Long projectId = todayJob.getProjectId();

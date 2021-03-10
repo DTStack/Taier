@@ -1003,11 +1003,11 @@ public class ScheduleJobService {
         return details;
     }
 
-    public Integer updateStatusAndLogInfoById(Long id, Integer status, String msg) {
+    public Integer updateStatusAndLogInfoById(String jobId, Integer status, String msg) {
         if (StringUtils.isNotBlank(msg) && msg.length() > 5000) {
             msg = msg.substring(0, 5000) + "...";
         }
-        return scheduleJobDao.updateStatusAndLogInfoById(id, status, msg);
+        return scheduleJobDao.updateStatusByJobId(jobId, status, msg,null);
     }
 
     public Integer updateStatusByJobId(String jobId, Integer status,Integer versionId) {
@@ -1076,7 +1076,7 @@ public class ScheduleJobService {
             }
         }
         //额外信息为空 标记任务为失败
-        this.updateStatusAndLogInfoById(scheduleJob.getId(), RdosTaskStatus.FAILED.getStatus(), "任务运行信息为空");
+        this.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "任务运行信息为空");
         logger.error(" job  {} run fail with info is null",scheduleJob.getJobId());
     }
 
@@ -1179,10 +1179,11 @@ public class ScheduleJobService {
             return;
         }
         String likeName = fillDataJobName + "-%";
-        scheduleJobDao.stopUnsubmitJob(likeName, projectId, appType, RdosTaskStatus.CANCELED.getStatus());
         //发送停止消息到engine
         //查询出所有需要停止的任务
         List<ScheduleJob> needStopIdList = scheduleJobDao.listNeedStopFillDataJob(likeName, RdosTaskStatus.getCanStopStatus(), projectId, appType);
+        //通过interceptor的触发状态更新的event
+        scheduleJobDao.stopUnsubmitJob(likeName, projectId, appType, RdosTaskStatus.CANCELED.getStatus());
         //发送停止任务消息到engine
         //this.stopSubmittedJob(needStopIdList, dtuicTenantId, appType);
         jobStopDealer.addStopJobs(needStopIdList);
@@ -1674,7 +1675,11 @@ public class ScheduleJobService {
             String[] statuses = vo.getJobStatuses().split(",");
             for (String status : statuses) {
                 List<Integer> statusList = RdosTaskStatus.getStatusFailedDetail().get(MathUtil.getIntegerVal(status));
-                statues.addAll(statusList);
+                if (CollectionUtils.isNotEmpty(statusList)) {
+                    statues.addAll(statusList);
+                }else{
+                    statues.add(MathUtil.getIntegerVal(status));
+                }
             }
 
             batchJobDTO.setJobStatuses(statues);
@@ -2176,7 +2181,7 @@ public class ScheduleJobService {
      *
      * @param jobs
      */
-    public Integer BatchJobsBatchUpdate(String jobs) {
+    public Integer BatchJobsBatchUpdate( String jobs) {
         if (StringUtils.isBlank(jobs)) {
             return 0;
         }
@@ -2738,7 +2743,4 @@ public class ScheduleJobService {
     public String getJobGraphJSON(String jobId) {
         return scheduleJobDao.getJobGraph(jobId);
     }
-
-
-
 }

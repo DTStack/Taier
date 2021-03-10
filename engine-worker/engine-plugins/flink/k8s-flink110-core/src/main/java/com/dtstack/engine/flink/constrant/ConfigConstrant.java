@@ -19,7 +19,6 @@ public class ConfigConstrant {
     public static final String CLUSTER_ID_SPLIT = "-";
     public static final String FLINK_TASK_RUN_MODE_KEY = "flinkTaskRunMode";
     public static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
-    public final static String JVM_OPTIONS = "-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing";
 
     public static final String FLINK_SESSION_PREFIX = "flinksession";
     public static final String FLINK_PERJOB_PREFIX = "flinkperjob";

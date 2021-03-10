@@ -4,7 +4,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.assertj.core.util.Lists;
-import org.junit.Test;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 import org.springframework.core.io.Resource;
@@ -30,7 +29,8 @@ public class DAGScheduleXSDKTest {
     private final String SUFFIX_POINT = ".";
     private final String SUFFIX_SERVICE = "Service";
     private final List<String> ignoreMethod = Lists.newArrayList("wait","equals","toString","hashCode","getClass","notify","notifyAll");
-    
+
+
     public void testStart() throws Exception {
         Set<ScannedGenericBeanDefinition> beanDefinition = getBeanDefinition("classpath*:com/dtstack/engine/master/controller/*.class");
         Set<ScannedGenericBeanDefinition> beanDefinitionApi = getBeanDefinition("classpath*:com/dtstack/engine/api/service/*.class");
@@ -97,8 +97,8 @@ public class DAGScheduleXSDKTest {
     }
 
     private void comparisonMethod(Method controllerMethod, List<Method> serviceMethod,String name) {
-//        Class<?> controllerReturnType = controllerMethod.getReturnType();
-//        Class<?> serviceReturnType = serviceMethod.getReturnType();
+//      Class<?> controllerReturnType = controllerMethod.getReturnType();
+//      Class<?> serviceReturnType = serviceMethod.getReturnType();
         String controllerMethodName = controllerMethod.getName();
 //        if (!controllerReturnType.equals(serviceReturnType)) {
 //            System.out.println(name+":  方法"+controllerMethodName+"返回值不一致");
