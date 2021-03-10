@@ -382,9 +382,15 @@ public class ClientProxy implements IClient {
     @Override
     public CheckResult grammarCheck(JobClient jobClient) {
         try {
-            return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.grammarCheck(jobClient), targetClient.getClass().getClassLoader(), true);
-        } catch (Exception e) {
-            throw new RdosDefineException(e.getMessage());
+            return CompletableFuture.supplyAsync(() -> {
+                try {
+                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.grammarCheck(jobClient), targetClient.getClass().getClassLoader(), true);
+                } catch (Exception e) {
+                    throw new RdosDefineException(e);
+                }
+            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new RdosDefineException(e);
         }
     }
 }
