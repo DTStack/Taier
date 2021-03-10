@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.domain.ScheduleJob;
@@ -183,6 +184,7 @@ public class StreamTaskService {
     }
 
     public CheckResult grammarCheck(ParamActionExt paramActionExt) {
+        logger.info("grammarCheck  actionParam: {}", JSONObject.toJSONString(paramActionExt));
         CheckResult checkResult = null;
         try {
             JobClient jobClient = new JobClient(paramActionExt);
