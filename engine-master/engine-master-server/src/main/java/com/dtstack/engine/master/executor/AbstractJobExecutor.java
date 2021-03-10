@@ -203,12 +203,15 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                                 // 空任务且是未提交状态
                                 if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status) && isPutQueue(checkRunInfo, scheduleBatchJob)) {
                                     // 直接状态成运行中
-
-                                } else if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)){
+                                    logger.info("jobId:{} is NOT_DO_TASK,status:{} , update RUNNING", scheduleBatchJob.getJobId(),status);
+                                    batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getJobId(), RdosTaskStatus.RUNNING.getStatus(), "");
+                                } else if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
+                                    logger.info("jobId:{} is NOT_DO_TASK,status:{} is not submit，determine whether the timeout", scheduleBatchJob.getJobId(),status);
                                     // 已经提交状态 判断是否超时
-                                    if (isTimeOut(scheduleBatchJob,batchTask)) {
+                                    if (isTimeOut(scheduleBatchJob, batchTask)) {
                                         // 直接失败更新状态
-
+                                        logger.info("jobId:{} is NOT_DO_TASK,status:{} ,job timeout so update FAILED", scheduleBatchJob.getJobId(), status);
+                                        batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "NOT_DO_TASK task timeout");
                                     }
                                 }
                             } else {
@@ -238,6 +241,10 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     }
 
     protected boolean isTimeOut(ScheduleBatchJob scheduleBatchJob, ScheduleTaskShade batchTask) {
+        String scheduleConf = batchTask.getScheduleConf();
+
+
+
         return Boolean.FALSE;
     }
 

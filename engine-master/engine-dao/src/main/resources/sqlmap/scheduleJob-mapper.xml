@@ -1373,7 +1373,7 @@
         <if test="isRestart != null">
             AND is_restart = #{isRestart}
         </if>
-        AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
+        AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14,27)))
         AND is_deleted = 0
         AND `phase_status` = #{phaseStatus}
         order by id, cyc_time asc limit 500
