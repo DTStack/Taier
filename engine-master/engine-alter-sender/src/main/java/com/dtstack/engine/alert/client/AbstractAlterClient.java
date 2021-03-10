@@ -120,8 +120,6 @@ public abstract class AbstractAlterClient implements AlterClient,Runnable {
                     // 响应出队事件
                     logger.info("元素: id {} 离开队列",alterContext.getMark());
                     List<EventMonitor> eventMonitors = alterContext.getEventMonitors();
-
-                    eventMonitors.forEach(eventMonitor ->eventMonitor.leaveQueueAndSenderBeforeEvent(alterContext));
                     sendAlter(alterContext,eventMonitors);
                 }
             } catch (Exception e) {
@@ -133,6 +131,7 @@ public abstract class AbstractAlterClient implements AlterClient,Runnable {
     private R sendAlter(AlterContext alterContext, List<EventMonitor> eventMonitors) throws Exception {
         R r = null;
         try {
+            eventMonitors.forEach(eventMonitor ->eventMonitor.leaveQueueAndSenderBeforeEvent(alterContext));
             logger.info("元素: id {} 开始发送告警", alterContext.getMark());
             r = send(alterContext);
             R finalR1 = r;

@@ -130,10 +130,12 @@
             </if>
         </set>
         WHERE
-            `id` IN
-            <foreach collection="recordIds" item="recordId" separator="," close=")" open="(" >
-                ${recordId}
-            </foreach>
+            <if test="recordIds!=null">
+                `id` IN
+                <foreach collection="recordIds" item="recordId" separator="," close=")" open="(" >
+                    ${recordId}
+                </foreach>
+            </if>
             <if test="params!=null and params.size()>0">
                 AND
                 <foreach collection="params.entrySet()" index="key" item="value" separator="AND" >
