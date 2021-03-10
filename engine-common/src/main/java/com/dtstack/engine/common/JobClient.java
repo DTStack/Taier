@@ -98,7 +98,7 @@ public class JobClient extends OrderObject {
     /**
      * uic租户信息
      **/
-    private long tenantId;
+    private Long tenantId;
 
     private Long userId;
 
@@ -225,11 +225,11 @@ public class JobClient extends OrderObject {
         this.queueSourceType = queueSourceType;
     }
 
-    public long getTenantId() {
+    public Long getTenantId() {
         return tenantId;
     }
 
-    public void setTenantId(long tenantId) {
+    public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
     }
 
