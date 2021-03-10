@@ -31,7 +31,6 @@ public class DAGScheduleXSDKTest {
     private final String SUFFIX_SERVICE = "Service";
     private final List<String> ignoreMethod = Lists.newArrayList("wait","equals","toString","hashCode","getClass","notify","notifyAll");
 
-    @Test
     public void testStart() throws Exception {
         Set<ScannedGenericBeanDefinition> beanDefinition = getBeanDefinition("classpath*:com/dtstack/engine/master/controller/*.class");
         Set<ScannedGenericBeanDefinition> beanDefinitionApi = getBeanDefinition("classpath*:com/dtstack/engine/api/service/*.class");
