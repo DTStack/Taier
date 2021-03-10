@@ -130,16 +130,13 @@
             </if>
         </set>
         WHERE
+            <foreach collection="params.entrySet()" index="key" item="value" separator="AND" >
+                ${key} = #{value}
+            </foreach>
             <if test="recordIds!=null">
-                `id` IN
+                AND `id` IN
                 <foreach collection="recordIds" item="recordId" separator="," close=")" open="(" >
                     ${recordId}
-                </foreach>
-            </if>
-            <if test="params!=null and params.size()>0">
-                AND
-                <foreach collection="params.entrySet()" index="key" item="value" separator="AND" >
-                    ${key} = #{value}
                 </foreach>
             </if>
     </update>
@@ -220,7 +217,7 @@
 
     <select id="selectQuery" resultType="com.dtstack.engine.domain.AlertRecord">
         SELECT
-        `id`, `tenant_id`,`app_type`, `user_id`, `read_status`,`title`,`status`,`gmt_created`, `gmt_modified`,`context`
+        `id`, `tenant_id`,`app_type`,`alert_content_id`, `user_id`, `read_status`,`title`,`status`,`gmt_created`, `gmt_modified`,`context`
         FROM alert_record
         WHERE
         <trim suffixOverrides="AND">

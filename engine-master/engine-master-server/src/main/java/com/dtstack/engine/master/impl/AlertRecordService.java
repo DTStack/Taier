@@ -76,7 +76,14 @@ public class AlertRecordService {
         List<AlertRecord> alertRecords = alertRecordMapper.selectQuery(queryAlertRecord);
 
         if (CollectionUtils.isNotEmpty(alertRecords)) {
-            return build(alertRecords.get(0));
+            AlertRecord alertRecord = alertRecords.get(0);
+            NotifyRecordReadDTO build = build(alertRecord);
+            Long alertContentId = alertRecord.getAlertContentId();
+            AlertContent contentById = alertContentService.findContentById(alertContentId);
+            if (contentById != null) {
+                build.setProjectId(contentById.getProjectId());
+            }
+            return build;
         }
 
         return null;
@@ -84,9 +91,9 @@ public class AlertRecordService {
 
     private NotifyRecordReadDTO build(AlertRecord alertRecord) {
         NotifyRecordReadDTO notifyRecordReadDTO = new NotifyRecordReadDTO();
-        String context = alertRecord.getContext();
-        AlterContext alterContext = JSON.parseObject(context, AlterContext.class);
-        notifyRecordReadDTO.setContent(alterContext!=null?alterContext.getContent():"");
+        Long alertContentId = alertRecord.getAlertContentId();
+        AlertContent contentById = alertContentService.findContentById(alertContentId);
+        notifyRecordReadDTO.setContent(contentById.getContent());
         notifyRecordReadDTO.setStatus(alertRecord.getStatus());
         notifyRecordReadDTO.setGmtCreateFormat(DateUtil.getDate(alertRecord.getGmtCreated(),DateUtil.STANDARD_DATETIME_FORMAT));
         notifyRecordReadDTO.setAppType(alertRecord.getAppType());
