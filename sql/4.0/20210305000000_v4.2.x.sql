@@ -17,5 +17,5 @@ CREATE TABLE `schedule_engine_project` (
   KEY `index_uic_tenant_id_and_app_type` (`uic_tenant_id`,`app_type`,`project_alias`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='项目表';
 
-ALTER TABLE `schedule_task_shade` ADD  `valid_rule` tinyint(1) NOT NULL DEFAULT '0' COMMENT '强弱规则（只有NOT_DO_TASK任务会判断强弱规则）0 默认无规则 1弱规则 2强规则';
-ALTER TABLE `schedule_job` ADD  `valid_rule` tinyint(1) NOT NULL DEFAULT '0' COMMENT '强弱规则（只有NOT_DO_TASK任务会判断强弱规则）0 默认无规则 1弱规则 2强规则';
+ALTER TABLE `schedule_task_shade` ADD  `task_rule` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务规则 0 默认无规则 1弱规则 2强规则';
+ALTER TABLE `schedule_job` ADD  `task_rule` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务规则 0 默认无规则 1弱规则 2强规则';

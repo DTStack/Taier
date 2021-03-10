@@ -1003,15 +1003,22 @@ public class ScheduleJobService {
         return details;
     }
 
+    public Integer updateStatusAndLogInfoAndExecTimeById(String jobId, Integer status, String msg,Date execStartTime,Date execEndTime){
+        if (StringUtils.isNotBlank(msg) && msg.length() > 5000) {
+            msg = msg.substring(0, 5000) + "...";
+        }
+        return scheduleJobDao.updateStatusByJobId(jobId, status, msg,null,execStartTime,execEndTime);
+    }
+
     public Integer updateStatusAndLogInfoById(String jobId, Integer status, String msg) {
         if (StringUtils.isNotBlank(msg) && msg.length() > 5000) {
             msg = msg.substring(0, 5000) + "...";
         }
-        return scheduleJobDao.updateStatusByJobId(jobId, status, msg,null);
+        return scheduleJobDao.updateStatusByJobId(jobId, status, msg,null,null,null);
     }
 
     public Integer updateStatusByJobId(String jobId, Integer status,Integer versionId) {
-        return scheduleJobDao.updateStatusByJobId(jobId, status, null,versionId);
+        return scheduleJobDao.updateStatusByJobId(jobId, status, null,versionId,null,null);
     }
 
     public Long startJob(ScheduleJob scheduleJob) throws Exception {
@@ -2499,7 +2506,7 @@ public class ScheduleJobService {
      */
     public void updateJobStatusAndLogInfo( String jobId,  Integer status,  String logInfo) {
 
-        scheduleJobDao.updateStatusByJobId(jobId, status, logInfo,null);
+        scheduleJobDao.updateStatusByJobId(jobId, status, logInfo,null,null,null);
     }
 
 

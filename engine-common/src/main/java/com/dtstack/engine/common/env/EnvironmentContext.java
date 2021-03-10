@@ -501,4 +501,8 @@ public class EnvironmentContext {
     public Integer getFuzzyProjectByProjectAliasLimit() {
         return Integer.parseInt(environment.getProperty("fuzzy.project.alias.limit", "20"));
     }
+
+    public Long getTaskRuleTimeout() {
+        return Long.parseLong(environment.getProperty("task.rule.timeout", "600000"));
+    }
 }

@@ -1420,6 +1420,12 @@
             <if test="versionId != null">
                 version_id = #{versionId},
             </if>
+            <if test="execStartTime != null">
+                exec_start_time = #{execStartTime}
+            </if>
+            <if test="execEndTime != null">
+                exec_end_time = #{execEndTime}
+            </if>
             gmt_modified = now()
         </set>
         WHERE job_id = #{jobId}
