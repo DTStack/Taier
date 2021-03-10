@@ -216,7 +216,7 @@ export function handleCustomParam (params: any, turnp?: boolean): any {
  */
 export function getParamsByTemp (temp: any[]): any {
     let batchParams: any = {};
-    (isDeployMode(temp[0].key)
+    (isDeployMode(temp[0]?.key)
         ? temp[0].values : temp).forEach((item: any) => {
         if (item.type == CONFIG_ITEM_TYPE.GROUP) {
             let params = {}
@@ -228,7 +228,7 @@ export function getParamsByTemp (temp: any[]): any {
             })
             batchParams[item.key] = params
         }
-        if (item.id) {
+        if (isCustomType(item.type)) {
             batchParams['%' + item.id + '-key'] = item?.key ?? ''
             batchParams['%' + item.id + '-value'] = item?.value ?? ''
         }
@@ -424,8 +424,9 @@ export function getModifyComp (comps: any, initialCompData: any[]): any {
             }
         } else {
             /** 比对 hdfs、yarn 自定义参数 */
-            const temp = getParamsByTemp(JSON.parse(initialComp?.componentTemplate))
-            if ((comp['customParam'] || Object.values(temp).length) && !_.isEqual(comp['customParam'], temp)) {
+            const compTemp = comp['customParam'] ? handleSingleParam(comp['customParam']) : []
+            const initialTemp = getCustomerParams(JSON.parse(initialComp?.componentTemplate))
+            if (!_.isEqual(compTemp, initialTemp)) {
                 modifyComps.add(typeCode)
             }
         }
