@@ -16,7 +16,7 @@ module.exports = () => {
   return {
     server: {
       host: '127.0.0.1',
-      port: 'port',
+      port: 8080,
     },
     proxy: [
       {

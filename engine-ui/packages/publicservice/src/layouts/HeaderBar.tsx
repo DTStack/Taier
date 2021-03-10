@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Dropdown, Menu, Layout } from 'antd';
-import { LoginOutlined, DownOutlined } from '@ant-design/icons';
 import './style.less';
 declare const frontConf;
 
@@ -27,7 +26,6 @@ class HeaderBar extends React.Component<IProps, IState> {
     const selfMenu = (
       <Menu onClick={this.handleItemClick}>
         <Menu.Item key="logout">
-          <LoginOutlined />
           退出登录
         </Menu.Item>
       </Menu>
@@ -41,7 +39,7 @@ class HeaderBar extends React.Component<IProps, IState> {
         <div className="header-right">
           <Dropdown overlay={selfMenu}>
             <span style={{ color: '#fff' }}>
-              {sessionStorage.getItem('userName')} <DownOutlined />
+              {sessionStorage.getItem('userName')}
             </span>
           </Dropdown>
         </div>
