@@ -321,6 +321,7 @@ public class WorkerOperator {
     }
 
     public CheckResult grammarCheck(JobClient jobClient) throws Exception {
+        this.buildPluginInfo(jobClient);
         if (AkkaConfig.isLocalMode()) {
             return clientOperator.grammarCheck(jobClient);
         }
