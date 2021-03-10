@@ -66,3 +66,27 @@
         }
     }
 }
+
+.c-taskDetail__container {
+    padding: 20px;
+    &__title {
+        display: flex;
+        justify-content: space-between;
+    }
+    &__radioWrap {
+        margin: 16px 0;
+        line-height: 32px;
+        display: flex;
+        justify-content: space-between;
+        &__refresh {
+            width: 32px;
+            height: 32px;
+            background :rgba(255,255,255,1);
+            box-shadow: 0px 2px 6px 0px rgba(0,0,0,0.08);
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+}

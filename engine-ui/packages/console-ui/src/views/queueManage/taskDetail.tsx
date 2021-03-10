@@ -1,29 +1,26 @@
 import * as React from 'react';
 import { get } from 'lodash';
-import { Table, Card, message, Radio, Row, Col, Checkbox, Dropdown, Menu, Icon } from 'antd'
+import { Table, message, Radio, Row, Col, Icon,
+    Dropdown, Menu, Breadcrumb, Pagination, Tooltip } from 'antd'
 
 import utils from 'dt-common/src/utils';
-import styled from 'styled-components';
+import CopyIcon from 'dt-common/src/components/copy-icon';
 
-import '../../styles/main.scss'
 import { displayTaskStatus } from '../../consts/clusterFunc';
 import ViewDetail from '../../components/viewDetail';
 import KillTask from '../../components/killTask';
 import Api from '../../api/console';
-import GoBack from '../../components/go-back';
 import KillAllTask from '../../components/killAllTask';
 
 import { JobStageText, JobStage } from '../../consts'
 
-const PAGE_SIZE = 10;
 const RadioGroup = Radio.Group;
 const RadioButton = Radio.Button;
 
-const HeaderColTxt = styled.span`
-    margin-left: 24px;
-`;
-
+const PAGE_SIZE = 15;
 const getURLParam = utils.getParameterByName;
+
+type fixedType = 'right' | 'left'
 
 class TaskDetail extends React.Component<any, any> {
     state = {
@@ -142,17 +139,12 @@ class TaskDetail extends React.Component<any, any> {
         }
     }
 
-    // 表格换页
-    onTableChange = (pagination: any, filters: any, sorter: any) => {
-        const table = Object.assign(this.state.table, { pageIndex: pagination.current })
+    onPageChange = (current: any) => {
         this.setState({
-            table,
+            table: Object.assign(this.state.table, { pageIndex: current }),
             selectedRowKeys: [],
             killTaskInfo: []
-        },
-        () => {
-            this.getDetailTaskList();
-        })
+        }, this.getDetailTaskList)
     }
 
     // 杀死选中的任务
@@ -176,7 +168,7 @@ class TaskDetail extends React.Component<any, any> {
         })
     }
     showTaskParams (record: any) {
-        const taskParams = get(JSON.parse(record.jobInfo), 'taskParams', '');
+        const taskParams = record?.jobInfo?.taskParams ?? ''
         this.setState({
             isShowTaskParams: true,
             resource: taskParams
@@ -268,23 +260,28 @@ class TaskDetail extends React.Component<any, any> {
     }
 
     initTableColumns () {
-        const { table } = this.state;
         return [
-            {
-                title: '序号',
-                dataIndex: 'id',
-                width: '80px',
-                render (text, record, index) {
-                    return PAGE_SIZE * (table.pageIndex - 1) + (index + 1);
-                }
-            },
             {
                 title: '任务名称',
                 dataIndex: 'jobName',
+                fixed: 'left' as fixedType,
+                width: 280,
                 render (text: any, record: any) {
-                    return record.jobName;
-                },
-                width: '350px'
+                    return record.jobName
+                }
+            },
+            {
+                title: '任务ID',
+                dataIndex: 'jobId',
+                render (text: any, record: any) {
+                    return <span>
+                        {record.jobId}
+                        <CopyIcon
+                            style={{ color: '#999', marginLeft: 4 }}
+                            copyText={record.jobId}
+                        />
+                    </span>
+                }
             },
             {
                 title: '状态',
@@ -305,6 +302,16 @@ class TaskDetail extends React.Component<any, any> {
                 }
             },
             {
+                title: '等待原因',
+                dataIndex: 'waitReason',
+                width: 300,
+                render (text: any, record: any) {
+                    return <Tooltip title={record.waitReason} placement="top">
+                        {utils.textOverflowExchange(record.waitReason ?? '-', 20)}
+                    </Tooltip>
+                }
+            },
+            {
                 title: '提交时间',
                 dataIndex: 'generateTime',
                 render (text: any) {
@@ -318,6 +325,8 @@ class TaskDetail extends React.Component<any, any> {
             {
                 title: '操作',
                 dataIndex: 'deal',
+                fixed: 'right' as fixedType,
+                width: 250,
                 render: (text: any, record: any, index: any) => {
                     const isSaved = record.stage === JobStage.Saved;
                     const isQueueing = record.stage === JobStage.Queueing;
@@ -342,28 +351,17 @@ class TaskDetail extends React.Component<any, any> {
         ]
     }
 
-    tableFooter = (currentPageData: any) => {
-        const { selectedRowKeys, dataSource } = this.state;
-        const indeterminate = !!selectedRowKeys.length && (selectedRowKeys.length < dataSource.length);
-        const checked = !!dataSource.length && (selectedRowKeys.length === dataSource.length);
+    tableFooter = () => {
+        const { table, selectedRowKeys } = this.state;
         const menu = (
             <Menu onClick={this.handleKillAll}>
                 <Menu.Item key="1" style={{ width: 118 }}>杀死全部任务</Menu.Item>
             </Menu>
         )
         return (
-            <Row className="table-footer">
-                <Col>
-                    <Checkbox
-                        style={{ padding: '0 16px 0 0' }}
-                        indeterminate={indeterminate}
-                        checked={checked}
-                        onChange={this.onCheckAllChange}
-                    >
-                        全选
-                    </Checkbox>
+            <Row style={{ width: '100%' }}>
+                <Col span={12}>
                     <Dropdown.Button
-                        style={{ padding: '0 16px 0 20px' }}
                         size="small"
                         trigger={['click']}
                         onClick={this.handleKillSelect}
@@ -371,13 +369,27 @@ class TaskDetail extends React.Component<any, any> {
                         overlay={menu}>
                         杀死选中任务
                     </Dropdown.Button>
+                    <span style={{ marginLeft: 8, color: '#666' }}>已选中<a>{selectedRowKeys.length}</a>条</span>
+                </Col>
+                <Col span={12}>
+                    <Pagination
+                        current={table.pageIndex}
+                        pageSize={PAGE_SIZE}
+                        size='small'
+                        total={table.total}
+                        style={{ right: 0 }}
+                        onChange={this.onPageChange}
+                        showTotal={(total) => <span>
+                            共<span style={{ color: '#3F87FF' }}>{total}</span>条数据，每页显示{PAGE_SIZE}条
+                        </span>}
+                    />
                 </Col>
             </Row>
         )
     }
 
     render () {
-        const columns = this.initTableColumns();
+        const className = 'c-taskDetail__container'
         const {
             killResource, resource, node, isKillAllTasks, isShowTaskParams,
             dataSource, table, selectedRowKeys, killTaskInfo, radioValue,
@@ -402,45 +414,50 @@ class TaskDetail extends React.Component<any, any> {
             selectedRowKeys: selectedRowKeys
         };
 
-        const cardTitle = <div style={{ fontSize: '12px', color: '#333333', fontWeight: 'normal' }}>
-            <span>总任务数：{ table.total || 0 }</span>
-            <HeaderColTxt>集群：{ clusterName }</HeaderColTxt>
-            <HeaderColTxt>节点：{ node || '-' }</HeaderColTxt>
-            <HeaderColTxt>计算类型：{ jobResource }</HeaderColTxt>
-            <span className="right pointer" onClick={this.getDetailTaskList}><Icon type="sync" /></span>
-        </div>;
-
         const totalModel = isKillAllTasks ? (radioValue === 1 ? 0 : 1) : undefined;
 
         return (
-            <div>
-                <div style={{ margin: 20 }}><GoBack size="default" type="textButton" style={{ fontSize: '16px', color: '#333333', top: 0, letterSpacing: 0 }}> 返回</GoBack></div>
-                <div className="box-2 m-card">
-                    <Card title={cardTitle}>
-                        <div style={{ margin: '16px 20px' }}>
-                            <RadioGroup onChange={this.changeRadioValue.bind(this)} value={this.state.radioValue}>
-                                {
-                                    Object.getOwnPropertyNames(JobStageText).map(statusValue =>
-                                        <RadioButton key={statusValue} value={statusValue}>{JobStageText[statusValue]}</RadioButton>
-                                    )
-                                }
-                            </RadioGroup>
-                        </div>
-                        <Table
-                            rowKey={(record: any) => {
-                                return `${record.jobId}`
-                            }}
-                            loading={loading}
-                            className="dt-table-border"
-                            pagination={this.getPagination()}
-                            rowSelection={rowSelection}
-                            dataSource={dataSource}
-                            columns={columns}
-                            onChange={this.onTableChange}
-                            footer={this.tableFooter}
-                        />
-                    </Card>
+            <div className={`${className}`}>
+                <div className={`${className}__title`}>
+                    <Breadcrumb>
+                        <Breadcrumb.Item>
+                            <a onClick={() => { this.props.router.push('/console/queueManage') }}>队列管理</a>
+                        </Breadcrumb.Item>
+                        <Breadcrumb.Item>{jobResource}</Breadcrumb.Item>
+                    </Breadcrumb>
+                    <span>集群：{clusterName}</span>
                 </div>
+                <div className={`${className}__radioWrap`}>
+                    <RadioGroup onChange={this.changeRadioValue.bind(this)} value={this.state.radioValue}>
+                        {
+                            Object.getOwnPropertyNames(JobStageText).map(statusValue =>
+                                <RadioButton key={statusValue} value={statusValue}>{JobStageText[statusValue]}</RadioButton>
+                            )
+                        }
+                    </RadioGroup>
+                    <Tooltip title="刷新数据">
+                        <div className={`${className}__radioWrap__refresh`}>
+                            <Icon type="sync"
+                                onClick={this.getDetailTaskList}
+                                style={{ cursor: 'pointer', color: '#94A8C6' }}
+                            />
+                        </div>
+                    </Tooltip>
+                </div>
+                <Table
+                    rowKey={(record: any) => {
+                        return `${record.jobId}`
+                    }}
+                    loading={loading}
+                    className='dt-table-fixed-contain-footer dt-table-border'
+                    scroll={{ y: true, x: 1800 }}
+                    style={{ height: 'calc(100vh - 190px)' }}
+                    rowSelection={rowSelection}
+                    dataSource={dataSource}
+                    columns={this.initTableColumns()}
+                    pagination={false}
+                    footer={this.tableFooter}
+                />
                 <ViewDetail
                     visible={isShowViewDetail}
                     onCancel={this.handleCloseViewModal.bind(this)}
