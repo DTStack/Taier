@@ -190,12 +190,18 @@ public class AlertController {
         R send = null;
         try {
             send = alterSender.sendSyncAlter(alertParam,eventMonitors);
-            if (send.isSuccess()) {
-                return;
-            }
         } catch (Exception e) {
             throw new RdosDefineException(e.getMessage());
         }
+
+        if (send == null) {
+            throw new RdosDefineException("未知错误");
+        }
+
+        if (!send.isSuccess()) {
+            throw new RdosDefineException(send.getMessage());
+        }
+
     }
 
     private AlterContext buildTestAlterContext(AlertGateTestVO alertGateTestVO) {
