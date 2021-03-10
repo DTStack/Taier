@@ -1,6 +1,5 @@
 package com.dtstack.engine.dtscript.util;
 
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +29,8 @@ public class GZipUtil {
             gzip = new GZIPOutputStream(bos);
             gzip.write(data);
         } catch (IOException e) {
-            LOG.error("GZipUtil.compress error:", e);
+            LOG.error(e.getMessage(), e.getStackTrace());
+            throw new RuntimeException(e);
         } finally {
             if (null != bos) {
                 try {
@@ -60,7 +60,8 @@ public class GZipUtil {
             gis = new GZIPInputStream(bis);
             backData = IOUtils.toByteArray(gis);
         } catch (IOException e) {
-            LOG.error("GZipUtil.deCompress error:", e);
+            LOG.error(e.getMessage(), e.getStackTrace());
+            throw new RuntimeException(e);
         } finally {
             if (null != bis) {
                 try {

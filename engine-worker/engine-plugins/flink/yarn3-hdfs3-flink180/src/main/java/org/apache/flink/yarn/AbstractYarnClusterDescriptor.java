@@ -20,7 +20,6 @@ package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
 import com.dtstack.engine.base.util.HadoopConfTool;
-import com.dtstack.engine.common.http.PoolHttpClient;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
@@ -89,6 +88,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -556,7 +556,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
     }
 
     private JobGraph getJobGraph(String appId,ClusterSpecification clusterSpecification) throws Exception{
-        String url = getMonitorUrl(clusterSpecification.getYarnConfiguration(),appId);
+        String url = getUrlFormat(clusterSpecification.getYarnConfiguration()) + "/" + appId;
         LOG.info("AppId is {}, MonitorUrl is {}", appId, url);
         PackagedProgram program = buildProgram(url,clusterSpecification);
         clusterSpecification.setProgram(program);
@@ -626,43 +626,59 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         return program;
     }
 
-    private String getMonitorUrl(YarnConfiguration yarnConf, String appId) {
-        String url = null;
-        // ha key
-        String rmHAIdsKey = "yarn.resourcemanager.ha.rm-ids";
-        // not ha key
-        String rmIdKey = "yarn.resourcemanager.webapp.address";
+    private String getUrlFormat(YarnConfiguration yarnConf){
+        try{
+            Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
+            rmClientField.setAccessible(true);
+            Object rmClient = rmClientField.get(yarnClient);
 
-        String rmValue;
-        String rms = yarnConf.get(rmHAIdsKey);
+            Field hField = rmClient.getClass().getSuperclass().getDeclaredField("h");
+            hField.setAccessible(true);
+            Object h = hField.get(rmClient);
 
-        // ha mode
-        if (rms != null) {
-            for (String rm : Arrays.asList(rms.split(","))) {
-                rmValue = yarnConf.get(String.format("%s.%s",rmIdKey, rm));
+            Field proxyDescriptorField = h.getClass().getDeclaredField("proxyDescriptor");
+            proxyDescriptorField.setAccessible(true);
+            Object proxyDescriptor = proxyDescriptorField.get(h);
 
-                if (rmValue == null) {
-                    continue;
-                }
-                String requestUrl = String.format("http://%s", rmValue);
-                try {
-                    PoolHttpClient.get(requestUrl, null, 1);
+            Field fppField = proxyDescriptor.getClass().getDeclaredField("fpp");
+            fppField.setAccessible(true);
+            Object fpp = fppField.get(proxyDescriptor);
 
-                } catch (Exception e) {
-                    LOG.warn(String.format("RequestUrl [%s] can not be accessed.", requestUrl), e);
-                    continue;
-                }
-                url = String.format("%s/proxy/%s",requestUrl, appId);
-                break;
+            String rmId = null;
+            try {
+                Field proxiesField = fpp.getClass().getDeclaredField("proxies");
+                proxiesField.setAccessible(true);
+                HashMap successfulProxy = (HashMap)proxiesField.get(fpp);
+
+                Map.Entry<String,String> entry = (Map.Entry<String, String>) successfulProxy.entrySet().iterator().next();
+                rmId = entry.getKey();
+            } catch (Exception e){
+                LOG.error("get proxyDescriptor error: {}", e);
+                Field proxyInfoField = proxyDescriptor.getClass().getDeclaredField("proxyInfo");
+                proxyInfoField.setAccessible(true);
+                Object proxyInfo = proxyInfoField.get(proxyDescriptor);
+
+                Field infoField = proxyInfo.getClass().getDeclaredField("proxyInfo");
+                infoField.setAccessible(true);
+                rmId = (String) infoField.get(proxyInfo);
             }
-        }
 
-        // standalone
-        if(url == null) {
-            rmValue = yarnConf.get(rmIdKey);
-            url = String.format("http://%s/proxy/%s", rmValue, appId);
+            String key = "yarn.resourcemanager.webapp.address." + rmId;
+            String addr = yarnConf.get(key);
+
+            if(addr == null) {
+                addr = yarnConf.get("yarn.resourcemanager.webapp.address");
+            }
+
+            return String.format("http://%s/proxy",addr);
+        }catch (Exception e){
+            LOG.error("get proxyInfo error: {}", e);
+            String  addr = yarnConf.get("yarn.resourcemanager.webapp.address");
+//            if (addr == null) {
+//                throw new YarnDeploymentException("Couldn't get rm web app address.Please check rm web address whether be confituration.");
+//            }
+            return String.format("http://%s/proxy",addr);
         }
-        return url;
     }
 
     private void fillJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {

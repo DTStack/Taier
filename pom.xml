@@ -10,6 +10,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <zookeeper.version>3.4.6</zookeeper.version>
+        <hadoop.version>2.7.3</hadoop.version>
         <hadoop2.version>2.7.3</hadoop2.version>
         <hadoop3.version>3.0.0</hadoop3.version>
         <spring.version>5.2.3.RELEASE</spring.version>
@@ -29,7 +30,6 @@
         <module>engine-master</module>
         <module>engine-worker</module>
         <module>engine-entrance</module>
-        <module>lineage-data-collect</module>
     </modules>
 
     <dependencyManagement>
@@ -46,6 +46,18 @@
                 <groupId>org.mybatis.spring.boot</groupId>
                 <artifactId>mybatis-spring-boot-starter</artifactId>
                 <version>2.1.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-common</artifactId>
+                <version>${hadoop.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.junit.jupiter</groupId>

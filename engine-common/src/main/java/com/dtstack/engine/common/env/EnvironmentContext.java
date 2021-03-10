@@ -354,6 +354,10 @@ public class EnvironmentContext {
         return environment.getProperty("local.kerberos.dir", System.getProperty("user.dir") + "/kerberosUploadTempDir");
     }
 
+    public String getConfigPath() {
+        return environment.getProperty("config.dir", System.getProperty("user.dir") + "/conf/");
+    }
+
     public String getKerberosTemplatepath() {
         return environment.getProperty("kerberos.template.path", System.getProperty("user.dir") + "/conf/kerberos");
     }
@@ -529,5 +533,14 @@ public class EnvironmentContext {
      */
     public boolean openJobSchedule() {
         return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
+    }
+
+    /**
+     * 是否根据版本加载默认的配置
+     *
+     * @return
+     */
+    public boolean isCanAddExtraConfig() {
+        return Boolean.parseBoolean(environment.getProperty("console.extra.config", "true"));
     }
 }

@@ -27,7 +27,6 @@ public class ConfigConstrant {
 
     public static final String LOG_LEVEL_KEY = "logLevel";
     public static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
-    public static final String JVM_OPTIONS = "-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing";
 
     public static final  String AKKA_ASK_TIMEOUT = "50 s";
     public static final  String AKKA_CLIENT_TIMEOUT = "300 s";

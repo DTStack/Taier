@@ -39,6 +39,7 @@ public interface TestCommonDao {
             "delete from alert_record;"+
             "delete from alert_content;"+
             "delete from alert_channel;"+
+            "delete from console_component_config;" +
             "delete from console_tenant_resource;")
     void truncate();
 }
