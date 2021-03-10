@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Queue;
@@ -18,6 +17,7 @@ import com.dtstack.engine.api.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.api.vo.components.ComponentsResultVO;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EFrontType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.MultiEngineType;
@@ -529,22 +529,7 @@ public class ComponentService {
             addComponent.setKerberosFileName(kerberosFileName);
         }
 
-        String md5Key = "";
-        //将componentTemplate的值放入componentConfig
-        boolean removeSelfParams = EComponentType.HDFS.getTypeCode().equals(addComponent.getComponentTypeCode())
-                || EComponentType.YARN.getTypeCode().equals(addComponent.getComponentTypeCode());
-        if(componentTemplate!=null && removeSelfParams){
-            JSONObject componentConfigJbj = JSONObject.parseObject(componentConfig);
-            JSONArray jsonArray = JSONObject.parseArray(componentTemplate);
-            for (Object o : jsonArray.toArray()) {
-                String key = ((JSONObject) o).getString("key");
-                String value = ((JSONObject) o).getString("value");
-                componentConfigJbj.put(key,value);
-            }
-            componentConfig = JSON.toJSONString(componentConfigJbj);
-        }
-
-        md5Key = updateResource(clusterId, componentConfig, resources, kerberosFileName, componentCode, principals, principal, addComponent, dbComponent, md5Key);
+        String md5Key = updateResource(clusterId, componentConfig, resources, kerberosFileName, componentCode, principals, principal, addComponent, dbComponent);
         addComponent.setClusterId(clusterId);
         if (isUpdate) {
             componentDao.update(addComponent);
@@ -567,6 +552,31 @@ public class ComponentService {
     }
 
     /**
+     * 处理hdfs 和yarn的自定义参数
+     *
+     * @param componentType
+     * @param componentTemplate
+     * @return
+     */
+    private List<ClientTemplate> dealXmlCustomControl(EComponentType componentType, String componentTemplate) {
+        List<ClientTemplate> extraClient = new ArrayList<>(0);
+        if (StringUtils.isBlank(componentTemplate)) {
+            return extraClient;
+        }
+        if (EComponentType.HDFS.getTypeCode().equals(componentType.getTypeCode()) || EComponentType.YARN.getTypeCode().equals(componentType.getTypeCode())) {
+            JSONArray keyValues = JSONObject.parseArray(componentTemplate);
+            for (int i = 0; i < keyValues.size(); i++) {
+                ClientTemplate clientTemplate = ComponentConfigUtils.buildCustom(
+                        keyValues.getJSONObject(i).getString("key"),
+                        keyValues.getJSONObject(i).getString("value"),
+                        EFrontType.CUSTOM_CONTROL.name());
+                extraClient.add(clientTemplate);
+            }
+        }
+        return extraClient;
+    }
+
+    /**
      *
      * @param hadoopVersion
      * @return
@@ -579,8 +589,9 @@ public class ComponentService {
         return hadoopVersion;
     }
 
-    private String updateResource(Long clusterId, String componentConfig, List<Resource> resources, String kerberosFileName, Integer componentCode, String principals, String principal, Component addComponent, Component dbComponent, String md5Key) {
+    private String updateResource(Long clusterId, String componentConfig, List<Resource> resources, String kerberosFileName, Integer componentCode, String principals, String principal, Component addComponent, Component dbComponent) {
         //上传资源依赖sftp组件
+        String md5Key = "";
         if (CollectionUtils.isNotEmpty(resources)) {
             String sftpConfigStr = getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, String.class);
             // 上传配置文件到sftp 供后续下载
@@ -867,6 +878,8 @@ public class ComponentService {
             //yarn 和hdfs 需要存入原来的hadoopVersion 如 CDH 5.1.x
             templates.add(ComponentConfigUtils.buildOthers(HADOOP_VERSION,hadoopVersion));
             templates.addAll(xmlTemplates);
+            //yarn 和hdfs的自定义参数
+            templates.addAll(dealXmlCustomControl(componentType,clientTemplates));
         } else {
             List<ClientTemplate> controlTemplate = JSONObject.parseArray(clientTemplates, ClientTemplate.class);
             templates.addAll(controlTemplate);

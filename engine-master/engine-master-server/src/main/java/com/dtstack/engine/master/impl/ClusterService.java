@@ -878,12 +878,12 @@ public class ClusterService implements InitializingBean {
         if (CollectionUtils.isNotEmpty(componentConfigs)) {
             scheduleType = componentConfigs.stream().collect(Collectors.groupingBy(c -> EComponentType.getScheduleTypeByComponent(c.getComponentTypeCode())));
         }
-        List<SchedulingVo> schedulingVos = convertComponentToScheduling(removeTypeName, kerberosConfigs, scheduleType);
+        List<SchedulingVo> schedulingVos = convertComponentToScheduling(kerberosConfigs, scheduleType);
         clusterVO.setScheduling(schedulingVos);
         return clusterVO;
     }
 
-    private List<SchedulingVo> convertComponentToScheduling(Boolean removeTypeName, List<KerberosConfig> kerberosConfigs, Map<EComponentScheduleType, List<ComponentVO>> scheduleType) {
+    private List<SchedulingVo> convertComponentToScheduling(List<KerberosConfig> kerberosConfigs, Map<EComponentScheduleType, List<ComponentVO>> scheduleType) {
         List<SchedulingVo> schedulingVos = new ArrayList<>();
         //为空也返回
         for (EComponentScheduleType value : EComponentScheduleType.values()) {
@@ -892,13 +892,6 @@ public class ClusterService implements InitializingBean {
             schedulingVo.setSchedulingName(value.getName());
             schedulingVo.setComponents(scheduleType.getOrDefault(value,new ArrayList<>(0)));
             List<ComponentVO> componentVOS = scheduleType.get(value);
-            /*for (Component component : componentsSchedule) {
-                // hdfs yarn 才将自定义参数移除 过滤返回给前端
-                boolean removeSelfParams = EComponentType.HDFS.getTypeCode().equals(component.getComponentTypeCode())
-                        || EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode());
-                ComponentVO componentVO = ComponentVO.toVO(component,null == removeTypeName || removeTypeName,removeSelfParams);
-                componentVOS.add(componentVO);
-            }*/
             if(CollectionUtils.isNotEmpty(componentVOS) && CollectionUtils.isNotEmpty(kerberosConfigs)){
                 for (ComponentVO componentVO : componentVOS) {
                     for (KerberosConfig config : kerberosConfigs) {

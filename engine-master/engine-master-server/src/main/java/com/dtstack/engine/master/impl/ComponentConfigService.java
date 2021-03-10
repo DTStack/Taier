@@ -160,9 +160,20 @@ public class ComponentConfigService {
         for (Component component : components) {
             ComponentVO componentVO = ComponentVO.toVO(component);
             List<ComponentConfig> configs = componentIdConfigs.get(component.getId());
-            componentVO.setComponentTemplate(JSONObject.toJSONString(ComponentConfigUtils.buildDBDataToClientTemplate(configs)));
-            componentVO.setComponentConfig(JSONObject.toJSONString(ComponentConfigUtils.convertComponentConfigToMap(configs)));
-            if (isConvertHadoopVersion && EComponentType.hadoopVersionComponents.contains(EComponentType.getByCode(component.getComponentTypeCode()))) {
+            // hdfs yarn 才将自定义参数移除 过滤返回给前端
+            boolean isHadoopControl = EComponentType.hadoopVersionComponents.contains(EComponentType.getByCode(component.getComponentTypeCode()));
+            if (isHadoopControl) {
+                Map<String, List<ComponentConfig>> configTypeMapping = configs.stream().collect(Collectors.groupingBy(ComponentConfig::getType));
+                //hdfs yarn 4.1 template只有自定义参数
+                componentVO.setComponentTemplate(JSONObject.toJSONString(ComponentConfigUtils.buildDBDataToClientTemplate(configTypeMapping.get(EFrontType.CUSTOM_CONTROL.name()))));
+                //hdfs yarn 4.1 config为xml配置参数
+                componentVO.setComponentConfig(JSONObject.toJSONString(ComponentConfigUtils.convertComponentConfigToMap(configTypeMapping.get(EFrontType.XML.name()))));
+            } else {
+                componentVO.setComponentTemplate(JSONObject.toJSONString(ComponentConfigUtils.buildDBDataToClientTemplate(configs)));
+                componentVO.setComponentConfig(JSONObject.toJSONString(ComponentConfigUtils.convertComponentConfigToMap(configs)));
+            }
+
+            if (isConvertHadoopVersion && isHadoopControl) {
                 //设置hadoopVersion 的key 如cdh 5.1.x
                 ComponentConfig componentConfig = componentConfigDao.listByKey(component.getId(), ConfigConstant.HADOOP_VERSION);
                 if (null != componentConfig) {
