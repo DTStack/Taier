@@ -9,7 +9,6 @@ import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.common.util.ComponentConfigUtils;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.dao.ComponentConfigDao;
-import com.dtstack.engine.dao.TestConsoleComponentTemplateDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.enums.EComponentType;
 import org.apache.commons.collections.MapUtils;
@@ -21,8 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -48,9 +45,6 @@ public class TemplateTest extends AbstractTest {
 
     @Autowired
     private ComponentConfigService componentConfigService;
-
-    @Autowired
-    private TestConsoleComponentTemplateDao testConsoleComponentTemplateDao;
 
     @SpyBean
     private ComponentService componentService;
@@ -102,209 +96,6 @@ public class TemplateTest extends AbstractTest {
         Assert.assertNotNull(clientTemplates);
         Map<String, Object> configToMap = componentConfigService.convertComponentConfigToMap(testSftp, true);
         Assert.assertTrue(MapUtils.isNotEmpty(configToMap));
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    public void loadDBTemplate() {
-        testConsoleComponentTemplateDao.insert(typeName, "deploymode:\n" +
-                "  controls: checkbox\n" +
-                "  value: [perjob,session]\n" +
-                "  values:\n" +
-                "    perjob:\n" +
-                "      dependencyKey: deploymode\n" +
-                "      dependencyValue: perjob\n" +
-                "      controls: group\n" +
-                "      required:\n" +
-                "        flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink110_lib\n" +
-                "        jobmanager.archive.fs.dir: hdfs://ns1/dtInsight/flink110/completed-jobs\n" +
-                "        flinkPluginRoot: /data/insight_plugin/flinkplugin\n" +
-                "        remotePluginRootDir: /data/insight_plugin/flinkplugin\n" +
-                "\n" +
-                "        high-availability.cluster-id: /default\n" +
-                "        high-availability.zookeeper.path.root: /flink110\n" +
-                "        high-availability.zookeeper.quorum:\n" +
-                "        high-availability.storageDir: hdfs://ns1/flink110/ha\n" +
-                "\n" +
-                "        historyserver.web.address:\n" +
-                "        historyserver.web.port: 8082\n" +
-                "\n" +
-                "        state.checkpoints.dir: hdfs://ns1/dtInsight/flink110/checkpoints\n" +
-                "        state.checkpoints.num-retained: 11\n" +
-                "\n" +
-                "        akka.ask.timeout: 60 s\n" +
-                "        metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter\n" +
-                "        metrics.reporter.promgateway.host:\n" +
-                "        metrics.reporter.promgateway.port: 9091\n" +
-                "        metrics.reporter.promgateway.jobName: 110job\n" +
-                "        metrics.reporter.promgateway.randomJobNameSuffix:\n" +
-                "          controls: select\n" +
-                "          values: [true,false]\n" +
-                "        metrics.reporter.promgateway.deleteOnShutdown:\n" +
-                "          controls: select\n" +
-                "          values: [true,false]\n" +
-                "        clusterMode: perjob\n" +
-                "\n" +
-                "      optional:\n" +
-                "        jarTmpDir: ./tmp110\n" +
-                "        queue: default\n" +
-                "        pluginLoadMode: shipfile\n" +
-                "        submitTimeout: 5\n" +
-                "        yarnAccepterTaskNumber: 3\n" +
-                "        flinkInterval: 5 SECONDS\n" +
-                "        classloader.resolve-order: child-first\n" +
-                "        classloader.dtstack-cache: true\n" +
-                "\n" +
-                "        state.backend: RocksDB\n" +
-                "        state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints\n" +
-                "        state.backend.incremental: true\n" +
-                "\n" +
-                "        prometheusHost:\n" +
-                "        prometheusPort: 9090\n" +
-                "\n" +
-                "        yarn.taskmanager.heap.mb: 1024\n" +
-                "        yarn.jobmanager.heap.mb: 1024\n" +
-                "        yarn.taskmanager.numberOfTaskManager: 2\n" +
-                "        yarn.taskmanager.numberOfTaskSlots: 2\n" +
-                "\n" +
-                "        flink.env.java.opts: -XX:MaxMetaspaceSize=500m\n" +
-                "        prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter\n" +
-                "        gatewayJobName: pushgateway\n" +
-                "        yarn.application-attempts: 0\n" +
-                "        yarn.application-attempt-failures-validity-interval: 3600000\n" +
-                "        high-availability: ZOOKEEPER\n" +
-                "\n" +
-                "        monitorAcceptedApp: false\n" +
-                "\n" +
-                "    session:\n" +
-                "      dependencyKey: deploymode\n" +
-                "      dependencyValue: session\n" +
-                "      controls: group\n" +
-                "      required:\n" +
-                "        flinkSessionSlotCount: 10\n" +
-                "        flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink110_lib\n" +
-                "        jobmanager.archive.fs.dir: hdfs://ns1/dtInsight/flink110/completed-jobs\n" +
-                "        flinkPluginRoot: /data/insight_plugin/flinkplugin\n" +
-                "        remotePluginRootDir: /data/insight_plugin/flinkplugin\n" +
-                "\n" +
-                "        high-availability.cluster-id: /default\n" +
-                "        high-availability.zookeeper.path.root: /flink110\n" +
-                "        high-availability.zookeeper.quorum:\n" +
-                "        high-availability.storageDir: hdfs://ns1/flink110/ha\n" +
-                "\n" +
-                "        historyserver.web.address:\n" +
-                "        historyserver.web.port: 8082\n" +
-                "\n" +
-                "        state.checkpoints.dir: hdfs://ns1/dtInsight/flink110/checkpoints\n" +
-                "        state.checkpoints.num-retained: 11\n" +
-                "\n" +
-                "        metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter\n" +
-                "        metrics.reporter.promgateway.host:\n" +
-                "        metrics.reporter.promgateway.port: 9091\n" +
-                "        metrics.reporter.promgateway.jobName: 110job\n" +
-                "        metrics.reporter.promgateway.randomJobNameSuffix:\n" +
-                "          controls: select\n" +
-                "          values: [true,false]\n" +
-                "        metrics.reporter.promgateway.deleteOnShutdown:\n" +
-                "          controls: select\n" +
-                "          values: [true,false]\n" +
-                "        clusterMode: session\n" +
-                "        sessionStartAuto: false\n" +
-                "        checkSubmitJobGraphInterval: 60\n" +
-                "\n" +
-                "      optional:\n" +
-                "        jarTmpDir: ./tmp180\n" +
-                "        web.timeout: 100000\n" +
-                "        blob.service.cleanup.interval: 900\n" +
-                "        jobstore.expiration-time: 900\n" +
-                "        queue: default\n" +
-                "        pluginLoadMode: shipfile\n" +
-                "        submitTimeout: 5\n" +
-                "        yarnAccepterTaskNumber: 3\n" +
-                "        flinkInterval: 5 SECONDS\n" +
-                "        classloader.resolve-order: parent-first\n" +
-                "        classloader.dtstack-cache: true\n" +
-                "\n" +
-                "        state.backend: RocksDB\n" +
-                "        state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints\n" +
-                "        state.backend.incremental: true\n" +
-                "\n" +
-                "        prometheusHost:\n" +
-                "        prometheusPort: 9090\n" +
-                "\n" +
-                "        yarn.taskmanager.heap.mb: 1024\n" +
-                "        yarn.jobmanager.heap.mb: 1024\n" +
-                "        yarn.taskmanager.numberOfTaskManager: 2\n" +
-                "        yarn.taskmanager.numberOfTaskSlots: 2\n" +
-                "\n" +
-                "        flink.env.java.opts: -XX:MaxMetaspaceSize=500m\n" +
-                "        prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter\n" +
-                "        gatewayJobName: pushgateway\n" +
-                "        yarn.application-attempts: 0\n" +
-                "        yarn.application-attempt-failures-validity-interval: 3600000\n" +
-                "        high-availability: ZOOKEEPER\n" +
-                "\n" +
-                "        monitorAcceptedApp: false\n" +
-                "\n" +
-                "    standalone:\n" +
-                "      dependencyKey: deploymode\n" +
-                "      dependencyValue: standalone\n" +
-                "      controls: group\n" +
-                "      required:\n" +
-                "        flinkJarPath: /opt/dtstack/DTCommon/Engine/flink/flink110_lib\n" +
-                "        jobmanager.archive.fs.dir: hdfs://ns1/dtInsight/flink110/completed-jobs\n" +
-                "        flinkPluginRoot: /data/insight_plugin/flinkplugin\n" +
-                "        remotePluginRootDir: /data/insight_plugin/flinkplugin\n" +
-                "\n" +
-                "        high-availability: zookeeper\n" +
-                "        high-availability.cluster-id: /default\n" +
-                "        high-availability.zookeeper.path.root: /flink110\n" +
-                "        high-availability.zookeeper.quorum:\n" +
-                "        high-availability.storageDir: hdfs://ns1/flink110/ha\n" +
-                "\n" +
-                "        historyserver.web.address:\n" +
-                "        historyserver.web.port: 8082\n" +
-                "\n" +
-                "        state.checkpoints.dir: hdfs://ns1/dtInsight/flink110/checkpoints\n" +
-                "        state.checkpoints.num-retained: 11\n" +
-                "\n" +
-                "        metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter\n" +
-                "        metrics.reporter.promgateway.host:\n" +
-                "        metrics.reporter.promgateway.port: 9091\n" +
-                "        metrics.reporter.promgateway.jobName: 110job\n" +
-                "        metrics.reporter.promgateway.randomJobNameSuffix:\n" +
-                "          controls: select\n" +
-                "          values: [true,false]\n" +
-                "        metrics.reporter.promgateway.deleteOnShutdown:\n" +
-                "          controls: select\n" +
-                "          values: [true,false]\n" +
-                "        clusterMode: standalone\n" +
-                "\n" +
-                "      optional:\n" +
-                "        state.backend: RocksDB\n" +
-                "        state.savepoints.dir: hdfs://ns1/dtInsight/flink110/savepoints\n" +
-                "        state.backend.incremental: true\n" +
-                "\n" +
-                "        yarnAccepterTaskNumber: 3\n" +
-                "        prometheusHost:\n" +
-                "        prometheusPort: 9090\n" +
-                "\n" +
-                "        taskmanager.heap.mb: 1024\n" +
-                "        jobmanager.heap.mb: 1024\n" +
-                "        taskmanager.numberOfTaskManager: 2\n" +
-                "        taskmanager.numberOfTaskSlots: 2\n" +
-                "\n" +
-                "        flink.env.java.opts: -XX:MaxMetaspaceSize=500m\n" +
-                "        prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter\n" +
-                "        gatewayJobName: pushgateway\n");
-        //创建集群
-        Cluster cluster = new Cluster();
-        cluster.setClusterName("testLoadTemplate");
-        cluster.setHadoopVersion("hadoop2");
-        clusterDao.insert(cluster);
-        List<ClientTemplate> clientTemplates = componentService.loadTemplate(EComponentType.FLINK.getTypeCode(), "testLoadTemplate", "");
-        Assert.assertNotNull(clientTemplates);
     }
 
 
