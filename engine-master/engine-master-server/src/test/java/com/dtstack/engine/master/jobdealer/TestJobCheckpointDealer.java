@@ -175,7 +175,7 @@ public class TestJobCheckpointDealer extends AbstractTest {
 
         jobCheckpointDealer.updateJobCheckpoints(jobIdentifier);
 
-        List<EngineJobCheckpoint> engineJobCheckpoints = engineJobCheckpointDao.listFailedByTaskIdAndRangeTime(jobIdentifier.getTaskId(), null, null);
+        List<EngineJobCheckpoint> engineJobCheckpoints = engineJobCheckpointDao.listFailedByTaskIdAndRangeTime(jobIdentifier.getTaskId(), null, null, 5);
         System.out.println(engineJobCheckpoints.get(0));
     }
 

@@ -43,7 +43,7 @@ public class StreamTaskControllerTest extends AbstractTest {
             long time1 = new Date().getTime();
             EngineJobCheckpoint ejc = DataCollection.getData().getFailedEngineJobCheckpoint();
             long time2 = new Date().getTime();
-            List<EngineJobCheckpoint> list = streamTaskController.getFailedCheckPoint(ejc.getTaskId(), time1, time2);
+            List<EngineJobCheckpoint> list = streamTaskController.getFailedCheckPoint(ejc.getTaskId(), time1, time2, 1);
             System.out.println(CollectionUtils.isEmpty(list) ? list : list.get(0));
         } catch (Exception e) {
             fail("GetFailedCheckPoint failed: " + e.getMessage());

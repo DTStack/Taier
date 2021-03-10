@@ -39,12 +39,15 @@
         select
         <include refid="select_content_fragment"/>
         from schedule_engine_job_checkpoint
-        where is_deleted=0 and task_id=#{taskId}
+        where task_id=#{taskId}
         <if test="triggerStart != null and triggerEnd != null">
             and (UNIX_TIMESTAMP(gmt_create)>=#{triggerStart} or #{triggerEnd}>=UNIX_TIMESTAMP(gmt_create))
         </if>
         and checkpoint_savepath is null
-        order by checkpoint_trigger asc
+        order by gmt_create desc
+        <if test = "size != null">
+            limit #{size}
+        </if>
     </select>
 
     <select id="findLatestSavepointByTaskId" resultType="EngineJobCheckpoint">
@@ -89,6 +92,7 @@
         <foreach collection="checkPointList" index="index" item="item" open="(" separator="," close=")">
             #{item.id}
         </foreach>
+        and is_deleted = 0
     </update>
 
     <!-- 断点续传查询最新的checkpointID -->
