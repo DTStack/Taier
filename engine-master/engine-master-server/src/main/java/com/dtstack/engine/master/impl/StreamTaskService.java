@@ -56,8 +56,8 @@ public class StreamTaskService {
     /**
      * 查询 生成失败的 checkPoint
      */
-    public List<EngineJobCheckpoint> getFailedCheckPoint(String taskId, Long triggerStart, Long triggerEnd){
-        List<EngineJobCheckpoint> failedCheckPointList = engineJobCheckpointDao.listFailedByTaskIdAndRangeTime(taskId, triggerStart, triggerEnd);
+    public List<EngineJobCheckpoint> getFailedCheckPoint(String taskId, Long triggerStart, Long triggerEnd, Integer size){
+        List<EngineJobCheckpoint> failedCheckPointList = engineJobCheckpointDao.listFailedByTaskIdAndRangeTime(taskId, triggerStart, triggerEnd, size);
         if(CollectionUtils.isNotEmpty(failedCheckPointList)) {
             engineJobCheckpointDao.updateFailedCheckpoint(failedCheckPointList);
         }

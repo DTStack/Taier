@@ -34,8 +34,8 @@ public class StreamTaskController {
 
     @RequestMapping(value="/getFailedCheckPoint", method = {RequestMethod.POST})
     @ApiOperation(value = "查询生成失败的checkPoint")
-    public List<EngineJobCheckpoint> getFailedCheckPoint(@DtRequestParam("taskId") String taskId, @DtRequestParam("triggerStart") Long triggerStart, @DtRequestParam("triggerEnd") Long triggerEnd) {
-        return streamTaskService.getFailedCheckPoint(taskId, triggerStart, triggerEnd);
+    public List<EngineJobCheckpoint> getFailedCheckPoint(@DtRequestParam("taskId") String taskId, @DtRequestParam("triggerStart") Long triggerStart, @DtRequestParam("triggerEnd") Long triggerEnd, @DtRequestParam("size") Integer size) {
+        return streamTaskService.getFailedCheckPoint(taskId, triggerStart, triggerEnd, size);
     }
 
     @RequestMapping(value="/getSavePoint", method = {RequestMethod.POST})
