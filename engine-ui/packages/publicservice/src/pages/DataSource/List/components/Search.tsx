@@ -1,10 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { API } from "@/services";
-import { Form, Input, Checkbox, Button, Select } from "antd";
+import { Form, Checkbox, Button, Select } from "antd";
 import { useHistory } from "react-router";
+import SearchInput from "components/SearchInput";
+import { FormComponentProps } from "antd/es/form";
+import "../style.less";
+
+interface IProps extends FormComponentProps {
+  onSearch: any; //父组件传递过来的值
+}
+
 const { Option } = Select;
 
-function Search({ form }) {
+function Search(props) {
+  const { form, onSearch } = props;
   const history = useHistory();
 
   const { getFieldDecorator, validateFields } = form;
@@ -23,7 +32,6 @@ function Search({ form }) {
     try {
       let { data, success } = await API.productList();
       if (success) {
-        console.log("productList: ", data);
         setproductList(data);
       }
     } catch (error) {}
@@ -43,24 +51,26 @@ function Search({ form }) {
       }
     });
   };
+
   // 新增数据源
   const addList = () => {
     history.push("/edit-source");
   };
 
-  // 类型改变
-  const handleTypeChange = (currency) => {
-    console.log("currency: ", currency);
-  };
-
   return (
-    <div>
+    <div className="top-search">
       <Form layout="inline" onSubmit={handleSubmit}>
         <Form.Item>
           {getFieldDecorator("search", {
             initialValue: "",
             rules: [{ required: true, message: "Please input your username!" }],
-          })(<Input />)}
+          })(
+            <SearchInput
+              placeholder="数据源名称/描述"
+              onSearch={(value) => onSearch({search:value})}
+              width={208}
+            ></SearchInput>
+          )}
         </Form.Item>
         <Form.Item label="类型">
           {getFieldDecorator("dsType", {
@@ -73,7 +83,7 @@ function Search({ form }) {
               showSearch
               optionFilterProp="children"
               style={{ width: 140 }}
-              onChange={handleTypeChange}
+              onChange={(value) => onSearch({dataType:value})}
             >
               {typeList.length > 0 &&
                 typeList.map((item) => {
@@ -89,7 +99,7 @@ function Search({ form }) {
           })(
             <Select
               style={{ width: 140 }}
-              onChange={handleTypeChange}
+              onChange={(value) => onSearch({productCode:value})}
               allowClear
               showSearch
               optionFilterProp="children"
@@ -97,7 +107,7 @@ function Search({ form }) {
               {productList.length > 0 &&
                 productList.map((item) => {
                   return (
-                    <Option value={item.productCode}>{item.productCode}</Option>
+                    <Option value={item.productCode} key={item.productCode}>{item.productName}</Option>
                   );
                 })}
             </Select>
@@ -106,7 +116,7 @@ function Search({ form }) {
         <Form.Item>
           {getFieldDecorator("isMeta", {
             valuePropName: "checked",
-          })(<Checkbox>显示默认数据库</Checkbox>)}
+          })(<Checkbox onChange={(e)=>onSearch({"isMeta":e.target.checked?1:0})}>显示默认数据库</Checkbox>)}
         </Form.Item>
 
         {/* <Form.Item>
@@ -122,4 +132,4 @@ function Search({ form }) {
     </div>
   );
 }
-export default Form.create()(Search);
+export default Form.create<IProps>({})(Search);

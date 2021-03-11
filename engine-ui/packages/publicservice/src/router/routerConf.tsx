@@ -21,12 +21,12 @@ const routerConf = [
   //数据源项目路径
   {
     path: '/data-source',
-    layout: Layout,
+    // layout: Layout,
     component: dataSource,
   },
   {
     path: '/edit-source',
-    layout: Layout,
+    // layout: Layout,
     component: editSource,
   },
   {

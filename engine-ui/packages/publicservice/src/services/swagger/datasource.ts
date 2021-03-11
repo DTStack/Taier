@@ -23,4 +23,9 @@ export default {
     method: 'get',
     url: '/publicService/v1/dataSource/product/list',
   },
+  //删除一条数据源实例
+  dataSourceDelete:{
+    method: 'get',
+    url: '/publicService/v1/dataSource/delete',
+  },
 };
