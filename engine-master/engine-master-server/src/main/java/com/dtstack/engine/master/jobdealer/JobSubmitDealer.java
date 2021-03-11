@@ -171,7 +171,7 @@ public class JobSubmitDealer implements Runnable {
                 if (!checkMaxPriority(jobResource)) {
                     logger.info("jobId:{} checkMaxPriority is false, wait other node job which priority higher.", jobClient.getTaskId());
                     queue.put(jobClient);
-                    Thread.sleep(Objects.isNull(jobClient.getRetryIntervalTime()) ? jobLackingInterval : jobClient.getRetryIntervalTime());
+                    Thread.sleep(jobLackingInterval);
                     continue;
                 }
                 //提交任务
@@ -360,7 +360,7 @@ public class JobSubmitDealer implements Runnable {
         } else {
             engineJobCacheDao.updateStage(jobClient.getTaskId(), EJobCacheStage.PRIORITY.getStage(), localAddress, jobClient.getPriority(), null);
             queue.put(jobClient);
-            SleepUtil.sleep(Objects.isNull(jobClient.getRetryIntervalTime()) ? jobLackingInterval : jobClient.getRetryIntervalTime());
+            SleepUtil.sleep(jobLackingInterval);
             logger.info("jobId:{} unlimited_lackingCount:{} add to priorityQueue.", jobClient.getTaskId(), jobClient.getLackingCount());
         }
     }
