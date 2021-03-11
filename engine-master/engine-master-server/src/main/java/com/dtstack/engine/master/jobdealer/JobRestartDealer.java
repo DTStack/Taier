@@ -10,6 +10,7 @@ import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.common.util.SleepUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.bo.EngineJobRetry;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
@@ -69,7 +70,8 @@ public class JobRestartDealer {
             LOG.info("[retry=false] jobId:{} alreadyRetryNum:{} maxRetryNum:{}, alreadyRetryNum >= maxRetryNum.", jobClient.getTaskId(), alreadyRetryNum, jobClient.getMaxRetryNum());
             return false;
         }
-
+        // 重试间隔
+        SleepUtil.sleep(jobClient.getRetryIntervalTime());
         boolean retry = restartJob(jobClient);
         LOG.info("【retry={}】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", retry, jobClient.getTaskId(), alreadyRetryNum);
 
