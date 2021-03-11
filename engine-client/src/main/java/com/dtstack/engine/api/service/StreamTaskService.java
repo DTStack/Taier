@@ -3,6 +3,7 @@ package com.dtstack.engine.api.service;
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pojo.CheckResult;
+import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.api.pojo.ParamTaskAction;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
@@ -73,7 +74,7 @@ public interface StreamTaskService extends DtInsightServer {
      */
     @RequestLine("POST /node/streamTask/grammarCheck")
     @Headers(value={"Content-Type: application/json"})
-    ApiResponse<CheckResult> grammarCheck(ParamTaskAction paramActionExt);
+    ApiResponse<CheckResult> grammarCheck(ParamActionExt paramActionExt);
 
 
 }
