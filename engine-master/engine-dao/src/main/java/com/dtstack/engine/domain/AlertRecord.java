@@ -21,6 +21,7 @@ public class AlertRecord {
     private Integer status;
     private String context;
     private String jobId;
+    private Long readId;
     private Integer alertRecordStatus;
     private Integer alertRecordSendStatus;
     private String failureReason;
@@ -197,5 +198,13 @@ public class AlertRecord {
 
     public void setContext(String context) {
         this.context = context;
+    }
+
+    public Long getReadId() {
+        return readId;
+    }
+
+    public void setReadId(Long readId) {
+        this.readId = readId;
     }
 }

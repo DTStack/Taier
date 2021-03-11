@@ -21,6 +21,7 @@ CREATE TABLE `alert_record` (
   `tenant_id` int(11) NOT NULL DEFAULT '0' COMMENT '租户id',
   `app_type` int(11) NOT NULL DEFAULT '0' COMMENT '应用类型，1：RDOS, 2:数据质量, 3:数据API ,4: 标签工程 ,5:数据地图',
   `user_id` int(11) NOT NULL DEFAULT '0' COMMENT '接收人id',
+  `read_id` int(11) NOT NULL DEFAULT '0' COMMENT '应用记录id',
   `read_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0:未读 1:已读',
   `title` varchar(32) NOT NULL DEFAULT '' COMMENT '标题',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '触发类型',
@@ -87,7 +88,7 @@ INSERT IGNORE INTO `alert_content` (`id`,`tenant_id`,`project_id`,`app_type`,`co
 SELECT * FROM dt_notify_record_content;
 
 -- 迁移记录表
-INSERT IGNORE INTO `alert_record`(`id`,`alert_content_id`,`tenant_id`,`app_type`,`user_id`,`read_status`,`status`,`context`,`alert_record_status`,`alert_record_send_status`,`is_deleted`,`node_address`)
+INSERT IGNORE INTO `alert_record`(`id`,`alert_content_id`,`tenant_id`,`app_type`,`user_id`,`read_status`,`status`,`context`,`alert_record_status`,`alert_record_send_status`,`is_deleted`,`node_address`,`read_id`)
 SELECT
 r.id,
 r.content_id alert_channel_id ,
@@ -100,6 +101,7 @@ CONCAT("{\"content\":\"",(SELECT c.content FROM dt_notify_record_content c WHERE
 3,
 1,
 r.is_deleted,
-""
+"",
+r.notify_record_id
 FROM dt_notify_record_read r
 WHERE r.is_deleted = 0;

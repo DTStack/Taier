@@ -76,7 +76,8 @@ public class AlertRecordService {
         List<AlertRecord> alertRecords = alertRecordMapper.selectQuery(queryAlertRecord);
 
         if (CollectionUtils.isNotEmpty(alertRecords)) {
-            return build(alertRecords.get(0));
+            AlertRecord alertRecord = alertRecords.get(0);
+            return build(alertRecord);
         }
 
         return null;
@@ -84,9 +85,11 @@ public class AlertRecordService {
 
     private NotifyRecordReadDTO build(AlertRecord alertRecord) {
         NotifyRecordReadDTO notifyRecordReadDTO = new NotifyRecordReadDTO();
-        String context = alertRecord.getContext();
-        AlterContext alterContext = JSON.parseObject(context, AlterContext.class);
-        notifyRecordReadDTO.setContent(alterContext!=null?alterContext.getContent():"");
+        Long alertContentId = alertRecord.getAlertContentId();
+        AlertContent contentById = alertContentService.findContentById(alertContentId);
+        notifyRecordReadDTO.setContent(contentById.getContent());
+        notifyRecordReadDTO.setProjectId(contentById.getProjectId());
+        notifyRecordReadDTO.setContentId(alertRecord.getAlertContentId());
         notifyRecordReadDTO.setStatus(alertRecord.getStatus());
         notifyRecordReadDTO.setGmtCreateFormat(DateUtil.getDate(alertRecord.getGmtCreated(),DateUtil.STANDARD_DATETIME_FORMAT));
         notifyRecordReadDTO.setAppType(alertRecord.getAppType());
@@ -96,7 +99,7 @@ public class AlertRecordService {
         notifyRecordReadDTO.setId(alertRecord.getId());
         notifyRecordReadDTO.setGmtCreate(alertRecord.getGmtCreated());
         notifyRecordReadDTO.setGmtModified(alertRecord.getGmtModified());
-        notifyRecordReadDTO.setNotifyRecordId(alertRecord.getId());
+        notifyRecordReadDTO.setNotifyRecordId(alertRecord.getReadId());
         return notifyRecordReadDTO;
     }
 
@@ -285,6 +288,7 @@ public class AlertRecordService {
         alertRecord.setSendEndTime("");
         alertRecord.setSendTime("");
         alertRecord.setContext("");
+        alertRecord.setReadId(alarmSendDTO.getReadId());
         return alertRecord;
     }
 
