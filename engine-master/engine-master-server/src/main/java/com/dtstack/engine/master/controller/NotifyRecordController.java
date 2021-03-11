@@ -144,7 +144,7 @@ public class NotifyRecordController {
         alarmSendDTO.setTenantId(param.getTenantId());
         alarmSendDTO.setUserId(param.getUserId());
         alarmSendDTO.setProjectId(param.getProjectId());
-
+        alarmSendDTO.setReadId(param.getReadId());
         List<Integer> senderTypes = param.getSenderTypes();
 
         List<String> alertGateSources = AlertGateTypeEnum.transformSenderTypes(senderTypes);
