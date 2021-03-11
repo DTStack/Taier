@@ -563,3 +563,6 @@ INSERT INTO schedule_dict (dict_code, dict_name, dict_value, dict_desc, type, so
 -- 修改flink的旧配置项
 update console_component_config set `value` = '-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8'
 ,`key` = 'env.java.opts' where `key` = 'flink.env.java.opts' and console_component_config.component_type_code = 0;
+
+update console_component set hadoop_version = '2.7.6' where hadoop_version = 'hadoop2' or hadoop_version = 'Hadoop2';
+update console_component set hadoop_version = '3.0.0' where hadoop_version = 'hadoop3' or hadoop_version = 'Hadoop3';

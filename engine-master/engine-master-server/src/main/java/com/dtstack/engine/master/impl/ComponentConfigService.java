@@ -167,9 +167,9 @@ public class ComponentConfigService {
                 ComponentConfig componentConfig = componentConfigDao.listByKey(component.getId(), ConfigConstant.HADOOP_VERSION);
                 if (null != componentConfig) {
                     componentVO.setHadoopVersion(componentConfig.getValue());
-                } else {
+                } else if (StringUtils.isNotBlank(component.getHadoopVersion())) {
                     //兼容老数据
-                    String dependName = "hadoop2".equalsIgnoreCase(component.getHadoopVersion()) ? "Hadoop2" : "Hadoop3";
+                    String dependName = "hadoop3".equalsIgnoreCase(component.getHadoopVersion()) || component.getHadoopVersion().startsWith("3") ? "Hadoop3" : "Hadoop2";
                     List<ScheduleDict> hadoopVersion = scheduleDictDao.getByDependName(DictType.HADOOP_VERSION.type, dependName);
                     if (!CollectionUtils.isEmpty(hadoopVersion)) {
                         componentVO.setHadoopVersion(hadoopVersion.get(0).getDictName());
