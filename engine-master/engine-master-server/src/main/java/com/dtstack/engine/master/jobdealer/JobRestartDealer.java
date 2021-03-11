@@ -70,8 +70,7 @@ public class JobRestartDealer {
             LOG.info("[retry=false] jobId:{} alreadyRetryNum:{} maxRetryNum:{}, alreadyRetryNum >= maxRetryNum.", jobClient.getTaskId(), alreadyRetryNum, jobClient.getMaxRetryNum());
             return false;
         }
-        // 重试间隔
-        SleepUtil.sleep(jobClient.getRetryIntervalTime());
+
         boolean retry = restartJob(jobClient);
         LOG.info("【retry={}】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", retry, jobClient.getTaskId(), alreadyRetryNum);
 
