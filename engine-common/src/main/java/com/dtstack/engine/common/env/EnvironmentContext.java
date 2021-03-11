@@ -497,4 +497,8 @@ public class EnvironmentContext {
     public boolean openJobSchedule() {
         return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
     }
+
+    public long getForkJoinResultTimeOut() {
+        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
+    }
 }
