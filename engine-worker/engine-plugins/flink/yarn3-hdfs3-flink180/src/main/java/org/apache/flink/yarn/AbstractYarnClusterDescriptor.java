@@ -20,7 +20,7 @@ package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
 import com.dtstack.engine.base.util.HadoopConfTool;
-import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
@@ -153,8 +153,8 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
     private String customName;
 
-    // dt flink job computeType
-    private ComputeType computeType;
+    /** dt type of flink job*/
+    private EJobType jobType;
 
     private String zookeeperNamespace;
 
@@ -239,18 +239,17 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         this.dynamicPropertiesEncoded = dynamicPropertiesEncoded;
     }
 
-    public ComputeType getComputeType() {
-        return computeType;
+    public EJobType getJobType() {
+        return jobType;
     }
 
     /**
-     * set current flink job's dt computeType eg: STREAM or BATCH
-     * @param computeType
+     * set current flink job's dt jobType eg: SQL、MR、SYNC...
+     * @param jobType
      */
-    public void setComputeType(ComputeType computeType) {
-        this.computeType = computeType;
+    public void setJobType(EJobType jobType) {
+        this.jobType = jobType;
     }
-
     /**
      * Sets the user jar which is included in the system classloader of all nodes.
      */
@@ -690,7 +689,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         }catch (Exception e){
             LOG.error("get proxyInfo error: {}", e);
             String  addr = yarnConf.get("yarn.resourcemanager.webapp.address");
-            if (addr == null && ComputeType.BATCH == computeType) {
+            if (addr == null && EJobType.SYNC == jobType) {
                 throw new YarnDeploymentException("Couldn't get rm web app address. " +
                         "it's required when batch job run on per_job mode. " +
                         "Please check rm web address whether be confituration.");

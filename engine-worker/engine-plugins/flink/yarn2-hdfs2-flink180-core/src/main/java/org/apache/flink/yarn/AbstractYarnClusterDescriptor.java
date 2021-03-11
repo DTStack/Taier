@@ -155,8 +155,8 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
     private boolean detached;
 
-    // dt flink job computeType
-    private ComputeType computeType;
+    /** dt type of flink job*/
+    private EJobType jobType;
 
     private String customName;
 
@@ -257,16 +257,16 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         }
     }
 
-    public ComputeType getComputeType() {
-        return computeType;
+    public EJobType getJobType() {
+        return jobType;
     }
 
     /**
-     * set current flink job's dt computeType eg: STREAM or BATCH
-     * @param computeType
+     * set current flink job's dt jobType eg: SQL、MR、SYNC...
+     * @param jobType
      */
-    public void setComputeType(ComputeType computeType) {
-        this.computeType = computeType;
+    public void setJobType(EJobType jobType) {
+        this.jobType = jobType;
     }
 
     public String getDynamicPropertiesEncoded() {
@@ -689,7 +689,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         }catch (Exception e){
             LOG.error("get proxyDescriptor error: {}", e);
             String  addr = yarnConf.get("yarn.resourcemanager.webapp.address");
-            if (addr == null && ComputeType.BATCH == computeType) {
+            if (addr == null && EJobType.SYNC == jobType) {
                 throw new YarnDeploymentException("Couldn't get rm web app address. " +
                         "it's required when batch job run on per_job mode. " +
                         "Please check rm web address whether be confituration.");

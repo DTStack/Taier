@@ -165,8 +165,8 @@ public class PerJobClientFactory extends AbstractClientFactory {
         clusterDescriptor.setName(jobClient.getJobName());
         clusterDescriptor.setProvidedUserJarFiles(classpaths);
         clusterDescriptor.setQueue(flinkConfig.getQueue());
-        // judge job kind via ComputeType
-        clusterDescriptor.setComputeType(jobClient.getComputeType());
+        // judge job kind via JobType
+        clusterDescriptor.setJobType(jobClient.getJobType());
         return clusterDescriptor;
     }
 
