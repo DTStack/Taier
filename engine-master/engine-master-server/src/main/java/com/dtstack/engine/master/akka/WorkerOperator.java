@@ -1,6 +1,7 @@
 package com.dtstack.engine.master.akka;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobClientCallBack;
 import com.dtstack.engine.common.JobIdentifier;
@@ -319,4 +320,11 @@ public class WorkerOperator {
         }
     }
 
+    public CheckResult grammarCheck(JobClient jobClient) throws Exception {
+        this.buildPluginInfo(jobClient);
+        if (AkkaConfig.isLocalMode()) {
+            return clientOperator.grammarCheck(jobClient);
+        }
+        return (CheckResult) masterServer.sendMessage(new MessageGrammarCheck(jobClient));
+    }
 }

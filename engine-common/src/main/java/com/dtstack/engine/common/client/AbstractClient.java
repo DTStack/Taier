@@ -1,5 +1,6 @@
 package com.dtstack.engine.common.client;
 
+import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.pojo.lineage.Column;
@@ -25,7 +26,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Reason:
@@ -192,6 +192,11 @@ public abstract class AbstractClient implements IClient {
 
     @Override
     public List<Column> getAllColumns(String tableName,String schemaName, String dbName) {
+        return null;
+    }
+
+    @Override
+    public CheckResult grammarCheck(JobClient jobClient){
         return null;
     }
 }

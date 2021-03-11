@@ -2,6 +2,7 @@ package com.dtstack.engine.flink;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.base.filesystem.FilesystemManager;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -38,6 +39,7 @@ import io.fabric8.kubernetes.api.model.ResourceQuotaList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.Charsets;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
@@ -60,6 +62,7 @@ import sun.security.action.GetPropertyAction;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Path;
@@ -79,10 +82,6 @@ import static java.security.AccessController.doPrivileged;
 public class FlinkClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
-
-    private String tmpFileDirPath = "./tmp";
-
-    private static final Path tmpdir = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
 
     private FlinkConfig flinkConfig;
 
@@ -110,9 +109,6 @@ public class FlinkClient extends AbstractClient {
         String propStr = PublicUtil.objToString(prop);
         flinkConfig = PublicUtil.jsonStrToObject(propStr, FlinkConfig.class);
 
-        tmpFileDirPath = flinkConfig.getJarTmpDir();
-        Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
-
         storage = loadStorage();
         storage.init(prop);
 
@@ -125,7 +121,6 @@ public class FlinkClient extends AbstractClient {
 
         syncPluginInfo = SyncPluginInfo.create(flinkConfig);
         sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
-
 
         flinkClusterClientManager = FlinkClusterClientManager.createWithInit(flinkClientBuilder);
     }
@@ -206,7 +201,7 @@ public class FlinkClient extends AbstractClient {
 
         try {
             Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
-            packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, jobClient.getJobType(), entryPointClass, programArgs, spSettings, tmpConfiguration, filesystemManager);
+            packagedProgram = FlinkUtil.buildProgram(jarPath, classPaths, jobClient.getJobType(), entryPointClass, programArgs, spSettings, tmpConfiguration, filesystemManager);
             jobGraph = PackagedProgramUtils.createJobGraph(packagedProgram, tmpConfiguration, runParallelism, false);
 
             fillJobGraphClassPath(jobGraph);
@@ -258,28 +253,8 @@ public class FlinkClient extends AbstractClient {
             logger.info("Job with JobID " + jobExecutionResult.getJobID() + " has finished.");
             return Pair.create(jobExecutionResult.getJobID().toString(), clusterClient.getClusterId().toString());
         } catch (Exception e) {
-            if (!FlinkMode.isPerJob(taskRunMode) && flinkClusterClientManager.getIsClientOn()) {
-                logger.error("submit job error,flink session init ..");
-                // flinkClusterClientManager.setIsClientOn(false);
-            }
-            throw e;
-        } finally {
-            delFilesFromDir(tmpdir, "flink-jobgraph");
-        }
-    }
-
-    private void delFilesFromDir(Path dir, String fileName) {
-        File[] jobGraphFile = dir.toFile().listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.startsWith(fileName);
-            }
-        });
-
-        if (jobGraphFile.length != 0) {
-            for (int i = 0; i < jobGraphFile.length; i++) {
-                jobGraphFile[i].delete();
-            }
+            logger.error("submit job error: ", e);
+            throw new RdosDefineException(e);
         }
     }
 
@@ -593,6 +568,7 @@ public class FlinkClient extends AbstractClient {
         List<String> fileList = Lists.newArrayList();
         List<String> sftpFiles = Lists.newArrayList();
 
+        String taskWorkspace = String.format("%s/%s_%s", ConfigConstrant.TMP_DIR, jobClient.getTaskId(), Thread.currentThread().getId());
         while (sqlItera.hasNext()) {
             String tmpSql = sqlItera.next();
             // handle add jar statements and comment statements on the same line
@@ -602,9 +578,15 @@ public class FlinkClient extends AbstractClient {
                 JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
                 String addFilePath = jarFileInfo.getJarPath();
                 sftpFiles.add(addFilePath);
+
+                String tmpJarDir = taskWorkspace + ConfigConstrant.SP + "jar";
+                if (!new File(tmpJarDir).exists()) {
+                    new File(tmpJarDir).mkdirs();
+                }
+
                 File tmpFile = null;
                 try {
-                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, filesystemManager, false);
+                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpJarDir, filesystemManager, false);
                 } catch (Exception e) {
                     throw new RdosDefineException(e);
                 }
@@ -632,7 +614,7 @@ public class FlinkClient extends AbstractClient {
             confProps.setProperty(ConfigConstrant.KEY_SFTPFILES_PATH, sftpFileStr);
         }
 
-        cacheFile.put(jobClient.getTaskId(), fileList);
+        cacheFile.put(taskWorkspace, fileList);
         jobClient.setSql(String.join(";", sqlList));
         try {
             FlinkConfig flinkConfig = PublicUtil.jsonStrToObject(jobClient.getPluginInfo(), FlinkConfig.class);
@@ -645,24 +627,16 @@ public class FlinkClient extends AbstractClient {
 
     @Override
     public void afterSubmitFunc(JobClient jobClient) {
-        List<String> fileList = cacheFile.get(jobClient.getTaskId());
-        if (CollectionUtils.isEmpty(fileList)) {
-            return;
-        }
-
-        //清理包含下载下来的临时jar文件
-        for (String path : fileList) {
+        String taskWorkspace = String.format("%s/%s_%s", ConfigConstrant.TMP_DIR, jobClient.getTaskId(), Thread.currentThread().getId());
+        cacheFile.remove(taskWorkspace);
+        File localDir = new File(taskWorkspace);
+        if (localDir.exists()){
             try {
-                File file = new File(path);
-                if (file.exists()) {
-                    file.delete();
-                }
-
-            } catch (Exception e1) {
-                logger.error("", e1);
+                FileUtils.deleteDirectory(localDir);
+            } catch (IOException e) {
+                logger.error("Delete dir failed: " + e);
             }
         }
-        cacheFile.remove(jobClient.getTaskId());
     }
 
     @Override
@@ -776,6 +750,65 @@ public class FlinkClient extends AbstractClient {
         }
 
         return taskmanagerLogs;
+    }
+
+    @Override
+    public CheckResult grammarCheck(JobClient jobClient) {
+
+        CheckResult checkResult = new CheckResult();
+        // 0表示失败，1表示成功
+        checkResult.setCode(0);
+        String taskId = jobClient.getTaskId();
+        try {
+            // 1. before download jar
+            beforeSubmitFunc(jobClient);
+
+            // 2. flink sql args
+            String taskWorkspace = String.format("%s/%s_%s", ConfigConstrant.TMP_DIR, jobClient.getTaskId(), Thread.currentThread().getId());
+            List<String> args = sqlPluginInfo.buildExeArgs(jobClient);
+            List<String> attachJarLists = cacheFile.get(taskWorkspace);
+
+            List<URL> attachJarUrls = Lists.newArrayList();
+            if(!CollectionUtils.isEmpty(attachJarLists)){
+                args.add("-addjar");
+                String attachJarStr = PublicUtil.objToString(attachJarLists);
+                args.add(URLEncoder.encode(attachJarStr, Charsets.UTF_8.name()));
+
+                attachJarUrls = attachJarLists.stream().map(k -> {
+                    try {
+                        return new File(k).toURL();
+                    } catch (MalformedURLException e) {
+                        throw new RdosDefineException(e);
+                    }
+                }).collect(Collectors.toList());
+            }
+
+            JarFileInfo coreJarInfo = sqlPluginInfo.createCoreJarInfo();
+            jobClient.setCoreJarInfo(coreJarInfo);
+
+            // 3. build jobGraph
+            String[] programArgs = args.toArray(new String[args.size()]);
+            Configuration flinkConfig = flinkClientBuilder.getFlinkConfiguration();
+            PackagedProgram program = PackagedProgram.newBuilder()
+                    .setJarFile(new File(coreJarInfo.getJarPath()))
+                    .setUserClassPaths(attachJarUrls)
+                    .setConfiguration(flinkConfig)
+                    .setArguments(programArgs)
+                    .build();
+            PackagedProgramUtils.createJobGraph(program, flinkConfig, 1, false);
+
+            checkResult.setCode(1);
+            logger.info("TaskId: {}, GrammarCheck success!", taskId);
+        } catch (Exception e) {
+            logger.error("TaskId: {}, GrammarCheck error: ", taskId, e);
+            checkResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+        } finally {
+            try {
+                afterSubmitFunc(jobClient);
+            } catch (Exception e) {
+            }
+        }
+        return checkResult;
     }
 
 }

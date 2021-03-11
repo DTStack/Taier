@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 /**
- * 
+ *
  *
  * Date: 2017年03月03日 下午1:25:18
  * Company: www.dtstack.com
@@ -21,24 +21,24 @@ public class ParamAction {
     private static final Logger logger = LoggerFactory.getLogger(ParamAction.class);
 
 	private String taskId;
-	
+
 	private String engineTaskId;
 
 	private String applicationId;
-	
+
 	private String name;
-	
+
     private Integer taskType;
 
     private String engineType;
-    
+
     private Integer computeType;
 
 	//实时独有
 	private String externalPath;
 
 	private String sqlText;
-	
+
 	private String taskParams;
 
 	private String exeArgs;
@@ -80,6 +80,16 @@ public class ParamAction {
     private String dbName;
 
     private Integer appType;
+
+	/**
+	 * 重试超时时间
+	 */
+	private long submitExpiredTime;
+
+	/**
+	 * 重试间隔时间
+	 */
+	private Long retryIntervalTime;
 
     public Integer getAppType() {
         return appType;
@@ -305,6 +315,22 @@ public class ParamAction {
 
 	public void setSourceType(Integer sourceType) {
 		this.sourceType = sourceType;
+	}
+
+	public long getSubmitExpiredTime() {
+		return submitExpiredTime;
+	}
+
+	public void setSubmitExpiredTime(long submitExpiredTime) {
+		this.submitExpiredTime = submitExpiredTime;
+	}
+
+	public Long getRetryIntervalTime() {
+		return retryIntervalTime;
+	}
+
+	public void setRetryIntervalTime(Long retryIntervalTime) {
+		this.retryIntervalTime = retryIntervalTime;
 	}
 
 	@Override
