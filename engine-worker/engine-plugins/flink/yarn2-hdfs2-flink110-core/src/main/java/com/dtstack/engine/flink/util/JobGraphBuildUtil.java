@@ -128,7 +128,17 @@ public class JobGraphBuildUtil {
     private static List<String> splitName(String name) {
         String[] name_arr = name.split(SPLIT);
         if (name_arr != null) {
-            return Arrays.asList(name_arr);
+            // 如果operator的name的长度太长，会导致前端暂时JobGraph时卡死
+            List<String> names = Arrays.asList(name_arr).
+                    stream().
+                    map( item -> {
+                        if (item.length() >= 203) {
+                            return String.format("%s...%s",item.substring(0, 100), item.substring(item.length()-100));
+                        } else {
+                            return item;
+                        }
+                    }).collect(Collectors.toList());
+            return names;
         }
         return null;
     }
