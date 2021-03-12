@@ -4,7 +4,6 @@ import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.pojo.JobResult;
@@ -40,8 +39,6 @@ public interface IClient {
 	List<String> getContainerInfos(JobIdentifier jobIdentifier);
 
 	String getCheckpoints(JobIdentifier jobIdentifier);
-
-	List<ClientTemplate> getDefaultPluginConfig(String configType);
 
     ComponentTestResult testConnect(String pluginInfo);
 
