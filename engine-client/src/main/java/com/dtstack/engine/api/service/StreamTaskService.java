@@ -26,7 +26,6 @@ public interface StreamTaskService extends DtInsightServer {
     @RequestLine("POST /node/streamTask/getFailedCheckPoint")
     ApiResponse<List<EngineJobCheckpoint>> getFailedCheckPoint(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd);
 
-
     /**
      * 查询savepoint
      * @param taskId
@@ -34,7 +33,6 @@ public interface StreamTaskService extends DtInsightServer {
      */
     @RequestLine("POST /node/streamTask/getSavePoint")
     ApiResponse<EngineJobCheckpoint> getSavePoint(@Param("taskId") String taskId);
-
 
     @RequestLine("POST /node/streamTask/getByTaskIdAndEngineTaskId")
     ApiResponse<EngineJobCheckpoint> getByTaskIdAndEngineTaskId(@Param("taskId") String taskId, @Param("engineTaskId") String engineTaskId);
