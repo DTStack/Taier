@@ -34,9 +34,11 @@ public class ScheduleJobVO extends TenantProjectEntity {
     private String execStartDate;
     private String execEndDate;
     private Integer taskPeriodId;
+    private Integer taskRule;
     protected String taskPeriodType;
 
     private List<ScheduleJobVO> jobVOS;
+    private List<ScheduleJobVO> taskRuleJobVOS;
     protected ScheduleEngineJob batchEngineJob;
 
     private ScheduleJobVO subNodes;
@@ -313,5 +315,21 @@ public class ScheduleJobVO extends TenantProjectEntity {
 
     public void setTaskType(Integer taskType) {
         this.taskType = taskType;
+    }
+
+    public List<ScheduleJobVO> getTaskRuleJobVOS() {
+        return taskRuleJobVOS;
+    }
+
+    public void setTaskRuleJobVOS(List<ScheduleJobVO> taskRuleJobVOS) {
+        this.taskRuleJobVOS = taskRuleJobVOS;
+    }
+
+    public Integer getTaskRule() {
+        return taskRule;
+    }
+
+    public void setTaskRule(Integer taskRule) {
+        this.taskRule = taskRule;
     }
 }

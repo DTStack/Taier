@@ -222,6 +222,10 @@
             <if test="projectScheduleStatus != null">
                 project_schedule_status = #{projectScheduleStatus},
             </if>
+            <if test="taskRule != null">
+                task_rule = #{taskRule},
+            </if>
+
         </set>
     </sql>
 
@@ -400,10 +404,10 @@
     <insert id="insert" parameterType="ScheduleTaskShade" useGeneratedKeys="false" keyProperty="id">
         INSERT IGNORE INTO schedule_task_shade
         (tenant_id,project_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,
-         schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,app_type,dtuic_tenant_id,task_id,project_schedule_status)
+         schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,app_type,dtuic_tenant_id,task_id,project_schedule_status,task_rule)
         VALUES
         (#{tenantId},#{projectId},#{nodePid},#{name},#{taskType},#{engineType},#{computeType},#{sqlText},#{taskParams},#{scheduleConf},#{periodType},
-         #{scheduleStatus},#{submitStatus},#{gmtCreate},#{gmtModified},#{modifyUserId},#{createUserId},#{ownerUserId},#{versionId},#{isDeleted},#{taskDesc},#{mainClass},#{exeArgs},#{flowId},#{appType},#{dtuicTenantId},#{taskId},#{projectScheduleStatus})
+         #{scheduleStatus},#{submitStatus},#{gmtCreate},#{gmtModified},#{modifyUserId},#{createUserId},#{ownerUserId},#{versionId},#{isDeleted},#{taskDesc},#{mainClass},#{exeArgs},#{flowId},#{appType},#{dtuicTenantId},#{taskId},#{projectScheduleStatus},#{taskRule})
     </insert>
 
     <update id="update" parameterType="ScheduleTaskShade">
@@ -708,6 +712,18 @@
         FROM
         schedule_task_shade
         where id = #{id} and is_deleted = 0
+    </select>
+
+    <select id="findFuzzyTaskNameByCondition" resultType="com.dtstack.engine.api.domain.ScheduleTaskShade">
+        SELECT
+        <include refid="simple_select_content_fragment"/>
+        FROM `schedule_task_shade`
+        WHERE `dtuic_tenant_id` = #{uicTenantId} AND `app_type` = #{appType} AND `project_id` = #{projectId}
+        <if test="name !=null">
+            AND `project_alias` LIKE '${name}%'
+        </if>
+        LIMIT #{fuzzyProjectByProjectAliasLimit}
+
     </select>
 
 

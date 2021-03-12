@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,8 @@ public interface ScheduleJobDao {
     List<Map<String, Object>> listThirtyDayJobs(@Param("statusList") List<Integer> statusList, @Param("type") Integer type, @Param("taskTypes") List<Integer> taskTypes, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId);
 
     List<ScheduleJob> listJobByJobKeys(@Param("jobKeys") Collection<String> jobKeys);
+
+    List<ScheduleJob> listRuleJobByJobKeys(@Param("jobKeys") Collection<String> jobKeys, @Param("ruleCode") Integer ruleCode);
 
     List<ScheduleJob> listIdByTaskIdAndStatus(@Param("taskId") Long taskId, @Param("statuses") List<Integer> status, @Param("appType") Integer appType,@Param("cycTime") String cycTime,@Param("type") Integer type);
 
@@ -108,6 +111,8 @@ public interface ScheduleJobDao {
      * @return
      */
     List<ScheduleJob> getSubJobsAndStatusByFlowId(@Param("jobId") String jobId);
+
+    ScheduleJob getSubJobsAndStatusByFlowIdLimit(@Param("jobId") String jobId);
 
     /**
      * 获取补数据job的各状态的数量
@@ -175,7 +180,7 @@ public interface ScheduleJobDao {
 
     ScheduleJob getByTaskIdAndStatusOrderByIdLimit(@Param("taskId") Long taskId, @Param("status") Integer status, @Param("time") Timestamp time,@Param("appType") Integer appType);
 
-    Integer updateStatusByJobId(@Param("jobId") String jobId, @Param("status") Integer status, @Param("logInfo") String logInfo,@Param("versionId") Integer versionId);
+    Integer updateStatusByJobId(@Param("jobId") String jobId, @Param("status") Integer status, @Param("logInfo") String logInfo, @Param("versionId") Integer versionId, @Param("execStartTime") Date execStartTime,@Param("execEndTime") Date execEndTime);
 
     List<ScheduleJob> listByBusinessDateAndPeriodTypeAndStatusList(PageQuery<ScheduleJobDTO> pageQuery);
 

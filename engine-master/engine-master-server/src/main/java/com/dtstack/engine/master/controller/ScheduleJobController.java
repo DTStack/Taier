@@ -400,4 +400,9 @@ public class ScheduleJobController {
     public String getJobGraphJSON(@DtRequestParam("jobId") String jobId) {
        return scheduleJobService.getJobGraphJSON(jobId);
     }
+
+    @RequestMapping(value="/updateNotRuleResult", method = {RequestMethod.POST})
+    public void updateNotRuleResult(@DtRequestParam("jobId") String jobId,@DtRequestParam("rule") Integer rule) {
+        scheduleJobService.updateNotRuleResult(jobId,rule);
+    }
 }

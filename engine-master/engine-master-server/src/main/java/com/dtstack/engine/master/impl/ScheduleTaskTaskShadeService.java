@@ -2,6 +2,7 @@ package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
+import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.common.enums.DisplayDirect;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -11,6 +12,8 @@ import com.dtstack.engine.dao.ScheduleTaskTaskShadeDao;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -113,16 +116,16 @@ public class ScheduleTaskTaskShadeService {
     /**
      * 展开依赖节点,优化后
      * 0 展开上下游, 1:展开上游 2:展开下游
+     *
      * @author toutian
      */
     private com.dtstack.engine.master.vo.ScheduleTaskVO getOffSpringNew(ScheduleTaskShade taskShade, int level,
-                                                                        Integer directType, Long currentProjectId, Integer appType,List<String> taskIdRelations) {
-
+                                                                        Integer directType, Long currentProjectId, Integer appType, List<String> taskIdRelations) {
         //1、如果是工作流子节点,则展开全部工作流子节点
-        if( !taskShade.getTaskType().equals(EScheduleJobType.WORK_FLOW.getVal()) &&
-                !taskShade.getFlowId().equals(IS_WORK_FLOW_SUBNODE)){
+        if (!taskShade.getTaskType().equals(EScheduleJobType.WORK_FLOW.getVal()) &&
+                !taskShade.getFlowId().equals(IS_WORK_FLOW_SUBNODE)) {
             //若为工作流子节点，则展开工作流全部子节点
-            return getOnlyAllFlowSubTasksNew(taskShade.getFlowId(),appType);
+            return getOnlyAllFlowSubTasksNew(taskShade.getFlowId(), appType);
         }
         com.dtstack.engine.master.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.vo.ScheduleTaskVO(taskShade, true);
         vo.setCurrentProject(currentProjectId.equals(taskShade.getProjectId()));
@@ -142,17 +145,17 @@ public class ScheduleTaskTaskShadeService {
         List<ScheduleTaskTaskShade> taskTasks = null;
         List<ScheduleTaskTaskShade> childTaskTasks = null;
         //展开上游节点
-        if(DisplayDirect.FATHER_CHILD.getType().equals(directType) || DisplayDirect.FATHER.getType().equals(directType)){
-            taskTasks = scheduleTaskTaskShadeDao.listParentTask(taskShade.getTaskId(),taskShade.getAppType());
-            if(checkIsLoop(taskIdRelations, taskTasks)){
+        if (DisplayDirect.FATHER_CHILD.getType().equals(directType) || DisplayDirect.FATHER.getType().equals(directType)) {
+            taskTasks = scheduleTaskTaskShadeDao.listParentTask(taskShade.getTaskId(), taskShade.getAppType());
+            if (checkIsLoop(taskIdRelations, taskTasks)) {
                 //成环了，直接返回
                 return vo;
             }
         }
         //展开下游节点
-        if(DisplayDirect.FATHER_CHILD.getType().equals(directType) || DisplayDirect.CHILD.getType().equals(directType)){
-            childTaskTasks = scheduleTaskTaskShadeDao.listChildTask(taskShade.getTaskId(),taskShade.getAppType());
-            if(checkIsLoop(taskIdRelations, childTaskTasks)){
+        if (DisplayDirect.FATHER_CHILD.getType().equals(directType) || DisplayDirect.CHILD.getType().equals(directType)) {
+            childTaskTasks = scheduleTaskTaskShadeDao.listChildTask(taskShade.getTaskId(), taskShade.getAppType());
+            if (checkIsLoop(taskIdRelations, childTaskTasks)) {
                 //成环了，直接返回
                 return vo;
             }
@@ -162,21 +165,21 @@ public class ScheduleTaskTaskShadeService {
         }
         List<ScheduleTaskVO> parentTaskList = null;
         List<ScheduleTaskVO> childTaskList = null;
-        if(!CollectionUtils.isEmpty(taskTasks)){
+        List<ScheduleTaskVO> taskRuleList = Lists.newArrayList();
+        if (!CollectionUtils.isEmpty(taskTasks)) {
             //向上展开
             Set<Long> taskIds = taskTasks.stream().map(ScheduleTaskTaskShade::getParentTaskId).collect(Collectors.toSet());
-            parentTaskList = getRefTaskNew(taskIds, level, DisplayDirect.FATHER.getType(), currentProjectId,appType,taskIdRelations);
-            if(CollectionUtils.isNotEmpty(parentTaskList) && parentTaskList.get(0)!=null){
+            parentTaskList = getRefTaskNew(taskIds, level, DisplayDirect.FATHER.getType(), currentProjectId, appType, taskIdRelations,taskRuleList);
+            if (CollectionUtils.isNotEmpty(parentTaskList) && parentTaskList.get(0) != null) {
                 vo.setTaskVOS(parentTaskList);
             }
         }
-        if(!CollectionUtils.isEmpty(childTaskTasks)){
+        if (!CollectionUtils.isEmpty(childTaskTasks)) {
             //向下展开
             Set<Long> taskIds = childTaskTasks.stream().map(ScheduleTaskTaskShade::getTaskId).collect(Collectors.toSet());
-            childTaskList = getRefTaskNew(taskIds, level, DisplayDirect.CHILD.getType(), currentProjectId,appType,taskIdRelations);
-            if(CollectionUtils.isNotEmpty(childTaskList) && childTaskList.get(0)!=null){
-
-                    vo.setSubTaskVOS(childTaskList);
+            childTaskList = getRefTaskNew(taskIds, level, DisplayDirect.CHILD.getType(), currentProjectId, appType, taskIdRelations,taskRuleList);
+            if (CollectionUtils.isNotEmpty(childTaskList) && childTaskList.get(0) != null) {
+                vo.setSubTaskVOS(childTaskList);
             }
         }
         return vo;
@@ -245,11 +248,12 @@ public class ScheduleTaskTaskShadeService {
         }
         List<ScheduleTaskVO> parentTaskList = null;
         List<ScheduleTaskVO> childTaskList = null;
+        List<ScheduleTaskVO> ruleTaskList = Lists.newArrayList();
         if(!CollectionUtils.isEmpty(taskTasks)){
             //向上展开
             Set<Long> taskIds = new HashSet<>(taskTasks.size());
             taskTasks.forEach(taskTask -> taskIds.add(taskTask.getParentTaskId()));
-            parentTaskList = getRefTask(taskIds, level, DisplayDirect.FATHER.getType(), currentProjectId,appType);
+            parentTaskList = getRefTask(taskIds, level, DisplayDirect.FATHER.getType(), currentProjectId,appType,ruleTaskList);
             if(parentTaskList != null){
                 vo.setTaskVOS(parentTaskList);
             }
@@ -258,17 +262,24 @@ public class ScheduleTaskTaskShadeService {
             //向下展开
             Set<Long> taskIds = new HashSet<>(childTaskTasks.size());
             childTaskTasks.forEach(taskTask -> taskIds.add(taskTask.getTaskId()));
-            childTaskList = getRefTask(taskIds, level, DisplayDirect.CHILD.getType(), currentProjectId,appType);
+            childTaskList = getRefTask(taskIds, level, DisplayDirect.CHILD.getType(), currentProjectId,appType,ruleTaskList);
             if(childTaskList != null){
                 vo.setSubTaskVOS(childTaskList);
             }
         }
+        if (CollectionUtils.isEmpty(ruleTaskList)) {
+            vo.setTaskRuleList(ruleTaskList);
+        }
+
         return vo;
     }
 
     public List<ScheduleTaskVO> getRefTaskNew(Set<Long> taskIds, int level, Integer directType,
-                                              Long currentProjectId, Integer appType,List<String> taskIdRelations){
+                                              Long currentProjectId, Integer appType,List<String> taskIdRelations,List<ScheduleTaskVO> taskVOList){
 
+        if (CollectionUtils.isEmpty(taskVOList)) {
+            taskVOList = Lists.newArrayList();
+        }
         //获得所有父节点task
         List<ScheduleTaskShade> tasks = taskShadeService.getTaskByIds(new ArrayList<>(taskIds),appType);
         if (CollectionUtils.isEmpty(tasks)) {
@@ -276,12 +287,23 @@ public class ScheduleTaskTaskShadeService {
         }
         List<ScheduleTaskVO> refTaskVoList = new ArrayList<>(tasks.size());
         for (ScheduleTaskShade task : tasks) {
-            refTaskVoList.add(this.getOffSpringNew(task, level, directType, currentProjectId,appType,taskIdRelations));
+            Integer taskRule = task.getTaskRule();
+
+            if (TaskRuleEnum.NO_RULE.getCode().equals(taskRule)) {
+                refTaskVoList.add(this.getOffSpringNew(task, level, directType, currentProjectId,appType,taskIdRelations));
+            } else {
+                // 规则任务
+                taskVOList.add(this.getOffSpringNew(task, level, directType, currentProjectId,appType,taskIdRelations));
+            }
         }
         return refTaskVoList;
     }
 
-    public List<ScheduleTaskVO> getRefTask(Set<Long> taskIds, int level, Integer directType, Long currentProjectId, Integer appType){
+    public List<ScheduleTaskVO> getRefTask(Set<Long> taskIds, int level, Integer directType, Long currentProjectId, Integer appType, List<ScheduleTaskVO> ruleTaskList){
+
+        if (CollectionUtils.isEmpty(ruleTaskList)) {
+            ruleTaskList = Lists.newArrayList();
+        }
 
         //获得所有父节点task
         List<ScheduleTaskShade> tasks = taskShadeService.getTaskByIds(new ArrayList<>(taskIds),appType);
@@ -290,7 +312,13 @@ public class ScheduleTaskTaskShadeService {
         }
         List<ScheduleTaskVO> refTaskVoList = new ArrayList<>(tasks.size());
         for (ScheduleTaskShade task : tasks) {
-            refTaskVoList.add(this.getOffSpring(task, level, directType, currentProjectId,appType));
+            Integer taskRule = task.getTaskRule();
+
+            if (TaskRuleEnum.NO_RULE.getCode().equals(taskRule)) {
+                refTaskVoList.add(this.getOffSpring(task, level, directType, currentProjectId,appType));
+            } else {
+                ruleTaskList.add(this.getOffSpring(task, level, directType, currentProjectId,appType));
+            }
         }
         return refTaskVoList;
     }
