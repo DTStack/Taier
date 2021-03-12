@@ -410,4 +410,9 @@ public class ScheduleJobController {
     public Integer stopJobByCondition(ScheduleJobKillJobVO scheduleJobKillJobVO) {
         return scheduleJobService.stopJobByCondition(scheduleJobKillJobVO);
     }
+
+    @RequestMapping(value="/updateNotRuleResult", method = {RequestMethod.POST})
+    public void updateNotRuleResult(@DtRequestParam("jobId") String jobId,@DtRequestParam("rule") Integer rule) {
+        scheduleJobService.updateNotRuleResult(jobId,rule);
+    }
 }

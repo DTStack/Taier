@@ -34,6 +34,7 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
     private ScheduleTaskVO subNodes;
 
     private List<ScheduleTaskVO> relatedTasks;
+    private List<ScheduleTaskVO> taskRuleList;
 
     private String tenantName;
 
@@ -332,5 +333,13 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
 
     public void setDataSourceId(Long dataSourceId) {
         this.dataSourceId = dataSourceId;
+    }
+
+    public List<ScheduleTaskVO> getTaskRuleList() {
+        return taskRuleList;
+    }
+
+    public void setTaskRuleList(List<ScheduleTaskVO> taskRuleList) {
+        this.taskRuleList = taskRuleList;
     }
 }

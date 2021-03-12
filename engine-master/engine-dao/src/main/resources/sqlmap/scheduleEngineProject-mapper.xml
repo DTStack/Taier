@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dtstack.engine.dao.ScheduleEngineProjectDao">
+
+    <sql id="Base_Column_List">
+        `id`, `project_id`, `uic_tenant_id`, `app_type`, `project_name`, `project_alias`,
+        `project_Identifier`, `project_desc`, `status`, `create_user_id`, `gmt_create`, `gmt_modified`,
+        `is_deleted`
+    </sql>
+
+    <insert id="insert">
+        insert into schedule_engine_project ( `project_id`, `uic_tenant_id`,
+        `app_type`, `project_name`, `project_alias`,
+        `project_Identifier`, `project_desc`, `status`,
+        `create_user_id`, `gmt_create`, `gmt_modified`,
+        `is_deleted`)
+        values (#{projectId}, #{uicTenantId},
+        #{appType}, #{projectName}, #{projectAlias},
+        #{projectIdentifier}, #{projectDesc}, #{status},
+        #{createUserId}, #{gmtCreate}, #{gmtModified},
+        #{isDeleted})
+    </insert>
+
+    <update id="updateById">
+        UPDATE `schedule_engine_project`
+        <set>
+            <if test="scheduleEngineProject.projectId != null">
+                `project_id` = #{scheduleEngineProject.projectId},
+            </if>
+            <if test="scheduleEngineProject.uicTenantId != null">
+                `uic_tenant_id` = #{scheduleEngineProject.uicTenantId},
+            </if>
+            <if test="scheduleEngineProject.appType != null">
+                `app_type` = #{scheduleEngineProject.appType},
+            </if>
+            <if test="scheduleEngineProject.projectName != null">
+                `project_name` = #{scheduleEngineProject.projectName},
+            </if>
+            <if test="scheduleEngineProject.projectAlias != null">
+                `project_alias` = #{scheduleEngineProject.projectAlias},
+            </if>
+            <if test="scheduleEngineProject.projectIdentifier != null">
+                `project_Identifier` = #{scheduleEngineProject.projectIdentifier},
+            </if>
+            <if test="scheduleEngineProject.projectDesc != null">
+                `project_desc` = #{scheduleEngineProject.projectDesc},
+            </if>
+            <if test="scheduleEngineProject.status != null">
+                `status` = #{scheduleEngineProject.status},
+            </if>
+            <if test="scheduleEngineProject.createUserId != null">
+                `create_user_id` = #{scheduleEngineProject.createUserId},
+            </if>
+            <if test="scheduleEngineProject.gmtCreate != null">
+                `gmt_create` = #{scheduleEngineProject.gmtCreate},
+            </if>
+            <if test="scheduleEngineProject.gmtModified != null">
+                `gmt_modified` = #{scheduleEngineProject.gmtModified},
+            </if>
+            <if test="scheduleEngineProject.isDeleted != null">
+                `is_deleted` = #{scheduleEngineProject.isDeleted},
+            </if>
+        </set>
+        where `id` = #{id} AND `is_deleted` = 0
+    </update>
+
+    <delete id="deleteByProjectIdAppType">
+        UPDATE `schedule_engine_project`
+        SET `is_deleted` = 1
+        WHERE `project_id` = #{projectId} AND `app_type` = #{appType}
+    </delete>
+
+    <select id="getProjectById" resultType="com.dtstack.engine.domain.ScheduleEngineProject">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM schedule_engine_project
+        WHERE `id` = #{id} AND  `is_deleted` = 0
+    </select>
+
+    <select id="selectFuzzyProjectByProjectAlias" resultType="com.dtstack.engine.domain.ScheduleEngineProject">
+        SELECT `id`, `project_id`, `uic_tenant_id`, `app_type`, `project_name`, `project_alias`, `project_Identifier`, `project_desc`
+        FROM `schedule_engine_project`
+        WHERE `uic_tenant_id` = #{uicTenantId} AND `app_type` = #{appType}
+        <if test="name !=null">
+            AND `project_alias` LIKE '${name}%'
+        </if>
+        LIMIT #{fuzzyProjectByProjectAliasLimit}
+    </select>
+
+
+</mapper>

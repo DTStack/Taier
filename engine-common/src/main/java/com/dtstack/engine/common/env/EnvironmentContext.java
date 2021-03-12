@@ -501,4 +501,12 @@ public class EnvironmentContext {
     public long getForkJoinResultTimeOut() {
         return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
     }
+
+    public Integer getFuzzyProjectByProjectAliasLimit() {
+        return Integer.parseInt(environment.getProperty("fuzzy.project.alias.limit", "20"));
+    }
+
+    public Long getTaskRuleTimeout() {
+        return Long.parseLong(environment.getProperty("task.rule.timeout", "600000"));
+    }
 }
