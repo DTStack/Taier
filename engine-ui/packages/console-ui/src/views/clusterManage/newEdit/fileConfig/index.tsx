@@ -76,6 +76,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                             })}
                         </Select>) : <Cascader
                             options={getOptions(version)}
+                            disabled={view}
                             expandTrigger="click"
                             displayRender={(label) => {
                                 return label[label.length - 1];
