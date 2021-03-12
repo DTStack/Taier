@@ -26,7 +26,6 @@ public interface StreamTaskService extends DtInsightServer {
     @RequestLine("POST /node/streamTask/getFailedCheckPoint")
     ApiResponse<List<EngineJobCheckpoint>> getFailedCheckPoint(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd);
 
-
     /**
      * 查询savepoint
      * @param taskId
