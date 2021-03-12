@@ -28,4 +28,14 @@ export default {
     method: 'get',
     url: '/publicService/v1/dataSource/delete',
   },
+  //产品授权界面
+  authProductList:{
+    method: 'get',
+    url: '/publicService/v1/dataSource/auth/product/list',
+  },
+  // 产品授权
+  dataSoProAuth:{
+    method: 'post',
+    url: '/publicService/v1/dataSource/product/auth',
+  },
 };

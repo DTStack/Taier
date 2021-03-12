@@ -1,7 +1,7 @@
 /*
  * @Author: 云乐
  * @Date: 2021-03-10 15:07:33
- * @LastEditTime: 2021-03-11 16:42:24
+ * @LastEditTime: 2021-03-12 09:53:45
  * @LastEditors: 云乐
  * @Description: 数据源列表--列
  */
@@ -10,12 +10,13 @@ import { Divider, Popconfirm, Icon } from "antd";
 import "./style.less";
 
 const columns = (props: any) => {
-  const { toEdit, toAuth, toDelete, fixed, fixleft } = props;
+  const { toEdit, toAuth, toDelete,left,right } = props;
+
   return [
     {
       title: "数据源名称",
       key: "dsName",
-      fixed: fixleft,
+      fixed: left,
       width: 120,
       render: (text, record) =>
         //	是否有meta标志 0-否 1-是
@@ -37,7 +38,7 @@ const columns = (props: any) => {
       dataIndex: "productNames",
       key: "productNames",
       ellipsis: true,
-      width: 160,
+      width: 200,
     },
     {
       title: "描述",
@@ -70,7 +71,7 @@ const columns = (props: any) => {
     {
       title: "操作",
       key: "action",
-      fixed: fixed,
+      fixed: right,
       width: 160,
       render: (_, record) => {
         return (
@@ -89,15 +90,13 @@ const columns = (props: any) => {
               授权
             </span>
             <Divider type="vertical" />
-            <span
-              className={record.isAuth === 0 ? "data-view" : ""}
-            >
+            <span className={record.isAuth === 0 ? "data-view" : ""}>
               <Popconfirm
                 title="是否删除此条记录？"
                 icon={
                   <Icon type="question-circle-o" style={{ color: "red" }} />
                 }
-                onConfirm={()=>toDelete(record, event)}
+                onConfirm={() => toDelete(record, event)}
                 okText="删除"
                 cancelText="取消"
               >

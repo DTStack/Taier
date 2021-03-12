@@ -4,7 +4,10 @@ import Exception from '@/components/Exception';
 import Entry from 'pages/entry/index';
 
 import dataSource from "pages/DataSource/List"
+import addSource from "pages/DataSource/AddSource"
 import editSource from "pages/DataSource/components/AddEdit"
+
+
 
 const Layout = createLayout(true, true);
 
@@ -23,6 +26,11 @@ const routerConf = [
     path: '/data-source',
     // layout: Layout,
     component: dataSource,
+  },
+  {
+    path: '/add-source',
+    // layout: Layout,
+    component: addSource,
   },
   {
     path: '/edit-source',

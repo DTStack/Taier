@@ -1,7 +1,7 @@
 /*
  * @Author: 云乐
  * @Date: 2021-03-11 10:14:44
- * @LastEditTime: 2021-03-11 10:32:23
+ * @LastEditTime: 2021-03-12 10:24:30
  * @LastEditors: 云乐
  * @Description: 和数栈搜索保持一致
  * placeholder, width, onSearch
@@ -10,9 +10,13 @@
 import React, { useState, useEffect } from "react";
 import { Input, Icon } from "antd";
 
-export default function index({ placeholder, width, onSearch }) {
+export default function SearchInput({
+  placeholder = "请求输入搜索内容",
+  width = 200,
+  onSearch,
+}) {
   const [value, setValue] = useState("");
-  
+
   useEffect(() => {
     if (!value) {
       onSearch(value);

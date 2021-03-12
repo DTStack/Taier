@@ -1,33 +1,40 @@
 /*
  * @Author: 云乐
  * @Date: 2021-03-10 14:32:56
- * @LastEditTime: 2021-03-11 16:40:32
+ * @LastEditTime: 2021-03-12 10:16:54
  * @LastEditors: 云乐
  * @Description: 数据源列表展示
  */
 
 import React, { useEffect, useState } from "react";
 import Search from "./components/Search";
-import { Table, message } from "antd";
+import { Table, message, Modal } from "antd";
 import { columns } from "./constants";
-import PaginationCom from "components/PaginationCom";
+import PaginationCom from "@/components/PaginationCom/PaginationCom";
 import "./style.less";
 import { API } from "@/services";
+import AuthSel from "./components/AuthSel";
 
 function index() {
-  const [dataSources, setdataSources] = useState([]);
-  const [params, setparams] = useState({
+  const [dataSources, setDataSources] = useState([]);
+  const [params, setParams] = useState({
     current: 1, //当前页码
     size: 20, //分页个数
   });
-  const [other, setother] = useState({
+  const [other, setOther] = useState({
     search: "",
     dataType: "",
     productCode: "",
     isMeta: 0,
   });
+  const [total, setTotal] = useState(null);
 
-  const [total, settotal] = useState(null);
+  const [visible, setVisible] = useState(false);
+  const [record, setRecord] = useState({
+    dataInfoId: null,
+    isAuth: null,
+  });
+  const [checkedValues, setcheckedValues] = useState([]);
 
   //获取表格数据
   const requestTableData = async (query?: any) => {
@@ -42,13 +49,13 @@ function index() {
           item.index = index + 1;
         });
 
-        setparams({
+        setParams({
           current: data.current, //当前页码
           size: data.size, //分页个数
         });
 
-        settotal(data.total); //总页数
-        setdataSources(data.contentList);
+        setTotal(data.total); //总页数
+        setDataSources(data.contentList);
       }
     } catch (error) {}
   };
@@ -60,54 +67,63 @@ function index() {
   //编辑
   const toEdit = (record, event) => {
     event.stopPropagation();
-    // confirm({
-    //   title: `是否删除?`,
-    //   icon: <CloseCircleOutlined />,
-    //   content: `删除后将不可恢复`,
-    //   okText: "确定",
-    //   cancelText: "取消",
-    //   okType: "danger",
-    //   onOk: async () => {
-    //     let { success } = await API.entityDimDel({
-    //       id: record.infoId,
-    //     });
-    //     if (success) {
-    //       message.success("成功删除维度");
-    //     } else {
-    //       message.error("删除失败,该维度已被指标引用");
-    //     }
-    //     props.refresh(); //更新表格
-    //   },
-    // });
   };
+
   //删除
   const toDelete = async (record, event) => {
     event.stopPropagation();
     let { success } = await API.dataSourceDelete({
-      id: record.dataInfoId,
+      dataInfoId: record.dataInfoId,
     });
+
     if (success) {
+      message.success("删除成功");
       requestTableData(); //更新表格
     } else {
       message.error("删除失败");
     }
   };
 
-  //授权
-  const toAuth = (record, event) => {
-    console.log("toAuth: ", toAuth);
-  };
-
-  const onChangePage = (page, pageSize) => {
+  //分页事件
+  const onChangePage = (page) => {
     let data = { ...params, ...{ current: page } };
-    setparams(data);
+    setParams(data);
     requestTableData(data);
   };
 
+  //搜索事件
   const onSearch = (value) => {
     let data = { ...other, ...value };
-    setother(data);
+    setOther(data);
     requestTableData(data);
+  };
+
+  //点击授权按钮
+  const toAuth = (record) => {
+    setRecord(record);
+    setVisible(true);
+  };
+  //获取产品授权的列表
+  const oncheck = (prolist) => {
+    setcheckedValues(prolist);
+  };
+
+  //产品授权隐藏
+  const handleAutoProduc = async () => {
+    console.log("record: ", record);
+    try {
+      let { data, message: msg } = await API.dataSoProAuth({
+        dataInfoId: record.dataInfoId,
+        isAuth: record.isAuth,
+        productCode: checkedValues,
+      });
+
+      console.log("msg: ", msg);
+      console.log("data: ", data);
+
+      requestTableData(); //更新表格
+    } catch (error) {}
+    setVisible(false);
   };
 
   return (
@@ -122,12 +138,12 @@ function index() {
               toEdit: toEdit,
               toAuth: toAuth,
               toDelete: toDelete,
-              fixed: "right",
-              fixleft: "left",
+              left: "left",
+              right: "right",
             })}
             dataSource={dataSources}
             pagination={false}
-            style={{ width: "100%", overflow: "scroll" }}
+            scroll={{ x: "100%" }}
           />
         </div>
         <PaginationCom
@@ -136,6 +152,19 @@ function index() {
           total={total}
         />
       </div>
+
+      {visible && (
+        <Modal
+          title="授权"
+          visible={visible}
+          onOk={handleAutoProduc}
+          onCancel={() => {
+            setVisible(false);
+          }}
+        >
+          <AuthSel record={record} oncheck={oncheck}></AuthSel>
+        </Modal>
+      )}
     </div>
   );
 }

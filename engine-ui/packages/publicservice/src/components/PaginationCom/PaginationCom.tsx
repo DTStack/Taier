@@ -1,7 +1,7 @@
 /*
  * @Author: 云乐
  * @Date: 2021-03-11 10:40:17
- * @LastEditTime: 2021-03-11 15:46:34
+ * @LastEditTime: 2021-03-12 09:37:22
  * @LastEditors: 云乐
  * @Description: 统一数栈分页组件
  * 参数说明：
@@ -17,16 +17,17 @@ import React from "react";
 import { Pagination } from "antd";
 import "./style.less";
 
-interface IProp {
-  onChangePage: any;
+interface IProps {
+  onChangePage(page: number): void;
   total: number;
   params: {
     size: number;
     current: number;
   };
 }
-export default function index(props: IProp) {
-  let { params, total, onChangePage} = props;
+
+export default function PaginationCom(props: IProps) {
+  let { params, total, onChangePage } = props;
   let { size, current } = params;
 
   const showTotal = () => {
@@ -43,7 +44,7 @@ export default function index(props: IProp) {
         size="small"
         total={total}
         showTotal={showTotal}
-        onChange={(page, pageSize)=>onChangePage(page, pageSize)}
+        onChange={(page) => onChangePage(page)}
         defaultPageSize={size}
         current={current}
       />
