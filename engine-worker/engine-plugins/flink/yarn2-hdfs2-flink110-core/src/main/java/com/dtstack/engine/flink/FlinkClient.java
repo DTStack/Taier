@@ -994,9 +994,7 @@ public class FlinkClient extends AbstractClient {
     @Override
     public CheckResult grammarCheck(JobClient jobClient) {
 
-        CheckResult checkResult = new CheckResult();
-        // 0表示失败，1表示成功
-        checkResult.setCode(0);
+        CheckResult checkResult = CheckResult.success();
         String taskId = jobClient.getTaskId();
         try {
             // 1. before download jar
@@ -1036,11 +1034,10 @@ public class FlinkClient extends AbstractClient {
                     .build();
             PackagedProgramUtils.createJobGraph(program, flinkConfig, 1, false);
 
-            checkResult.setCode(1);
             logger.info("TaskId: {}, GrammarCheck success!", taskId);
         } catch (Exception e) {
             logger.error("TaskId: {}, GrammarCheck error: ", taskId, e);
-            checkResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+            checkResult = CheckResult.exception(ExceptionUtil.getErrorMessage(e));
         } finally {
             try {
                 afterSubmitFunc(jobClient);
