@@ -1,7 +1,6 @@
 package com.dtstack.engine.api.domain;
 
 
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.annotation.Unique;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -111,7 +110,7 @@ public class ScheduleJob extends AppTenantEntity {
 
     private Boolean isForce;
 
-    private Integer validRule;
+    private Integer taskRule;
 
     public Boolean getForce() {
         return isForce;
@@ -409,11 +408,11 @@ public class ScheduleJob extends AppTenantEntity {
         this.phaseStatus = phaseStatus;
     }
 
-    public Integer getValidRule() {
-        return validRule;
+    public Integer getTaskRule() {
+        return taskRule;
     }
 
-    public void setValidRule(Integer validRule) {
-        this.validRule = validRule;
+    public void setTaskRule(Integer taskRule) {
+        this.taskRule = taskRule;
     }
 }

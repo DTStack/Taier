@@ -15,7 +15,6 @@ import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.*;
 import com.dtstack.engine.master.scheduler.parser.*;
-import com.dtstack.schedule.common.enums.Deleted;
 import com.dtstack.schedule.common.enums.EProjectScheduleStatus;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
 import com.dtstack.schedule.common.enums.ESubmitStatus;
@@ -469,7 +468,7 @@ public class JobGraphBuilder {
             //业务时间等于执行时间 -1 天
             String businessDate = generateBizDateFromCycTime(triggerTime);
             scheduleJob.setBusinessDate(businessDate);
-            scheduleJob.setValidRule(task.getValidRule());
+            scheduleJob.setTaskRule(task.getTaskRule());
 
             //任务流中的子任务且没有父任务依赖，起始节点将任务流节点作为父任务加入
             if (task.getFlowId() > 0 && !whetherHasParentTask(task.getTaskId(),task.getAppType())) {

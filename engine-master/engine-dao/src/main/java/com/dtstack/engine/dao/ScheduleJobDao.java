@@ -48,6 +48,8 @@ public interface ScheduleJobDao {
 
     List<ScheduleJob> listJobByJobKeys(@Param("jobKeys") Collection<String> jobKeys);
 
+    List<ScheduleJob> listRuleJobByJobKeys(@Param("jobKeys") Collection<String> jobKeys, @Param("ruleCode") Integer ruleCode);
+
     List<ScheduleJob> listIdByTaskIdAndStatus(@Param("taskId") Long taskId, @Param("statuses") List<Integer> status, @Param("appType") Integer appType,@Param("cycTime") String cycTime,@Param("type") Integer type);
 
     List<String> listJobIdByTaskIdAndStatus(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("statuses") List<Integer> status);
@@ -109,6 +111,8 @@ public interface ScheduleJobDao {
      * @return
      */
     List<ScheduleJob> getSubJobsAndStatusByFlowId(@Param("jobId") String jobId);
+
+    ScheduleJob getSubJobsAndStatusByFlowIdLimit(@Param("jobId") String jobId);
 
     /**
      * 获取补数据job的各状态的数量

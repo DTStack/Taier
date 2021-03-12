@@ -5,6 +5,7 @@ import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.dto.ScheduleJobJobDTO;
 import com.dtstack.engine.api.dto.ScheduleJobJobTaskDTO;
+import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.api.vo.ScheduleJobVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -449,15 +450,35 @@ public class ScheduleJobJobService {
             //移除不符合条件的jobjob
             filterJobJob(root, job, batchTaskShade);
             List<ScheduleJobVO> subJobVOs = new ArrayList<>(root.getChildren().size());
+            List<ScheduleJobVO> taskRuleJobVOs = new ArrayList<>(root.getChildren().size());
             for (ScheduleJobJobDTO jobJobDTO : root.getChildren()) {
                 com.dtstack.engine.master.vo.ScheduleJobVO subVO = getOffSpring(jobJobDTO, keyJobMap, idTaskMap, isSubTask);
                 if (subVO != null) {
-                    subJobVOs.add(subVO);
+                    if (TaskRuleEnum.NO_RULE.getCode().equals(subVO.getTaskRule())) {
+                        subJobVOs.add(subVO);
+                    } else {
+                        ScheduleJobVO e = buildRuleBean(subVO);
+                        if (e != null) {
+                            taskRuleJobVOs.add(e);
+                        }
+                    }
                 }
             }
             vo.setJobVOS(subJobVOs);
+            vo.setTaskRuleJobVOS(taskRuleJobVOs);
         }
         return vo;
+    }
+
+    private ScheduleJobVO buildRuleBean(com.dtstack.engine.master.vo.ScheduleJobVO subVO) {
+        // 判断是否是工作流任务，如果是工作流任务，取工作流任务的第一个节点
+        if (EScheduleJobType.WORK_FLOW.getType().equals(subVO.getTaskType())) {
+            List<ScheduleJobVO> jobVOS = subVO.getJobVOS();
+            return CollectionUtils.isEmpty(jobVOS)?jobVOS.get(0):null;
+        } else {
+            return subVO;
+        }
+
     }
 
     private void filterJobJob(ScheduleJobJobDTO root, ScheduleJob job, ScheduleTaskShade batchTaskShade) {
@@ -608,13 +629,22 @@ public class ScheduleJobJobService {
                 return vo;
             }
             List<ScheduleJobVO> fatherVOs = new ArrayList<>();
+            List<ScheduleJobVO> taskRuleJobVOs = new ArrayList<>();
             for (ScheduleJobJobDTO jobJobDTO : root.getChildren()) {
                 com.dtstack.engine.master.vo.ScheduleJobVO item = this.getForefathersNew(jobJobDTO, keyJobMap, idTaskMap);
                 if (item != null) {
-                    fatherVOs.add(item);
+                    if (TaskRuleEnum.NO_RULE.getCode().equals(item.getTaskRule())) {
+                        fatherVOs.add(item);
+                    } else {
+                        ScheduleJobVO e = buildRuleBean(item);
+                        if (e != null) {
+                            taskRuleJobVOs.add(e);
+                        }
+                    }
                 }
             }
             vo.setJobVOS(fatherVOs);
+            vo.setTaskRuleJobVOS(taskRuleJobVOs);
         }
         return vo;
     }
@@ -639,13 +669,23 @@ public class ScheduleJobJobService {
                 return vo;
             }
             List<ScheduleJobVO> fatherVOs = new ArrayList<>();
+            List<ScheduleJobVO> taskRuleJobVOs = new ArrayList<>();
+
             for (ScheduleJobJobDTO jobJobDTO : root.getChildren()) {
                 com.dtstack.engine.master.vo.ScheduleJobVO item = this.getForefathers(jobJobDTO, keyJobMap, idTaskMap);
                 if (item != null) {
-                    fatherVOs.add(item);
+                    if (TaskRuleEnum.NO_RULE.getCode().equals(item.getTaskRule())) {
+                        fatherVOs.add(item);
+                    } else {
+                        ScheduleJobVO e = buildRuleBean(item);
+                        if (e != null) {
+                            taskRuleJobVOs.add(e);
+                        }
+                    }
                 }
             }
             vo.setJobVOS(fatherVOs);
+            vo.setTaskRuleJobVOS(taskRuleJobVOs);
         }
         return vo;
     }

@@ -96,8 +96,8 @@ public class ScheduleTaskShadeService {
                 batchTaskShadeDTO.setFlowId(0L);
             }
 
-            if (null == batchTaskShadeDTO.getValidRule()) {
-                batchTaskShadeDTO.setValidRule(0);
+            if (null == batchTaskShadeDTO.getTaskRule()) {
+                batchTaskShadeDTO.setTaskRule(0);
             }
             scheduleTaskShadeDao.insert(batchTaskShadeDTO);
         }

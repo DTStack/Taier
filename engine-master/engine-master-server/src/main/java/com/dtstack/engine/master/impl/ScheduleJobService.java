@@ -2750,4 +2750,18 @@ public class ScheduleJobService {
     public String getJobGraphJSON(String jobId) {
         return scheduleJobDao.getJobGraph(jobId);
     }
+
+    public void updateNotRuleResult(String jobId,Integer rule) {
+        ScheduleJob job = scheduleJobDao.getByJobId(jobId, 0);
+
+        if (job != null && EScheduleJobType.NOT_DO_TASK.getType().equals(job.getTaskType()) && RdosTaskStatus.RUNNING.getStatus().equals(job.getStatus())) {
+            if (rule == 1) {
+                updateStatusAndLogInfoById(jobId, RdosTaskStatus.FINISHED.getStatus(), "application callback succeeded");
+            } else if (rule == 2) {
+                updateStatusAndLogInfoById(jobId, RdosTaskStatus.FAILED.getStatus(), "Application callback failure");
+            }
+        } else {
+            throw new RdosDefineException("job status error,so update failure");
+        }
+    }
 }
