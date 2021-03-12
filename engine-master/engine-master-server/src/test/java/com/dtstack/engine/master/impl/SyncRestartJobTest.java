@@ -10,6 +10,7 @@ import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.master.AbstractTest;
 import com.dtstack.engine.master.utils.Template;
+import org.assertj.core.util.Lists;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -49,8 +50,8 @@ public class SyncRestartJobTest extends AbstractTest {
         ScheduleJob scheduleJobTemplate = Template.getScheduleJobTemplate();
         String key = "syncRestartJob" + scheduleJobTemplate.getId();
         redisTemplate.opsForValue().set(key,"-1");
-        String repeat = scheduleJobService.syncRestartJob(scheduleJobTemplate.getId(), true, false, null);
-        Assert.assertEquals(repeat,"-1");
+        boolean syncFlag = scheduleJobService.syncRestartJob(scheduleJobTemplate.getId(), true, false, null);
+        Assert.assertTrue(syncFlag);
 
     }
 
@@ -84,8 +85,8 @@ public class SyncRestartJobTest extends AbstractTest {
         scheduleJobJobDao.insert(scheduleJobJob);
         String key = "syncRestartJob" + scheduleJobTemplate.getId();
         redisTemplate.delete(key);
-        String repeat = scheduleJobService.syncRestartJob(scheduleJobTemplateParent.getId(), false, false, null);
-        Assert.assertEquals(repeat,"1");
+        boolean syncFlag = scheduleJobService.syncRestartJob(scheduleJobTemplateParent.getId(), false, false, null);
+        Assert.assertTrue(syncFlag);
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
@@ -130,8 +131,8 @@ public class SyncRestartJobTest extends AbstractTest {
         scheduleJobJobDao.insert(scheduleJobJob);
         String key = "syncRestartJob" + scheduleJobTemplate.getId();
         redisTemplate.delete(key);
-        String repeat = scheduleJobService.syncRestartJob(scheduleJobTemplateParent.getId(), true, false, null);
-        Assert.assertEquals(repeat,"1");
+        boolean syncFlag = scheduleJobService.syncRestartJob(scheduleJobTemplateParent.getId(), true, false, null);
+        Assert.assertTrue(syncFlag);
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
@@ -159,8 +160,8 @@ public class SyncRestartJobTest extends AbstractTest {
         scheduleTaskShadeService.addOrUpdate(scheduleTaskShadeDTO);
         String key = "syncRestartJob" + scheduleJobTemplate.getId();
         redisTemplate.delete(key);
-        String repeat = scheduleJobService.syncRestartJob(scheduleJobTemplate.getId(), true, true, null);
-        Assert.assertEquals(repeat,"1");
+        boolean syncFlag = scheduleJobService.syncRestartJob(scheduleJobTemplate.getId(), true, true, null);
+        Assert.assertTrue(syncFlag);
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
@@ -188,6 +189,7 @@ public class SyncRestartJobTest extends AbstractTest {
         vo.setDtuicTenantId(scheduleJobTemplate.getDtuicTenantId());
         vo.setBizStartDay(DateTime.now().plusDays(-1).getMillis()/1000);
         vo.setBizEndDay(DateTime.now().plusDays(1).getMillis()/1000);
+        vo.setTaskIds(Lists.newArrayList(-13L));
         scheduleJobService.stopJobByCondition(vo);
     }
 }

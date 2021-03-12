@@ -402,12 +402,12 @@ public class ScheduleJobController {
     }
 
     @RequestMapping(value = "/syncRestartJob", method = {RequestMethod.POST, RequestMethod.GET})
-    public String syncRestartJob(@DtRequestParam("id") Long id, @DtRequestParam("justRunChild") Boolean justRunChild, @DtRequestParam("setSuccess") Boolean setSuccess, @DtRequestParam("subJobIds") List<Long> subJobIds) {
+    public boolean syncRestartJob(@DtRequestParam("id") Long id, @DtRequestParam("justRunChild") Boolean justRunChild, @DtRequestParam("setSuccess") Boolean setSuccess, @DtRequestParam("subJobIds") List<Long> subJobIds) {
         return scheduleJobService.syncRestartJob(id, justRunChild, setSuccess, subJobIds);
     }
 
     @RequestMapping(value="/stopJobByCondition", method = {RequestMethod.POST})
-    public String stopJobByCondition(ScheduleJobKillJobVO scheduleJobKillJobVO) {
+    public Integer stopJobByCondition(ScheduleJobKillJobVO scheduleJobKillJobVO) {
         return scheduleJobService.stopJobByCondition(scheduleJobKillJobVO);
     }
 }

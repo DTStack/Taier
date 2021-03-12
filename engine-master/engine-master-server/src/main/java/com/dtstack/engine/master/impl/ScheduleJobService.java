@@ -2752,11 +2752,11 @@ public class ScheduleJobService {
      * @param subJobIds    重跑当前任务 subJobIds不为空
      * @return
      */
-    public String syncRestartJob(Long id, Boolean justRunChild, Boolean setSuccess, List<Long> subJobIds) {
+    public boolean syncRestartJob(Long id, Boolean justRunChild, Boolean setSuccess, List<Long> subJobIds) {
         String key = "syncRestartJob" + id;
         if (redisTemplate.hasKey(key)) {
             logger.info("syncRestartJob  {}  is doing ", key);
-            return "-1";
+            return false;
         }
         redisTemplate.execute((RedisCallback<String>) connection -> {
             JedisCommands commands = (JedisCommands) connection.getNativeConnection();
@@ -2770,11 +2770,11 @@ public class ScheduleJobService {
         }
         CompletableFuture.runAsync(new RestartRunnable(id, justRunChild, setSuccess, subJobIds, scheduleJobDao, scheduleTaskShadeDao,
                 scheduleJobJobDao, environmentContext, key, redisTemplate));
-        return "1";
+        return true;
     }
 
 
-    public String stopJobByCondition(ScheduleJobKillJobVO vo) {
+    public Integer stopJobByCondition(ScheduleJobKillJobVO vo) {
         ScheduleJobDTO query = createKillQuery(vo);
         PageQuery<ScheduleJobDTO> pageQuery = new PageQuery<>(query);
         pageQuery.setModel(query);
@@ -2788,7 +2788,7 @@ public class ScheduleJobService {
                 int pageCount = (count / pageSize) + (count % pageSize == 0 ? 0 : 1);
                 query.setPageQuery(true);
                 pageQuery.setModel(query);
-
+                stopSize = count;
                 for (int i = 0; i < pageCount; i++) {
                     pageQuery.setPageSize(pageSize);
                     pageQuery.setPage(i + 1);
@@ -2802,11 +2802,11 @@ public class ScheduleJobService {
             } else {
                 List<ScheduleJob> scheduleJobs = scheduleJobDao.generalQuery(pageQuery);
                 listByJobIdFillFlowSubJobs(scheduleJobs);
-                stopSize += jobStopDealer.addStopJobs(scheduleJobs);
+                stopSize = jobStopDealer.addStopJobs(scheduleJobs);
             }
-            return "取消了" + stopSize + "个任务";
+            return stopSize;
         }
-        return "没有查询到任务";
+        return 0;
     }
 
     /**
@@ -2841,6 +2841,8 @@ public class ScheduleJobService {
         ScheduleJobDTO.setType(EScheduleType.NORMAL_SCHEDULE.getType());
         ScheduleJobDTO.setTaskPeriodId(convertStringToList(vo.getTaskPeriodId()));
         ScheduleJobDTO.setAppType(vo.getAppType());
+        //筛选任务名称
+        ScheduleJobDTO.setTaskIds(vo.getTaskIds());
         setBizDay(ScheduleJobDTO, vo.getBizStartDay(), vo.getBizEndDay(), vo.getTenantId(), vo.getProjectId());
         //任务状态
         if (StringUtils.isNotBlank(vo.getJobStatuses())) {

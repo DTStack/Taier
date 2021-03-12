@@ -4,6 +4,8 @@ import com.dtstack.sdk.core.common.DtInsightAuthParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.List;
+
 @ApiModel("杀死任务实例信息")
 public class ScheduleJobKillJobVO extends DtInsightAuthParam {
     @ApiModelProperty(hidden = true)
@@ -38,6 +40,17 @@ public class ScheduleJobKillJobVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "应用类型",  required = true)
     private Integer appType;
+
+    @ApiModelProperty(value = "筛选出来的任务名称对应taskId",  required = false)
+    private List<Long> taskIds;
+
+    public List<Long> getTaskIds() {
+        return taskIds;
+    }
+
+    public void setTaskIds(List<Long> taskIds) {
+        this.taskIds = taskIds;
+    }
 
     public Integer getAppType() {
         return appType;
