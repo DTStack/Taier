@@ -1,30 +1,35 @@
 package com.dtstack.engine.api.pojo;
 
+import java.io.Serializable;
+
 /**
  * @author haier
  * @Description 语法检测结果
  * @date 2021/3/9 11:33 上午
  */
-public class CheckResult {
-    private int code;
-    private long space;
+public class CheckResult implements Serializable {
+    private boolean result;
     private String errorMsg;
-    private String data;
 
-    public int getCode() {
-        return code;
+    public static CheckResult success() {
+        CheckResult checkResult = new CheckResult();
+        checkResult.setResult(true);
+        return checkResult;
     }
 
-    public void setCode(int code) {
-        this.code = code;
+    public static CheckResult exception(String msg) {
+        CheckResult checkResult = new CheckResult();
+        checkResult.setResult(false);
+        checkResult.setErrorMsg(msg);
+        return checkResult;
     }
 
-    public long getSpace() {
-        return space;
+    public boolean isResult() {
+        return result;
     }
 
-    public void setSpace(long space) {
-        this.space = space;
+    public void setResult(boolean result) {
+        this.result = result;
     }
 
     public String getErrorMsg() {
@@ -33,13 +38,5 @@ public class CheckResult {
 
     public void setErrorMsg(String errorMsg) {
         this.errorMsg = errorMsg;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
     }
 }
