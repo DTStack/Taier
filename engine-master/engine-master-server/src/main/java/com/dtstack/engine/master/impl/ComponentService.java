@@ -1082,7 +1082,7 @@ public class ComponentService {
                     String componentConfig = getComponentByClusterId(clusterId,EComponentType.getByCode(componentType).getTypeCode(),true,String.class);
                     try {
                         localDownLoadPath = localDownLoadPath + ".json";
-                        FileUtils.write(new File(localDownLoadPath), componentConfig);
+                        FileUtils.write(new File(localDownLoadPath), filterConfigMessage(componentConfig));
                     } catch (IOException e) {
                         LOGGER.error("write upload file {} error", componentConfig, e);
                     }
@@ -1106,6 +1106,19 @@ public class ComponentService {
         } else {
             return new File(localDownLoadPath);
         }
+    }
+
+    /**
+     * 移除配置信息中的密码信息
+     *
+     */
+    private String filterConfigMessage(String componentConfig) {
+        if (StringUtils.isBlank(componentConfig)) {
+            return "";
+        }
+        JSONObject configJsonObject = JSONObject.parseObject(componentConfig);
+        configJsonObject.put("password","");
+        return configJsonObject.toJSONString();
     }
 
 
