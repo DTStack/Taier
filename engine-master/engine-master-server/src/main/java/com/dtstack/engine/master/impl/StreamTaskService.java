@@ -190,8 +190,7 @@ public class StreamTaskService {
             JobClient jobClient = new JobClient(paramActionExt);
             checkResult = workerOperator.grammarCheck(jobClient);
         } catch (Exception e) {
-            checkResult = CheckResult.exception("grammarCheck failed " + e.getMessage());
-            logger.error("grammarCheck failed ", e);
+            throw new RdosDefineException("grammarCheck failed " + e.getMessage());
         }
         return checkResult;
     }

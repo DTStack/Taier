@@ -34,7 +34,6 @@ public interface StreamTaskService extends DtInsightServer {
     @RequestLine("POST /node/streamTask/getSavePoint")
     ApiResponse<EngineJobCheckpoint> getSavePoint(@Param("taskId") String taskId);
 
-
     @RequestLine("POST /node/streamTask/getByTaskIdAndEngineTaskId")
     ApiResponse<EngineJobCheckpoint> getByTaskIdAndEngineTaskId(@Param("taskId") String taskId, @Param("engineTaskId") String engineTaskId);
 
