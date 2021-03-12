@@ -1,25 +1,17 @@
 package com.dtstack.engine.common.client;
 
-import com.dtstack.engine.api.pojo.ClientTemplate;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.client.config.YamlConfigParser;
 import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.pojo.JudgeResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Reason:
@@ -33,28 +25,7 @@ public abstract class AbstractClient implements IClient {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractClient.class);
 
-    public final static String PLUGIN_DEFAULT_CONFIG_NAME = "default-config.yaml";
-
-    public List<ClientTemplate> defaultPlugins;
-
     public AbstractClient() {
-        loadConfig();
-    }
-
-    private void loadConfig() {
-        try {
-            String configYaml = findPluginConfig(this.getClass(), PLUGIN_DEFAULT_CONFIG_NAME);
-            InputStream resourceAsStream = !StringUtils.isEmpty(configYaml) ? new FileInputStream(configYaml) :
-                    this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME);
-            if (Objects.isNull(resourceAsStream)) {
-                logger.info("plugin client default-config.yaml not exist!");
-                return;
-            }
-            defaultPlugins = new YamlConfigParser().parse(resourceAsStream);
-            logger.info("======= plugin client============{}", defaultPlugins);
-        } catch (Exception e) {
-            logger.error("plugin client init default config error ", e);
-        }
     }
 
     @Override
@@ -122,10 +93,6 @@ public abstract class AbstractClient implements IClient {
         return null;
     }
 
-    @Override
-    public List<ClientTemplate> getDefaultPluginConfig(String engineType) {
-        return defaultPlugins;
-    }
 
     @Override
     public ComponentTestResult testConnect(String pluginInfo) {
@@ -144,18 +111,6 @@ public abstract class AbstractClient implements IClient {
 
     @Override
     public ClusterResource getClusterResource() {
-        return null;
-    }
-
-
-    protected String findPluginConfig(Class<?> clazz, String fileName) {
-        URL[] urLs = ((URLClassLoader) clazz.getClassLoader()).getURLs();
-        if (urLs.length > 0) {
-            String jarPath = urLs[0].getPath();
-            String pluginDir = jarPath.substring(0, jarPath.lastIndexOf("/"));
-            String filePath = pluginDir + File.separator + fileName;
-            return new File(filePath).exists() ? filePath : null;
-        }
         return null;
     }
 
