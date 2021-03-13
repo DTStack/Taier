@@ -720,7 +720,7 @@
         FROM `schedule_task_shade`
         WHERE `dtuic_tenant_id` = #{uicTenantId} AND `app_type` = #{appType} AND `project_id` = #{projectId}
         <if test="name !=null">
-            AND `project_alias` LIKE '${name}%'
+            AND `name` LIKE '${name}%'
         </if>
         LIMIT #{fuzzyProjectByProjectAliasLimit}
 

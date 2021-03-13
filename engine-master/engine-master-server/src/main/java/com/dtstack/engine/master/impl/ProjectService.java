@@ -15,6 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -105,18 +106,11 @@ public class ProjectService {
             scheduleEngineProject.setCreateUserId(scheduleEngineProjectParam.getCreateUserId());
         }
 
-        if (scheduleEngineProjectParam.getGmtCreate() != null) {
-            scheduleEngineProject.setGmtCreate(scheduleEngineProjectParam.getGmtCreate());
-        }
-
-        if (scheduleEngineProjectParam.getGmtModified() != null) {
-            scheduleEngineProject.setGmtModified(scheduleEngineProjectParam.getGmtModified());
-        }
-
         if (scheduleEngineProjectParam.getIsDeleted() != null) {
             scheduleEngineProject.setIsDeleted(scheduleEngineProjectParam.getIsDeleted());
         }
 
+        scheduleEngineProject.setGmtModified(new Date());
         return scheduleEngineProject;
     }
 
