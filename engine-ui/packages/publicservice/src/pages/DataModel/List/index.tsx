@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Container from '../components/Container';
-import { Input, Table, Pagination, message as Message, message } from 'antd'
+import { Input, Table, message as Message, notification, Pagination, Modal } from 'antd'
 const { Search } = Input;
 import { IModelData } from '../types';
-import { columns } from './constants';
+import { columnsGenerator } from './constants';
 import { API } from '@/services';
 
 interface IPropsList {
@@ -41,6 +41,10 @@ const List = (props: IPropsList) => {
     size: 10
   })
 
+  /**
+   * 获取数据模型列表
+   * @param requestParams 
+   */
   const fetchModelList = async (requestParams: IReqParams) => {
     try {
       setLoading(false);
@@ -56,12 +60,84 @@ const List = (props: IPropsList) => {
       } else {
         Message.error(message);
       }
-    } catch (err) {
-      Message.error(message);
+    } catch (error) {
+      Message.error(error.message);
     } finally {
       setLoading(false);
     }
   }
+
+  /**
+   * 发布数据模型
+   */
+  const releaseModel = useCallback(async (id: number) => {
+    try {
+      const { success, message } = await API.releaseModel({ id });
+      // console.log(success, data, message);
+      if(success) {
+        Message.success('模型发布成功')
+      } else {
+        Message.error(message);
+        fetchModelList(requestParams);
+      }
+    } catch(error) {
+      Message.error(error.message);
+    }
+  }, []);
+
+  /**
+   * 下线模型
+   * @param id 
+   */
+  const unreleaseModel = useCallback(async (id: number) => {
+    try {
+      const { success, message } = await API.unreleaseModel({ id });
+      if(success) {
+        notification.success({
+          message: 'aaa',
+          description: '模型下线成功'
+        });
+        fetchModelList(requestParams);
+      } else {
+        Message.error(message);
+
+      }
+    } catch(error) {
+      Message.error(error.message);
+    } 
+  }, []);
+
+  /**
+   * 删除模型
+   */
+  const deleteModel = useCallback(async (id: number) => {
+    try {
+      const { success, message } = await API.deleteModel({ id });
+      if(success) {
+        Message.error('模型删除成功');
+      } else {
+        Message.error(message);
+      }
+    } catch(error) {
+      Message.error(error.message);
+    }
+  }, [])
+
+  // 删除按钮点击事件处理，二次确认弹窗
+  const handleDeleteBtnClick = (id) => {
+    Modal.confirm({
+      title: '确认删除吗',
+      content: 'aaaaa',
+      onOk() {
+        deleteModel(id);
+      },
+      onCancel() {}
+    })
+  }
+
+  const columns = useMemo(() => {
+    return columnsGenerator({ releaseModel, unreleaseModel, handleDeleteBtnClick });
+  }, [releaseModel, unreleaseModel, handleDeleteBtnClick]);
 
   useEffect(() => {
     fetchModelList(requestParams);
@@ -80,23 +156,25 @@ const List = (props: IPropsList) => {
         <Table
           rowKey="id"
           className="dt-table-border"
-          style={{ height: '100%' }}
+          style={{ height: 'calc(100% - 32px)' }}
           columns={columns as any}
           loading={loading}
           dataSource={modelList}
-          pagination={{
-            current: pagination.current,
-            pageSize: pagination.size,
-            total: pagination.total,
-            onChange: (current, size) => {
-              setRequestParams(prev => ({
-                ...prev,
-                current,
-                size
-              }))
-            }
-          }}
+          pagination={false}
           scroll={{ x: 1300, y: 800 }}
+        />
+        <Pagination
+          style={{ left: 0, float: 'right' }}
+          current={pagination.current}
+          pageSize={pagination.size}
+          total={pagination.total}
+          onChange={(current, size) => {
+            setRequestParams(prev => ({
+              ...prev,
+              current,
+              size
+            }))
+          }}
         />
       </div>
     </Container>
