@@ -47,7 +47,7 @@ const List = (props: IPropsList) => {
    */
   const fetchModelList = async (requestParams: IReqParams) => {
     try {
-      setLoading(false);
+      setLoading(true);
       const { success, data, message } = await API.getModelList(requestParams);
       if(success) {
         console.log(data);
