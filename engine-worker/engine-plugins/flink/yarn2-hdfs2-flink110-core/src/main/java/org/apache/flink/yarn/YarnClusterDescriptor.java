@@ -20,9 +20,8 @@ package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
 import com.dtstack.engine.base.util.HadoopConfTool;
-import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
-import com.dtstack.engine.base.enums.ClassLoaderType;
+import com.dtstack.engine.flink.util.FlinkUtil;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.VisibleForTesting;
@@ -50,7 +49,6 @@ import org.apache.flink.core.plugin.PluginConfig;
 import org.apache.flink.core.plugin.PluginUtils;
 import org.apache.flink.runtime.clusterframework.BootstrapTools;
 import org.apache.flink.runtime.entrypoint.ClusterEntrypoint;
-import org.apache.flink.runtime.execution.librarycache.FlinkUserCodeClassLoaders;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
 import org.apache.flink.util.FlinkException;
@@ -60,7 +58,6 @@ import org.apache.flink.yarn.configuration.YarnConfigOptions;
 import org.apache.flink.yarn.configuration.YarnConfigOptionsInternal;
 import org.apache.flink.yarn.entrypoint.YarnJobClusterEntrypoint;
 import org.apache.flink.yarn.entrypoint.YarnSessionClusterEntrypoint;
-
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsAction;
@@ -74,6 +71,8 @@ import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.LocalResource;
+import org.apache.hadoop.yarn.api.records.LocalResourceType;
+import org.apache.hadoop.yarn.api.records.LocalResourceVisibility;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.NodeState;
 import org.apache.hadoop.yarn.api.records.Priority;
@@ -91,7 +90,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -111,7 +109,16 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.apache.flink.configuration.ConfigConstants.DEFAULT_FLINK_USR_LIB_DIR;
@@ -904,13 +911,33 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
 		// only for per job mode
 		if (jobGraph != null) {
+			boolean flag = false;
+			String remoteFlinkJarPath = flinkConfiguration.getString("remoteFlinkJarPath", null);
+			String flinkPluginRoot = flinkConfiguration.getString("flinkPluginRoot", null);
+			String remotePluginRootDir = flinkConfiguration.getString("remotePluginRootDir", null);
+			//不考虑二者只有其一上传到了hdfs上的情况
+			if(StringUtils.startsWith(remoteFlinkJarPath, "hdfs://") && StringUtils.startsWith(remotePluginRootDir, "hdfs://")){
+				flag = true;
+			}
+
 			for (Map.Entry<String, DistributedCache.DistributedCacheEntry> entry : jobGraph.getUserArtifacts().entrySet()) {
 				org.apache.flink.core.fs.Path path = new org.apache.flink.core.fs.Path(entry.getValue().filePath);
 				// only upload local files
 				if (!path.getFileSystem().isDistributedFS()) {
 					Path localPath = new Path(path.getPath());
-					Tuple2<Path, Long> remoteFileInfo =
-						Utils.uploadLocalFileToRemote(fs, appId.toString(), localPath, homeDir, entry.getKey());
+					Tuple2<Path, Long> remoteFileInfo = null;
+					if(flag){
+						if(entry.getKey().startsWith("class_path")){
+							String pathStr = localPath.toUri().getPath();
+							if(pathStr.startsWith(flinkPluginRoot)){
+								Path dst = new Path(pathStr.replace(flinkPluginRoot, remotePluginRootDir));
+								remoteFileInfo = Tuple2.of(dst, FlinkUtil.getLastModifiedTime(dst, fs, new File(localPath.toUri().getPath())));
+							}
+						}
+					}
+					if(remoteFileInfo == null){
+						remoteFileInfo = Utils.uploadLocalFileToRemote(fs, appId.toString(), localPath, homeDir, entry.getKey());
+					}
 					jobGraph.setUserArtifactRemotePath(entry.getKey(), remoteFileInfo.f0.toString());
 				}
 			}
@@ -1322,7 +1349,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 	 *
 	 * @return the remote path to the uploaded resource
 	 */
-	private static Path setupSingleLocalResource(
+	private Path setupSingleLocalResource(
 			String key,
 			FileSystem fs,
 			ApplicationId appId,
@@ -1330,15 +1357,48 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 			Map<String, LocalResource> localResources,
 			Path targetHomeDir,
 			String relativeTargetPath) throws IOException {
-		Tuple2<Path, LocalResource> resource = Utils.setupLocalResource(
-				fs,
-				appId.toString(),
-				localSrcPath,
-				targetHomeDir,
-				relativeTargetPath);
 
+		boolean flag = false;
+		Tuple2<Path, LocalResource> resource;
+		Path dst = null;
+		String path = null;
+
+		String remoteFlinkJarPath = flinkConfiguration.getString("remoteFlinkJarPath", null);
+
+		if(remoteFlinkJarPath != null){
+			String remotePluginRootDir = flinkConfiguration.getString("remotePluginRootDir", null);
+			String flinkJarPath = flinkConfiguration.getString("flinkJarPath", null);
+			String flinkPluginRoot = flinkConfiguration.getString("flinkPluginRoot", null);
+
+			path = localSrcPath.toUri().getPath();
+			if(path.startsWith(flinkJarPath)){
+				dst = new Path(targetHomeDir, remoteFlinkJarPath + "/" + localSrcPath.getName());
+				flag = true;
+			}else if(path.startsWith(flinkPluginRoot)){
+				dst = new Path(targetHomeDir, path.replace(flinkPluginRoot, remotePluginRootDir));
+				flag = true;
+			}
+		}
+
+		if(flag){
+			File file = new File(path);
+			long lastModifiedTime = FlinkUtil.getLastModifiedTime(dst, fs, file);
+			LocalResource localResource = Records.newRecord(LocalResource.class);
+			localResource.setResource(ConverterUtils.getYarnUrlFromURI(dst.toUri()));
+			localResource.setSize(file.length());
+			localResource.setTimestamp(lastModifiedTime);
+			localResource.setType(LocalResourceType.FILE);
+			localResource.setVisibility(LocalResourceVisibility.APPLICATION);
+			resource = Tuple2.of(dst, localResource);
+		}else{
+			resource = Utils.setupLocalResource(
+					fs,
+					appId.toString(),
+					localSrcPath,
+					targetHomeDir,
+					relativeTargetPath);
+		}
 		localResources.put(key, resource.f1);
-
 		return resource.f0;
 	}
 
@@ -1375,7 +1435,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 	 *
 	 * @return list of class paths with the the proper resource keys from the registration
 	 */
-	static List<String> uploadAndRegisterFiles(
+	List<String> uploadAndRegisterFiles(
 			Collection<File> shipFiles,
 			FileSystem fs,
 			Path targetHomeDir,
