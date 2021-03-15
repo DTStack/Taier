@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +58,7 @@ public abstract class AbstractClient implements IClient {
     }
 
     @Override
-    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException{
+    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
         RdosTaskStatus status = RdosTaskStatus.NOTFOUND;
         try {
             status = processJobStatus(jobIdentifier);
