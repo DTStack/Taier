@@ -1,0 +1,116 @@
+.source {
+  padding: 20px;
+  background: #f2f7fa;
+  height: 100%;
+  .content {
+    margin-top: 12px;
+    width: 100%;
+    height: calc(100% - 32px);
+    background-color: #fff;
+    overflow: hidden;
+    border: 1px solid rgba(6, 14, 26, 0.08);
+    border-radius: 2px;
+    position: relative;
+    //top-header
+    .top-steps {
+      height: 52px;
+      line-height: 52px;
+      padding: 12px 20%;
+      border-bottom: 1px solid rgba(6, 14, 26, 0.08);
+    }
+
+    //step content
+    .step-info {
+      position: absolute;
+      top: 52px;
+      bottom: 55px;
+      left: 0;
+      width: 100%;
+      overflow: scroll;
+      padding: 20px;
+      background-color: #fafafa;
+      .fill {
+        height: 100%;
+        .show-type {
+          padding-top: 12px;
+          display: flex;
+          height: calc(100% - 32px);
+          .left-menu {
+            width: 134px;
+            border: 1px solid #ddd;
+          }
+          .right-menu {
+            flex: 1;
+            background-color: #fff;
+            padding: 27px 40px;
+            img {
+              width: 216px;
+              height: 108px;
+              display: block;
+              background: #fff;
+              box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.12);
+              border-radius: 3px;
+              &:hover {
+                background: #fff;
+                border-radius: 3px;
+                border: 1px solid #4285f5;
+              }
+            }
+            .show-detail {
+            }
+          }
+        }
+      }
+      .produce-auth {
+        height: 100%;
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #333;
+        line-height: 20px;
+        display: flex;
+        justify-content: center;
+        .text-show{
+          width: 50%;
+          height: 100%;
+        }
+        .version-sel{
+          margin: 20px 0;
+        }
+        .version {
+          width:60px;
+          display: inline-block;
+          text-align: right;
+        }
+      }
+    }
+
+    //footer
+    .footer-select {
+      width: 100%;
+      height: 55px;
+      line-height: 55px;
+      position: absolute;
+      bottom: 0;
+      border-top: 1px solid rgba(6, 14, 26, 0.08);
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+  .ant-steps-item-icon {
+    height: 28px;
+    width: 28px;
+    line-height: 28px;
+  }
+  .ant-steps-item-title {
+    height: 28px;
+  }
+}
+
+.selected {
+  background: #fff;
+  border-radius: 3px;
+  border: 1px solid #4285f5;
+}

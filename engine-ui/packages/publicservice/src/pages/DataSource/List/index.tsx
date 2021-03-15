@@ -1,7 +1,7 @@
 /*
  * @Author: 云乐
  * @Date: 2021-03-10 14:32:56
- * @LastEditTime: 2021-03-12 10:16:54
+ * @LastEditTime: 2021-03-15 17:35:48
  * @LastEditors: 云乐
  * @Description: 数据源列表展示
  */
@@ -11,9 +11,9 @@ import Search from "./components/Search";
 import { Table, message, Modal } from "antd";
 import { columns } from "./constants";
 import PaginationCom from "@/components/PaginationCom/PaginationCom";
-import "./style.less";
 import { API } from "@/services";
 import AuthSel from "./components/AuthSel";
+import "./style.scss";
 
 function index() {
   const [dataSources, setDataSources] = useState([]);
@@ -26,6 +26,7 @@ function index() {
     dataType: "",
     productCode: "",
     isMeta: 0,
+    field: "",
   });
   const [total, setTotal] = useState(null);
 
@@ -62,6 +63,10 @@ function index() {
 
   useEffect(() => {
     requestTableData(); //获取数据源列表
+
+    //清除存储数据
+    sessionStorage.removeItem("sqlType");
+    sessionStorage.removeItem("version");
   }, []);
 
   //编辑
@@ -126,6 +131,16 @@ function index() {
     setVisible(false);
   };
 
+  const handleTableChange = (pagination, filters, sorter) => {
+    let filterArr = filters.status;
+    if (filterArr.length === 0 || filterArr.length === 2) {
+      var data = { ...other, field: "" };
+    } else if (filterArr.length === 1) {
+      data = { ...other, field: filterArr[0] };
+    }
+    setOther(data);
+    requestTableData(data);
+  };
   return (
     <div className="source">
       <Search onSearch={onSearch}></Search>
@@ -140,10 +155,15 @@ function index() {
               toDelete: toDelete,
               left: "left",
               right: "right",
+              filters: [
+                { text: "正常", value: 1 },
+                { text: "连接失败", value: 0 },
+              ],
             })}
             dataSource={dataSources}
             pagination={false}
             scroll={{ x: "100%" }}
+            onChange={handleTableChange}
           />
         </div>
         <PaginationCom

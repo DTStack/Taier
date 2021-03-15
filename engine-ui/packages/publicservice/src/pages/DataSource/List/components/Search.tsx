@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { API } from "@/services";
-import { Form, Checkbox, Button, Select, message } from "antd";
+import { Form, Checkbox, Button, Select, message, Tooltip, Icon } from "antd";
 import { useHistory } from "react-router";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import { FormComponentProps } from "antd/es/form";
-import "../style.less";
+import "../style.scss";
 
 interface IProps extends FormComponentProps {
   onSearch(value: string): void; //父组件传递过来的值
@@ -119,9 +119,14 @@ function Search(props) {
             valuePropName: "checked",
           })(
             <Checkbox
-              onChange={(e) => onSearch({ isMeta: e.target.checked ? 1 : 0 })}
+              onChange={(e) =>
+                onSearch({ isMeta: e.target.checked ? 1 : 0, current: 1 })
+              }
             >
-              显示默认数据库
+              显示默认数据库 
+              <Tooltip title="各模块在创建项目时的默认数据源">
+                <Icon style={{marginLeft:8}} type="question-circle-o" />
+              </Tooltip>
             </Checkbox>
           )}
         </Form.Item>

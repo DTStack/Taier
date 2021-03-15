@@ -1,7 +1,7 @@
 /*
  * @Author: 云乐
  * @Date: 2021-03-11 10:40:17
- * @LastEditTime: 2021-03-12 09:37:22
+ * @LastEditTime: 2021-03-15 17:24:54
  * @LastEditors: 云乐
  * @Description: 统一数栈分页组件
  * 参数说明：
@@ -15,7 +15,7 @@
 
 import React from "react";
 import { Pagination } from "antd";
-import "./style.less";
+import "./style.scss";
 
 interface IProps {
   onChangePage(page: number): void;

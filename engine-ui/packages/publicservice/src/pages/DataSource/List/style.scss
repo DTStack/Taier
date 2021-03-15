@@ -1,0 +1,49 @@
+// top style
+$highlight-color: #3F87FF;
+
+.top-search{
+  height: 32px;
+  margin-bottom: 12px;
+}
+
+// table style
+.source {
+  padding: 20px;
+  background: #f2f7fa;
+  height: 100%;
+  .bottom{
+    height: calc(100% - 44px);
+    background-color: #fff;
+    .conent-table{
+      height: calc(100% - 56px);
+      overflow: scroll;
+    }
+  }
+  .data-view{
+    color: $highlight-color;
+  }
+}
+
+.ant-badge-status-dot {
+  width: 8px !important;
+  height: 8px !important;
+}
+.ant-badge-status-error{
+  background-color: #FF5F5C !important; 
+}
+.ant-badge-status-success{
+  background-color: #12BC6A !important; 
+}
+.copy{
+  &:hover{
+    color: $highlight-color;
+  }
+}
+.down-temp{
+  color: $highlight-color;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+
+

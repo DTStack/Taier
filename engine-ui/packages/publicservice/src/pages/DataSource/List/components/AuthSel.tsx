@@ -1,7 +1,7 @@
 /*
  * @Author: 云乐
  * @Date: 2021-03-11 17:43:45
- * @LastEditTime: 2021-03-11 19:58:01
+ * @LastEditTime: 2021-03-15 17:53:45
  * @LastEditors: 云乐
  * @Description: 选择授权页面
  */
@@ -23,23 +23,23 @@ export default function AuthSel(props: IProps) {
     try {
       let { data } = await API.authProductList({ dataInfoId: record.dataInfoId });
       if (data.length > 0) {
-        // data.push(
-        //   {
-        //     isAuth: 1,
-        //     productCode: "time",
-        //     productName: "实时开发",
-        //   },
-        //   {
-        //     isAuth: 0,
-        //     productCode: "console",
-        //     productName: "控制台开发",
-        //   },
-        //   {
-        //     isAuth: 1,
-        //     productCode: "dataqua",
-        //     productName: "数据质量",
-        //   }
-        // );
+        data.push(
+          {
+            isAuth: 1,
+            productCode: "time",
+            productName: "实时开发",
+          },
+          {
+            isAuth: 0,
+            productCode: "console",
+            productName: "控制台开发",
+          },
+          {
+            isAuth: 1,
+            productCode: "dataqua",
+            productName: "数据质量",
+          }
+        );
 
         data.forEach((item) => {
           item.label = item.productName;
@@ -51,7 +51,6 @@ export default function AuthSel(props: IProps) {
             checkedlist.push(item.productCode);
           }
         });
-        console.log('data: ', data);
 
         setauthList(data);
       }
