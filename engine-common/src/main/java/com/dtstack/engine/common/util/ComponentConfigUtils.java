@@ -340,7 +340,7 @@ public class ComponentConfigUtils {
         }
         if (isOtherControl.test(componentConfig.getKey())) {
             componentConfig.setType(EFrontType.OTHER.name());
-        } else if (EFrontType.PASSWORD.name().equalsIgnoreCase(componentConfig.getKey())) {
+        } else if (EFrontType.PASSWORD.name().equalsIgnoreCase(componentConfig.getKey()) && StringUtils.isBlank(componentConfig.getDependencyKey())) {
             //key password的控件转换为加密显示
             componentConfig.setType(EFrontType.PASSWORD.name());
         } else {
@@ -410,11 +410,14 @@ public class ComponentConfigUtils {
                 if (!CollectionUtils.isEmpty(values)) {
                     for (ClientTemplate value : values) {
                         value.setType("");
+                        value.setRequired(true);
+                        value.setDependencyKey("auth");
+                        value.setValue("password".equalsIgnoreCase(value.getKey())? 1: 2);
+                        value.setDependencyValue(String.valueOf(value.getValue()));
                         //将目前的auth 或 password 内嵌一层到auth下
                         ClientTemplate realClientTemplate = authMapping.get(value.getKey());
                         Object realValue = realClientTemplate == null ? value.getValue() : realClientTemplate.getValue();
                         ClientTemplate sonTemplates = buildCustom(value.getKey(), realValue, EFrontType.INPUT.name());
-                        value.setValue(value.getDependencyValue());
                         value.setValues(Lists.newArrayList(sonTemplates));
                     }
                 }
