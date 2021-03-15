@@ -89,7 +89,7 @@ public class ScheduleEngineProject implements Serializable {
      *
      * @mbg.generated Fri Mar 05 10:26:07 CST 2021
      */
-    private Boolean status;
+    private Integer status;
 
     /**
      *
@@ -335,7 +335,7 @@ public class ScheduleEngineProject implements Serializable {
      *
      * @mbg.generated Fri Mar 05 10:26:07 CST 2021
      */
-    public Boolean getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
@@ -347,7 +347,7 @@ public class ScheduleEngineProject implements Serializable {
      *
      * @mbg.generated Fri Mar 05 10:26:07 CST 2021
      */
-    public void setStatus(Boolean status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 

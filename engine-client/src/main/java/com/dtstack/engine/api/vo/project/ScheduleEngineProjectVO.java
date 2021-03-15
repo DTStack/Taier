@@ -26,7 +26,7 @@ public class ScheduleEngineProjectVO {
 
     private String projectDesc;
 
-    private Boolean status;
+    private Integer status;
 
     private Integer createUserId;
 
@@ -100,11 +100,11 @@ public class ScheduleEngineProjectVO {
         this.projectDesc = projectDesc;
     }
 
-    public Boolean getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(Boolean status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
