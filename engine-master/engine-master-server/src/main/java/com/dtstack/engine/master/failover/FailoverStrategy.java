@@ -5,6 +5,7 @@ import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.EngineJobCacheDao;
@@ -304,8 +305,8 @@ public class FailoverStrategy {
                         startId = jobCache.getId();
                     } catch (Exception e) {
                         //数据转换异常--打日志
-                        LOG.error("", e);
-                        dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
+                        LOG.error("faultTolerantRecoverJobCache {} error", jobCache.getJobId(),e);
+                        dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + ExceptionUtil.getErrorMessage(e));
                     }
                 }
                 distributeQueueJobs(jobResources);

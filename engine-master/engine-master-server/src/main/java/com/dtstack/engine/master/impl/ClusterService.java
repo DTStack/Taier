@@ -1,9 +1,8 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.domain.Queue;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ClusterDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
@@ -18,6 +17,7 @@ import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
@@ -34,7 +34,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,9 +70,6 @@ public class ClusterService implements InitializingBean {
 
     @Autowired
     private ClusterDao clusterDao;
-
-    @Autowired
-    private EngineService engineService;
 
     @Autowired
     private QueueDao queueDao;
@@ -158,7 +154,7 @@ public class ClusterService implements InitializingBean {
         }
         clusterDao.insert(cluster);
         clusterDTO.setId(cluster.getId());
-        return getCluster(cluster.getId(),true,true);
+        return ClusterVO.toVO(cluster);
     }
 
     private void checkName(String name) {
@@ -198,7 +194,6 @@ public class ClusterService implements InitializingBean {
      * 对外接口
      */
     public String clusterInfo( Long tenantId) {
-
         ClusterVO cluster = getClusterByTenant(tenantId);
         if (cluster != null) {
             JSONObject config = buildClusterConfig(cluster);
@@ -207,25 +202,18 @@ public class ClusterService implements InitializingBean {
         return StringUtils.EMPTY;
     }
 
-    public ClusterVO clusterExtInfo( Long uicTenantId) {
-
-        Long tenantId = tenantDao.getIdByDtUicTenantId(uicTenantId);
-        if (tenantId == null) {
+    public ClusterVO clusterExtInfo(Long uicTenantId) {
+        Long clusterId = engineTenantDao.getClusterIdByTenantId(uicTenantId);
+        if(null == clusterId){
             return null;
         }
-        List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
-        if (CollectionUtils.isEmpty(engineIds)) {
-            return null;
-        }
-        Engine engine = engineDao.getOne(engineIds.get(0));
-        return getCluster(engine.getClusterId(), true,false);
+        return getCluster(clusterId,false);
     }
 
     /**
      * 内部使用
      */
     public JSONObject pluginInfoJSON( Long dtUicTenantId,  String engineTypeStr, Long dtUicUserId,Integer deployMode) {
-
         if (EngineType.Dummy.name().equalsIgnoreCase(engineTypeStr)) {
             JSONObject dummy = new JSONObject();
             dummy.put(TYPE_NAME, EngineType.Dummy.name().toLowerCase());
@@ -322,6 +310,7 @@ public class ClusterService implements InitializingBean {
     }
 
     public Queue getQueue(Long tenantId, Long clusterId) {
+        //先获取绑定的
         Long queueId = engineTenantDao.getQueueIdByTenantId(tenantId);
         Queue queue = queueDao.getOne(queueId);
         if (queue != null) {
@@ -333,7 +322,7 @@ public class ClusterService implements InitializingBean {
             return null;
         }
 
-        List<Queue> queues = queueDao.listByEngineIdWithLeaf(hadoopEngine.getId());
+        List<Queue> queues = queueDao.listByEngineIdWithLeaf(Lists.newArrayList(hadoopEngine.getId()));
         if (CollectionUtils.isEmpty(queues)) {
             return null;
         }
@@ -361,13 +350,15 @@ public class ClusterService implements InitializingBean {
                 deploy = EDeployMode.getByType(deployMode);
             }
 
-            ClusterVO cluster = getClusterByTenant(tenantId);
-            if (null == cluster) {
+            Long clusterId = engineTenantDao.getClusterIdByTenantId(tenantId);
+            if (null == clusterId) {
                 return null;
             }
-
-            JSONObject clusterConfigJson = buildClusterConfig(cluster);
-            JSONObject componentConf = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
+            Component component = componentService.getComponentByClusterId(clusterId, type.getComponentType().getTypeCode());
+            if (null == component) {
+                return null;
+            }
+            JSONObject componentConf = JSONObject.parseObject(component.getComponentConfig());
             if (null == componentConf) {
                 return null;
             }
@@ -388,35 +379,35 @@ public class ClusterService implements InitializingBean {
      * FIXME 这里获取的hiveConf其实是spark thrift server的连接信息，后面会统一做修改
      */
     public String hiveInfo( Long dtUicTenantId,  Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.SPARK_THRIFT.getConfName(),fullKerberos,Boolean.FALSE);
+        return getConfigByKey(dtUicTenantId, EComponentType.SPARK_THRIFT.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
     public String hiveServerInfo( Long dtUicTenantId, Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.HIVE_SERVER.getConfName(),fullKerberos,Boolean.FALSE);
+        return getConfigByKey(dtUicTenantId, EComponentType.HIVE_SERVER.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
     public String hadoopInfo( Long dtUicTenantId, Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.HDFS.getConfName(),fullKerberos,Boolean.FALSE);
+        return getConfigByKey(dtUicTenantId, EComponentType.HDFS.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
     public String carbonInfo( Long dtUicTenantId, Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.CARBON_DATA.getConfName(),fullKerberos,Boolean.FALSE);
+        return getConfigByKey(dtUicTenantId, EComponentType.CARBON_DATA.getConfName(),fullKerberos);
     }
 
     /**
      * 对外接口
      */
     public String impalaInfo( Long dtUicTenantId, Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.IMPALA_SQL.getConfName(),fullKerberos,Boolean.FALSE);
+        return getConfigByKey(dtUicTenantId, EComponentType.IMPALA_SQL.getConfName(),fullKerberos);
     }
 
     /**
@@ -426,14 +417,14 @@ public class ClusterService implements InitializingBean {
      * @return
      */
     public String prestoInfo(Long dtUicTenantId, Boolean fullKerberos) {
-        return getConfigByKey(dtUicTenantId, EComponentType.PRESTO_SQL.getConfName(), fullKerberos,Boolean.FALSE);
+        return getConfigByKey(dtUicTenantId, EComponentType.PRESTO_SQL.getConfName(), fullKerberos);
     }
 
     /**
      * 对外接口
      */
     public String sftpInfo( Long dtUicTenantId) {
-        return getConfigByKey(dtUicTenantId, EComponentType.SFTP.getConfName(),false,Boolean.FALSE);
+        return getConfigByKey(dtUicTenantId, EComponentType.SFTP.getConfName(),false);
     }
 
     public JSONObject buildClusterConfig(ClusterVO cluster) {
@@ -454,123 +445,114 @@ public class ClusterService implements InitializingBean {
         return config;
     }
 
+    /**
+     * 如果只用集群Id 不要使用此接口
+     * 填充信息到组件 集群—>引擎->组件
+     * @param dtUicTenantId
+     * @return
+     */
     public ClusterVO getClusterByTenant(Long dtUicTenantId) {
-
-        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-        if (tenantId == null) {
-            return getCluster(DEFAULT_CLUSTER_ID, true,false);
+        Long clusterId = engineTenantDao.getClusterIdByTenantId(dtUicTenantId);
+        if(Objects.isNull(clusterId)){
+            return getCluster(DEFAULT_CLUSTER_ID,false);
         }
-
-        List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
-        if (CollectionUtils.isEmpty(engineIds)) {
-            return getCluster(DEFAULT_CLUSTER_ID, true,false);
-        }
-
-        Engine engine = engineDao.getOne(engineIds.get(0));
-        if( null == engine ){
-            return getCluster(DEFAULT_CLUSTER_ID, true,false);
-        }
-        return getCluster(engine.getClusterId(), true,false);
+        return getCluster(clusterId,false);
     }
 
+    /**
+     * 只有集群信息
+     * @param dtUicTenantId
+     * @return
+     */
     public Cluster getCluster(Long dtUicTenantId) {
-        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-        if (tenantId == null) {
+        Long clusterId = engineTenantDao.getClusterIdByTenantId(dtUicTenantId);
+        if(null == clusterId){
             return null;
         }
-
-        List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
-        if (CollectionUtils.isEmpty(engineIds)) {
-            return null;
-        }
-
-        Engine engine = engineDao.getOne(engineIds.get(0));
-        if(Objects.isNull(engine)){
-            return null;
-        }
-
-        return clusterDao.getOne(engine.getClusterId());
+        return clusterDao.getOne(clusterId);
     }
 
-    public String getConfigByKey(Long dtUicTenantId,  String key, Boolean fullKerberos,Boolean isWrapper) {
-        ClusterVO cluster = getClusterByTenant(dtUicTenantId);
+    public String getConfigByKey(Long dtUicTenantId, String key, Boolean fullKerberos) {
+        Long clusterId = Optional.ofNullable(engineTenantDao.getClusterIdByTenantId(dtUicTenantId)).orElse(DEFAULT_CLUSTER_ID);
         //根据组件区分kerberos
         EComponentType componentType = EComponentType.getByConfName(key);
-        Component component = componentDao.getByClusterIdAndComponentType(cluster.getId(),componentType.getTypeCode());
+        Component component = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode());
         if(null == component){
-            return "{}";
+            return "";
         }
         JSONObject configObj = JSONObject.parseObject(component.getComponentConfig());
-        //返回版本
-        configObj.put(ComponentService.VERSION, component.getHadoopVersion());
-        KerberosConfig kerberosConfig = kerberosDao.getByComponentType(cluster.getId(),componentType.getTypeCode());
-        if(null != kerberosConfig){
-            // 添加组件的kerberos配置信息 应用层使用
-            this.addKerberosConfigWithHdfs(key, cluster, kerberosConfig, configObj);
-
-            if(BooleanUtils.isTrue(isWrapper)){
-                Component sftpComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.SFTP.getTypeCode());
-                if(null == sftpComponent){
-                    LOGGER.error("can't find sftpComponent,clusterId:{}",cluster.getId());
-                    throw new RdosDefineException("can't find sftpComponent");
-                }
-                Map sftpMap = null;
-                try {
-                    sftpMap = PublicUtil.strToObject(sftpComponent.getComponentConfig(), Map.class);
-                } catch (Exception e) {
-                    throw new RdosDefineException("sftp 配置不能为空");
-                }
-                //填充信息
-                JSONObject componentInfo = JSONObject.parseObject(componentService.wrapperConfig(componentType.getTypeCode(), component.getComponentConfig(),
-                        sftpMap, kerberosConfig, cluster.getClusterName()));
-                configObj.putAll(componentInfo);
+        if (configObj != null) {
+            KerberosConfig kerberosConfig = null;
+            if (StringUtils.isNotBlank(component.getKerberosFileName())) {
+                //开启kerberos的kerberosFileName不为空
+                kerberosConfig = kerberosDao.getByComponentType(clusterId, componentType.getTypeCode());
             }
+            //返回版本
+            configObj.put("version", component.getHadoopVersion());
+            //维持各个应用原来数据接口
+            addKerberosConfigWithHdfs(key, clusterId, kerberosConfig, configObj);
             return configObj.toJSONString();
         }
-        return configObj.toJSONString();
+        return "{}";
     }
 
 
 
 
     /**
+     * 添加kerberos的配置文件地址为本地路径
+     * @param dataMap
+     */
+    private void accordToKerberosFile(JSONObject dataMap) {
+        try {
+            JSONObject configJsonObject = dataMap.getJSONObject("kerberosConfig");
+            if ( null == configJsonObject ) {
+                return;
+            }
+            KerberosConfig kerberosConfig = PublicUtil.strToObject(configJsonObject.toString(), KerberosConfig.class);
+            if ( null == kerberosConfig ) {
+                return;
+            }
+            if (kerberosConfig.getOpenKerberos() <= 0) {
+                return;
+            }
+            Preconditions.checkState( null != kerberosConfig.getClusterId());
+            Preconditions.checkState( null != kerberosConfig.getOpenKerberos() );
+            Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getPrincipal()));
+            Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getRemotePath()));
+            Preconditions.checkState( null != kerberosConfig.getComponentType());
+            //获取本地的kerberos本地路径
+            configJsonObject.put("principalFile", kerberosConfig.getName());
+            configJsonObject.putAll(Optional.ofNullable(configJsonObject.getJSONObject("hdfsConfig")).orElse(new JSONObject()));
+            configJsonObject.remove("hdfsConfig");
+            dataMap.put("kerberosConfig", configJsonObject);
+        } catch (Exception e) {
+            LOGGER.error("accordToKerberosFile error {}", dataMap, e);
+            throw new RdosDefineException("accordToKerberosFile失败" +  ExceptionUtil.getErrorMessage(e));
+        }
+    }
+
+    /**
      * 如果开启集群开启了kerberos认证，kerberosConfig中还需要包含hdfs配置
      *
      * @param key
-     * @param cluster
+     * @param clusterId
      * @param kerberosConfig
      * @param configObj
      */
-    private void addKerberosConfigWithHdfs(String key, ClusterVO cluster, KerberosConfig kerberosConfig, JSONObject configObj) {
-        if (null == cluster || null == kerberosConfig || null == configObj) {
-            return;
-        }
-        KerberosConfigVO kerberosConfigVO = KerberosConfigVO.toVO(kerberosConfig);
-        if (!Objects.equals(EComponentType.HDFS.getConfName(), key)) {
-            //添加hdfs组件的配置信息到kerberosConfig中
-            Optional<ComponentVO> hdfsOptional = Optional.empty();
-            if (CollectionUtils.isNotEmpty(cluster.getScheduling())) {
-                hdfsOptional = cluster
-                        .getScheduling()
-                        .stream()
-                        .flatMap(s -> s.getComponents().stream())
-                        .filter(c -> EComponentType.HDFS.getTypeCode().equals(c.getComponentTypeCode()))
-                        .findFirst();
-            }
-            if (hdfsOptional.isPresent()) {
-                kerberosConfigVO.setHdfsConfig(JSONObject.parseObject(hdfsOptional.get().getComponentConfig()));
-            } else {
-                Component hdfsComponent = componentDao.getByClusterIdAndComponentType(cluster.getId(), EComponentType.HDFS.getTypeCode());
-                if (null == hdfsComponent) {
+    public void addKerberosConfigWithHdfs(String key, Long clusterId, KerberosConfig kerberosConfig, JSONObject configObj) {
+        if (Objects.nonNull(kerberosConfig)) {
+            KerberosConfigVO kerberosConfigVO = KerberosConfigVO.toVO(kerberosConfig);
+            if (!Objects.equals(EComponentType.HDFS.getConfName(), key)) {
+                Component hdfsComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.HDFS.getTypeCode());
+                if (Objects.isNull(hdfsComponent)) {
                     throw new RdosDefineException("开启kerberos后需要预先保存hdfs组件");
                 }
+                kerberosConfigVO.setHdfsConfig(JSONObject.parseObject(hdfsComponent.getComponentConfig()));
             }
             kerberosConfigVO.setKerberosFileTimestamp(kerberosConfig.getGmtModified());
+            configObj.put("kerberosConfig", kerberosConfigVO);
         }
-        //kerberosConfig放到最外层
-        String kerberosConfigStr = JSONObject.toJSONString(kerberosConfigVO);
-        configObj.putAll(JSON.parseObject(kerberosConfigStr));
-        configObj.put("kerberosConfig", kerberosConfigVO);
     }
 
     public JSONObject convertPluginInfo(JSONObject clusterConfigJson, EngineTypeComponentType type, ClusterVO clusterVO,Integer deployMode) {
@@ -758,7 +740,6 @@ public class ClusterService implements InitializingBean {
      * 集群下拉列表
      */
     public List<ClusterVO> clusters() {
-
         PageQuery<ClusterDTO> pageQuery = new PageQuery<>(1, 1000, "gmt_modified", Sort.DESC.name());
         //查询未被删除的
         ClusterDTO clusterDTO = new ClusterDTO();
@@ -769,15 +750,6 @@ public class ClusterService implements InitializingBean {
             return ClusterVO.toVOs(clusterVOS);
         }
         return Lists.newArrayList();
-    }
-
-    public Cluster getOne(Long clusterId) {
-        Cluster one = clusterDao.getOne(clusterId);
-        if (one == null) {
-            throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER.getDescription());
-        }
-        return one;
-
     }
 
     public String tiDBInfo(Long dtUicTenantId, Long dtUicUserId){
@@ -813,7 +785,7 @@ public class ClusterService implements InitializingBean {
             throw new RdosDefineException("不支持的数据源类型");
         }
         //优先绑定账号
-        String jdbcInfo = getConfigByKey(dtUicTenantId, componentType.getConfName(), false,Boolean.FALSE);
+        String jdbcInfo = getConfigByKey(dtUicTenantId, componentType.getConfName(), false);
         User dtUicUser = userDao.getByDtUicUserId(dtUicUserId);
         if (null == dtUicUser) {
             return jdbcInfo;
@@ -865,8 +837,8 @@ public class ClusterService implements InitializingBean {
         clusterDao.deleteCluster(clusterId);
     }
 
-    public ClusterVO getCluster( Long clusterId,  Boolean kerberosConfig, Boolean removeTypeName) {
-        return getCluster(clusterId,kerberosConfig,removeTypeName,false);
+    public ClusterVO getCluster( Long clusterId, Boolean removeTypeName) {
+        return getCluster(clusterId,removeTypeName,false);
     }
 
     /**
@@ -874,7 +846,7 @@ public class ClusterService implements InitializingBean {
      * @param clusterId
      * @return
      */
-    public ClusterVO getCluster(Long clusterId,  Boolean kerberosConfig, Boolean removeTypeName,boolean isFullPrincipal) {
+    public ClusterVO getCluster(Long clusterId, Boolean removeTypeName,boolean isFullPrincipal) {
         Cluster cluster = clusterDao.getOne(clusterId);
         EngineAssert.assertTrue(cluster != null, ErrorCode.DATA_NOT_FIND.getDescription());
         ClusterVO clusterVO = ClusterVO.toVO(cluster);
@@ -940,19 +912,52 @@ public class ClusterService implements InitializingBean {
         List<ClusterEngineVO> result = new ArrayList<>();
 
         List<Cluster> clusters = clusterDao.listAll();
+        List<Engine> engines = engineDao.listByEngineIds(new ArrayList<>());
+        if (null == engines) {
+            return new ArrayList<>();
+        }
+        Map<Long, List<Engine>> clusterEngineMapping = engines
+                .stream()
+                .collect(Collectors.groupingBy(Engine::getClusterId));
+        List<Long> engineIds = engines.stream()
+                .map(Engine::getId)
+                .collect(Collectors.toList());
+
+        List<Queue> queues = queueDao.listByEngineIdWithLeaf(engineIds);
+
+        Map<Long, List<Queue>> engineQueueMapping = queues
+                .stream()
+                .collect(Collectors.groupingBy(Queue::getEngineId));
+
+
         for (Cluster cluster : clusters) {
-            ClusterEngineVO vo = ClusterEngineVO.toVO(cluster);
-            vo.setEngines(engineService.listClusterEngines(cluster.getId(), true));
+            ClusterEngineVO vo = fillEngineQueueInfo(clusterEngineMapping, engineQueueMapping, cluster);
             result.add(vo);
         }
 
         return result;
     }
 
-    public String pluginInfoForType(Long dtUicTenantId, Boolean fullKerberos, Integer pluginType) {
+    private ClusterEngineVO fillEngineQueueInfo(Map<Long, List<Engine>> clusterEngineMapping, Map<Long, List<Queue>> engineQueueMapping, Cluster cluster) {
+        ClusterEngineVO vo = ClusterEngineVO.toVO(cluster);
+        List<Engine> engineList = clusterEngineMapping.get(vo.getClusterId());
+        if (CollectionUtils.isNotEmpty(engineList)) {
+            List<EngineVO> engineVOS = EngineVO.toVOs(engineList);
+            for (EngineVO engineVO : engineVOS) {
+                //页面接口不用queue信息 但是queue信息绑定租户要使用
+                List<Queue> queueList = engineQueueMapping.get(engineVO.getEngineId());
+                if (CollectionUtils.isNotEmpty(queueList)) {
+                    engineVO.setQueues(QueueVO.toVOs(queueList));
+                }
+            }
+            vo.setEngines(engineVOS);
+        }
+        return vo;
+    }
 
+    public String pluginInfoForType(Long dtUicTenantId, Boolean fullKerberos, Integer pluginType) {
         EComponentType type = EComponentType.getByCode(pluginType);
-        return getConfigByKey(dtUicTenantId, type.getConfName(),fullKerberos,Boolean.FALSE);
+        return getConfigByKey(dtUicTenantId, type.getConfName(),fullKerberos);
     }
 
     public String dbInfo(Long dtUicTenantId, Long dtUicUserId, Integer type) {
@@ -969,17 +974,17 @@ public class ClusterService implements InitializingBean {
             return Boolean.FALSE;
         }
 
-        Cluster cluster = getCluster(dtUicTenantId);
+        Long clusterId = engineTenantDao.getClusterIdByTenantId(dtUicTenantId);
 
-        if (cluster == null) {
+        if (clusterId == null) {
             throw new RdosDefineException("租户id:"+dtUicTenantId+"不存在!");
         }
 
         for (Long uicTenantId : dtUicTenantIds) {
-            Cluster cluster1 = getCluster(uicTenantId);
+            Long checkClusterId = engineTenantDao.getClusterIdByTenantId(uicTenantId);
 
-            if (cluster1 != null) {
-                if (cluster.getId().equals(cluster1.getId())) {
+            if (checkClusterId != null) {
+                if (clusterId.equals(checkClusterId)) {
                     // dtUicTenantIds集合中存在和 dtUicTenantId相同的集群
                     return Boolean.TRUE;
                 }

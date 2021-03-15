@@ -66,9 +66,6 @@ public class ConsoleService {
     private ClusterDao clusterDao;
 
     @Autowired
-    private EngineDao engineDao;
-
-    @Autowired
     private ComponentService componentService;
 
     @Autowired
@@ -483,7 +480,7 @@ public class ConsoleService {
             throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
         }
 
-        Component yarnComponent = getYarnComponent(cluster.getId());
+        Component yarnComponent = componentService.getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode());
         if (yarnComponent == null) {
             return null;
         }

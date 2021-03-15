@@ -161,27 +161,18 @@ public class ComponentService {
 
 
     public List<ComponentsConfigOfComponentsVO> listConfigOfComponents(Long dtUicTenantId, Integer engineType) {
+        EngineTenant targetEngine = engineTenantDao.getByTenantIdAndEngineType(dtUicTenantId, engineType);
 
-        List<ComponentsConfigOfComponentsVO> componentsVOS = Lists.newArrayList();
-        Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
-        if (tenantId == null) {
-            return componentsVOS;
+        if (targetEngine == null) {
+            return new ArrayList<>();
         }
-        List<Long> engineIds = engineTenantDao.listEngineIdByTenantId(tenantId);
-        if (CollectionUtils.isEmpty(engineIds)) {
-            return componentsVOS;
-        }
-        Engine targetEngine = engineDao.getEngineByIdsAndType(engineIds,engineType);
-        if(null == targetEngine){
-            return componentsVOS;
-        }
-        List<Component> componentList = componentDao.listByEngineId(targetEngine.getId());
-        for (Component component : componentList) {
+        List<Component> componentList = componentDao.listByEngineIds(Lists.newArrayList(targetEngine.getEngineId()));
+        List<ComponentsConfigOfComponentsVO> componentsVOS = componentList.stream().map(c -> {
             ComponentsConfigOfComponentsVO componentsConfigOfComponentsVO = new ComponentsConfigOfComponentsVO();
-            componentsConfigOfComponentsVO.setComponentTypeCode(component.getComponentTypeCode());
-            componentsConfigOfComponentsVO.setComponentConfig(component.getComponentConfig());
-            componentsVOS.add(componentsConfigOfComponentsVO);
-        }
+            componentsConfigOfComponentsVO.setComponentTypeCode(c.getComponentTypeCode());
+            componentsConfigOfComponentsVO.setComponentConfig(c.getComponentConfig());
+            return componentsConfigOfComponentsVO;
+        }).collect(Collectors.toList());
         return componentsVOS;
     }
 
@@ -200,6 +191,7 @@ public class ComponentService {
         }
         return AppType.CONSOLE.name() + "_" + one.getClusterName();
     }
+
 
     /**
      * 更新缓存
@@ -236,8 +228,8 @@ public class ComponentService {
         }
     }
 
-    public List<Component> listComponent(Long engineId) {
-        return componentDao.listByEngineId(engineId);
+    public List<Component> listComponent(List<Long> engineIds) {
+        return componentDao.listByEngineIds(engineIds);
     }
 
     private Map<String, Map<String,Object>> parseUploadFileToMap(List<Resource> resources) {

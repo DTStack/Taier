@@ -16,6 +16,7 @@ import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
 import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
+import com.dtstack.engine.master.utils.JobGraphUtils;
 import com.dtstack.schedule.common.enums.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -347,7 +348,7 @@ public class JobRichOperator {
             childPrePeriodList = getFirstChildPrePeriodBatchJobJob(childJobJobList);
             scheduleBatchJob.setDependencyChildPrePeriodList(childPrePeriodList);
         }
-        String cycTime = JobGraphBuilder.parseCycTimeFromJobKey(jobKey);
+        String cycTime = JobGraphUtils.parseCycTimeFromJobKey(jobKey);
         //如果没有下游任务 需要往前找到有下游任务周期
         if (CollectionUtils.isEmpty(childPrePeriodList)) {
             ScheduleCron scheduleCron = null;
@@ -405,9 +406,9 @@ public class JobRichOperator {
      */
     private List<ScheduleJob> getParentPrePreJob(String jobKey, ScheduleCron scheduleCron, String cycTime) {
         if (StringUtils.isNotBlank(jobKey) && null != scheduleCron && StringUtils.isNotBlank(cycTime)) {
-            String prePeriodJobTriggerDateStr = JobGraphBuilder.getPrePeriodJobTriggerDateStr(cycTime, scheduleCron);
+            String prePeriodJobTriggerDateStr = JobGraphUtils.getPrePeriodJobTriggerDateStr(cycTime, scheduleCron);
             String prePeriodJobKey = jobKey.substring(0, jobKey.lastIndexOf("_") + 1) + prePeriodJobTriggerDateStr;
-            EScheduleType scheduleType = JobGraphBuilder.parseScheduleTypeFromJobKey(jobKey);
+            EScheduleType scheduleType = JobGraphUtils.parseScheduleTypeFromJobKey(jobKey);
             ScheduleJob dbBatchJob = batchJobService.getJobByJobKeyAndType(prePeriodJobKey, scheduleType.getType());
             //上一个周期任务为空 直接返回
             if (null == dbBatchJob) {
@@ -418,7 +419,7 @@ public class JobRichOperator {
                 //上一轮周期任务的下游任务不为空 判断下游任务的状态
                 return scheduleJobDao.listJobByJobKeys(batchJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList()));
             }
-            cycTime = JobGraphBuilder.parseCycTimeFromJobKey(prePeriodJobKey);
+            cycTime = JobGraphUtils.parseCycTimeFromJobKey(prePeriodJobKey);
             //如果上一轮周期也没下游任务 继续找
             return this.getParentPrePreJob(prePeriodJobKey, scheduleCron, cycTime);
         }
@@ -594,13 +595,13 @@ public class JobRichOperator {
             }
 
             String jobKey = scheduleJobJob.getJobKey();
-            String cycTime = JobGraphBuilder.parseCycTimeFromJobKey(jobKey);
+            String cycTime = JobGraphUtils.parseCycTimeFromJobKey(jobKey);
             String scheduleConf = batchTaskShade.getScheduleConf();
             try {
                 ScheduleCron scheduleCron = ScheduleFactory.parseFromJson(scheduleConf);
-                String prePeriodJobTriggerDateStr = JobGraphBuilder.getPrePeriodJobTriggerDateStr(cycTime, scheduleCron);
+                String prePeriodJobTriggerDateStr = JobGraphUtils.getPrePeriodJobTriggerDateStr(cycTime, scheduleCron);
                 String prePeriodJobKey = jobKey.substring(0, jobKey.lastIndexOf("_") + 1) + prePeriodJobTriggerDateStr;
-                EScheduleType scheduleType = JobGraphBuilder.parseScheduleTypeFromJobKey(jobKey);
+                EScheduleType scheduleType = JobGraphUtils.parseScheduleTypeFromJobKey(jobKey);
                 ScheduleJob dbScheduleJob = batchJobService.getJobByJobKeyAndType(prePeriodJobKey, scheduleType.getType());
                 if (dbScheduleJob != null) {
                     resultList.add(dbScheduleJob);
