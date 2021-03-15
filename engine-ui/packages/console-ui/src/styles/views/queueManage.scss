@@ -89,4 +89,9 @@
             align-items: center;
         }
     }
+    .ant-table-fixed-header {
+        .ant-table-body-inner {
+            overflow-x: hidden;
+        }
+    }
 }
