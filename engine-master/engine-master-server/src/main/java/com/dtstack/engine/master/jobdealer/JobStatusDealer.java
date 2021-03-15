@@ -26,6 +26,7 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.google.common.collect.Maps;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -218,7 +219,7 @@ public class  JobStatusDealer implements Runnable {
                         && RdosTaskStatus.STOP_STATUS.contains(status);
 
         if (ComputeType.BATCH.getType().equals(scheduleJob.getComputeType()) || isStreamUpdateConditions.test(scheduleJob) || isStreamCancellingConditions.test(scheduleJob)) {
-            if (RdosTaskStatus.RUNNING.getStatus().equals(status) && hasTaskRule(scheduleJob)) {
+            if (RdosTaskStatus.FINISHED.getStatus().equals(status) && hasTaskRule(scheduleJob)) {
                 // 判断子节点是否存在强弱任务
                 scheduleJobDao.updateJobStatusAndExecTime(jobId,RdosTaskStatus.RUNNING_TASK_RULE.getStatus());
             } else {
@@ -232,13 +233,15 @@ public class  JobStatusDealer implements Runnable {
         List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByParentJobKey(scheduleJob.getJobKey());
 
         List<String> jobKeys = scheduleJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList());
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobByJobKeys(jobKeys);
+        if (CollectionUtils.isNotEmpty(jobKeys)) {
+            List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobByJobKeys(jobKeys);
 
-        for (ScheduleJob job : scheduleJobs) {
-            if (TaskRuleEnum.STRONG_RULE.getCode().equals(job.getStatus())) {
-                // 存在强规则任务
-                hasTaskRule = Boolean.TRUE;
-                break;
+            for (ScheduleJob job : scheduleJobs) {
+                if (TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule())) {
+                    // 存在强规则任务
+                    hasTaskRule = Boolean.TRUE;
+                    break;
+                }
             }
         }
         return hasTaskRule;

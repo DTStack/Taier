@@ -139,6 +139,7 @@ public class BatchFlowWorkJobService {
             updateJob.setExecEndTime(new Timestamp(System.currentTimeMillis()));
             updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
             batchJobService.updateStatusWithExecTime(updateJob);
+            // 判断父节点和更新父节点状态
         } else {
             //更新工作流状态
             batchJobService.updateStatusByJobId(jobId, bottleStatus,null);

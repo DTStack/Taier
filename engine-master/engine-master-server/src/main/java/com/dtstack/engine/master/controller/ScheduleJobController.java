@@ -402,7 +402,7 @@ public class ScheduleJobController {
     }
 
     @RequestMapping(value="/updateNotRuleResult", method = {RequestMethod.POST})
-    public void updateNotRuleResult(@DtRequestParam("jobId") String jobId,@DtRequestParam("rule") Integer rule) {
-        scheduleJobService.updateNotRuleResult(jobId,rule);
+    public void updateNotRuleResult(@DtRequestParam("jobId") String jobId,@DtRequestParam("rule") Integer rule,@DtRequestParam("resultLog") String result) {
+        scheduleJobService.updateNotRuleResult(jobId,rule,result);
     }
 }
