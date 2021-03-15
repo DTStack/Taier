@@ -26,7 +26,6 @@ org.apache.flink.yarn.YarnClusterDescriptor
     	if (!pluginsFile.exists()) {
     	    pluginsFile.mkdirs();
         }
-    6. 上传插件包及flink Lib包时先判断HDFS上是否已经存在，若存在，则先查询LastModifiedTime后直接设置远程路径；若不存在，则走原来的上传逻辑
 ```
 
 

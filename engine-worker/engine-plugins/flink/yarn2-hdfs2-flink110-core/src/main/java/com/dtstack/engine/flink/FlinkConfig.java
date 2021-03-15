@@ -81,8 +81,6 @@ public class FlinkConfig extends BaseConfig {
 
     private int zkSessionTimeout = 5000;
 
-    private String remoteFlinkJarPath;
-
     public int getZkConnectionTimeout() {
         return zkConnectionTimeout;
     }
@@ -358,13 +356,5 @@ public class FlinkConfig extends BaseConfig {
 
     public void setSubmitTimeout(long submitTimeout) {
         this.submitTimeout = submitTimeout;
-    }
-
-    public String getRemoteFlinkJarPath() {
-        return remoteFlinkJarPath;
-    }
-
-    public void setRemoteFlinkJarPath(String remoteFlinkJarPath) {
-        this.remoteFlinkJarPath = remoteFlinkJarPath;
     }
 }

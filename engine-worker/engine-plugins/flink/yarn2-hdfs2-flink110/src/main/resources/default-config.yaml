@@ -66,8 +66,6 @@ perjob:
 
     monitorAcceptedApp: false
 
-    remoteFlinkJarPath:
-
 session:
   dependencyKey: deploymode
   dependencyValue: session
@@ -137,8 +135,6 @@ session:
     high-availability: ZOOKEEPER
 
     monitorAcceptedApp: false
-
-    remoteFlinkJarPath:
 
 standalone:
   dependencyKey: deploymode
