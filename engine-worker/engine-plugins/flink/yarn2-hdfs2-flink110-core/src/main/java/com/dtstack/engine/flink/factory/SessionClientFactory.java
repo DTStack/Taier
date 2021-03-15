@@ -369,6 +369,8 @@ public class SessionClientFactory extends AbstractClientFactory {
             keytabFiles = getKeytabFilesAndSetSecurityConfig(newConf);
         }
 
+        newConf = setHdfsFlinkJarPath(flinkConfig, newConf);
+
         YarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf);
 
         if (StringUtils.isNotBlank(pluginLoadMode) && ConfigConstrant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(pluginLoadMode)) {
