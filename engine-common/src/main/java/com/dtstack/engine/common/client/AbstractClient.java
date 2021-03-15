@@ -1,20 +1,23 @@
 package com.dtstack.engine.common.client;
 
-import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.pojo.JobResult;
+import com.dtstack.engine.common.pojo.JobStatusFrequency;
 import com.dtstack.engine.common.pojo.JudgeResult;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Reason:
@@ -27,6 +30,8 @@ import java.util.List;
 public abstract class AbstractClient implements IClient {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractClient.class);
+
+    public Map<String, JobStatusFrequency> jobStatusMap = Maps.newConcurrentMap();
 
     public AbstractClient() {
     }
@@ -53,7 +58,7 @@ public abstract class AbstractClient implements IClient {
     }
 
     @Override
-    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException{
+    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
         RdosTaskStatus status = RdosTaskStatus.NOTFOUND;
         try {
             status = processJobStatus(jobIdentifier);
