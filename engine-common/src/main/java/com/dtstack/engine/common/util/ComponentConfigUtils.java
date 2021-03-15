@@ -410,15 +410,24 @@ public class ComponentConfigUtils {
                 if (!CollectionUtils.isEmpty(values)) {
                     for (ClientTemplate value : values) {
                         value.setType("");
-                        value.setRequired(true);
-                        value.setDependencyKey("auth");
-                        value.setValue("password".equalsIgnoreCase(value.getKey())? 1: 2);
-                        value.setDependencyValue(String.valueOf(value.getValue()));
-                        //将目前的auth 或 password 内嵌一层到auth下
-                        ClientTemplate realClientTemplate = authMapping.get(value.getKey());
-                        Object realValue = realClientTemplate == null ? value.getValue() : realClientTemplate.getValue();
-                        ClientTemplate sonTemplates = buildCustom(value.getKey(), realValue, EFrontType.INPUT.name());
-                        value.setValues(Lists.newArrayList(sonTemplates));
+                        if (MapUtils.isEmpty(authMapping)) {
+                            //dependencyKey value 都不为空 内嵌一层
+                            ClientTemplate sonTemplates = buildCustom(value.getKey(), value.getValue(), EFrontType.INPUT.name());
+                            value.setValue(value.getDependencyValue());
+                            value.setValues(Lists.newArrayList(sonTemplates));
+                        } else {
+                            //dependencyKey value 有缺失 特殊处理
+                            value.setRequired(true);
+                            //设置 dependencyKey dependencyValue的值
+                            value.setDependencyKey("auth");
+                            value.setValue("password".equalsIgnoreCase(value.getKey()) ? 1 : 2);
+                            value.setDependencyValue(String.valueOf(value.getValue()));
+                            //将目前的auth 或 password 内嵌一层到auth下
+                            ClientTemplate realClientTemplate = authMapping.get(value.getKey());
+                            Object realValue = realClientTemplate == null ? value.getValue() : realClientTemplate.getValue();
+                            ClientTemplate sonTemplates = buildCustom(value.getKey(), realValue, EFrontType.INPUT.name());
+                            value.setValues(Lists.newArrayList(sonTemplates));
+                        }
                     }
                 }
             }
