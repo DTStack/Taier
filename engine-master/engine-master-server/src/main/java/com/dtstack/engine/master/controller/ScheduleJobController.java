@@ -407,7 +407,7 @@ public class ScheduleJobController {
     }
 
     @RequestMapping(value="/stopJobByCondition", method = {RequestMethod.POST})
-    public Integer stopJobByCondition(ScheduleJobKillJobVO scheduleJobKillJobVO) {
+    public Integer stopJobByCondition(@RequestBody ScheduleJobKillJobVO scheduleJobKillJobVO) {
         return scheduleJobService.stopJobByCondition(scheduleJobKillJobVO);
     }
 }
