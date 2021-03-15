@@ -2786,18 +2786,22 @@ public class ScheduleJobService {
             if (count > pageSize) {
                 //分页查询
                 int pageCount = (count / pageSize) + (count % pageSize == 0 ? 0 : 1);
-                query.setPageQuery(true);
-                pageQuery.setModel(query);
                 stopSize = count;
+                query.setPageQuery(true);
                 for (int i = 0; i < pageCount; i++) {
-                    pageQuery.setPageSize(pageSize);
-                    pageQuery.setPage(i + 1);
+                    PageQuery<ScheduleJobDTO> finalQuery = new PageQuery<>(query);
+                    finalQuery.setModel(query);
+                    finalQuery.setPageSize(pageSize);
+                    finalQuery.setPage(i + 1);
                     CompletableFuture.runAsync(() -> {
-                        List<ScheduleJob> scheduleJobs = scheduleJobDao.generalQuery(pageQuery);
-                        listByJobIdFillFlowSubJobs(scheduleJobs);
-                        jobStopDealer.addStopJobs(scheduleJobs);
+                        try {
+                            List<ScheduleJob> scheduleJobs = scheduleJobDao.generalQuery(finalQuery);
+                            listByJobIdFillFlowSubJobs(scheduleJobs);
+                            jobStopDealer.addStopJobs(scheduleJobs);
+                        } catch (Exception e) {
+                            logger.info("stopJobByCondition  {}  error ", JSONObject.toJSONString(finalQuery));
+                        }
                     });
-
                 }
             } else {
                 List<ScheduleJob> scheduleJobs = scheduleJobDao.generalQuery(pageQuery);
@@ -2857,6 +2861,8 @@ public class ScheduleJobService {
                 }
             }
             ScheduleJobDTO.setJobStatuses(statues);
+        } else {
+            ScheduleJobDTO.setJobStatuses(RdosTaskStatus.getCanStopStatus());
         }
         return ScheduleJobDTO;
     }

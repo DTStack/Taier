@@ -1121,9 +1121,9 @@
         GROUP BY bj.status
     </select>
 
-    <select id="getWorkFlowSubJobId" resultType="java.lang.String">
+    <select id="getWorkFlowSubJobId" resultType="ScheduleJob">
         SELECT <include refid="select_content_fragment"/>
-        FROM schedule_job
+        FROM schedule_job bj
         WHERE flow_job_id in
         <foreach item="id" index="index" collection="jobIds" open="(" separator="," close=")">
             #{id}
