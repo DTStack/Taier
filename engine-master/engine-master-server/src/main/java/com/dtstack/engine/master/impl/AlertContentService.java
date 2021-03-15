@@ -29,7 +29,11 @@ public class AlertContentService {
         alertContentDTO.setSendInfo("");
         AlertContent alertContent = new AlertContent();
         BeanUtils.copyProperties(alertContentDTO, alertContent);
-        Integer insert = alertContentDao.insert(alertContent);
+
+        if (alertContent.getProjectId() == null) {
+            alertContent.setProjectId(-1L);
+        }
+        alertContentDao.insert(alertContent);
         return alertContent.getId();
     }
 
