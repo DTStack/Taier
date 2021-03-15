@@ -146,6 +146,8 @@ public class PerJobClientFactory extends AbstractClientFactory {
         Configuration newConf = new Configuration(flinkConfiguration);
         newConf = appendJobConfigAndInitFs(jobClient, newConf);
 
+        newConf = setHdfsFlinkJarPath(flinkConfig, newConf);
+
         List<File> keytabFiles = getKeytabFilesAndSetSecurityConfig(jobClient, newConf);
 
         YarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf);
