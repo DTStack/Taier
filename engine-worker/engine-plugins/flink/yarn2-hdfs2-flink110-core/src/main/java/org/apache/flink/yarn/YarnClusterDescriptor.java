@@ -914,13 +914,10 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 			boolean flag = false;
 			String remoteFlinkJarPath = flinkConfiguration.getString("remoteFlinkJarPath", null);
 			String flinkPluginRoot = flinkConfiguration.getString("flinkPluginRoot", null);
-			String remotePluginRootDir = null;
-			if(StringUtils.isNotBlank(remoteFlinkJarPath)){
-				//不考虑二者只有其一上传到了hdfs上的情况
-				remotePluginRootDir = flinkConfiguration.getString("remotePluginRootDir", null);
-				if(remoteFlinkJarPath.startsWith("hdfs://") && remotePluginRootDir.startsWith("hdfs://")){
-					flag = true;
-				}
+			String remotePluginRootDir = flinkConfiguration.getString("remotePluginRootDir", null);
+			//不考虑二者只有其一上传到了hdfs上的情况
+			if(StringUtils.startsWith(remoteFlinkJarPath, "hdfs://") && StringUtils.startsWith(remotePluginRootDir, "hdfs://")){
+				flag = true;
 			}
 
 			for (Map.Entry<String, DistributedCache.DistributedCacheEntry> entry : jobGraph.getUserArtifacts().entrySet()) {

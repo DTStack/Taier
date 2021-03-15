@@ -121,14 +121,12 @@ public abstract class AbstractClientFactory implements IClientFactory {
         String remoteFlinkJarPath = flinkConfig.getRemoteFlinkJarPath();
         //remotePluginRootDir默认为/data/insight_plugin/flinkplugin, 不可能为空
         String remotePluginRootDir = flinkConfig.getRemotePluginRootDir();
-        if(StringUtils.isNotBlank(remoteFlinkJarPath)){
-            //不考虑二者只有其一上传到了hdfs上的情况
-            if(remoteFlinkJarPath.startsWith("hdfs://") && remotePluginRootDir.startsWith("hdfs://")){
-                flinkConfiguration.setString("remoteFlinkJarPath", remoteFlinkJarPath);
-                flinkConfiguration.setString("remotePluginRootDir", remotePluginRootDir);
-                flinkConfiguration.setString("flinkJarPath", flinkConfig.getFlinkJarPath());
-                flinkConfiguration.setString("flinkPluginRoot", flinkConfig.getFlinkPluginRoot());
-            }
+        //不考虑二者只有其一上传到了hdfs上的情况
+        if(StringUtils.startsWith(remoteFlinkJarPath, "hdfs://") && StringUtils.startsWith(remotePluginRootDir, "hdfs://")){
+            flinkConfiguration.setString("remoteFlinkJarPath", remoteFlinkJarPath);
+            flinkConfiguration.setString("remotePluginRootDir", remotePluginRootDir);
+            flinkConfiguration.setString("flinkJarPath", flinkConfig.getFlinkJarPath());
+            flinkConfiguration.setString("flinkPluginRoot", flinkConfig.getFlinkPluginRoot());
         }
         return flinkConfiguration;
     }
