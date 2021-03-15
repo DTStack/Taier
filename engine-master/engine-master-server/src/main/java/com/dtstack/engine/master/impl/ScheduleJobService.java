@@ -2748,8 +2748,7 @@ public class ScheduleJobService {
     public String getJobGraphJSON(String jobId) {
         return scheduleJobDao.getJobGraph(jobId);
     }
-
-<<<<<<< HEAD
+    
 
     /**
      * 异步重跑任务
@@ -2868,7 +2867,7 @@ public class ScheduleJobService {
         }
         return ScheduleJobDTO;
     }
-    
+
     public void updateNotRuleResult(String jobId,Integer rule,String result) {
         ScheduleJob job = scheduleJobDao.getByJobId(jobId, 0);
 
