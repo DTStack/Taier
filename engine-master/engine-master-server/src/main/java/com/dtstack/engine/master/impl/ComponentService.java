@@ -1890,7 +1890,7 @@ public class ComponentService {
             throw new RdosDefineException("clusterName is null");
         }
         Cluster cluster = clusterDao.getByClusterName(clusterName);
-        Component yarnComponent = consoleService.getYarnComponent(cluster.getId());
+        Component yarnComponent = getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode());
 
         if (yarnComponent == null) {
             return false;

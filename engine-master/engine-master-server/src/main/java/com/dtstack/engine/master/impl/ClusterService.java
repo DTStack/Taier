@@ -17,7 +17,6 @@ import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
@@ -477,8 +476,8 @@ public class ClusterService implements InitializingBean {
         //根据组件区分kerberos
         EComponentType componentType = EComponentType.getByConfName(key);
         Component component = componentDao.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode());
-        if(null == component){
-            return "";
+        if (null == component) {
+            return "{}";
         }
         JSONObject configObj = JSONObject.parseObject(component.getComponentConfig());
         if (configObj != null) {
@@ -491,46 +490,28 @@ public class ClusterService implements InitializingBean {
             configObj.put("version", component.getHadoopVersion());
             //维持各个应用原来数据接口
             addKerberosConfigWithHdfs(key, clusterId, kerberosConfig, configObj);
+            //填充sftp配置项
+            Map sftpMap = getSftpMap(clusterId);
+            if(MapUtils.isNotEmpty(sftpMap)){
+                configObj.put(EComponentType.SFTP.getConfName(), sftpMap);
+            }
             return configObj.toJSONString();
         }
         return "{}";
     }
 
-
-
-
-    /**
-     * 添加kerberos的配置文件地址为本地路径
-     * @param dataMap
-     */
-    private void accordToKerberosFile(JSONObject dataMap) {
-        try {
-            JSONObject configJsonObject = dataMap.getJSONObject("kerberosConfig");
-            if ( null == configJsonObject ) {
-                return;
+    private Map getSftpMap(Long clusterId) {
+        Component sftpComponent = componentDao.getByClusterIdAndComponentType(clusterId, EComponentType.SFTP.getTypeCode());
+        if (null != sftpComponent) {
+            try {
+                return PublicUtil.strToObject(sftpComponent.getComponentConfig(), Map.class);
+            } catch (Exception e) {
+                LOGGER.error("clusterId:{} getSftp Config error ", clusterId, e);
             }
-            KerberosConfig kerberosConfig = PublicUtil.strToObject(configJsonObject.toString(), KerberosConfig.class);
-            if ( null == kerberosConfig ) {
-                return;
-            }
-            if (kerberosConfig.getOpenKerberos() <= 0) {
-                return;
-            }
-            Preconditions.checkState( null != kerberosConfig.getClusterId());
-            Preconditions.checkState( null != kerberosConfig.getOpenKerberos() );
-            Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getPrincipal()));
-            Preconditions.checkState(StringUtils.isNotEmpty(kerberosConfig.getRemotePath()));
-            Preconditions.checkState( null != kerberosConfig.getComponentType());
-            //获取本地的kerberos本地路径
-            configJsonObject.put("principalFile", kerberosConfig.getName());
-            configJsonObject.putAll(Optional.ofNullable(configJsonObject.getJSONObject("hdfsConfig")).orElse(new JSONObject()));
-            configJsonObject.remove("hdfsConfig");
-            dataMap.put("kerberosConfig", configJsonObject);
-        } catch (Exception e) {
-            LOGGER.error("accordToKerberosFile error {}", dataMap, e);
-            throw new RdosDefineException("accordToKerberosFile失败" +  ExceptionUtil.getErrorMessage(e));
         }
+        return null;
     }
+
 
     /**
      * 如果开启集群开启了kerberos认证，kerberosConfig中还需要包含hdfs配置

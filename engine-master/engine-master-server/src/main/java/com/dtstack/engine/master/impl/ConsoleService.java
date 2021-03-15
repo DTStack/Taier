@@ -11,7 +11,6 @@ import com.dtstack.engine.api.vo.console.ConsoleJobVO;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EJobCacheStage;
-import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -91,8 +90,6 @@ public class ConsoleService {
 
     @Autowired
     private PluginWrapper pluginWrapper;
-
-    private static long DELAULT_TENANT  = -1L;
 
     public Boolean finishJob(String jobId, Integer status) {
         if (!RdosTaskStatus.isStopped(status)) {
@@ -267,7 +264,7 @@ public class ConsoleService {
                     ScheduleJob scheduleJob = scheduleJobMap.getOrDefault(engineJobCache.getJobId(), new ScheduleJob());
                     //补充租户信息
                     Tenant tenant = tenantMap.get(scheduleJob.getDtuicTenantId());
-                    if(null == tenant && DELAULT_TENANT != scheduleJob.getDtuicTenantId() && scheduleJob.getDtuicTenantId() > 0){
+                    if(null == tenant && ConfigConstant.DEFAULT_TENANT != scheduleJob.getDtuicTenantId() && scheduleJob.getDtuicTenantId() > 0){
                         //可能临时运行 租户在tenant表没有 需要添加
                         try {
                             tenant = tenantService.addTenant(scheduleJob.getDtuicTenantId(), dtToken);
@@ -512,35 +509,6 @@ public class ConsoleService {
             logger.error("getResources error:{} ", e);
             throw new RdosDefineException("flink资源获取异常");
         }
-    }
-
-    public Component getYarnComponent(Long clusterId) {
-        List<Engine> engines = engineDao.listByClusterId(clusterId);
-        if (CollectionUtils.isEmpty(engines)) {
-            return null;
-        }
-
-        Engine hadoopEngine = null;
-        for (Engine e : engines) {
-            if (e.getEngineType() == MultiEngineType.HADOOP.getType()) {
-                hadoopEngine = e;
-                break;
-            }
-        }
-        if (hadoopEngine == null) {
-            return null;
-        }
-
-        List<Component> componentList = componentService.listComponent(hadoopEngine.getId());
-        if (CollectionUtils.isEmpty(componentList)) {
-            return null;
-        }
-        for (Component component : componentList) {
-            if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
-                return component;
-            }
-        }
-        return null;
     }
 
     /**

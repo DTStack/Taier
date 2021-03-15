@@ -221,15 +221,8 @@ public class ClusterServiceTest extends AbstractTest {
 
         //添加测试组件对应yarn的队列
         Queue queue = this.testInsertQueue(engineId);
-        //添加测试租户
-        Tenant tenant = Template.getTenantTemplate();
-        tenant.setDtUicTenantId(-107L);
-        tenantDao.insert(tenant);
-        tenant = tenantDao.getByDtUicTenantId(tenant.getDtUicTenantId());
-        Assert.assertNotNull(tenant);
-        Assert.assertNotNull(tenant.getId());
         //绑定租户
-        this.testBindTenant(clusterVO, queue);
+        Tenant tenant = this.testBindTenant(clusterVO, queue);
         this.testIsSame(clusterVO,queue,tenant);
         //切换队列
         this.testUpdateQueue(engineId, tenant);
@@ -320,6 +313,7 @@ public class ClusterServiceTest extends AbstractTest {
             commonResource.setEngineDao(engineDao);
             commonResource.setClusterService(clusterService);
             commonResource.setComponentService(componentService);
+            commonResource.setEngineTenantDao(engineTenantDao);
             ComputeResourceType computeResourceType = commonResource.getComputeResourceType(jobClient);
             Assert.assertEquals(computeResourceType,ComputeResourceType.FlinkYarnSession);
         } catch (IOException e) {
@@ -394,7 +388,7 @@ public class ClusterServiceTest extends AbstractTest {
         List<ClusterEngineVO> allCluster = clusterService.getAllCluster();
         Assert.assertNotNull(allCluster);
         Assert.assertTrue(allCluster.stream().anyMatch(c -> c.getClusterName().equalsIgnoreCase(clusterVO.getClusterName())));
-        Assert.assertNotNull(clusterService.getOne(clusterVO.getClusterId()));
+        Assert.assertNotNull(clusterService.getCluster(dtUicTenantId));
         Assert.assertNotNull(clusterService.pluginInfoForType(tenant.getDtUicTenantId(),true,EComponentType.SPARK.getTypeCode()));
         Assert.assertNotNull(clusterService.pluginInfoForType(tenant.getDtUicTenantId(),true,EComponentType.HIVE_SERVER.getTypeCode()));
         Assert.assertNotNull(clusterService.hiveInfo(dtUicTenantId, true));
