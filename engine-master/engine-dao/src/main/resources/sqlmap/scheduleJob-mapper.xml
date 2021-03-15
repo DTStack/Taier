@@ -1430,10 +1430,10 @@
                 version_id = #{versionId},
             </if>
             <if test="execStartTime != null">
-                exec_start_time = #{execStartTime}
+                exec_start_time = #{execStartTime},
             </if>
             <if test="execEndTime != null">
-                exec_end_time = #{execEndTime}
+                exec_end_time = #{execEndTime},
             </if>
             gmt_modified = now()
         </set>
@@ -1647,7 +1647,7 @@
         <if test="isRestart != null">
             AND is_restart = #{isRestart}
         </if>
-        AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14)))
+        AND (status = 0 or ((status = 10 or status=4) and task_type in (10, 14, 27)))
         AND is_deleted = 0
         AND `phase_status` = #{phaseStatus}
     </select>
