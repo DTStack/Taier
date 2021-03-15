@@ -1,13 +1,12 @@
 package com.dtstack.engine.api.vo;
 
-import com.dtstack.sdk.core.common.DtInsightAuthParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
 
 @ApiModel("杀死任务实例信息")
-public class ScheduleJobKillJobVO extends DtInsightAuthParam {
+public class ScheduleJobKillJobVO {
     @ApiModelProperty(hidden = true)
     private Long userId;
 
@@ -43,22 +42,6 @@ public class ScheduleJobKillJobVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "筛选出来的任务名称对应taskId",  required = false)
     private List<Long> taskIds;
-
-    public List<Long> getTaskIds() {
-        return taskIds;
-    }
-
-    public void setTaskIds(List<Long> taskIds) {
-        this.taskIds = taskIds;
-    }
-
-    public Integer getAppType() {
-        return appType;
-    }
-
-    public void setAppType(Integer appType) {
-        this.appType = appType;
-    }
 
     public Long getUserId() {
         return userId;
@@ -138,5 +121,21 @@ public class ScheduleJobKillJobVO extends DtInsightAuthParam {
 
     public void setJobStatuses(String jobStatuses) {
         this.jobStatuses = jobStatuses;
+    }
+
+    public Integer getAppType() {
+        return appType;
+    }
+
+    public void setAppType(Integer appType) {
+        this.appType = appType;
+    }
+
+    public List<Long> getTaskIds() {
+        return taskIds;
+    }
+
+    public void setTaskIds(List<Long> taskIds) {
+        this.taskIds = taskIds;
     }
 }
