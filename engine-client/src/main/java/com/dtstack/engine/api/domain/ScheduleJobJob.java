@@ -15,6 +15,8 @@ public class ScheduleJobJob extends AppTenantEntity {
 
     private String parentJobKey;
 
+    private Integer parentAppType;
+
 
     public String getJobKey() {
         return jobKey;
@@ -30,5 +32,13 @@ public class ScheduleJobJob extends AppTenantEntity {
 
     public void setParentJobKey(String parentJobKey) {
         this.parentJobKey = parentJobKey;
+    }
+
+    public Integer getParentAppType() {
+        return parentAppType;
+    }
+
+    public void setParentAppType(Integer parentAppType) {
+        this.parentAppType = parentAppType;
     }
 }

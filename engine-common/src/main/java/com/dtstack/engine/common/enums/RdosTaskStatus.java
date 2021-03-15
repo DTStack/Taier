@@ -71,7 +71,10 @@ public enum RdosTaskStatus implements Serializable {
 
     LACKING(25),
 
-    AUTOCANCELED(26);
+    AUTOCANCELED(26),
+
+    RUNNING_TASK_RULE(27),
+    ;
 	
 	private int status;
 

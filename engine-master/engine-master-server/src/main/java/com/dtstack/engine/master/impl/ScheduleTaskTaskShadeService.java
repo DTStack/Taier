@@ -71,6 +71,9 @@ public class ScheduleTaskTaskShadeService {
             }
             // 保存现有任务关系
             for (ScheduleTaskTaskShade taskTaskShade : keys.values()) {
+                if (taskTaskShade.getParentTaskId() == null) {
+                    taskTaskShade.setParentAppType(taskTaskShade.getAppType());
+                }
                 scheduleTaskTaskShadeDao.insert(taskTaskShade);
             }
         } catch (Exception e) {

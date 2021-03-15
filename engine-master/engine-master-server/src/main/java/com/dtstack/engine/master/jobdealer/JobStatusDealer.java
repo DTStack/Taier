@@ -3,6 +3,8 @@ package com.dtstack.engine.master.jobdealer;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleJobJob;
+import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.common.BlockCallerPolicy;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobIdentifier;
@@ -14,6 +16,7 @@ import com.dtstack.engine.common.pojo.JobStatusFrequency;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
+import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.bo.JobCompletedInfo;
@@ -23,6 +26,7 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.utils.TaskParamsUtil;
 import com.google.common.collect.Maps;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +68,7 @@ public class  JobStatusDealer implements Runnable {
     private ShardCache shardCache;
     private String jobResource;
     private ScheduleJobDao scheduleJobDao;
+    private ScheduleJobJobDao scheduleJobJobDao;
     private EngineJobCacheDao engineJobCacheDao;
     private JobCheckpointDealer jobCheckpointDealer;
     private JobRestartDealer jobRestartDealer;
@@ -214,8 +219,32 @@ public class  JobStatusDealer implements Runnable {
                         && RdosTaskStatus.STOP_STATUS.contains(status);
 
         if (ComputeType.BATCH.getType().equals(scheduleJob.getComputeType()) || isStreamUpdateConditions.test(scheduleJob) || isStreamCancellingConditions.test(scheduleJob)) {
-            scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+            if (RdosTaskStatus.FINISHED.getStatus().equals(status) && hasTaskRule(scheduleJob)) {
+                // 判断子节点是否存在强弱任务
+                scheduleJobDao.updateJobStatusAndExecTime(jobId,RdosTaskStatus.RUNNING_TASK_RULE.getStatus());
+            } else {
+                scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
+            }
         }
+    }
+
+    private boolean hasTaskRule(ScheduleJob scheduleJob) {
+        boolean hasTaskRule = Boolean.FALSE;
+        List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByParentJobKey(scheduleJob.getJobKey());
+
+        List<String> jobKeys = scheduleJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(jobKeys)) {
+            List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobByJobKeys(jobKeys);
+
+            for (ScheduleJob job : scheduleJobs) {
+                if (TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule())) {
+                    // 存在强规则任务
+                    hasTaskRule = Boolean.TRUE;
+                    break;
+                }
+            }
+        }
+        return hasTaskRule;
     }
 
     private RdosTaskStatus checkNotFoundStatus(RdosTaskStatus taskStatus, String jobId) {
@@ -285,6 +314,8 @@ public class  JobStatusDealer implements Runnable {
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
         this.scheduleJobDao = applicationContext.getBean(ScheduleJobDao.class);
         this.scheduleJobService = applicationContext.getBean(ScheduleJobService.class);
+        this.scheduleJobJobDao = applicationContext.getBean(ScheduleJobJobDao.class);
+
     }
 
     private void createLogDelayDealer() {

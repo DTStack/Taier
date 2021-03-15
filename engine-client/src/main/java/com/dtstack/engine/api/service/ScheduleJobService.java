@@ -477,5 +477,5 @@ public interface ScheduleJobService extends DtInsightServer {
     ApiResponse<Integer> stopJobByCondition(ScheduleJobKillJobVO scheduleJobKillJobVO);
 
     @RequestLine("POST /node/scheduleJob/updateNotRuleResult")
-    ApiResponse<Void> updateNotRuleResult(@Param("jobId") String jobId,@Param("rule") Integer rule);
+    ApiResponse<Void> updateNotRuleResult(@Param("jobId") String jobId,@Param("rule") Integer rule,@Param("resultLog") String resultLog);
 }

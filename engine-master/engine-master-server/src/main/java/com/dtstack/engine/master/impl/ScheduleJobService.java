@@ -2749,6 +2749,7 @@ public class ScheduleJobService {
         return scheduleJobDao.getJobGraph(jobId);
     }
 
+<<<<<<< HEAD
 
     /**
      * 异步重跑任务
@@ -2867,15 +2868,20 @@ public class ScheduleJobService {
         }
         return ScheduleJobDTO;
     }
-
-    public void updateNotRuleResult(String jobId,Integer rule) {
+    
+    public void updateNotRuleResult(String jobId,Integer rule,String result) {
         ScheduleJob job = scheduleJobDao.getByJobId(jobId, 0);
 
+        JSONObject json = new JSONObject();
+        json.put("jobId",jobId);
+        json.put("result",result);
         if (job != null && EScheduleJobType.NOT_DO_TASK.getType().equals(job.getTaskType()) && RdosTaskStatus.RUNNING.getStatus().equals(job.getStatus())) {
             if (rule == 1) {
-                updateStatusAndLogInfoById(jobId, RdosTaskStatus.FINISHED.getStatus(), "application callback succeeded");
+                json.put("msg_info","Application callback succeeded");
+                updateStatusAndLogInfoAndExecTimeById(jobId, RdosTaskStatus.FINISHED.getStatus(), json.toJSONString(),null,new Date());
             } else if (rule == 2) {
-                updateStatusAndLogInfoById(jobId, RdosTaskStatus.FAILED.getStatus(), "Application callback failure");
+                json.put("msg_info","Application callback failure");
+                updateStatusAndLogInfoAndExecTimeById(jobId, RdosTaskStatus.FAILED.getStatus(), json.toJSONString(),null,new Date());
             }
         } else {
             throw new RdosDefineException("job status error,so update failure");

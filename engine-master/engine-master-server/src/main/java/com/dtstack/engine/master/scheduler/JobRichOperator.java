@@ -400,6 +400,9 @@ public class JobRichOperator {
             checkRunInfo.setExtInfo("(父任务名称为:" + getTaskNameFromJobName(dependencyJob.getJobName(), dependencyJob.getType()) + ")");
             checkRunInfo.setStatus(JobCheckStatus.DEPENDENCY_JOB_EXPIRE);
             return checkRunInfo;
+        } else if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(dependencyJobStatus)){
+            // 父节点已经执行完了，子节点等待父节点的强规则任务校验
+            return checkRunInfo;
         } else if (!RdosTaskStatus.FINISHED.getStatus().equals(dependencyJobStatus) &&
                 !RdosTaskStatus.MANUALSUCCESS.getStatus().equals(dependencyJobStatus)) {
             //系统设置完成或者手动设置为完成
