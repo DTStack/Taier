@@ -191,8 +191,10 @@ public class AlertChannelService {
 
             build(gateVO, alertChannel);
             String filePath = gateVO.getFilePath();
-            String[] split = StringUtils.split(filePath, File.separator);
-            gateVO.setFilePath(split[split.length - 1]);
+            if (StringUtils.isNotBlank(filePath)) {
+                String[] split = StringUtils.split(filePath, File.separator);
+                gateVO.setFilePath(split[split.length - 1]);
+            }
         }
         return gateVO;
     }
