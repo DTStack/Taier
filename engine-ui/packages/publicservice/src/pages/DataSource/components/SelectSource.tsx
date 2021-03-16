@@ -1,108 +1,69 @@
 /*
  * @Author: 云乐
  * @Date: 2021-03-12 11:48:32
- * @LastEditTime: 2021-03-14 21:07:08
+ * @LastEditTime: 2021-03-16 17:45:42
  * @LastEditors: 云乐
  * @Description: 选择数据源
  */
 import React, { useEffect, useState } from "react";
-import SearchInput from "@/components/SearchInput/SearchInput";
-import { Menu, message, List } from "antd";
+import SearchInput from "@/components/SearchInput";
+import { Menu, List, notification } from "antd";
 import { API } from "@/services";
 
-export default function SelectSource() {
-  const [current, setCurrent] = useState("1");
+export default function SelectSource(props) {
+  const { nextType } = props;
+  const [current, setCurrent] = useState(null);
   const [list, setList] = useState([]);
   const [iconList, setIconList] = useState([]);
+  const [defaultMenu, setDefaultMenu] = useState(null);
 
   const getClassifyList = async () => {
     try {
       let { data, success } = await API.queryDsClassifyList();
-      data = [
-        {
-          classifyCode: "code1",
-          classifyId: 1,
-          classifyName: "全部",
-          sorted: 1,
-        },
-        {
-          classifyCode: "code2",
-          classifyId: 2,
-          classifyName: "常用",
-          sorted: 2,
-        },
-        {
-          classifyCode: "code3",
-          classifyId: 3,
-          classifyName: "关系型",
-          sorted: 3,
-        },
-      ];
 
       if (success) {
-        setList(data || []);
-        queryDsTypeByClassify(data[0].classifyId);
+        let echoCurrent =
+          sessionStorage.getItem("current") || data[0].classifyId;
+        setList(data || []); //左侧菜单列表
+        setCurrent(echoCurrent); //左侧菜单列表选择的id
+        setDefaultMenu(data[0].classifyId); //左侧菜单全部选项id
+
+        queryDsTypeByClassify(echoCurrent);
       }
     } catch (error) {
-      message.error("获取数据源分类类目列表失败");
+      notification["error"]({
+        message: "错误！",
+        description: "获取数据源分类类目列表失败",
+      });
     }
   };
-  
-  const queryDsTypeByClassify = async (classifyId: number,search?:string="") => {
+
+  const queryDsTypeByClassify = async (
+    classifyId: number,
+    search: string = ""
+  ) => {
+    let echoTypeId = JSON.parse(sessionStorage.getItem("sqlType"))?.typeId;
     try {
       let { data, success } = await API.queryDsTypeByClassify({
         classifyId,
-        search
+        search: search,
       });
-      data = [
-        {
-          dataType: "type1",
-          haveVersion: true,
-          imgUrl: "url1",
-          typeId: 1,
-          selected: false,
-        },
-        {
-          dataType: "type2",
-          haveVersion: true,
-          imgUrl: "url2",
-          typeId: 2,
-          selected: false,
-        },
-        {
-          dataType: "type3",
-          haveVersion: true,
-          imgUrl: "url3",
-          typeId: 3,
-          selected: false,
-        },
-        {
-          dataType: "type4",
-          haveVersion: true,
-          imgUrl: "url4",
-          typeId: 4,
-          selected: false,
-        },
-        {
-          dataType: "type5",
-          haveVersion: true,
-          imgUrl: "url5",
-          typeId: 5,
-          selected: false,
-        },
-        {
-          dataType: "type6",
-          haveVersion: true,
-          imgUrl: "url6",
-          typeId: 6,
-          selected: true,
-        },
-      ];
+
       if (success) {
+        data.forEach((ele) => {
+          if (ele.typeId === echoTypeId) {
+            ele.selected = true;
+          } else {
+            ele.selected = false;
+          }
+        });
         setIconList(data || []);
       }
     } catch (error) {
-      message.error("根据分类获取数据源类型失败");
+      notification["error"]({
+        message: "错误！",
+        description: "根据分类获取数据源类型失败",
+      });
     }
   };
 
@@ -110,22 +71,33 @@ export default function SelectSource() {
     getClassifyList(); //获取数据源分类类目列表
   }, []);
 
+  //搜索功能，左侧菜单默认为 全部
   const onSearch = (value) => {
-    console.log("value: ", value);
+    setCurrent(defaultMenu);
+    queryDsTypeByClassify(defaultMenu, value);
   };
 
-  const handleClick = (e) => {
+  //left menu click
+  const handleMenuClick = (e) => {
     setCurrent(e.key);
     queryDsTypeByClassify(e.key);
+
+    sessionStorage.setItem("current", e.key); //菜单回显
   };
 
   //选择对应类型
   const onSelectType = (item) => {
-    iconList.forEach((ele) => {
+    let data = JSON.parse(JSON.stringify(iconList));
+    data.forEach((ele) => {
       if (ele.typeId === item.typeId) {
         ele.selected = true;
+      } else {
+        ele.selected = false;
       }
     });
+
+    setIconList(data);
+    nextType(true); //显示下一步
     sessionStorage.setItem("sqlType", JSON.stringify(item)); //存储数据源
   };
 
@@ -139,7 +111,11 @@ export default function SelectSource() {
 
       <div className="show-type">
         <div className="left-menu">
-          <Menu selectedKeys={[current]} mode="inline" onClick={handleClick}>
+          <Menu
+            selectedKeys={[String(current)]}
+            mode="inline"
+            onClick={handleMenuClick}
+          >
             {list.length > 0 &&
               list.map((item) => {
                 return (
@@ -156,17 +132,12 @@ export default function SelectSource() {
               grid={{ gutter: 16, column: 4 }}
               dataSource={iconList}
               renderItem={(item) => (
-                <List.Item>
-                  <div
-                    className="show-detail"
-                    onClick={() => onSelectType(item)}
-                  >
+                <List.Item onClick={() => onSelectType(item)}>
+                  <div>
                     <img
-                      src={item.imgUrl}
+                      // src={item.imgUrl}
                       alt="图片显示失败"
-                      className={
-                        item.selected ? "selected show-detail" : "show-detail"
-                      }
+                      className={item.selected ? "selected" : ""}
                     />
                     <p style={{ textAlign: "center", width: 216 }}>
                       {item.dataType}

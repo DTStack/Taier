@@ -1,7 +1,7 @@
 /*
  * @Author: 云乐
  * @Date: 2021-03-10 19:03:06
- * @LastEditTime: 2021-03-15 17:26:18
+ * @LastEditTime: 2021-03-16 17:00:54
  * @LastEditors: 云乐
  * @Description: 新增和编辑数据源信息
  */
@@ -50,12 +50,10 @@ function InfoConfig(props) {
     getFieldDecorator,
     validateFields,
     setFieldsValue,
-    // getFieldValue,
   } = form;
 
   const [templateData, setTemplateData] = useState([]);
 
-  // 此处注意useImperativeHandle方法的的第一个参数是目标元素的ref引用
   useImperativeHandle(cRef, () => ({
     testForm: () => {
       //测试连通性方法
@@ -96,7 +94,7 @@ function InfoConfig(props) {
           "dfs.ha.namenodes.defaultDfs": "namenode1",
           "dfs.namenode.rpc-address.defaultDfs.namenode1": "",
           "dfs.client.failover.proxy.provider.defaultDfs":
-            "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider",
+          "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider",
         },
         widget: "InputWithCopy",
         required: 0,

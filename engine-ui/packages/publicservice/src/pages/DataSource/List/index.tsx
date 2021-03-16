@@ -1,18 +1,19 @@
 /*
  * @Author: 云乐
  * @Date: 2021-03-10 14:32:56
- * @LastEditTime: 2021-03-15 17:35:48
+ * @LastEditTime: 2021-03-16 16:08:41
  * @LastEditors: 云乐
  * @Description: 数据源列表展示
  */
 
 import React, { useEffect, useState } from "react";
 import Search from "./components/Search";
-import { Table, message, Modal } from "antd";
+import { Table, message, Modal, notification } from "antd";
 import { columns } from "./constants";
-import PaginationCom from "@/components/PaginationCom/PaginationCom";
+import PaginationCom from "@/components/PaginationCom";
 import { API } from "@/services";
 import AuthSel from "./components/AuthSel";
+import { remove } from "../utils/remove";
 import "./style.scss";
 
 function index() {
@@ -23,10 +24,10 @@ function index() {
   });
   const [other, setOther] = useState({
     search: "",
-    dataType: "",
-    productCode: "",
+    dataType: null,
+    appType: null,
     isMeta: 0,
-    field: "",
+    status: null,
   });
   const [total, setTotal] = useState(null);
 
@@ -58,34 +59,49 @@ function index() {
         setTotal(data.total); //总页数
         setDataSources(data.contentList);
       }
-    } catch (error) {}
+    } catch (error) {
+      notification["error"]({
+        message: "错误！",
+        description: "获取数据源分类类目列表失败",
+      });
+    }
   };
 
   useEffect(() => {
     requestTableData(); //获取数据源列表
 
     //清除存储数据
-    sessionStorage.removeItem("sqlType");
-    sessionStorage.removeItem("version");
+    remove();
   }, []);
 
   //编辑
   const toEdit = (record, event) => {
     event.stopPropagation();
+    if (record.isMeta === 1) {
+      message.info("带meta标识的数据源不能编辑、删除");
+    } else {
+      alert("进去编辑页面");
+    }
   };
 
   //删除
-  const toDelete = async (record, event) => {
-    event.stopPropagation();
-    let { success } = await API.dataSourceDelete({
-      dataInfoId: record.dataInfoId,
-    });
-
-    if (success) {
-      message.success("删除成功");
-      requestTableData(); //更新表格
+  const toDelete = async (record) => {
+    if (record.isAuth === 1 || record.isMeta === 1) {
+      message.info("数据源已授权给产品，不可删除");
     } else {
-      message.error("删除失败");
+      let { success, message: msg } = await API.dataSourceDelete({
+        dataInfoId: record.dataInfoId,
+      });
+
+      if (success) {
+        message.success("删除成功");
+        requestTableData(); //更新表格
+      } else {
+        notification["error"]({
+          message: "错误！",
+          description: `${msg}`,
+        });
+      }
     }
   };
 
@@ -103,11 +119,19 @@ function index() {
     requestTableData(data);
   };
 
+  //连接状态筛选
+  const handleTableChange = (pagination, filters, sorter) => {
+    let data = { ...other, status: filters.status };
+    setOther(data);
+    requestTableData(data);
+  };
+
   //点击授权按钮
   const toAuth = (record) => {
     setRecord(record);
     setVisible(true);
   };
+
   //获取产品授权的列表
   const oncheck = (prolist) => {
     setcheckedValues(prolist);
@@ -115,32 +139,31 @@ function index() {
 
   //产品授权隐藏
   const handleAutoProduc = async () => {
-    console.log("record: ", record);
     try {
-      let { data, message: msg } = await API.dataSoProAuth({
+      let { success } = await API.dataSoProAuth({
         dataInfoId: record.dataInfoId,
         isAuth: record.isAuth,
-        productCode: checkedValues,
+        appTypes: checkedValues,
       });
+      if (success) {
+        message.success("产品授权成功");
+        requestTableData(); //更新表格
+      } else {
+        notification["error"]({
+          message: "错误！",
+          description: "产品授权失败",
+        });
+      }
+    } catch (error) {
+      notification["error"]({
+        message: "错误！",
+        description: "产品授权失败",
+      });
+    }
 
-      console.log("msg: ", msg);
-      console.log("data: ", data);
-
-      requestTableData(); //更新表格
-    } catch (error) {}
     setVisible(false);
   };
 
-  const handleTableChange = (pagination, filters, sorter) => {
-    let filterArr = filters.status;
-    if (filterArr.length === 0 || filterArr.length === 2) {
-      var data = { ...other, field: "" };
-    } else if (filterArr.length === 1) {
-      data = { ...other, field: filterArr[0] };
-    }
-    setOther(data);
-    requestTableData(data);
-  };
   return (
     <div className="source">
       <Search onSearch={onSearch}></Search>

@@ -1,12 +1,12 @@
 /*
  * @Author: 云乐
  * @Date: 2021-03-12 11:50:04
- * @LastEditTime: 2021-03-15 19:52:38
+ * @LastEditTime: 2021-03-16 18:32:53
  * @LastEditors: 云乐
  * @Description: 产品授权
  */
 import React, { useEffect, useState } from "react";
-import { Select, Checkbox, Row, Col, message } from "antd";
+import { Select, Checkbox, Row, Col, notification } from "antd";
 import { API } from "@/services";
 
 const { Option } = Select;
@@ -26,7 +26,8 @@ export default function ProduceAuth() {
 
   //根据数据源类型获取版本列表
   const queryDsVersionByType = async () => {
-    let type = JSON.parse(sessionStorage.getItem("sqlType")).dataType || "";
+    let type = JSON.parse(sessionStorage.getItem("sqlType"))?.dataType || "";
+
     try {
       let { data, success } = await API.queryDsVersionByType({
         dataType: type,
@@ -34,13 +35,13 @@ export default function ProduceAuth() {
 
       data = [
         {
-          dataType: "type1",
-          dataVersion: "1.x",
+          dataType: "type2",
+          dataVersion: "2.x",
           sorted: 0,
         },
         {
           dataType: "type1",
-          dataVersion: "2.x",
+          dataVersion: "1.x",
           sorted: 0,
         },
       ];
@@ -49,21 +50,29 @@ export default function ProduceAuth() {
         setVersion(data || []);
 
         if (data.length > 0) {
-          setDefaultSelect(data[0].dataVersion);
-          getauthProductList(type, data[0].dataVersion);
+          let echoVersion =
+            sessionStorage.getItem("version") || data[0].dataVersion;
+
+          setDefaultSelect(echoVersion);
+          getauthProductList(type, echoVersion);
         } else {
           getauthProductList(type, "");
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      notification["error"]({
+        message: "错误！",
+        description: "根据数据源类型获取版本列表失败",
+      });
+    }
   };
 
   //获取产品授权列表
-  const getauthProductList = async (type?: string, ver?: string) => {
+  const getauthProductList = async (type: string, ver: string) => {
     try {
-      let { data } = await API.queryProductList({
-        dataType: type || sqlType.dataType,
-        dataVersion: ver || version,
+      let { data, success } = await API.queryProductList({
+        dataType: type,
+        dataVersion: ver,
       });
 
       data.push(
@@ -81,29 +90,20 @@ export default function ProduceAuth() {
         }
       );
 
-      if (data.length > 0) {
-        data.forEach((item) => {
-          item.label = item.productName;
-          item.value = item.productCode;
-        });
+      let echoCheckedList = sessionStorage.getItem("checkdList");
+      if (ver === sessionStorage.getItem("version")) {
+        setCheckdList(JSON.parse(echoCheckedList));
+      }
+
+      if (success) {
         setProduceList(data);
+        console.log('data: ', data);
       }
     } catch (error) {
-      message.error("请求产品列表失败");
-      setProduceList([
-        {
-          productCode: "time",
-          productName: "实时开发",
-        },
-        {
-          productCode: "console",
-          productName: "控制台开发",
-        },
-        {
-          productCode: "dataqua",
-          productName: "数据质量",
-        },
-      ]);
+      notification["error"]({
+        message: "错误！",
+        description: "获取产品授权列表失败",
+      });
     }
   };
 
@@ -115,10 +115,10 @@ export default function ProduceAuth() {
 
   //存储数据库版本
   const onSelected = (value) => {
+    setDefaultSelect(value);
+    getauthProductList(sqlType.dataType, value); //更新产品列表
+
     sessionStorage.setItem("version", value);
-    
-    setDefaultSelect(value)
-    getauthProductList(sqlType.dataType,value)//更新产品列表
   };
 
   //获取产品授权的列表
@@ -134,15 +134,14 @@ export default function ProduceAuth() {
           将 <span style={{ color: "#3F87FF" }}>{sqlType.dataType || ""}</span>
           授权哪些产品使用：
         </p>
-        {console.log(defaultSelect)}
-        {console.log(version.length > 0)}
-
         {version.length > 0 && (
           <div className="version-sel">
-            <span className="version">版本：</span>
+            <span className="version">
+              <b style={{ color: "red", verticalAlign: "center" }}>*</b> 版本：
+            </span>
             <Select
               showSearch
-              style={{ width: "70%" }}
+              style={{ width: "80%" }}
               placeholder="请选择对应版本"
               optionFilterProp="children"
               onChange={onSelected}

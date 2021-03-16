@@ -1,12 +1,12 @@
 /*
  * @Author: 云乐
  * @Date: 2021-03-10 15:07:33
- * @LastEditTime: 2021-03-15 17:32:18
+ * @LastEditTime: 2021-03-16 15:11:23
  * @LastEditors: 云乐
  * @Description: 数据源列表--列
  */
 import React from "react";
-import { Divider, Popconfirm, Icon, Tag,Badge } from "antd";
+import { Divider, Popconfirm, Icon, Tag, Badge, message } from "antd";
 import "./style.scss";
 
 const columns = (props: any) => {
@@ -20,12 +20,12 @@ const columns = (props: any) => {
       width: 200,
       render: (text, record) =>
         //	是否有meta标志 0-否 1-是
-        record.isMeta !== 0 ? (
+        record.isMeta === 0 ? (
           <span>{record.dataName}</span>
         ) : (
           <div>
-            <span style={{marginRight:4}}>{record.dataName}</span>
-            <Tag style={{borderColor:"#3F87FF",color:"#3F87FF"}}>meta</Tag>
+            <span style={{ marginRight: 4 }}>{record.dataName}</span>
+            <Tag style={{ borderColor: "#3F87FF", color: "#3F87FF" }}>meta</Tag>
           </div>
         ),
     },
@@ -41,7 +41,7 @@ const columns = (props: any) => {
       dataIndex: "productNames",
       key: "productNames",
       ellipsis: true,
-      width: 200,
+      width: 220,
     },
     {
       title: "描述",
@@ -63,7 +63,17 @@ const columns = (props: any) => {
       ellipsis: true,
       width: 200,
       render: (text, record) =>
-        text === 0 ? <span><Badge status="error"/>连接失败</span> : <span><Badge status="success" />正常</span>,
+        text === 0 ? (
+          <span>
+            <Badge status="error" />
+            连接失败
+          </span>
+        ) : (
+          <span>
+            <Badge status="success" />
+            正常
+          </span>
+        ),
       filters: filters,
     },
     {
@@ -82,32 +92,45 @@ const columns = (props: any) => {
         return (
           <>
             <span
-              className={record.isMeta === 0 ? "data-view" : ""}
+              className={record.isMeta === 0 ? "data-view" : "gray"}
               onClick={(event) => toEdit(record, event)}
             >
-              编辑
+              <a>编辑</a>
             </span>
             <Divider type="vertical" />
             <span
               className="data-view"
               onClick={(event) => toAuth(record, event)}
             >
-              授权
+              <a>授权</a>
             </span>
             <Divider type="vertical" />
-            <span className={record.isAuth === 0 ? "data-view" : ""}>
-              <Popconfirm
-                title="是否删除此条记录？"
-                icon={
-                  <Icon type="question-circle-o" style={{ color: "red" }} />
-                }
-                onConfirm={() => toDelete(record, event)}
-                okText="删除"
-                cancelText="取消"
+
+            {/* 是否授权，0为未授权，1为已授权 */}
+            {!record.isAuth && record.isMeta !== 1 ? (
+              <span className="data-view">
+                <Popconfirm
+                  title="是否删除此条记录？"
+                  icon={
+                    <Icon type="question-circle-o" style={{ color: "red" }} />
+                  }
+                  onConfirm={() => toDelete(record)}
+                  okText="删除"
+                  cancelText="取消"
+                >
+                  <a>删除</a>
+                </Popconfirm>
+              </span>
+            ) : (
+              <span
+                className="gray"
+                onClick={() => {
+                  message.info("数据源已授权给产品，不可删除");
+                }}
               >
-                <a href="#">删除</a>
-              </Popconfirm>
-            </span>
+                <a>删除</a>
+              </span>
+            )}
           </>
         );
       },

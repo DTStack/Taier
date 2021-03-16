@@ -56,8 +56,6 @@
                 border: 1px solid #4285f5;
               }
             }
-            .show-detail {
-            }
           }
         }
       }
@@ -108,9 +106,27 @@
     height: 28px;
   }
 }
-
+// 选中
 .selected {
   background: #fff;
   border-radius: 3px;
   border: 1px solid #4285f5;
+}
+
+.ant-menu-root.ant-menu-inline{
+  background:#fafafa !important;
+  border: none;
+}
+.ant-menu-inline .ant-menu-item{
+  margin-top: 0px !important;
+  margin-bottom: 4px !important;
+}
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected{
+  background-color: #EBEBEB !important;
+}
+.ant-menu-inline .ant-menu-selected::after, .ant-menu-inline .ant-menu-item-selected::after{
+  opacity:0 !important
+}
+.ant-menu-inline .ant-menu-item{
+  width: 100% !important;
 }

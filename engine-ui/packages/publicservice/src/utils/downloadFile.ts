@@ -1,7 +1,7 @@
 /*
  * @Author: 云乐
  * @Date: 2021-03-15 16:20:05
- * @LastEditTime: 2021-03-15 16:20:36
+ * @LastEditTime: 2021-03-16 16:58:27
  * @LastEditors: 云乐
  * @Description: 文件下载
  */
@@ -23,7 +23,7 @@ function getFileName(str: string): string {
 }
 
 // 下载方法实现
-function downloadFile(response: Response, optionSaveName?: string) {
+export default function downloadFile(response: Response, optionSaveName?: string) {
   const responseHeaders = response.headers;
   const contenType = responseHeaders.get("content-type");
   const contentDisposition = responseHeaders.get("content-disposition");
@@ -48,3 +48,5 @@ function downloadFile(response: Response, optionSaveName?: string) {
     }
   });
 }
+
+
