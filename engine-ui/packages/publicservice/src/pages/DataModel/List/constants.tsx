@@ -2,9 +2,19 @@ import React from 'react';
 import { Divider } from 'antd';
 import { modelStatusMap } from '../constants';
 
-export const columnsGenerator = ({ releaseModel, unreleaseModel, handleDeleteBtnClick }) => {
+export const columnsGenerator = ({ releaseModel, unreleaseModel, handleDeleteBtnClick, handleModelNameClick }) => {
   return [
-    { title: '模型名称', dataIndex: 'modelName', key: 'modelName', width: 120 },
+    {
+      title: '模型名称',
+      dataIndex: 'modelName',
+      key: 'modelName',
+      width: 120,
+      render: (modelName, record) => {
+        return <a onClick={() => handleModelNameClick(record.id)}>
+          {modelName}
+        </a>
+      }
+    },
     { title: '模型英文名', dataIndex: 'modelEnName', key: 'modelEnName', width: 120 },
     {
       title: '数据源',

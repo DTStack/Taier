@@ -1,0 +1,19 @@
+table.h-table {
+  width: 100%xs;
+  tr {
+    td {
+      border: 1px solid rgb(233, 233, 233);
+      border-collapse: collapse;
+      width: 250px;
+      height: 44px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    td.label {
+      background-color: rgb(242, 242, 242);
+    }
+    td.value {
+      background-color: #fff;
+    }
+  }
+}

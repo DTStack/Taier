@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Container from '../components/Container';
-import { Input, Table, message as Message, notification, Pagination, Modal } from 'antd'
+import { Input, Table, message as Message, notification, Pagination, Modal, Drawer } from 'antd'
 const { Search } = Input;
 import { IModelData } from '../types';
 import { columnsGenerator } from './constants';
+import Detail from '../Detail';
 import { API } from '@/services';
+import './style';
 
 interface IPropsList {
 
@@ -40,6 +42,11 @@ const List = (props: IPropsList) => {
     search: "",
     size: 10
   })
+
+  const [drawer, setDrawer] = useState({
+    visible: false,
+    modelId: -1,
+  });
 
   /**
    * 获取数据模型列表
@@ -135,9 +142,26 @@ const List = (props: IPropsList) => {
     })
   }
 
+  /**
+   * 更新模型详情ID
+   * 模型名称点击回调
+   * @param id 
+   */
+  const handleModelNameClick = (id: number) => {
+    setDrawer({
+      visible: true,
+      modelId: id,
+    })
+  }
+
   const columns = useMemo(() => {
-    return columnsGenerator({ releaseModel, unreleaseModel, handleDeleteBtnClick });
-  }, [releaseModel, unreleaseModel, handleDeleteBtnClick]);
+    return columnsGenerator({
+      releaseModel,
+      unreleaseModel,
+      handleDeleteBtnClick,
+      handleModelNameClick
+    });
+  }, [releaseModel, unreleaseModel, handleDeleteBtnClick, handleModelNameClick]);
 
   useEffect(() => {
     fetchModelList(requestParams);
@@ -151,18 +175,33 @@ const List = (props: IPropsList) => {
           style={{ width: 200 }}
         />
       </header>
-      <div className="table-area" style={{ marginTop: 12, height: 'calc(100% - 44px)' }}>
-        { console.log(pagination) }
+      <div className="table-area">
         <Table
           rowKey="id"
-          className="dt-table-border"
-          style={{ height: 'calc(100% - 32px)' }}
+          className="table dt-table-border"
           columns={columns as any}
           loading={loading}
           dataSource={modelList}
           pagination={false}
           scroll={{ x: 1300, y: 800 }}
         />
+        <Drawer
+          visible={drawer.visible}
+          style={{ height: 'calc(100% - 148px)', top: 128 }}
+          width={1000}
+          getContainer={() => {
+            return document.querySelector('.search-area')
+          }}
+          mask={false}
+          onClose={() => {
+            setDrawer({
+              visible: false,
+              modelId: -1
+            })
+          }}
+        >
+          <Detail modelId={drawer.modelId} />
+        </Drawer>
         <Pagination
           style={{ left: 0, float: 'right' }}
           current={pagination.current}
