@@ -262,7 +262,7 @@ public class AlertChannelService {
         }
 
         if (CollectionUtils.isNotEmpty(customizeAlert)) {
-            pos.addAll(alertChannelDao.selectListByGateSources(IsDeletedEnum.NOT_DELETE.getType(),alertGateSources));
+            pos.addAll(alertChannelDao.selectListByGateSources(IsDeletedEnum.NOT_DELETE.getType(),customizeAlert));
         }
 
         return pos;
