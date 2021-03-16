@@ -17,15 +17,15 @@ public interface ProjectService extends DtInsightServer {
 
     @RequestLine("POST /node/project/addProject")
     @Headers(value={"Content-Type: application/json"})
-    void addProject(ScheduleEngineProjectParam scheduleEngineProjectParam);
+    ApiResponse<Void> addProject(ScheduleEngineProjectParam scheduleEngineProjectParam);
 
     @RequestLine("POST /node/project/updateProject")
     @Headers(value={"Content-Type: application/json"})
-    void updateProject(ScheduleEngineProjectParam scheduleEngineProjectParam);
+    ApiResponse<Void> updateProject(ScheduleEngineProjectParam scheduleEngineProjectParam);
 
     @RequestLine("POST /node/project/deleteProject")
-    void deleteProject( @Param("projectId") Long projectId, @Param("appType") Integer appType);
+    ApiResponse<Void> deleteProject( @Param("projectId") Long projectId, @Param("appType") Integer appType);
 
     @RequestLine("POST /node/project/findFuzzyProjectByProjectAlias")
-    List<ScheduleEngineProjectVO> findFuzzyProjectByProjectAlias( @Param("name") String name,  @Param("appType") Integer appType, @Param("uicTenantId") Long uicTenantId);
+    ApiResponse<List<ScheduleEngineProjectVO>> findFuzzyProjectByProjectAlias( @Param("name") String name,  @Param("appType") Integer appType, @Param("uicTenantId") Long uicTenantId);
 }

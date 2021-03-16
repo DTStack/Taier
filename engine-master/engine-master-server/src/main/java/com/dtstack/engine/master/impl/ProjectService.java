@@ -11,13 +11,11 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author yuebai
@@ -46,12 +44,15 @@ public class ProjectService {
     }
 
     public void addProjectOrUpdate(ScheduleEngineProjectParam scheduleEngineProjectParam) {
-        Long id = scheduleEngineProjectParam.getId();
-        ScheduleEngineProject scheduleEngineProject = null;
+        Long projectId = scheduleEngineProjectParam.getProjectId();
+        Integer appType = scheduleEngineProjectParam.getAppType();
 
-        if (id != null) {
-            scheduleEngineProject = scheduleEngineProjectDao.getProjectById(id);
+        if (projectId == null || appType == null) {
+            throw new RdosDefineException("projectId or appType can not be empty");
         }
+
+        ScheduleEngineProject scheduleEngineProject = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(projectId,appType);
+
 
         ScheduleEngineProject project = buildEngineProject(scheduleEngineProjectParam);
         if (scheduleEngineProject == null) {
