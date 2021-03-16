@@ -13,6 +13,7 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EDeployMode;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
@@ -190,7 +191,7 @@ public class StreamTaskService {
             JobClient jobClient = new JobClient(paramActionExt);
             checkResult = workerOperator.grammarCheck(jobClient);
         } catch (Exception e) {
-            throw new RdosDefineException("grammarCheck failed " + e.getMessage());
+            checkResult = CheckResult.exception(ExceptionUtil.getErrorMessage(e));
         }
         return checkResult;
     }
