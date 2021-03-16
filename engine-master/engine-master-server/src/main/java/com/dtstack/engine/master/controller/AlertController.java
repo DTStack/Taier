@@ -244,6 +244,7 @@ public class AlertController {
         result.setAlertGateCode(parse);
         result.setAlertGateJson(alertGateTestVO.getAlertGateJson());
         result.setJarPath(alertGateTestVO.getFilePath());
+        result.setAlertTemplate(alertGateTestVO.getAlertTemplate());
         return result;
     }
 }
