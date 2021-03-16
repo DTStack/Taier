@@ -238,8 +238,8 @@ public class  JobStatusDealer implements Runnable {
 
             for (ScheduleJob job : scheduleJobs) {
                 // 如果查询出来任务状是冻结状态
-                ScheduleTaskShade scheduleTaskShade =  scheduleTaskShadeDao.getOne(job.getTaskId(),job.getAppType());
-                if (scheduleTaskShade != null && !EScheduleStatus.PAUSE.getVal().equals(scheduleTaskShade.getScheduleStatus()) && TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule())) {
+//                ScheduleTaskShade scheduleTaskShade =  scheduleTaskShadeDao.getOne(job.getTaskId(),job.getAppType());
+                if ( TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule())) {
                     // 存在强规则任务
                     hasTaskRule = Boolean.TRUE;
                     break;
