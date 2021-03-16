@@ -52,6 +52,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-alter-sender</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <exclusions>
@@ -242,11 +248,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-alert</artifactId>
-            <version>1.0.0</version>
-        </dependency>
     </dependencies>
 
 

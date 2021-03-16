@@ -2,11 +2,10 @@ package com.dtstack.engine.master.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.alert.enums.AGgateType;
 import com.dtstack.engine.alert.enums.AlertGateCode;
+import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
 import com.dtstack.engine.api.vo.alert.AlertGateTestVO;
 import com.dtstack.engine.api.vo.alert.AlertGateVO;
-import com.dtstack.engine.common.enums.AlertGateTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
@@ -80,6 +79,15 @@ public class CheckUtils {
             }
         }
 
+        if (AlertGateTypeEnum.CUSTOMIZE.getType().equals(alertGateVO.getAlertGateType()) && StringUtils.isBlank(alertGateVO.getAlertGateCode())) {
+            alertGateVO.setAlertGateCode(AlertGateCode.AG_GATE_CUSTOM_JAR.code());
+        }
+
+        if (alertGateVO.getClusterId() == null) {
+            //暂时默认为0
+//            alertGateVO.setClusterId(0);
+        }
+
     }
 
     public static void checkFormat(AlertGateTestVO alertGateTestVO) {
@@ -87,7 +95,7 @@ public class CheckUtils {
             alertGateTestVO.setAlertGateCode(AlertGateCode.AG_GATE_CUSTOM_JAR.code());
         }
 
-        if (alertGateTestVO.getAlertGateCode().contains(AGgateType.AG_GATE_TYPE_SMS.getValue())) {
+        if (alertGateTestVO.getAlertGateCode().contains(AlertGateTypeEnum.SMS.getValue())) {
             List<String> phones = alertGateTestVO.getPhones();
             Assert.isTrue(CollectionUtils.isNotEmpty(phones), "手机号列表不能为空");
             for (String phone : phones) {
@@ -95,7 +103,7 @@ public class CheckUtils {
 
             }
         }
-        if (alertGateTestVO.getAlertGateCode().contains(AGgateType.AG_GATE_TYPE_MAIL.getValue())) {
+        if (alertGateTestVO.getAlertGateCode().contains(AlertGateTypeEnum.MAIL.getValue())) {
             List<String> emails = alertGateTestVO.getEmails();
             Assert.isTrue(CollectionUtils.isNotEmpty(emails), "邮箱列表不能为空");
             for (String email : emails) {

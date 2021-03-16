@@ -17,6 +17,7 @@
 
     <modules>
         <module>base</module>
+        <module>common</module>
         <module>dtscript</module>
         <module>dummy</module>
         <module>flink</module>

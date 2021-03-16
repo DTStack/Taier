@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.Component;
 import com.dtstack.engine.api.domain.Engine;
 import com.dtstack.engine.api.domain.Queue;
@@ -10,13 +9,12 @@ import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.client.ClientOperator;
 import com.dtstack.engine.common.enums.EComponentScheduleType;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.dao.ComponentDao;
 import com.dtstack.engine.dao.EngineDao;
 import com.dtstack.engine.dao.QueueDao;
 import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.master.AbstractTest;
-import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.utils.Template;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,9 +46,6 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
 
     @Autowired
     private EngineDao engineDao;
-
-    @Autowired
-    private ComponentDao componentDao;
 
     @MockBean
     private ClientOperator clientOperator;
@@ -127,10 +122,10 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
         List<Engine> engines = engineDao.listByClusterId(clusterVO.getId());
         Assert.assertNotNull(engines);
         Long engineId = engines.stream().map(Engine::getId).collect(Collectors.toList()).get(0);
-        Component sftpConfig = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.SFTP.getTypeCode());
-        Map sftpMap = JSONObject.parseObject(sftpConfig.getComponentConfig(), Map.class);
+        Map sftpMap = componentService.getComponentByClusterId(clusterVO.getClusterId(),EComponentType.SFTP.getTypeCode(),false,Map.class);
+        String k8sConfig = componentService.getComponentByClusterId(clusterVO.getClusterId(),EComponentType.KUBERNETES.getTypeCode(),false,String.class);
         //测试组件联通性
-        ComponentTestResult componentTestResult = componentService.testConnect(k8s.getComponentTypeCode(), k8s.getComponentConfig(), testClusterName, k8s.getHadoopVersion(), engineId, null, sftpMap,null);
+        ComponentTestResult componentTestResult = componentService.testConnect(k8s.getComponentTypeCode(), k8sConfig, testClusterName, k8s.getHadoopVersion(), engineId, null, sftpMap,null);
         Assert.assertNotNull(componentTestResult);
         Assert.assertTrue(componentTestResult.getResult());
 
@@ -195,10 +190,11 @@ public class ClusterK8sNameSpaceServiceTest extends AbstractTest {
     }
 
     private ComponentVO testAddK8s(ClusterVO clusterVO) {
-        componentService.addOrUpdateComponent(clusterVO.getClusterId(), "{\"path\":\"/data/sftp\",\"password\":\"abc123\",\"auth\":\"1\",\"port\":\"22\",\"host\":\"172.16.100.168\",\"username\":\"root\"}",
-                null, "hadoop2", "", "[]", EComponentType.SFTP.getTypeCode(),null,null,null);
-        return componentService.addOrUpdateComponent(clusterVO.getClusterId(), "{\"kubernetes.context\":\"# Configuration snippets may be placed in this directory as well\\nincludedir /etc/krb5.conf.d/\\n\\n[logging]\\n default = FILE:/var/log/krb5libs.log\\n kdc = FILE:/var/log/krb5kdc.log\\n admin_server = FILE:/var/log/kadmind.log\\n\\n[libdefaults]\\n dns_lookup_realm = false\\n ticket_lifetime = 24h\\n renew_lifetime = 7d\\n forwardable = true\\n rdns = false\\n pkinit_anchors = FILE:/etc/pki/tls/certs/ca-bundle.crt\\n default_realm = DTSTACK.COM\\n #default_ccache_name = KEYRING:persistent:%{uid}\\n\\n[realms]\\n DTSTACK.COM = {\\n  kdc = 172.16.10.99\\n  admin_server = 172.16.10.99\\n }\\n\\n[domain_realm]\\n .example.com = DTSTACK.COM\\n example.com = DTSTACK.COM\\n\"}"
-                , null, "hadoop2", "", "[]", EComponentType.KUBERNETES.getTypeCode(),null,null,null);
+        String sftpTemplate = "[{\"key\":\"auth\",\"required\":true,\"type\":\"RADIO_LINKAGE\",\"value\":\"1\",\"values\":[{\"dependencyKey\":\"auth\",\"dependencyValue\":\"1\",\"key\":\"password\",\"required\":true,\"type\":\"PASSWORD\",\"value\":\"1\",\"values\":[{\"dependencyKey\":\"auth$password\",\"dependencyValue\":\"\",\"key\":\"password\",\"required\":true,\"type\":\"PASSWORD\",\"value\":\"\"}]},{\"dependencyKey\":\"auth\",\"dependencyValue\":\"2\",\"key\":\"rsaPath\",\"required\":true,\"type\":\"\",\"value\":\"2\",\"values\":[{\"dependencyKey\":\"auth$rsaPath\",\"dependencyValue\":\"\",\"key\":\"rsaPath\",\"required\":true,\"type\":\"INPUT\",\"value\":\"\"}]}]},{\"key\":\"fileTimeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"300000\"},{\"key\":\"host\",\"required\":true,\"type\":\"INPUT\",\"value\":\"127.0.0.1\"},{\"key\":\"isUsePool\",\"required\":true,\"type\":\"INPUT\",\"value\":\"true\"},{\"key\":\"maxIdle\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"},{\"key\":\"maxTotal\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"},{\"key\":\"maxWaitMillis\",\"required\":true,\"type\":\"INPUT\",\"value\":\"3600000\"},{\"key\":\"minIdle\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"},{\"key\":\"path\",\"required\":true,\"type\":\"INPUT\",\"value\":\"/data/sftp\"},{\"key\":\"port\",\"required\":true,\"type\":\"INPUT\",\"value\":\"22\"},{\"key\":\"timeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"0\"},{\"key\":\"username\",\"required\":true,\"type\":\"INPUT\",\"value\":\"admin\"}]";
+        componentService.addOrUpdateComponent(clusterVO.getClusterId(), "{}",
+                null, "hadoop2", "", sftpTemplate, EComponentType.SFTP.getTypeCode(),null,null,null);
+        return componentService.addOrUpdateComponent(clusterVO.getClusterId(), "{}"
+                , null, "hadoop2", "", "[{\"key\":\"kubernetes.context\",\"required\":true,\"type\":\"INPUT\",\"value\":\"121212\"}]", EComponentType.KUBERNETES.getTypeCode(),null,null,null);
     }
 
 

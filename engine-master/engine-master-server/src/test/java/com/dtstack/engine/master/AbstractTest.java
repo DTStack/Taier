@@ -5,6 +5,7 @@ import com.dtstack.engine.master.config.CacheConfig;
 import com.dtstack.engine.master.config.MybatisConfig;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.test.context.ContextConfiguration;
 
 
@@ -15,6 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
 @RunWith(DtCenterSpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {EnvironmentContext.class, CacheConfig.class, MybatisConfig.class})
 @SpringBootTest
+@EnableCaching
 public abstract class AbstractTest {
 
 }

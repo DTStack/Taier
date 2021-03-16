@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.engine.dao.AlertChannelDao">
+
+    <sql id="filed">
+        id,cluster_id,alert_gate_name,alert_gate_type,alert_gate_code,alert_gate_json,alert_gate_source,alert_template,file_path,is_default,is_deleted,gmt_created,gmt_modified
+    </sql>
+
+    <select id="selectById" resultType="com.dtstack.engine.domain.AlertChannel">
+        SELECT
+            <include refid="filed"/>
+        FROM alert_channel
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByQuery" resultType="com.dtstack.engine.domain.AlertChannel">
+        SELECT
+        <include refid="filed"/>
+        FROM alert_channel
+        WHERE
+        <trim suffixOverrides="AND" >
+            <if test="alertChannel.clusterId != null">
+                `cluster_id` = #{alertChannel.clusterId} AND
+            </if>
+            <if test="alertChannel.alertGateName != null">
+                `alert_gate_name` = #{alertChannel.alertGateName} AND
+            </if>
+            <if test="alertChannel.alertGateType != null">
+                `alert_gate_type` = #{alertChannel.alertGateType} AND
+            </if>
+            <if test="alertChannel.alertGateCode != null">
+                `alert_gate_code` = #{alertChannel.alertGateCode} AND
+            </if>
+            <if test="alertChannel.alertGateJson != null">
+                `alert_gate_json` = #{alertChannel.alertGateJson} AND
+            </if>
+            <if test="alertChannel.alertGateSource != null">
+                `alert_gate_source` = #{alertChannel.alertGateSource} AND
+            </if>
+            <if test="alertChannel.filePath != null">
+                `file_path` = #{alertChannel.filePath} AND
+            </if>
+            <if test="alertChannel.isDefault != null">
+                `is_default` = #{alertChannel.isDefault} AND
+            </if>
+            <if test="alertChannel.isDeleted != null">
+                `is_deleted` = #{alertChannel.isDeleted} AND
+            </if>
+            <if test="alertChannel.gmtCreated != null">
+                `gmt_created` = #{alertChannel.gmtCreated} AND
+            </if>
+            <if test="alertChannel.gmtModified != null">
+                `gmt_modified` = #{alertChannel.gmtModified} AND
+            </if>
+            <if test="alertChannel.alertTemplate != null">
+                `alert_template` = #{alertChannel.alertTemplate} AND
+            </if>
+        </trim>
+    </select>
+
+    <select id="selectAll" resultType="com.dtstack.engine.domain.AlertChannel">
+        SELECT
+        <include refid="filed"/>
+        FROM alert_channel
+    </select>
+
+    <select id="selectListByGateSources" resultType="com.dtstack.engine.domain.AlertChannel">
+        SELECT
+        <include refid="filed"/>
+        FROM alert_channel
+        WHERE `is_deleted` = ${isDefault} AND   `alert_gate_source` IN
+        <foreach collection="alertGateSources" item="alertGateSource" open="(" close=")" separator="," >
+            ${alertGateSource}
+        </foreach>
+    </select>
+
+    <select id="selectList" resultType="com.dtstack.engine.domain.AlertChannel">
+        SELECT
+        <include refid="filed"/>
+        FROM alert_channel
+        WHERE `is_deleted` = ${isDefault}
+        <if test="clusterId!=null">
+            AND `cluster_id` = ${clusterId}
+        </if>
+        <if test="alertGateTypes!=null and alertGateTypes.size()>0">
+            AND `alert_gate_type` IN
+            <foreach collection="alertGateTypes" item="alertGateType" open="(" close=")" separator="," >
+                ${alertGateType}
+            </foreach>
+        </if>
+
+    </select>
+
+    <select id="selectInType" resultType="com.dtstack.engine.domain.AlertChannel">
+        SELECT
+        <include refid="filed"/>
+        FROM alert_channel
+        WHERE
+        `alert_gate_type` IN
+        <foreach collection="defaultAlert" item="type" close=")" open="(" separator=",">
+            #{type}
+        </foreach>
+        <if test="queryAlertChannel.isDefault!=null">
+            AND `is_default` = #{queryAlertChannel.isDefault}
+        </if>
+        <if test="queryAlertChannel.isDeleted != null">
+            AND `is_deleted` = #{queryAlertChannel.isDeleted}
+        </if>
+    </select>
+
+    <insert id="insert">
+        insert into alert_channel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="alertChannel.id != null">
+                `id`,
+            </if>
+            <if test="alertChannel.clusterId != null">
+                `cluster_id`,
+            </if>
+            <if test="alertChannel.alertGateName != null">
+                `alert_gate_name`,
+            </if>
+            <if test="alertChannel.alertGateType != null">
+                `alert_gate_type`,
+            </if>
+            <if test="alertChannel.alertGateCode != null">
+                `alert_gate_code`,
+            </if>
+            <if test="alertChannel.alertGateJson != null">
+                `alert_gate_json`,
+            </if>
+            <if test="alertChannel.alertGateSource != null">
+                `alert_gate_source`,
+            </if>
+            <if test="alertChannel.filePath != null">
+                `file_path`,
+            </if>
+            <if test="alertChannel.isDefault != null">
+                `is_default`,
+            </if>
+            <if test="alertChannel.isDeleted != null">
+                `is_deleted`,
+            </if>
+            <if test="alertChannel.gmtCreated != null">
+                `gmt_created`,
+            </if>
+            <if test="alertChannel.gmtModified != null">
+                `gmt_modified`,
+            </if>
+            <if test="alertChannel.alertTemplate != null">
+                `alert_template`,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="alertChannel.id != null">
+                #{alertChannel.id},
+            </if>
+            <if test="alertChannel.clusterId != null">
+                #{alertChannel.clusterId},
+            </if>
+            <if test="alertChannel.alertGateName != null">
+                #{alertChannel.alertGateName},
+            </if>
+            <if test="alertChannel.alertGateType != null">
+                #{alertChannel.alertGateType},
+            </if>
+            <if test="alertChannel.alertGateCode != null">
+                #{alertChannel.alertGateCode},
+            </if>
+            <if test="alertChannel.alertGateJson != null">
+                #{alertChannel.alertGateJson},
+            </if>
+            <if test="alertChannel.alertGateSource != null">
+                #{alertChannel.alertGateSource},
+            </if>
+            <if test="alertChannel.filePath != null">
+                #{alertChannel.filePath},
+            </if>
+            <if test="alertChannel.isDefault != null">
+                #{alertChannel.isDefault},
+            </if>
+            <if test="alertChannel.isDeleted != null">
+                #{alertChannel.isDeleted},
+            </if>
+            <if test="alertChannel.gmtCreated != null">
+                #{alertChannel.gmtCreated},
+            </if>
+            <if test="alertChannel.gmtModified != null">
+                #{alertChannel.gmtModified},
+            </if>
+            <if test="alertChannel.alertTemplate != null">
+                #{alertChannel.alertTemplate},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateById">
+        update alert_channel
+        <set>
+            <if test="alertChannel.clusterId != null">
+                `cluster_id` = #{alertChannel.clusterId},
+            </if>
+            <if test="alertChannel.alertGateName != null">
+                `alert_gate_name` = #{alertChannel.alertGateName},
+            </if>
+            <if test="alertChannel.alertGateType != null">
+                `alert_gate_type` = #{alertChannel.alertGateType},
+            </if>
+            <if test="alertChannel.alertGateCode != null">
+                `alert_gate_code` = #{alertChannel.alertGateCode},
+            </if>
+            <if test="alertChannel.alertGateJson != null">
+                `alert_gate_json` = #{alertChannel.alertGateJson},
+            </if>
+            <if test="alertChannel.alertGateSource != null">
+                `alert_gate_source` = #{alertChannel.alertGateSource},
+            </if>
+            <if test="alertChannel.filePath != null">
+                `file_path` = #{alertChannel.filePath},
+            </if>
+            <if test="alertChannel.isDefault != null">
+                `is_default` = #{alertChannel.isDefault},
+            </if>
+            <if test="alertChannel.isDeleted != null">
+                `is_deleted` = #{alertChannel.isDeleted},
+            </if>
+            <if test="alertChannel.gmtCreated != null">
+                `gmt_created` = #{alertChannel.gmtCreated},
+            </if>
+            <if test="alertChannel.gmtModified != null">
+                `gmt_modified` = #{alertChannel.gmtModified},
+            </if>
+            <if test="alertChannel.alertTemplate != null">
+                `alert_template` = #{alertChannel.alertTemplate},
+            </if>
+        </set>
+        where `id` = #{alertChannel.id} AND `is_deleted` = 0
+    </update>
+
+    <update id="updateDefaultAlertByType">
+        update alert_channel
+        SET `is_default` = #{isDefault}
+        where `alert_gate_type` = #{alertGateType} AND `is_deleted` = ${isDefault}
+    </update>
+
+
+
+</mapper>

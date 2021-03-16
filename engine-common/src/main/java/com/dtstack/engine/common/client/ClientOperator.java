@@ -164,11 +164,6 @@ public class ClientOperator {
         return clusterClient.submitJob(jobClient);
     }
 
-    public List<ClientTemplate> getDefaultPluginConfig(String engineType,String componentType){
-        IClient clusterClient = clientCache.getDefaultPlugin(engineType);
-        return clusterClient.getDefaultPluginConfig(componentType);
-    }
-
     public ComponentTestResult testConnect(String engineType, String pluginInfo){
         IClient clusterClient = clientCache.getDefaultPlugin(engineType);
         return clusterClient.testConnect(pluginInfo);
