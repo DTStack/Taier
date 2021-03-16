@@ -15,7 +15,7 @@ public interface ScheduleEngineProjectDao {
 
     Integer insert(@Param("scheduleEngineProject") ScheduleEngineProject scheduleEngineProject);
 
-    ScheduleEngineProject getProjectById(@Param("id") Long id);
+    ScheduleEngineProject getProjectByProjectIdAndApptype(@Param("projectId") Long projectId, @Param("appType") Integer appType);
 
     Integer updateById(@Param("scheduleEngineProject") ScheduleEngineProject scheduleEngineProject);
 
