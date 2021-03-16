@@ -2880,7 +2880,7 @@ public class ScheduleJobService {
         JSONObject json = new JSONObject();
         json.put("jobId",jobId);
         json.put("result",result);
-        if (job != null && EScheduleJobType.NOT_DO_TASK.getType().equals(job.getTaskType()) && RdosTaskStatus.RUNNING.getStatus().equals(job.getStatus())) {
+        if (job != null && EScheduleJobType.NOT_DO_TASK.getType().equals(job.getTaskType())) {
             if (rule == 1) {
                 json.put("msg_info","Application callback succeeded");
                 updateStatusAndLogInfoAndExecTimeById(jobId, RdosTaskStatus.FINISHED.getStatus(), json.toJSONString(),null,new Date());
@@ -2891,6 +2891,10 @@ public class ScheduleJobService {
         } else {
             throw new RdosDefineException("job status error,so update failure");
         }
+    }
+
+    public void updateStatusByJobIdEqualsStatus(String jobId, Integer status, Integer status1) {
+        scheduleJobDao.updateStatusByJobIdEqualsStatus(jobId,status,status1);
     }
 }
 

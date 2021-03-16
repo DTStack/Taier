@@ -457,10 +457,7 @@ public class ScheduleJobJobService {
                     if (TaskRuleEnum.NO_RULE.getCode().equals(subVO.getTaskRule())) {
                         subJobVOs.add(subVO);
                     } else {
-                        ScheduleJobVO e = buildRuleBean(subVO);
-                        if (e != null) {
-                            taskRuleJobVOs.add(e);
-                        }
+                        taskRuleJobVOs.add(subVO);
                     }
                 }
             }
@@ -636,10 +633,7 @@ public class ScheduleJobJobService {
                     if (TaskRuleEnum.NO_RULE.getCode().equals(item.getTaskRule())) {
                         fatherVOs.add(item);
                     } else {
-                        ScheduleJobVO e = buildRuleBean(item);
-                        if (e != null) {
-                            taskRuleJobVOs.add(e);
-                        }
+                        taskRuleJobVOs.add(item);
                     }
                 }
             }
@@ -677,10 +671,7 @@ public class ScheduleJobJobService {
                     if (TaskRuleEnum.NO_RULE.getCode().equals(item.getTaskRule())) {
                         fatherVOs.add(item);
                     } else {
-                        ScheduleJobVO e = buildRuleBean(item);
-                        if (e != null) {
-                            taskRuleJobVOs.add(e);
-                        }
+                        taskRuleJobVOs.add(item);
                     }
                 }
             }
