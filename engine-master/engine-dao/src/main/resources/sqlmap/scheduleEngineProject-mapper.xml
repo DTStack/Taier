@@ -68,11 +68,11 @@
         WHERE `project_id` = #{projectId} AND `app_type` = #{appType}
     </delete>
 
-    <select id="getProjectById" resultType="com.dtstack.engine.domain.ScheduleEngineProject">
+    <select id="getProjectByProjectIdAndApptype" resultType="com.dtstack.engine.domain.ScheduleEngineProject">
         SELECT
             <include refid="Base_Column_List"/>
         FROM schedule_engine_project
-        WHERE `id` = #{id} AND  `is_deleted` = 0
+        WHERE `project_id` = #{projectId} AND `app_type` = #{appType} AND `is_deleted` = 0
     </select>
 
     <select id="selectFuzzyProjectByProjectAlias" resultType="com.dtstack.engine.domain.ScheduleEngineProject">

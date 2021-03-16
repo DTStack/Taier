@@ -15,10 +15,8 @@ import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.master.impl.ProjectService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
-import com.dtstack.engine.master.impl.TenantService;
 import com.dtstack.engine.master.scheduler.parser.ESchedulePeriodType;
 import com.dtstack.engine.master.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.scheduler.parser.ScheduleFactory;
@@ -200,7 +198,7 @@ public class JobRichOperator {
             //  ${质量任务1的名称}：运行失败/校验通过/校验不通过（所属租户：xxxx，所属项目：xxx）
             logInfo+= "===============================================================\n";
             String nameByDtUicTenantId = tenantDao.getNameByDtUicTenantId(scheduleJob.getDtuicTenantId());
-            ScheduleEngineProject project = scheduleEngineProjectDao.getProjectById(scheduleJob.getProjectId());
+            ScheduleEngineProject project = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(scheduleJob.getProjectId());
             String format = String.format(LOG_TEM, scheduleJob.getJobName(), "运行失败", nameByDtUicTenantId,project.getProjectAlias());
             logInfo += format;
             return logInfo;
