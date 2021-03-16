@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.jobdealer;
 
+import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -13,6 +14,7 @@ import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.schedule.common.enums.Deleted;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -124,8 +126,15 @@ public class JobCheckpointDealer implements InitializingBean {
                         engineJobId = taskInfo.getJobIdentifier().getEngineJobId();
                     }
                     taskId = taskInfo.getTaskId();
-                    Integer status = scheduleJobDao.getStatusByJobId(taskId);
-                    updateCheckpointImmediately(taskInfo, engineJobId, status);
+                    ScheduleJob scheduleJob = scheduleJobDao.getByJobId(taskId, Deleted.NORMAL.getStatus());
+                    if (null == scheduleJob) {
+                        continue;
+                    }
+                    if (StringUtils.isBlank(scheduleJob.getEngineJobId()) || !scheduleJob.getEngineJobId().equalsIgnoreCase(engineJobId)) {
+                        logger.info("jobId {} queue engineJobId {} is not same to db {} so skip", taskId, scheduleJob.getEngineJobId(), engineJobId);
+                        continue;
+                    }
+                    updateCheckpointImmediately(taskInfo, engineJobId, scheduleJob.getStatus());
 
                 } catch (Exception e) {
                     logger.error("update delay checkpoint jobId {}  engineJobId {} error ", taskId, engineJobId, e);
@@ -207,6 +216,7 @@ public class JobCheckpointDealer implements InitializingBean {
                 }
             }
         } catch (IOException e) {
+            engineJobCheckpointDao.insert(taskId, engineTaskId, null, null, null, null);
             logger.error("taskID:{} ,engineTaskId:{}, error:", taskId, engineTaskId, e);
         }
     }

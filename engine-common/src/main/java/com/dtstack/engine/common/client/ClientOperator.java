@@ -1,5 +1,7 @@
 package com.dtstack.engine.common.client;
 
+import com.dtstack.engine.api.pojo.CheckResult;
+import com.dtstack.engine.api.pojo.ClientTemplate;
 import com.dtstack.engine.api.pojo.ClusterResource;
 import com.dtstack.engine.api.pojo.ComponentTestResult;
 import com.dtstack.engine.common.JobClient;
@@ -192,4 +194,8 @@ public class ClientOperator {
         }
     }
 
+    public CheckResult grammarCheck(JobClient jobClient) throws ClientAccessException {
+        IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+        return clusterClient.grammarCheck(jobClient);
+    }
 }

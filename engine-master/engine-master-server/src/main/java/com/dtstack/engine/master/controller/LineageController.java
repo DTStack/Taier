@@ -1,17 +1,7 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
-import com.dtstack.engine.api.vo.lineage.LineageColumnColumnParam;
-import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
-import com.dtstack.engine.api.vo.lineage.LineageTableTableParam;
-import com.dtstack.engine.api.vo.lineage.LineageTableTableVO;
-import com.dtstack.engine.api.vo.lineage.SqlParseInfo;
-import com.dtstack.engine.api.vo.lineage.TableLineageParseInfo;
-import com.dtstack.engine.api.vo.lineage.param.ParseColumnLineageParam;
-import com.dtstack.engine.api.vo.lineage.param.ParseTableLineageParam;
-import com.dtstack.engine.api.vo.lineage.param.QueryColumnLineageParam;
-import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageColumnParam;
-import com.dtstack.engine.api.vo.lineage.param.QueryTableLineageParam;
+import com.dtstack.engine.api.vo.lineage.*;
+import com.dtstack.engine.api.vo.lineage.param.*;
 import com.dtstack.engine.common.util.ValidateUtil;
 import com.dtstack.engine.master.router.DtRequestParam;
 import com.dtstack.lineage.impl.LineageService;

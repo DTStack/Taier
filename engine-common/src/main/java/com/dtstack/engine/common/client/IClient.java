@@ -1,5 +1,6 @@
 package com.dtstack.engine.common.client;
 
+import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.lineage.Column;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
@@ -29,7 +30,7 @@ public interface IClient {
     RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException;
 
 	String getJobMaster(JobIdentifier jobIdentifier);
-	
+
 	String getMessageByHttp(String path);
 
 	String getJobLog(JobIdentifier jobIdentifier);
@@ -50,6 +51,7 @@ public interface IClient {
 
 	List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier);
 
-
 	List<Column> getAllColumns(String tableName,String schemaName,String dbName);
+
+	CheckResult grammarCheck(JobClient jobClient);
 }

@@ -4,6 +4,7 @@ import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.dtstack.engine.common.JarFileInfo;
 import com.dtstack.engine.common.JobClient;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
@@ -92,8 +93,15 @@ public class YarnMockUtil {
     }
 
     public static JobClient mockJobClient(String jobType, String jarPath) throws Exception {
+        return mockJobClient(jobType, null, jarPath);
+    }
+
+    public static JobClient mockJobClient(String jobType, String sqlNewText, String jarPath) throws Exception {
         String taskId = "9999";
         String sqlText = "ADD JAR WITH /data/sftp/21_window_WindowJoin.jar AS dtstack.WindowJoin";
+        if (StringUtils.isNotEmpty(sqlNewText)) {
+            sqlText = sqlNewText;
+        }
         ParamAction paramAction = new ParamAction();
         if ("perJob".equalsIgnoreCase(jobType)) {
             paramAction.setTaskType(0);

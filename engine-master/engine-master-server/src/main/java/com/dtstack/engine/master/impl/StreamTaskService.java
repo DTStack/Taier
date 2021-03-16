@@ -1,21 +1,25 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.api.domain.EngineJobCache;
+import com.dtstack.engine.api.domain.EngineJobCheckpoint;
+import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.api.pojo.ParamAction;
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.dao.EngineJobCacheDao;
-import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.dao.EngineJobCheckpointDao;
-import com.dtstack.engine.api.domain.ScheduleJob;
-import com.dtstack.engine.api.domain.EngineJobCache;
-import com.dtstack.engine.api.domain.EngineJobCheckpoint;
-import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.common.enums.EDeployMode;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ExceptionUtil;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.dao.EngineJobCacheDao;
+import com.dtstack.engine.dao.EngineJobCheckpointDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
+import com.dtstack.engine.master.akka.WorkerOperator;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -51,10 +55,21 @@ public class StreamTaskService {
     private WorkerOperator workerOperator;
 
     /**
+     * 查询 生成失败的 checkPoint
+     */
+    public List<EngineJobCheckpoint> getFailedCheckPoint(String taskId, Long triggerStart, Long triggerEnd, Integer size){
+        List<EngineJobCheckpoint> failedCheckPointList = engineJobCheckpointDao.listFailedByTaskIdAndRangeTime(taskId, triggerStart, triggerEnd, size);
+        if(CollectionUtils.isNotEmpty(failedCheckPointList)) {
+            engineJobCheckpointDao.updateFailedCheckpoint(failedCheckPointList);
+        }
+        return failedCheckPointList;
+    }
+
+    /**
      * 查询checkPoint
      */
-    public List<EngineJobCheckpoint> getCheckPoint( String taskId,  Long triggerStart,  Long triggerEnd){
-        return engineJobCheckpointDao.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
+    public List<EngineJobCheckpoint> getCheckPoint( String taskId, Long triggerStart, Long triggerEnd){
+        return engineJobCheckpointDao.listByTaskIdAndRangeTime(taskId, triggerStart, triggerEnd);
     }
 
     /**
@@ -167,5 +182,17 @@ public class StreamTaskService {
 
         }
 
+    }
+
+    public CheckResult grammarCheck(ParamActionExt paramActionExt) {
+        logger.info("grammarCheck actionParam: {}", JSONObject.toJSONString(paramActionExt));
+        CheckResult checkResult = null;
+        try {
+            JobClient jobClient = new JobClient(paramActionExt);
+            checkResult = workerOperator.grammarCheck(jobClient);
+        } catch (Exception e) {
+            checkResult = CheckResult.exception(ExceptionUtil.getErrorMessage(e));
+        }
+        return checkResult;
     }
 }

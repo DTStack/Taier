@@ -98,17 +98,27 @@ public class JobClient extends OrderObject {
     /**
      * uic租户信息
      **/
-    private long tenantId;
+    private Long tenantId;
 
     private Long userId;
 
     private Integer appType;
-    
+
     private Integer queueSourceType;
 
     private Long submitCacheTime;
 
     private Boolean isForceCancel;
+
+    /**
+     * 重试超时时间
+     */
+    private long submitExpiredTime;
+
+    /**
+     * 重试间隔时间
+     */
+    private Long retryIntervalTime;
 
 
     public JobClient() {
@@ -133,6 +143,8 @@ public class JobClient extends OrderObject {
         this.userId = paramAction.getUserId();
         this.appType = paramAction.getAppType();
         this.queueSourceType = EQueueSourceType.NORMAL.getCode();
+        this.submitExpiredTime = paramAction.getSubmitExpiredTime();
+        this.retryIntervalTime = paramAction.getRetryIntervalTime();
 
         this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 0 : paramAction.getMaxRetryNum();
         if (paramAction.getPluginInfo() != null) {
@@ -213,11 +225,11 @@ public class JobClient extends OrderObject {
         this.queueSourceType = queueSourceType;
     }
 
-    public long getTenantId() {
+    public Long getTenantId() {
         return tenantId;
     }
 
-    public void setTenantId(long tenantId) {
+    public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
     }
 
@@ -470,6 +482,22 @@ public class JobClient extends OrderObject {
 
     public void setSubmitCacheTime(Long submitCacheTime) {
         this.submitCacheTime = submitCacheTime;
+    }
+
+    public long getSubmitExpiredTime() {
+        return submitExpiredTime;
+    }
+
+    public void setSubmitExpiredTime(long submitExpiredTime) {
+        this.submitExpiredTime = submitExpiredTime;
+    }
+
+    public Long getRetryIntervalTime() {
+        return retryIntervalTime;
+    }
+
+    public void setRetryIntervalTime(Long retryIntervalTime) {
+        this.retryIntervalTime = retryIntervalTime;
     }
 
     @Override
