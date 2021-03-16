@@ -188,13 +188,7 @@ public class AlertChannelService {
         if (id != null) {
             AlertChannel alertChannel = alertChannelDao.selectById(id);
             gateVO = new AlertGateVO();
-
             build(gateVO, alertChannel);
-            String filePath = gateVO.getFilePath();
-            if (StringUtils.isNotBlank(filePath)) {
-                String[] split = StringUtils.split(filePath, File.separator);
-                gateVO.setFilePath(split[split.length - 1]);
-            }
         }
         return gateVO;
     }

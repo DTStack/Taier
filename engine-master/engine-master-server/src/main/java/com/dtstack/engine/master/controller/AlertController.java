@@ -21,6 +21,7 @@ import com.dtstack.lang.data.R;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,7 +123,13 @@ public class AlertController {
     @ApiOperation("告警通道详情 用于取代console接口: /api/console/service/alert/getByAlertId")
     @PostMapping("/getByAlertId")
     public AlertGateVO getByAlertId(@RequestBody AlertGateVO alertGateVO) {
-        return alertChannelService.getGateById(alertGateVO.getId());
+        AlertGateVO gateById = alertChannelService.getGateById(alertGateVO.getId());
+        String filePath = gateById.getFilePath();
+        if (StringUtils.isNotBlank(filePath)) {
+            String[] split = StringUtils.split(filePath, File.separator);
+            gateById.setFilePath(split[split.length - 1]);
+        }
+        return gateById;
     }
 
 
