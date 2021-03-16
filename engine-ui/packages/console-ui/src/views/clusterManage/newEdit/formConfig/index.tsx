@@ -3,7 +3,7 @@ import { isArray } from 'lodash'
 import { Input, Form, Radio, Select, Checkbox,
     Tooltip, Row, Col } from 'antd'
 import { COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from '../const'
-import { getValueByJson, notCustomParam, isDeployMode,
+import { getValueByJson, isDeployMode,
     isRadioLinkage, isCustomType } from '../help'
 import { formItemLayout } from '../../../../consts'
 import CustomParams from './components/customParams'
@@ -127,7 +127,7 @@ export default class FormConfig extends React.PureComponent<IProps, any> {
             } else {
                 return <>
                     {this.renderConfigItem(temps)}
-                    {!notCustomParam(typeCode) && (index === template.length - 1) ? <CustomParams
+                    {(index === template.length - 1) ? <CustomParams
                         typeCode={typeCode}
                         form={form}
                         view={view}
