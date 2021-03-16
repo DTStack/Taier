@@ -17,6 +17,7 @@ import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
+import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.bo.JobCompletedInfo;
@@ -70,6 +71,7 @@ public class  JobStatusDealer implements Runnable {
     private ScheduleJobDao scheduleJobDao;
     private ScheduleJobJobDao scheduleJobJobDao;
     private EngineJobCacheDao engineJobCacheDao;
+    private ScheduleTaskShadeDao scheduleTaskShadeDao;
     private JobCheckpointDealer jobCheckpointDealer;
     private JobRestartDealer jobRestartDealer;
     private WorkerOperator workerOperator;
@@ -237,6 +239,7 @@ public class  JobStatusDealer implements Runnable {
             List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobByJobKeys(jobKeys);
 
             for (ScheduleJob job : scheduleJobs) {
+//                scheduleTaskShadeDao.getByTaskIdAndAppTypeAndScheduleStatus(job.getTaskId(),job.getAppType(),);
                 if (TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule())) {
                     // 存在强规则任务
                     hasTaskRule = Boolean.TRUE;
