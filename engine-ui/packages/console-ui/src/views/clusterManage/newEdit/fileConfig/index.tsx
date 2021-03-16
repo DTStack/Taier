@@ -46,10 +46,8 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
     handleVersion = (version: any) => {
         const { comp, handleCompVersion } = this.props
         const typeCode = comp?.componentTypeCode ?? ''
-        if (isSameVersion(Number(typeCode))) {
-            handleCompVersion(typeCode, version)
-            return
-        }
+        handleCompVersion(typeCode, version)
+        if (isSameVersion(Number(typeCode))) return
         this.props.form.setFieldsValue({ [`${typeCode}.hadoopVersion`]: version })
     }
 
@@ -81,6 +79,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                             })}
                         </Select>) : <Cascader
                             options={getOptions(version)}
+                            disabled={view}
                             expandTrigger="click"
                             displayRender={(label) => {
                                 return label[label.length - 1];
