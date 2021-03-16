@@ -20,8 +20,8 @@ module.exports = () => {
     },
     proxy: [
       {
-        path: '/api/v1/**',
-        target: 'target',
+        path: '/publicService/v1/**',
+        target: 'http://172.16.101.189:8077',
         changeOrigin: true,
       },
     ],
