@@ -1,7 +1,9 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.executor.AbstractJobExecutor;
 import com.dtstack.schedule.common.enums.EScheduleJobType;
@@ -52,10 +54,10 @@ public class BatchFlowWorkJobService {
      * <br>&nbsp;&nbsp;e.若子任务中同时存在运行失败或取消状态，工作流状态更新为失败状态</br>
      * <br>&nbsp;&nbsp;f.其他工作流更新为运行中状态</br>
      *
-     * @param jobId
+     * @param
      */
-    public boolean checkRemoveAndUpdateFlowJobStatus(Long id,String jobId,Integer appType) {
-
+    public boolean checkRemoveAndUpdateFlowJobStatus(ScheduleBatchJob scheduleBatchJob) {
+        String jobId = scheduleBatchJob.getJobId();
         List<ScheduleJob> subJobs = batchJobService.getSubJobsAndStatusByFlowId(jobId);
         boolean canRemove = false;
         Integer bottleStatus = null;
@@ -128,6 +130,7 @@ public class BatchFlowWorkJobService {
                 bottleStatus = RdosTaskStatus.FROZEN.getStatus();
             }
         }
+        Integer appType = scheduleBatchJob.getAppType();
         logger.info("jobId:{} bottleStatus:{}", jobId,bottleStatus);
         if (RdosTaskStatus.FINISHED.getStatus().equals(bottleStatus) || RdosTaskStatus.FAILED.getStatus().equals(bottleStatus)
                 || RdosTaskStatus.PARENTFAILED.getStatus().equals(bottleStatus) || RdosTaskStatus.SUBMITFAILD.getStatus().equals(bottleStatus)) {
@@ -139,12 +142,18 @@ public class BatchFlowWorkJobService {
             updateJob.setExecEndTime(new Timestamp(System.currentTimeMillis()));
             updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
             batchJobService.updateStatusWithExecTime(updateJob);
-            // 判断父节点和更新父节点状态
+            // 判断自身是否是失败强规则任务，如果是强规则任务
+//            if (TaskRuleEnum.STRONG_RULE.getCode().equals(scheduleBatchJob.getScheduleJob().getTaskRule())) {
+//                // 自身是强规则任务，判断父节点是否是失败状态
+//
+//            }
+
         } else {
             //更新工作流状态
             batchJobService.updateStatusByJobId(jobId, bottleStatus,null);
         }
 
+        Long id = scheduleBatchJob.getId();
         if (RdosTaskStatus.getStoppedStatus().contains(bottleStatus)) {
             logger.info("jobId:{} is WORK_FLOW or ALGORITHM_LAB son is execution complete update phaseStatus to execute_over.", jobId);
             batchJobService.updatePhaseStatusById(id, JobPhaseStatus.CREATE, JobPhaseStatus.EXECUTE_OVER);
