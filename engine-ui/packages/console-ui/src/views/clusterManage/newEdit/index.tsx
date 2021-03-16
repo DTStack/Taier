@@ -107,10 +107,12 @@ class EditCluster extends React.Component<any, IState> {
             })
             this.props.form.setFieldsValue({
                 [COMPONENT_TYPE_VALUE.YARN]: {
-                    hadoopVersion: version[version.length - 1]
+                    hadoopVersion: version[version.length - 1],
+                    hadoopVersionSelect: version
                 },
                 [COMPONENT_TYPE_VALUE.HDFS]: {
-                    hadoopVersion: version[version.length - 1]
+                    hadoopVersion: version[version.length - 1],
+                    hadoopVersionSelect: version
                 }
             })
             return
