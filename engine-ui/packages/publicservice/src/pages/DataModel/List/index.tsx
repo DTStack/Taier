@@ -3,14 +3,11 @@ import Container from '../components/Container';
 import { Input, Table, message as Message, notification, Pagination, Modal, Drawer } from 'antd'
 const { Search } = Input;
 import { IModelData } from '../types';
+import { EnumModalActionType } from './types';
 import { columnsGenerator } from './constants';
 import Detail from '../Detail';
 import { API } from '@/services';
 import './style';
-
-interface IPropsList {
-
-}
 
 interface IPagination {
   current: number;
@@ -25,8 +22,12 @@ interface IReqParams {
   search: string;
   size: number;
 }
+interface IModelAction {
+  type: EnumModalActionType,
+  id: number,
+}
 
-const List = (props: IPropsList) => {
+const List = () => {
   const [modelList, setModelList] = useState<IModelData[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [pagination, setPagination] = useState<IPagination>({
@@ -57,7 +58,6 @@ const List = (props: IPropsList) => {
       setLoading(true);
       const { success, data, message } = await API.getModelList(requestParams);
       if(success) {
-        console.log(data);
         setModelList(data.contentList);
         setPagination({
           current: data.current,
@@ -74,71 +74,78 @@ const List = (props: IPropsList) => {
     }
   }
 
-  /**
-   * 发布数据模型
-   */
-  const releaseModel = useCallback(async (id: number) => {
-    try {
-      const { success, message } = await API.releaseModel({ id });
-      // console.log(success, data, message);
-      if(success) {
-        Message.success('模型发布成功')
-      } else {
-        Message.error(message);
-        fetchModelList(requestParams);
-      }
-    } catch(error) {
-      Message.error(error.message);
+  // TODO: 文案
+  const handleModelAction = useCallback(async (action: IModelAction) => {
+    const { type, id } = action;
+    let apiAction, messageConfig, messageActor, msg = { title: '', message: '' };
+    switch(type) {
+      case EnumModalActionType.DELETE:
+        apiAction = API.deleteModel;
+        messageConfig = ({ message }) => {
+          return {
+            content: message,
+          }
+        }
+        msg = {
+          title: '',
+          message: '模型删除成功'
+        }
+        messageActor = Message;
+        break;
+      case EnumModalActionType.RELEASE:
+        apiAction = API.releaseModel;
+        messageConfig = ({ title, message }) => {
+          return {
+            message: title,
+            description: message,
+          }
+        }
+        msg = {
+          title: '模型发布成功',
+          message: ''
+        }
+        messageActor = notification;
+        break;
+      case EnumModalActionType.UNRELEASE:
+        apiAction = API.unreleaseModel;
+        messageConfig = ({ title, message }) => {
+          return {
+            message: title,
+            description: message,
+          }
+        }
+        msg = {
+          title: '模型下线成功',
+          message: ''
+        }
+        messageActor = notification;
+        break;
     }
-  }, []);
-
-  /**
-   * 下线模型
-   * @param id 
-   */
-  const unreleaseModel = useCallback(async (id: number) => {
+    
     try {
-      const { success, message } = await API.unreleaseModel({ id });
+      const { success, message } = await apiAction({ id });
       if(success) {
-        notification.success({
-          message: 'aaa',
-          description: '模型下线成功'
-        });
-        fetchModelList(requestParams);
+        messageActor.success(messageConfig(msg));
       } else {
-        Message.error(message);
-
+        messageActor.error(messageConfig({ message }))
       }
     } catch(error) {
-      Message.error(error.message);
-    } 
-  }, []);
-
-  /**
-   * 删除模型
-   */
-  const deleteModel = useCallback(async (id: number) => {
-    try {
-      const { success, message } = await API.deleteModel({ id });
-      if(success) {
-        Message.error('模型删除成功');
-      } else {
-        Message.error(message);
-      }
-    } catch(error) {
-      Message.error(error.message);
+      messageActor.error(messageConfig({ message: error.message }));
     }
   }, [])
 
   // 删除按钮点击事件处理，二次确认弹窗
   const handleDeleteBtnClick = (id) => {
+    // TODO: 提示文案待修改
     Modal.confirm({
       title: '确认删除吗',
       content: 'aaaaa',
       onOk() {
-        deleteModel(id);
+        handleModelAction({
+          type: EnumModalActionType.DELETE,
+          id
+        })
       },
-      onCancel() {}
     })
   }
 
@@ -155,13 +162,8 @@ const List = (props: IPropsList) => {
   }
 
   const columns = useMemo(() => {
-    return columnsGenerator({
-      releaseModel,
-      unreleaseModel,
-      handleDeleteBtnClick,
-      handleModelNameClick
-    });
-  }, [releaseModel, unreleaseModel, handleDeleteBtnClick, handleModelNameClick]);
+    return columnsGenerator({ handleModelAction, handleDeleteBtnClick, handleModelNameClick });
+  }, [handleModelAction, handleDeleteBtnClick, handleModelNameClick]);
 
   useEffect(() => {
     fetchModelList(requestParams);
@@ -171,8 +173,8 @@ const List = (props: IPropsList) => {
     <Container>
       <header className="search-area">
         <Search
+          className="search"
           onSearch={value => setRequestParams(prev => ({ ...prev, search: value }))}
-          style={{ width: 200 }}
         />
       </header>
       <div className="table-area">
@@ -203,7 +205,7 @@ const List = (props: IPropsList) => {
           <Detail modelId={drawer.modelId} />
         </Drawer>
         <Pagination
-          style={{ left: 0, float: 'right' }}
+          className="pagination"
           current={pagination.current}
           pageSize={pagination.size}
           total={pagination.total}

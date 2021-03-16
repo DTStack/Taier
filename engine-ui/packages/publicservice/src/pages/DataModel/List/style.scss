@@ -1,12 +1,18 @@
 .dm-list {
   .search-area {
-
+    .search {
+      width: 200px;
+    }
   }
   .table-area {
     margin-top: 12px;
     height: calc(100% - 44px);
     .table {
       height: calc(100% - 32px);
+    }
+    .pagination {
+      left: 0;
+      float: right;
     }
   }
 }

@@ -1,10 +1,6 @@
 import React from 'react';
 
-interface IPropModelModify {
-
-}
-
-const ModelModify = (props: IPropModelModify) => {
+const ModelModify = () => {
   return (
     <div>
       hello, this is model modify page...

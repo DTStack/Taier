@@ -1,8 +1,9 @@
 import React from 'react';
 import { Divider } from 'antd';
 import { modelStatusMap } from '../constants';
+import { EnumModalActionType } from './types';
 
-export const columnsGenerator = ({ releaseModel, unreleaseModel, handleDeleteBtnClick, handleModelNameClick }) => {
+export const columnsGenerator = ({ handleModelAction, handleDeleteBtnClick, handleModelNameClick }) => {
   return [
     {
       title: '模型名称',
@@ -21,6 +22,7 @@ export const columnsGenerator = ({ releaseModel, unreleaseModel, handleDeleteBtn
       dataIndex: '',
       width: 80,
       ellipsis: true,
+      // TODO:
       filters: [
         { text: 'aaa', value: 1 },
         { text: 'bbb', value: 2 },
@@ -34,6 +36,7 @@ export const columnsGenerator = ({ releaseModel, unreleaseModel, handleDeleteBtn
       dataIndex: 'modelStatus',
       key: 'modelStatus',
       width: 80,
+      // TODO:
       filters: [
         { text: 'aaa', value: 1 },
         { text: 'bbb', value: 2 },
@@ -55,16 +58,17 @@ export const columnsGenerator = ({ releaseModel, unreleaseModel, handleDeleteBtn
       render: (text, record, index) => {
         const isPublished = record.modelStatus === 1;
         const btnRelease = (
-          <a onClick={() => releaseModel(record.id)}>发布</a>
+          <a onClick={() => handleModelAction({ type: EnumModalActionType.RELEASE, id: record.id })}>发布</a>
         );
         const btnUnrelease = (
-          <a onClick={() => unreleaseModel(record.id)}>下线</a>
+          <a onClick={() => handleModelAction({ type: EnumModalActionType.UNRELEASE, id: record.id })}>下线</a>
         );
         const btnDelete = (
           <a onClick={() => {
             handleDeleteBtnClick(record.id);
           }}>删除</a>
         );
+        // TODO:
         const btnEdit = (
           <a onClick={() => {
             alert('编辑')
@@ -93,4 +97,3 @@ export const columnsGenerator = ({ releaseModel, unreleaseModel, handleDeleteBtn
     },
   ];
 }
-
