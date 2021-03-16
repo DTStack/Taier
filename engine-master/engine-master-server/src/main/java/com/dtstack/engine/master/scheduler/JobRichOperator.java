@@ -198,7 +198,7 @@ public class JobRichOperator {
             //  ${质量任务1的名称}：运行失败/校验通过/校验不通过（所属租户：xxxx，所属项目：xxx）
             logInfo+= "===============================================================\n";
             String nameByDtUicTenantId = tenantDao.getNameByDtUicTenantId(scheduleJob.getDtuicTenantId());
-            ScheduleEngineProject project = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(scheduleJob.getProjectId());
+            ScheduleEngineProject project = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(scheduleJob.getProjectId(),scheduleJob.getAppType());
             String format = String.format(LOG_TEM, scheduleJob.getJobName(), "运行失败", nameByDtUicTenantId,project.getProjectAlias());
             logInfo += format;
             return logInfo;
