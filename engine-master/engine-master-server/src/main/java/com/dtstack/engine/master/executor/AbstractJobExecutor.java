@@ -200,7 +200,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                                     putScheduleJob(scheduleBatchJob);
                                 } else if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
                                     logger.info("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
-                                    batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob.getId(), scheduleBatchJob.getJobId(), scheduleBatchJob.getAppType());
+                                    batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob);
                                 }
                             } else if (EScheduleJobType.NOT_DO_TASK.getType().equals(type)) {
                                 logger.info("jobId:{} scheduleType:{} is NOT_DO_TASK not put queue.", scheduleBatchJob.getJobId(), getScheduleType());
@@ -208,7 +208,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                                 if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status) && isPutQueue(checkRunInfo, scheduleBatchJob)) {
                                     // 直接状态成运行中
                                     logger.info("jobId:{} is NOT_DO_TASK,status:{} , update RUNNING", scheduleBatchJob.getJobId(),status);
-                                    batchJobService.updateStatusAndLogInfoAndExecTimeById(scheduleBatchJob.getJobId(), RdosTaskStatus.RUNNING.getStatus(), "",new Date(),null);
+                                    batchJobService.updateStatusByJobIdEqualsStatus(scheduleBatchJob.getJobId(), RdosTaskStatus.RUNNING.getStatus(),RdosTaskStatus.UNSUBMIT.getStatus());
                                 } else if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
                                     logger.info("jobId:{} is NOT_DO_TASK,status:{} is not submit，determine whether the timeout", scheduleBatchJob.getJobId(),status);
                                     // 已经提交状态 判断是否超时

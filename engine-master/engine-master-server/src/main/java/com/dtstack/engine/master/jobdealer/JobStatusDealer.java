@@ -4,19 +4,18 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.EngineJobCache;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.common.BlockCallerPolicy;
 import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobIdentifier;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.enums.EngineType;
-import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.pojo.JobStatusFrequency;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.dao.EngineJobCacheDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.dao.ScheduleJobJobDao;
+import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.bo.JobCheckpointInfo;
 import com.dtstack.engine.master.bo.JobCompletedInfo;
@@ -70,6 +69,7 @@ public class  JobStatusDealer implements Runnable {
     private ScheduleJobDao scheduleJobDao;
     private ScheduleJobJobDao scheduleJobJobDao;
     private EngineJobCacheDao engineJobCacheDao;
+    private ScheduleTaskShadeDao scheduleTaskShadeDao;
     private JobCheckpointDealer jobCheckpointDealer;
     private JobRestartDealer jobRestartDealer;
     private WorkerOperator workerOperator;
@@ -237,7 +237,9 @@ public class  JobStatusDealer implements Runnable {
             List<ScheduleJob> scheduleJobs = scheduleJobDao.listJobByJobKeys(jobKeys);
 
             for (ScheduleJob job : scheduleJobs) {
-                if (TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule())) {
+                // 如果查询出来任务状是冻结状态
+                ScheduleTaskShade scheduleTaskShade =  scheduleTaskShadeDao.getOne(job.getTaskId(),job.getAppType());
+                if (scheduleTaskShade != null && !EScheduleStatus.PAUSE.getVal().equals(scheduleTaskShade.getScheduleStatus()) && TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule())) {
                     // 存在强规则任务
                     hasTaskRule = Boolean.TRUE;
                     break;
