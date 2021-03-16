@@ -2752,6 +2752,7 @@ public class ScheduleJobService {
     }
 
     public void updateNotRuleResult(String jobId,Integer rule,String result) {
+        logger.info("updateNotRuleResult start jobId:{} , rule:{} result:{} ",jobId,rule,result);
         ScheduleJob job = scheduleJobDao.getByJobId(jobId, 0);
 
         JSONObject json = new JSONObject();
@@ -2766,6 +2767,7 @@ public class ScheduleJobService {
                 updateStatusAndLogInfoAndExecTimeById(jobId, RdosTaskStatus.FAILED.getStatus(), json.toJSONString(),null,new Date());
             }
         } else {
+            logger.info("updateNotRuleResult update  error jobId:{} , rule:{} result:{} ",jobId,rule,result);
             throw new RdosDefineException("job status error,so update failure");
         }
     }
