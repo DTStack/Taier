@@ -5,6 +5,7 @@ import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ClusterDao;
 import com.dtstack.engine.dao.EngineDao;
+import com.dtstack.engine.dao.EngineTenantDao;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,9 @@ public class CommonResource {
     @Autowired
     protected ComponentService componentService;
 
+    @Autowired
+    protected EngineTenantDao engineTenantDao;
+
 
     public ComputeResourceType newInstance(JobClient jobClient) {
         EngineType engineType = EngineType.getEngineType(jobClient.getEngineType());
@@ -47,6 +51,7 @@ public class CommonResource {
                     commonResource.setEngineDao(engineDao);
                     commonResource.setClusterService(clusterService);
                     commonResource.setComponentService(componentService);
+                    commonResource.setEngineTenantDao(engineTenantDao);
                     break;
                 case Spark:
                 case Learning:
@@ -146,5 +151,13 @@ public class CommonResource {
 
     public void setComponentService(ComponentService componentService) {
         this.componentService = componentService;
+    }
+
+    public EngineTenantDao getEngineTenantDao() {
+        return engineTenantDao;
+    }
+
+    public void setEngineTenantDao(EngineTenantDao engineTenantDao) {
+        this.engineTenantDao = engineTenantDao;
     }
 }

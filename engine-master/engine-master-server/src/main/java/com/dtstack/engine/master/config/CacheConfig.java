@@ -24,7 +24,10 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.Topic;
 import redis.clients.jedis.JedisPoolConfig;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author toutian
@@ -137,7 +140,7 @@ public class CacheConfig {
     }
 
     @Bean
-    public RdosSubscribe rdosSubscribe(RedisTemplate redisTemplate, SessionCache sessionCache, ConsoleCache consoleCache) {
+    public RdosSubscribe rdosSubscribe(RedisTemplate redisTemplate, SessionCache sessionCache) {
         RdosSubscribe rdosSubscribe = new RdosSubscribe();
         rdosSubscribe.setRedisTemplate(redisTemplate);
         rdosSubscribe.setSessionCache(sessionCache);

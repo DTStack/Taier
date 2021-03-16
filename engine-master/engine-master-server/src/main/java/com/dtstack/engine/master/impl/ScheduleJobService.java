@@ -34,6 +34,8 @@ import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.master.utils.JobGraphUtils;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
@@ -2104,6 +2106,19 @@ public class ScheduleJobService {
         return RdosTaskStatus.getCanStopStatus().contains(status);
     }
 
+    public String formatLearnTaskParams(String taskParams) {
+        List<String> params = new ArrayList<>();
+
+        for (String param : taskParams.split("\r|\n")) {
+            if (StringUtils.isNotEmpty(param.trim()) && !param.trim().startsWith("#")) {
+                String[] parts = param.split("=");
+                params.add(String.format("%s=%s", parts[0].trim(), parts[1].trim()));
+            }
+        }
+
+        return StringUtils.join(params, " ");
+    }
+
 
 
     /**
@@ -2572,7 +2587,7 @@ public class ScheduleJobService {
                     if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
                         //工作流或算法实验
                         for (ScheduleBatchJob jobRunBean : cronTrigger) {
-                            flowJobId.put(jobGraphBuilder.buildFlowReplaceId(task.getTaskId(),jobRunBean.getCycTime(),task.getAppType()),jobRunBean.getJobId());
+                            flowJobId.put(JobGraphUtils.buildFlowReplaceId(task.getTaskId(),jobRunBean.getCycTime(),task.getAppType()),jobRunBean.getJobId());
                         }
                     }
                 } catch (Exception e) {

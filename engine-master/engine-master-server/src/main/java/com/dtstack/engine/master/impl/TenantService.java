@@ -75,9 +75,6 @@ public class TenantService {
     private ClusterDao clusterDao;
 
     @Autowired
-    private ClusterService clusterService;
-
-    @Autowired
     private ComponentService componentService;
 
     @Autowired
@@ -208,7 +205,7 @@ public class TenantService {
 
         Tenant tenant = getTenant(dtUicTenantId, dtToken);
         checkTenantBindStatus(tenant.getId());
-        checkClusterCanUse(clusterId);
+        checkClusterCanUse(cluster.getClusterName());
 
 
         List<Engine> engineList = engineDao.listByClusterId(clusterId);
@@ -234,9 +231,8 @@ public class TenantService {
     }
 
 
-    public void checkClusterCanUse(Long clusterId) throws Exception {
-        Cluster cluster = clusterDao.getOne(clusterId);
-        List<ComponentTestResult> testConnectionVO = componentService.testConnects(cluster.getClusterName());
+    public void checkClusterCanUse(String clusterName) throws Exception {
+        List<ComponentTestResult> testConnectionVO = componentService.testConnects(clusterName);
         boolean canUse = true;
         StringBuilder msg = new StringBuilder();
         msg.append("此集群不可用,测试连通性为通过：\n");

@@ -81,6 +81,17 @@
         where cluster_id = #{clusterId} and engine_type = #{engineType} and is_deleted = 0
     </update>
 
+    <select id="getByDtUicTenantId" resultType="Engine">
+        SELECT
+            e.*
+        FROM
+            console_engine_tenant et
+                LEFT JOIN console_engine e ON e.id = et.engine_id
+                LEFT JOIN console_dtuic_tenant dt ON dt.id = et.tenant_id
+        WHERE
+            dt.dt_uic_tenant_id = #{dtuicTenantId} AND et.is_deleted = 0 AND e.is_deleted = 0
+    </select>
+
     <select id="getEngineByIdsAndType" resultType="Engine">
         select
         <include refid="select_content_fragment"/>
