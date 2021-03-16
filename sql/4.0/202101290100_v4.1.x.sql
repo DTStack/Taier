@@ -88,7 +88,7 @@ INSERT IGNORE INTO `alert_content` (`id`,`tenant_id`,`project_id`,`app_type`,`co
 SELECT * FROM dt_notify_record_content;
 
 -- 迁移记录表
-INSERT IGNORE INTO `alert_record`(`id`,`alert_content_id`,`tenant_id`,`app_type`,`user_id`,`read_status`,`status`,`context`,`alert_record_status`,`alert_record_send_status`,`is_deleted`,`node_address`,`read_id`)
+INSERT IGNORE INTO `alert_record`(`id`,`alert_content_id`,`tenant_id`,`app_type`,`user_id`,`read_status`,`status`,`context`,`alert_record_status`,`alert_record_send_status`,`is_deleted`,`node_address`,`read_id`,`gmt_created`,`gmt_modified`)
 SELECT
 r.id,
 r.content_id alert_channel_id ,
@@ -102,6 +102,8 @@ CONCAT("{\"content\":\"",(SELECT c.content FROM dt_notify_record_content c WHERE
 1,
 r.is_deleted,
 "",
-r.notify_record_id
+r.notify_record_id,
+r.gmt_create,
+r.gmt_modified
 FROM dt_notify_record_read r
 WHERE r.is_deleted = 0;
