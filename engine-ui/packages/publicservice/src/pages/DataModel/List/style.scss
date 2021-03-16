@@ -6,13 +6,40 @@
   }
   .table-area {
     margin-top: 12px;
-    height: calc(100% - 44px);
+    height: calc(100% - 68px);
+    position: relative;
     .table {
       height: calc(100% - 32px);
     }
-    .pagination {
-      left: 0;
-      float: right;
+    .drawer {
+      height: calc(100% - 148px);
+      top: 128px;
+    }
+    .pagination-container {
+      width: 100%;
+      height: 56px;
+      line-height: 56px;
+      background: #fff;
+      .pagination {
+        left: 0;
+        float: right;
+        margin-top: 16px;
+      }
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      margin-right: 8px;
+      display: inline-block;
+      border-radius: 50%;
+    }
+    .btn-disabled {
+      color: '#999999';
+      cursor: not-allowed;
     }
   }
+}
+
+.float-right {
+  float: right;
 }

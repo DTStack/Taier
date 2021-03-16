@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Container from '../components/Container';
-import { Input, Table, message as Message, notification, Pagination, Modal, Drawer } from 'antd'
+import { Input, Table, message as Message, notification, Pagination, Modal, Drawer, Button } from 'antd'
 const { Search } = Input;
 import { IModelData } from '../types';
-import { EnumModalActionType } from './types';
+import { EnumModelActionType } from './types';
 import { columnsGenerator } from './constants';
 import Detail from '../Detail';
 import { API } from '@/services';
@@ -23,7 +23,7 @@ interface IReqParams {
   size: number;
 }
 interface IModelAction {
-  type: EnumModalActionType,
+  type: EnumModelActionType,
   id: number,
 }
 
@@ -79,7 +79,7 @@ const List = () => {
     const { type, id } = action;
     let apiAction, messageConfig, messageActor, msg = { title: '', message: '' };
     switch(type) {
-      case EnumModalActionType.DELETE:
+      case EnumModelActionType.DELETE:
         apiAction = API.deleteModel;
         messageConfig = ({ message }) => {
           return {
@@ -92,7 +92,7 @@ const List = () => {
         }
         messageActor = Message;
         break;
-      case EnumModalActionType.RELEASE:
+      case EnumModelActionType.RELEASE:
         apiAction = API.releaseModel;
         messageConfig = ({ title, message }) => {
           return {
@@ -106,7 +106,7 @@ const List = () => {
         }
         messageActor = notification;
         break;
-      case EnumModalActionType.UNRELEASE:
+      case EnumModelActionType.UNRELEASE:
         apiAction = API.unreleaseModel;
         messageConfig = ({ title, message }) => {
           return {
@@ -121,7 +121,7 @@ const List = () => {
         messageActor = notification;
         break;
     }
-    
+
     try {
       const { success, message } = await apiAction({ id });
       if(success) {
@@ -142,7 +142,7 @@ const List = () => {
       content: 'aaaaa',
       onOk() {
         handleModelAction({
-          type: EnumModalActionType.DELETE,
+          type: EnumModelActionType.DELETE,
           id
         })
       },
@@ -152,7 +152,7 @@ const List = () => {
   /**
    * 更新模型详情ID
    * 模型名称点击回调
-   * @param id 
+   * @param id
    */
   const handleModelNameClick = (id: number) => {
     setDrawer({
@@ -174,8 +174,10 @@ const List = () => {
       <header className="search-area">
         <Search
           className="search"
+          placeholder="模型名称/英文名"
           onSearch={value => setRequestParams(prev => ({ ...prev, search: value }))}
         />
+        <Button className="float-right" type="primary">新建模型</Button>
       </header>
       <div className="table-area">
         <Table
@@ -189,10 +191,10 @@ const List = () => {
         />
         <Drawer
           visible={drawer.visible}
-          style={{ height: 'calc(100% - 148px)', top: 128 }}
+          className="drawer"
           width={1000}
           getContainer={() => {
-            return document.querySelector('.search-area')
+            return document.querySelector('.table-area')
           }}
           mask={false}
           onClose={() => {
@@ -204,19 +206,22 @@ const List = () => {
         >
           <Detail modelId={drawer.modelId} />
         </Drawer>
-        <Pagination
-          className="pagination"
-          current={pagination.current}
-          pageSize={pagination.size}
-          total={pagination.total}
-          onChange={(current, size) => {
-            setRequestParams(prev => ({
-              ...prev,
-              current,
-              size
-            }))
-          }}
-        />
+        <div className="pagination-container">
+          <Pagination
+            className="pagination"
+            current={pagination.current}
+            pageSize={pagination.size}
+            total={pagination.total}
+            size="small"
+            onChange={(current, size) => {
+              setRequestParams(prev => ({
+                ...prev,
+                current,
+                size
+              }))
+            }}
+          />
+        </div>
       </div>
     </Container>
   </div>
