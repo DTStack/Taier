@@ -68,9 +68,9 @@
 
     <insert id="insert" parameterType="ScheduleTaskTaskShade" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO schedule_task_task_shade
-        (dtuic_tenant_id,app_type, task_id,parent_task_id,project_id,tenant_id,gmt_create,gmt_modified,is_deleted)
+        (dtuic_tenant_id,app_type, task_id,parent_task_id,project_id,tenant_id,gmt_create,gmt_modified,is_deleted,parent_app_type)
         VALUES
-        (#{dtuicTenantId},#{appType}, #{taskId},#{parentTaskId},#{projectId},#{tenantId},#{gmtCreate},#{gmtModified},#{isDeleted})
+        (#{dtuicTenantId},#{appType}, #{taskId},#{parentTaskId},#{projectId},#{tenantId},#{gmtCreate},#{gmtModified},#{isDeleted},#{parentAppType})
     </insert>
 
     <update id="update" parameterType="ScheduleTaskTaskShade">
