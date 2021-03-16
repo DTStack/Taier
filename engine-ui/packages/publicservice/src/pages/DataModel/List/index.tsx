@@ -190,6 +190,7 @@ const List = () => {
           scroll={{ x: 1300, y: 800 }}
         />
         <Drawer
+          closable={false}
           visible={drawer.visible}
           className="drawer"
           width={1000}
