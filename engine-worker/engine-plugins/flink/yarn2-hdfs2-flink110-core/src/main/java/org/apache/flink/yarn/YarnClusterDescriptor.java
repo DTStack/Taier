@@ -451,7 +451,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 	}
 
 	private boolean isSecurityEnabled() {
-		return flinkConfiguration.getBoolean("openKerberos", false);
+		return flinkConfiguration.getBoolean(ConfigConstrant.OPEN_KERBEROS_KEY, false);
 	}
 
 	/**
