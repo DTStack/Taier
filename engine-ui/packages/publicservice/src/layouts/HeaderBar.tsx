@@ -19,9 +19,11 @@ class HeaderBar extends React.Component<IProps, IState> {
     window.sessionStorage.clear();
     window.open(`${frontConf.BACK_HOST}/login`);
   }
+
   handleItemClick = () => {
     this.logout();
   };
+
   render() {
     const selfMenu = (
       <Menu onClick={this.handleItemClick}>

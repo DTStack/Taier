@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Layout, Menu } from 'antd';
+import './style.less';
 const { SubMenu } = Menu;
 const { Sider } = Layout;
-import './style.less';
 
 interface IProps {
   location: any;
