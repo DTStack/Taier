@@ -2775,4 +2775,15 @@ public class ScheduleJobService {
     public void updateStatusByJobIdEqualsStatus(String jobId, Integer status, Integer status1) {
         scheduleJobDao.updateStatusByJobIdEqualsStatus(jobId,status,status1);
     }
+
+    public List<ScheduleJob> listJobByJobKeys(List<String> parentJobKeys) {
+        if (CollectionUtils.isNotEmpty(parentJobKeys)) {
+            return scheduleJobDao.listJobByJobKeys(parentJobKeys);
+        }
+        return Lists.newArrayList();
+    }
+
+    public Map<String, List<ScheduleJob>> getParantJobKeyMap(List<String> parentJobKeys) {
+        return null;
+    }
 }

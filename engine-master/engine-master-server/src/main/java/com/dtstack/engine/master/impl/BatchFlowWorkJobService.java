@@ -1,8 +1,11 @@
 package com.dtstack.engine.master.impl;
 
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.dao.ScheduleJobDao;
+import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.executor.AbstractJobExecutor;
@@ -16,7 +19,9 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * company: www.dtstack.com
@@ -38,6 +43,9 @@ public class BatchFlowWorkJobService {
 
     @Autowired
     private ScheduleJobService batchJobService;
+
+    @Autowired
+    private ScheduleJobJobDao scheduleJobJobDao;
 
     Predicate<Integer> isSpecialType = type ->  type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal();
 
@@ -148,7 +156,8 @@ public class BatchFlowWorkJobService {
         }
 
         if (TaskRuleEnum.STRONG_RULE.getCode().equals(scheduleBatchJob.getScheduleJob().getTaskRule())) {
-            
+            // 强规则任务,查询父任务
+            handleTaskRule(scheduleBatchJob,bottleStatus);
         }
 
         Long id = scheduleBatchJob.getId();
@@ -157,6 +166,31 @@ public class BatchFlowWorkJobService {
             batchJobService.updatePhaseStatusById(id, JobPhaseStatus.CREATE, JobPhaseStatus.EXECUTE_OVER);
         }
         return canRemove;
+    }
+
+    private void handleTaskRule(ScheduleBatchJob scheduleBatchJob,Integer bottleStatus) {
+        String jobKey = scheduleBatchJob.getScheduleJob().getJobKey();
+        // 查询当前任务的所有父任务的运行状态
+        List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByParentJobKey(jobKey);
+        if (CollectionUtils.isNotEmpty(scheduleJobJobs)) {
+            List<String> parentJobKeys = scheduleJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList());
+            // 查询所有父任务
+            List<ScheduleJob> scheduleJobs = batchJobService.listJobByJobKeys(parentJobKeys);
+            // 查询所有父任务下的子任务关系
+            Map<String,List<ScheduleJob>> parentAndSon = batchJobService.getParantJobKeyMap(parentJobKeys);
+
+            for (ScheduleJob scheduleJob : scheduleJobs) {
+                // 判断状态父任务的状态
+                List<ScheduleJob> scheduleJobsSon = parentAndSon.get(scheduleJob.getJobKey());
+                updateFatherStatus(scheduleJob,scheduleBatchJob.getScheduleJob(),scheduleJobsSon,bottleStatus);
+            }
+
+        }
+    }
+
+    private void updateFatherStatus(ScheduleJob fatherScheduleJob, ScheduleJob currentScheduleJob, List<ScheduleJob> sonScheduleJobs, Integer bottleStatus) {
+
+
     }
 
     /**
