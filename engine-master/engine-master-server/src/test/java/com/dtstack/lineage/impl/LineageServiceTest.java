@@ -6,6 +6,7 @@ import com.dtstack.engine.api.domain.LineageDataSource;
 import com.dtstack.engine.api.domain.LineageTableTable;
 import com.dtstack.engine.api.enums.LineageOriginType;
 import com.dtstack.engine.api.pojo.lineage.Column;
+import com.dtstack.engine.api.pojo.lineage.Table;
 import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
 import com.dtstack.engine.api.vo.lineage.LineageDataSourceVO;
@@ -72,6 +73,10 @@ public class LineageServiceTest extends AbstractTest {
      */
     @Before
     public void setup() throws Exception {
+
+        String parentDir = System.getProperty("user.dir");
+        String dir1 = parentDir.substring(0, parentDir.lastIndexOf("\\"));
+        System.setProperty("sqlParser.dir",dir1.substring(0,dir1.lastIndexOf("\\")));
     }
 
 
@@ -534,6 +539,14 @@ public class LineageServiceTest extends AbstractTest {
         Assert.assertNotNull(strings);
     }
 
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
+    public void testParserTables(){
 
+        String sql = "select c.id,c.name from chener c left join tengzhen t on c.id = t.id";
+        List<Table> tables = lineageService.parseTables(sql, "dev", 31);
+        Assert.assertEquals(2,tables.size());
+    }
 
 }

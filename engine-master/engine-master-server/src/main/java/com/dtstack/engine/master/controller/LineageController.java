@@ -275,4 +275,19 @@ public class LineageController {
     public List<String> queryTableLineageResultColumns(@RequestBody QueryTableLineageColumnParam queryTableLineageColumnParam) {
         return lineageService.queryTableResultLineageColumns(queryTableLineageColumnParam);
     }
+
+    @RequestMapping(value = "/parseTables", method = {RequestMethod.POST})
+    @ApiOperation(value = "解析sql表信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "sql", value = "待解析sql"),
+            @ApiImplicitParam(name = "defaultDb", value = "默认数据库"),
+            @ApiImplicitParam(name = "sourceType", value = "数据源类型")
+    }
+    )
+    public List<com.dtstack.engine.api.pojo.lineage.Table> parseTables(@DtRequestParam String sql, @DtRequestParam String defaultDb, @DtRequestParam Integer sourceType) {
+        ValidateUtil.validateNotNull(sql,"sql不能为空");
+        ValidateUtil.validateNotNull(defaultDb,"默认数据库不能为空");
+        ValidateUtil.validateNotNull(sourceType,"数据源类型不能为空");
+        return lineageService.parseTables(sql, defaultDb, sourceType);
+    }
 }

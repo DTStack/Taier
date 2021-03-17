@@ -1,5 +1,6 @@
 package com.dtstack.engine.api.service;
 
+import com.dtstack.engine.api.pojo.lineage.Table;
 import com.dtstack.engine.api.vo.lineage.ColumnLineageParseInfo;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnParam;
 import com.dtstack.engine.api.vo.lineage.LineageColumnColumnVO;
@@ -212,4 +213,17 @@ public interface LineageService extends DtInsightServer {
      */
     @RequestLine("POST /node/lineage/queryTableLineageResultColumns")
     ApiResponse<List<String>> queryTableLineageResultColumns(QueryTableLineageColumnParam queryTableLineageColumnParam);
+
+
+    /**
+     * @author ZYD
+     * @Description 解析sql表信息
+     * @Date 2021/3/11 14:04
+     * @param sql: 
+     * @param defaultDb: 
+     * @param sourceType: 
+     * @return: com.dtstack.sdk.core.common.ApiResponse<java.util.List<com.dtstack.engine.api.pojo.lineage.Table>>
+     **/
+    @RequestLine("POST /node/lineage/parseTables")
+    ApiResponse<List<Table>> parseTables(@Param("sql") String sql,@Param("defaultDb") String defaultDb, @Param("sourceType") Integer sourceType);
 }

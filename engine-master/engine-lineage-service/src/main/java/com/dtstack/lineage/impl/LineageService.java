@@ -1001,4 +1001,28 @@ public class LineageService {
         }
         return dataSetInfo.getId();
     }
+
+    public List<com.dtstack.engine.api.pojo.lineage.Table> parseTables(String sql, String defaultDb, Integer sourceType) {
+
+        SourceType2TableType sourceType2TableType = SourceType2TableType.getBySourceType(sourceType);
+        if (Objects.isNull(sourceType2TableType)) {
+            throw new IllegalArgumentException("数据源类型" + sourceType + "不支持");
+        }
+        ISqlParserClient sqlParserClient = getSqlParserClient();
+        List<com.dtstack.engine.api.pojo.lineage.Table> tableList = new ArrayList<>();
+        try {
+            List<Table> tables = null;
+            try {
+                tables = sqlParserClient.parseTables(defaultDb,sql, sourceType2TableType.getTableType());
+            } catch (Exception e) {
+                logger.error("解析sql异常:{}",e);
+                throw new RdosDefineException("sql解析异常，请检查语法");
+            }
+            tableList = tables.stream().map(TableAdapter::sqlTable2ApiTable).collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.error("sql解析表失败,e:{}",e);
+            return tableList;
+        }
+        return tableList;
+    }
 }
