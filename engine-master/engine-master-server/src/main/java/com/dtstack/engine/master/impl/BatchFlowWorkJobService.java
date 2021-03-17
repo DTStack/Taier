@@ -1,5 +1,7 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.enums.TaskRuleEnum;
@@ -189,8 +191,30 @@ public class BatchFlowWorkJobService {
     }
 
     private void updateFatherStatus(ScheduleJob fatherScheduleJob, ScheduleJob currentScheduleJob, List<ScheduleJob> sonScheduleJobs, Integer bottleStatus) {
+        if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(fatherScheduleJob.getStatus()) && CollectionUtils.isNotEmpty(sonScheduleJobs)) {
+            if (RdosTaskStatus.FAILED_STATUS.contains(bottleStatus)) {
+
+                String logInfo = fatherScheduleJob.getLogInfo();
+
+                JSONObject jsonObject = JSON.parseObject(logInfo);
 
 
+                // 当前强任务执行失败，执行更新成失败
+                batchJobService.updateStatusAndLogInfoById(fatherScheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "");
+
+            }
+            // 父节点是正在等待子节点下的强规则任务运行完
+            List<ScheduleJob> jobs = sonScheduleJobs.stream().filter(job -> TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule())).collect(Collectors.toList());
+
+            if (CollectionUtils.isNotEmpty(jobs)) {
+                // 判断当前节点是否运行失败
+
+
+            } else {
+                // 没有强规则任务，直接更新父节点状态从RUNNING_TASK_RULE -> 完成
+                batchJobService.updateStatusAndLogInfoById(fatherScheduleJob.getJobId(), RdosTaskStatus.FINISHED.getStatus(), "");
+            }
+        }
     }
 
     /**
