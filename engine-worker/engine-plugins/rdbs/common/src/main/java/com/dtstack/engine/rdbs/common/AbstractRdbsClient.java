@@ -45,7 +45,7 @@ public abstract class AbstractRdbsClient extends AbstractClient {
 
     private EngineResourceInfo resourceInfo;
 
-    private AbstractConnFactory connFactory;
+    protected AbstractConnFactory connFactory;
 
     protected String dbType = "rdbs";
 

@@ -4,13 +4,12 @@ import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.sftp.SftpFileManage;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.security.HadoopKerberosName;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.Time;
@@ -29,7 +28,6 @@ import java.nio.file.Paths;
 import java.security.PrivilegedExceptionAction;
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 public class KerberosUtils {
@@ -37,6 +35,7 @@ public class KerberosUtils {
     private static final Logger logger = LoggerFactory.getLogger(KerberosUtils.class);
 
     private static final String USER_DIR = System.getProperty("user.dir");
+    private static final String[] VALID_CREDENTIALS_MSG = new String[]{"Integrity check on decrypted field failed (31)"};
     private static final String KRB5_CONF = "java.security.krb5.conf";
     private static final String KERBEROS_AUTH = "hadoop.security.authentication";
     private static final String SECURITY_TO_LOCAL = "hadoop.security.auth_to_local";
@@ -62,7 +61,43 @@ public class KerberosUtils {
             return ugi.doAs((PrivilegedExceptionAction<T>) supplier::get);
         } catch (Exception e) {
             logger.error("{}", e.getMessage());
-            throw new RdosDefineException("doAs error: " + e.getMessage());
+            throw new RdosDefineException(e);
+        }
+    }
+
+    /**
+     * @see HadoopKerberosName#setConfiguration(org.apache.hadoop.conf.Configuration)
+     * @param ugi
+     * @param supplier
+     * @param finalKrb5ConfPath
+     * @param configuration
+     * @param finalPrincipal
+     * @param finalKeytabPath
+     * @param threadName
+     * @param defaultKrb5Name
+     * @param isMergeKrb5
+     * @param <T>
+     * @return
+     */
+    private static <T> T retryLoginKerberosWithCallBack(UserGroupInformation ugi,
+                                                        Supplier<T> supplier,
+                                                        String finalKrb5ConfPath,
+                                                        Configuration configuration,
+                                                        String finalPrincipal,
+                                                        String finalKeytabPath,
+                                                        String threadName,
+                                                        String defaultKrb5Name,
+                                                        Boolean isMergeKrb5) {
+        try {
+            return loginKerberosWithCallBack(ugi, supplier);
+        } catch (Exception e) {
+            if (Arrays.stream(VALID_CREDENTIALS_MSG).anyMatch(e.toString()::contains)) {
+                UserGroupInformation retryUgi = retryCreateUGIIfMerge(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath, defaultKrb5Name, isMergeKrb5);
+                ugiMap.put(threadName, retryUgi);
+                return loginKerberosWithCallBack(ugi, supplier);
+            }
+            logger.error("retryLoginKerberosWithCallBack: ", e);
+            throw new RdosDefineException("doAs error: " + e);
         }
     }
 
@@ -84,6 +119,11 @@ public class KerberosUtils {
         String fileName = config.getPrincipalFile();
         String remoteDir = config.getRemoteDir();
         String localDir = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
+        String finalKrb5ConfPath;
+        String finalPrincipal;
+        String finalKeytabPath;
+        String threadName;
+        Boolean isMergeKrb5;
 
         File localDirPath = new File(localDir);
         if (!localDirPath.exists()) {
@@ -99,18 +139,17 @@ public class KerberosUtils {
                 String keytabPath = "";
                 String krb5ConfPath = "";
                 String krb5ConfName = config.getKrbName();
-                Boolean isMergeKrb5 = config.getMergeKrbContent() != null;
+                isMergeKrb5 = StringUtils.isNotEmpty(config.getMergeKrbContent());
 
                 //本地文件是否和服务器时间一致 一致使用本地缓存
                 boolean isOverrideDownLoad = checkLocalCache(config.getKerberosFileTimestamp(), localDirPath);
                 if (isOverrideDownLoad) {
                     SftpFileManage sftpFileManage = SftpFileManage.getSftpManager(config.getSftpConf());
                     keytabPath = sftpFileManage.cacheOverloadFile(fileName, remoteDir, localDir);
+                    krb5ConfPath = sftpFileManage.cacheOverloadFile(krb5ConfName, config.getRemoteDir(), localDir);
                     if (isMergeKrb5) {
                         krb5ConfPath = localDir + ConfigConstant.SP + ConfigConstant.MERGE_KRB5_NAME;
                         Files.write(Paths.get(krb5ConfPath), Collections.singleton(config.getMergeKrbContent()));
-                    } else {
-                        krb5ConfPath = sftpFileManage.cacheOverloadFile(krb5ConfName, config.getRemoteDir(), localDir);
                     }
                     writeTimeLockFile(config.getKerberosFileTimestamp(),localDir);
                 } else {
@@ -122,14 +161,14 @@ public class KerberosUtils {
                     }
                 }
 
-                String finalKrb5ConfPath = krb5ConfPath;
-                String finalKeytabPath = keytabPath;
-                String threadName = Thread.currentThread().getName();
+                finalKrb5ConfPath = krb5ConfPath;
+                finalKeytabPath = keytabPath;
+                threadName = Thread.currentThread().getName();
                 String principal = config.getPrincipal();
                 if (StringUtils.isEmpty(principal)) {
                     principal = segment.computeIfAbsent(threadName, k -> {return KerberosUtils.getPrincipal(finalKeytabPath);});
                 }
-                String finalPrincipal = principal;
+                finalPrincipal = principal;
                 logger.info("kerberos login, principal:{}, keytabPath:{}, krb5ConfPath:{}", principal, keytabPath, krb5ConfPath);
 
                 /*
@@ -137,15 +176,15 @@ public class KerberosUtils {
                  * 如果是SPARK 在这里先每次创建UGI进行避开
                  */
                 if (isCreateNewUGI) {
-                    ugi = createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath);
+                    ugi = retryCreateUGIIfMerge(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath, config.getKrbName(), isMergeKrb5);
                 } else {
-                    ugi = ugiMap.computeIfAbsent(threadName, k -> createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath));
+                    ugi = ugiMap.computeIfAbsent(threadName, k -> retryCreateUGIIfMerge(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath, config.getKrbName(), isMergeKrb5));
                 }
 
                 KerberosTicket ticket = getTGT(ugi);
                 if (!checkTGT(ticket) || isOverrideDownLoad) {
                     logger.info("Relogin after the ticket expired, principal: {}, current thread: {}", principal, Thread.currentThread().getName());
-                    ugi = createUGI(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath);
+                    ugi = retryCreateUGIIfMerge(finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath, config.getKrbName(), isMergeKrb5);
                     if (!isCreateNewUGI) {
                         ugiMap.put(threadName, ugi);
                     }
@@ -153,7 +192,7 @@ public class KerberosUtils {
                 logger.info("userGroupInformation current user = {} ugi user  = {} ", UserGroupInformation.getCurrentUser(), ugi.getUserName());
             }
             Preconditions.checkNotNull(ugi, "UserGroupInformation is null");
-            return KerberosUtils.loginKerberosWithCallBack(ugi, supplier);
+            return KerberosUtils.retryLoginKerberosWithCallBack(ugi, supplier, finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath, threadName, config.getKrbName(), isMergeKrb5);
         } catch (Exception e) {
             throw new RdosDefineException(e.getMessage());
         }
@@ -217,6 +256,21 @@ public class KerberosUtils {
             }
         }
         return isOverrideDownLoad;
+    }
+
+    private synchronized static UserGroupInformation retryCreateUGIIfMerge(String krb5ConfPath, Configuration config, String principal, String keytabPath, String defaultKrb5Name, Boolean isMergeKrb5) {
+        Boolean isRetry = isMergeKrb5;
+        if (isRetry) {
+            try {
+                return createUGI(krb5ConfPath, config, principal, keytabPath);
+            } catch (Exception e) {
+                logger.warn("Create ugi error with merge krb5, retry by defaule krb5: {}", e.getMessage());
+                File krbFile = new File(krb5ConfPath);
+                krb5ConfPath = String.format("%s/%s", krbFile.getParent(), defaultKrb5Name);
+                return createUGI(krb5ConfPath, config, principal, keytabPath);
+            }
+        }
+        return createUGI(krb5ConfPath, config, principal, keytabPath);
     }
 
     private synchronized static UserGroupInformation createUGI(String krb5ConfPath, Configuration config, String principal, String keytabPath) {
@@ -312,7 +366,7 @@ public class KerberosUtils {
         String keytabFileName = config.getPrincipalFile();
         String krb5FileName = config.getKrbName();
         String remoteDir = config.getRemoteDir();
-        Boolean isMergeKrb5 = config.getMergeKrbContent() != null;
+        Boolean isMergeKrb5 = StringUtils.isNotEmpty(config.getMergeKrbContent());
         if (StringUtils.isEmpty(localDir)) {
             localDir = ConfigConstant.LOCAL_KEYTAB_DIR_PARENT + remoteDir;
         }
@@ -373,6 +427,7 @@ public class KerberosUtils {
         for (String key : allConfig.keySet()) {
             conf.set(key, String.valueOf(allConfig.get(key)));
         }
+        conf.setBoolean(CommonConfigurationKeys.IPC_CLIENT_FALLBACK_TO_SIMPLE_AUTH_ALLOWED_KEY, true);
         return conf;
     }
 }

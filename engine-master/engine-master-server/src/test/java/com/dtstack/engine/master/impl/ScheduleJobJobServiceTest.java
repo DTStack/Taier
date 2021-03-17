@@ -46,7 +46,7 @@ public class ScheduleJobJobServiceTest extends AbstractTest {
     @Rollback
     public void testDisplayOffSpring() throws Exception {
         ScheduleJob defaultJobForSpring1 = DataCollection.getData().getDefaultJobForSpring1();
-        ScheduleJobVO displayOffSpring = scheduleJobJobService.displayOffSpring(defaultJobForSpring1.getId(), defaultJobForSpring1.getProjectId(), 2);
+        ScheduleJobVO displayOffSpring = scheduleJobJobService.displayOffSpring(defaultJobForSpring1.getId(), 2);
         Assert.assertNotNull(displayOffSpring);
     }
 

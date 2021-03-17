@@ -96,7 +96,7 @@ public class QueueService {
                         throw new RdosDefineException("operation failed");
                     }
                 }
-
+                // todo 递归调用，当没有子队列后就停止递归
                 updateAddQueue(existQueueMap, engineId, queue.getId(), queueDescription.getChildQueues());
             }
         }

@@ -10,6 +10,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <zookeeper.version>3.4.6</zookeeper.version>
+        <hadoop.version>2.7.3</hadoop.version>
         <hadoop2.version>2.7.3</hadoop2.version>
         <hadoop3.version>3.0.0</hadoop3.version>
         <spring.version>5.2.3.RELEASE</spring.version>
@@ -45,6 +46,18 @@
                 <groupId>org.mybatis.spring.boot</groupId>
                 <artifactId>mybatis-spring-boot-starter</artifactId>
                 <version>2.1.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-common</artifactId>
+                <version>${hadoop.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.junit.jupiter</groupId>
@@ -103,12 +116,6 @@
                     <forkCount>1</forkCount>
                     <reuseForks>true</reuseForks>
                     <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
-                    <excludes>
-                        <exclude>com/dtstack/engine/master/temp/*.java</exclude>
-                        <exclude>**/Abstract*.java</exclude>
-                        <exclude>**/Base*.java</exclude>
-                        <exclude>com/dtstack/engine/rdbs/presto/TestPrestoDB.java</exclude>
-                    </excludes>
                 </configuration>
             </plugin>
             <plugin>

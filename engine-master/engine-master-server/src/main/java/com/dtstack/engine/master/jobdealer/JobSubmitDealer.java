@@ -80,18 +80,6 @@ public class JobSubmitDealer implements Runnable {
         if (null == priorityQueue) {
             throw new RdosDefineException("priorityQueue must not null.");
         }
-        if (null == jobPartitioner) {
-            throw new RdosDefineException("jobPartitioner must not null.");
-        }
-        if (null == workerOperator) {
-            throw new RdosDefineException("workerOperator must not null.");
-        }
-        if (null == engineJobCacheDao) {
-            throw new RdosDefineException("engineJobCacheDao must not null.");
-        }
-        if (null == environmentContext) {
-            throw new RdosDefineException("environmentContext must not null.");
-        }
 
         jobRestartDelay = environmentContext.getJobRestartDelay();
         jobLackingDelay = environmentContext.getJobLackingDelay();
@@ -315,7 +303,7 @@ public class JobSubmitDealer implements Runnable {
                 addToTaskListener(jobClient, jobResult);
             } else if (JudgeResult.JudgeType.EXCEPTION == judgeResult.getResult()) {
                 LOGGER.info("jobId:{} engineType:{} judgeSlots result is exception {}", jobClient.getTaskId(), jobClient.getEngineType(), judgeResult.getReason());
-                handlerFailedWithRetry(jobClient, false, new Exception(judgeResult.getReason()));
+                handlerFailedWithRetry(jobClient, true, new Exception(judgeResult.getReason()));
             } else {
                 LOGGER.info("jobId:{} engineType:{} judgeSlots result is false.", jobClient.getTaskId(), jobClient.getEngineType());
                 handlerNoResource(jobClient, judgeResult);

@@ -20,6 +20,8 @@ package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
 import com.dtstack.engine.base.util.HadoopConfTool;
+import com.dtstack.engine.common.enums.ComputeType;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.google.common.base.Strings;
@@ -49,6 +51,7 @@ import org.apache.flink.core.plugin.PluginConfig;
 import org.apache.flink.core.plugin.PluginUtils;
 import org.apache.flink.runtime.clusterframework.BootstrapTools;
 import org.apache.flink.runtime.entrypoint.ClusterEntrypoint;
+import org.apache.flink.runtime.execution.librarycache.FlinkUserCodeClassLoaders;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
 import org.apache.flink.util.FlinkException;
@@ -151,6 +154,9 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 	private final String applicationType;
 
 	private String zookeeperNamespace;
+
+	/** dt type of flink job*/
+	private EJobType jobType;
 
 	private YarnConfigOptions.UserJarInclusion userJarInclusion;
 
@@ -255,6 +261,17 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		this.flinkJarPath = localJarPath;
 	}
 
+	public EJobType getJobType() {
+		return jobType;
+	}
+
+	/**
+	 * set current flink job's dt jobType eg: SQL、MR、SYNC...
+	 * @param jobType
+	 */
+	public void setJobType(EJobType jobType) {
+		this.jobType = jobType;
+	}
 	/**
 	 * Adds the given files to the list of files to ship.
 	 *
@@ -544,9 +561,10 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
 	private JobGraph getJobGraph(String appId,ClusterSpecification clusterSpecification) throws Exception{
 		String url = getUrlFormat(clusterSpecification.getYarnConfiguration()) + "/" + appId;
+		LOG.info("AppId is {}, MonitorUrl is {}", appId, url);
 		PackagedProgram program = buildProgram(url,clusterSpecification);
 		clusterSpecification.setProgram(program);
-		JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, clusterSpecification.getConfiguration(), clusterSpecification.getParallelism(), false);
+		JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, this.flinkConfiguration, clusterSpecification.getParallelism(), false);
 		dealPluginByLoadMode(jobGraph);
 		clusterSpecification.setJobGraph(jobGraph);
 		return jobGraph;
@@ -597,28 +615,13 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 		return jobGraph;
 	}
 
-	private PackagedProgram buildProgram(String monitorUrl,ClusterSpecification clusterSpecification) throws Exception{
+	private PackagedProgram buildProgram(String monitorUrl, ClusterSpecification clusterSpecification) throws Exception{
 		String[] args = clusterSpecification.getProgramArgs();
 		for (int i = 0; i < args.length; i++) {
 			if("-monitor".equals(args[i])){
 				args[i + 1] = monitorUrl;
 				break;
 			}
-		}
-
-		ClassLoaderType classLoaderType = clusterSpecification.getClassLoaderType();
-		if (ClassLoaderType.CHILD_FIRST == classLoaderType) {
-			flinkConfiguration.setString(CoreOptions.CLASSLOADER_RESOLVE_ORDER, "child-first");
-			flinkConfiguration.setString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_FALSE);
-		} else if (ClassLoaderType.PARENT_FIRST == classLoaderType) {
-			flinkConfiguration.setString(CoreOptions.CLASSLOADER_RESOLVE_ORDER, "parent-first");
-			flinkConfiguration.setString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_FALSE);
-		} else if (ClassLoaderType.CHILD_FIRST_CACHE == classLoaderType) {
-			flinkConfiguration.setString(CoreOptions.CLASSLOADER_RESOLVE_ORDER, "child-first");
-			flinkConfiguration.setString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_TRUE);
-		} else if (ClassLoaderType.PARENT_FIRST_CACHE == classLoaderType) {
-			flinkConfiguration.setString(CoreOptions.CLASSLOADER_RESOLVE_ORDER, "parent-first");
-			flinkConfiguration.setString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_TRUE);
 		}
 
 		PackagedProgram program = PackagedProgram.newBuilder()
@@ -633,7 +636,6 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 	}
 
 	private String getUrlFormat(YarnConfiguration yarnConf){
-		String url = "";
 		try{
 			Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
 			rmClientField.setAccessible(true);
@@ -651,7 +653,7 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 				currentProxy = currentProxyField.get(h);
 			}catch (Exception e){
 				//兼容Hadoop 2.7.3.2.6.4.91-3
-				LOG.error("get currentProxy error:", e);
+				LOG.warn("get currentProxy error: ", e);
 				Field proxyDescriptorField = h.getClass().getDeclaredField("proxyDescriptor");
 				proxyDescriptorField.setAccessible(true);
 				Object proxyDescriptor = proxyDescriptorField.get(h);
@@ -673,10 +675,15 @@ public class YarnClusterDescriptor implements ClusterDescriptor<ApplicationId> {
 
 			return String.format("http://%s/proxy",addr);
 		}catch (Exception e){
-			LOG.error("get monitor error:", e);
+			LOG.error("get proxyDescriptor error: {}", e);
+			String  addr = yarnConf.get("yarn.resourcemanager.webapp.address");
+			if (addr == null && EJobType.SYNC == jobType) {
+				throw new YarnDeploymentException("Couldn't get rm web app address. " +
+						"it's required when batch job run on per_job mode. " +
+						"Please check rm web address whether be confituration.");
+			}
+			return String.format("http://%s/proxy",addr);
 		}
-
-		return url;
 	}
 
 	private void fillJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {

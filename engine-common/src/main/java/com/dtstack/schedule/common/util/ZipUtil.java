@@ -4,15 +4,7 @@ import org.apache.tools.zip.ZipFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -45,14 +37,14 @@ public class ZipUtil {
             zip.putNextEntry(entry);
             zip.write(rowData);
         } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex.getStackTrace());
+            LOG.error(ex.getMessage(),ex);
         } finally {
             if (null != zip) {
                 try {
                     zip.close();
                     zip.closeEntry();
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
+                    LOG.error(e.getMessage(), e);
                 }
             }
             if (null != bos) {
@@ -60,7 +52,7 @@ public class ZipUtil {
                 try {
                     bos.close();
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
+                    LOG.error(e.getMessage(), e);
                 }
             }
         }
@@ -87,13 +79,13 @@ public class ZipUtil {
                 baos.close();
             }
         } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex.getStackTrace());
+            LOG.error(ex.getMessage(), ex);
         } finally {
             if (null != bis) {
                 try {
                     bis.close();
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
+                    LOG.error(e.getMessage(), e);
                 }
             }
 
@@ -101,7 +93,7 @@ public class ZipUtil {
                 try {
                     zip.close();
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
+                    LOG.error(e.getMessage(), e);
                 }
             }
 
@@ -109,7 +101,7 @@ public class ZipUtil {
                 try {
                     baos.close();
                 } catch (IOException e) {
-                    LOG.error(e.getMessage(), e.getStackTrace());
+                    LOG.error(e.getMessage(), e);
                 }
             }
         }
@@ -143,7 +135,6 @@ public class ZipUtil {
             } else {
                 System.out.println("target file[" + zip + "] is not .zip type file");
             }
-        } catch (FileNotFoundException e) {
         } catch (IOException e) {
         }
     }
@@ -172,14 +163,15 @@ public class ZipUtil {
                     }
                 }
             } else {
-                InputStream _in = new FileInputStream(srcFile);
-                zipOut.putNextEntry(new org.apache.tools.zip.ZipEntry(path + srcFile.getName()));
-                int len = 0;
-                while ((len = _in.read(_byte)) > 0) {
-                    zipOut.write(_byte, 0, len);
+                try (InputStream _in = new FileInputStream(srcFile)) {
+                    zipOut.putNextEntry(new org.apache.tools.zip.ZipEntry(path + srcFile.getName()));
+                    int len = 0;
+                    while ((len = _in.read(_byte)) > 0) {
+                        zipOut.write(_byte, 0, len);
+                    }
+                } finally {
+                    zipOut.closeEntry();
                 }
-                _in.close();
-                zipOut.closeEntry();
             }
         }
     }
@@ -263,6 +255,9 @@ public class ZipUtil {
                 file.delete();
             } else if (file.isDirectory()) {
                 String[] filelist = file.list();
+                if(null == filelist){
+                    return;
+                }
                 for (int i = 0; i < filelist.length; i++) {
                     File delfile = new File(delpath + File.separator + filelist[i]);
                     if (!delfile.isDirectory()) {
@@ -274,7 +269,7 @@ public class ZipUtil {
                 file.delete();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("delete path " + delpath, e);
         }
     }
 

@@ -11,15 +11,15 @@ import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.RetryUtil;
 import com.dtstack.engine.dao.ScheduleJobDao;
 import com.dtstack.engine.master.akka.WorkerOperator;
-import com.dtstack.engine.master.enums.EComponentType;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EDeployMode;
-import com.dtstack.engine.master.enums.MultiEngineType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
@@ -153,8 +153,8 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             if (StringUtils.isNotBlank(sql) && sql.contains(TaskConstant.UPLOADPATH)) {
                 sql = sql.replace(TaskConstant.UPLOADPATH, uploadPath);
             }
-        } else if(taskShade.getEngineType().equals(ScheduleEngineType.Hadoop.getVal())){
-            //hadoop mr提交 不用上传文件
+        } else if(taskShade.getEngineType().equals(ScheduleEngineType.Hadoop.getVal()) || taskShade.getEngineType().equals(ScheduleEngineType.Spark.getVal())){
+            //hadoop spark mr提交 不用上传文件
             String exeArgs = (String) actionParam.get("exeArgs");
             if (StringUtils.isNotBlank(exeArgs)) {
                 //替换系统参数

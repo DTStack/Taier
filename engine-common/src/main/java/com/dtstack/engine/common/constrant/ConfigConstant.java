@@ -15,6 +15,11 @@ public class ConfigConstant {
     public static String SP = File.separator;
     public static final String SPLIT = "_";
     public static final String RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT = "default";
+    public static final String COMMA = ",";
+    public static final String COLON = ":";
+    public static final String SEMICOLON = ";";
+    public static final String BACKSLASH = "/";
+
     /**
      * first clusterName，second queueName
      */

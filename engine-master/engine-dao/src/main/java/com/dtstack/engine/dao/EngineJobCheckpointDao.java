@@ -30,6 +30,7 @@ public interface EngineJobCheckpointDao {
     void batchDeleteByEngineTaskIdAndCheckpointId(@Param("taskEngineId") String taskEngineId, @Param("checkpointId") String checkpointId);
 
     List<EngineJobCheckpoint> getByTaskEngineIdAndCheckpointIndexAndCount(@Param("taskEngineId") String taskEngineId,
+                                                                          @Param("taskId") String taskId,
                                                                           @Param("startIndex") int startIndex,
                                                                           @Param("count") int count);
 

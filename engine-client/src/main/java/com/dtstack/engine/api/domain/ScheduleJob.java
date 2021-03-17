@@ -1,6 +1,7 @@
 package com.dtstack.engine.api.domain;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.annotation.Unique;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -16,6 +17,7 @@ import java.util.List;
  */
 @ApiModel
 public class ScheduleJob extends AppTenantEntity {
+
 
     /**
      * 工作任务id
@@ -119,7 +121,7 @@ public class ScheduleJob extends AppTenantEntity {
 
 
     /**
-     * 执行引擎任务id
+     * 提交用户名
      */
     @ApiModelProperty(notes = "任务提交用户")
     private String submitUserName;

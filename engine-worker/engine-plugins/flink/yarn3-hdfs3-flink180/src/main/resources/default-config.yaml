@@ -14,7 +14,7 @@ perjob:
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink180
     high-availability.zookeeper.quorum:
-    high-availability.storageDir: hdfs://ns1/flink180/ha
+    high-availability.storageDir: hdfs://ns1/dtInsight/flink180/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082
@@ -34,14 +34,16 @@ perjob:
       values: [true,false]
     clusterMode: perjob
 
+
   optional:
     jarTmpDir: ./tmp180
     queue: default
     pluginLoadMode: shipfile
     submitTimeout: 5
+    yarnAccepterTaskNumber: 3
     flinkInterval: 5 SECONDS
-    classloader.resolve-order: parent-first
-    taskparams.taskmanager.heap.mb: 20
+    classloader.resolve-order: child-first
+    classloader.dtstack-cache: true
 
     state.backend: RocksDB
     state.savepoints.dir: hdfs://ns1/dtInsight/flink180/savepoints
@@ -56,10 +58,10 @@ perjob:
     yarn.taskmanager.numberOfTaskSlots: 2
     sessionStartAuto: false
 
-    flink.env.java.opts: -XX:MaxMetaspaceSize=500m
+    env.java.opts: -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
-    yarn.application-attempts: 0
+    yarn.application-attempts: 3
     yarn.application-attempt-failures-validity-interval: 3600000
     high-availability: ZOOKEEPER
 
@@ -79,7 +81,7 @@ session:
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink180
     high-availability.zookeeper.quorum:
-    high-availability.storageDir: hdfs://ns1/flink180/ha
+    high-availability.storageDir: hdfs://ns1/dtInsight/flink180/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082
@@ -98,15 +100,22 @@ session:
       controls: select
       values: [true,false]
     clusterMode: session
+    sessionStartAuto: false
+    checkSubmitJobGraphInterval: 60
 
   optional:
     jarTmpDir: ./tmp180
     queue: default
     pluginLoadMode: shipfile
     submitTimeout: 5
+    yarnAccepterTaskNumber: 3
     flinkInterval: 5 SECONDS
     classloader.resolve-order: parent-first
-    taskparams.taskmanager.heap.mb: 20
+    classloader.dtstack-cache: true
+
+    web.timeout: 100000
+    blob.service.cleanup.interval: 900
+    jobstore.expiration-time: 900
 
     state.backend: RocksDB
     state.savepoints.dir: hdfs://ns1/dtInsight/flink180/savepoints
@@ -118,18 +127,16 @@ session:
     yarn.taskmanager.heap.mb: 1024
     yarn.jobmanager.heap.mb: 1024
     yarn.taskmanager.numberOfTaskManager: 2
-    sessionStartAuto: false
     yarn.taskmanager.numberOfTaskSlots: 2
 
-    flink.env.java.opts: -XX:MaxMetaspaceSize=500m
+    env.java.opts: -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
-    yarn.application-attempts: 0
+    yarn.application-attempts: 3
     yarn.application-attempt-failures-validity-interval: 3600000
     high-availability: ZOOKEEPER
 
     monitorAcceptedApp: false
-    checkSubmitJobGraphInterval: 30
 
 standalone:
   dependencyKey: deploymode
@@ -145,7 +152,7 @@ standalone:
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink180
     high-availability.zookeeper.quorum:
-    high-availability.storageDir: hdfs://ns1/flink180/ha
+    high-availability.storageDir: hdfs://ns1/dtInsight/flink180/ha
 
     historyserver.web.address:
     historyserver.web.port: 8082
@@ -164,12 +171,14 @@ standalone:
       controls: select
       values: [true,false]
     clusterMode: standalone
+    yarnAccepterTaskNumber: 3
 
   optional:
     state.backend: RocksDB
     state.savepoints.dir: hdfs://ns1/dtInsight/flink180/savepoints
     state.backend.incremental: true
 
+    yarnAccepterTaskNumber: 3
     prometheusHost:
     prometheusPort: 9090
 
@@ -178,6 +187,6 @@ standalone:
     taskmanager.numberOfTaskManager: 2
     taskmanager.numberOfTaskSlots: 2
 
-    flink.env.java.opts: -XX:MaxMetaspaceSize=500m
+    env.java.opts: -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway

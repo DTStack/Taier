@@ -3,6 +3,7 @@ package com.dtstack.engine.flink;
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.base.Strings;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -70,7 +71,7 @@ public class FlinkConfig extends BaseConfig {
 
     private String pluginLoadMode = "shipfile";
 
-    private int checkSubmitJobGraphInterval = 0;
+    private int checkSubmitJobGraphInterval = 60;
 
     private int monitorElectionWaitTime = 5 * 1000;
 
@@ -332,8 +333,13 @@ public class FlinkConfig extends BaseConfig {
     }
 
     private static List<String> initEngineFlinkConfigFields() {
-        Class clazz = FlinkConfig.class;
-        Field[] fields = clazz.getDeclaredFields();
+        Class baseClazz = BaseConfig.class;
+        Field[] baseConfigFields = baseClazz.getDeclaredFields();
+
+        Class FlinkConfigClazz = FlinkConfig.class;
+        Field[] flinkConfigFields = FlinkConfigClazz.getDeclaredFields();
+
+        Field[] fields = ArrayUtils.addAll(flinkConfigFields, baseConfigFields);
         List<String> engineFlinkConfigs = new ArrayList<>(fields.length);
         for (Field field : fields) {
             if ((field.getModifiers() & java.lang.reflect.Modifier.STATIC) != java.lang.reflect.Modifier.STATIC) {

@@ -35,7 +35,8 @@ public class ScheduleCronHourParser extends ScheduleCron {
 
     private int endHour = 0;
 
-    private int gapNum = 1;//间隔数最小为1
+    //间隔数最小为1
+    private int gapNum = 1;
 
     private int beginMinute = 0;
 

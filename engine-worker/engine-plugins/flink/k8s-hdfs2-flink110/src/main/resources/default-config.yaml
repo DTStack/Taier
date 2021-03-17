@@ -14,7 +14,7 @@ perjob:
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink110
     high-availability.zookeeper.quorum:
-    high-availability.storageDir: hdfs://ns1/flink110/ha
+    high-availability.storageDir: hdfs://ns1/dtInsight/flink110/ha
 
     state.backend: RocksDB
     state.checkpoints.dir: hdfs://ns1/dtInsight/flink110/checkpoints
@@ -41,13 +41,15 @@ perjob:
     jarTmpDir: ./tmp110
     pluginLoadMode: classpath
     submitTimeout: 5
+    yarnAccepterTaskNumber: 3
+    flinkInterval: 5 SECONDS
     classloader.resolve-order: parent-first
-    taskparams.taskmanager.heap.mb: 20
+    classloader.dtstack-cache: true
 
     prometheusHost:
     prometheusPort: 9090
 
-    flink.env.java.opts: -XX:MaxMetaspaceSize=500m
+    env.java.opts: -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
     high-availability: ZOOKEEPER
@@ -69,7 +71,7 @@ session:
     high-availability.cluster-id: /default
     high-availability.zookeeper.path.root: /flink110
     high-availability.zookeeper.quorum:
-    high-availability.storageDir: hdfs://ns1/flink110/ha
+    high-availability.storageDir: hdfs://ns1/dtInsight/flink110/ha
 
     state.backend: RocksDB
     state.checkpoints.dir: hdfs://ns1/dtInsight/flink110/checkpoints
@@ -96,16 +98,17 @@ session:
     jarTmpDir: ./tmp110
     pluginLoadMode: classpath
     submitTimeout: 5
+    yarnAccepterTaskNumber: 3
     flinkInterval: 5 SECONDS
     classloader.resolve-order: parent-first
-    taskparams.taskmanager.heap.mb: 20
+    classloader.dtstack-cache: true
 
     prometheusHost:
     prometheusPort: 9090
 
     sessionStartAuto: true
 
-    flink.env.java.opts: -XX:MaxMetaspaceSize=500m
+    env.java.opts: -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8
     prometheusClass: com.dtstack.jlogstash.metrics.promethues.PrometheusPushGatewayReporter
     gatewayJobName: pushgateway
     high-availability: ZOOKEEPER

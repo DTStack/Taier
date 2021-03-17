@@ -11,6 +11,7 @@ import com.dtstack.engine.api.vo.console.ConsoleJobVO;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -19,8 +20,7 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.master.akka.WorkerOperator;
 import com.dtstack.engine.master.config.TaskResourceBeanConfig;
-import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.plugininfo.PluginWrapper;
@@ -141,7 +141,7 @@ public class ConsoleService {
             vo.setTheJobIdx(1);
             return vo;
         } catch (Exception e) {
-            LOGGER.error("", e);
+            LOGGER.error("searchJob error:", e);
         }
         return null;
     }
@@ -168,7 +168,7 @@ public class ConsoleService {
             nodeAddress = null;
         }
 
-        Map<String, Map<String, Object>> overview = new HashMap<>();
+        Map<String, Map<String, Object>> overview = new HashMap<>(16);
         List<Map<String, Object>> groupResult = engineJobCacheDao.groupByJobResource(nodeAddress);
         if (CollectionUtils.isNotEmpty(groupResult)) {
             List<Map<String, Object>> finalResult = new ArrayList<>(groupResult.size());
@@ -191,7 +191,7 @@ public class ConsoleService {
                 EJobCacheStage eJobCacheStage = EJobCacheStage.getStage(stage);
 
                 Map<String, Object> overviewRecord = overview.computeIfAbsent(jobResource, k -> {
-                    Map<String, Object> overviewEle = new HashMap<>();
+                    Map<String, Object> overviewEle = new HashMap<>(16);
                     overviewEle.put("jobResource", jobResource);
                     return overviewEle;
                 });
@@ -254,6 +254,7 @@ public class ConsoleService {
         int start = (currentPage - 1) * pageSize;
         try {
             count = engineJobCacheDao.countByJobResource(jobResource, stage, nodeAddress);
+
             if (count > 0) {
                 List<EngineJobCache> engineJobCaches = engineJobCacheDao.listByJobResource(jobResource, stage, nodeAddress, start, pageSize);
                 List<String> jobIds = engineJobCaches.stream().map(EngineJobCache::getJobId).collect(Collectors.toList());
@@ -280,14 +281,12 @@ public class ConsoleService {
                     this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant,pluginInfoCache);
                     data.add(theJobMap);
                 }
-
             }
         } catch (Exception e) {
-            LOGGER.error("", e);
+            LOGGER.error("groupDetail error", e);
         }
         PageQuery pageQuery = new PageQuery<>(currentPage, pageSize);
-        PageResult result = new PageResult(data,count.intValue(),pageQuery);
-        return result;
+        return new PageResult<>(data,count.intValue(),pageQuery);
     }
 
     private void fillJobInfo(Map<String, Object> theJobMap, ScheduleJob scheduleJob, EngineJobCache engineJobCache, Tenant tenant,Map<String,String> pluginInfoCache) {
@@ -307,7 +306,7 @@ public class ConsoleService {
         if (!jobInfoJSON.containsKey(PluginWrapper.PLUGIN_INFO)) {
             //获取插件信息
             String pluginInfo = pluginWrapper.getPluginInfo(jobInfoJSON.getString("taskParams"), engineJobCache.getComputeType(), engineJobCache.getEngineType(),
-                    Objects.isNull(tenant) ? -1L : tenant.getDtUicTenantId(), jobInfoJSON.getLong("userId"),pluginInfoCache);
+                    null == tenant ? -1L : tenant.getDtUicTenantId(), jobInfoJSON.getLong("userId"),pluginInfoCache);
             jobInfoJSON.put(PluginWrapper.PLUGIN_INFO, JSONObject.parseObject(pluginInfo));
             theJobMap.put("jobInfo", jobInfoJSON);
         }
@@ -331,8 +330,12 @@ public class ConsoleService {
 
         try {
             EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
+            if(null == engineJobCache){
+                return false;
+            }
             //只支持DB、PRIORITY两种调整顺序
-            if (null != engineJobCache && EJobCacheStage.DB.getStage() == engineJobCache.getStage() || EJobCacheStage.PRIORITY.getStage() == engineJobCache.getStage()) {
+            if (EJobCacheStage.DB.getStage() == engineJobCache.getStage()
+                    || EJobCacheStage.PRIORITY.getStage() == engineJobCache.getStage()) {
                 ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
                 JobClient jobClient = new JobClient(paramAction);
                 jobClient.setCallBack((jobStatus) -> {
@@ -351,7 +354,7 @@ public class ConsoleService {
                 return jobDealer.addGroupPriorityQueue(engineJobCache.getJobResource(), jobClient, false, false);
             }
         } catch (Exception e) {
-            LOGGER.error("", e);
+            LOGGER.error("jobStick error:", e);
         }
         return false;
     }
@@ -394,7 +397,7 @@ public class ConsoleService {
                             Integer stage,
                             List<String> jobIdList,
                             Integer isForce){
-        if (jobIdList != null && !jobIdList.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(jobIdList)) {
             //杀死指定jobIdList的任务
 
             if (EJobCacheStage.unSubmitted().contains(stage)) {
@@ -507,11 +510,10 @@ public class ConsoleService {
                 }
             }
             pluginInfo.put(ComponentService.TYPE_NAME,typeName);
-            ClusterResource clusterResource = workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
-            return clusterResource;
+            return workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
         } catch (Exception e) {
-            LOGGER.error(" ", e);
-            throw new RdosDefineException("flink resource acquisition exception");
+            LOGGER.error("getResources error:{} ", e);
+            throw new RdosDefineException("flink资源获取异常");
         }
     }
 
@@ -528,7 +530,6 @@ public class ConsoleService {
                 break;
             }
         }
-
         if (hadoopEngine == null) {
             return null;
         }
@@ -537,13 +538,11 @@ public class ConsoleService {
         if (CollectionUtils.isEmpty(componentList)) {
             return null;
         }
-
         for (Component component : componentList) {
             if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode())) {
                 return component;
             }
         }
-
         return null;
     }
 

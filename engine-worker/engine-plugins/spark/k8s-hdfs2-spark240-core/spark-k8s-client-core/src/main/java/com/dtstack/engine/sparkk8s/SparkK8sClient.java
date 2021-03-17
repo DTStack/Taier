@@ -32,11 +32,11 @@ import com.dtstack.engine.common.pojo.JudgeResult;
 import com.dtstack.engine.common.util.DtStringUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.sparkk8s.config.SparkK8sConfig;
+import com.dtstack.engine.sparkk8s.parser.AddJarOperator;
+import com.dtstack.engine.sparkk8s.resourceinfo.SparkK8sResourceInfo;
 import com.dtstack.engine.sparkk8s.submit.MrSubmit;
 import com.dtstack.engine.sparkk8s.submit.PythonSubmit;
 import com.dtstack.engine.sparkk8s.submit.SqlSubmit;
-import com.dtstack.engine.sparkk8s.parser.AddJarOperator;
-import com.dtstack.engine.sparkk8s.resourceinfo.SparkK8sResourceInfo;
 import com.dtstack.engine.sparkk8s.utils.SparkConfigUtil;
 import com.google.common.collect.Lists;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -50,7 +50,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -169,10 +168,14 @@ public class SparkK8sClient extends AbstractClient {
         }
 
         List<String> sqlList = Lists.newArrayList(sqlArr);
+
+
         Iterator<String> sqlItera = sqlList.iterator();
 
         while (sqlItera.hasNext()){
             String tmpSql = sqlItera.next();
+            // handle add jar statements and comment statements on the same line
+            tmpSql = AddJarOperator.handleSql(tmpSql);
             if(AddJarOperator.verific(tmpSql)){
                 sqlItera.remove();
                 JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);

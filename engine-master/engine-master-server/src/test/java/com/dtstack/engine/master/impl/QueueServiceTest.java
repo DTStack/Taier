@@ -56,6 +56,24 @@ public class QueueServiceTest extends AbstractTest {
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     @Rollback
+    public void testUpdateQueue2() {
+        //测试newAddQueue
+        List<ComponentTestResult.QueueDescription> descriptions = new ArrayList<>();
+        ComponentTestResult.QueueDescription queueDescription = new ComponentTestResult.QueueDescription();
+        queueDescription.setCapacity("1.0");
+        queueDescription.setChildQueues(null);
+        queueDescription.setMaximumCapacity("1.0");
+        queueDescription.setQueueName("root");
+        queueDescription.setQueuePath("root");
+        queueDescription.setQueueState("RUNNING");
+        descriptions.add(queueDescription);
+        ComponentTestResult.ClusterResourceDescription description = new ComponentTestResult.ClusterResourceDescription(3,100000,10,descriptions);
+        queueService.updateQueue(2L, description);
+    }
+
+    @Test
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Rollback
     public void testAddNamespaces() {
         Long addNamespaces = queueService.addNamespaces(1L, "test");
         Assert.assertNotNull(addNamespaces);

@@ -106,6 +106,8 @@ public class PoolHttpClient {
 			if (cookies != null && cookies.size() > 0) {
 				httpPost.addHeader("Cookie", getCookieFormat(cookies));
 			}
+
+			httpPost.setHeader("Content-type","application/json;charset=UTF-8");
 			if (bodyData != null && bodyData.size() > 0) {
 				httpPost.setEntity(new StringEntity(objectMapper
 						.writeValueAsString(bodyData),charset));

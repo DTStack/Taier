@@ -23,6 +23,18 @@
 
         <dependency>
             <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-lineage-service</artifactId>
+            <version>1.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.hive</groupId>
+                    <artifactId>hive-exec</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
             <artifactId>engine-common</artifactId>
             <version>${common.version}</version>
             <exclusions>

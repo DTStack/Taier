@@ -5,6 +5,7 @@ import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.common.CustomThreadRunsPolicy;
 import com.dtstack.engine.common.JobClient;
+import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.pojo.JobResult;
@@ -100,33 +101,33 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
     private static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EScheduleJobType.WORK_FLOW.getVal(), EScheduleJobType.ALGORITHM_LAB.getVal());
 
-    public int addStopJobs(List<ScheduleJob> jobs,Integer isForce){
+    public int addStopJobs(List<ScheduleJob> jobs, Integer isForce) {
 
         if (CollectionUtils.isEmpty(jobs)) {
             return 0;
         }
-
         if (jobs.size() > JOB_STOP_LIMIT) {
             throw new RdosDefineException("please don't stop too many tasks at once, limit:" + JOB_STOP_LIMIT);
         }
-
         List<ScheduleJob> needSendStopJobs = new ArrayList<>(jobs.size());
-        List<Long> unSubmitJob = new ArrayList<>(jobs.size());
+        List<String> unSubmitJob = new ArrayList<>(jobs.size());
         for (ScheduleJob job : jobs) {
             if (RdosTaskStatus.UNSUBMIT.getStatus().equals(job.getStatus()) || SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
-                unSubmitJob.add(job.getId());
+                unSubmitJob.add(job.getJobId());
             } else {
                 needSendStopJobs.add(job);
             }
         }
-
         List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobs.stream().map(ScheduleJob::getJobId).collect(Collectors.toList()));
-
         // 停止已提交的
         if (CollectionUtils.isNotEmpty(needSendStopJobs)) {
             for (ScheduleJob job : needSendStopJobs) {
                 EngineJobStopRecord jobStopRecord = new EngineJobStopRecord();
                 jobStopRecord.setTaskId(job.getJobId());
+                if (ComputeType.STREAM.getType().equals(job.getComputeType()) && RdosTaskStatus.RUNNING.getStatus().equals(job.getStatus())) {
+                    LOGGER.info("stream jobId:{} and status:{} is RUNNING, change status CANCELLING ", job.getJobId(), job.getStatus());
+                    scheduleJobDao.updateJobStatus(job.getJobId(), RdosTaskStatus.CANCELLING.getStatus());
+                }
                 if (alreadyExistJobIds.contains(jobStopRecord.getTaskId())) {
                     LOGGER.info("jobId:{} ignore insert stop record, because is already exist in table.", jobStopRecord.getTaskId());
                     continue;
@@ -139,20 +140,11 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         if (CollectionUtils.isNotEmpty(unSubmitJob)) {
             scheduleJobDao.updateJobStatusByIds(RdosTaskStatus.CANCELED.getStatus(), unSubmitJob);
         }
-
         return jobs.size();
     }
 
     public int addStopJobs(List<ScheduleJob> jobs) {
         return addStopJobs(jobs, ForceCancelFlag.NO.getFlag());
-    }
-
-    private boolean checkJobCanStop(Integer status) {
-        if (status == null) {
-            return true;
-        }
-
-        return RdosTaskStatus.getCanStopStatus().contains(status);
     }
 
 
@@ -225,9 +217,9 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                                 continue;
                             }
 
-                            boolean forceCancelFlag = jobStopRecord.getForceCancelFlag() == ForceCancelFlag.YES.getFlag() ? true : false;
+                            boolean forceCancelFlag = ForceCancelFlag.YES.getFlag().equals(jobStopRecord.getForceCancelFlag());
                             JobElement jobElement = new JobElement(jobCache.getJobId(), jobStopRecord.getId(), forceCancelFlag );
-                            asyncDealStopJobService.submit(() -> asyncDealStopJob(new StoppedJob<JobElement>(jobElement, jobStoppedRetry, jobStoppedDelay)));
+                            asyncDealStopJobService.submit(() -> asyncDealStopJob(new StoppedJob<>(jobElement, jobStoppedRetry, jobStoppedDelay)));
                         } else {
                             //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
                             scheduleJobDao.updateTaskStatusNotStopped(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());
@@ -280,7 +272,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                     case RETRY:
                         if (stoppedJob.isRetry()) {
                             if (StoppedStatus.STOPPING == stoppedStatus) {
-                                stoppedJob.resetDelay(jobStoppedDelay * 20);
+                                stoppedJob.resetDelay(jobStoppedDelay * stoppedJob.getIncrCount() * 5);
                             } else if (StoppedStatus.RETRY == stoppedStatus) {
                                 stoppedJob.resetDelay(jobStoppedDelay);
                             }
@@ -314,23 +306,24 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 LOGGER.info("jobId:{} jobCache is null, set job is MISSED.", jobElement.jobId);
                 return StoppedStatus.MISSED;
             }
-        } else if (EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
-            this.removeMemStatusAndJobCache(jobCache.getJobId());
-            LOGGER.info("jobId:{} is unsubmitted, set job is STOPPED.", jobElement.jobId);
-            return StoppedStatus.STOPPED;
+        } else if (null != scheduleJob && EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
+            if (!RdosTaskStatus.getWaitStatus().contains(scheduleJob.getStatus()) || EJobCacheStage.PRIORITY.getStage() != jobCache.getStage()) {
+                this.removeMemStatusAndJobCache(jobCache.getJobId());
+                LOGGER.info("jobId:{} is unsubmitted, set job is STOPPED.", jobElement.jobId);
+                return StoppedStatus.STOPPED;
+            } else {
+                //任务如果处于提交的状态过程中 但是stage由PRIORITY变更为SUBMITTED  直接删除会导致还是会提交到yarn上 占用资源
+                LOGGER.info("jobId:{} is stopping.", jobCache.getJobId());
+                return StoppedStatus.STOPPING;
+            }
         } else {
             if (scheduleJob == null) {
                 this.removeMemStatusAndJobCache(jobElement.jobId);
                 LOGGER.info("jobId:{} scheduleJob is null, set job is MISSED.", jobElement.jobId);
                 return StoppedStatus.MISSED;
-            }  else if (RdosTaskStatus.getStoppedAndNotFound().contains(scheduleJob.getStatus())) {
+            } else if (RdosTaskStatus.getStoppedAndNotFound().contains(scheduleJob.getStatus())) {
                 this.removeMemStatusAndJobCache(jobElement.jobId);
                 LOGGER.info("jobId:{} and status:{} is StoppedAndNotFound, set job is STOPPED.", jobElement.jobId, scheduleJob.getStatus());
-                return StoppedStatus.STOPPED;
-            } else if (!RdosTaskStatus.RUNNING.getStatus().equals(scheduleJob.getStatus()) &&
-                    System.currentTimeMillis() - jobCache.getGmtCreate().getTime() >= environmentContext.getConsoleStopExpireTime()) {
-                this.removeMemStatusAndJobCache(jobElement.jobId);
-                LOGGER.info("jobId:{} and status:{} is expire console stop time, set job is STOPPED.", jobElement.jobId, scheduleJob.getStatus());
                 return StoppedStatus.STOPPED;
             }
 
@@ -382,10 +375,6 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         public long stopJobId;
         public boolean isForceCancel;
 
-        public JobElement(String jobId, long stopJobId) {
-            this.jobId = jobId;
-            this.stopJobId = stopJobId;
-        }
 
         public JobElement(String jobId, long stopJobId, boolean isForceCancel) {
             this.jobId = jobId;

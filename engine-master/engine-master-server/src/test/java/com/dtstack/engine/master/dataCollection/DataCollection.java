@@ -1,12 +1,13 @@
 package com.dtstack.engine.master.dataCollection;
 
-import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.api.domain.*;
+import com.dtstack.engine.api.enums.LineageOriginType;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobCacheStage;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
-import com.dtstack.engine.common.util.AddressUtil;
 import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.*;
 import com.dtstack.engine.domain.AlertChannel;
 import com.dtstack.engine.domain.AlertContent;
@@ -14,10 +15,11 @@ import com.dtstack.engine.domain.AlertRecord;
 import com.dtstack.engine.master.anno.DataSource;
 import com.dtstack.engine.master.anno.DatabaseInsertOperation;
 import com.dtstack.engine.master.anno.IgnoreUniqueRandomSet;
-import com.dtstack.engine.master.enums.EComponentType;
-import com.dtstack.engine.master.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.utils.DataCollectionProxy;
 import com.dtstack.engine.master.utils.Template;
+import com.dtstack.schedule.common.enums.AppType;
+import com.dtstack.schedule.common.enums.DataSourceType;
 import org.joda.time.DateTime;
 
 import java.lang.reflect.Proxy;
@@ -55,8 +57,37 @@ public interface DataCollection {
         return sj;
     }
 
+    /**
+     * @author newman
+     * @Description 获取虚节点任务实例
+     * @Date 2020/12/30 7:09 下午
+     * @return: com.dtstack.engine.api.domain.ScheduleJob
+     **/
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobVirtual() {
+        ScheduleTaskShade shade = getScheduleTaskShadeVirtual();
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setTaskId(shade.getTaskId());
+        sj.setExecStartTime(new Timestamp(1592559742000L));
+        return sj;
+    }
+
     @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
     default ScheduleJob getScheduleJobSecond() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setEngineLog("");
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobForth() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setEngineLog("");
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobFive() {
         ScheduleJob sj = Template.getScheduleJobTemplate();
         sj.setEngineLog("");
         return sj;
@@ -221,6 +252,62 @@ public interface DataCollection {
         sj.setEngineLog("");
         sj.setSourceType(-1);
         sj.setApplicationId("application_9527");
+        sj.setEngineJobId("engineJobId2");
+        sj.setComputeType(ComputeType.STREAM.getType());
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobStream3() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setJobId("testJobId3");
+        sj.setStatus(4);
+        sj.setExecStartTime(new Timestamp(1591805197000L));
+        sj.setExecEndTime(new Timestamp(1591805197100L));
+        sj.setJobName("test2");
+        sj.setCycTime("20200609234500");
+        sj.setTaskType(EJobType.SQL.getType());
+        sj.setType(2);
+        sj.setEngineLog("");
+        sj.setSourceType(-1);
+        sj.setApplicationId("application_9527");
+        sj.setComputeType(ComputeType.STREAM.getType());
+        return sj;
+    }
+
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobStream4() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setJobId("testJobId3");
+        sj.setStatus(4);
+        sj.setExecStartTime(new Timestamp(1591805197000L));
+        sj.setExecEndTime(new Timestamp(1591805197100L));
+        sj.setJobName("test2");
+        sj.setCycTime("20200609234500");
+        sj.setTaskType(EJobType.SQL.getType());
+        sj.setType(2);
+        sj.setEngineLog("");
+        sj.setSourceType(-1);
+        sj.setApplicationId("application_9527");
+        sj.setComputeType(ComputeType.STREAM.getType());
+        return sj;
+    }
+
+    @DatabaseInsertOperation(dao = TestScheduleJobDao.class)
+    default ScheduleJob getScheduleJobStream5() {
+        ScheduleJob sj = Template.getScheduleJobTemplate();
+        sj.setJobId("testJobId4");
+        sj.setStatus(4);
+        sj.setExecStartTime(new Timestamp(1591805197000L));
+        sj.setExecEndTime(new Timestamp(1591805197100L));
+        sj.setJobName("test2");
+        sj.setCycTime("20200609234500");
+        sj.setTaskType(EJobType.SQL.getType());
+        sj.setType(2);
+        sj.setEngineLog("");
+        sj.setSourceType(-1);
+        sj.setApplicationId("application_9527");
         sj.setComputeType(ComputeType.STREAM.getType());
         return sj;
     }
@@ -281,7 +368,61 @@ public interface DataCollection {
         EngineJobCache engineJobCache = Template.getEngineJobCacheTemplate2();
         String jobId = getData().getScheduleJobStream2().getJobId();
         engineJobCache.setJobId(jobId);
+        engineJobCache.setJobInfo(String.format("{\"pluginInfo\":{\"aa\":\"bb\"},\"engineType\":\"spark\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, " +
+                "\"maxRetryNum\":3,\"taskParams\":\"openCheckpoint=true \\n sql.checkpoint.interval=2\"," +
+                "\"taskId\":\"%s\"}",jobId));
+        engineJobCache.setIsFailover(1);
+        return engineJobCache;
+    }
+
+    /**
+     * @author zyd
+     * @Description 构造不同jobId的jobCache，防止被其他线程删掉
+     * @Date 2020/11/27 2:46 下午
+     * @return: com.dtstack.engine.api.domain.EngineJobCache
+     **/
+    @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
+    @IgnoreUniqueRandomSet
+    default EngineJobCache getEngineJobCache4() {
+        EngineJobCache engineJobCache = Template.getEngineJobCacheTemplate2();
+        String jobId = getData().getScheduleJobStream3().getJobId();
+        engineJobCache.setJobId(jobId);
         engineJobCache.setJobInfo(String.format("{\"engineType\":\"spark\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, " +
+                "\"maxRetryNum\":3,\"taskParams\":\"openCheckpoint=true \\n sql.checkpoint.interval=2\"," +
+                "\"taskId\":\"%s\"}",jobId));
+        engineJobCache.setIsFailover(1);
+        return engineJobCache;
+    }
+
+
+    /**
+     * engineType为kylin
+     * @return
+     */
+    @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
+    @IgnoreUniqueRandomSet
+    default EngineJobCache getEngineJobCache5() {
+        EngineJobCache engineJobCache = Template.getEngineJobCacheTemplate2();
+        String jobId = getData().getScheduleJobStream4().getJobId();
+        engineJobCache.setJobId(jobId);
+        engineJobCache.setJobInfo(String.format("{\"pluginInfo\":{\"aa\":\"bb\"},\"openCheckpoint\":true,\"engineType\":\"Kylin\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, " +
+                "\"maxRetryNum\":3,\"taskParams\":\"openCheckpoint=true \\n sql.checkpoint.interval=2\"," +
+                "\"taskId\":\"%s\"}",jobId));
+        engineJobCache.setIsFailover(1);
+        return engineJobCache;
+    }
+
+    /**
+     * jobCache的stage为5
+     * @return
+     */
+    @DatabaseInsertOperation(dao = TestEngineJobCacheDao.class)
+    @IgnoreUniqueRandomSet
+    default EngineJobCache getEngineJobCache6() {
+        EngineJobCache engineJobCache = Template.getEngineJobCacheTemplate3();
+        String jobId = getData().getScheduleJobStream5().getJobId();
+        engineJobCache.setJobId(jobId);
+        engineJobCache.setJobInfo(String.format("{\"pluginInfo\":{\"aa\":\"bb\"},\"engineType\":\"Kylin\",\"taskType\":2,\"computeType\":1, \"tenantId\":9, " +
                 "\"maxRetryNum\":3,\"taskParams\":\"openCheckpoint=true \\n sql.checkpoint.interval=2\"," +
                 "\"taskId\":\"%s\"}",jobId));
         engineJobCache.setIsFailover(1);
@@ -353,6 +494,28 @@ public interface DataCollection {
         scheduleTaskShade.setScheduleStatus(5);
         return scheduleTaskShade;
     }
+
+    /**
+     * @author newman
+     * @Description 虚节点任务
+     * @Date 2020/12/30 7:07 下午
+     * @return: com.dtstack.engine.api.domain.ScheduleTaskShade
+     **/
+    @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
+    @IgnoreUniqueRandomSet
+    default ScheduleTaskShade getScheduleTaskShadeVirtual(){
+        ScheduleTaskShade scheduleTaskShade = Template.getScheduleTaskShadeTemplate();
+        scheduleTaskShade.setScheduleStatus(5);
+        scheduleTaskShade.setTaskId(-2023L);
+        scheduleTaskShade.setTenantId(15L);
+        scheduleTaskShade.setProjectId(-12L);
+        scheduleTaskShade.setDtuicTenantId(-1008L);
+        scheduleTaskShade.setAppType(0);
+        scheduleTaskShade.setScheduleStatus(5);
+        scheduleTaskShade.setTaskType(-1);
+        return scheduleTaskShade;
+    }
+
 
     @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
     @IgnoreUniqueRandomSet
@@ -444,6 +607,23 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestEngineJobStopDao.class)
+    default EngineJobStopRecord getScheduleJobStop3(){
+
+        EngineJobCache engineJobCache = getEngineJobCache6();
+        EngineJobStopRecord jsr = new EngineJobStopRecord();
+        jsr.setTaskId(engineJobCache.getJobId());
+        jsr.setComputeType(jsr.getComputeType());
+        jsr.setEngineType(jsr.getEngineType());
+        jsr.setForceCancelFlag(1);
+        jsr.setJobResource(engineJobCache.getJobResource());
+        jsr.setOperatorExpired(new java.util.Date());
+        jsr.setTaskType(10);
+        jsr.setVersion(1);
+        return jsr;
+    }
+
+
+    @DatabaseInsertOperation(dao = TestEngineJobStopDao.class)
     default EngineJobStopRecord getScheduleJobStop(){
 
         EngineJobCache engineJobCache = getEngineJobCache();
@@ -458,6 +638,7 @@ public interface DataCollection {
         jsr.setVersion(1);
         return jsr;
     }
+
 
     @DatabaseInsertOperation(dao = TestScheduleTaskShadeDao.class)
     default ScheduleTaskShade getCronMonthTask() {
@@ -687,6 +868,15 @@ public interface DataCollection {
     }
 
     @DatabaseInsertOperation(dao = TestComponentDao.class)
+    default Component getDefaultSparkSqlComponent(){
+        Component component = Template.getDefaultHdfsComponentTemplate();
+        component.setComponentTypeCode(EComponentType.SPARK_THRIFT.getTypeCode());
+        component.setComponentName(EComponentType.SPARK_THRIFT.getName());
+        component.setComponentConfig("{\"maxJobPoolSize\":\"\",\"password\":\"\",\"minJobPoolSize\":\"\",\"jdbcUrl\":\"jdbc:hive2://172.16.8.107:10000/%s\",\"queue\":\"\",\"username\":\"admin\"}");
+        return component;
+    }
+
+    @DatabaseInsertOperation(dao = TestComponentDao.class)
     default Component getDefaultYarnComponent(){
         return Template.getDefaultYarnComponentTemplate();
     }
@@ -789,6 +979,82 @@ public interface DataCollection {
     @DatabaseInsertOperation(dao = TestAlertRecordDao.class)
     default AlertRecord getDefaultRecord(){
         return Template.getDefaultRecord();
+    }
+
+
+
+
+    @DatabaseInsertOperation(dao = TestClusterDao.class)
+    default Cluster getCluster() {
+        Cluster cluster = new Cluster();
+        cluster.setClusterName("test_01");
+        cluster.setHadoopVersion("1.2");
+        return cluster;
+    }
+
+    /*************************血缘存储*****************************/
+
+    @DatabaseInsertOperation(dao = TestLineageRealDataSourceDao.class)
+    default LineageRealDataSource getHiveLineageRealDataSource(){
+        LineageRealDataSource defaultHiveRealDataSourceTemplate = Template.getDefaultHiveRealDataSourceTemplate();
+        defaultHiveRealDataSourceTemplate.setId(1L);
+        return defaultHiveRealDataSourceTemplate;
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageRealDataSourceDao.class)
+    default LineageRealDataSource getDefaultLineageRealDataSource(){
+        LineageRealDataSource defaultHiveRealDataSourceTemplate = Template.getDefaultHiveRealDataSourceTemplate();
+        defaultHiveRealDataSourceTemplate.setSourceType(DataSourceType.Oracle.getVal());
+        defaultHiveRealDataSourceTemplate.setSourceKey("172.16.8.107#5432");
+        defaultHiveRealDataSourceTemplate.setId(2L);
+        return defaultHiveRealDataSourceTemplate;
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageDataSourceDao.class)
+    default LineageDataSource getDefaultLineageDataSource(){
+        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
+        defaultHiveDataSourceTemplate.setRealSourceId(1L);
+        return defaultHiveDataSourceTemplate;
+    }
+
+//    @DatabaseInsertOperation(dao = TestLineageDataSourceDao.class)
+//    default LineageDataSource getHiveLineageDataSource(){
+//        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
+//        defaultHiveDataSourceTemplate.setRealSourceId(1L);
+//        return defaultHiveDataSourceTemplate;
+//    }
+
+    @DatabaseInsertOperation(dao = TestLineageDataSetInfoDao.class)
+    default LineageDataSetInfo getDefaultLineageDataSetInfo(){
+        LineageDataSetInfo defaultDataSetInfoTemplate = Template.getDefaultDataSetInfoTemplate();
+        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
+        defaultDataSetInfoTemplate.setSourceId(defaultHiveDataSourceTemplate.getId());
+        return defaultDataSetInfoTemplate;
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageDataSetInfoDao.class)
+    default LineageDataSetInfo getHiveLineageDataSetInfo(){
+        LineageDataSetInfo lineageDataSetInfo = Template.getHiveDataSetInfoTemplate();
+        LineageDataSource defaultHiveDataSourceTemplate = Template.getDefaultHiveDataSourceTemplate();
+        lineageDataSetInfo.setSourceId(defaultHiveDataSourceTemplate.getId());
+        return lineageDataSetInfo;
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageTableTableDao.class)
+    default LineageTableTable getLineageTableTable(){
+        LineageTableTable lineageTableTable = Template.getLineageTableTableTemplate();
+        return lineageTableTable;
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageTableTableDao.class)
+    default LineageTableTable getDefaultLineageTableTable(){
+        return Template.getDefaultTableTable();
+    }
+
+    @DatabaseInsertOperation(dao = TestLineageColumnColumnDao.class)
+    default LineageColumnColumn getDefaultLineageColumnColumn(){
+        LineageColumnColumn defaultColumnColumn = Template.getDefaultColumnColumn();
+        return defaultColumnColumn;
     }
 
 }

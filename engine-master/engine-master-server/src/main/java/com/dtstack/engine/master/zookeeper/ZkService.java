@@ -85,8 +85,8 @@ public class ZkService implements InitializingBean, DisposableBean {
     private void initClient() {
         this.zkClient = CuratorFrameworkFactory.builder()
                 .connectString(this.zkAddress).retryPolicy(new ExponentialBackoffRetry(1000, 3))
-                .connectionTimeoutMs(1000)
-                .sessionTimeoutMs(1000).build();
+                .connectionTimeoutMs(3000)
+                .sessionTimeoutMs(30000).build();
         this.zkClient.start();
         LOGGER.warn("connector zk success...");
     }
@@ -158,9 +158,8 @@ public class ZkService implements InitializingBean, DisposableBean {
     public BrokerHeartNode getBrokerHeartNode(String node) {
         try {
             String nodePath = String.format("%s/%s/%s", this.brokersNode, node, HEART_NODE);
-            BrokerHeartNode nodeSign = objectMapper.readValue(zkClient.getData()
+            return objectMapper.readValue(zkClient.getData()
                     .forPath(nodePath), BrokerHeartNode.class);
-            return nodeSign;
         } catch (Exception e) {
             LOGGER.error("{}:getBrokerHeartNode error:", node, e);
         }
@@ -179,13 +178,16 @@ public class ZkService implements InitializingBean, DisposableBean {
     public List<String> getAliveBrokersChildren() {
         List<String> alives = Lists.newArrayList();
         try {
-            List<String> brokers = zkClient.getChildren().forPath(this.brokersNode);
-            for (String broker : brokers) {
-                BrokerHeartNode brokerHeartNode = getBrokerHeartNode(broker);
-                if (brokerHeartNode.getAlive()) {
-                    alives.add(broker);
+            if (null != zkClient) {
+                List<String> brokers = zkClient.getChildren().forPath(this.brokersNode);
+                for (String broker : brokers) {
+                    BrokerHeartNode brokerHeartNode = getBrokerHeartNode(broker);
+                    if (brokerHeartNode.getAlive()) {
+                        alives.add(broker);
+                    }
                 }
             }
+
         } catch (Exception e) {
             LOGGER.error("getBrokersChildren error:", e);
         }

@@ -17,7 +17,7 @@ CREATE TABLE `schedule_engine_job_checkpoint` (
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  `checkpoint_id` varchar(64) DEFAULT NULL COMMENT '检查点id',
+  `checkpoint_id` int(11) DEFAULT 0 COMMENT '检查点id',
   `checkpoint_trigger` timestamp NULL DEFAULT NULL COMMENT 'checkpoint触发时间',
   `checkpoint_savepath` varchar(128) DEFAULT NULL COMMENT 'checkpoint存储路径',
   `checkpoint_counts` varchar(128) DEFAULT NULL COMMENT 'checkpoint信息中的counts指标',
@@ -102,6 +102,7 @@ CREATE TABLE `schedule_engine_job_stop_record` (
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `operator_expired` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '操作过期时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `force_cancel_flag` TINYINT(1) NOT NULL COMMENT '强制标志 0非强制 1强制',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -383,11 +384,9 @@ CREATE TABLE `schedule_job`
   KEY `index_task_id` (`task_id`),
   UNIQUE KEY `index_job_id` (`job_id`(128),`is_deleted`),
   KEY `index_fill_id` (`fill_id`),
-  KEY `index_project_id` (`project_id`),
   UNIQUE KEY `idx_jobKey` (`job_key`(128)),
   KEY `idx_name_type` (`job_name`(128), `type`),
   KEY `index_engine_job_id` (`engine_job_id`(128)),
-  KEY `index_status` (`status`),
   KEY `index_gmt_modified` (`gmt_modified`),
   KEY `idx_cyctime` (`cyc_time`),
   KEY `idx_exec_start_time` (`exec_start_time`)
@@ -468,15 +467,15 @@ CREATE TABLE `schedule_task_commit` (
   `task_id` int(11) NOT NULL COMMENT '任务id',
   `app_type` int(11) NOT NULL DEFAULT '0' COMMENT 'RDOS(1), DQ(2), API(3), TAG(4), MAP(5), CONSOLE(6), STREAM(7), DATASCIENCE(8)',
   `commit_id` varchar(128) NOT NULL COMMENT '提交id',
-  `task_json` text COMMENT '额外参数',
+  `task_json` longtext COMMENT '额外参数',
   `extra_info` mediumtext COMMENT '存储task运行时所需的额外信息',
   `is_commit` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否提交：0未提交 1已提交',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '过期策略：0永不过期 1过期取消',
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_job_id` (`commit_id`(128),`is_deleted`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  UNIQUE KEY `index_job_id` (`commit_id`,`is_deleted`,`task_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `dt_alert_gate` (
   `id` bigint(11) NOT NULL AUTO_INCREMENT,
@@ -589,5 +588,127 @@ CREATE TABLE `task_param_template` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 
+-- 物理数据源表
+create table lineage_real_data_source(
+    id int(11) NOT NULL AUTO_INCREMENT,
+    source_name VARCHAR(155) NOT NULL COMMENT '数据源名称',
+    source_key VARCHAR(155) NOT NULL COMMENT '数据源定位码，不同数据源类型计算方式不同。',
+    source_type SMALLINT(4) NOT NULL COMMENt '数据源类型',
+    data_jason JSON NOT NULL COMMENT '数据源配置json',
+    kerberos_conf JSON NOT NULL COMMENT 'kerberos配置',
+    open_kerberos tinyint NOT NULL default 0 COMMENT '0：未开启kerberos；1：开启kerberos',
+    gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (id),
+    UNIQUE KEY uni_source_key (source_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 逻辑数据源表
+create table lineage_data_source(
+    id int(11) NOT NULL AUTO_INCREMENT,
+    dt_uic_tenant_id int(11) NOT NULL COMMENT '租户id',
+    real_source_id int(11) NOT NULL COMMENT '真实数据源id',
+    source_key VARCHAR(155) NOT NULL COMMENT '数据源定位码，不同数据源类型计算方式不同。',
+    source_name VARCHAR(55) NOT NULL COMMENT '数据源名称',
+    app_type smallint(4) NOT NULL COMMENT '应用类型',
+    source_type smallint(4) NOT NULL COMMENT '数据源类型',
+    data_jason JSON NOT NULL COMMENT '数据源配置json',
+    kerberos_conf JSON NOT NULL COMMENT 'kerberos配置',
+    open_kerberos tinyint NOT NULL default 0 COMMENT '0：未开启kerberos；1：开启kerberos',
+    app_source_id int(11) NOT NULL default -1 COMMENT '应用内的sourceId',
+    inner_source tinyint(1) NOT NULL default 0 COMMENT '是否内部数据源；0 不是；1 内部数据源。内部数据源有ComponentId',
+    component_id int(11) NOT NULL default -1 COMMENT '数据源对应的组件id',
+    gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (id),
+    UNIQUE KEY uni_tenant_source_key (tenant_id,source_key,app_type,source_name)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 表信息表。表可能并不能关联上data source。
+create table lineage_data_set_info(
+    id int(11) NOT NULL AUTO_INCREMENT,
+    dt_uic_tenant_id int(11) NOT NULL COMMENT '租户id',
+    app_type smallint(4) NOT NULL COMMENT '应用类型',
+    source_id int(11) NOT NULL COMMENT 'lineage_data_source中的id',
+    real_source_id int(11) NOT NULL COMMENT '真实数据源id',
+    source_name VARCHAR(55) NOT NULL COMMENT '数据源名称',
+    source_type SMALLINT(4) NOT NULL COMMENt '数据源类型',
+    source_key VARCHAR(155) NOT NULL COMMENT '数据源定位码，不同数据源类型计算方式不同。',
+    set_type smallint(4) NOT NULL default 0 COMMENT '数据集类型，0 表 ，1 文件',
+    db_name VARCHAR(55) NOT NULL COMMENT '一般数据集类型为表，该字段为数据库名称;当数据集类型为文件时，该字段可以取文件名，或者其他定义',
+    schema_name VARCHAR(55) NOT NULL COMMENT '一般情况下，db_name=schema_name，SQLserver中，表定义形式为db.schema.table',
+    table_name VARCHAR(55) NOT NULL COMMENT '一般数据集类型为表，该字段为表名称；当数据集类型为文件时，该字段可以由文件描述的数据集模型名定义',
+    table_key VARCHAR(155) NOT NULL COMMENT '表定位码，根据sourceId、数据库名、表名确定下来的表定位码',
+    is_manual smallint(3) NOT NULL DEFAULT '0' COMMENT '0正常 1手动维护',
+    gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (id),
+    UNIQUE KEY uni_table_key (table_key)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 表级血缘记录表
+create table lineage_table_table(
+    id int(11) NOT NULL AUTO_INCREMENT,
+    dt_uic_tenant_id int(11) NOT NULL COMMENT '租户id',
+    input_table_id int(11) NOT NULL COMMENT '输入表id lineage_real_data_source表的id',
+    input_table_key varchar(155) NOT NULL COMMENT '输入表表物理定位码',
+    result_table_id int(11) NOT NULL COMMENT '输出表id lineage_real_data_source表的id',
+    result_table_key varchar(155) NOT NULL COMMENT '输出表表物理定位码',
+    table_lineage_key VARCHAR(30) NOT NULL COMMENT '表血缘定位码，根据输入表和输出表定位码计算出',
+    gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    lineage_source smallint(3) NOT NULL DEFAULT '0' COMMENT '血缘来源：0-sql解析；1-手动维护；2-json解析',
+    PRIMARY KEY (id),
+    UNIQUE KEY uni_table_lineage_key (table_lineage_key)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 表血缘与应用关联表
+create table lineage_table_table_unique_key_ref(
+    id int(11) NOT NULL AUTO_INCREMENT,
+    app_type smallint(4) NOT NULL COMMENT '应用类型',
+    uniqueKey varchar(32) NOT NULL COMMENT '血缘批次码，离线中通常为taskId',
+    lineage_table_table_id int(11) NOT NULL COMMENT 'lineage_table_table表id',
+    gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (id),
+    UNIQUE KEY uni_appType_tableTableId_uniqueKey (app_type,lineage_table_table_id,unique_key)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 字段级血缘存储方案
+create table lineage_column_column(
+    id int(11) NOT NULL AUTO_INCREMENT,
+    dt_uic_tenant_id int(11) NOT NULL COMMENT '租户id',
+    input_table_id int(11) NOT NULL COMMENT '输入表id',
+    input_table_key varchar(155) NOT NULL COMMENT '输入表表物理定位码',
+    input_column_name VARCHAR(55) NOT NULL COMMENT '输入字段名称',
+    result_table_id int(11) NOT NULL COMMENT '输出表id',
+    result_table_key varchar(155) NOT NULL COMMENT '输出表表物理定位码',
+    result_column_name VARCHAR(55) NOT NULL COMMENT '输出字段名称',
+    column_lineage_key VARCHAR(60) NOT NULL COMMENT '字段级血缘定位码，根据输入字段和输出字段定位码计算出',
+    gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    lineage_source smallint(3) NOT NULL DEFAULT '0' COMMENT '血缘来源：0-sql解析；1-手动维护；2-json解析',
+    PRIMARY KEY (id),
+    UNIQUE KEY uni_column_lineage_key (column_lineage_key)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 字段血缘与应用关联表
+create table lineage_column_column_unique_key_ref(
+    id int(11) NOT NULL AUTO_INCREMENT,
+    app_type smallint(4) NOT NULL COMMENT '应用类型',
+    uniqueKey varchar(32) NOT NULL COMMENT '血缘批次码，离线中通常为taskId',
+    lineage_column_column_id int(11) NOT NULL COMMENT 'lineage_column_column表id',
+    gmt_create datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+    gmt_modified datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    is_deleted tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    PRIMARY KEY (id),
+    UNIQUE KEY uni_appType_columnColumnId_uniqueKey (app_type,lineage_column_column_id,unique_key)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

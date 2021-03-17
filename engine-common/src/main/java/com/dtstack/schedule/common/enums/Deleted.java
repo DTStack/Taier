@@ -24,4 +24,14 @@ public enum Deleted {
 		this.status = status;
 	}
 
+	public static Deleted getByStatus(Integer status){
+
+		for (Deleted value : Deleted.values()) {
+			if(value.status.equals(status)){
+				return value;
+			}
+		}
+		return null;
+	}
+
 }

@@ -20,6 +20,7 @@ package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
 import com.dtstack.engine.base.util.HadoopConfTool;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
@@ -110,7 +111,9 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.apache.flink.configuration.ConfigConstants.ENV_FLINK_LIB_DIR;
-import static org.apache.flink.yarn.cli.FlinkYarnSessionCli.*;
+import static org.apache.flink.yarn.cli.FlinkYarnSessionCli.CONFIG_FILE_LOG4J_NAME;
+import static org.apache.flink.yarn.cli.FlinkYarnSessionCli.CONFIG_FILE_LOGBACK_NAME;
+import static org.apache.flink.yarn.cli.FlinkYarnSessionCli.getDynamicProperties;
 
 /**
  * The descriptor with deployment information for deploying a Flink cluster on Yarn.
@@ -149,6 +152,9 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
     private boolean detached;
 
     private String customName;
+
+    /** dt type of flink job*/
+    private EJobType jobType;
 
     private String zookeeperNamespace;
 
@@ -233,6 +239,17 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         this.dynamicPropertiesEncoded = dynamicPropertiesEncoded;
     }
 
+    public EJobType getJobType() {
+        return jobType;
+    }
+
+    /**
+     * set current flink job's dt jobType eg: SQL、MR、SYNC...
+     * @param jobType
+     */
+    public void setJobType(EJobType jobType) {
+        this.jobType = jobType;
+    }
     /**
      * Sets the user jar which is included in the system classloader of all nodes.
      */
@@ -555,9 +572,10 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
     private JobGraph getJobGraph(String appId,ClusterSpecification clusterSpecification) throws Exception{
         String url = getUrlFormat(clusterSpecification.getYarnConfiguration()) + "/" + appId;
+        LOG.info("AppId is {}, MonitorUrl is {}", appId, url);
         PackagedProgram program = buildProgram(url,clusterSpecification);
         clusterSpecification.setProgram(program);
-        JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, clusterSpecification.getConfiguration(), clusterSpecification.getParallelism());
+        JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, this.flinkConfiguration, clusterSpecification.getParallelism());
         jobGraph.setAllowQueuedScheduling(true);
         dealPluginByLoadMode(jobGraph);
         clusterSpecification.setJobGraph(jobGraph);
@@ -609,7 +627,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         return jobGraph;
     }
 
-    private PackagedProgram buildProgram(String monitorUrl,ClusterSpecification clusterSpecification) throws Exception{
+    private PackagedProgram buildProgram(String monitorUrl, ClusterSpecification clusterSpecification) throws Exception{
         String[] args = clusterSpecification.getProgramArgs();
         for (int i = 0; i < args.length; i++) {
             if("-monitor".equals(args[i])){
@@ -618,14 +636,12 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
             }
         }
 
-        PackagedProgram program = new PackagedProgram(clusterSpecification.getJarFile(), clusterSpecification.getClasspaths(), clusterSpecification.getClassLoaderType(), clusterSpecification.getEntryPointClass(), args);
-
+        PackagedProgram program = new PackagedProgram(clusterSpecification.getJarFile(), clusterSpecification.getClasspaths(), flinkConfiguration, clusterSpecification.getEntryPointClass(), args);
         program.setSavepointRestoreSettings(clusterSpecification.getSpSetting());
         return program;
     }
 
     private String getUrlFormat(YarnConfiguration yarnConf){
-        String url = "";
         try{
             Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
             rmClientField.setAccessible(true);
@@ -652,6 +668,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 Map.Entry<String,String> entry = (Map.Entry<String, String>) successfulProxy.entrySet().iterator().next();
                 rmId = entry.getKey();
             } catch (Exception e){
+                LOG.error("get proxyDescriptor error: {}", e);
                 Field proxyInfoField = proxyDescriptor.getClass().getDeclaredField("proxyInfo");
                 proxyInfoField.setAccessible(true);
                 Object proxyInfo = proxyInfoField.get(proxyDescriptor);
@@ -670,10 +687,15 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
             return String.format("http://%s/proxy",addr);
         }catch (Exception e){
-            LOG.error("get monitor error:", e);
+            LOG.error("get proxyInfo error: {}", e);
+            String  addr = yarnConf.get("yarn.resourcemanager.webapp.address");
+            if (addr == null && EJobType.SYNC == jobType) {
+                throw new YarnDeploymentException("Couldn't get rm web app address. " +
+                        "it's required when batch job run on per_job mode. " +
+                        "Please check rm web address whether be confituration.");
+            }
+            return String.format("http://%s/proxy",addr);
         }
-
-        return url;
     }
 
     private void fillJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {

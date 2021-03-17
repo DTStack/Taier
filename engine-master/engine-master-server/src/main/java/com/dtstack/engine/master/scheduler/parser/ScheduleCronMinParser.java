@@ -39,9 +39,11 @@ public class ScheduleCronMinParser extends ScheduleCron {
 
     private int gapNum = 0;
 
-    private int beginMin = 0; //默认开始的分钟
+    //默认开始的分钟
+    private int beginMin = 0;
 
-    private int endMin = 59;//默认结束的分钟
+    //默认结束的分钟
+    private int endMin = 59;
 
     @Override
     public String parse(Map<String, Object> param) {

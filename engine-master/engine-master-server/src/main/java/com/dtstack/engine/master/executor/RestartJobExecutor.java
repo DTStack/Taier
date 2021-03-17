@@ -5,6 +5,8 @@ import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.schedule.common.enums.Restarted;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +53,18 @@ public class RestartJobExecutor extends AbstractJobExecutor {
 
     @Override
     protected Long getListMinId(String nodeAddress, Integer isRestart) {
-        Long listMinId = batchJobService.getListMinId(nodeAddress, null, null, null, Restarted.RESTARTED.getStatus());
+        Pair<String, String> cycTime = this.getCycTime();
+        Long listMinId = batchJobService.getListMinId(nodeAddress, null, cycTime.getLeft(), cycTime.getRight(), Restarted.RESTARTED.getStatus());
         LOGGER.info("getListMinId scheduleType {} nodeAddress {} isRestart {} lastMinId is {} .", getScheduleType(), nodeAddress, Restarted.RESTARTED.getStatus(), listMinId);
         return listMinId;
+    }
+
+    private Pair<String, String> getCycTime() {
+        //补数据和重跑
+        if(environmentContext.getOpenFillDataCycTimeLimit()) {
+            return jobRichOperator.getCycTimeLimitEndNow(false);
+        }else {
+            return  new ImmutablePair<>(null, null);
+        }
     }
 }

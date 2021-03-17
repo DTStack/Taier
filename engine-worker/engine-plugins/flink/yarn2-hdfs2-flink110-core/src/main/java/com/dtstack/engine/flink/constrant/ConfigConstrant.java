@@ -30,7 +30,6 @@ public class ConfigConstrant {
     public static final String MR_JOB_PARALLELISM = "mr.job.parallelism";
     public static final String FLINK_TASK_RUN_MODE_KEY = "flinkTaskRunMode";
     public static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
-    public static final String JVM_OPTIONS = "-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing";
 
     public static final String AKKA_ASK_TIMEOUT = "50 s";
     public static final String AKKA_CLIENT_TIMEOUT = "300 s";
@@ -45,6 +44,10 @@ public class ConfigConstrant {
 
     public static final String HADOOP_CONF_BYTES_KEY = "hadoop.conf.bytes";
     public static final String YARN_CONF_BYTES_KEY = "yarn.conf.bytes";
+
+    public static final String CHILD_FIRST_LOADER_PATTERNS = "classloader.child-first-patterns";
+    // 指定具体child loader类的全类名，使用;号分隔
+    public static final String CHILD_FIRST_LOADER_PATTERNS_DEFAULT = "org.apache.flink.table.planner.plan.QueryOperationConverter";
 
     // ------------------------------------------------------------------------
     // Resource Configs
