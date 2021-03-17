@@ -1100,7 +1100,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
-        WHERE flow_job_id = #{jobId} AND is_deleted = 0
+        WHERE flow_job_id = #{jobId} AND is_deleted = 0 AND flow_job_id != '0'
     </select>
 
     <select id="countFillDataAllStatusByJobName" resultType="java.util.HashMap">

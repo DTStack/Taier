@@ -66,7 +66,7 @@ public class ForkJoinJobTask extends RecursiveTask<List<ScheduleJob>> {
         List<ScheduleJob> subJobsAndStatusByFlowId = null;
         //如果工作流 和 实验任务 把子节点全部添加进来
         if (SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
-            subJobsAndStatusByFlowId = scheduleJobDao.getSubJobsAndStatusByFlowId(job.getFlowJobId());
+            subJobsAndStatusByFlowId = scheduleJobDao.getSubJobsAndStatusByFlowId(job.getJobId());
         }
 
         List<String> jobKeyList = this.filterJobKeyList(job, scheduleJobJobs, parentJobDayStr, subJobsAndStatusByFlowId);
