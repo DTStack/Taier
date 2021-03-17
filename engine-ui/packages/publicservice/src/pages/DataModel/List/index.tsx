@@ -205,6 +205,8 @@ const List = () => {
             })
           }}
         >
+          {/* TODO: ICON */}
+          <div className="slider" onClick={() => setDrawer({ visible: false, modelId: -1 })} />
           <Detail modelId={drawer.modelId} />
         </Drawer>
         <div className="pagination-container">

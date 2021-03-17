@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Tabs, message as Message } from 'antd';
+import { Tabs, message as Message, Spin } from 'antd';
 import HTable from './HTable';
 import PaneTitle from '../components/PaneTitle';
 import DataInfo from './DataInfo';
@@ -20,8 +20,11 @@ const Detail = (props: IPropsDetail) => {
     metricColumns: [],
     dimensionColumns: [],
   });
+  const [loading, setLoading] = useState(false);
 
   const getModelDetail = async (id: number) => {
+    if(id === -1) return;
+    setLoading(true);
     try {
       const { success, data, message } = await API.getModelDetail({ id });
       if(success) {
@@ -31,6 +34,8 @@ const Detail = (props: IPropsDetail) => {
       }
     } catch(error) {
       Message.error(error.message);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -40,6 +45,13 @@ const Detail = (props: IPropsDetail) => {
   return (
     <div className="dm-detail">
       <div className="card-container">
+        {
+          loading ? (
+            <div className="dm-modal">
+              <Spin className="center" />
+            </div>
+          ) : null
+        }
         <Tabs type="card">
           <TabPane tab="基本信息" key="1">
             <div className="pane-container">

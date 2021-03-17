@@ -28,13 +28,19 @@
       }
     }
   }
+  .dm-modal {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background: rgba(255, 255, 255, 0.2);
+    z-index: 1;
+  }
   .center {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
   }
-
 }
 
 .ant-tabs.ant-tabs-card {
