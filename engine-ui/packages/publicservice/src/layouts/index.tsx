@@ -12,9 +12,9 @@ const { Content } = Layout;
 
 const createLayout = (isHeaderHide: boolean, isSiderHide: boolean) => {
   return connect(
-    state => ({ ...state.global }),
-    dispatch => bindActionCreators({ ...global }, dispatch)
-  )(props => {
+    (state) => ({ ...state.global }),
+    (dispatch) => bindActionCreators({ ...global }, dispatch)
+  )((props) => {
     return (
       <ErrorBoundary>
         <Layout>

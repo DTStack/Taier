@@ -1,6 +1,6 @@
 const createType = (keys: any) => {
-  let obj = {};
-  keys.forEach(item => {
+  const obj = {};
+  keys.forEach((item) => {
     obj[item] = item;
   });
   return obj;

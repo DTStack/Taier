@@ -4,11 +4,11 @@ import { createStore, combineReducers } from 'redux';
 // import { API, URL } from '@/services';
 import appReducer from '@/pages/global';
 
-//TODO: apply middlwares in redux
+// TODO: apply middlwares in redux
 // const middlewares = [thunk.withExtraArgument({ API, URL })];
 
 const store = createStore(
-  combineReducers({ ...appReducer }),
+  combineReducers({ ...appReducer })
   // process.env.NODE_ENV == 'production'
   //   ? applyMiddleware(...middlewares)
   //   : composeWithDevTools(applyMiddleware(...middlewares))

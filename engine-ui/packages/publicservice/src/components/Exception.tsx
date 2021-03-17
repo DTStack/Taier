@@ -17,8 +17,8 @@ const Exception: React.FC<IProps> = ({ status, subTitle }) => (
     }}
     subTitle={subTitle}
     extra={
-      <Link to='/'>
-        <Button type='primary'>返回首页</Button>
+      <Link to="/">
+        <Button type="primary">返回首页</Button>
       </Link>
     }
   />
