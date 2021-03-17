@@ -12,8 +12,7 @@ function renderRouteConf(container, router, contextPath) {
   const routeChildren = [];
   const renderRoute = (routeContainer, routeItem, routeContextPath) => {
     let routePath;
-    if (!routeItem.path) {
-    } else if (routeItem.path === '/' || routeItem.path === '*') {
+    if (routeItem.path === '/' || routeItem.path === '*') {
       routePath = routeItem.path;
     } else {
       routePath = `/${routeContextPath}/${routeItem.path}`.replace(/\/+/g, '/');

@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Container from '../components/Container';
 import { Input, Table, message as Message, notification, Pagination, Modal } from 'antd'
-const { Search } = Input;
 import { IModelData } from '../types';
 import { EnumModalActionType } from './types';
 import { columnsGenerator } from './constants';
 import { API } from '@/services';
 import './style';
+const { Search } = Input;
 
 interface IPagination {
   current: number;
@@ -71,7 +71,7 @@ const List = () => {
   // TODO: 文案
   const handleModelAction = useCallback(async (action: IModelAction) => {
     const { type, id } = action;
-    let apiAction, messageConfig, messageActor, msg = { title: '', message: '' };
+    let apiAction; let messageConfig; let messageActor; let msg = { title: '', message: '' };
     switch(type) {
       case EnumModalActionType.DELETE:
         apiAction = API.deleteModel;
