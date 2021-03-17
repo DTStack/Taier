@@ -1,70 +1,68 @@
 import React from 'react';
 import { Table } from 'antd';
 import './style';
+import {
+  relationListColumns,
+  metricListColumns,
+  dimensionListColumns,
+} from './constants';
 
-const dataSource = [
-  {
-    key: '1',
-    name: '胡彦斌',
-    age: 32,
-    address: '西湖区湖底公园1号',
-  },
-  {
-    key: '2',
-    name: '胡彦祖',
-    age: 42,
-    address: '西湖区湖底公园1号',
-  },
-];
 
-const columns = [
-  {
-    title: '姓名',
-    dataIndex: 'name',
-    key: 'name',
-  },
-  {
-    title: '年龄',
-    dataIndex: 'age',
-    key: 'age',
-  },
-  {
-    title: '住址',
-    dataIndex: 'address',
-    key: 'address',
-  },
-];
+interface ITableItem {
+  title: string;
+  columns: any[];
+  dataSource: any[];
+}
 
-const DataInfo = () => {
+const tableList: ITableItem[] = [
+  {
+    title: '关联表',
+    columns: relationListColumns,
+    dataSource: []
+  },
+  {
+    title: '维度',
+    columns: dimensionListColumns,
+    dataSource: []
+  },
+  {
+    title: '度量',
+    columns: metricListColumns,
+    dataSource: []
+  }
+]
+
+interface IPropsDataInfo {
+  relationTableList: any[];
+  dimensionList: any[];
+  metricList: any[];
+}
+
+const DataInfo = (props: IPropsDataInfo) => {
+  const { relationTableList, dimensionList, metricList } = props;
+  const list = [relationTableList, dimensionList, metricList];
+  // 构造tableList参数
+  tableList.forEach((item, index) => {
+    item.dataSource = list[index];
+  });
+
   return (
     <div className="data-info">
-      <div className="title">
-        关联表：
-      </div>
-      <Table
-        className="dt-table-border"
-        columns={columns}
-        dataSource={dataSource}
-        pagination={false}
-      />
-      <div className="title">
-        维度：
-      </div>
-      <Table
-        className="dt-table-border"
-        columns={columns}
-        dataSource={dataSource}
-        pagination={false}
-      />
-      <div className="title">
-        度量：
-      </div>
-      <Table
-        className="dt-table-border"
-        columns={columns}
-        dataSource={dataSource}
-        pagination={false}
-      />
+      {
+        tableList.map(item => (
+          <>
+            <div className="title">
+              {item.title}
+            </div>
+            <Table
+              rowKey={(record, index) => index.toString()}
+              columns={item.columns}
+              dataSource={item.dataSource}
+              pagination={false}
+            />
+          </>
+        ))
+      }
     </div>
   )
 }

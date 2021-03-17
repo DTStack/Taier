@@ -1,30 +1,37 @@
 import React from 'react';
 import './style';
+import { IModalDetail } from '../../types';
 
-const HTable = () => {
+interface IPropsHTable {
+  detail: Partial<IModalDetail>;
+}
+
+// TODO:部分字段缺失，与后端沟通
+const HTable = (props: IPropsHTable) => {
+  const { detail } = props;
   return (
     <table className="h-table">
       <tr>
         <td className="label">模型名称</td>
-        <td className="value">学生成绩表</td>
+        <td className="value">{detail.modelName}</td>
         <td className="label">数据源</td>
-        <td className="value">test-1(MySql)</td>
+        <td className="value">{detail.dsTypeName}</td>
       </tr>
       <tr>
         <td className="label">创建人</td>
-        <td className="value">小李</td>
+        <td className="value">{detail.creator}</td>
         <td className="label">创建时间</td>
-        <td className="value">2020-12-22 17:17:17</td>
+        <td className="value">--</td>
       </tr>
       <tr>
         <td className="label">分区字段（日期）</td>
-        <td className="value">小李</td>
+        <td className="value">--</td>
         <td className="label">分区字段（时间）</td>
-        <td className="value">2020-12-22 17:17:17</td>
+        <td className="value">--</td>
       </tr>
       <tr>
         <td className="label">备注</td>
-        <td className="value" colSpan={3}>2020级学生成绩信息</td>
+        <td className="value" colSpan={3}>{detail.remark}</td>
       </tr>
     </table>
   )

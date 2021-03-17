@@ -1,9 +1,11 @@
-import React from 'react';
-import { Tabs, Table } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Tabs, message as Message } from 'antd';
 import HTable from './HTable';
 import PaneTitle from '../components/PaneTitle';
 import DataInfo from './DataInfo';
+import { API } from '@/services';
 import './style';
+import { IModalDetail } from '../types';
 
 const { TabPane } = Tabs;
 
@@ -13,27 +15,52 @@ interface IPropsDetail {
 
 const Detail = (props: IPropsDetail) => {
   const { modelId } = props;
-  console.log(modelId);
+  const [modelDetail, setModelDetail] = useState<Partial<IModalDetail>>({
+    joinList: [],
+    metricColumns: [],
+    dimensionColumns: [],
+  });
+
+  const getModelDetail = async (id: number) => {
+    try {
+      const { success, data, message } = await API.getModelDetail({ id });
+      if(success) {
+        setModelDetail(data as IModalDetail);
+      } else {
+        Message.error(message);
+      }
+    } catch(error) {
+      Message.error(error.message);
+    }
+  }
+
+  useEffect(() => {
+    getModelDetail(modelId);
+  }, [modelId])
   return (
     <div className="dm-detail">
       <div className="card-container">
         <Tabs type="card">
           <TabPane tab="基本信息" key="1">
             <div className="pane-container">
-              <div style={{ width: '100%', height: '100%', overflow: 'auto' }}>
-                <div className="margin-bottom-20" style={{ marginBottom: '20px' }}>
+              <div className="inner-container">
+                <div className="margin-bottom-20">
                   <PaneTitle title="模型信息" />
-                  <HTable />
+                  <HTable detail={modelDetail} />
                 </div>
 
-                <div className="margin-bottom-20" style={{ marginBottom: '20px' }}>
+                <div className="margin-bottom-20">
                   <PaneTitle title="关联视图" />
                   <div className="releation-view" />
                 </div>
 
-                <div className="margin-bottom-20" style={{ marginBottom: '20px' }}>
+                <div className="margin-bottom-20">
                   <PaneTitle title="数据信息" />
-                  <DataInfo />
+                  <DataInfo
+                    relationTableList={modelDetail.joinList}
+                    metricList={modelDetail.metricColumns}
+                    dimensionList={modelDetail.dimensionColumns}
+                  />
                 </div>
               </div>
             </div>

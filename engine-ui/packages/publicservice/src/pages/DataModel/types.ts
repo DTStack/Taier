@@ -64,6 +64,6 @@ export interface IModalDetail {
     updateType: UPDATA_TYPE;
     joinList: TableJoinInfo[];
     dimensionColumns: [];
-    metriccolumns: [];
+    metricColumns: [];
     creator: string;
 }
