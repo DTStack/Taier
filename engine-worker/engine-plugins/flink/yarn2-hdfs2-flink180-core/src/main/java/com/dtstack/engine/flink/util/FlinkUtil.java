@@ -34,14 +34,15 @@ public class FlinkUtil {
     private static final Logger logger = LoggerFactory.getLogger(FlinkUtil.class);
 
 
-    public static PackagedProgram buildProgram(String fromPath, String localDir, List<URL> classpaths, EJobType jobType,
+    public static PackagedProgram buildProgram(String jarPath, List<URL> classpaths, EJobType jobType,
                                                String entryPointClass, String[] programArgs,
                                                SavepointRestoreSettings spSetting, FilesystemManager filesystemManager,
                                                Configuration configuration)
             throws IOException, ProgramInvocationException {
-        if (fromPath == null) {
+        if (jarPath == null) {
             throw new IllegalArgumentException("The program JAR file was not specified.");
         }
+        File jarFile = new File(jarPath);
 
         String classloaderCache = configuration.getString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, ClassLoaderType.CLASSLOADER_DTSTACK_CACHE_TRUE);
         configuration.setString(ClassLoaderType.CLASSLOADER_DTSTACK_CACHE, classloaderCache);
@@ -54,8 +55,6 @@ public class FlinkUtil {
             }
             configuration.setString(CoreOptions.ALWAYS_PARENT_FIRST_LOADER_PATTERNS_ADDITIONAL, dtstackAppend);
         }
-
-        File jarFile = downloadJar(fromPath, localDir, filesystemManager, true);
 
         // Get assembler class
         PackagedProgram program = entryPointClass == null ?
