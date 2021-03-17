@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelection>, RpcService<Config>, Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(AkkaWorkerServerImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AkkaWorkerServerImpl.class);
 
     private int logOutput = 0;
     private final static int MULTIPLES = 30;
@@ -129,13 +129,13 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
             Future<Object> future = Patterns.ask(actorSelection, workerInfo, askTimeout);
             Object result = Await.result(future, askResultTimeout);
             if (LogCountUtil.count(logOutput++, MULTIPLES)) {
-                logger.info("WorkerBeatListener Running result:{},  workerRemotePath:{} gap:[{} ms]...", result, workerRemotePath, CHECK_INTERVAL * MULTIPLES);
+                LOGGER.info("WorkerBeatListener Running result:{},  workerRemotePath:{} gap:[{} ms]...", result, workerRemotePath, CHECK_INTERVAL * MULTIPLES);
             }
         } catch (Throwable e) {
             if (monitorNode != null) {
                 monitorNode.add(actorSelection);
             }
-            logger.error("Can't send WorkerInfo to master actorSelection-path:{}, happens error:", actorSelection.anchorPath(), e);
+            LOGGER.error("Can't send WorkerInfo to master actorSelection-path:{}, happens error:", actorSelection.anchorPath(), e);
             masterActorSelection = null;
         }
     }
@@ -155,7 +155,7 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
                 if (hostInfo.length == 2) {
                     String masterRemotePath = AkkaConfig.getMasterPath(hostInfo[0], hostInfo[1]);
                     masterActorSelection = this.actorSystem.actorSelection(masterRemotePath);
-                    logger.info("get an ActorSelection of masterRemotePath:{}", masterActorSelection.anchorPath());
+                    LOGGER.info("get an ActorSelection of masterRemotePath:{}", masterActorSelection.anchorPath());
                 }
             }
         } else {
@@ -187,8 +187,8 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
         @Override
         public void run() {
             try {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("availableNodes--->{},disableNodes---->{}", availableNodes, disableNodes);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("availableNodes--->{},disableNodes---->{}", availableNodes, disableNodes);
                 }
                 if (disableNodes.size() > 0) {
                     Iterator<String> iterators = disableNodes.iterator();
@@ -202,7 +202,7 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
                     }
                 }
             } catch (Exception e) {
-                logger.error("", e);
+                LOGGER.error("", e);
             }
         }
 
@@ -215,7 +215,7 @@ public class AkkaWorkerServerImpl implements WorkerServer<WorkerInfo, ActorSelec
         }
 
         public void printNodes() {
-            logger.info("worker nodes detail, availableNodes:{} disableNodes:{}", availableNodes, disableNodes);
+            LOGGER.info("worker nodes detail, availableNodes:{} disableNodes:{}", availableNodes, disableNodes);
         }
 
         public Set<String> getAvailableNodes() {

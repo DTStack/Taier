@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 @Service
 public class LoginService {
 
-    private static Logger logger = LoggerFactory.getLogger(LoginService.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(LoginService.class);
 
 
     public void login(DtUicUser dtUicUser, String token, Consumer<UserDTO> resultHandler) {
@@ -26,7 +26,7 @@ public class LoginService {
                 return;
             }
             boolean isRootUser = Optional.ofNullable(dtUicUser.getRootOnly()).orElse(false);
-            logger.info("dtUic userId [{}] userName {} tenantId {} is Root {} login", dtUicUser.getUserId(), dtUicUser.getUserName(), dtUicUser.getTenantId(), isRootUser);
+            LOGGER.info("dtUic userId [{}] userName {} tenantId {} is Root {} login", dtUicUser.getUserId(), dtUicUser.getUserName(), dtUicUser.getTenantId(), isRootUser);
             UserDTO userDTO = new UserDTO();
             userDTO.setDtuicUserId(dtUicUser.getUserId());
             userDTO.setTenantId(dtUicUser.getTenantId());
@@ -34,7 +34,7 @@ public class LoginService {
             userDTO.setRootUser(isRootUser ? 1 : 0);
             resultHandler.accept(userDTO);
         } catch (Throwable e) {
-            logger.error("login fail:", e);
+            LOGGER.error("login fail:", e);
             throw e;
         }
     }

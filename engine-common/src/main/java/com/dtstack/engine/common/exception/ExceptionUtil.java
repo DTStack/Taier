@@ -15,7 +15,7 @@ import org.slf4j.Logger;
  */
 public class ExceptionUtil {
 
-    private static Logger logger = LoggerFactory.getLogger(ExceptionUtil.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(ExceptionUtil.class);
 
     /**
      * 获取错误的堆栈信息

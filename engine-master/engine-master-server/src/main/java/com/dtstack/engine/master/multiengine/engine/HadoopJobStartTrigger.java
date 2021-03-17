@@ -60,7 +60,7 @@ import java.util.*;
 @Service
 public class HadoopJobStartTrigger extends JobStartTriggerBase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HadoopJobStartTrigger.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HadoopJobStartTrigger.class);
 
     @Autowired
     private JobParamReplace jobParamReplace;
@@ -197,7 +197,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             launchCmd = jobParamReplace.paramReplace(launchCmd, taskParamsToReplace, scheduleJob.getCycTime());
             //替换参数 base64 生成launchCmd
             taskExeArgs = taskExeArgs.replace(TaskConstant.LAUNCH, Base64Util.baseEncode(launchCmd));
-            LOG.info(" replaceTaskExeArgs job {} exeArgs {} ", scheduleJob.getJobId(), taskExeArgs);
+            LOGGER.info(" replaceTaskExeArgs job {} exeArgs {} ", scheduleJob.getJobId(), taskExeArgs);
         }
         actionParam.put("exeArgs", taskExeArgs);
     }
@@ -220,7 +220,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         //替换参数 base64 生成launchCmd
         String launchString = Base64Util.baseEncode(launchCmd.replace(TaskConstant.FILE_NAME, fileName));
         taskExeArgs = exeArgs.replace(TaskConstant.LAUNCH, launchString);
-        LOG.info(" TensorFlow job {} fileName {} exeArgs {} ", scheduleJob.getJobId(), fileName, taskExeArgs);
+        LOGGER.info(" TensorFlow job {} fileName {} exeArgs {} ", scheduleJob.getJobId(), fileName, taskExeArgs);
         return taskExeArgs;
     }
 
@@ -235,7 +235,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
      */
     private String replaceSyncJobString(Map<String, Object> actionParam, ScheduleTaskShade taskShade, ScheduleJob scheduleJob, List<ScheduleTaskParamShade> taskParamsToReplace, String job) {
         if (StringUtils.isBlank(job)) {
-            throw new RdosDefineException("数据同步信息不能为空");
+            throw new RdosDefineException("Data synchronization information cannot be empty");
         }
 
         //替换系统参数
@@ -250,14 +250,14 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         try {
             job = this.replaceTablePath(true, job, taskShade.getName(), dirtyDataSourceType, engineIdentity,taskShade.getDtuicTenantId());
         } catch (Exception e) {
-            LOG.error("create dirty table  partition error {}", scheduleJob.getJobId(), e);
+            LOGGER.error("create dirty table  partition error {}", scheduleJob.getJobId(), e);
         }
 
         try {
             // 创建数据同步目标表分区
             job = this.createPartition(taskShade.getDtuicTenantId(), job, sourceType, actionParam);
         } catch (Exception e) {
-            LOG.error("create partition error {}", scheduleJob.getJobId(), e);
+            LOGGER.error("create partition error {}", scheduleJob.getJobId(), e);
             throw e;
         }
 
@@ -397,7 +397,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             String sql = String.format("alter table %s add if not exists partition (%s)", table, partition);
             try {
                 RetryUtil.executeWithRetry(() -> {
-                    LOG.info("create partition dtuicTenantId {} {}", dtuicTenantId, sql);
+                    LOGGER.info("create partition dtuicTenantId {} {}", dtuicTenantId, sql);
                     JSONObject pluginInfo = buildDataSourcePluginInfo(parameter.getJSONObject("hadoopConfig"), sourceType, username, password, jdbcUrl);
                     String realDataBase =  pluginInfo.getString("realDataBase");
                     workerOperator.executeQuery(DataSourceType.getBaseType(sourceType).getTypeName(),pluginInfo.toJSONString(),sql, null != realDataBase ? realDataBase : "");
@@ -405,7 +405,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     return null;
                 }, environmentContext.getRetryFrequency(), environmentContext.getRetryInterval(), false, null);
             } catch (Exception e) {
-                LOG.error("create partition error:", e);
+                LOGGER.error("create partition error:", e);
                 throw new RdosDefineException("create partition error:" + ExceptionUtil.getErrorMessage(e));
             }
         }
@@ -453,20 +453,20 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             pluginInfo.put(ConfigConstant.OPEN_KERBEROS, Boolean.TRUE.toString());
             String remoteDir = hadoopConfig.getString(ConfigConstant.REMOTE_DIR);
             if(StringUtils.isBlank(remoteDir)){
-                throw new RdosDefineException("数据同步hadoopConfig remoteDir 字段不能为空");
+                throw new RdosDefineException(" data synchronization task hadoopConfig remoteDir field cannot be empty");
             }
             pluginInfo.put(ConfigConstant.REMOTE_DIR,remoteDir);
 
             String principalFile = hadoopConfig.getString(ConfigConstant.PRINCIPAL_FILE);
             if(StringUtils.isBlank(principalFile)){
-                throw new RdosDefineException("数据同步hadoopConfig principalFile 字段不能为空");
+                throw new RdosDefineException(" data synchronization hadoopConfig principalFile field cannot be empty");
             }
             pluginInfo.put(ConfigConstant.PRINCIPAL_FILE,principalFile);
             pluginInfo.putIfAbsent(ConfigConstant.PRINCIPAL,hadoopConfig.getString(ConfigConstant.PRINCIPAL));
 
             JSONObject sftpConf = hadoopConfig.getJSONObject(EComponentType.SFTP.getConfName());
             if (null == sftpConf || sftpConf.size() <= 0) {
-                throw new RdosDefineException("数据同步hadoopConfig sftpConf 字段不能为空");
+                throw new RdosDefineException(" data synchronization hadoopConfig sftpConf field cannot be empty");
             }
             pluginInfo.put(EComponentType.SFTP.getConfName(), sftpConf);
             //krb5.conf的文件名
@@ -500,12 +500,12 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 Object increCol = JSONPath.eval(reader, "$.parameter.increColumn");
                 if (null != increCol && null != job.getExecStartTime() && null != job.getExecEndTime()) {
                     String lastEndLocation = this.queryLastLocation(dtuicTenantId, job.getEngineJobId(), job.getExecStartTime().getTime(), job.getExecEndTime().getTime(), taskparams, job.getComputeType(), jobId);
-                    LOG.info("job {} last job {} applicationId {} startTime {} endTime {} location {}", job, job.getJobId(), job.getEngineJobId(), job.getExecStartTime(), job.getExecEndTime(), lastEndLocation);
+                    LOGGER.info("job {} last job {} applicationId {} startTime {} endTime {} location {}", job, job.getJobId(), job.getEngineJobId(), job.getExecStartTime(), job.getExecEndTime(), lastEndLocation);
                     reader.getJSONObject("parameter").put("startLocation", lastEndLocation);
                 }
 
             } catch (Exception e) {
-                LOG.error("get sync job {} lastSyncLocation error ", job.getJobId(), e);
+                LOGGER.error("get sync job {} lastSyncLocation error ", job.getJobId(), e);
             }
         }
 
@@ -526,13 +526,13 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
             JSONObject flinkConfig = flinkJsonObject.getJSONObject(eDeployMode.getMode());
             String prometheusHost = flinkConfig.getString("prometheusHost");
             String prometheusPort = flinkConfig.getString("prometheusPort");
-            LOG.info("last job {} deployMode {} prometheus host {} port {}", jobId, eDeployMode.getType(), prometheusHost, prometheusPort);
+            LOGGER.info("last job {} deployMode {} prometheus host {} port {}", jobId, eDeployMode.getType(), prometheusHost, prometheusPort);
             //prometheus的配置信息 从控制台获取
             PrometheusMetricQuery prometheusMetricQuery = new PrometheusMetricQuery(String.format("%s:%s", prometheusHost, prometheusPort));
             IMetric numReadMetric = MetricBuilder.buildMetric("endLocation", engineJobId, startTime, endTime, prometheusMetricQuery);
             if (numReadMetric != null) {
                 String startLocation = String.valueOf(numReadMetric.getMetric());
-                LOG.info("job {} deployMode {} startLocation [{}]", jobId, eDeployMode.getType(),startLocation);
+                LOGGER.info("job {} deployMode {} startLocation [{}]", jobId, eDeployMode.getType(),startLocation);
                 if (StringUtils.isEmpty(startLocation) || "0".equalsIgnoreCase(startLocation)) {
                     return null;
                 }
@@ -577,7 +577,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
         }
 
         String savepointPath = flinkConf.getString(KEY_SAVEPOINT);
-        LOG.info("savepoint path:{}", savepointPath);
+        LOGGER.info("savepoint path:{}", savepointPath);
 
         if (StringUtils.isEmpty(savepointPath)) {
             throw new RdosDefineException("savepoint path can not be null");
@@ -649,7 +649,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 return hdfsUploadPath;
             }
         } catch (Exception e) {
-            LOG.error("", e);
+            LOGGER.error("", e);
             throw new RdosDefineException("Update task to HDFS failure:" + e.getMessage());
         }
         throw new RdosDefineException("Update task to HDFS failure:");

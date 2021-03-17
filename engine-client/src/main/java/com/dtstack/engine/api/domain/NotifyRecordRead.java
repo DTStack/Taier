@@ -2,6 +2,11 @@ package com.dtstack.engine.api.domain;
 
 public class NotifyRecordRead extends TenantProjectEntity {
     private Integer appType;
+
+    /**
+     * 已经作废，如果要使用直接使用id
+     */
+    @Deprecated
     private Long notifyRecordId;
     private Long contentId;
     private Long userId;

@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 
 public class UnitConvertUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(UnitConvertUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UnitConvertUtil.class);
 
     private static final Pattern capacityPattern = Pattern.compile("(\\d+)\\s*([a-zA-Z]{1,2})");
 
@@ -41,10 +41,10 @@ public class UnitConvertUtil {
                 Double mbNum = MathUtil.getDoubleVal(num) / 1024;
                 return mbNum.intValue();
             }else{
-                logger.error("can not convert memStr:" + memStr +", return default 512.");
+                LOGGER.error("can not convert memStr:" + memStr +", return default 512.");
             }
         }else{
-            logger.error("can not convert memStr:" + memStr +", return default 512.");
+            LOGGER.error("can not convert memStr:" + memStr +", return default 512.");
         }
 
         return 512;

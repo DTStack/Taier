@@ -13,12 +13,12 @@ import org.slf4j.LoggerFactory;
 
 public class CronStrUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(CronStrUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CronStrUtil.class);
 
     public static String getDayStr(String str){
         String[] arr = str.split("\\s+");
         if(arr.length < 6){
-            logger.error("it is an illegal cron string");
+            LOGGER.error("it is an illegal cron string");
             return null;
         }
 
@@ -28,7 +28,7 @@ public class CronStrUtil {
     public static String getDayOfWeekStr(String str){
         String[] arr = str.split("\\s+");
         if(arr.length < 6){
-            logger.error("it is an illegal cron string");
+            LOGGER.error("it is an illegal cron string");
             return null;
         }
 

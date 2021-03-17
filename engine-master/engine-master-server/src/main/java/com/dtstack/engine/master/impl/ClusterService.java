@@ -9,18 +9,13 @@ import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamAction;
 import com.dtstack.engine.api.vo.*;
 import com.dtstack.engine.common.constrant.ConfigConstant;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.EComponentScheduleType;
-import com.dtstack.engine.common.enums.EDeployMode;
-import com.dtstack.engine.common.enums.EngineType;
-import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.EngineAssert;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.dao.*;
-import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.enums.EngineTypeComponentType;
 import com.dtstack.engine.master.router.login.DtUicUserConnect;
 import com.dtstack.schedule.common.enums.DataSourceType;
@@ -47,8 +42,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.dtstack.engine.common.constrant.ConfigConstant.MERGE_KRB5_CONTENT_KEY;
 import static com.dtstack.engine.common.constrant.ConfigConstant.LDAP_USER_NAME;
+import static com.dtstack.engine.common.constrant.ConfigConstant.MERGE_KRB5_CONTENT_KEY;
 import static com.dtstack.engine.master.impl.ComponentService.TYPE_NAME;
 import static java.lang.String.format;
 
@@ -623,7 +618,7 @@ public class ClusterService implements InitializingBean {
     private void buildHiveVersion(ClusterVO clusterVO, JSONObject pluginInfo) {
         Component hiveServer = componentDao.getByClusterIdAndComponentType(clusterVO.getId(), EComponentType.HIVE_SERVER.getTypeCode());
         if (null == hiveServer) {
-            throw new RdosDefineException("hive组件不能为空");
+            throw new RdosDefineException("hive component cannot be empty");
         }
         String jdbcUrl = pluginInfo.getString("jdbcUrl");
         //%s替换成默认的 供插件使用
@@ -656,11 +651,11 @@ public class ClusterService implements InitializingBean {
         }
         JSONObject flinkConf = clusterConfigJson.getJSONObject(type.getComponentType().getConfName());
         if(null == flinkConf || flinkConf.size() == 0){
-            throw new RdosDefineException("flink配置信息为空");
+            throw new RdosDefineException("Flink configuration information is empty");
         }
         pluginInfo = flinkConf.getJSONObject(deploy.getMode());
         if (Objects.isNull(pluginInfo)) {
-            throw new RdosDefineException(String.format("对应模式【%s】未配置信息", deploy.name()));
+            throw new RdosDefineException(String.format("Corresponding mode [%s] no information is configured", deploy.name()));
         }
         String typeName = flinkConf.getString(TYPE_NAME);
         if (!StringUtils.isBlank(typeName)) {
@@ -763,7 +758,7 @@ public class ClusterService implements InitializingBean {
             componentType = EComponentType.PRESTO_SQL;
         }
         if (componentType == null) {
-            throw new RdosDefineException("不支持的数据源类型");
+            throw new RdosDefineException("Unsupported data source type");
         }
         //优先绑定账号
         String jdbcInfo = getConfigByKey(dtUicTenantId, componentType.getConfName(), false);
@@ -794,14 +789,14 @@ public class ClusterService implements InitializingBean {
      */
     public void deleteCluster(Long clusterId){
         if(null == clusterId){
-            throw new RdosDefineException("集群不能为空");
+            throw new RdosDefineException("Cluster cannot be empty");
         }
         Cluster cluster = clusterDao.getOne(clusterId);
         if(null == cluster){
-            throw new RdosDefineException("集群不存在");
+            throw new RdosDefineException("Cluster does not exist");
         }
         if(DEFAULT_CLUSTER_ID.equals(clusterId)){
-            throw new RdosDefineException("默认集群不能删除");
+            throw new RdosDefineException("The default cluster cannot be deleted");
         }
         List<Long> engineIds = null;
         List<Engine> engines = engineDao.listByClusterId(clusterId);
@@ -813,7 +808,7 @@ public class ClusterService implements InitializingBean {
             engineTenants = engineTenantDao.listByEngineIds(engineIds);
         }
         if(CollectionUtils.isNotEmpty(engineTenants)){
-            throw new RdosDefineException(String.format("集群下%s有租户，无法删除",cluster.getClusterName()));
+            throw new RdosDefineException(String.format("Cluster %s has tenants and cannot be deleted",cluster.getClusterName()));
         }
         clusterDao.deleteCluster(clusterId);
     }
@@ -948,7 +943,7 @@ public class ClusterService implements InitializingBean {
 
     public Boolean isSameCluster(Long dtUicTenantId, List<Long> dtUicTenantIds) {
         if (dtUicTenantId ==null) {
-            throw new RdosDefineException("租户id不能为null");
+            throw new RdosDefineException("The tenant id cannot be null");
         }
 
         if (CollectionUtils.isEmpty(dtUicTenantIds)) {

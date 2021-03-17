@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  * @Description:
  */
 public class JobCompletedLogDelayDealer implements Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(JobCompletedLogDelayDealer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobCompletedLogDelayDealer.class);
 
     private ApplicationContext applicationContext;
     private ScheduleJobDao scheduleJobDao;
@@ -45,7 +45,7 @@ public class JobCompletedLogDelayDealer implements Runnable {
                 JobCompletedInfo taskInfo = delayBlockingQueue.take();
                 updateJobEngineLog(taskInfo.getJobId(), taskInfo.getJobIdentifier());
             } catch (Exception e) {
-                logger.error("", e);
+                LOGGER.error("", e);
             }
         }
     }
@@ -54,7 +54,7 @@ public class JobCompletedLogDelayDealer implements Runnable {
         try {
             delayBlockingQueue.put(taskInfo);
         } catch (InterruptedException e) {
-            logger.error("", e);
+            LOGGER.error("", e);
         }
     }
 
@@ -66,7 +66,7 @@ public class JobCompletedLogDelayDealer implements Runnable {
             }
         } catch (Throwable e) {
             String errorLog = ExceptionUtil.getErrorMessage(e);
-            logger.error("update JobEngine Log error jobId:{} ,error info {}..", jobId, errorLog);
+            LOGGER.error("update JobEngine Log error jobId:{} ,error info {}..", jobId, errorLog);
             scheduleJobDao.updateEngineLog(jobId, errorLog);
         }
     }

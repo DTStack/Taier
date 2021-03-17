@@ -34,7 +34,7 @@ import java.util.*;
 @Component
 public class ZkService implements InitializingBean, DisposableBean {
 
-    private static final Logger logger = LoggerFactory.getLogger(ZkService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZkService.class);
 
     private final static String HEART_NODE = "heart";
     private final static String WORKER_NODE = "workers";
@@ -66,7 +66,7 @@ public class ZkService implements InitializingBean, DisposableBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        logger.info("Initializing " + this.getClass().getName());
+        LOGGER.info("Initializing " + this.getClass().getName());
 
         initConfig();
         checkDistributedConfig();
@@ -88,7 +88,7 @@ public class ZkService implements InitializingBean, DisposableBean {
                 .connectionTimeoutMs(3000)
                 .sessionTimeoutMs(30000).build();
         this.zkClient.start();
-        logger.warn("connector zk success...");
+        LOGGER.warn("connector zk success...");
     }
 
     private void zkRegistration() throws Exception {
@@ -98,7 +98,7 @@ public class ZkService implements InitializingBean, DisposableBean {
         createNodeIfNotExists(this.workersNode, new HashSet<>());
         createLocalBrokerHeartNode();
         initScheduledExecutorService();
-        logger.warn("init zk server success...");
+        LOGGER.warn("init zk server success...");
     }
 
     private void initScheduledExecutorService() throws Exception {
@@ -127,7 +127,7 @@ public class ZkService implements InitializingBean, DisposableBean {
             zkClient.setData().forPath(nodePath,
                     objectMapper.writeValueAsBytes(target));
         } catch (Exception e) {
-            logger.error("{}:updateSynchronizedBrokerHeartNode error:", nodePath, e);
+            LOGGER.error("{}:updateSynchronizedBrokerHeartNode error:", nodePath, e);
         }
     }
 
@@ -161,7 +161,7 @@ public class ZkService implements InitializingBean, DisposableBean {
             return objectMapper.readValue(zkClient.getData()
                     .forPath(nodePath), BrokerHeartNode.class);
         } catch (Exception e) {
-            logger.error("{}:getBrokerHeartNode error:", node, e);
+            LOGGER.error("{}:getBrokerHeartNode error:", node, e);
         }
         return BrokerHeartNode.initNullBrokerHeartNode();
     }
@@ -170,7 +170,7 @@ public class ZkService implements InitializingBean, DisposableBean {
         try {
             return zkClient.getChildren().forPath(this.brokersNode);
         } catch (Exception e) {
-            logger.error("getBrokersChildren error:", e);
+            LOGGER.error("getBrokersChildren error:", e);
         }
         return Lists.newArrayList();
     }
@@ -189,7 +189,7 @@ public class ZkService implements InitializingBean, DisposableBean {
             }
 
         } catch (Exception e) {
-            logger.error("getBrokersChildren error:", e);
+            LOGGER.error("getBrokersChildren error:", e);
         }
         return alives;
     }
@@ -203,7 +203,7 @@ public class ZkService implements InitializingBean, DisposableBean {
                 List<Map<String, Object>> workerNode = objectMapper.readValue(zkClient.getData().forPath(nodePath), ArrayList.class);
                 allWorkers.addAll(workerNode);
             } catch (Exception e) {
-                logger.error("", e);
+                LOGGER.error("", e);
             }
         }
         return allWorkers;
@@ -214,7 +214,7 @@ public class ZkService implements InitializingBean, DisposableBean {
         try {
             zkClient.setData().forPath(nodePath, objectMapper.writeValueAsBytes(workerData));
         } catch (Exception e) {
-            logger.error("{}:updateBrokerWorkersNode error:", nodePath, e);
+            LOGGER.error("{}:updateBrokerWorkersNode error:", nodePath, e);
         }
     }
 
@@ -236,9 +236,9 @@ public class ZkService implements InitializingBean, DisposableBean {
         for (Listener listener : listeners) {
             try {
                 listener.close();
-                logger.info("close {}", listener.getClass().getSimpleName());
+                LOGGER.info("close {}", listener.getClass().getSimpleName());
             } catch (Exception e) {
-                logger.error("{}", e);
+                LOGGER.error("", e);
             }
         }
     }
