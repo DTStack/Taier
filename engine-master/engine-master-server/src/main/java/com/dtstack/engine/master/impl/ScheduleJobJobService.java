@@ -274,7 +274,7 @@ public class ScheduleJobJobService {
         for (ScheduleJobJobTaskDTO jobJob : jobJobs) {
             String jobKeyRelation = jobJob.getParentJobKey()+"-"+jobJob.getJobKey();
             if(jobKeyRelations.contains(jobKeyRelation)){
-                LOGGER.error("该工作实例成环了,jobKeyRelation:{}",jobKeyRelation);
+                LOGGER.error("check task has loopped,jobKeyRelation:{}",jobKeyRelation);
                 return true;
             }
             jobKeyRelations.add(jobKeyRelation);

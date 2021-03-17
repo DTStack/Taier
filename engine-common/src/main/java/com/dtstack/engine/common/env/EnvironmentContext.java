@@ -530,5 +530,4 @@ public class EnvironmentContext {
     public Integer getMaxPoolPreparedStatementPerConnectionSize() {
         return Integer.valueOf(environment.getProperty("dataSource.max.prepared.statement.per.connection.size", "20"));
     }
-
 }

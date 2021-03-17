@@ -468,12 +468,12 @@ public class AccountService {
         //检查同租户下用户是否已被绑定
         Account one = accountDao.getOne(tenant.getId(), user.getId(), accountType, null);
         if ( null != one ) {
-            throw new RdosDefineException("User"+ user.getUserName() + "is bound");
+            throw new RdosDefineException("User "+ user.getUserName() + "is bound");
         }
         //检查同租户下用户名是否被绑定
         Account exit = accountDao.getOne(tenant.getId(), null, accountType, accountVo.getName());
         if ( null != exit ) {
-            throw new RdosDefineException("User"+ accountVo.getName() + "is bound");
+            throw new RdosDefineException("User "+ accountVo.getName() + "is bound");
         }
 
     }

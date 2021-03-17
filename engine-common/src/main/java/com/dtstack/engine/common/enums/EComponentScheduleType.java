@@ -1,6 +1,5 @@
 package com.dtstack.engine.common.enums;
 
-
 /**
  * @author yuebai
  * @date 2020-05-11

@@ -699,7 +699,6 @@ public class JobGraphBuilder {
             } catch (Exception e) {
                 //FIXME 如果解析失败该任务是加入到队列里面还是提示直接不管该task
                 LOGGER.error("parse task" + pTask.getId() + " error", e);
-                continue;
             }
         }
         return jobKeyList;

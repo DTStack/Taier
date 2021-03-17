@@ -15,6 +15,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.config.MvcConfig;
 import com.dtstack.engine.master.event.SftpDownloadEvent;
 import com.dtstack.engine.master.impl.AlertChannelService;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.utils.CheckUtils;
 import com.dtstack.lang.data.R;
