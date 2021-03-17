@@ -50,7 +50,7 @@ interface TableJoinInfo {
     updateType: UPDATA_TYPE,
     joinPairs: JoinKey[];
   }
-export interface IModalDetail {
+export interface IModelDetail {
     id: number;
     modelName: string;
     modelEnName: string;

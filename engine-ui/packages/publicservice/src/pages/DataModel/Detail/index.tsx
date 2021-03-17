@@ -5,7 +5,7 @@ import PaneTitle from '../components/PaneTitle';
 import DataInfo from './DataInfo';
 import { API } from '@/services';
 import './style';
-import { IModalDetail } from '../types';
+import { IModelDetail } from '../types';
 
 const { TabPane } = Tabs;
 
@@ -15,7 +15,7 @@ interface IPropsDetail {
 
 const Detail = (props: IPropsDetail) => {
   const { modelId } = props;
-  const [modelDetail, setModelDetail] = useState<Partial<IModalDetail>>({
+  const [modelDetail, setModelDetail] = useState<Partial<IModelDetail>>({
     joinList: [],
     metricColumns: [],
     dimensionColumns: [],
@@ -25,7 +25,7 @@ const Detail = (props: IPropsDetail) => {
     try {
       const { success, data, message } = await API.getModelDetail({ id });
       if(success) {
-        setModelDetail(data as IModalDetail);
+        setModelDetail(data as IModelDetail);
       } else {
         Message.error(message);
       }

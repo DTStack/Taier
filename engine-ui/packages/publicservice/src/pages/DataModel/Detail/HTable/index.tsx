@@ -1,9 +1,9 @@
 import React from 'react';
 import './style';
-import { IModalDetail } from '../../types';
+import { IModelDetail } from '../../types';
 
 interface IPropsHTable {
-  detail: Partial<IModalDetail>;
+  detail: Partial<IModelDetail>;
 }
 
 // TODO:部分字段缺失，与后端沟通
