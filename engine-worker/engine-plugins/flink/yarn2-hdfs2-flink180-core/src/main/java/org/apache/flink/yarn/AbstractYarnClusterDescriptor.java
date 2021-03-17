@@ -455,7 +455,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
     }
 
     private boolean isSecurityEnabled() {
-        return flinkConfiguration.getBoolean("openKerberos", false);
+        return flinkConfiguration.getBoolean(ConfigConstrant.OPEN_KERBEROS_KEY, false);
     }
 
     /**
