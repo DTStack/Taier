@@ -142,15 +142,13 @@ public class BatchFlowWorkJobService {
             updateJob.setExecEndTime(new Timestamp(System.currentTimeMillis()));
             updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
             batchJobService.updateStatusWithExecTime(updateJob);
-            // 判断自身是否是失败强规则任务，如果是强规则任务
-//            if (TaskRuleEnum.STRONG_RULE.getCode().equals(scheduleBatchJob.getScheduleJob().getTaskRule())) {
-//                // 自身是强规则任务，判断父节点是否是失败状态
-//
-//            }
-
         } else {
             //更新工作流状态
             batchJobService.updateStatusByJobId(jobId, bottleStatus,null);
+        }
+
+        if (TaskRuleEnum.STRONG_RULE.getCode().equals(scheduleBatchJob.getScheduleJob().getTaskRule())) {
+            
         }
 
         Long id = scheduleBatchJob.getId();
