@@ -1,42 +1,34 @@
-/*
- * @Author: 云乐
- * @Date: 2021-03-10 14:32:56
- * @LastEditTime: 2021-03-16 16:08:41
- * @LastEditors: 云乐
- * @Description: 数据源列表展示
- */
-
 import React, { useEffect, useState } from "react";
 import Search from "./components/Search";
-import { Table, message, Modal, notification } from "antd";
+import { Table, message, Modal, notification, Pagination } from "antd";
 import { columns } from "./constants";
-import PaginationCom from "@/components/PaginationCom";
 import { API } from "@/services";
-import AuthSel from "./components/AuthSel";
-import { remove } from "../utils/remove";
+import AuthSelect from "./components/AuthSelect";
+import { remove } from "../utils/handelSession";
+import { IPagination, IOther, IRecord } from "./type";
 import "./style.scss";
 
 function index() {
   const [dataSources, setDataSources] = useState([]);
-  const [params, setParams] = useState({
+  const [params, setParams] = useState<IPagination>({
     current: 1, //当前页码
     size: 20, //分页个数
   });
-  const [other, setOther] = useState({
+  const [other, setOther] = useState<IOther>({
     search: "",
     dataType: null,
     appType: null,
     isMeta: 0,
     status: null,
   });
-  const [total, setTotal] = useState(null);
+  const [total, setTotal] = useState<number>(null);
 
-  const [visible, setVisible] = useState(false);
-  const [record, setRecord] = useState({
+  const [visible, setVisible] = useState<boolean>(false);
+  const [record, setRecord] = useState<IRecord>({
     dataInfoId: null,
     isAuth: null,
   });
-  const [checkedValues, setcheckedValues] = useState([]);
+  const [checkedValues, setcheckedValues] = useState<number[]>([]);
 
   //获取表格数据
   const requestTableData = async (query?: any) => {
@@ -60,7 +52,7 @@ function index() {
         setDataSources(data.contentList);
       }
     } catch (error) {
-      notification["error"]({
+      notification.error({
         message: "错误！",
         description: "获取数据源分类类目列表失败",
       });
@@ -76,7 +68,6 @@ function index() {
 
   //编辑
   const toEdit = (record, event) => {
-    event.stopPropagation();
     if (record.isMeta === 1) {
       message.info("带meta标识的数据源不能编辑、删除");
     } else {
@@ -97,7 +88,7 @@ function index() {
         message.success("删除成功");
         requestTableData(); //更新表格
       } else {
-        notification["error"]({
+        notification.error({
           message: "错误！",
           description: `${msg}`,
         });
@@ -148,20 +139,24 @@ function index() {
       if (success) {
         message.success("产品授权成功");
         requestTableData(); //更新表格
-      } else {
-        notification["error"]({
-          message: "错误！",
-          description: "产品授权失败",
-        });
       }
     } catch (error) {
-      notification["error"]({
+      notification.error({
         message: "错误！",
         description: "产品授权失败",
       });
     }
 
     setVisible(false);
+  };
+
+  const showTotal = () => {
+    return (
+      <span>
+        共 <i style={{ color: "#3F87FF" }}>{total}</i> 条数据，每页显示
+        {params.size}条
+      </span>
+    );
   };
 
   return (
@@ -189,11 +184,16 @@ function index() {
             onChange={handleTableChange}
           />
         </div>
-        <PaginationCom
-          onChangePage={onChangePage}
-          params={params}
-          total={total}
-        />
+        <div className="page-com">
+          <Pagination
+            size="small"
+            total={total}
+            showTotal={showTotal}
+            onChange={(page) => onChangePage(page)}
+            defaultPageSize={params.size}
+            current={params.current}
+          />
+        </div>
       </div>
 
       {visible && (
@@ -205,7 +205,7 @@ function index() {
             setVisible(false);
           }}
         >
-          <AuthSel record={record} oncheck={oncheck}></AuthSel>
+          <AuthSelect record={record} oncheck={oncheck}></AuthSelect>
         </Modal>
       )}
     </div>

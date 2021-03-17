@@ -1,13 +1,7 @@
-/*
- * @Author: 云乐
- * @Date: 2021-03-12 11:50:04
- * @LastEditTime: 2021-03-16 18:32:53
- * @LastEditors: 云乐
- * @Description: 产品授权
- */
 import React, { useEffect, useState } from "react";
 import { Select, Checkbox, Row, Col, notification } from "antd";
 import { API } from "@/services";
+import { getSaveStatus } from "../utils/handelSession";
 
 const { Option } = Select;
 
@@ -26,7 +20,8 @@ export default function ProduceAuth() {
 
   //根据数据源类型获取版本列表
   const queryDsVersionByType = async () => {
-    let type = JSON.parse(sessionStorage.getItem("sqlType"))?.dataType || "";
+    let saveStatus = getSaveStatus();
+    let type = saveStatus.sqlType?.dataType || "";
 
     try {
       let { data, success } = await API.queryDsVersionByType({
@@ -50,8 +45,7 @@ export default function ProduceAuth() {
         setVersion(data || []);
 
         if (data.length > 0) {
-          let echoVersion =
-            sessionStorage.getItem("version") || data[0].dataVersion;
+          let echoVersion = saveStatus.version || data[0].dataVersion;
 
           setDefaultSelect(echoVersion);
           getauthProductList(type, echoVersion);
@@ -60,7 +54,7 @@ export default function ProduceAuth() {
         }
       }
     } catch (error) {
-      notification["error"]({
+      notification.error({
         message: "错误！",
         description: "根据数据源类型获取版本列表失败",
       });
@@ -90,17 +84,11 @@ export default function ProduceAuth() {
         }
       );
 
-      let echoCheckedList = sessionStorage.getItem("checkdList");
-      if (ver === sessionStorage.getItem("version")) {
-        setCheckdList(JSON.parse(echoCheckedList));
-      }
-
       if (success) {
         setProduceList(data);
-        console.log('data: ', data);
       }
     } catch (error) {
-      notification["error"]({
+      notification.error({
         message: "错误！",
         description: "获取产品授权列表失败",
       });
@@ -108,8 +96,6 @@ export default function ProduceAuth() {
   };
 
   useEffect(() => {
-    setSqlType(JSON.parse(sessionStorage.getItem("sqlType")) || sqlType);
-
     queryDsVersionByType();
   }, []);
 
@@ -124,6 +110,7 @@ export default function ProduceAuth() {
   //获取产品授权的列表
   const oncheck = (prolist) => {
     setCheckdList(prolist);
+
     sessionStorage.setItem("checkdList", prolist);
   };
 

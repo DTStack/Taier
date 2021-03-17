@@ -1,10 +1,3 @@
-/*
- * @Author: 云乐
- * @Date: 2021-03-10 15:07:33
- * @LastEditTime: 2021-03-16 15:11:23
- * @LastEditors: 云乐
- * @Description: 数据源列表--列
- */
 import React from "react";
 import { Divider, Popconfirm, Icon, Tag, Badge, message } from "antd";
 import "./style.scss";

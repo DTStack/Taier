@@ -1,12 +1,3 @@
-/*
- * @Author: 云乐
- * @Date: 2021-03-11 10:14:44
- * @LastEditTime: 2021-03-16 12:34:48
- * @LastEditors: 云乐
- * @Description: 和数栈搜索保持一致
- * placeholder, width, onSearch
- */
-
 import React, { useState } from "react";
 import { Input, Icon } from "antd";
 

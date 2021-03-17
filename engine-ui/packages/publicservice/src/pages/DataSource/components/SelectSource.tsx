@@ -1,14 +1,8 @@
-/*
- * @Author: 云乐
- * @Date: 2021-03-12 11:48:32
- * @LastEditTime: 2021-03-16 17:45:42
- * @LastEditors: 云乐
- * @Description: 选择数据源
- */
 import React, { useEffect, useState } from "react";
 import SearchInput from "@/components/SearchInput";
 import { Menu, List, notification } from "antd";
 import { API } from "@/services";
+import { getSaveStatus } from "../utils/handelSession";
 
 export default function SelectSource(props) {
   const { nextType } = props;
@@ -18,20 +12,21 @@ export default function SelectSource(props) {
   const [defaultMenu, setDefaultMenu] = useState(null);
 
   const getClassifyList = async () => {
+    let saveStatus = getSaveStatus()
     try {
       let { data, success } = await API.queryDsClassifyList();
 
       if (success) {
-        let echoCurrent =
-          sessionStorage.getItem("current") || data[0].classifyId;
+        let echoCurrent = saveStatus.menuSelected || data[0].classifyId;
+
         setList(data || []); //左侧菜单列表
         setCurrent(echoCurrent); //左侧菜单列表选择的id
         setDefaultMenu(data[0].classifyId); //左侧菜单全部选项id
 
-        queryDsTypeByClassify(echoCurrent);
+        queryDsTypeByClassify(echoCurrent,"",saveStatus.sqlType?.typeId);
       }
     } catch (error) {
-      notification["error"]({
+      notification.error({
         message: "错误！",
         description: "获取数据源分类类目列表失败",
       });
@@ -40,9 +35,10 @@ export default function SelectSource(props) {
 
   const queryDsTypeByClassify = async (
     classifyId: number,
-    search: string = ""
+    search: string = "",
+    echoTypeId?:string
   ) => {
-    let echoTypeId = JSON.parse(sessionStorage.getItem("sqlType"))?.typeId;
+    // let echoTypeId = saveStatus.sqlType?.typeId;
     try {
       let { data, success } = await API.queryDsTypeByClassify({
         classifyId,
@@ -51,16 +47,14 @@ export default function SelectSource(props) {
 
       if (success) {
         data.forEach((ele) => {
-          if (ele.typeId === echoTypeId) {
-            ele.selected = true;
-          } else {
-            ele.selected = false;
-          }
+          ele.selected = ele.typeId === echoTypeId ? true : false;
+          ele.imgUrl = window.location.origin + "/assets/imgs/" + ele.imgUrl;
         });
+
         setIconList(data || []);
       }
     } catch (error) {
-      notification["error"]({
+      notification.error({
         message: "错误！",
         description: "根据分类获取数据源类型失败",
       });
@@ -68,6 +62,7 @@ export default function SelectSource(props) {
   };
 
   useEffect(() => {
+    // setSaveStatus(getSaveStatus()); //获取存储信息
     getClassifyList(); //获取数据源分类类目列表
   }, []);
 
@@ -135,7 +130,7 @@ export default function SelectSource(props) {
                 <List.Item onClick={() => onSelectType(item)}>
                   <div>
                     <img
-                      // src={item.imgUrl}
+                      src={item.imgUrl}
                       alt="图片显示失败"
                       className={item.selected ? "selected" : ""}
                     />

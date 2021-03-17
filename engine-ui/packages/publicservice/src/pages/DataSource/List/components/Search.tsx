@@ -38,9 +38,9 @@ function Search(props) {
         setTypeList(data);
       }
     } catch (error) {
-      notification["error"]({
+      notification.error({
         message: "错误！",
-        description: "获取类型下拉框失败",
+        description: "获取类型下拉框失败。",
       });
     }
   };
@@ -56,7 +56,7 @@ function Search(props) {
         setProductList(data);
       }
     } catch (error) {
-      notification["error"]({
+      notification.error({
         message: "错误！",
         description: "获取授权产品下拉框失败",
       });
@@ -75,11 +75,9 @@ function Search(props) {
 
   //类型多选方法
   const onMultType = (value) => {
-    if (value.length > 0 && value.includes("全部")) {
-      onSearch({ dataType: null });
-    } else {
-      onSearch({ dataType: value });
-    }
+    value.includes("全部")
+      ? onSearch({ dataType: null })
+      : onSearch({ dataType: value });
   };
   //类型多选方法
   const onMultAppType = (value) => {

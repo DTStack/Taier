@@ -1,23 +1,17 @@
-/*
- * @Author: 云乐
- * @Date: 2021-03-11 17:43:45
- * @LastEditTime: 2021-03-16 15:20:01
- * @LastEditors: 云乐
- * @Description: 选择授权页面
- */
 import React, { useEffect, useState } from "react";
+import { Checkbox, Row, Col, notification } from "antd";
 import { API } from "@/services";
-import { Checkbox, Row, Col, notification, message } from "antd";
 interface IProps {
   record: {
     dataInfoId: number;
   };
   oncheck(checkedValues: string): void;
 }
+
 export default function AuthSel(props: IProps) {
   let { record, oncheck } = props;
-  const [authList, setauthList] = useState([]);
-  const [checkedlist, setcheckedlist] = useState([]);
+  const [authList, setAuthList] = useState([]);
+  const [checkedList, setCheckedList] = useState([]);
 
   //获取产品授权列表
   const getauthProductList = async () => {
@@ -28,14 +22,16 @@ export default function AuthSel(props: IProps) {
       if (data.length > 0) {
         data.forEach((item) => {
           if (item.isAuth === 1) {
-            checkedlist.push(item.appType);
+            let newList = checkedList;
+            newList.push(item.appType);
+            setCheckedList(newList);
           }
         });
 
-        setauthList(data);
+        setAuthList(data);
       }
     } catch (error) {
-      notification["error"]({
+      notification.error({
         message: "错误！",
         description: "获取产品授权列表失败",
       });
@@ -48,7 +44,7 @@ export default function AuthSel(props: IProps) {
 
   const onChange = (checkedValues) => {
     oncheck(checkedValues);
-    setcheckedlist(checkedValues);
+    setCheckedList(checkedValues);
   };
 
   return (
@@ -58,7 +54,7 @@ export default function AuthSel(props: IProps) {
       <Checkbox.Group
         style={{ width: "100%" }}
         onChange={onChange}
-        value={checkedlist}
+        value={checkedList}
       >
         <Row>
           {authList.length > 0 &&
@@ -67,7 +63,7 @@ export default function AuthSel(props: IProps) {
                 span={8}
                 onClick={() => {
                   if (item.isAuth === 1) {
-                    notification["error"]({
+                    notification.error({
                       message: "错误！",
                       description: "已在产品中应用，不能取消授权。",
                     });
