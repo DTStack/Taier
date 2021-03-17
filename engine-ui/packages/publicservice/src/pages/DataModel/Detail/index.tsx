@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Tabs, message as Message, Spin } from 'antd';
+import { Tabs, Spin } from 'antd';
 import HTable from './HTable';
 import PaneTitle from '../components/PaneTitle';
 import DataInfo from './DataInfo';
 import { API } from '@/services';
+import Message from 'pages/DataModel/components/Message';
 import './style';
 import { IModelDetail } from '../types';
 

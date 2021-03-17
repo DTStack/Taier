@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Container from '../components/Container';
-import { Input, Table, message as Message, notification, Pagination, Modal, Drawer, Button } from 'antd'
+import { Input, Table, Pagination, Modal, Drawer, Button } from 'antd'
 const { Search } = Input;
 import { IModelData } from '../types';
 import { EnumModelActionType } from './types';
 import { columnsGenerator } from './constants';
+import Message from 'pages/DataModel/components/Message';
 import Detail from '../Detail';
 import { API } from '@/services';
 import './style';
@@ -74,72 +75,43 @@ const List = () => {
     }
   }
 
-  // TODO: 文案
+  // TODO: icon,toast位置
   const handleModelAction = useCallback(async (action: IModelAction) => {
     const { type, id } = action;
-    let apiAction, messageConfig, messageActor, msg = { title: '', message: '' };
+    let apiAction, msg;
     switch(type) {
       case EnumModelActionType.DELETE:
         apiAction = API.deleteModel;
-        messageConfig = ({ message }) => {
-          return {
-            content: message,
-          }
-        }
-        msg = {
-          title: '',
-          message: '模型删除成功'
-        }
-        messageActor = Message;
+        msg = '模型删除成功'
         break;
       case EnumModelActionType.RELEASE:
         apiAction = API.releaseModel;
-        messageConfig = ({ title, message }) => {
-          return {
-            message: title,
-            description: message,
-          }
-        }
-        msg = {
-          title: '模型发布成功',
-          message: ''
-        }
-        messageActor = notification;
+        msg = '发布成功'
         break;
       case EnumModelActionType.UNRELEASE:
         apiAction = API.unreleaseModel;
-        messageConfig = ({ title, message }) => {
-          return {
-            message: title,
-            description: message,
-          }
-        }
-        msg = {
-          title: '模型下线成功',
-          message: ''
-        }
-        messageActor = notification;
+        msg = '下线成功';
         break;
     }
 
     try {
       const { success, message } = await apiAction({ id });
       if(success) {
-        messageActor.success(messageConfig(msg));
+        Message.success(msg);
       } else {
-        messageActor.error(messageConfig({ message }))
+        Message.error(message);
       }
     } catch(error) {
-      messageActor.error(messageConfig({ message: error.message }));
+      Message.error(error.message);
     }
   }, [])
 
   // 删除按钮点击事件处理，二次确认弹窗
   const handleDeleteBtnClick = (id) => {
-    // TODO: 提示文案待修改
+    // TODO: icon待替换
     Modal.confirm({
-      title: '确认删除吗',
-      content: 'aaaaa',
+      title: '确认要删除这条模型？',
+      content: '删除后，已经引用该模型的数据将不可用！',
       onOk() {
         handleModelAction({
           type: EnumModelActionType.DELETE,
