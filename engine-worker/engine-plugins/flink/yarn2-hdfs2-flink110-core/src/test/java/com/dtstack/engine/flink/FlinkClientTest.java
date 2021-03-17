@@ -1,5 +1,6 @@
 package com.dtstack.engine.flink;
 
+import com.dtstack.engine.api.pojo.CheckResult;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.JobIdentifier;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
@@ -8,14 +9,18 @@ import com.dtstack.engine.common.pojo.JobResult;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.flink.factory.AbstractClientFactory;
 import com.dtstack.engine.flink.factory.PerJobClientFactory;
+import com.dtstack.engine.flink.plugininfo.SqlPluginInfo;
 import com.dtstack.engine.flink.util.FileUtil;
 import com.dtstack.engine.flink.util.FlinkConfUtil;
 import com.dtstack.engine.flink.util.FlinkUtil;
 import com.dtstack.engine.flink.util.HadoopConf;
 import com.google.common.collect.Maps;
 import org.apache.flink.client.program.ClusterClient;
+import org.apache.flink.client.program.PackagedProgram;
+import org.apache.flink.client.program.PackagedProgramUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HistoryServerOptions;
+import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
@@ -37,7 +42,9 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -56,7 +63,8 @@ import static org.mockito.Mockito.when;
         FlinkClusterClientManager.class, PoolHttpClient.class,
         FileSystem.class, FileUtil.class, PublicUtil.class,
         FlinkConfUtil.class, FlinkUtil.class, PerJobClientFactory.class,
-        AbstractClientFactory.class, FlinkClient.class})
+        AbstractClientFactory.class, FlinkClient.class, PackagedProgram.class,
+        PackagedProgramUtils.class})
 @PowerMockIgnore("javax.net.ssl.*")
 public class FlinkClientTest {
 
@@ -211,5 +219,42 @@ public class FlinkClientTest {
         RdosTaskStatus jobStatus2 = flinkClient.getJobStatus(jobIdentifier);
         Assert.assertNotNull(jobStatus2);
     }*/
+
+    @Test
+    public void testGrammarCheck() throws Exception {
+        MemberModifier.field(FlinkClient.class, "cacheFile")
+                .set(flinkClient, Maps.newConcurrentMap());
+
+        String sqlPluginRootDir = temporaryFolder.newFolder("sqlPluginDir").getAbsolutePath();
+        temporaryFolder.newFolder("sqlPluginDir", "sqlplugin");
+        temporaryFolder.newFile("sqlPluginDir/sqlplugin/core-test.jar").getAbsolutePath();
+        FlinkConfig flinkConfig = new FlinkConfig();
+        flinkConfig.setFlinkPluginRoot(sqlPluginRootDir);
+        SqlPluginInfo sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
+        MemberModifier.field(FlinkClient.class, "sqlPluginInfo").set(flinkClient, sqlPluginInfo);
+
+        PowerMockito.mockStatic(PackagedProgram.class);
+        PackagedProgram.Builder builder = PowerMockito.mock(PackagedProgram.Builder.class);
+        when(PackagedProgram.newBuilder()).thenReturn(builder);
+        PackagedProgram packagedProgram = PowerMockito.mock(PackagedProgram.class);
+        when(builder.setJarFile(any(File.class))).thenReturn(builder);
+        when(builder.setUserClassPaths(any(List.class))).thenReturn(builder);
+        when(builder.setConfiguration(any(Configuration.class))).thenReturn(builder);
+        when(builder.setArguments(any())).thenReturn(builder);
+        when(builder.build()).thenReturn(packagedProgram);
+
+        Configuration configuration = new Configuration();
+        when(flinkClientBuilder.getFlinkConfiguration()).thenReturn(configuration);
+
+        PowerMockito.mockStatic(PackagedProgramUtils.class);
+        when(PackagedProgramUtils.createJobGraph(any(PackagedProgram.class), any(Configuration.class), any(int.class), any(boolean.class))).thenReturn(PowerMockito.mock(JobGraph.class));
+
+        String absolutePath = temporaryFolder.newFile("core-flinksql.jar").getAbsolutePath();
+        String sqlText = "CREATE TABLE MyTable ( id int, name varchar )  WITH (topicIsPattern = 'false', updateMode = 'append', bootstrapServers = 'dtstack01:9092', timezone = 'Asia/Shanghai', parallelism = '1', topic = 'grammar', type = 'kafka11', enableKeyPartitions = 'false', offsetReset = 'latest');  CREATE TABLE MyResult ( id INT, name VARCHAR )  WITH (type = 'console');  INSERT INTO MyResult SELECT a.id, a.name FROM MyTable a;";
+        JobClient jobClient = YarnMockUtil.mockJobClient("perJob", sqlText, absolutePath);
+
+        CheckResult checkResult = flinkClient.grammarCheck(jobClient);
+        Assert.assertTrue(checkResult.isResult() == true);
+    }
 
 }

@@ -2,10 +2,15 @@ package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.domain.EngineJobCheckpoint;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.pojo.CheckResult;
+import com.dtstack.engine.api.pojo.ParamActionExt;
 import com.dtstack.engine.master.impl.StreamTaskService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import com.dtstack.engine.master.router.DtRequestParam;
@@ -26,6 +31,13 @@ public class StreamTaskController {
     public List<EngineJobCheckpoint> getCheckPoint(@DtRequestParam("taskId") String taskId, @DtRequestParam("triggerStart") Long triggerStart, @DtRequestParam("triggerEnd") Long triggerEnd) {
         return streamTaskService.getCheckPoint(taskId, triggerStart, triggerEnd);
     }
+
+    @RequestMapping(value="/getFailedCheckPoint", method = {RequestMethod.POST})
+    @ApiOperation(value = "查询生成失败的checkPoint")
+    public List<EngineJobCheckpoint> getFailedCheckPoint(@DtRequestParam("taskId") String taskId, @DtRequestParam("triggerStart") Long triggerStart, @DtRequestParam("triggerEnd") Long triggerEnd, @DtRequestParam("size") Integer size) {
+        return streamTaskService.getFailedCheckPoint(taskId, triggerStart, triggerEnd, size);
+    }
+
 
     @RequestMapping(value="/getSavePoint", method = {RequestMethod.POST})
     @ApiOperation(value = "查询savePoint")
@@ -61,4 +73,14 @@ public class StreamTaskController {
     public List<String> getRunningTaskLogUrl(@DtRequestParam("taskId") String taskId) {
         return streamTaskService.getRunningTaskLogUrl(taskId);
     }
+
+    @RequestMapping(value="/grammarCheck", method = {RequestMethod.POST})
+    @ApiOperation(value = "语法检测")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="paramActionExt",value="语法检测相关参数信息",required=true, paramType="body", dataType = "ParamActionExt")
+    })
+    public CheckResult grammarCheck(@RequestBody ParamActionExt paramActionExt) {
+        return streamTaskService.grammarCheck(paramActionExt);
+    }
+
 }

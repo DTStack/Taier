@@ -21,7 +21,6 @@ package org.apache.flink.yarn;
 import avro.shaded.com.google.common.collect.Sets;
 import com.dtstack.engine.base.enums.ClassLoaderType;
 import com.dtstack.engine.base.util.HadoopConfTool;
-import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import com.google.common.base.Strings;
@@ -155,9 +154,6 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
 
     private boolean detached;
 
-    /** dt type of flink job*/
-    private EJobType jobType;
-
     private String customName;
 
     private String zookeeperNamespace;
@@ -255,18 +251,6 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                         + " Currently only file:/// URLs are supported.");
             }
         }
-    }
-
-    public EJobType getJobType() {
-        return jobType;
-    }
-
-    /**
-     * set current flink job's dt jobType eg: SQL、MR、SYNC...
-     * @param jobType
-     */
-    public void setJobType(EJobType jobType) {
-        this.jobType = jobType;
     }
 
     public String getDynamicPropertiesEncoded() {
@@ -576,7 +560,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
     }
 
     private JobGraph getJobGraph(String appId,ClusterSpecification clusterSpecification) throws Exception{
-        String url = getUrlFormat(clusterSpecification) + "/" + appId;
+        String url = getUrlFormat(clusterSpecification.getYarnConfiguration()) + "/" + appId;
         LOG.info("AppId is {}, MonitorUrl is {}", appId, url);
         PackagedProgram program = buildProgram(url, clusterSpecification);
         clusterSpecification.setProgram(program);
@@ -646,8 +630,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         return program;
     }
 
-    private String getUrlFormat(ClusterSpecification clusterSpecification){
-        YarnConfiguration yarnConf = clusterSpecification.getYarnConfiguration();
+    private String getUrlFormat(YarnConfiguration yarnConf){
         try{
             Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
             rmClientField.setAccessible(true);
@@ -689,11 +672,9 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         }catch (Exception e){
             LOG.error("get proxyDescriptor error: {}", e);
             String  addr = yarnConf.get("yarn.resourcemanager.webapp.address");
-            if (addr == null && EJobType.SYNC == jobType) {
-                throw new YarnDeploymentException("Couldn't get rm web app address. " +
-                        "it's required when batch job run on per_job mode. " +
-                        "Please check rm web address whether be confituration.");
-            }
+//            if (addr == null) {
+//                throw new YarnDeploymentException("Couldn't get rm web app address.Please check rm web address whether be confituration.");
+//            }
             return String.format("http://%s/proxy",addr);
         }
     }
@@ -1020,7 +1001,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 clusterSpecification.getTaskManagerMemoryMB());
 
 
-        File tmpFileDir =  new File(System.getProperty("user.dir") + File.separator + "tmp180");
+        File tmpFileDir =  new File(ConfigConstrant.TMP_DIR);
         if (!tmpFileDir.exists()) {
             tmpFileDir.mkdirs();
         }
@@ -1080,34 +1061,41 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
             }
         }
 
-        File tmpConfigurationFile = File.createTempFile(appId + "-flink-conf.yaml", null , tmpFileDir);
-        BootstrapTools.writeConfiguration(configuration, tmpConfigurationFile);
+        File tmpConfigurationFile = null;
+        try {
+            tmpConfigurationFile = File.createTempFile(appId + "-flink-conf.yaml", null , tmpFileDir);
+            BootstrapTools.writeConfiguration(configuration, tmpConfigurationFile);
 
-        // Upload the flink configuration
-        // write out configuration file
-        String flinkConfigKey = "flink-conf.yaml";
-        Path remotePathConf = setupSingleLocalResource(
-                flinkConfigKey,
-                fs,
-                appId,
-                new Path(tmpConfigurationFile.getAbsolutePath()),
-                localResources,
-                homeDir,
-                "");
-        envShipFileList.append(flinkConfigKey).append("=").append(remotePathConf).append(",");
+            // Upload the flink configuration
+            // write out configuration file
+            String flinkConfigKey = "flink-conf.yaml";
+            Path remotePathConf = setupSingleLocalResource(
+                    flinkConfigKey,
+                    fs,
+                    appId,
+                    new Path(tmpConfigurationFile.getAbsolutePath()),
+                    localResources,
+                    homeDir,
+                    "");
+            envShipFileList.append(flinkConfigKey).append("=").append(remotePathConf).append(",");
 
-        paths.add(remotePathJar);
-        classPathBuilder.append("flink.jar").append(File.pathSeparator);
-        paths.add(remotePathConf);
-        classPathBuilder.append("flink-conf.yaml").append(File.pathSeparator);
+            paths.add(remotePathJar);
+            classPathBuilder.append("flink.jar").append(File.pathSeparator);
+            paths.add(remotePathConf);
+            classPathBuilder.append("flink-conf.yaml").append(File.pathSeparator);
+        } finally {
+            if (tmpConfigurationFile != null && !tmpConfigurationFile.delete()) {
+                LOG.warn("Fail to delete temporary file {}.", tmpConfigurationFile.toPath());
+            }
+        }
 
         // write job graph to tmp file and add it to local resource
         // TODO: server use user main method to generate job graph
         if (jobGraph != null) {
+            File tmpJobGraphFile = null;
             try {
-                File fp = File.createTempFile(appId.toString(), null, tmpFileDir);
-                fp.deleteOnExit();
-                try (FileOutputStream output = new FileOutputStream(fp);
+                tmpJobGraphFile = File.createTempFile(appId.toString(), null, tmpFileDir);
+                try (FileOutputStream output = new FileOutputStream(tmpJobGraphFile);
                      ObjectOutputStream obOutput = new ObjectOutputStream(output);){
                     obOutput.writeObject(jobGraph);
                 }
@@ -1116,7 +1104,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                         "job.graph",
                         fs,
                         appId,
-                        new Path(fp.toURI()),
+                        new Path(tmpJobGraphFile.toURI()),
                         localResources,
                         homeDir,
                         "");
@@ -1125,6 +1113,10 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
             } catch (Exception e) {
                 LOG.warn("Add job graph to local resource fail");
                 throw e;
+            } finally {
+                if (tmpJobGraphFile != null && !tmpJobGraphFile.delete()) {
+                    LOG.warn("Fail to delete temporary file {}.", tmpJobGraphFile.toPath());
+                }
             }
         }
 
