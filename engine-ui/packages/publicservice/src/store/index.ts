@@ -8,7 +8,7 @@ import appReducer from '@/pages/global';
 // const middlewares = [thunk.withExtraArgument({ API, URL })];
 
 const store = createStore(
-  combineReducers({ ...appReducer }),
+  combineReducers({ ...appReducer })
   // process.env.NODE_ENV == 'production'
   //   ? applyMiddleware(...middlewares)
   //   : composeWithDevTools(applyMiddleware(...middlewares))
