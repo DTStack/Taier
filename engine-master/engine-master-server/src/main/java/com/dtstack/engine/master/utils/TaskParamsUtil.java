@@ -17,7 +17,7 @@ import java.util.Properties;
  */
 public class TaskParamsUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(TaskParamsUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskParamsUtil.class);
 
     /**
      * 除了flink任务有perjob和session之分外，
@@ -55,7 +55,7 @@ public class TaskParamsUtil {
                 }
             }
         } catch (Exception e) {
-            logger.error(" parseDeployTypeByTaskParams {} error", taskParams, e);
+            LOGGER.error(" parseDeployTypeByTaskParams {} error", taskParams, e);
         }
         if (ComputeType.STREAM.getType().equals(computeType)) {
             return EDeployMode.PERJOB;

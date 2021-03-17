@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -21,7 +20,7 @@ import java.util.Date;
 
 public class JobResult implements Serializable {
 
-    private static final Logger logger = LoggerFactory.getLogger(JobResult.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobResult.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -111,7 +110,7 @@ public class JobResult implements Serializable {
             json.put(key, value);
             return true;
         }catch (Exception e){
-            logger.error("", e);
+            LOGGER.error("", e);
             return false;
         }
     }

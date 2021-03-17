@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  */
 public class  JobStatusDealer implements Runnable {
 
-    private final static Logger logger = LoggerFactory.getLogger(JobStatusDealer.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(JobStatusDealer.class);
 
     /**
      * 最大允许查询不到任务信息的次数--超过这个次数任务会被设置为CANCELED
@@ -86,8 +86,8 @@ public class  JobStatusDealer implements Runnable {
     @Override
     public void run() {
         try {
-            if (logger.isDebugEnabled() && LogCountUtil.count(logOutput++, MULTIPLES)) {
-                logger.debug("jobResource:{} start again gap:[{} ms]...", jobResource, INTERVAL * MULTIPLES);
+            if (LOGGER.isDebugEnabled() && LogCountUtil.count(logOutput++, MULTIPLES)) {
+                LOGGER.debug("jobResource:{} start again gap:[{} ms]...", jobResource, INTERVAL * MULTIPLES);
             }
 
             List<Map.Entry<String, Integer>> jobs = new ArrayList<>(shardManager.getShard().entrySet());
@@ -104,17 +104,17 @@ public class  JobStatusDealer implements Runnable {
                     buildSemaphore.acquire();
                     taskStatusPool.submit(() -> {
                         try {
-                            logger.info("jobId:{} before dealJob status:{}", job.getKey(), job.getValue());
+                            LOGGER.info("jobId:{} before dealJob status:{}", job.getKey(), job.getValue());
                             dealJob(job.getKey());
                         } catch (Throwable e) {
-                            logger.error("jobId:{}", job.getKey(), e);
+                            LOGGER.error("jobId:{}", job.getKey(), e);
                         } finally {
                             buildSemaphore.release();
                             ctl.countDown();
                         }
                     });
                 } catch (Throwable e) {
-                    logger.error("jobId:{} [acquire pool error]:",job.getKey(), e);
+                    LOGGER.error("jobId:{} [acquire pool error]:",job.getKey(), e);
                     buildSemaphore.release();
                     ctl.countDown();
                 }
@@ -122,7 +122,7 @@ public class  JobStatusDealer implements Runnable {
             ctl.await();
 
         } catch (Throwable e) {
-            logger.error("jobResource:{} run error:", jobResource, e);
+            LOGGER.error("jobResource:{} run error:", jobResource, e);
         }
     }
 
@@ -148,7 +148,7 @@ public class  JobStatusDealer implements Runnable {
             }
 
             engineJobCacheDao.delete(jobId);
-            logger.info("jobId:{} set job finished, status:{}, scheduleJob is {} null, engineJobCache is {} null, engineJobId is {} blank.",
+            LOGGER.info("jobId:{} set job finished, status:{}, scheduleJob is {} null, engineJobCache is {} null, engineJobId is {} blank.",
                     jobId, status, scheduleJob == null ? "" : "not", engineJobCache == null ? "" : "not", engineJobId == null ? "" : "not");
         } else {
             String engineTaskId = scheduleJob.getEngineJobId();
@@ -162,7 +162,7 @@ public class  JobStatusDealer implements Runnable {
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
 
-            logger.info("------ jobId:{} dealJob status:{}", jobId, rdosTaskStatus);
+            LOGGER.info("------ jobId:{} dealJob status:{}", jobId, rdosTaskStatus);
 
             if (rdosTaskStatus != null) {
 
@@ -171,7 +171,7 @@ public class  JobStatusDealer implements Runnable {
                 // 重试状态 先不更新状态
                 boolean isRestart = jobRestartDealer.checkAndRestart(status, scheduleJob,engineJobCache);
                 if (isRestart) {
-                    logger.info("----- jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
+                    LOGGER.info("----- jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
                     return;
                 }
 
@@ -188,14 +188,14 @@ public class  JobStatusDealer implements Runnable {
                     jobLogDelayDealer(jobId, jobIdentifier, engineType, engineJobCache.getComputeType(),scheduleJob.getType());
                     jobStatusFrequency.remove(jobId);
                     engineJobCacheDao.delete(jobId);
-                    logger.info("------ jobId:{} is stop status {} delete jobCache", jobId, status);
+                    LOGGER.info("------ jobId:{} is stop status {} delete jobCache", jobId, status);
                 }
 
                 if (RdosTaskStatus.RUNNING.getStatus().equals(status) && EngineType.isFlink(engineType)) {
                     jobCheckpointDealer.addCheckpointTaskForQueue(scheduleJob.getComputeType(), jobId, jobIdentifier, engineType);
                 }
 
-                logger.info("------ jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
+                LOGGER.info("------ jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
             }
         }
     }
@@ -223,7 +223,7 @@ public class  JobStatusDealer implements Runnable {
         //如果状态为NotFound，则对频次进行判断
         if (statusPair.getStatus() == RdosTaskStatus.NOTFOUND.getStatus().intValue()) {
             if (statusPair.getNum() >= NOT_FOUND_LIMIT_TIMES || System.currentTimeMillis() - statusPair.getCreateTime() >= NOT_FOUND_LIMIT_INTERVAL) {
-                logger.info(" job id {}  check not found status had try max , change status to {} ", jobId, RdosTaskStatus.FAILED.getStatus());
+                LOGGER.info(" job id {}  check not found status had try max , change status to {} ", jobId, RdosTaskStatus.FAILED.getStatus());
                 return RdosTaskStatus.FAILED;
             }
         }
@@ -300,7 +300,7 @@ public class  JobStatusDealer implements Runnable {
                 0,
                 jobStatusCheckInterVal,
                 TimeUnit.MILLISECONDS);
-        logger.info("{} thread start ...", jobResource + this.getClass().getSimpleName());
+        LOGGER.info("{} thread start ...", jobResource + this.getClass().getSimpleName());
 
     }
 }

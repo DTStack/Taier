@@ -40,7 +40,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  */
 public class SystemResourcesCounter extends Thread {
 
-	private static final Logger LOG = LoggerFactory.getLogger(SystemResourcesCounter.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SystemResourcesCounter.class);
 
 	private final long probeIntervalMs;
 	private final SystemInfo systemInfo = new SystemInfo();
@@ -102,7 +102,7 @@ public class SystemResourcesCounter extends Thread {
 			}
 		} catch (InterruptedException e) {
 			if (running) {
-				LOG.warn("{} has failed", SystemResourcesCounter.class.getSimpleName(), e);
+				LOGGER.warn("{} has failed", SystemResourcesCounter.class.getSimpleName(), e);
 			}
 		}
 	}

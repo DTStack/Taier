@@ -75,9 +75,6 @@ public class TenantService {
     private ClusterDao clusterDao;
 
     @Autowired
-    private ClusterService clusterService;
-
-    @Autowired
     private ComponentService componentService;
 
     @Autowired
@@ -90,12 +87,12 @@ public class TenantService {
                                                        int currentPage){
         Cluster cluster = clusterDao.getOne(clusterId);
         if(cluster == null){
-            throw new RdosDefineException("集群不存在", ErrorCode.DATA_NOT_FIND);
+            throw new RdosDefineException("Cluster does not exist", ErrorCode.DATA_NOT_FIND);
         }
 
         Engine engine = engineDao.getByClusterIdAndEngineType(clusterId, engineType);
         if(engine == null){
-            throw new RdosDefineException("引擎不存在", ErrorCode.DATA_NOT_FIND);
+            throw new RdosDefineException("Engine does not exist", ErrorCode.DATA_NOT_FIND);
         }
 
         tenantName = tenantName == null ? "" : tenantName;
@@ -204,11 +201,11 @@ public class TenantService {
     public void bindingTenant( Long dtUicTenantId,  Long clusterId,
                                Long queueId,  String dtToken,String namespace) throws Exception {
         Cluster cluster = clusterDao.getOne(clusterId);
-        EngineAssert.assertTrue(cluster != null, "集群不存在", ErrorCode.DATA_NOT_FIND);
+        EngineAssert.assertTrue(cluster != null, "Cluster does not exist", ErrorCode.DATA_NOT_FIND);
 
         Tenant tenant = getTenant(dtUicTenantId, dtToken);
         checkTenantBindStatus(tenant.getId());
-        checkClusterCanUse(clusterId);
+        checkClusterCanUse(cluster.getClusterName());
 
 
         List<Engine> engineList = engineDao.listByClusterId(clusterId);
@@ -229,14 +226,13 @@ public class TenantService {
     private void checkTenantBindStatus(Long tenantId) {
         List<Long> engineIdList = engineTenantDao.listEngineIdByTenantId(tenantId);
         if (CollectionUtils.isNotEmpty(engineIdList)) {
-            throw new RdosDefineException("该租户已经被绑定");
+            throw new RdosDefineException("The tenant has been bound");
         }
     }
 
 
-    public void checkClusterCanUse(Long clusterId) throws Exception {
-        Cluster cluster = clusterDao.getOne(clusterId);
-        List<ComponentTestResult> testConnectionVO = componentService.testConnects(cluster.getClusterName());
+    public void checkClusterCanUse(String clusterName) throws Exception {
+        List<ComponentTestResult> testConnectionVO = componentService.testConnects(clusterName);
         boolean canUse = true;
         StringBuilder msg = new StringBuilder();
         msg.append("此集群不可用,测试连通性为通过：\n");
@@ -296,7 +292,7 @@ public class TenantService {
     public Tenant addTenant(Long dtUicTenantId, String dtToken){
         UserTenant userTenant = getTenantByDtUicTenantId(dtUicTenantId, dtToken);
         if(userTenant == null){
-            throw new RdosDefineException("未查询到租户");
+            throw new RdosDefineException("Tenant not found");
         }
         String tenantName = userTenant.getTenantName();
         String tenantDesc = userTenant.getTenantDesc();
@@ -313,13 +309,13 @@ public class TenantService {
     public void updateTenantQueue(Long tenantId, Long dtUicTenantId, Long engineId, Long queueId){
         Integer childCount = queueDao.countByParentQueueId(queueId);
         if (childCount != 0) {
-            throw new RdosDefineException("所选队列存在子队列，选择正确的子队列", ErrorCode.DATA_NOT_FIND);
+            throw new RdosDefineException("The selected queue has sub-queues, and the correct sub-queues are selected", ErrorCode.DATA_NOT_FIND);
         }
 
         LOGGER.info("switch queue, tenantId:{} queueId:{} engineId:{}",tenantId,queueId,engineId);
         int result = engineTenantDao.updateQueueId(tenantId, engineId, queueId);
         if(result == 0){
-            throw new RdosDefineException("更新引擎队列失败");
+            throw new RdosDefineException("The update engine queue failed");
         }
         //缓存刷新
         consoleCache.publishRemoveMessage(dtUicTenantId.toString());
@@ -333,12 +329,12 @@ public class TenantService {
                               Long dtUicTenantId,String taskTypeResourceJson) {
         com.dtstack.engine.api.domain.Queue queue = queueDao.getOne(queueId);
         if (queue == null) {
-            throw new RdosDefineException("队列不存在", ErrorCode.DATA_NOT_FIND);
+            throw new RdosDefineException("Queue does not exist", ErrorCode.DATA_NOT_FIND);
         }
 
         Long tenantId = tenantDao.getIdByDtUicTenantId(dtUicTenantId);
         if(tenantId == null){
-            throw new RdosDefineException("租户不存在", ErrorCode.DATA_NOT_FIND);
+            throw new RdosDefineException("Tenant does not exist", ErrorCode.DATA_NOT_FIND);
         }
         try {
             //修改租户各个任务资源限制
@@ -347,7 +343,7 @@ public class TenantService {
             updateTenantQueue(tenantId, dtUicTenantId, queue.getEngineId(), queueId);
         } catch (Exception e) {
             LOGGER.error("", e);
-            throw new RdosDefineException("切换队列失败");
+            throw new RdosDefineException("Failed to switch queue");
         }
     }
 
@@ -377,7 +373,7 @@ public class TenantService {
             tenantResource.setTaskType(taskType);
             EScheduleJobType eJobType = EScheduleJobType.getEJobType(taskType);
             if(null == eJobType){
-                throw new RdosDefineException("传入任务类型错误");
+                throw new RdosDefineException("Incoming task type is wrong");
             }else{
                 tenantResource.setEngineType(eJobType.getName());
             }
@@ -401,7 +397,7 @@ public class TenantService {
             return convertTenantResourceToVO(tenantResources);
         } catch (Exception e) {
             LOGGER.error("", e);
-            throw new RdosDefineException("查询失败");
+            throw new RdosDefineException("Query failed");
         }
     }
 
@@ -437,7 +433,7 @@ public class TenantService {
             tenantResource = tenantResourceDao.selectByUicTenantIdAndTaskType(dtUicTenantId, taskType);
         } catch (Exception e) {
             LOGGER.error("", e);
-            throw new RdosDefineException("查找资源限制失败");
+            throw new RdosDefineException("Failed to find resource limit");
         }
         if(null != tenantResource){
             return tenantResource.getResourceLimit();

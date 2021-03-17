@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.dtstack.engine.common.CustomThreadFactory;
-import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.master.failover.FailoverStrategy;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
@@ -25,7 +24,7 @@ import com.google.common.collect.Maps;
  */
 public class HeartBeatCheckListener implements Listener {
 
-    private static final Logger logger = LoggerFactory.getLogger(HeartBeatCheckListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HeartBeatCheckListener.class);
 
     private int logOutput = 0;
     private final static int MULTIPLES = 5;
@@ -69,11 +68,11 @@ public class HeartBeatCheckListener implements Listener {
                 logOutput++;
                 healthCheck();
                 if (LogCountUtil.count(logOutput, MULTIPLES)) {
-                    logger.info("HeartBeatCheckListener start check again...");
+                    LOGGER.info("HeartBeatCheckListener start check again...");
                 }
             }
         } catch (Throwable e) {
-            logger.error("", e);
+            LOGGER.error("", e);
         }
     }
 

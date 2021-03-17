@@ -4,6 +4,7 @@ import com.dtstack.engine.common.CustomThreadFactory;
 import com.dtstack.engine.common.JobClient;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.common.exception.ExceptionUtil;
 import com.dtstack.engine.common.logstore.LogStoreFactory;
 import com.dtstack.engine.common.util.DateUtil;
 import com.google.common.collect.Maps;
@@ -255,7 +256,7 @@ public class RdbsExeQueue {
                 //错误信息更新到日志里面
                 if (LogStoreFactory.getLogStore() != null) {
                     LogStoreFactory.getLogStore().updateErrorLog(engineJobId, String.format("startTime=[%s],endTime=[%s],sql=[%s]\n\r error=[%s]", DateUtil.getDate(start, "yyyyMMdd HH:mm:ss"),
-                            DateUtil.getDate(new Date(), "yyyyMMdd HH:mm:ss"), currentSql, e.toString()));
+                            DateUtil.getDate(new Date(), "yyyyMMdd HH:mm:ss"), currentSql, ExceptionUtil.getErrorMessage(e)));
                 }
             } finally {
 
@@ -362,7 +363,7 @@ public class RdbsExeQueue {
                 LOG.error("job {} execute error",engineJobId, e);
                 //错误信息更新到日志里面
                 if (LogStoreFactory.getLogStore() != null) {
-                    LogStoreFactory.getLogStore().updateErrorLog(engineJobId, e.toString());
+                    LogStoreFactory.getLogStore().updateErrorLog(engineJobId, ExceptionUtil.getErrorMessage(e));
                 }
             } finally {
                 closeDBResources(procCreateStmt, null);

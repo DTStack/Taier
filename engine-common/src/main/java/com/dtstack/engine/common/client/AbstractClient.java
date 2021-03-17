@@ -26,7 +26,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Reason:
@@ -38,7 +37,7 @@ import java.util.Objects;
 
 public abstract class AbstractClient implements IClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractClient.class);
 
     public final static String PLUGIN_DEFAULT_CONFIG_NAME = "default-config.yaml";
 
@@ -58,14 +57,14 @@ public abstract class AbstractClient implements IClient {
             try (InputStream resourceAsStream = !StringUtils.isEmpty(configYaml) ? new FileInputStream(configYaml) :
                     this.getClass().getClassLoader().getResourceAsStream(PLUGIN_DEFAULT_CONFIG_NAME)) {
                 if (null == resourceAsStream) {
-                    logger.info("plugin client default-config.yaml not exist!");
+                    LOGGER.info("plugin client default-config.yaml not exist!");
                     return;
                 }
                 defaultPlugins = new YamlConfigParser().parse(resourceAsStream);
             }
-            logger.info("======= plugin client============{}", defaultPlugins);
+            LOGGER.info("======= plugin client============{}", defaultPlugins);
         } catch (Exception e) {
-            logger.error("plugin client init default config error ", e);
+            LOGGER.error("plugin client init default config error ", e);
         }
     }
 
@@ -81,7 +80,7 @@ public abstract class AbstractClient implements IClient {
                         " you need to set it in(" + StringUtils.join(EJobType.values(), ",") + ")");
             }
         } catch (Exception e) {
-            logger.error("", e);
+            LOGGER.error("", e);
             jobResult = JobResult.createErrorResult(e);
         } finally {
             afterSubmitFunc(jobClient);
@@ -96,7 +95,7 @@ public abstract class AbstractClient implements IClient {
         try {
             status = processJobStatus(jobIdentifier);
         }catch (Exception e) {
-            logger.error("get job status error: {}", e.getMessage());
+            LOGGER.error("get job status error: {}", e.getMessage());
         } finally {
             handleJobStatus(jobIdentifier, status);
         }

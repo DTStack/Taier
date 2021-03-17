@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterServer<Object, String>, RpcService<Config> {
 
-    private static final Logger logger = LoggerFactory.getLogger(AkkaMasterServerImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AkkaMasterServerImpl.class);
 
     private static ObjectMapper objectMapper = new ObjectMapper();
     private final static String TIMESTAMP = "timestamp";
@@ -88,7 +88,7 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
     public void start(Config config) {
         this.actorSystem = AkkaConfig.initActorSystem(config);
         this.masterActorRef = this.actorSystem.actorOf(Props.create(AkkaMasterActor.class), AkkaConfig.getMasterName());
-        logger.info("get an masterActorRef of masterRemotePath:{}", masterActorRef.path());
+        LOGGER.info("get an masterActorRef of masterRemotePath:{}", masterActorRef.path());
     }
 
     @Override
@@ -122,7 +122,7 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
         try {
             updateWorkerInfo();
         } catch (Exception e) {
-            logger.error("updateWorkerActors happens error:", e);
+            LOGGER.error("updateWorkerActors happens error:", e);
         }
     }
 
@@ -133,7 +133,7 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
         try {
             askResult = Await.result(future, askResultTime);
         } catch (Exception e) {
-            logger.error("updateWorkerActors happens error:", e);
+            LOGGER.error("updateWorkerActors happens error:", e);
         }
         if (askResult == null) {
             return;
@@ -160,7 +160,7 @@ public class AkkaMasterServerImpl implements InitializingBean, Runnable, MasterS
         }
         availableWorkers = newWorkers;
         if (LogCountUtil.count(logOutput++, MULTIPLES)) {
-            logger.info("availableWorkers:{} gap:[{} ms]", availableWorkers, CHECK_INTERVAL * MULTIPLES);
+            LOGGER.info("availableWorkers:{} gap:[{} ms]", availableWorkers, CHECK_INTERVAL * MULTIPLES);
         }
     }
 

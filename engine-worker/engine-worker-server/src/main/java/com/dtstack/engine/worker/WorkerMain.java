@@ -13,11 +13,11 @@ import org.slf4j.LoggerFactory;
 
 public class WorkerMain {
 
-    private static final Logger logger = LoggerFactory.getLogger(WorkerMain.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkerMain.class);
 
     public static void main(String[] args){
         try {
-            logger.info("engine-worker start begin...");
+            LOGGER.info("engine-worker start begin...");
             SystemPropertyUtil.setSystemUserDir();
             LogbackComponent.setupLogger();
             Config workerConfig = AkkaConfig.init(ConfigFactory.load());
@@ -26,17 +26,17 @@ public class WorkerMain {
             if (!AkkaConfig.isLocalMode()) {
                 AkkaWorkerServerImpl.getAkkaWorkerServer().start(workerConfig);
             }
-            ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), logger);
+            ShutdownHookUtil.addShutdownHook(WorkerMain::shutdown, WorkerMain.class.getSimpleName(), LOGGER);
             System.setSecurityManager(new NoExitSecurityManager());
-            logger.info("engine-worker start end...");
+            LOGGER.info("engine-worker start end...");
         } catch (Throwable e) {
-            logger.error("engine-worker start error:", e);
+            LOGGER.error("engine-worker start error:", e);
             System.exit(-1);
         }
     }
 
 
     private static void shutdown() {
-        logger.info("WorkerMain is shutdown...");
+        LOGGER.info("WorkerMain is shutdown...");
     }
 }

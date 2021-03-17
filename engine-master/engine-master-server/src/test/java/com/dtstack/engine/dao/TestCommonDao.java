@@ -35,7 +35,10 @@ public interface TestCommonDao {
             "delete from lineage_table_table;"+
             "delete from lineage_table_table_unique_key_ref;"+
             "delete from lineage_column_column;"+
-            "delete from lineage_column_column_unique_key_ref"
-    )
+            "delete from lineage_column_column_unique_key_ref"+
+            "delete from alert_record;"+
+            "delete from alert_content;"+
+            "delete from alert_channel;"+
+            "delete from console_tenant_resource;")
     void truncate();
 }

@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class GroupPriorityQueue {
 
-    private static final Logger logger = LoggerFactory.getLogger(GroupPriorityQueue.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GroupPriorityQueue.class);
 
     private static final int WAIT_INTERVAL = 5000;
 
@@ -56,7 +56,7 @@ public class GroupPriorityQueue {
     public boolean add(JobClient jobClient, boolean judgeBlock, boolean insert) {
         if (judgeBlock) {
             if (isBlocked()) {
-                logger.info("jobId:{} unable add to queue, because queue is blocked.", jobClient.getTaskId());
+                LOGGER.info("jobId:{} unable add to queue, because queue is blocked.", jobClient.getTaskId());
                 return false;
             }
             return addInner(jobClient, insert);
@@ -68,7 +68,7 @@ public class GroupPriorityQueue {
     private boolean addInner(JobClient jobClient, boolean insert) {
         if (this.priorityQueueSize() >= getQueueSizeLimited()) {
             blocked.set(true);
-            logger.info("jobId:{} unable add to queue, because over QueueSizeLimited.", jobClient.getTaskId());
+            LOGGER.info("jobId:{} unable add to queue, because over QueueSizeLimited.", jobClient.getTaskId());
             return false;
         }
         return addRedirect(jobClient, insert);
@@ -76,14 +76,14 @@ public class GroupPriorityQueue {
 
     private boolean addRedirect(JobClient jobClient, boolean insert) {
         if (queue.contains(jobClient)) {
-            logger.info("jobId:{} unable add to queue, because jobId already exist.", jobClient.getTaskId());
+            LOGGER.info("jobId:{} unable add to queue, because jobId already exist.", jobClient.getTaskId());
             return true;
         }
 
         jobDealer.saveCache(jobClient, jobResource, EJobCacheStage.PRIORITY.getStage(), insert);
 
         queue.put(jobClient);
-        logger.info("jobId:{} redirect add job to queue.", jobClient.getTaskId());
+        LOGGER.info("jobId:{} redirect add job to queue.", jobClient.getTaskId());
         return true;
     }
 
@@ -146,21 +146,21 @@ public class GroupPriorityQueue {
                         });
 
                         boolean addInner = this.addInner(jobClient, false);
-                        logger.info("jobId:{} load from db, {} emit job to queue.", jobClient.getTaskId(), addInner ? "success" : "failed");
+                        LOGGER.info("jobId:{} load from db, {} emit job to queue.", jobClient.getTaskId(), addInner ? "success" : "failed");
                         if (!addInner) {
                             empty = false;
                             break outLoop;
                         }
                         startId = jobCache.getId();
                     } catch (Exception e) {
-                        logger.error("", e);
+                        LOGGER.error("", e);
                         //数据转换异常--打日志
                         jobDealer.dealSubmitFailJob(jobCache.getJobId(), "This task stores information exception and cannot be converted." + e.toString());
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("emitJob2PriorityQueue localAddress:{} error:", localAddress, e);
+            LOGGER.error("emitJob2PriorityQueue localAddress:{} error:", localAddress, e);
         }
         if (empty) {
             blocked.set(false);
@@ -191,7 +191,7 @@ public class GroupPriorityQueue {
 
                 emitJob2PriorityQueue();
             } catch (Exception e) {
-                logger.error("AcquireGroupQueueJob localAddress:{} error:",  environmentContext.getLocalAddress(), e);
+                LOGGER.error("AcquireGroupQueueJob localAddress:{} error:",  environmentContext.getLocalAddress(), e);
             }
         }
     }

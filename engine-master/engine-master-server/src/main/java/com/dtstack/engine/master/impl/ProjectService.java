@@ -6,8 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-
 /**
  * @author yuebai
  * @date 2020-01-19
@@ -15,7 +13,7 @@ import java.util.Objects;
 @Service
 public class ProjectService {
 
-    private final Logger logger = LoggerFactory.getLogger(ProjectService.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
 
     @Autowired
     private ScheduleTaskShadeDao scheduleTaskShadeDao;
@@ -24,7 +22,7 @@ public class ProjectService {
         if (null == projectId || null == appType || null == scheduleStatus) {
             return;
         }
-        logger.info("update project {} status {} ",projectId,scheduleStatus);
+        LOGGER.info("update project {} status {} ",projectId,scheduleStatus);
         scheduleTaskShadeDao.updateProjectScheduleStatus(projectId,appType,scheduleStatus);
     }
 }

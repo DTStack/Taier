@@ -1,6 +1,6 @@
 package com.dtstack.engine.master.controller;
 
-import com.dtstack.engine.common.enums.AlertGateTypeEnum;
+import com.dtstack.engine.alert.enums.AlertGateTypeEnum;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.impl.ComponentService;
 import io.swagger.annotations.Api;
@@ -21,14 +21,13 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.net.URLEncoder;
-import java.util.Objects;
 
 
 @RestController
 @RequestMapping("/node/download")
 @Api(value = "/node/download", tags = {"下载接口"})
 public class DownloadController {
-    private static final Logger logger = LoggerFactory.getLogger(DownloadController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DownloadController.class);
 
     @Autowired
     private ComponentService componentService;
@@ -61,11 +60,11 @@ public class DownloadController {
             }
         } catch (Exception e) {
             response.setHeader("Content-Disposition", "attachment;filename=error.log");
-            logger.error("", e);
+            LOGGER.error("", e);
             try {
                 response.getWriter().write("下载文件异常:" + e.getMessage());
             } catch (Exception eMsg) {
-                logger.error("", eMsg);
+                LOGGER.error("", eMsg);
             }
         } finally {
             if(null != downLoadFile){
@@ -113,11 +112,11 @@ public class DownloadController {
 
         } catch (Exception e) {
             response.setHeader("Content-Disposition", "attachment;filename=error.log");
-            logger.error("", e);
+            LOGGER.error("", e);
             try {
                 response.getWriter().write("下载文件异常:" + e.getMessage());
             } catch (Exception eMsg) {
-                logger.error("", eMsg);
+                LOGGER.error("", eMsg);
             }
         }
     }

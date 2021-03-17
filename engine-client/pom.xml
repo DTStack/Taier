@@ -80,7 +80,9 @@
         <dependency>
             <groupId>dt.insight.plat</groupId>
             <artifactId>dt-insight-sdk-core</artifactId>
-            <version>4.0.4-SNAPSHOT</version>
+            <version>4.1.2</version>
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

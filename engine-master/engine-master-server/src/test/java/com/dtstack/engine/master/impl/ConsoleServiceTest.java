@@ -22,10 +22,6 @@ import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
@@ -220,14 +216,6 @@ public class ConsoleServiceTest extends AbstractTest {
         Assert.assertNotNull(getResources);
     }
 
-    @Test
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    @Rollback
-    public void testGetYarnComponent() {
-        Cluster defaultCluster = DataCollection.getData().getDefaultCluster();
-        Component getYarnComponent = consoleService.getYarnComponent(defaultCluster.getId());
-        Assert.assertNotNull(getYarnComponent);
-    }
 
     @Test
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)

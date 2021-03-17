@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 @Component
 public class JobCheckpointDealer implements InitializingBean {
 
-    private static Logger logger = LoggerFactory.getLogger(JobCheckpointDealer.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(JobCheckpointDealer.class);
 
     private final static String CHECKPOINT_RETAINED_KEY = "state.checkpoints.num-retained";
 
@@ -131,13 +131,13 @@ public class JobCheckpointDealer implements InitializingBean {
                         continue;
                     }
                     if (StringUtils.isBlank(scheduleJob.getEngineJobId()) || !scheduleJob.getEngineJobId().equalsIgnoreCase(engineJobId)) {
-                        logger.info("jobId {} queue engineJobId {} is not same to db {} so skip", taskId, scheduleJob.getEngineJobId(), engineJobId);
+                        LOGGER.info("jobId {} queue engineJobId {} is not same to db {} so skip", taskId, scheduleJob.getEngineJobId(), engineJobId);
                         continue;
                     }
                     updateCheckpointImmediately(taskInfo, engineJobId, scheduleJob.getStatus());
 
                 } catch (Exception e) {
-                    logger.error("update delay checkpoint jobId {}  engineJobId {} error ", taskId, engineJobId, e);
+                    LOGGER.error("update delay checkpoint jobId {}  engineJobId {} error ", taskId, engineJobId, e);
                 }
             }
         });
@@ -163,7 +163,7 @@ public class JobCheckpointDealer implements InitializingBean {
 
                 if (RdosTaskStatus.getStoppedStatus().contains(status)) {
                     boolean checkpointStopClean = isCheckpointStopClean(taskId);
-                    logger.info(" taskId {}  status is stop {}  cleanCheckpoint {}", taskId, status, checkpointStopClean);
+                    LOGGER.info(" taskId {}  status is stop {}  cleanCheckpoint {}", taskId, status, checkpointStopClean);
                     if (checkpointStopClean) {
                         engineJobCheckpointDao.cleanAllCheckpointByTaskEngineId(engineJobId);
                     }
@@ -173,7 +173,7 @@ public class JobCheckpointDealer implements InitializingBean {
                 }
             }
         } catch (Exception e) {
-            logger.error(" taskId {}  engineJobId {}  updateCheckpointImmediately error", taskId, engineJobId, e);
+            LOGGER.error(" taskId {}  engineJobId {}  updateCheckpointImmediately error", taskId, engineJobId, e);
         }
     }
 
@@ -183,13 +183,13 @@ public class JobCheckpointDealer implements InitializingBean {
         String taskId = jobIdentifier.getTaskId();
 
         if (Strings.isNullOrEmpty(checkpointJsonStr)) {
-            logger.info("taskId {} engineTaskId {} can't get checkpoint info.", taskId, engineTaskId);
+            LOGGER.info("taskId {} engineTaskId {} can't get checkpoint info.", taskId, engineTaskId);
             return;
         }
         try {
             Map<String, Object> checkpointInfo = PublicUtil.jsonStrToObject(checkpointJsonStr, Map.class);
             if (!checkpointInfo.containsKey(FLINK_CP_HISTORY_KEY) || null == checkpointInfo.get(FLINK_CP_HISTORY_KEY)) {
-                logger.info("taskId {} engineTaskId {} can't get checkpoint history key....", taskId, engineTaskId);
+                LOGGER.info("taskId {} engineTaskId {} can't get checkpoint history key....", taskId, engineTaskId);
                 return;
             }
 
@@ -211,13 +211,12 @@ public class JobCheckpointDealer implements InitializingBean {
                     engineJobCheckpointDao.insert(taskId, engineTaskId, checkpointId, checkpointTriggerTimestamp, checkpointSavePath, checkpointCountsInfo);
                     checkpointInsertedCache.put(checkpointCacheKey, "1");
                 } else {
-                    logger.info("no add checkpoint to db checkpointId [{}]  checkpointSavePath {} status {} checkpointCacheKey {}",
+                    LOGGER.info("no add checkpoint to db checkpointId [{}]  checkpointSavePath {} status {} checkpointCacheKey {}",
                             checkpointId, checkpointSavePath, status, checkpointCacheKey);
                 }
             }
         } catch (IOException e) {
-            engineJobCheckpointDao.insert(taskId, engineTaskId, null, null, null, null);
-            logger.error("taskID:{} ,engineTaskId:{}, error:", taskId, engineTaskId, e);
+            LOGGER.error("taskID:{} ,engineTaskId:{}, error:", taskId, engineTaskId, e);
         }
     }
 
@@ -236,11 +235,11 @@ public class JobCheckpointDealer implements InitializingBean {
                     JobCheckpointInfo taskInfo = new JobCheckpointInfo(computeType, taskId, jobIdentifier, engineTypeName, checkpointInterval);
 
                     delayBlockingQueue.put(taskInfo);
-                    logger.info("add taskId {} to checkpoint delay queue,{}", taskId, taskInfo);
+                    LOGGER.info("add taskId {} to checkpoint delay queue,{}", taskId, taskInfo);
 
                     return taskInfo;
                 } catch (Exception e) {
-                    logger.error("taskId {} addCheckpointTaskForQueue error ", taskId, e);
+                    LOGGER.error("taskId {} addCheckpointTaskForQueue error ", taskId, e);
                 }
                 return null;
             });
@@ -261,7 +260,7 @@ public class JobCheckpointDealer implements InitializingBean {
                 engineJobCheckpointDao.batchDeleteByEngineTaskIdAndCheckpointId(thresholdCheckpoint.getTaskEngineId(), thresholdCheckpoint.getCheckpointId());
             }
         } catch (Exception e) {
-            logger.error("engineJobId Id :{}  error ", engineJobId, e);
+            LOGGER.error("engineJobId Id :{}  error ", engineJobId, e);
         }
     }
 
@@ -294,7 +293,7 @@ public class JobCheckpointDealer implements InitializingBean {
         try {
             pluginInfoMap = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
         } catch (IOException e) {
-            logger.error("plugin info {}  parse error ..", pluginInfo, e);
+            LOGGER.error("plugin info {}  parse error ..", pluginInfo, e);
         }
         if (MapUtils.isEmpty(pluginInfoMap)) {
             return 1;
