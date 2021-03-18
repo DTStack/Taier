@@ -39,13 +39,13 @@ const routerConf = [
         path: '*',
         layout: Layout,
         component: PageNotFound,
-      }
-    ]
+      },
+    ],
   },
   {
     path: '/data-model',
     layout: Layout,
-    component: () => <div>hello</div>
+    component: () => <div>hello</div>,
   },
   {
     path: '*',

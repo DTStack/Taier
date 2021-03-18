@@ -1,4 +1,4 @@
-//每个模块定义的相关接口
+// 每个模块定义的相关接口
 export default {
   post1: {
     method: 'post',

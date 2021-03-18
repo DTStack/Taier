@@ -7,11 +7,7 @@ interface IPropsContainer {
 
 const Container = (props: IPropsContainer) => {
   const { children } = props;
-  return (
-    <div className="dm-container">
-      {children}
-    </div>
-  )
-}
+  return <div className="dm-container">{children}</div>;
+};
 
 export default Container;

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Container from '../components/Container';
 import { Input, Table, Pagination, Modal, Drawer, Button } from 'antd'
-const { Search } = Input;
 import { IModelData } from '../types';
 import { EnumModelActionType } from './types';
 import { columnsGenerator } from './constants';
@@ -9,6 +8,7 @@ import Message from 'pages/DataModel/components/Message';
 import Detail from '../Detail';
 import { API } from '@/services';
 import './style';
+const { Search } = Input;
 
 interface IPagination {
   current: number;

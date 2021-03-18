@@ -1,7 +1,7 @@
 const path = require('path');
 const corejs = require.resolve('core-js/stable');
 const regenerator = require.resolve('regenerator-runtime/runtime');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+// const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const copyConfig = [
   { from: path.resolve(__dirname, 'public/config'), to: 'config' },
@@ -35,13 +35,18 @@ module.exports = () => {
     ],
     webpack: {
       entry: [corejs, regenerator, './src/index.tsx'],
-      plugins: [
-        new CopyWebpackPlugin({
-          patterns: copyConfig,
-        }),
-      ],
+      // plugins: [
+      //   new CopyWebpackPlugin({
+      //     patterns: copyConfig,
+      //   }),
+      // ],
       externals: {
         frontConf: 'frontConf',
+      },
+      resolve: {
+        alias: {
+          '@/*': path.resolve(__dirname, ''),
+        },
       },
     },
   };
