@@ -22,6 +22,7 @@ import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UnitConvertUtil;
 import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
+import com.dtstack.engine.dao.TenantDao;
 import com.dtstack.engine.dao.TenantResourceDao;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
@@ -65,6 +66,9 @@ public class ScheduleTaskShadeService {
 
     @Autowired
     private FillJobExecutor fillJobExecutor;
+
+    @Autowired
+    private TenantDao tenantDao;
 
     @Autowired
     private EnvironmentContext environmentContext;
@@ -126,8 +130,10 @@ public class ScheduleTaskShadeService {
         List<ScheduleTaskShade> shades = scheduleTaskShadeDao.getChildTaskByOtherPlatform(taskId,appType,environmentContext.getListChildTaskLimit());
 
         if (CollectionUtils.isNotEmpty(shades)) {
-//            List<Long> taskIds = shades.stream().map(ScheduleTaskTaskShade::getTaskId).collect(Collectors.toList());
+            List<Long> projectIds = shades.stream().map(ScheduleTaskShade::getProjectId).collect(Collectors.toList());
+            List<Long> tenantIds = shades.stream().map(ScheduleTaskShade::getTenantId).collect(Collectors.toList());
 
+            List<Long> longs = tenantDao.listDtUicTenantIdByIds(tenantIds);
 
         }
 

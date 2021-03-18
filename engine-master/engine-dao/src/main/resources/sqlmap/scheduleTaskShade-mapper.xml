@@ -730,7 +730,8 @@
         <include refid="simple_select_content_fragment"/>
         FROM `schedule_task_shade` t
         LEFT JOIN `schedule_task_task_shade`  tt
-        ON tt.app_type != tt.parent_app_type and tt.task_id = #{taskId}
+        ON tt.app_type != tt.parent_app_type and tt.task_id = #{taskId} AND tt.app_type = #{appType} AND t.task_id = tt.task_id
+        LIMIT #{limit}
     </select>
 
 
