@@ -56,7 +56,6 @@ public class JobRichOperator {
 
     private static final long COUNT_BITS = Long.SIZE - 8L;
 
-    private final String LOG_TEM = "%s: %s(所属租户：%s,所属项目：%s)";
 
     @Autowired
     private EnvironmentContext environmentContext;
@@ -191,19 +190,19 @@ public class JobRichOperator {
 //        }
 //    }
 
-    private String getLog(ScheduleJob scheduleJob,ScheduleJob parentJob) {
-        if (parentJob!=null && StringUtils.isNotBlank(parentJob.getLogInfo())) {
-            String logInfo = parentJob.getLogInfo();
-            //  ${质量任务1的名称}：运行失败/校验通过/校验不通过（所属租户：xxxx，所属项目：xxx）
-            logInfo+= "===============================================================\n";
-            String nameByDtUicTenantId = tenantDao.getNameByDtUicTenantId(scheduleJob.getDtuicTenantId());
-            ScheduleEngineProject project = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(scheduleJob.getProjectId(),scheduleJob.getAppType());
-            String format = String.format(LOG_TEM, scheduleJob.getJobName(), "运行失败", nameByDtUicTenantId,project.getProjectAlias());
-            logInfo += format;
-            return logInfo;
-        }
-        return "";
-    }
+//    private String getLog(ScheduleJob scheduleJob,ScheduleJob parentJob) {
+//        if (parentJob!=null && StringUtils.isNotBlank(parentJob.getLogInfo())) {
+//            String logInfo = parentJob.getLogInfo();
+//            //  ${质量任务1的名称}：运行失败/校验通过/校验不通过（所属租户：xxxx，所属项目：xxx）
+//            logInfo+= "===============================================================\n";
+//            String nameByDtUicTenantId = tenantDao.getNameByDtUicTenantId(scheduleJob.getDtuicTenantId());
+//            ScheduleEngineProject project = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(scheduleJob.getProjectId(),scheduleJob.getAppType());
+//            String format = String.format(LOG_TEM, scheduleJob.getJobName(), "运行失败", nameByDtUicTenantId,project.getProjectAlias());
+//            logInfo += format;
+//            return logInfo;
+//        }
+//        return "";
+//    }
 
     /**
      * 校验当前任务本身是否满足执行条件

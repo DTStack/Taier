@@ -142,24 +142,43 @@ public class ProjectService {
 
         for (ScheduleEngineProject dean : deans) {
             ScheduleEngineProjectVO vo = new ScheduleEngineProjectVO();
-            vo.setId(dean.getId());
-            vo.setProjectId(dean.getProjectId());
-            vo.setUicTenantId(dean.getUicTenantId());
-            vo.setAppType(dean.getAppType());
-            vo.setProjectName(dean.getProjectName());
-            vo.setProjectAlias(dean.getProjectAlias());
-            vo.setProjectIdentifier(dean.getProjectIdentifier());
-            vo.setProjectDesc(dean.getProjectDesc());
-            vo.setStatus(dean.getStatus());
-            vo.setCreateUserId(dean.getCreateUserId());
-            vo.setGmtCreate(dean.getGmtCreate());
-            vo.setGmtModified(dean.getGmtModified());
-            vo.setIsDeleted(dean.getIsDeleted());
+            build(dean, vo);
 
             vos.add(vo);
         }
 
         return vos;
+    }
+
+    private void build(ScheduleEngineProject dean, ScheduleEngineProjectVO vo) {
+        vo.setId(dean.getId());
+        vo.setProjectId(dean.getProjectId());
+        vo.setUicTenantId(dean.getUicTenantId());
+        vo.setAppType(dean.getAppType());
+        vo.setProjectName(dean.getProjectName());
+        vo.setProjectAlias(dean.getProjectAlias());
+        vo.setProjectIdentifier(dean.getProjectIdentifier());
+        vo.setProjectDesc(dean.getProjectDesc());
+        vo.setStatus(dean.getStatus());
+        vo.setCreateUserId(dean.getCreateUserId());
+        vo.setGmtCreate(dean.getGmtCreate());
+        vo.setGmtModified(dean.getGmtModified());
+        vo.setIsDeleted(dean.getIsDeleted());
+    }
+
+    public ScheduleEngineProjectVO findProject(Long projectId, Integer appType) {
+        if (projectId == null) {
+            throw new RdosDefineException("projectId not null");
+        }
+
+        if (appType == null) {
+            throw new RdosDefineException("projectId not null");
+        }
+
+        ScheduleEngineProject dean = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(projectId,appType);
+        ScheduleEngineProjectVO vo = new ScheduleEngineProjectVO();
+        build(dean, vo);
+        return vo;
     }
 }
 

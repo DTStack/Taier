@@ -31,6 +31,11 @@ public class ProjectController {
         projectService.addProjectOrUpdate(scheduleEngineProjectParam);
     }
 
+    @RequestMapping(value = "/findProject", method = {RequestMethod.POST})
+    public ScheduleEngineProjectVO findProject(@DtRequestParam("projectId") Long projectId,@DtRequestParam("appType") Integer appType) {
+       return projectService.findProject(projectId,appType);
+    }
+
 
     @RequestMapping(value = "/updateProject", method = {RequestMethod.POST})
     public void updateProject(@RequestBody ScheduleEngineProjectParam scheduleEngineProjectParam) {

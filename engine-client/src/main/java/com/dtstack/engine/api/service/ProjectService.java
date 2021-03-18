@@ -27,5 +27,8 @@ public interface ProjectService extends DtInsightServer {
     ApiResponse<Void> deleteProject( @Param("projectId") Long projectId, @Param("appType") Integer appType);
 
     @RequestLine("POST /node/project/findFuzzyProjectByProjectAlias")
-    ApiResponse<List<ScheduleEngineProjectVO>> findFuzzyProjectByProjectAlias( @Param("name") String name,  @Param("appType") Integer appType, @Param("uicTenantId") Long uicTenantId);
+    ApiResponse<List<ScheduleEngineProjectVO>> findFuzzyProjectByProjectAlias(@Param("name") String name, @Param("appType") Integer appType, @Param("uicTenantId") Long uicTenantId);
+
+    @RequestLine("POST /node/project/findProject")
+    ApiResponse<ScheduleEngineProjectVO> findProject(@Param("projectId") Long projectId,@Param("appType") Integer appType);
 }
