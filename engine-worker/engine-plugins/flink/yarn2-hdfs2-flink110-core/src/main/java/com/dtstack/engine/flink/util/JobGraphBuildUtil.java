@@ -59,7 +59,7 @@ public class JobGraphBuildUtil {
 
                 List<String> subJobVertexNames = jobGraph.getVertexOperatorNames()
                         .get(jobVertex.getID());
-                // keep order with subJobVertexIDs
+                // keep the same order as subJobVertexIDs
                 Collections.reverse(subJobVertexNames);
 
                 List<String> subJobVertexIDs = Lists.reverse(jobVertex.getOperatorIDs()
