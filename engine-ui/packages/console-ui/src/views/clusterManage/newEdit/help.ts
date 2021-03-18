@@ -425,7 +425,7 @@ export function getModifyComp (comps: any, initialCompData: any[]): any {
         } else {
             /** 比对 hdfs、yarn 自定义参数 */
             const compTemp = comp['customParam'] ? handleSingleParam(comp['customParam']) : []
-            const initialTemp = getCustomerParams(JSON.parse(initialComp?.componentTemplate))
+            const initialTemp = getCustomerParams(getValueByJson(initialComp?.componentTemplate) ?? [])
             if (!_.isEqual(compTemp, initialTemp)) {
                 modifyComps.add(typeCode)
             }
