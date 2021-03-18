@@ -593,7 +593,7 @@ public class ScheduleJobService {
         }
         ScheduleJobVO batchJobVO = transfer.get(0);
 
-        if (EScheduleJobType.WORK_FLOW.getVal().intValue() == batchJobVO.getBatchTask().getTaskType()) {
+        if (EScheduleJobType.WORK_FLOW.getVal().equals(batchJobVO.getBatchTask().getTaskType())) {
             vo.setSplitFiledFlag(true);
             //除去任务类型中的工作流类型的条件，用于展示下游节点
             if (StringUtils.isNotBlank(vo.getTaskType())) {
