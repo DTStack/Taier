@@ -68,6 +68,12 @@ public class ScheduleTaskShadeController {
         scheduleTaskShadeService.deleteTask(taskId, modifyUserId, appType);
     }
 
+    @RequestMapping(value = "/getNotDeleteTask", method = {RequestMethod.POST})
+    @ApiOperation(value = "获得其他依赖的接口", notes = "task删除时触发同步清理")
+    public void getNotDeleteTask(@DtRequestParam("taskId") Long taskId, @DtRequestParam("appType") Integer appType) {
+        scheduleTaskShadeService.getNotDeleteTask(taskId, appType);
+    }
+
     @RequestMapping(value = "/getTasksByName", method = {RequestMethod.POST})
     @ApiOperation(value = "根据项目id,任务名 获取任务列表")
     public List<ScheduleTaskShade> getTasksByName(@DtRequestParam("projectId") long projectId,

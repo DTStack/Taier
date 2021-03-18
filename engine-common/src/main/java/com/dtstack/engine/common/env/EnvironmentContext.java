@@ -505,4 +505,8 @@ public class EnvironmentContext {
     public Long getTaskRuleTimeout() {
         return Long.parseLong(environment.getProperty("task.rule.timeout", "600000"));
     }
+
+    public Integer getListChildTaskLimit() {
+        return Integer.parseInt(environment.getProperty("list.child.task.limit", "20"));
+    }
 }

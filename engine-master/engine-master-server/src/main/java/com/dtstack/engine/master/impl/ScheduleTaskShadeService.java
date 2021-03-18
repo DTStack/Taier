@@ -109,20 +109,17 @@ public class ScheduleTaskShadeService {
      * task删除时触发同步清理
      */
     public void deleteTask(Long taskId, long modifyUserId, Integer appType) {
-        // 判断删除任务需要判断其是否被其他产品的任务依赖/绑定（包括质量、算法、标签任务），如果有，弹窗提示：
-        //该任务已被其他任务依赖，无法删除： 租户：xxx   产品：离线开发  项目：xxx   任务：xxxx
-        List<ScheduleTaskTaskShade> taskTaskShades = scheduleTaskTaskShadeService.listChildTask(taskId, appType);
-
+        List<ScheduleTaskTaskShade> taskTaskShades = scheduleTaskTaskShadeService.listChildTask(taskId, appType,environmentContext.getListChildTaskLimit());
         List<ScheduleTaskTaskShade> shades = taskTaskShades.stream().filter(taskTaskShade -> !taskTaskShade.getAppType().equals(taskTaskShade.getParentAppType())).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(shades)) {
-            String error = "";
-
-
+            throw new RdosDefineException("there is bound data and cannot be deleted");
         }
-
-
         scheduleTaskShadeDao.delete(taskId, modifyUserId, appType);
         scheduleTaskTaskShadeService.clearDataByTaskId(taskId, appType);
+    }
+
+    public void getNotDeleteTask(Long taskId, Integer appType) {
+
     }
 
     /**
@@ -823,4 +820,6 @@ public class ScheduleTaskShadeService {
         }
         return vos;
     }
+
+
 }
