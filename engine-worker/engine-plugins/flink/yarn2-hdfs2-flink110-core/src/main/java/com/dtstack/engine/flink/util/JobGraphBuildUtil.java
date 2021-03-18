@@ -13,9 +13,9 @@ import org.apache.flink.util.AbstractID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -27,10 +27,6 @@ import java.util.stream.StreamSupport;
 public class JobGraphBuildUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(JobGraphBuildUtil.class);
-
-    private static final String SPLIT = "->";
-    private static final String matchPattern = "(.*)->\\s\\((.*\\w)\\,(\\sSourceConversion.*)\\)";
-
 
     public static String buildLatencyMarker(JobGraph jobGraph) {
         if(null == jobGraph){
@@ -45,7 +41,7 @@ public class JobGraphBuildUtil {
 
             jobVertices.stream().map(jobVertex -> {
                 String jobVertexID = jobVertex.getID().toString();
-                String jobVertexName = jobVertex.getName();
+                String jobVertexName = handleName(jobVertex.getName());
                 List<String> inputs = jobVertex.getInputs()
                         .stream()
                         .map(e -> e.getSourceId().toHexString())
@@ -61,12 +57,16 @@ public class JobGraphBuildUtil {
                         .collect(Collectors.toList());
 
 
-                List<String> subJobVertexNames = parseOperatorName(jobVertexName);
+                List<String> subJobVertexNames = jobGraph.getVertexOperatorNames()
+                        .get(jobVertex.getID());
+                // keep order with subJobVertexIDs
+                Collections.reverse(subJobVertexNames);
 
                 List<String> subJobVertexIDs = Lists.reverse(jobVertex.getOperatorIDs()
                         .stream()
                         .map(AbstractID::toString)
                         .collect(Collectors.toList()));
+
 
                 // 校验解析的id与名称是否在数量上相等，如果不等，则解析失败
                 checkSize(subJobVertexIDs, subJobVertexNames);
@@ -103,47 +103,23 @@ public class JobGraphBuildUtil {
     }
 
     /**
-     * 解析OPERATOR NAME
-     * @param name
+     * substring if jobVertexName's length exceeded 203
+     * @param jobVertexName
      * @return
      */
-    private static List<String> parseOperatorName(String name) {
-
-        Pattern pattern = Pattern.compile(matchPattern);
-        Matcher matcher = pattern.matcher(name);
-
-        List<String> names = new ArrayList<>();
-
-        if (matcher.find()) {
-            for (int i = 1 ; i <= matcher.groupCount() ; i ++ ){
-                names.addAll(splitName(matcher.group(i)));
-            }
+    private static String handleName(String jobVertexName) {
+        if (jobVertexName.length() >= 203) {
+            return String.format("%s...%s",jobVertexName.substring(0, 100), jobVertexName.substring(jobVertexName.length()-100));
         } else {
-            names.addAll(splitName(name));
+            return jobVertexName;
         }
-
-        return names;
-    }
-
-    private static List<String> splitName(String name) {
-        String[] name_arr = name.split(SPLIT);
-        if (name_arr != null) {
-            // 如果operator的name的长度太长，会导致前端暂时JobGraph时卡死
-            List<String> names = Arrays.asList(name_arr).
-                    stream().
-                    map( item -> {
-                        if (item.length() >= 203) {
-                            return String.format("%s...%s",item.substring(0, 100), item.substring(item.length()-100));
-                        } else {
-                            return item;
-                        }
-                    }).collect(Collectors.toList());
-            return names;
-        }
-        return null;
     }
 
     private static void checkSize(List<String> ids, List<String> names) {
+        if (names == null) {
+            throw new RdosDefineException("Error! This jobVertex doesn't have operators.");
+        }
+
         if (ids.size() != names.size()) {
             throw new RdosDefineException("id's size : [" + ids.size() + "] is not equal names's size : [" + names.size() + "]");
         }
