@@ -186,7 +186,7 @@ public class StreamTaskService {
     }
 
     public CheckResult grammarCheck(ParamActionExt paramActionExt) {
-        logger.info("grammarCheck actionParam: {}", JSONObject.toJSONString(paramActionExt));
+        LOGGER.info("grammarCheck actionParam: {}", JSONObject.toJSONString(paramActionExt));
         CheckResult checkResult = null;
         try {
             JobClient jobClient = new JobClient(paramActionExt);

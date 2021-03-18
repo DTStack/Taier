@@ -122,6 +122,7 @@ public class ClientOperator {
                 jobClient.getApplicationId(), jobClient.getTaskId(), jobClient.getForceCancel());
         checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
         LOGGER.info("stop job jobClient {} pluginInfo {} ",jobClient, jobClient.getPluginInfo());
+
         jobIdentifier.setTimeout(getCheckoutTimeout(jobClient));
         IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return client.cancelJob(jobIdentifier);

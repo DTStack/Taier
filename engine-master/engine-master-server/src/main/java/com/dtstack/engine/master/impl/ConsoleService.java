@@ -135,7 +135,7 @@ public class ConsoleService {
             vo.setTheJobIdx(1);
             return vo;
         } catch (Exception e) {
-            LOGGER.error("", e);
+            LOGGER.error("searchJob error:", e);
         }
         return null;
     }
@@ -277,7 +277,7 @@ public class ConsoleService {
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("groupDetail error{}", e);
+            LOGGER.error("groupDetail error", e);
         }
         PageQuery pageQuery = new PageQuery<>(currentPage, pageSize);
         return new PageResult<>(data,count.intValue(),pageQuery);
@@ -348,7 +348,7 @@ public class ConsoleService {
                 return jobDealer.addGroupPriorityQueue(engineJobCache.getJobResource(), jobClient, false, false);
             }
         } catch (Exception e) {
-            LOGGER.error("jobStick error:{}", e);
+            LOGGER.error("jobStick error:", e);
         }
         return false;
     }
@@ -506,8 +506,8 @@ public class ConsoleService {
             pluginInfo.put(ComponentService.TYPE_NAME,typeName);
             return workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
         } catch (Exception e) {
-            LOGGER.error("getResources error:{} ", e);
-            throw new RdosDefineException("flink资源获取异常");
+            LOGGER.error("getResources error: ", e);
+            throw new RdosDefineException("acquire flink resources error.");
         }
     }
 
