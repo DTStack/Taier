@@ -2,8 +2,8 @@ import React from 'react';
 import createLayout from '@/layouts';
 import Exception from '@/components/Exception';
 import Entry from 'pages/entry/index';
-import List from 'pages/DataModel/List';
-import ModelModify from '@/pages/DataModel/ModelModify';
+import ModelList from 'pages/DataModel/List';
+import ModelModify from '@/pages/DataModel/Modify';
 
 const Layout = createLayout(true, false);
 
@@ -23,7 +23,7 @@ const routerConf = [
       {
         path: 'list',
         layout: Layout,
-        component: List,
+        component: ModelList,
       },
       {
         path: 'add',
@@ -41,11 +41,6 @@ const routerConf = [
         component: PageNotFound,
       }
     ]
-  },
-  {
-    path: '/data-model',
-    layout: Layout,
-    component: () => <div>hello</div>
   },
   {
     path: '*',
