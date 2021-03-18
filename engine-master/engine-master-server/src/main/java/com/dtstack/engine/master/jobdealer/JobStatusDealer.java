@@ -29,6 +29,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
@@ -76,6 +77,7 @@ public class  JobStatusDealer implements Runnable {
     private EnvironmentContext environmentContext;
     private long jobLogDelay;
     private JobCompletedLogDelayDealer jobCompletedLogDelayDealer;
+    private ScheduleJobService batchJobService;
 
     private int taskStatusDealerPoolSize;
 
@@ -225,6 +227,11 @@ public class  JobStatusDealer implements Runnable {
             } else {
                 scheduleJobDao.updateJobStatusAndExecTime(jobId, status);
             }
+
+            if (TaskRuleEnum.STRONG_RULE.getCode().equals(scheduleJob.getTaskRule())) {
+                // 强规则任务,查询父任务
+                batchJobService.handleTaskRule(scheduleJob,status);
+            }
         }
     }
 
@@ -317,6 +324,7 @@ public class  JobStatusDealer implements Runnable {
         this.scheduleJobDao = applicationContext.getBean(ScheduleJobDao.class);
         this.scheduleJobService = applicationContext.getBean(ScheduleJobService.class);
         this.scheduleJobJobDao = applicationContext.getBean(ScheduleJobJobDao.class);
+        this.batchJobService = applicationContext.getBean(ScheduleJobService.class);
 
     }
 

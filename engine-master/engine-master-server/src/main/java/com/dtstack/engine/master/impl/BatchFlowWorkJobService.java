@@ -1,10 +1,12 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
 import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.enums.TaskRuleEnum;
+import com.dtstack.engine.common.constrant.GlobalConst;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
 import com.dtstack.engine.dao.ScheduleEngineProjectDao;
 import com.dtstack.engine.dao.ScheduleJobDao;
@@ -38,8 +40,6 @@ public class BatchFlowWorkJobService {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractJobExecutor.class);
 
-    private final String LOG_TEM = "%s: %s(所属租户：%s,所属项目：%s)";
-
     /**
      * 任务状态从低到高排序
      */
@@ -53,12 +53,6 @@ public class BatchFlowWorkJobService {
 
     @Autowired
     private ScheduleJobJobDao scheduleJobJobDao;
-
-    @Autowired
-    private TenantDao tenantDao;
-
-    @Autowired
-    private ScheduleEngineProjectDao scheduleEngineProjectDao;
 
     Predicate<Integer> isSpecialType = type ->  type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal();
 
@@ -170,7 +164,7 @@ public class BatchFlowWorkJobService {
 
         if (TaskRuleEnum.STRONG_RULE.getCode().equals(scheduleBatchJob.getScheduleJob().getTaskRule())) {
             // 强规则任务,查询父任务
-            handleTaskRule(scheduleBatchJob,bottleStatus);
+            batchJobService.handleTaskRule(scheduleBatchJob.getScheduleJob(),bottleStatus);
         }
 
         Long id = scheduleBatchJob.getId();
@@ -181,83 +175,7 @@ public class BatchFlowWorkJobService {
         return canRemove;
     }
 
-    private void handleTaskRule(ScheduleBatchJob scheduleBatchJob,Integer bottleStatus) {
-        String jobKey = scheduleBatchJob.getScheduleJob().getJobKey();
-        // 查询当前任务的所有父任务的运行状态
-        List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByParentJobKey(jobKey);
-        if (CollectionUtils.isNotEmpty(scheduleJobJobs)) {
-            List<String> parentJobKeys = scheduleJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList());
-            // 查询所有父任务
-            List<ScheduleJob> scheduleJobs = batchJobService.listJobByJobKeys(parentJobKeys);
-            // 查询所有父任务下的子任务关系
-            Map<String,List<ScheduleJob>> parentAndSon = batchJobService.getParantJobKeyMap(parentJobKeys);
 
-            for (ScheduleJob scheduleJob : scheduleJobs) {
-                // 判断状态父任务的状态
-                List<ScheduleJob> scheduleJobsSon = parentAndSon.get(scheduleJob.getJobKey());
-                updateFatherStatus(scheduleJob,scheduleBatchJob.getScheduleJob(),scheduleJobsSon,bottleStatus);
-            }
-
-        }
-    }
-
-    private void updateFatherStatus(ScheduleJob fatherScheduleJob, ScheduleJob currentScheduleJob, List<ScheduleJob> sonScheduleJobs, Integer bottleStatus) {
-        if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(fatherScheduleJob.getStatus()) && CollectionUtils.isNotEmpty(sonScheduleJobs)) {
-            if (RdosTaskStatus.FAILED_STATUS.contains(bottleStatus)) {
-                // 当前强任务执行失败，执行更新成失败
-                getLog(fatherScheduleJob,currentScheduleJob);
-                batchJobService.updateStatusAndLogInfoById(fatherScheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "");
-            } else if (RdosTaskStatus.FINISH_STATUS.contains(bottleStatus)) {
-                // 当前任务执行成功,判断父任务下其他子任务是否有强规则任务
-                List<ScheduleJob> jobs = sonScheduleJobs.stream().filter(job -> TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule()) && job.getJobKey().equals(currentScheduleJob.getJobKey())).collect(Collectors.toList());
-
-                if (CollectionUtils.isNotEmpty(jobs)) {
-                    List<ScheduleJob> noFinishJobs = jobs.stream().filter(job -> !RdosTaskStatus.FINISH_STATUS.contains(job.getStatus())).collect(Collectors.toList());
-
-                    if (CollectionUtils.isEmpty(noFinishJobs)) {
-                        // 为查到未完成的任务
-                        batchJobService.updateStatusAndLogInfoById(fatherScheduleJob.getJobId(), RdosTaskStatus.FINISHED.getStatus(), "");
-                    }
-                } else {
-                    batchJobService.updateStatusAndLogInfoById(fatherScheduleJob.getJobId(), RdosTaskStatus.FINISHED.getStatus(), "");
-                }
-            }
-        }
-    }
-
-    private void getLog(ScheduleJob fatherScheduleJob,ScheduleJob currentScheduleJob) {
-        String logInfo = fatherScheduleJob.getLogInfo();
-        // %s: %s(所属租户：%s,所属项目：%s)
-        String addLog = LOG_TEM;
-        String nameByDtUicTenantId = tenantDao.getNameByDtUicTenantId(currentScheduleJob.getDtuicTenantId());
-        ScheduleEngineProject project = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(currentScheduleJob.getProjectId(),currentScheduleJob.getAppType());
-        boolean isRule = Boolean.FALSE;
-        if (EScheduleJobType.WORK_FLOW.getType().equals(currentScheduleJob.getTaskType())) {
-            // 如果工作流任务，查询是否有null任务
-            List<ScheduleJob> subJobsAndStatusByFlowId = batchJobService.getSubJobsAndStatusByFlowId(currentScheduleJob.getJobId());
-            List<ScheduleJob> jobs = subJobsAndStatusByFlowId.stream().filter(job -> EScheduleJobType.NOT_DO_TASK.getType().equals(job.getTaskType())).collect(Collectors.toList());
-
-            if (CollectionUtils.isNotEmpty(jobs)) {
-                // 有空任务
-                for (ScheduleJob job : jobs) {
-                    if (RdosTaskStatus.FAILED_STATUS.contains(job.getStatus())) {
-                        // 存在空任务失败的情况
-                        addLog = String.format(addLog, currentScheduleJob.getJobName(), "校验不通过", nameByDtUicTenantId, project.getProjectAlias());
-                        isRule = Boolean.TRUE;
-                        break;
-                    }
-                }
-
-
-            }
-        }
-
-        if (!isRule) {
-            addLog = String.format(addLog, currentScheduleJob.getJobName(), "运行失败", nameByDtUicTenantId, project.getProjectAlias());
-        }
-
-        
-    }
 
     /**
      * 工作流自己为自动取消或冻结的状态的时候 直接把子任务状态全部更新 防止重复check

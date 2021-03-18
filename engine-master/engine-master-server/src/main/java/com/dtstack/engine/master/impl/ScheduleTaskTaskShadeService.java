@@ -492,4 +492,7 @@ public class ScheduleTaskTaskShadeService {
     }
 
 
+    public List<ScheduleTaskTaskShade> listChildTask(Long taskId, Integer appType) {
+        return scheduleTaskTaskShadeDao.listChildTask(taskId,appType);
+    }
 }
