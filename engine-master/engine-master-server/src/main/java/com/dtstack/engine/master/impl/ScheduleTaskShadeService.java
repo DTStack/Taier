@@ -109,8 +109,7 @@ public class ScheduleTaskShadeService {
      * task删除时触发同步清理
      */
     public void deleteTask(Long taskId, long modifyUserId, Integer appType) {
-        List<ScheduleTaskTaskShade> taskTaskShades = scheduleTaskTaskShadeService.listChildTask(taskId, appType,environmentContext.getListChildTaskLimit());
-        List<ScheduleTaskTaskShade> shades = taskTaskShades.stream().filter(taskTaskShade -> !taskTaskShade.getAppType().equals(taskTaskShade.getParentAppType())).collect(Collectors.toList());
+        List<ScheduleTaskTaskShade> shades = getOtherTask(taskId, appType);
         if (CollectionUtils.isNotEmpty(shades)) {
             throw new RdosDefineException("there is bound data and cannot be deleted");
         }
@@ -118,7 +117,19 @@ public class ScheduleTaskShadeService {
         scheduleTaskTaskShadeService.clearDataByTaskId(taskId, appType);
     }
 
+    private List<ScheduleTaskTaskShade> getOtherTask(Long taskId, Integer appType) {
+        List<ScheduleTaskTaskShade> taskTaskShades = scheduleTaskTaskShadeService.listChildTask(taskId, appType,environmentContext.getListChildTaskLimit());
+        return taskTaskShades.stream().filter(taskTaskShade -> !taskTaskShade.getAppType().equals(taskTaskShade.getParentAppType())).collect(Collectors.toList());
+    }
+
     public void getNotDeleteTask(Long taskId, Integer appType) {
+        List<ScheduleTaskShade> shades = scheduleTaskShadeDao.getChildTaskByOtherPlatform(taskId,appType,environmentContext.getListChildTaskLimit());
+
+        if (CollectionUtils.isNotEmpty(shades)) {
+//            List<Long> taskIds = shades.stream().map(ScheduleTaskTaskShade::getTaskId).collect(Collectors.toList());
+
+
+        }
 
     }
 
