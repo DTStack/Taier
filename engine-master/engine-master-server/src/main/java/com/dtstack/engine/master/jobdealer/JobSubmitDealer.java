@@ -231,14 +231,13 @@ public class JobSubmitDealer implements Runnable {
     }
 
     private boolean checkJobSubmitExpired(JobClient jobClient) {
-        long submitExpiredTime = jobClient.getSubmitExpiredTime();
-        if(submitExpiredTime > 0){
+        long submitExpiredTime;
+        if ((submitExpiredTime = jobClient.getSubmitExpiredTime()) > 0){
             return System.currentTimeMillis() - jobClient.getGenerateTime() > submitExpiredTime;
+        } else if (jobSubmitExpired > 0) {
+            return System.currentTimeMillis() - jobClient.getGenerateTime() > jobSubmitExpired;
         }
-        if (jobSubmitExpired <= 0) {
-            return false;
-        }
-        return System.currentTimeMillis() - jobClient.getGenerateTime() > jobSubmitExpired;
+        return false;
     }
 
     private boolean checkMaxPriority(String jobResource) {
@@ -376,3 +375,4 @@ public class JobSubmitDealer implements Runnable {
         return submittedQueue;
     }
 }
+

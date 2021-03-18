@@ -29,7 +29,7 @@
         from schedule_engine_job_checkpoint
         where is_deleted=0 and task_id=#{taskId}
         <if test="triggerStart != null and triggerEnd != null">
-            and (UNIX_TIMESTAMP(checkpoint_trigger)>=#{triggerStart} or #{triggerEnd}>=UNIX_TIMESTAMP(checkpoint_trigger))
+            and (#{triggerStart} &lt;= UNIX_TIMESTAMP(checkpoint_trigger) &lt;= #{triggerEnd})
         </if>
         and checkpoint_savepath is not null
         order by checkpoint_trigger asc
@@ -41,7 +41,7 @@
         from schedule_engine_job_checkpoint
         where task_id=#{taskId}
         <if test="triggerStart != null and triggerEnd != null">
-            and (UNIX_TIMESTAMP(gmt_create)>=#{triggerStart} or #{triggerEnd}>=UNIX_TIMESTAMP(gmt_create))
+            and (#{triggerStart} &lt;= UNIX_TIMESTAMP(gmt_create) &lt;= #{triggerEnd})
         </if>
         and checkpoint_savepath is null
         order by gmt_create desc
@@ -73,7 +73,8 @@
         select
         <include refid="select_content_fragment"/>
         from schedule_engine_job_checkpoint
-        where is_deleted =0 and task_engine_id = #{taskEngineId} and checkpoint_savepath is not null
+        where is_deleted =0 and task_engine_id = #{taskEngineId}
+        and task_id=#{taskId} and checkpoint_savepath is not null
         order by checkpoint_id desc
         limit #{startIndex}, #{count}
     </select>
@@ -109,3 +110,4 @@
         where task_id=#{taskId}
     </delete>
 </mapper>
+
