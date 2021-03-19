@@ -680,7 +680,7 @@ public class ScheduleTaskShadeService {
         }
 
         if (StringUtils.isBlank(commitId)) {
-            LOG.info("commitId未传，自动生成commitId");
+            LOGGER.info("commitId未传，自动生成commitId");
             commitId = UUID.randomUUID().toString();
         }
 
