@@ -56,7 +56,6 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-redis</artifactId>
-            <version>1.6.2.RELEASE</version>
         </dependency>
 
         <dependency>
