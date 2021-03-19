@@ -1,7 +1,9 @@
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.api.domain.ScheduleTaskShade;
 import com.dtstack.engine.api.param.ScheduleEngineProjectParam;
 import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
+import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.dao.ScheduleEngineProjectDao;
@@ -33,7 +35,11 @@ public class ProjectService {
     private ScheduleEngineProjectDao scheduleEngineProjectDao;
 
     @Autowired
+    private ScheduleTaskShadeService scheduleTaskShadeService;
+
+    @Autowired
     private EnvironmentContext environmentContext;
+
 
     public void updateSchedule(Long projectId, Integer appType, Integer scheduleStatus) {
         if (null == projectId || null == appType || null == scheduleStatus) {
@@ -60,6 +66,7 @@ public class ProjectService {
             scheduleEngineProjectDao.insert(project);
         } else {
             // 更新项目
+            project.setId(scheduleEngineProject.getId());
             scheduleEngineProjectDao.updateById(project);
         }
     }
@@ -116,7 +123,20 @@ public class ProjectService {
     }
 
     public void deleteProject(Long projectId, Integer appType) {
-        scheduleEngineProjectDao.deleteByProjectIdAppType(projectId,appType);
+        if (appType == null) {
+            throw new RdosDefineException("appType must be passed");
+        }
+
+        if (projectId == null) {
+            throw new RdosDefineException("projectId must be passed");
+        }
+        List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeDao.getTaskOtherPlatformByProjectId(projectId, appType, environmentContext.getListChildTaskLimit());
+
+        if (CollectionUtils.isNotEmpty(scheduleTaskShades)) {
+            throw new RdosDefineException("there is bound data and cannot be deleted");
+        }
+
+        scheduleEngineProjectDao.deleteByProjectIdAppType(projectId, appType);
     }
 
     public List<ScheduleEngineProjectVO> findFuzzyProjectByProjectAlias(String name, Integer appType, Long uicTenantId) {
@@ -142,24 +162,57 @@ public class ProjectService {
 
         for (ScheduleEngineProject dean : deans) {
             ScheduleEngineProjectVO vo = new ScheduleEngineProjectVO();
-            vo.setId(dean.getId());
-            vo.setProjectId(dean.getProjectId());
-            vo.setUicTenantId(dean.getUicTenantId());
-            vo.setAppType(dean.getAppType());
-            vo.setProjectName(dean.getProjectName());
-            vo.setProjectAlias(dean.getProjectAlias());
-            vo.setProjectIdentifier(dean.getProjectIdentifier());
-            vo.setProjectDesc(dean.getProjectDesc());
-            vo.setStatus(dean.getStatus());
-            vo.setCreateUserId(dean.getCreateUserId());
-            vo.setGmtCreate(dean.getGmtCreate());
-            vo.setGmtModified(dean.getGmtModified());
-            vo.setIsDeleted(dean.getIsDeleted());
+            build(dean, vo);
 
             vos.add(vo);
         }
 
         return vos;
+    }
+
+    private void build(ScheduleEngineProject dean, ScheduleEngineProjectVO vo) {
+        vo.setId(dean.getId());
+        vo.setProjectId(dean.getProjectId());
+        vo.setUicTenantId(dean.getUicTenantId());
+        vo.setAppType(dean.getAppType());
+        vo.setProjectName(dean.getProjectName());
+        vo.setProjectAlias(dean.getProjectAlias());
+        vo.setProjectIdentifier(dean.getProjectIdentifier());
+        vo.setProjectDesc(dean.getProjectDesc());
+        vo.setStatus(dean.getStatus());
+        vo.setCreateUserId(dean.getCreateUserId());
+        vo.setGmtCreate(dean.getGmtCreate());
+        vo.setGmtModified(dean.getGmtModified());
+        vo.setIsDeleted(dean.getIsDeleted());
+    }
+
+    public ScheduleEngineProjectVO findProject(Long projectId, Integer appType) {
+        if (projectId == null) {
+            throw new RdosDefineException("projectId not null");
+        }
+
+        if (appType == null) {
+            throw new RdosDefineException("projectId not null");
+        }
+
+        ScheduleEngineProject dean = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(projectId,appType);
+        ScheduleEngineProjectVO vo = new ScheduleEngineProjectVO();
+        build(dean, vo);
+        return vo;
+    }
+
+    public List<NotDeleteTaskVO> getNotDeleteTaskByProjectId(Long projectId, Integer appType) {
+        if (appType == null) {
+            throw new RdosDefineException("appType must be passed");
+        }
+
+        if (projectId == null) {
+            throw new RdosDefineException("projectId must be passed");
+        }
+
+        List<ScheduleTaskShade> scheduleTaskShades = scheduleTaskShadeService.getTaskOtherPlatformByProjectId(projectId, appType, environmentContext.getListChildTaskLimit());
+
+        return scheduleTaskShadeService.buildNotDeleteTaskVO(scheduleTaskShades,appType);
     }
 }
 

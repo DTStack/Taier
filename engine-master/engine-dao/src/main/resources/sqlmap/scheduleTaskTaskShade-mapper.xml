@@ -51,6 +51,13 @@
         WHERE parent_task_id = #{parentTaskId} and is_deleted = 0 AND app_type = #{appType}
     </select>
 
+    <select id="listChildTaskLimit" resultType="com.dtstack.engine.api.domain.ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE parent_task_id = #{parentTaskId} and is_deleted = 0 AND app_type = #{appType} LIMIT #{limit}
+    </select>
+
     <select id="listParentTask" resultType="ScheduleTaskTaskShade">
         SELECT
         <include refid="select_content_fragment"/>
@@ -94,5 +101,6 @@
         FROM schedule_task_task_shade
         WHERE task_id = #{taskId} and parent_task_id = #{parentTaskId} AND is_deleted = 0 AND app_type = #{appType} LIMIT 1
     </select>
+
 
 </mapper>

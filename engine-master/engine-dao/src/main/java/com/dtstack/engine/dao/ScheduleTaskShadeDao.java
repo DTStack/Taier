@@ -97,4 +97,8 @@ public interface ScheduleTaskShadeDao {
     void updateProjectScheduleStatus(@Param("projectId")Long projectId,@Param("appType")Integer appType,@Param("scheduleStatus") Integer scheduleStatus);
 
     List<ScheduleTaskShade> findFuzzyTaskNameByCondition(@Param("name") String name, @Param("appType") Integer appType, @Param("uicTenantId") Long uicTenantId, @Param("projectId") Long projectId, @Param("fuzzyProjectByProjectAliasLimit") Integer fuzzyProjectByProjectAliasLimit);
+
+    List<ScheduleTaskShade> getChildTaskByOtherPlatform(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("limit") Integer limit);
+
+    List<ScheduleTaskShade> getTaskOtherPlatformByProjectId(@Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("limit") Integer limit);
 }

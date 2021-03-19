@@ -78,11 +78,21 @@
     <select id="selectFuzzyProjectByProjectAlias" resultType="com.dtstack.engine.domain.ScheduleEngineProject">
         SELECT `id`, `project_id`, `uic_tenant_id`, `app_type`, `project_name`, `project_alias`, `project_Identifier`, `project_desc`
         FROM `schedule_engine_project`
-        WHERE `uic_tenant_id` = #{uicTenantId} AND `app_type` = #{appType}
+        WHERE `uic_tenant_id` = #{uicTenantId} AND `app_type` = #{appType} AND `is_deleted` = 0
         <if test="name !=null">
             AND `project_alias` LIKE '${name}%'
         </if>
         LIMIT #{fuzzyProjectByProjectAliasLimit}
+    </select>
+    <select id="listByProjectIds" resultType="com.dtstack.engine.domain.ScheduleEngineProject">
+        SELECT `id`, `project_id`, `uic_tenant_id`, `app_type`, `project_name`, `project_alias`, `project_Identifier`, `project_desc`
+        FROM `schedule_engine_project`
+        WHERE `project_id` IN
+        <foreach collection="projectIds" item="projectId" open="(" close=")" separator=",">
+            #{projectId}
+        </foreach>
+        AND `app_type` = #{appType}
+         AND `is_deleted` = 0
     </select>
 
 

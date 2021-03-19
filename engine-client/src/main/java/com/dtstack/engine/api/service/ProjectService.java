@@ -2,6 +2,7 @@ package com.dtstack.engine.api.service;
 
 import com.dtstack.engine.api.param.ScheduleEngineProjectParam;
 import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
+import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.sdk.core.common.ApiResponse;
 import com.dtstack.sdk.core.common.DtInsightServer;
 import com.dtstack.sdk.core.feign.Headers;
@@ -27,5 +28,11 @@ public interface ProjectService extends DtInsightServer {
     ApiResponse<Void> deleteProject( @Param("projectId") Long projectId, @Param("appType") Integer appType);
 
     @RequestLine("POST /node/project/findFuzzyProjectByProjectAlias")
-    ApiResponse<List<ScheduleEngineProjectVO>> findFuzzyProjectByProjectAlias( @Param("name") String name,  @Param("appType") Integer appType, @Param("uicTenantId") Long uicTenantId);
+    ApiResponse<List<ScheduleEngineProjectVO>> findFuzzyProjectByProjectAlias(@Param("name") String name, @Param("appType") Integer appType, @Param("uicTenantId") Long uicTenantId);
+
+    @RequestLine("POST /node/project/findProject")
+    ApiResponse<ScheduleEngineProjectVO> findProject(@Param("projectId") Long projectId,@Param("appType") Integer appType);
+
+    @RequestLine("POST /node/project/getNotDeleteTaskByProjectId")
+    ApiResponse<List<NotDeleteTaskVO>> getNotDeleteTaskByProjectId(@Param("projectId") Long projectId, @Param("appType") Integer appType);
 }

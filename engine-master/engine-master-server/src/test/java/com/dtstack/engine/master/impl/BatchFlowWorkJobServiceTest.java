@@ -39,7 +39,7 @@ public class BatchFlowWorkJobServiceTest extends AbstractTest {
 //    @Rollback
 //    public void testCheckRemoveAndUpdateFlowJobStatus() {
 //        ScheduleJob scheduleJobFirst = DataCollection.getData().getScheduleJobFirst();
-//        boolean checkRemoveAndUpdateFlowJobStatus = batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleJobFirst);
+//        boolean checkRemoveAndUpdateFlowJobStatus = batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleJobFirst.getId(), scheduleJobFirst.getFlowJobId(), scheduleJobFirst.getAppType());
 //        Assert.assertTrue(!checkRemoveAndUpdateFlowJobStatus);
 //        ScheduleJob scheduleJobSubmitted = DataCollection.getData().getScheduleJobSubmitted();
 //        boolean status = batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleJobSubmitted.getId(), scheduleJobSubmitted.getFlowJobId(), scheduleJobSubmitted.getAppType());

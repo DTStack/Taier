@@ -1,10 +1,13 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.QueryJobDTO;
 import com.dtstack.engine.api.dto.ScheduleJobDTO;
 import com.dtstack.engine.api.dto.ScheduleTaskForFillDataDTO;
+import com.dtstack.engine.api.enums.TaskRuleEnum;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
 import com.dtstack.engine.api.pojo.ParamActionExt;
@@ -13,6 +16,7 @@ import com.dtstack.engine.api.vo.action.ActionLogVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobScienceJobStatusVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusCountVO;
 import com.dtstack.engine.api.vo.schedule.job.ScheduleJobStatusVO;
+import com.dtstack.engine.common.constrant.GlobalConst;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -21,10 +25,8 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.RetryUtil;
-import com.dtstack.engine.dao.ScheduleFillDataJobDao;
-import com.dtstack.engine.dao.ScheduleJobDao;
-import com.dtstack.engine.dao.ScheduleJobJobDao;
-import com.dtstack.engine.dao.ScheduleTaskShadeDao;
+import com.dtstack.engine.dao.*;
+import com.dtstack.engine.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
@@ -94,6 +96,8 @@ public class ScheduleJobService {
 
     private static final int TOTAL_HOUR_DAY = 24;
 
+    private final String LOG_TEM = "%s: %s(所属租户：%s,所属项目：%s)";
+
     private static final String DOWNLOAD_LOG = "/api/rdos/download/batch/batchDownload/downloadJobLog?jobId=%s&taskType=%s";
 
     private static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EScheduleJobType.WORK_FLOW.getVal(), EScheduleJobType.ALGORITHM_LAB.getVal());
@@ -142,6 +146,12 @@ public class ScheduleJobService {
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private TenantDao tenantDao;
+
+    @Autowired
+    private ScheduleEngineProjectDao scheduleEngineProjectDao;
 
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.CANCELLING.getStatus(), RdosTaskStatus.CANCELED.getStatus());
     private final static List<Integer> FAILED_STATUS = Lists.newArrayList(RdosTaskStatus.FAILED.getStatus(), RdosTaskStatus.SUBMITFAILD.getStatus(), RdosTaskStatus.KILLED.getStatus());
@@ -2897,6 +2907,124 @@ public class ScheduleJobService {
 
     public void updateStatusByJobIdEqualsStatus(String jobId, Integer status, Integer status1) {
         scheduleJobDao.updateStatusByJobIdEqualsStatus(jobId,status,status1);
+    }
+
+    public List<ScheduleJob> listJobByJobKeys(List<String> parentJobKeys) {
+        if (CollectionUtils.isNotEmpty(parentJobKeys)) {
+            return scheduleJobDao.listJobByJobKeys(parentJobKeys);
+        }
+        return Lists.newArrayList();
+    }
+
+    public Map<String, List<ScheduleJob>> getParantJobKeyMap(List<String> parentJobKeys) {
+        return null;
+    }
+
+
+    public void handleTaskRule(ScheduleJob scheduleJob,Integer bottleStatus) {
+        String jobKey = scheduleJob.getJobKey();
+        // 查询当前任务的所有父任务的运行状态
+        List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByParentJobKey(jobKey);
+        if (CollectionUtils.isNotEmpty(scheduleJobJobs)) {
+            List<String> parentJobKeys = scheduleJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList());
+            // 查询所有父任务
+            List<ScheduleJob> scheduleJobs = this.listJobByJobKeys(parentJobKeys);
+            // 查询所有父任务下的子任务关系
+            Map<String,List<ScheduleJob>> parentAndSon = this.getParantJobKeyMap(parentJobKeys);
+
+            for (ScheduleJob scheduleJobParent : scheduleJobs) {
+                // 判断状态父任务的状态
+                List<ScheduleJob> scheduleJobsSon = parentAndSon.get(scheduleJobParent.getJobKey());
+                updateFatherStatus(scheduleJobParent,scheduleJob,scheduleJobsSon,bottleStatus);
+            }
+
+        }
+    }
+
+    private void updateFatherStatus(ScheduleJob fatherScheduleJob, ScheduleJob currentScheduleJob, List<ScheduleJob> sonScheduleJobs, Integer bottleStatus) {
+        if (RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(fatherScheduleJob.getStatus()) && CollectionUtils.isNotEmpty(sonScheduleJobs)) {
+            String nameByDtUicTenantId = tenantDao.getNameByDtUicTenantId(currentScheduleJob.getDtuicTenantId());
+            ScheduleEngineProject project = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(currentScheduleJob.getProjectId(),currentScheduleJob.getAppType());
+            if (RdosTaskStatus.FAILED_STATUS.contains(bottleStatus)) {
+                // 当前强任务执行失败，执行更新成失败
+                String log = getLog(fatherScheduleJob, currentScheduleJob,nameByDtUicTenantId,project);
+                this.updateStatusAndLogInfoById(fatherScheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), log);
+            } else if (RdosTaskStatus.FINISH_STATUS.contains(bottleStatus)) {
+                // 当前任务执行成功,判断父任务下其他子任务是否有强规则任务
+                List<ScheduleJob> jobs = sonScheduleJobs.stream().filter(job -> TaskRuleEnum.STRONG_RULE.getCode().equals(job.getTaskRule()) && job.getJobKey().equals(currentScheduleJob.getJobKey())).collect(Collectors.toList());
+
+                if (CollectionUtils.isNotEmpty(jobs)) {
+                    List<ScheduleJob> noFinishJobs = jobs.stream().filter(job -> !RdosTaskStatus.FINISH_STATUS.contains(job.getStatus())).collect(Collectors.toList());
+
+                    if (CollectionUtils.isEmpty(noFinishJobs)) {
+                        // 为查到未完成的任务
+                        String log = String.format(LOG_TEM, currentScheduleJob.getJobName(), "运行成功", nameByDtUicTenantId, project.getProjectAlias());
+                        this.updateStatusAndLogInfoById(fatherScheduleJob.getJobId(), RdosTaskStatus.FINISHED.getStatus(), addLog(fatherScheduleJob.getLogInfo(),log));
+                    }
+                } else {
+                    String log = String.format(LOG_TEM, currentScheduleJob.getJobName(), "运行成功", nameByDtUicTenantId, project.getProjectAlias());
+                    this.updateStatusAndLogInfoById(fatherScheduleJob.getJobId(), RdosTaskStatus.FINISHED.getStatus(), addLog(fatherScheduleJob.getLogInfo(),log));
+                }
+            }
+        }
+    }
+
+    private String getLog(ScheduleJob fatherScheduleJob,ScheduleJob currentScheduleJob,String nameByDtUicTenantId,ScheduleEngineProject project) {
+        String logInfo = fatherScheduleJob.getLogInfo();
+        // %s: %s(所属租户：%s,所属项目：%s)
+        String addLog = LOG_TEM;
+
+        boolean isRule = Boolean.FALSE;
+        if (EScheduleJobType.WORK_FLOW.getType().equals(currentScheduleJob.getTaskType())) {
+            // 如果工作流任务，查询是否有null任务
+            List<ScheduleJob> subJobsAndStatusByFlowId = this.getSubJobsAndStatusByFlowId(currentScheduleJob.getJobId());
+            List<ScheduleJob> jobs = subJobsAndStatusByFlowId.stream().filter(job -> EScheduleJobType.NOT_DO_TASK.getType().equals(job.getTaskType())).collect(Collectors.toList());
+
+            if (CollectionUtils.isNotEmpty(jobs)) {
+                // 有空任务
+                for (ScheduleJob job : jobs) {
+                    if (RdosTaskStatus.FAILED_STATUS.contains(job.getStatus())) {
+                        // 存在空任务失败的情况
+                        addLog = String.format(addLog, currentScheduleJob.getJobName(), "校验不通过", nameByDtUicTenantId, project.getProjectAlias());
+                        isRule = Boolean.TRUE;
+                        break;
+                    }
+                }
+
+
+            }
+        }
+
+        if (!isRule) {
+            addLog = String.format(addLog, currentScheduleJob.getJobName(), "运行失败", nameByDtUicTenantId, project.getProjectAlias());
+        }
+
+        return addLog(logInfo, addLog);
+
+
+    }
+
+    private String addLog(String logInfo, String addLog) {
+        try {
+            JSONObject jsonObject = JSON.parseObject(logInfo);
+            JSONArray jsonArray = jsonObject.getJSONArray(GlobalConst.RULE_LOG_FILED);
+
+            if (jsonArray != null) {
+                jsonArray.add(addLog);
+            } else {
+                jsonArray = new JSONArray();
+                List<String> ruleLogList = Lists.newArrayList();
+                ruleLogList.add(addLog);
+                jsonArray.add(ruleLogList);
+            }
+
+            jsonObject.put(GlobalConst.RULE_LOG_FILED,jsonArray);
+            return jsonObject.toJSONString();
+        } catch (Exception e) {
+            logInfo+= "===============================================================\n";
+            logInfo+=addLog;
+            return logInfo;
+        }
     }
 }
 

@@ -18,6 +18,8 @@ public interface ScheduleTaskTaskShadeDao {
 
     List<ScheduleTaskTaskShade> listChildTask(@Param("parentTaskId") long parentTaskId,@Param("appType")Integer appType);
 
+    List<ScheduleTaskTaskShade> listChildTaskLimit(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("limit") Integer limit);
+
     List<ScheduleTaskTaskShade> listParentTask(@Param("childTaskId") long childTaskId,@Param("appType")Integer appType);
 
     Integer deleteByTaskId(@Param("taskId") long taskId,@Param("appType")Integer appType);

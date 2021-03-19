@@ -22,8 +22,10 @@ ALTER TABLE `schedule_task_shade` ADD  `task_rule` tinyint(1) NOT NULL DEFAULT '
 ALTER TABLE `schedule_job` ADD  `task_rule` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务规则 0 默认无规则 1弱规则 2强规则';
 
 ALTER TABLE `schedule_task_task_shade` ADD  `parent_app_type` int(11) NOT NULL DEFAULT '0' COMMENT '父任务的appType';
-UPDATE `schedule_task_task_shade` SET `parent_app_type` = `app_type`
+
+UPDATE `schedule_task_task_shade` SET `parent_app_type` = `app_type`;
 
 ALTER TABLE `schedule_job_job` ADD  `parent_app_type` int(11) NOT NULL DEFAULT '0' COMMENT '父任务的appType';
-UPDATE `schedule_job_job` SET `parent_app_type` = `app_type`
+
+UPDATE `schedule_job_job` SET `parent_app_type` = `app_type`;
 

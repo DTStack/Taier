@@ -1,8 +1,18 @@
 package com.dtstack.engine.master.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.api.domain.ScheduleJob;
+import com.dtstack.engine.api.domain.ScheduleJobJob;
 import com.dtstack.engine.api.enums.TaskRuleEnum;
+import com.dtstack.engine.common.constrant.GlobalConst;
 import com.dtstack.engine.common.enums.RdosTaskStatus;
+import com.dtstack.engine.dao.ScheduleEngineProjectDao;
+import com.dtstack.engine.dao.ScheduleJobDao;
+import com.dtstack.engine.dao.ScheduleJobJobDao;
+import com.dtstack.engine.dao.TenantDao;
+import com.dtstack.engine.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.executor.AbstractJobExecutor;
@@ -16,7 +26,9 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * company: www.dtstack.com
@@ -38,6 +50,9 @@ public class BatchFlowWorkJobService {
 
     @Autowired
     private ScheduleJobService batchJobService;
+
+    @Autowired
+    private ScheduleJobJobDao scheduleJobJobDao;
 
     Predicate<Integer> isSpecialType = type ->  type.intValue() == EScheduleJobType.WORK_FLOW.getType() || type.intValue() == EScheduleJobType.ALGORITHM_LAB.getVal();
 
@@ -142,15 +157,14 @@ public class BatchFlowWorkJobService {
             updateJob.setExecEndTime(new Timestamp(System.currentTimeMillis()));
             updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
             batchJobService.updateStatusWithExecTime(updateJob);
-            // 判断自身是否是失败强规则任务，如果是强规则任务
-//            if (TaskRuleEnum.STRONG_RULE.getCode().equals(scheduleBatchJob.getScheduleJob().getTaskRule())) {
-//                // 自身是强规则任务，判断父节点是否是失败状态
-//
-//            }
-
         } else {
             //更新工作流状态
             batchJobService.updateStatusByJobId(jobId, bottleStatus,null);
+        }
+
+        if (TaskRuleEnum.STRONG_RULE.getCode().equals(scheduleBatchJob.getScheduleJob().getTaskRule())) {
+            // 强规则任务,查询父任务
+            batchJobService.handleTaskRule(scheduleBatchJob.getScheduleJob(),bottleStatus);
         }
 
         Long id = scheduleBatchJob.getId();
@@ -160,6 +174,8 @@ public class BatchFlowWorkJobService {
         }
         return canRemove;
     }
+
+
 
     /**
      * 工作流自己为自动取消或冻结的状态的时候 直接把子任务状态全部更新 防止重复check
