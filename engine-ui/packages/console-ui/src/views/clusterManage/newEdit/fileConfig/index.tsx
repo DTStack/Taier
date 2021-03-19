@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { Form, Select, message, Icon, Cascader } from 'antd'
+import { Form, Select, message, Icon, Cascader,
+    notification } from 'antd'
 
 import req from '../../../../consts/reqUrls'
 import Api from '../../../../api/console'
@@ -85,6 +86,7 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                                 return label[label.length - 1];
                             }}
                             onChange={this.handleVersion}
+                            style={{ width: '100%' }}
                         />
                     )}
                 </FormItem>
@@ -110,6 +112,24 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
                 }
             })
         }
+    }
+
+    refreshYarnQueue = () => {
+        const { clusterName } = this.props.clusterInfo
+        Api.refreshQueue({ clusterName }).then((res: any) => {
+            if (res.code == 1) {
+                const target = res.data.find(v => v.componentTypeCode == COMPONENT_TYPE_VALUE.YARN)
+                if (target?.result || res.data.length == 0) {
+                    message.success('刷新成功')
+                } else {
+                    notification['error']({
+                        message: '刷新失败',
+                        description: `${target.errorMsg}`,
+                        style: { wordBreak: 'break-word' }
+                    });
+                }
+            }
+        })
     }
 
     // 下载配置文件
@@ -298,7 +318,10 @@ export default class FileConfig extends React.PureComponent<IProps, IState> {
         const typeCode = comp?.componentTypeCode ?? ''
         return (
             <UploadFile
-                label="配置文件"
+                label={<span>
+                    配置文件
+                    <a style={{ marginLeft: 66 }} onClick={this.refreshYarnQueue}>刷新队列</a>
+                </span>}
                 deleteIcon={true}
                 fileInfo={{
                     typeCode,
