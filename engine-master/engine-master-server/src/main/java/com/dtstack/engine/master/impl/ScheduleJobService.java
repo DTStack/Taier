@@ -27,13 +27,11 @@ import com.dtstack.engine.dao.ScheduleJobJobDao;
 import com.dtstack.engine.dao.ScheduleTaskShadeDao;
 import com.dtstack.engine.master.bo.ScheduleBatchJob;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
-import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.queue.JobPartitioner;
 import com.dtstack.engine.master.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.scheduler.JobRichOperator;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.utils.JobGraphUtils;
 import com.dtstack.engine.master.sync.RestartRunnable;
 import com.dtstack.engine.master.vo.BatchSecienceJobChartVO;
@@ -2771,7 +2769,7 @@ public class ScheduleJobService {
     public boolean syncRestartJob(Long id, Boolean justRunChild, Boolean setSuccess, List<Long> subJobIds) {
         String key = "syncRestartJob" + id;
         if (redisTemplate.hasKey(key)) {
-            logger.info("syncRestartJob  {}  is doing ", key);
+            LOGGER.info("syncRestartJob  {}  is doing ", key);
             return false;
         }
         redisTemplate.execute((RedisCallback<String>) connection -> {
@@ -2815,7 +2813,7 @@ public class ScheduleJobService {
                             listByJobIdFillFlowSubJobs(scheduleJobs);
                             jobStopDealer.addStopJobs(scheduleJobs);
                         } catch (Exception e) {
-                            logger.info("stopJobByCondition  {}  error ", JSONObject.toJSONString(finalQuery));
+                            LOGGER.info("stopJobByCondition  {}  error ", JSONObject.toJSONString(finalQuery));
                         }
                     });
                 }
