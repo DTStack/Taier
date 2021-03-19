@@ -11,7 +11,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import redis.clients.jedis.JedisCommands;
+import redis.clients.jedis.commands.JedisCommands;
+import redis.clients.jedis.params.SetParams;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -123,7 +124,9 @@ public class ComponentConfigOldCovertService implements ApplicationListener<Appl
         }
         String execute = redisTemplate.execute((RedisCallback<String>) connection -> {
             JedisCommands commands = (JedisCommands) connection.getNativeConnection();
-            return commands.set(key, "-1", "NX", "EX", 2 * 60);
+            SetParams setParams = SetParams.setParams();
+            setParams.nx().ex(2 * 60);
+            return commands.set(key, "-1", setParams);
         });
         return StringUtils.isNotBlank(execute);
     }
