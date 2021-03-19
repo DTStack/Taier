@@ -224,7 +224,7 @@ export const CHANNEL_MODE = {
     ]
 }
 export const CHANNEL_CONF_TEXT = {
-    JAR: '{"classname":"com.dtstack.sender.sms.xxxsender"}',
+    JAR: '{"className":"com.dtstack.sender.sms.xxxsender"}',
     API: '{\n"cookiestore": false,\n"configs": [{\n"url": "",\n"method": "get",\n"header": {},\n"body": {}\n}],\n"context": {}\n} ',
     SMS_YP: '请按照此格式输入配置信息：\n{"yp_api_key":"xxxxxx"}',
     MAIL_DT: '{\n"mail.smtp.host":"smtp.yeah.net",\n"mail.smtp.port":"25",\n"mail.smtp.ssl.enable":"false",\n"mail.smtp.username":"daishu@dtstack.com",\n"mail.smtp.password":"xxxx",\n"mail.smtp.from":"daishu@dtstack.com"\n}',
