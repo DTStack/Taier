@@ -1,5 +1,5 @@
 //每个模块定义的相关接口
-const api = "/publicService/v1";
+const api = "/api/publicService";
 export default {
   post1: {
     method: "post",
@@ -16,22 +16,22 @@ export default {
   },
   //数据源类型下拉列表
   typeList: {
-    method: "get",
+    method: "post",
     url: `${api}/dataSource/type/list`,
   },
   // 授权产品下拉列表
   productList: {
-    method: "get",
+    method: "post",
     url: `${api}/dataSource/product/list`,
   },
   //删除一条数据源实例
   dataSourceDelete: {
-    method: "get",
+    method: "post",
     url: `${api}/dataSource/delete`,
   },
   //产品授权界面
   authProductList: {
-    method: "get",
+    method: "post",
     url: `${api}/dataSource/auth/product/list`,
   },
   // 产品授权
@@ -41,17 +41,17 @@ export default {
   },
   //获取数据源分类类目列表
   queryDsClassifyList: {
-    method: "get",
+    method: "post",
     url: `${api}/addDs/queryDsClassifyList`,
   },
   //根据分类获取数据源类型
   queryDsTypeByClassify: {
-    method: "get",
+    method: "post",
     url: `${api}/addDs/queryDsTypeByClassify`,
   },
   //根据数据源类型获取版本列表
   queryDsVersionByType: {
-    method: "get",
+    method: "post",
     url: `${api}/addDs/queryDsVersionByType`,
   },
   //根据数据库类型和版本查找表单模版
@@ -64,9 +64,34 @@ export default {
     method: "post",
     url: `${api}/addDs/queryProductList`,
   },
+  // 添加数据源
+  addDatasource: {
+    method: "post",
+    url: `${api}/addDs/addDatasource`,
+  },
+  //上传Kerberos添加数据源
+  addDatasourceWithKerberos: {
+    method: "post",
+    url: `${api}/addDs/addDatasourceWithKerberos`,
+  },
+  // 测试联通性
+  testCon: {
+    method: "post",
+    url: `${api}/addDs/testCon`,
+  },
+  // 上传Kerberos测试联通性
+  testConWithKerberos: {
+    method: "post",
+    url: `${api}/addDs/testConWithKerberos`,
+  },
+  // 获取数据源基本详情
+  detail: {
+    method: "post",
+    url: `${api}/dataSource/detail`,
+  },
   //模板下载
   downloadtemplate: {
-    method: "get",
+    method: "post",
     url: `${api}/download`,
   },
 };

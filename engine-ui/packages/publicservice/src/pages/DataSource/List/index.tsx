@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router";
 import Search from "./components/Search";
 import { Table, message, Modal, notification, Pagination } from "antd";
 import { columns } from "./constants";
@@ -9,17 +10,19 @@ import { IPagination, IOther, IRecord } from "./type";
 import "./style.scss";
 
 function index() {
+  const history = new useHistory();
+
   const [dataSources, setDataSources] = useState([]);
   const [params, setParams] = useState<IPagination>({
-    current: 1, //当前页码
-    size: 20, //分页个数
+    currentPage: 1, //当前页码
+    pageSize: 20, //分页个数
   });
   const [other, setOther] = useState<IOther>({
     search: "",
-    dataType: null,
-    appType: null,
+    dataType: [],
+    appType: [],
     isMeta: 0,
-    status: null,
+    status: [],
   });
   const [total, setTotal] = useState<number>(null);
 
@@ -39,17 +42,18 @@ function index() {
         ...query,
       });
       if (success) {
-        data.contentList.forEach((item, index) => {
-          item.index = index + 1;
-        });
-
         setParams({
-          current: data.current, //当前页码
-          size: data.size, //分页个数
+          currentPage: data.currentPage, //当前页码
+          pageSize: data.pageSize, //分页个数
         });
 
-        setTotal(data.total); //总页数
-        setDataSources(data.contentList);
+        setTotal(data.totalPage); //总页数
+        setDataSources(data.data);
+      } else {
+        notification.error({
+          message: "错误！",
+          description: "获取数据源分类类目列表失败",
+        });
       }
     } catch (error) {
       notification.error({
@@ -71,34 +75,32 @@ function index() {
     if (record.isMeta === 1) {
       message.info("带meta标识的数据源不能编辑、删除");
     } else {
-      alert("进去编辑页面");
+      history.push("/edit-source", {
+        record,
+      });
     }
   };
 
   //删除
   const toDelete = async (record) => {
-    if (record.isAuth === 1 || record.isMeta === 1) {
-      message.info("数据源已授权给产品，不可删除");
-    } else {
-      let { success, message: msg } = await API.dataSourceDelete({
-        dataInfoId: record.dataInfoId,
-      });
+    let { success, message: msg } = await API.dataSourceDelete({
+      dataInfoId: record.dataInfoId,
+    });
 
-      if (success) {
-        message.success("删除成功");
-        requestTableData(); //更新表格
-      } else {
-        notification.error({
-          message: "错误！",
-          description: `${msg}`,
-        });
-      }
+    if (success) {
+      message.success("删除成功");
+      requestTableData(); //更新表格
+    } else {
+      notification.error({
+        message: "错误！",
+        description: `${msg}`,
+      });
     }
   };
 
   //分页事件
   const onChangePage = (page) => {
-    let data = { ...params, ...{ current: page } };
+    let data = { ...params, ...{ currentPage: page } };
     setParams(data);
     requestTableData(data);
   };
@@ -154,7 +156,7 @@ function index() {
     return (
       <span>
         共 <i style={{ color: "#3F87FF" }}>{total}</i> 条数据，每页显示
-        {params.size}条
+        {params.pageSize}条
       </span>
     );
   };
@@ -166,7 +168,7 @@ function index() {
       <div className="bottom">
         <div className="conent-table">
           <Table
-            rowKey={(record) => record.index}
+            rowKey={(record) => record.dataInfoId}
             columns={columns({
               toEdit: toEdit,
               toAuth: toAuth,
@@ -190,8 +192,8 @@ function index() {
             total={total}
             showTotal={showTotal}
             onChange={(page) => onChangePage(page)}
-            defaultPageSize={params.size}
-            current={params.current}
+            defaultPageSize={params.pageSize}
+            current={params.currentPage}
           />
         </div>
       </div>

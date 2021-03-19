@@ -1,5 +1,5 @@
 import React from "react";
-import { Divider, Popconfirm, Icon, Tag, Badge, message } from "antd";
+import { Divider, Popconfirm, Icon, Tag, Badge, notification } from "antd";
 import "./style.scss";
 
 const columns = (props: any) => {
@@ -118,7 +118,10 @@ const columns = (props: any) => {
               <span
                 className="gray"
                 onClick={() => {
-                  message.info("数据源已授权给产品，不可删除");
+                  notification.error({
+                    message: "错误！",
+                    description: "数据源已授权给产品，不可删除",
+                  });
                 }}
               >
                 <a>删除</a>

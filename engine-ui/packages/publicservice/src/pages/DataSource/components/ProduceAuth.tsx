@@ -15,17 +15,17 @@ export default function ProduceAuth() {
   const [produceList, setProduceList] = useState([]);
 
   const [version, setVersion] = useState([]); //版本选择
-  const [checkdList, setCheckdList] = useState([]); //产品选择
+  const [checkdList, setCheckdList] = useState<string[]>([]); //产品选择
   const [defaultSelect, setDefaultSelect] = useState(""); //添加默认选择版本号
 
   //根据数据源类型获取版本列表
   const queryDsVersionByType = async () => {
     let saveStatus = getSaveStatus();
-    let type = saveStatus.sqlType?.dataType || "";
+    let dataType = saveStatus.sqlType?.dataType || "";
 
     try {
       let { data, success } = await API.queryDsVersionByType({
-        dataType: type,
+        dataType,
       });
 
       data = [
@@ -46,11 +46,16 @@ export default function ProduceAuth() {
 
         if (data.length > 0) {
           let echoVersion = saveStatus.version || data[0].dataVersion;
+          sessionStorage.setItem("version", echoVersion);
 
           setDefaultSelect(echoVersion);
-          getauthProductList(type, echoVersion);
+          getAuthProductList(dataType, echoVersion);
+
+          setSqlType(saveStatus.sqlType);
+          setCheckdList(saveStatus.checkdList.split(","))
+
         } else {
-          getauthProductList(type, "");
+          getAuthProductList(dataType, "");
         }
       }
     } catch (error) {
@@ -62,14 +67,14 @@ export default function ProduceAuth() {
   };
 
   //获取产品授权列表
-  const getauthProductList = async (type: string, ver: string) => {
+  const getAuthProductList = async (type: string, version: string) => {
     try {
       let { data, success } = await API.queryProductList({
         dataType: type,
-        dataVersion: ver,
+        dataVersion: version,
       });
 
-      data.push(
+      data = [
         {
           productCode: "time",
           productName: "实时开发",
@@ -81,8 +86,8 @@ export default function ProduceAuth() {
         {
           productCode: "dataqua",
           productName: "数据质量",
-        }
-      );
+        },
+      ];
 
       if (success) {
         setProduceList(data);
@@ -102,7 +107,7 @@ export default function ProduceAuth() {
   //存储数据库版本
   const onSelected = (value) => {
     setDefaultSelect(value);
-    getauthProductList(sqlType.dataType, value); //更新产品列表
+    getAuthProductList(sqlType.dataType, value); //更新产品列表
 
     sessionStorage.setItem("version", value);
   };
@@ -118,7 +123,7 @@ export default function ProduceAuth() {
     <div className="produce-auth">
       <div className="text-show">
         <p>
-          将 <span style={{ color: "#3F87FF" }}>{sqlType.dataType || ""}</span>
+          将 <span style={{ color: "#3F87FF" }}>{sqlType.dataType}</span>
           授权哪些产品使用：
         </p>
         {version.length > 0 && (

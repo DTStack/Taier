@@ -1,7 +1,13 @@
 import { Fetch } from 'ko-request';
 import Restful from './restful';
 import Swagger from './swagger';
-const http = new Fetch();
+const http = new Fetch({
+  initConfig:{
+    // headers: {
+    //   'gg': 'xxx'
+    // },
+  }
+});
 const { keys } = Object;
 function mapUrlObjToFuncObj(urlObj) {
   const API = {};

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useHistory } from "react-router";
 import { Steps, Button } from "antd";
-import BreadComponent from "./BreadComponent";
+import BreadComponent from "../components/BreadComponent";
 import SelectSource from "../components/SelectSource";
 import ProduceAuth from "../components/ProduceAuth";
 import InfoConfig from "../components/InfoConfig";
@@ -13,9 +13,9 @@ export default function index() {
   const childRef = useRef();
   const history = new useHistory();
 
-  const [current, setCurrent] = useState(0);
+  const [current, setCurrent] = useState<number>(0);
 
-  const [showFirstNext, setShowFirstNext] = useState(false); //选择数据源-是否显示下一步
+  const [showFirstNext, setShowFirstNext] = useState<boolean>(false); //选择数据源-是否显示下一步
 
   //1.选择数据源
   const nextType = (value) => {
@@ -41,27 +41,25 @@ export default function index() {
               <SelectSource nextType={nextType}></SelectSource>
             </div>
             <div className="footer-select">
-              <div>
+              <Button
+                style={{ marginRight: 8 }}
+                onClick={() => {
+                  history.push("/data-source");
+                }}
+              >
+                取消
+              </Button>
+
+              {(showFirstNext || sessionStorage.getItem("sqlType")) && (
                 <Button
-                  style={{ marginRight: 8 }}
+                  type="primary"
                   onClick={() => {
-                    history.push("/data-source");
+                    setCurrent(1);
                   }}
                 >
-                  取消
+                  下一步
                 </Button>
-
-                {showFirstNext && (
-                  <Button
-                    type="primary"
-                    onClick={() => {
-                      setCurrent(1);
-                    }}
-                  >
-                    下一步
-                  </Button>
-                )}
-              </div>
+              )}
             </div>
           </>
         );
@@ -74,24 +72,22 @@ export default function index() {
               <ProduceAuth></ProduceAuth>
             </div>
             <div className="footer-select">
-              <div>
-                <Button
-                  style={{ marginRight: 8 }}
-                  onClick={() => {
-                    setCurrent(0);
-                  }}
-                >
-                  上一步
-                </Button>
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    setCurrent(2);
-                  }}
-                >
-                  下一步
-                </Button>
-              </div>
+              <Button
+                style={{ marginRight: 8 }}
+                onClick={() => {
+                  setCurrent(0);
+                }}
+              >
+                上一步
+              </Button>
+              <Button
+                type="primary"
+                onClick={() => {
+                  setCurrent(2);
+                }}
+              >
+                下一步
+              </Button>
             </div>
           </>
         );
@@ -101,25 +97,23 @@ export default function index() {
         let content2 = (
           <>
             <div className="step-info">
-              <InfoConfig cRef={childRef}></InfoConfig>
+              <InfoConfig cRef={childRef} record={""}></InfoConfig>
             </div>
             <div className="footer-select">
-              <div>
-                <Button type="primary" onClick={testConnect}>
-                  测试连通性
-                </Button>
-                <Button
-                  style={{ marginLeft: 60, marginRight: 8 }}
-                  onClick={() => {
-                    setCurrent(1);
-                  }}
-                >
-                  上一步
-                </Button>
-                <Button type="primary" onClick={submitConfig}>
-                  确定
-                </Button>
-              </div>
+              <Button type="primary" onClick={testConnect}>
+                测试连通性
+              </Button>
+              <Button
+                style={{ marginLeft: 60, marginRight: 8 }}
+                onClick={() => {
+                  setCurrent(1);
+                }}
+              >
+                上一步
+              </Button>
+              <Button type="primary" onClick={submitConfig}>
+                确定
+              </Button>
             </div>
           </>
         );
@@ -131,7 +125,7 @@ export default function index() {
   };
   return (
     <div className="source">
-      <BreadComponent></BreadComponent>
+      <BreadComponent name="新增"></BreadComponent>
 
       <div className="content">
         <div className="top-steps">
@@ -141,7 +135,6 @@ export default function index() {
             <Step title="信息配置" />
           </Steps>
         </div>
-
         {switchContent(current)}
       </div>
     </div>

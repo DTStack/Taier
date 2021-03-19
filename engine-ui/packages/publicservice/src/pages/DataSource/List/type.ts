@@ -1,7 +1,7 @@
 //分页字段
 export interface IPagination {
-  current: number;
-  size: number;
+  currentPage: number;
+  pageSize: number;
 }
 export interface IOther {
   search: string;

@@ -5,7 +5,7 @@ import Entry from 'pages/entry/index';
 
 import dataSource from "pages/DataSource/List"
 import addSource from "pages/DataSource/AddSource"
-
+import editSource from "@/pages/DataSource/EditSource"
 
 const Layout = createLayout(true, true);
 
@@ -29,6 +29,11 @@ const routerConf = [
     path: '/add-source',
     // layout: Layout,
     component: addSource,
+  },
+  {
+    path: '/edit-source',
+    // layout: Layout,
+    component: editSource,
   },
   {
     path: '*',
