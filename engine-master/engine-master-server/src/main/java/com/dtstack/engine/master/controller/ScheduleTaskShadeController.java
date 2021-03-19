@@ -8,6 +8,7 @@ import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
+import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -70,8 +71,8 @@ public class ScheduleTaskShadeController {
 
     @RequestMapping(value = "/getNotDeleteTask", method = {RequestMethod.POST})
     @ApiOperation(value = "获得其他依赖的接口", notes = "task删除时触发同步清理")
-    public void getNotDeleteTask(@DtRequestParam("taskId") Long taskId, @DtRequestParam("appType") Integer appType) {
-        scheduleTaskShadeService.getNotDeleteTask(taskId, appType);
+    public List<NotDeleteTaskVO> getNotDeleteTask(@DtRequestParam("taskId") Long taskId, @DtRequestParam("appType") Integer appType) {
+        return scheduleTaskShadeService.getNotDeleteTask(taskId, appType);
     }
 
     @RequestMapping(value = "/getTasksByName", method = {RequestMethod.POST})

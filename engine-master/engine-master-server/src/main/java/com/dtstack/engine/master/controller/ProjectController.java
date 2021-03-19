@@ -2,6 +2,7 @@ package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.api.param.ScheduleEngineProjectParam;
 import com.dtstack.engine.api.vo.project.ScheduleEngineProjectVO;
+import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.master.impl.ProjectService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,10 @@ public class ProjectController {
        return projectService.findProject(projectId,appType);
     }
 
+    @RequestMapping(value = "/getNotDeleteTaskByProjectId", method = {RequestMethod.POST})
+    public List<NotDeleteTaskVO> getNotDeleteTaskByProjectId(@DtRequestParam("projectId") Long projectId, @DtRequestParam("appType") Integer appType) {
+        return projectService.getNotDeleteTaskByProjectId(projectId,appType);
+    }
 
     @RequestMapping(value = "/updateProject", method = {RequestMethod.POST})
     public void updateProject(@RequestBody ScheduleEngineProjectParam scheduleEngineProjectParam) {

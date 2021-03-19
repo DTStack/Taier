@@ -1,10 +1,7 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.api.domain.ScheduleTaskCommit;
-import com.dtstack.engine.api.domain.ScheduleTaskShade;
-import com.dtstack.engine.api.domain.ScheduleTaskTaskShade;
-import com.dtstack.engine.api.domain.TenantResource;
+import com.dtstack.engine.api.domain.*;
 import com.dtstack.engine.api.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.api.pager.PageQuery;
 import com.dtstack.engine.api.pager.PageResult;
@@ -13,6 +10,7 @@ import com.dtstack.engine.api.vo.ScheduleTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeCountTaskVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadePageVO;
 import com.dtstack.engine.api.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
+import com.dtstack.engine.api.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ExceptionUtil;
@@ -20,10 +18,8 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.UnitConvertUtil;
-import com.dtstack.engine.dao.ScheduleTaskCommitMapper;
-import com.dtstack.engine.dao.ScheduleTaskShadeDao;
-import com.dtstack.engine.dao.TenantDao;
-import com.dtstack.engine.dao.TenantResourceDao;
+import com.dtstack.engine.dao.*;
+import com.dtstack.engine.domain.ScheduleEngineProject;
 import com.dtstack.engine.master.executor.CronJobExecutor;
 import com.dtstack.engine.master.executor.FillJobExecutor;
 import com.dtstack.schedule.common.enums.*;
@@ -69,6 +65,9 @@ public class ScheduleTaskShadeService {
 
     @Autowired
     private TenantDao tenantDao;
+
+    @Autowired
+    private ScheduleEngineProjectDao scheduleEngineProjectDao;
 
     @Autowired
     private EnvironmentContext environmentContext;
@@ -126,17 +125,40 @@ public class ScheduleTaskShadeService {
         return taskTaskShades.stream().filter(taskTaskShade -> !taskTaskShade.getAppType().equals(taskTaskShade.getParentAppType())).collect(Collectors.toList());
     }
 
-    public void getNotDeleteTask(Long taskId, Integer appType) {
-        List<ScheduleTaskShade> shades = scheduleTaskShadeDao.getChildTaskByOtherPlatform(taskId,appType,environmentContext.getListChildTaskLimit());
+    public List<NotDeleteTaskVO> getNotDeleteTask(Long taskId, Integer appType) {
+        List<ScheduleTaskShade> shades = scheduleTaskShadeDao.getChildTaskByOtherPlatform(taskId, appType, environmentContext.getListChildTaskLimit());
+        return buildNotDeleteTaskVO( shades,appType);
 
+    }
+
+    public List<NotDeleteTaskVO> buildNotDeleteTaskVO(List<ScheduleTaskShade> shades,Integer appType) {
+        List<NotDeleteTaskVO> notDeleteTaskVOS = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(shades)) {
             List<Long> projectIds = shades.stream().map(ScheduleTaskShade::getProjectId).collect(Collectors.toList());
-            List<Long> tenantIds = shades.stream().map(ScheduleTaskShade::getTenantId).collect(Collectors.toList());
+            List<Long> tenantIds = shades.stream().map(ScheduleTaskShade::getDtuicTenantId).collect(Collectors.toList());
 
-            List<Long> longs = tenantDao.listDtUicTenantIdByIds(tenantIds);
+            List<Tenant> tenants = tenantDao.listAllTenantByDtUicTenantIds(tenantIds);
+            List<ScheduleEngineProject> scheduleEngineProjects = scheduleEngineProjectDao.listByProjectIds(projectIds,appType);
 
+            Map<Long, Tenant> tenantMap = tenants.stream().collect(Collectors.toMap(Tenant::getDtUicTenantId, g -> (g)));
+            Map<Long, ScheduleEngineProject> scheduleEngineProjectMap = scheduleEngineProjects.stream().collect(Collectors.toMap(ScheduleEngineProject::getProjectId, g -> (g)));
+            for (ScheduleTaskShade shade : shades) {
+                NotDeleteTaskVO notDeleteTaskVO = new NotDeleteTaskVO();
+                notDeleteTaskVO.setAppType(shade.getAppType());
+                ScheduleEngineProject scheduleEngineProject = scheduleEngineProjectMap.get(shade.getProjectId());
+                if (scheduleEngineProject != null) {
+                    notDeleteTaskVO.setProjectAlias(scheduleEngineProject.getProjectAlias());
+                }
+                Tenant tenant = tenantMap.get(shade.getDtuicTenantId());
+                if (tenant != null) {
+                    notDeleteTaskVO.setTenantName(tenant.getTenantName());
+                }
+
+                notDeleteTaskVO.setTaskName(shade.getName());
+                notDeleteTaskVOS.add(notDeleteTaskVO);
+            }
         }
-
+        return notDeleteTaskVOS;
     }
 
     /**
@@ -838,5 +860,7 @@ public class ScheduleTaskShadeService {
         return vos;
     }
 
-
+    public List<ScheduleTaskShade> getTaskOtherPlatformByProjectId(Long projectId, Integer appType, Integer listChildTaskLimit) {
+        return scheduleTaskShadeDao.getTaskOtherPlatformByProjectId(projectId,appType,listChildTaskLimit);
+    }
 }
