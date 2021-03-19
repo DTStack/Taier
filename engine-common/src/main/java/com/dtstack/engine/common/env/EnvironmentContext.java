@@ -530,4 +530,8 @@ public class EnvironmentContext {
     public Integer getMaxPoolPreparedStatementPerConnectionSize() {
         return Integer.valueOf(environment.getProperty("dataSource.max.prepared.statement.per.connection.size", "20"));
     }
+
+    public long getForkJoinResultTimeOut() {
+        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
+    }
 }

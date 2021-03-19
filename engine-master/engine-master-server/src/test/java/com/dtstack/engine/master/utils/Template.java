@@ -28,10 +28,10 @@ public class Template {
         sj.setJobName("Python");
         sj.setCreateUserId(0L);
         sj.setIsDeleted(0);
-        sj.setBusinessDate("20200608234500");
+        sj.setBusinessDate(DateUtil.getUnStandardFormattedDate(System.currentTimeMillis()));
         sj.setCycTime(DateUtil.getUnStandardFormattedDate(System.currentTimeMillis()));
         sj.setTaskType(EJobType.SQL.getType());
-        sj.setAppType(0);
+        sj.setAppType(1);
         sj.setType(0);
         sj.setIsRestart(0);
         sj.setDependencyType(0);

@@ -1109,7 +1109,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_job bj
-        WHERE flow_job_id = #{jobId} AND is_deleted = 0
+        WHERE flow_job_id = #{jobId} AND is_deleted = 0 AND flow_job_id != '0'
     </select>
 
     <select id="countFillDataAllStatusByJobName" resultType="java.util.HashMap">
@@ -1130,17 +1130,14 @@
         GROUP BY bj.status
     </select>
 
-    <select id="getWorkFlowJobId" resultType="java.lang.String">
-        SELECT job_id
-        FROM schedule_job
-        WHERE id in
-        <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
+    <select id="getWorkFlowSubJobId" resultType="ScheduleJob">
+        SELECT <include refid="select_content_fragment"/>
+        FROM schedule_job bj
+        WHERE flow_job_id in
+        <foreach item="id" index="index" collection="jobIds" open="(" separator="," close=")">
             #{id}
         </foreach>
-        AND task_type in
-        <foreach item="taskType" index="index" collection="taskTypes" open="(" separator="," close=")">
-            #{taskType}
-        </foreach>
+        AND flow_job_id != '0'
         AND is_deleted = 0
     </select>
 
@@ -1334,6 +1331,7 @@
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
             #{jobId}
         </foreach>
+        and is_deleted=0;
     </update>
 
     <update id="stopUnsubmitJob">
@@ -1674,9 +1672,16 @@
 
     <update id="updateJobStatusAndPhaseStatus">
         update schedule_job set gmt_modified=now(),status=#{status},`phase_status` = #{phaseStatus},
+        <if test="isRestart!=null">
+            `is_restart` = #{isRestart},
+        </if>
         application_id = null, engine_job_id = null, engine_log = null, log_info = null,
         retry_task_params = null, exec_end_time = null, exec_start_time = null, exec_time = 0, gmt_modified=now()
-        where job_id=#{jobId};
+        where job_id IN
+        <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+        and `is_deleted`=0;
     </update>
 
     <select id="getJobGraph" resultType="java.lang.String">
