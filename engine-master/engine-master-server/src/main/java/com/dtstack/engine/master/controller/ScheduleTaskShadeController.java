@@ -39,8 +39,8 @@ public class ScheduleTaskShadeController {
 
     @RequestMapping(value = "/addOrUpdateBatchTask", method = {RequestMethod.POST})
     @ApiOperation(value = "批量添加或更新任务", notes = "例如：离线计算BatchTaskService.publishTaskInfo 触发 batchTaskShade 保存task的必要信息")
-    public String addOrUpdateBatchTask(@RequestBody List<ScheduleTaskShadeDTO> batchTaskShadeDTOs) {
-        return scheduleTaskShadeService.addOrUpdateBatchTask(batchTaskShadeDTOs);
+    public String addOrUpdateBatchTask(@RequestBody List<ScheduleTaskShadeDTO> batchTaskShadeDTOs, String commitId) {
+        return scheduleTaskShadeService.addOrUpdateBatchTask(batchTaskShadeDTOs, commitId);
     }
 
     @RequestMapping(value="/infoCommit", method = {RequestMethod.POST})
