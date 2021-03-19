@@ -2,6 +2,7 @@ export enum EnumFormItemType {
   INPUT = 'INPUT',
   SELECT = 'SELECT',
   TEXT_AREA = 'TEXT_AREA',
+  RELATION_LIST = 'RELATION_LIST',
 }
 
 export interface IFormItem {
@@ -11,4 +12,5 @@ export interface IFormItem {
   placeholder?: string;
   rules?: any[];
   options?: any[];
+  ext?: Object;
 }

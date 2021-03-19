@@ -16,14 +16,26 @@
       height: calc(100% - 107px);
       background: #FAFAFA;
       border-radius: 0px 0px 2px 2px;
-      .form-area {
-        width: 680px;
-        margin-left: 50%;
-        transform: translateX(-50%);
-      }
       .inner-container {
         width: 100%;
         height: 100%;
+        .form-area {
+          width: 680px;
+          margin-left: 50%;
+          transform: translateX(-50%);
+          .btn-link {
+            font-size: 12px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #3F87FF;
+            line-height: 20px;
+            margin-top: 20px;
+            margin-bottom: 13px;
+          }
+        }
+        .relation-list {
+          margin-top: 13px;
+        }
       }
     }
     .step-footer {

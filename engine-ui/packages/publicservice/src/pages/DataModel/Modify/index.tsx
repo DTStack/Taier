@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import Container from 'pages/DataModel/components/Container';
-import { Breadcrumb, Steps, Button, Form, Table, Modal } from 'antd';
+import { Breadcrumb, Steps, Button, Form, Modal } from 'antd';
 import './style';
 import FormRender from './FormRender';
-import { data, columns, formList, formList2 } from './constants';
+import RelationTableModal from './RelationListModal';
+import { formListGenerator } from './constants';
 
 enum EnumModifyStep {
   BASIC_STEP = 0,
@@ -25,8 +26,8 @@ const { Step } = Steps;
 
 const Modify = (props: IPropsModify) => {
   const [current, setCurrent] = useState<EnumModifyStep>(EnumModifyStep.BASIC_STEP);
+  const [visibleRelationModal, setVisibleRelationModal] = useState(false);
   const { validateFields } = props.form;
-
   return (
     <Container>
       <div className="dm-model-modify">
@@ -53,18 +54,17 @@ const Modify = (props: IPropsModify) => {
           <div className="step-content padding-tb-20">
             <div className="inner-container overflow-auto">
               <Form layout="horizontal" className="form-area" {...formItemLayout}>
-                <FormRender form={props.form} formList={formList} />
-                <span onClick={() => alert('hello, world...')}>+ 添加关联表</span>
-                <Table
-                  className="dt-table-border"
-                  columns={columns}
-                  dataSource={data}
-                  pagination={false}
-                  scroll={{ x: 600, y: 300 }}
+                <FormRender
+                  form={props.form}
+                  formList={formListGenerator({ handleClick: () => {setVisibleRelationModal(true)} })}
                 />
               </Form>
-              <Modal visible={false}>
-                aaaaa
+              <Modal
+                title="添加关联表"
+                visible={visibleRelationModal}
+                onCancel={() => setVisibleRelationModal(false)}
+              >
+                <RelationTableModal />
               </Modal>
             </div>
           </div>
@@ -77,7 +77,6 @@ const Modify = (props: IPropsModify) => {
                     if(err) {
                       return;
                     }
-                    console.log(data);
                     setCurrent(prev => prev + 1);
                   })
                 }}>下一步</Button>
