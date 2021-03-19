@@ -33,13 +33,7 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
 
     @Value("${spring.servlet.multipart.max-request-size:1024MB}")
     private String maxRequestSize;
-
-    @Value("${spring.servlet.multipart.max-file-size:1024MB}")
-    private String maxFileSize;
-
-    @Value("${spring.servlet.multipart.max-request-size:1024MB}")
-    private String maxRequestSize;
-
+    
     private static final List<String> INTERCEPT_LIST;
 
     static {
